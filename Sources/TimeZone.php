@@ -1715,9 +1715,13 @@ class TimeZone extends \DateTimeZone
 				$tzgeo['country_code'],
 				Lang::getTxt(
 					'generic_timezone',
-					[Lang::getTxt(['iso3166', $tzgeo['country_code']], file: 'Timezones')],
+					[
+						Lang::getTxt(['iso3166', $tzgeo['country_code']], file: 'Timezones'),
+						'%1$s',
+					],
 					var: 'tztxt',
 				),
+				var: 'tztxt',
 			);
 
 			return $tzgeo['country_code'];
