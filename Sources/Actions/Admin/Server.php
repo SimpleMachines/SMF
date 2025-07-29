@@ -95,14 +95,14 @@ class Server implements ActionInterface
 	 * Default values for load balancing options.
 	 */
 	public const LOADAVG_DEFAULT_VALUES = [
-		'loadavg_auto_opt' => 20.0,
-		'loadavg_search' => 30.0,
-		'loadavg_allunread' => 40.0,
-		'loadavg_unreadreplies' => 40.0,
-		'loadavg_show_posts' => 40.0,
-		'loadavg_userstats' => 50.0,
-		'loadavg_bbc' => 60.0,
-		'loadavg_forum' => 85.0,
+		'loadavg_auto_opt' => 50.0,
+		'loadavg_search' => 300.0,
+		'loadavg_allunread' => 200.0,
+		'loadavg_unreadreplies' => 200.0,
+		'loadavg_show_posts' => 200.0,
+		'loadavg_userstats' => 150.0,
+		'loadavg_bbc' => 700.0,
+		'loadavg_forum' => 1000.0,
 	];
 
 	/*******************
