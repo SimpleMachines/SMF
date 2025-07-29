@@ -84,6 +84,13 @@ class Sapi
 	 */
 	protected static ?float $current_load = null;
 
+	/**
+	 * @var int
+	 *
+	 * Number of CPUs detected
+	 */
+	protected static ?int $cpu_count = null;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -443,19 +450,19 @@ class Sapi
 
 			// sys_getloadavg returns false on failure.
 			if ($current_load !== false) {
-				return self::$current_load = (float) $current_load[0];
+				return self::$current_load = (float) $current_load[0] / self::getCpuCount();
 			}
 
 			// Most Linux distros offer a nice file that we can read.
 			$current_load = @file_get_contents('/proc/loadavg');
 
 			if (!empty($current_load) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $current_load, $matches) !== 0) {
-				return self::$current_load = (float) $matches[1];
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
 			}
 
 			// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
 			if (($current_load = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', $current_load, $matches) !== 0) {
-				return self::$current_load = (float) $matches[1];
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
 			}
 		} catch (\Exception $ex) {
 		}
@@ -476,5 +483,69 @@ class Sapi
 		}
 
 		return self::getLoadAverage() >= (float) $threshold;
+	}
+
+	/**
+	 * Returns the number of CPUs as reported by the system.
+	 * On Windows we check getenv, do not use wmic as its slow.
+	 * On linux we first attempt with nproc and then fall back to parsing /proc/cpuinfo.
+	 * If all attempts fail, return 1.
+	 * Always ensure we have at least 1 CPU, as this is used in math functions.
+	 *
+	 * @param bool $update Update the db backed cache value.
+	 * @return int Number of CPUs detected.
+	 */
+	public static function getCpuCount(bool $update = false): int
+	{
+		if (self::$cpu_count !== null) {
+			return self::$cpu_count;
+		}
+
+		if (!$update && isset(Config::$modSettings['cpu_count'])) {
+			return (int) Config::$modSettings['cpu_count'];
+		}
+
+		try {
+			// Avoid using wmic commands, otherwise this would work as a fallback: wmic computersystem get NumberOfLogicalProcessors
+			if (self::isOS(self::OS_WINDOWS)) {
+				self::$cpu_count = min((int) getenv('NUMBER_OF_PROCESSORS') ?? 1, 1);
+			}
+			// Apple is special, check sysctl
+			elseif (self::isOS(self::OS_MAC)) {
+				if (($cpu_count = @shell_exec('sysctl -n hw.physicalcpu')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+					self::$cpu_count = min((int) $cpu_count, 1);
+				}
+			}
+			// On most Linux distros, we can runn nproc.
+			elseif (($cpu_count = @shell_exec('nproc --all')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = min((int) $cpu_count, 1);
+			}
+
+			// This works for both Mac and Linux, however it actually reports online cpus, not total CPUs.
+			// Could also use _NPROCESSORS_CONF which is processors configured.
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && ($cpu_count = @shell_exec('getconf _NPROCESSORS_ONLN')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = min((int) $cpu_count, 1);
+			}
+
+			// Borrowed from: https://www.php.net/manual/en/function.sys-getloadavg.php#129847
+			// Maybe consider using awk to simplify this: grep -m 1 'cpu cores' /proc/cpuinfo | awk -F: '{print $2}'
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && file_exists('/proc/cpuinfo')) {
+				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
+
+				if (isset($matches[0])) {
+					self::$cpu_count = min(count($matches[0]), 1);
+				}
+			}
+		} catch (\Exception $ex) {
+		}
+
+		// No CPUs found, I think we have at least one. Avoids divide by zero errors.
+		if (empty(self::$cpu_count)) {
+			self::$cpu_count = 1;
+		}
+
+		Config::updateModSettings(['cpu_count' => self::$cpu_count]);
+
+		return self::$cpu_count;
 	}
 }
