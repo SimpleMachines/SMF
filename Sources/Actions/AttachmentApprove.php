@@ -62,8 +62,8 @@ class AttachmentApprove implements ActionInterface, Routable
 					AND attachment_type = {int:attachment_type}',
 				[
 					'id_msg' => $id_msg,
-					'is_approved' => 0,
-					'attachment_type' => 0,
+					'is_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 
@@ -92,8 +92,8 @@ class AttachmentApprove implements ActionInterface, Routable
 				AND a.approved = {int:is_approved}',
 			[
 				'attachments' => $attachments,
-				'attachment_type' => 0,
-				'is_approved' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
+				'is_approved' => Attachment::APPROVED_FALSE,
 			],
 		);
 		$attachments = [];

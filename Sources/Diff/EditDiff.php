@@ -217,26 +217,4 @@ class EditDiff extends Diff
 			$this->reason,
 		];
 	}
-
-	/**
-	 *
-	 */
-	public function apply(string $str1): string
-	{
-		$lines = $this->splitLines($str1);
-
-		$str2 = '';
-
-		foreach (array_reverse($this->changes) as $change) {
-			if (isset($lines[$change['l1']])) {
-				$substring = implode('', array_splice($lines, $change['l1']));
-
-				$str2 = mb_substr($substring, 0, $change['offset']) . $change['new'] . mb_substr($substring, $change['offset'] + $change['old']) . $str2;
-			} else {
-				$str2 = mb_substr($str2, 0, $change['offset']) . $change['new'] . mb_substr($str2, $change['offset'] + $change['old']);
-			}
-		}
-
-		return implode('', $lines) . $str2;
-	}
 }

@@ -808,11 +808,17 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'boolean',
 		],
-		// Temporary variable used during the upgrade process.
-		'upgradeData' => [
+		// Temporary variable used during install, upgrade, etc.
+		'maintenance_tool_progress' => [
 			'default' => '',
 			'auto_delete' => 1,
 			'type' => 'string',
+		],
+		// Temporary variable used while installing or uninstalling packages.
+		'package_installing' => [
+			'default' => false,
+			'auto_delete' => 1,
+			'type' => 'boolean',
 		],
 		// These should be removed if found.
 		'tasksdir' => [
@@ -834,6 +840,11 @@ class Config
 			'default' => 0,
 			'auto_delete' => 3,
 			'type' => 'integer',
+		],
+		'upgradeData' => [
+			'default' => '',
+			'auto_delete' => 3,
+			'type' => 'string',
 		],
 	];
 
@@ -1118,27 +1129,13 @@ class Config
 
 		// Check the load averages?
 		if (!empty(self::$modSettings['loadavg_enable'])) {
-			if ((self::$modSettings['load_average'] = Cache\CacheApi::get('loadavg', 90)) == null) {
-				self::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
+			self::$modSettings['load_average'] = Sapi::getLoadAverage();
 
-				if (!empty(self::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', self::$modSettings['load_average'], $matches) != 0) {
-					self::$modSettings['load_average'] = (float) $matches[1];
-				} elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0) {
-					self::$modSettings['load_average'] = (float) $matches[1];
-				} else {
-					unset(self::$modSettings['load_average']);
-				}
-
-				if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
-					Cache\CacheApi::put('loadavg', self::$modSettings['load_average'], 90);
-				}
-			}
-
-			if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
+			if (self::$modSettings['load_average'] >= 0.00) {
 				IntegrationHook::call('integrate_load_average', [self::$modSettings['load_average']]);
 			}
 
-			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum']) {
+			if (Sapi::isOverloaded(self::$modSettings['loadavg_forum'])) {
 				ErrorHandler::displayLoadAvgError();
 			}
 		}
@@ -1417,11 +1414,6 @@ class Config
 			$config_vars['db_last_error'] = 0;
 		}
 
-		// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
-		if (!is_bool($rebuild)) {
-			$rebuild = false;
-		}
-
 		$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
 
 		/*****************
@@ -1454,6 +1446,7 @@ class Config
 		}
 
 		// When was Settings.php last changed?
+		clearstatcache();
 		$last_settings_change = filemtime($settingsFile);
 
 		// Get the current values of everything in Settings.php.
@@ -1553,7 +1546,7 @@ class Config
 			],
 			// Remove the code that redirects to the installer.
 			$neg_index-- => [
-				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
+				'search_pattern' => '~^if\s*\(file_exists\((?:dirname\(__FILE__\)|__DIR__)\s*\.\s*\'/install\.php\'\)(?:\s+&&\s+basename\(\$_SERVER\[\'PHP_SELF\'\]\) != \'install.php\')?\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
 			],
 			// Remove the old path correction code. Config::set() now handles that.
@@ -1919,7 +1912,7 @@ class Config
 						}
 						// Admin is explicitly trying to set this one, so we'll handle
 						// it as if it were a new custom setting being added.
-						elseif ($in_c) {
+						elseif ($in_c && !isset($settings_defs[$var])) {
 							$new_settings_vars[$var] = $config_vars[$var];
 						}
 
@@ -2230,7 +2223,7 @@ class Config
 		$success = self::safeFileWrite($settingsFile, $settingsText, $backupFile, $last_settings_change);
 
 		// Remember this in case updateSettingsFile is called twice.
-		$mtime = filemtime($settingsFile);
+		$mtime = microtime(true);
 
 		return $success;
 	}
@@ -2437,10 +2430,14 @@ class Config
 			}
 		}
 
-		// We're done with these.
-		@unlink($temp_sfile);
+		clearstatcache();
 
-		if (!empty($temp_bfile)) {
+		// We're done with these.
+		if (is_file($temp_sfile)) {
+			@unlink($temp_sfile);
+		}
+
+		if (!empty($temp_bfile) && is_file($temp_bfile)) {
 			@unlink($temp_bfile);
 		}
 
@@ -2768,7 +2765,7 @@ class Config
 		}
 
 		if (!isset($db_last_error)) {
-			self::updateDbLastError(0, true);
+			self::updateDbLastError(0);
 		} else {
 			self::$db_last_error = (int) $db_last_error;
 		}

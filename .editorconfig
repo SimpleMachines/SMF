@@ -9,6 +9,9 @@ tab_width = 4
 trim_trailing_whitespace = true
 charset = utf-8
 
+[*.lock]
+indent_style = space
+
 [*.yml]
 indent_style = space
 indent_size = 2

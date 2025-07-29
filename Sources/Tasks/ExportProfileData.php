@@ -20,7 +20,6 @@ use SMF\Actions\Feed;
 use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -76,17 +75,35 @@ class ExportProfileData extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info to create a follow-up background task, if necessary.
+	 *
 	 */
-	private array $next_task = [];
+	protected bool $allow_concurrent = false;
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 * @var array
+	 *
+	 * Info to create a follow-up background task, if necessary.
+	 */
+	private array $new_details = [];
+
+	/**
+	 * @var int
+	 *
+	 * How long to wait before running a follow-up task.
+	 */
+	private int $delay = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
 	private int $time_limit = 30;
 
 	/**
-	 * @var array The XSLT stylesheet, broken up into logical parts.
+	 * @var array
+	 *
+	 * The XSLT stylesheet, broken up into logical parts.
 	 */
 	private array $xslt_stylesheet = [
 		// Header for the stylesheet. Default value assumes that the stylesheet
@@ -853,7 +870,9 @@ class ExportProfileData extends BackgroundTask
 	];
 
 	/**
-	 * @var string The XSLT stylesheet as a single string.
+	 * @var string
+	 *
+	 * The XSLT stylesheet as a single string.
 	 */
 	private string $stylesheet;
 
@@ -869,6 +888,21 @@ class ExportProfileData extends BackgroundTask
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * The constructor.
+	 *
+	 * @param array $details The details for the task
+	 */
+	public function __construct(array $details)
+	{
+		parent::__construct($details);
+
+		// Include the user ID in the md5 hash because we only want to prevent
+		// concurrent tasks from working on the same user's data simultaneously.
+		// It's fine to have concurrent tasks working on different users' data.
+		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(get_class($this) . $this->_details['uid']) . '.lock';
+	}
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -887,7 +921,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
+		$this->time_limit = (int) (Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -934,14 +968,8 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// If necessary, create a new background task to continue the export process.
-		if (!empty($this->next_task)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}background_tasks',
-				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				[$this->next_task],
-				[],
-			);
+		if (!empty($this->new_details)) {
+			$this->respawn($this->new_details, time() + $this->delay);
 		}
 
 		ignore_user_abort(false);
@@ -1153,7 +1181,6 @@ class ExportProfileData extends BackgroundTask
 
 		// Setup.
 		$done = false;
-		$delay = 0;
 		$datatypes = array_keys($included);
 
 		$feed = new Feed($datatype, $uid);
@@ -1312,7 +1339,7 @@ class ExportProfileData extends BackgroundTask
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
 					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']], file: 'Errors'));
 
-					$delay = 86400;
+					$this->delay = 86400;
 				} else {
 					// We need a file to write to, of course.
 					if (!file_exists($tempfile)) {
@@ -1347,7 +1374,7 @@ class ExportProfileData extends BackgroundTask
 
 					// Write failed. We'll try again next time.
 					if (empty($bytes_written)) {
-						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
+						$this->delay = Taskrunner::MAX_CLAIM_THRESHOLD;
 						break;
 					}
 
@@ -1399,7 +1426,7 @@ class ExportProfileData extends BackgroundTask
 		else {
 			$start[$datatype] = $progress[$datatype];
 
-			$new_details = [
+			$this->new_details = [
 				'format' => $this->_details['format'],
 				'uid' => $uid,
 				'lang' => $lang,
@@ -1413,10 +1440,8 @@ class ExportProfileData extends BackgroundTask
 			];
 
 			if (!empty($new_item_count)) {
-				$new_details['item_count'] = $new_item_count;
+				$this->new_details['item_count'] = $new_item_count;
 			}
-
-			$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay];
 
 			if (!file_exists($tempfile)) {
 				Feed::build('smf', [], $feed->metadata, 'profile');
@@ -1496,13 +1521,11 @@ class ExportProfileData extends BackgroundTask
 			// When deadlines loom, sometimes the best solution is procrastination.
 			if (++$i < $num_files && TIME_START + $this->time_limit < $finished + $max_transform_time * 2) {
 				// After all, there's always next time.
-				if (empty($this->next_task)) {
+				if (empty($this->new_details)) {
 					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
-					$new_details = $this->_details;
-					$new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
-
-					$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD];
+					$this->new_details = $this->_details;
+					$this->new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
 				}
 
 				// So let's just relax and take a well deserved...
