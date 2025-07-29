@@ -1103,8 +1103,8 @@ class User implements \ArrayAccess
 		if ($display_custom_fields) {
 			$this->formatted['custom_fields'] = [];
 
-			if (!isset(Utils::$context['display_fields'])) {
-				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'] ?? '[]', true);
+			if (!isset(Utils::$context['display_fields']) || !is_array(Utils::$context['display_fields'])) {
+				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'] ?? '[]', true) ?? [];
 			}
 
 			foreach (Utils::$context['display_fields'] as $custom) {
