@@ -1714,10 +1714,23 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Doesn't match any existing metazone. Can we build a custom one?
+
+		// Etc/* is straightforward.
+		if (str_starts_with($this->getName(), 'Etc/')) {
+			Lang::setTxt(
+				$this->getName(),
+				'UTC' . $this->getAbbreviations()[0],
+				var: 'tztxt',
+			);
+
+			return $this->getName();
+		}
+
+		// If this is the only time zone it its country, call it that country's time.
 		$tzgeo = $this->getLocation();
 		$country_tzids = self::getSortedTzidsForCountry($tzgeo['country_code']);
 
-		if (count($country_tzids) === 1) {
+		if ($country_tzids === [$this->getName()]) {
 			Lang::setTxt(
 				$tzgeo['country_code'],
 				Lang::getTxt(
@@ -1734,7 +1747,23 @@ class TimeZone extends \DateTimeZone
 			return $tzgeo['country_code'];
 		}
 
-		return '';
+		// Otherwise, create a meta-zone just for this oddball time zone.
+		if (!Lang::txtExists($this->getName(), var: 'tztxt')) {
+			Lang::setTxt(
+				$this->getName(),
+				Lang::getTxt(
+					'generic_timezone',
+					[
+						$this->getLabel(),
+						'%1$s',
+					],
+					var: 'tztxt',
+				),
+				var: 'tztxt',
+			);
+		}
+
+		return $this->getName();
 	}
 
 	/**
