@@ -2524,7 +2524,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		if ($replacement === null && str_starts_with($matches[1], 'array_')) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
-		} else if ($replacement === null) {
+		} elseif ($replacement === null) {
 			return 'NULL';
 		}
 
