@@ -131,19 +131,19 @@ class ViewQuery implements ActionInterface, Routable
 			}
 
 			echo '
-		<div id="qq', $q, '" style="margin-bottom: 2ex;">';
+			<div id="qq', $q, '" style="margin-bottom: 2ex;">';
 
 			if ($is_select_query) {
 				echo '
-			<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" style="font-weight: bold; text-decoration: none;">';
+				<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" style="font-weight: bold; text-decoration: none;">';
 			}
 
 			echo '
-				<pre style="tab-size: 2;">', DebugUtils::highlightSql($query_data['q']), '</pre>';
+					<pre style="tab-size: 2;">', DebugUtils::highlightSql($query_data['q']), '</pre>';
 
 			if ($is_select_query) {
 				echo '
-			</a>';
+				</a>';
 			}
 
 			if (!empty($query_data['f']) && !empty($query_data['l'])) {
@@ -157,7 +157,7 @@ class ViewQuery implements ActionInterface, Routable
 			}
 
 			echo '
-		</div>';
+			</div>';
 
 			// Explain the query.
 			if ($query_id == $q && $is_select_query) {
@@ -165,50 +165,62 @@ class ViewQuery implements ActionInterface, Routable
 
 				if ($result === false) {
 					echo '
-		<table>
-			<tr><td>', Db::$db->error(), '</td></tr>
-		</table>';
+			<table>
+				<tr><td>', Db::$db->error(), '</td></tr>
+			</table>';
 
 					continue;
 				}
 
 				echo '
-		<table>';
+			<table>';
 
 				$row = Db::$db->fetch_assoc($result);
 
 				echo '
-			<tr>
-				<th>' . implode('</th>
-				<th>', array_keys($row)) . '</th>
-			</tr>';
+				<tr>
+					<th>' . implode('</th>
+					<th>', array_keys($row)) . '</th>
+				</tr>';
 
 				Db::$db->data_seek($result, 0);
 
 				while ($row = Db::$db->fetch_assoc($result)) {
 					echo '
-			<tr>
-				<td>' . implode('</td>
-				<td>', $row) . '</td>
-			</tr>';
+				<tr>
+					<td>' . implode('</td>
+					<td>', $row) . '</td>
+				</tr>';
 				}
 				Db::$db->free_result($result);
 
 				echo '
-		</table>';
+			</table>';
 
-			$vendor = Db::$db->get_vendor();
+				$vendor = Db::$db->get_vendor();
+				$version = Db::$db->get_version();
+				$formatJson = true;
 
-			if ($vendor == 'MariaDB') {
-				$result = Db::$db->query('ANALYZE FORMAT=JSON ' . $select);
-			} else {
-				$result = Db::$db->query(
-					'EXPLAIN ' . ($vendor == 'PostgreSQL' ? '(ANALYZE, FORMAT JSON) ' : 'ANALYZE FORMAT=JSON ') . $select,
-				);
-			}
+				if ($vendor === 'MariaDB') {
+					$result = Db::$db->query('ANALYZE FORMAT=JSON ' . $select);
+				}
 
-			echo '
-		<pre>' . DebugUtils::highlightJson(Db::$db->fetch_row($result)[0]) . '</pre>';
+				if ($vendor == 'PostgreSQL') {
+					$result = Db::$db->query('(ANALYZE, FORMAT JSON) ' . $select);
+				} elseif ($vendor == 'MySQL' && version_compare($version, '8.3.0', '>=')) {
+					$result = Db::$db->query('EXPLAIN ANALYZE FORMAT=JSON ' . $select);
+				} else {
+					$formatJson = false;
+					$result = Db::$db->query('EXPLAIN ANALYZE ' . $select);
+				}
+
+				if ($formatJson) {
+					echo '
+			<pre>' . DebugUtils::highlightJson(Db::$db->fetch_row($result)[0]) . '</pre>';
+				} else {
+					echo '
+			<pre>', Db::$db->fetch_row($result)[0], '</pre>';
+				}
 			}
 		}
 
