@@ -156,10 +156,12 @@ class Agreement implements ActionInterface, Routable
 	 */
 	public static function parseRoute(array $route, array $params = []): array
 	{
-		$params = array_merge($params, self::parseActionRoute($route));
-
 		// Change 'termsofservice' back to 'agreement'.
-		$params['action'] = 'agreement';
+		if (($route[0] ?? null) === 'termsofservice') {
+			$route[0] = 'agreement';
+		}
+
+		$params = array_merge($params, self::parseActionRoute($route));
 
 		return $params;
 	}
