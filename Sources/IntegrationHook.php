@@ -125,6 +125,12 @@ class IntegrationHook
 				continue;
 			}
 
+			// Old "include" hooks would dump the content into the function list.
+			if (str_ends_with($name, '_include') && empty($hook['file']) && !empty($hook['function'])) {
+				$hook['file'] = $hook['function'];
+				$hook['function'] = '';
+			}
+
 			// Attempt to load the file, only if succesful do we attempt to prepare the callable.
 			if (!empty($hook['file']) && !self::loadFile($hook['file'], $name === 'pre_include')) {
 				continue;
@@ -802,7 +808,7 @@ class IntegrationHook
 	 * Wrapper to prepare the right prefix of the legacy hook name.
 	 *
 	 * For use with SMF 2.1 compatbility layer.
-	 * 
+	 *
 	 * @param string $name
 	 * @return string
 	 */
