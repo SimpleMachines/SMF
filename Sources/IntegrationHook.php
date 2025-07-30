@@ -296,14 +296,14 @@ class IntegrationHook
 			return false;
 		}
 
-		$callable = null;
+		$callable = false;
 		$callable_name = (!empty($class) ? $class . '::' : '') . $function;
 
 		// Process the instances.
-		if ($is_object) {
+		if ($is_object && is_string($class)) {
 			Utils::$context['instances'] ??= [];
 
-			if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
+			if (!isset(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
 				Utils::$context['instances'][$class] = new $class();
 
 				// Optionally track instance creation for debugging.
