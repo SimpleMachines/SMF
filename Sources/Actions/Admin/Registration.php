@@ -273,13 +273,81 @@ class Registration implements ActionInterface
 
 				$agreement_settings['agreement_updated_' . Utils::$context['current_agreement']] = time();
 
-				// Record the diff showing what changed.
-				$diff = new EditDiff($_POST['agreement'], Utils::$context['agreement'], 'now', User::$me->id, User::$me->name, '');
-
+				// Get the previous edit history.
 				$edit_history = (array) Utils::jsonDecode(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']] ?? '[]', true);
 				usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
 
-				array_unshift($edit_history, $diff->export());
+				// If the admin is making multiple changes in a short period of time,
+				// try to simplify the edit history.
+				if (count($edit_history) >= 2) {
+					// Have any members accepted the current version?
+					$request = Db::$db->query(
+						'',
+						'SELECT COUNT(*)
+						FROM {db_prefix}themes
+						WHERE variable = {string:agreement_accepted}
+							AND id_theme = {int:theme}
+							AND id_member != {int:me}
+							AND value > {int:edited_time}',
+						[
+							'agreement_accepted' => 'agreement_accepted',
+							'theme' => 1,
+							'me' => User::$me->id,
+							'edited_time' => (int) $edit_history[0][0],
+						],
+					);
+					[$num_accepted] = Db::$db->fetch_row($request);
+					Db::$db->free_result($request);
+
+					// If no one else has accepted the current version, we can
+					// simplify the history a bit.
+					if (empty($num_accepted)) {
+						if ($edit_history[1][1] === $diff->label1) {
+							// The admin is simply undoing the last change.
+							$rollback = true;
+						} else {
+							// We can combine the changes.
+							$combine = true;
+						}
+					}
+				}
+
+				// Special case where the admin is simply undoing the last change.
+				if (!empty($rollback)) {
+					// Pretend that the most recently saved version never happened.
+					array_shift($edit_history);
+
+					$agreement_settings['agreement_updated_' . Utils::$context['current_agreement']] = (int) $edit_history[0][0];
+				}
+				// Special case where we can combine this change with the previous one.
+				elseif (!empty($combine)) {
+					// Reconstruct the version prior to the most recently saved version.
+					$prev_diff = (new EditDiff())->import(array_shift($edit_history));
+
+					$diff = new EditDiff(
+						$_POST['agreement'],
+						$prev_diff->apply(Utils::$context['agreement']),
+						date_create($prev_diff->time1)->format('U') == time() ? 'now' : '@' . time(),
+						User::$me->id,
+						User::$me->name,
+						'',
+					);
+
+					array_unshift($edit_history, $diff->export());
+				}
+				// Normal case.
+				else {
+					$diff = new EditDiff(
+						$_POST['agreement'],
+						Utils::$context['agreement'],
+						(int) $edit_history[0][0] === time() ? 'now' : '@' . time(),
+						User::$me->id,
+						User::$me->name,
+						'',
+					);
+
+					array_unshift($edit_history, $diff->export());
+				}
 
 				$agreement_settings['agreement_history_' . Utils::$context['current_agreement']] = json_encode($edit_history);
 
@@ -391,13 +459,81 @@ class Registration implements ActionInterface
 
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
 
-			// Record the diff showing what changed.
-			$diff = new EditDiff($_POST['policy'], Utils::$context['privacy_policy'], 'now', User::$me->id, User::$me->name, '');
-
+			// Get the previous edit history.
 			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']] ?? '[]', true);
 			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
 
-			array_unshift($edit_history, $diff->export());
+			// If the admin is making multiple changes in a short period of time,
+			// try to simplify the edit history.
+			if (count($edit_history) >= 2) {
+				// Have any members accepted the current version?
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(*)
+					FROM {db_prefix}themes
+					WHERE variable = {string:policy_accepted}
+						AND id_theme = {int:theme}
+						AND id_member != {int:me}
+						AND value > {int:edited_time}',
+					[
+						'policy_accepted' => 'policy_accepted',
+						'theme' => 1,
+						'me' => User::$me->id,
+						'edited_time' => (int) $edit_history[0][0],
+					],
+				);
+				[$num_accepted] = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
+
+				// If no one else has accepted the current version, we can
+				// simplify the history a bit.
+				if (empty($num_accepted)) {
+					if (isset($edit_history[1]) && $edit_history[1][1] === $diff->label1) {
+						// The admin is simply undoing the last change.
+						$rollback = true;
+					} else {
+						// We can combine the changes.
+						$combine = true;
+					}
+				}
+			}
+
+			// Special case where the admin is simply undoing the last change.
+			if (!empty($rollback)) {
+				// Pretend that the most recently saved version never happened.
+				array_shift($edit_history);
+
+				$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = (int) $edit_history[0][0];
+			}
+			// Special case where we can combine this change with the previous one.
+			elseif (!empty($combine)) {
+				// Reconstruct the version prior to the most recently saved version.
+				$prev_diff = (new EditDiff())->import(array_shift($edit_history));
+
+				$diff = new EditDiff(
+					$_POST['policy'],
+					$prev_diff->apply(Utils::$context['privacy_policy']),
+					date_create($prev_diff->time1)->format('U') == time() ? 'now' : '@' . time(),
+					User::$me->id,
+					User::$me->name,
+					'',
+				);
+
+				array_unshift($edit_history, $diff->export());
+			}
+			// Normal case.
+			else {
+				$diff = new EditDiff(
+					$_POST['policy'],
+					Utils::$context['privacy_policy'],
+					(int) $edit_history[0][0] === time() ? 'now' : '@' . time(),
+					User::$me->id,
+					User::$me->name,
+					'',
+				);
+
+				array_unshift($edit_history, $diff->export());
+			}
 
 			$policy_settings['policy_history_' . Utils::$context['current_policy_lang']] = json_encode($edit_history);
 
