@@ -72,6 +72,23 @@ class IntegrationHook
 	 */
 	private static array $hooks = [];
 
+	/**
+	 * These hooks did not use the intergate_ prefix.
+	 * @var array
+	 */
+	private static array $no_integrate_names = [
+		'pre_cache_quick_get',
+		'post_cache_quick_get',
+		'cache_put_data',
+		'cache_get_data',
+		'mention_insert_quote',
+		'mention_insert_msg',
+		'before_profile_save_avatar',
+		'after_profile_save_avatar',
+		'who_allowed',
+		'whos_online_after',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -754,7 +771,7 @@ class IntegrationHook
 	 */
 	private static function updateModSettings(string $name, string $function, bool $remove = false)
 	{
-		$name = 'integrate_' . $name;
+		$name = self::prepareLegacyName($name);
 		Config::$modSettings[$name] ??= '';
 
 		if ($remove) {
@@ -779,5 +796,18 @@ class IntegrationHook
 	private static function cleanHookName(string $name): string
 	{
 		return str_starts_with($name, 'integrate_') ? substr($name, 10) : $name;
+	}
+
+	/**
+	 * Wrapper to prepare the right prefix of the legacy hook name.
+	 *
+	 * For use with SMF 2.1 compatbility layer.
+	 * 
+	 * @param string $name
+	 * @return string
+	 */
+	private static function prepareLegacyName(string $name): string
+	{
+		return in_array($name, self::$no_integrate_names) ? $name : 'integrate_' . $name;
 	}
 }
