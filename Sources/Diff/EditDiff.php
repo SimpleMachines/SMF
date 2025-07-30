@@ -104,13 +104,6 @@ class EditDiff extends Diff
 		string $reason = '',
 	) {
 		if (isset($str1, $str2)) {
-			// For EditDiffs, we don't want or need subsecond precision.
-			if (is_numeric($time1)) {
-				$time1 = strval(intval($time1));
-			} else {
-				$time1 = (string) $time1 !== '' && ($d = date_create((string) $time1)) !== false ? $d->format('U') : (string) $time1;
-			}
-
 			parent::__construct(
 				$str1,
 				$str2,
@@ -152,11 +145,11 @@ class EditDiff extends Diff
 			throw new \ValueError();
 		}
 
-		$this->time1 = (string) $data[0] !== '' && ($d = date_create((is_numeric($data[0]) ? '@' : '') . (string) $data[0])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s O') : (string) $data[0];
+		$this->time1 = (string) $data[0] !== '' && ($d = date_create((is_numeric($data[0]) ? '@' : '') . (string) $data[0])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : (string) $data[0];
 
 		$this->label1 = $data[1];
 
-		$this->time2 = (string) $data[2] !== '' && ($d = date_create((is_numeric($data[2]) ? '@' : '') . (string) $data[2])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s O') : (string) $data[2];
+		$this->time2 = (string) $data[2] !== '' && ($d = date_create((is_numeric($data[2]) ? '@' : '') . (string) $data[2])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : (string) $data[2];
 
 		$this->label2 = $data[3];
 
@@ -202,9 +195,9 @@ class EditDiff extends Diff
 			$change = array_values($change);
 		}
 
-		$ts1 = $this->time1 !== '' && ($d = date_create((is_numeric($this->time1) ? '@' : '') . $this->time1)) !== false ? (int) $d->format('U') : $this->time1;
+		$ts1 = $this->time1 !== '' && ($d = date_create((is_numeric($this->time1) ? '@' : '') . $this->time1)) !== false ? str_replace('.000000', '', $d->format('U.u')) + 0 : $this->time1;
 
-		$ts2 = $this->time2 !== '' && ($d = date_create((is_numeric($this->time2) ? '@' : '') . $this->time2)) !== false ? (int) $d->format('U') : $this->time2;
+		$ts2 = $this->time2 !== '' && ($d = date_create((is_numeric($this->time2) ? '@' : '') . $this->time2)) !== false ? str_replace('.000000', '', $d->format('U.u')) + 0 : $this->time2;
 
 		return [
 			$ts1,
