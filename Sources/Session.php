@@ -29,9 +29,7 @@ function loadSession()
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
-	@ini_set('session.use_only_cookies', false);
 	@ini_set('url_rewriter.tags', '');
-	@ini_set('session.use_trans_sid', false);
 	@ini_set('arg_separator.output', '&amp;');
 
 	// Allows mods to change/add PHP settings
@@ -175,6 +173,10 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	public function write(/*PHP 8.0 string*/$id,/*PHP 8.0 string */ $data): bool
 	{
 		global $smcFunc;
+
+		// Don't bother writing the session if cookies are disabled; no way to retrieve it later
+		if (empty($_COOKIE))
+			return true;
 
 		if (!$this->isValidSessionID($id))
 			return false;

@@ -42,6 +42,10 @@ function Post($post_errors = array())
 	if (isset($_REQUEST['poll']) && !empty($topic) && !isset($_REQUEST['msg']))
 		unset($_REQUEST['poll']);
 
+	// You cannot post at all, even with guest posts allowed, with cookies disabled
+	if (empty($_COOKIE))
+		fatal_lang_error('func_cookie_error', false);
+
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;

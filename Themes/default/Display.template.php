@@ -846,6 +846,10 @@ function template_single_post($message)
 
 			$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
+			// Remove link if no cookies; session reference won't work
+			if (empty($_COOKIE))
+				$txt[$base] = preg_replace('~</?a\b[^>]*>~', '', $txt[$base]);
+
 			echo '
 									<li class="like_count smalltext">
 										', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '

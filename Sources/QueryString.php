@@ -633,15 +633,11 @@ function htmltrim__recursive($var, $level = 0)
 }
 
 /**
- * Rewrite URLs to include the session ID.
+ * Handles rewriting URLs for the queryless URLs option.
  * What it does:
- * - rewrites the URLs outputted to have the session ID, if the user
- *   is not accepting cookies and is using a standard web browser.
  * - handles rewriting URLs for the queryless URLs option.
  * - can be turned off entirely by setting $scripturl to an empty
  *   string, ''. (it wouldn't work well like that anyway.)
- * - because of bugs in certain builds of PHP, does not function in
- *   versions lower than 4.3.0 - please upgrade if this hurts you.
  *
  * @param string $buffer The unmodified output buffer
  * @return string The modified buffer
@@ -650,45 +646,27 @@ function ob_sessrewrite($buffer)
 {
 	global $scripturl, $modSettings, $context;
 
-	// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-	$sid = defined('SID') ? @constant('SID') : null;
-
-	// If $scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-	if ($scripturl == '' || !isset($sid))
+	// If $scripturl is set to nothing, just quit.
+	if ($scripturl == '')
 		return $buffer;
 
-	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
-	// @todo smflib
-	if (empty($_COOKIE) && $sid != '' && !isBrowser('possibly_robot'))
-		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\\??/', '"' . $scripturl . '?' . $sid . '&amp;', $buffer);
 	// Debugging templates, are we?
-	elseif (isset($_GET['debug']))
+	if (isset($_GET['debug']))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
 
 	// This should work even in 4.2.x, just not CGI without cgi.fix_pathinfo.
 	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
 	{
-		// Let's do something special for session ids!
-		if (isset($sid) && $sid != '')
-			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-				function($m) use ($scripturl, $sid)
-				{
-					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . $sid . (isset($m[2]) ? $m[2] : "") . '"';
-				},
-				$buffer
-			);
-		else
-			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-				function($m)
-				{
-					global $scripturl;
+		$buffer = preg_replace_callback(
+			'~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+			function($m)
+			{
+				global $scripturl;
 
-					return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
-				},
-				$buffer
-			);
+				return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
+			},
+			$buffer
+		);
 	}
 
 	// Return the changed buffer.

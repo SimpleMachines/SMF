@@ -34,6 +34,10 @@ function PlushSearch1()
 	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
+	// You cannot search with cookies disabled when captcha is required for guest searches
+	if (empty($_COOKIE) && !empty($modSettings['search_enable_captcha']))
+		fatal_lang_error('func_cookie_error', false);
+
 	loadLanguage('Search');
 	// Don't load this in XML mode.
 	if (!isset($_REQUEST['xml']))

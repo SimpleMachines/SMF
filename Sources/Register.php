@@ -36,6 +36,10 @@ function Register($reg_errors = array())
 	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == '3')
 		fatal_lang_error('registration_disabled', false);
 
+	// You cannot register with cookies disabled
+	if (empty($_COOKIE))
+		fatal_lang_error('func_cookie_error', false);
+
 	// If this user is an admin - redirect them to the admin registration page.
 	if (allowedTo('moderate_forum') && !$user_info['is_guest'])
 		redirectexit('action=admin;area=regcenter;sa=register');
