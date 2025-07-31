@@ -400,7 +400,7 @@ $txt['is_recent_updated'] = '{link} is the most recently updated topic';
 $txt['male'] = 'Male';
 $txt['female'] = 'Female';
 
-$txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
+$txt['error_invalid_characters_username'] = 'Invalid character used in username.';
 
 $txt['welcome_guest'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a>.';
 $txt['welcome_guest_register'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a> or <a href="{register_url}">sign up</a>.';

@@ -2496,8 +2496,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// This was the default prior to PHP 8.1, and all our code assumes it.
-		mysqli_report(MYSQLI_REPORT_OFF);
+		// Ignore some errors and strict mode warnings when we are not debugging.
+		mysqli_report(Config::$db_show_debug ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
 
 		$success = false;
 
@@ -2584,11 +2584,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . mysqli_real_escape_string($this->temp_connection, $matches[2]) . '\'';
 		}
 
-		if (!isset($this->temp_values[$matches[2]])) {
+		if (!array_key_exists($matches[2], $this->temp_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
 		$replacement = $this->temp_values[$matches[2]];
+
+		if ($replacement === null) {
+			if (str_starts_with($matches[1], 'array_')) {
+				$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
+			}
+			
+			return 'NULL';
+		}
 
 		switch ($matches[1]) {
 			case 'int':

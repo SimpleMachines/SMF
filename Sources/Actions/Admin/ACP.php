@@ -2008,17 +2008,17 @@ class ACP implements ActionInterface, Routable
 			foreach ($get as $k => $v) {
 				// Only if it's not already in the Config::$scripturl!
 				if (!isset($temp[$k])) {
-					$query_string .= urlencode($k) . '=' . urlencode($v) . ';';
+					$query_string .= urlencode((string) $k) . '=' . urlencode((string) $v) . ';';
 				}
 				// If it changed, put it out there, but with an ampersand.
 				elseif ($temp[$k] != $get[$k]) {
-					$query_string .= urlencode($k) . '=' . urlencode($v) . '&amp;';
+					$query_string .= urlencode((string) $k) . '=' . urlencode((string) $v) . '&amp;';
 				}
 			}
 		} else {
 			// Add up all the data from $_GET into get_data.
 			foreach ($get as $k => $v) {
-				$query_string .= urlencode($k) . '=' . urlencode($v) . ';';
+				$query_string .= urlencode((string) $k) . '=' . urlencode((string) $v) . ';';
 			}
 		}
 
