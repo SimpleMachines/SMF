@@ -95,6 +95,11 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function write(string $session_id, string $data): bool
 	{
+		// Don't bother writing the session if cookies are disabled
+		if (empty($_COOKIE)) {
+			return true;
+		}
+
 		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
 		}
@@ -188,9 +193,7 @@ class Session implements \SessionHandlerInterface
 	{
 		// Attempt to change a few PHP settings.
 		@ini_set('session.use_cookies', '1');
-		@ini_set('session.use_only_cookies', '0');
 		@ini_set('url_rewriter.tags', '');
-		@ini_set('session.use_trans_sid', '0');
 		@ini_set('arg_separator.output', '&amp;');
 
 		// Allows mods to change/add PHP settings
