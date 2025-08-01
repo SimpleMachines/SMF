@@ -732,7 +732,16 @@ function loadUserSettings()
 			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
 			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+			if (
+				$row['total'] > 0
+				&& (
+					!in_array($action, array('profile', 'logout'))
+					|| (
+						$action == 'profile'
+						&& $area != 'tfasetup'
+					)
+				)
+			)
 				redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
