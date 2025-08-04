@@ -601,28 +601,15 @@ class QueryString
 	}
 
 	/**
-	 * Rewrite URLs to include the session ID, if the user is not accepting
-	 * cookies and is using a standard web browser.
+	 * Show debug info if requested.
 	 *
 	 * @param string $buffer The unmodified output buffer.
 	 * @return string The modified buffer.
 	 */
-	public static function ob_sessrewrite(string $buffer): string
+	public static function obDebug(string $buffer): string
 	{
-		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-		$sid = defined('SID') ? @constant('SID') : null;
-
-		// If Config::$scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-		if (Config::$scripturl == '' || !isset($sid)) {
-			return $buffer;
-		}
-
-		// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
-		if (empty($_COOKIE) && $sid != '' && !BrowserDetector::isBrowser('possibly_robot')) {
-			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', '"' . Config::$scripturl . '?' . $sid . '&amp;', $buffer);
-		}
 		// Debugging templates, are we?
-		elseif (isset($_GET['debug'])) {
+		if (isset($_GET['debug'])) {
 			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\??/', '"' . Config::$scripturl . '?debug;', $buffer);
 		}
 

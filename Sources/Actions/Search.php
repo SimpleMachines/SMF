@@ -62,6 +62,11 @@ class Search implements ActionInterface, Routable
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
+		// You cannot search with cookies disabled when captcha is required for guest searches
+		if (empty($_COOKIE) && !empty(Config::$modSettings['search_enable_captcha'])) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
+
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');

@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ProxyServer;
+use SMF\Sapi;
 
 /**
  * Does some daily cleaning up.
@@ -145,6 +146,9 @@ class DailyMaintenance extends ScheduledTask
 		if (!empty(Config::$modSettings['alerts_auto_purge'])) {
 			Alert::purge(-1, (int) (time() - 86400 * Config::$modSettings['alerts_auto_purge']));
 		}
+
+		// Recheck the cpu counts.
+		Sapi::getCpuCount(true);
 
 		// Anyone else have something to do?
 		IntegrationHook::call('integrate_daily_maintenance');

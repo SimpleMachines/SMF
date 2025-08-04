@@ -290,7 +290,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Mod_security blocks everything that smells funny. Let SMF handle security.
 		if (!$this->checkAndTryToFixModSecurity() && !isset($_GET['overmodsecurity'])) {
-			Maintenance::$fatal_error = Lang::getTxt('error_mod_security', file: 'Maintenance') . '<br><br><a href="' . Maintenance::getSelf() . '?overmodsecurity=true">' . Lang::getTxt('error_message_click', file: 'Maintenance') . '</a> ' . Lang::getTxt('error_message_bad_try_again', file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_mod_security', file: 'Maintenance') . '<br><br>' . Lang::getTxt('error_message_bad_try_again', ['url' => Maintenance::getSelf() . '?overmodsecurity=true'], file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('error_mod_security', file: 'Maintenance'));
 		}
 
@@ -961,7 +961,7 @@ class Install extends ToolsBase implements ToolsInterface
 						break;
 
 					default:
-						Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'Maintenance');
+						Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'General');
 						break;
 				}
 			}

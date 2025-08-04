@@ -203,8 +203,11 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Are you guessing with a script?
-		User::$me->checkSession();
-		SecurityToken::validate('login');
+		// If cookies are disallowed, session & token checks will fail
+		if (!empty($_COOKIE)) {
+			User::$me->checkSession();
+			SecurityToken::validate('login');
+		}
 		Security::spamProtection('login');
 
 		// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -251,6 +254,13 @@ class Login2 implements ActionInterface, Routable
 			'url' => Config::$scripturl . '?action=login',
 			'name' => Lang::getTxt('login', file: 'General'),
 		];
+
+		// Cookies are required...
+		if (empty($_COOKIE)) {
+			Utils::$context['login_errors'] = [Lang::getTxt('login_cookie_error', file: 'Errors')];
+
+			return;
+		}
 
 		// Bail out if the username and/or password are obviously invalid.
 		if (!$this->validateInput()) {

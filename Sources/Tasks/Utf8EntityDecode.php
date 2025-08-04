@@ -163,7 +163,7 @@ class Utf8EntityDecode extends BackgroundTask
 
 		// If we have more rows to process, respawn this task.
 		if ($num_rows >= self::LIMIT) {
-			$this->respawn();
+			$this->respawn($this->_details);
 
 			return true;
 		}
@@ -360,30 +360,6 @@ class Utf8EntityDecode extends BackgroundTask
 
 		Db::$db->drop_table(
 			table_name: $this->_details['table'] . '_utf8entitydecode',
-		);
-	}
-
-	/**
-	 * Adds a new instance of this task to the task list.
-	 */
-	private function respawn(): void
-	{
-		Db::$db->insert(
-			method: 'insert',
-			table: '{db_prefix}background_tasks',
-			columns: [
-				'task_class' => 'string-255',
-				'task_data' => 'string',
-				'claimed_time' => 'int',
-			],
-			data: [
-				[
-					get_class($this),
-					json_encode($this->_details),
-					0,
-				],
-			],
-			keys: [],
 		);
 	}
 }

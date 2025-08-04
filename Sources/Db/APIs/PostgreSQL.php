@@ -175,12 +175,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -214,41 +216,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = '';
-			$old_pos = 0;
-			$pos = -1;
-			// Remove the string escape for better runtime
-			$db_string_1 = str_replace('\'\'', '', $db_string);
-
-			while (true) {
-				$pos = strpos($db_string_1, '\'', $pos + 1);
-
-				if ($pos === false) {
-					break;
-				}
-				$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
-
-				while (true) {
-					$pos1 = strpos($db_string_1, '\'', $pos + 1);
-					$pos2 = strpos($db_string_1, '\\', $pos + 1);
-
-					if ($pos1 === false) {
-						break;
-					}
-
-					if ($pos2 === false || $pos2 > $pos1) {
-						$pos = $pos1;
-						break;
-					}
-
-					$pos = $pos2 + 1;
-				}
-				$clean .= ' %s ';
-
-				$old_pos = $pos + 1;
-			}
-			$clean .= substr($db_string_1, $old_pos);
-			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
+			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
 			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
@@ -2548,11 +2516,19 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . pg_escape_string($this->connection, $matches[2]) . '\'';
 		}
 
-		if (!isset($this->temp_values[$matches[2]])) {
+		if (!array_key_exists($matches[2], $this->temp_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
 		$replacement = $this->temp_values[$matches[2]];
+
+		if ($replacement === null) {
+			if (str_starts_with($matches[1], 'array_')) {
+				$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
+			}
+			
+			return 'NULL';
+		}
 
 		switch ($matches[1]) {
 			case 'int':
