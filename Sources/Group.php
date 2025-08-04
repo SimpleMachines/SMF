@@ -1719,7 +1719,7 @@ class Group implements \ArrayAccess
 					$board->{$prop} = array_diff($board->{$prop}, [$this->id]);
 				}
 
-				$board->save();
+				$board->save(Board::SAVE_GROUP);
 			}
 
 			foreach ($board_ids as $board_id) {
