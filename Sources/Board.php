@@ -733,6 +733,8 @@ class Board implements \ArrayAccess, Routable
 		bool $first_child = false,
 		bool $save = true,
 	): array {
+		User::$me->isAllowedTo('manage_boards');
+
 		// Do we have what we need?
 		switch ($move_to) {
 			case 'top':
@@ -1202,6 +1204,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function modify(int $board_id, array &$boardOptions): void
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// Load and organize all boards and categories.
 		Category::getTree();
 
@@ -1357,6 +1361,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function create(array $boardOptions): int
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// Trigger an error if one of the required values is not set.
 		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category'])) {
 			throw new \Exception('create_board_missing_options');
@@ -1442,6 +1448,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// No boards to delete? Return!
 		if (empty($boards_to_remove)) {
 			return;
@@ -1639,6 +1647,12 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function fixChildren(int $parent, int $newLevel, int $newParent): void
 	{
+		static $recursion_depth = 0;
+
+		if ($recursion_depth === 0) {
+			User::$me->isAllowedTo('manage_boards');
+		}
+
 		// Grab all children of $parent...
 		$children = [];
 
@@ -1670,7 +1684,9 @@ class Board implements \ArrayAccess, Routable
 
 		// Recursively fix the children of the children.
 		foreach ($children as $child) {
+			$recursion_depth++;
 			self::fixChildren($child, $newLevel + 1, $child);
+			$recursion_depth--;
 		}
 	}
 
