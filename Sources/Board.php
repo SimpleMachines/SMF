@@ -1016,11 +1016,10 @@ class Board implements \ArrayAccess, Routable
 	 *
 	 * @param ?int $id The ID number of a board, or null for current board.
 	 *    Default: null.
-	 * @param array $props Properties to set for this board. Only used when $id
-	 *    is not null.
-	 * @return object|null An instance of this class, or null on error.
+	 * @param array $props Properties to set for this board.
+	 * @return ?self An instance of this class, or null on error.
 	 */
-	public static function init(?int $id = null, array $props = []): ?object
+	public static function init(?int $id = null, array $props = []): ?self
 	{
 		// This should already have been set, but just in case...
 		if (!isset(self::$board_id)) {
@@ -1676,7 +1675,7 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Takes a board array and sorts it
+	 * Takes an array of boards and sorts it.
 	 *
 	 * @param array &$boards The boards
 	 */
@@ -1693,7 +1692,7 @@ class Board implements \ArrayAccess, Routable
 				if (is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
 					self::sort($ordered[$board]['children']);
 				} elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
-					Board::sort($ordered[$board]->children);
+					self::sort($ordered[$board]->children);
 				}
 			}
 		}
@@ -1702,10 +1701,11 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns the given board's moderators, with their names and links
+	 * Returns the given boards' moderators, with their names and links.
 	 *
-	 * @param array $boards The boards to get moderators of
-	 * @return array An array containing information about the moderators of each board
+	 * @param array $boards The boards to get moderators of.
+	 * @return array An array containing information about the moderators of
+	 *    each board.
 	 */
 	public static function getModerators(array $boards): array
 	{
@@ -1753,10 +1753,11 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns board's moderator groups with their names and link
+	 * Returns the given boards' moderator groups, with their names and links.
 	 *
-	 * @param array $boards The boards to get moderator groups of
-	 * @return array An array containing information about the groups assigned to moderate each board
+	 * @param array $boards The boards to get moderator groups of.
+	 * @return array An array containing information about the groups assigned
+	 *    to moderate each board.
 	 */
 	public static function getModeratorGroups(array $boards): array
 	{
@@ -1810,7 +1811,7 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns whether the child board id is a child of the parent (recursive).
+	 * Returns whether the child board ID is a child of the parent (recursive).
 	 *
 	 * @param int $child The ID of the child board.
 	 * @param int $parent The ID of a parent board.
@@ -1832,6 +1833,7 @@ class Board implements \ArrayAccess, Routable
 
 	/**
 	 * Get all parent boards (requires first parent as parameter)
+	 *
 	 * It finds all the parents of id_parent, and that board itself.
 	 * Additionally, it detects the moderators of said boards.
 	 *
