@@ -51,7 +51,7 @@ class UserReactions extends MigrationBase
 			if (!empty($table_exists))
 			{
 				// Rename the table
-				Db::$db->query('', 'ALTER TABLE {db_prefix}user_likes RENAME TO {db_prefix}user_reacts');
+				Db::$db->rename_table('{db_prefix}user_likes', '{db_prefix}user_reacts', true);
 				
 				// Add the new column
 				Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_reaction', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
