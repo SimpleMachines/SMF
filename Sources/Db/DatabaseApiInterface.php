@@ -338,10 +338,6 @@ interface DatabaseApiInterface
 	 */
 	public function detect_charset(?string $table = null, ?string $column = null): string;
 
-	/****************************************
-	 * Methods that formerly lived in DbExtra
-	 ****************************************/
-
 	/**
 	 * Backup $table to $backup_table.
 	 *
@@ -400,10 +396,6 @@ interface DatabaseApiInterface
 	 */
 	public function allow_persistent(): bool;
 
-	/*****************************************
-	 * Methods that formerly lived in DbSearch
-	 *****************************************/
-
 	/**
 	 * Returns the correct query for this search type.
 	 *
@@ -436,10 +428,6 @@ interface DatabaseApiInterface
 	 * @return string|null The PostgreSQL search language, or null for MySQL.
 	 */
 	public function search_language(): ?string;
-
-	/*******************************************
-	 * Methods that formerly lived in DbPackages
-	 *******************************************/
 
 	/**
 	 * This function adds a column.
@@ -579,6 +567,17 @@ interface DatabaseApiInterface
 	 * @return bool Whether or not the operation was successful
 	 */
 	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool;
+
+	/**
+	 * Renames a table.
+	 *
+	 * @param string $old_name The current name of the table.
+	 * @param string $new_name The new name for the table.
+	 * @param bool $allowed_reserved Whether to allow renaming reserved tables.
+	 *    Default: false.
+	 * @return bool Whether or not the operation was successful
+	 */
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false, string $error = 'fatal'): bool;
 
 	/**
 	 * Get table structure.

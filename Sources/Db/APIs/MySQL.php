@@ -913,10 +913,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		return $charset;
 	}
 
-	/****************************************
-	 * Methods that formerly lived in DbExtra
-	 ****************************************/
-
 	/**
 	 *
 	 */
@@ -1295,10 +1291,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
-	/*****************************************
-	 * Methods that formerly lived in DbSearch
-	 *****************************************/
-
 	/**
 	 *
 	 */
@@ -1350,10 +1342,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		return null;
 	}
-
-	/*******************************************
-	 * Methods that formerly lived in DbPackages
-	 *******************************************/
 
 	/**
 	 *
@@ -1957,6 +1945,51 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Otherwise do 'nout.
 		return false;
+	}
+
+	/**
+	 *
+	 */
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false): bool
+	{
+		// After stripping away the database name, this is what's left.
+		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $this->prefix, $match) === 1 ? $match[3] : $this->prefix;
+		$database = !empty($match[2]) ? $match[2] : $this->name;
+
+		$full_old_name = str_replace('{db_prefix}', $real_prefix, $old_name);
+		$short_old_name = str_replace('{db_prefix}', $this->prefix, $old_name);
+
+		$full_new_name = str_replace('{db_prefix}', $real_prefix, $new_name);
+		$short_new_name = str_replace('{db_prefix}', $this->prefix, $new_name);
+
+		if (
+			!$allowed_reserved
+			&& (
+				in_array(strtolower($short_old_name), $this->reservedTables)
+				|| in_array(strtolower($short_new_name), $this->reservedTables)
+			)
+		) {
+			return false;
+		}
+
+		// What tables currently exist?
+		$tables = $this->list_tables($database);
+
+		if (
+			// Can't rename a table that doesn't exist.
+			!in_array($full_old_name, $tables)
+			// Can't rename if the new name is already taken.
+			|| in_array($full_new_name, $tables)
+		) {
+			return false;
+		}
+
+		$this->query(
+			'ALTER TABLE ' . $short_old_name . ' RENAME ' . $short_new_name,
+			[
+				'security_override' => true,
+			],
+		);
 	}
 
 	/**
@@ -2594,7 +2627,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (str_starts_with($matches[1], 'array_')) {
 				$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 			}
-			
+
 			return 'NULL';
 		}
 
