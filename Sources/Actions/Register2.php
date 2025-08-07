@@ -21,6 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
@@ -607,7 +608,7 @@ class Register2 extends Register
 			'posts' => 0,
 			'date_registered' => time(),
 			'member_ip' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
-			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : $_SERVER['BAN_CHECK_IP'],
+			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative(),
 			'validation_code' => $validation_code,
 			'real_name' => $reg_options['username'],
 			'personal_text' => Config::$modSettings['default_personal_text'],

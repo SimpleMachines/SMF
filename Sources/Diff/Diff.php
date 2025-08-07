@@ -424,11 +424,23 @@ abstract class Diff
 	/**
 	 * Given the original string, constructs the modified string.
 	 *
+	 * The $dynamic_context parameter can be used to increase the likelihood of
+	 * success when lines in the immediate context of a change have been altered
+	 * unexpectedly. When this option is enabled, the matching algorithm will
+	 * initially try to match the change including all surrounding context, but
+	 * if that fails then it will progressively give up one line of context at
+	 * a time until it finds a match or runs out of context lines. Enabling this
+	 * option is especially helpful when applying patches to files that may have
+	 * been altered by third-party modifications.
+	 *
 	 * @param string $str1 The original string.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change. Default: false.
 	 * @throws \ValueError if given a string it cannot work with.
 	 * @return string The modified string.
 	 */
-	public function apply(string $str1): string
+	public function apply(string $str1, bool $dynamic_context = false): string
 	{
 		$changes = $this->changes;
 
@@ -438,67 +450,59 @@ abstract class Diff
 			$lines = [];
 		}
 
-		$broken_changes = [];
-		$affected_line_numbers = [];
+		// Find the correct place to apply the change.
+		// This is not applicable to EditDiffs.
+		if (is_string($this->changes[0]['old'])) {
+			$broken_changes = [];
+			$affected_line_numbers = [];
 
-		// Verify that the existing content is as expected.
-		foreach (array_reverse($changes, true) as $c => $change) {
-			if (!$this->verify($change, $lines)) {
-				$broken_changes[$c] = $change;
-				continue;
-			}
+			foreach (array_reverse($changes, true) as $c => $change) {
+				$change = $this->fixL1($change, $lines, $affected_line_numbers, $dynamic_context);
 
-			$affected_line_numbers = array_merge(
-				$affected_line_numbers,
-				range(
-					$change['l1'] ?? 0,
-					($change['l1'] ?? 0) + count($this->splitLines($change['old'])) - 1,
-				),
-			);
-		}
-
-		// If there was unexpected content, try to adapt.
-		foreach ($broken_changes as $c => $change) {
-			if (($change = $this->fixL1($change, $lines, $affected_line_numbers)) !== false) {
-				unset($broken_changes[$c]);
+				if ($change === false) {
+					$broken_changes[$c] = $changes[$c];
+					continue;
+				}
 
 				$changes[$c] = $change;
 
 				$affected_line_numbers = array_merge(
 					$affected_line_numbers,
 					range(
-						$change['l1'],
-						$change['l1'] + count($this->splitLines($change['old'])) - 1,
+						$change['l1'] ?? 0,
+						($change['l1'] ?? 0) + count($this->splitLines($change['old'], PREG_SPLIT_NO_EMPTY)),
 					),
 				);
 			}
-		}
 
-		if (!empty($broken_changes)) {
-			ksort($broken_changes);
+			if (!empty($broken_changes)) {
+				ksort($broken_changes);
 
-			// Include info about the changes that couldn't be applied
-			// so that the caller knows exactly what went wrong.
-			throw new \ValueError(json_encode($broken_changes));
+				// Include info about the changes that couldn't be applied
+				// so that the caller knows exactly what went wrong.
+				throw new \ValueError(json_encode($broken_changes));
+			}
 		}
 
 		// Do the job.
 		$str2 = '';
 
 		foreach (array_reverse($changes) as $change) {
+			$old_length = is_int($change['old']) ? $change['old'] : mb_strlen($change['old']);
+
 			if (isset($lines[$change['l1']])) {
 				$substring = implode('', array_splice($lines, $change['l1']));
 
 				$str2 =
 					mb_substr($substring, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($substring, $change['offset'] + mb_strlen($change['old'])) .
+					mb_substr($substring, $change['offset'] + $old_length) .
 					$str2;
 			} else {
 				$str2 =
 					mb_substr($str2, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($str2, $change['offset'] + mb_strlen($change['old']));
+					mb_substr($str2, $change['offset'] + $old_length);
 			}
 		}
 
@@ -582,7 +586,7 @@ abstract class Diff
 				array_splice(
 					$lines,
 					$change['l1'],
-					$change['l2'] - $change['l1'] + 1,
+					(int) $change['l2'] - $change['l1'] + 1,
 					$this->formatDelIns(
 						$change[$reverse ? 'new' : 'old'],
 						$change[$reverse ? 'old' : 'new'],
@@ -1077,7 +1081,7 @@ abstract class Diff
 		$word_offsets = array_map('intval', array_keys($changes));
 
 		foreach ($changes as $c => $change) {
-			$this_end = $c + count($change['old']);
+			$this_end = (int) $c + count($change['old']);
 			$next_start = next($word_offsets);
 
 			if ($next_start <= $this_end) {
@@ -1754,7 +1758,7 @@ abstract class Diff
 				implode('', $bifurcated['suffix2']),
 			);
 
-			return $lcs;
+			return (int) $lcs;
 		}
 
 		// Once we reach the point where bifurcating doesn't help any further,
@@ -2194,7 +2198,7 @@ abstract class Diff
 			);
 
 			// Initially assume we want $context number of following lines.
-			$after_start = $changes[$c]['l1'] + count($this->splitLines($changes[$c]['old'])) - 1;
+			$after_start = (int) $changes[$c]['l1'] + count($this->splitLines($changes[$c]['old'])) - 1;
 			$after_length = $context;
 
 			if (isset($lines1[$after_start + 1])) {
@@ -2223,64 +2227,18 @@ abstract class Diff
 	}
 
 	/**
-	 * Helper for $this->apply() that checks whether a change can be applied.
-	 *
-	 * @param array $change The change to verify.
-	 * @param array $lines Lines of the original string.
-	 * @return bool Whether the change can be applied.
-	 */
-	protected function verify(array $change, array $lines): bool
-	{
-		$substring = implode('', array_slice(
-			$lines,
-			$change['l1'] ?? 0,
-			count($this->splitLines($change['old'])),
-		));
-
-		// If there is unexpected content at this position, the change cannot be applied.
-		if ($change['old'] !== mb_substr($substring, $change['offset'], mb_strlen($change['old']))) {
-			return false;
-		}
-
-		// If this is an insertion with no deletion, try to check the context.
-		if ($change['old'] === '') {
-			if (isset($change['before'])) {
-				$before = $change['before'] === '' ? [] : $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
-
-				foreach (array_reverse($before) as $b => $before_line) {
-					if (($lines[$change['l1'] - $b - 1] ?? null) !== $before_line) {
-						return false;
-					}
-				}
-			}
-
-			if (isset($change['after'])) {
-				$after = $change['after'] === '' ? [] : $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
-
-				$l_last = $change['l1'] + count($this->splitLines($change['old'])) - 1;
-
-				foreach ($after as $a => $after_line) {
-					if (($lines[$l_last + $a] ?? null) !== $after_line) {
-						return false;
-					}
-				}
-			}
-		}
-
-		// Tests passed.
-		return true;
-	}
-
-	/**
 	 * Helper for $this->apply() that uses heuristics to try to find the correct
-	 * line number for a change when $str1 contains unexpected content.
+	 * line number for a change.
 	 *
 	 * @param array $change The change that didn't match.
 	 * @param array $lines Lines of the original string.
 	 * @param array $disallowed Lines numbers that cannot be chosen.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change.
 	 * @return array|false An altered version of $change, or false on error.
 	 */
-	protected function fixL1(array $change, array $lines, array $disallowed): array|false
+	protected function fixL1(array $change, array $lines, array $disallowed, bool $dynamic_context): array|false
 	{
 		// Number to add to $l1 to get the last line number in a block of affected text.
 		$last_offset = count($this->splitLines($change['old'])) - 1;
@@ -2334,7 +2292,99 @@ abstract class Diff
 			}
 		}
 
-		// Do we need to keep going?
+		// No matches found.
+		if (count($possible_matches) === 0) {
+			return false;
+		}
+
+		// Determine how many context lines to use.
+		foreach ($this->changes as $c => $change) {
+			// If any changes are inline, use no context lines.
+			if ($change['offset'] !== 0) {
+				$max_before_context = 0;
+				$max_after_context = 0;
+				break;
+			}
+
+			$max_before_context = max(
+				$max_before_context ?? 0,
+				count($this->splitLines($change['before'] ?? '', PREG_SPLIT_NO_EMPTY)),
+			);
+
+			$max_after_context = max(
+				$max_after_context ?? 0,
+				count($this->splitLines($change['after'] ?? '', PREG_SPLIT_NO_EMPTY)),
+			);
+		}
+
+		$total_context = $max_total_context = $max_before_context + $max_after_context;
+
+		// If possible, use the context lines to choose the best possible match.
+		do {
+			$before_context = $max_before_context;
+			$after_context = $max_after_context - ($max_total_context - $total_context);
+			$temp_possible_matches = $possible_matches;
+
+			for ($i = 0; $i < $total_context; $i++) {
+				if (isset($change['before'])) {
+					$before = $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
+					$before = array_slice($before, $before_context * -1, $before_context);
+
+					foreach ($temp_possible_matches as $m => $l1) {
+						foreach (array_reverse($before) as $b => $before_line) {
+							if (($lines[$l1 - $b - 1] ?? null) !== $before_line) {
+								unset($temp_possible_matches[$m]);
+								continue 2;
+							}
+						}
+					}
+				}
+
+				if (isset($change['after'])) {
+					$after = $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
+					$after = array_slice($after, 0, $after_context);
+
+					foreach ($temp_possible_matches as $m => $l1) {
+						$l_last = $l1 + $last_offset;
+
+						foreach ($after as $a => $after_line) {
+							if (($lines[$l_last + $a] ?? null) !== $after_line) {
+								unset($temp_possible_matches[$m]);
+								continue 2;
+							}
+						}
+					}
+				}
+
+				switch (count($temp_possible_matches)) {
+					case 1:
+						// Found it!
+						$possible_matches = $temp_possible_matches;
+						break 2;
+
+					default:
+						if ($before_context === 0 && $after_context === 0) {
+							$possible_matches = $temp_possible_matches;
+							break 2;
+						}
+						break;
+				}
+
+				if ($before_context === 0 || $after_context === $max_after_context) {
+					break;
+				}
+
+				$before_context--;
+				$after_context++;
+			}
+		} while (
+			// If dynamic context is enabled, retry until we find some matches
+			// or we have reduced the number of context lines to zero.
+			$dynamic_context
+			&& count($temp_possible_matches) === 0
+			&& --$total_context >= 0
+		);
+
 		switch (count($possible_matches)) {
 			case 0:
 				return false;
@@ -2343,40 +2393,6 @@ abstract class Diff
 				$change['l1'] = reset($possible_matches);
 
 				return $change;
-		}
-
-		// Can we use context lines to figure out which possible match to choose?
-		if (isset($change['before'])) {
-			$before = $change['before'] === '' ? [] : $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
-
-			foreach ($possible_matches as $m => $l1) {
-				foreach (array_reverse($before) as $b => $before_line) {
-					if (($lines[$l1 - $b - 1] ?? null) !== $before_line) {
-						unset($possible_matches[$m]);
-						continue 2;
-					}
-				}
-			}
-		}
-
-		if (isset($change['after'])) {
-			$after = $change['after'] === '' ? [] : $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
-
-			foreach ($possible_matches as $m => $l1) {
-				$l_last = $l1 + $last_offset;
-
-				foreach ($after as $a => $after_line) {
-					if (($lines[$l_last + $a] ?? null) !== $after_line) {
-						unset($possible_matches[$m]);
-						continue 2;
-					}
-				}
-			}
-		}
-
-		switch (count($possible_matches)) {
-			case 0:
-				return false;
 
 			default:
 				// If we still have multiple matches, prefer the one closest to the expected position.

@@ -59,8 +59,8 @@ files: [
   translation: "Languages/%locale_with_underscore%/Help.php",
  },
  {
-  source: "Languages/en_US/Install.php",
-  translation: "Languages/%locale_with_underscore%/Install.php",
+  source: "Languages/en_US/Maintenance.php",
+  translation: "Languages/%locale_with_underscore%/Maintenance.php",
  },
  {
   source: "Languages/en_US/Login.php",

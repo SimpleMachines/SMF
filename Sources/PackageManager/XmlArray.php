@@ -424,9 +424,9 @@ class XmlArray
 		];
 
 		// Loop until we're out of data.
-		while ($data != '') {
+		while ($data !== '') {
 			// Find and remove the next tag.
-			preg_match('/\A<([\w\-:]+)((?:\s+.+?)?)([\s]?\/)?' . '>/', $data, $match);
+			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
 
 			if (isset($match[0])) {
 				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);

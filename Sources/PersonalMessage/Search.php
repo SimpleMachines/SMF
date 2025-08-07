@@ -22,6 +22,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -241,7 +242,7 @@ class Search
 	 */
 	public function performSearch(): void
 	{
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 

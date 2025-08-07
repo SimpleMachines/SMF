@@ -165,8 +165,8 @@ function template_html_above()
 	// If RSS feeds are enabled, advertise the presence of one.
 	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
 		echo '
-	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('rss', file: 'General'), '" href="', Config::$scripturl, '?action=.xml;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
-	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('atom', file: 'General'), '" href="', Config::$scripturl, '?action=.xml;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
+	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('rss', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
+	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('atom', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty(Utils::$context['links']['next']))
