@@ -3157,7 +3157,7 @@ function ConvertUtf8()
 		);
 
 		// Default to ISO-8859-1 unless we detected another supported charset
-		$upcontext['charset_detected'] = (isset($lang_charsets[$language]) && isset($charsets[strtr(strtolower($upcontext['charset_detected']), array('utf' => 'UTF', 'iso' => 'ISO'))])) ? $lang_charsets[$language] : 'ISO-8859-1';
+		$upcontext['charset_detected'] = (isset($lang_charsets[$language]) && isset($charsets[strtr(strtolower($upcontext['charset_detected'] ?? $txt['lang_character_set']), array('utf' => 'UTF', 'iso' => 'ISO'))])) ? $lang_charsets[$language] : 'ISO-8859-1';
 
 		$upcontext['charset_list'] = array_keys($charsets);
 
