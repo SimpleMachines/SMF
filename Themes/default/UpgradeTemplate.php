@@ -184,14 +184,14 @@ class UpgradeTemplate extends MaintenanceTemplate
 		) {
 			echo '
 			<div class="errorbox">
-				<h3>', Lang::getTxt('upgrade_warning', file: 'Maintenance'), '</h3>
+				<h3>', Lang::getTxt('error_warning_notice', file: 'Maintenance'), '</h3>
 				<p>', Lang::getTxt('upgrade_time_user', Maintenance::$context['user']), '</p>
 				<p>', self::timeAgo(Maintenance::$context['started'], 'upgrade_time'), '</p>
 				<p>', self::timeAgo(Maintenance::$context['updated'], 'upgrade_time_updated'), '</p>';
 
 			if (time() - Maintenance::$context['updated'] < 600) {
 				echo '
-				<p>', Lang::getTxt('upgrade_run_script', file: 'Maintenance'), ' ', Maintenance::$context['user']['name'], ' ', Lang::getTxt('upgrade_run_script2', file: 'Maintenance'), '</p>';
+				<p>', Lang::getTxt('upgrade_run_script', Maintenance::$context['user'], file: 'Maintenance'), '</p>';
 			}
 
 			if ((time() - Maintenance::$context['updated']) > Maintenance::$tool->inactive_timeout) {
@@ -217,7 +217,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 			</p>
 			<dl class="settings adminlogin">
 				<dt>
-					<label for="user"', Maintenance::$disable_security ? ' disabled' : '', '>', Lang::getTxt('upgrade_username', file: 'Maintenance'), '</label>
+					<label for="user"', Maintenance::$disable_security ? ' disabled' : '', '>', Lang::getTxt('username', file: 'General'), '</label>
 				</dt>
 				<dd>
 					<input type="text" name="user" value="', !empty(Maintenance::$context['username']) ? Maintenance::$context['username'] : '', '"', Maintenance::$disable_security ? ' disabled' : '', '>';
@@ -230,7 +230,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		echo '
 				</dd>
 				<dt>
-					<label for="passwrd"', Maintenance::$disable_security ? ' disabled' : '', '>', Lang::getTxt('upgrade_password', file: 'Maintenance'), '</label>
+					<label for="passwrd"', Maintenance::$disable_security ? ' disabled' : '', '>', Lang::getTxt('password', file: 'General'), '</label>
 				</dt>
 				<dd>
 					<input type="password" name="passwrd" value=""', Maintenance::$disable_security ? ' disabled' : '', '>';
@@ -577,7 +577,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		echo '
 		<div class="panel">
-			<h2>', Lang::getTxt('upgrade_ftp_login', file: 'Maintenance'), '</h2>
+			<h2>', Lang::getTxt('ftp_login', file: 'Maintenance'), '</h2>
 			<h3>', Lang::getTxt('upgrade_ftp_perms', file: 'Maintenance'), '</h3>
 			<script>
 				function warning_popup()
@@ -586,7 +586,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
 					content.write(\'<html', Lang::getTxt('lang_rtl', file: 'Maintenance') == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
-					content.write(\'<title>', Lang::getTxt('upgrade_ftp_warning', file: 'Maintenance'), '</title>\n\t\t<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
+					content.write(\'<title>', Lang::getTxt('error_warning_notice', file: 'Maintenance'), '</title>\n\t\t<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', Lang::getTxt('upgrade_ftp_files', file: 'Maintenance'), '</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', Maintenance::$context['chmod']['files']), '</p>\n\t\t\t\');';
 
