@@ -54,7 +54,8 @@ class UserReactions extends MigrationBase
 				Db::$db->rename_table('{db_prefix}user_likes', '{db_prefix}user_reacts', true);
 				
 				// Add the new column
-				Db::$db->add_column('{db_prefix}user_reacts', ['name' => 'id_reaction', 'type' => 'smallint', 'not_null' => true, 'default' => '0']);
+				$tbl = new UserReacts().
+				Db::$db->add_column('{db_prefix}user_reacts', $tbl->columns['id_reaction']);
 
 				// Default reaction is like for now
 				Db::$db->query('', 'UPDATE {db_prefix}user_reacts SET id_react={int:one}', ['one' => 1]);
