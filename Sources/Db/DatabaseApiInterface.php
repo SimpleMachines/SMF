@@ -95,15 +95,18 @@ interface DatabaseApiInterface
 	 * @param array $data Rows of data to insert. Each element of $data must
 	 *    be an array of values corresponding to $columns.
 	 * @param array $keys The keys for the table. Must not empty in replace mode.
-	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
-	 *    Default: 0.
+	 * @param int $returnmode
+	 *	  DatabaseApi::INSERT_RETURN_MODE_OFF (0) = nothing
+	 *	  DatabaseApi::INSERT_RETURN_MODE_SINGLE (1) = last row ID
+	 *	  DatabaseApi::INSERT_RETURN_MODE_MULTI (2) = all row IDs.
+	 *    Default: DatabaseApi::INSERT_RETURN_MODE_OFF.
 	 * @param null|object $connection The connection to use.
 	 *    If null, $db_connection is used.
 	 * @return int|array|null Null if $returnmode is 0, the ID of the most
 	 *    recently inserted row if $returnmode is 1, or the IDS of all the
 	 *    inserted rows if $returnmode is 2.
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null;
 
 	/**
 	 * Gets the ID of the most recently inserted row.
