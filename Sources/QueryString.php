@@ -335,99 +335,13 @@ class QueryString
 			exit;
 		}
 
-		// Make sure we have a valid REMOTE_ADDR.
-		if (!isset($_SERVER['REMOTE_ADDR'])) {
-			$_SERVER['REMOTE_ADDR'] = '';
-
-			// A new magic variable to indicate we think this is command line.
-			$_SERVER['is_cli'] = true;
-		}
-		// Perhaps we have a IPv6 address.
-		elseif (IP::create($_SERVER['REMOTE_ADDR'])->isValid()) {
-			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER['REMOTE_ADDR']);
-		}
-
 		// Try to calculate their most likely IP for those people behind proxies (And the like).
-		$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
+		IP::setUserIPAlternative();
 
-		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
-		if (!isset(Config::$modSettings['proxy_ip_header'])) {
-			Config::$modSettings['proxy_ip_header'] = 'autodetect';
-		}
-
-		// Which headers are we going to check for Reverse Proxy IP headers?
-		if (Config::$modSettings['proxy_ip_header'] == 'disabled') {
-			$reverseIPheaders = [];
-		} elseif (Config::$modSettings['proxy_ip_header'] == 'autodetect') {
-			$reverseIPheaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'];
-		} else {
-			$reverseIPheaders = [Config::$modSettings['proxy_ip_header']];
-		}
-
-		// Find the user's IP address. (but don't let it give you 'unknown'!)
-		foreach ($reverseIPheaders as $proxyIPheader) {
-			// Ignore if this is not set.
-			if (!isset($_SERVER[$proxyIPheader])) {
-				continue;
-			}
-
-			if (!empty(Config::$modSettings['proxy_ip_servers'])) {
-				$valid_sender = false;
-
-				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-					if (
-						$proxy == $_SERVER['REMOTE_ADDR']
-						|| (new IP($_SERVER['REMOTE_ADDR']))->matchToCIDR($proxy)
-					) {
-						$valid_sender = true;
-						break;
-					}
-				}
-
-				if (!$valid_sender) {
-					continue;
-				}
-			}
-
-			// If there are commas, get the last one.. probably.
-			if (str_contains($_SERVER[$proxyIPheader], ',')) {
-				$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
-
-				// Go through each IP...
-				foreach ($ips as $i => $ip) {
-					// Make sure it's in a valid range...
-					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
-						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-							// Just incase we have a legacy IPv4 address.
-							// @ TODO: Convert to IPv6.
-							if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-								continue;
-							}
-						}
-
-						continue;
-					}
-
-					// Otherwise, we've got an IP!
-					$_SERVER['BAN_CHECK_IP'] = trim($ip);
-
-					break;
-				}
-			}
-			// Otherwise just use the only one.
-			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
-				$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
-			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-				// Just incase we have a legacy IPv4 address.
-				// @ TODO: Convert to IPv6.
-				if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-					continue;
-				}
-			}
+		if (!empty(Config::$backward_compatibility)) {
+			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
+			$_SERVER['REMOTE_ADDR'] = IP::getUserIP();
+			$_SERVER['is_cli'] = Sapi::isCLI();
 		}
 
 		// Make sure we know the URL of the current request.
@@ -450,15 +364,6 @@ class QueryString
 
 		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
-
-		// Some final checking.
-		if (!IP::create($_SERVER['BAN_CHECK_IP'])->isValid()) {
-			$_SERVER['BAN_CHECK_IP'] = '';
-		}
-
-		if ($_SERVER['REMOTE_ADDR'] == 'unknown') {
-			$_SERVER['REMOTE_ADDR'] = '';
-		}
 	}
 
 	/**
