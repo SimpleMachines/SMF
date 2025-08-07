@@ -268,8 +268,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (str_contains($db_string, '{')) {
 			// Do the quoting and escaping
 			$db_string = preg_replace_callback(
-				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', 
-				fn ($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection), 
+				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
 				$db_string,
 			);
 		}
@@ -2244,17 +2244,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *
 	 * @param array $matches The matches from preg_replace_callback
 	 * @param array $db_values = array() The values to be inserted into the string
-	 * @param null|object $connection = null The connection to use (null to use $db_connection)
+	 * @param object $connection The connection to use.
 	 * @return string The appropriate string depending on $matches[1]
 	 */
-	protected function replacement__callback(array $matches, array $db_values, ?object $connection = null): string
+	protected function replacement__callback(array $matches, array $db_values, object $connection): string
 	{
-		$connection ??= $this->connection;
-
-		if (!is_object($connection)) {
-			ErrorHandler::displayDbError();
-		}
-
 		if ($matches[1] === 'db_prefix') {
 			return $this->prefix;
 		}
