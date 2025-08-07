@@ -19,6 +19,7 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Maintenance\Cleanup;
 use SMF\Maintenance\GenericSubStep;
@@ -1209,7 +1210,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			User::setMe($this->user['id']);
 		}
 
-		User::$me->ip = Sapi::isCLI() || empty($_SERVER['REMOTE_ADDR']) ? '127.0.0.1' : $_SERVER['REMOTE_ADDR'];
+		User::$me->ip = IP::getUserIP();
 
 		// Log the action manually, so CLI still works.
 		Db::$db->insert(

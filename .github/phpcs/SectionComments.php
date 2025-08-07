@@ -310,7 +310,7 @@ final class SectionComments extends AbstractFixer
 					while (
 						isset($tokens[$insert_at - 1])
 						&& (
-							$tokens[$insert_at - 1]->isGivenKind([T_FINAL, T_READONLY])
+							$tokens[$insert_at - 1]->isGivenKind([T_FINAL, T_READONLY, T_ABSTRACT])
 							|| $tokens[$insert_at - 1]->isWhitespace()
 							|| $tokens[$insert_at - 1]->isComment()
 						)

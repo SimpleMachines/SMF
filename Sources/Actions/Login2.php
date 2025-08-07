@@ -23,6 +23,7 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Routable;
 use SMF\Sapi;
@@ -803,7 +804,7 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// You've logged in, haven't you?
-		$update = ['member_ip' => User::$me->ip, 'member_ip2' => $_SERVER['BAN_CHECK_IP']];
+		$update = ['member_ip' => User::$me->ip, 'member_ip2' => IP::getUserIPAlternative()];
 
 		if (empty(User::$me->tfa_secret)) {
 			$update['last_login'] = time();
