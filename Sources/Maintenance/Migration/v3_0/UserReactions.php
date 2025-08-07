@@ -63,7 +63,7 @@ class UserReactions extends MigrationBase
 				Db::$db->change_column('{db_prefix}user_reacts', 'like_time', ['name' => 'react_time']);
 
 				// Rename the index
-				Db::$db->query('', 'ALTER TABLE {db_prefix}user_reacts RENAME idx_liker TO idx_reactor');
+				Db::$db->rename_index('{db_prefix}user_reacts', 'idx_liker', 'idx_reactor');
 
 				// Rename the likes column in the messages table
 				Db::$db->remove_index('{db_prefix}messages', 'idx_likes');
