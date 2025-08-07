@@ -34,11 +34,12 @@ abstract class DatabaseApi
 	 *****************/
 
 	/**
+	 * @var int
+	 *
 	 * Insert return modes.
 	 * 	- Off returns null.
 	 * 	- Single returns the last id.
 	 * 	- Multi returns all ids.
-	 * @var int
 	 */
 	public const INSERT_RETURN_MODE_OFF = 0;
 	public const INSERT_RETURN_MODE_SINGLE = 1;
