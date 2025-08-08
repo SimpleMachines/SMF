@@ -71,22 +71,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * @var object
 	 *
-	 * Temporary reference to a mysqli object.
-	 * Might be the same as $this->connection, but might not be.
-	 * Used to pass the correct connection to $this->replace__callback.
-	 */
-	protected $temp_connection;
-
-	/**
-	 * @var array
-	 *
-	 * Used to pass values to $this->replace__callback.
-	 */
-	protected $temp_values;
-
-	/**
-	 * @var object
-	 *
 	 * A prepared MySQL statement (a mysqli_stmt object).
 	 */
 	protected $error_data_prep;
@@ -250,14 +234,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Only bother if there's something to replace.
 		if (str_contains($db_string, '{')) {
-			// This is needed by the callback function.
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection ?? $this->connection;
-
 			// Do the quoting and escaping
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+			$db_string = preg_replace_callback(
+				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
+				$db_string,
+			);
 		}
 
 		return $db_string;
@@ -2589,14 +2571,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * the database.
 	 *
 	 * @param array $matches The matches from preg_replace_callback
+	 * @param array $db_values = array() The values to be inserted into the string
+	 * @param object $connection The connection to use.
 	 * @return string The appropriate string depending on $matches[1]
 	 */
-	protected function replacement__callback(array $matches): string
+	protected function replacement__callback(array $matches, array $db_values, object $connection): string
 	{
-		if (!is_object($this->temp_connection)) {
-			ErrorHandler::displayDbError();
-		}
-
 		if ($matches[1] === 'db_prefix') {
 			return $this->prefix;
 		}
@@ -2614,14 +2594,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		if ($matches[1] === 'literal') {
-			return '\'' . mysqli_real_escape_string($this->temp_connection, $matches[2]) . '\'';
+			return '\'' . mysqli_real_escape_string($connection, $matches[2]) . '\'';
 		}
 
-		if (!array_key_exists($matches[2], $this->temp_values)) {
+		if (!array_key_exists($matches[2], $db_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
-		$replacement = $this->temp_values[$matches[2]];
+		$replacement = $db_values[$matches[2]];
 
 		if ($replacement === null) {
 			if (str_starts_with($matches[1], 'array_')) {
@@ -2641,7 +2621,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $replacement)));
+				return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $this->fix_mb4((string) $replacement)));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2671,7 +2651,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $value)));
+						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $this->fix_mb4((string) $value)));
 					}
 
 					return implode(', ', $replacement);
@@ -2784,8 +2764,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
 				break;
 		}
-
-		return '';
 	}
 
 	/**
