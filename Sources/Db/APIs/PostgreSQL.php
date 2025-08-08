@@ -1976,7 +1976,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false): bool
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false, string $error = 'fatal'): bool
 	{
 		// After stripping away the database name, this is what's left.
 		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $this->prefix, $match) === 1 ? $match[3] : $this->prefix;
@@ -2016,6 +2016,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'security_override' => true,
 			],
 		);
+
+		return true;
 	}
 
 	/**
