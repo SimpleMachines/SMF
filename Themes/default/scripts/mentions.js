@@ -43,6 +43,27 @@ var atwhoConfig = {
 					callback(callbackArray);
 				}
 			});
+		},
+		tplEval: function (tpl, map, caller) {
+			console.log(tpl,map,caller);
+
+			var error, error1, template;
+			template = tpl;
+			try {
+			  if (typeof tpl !== 'string') {
+				template = tpl(map);
+			  }
+			  // When SCEditor is disabled, inserted names may contain some HTML if it was escaped.
+			  if (caller == 'onInsert') {
+			  	map['name'] = map['name'].toString().replace("&#034;", '"').replace('&#39;', "'");
+			  }
+			  return template.replace(/\$\{([^\}]*)\}/g, function(tag, key, pos) {
+				return map[key];
+			  });
+			} catch (error1) {
+			  error = error1;
+			  return "";
+			}
 		}
 	}
 };
