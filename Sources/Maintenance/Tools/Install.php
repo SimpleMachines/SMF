@@ -1071,7 +1071,7 @@ class Install extends ToolsBase implements ToolsInterface
 						],
 					],
 					['id_member'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 
 				if ((int) Maintenance::$context['id_member'] > 0) {

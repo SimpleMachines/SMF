@@ -773,7 +773,7 @@ class TopicSplit implements ActionInterface, Routable
 				],
 			],
 			['id_topic'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		if ($split2_ID_TOPIC <= 0) {

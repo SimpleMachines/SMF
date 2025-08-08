@@ -29,6 +29,22 @@ abstract class DatabaseApi
 {
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var int
+	 *
+	 * Insert return modes.
+	 * 	- Off returns null.
+	 * 	- Single returns the last id.
+	 * 	- Multi returns all ids.
+	 */
+	public const INSERT_RETURN_MODE_OFF = 0;
+	public const INSERT_RETURN_MODE_SINGLE = 1;
+	public const INSERT_RETURN_MODE_MULTI = 2;
+
 	/*******************
 	 * Public properties
 	 *******************/

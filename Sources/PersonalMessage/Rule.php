@@ -190,7 +190,7 @@ class Rule implements \ArrayAccess
 					],
 				],
 				['id_rule'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;

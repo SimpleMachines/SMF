@@ -727,7 +727,7 @@ class Event implements \ArrayAccess
 				$columns,
 				[$params],
 				['id_event'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;

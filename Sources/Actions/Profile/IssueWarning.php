@@ -469,7 +469,7 @@ class IssueWarning implements ActionInterface
 						],
 					],
 					['id_notice'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 		}

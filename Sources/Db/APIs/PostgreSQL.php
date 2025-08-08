@@ -341,7 +341,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -432,7 +432,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$with_returning = false;
 
 		// Let's build the returning string. (MySQL allows this only in normal mode)
-		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0) {
+		if (!empty($keys) && (count($keys) > 0) && $returnmode > DatabaseApi::INSERT_RETURN_MODE_OFF) {
 			// We only take the first key.
 			$returning = ' RETURNING ' . $keys[0];
 			$with_returning = true;
@@ -476,14 +476,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			if ($with_returning && $request !== false) {
-				if ($returnmode === 2) {
+				if ($returnmode === DatabaseApi::INSERT_RETURN_MODE_MULTI) {
 					$return_var = [];
 				}
 
 				while (($row = $this->fetch_row($request)) && $with_returning) {
 					if (is_numeric($row[0])) { // try to emulate mysql limitation
 						switch ($returnmode) {
-							case 2:
+							case DatabaseApi::INSERT_RETURN_MODE_MULTI:
 								$return_var[] = (int) $row[0];
 								break;
 
