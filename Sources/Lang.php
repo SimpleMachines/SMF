@@ -410,6 +410,11 @@ class Lang
 			self::$already_loaded[$name] = $lang;
 		}
 
+		// We loaded a batch of files? Indicate that as well.
+		if (strpos($filename, '+') !== false) {
+			self::$already_loaded[$filename] = $lang;
+		}
+
 		// Return the language actually loaded.
 		return $lang;
 	}

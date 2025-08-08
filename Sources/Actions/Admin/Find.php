@@ -240,6 +240,10 @@ class Find implements ActionInterface
 		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 		Utils::$context['search_results'] = [];
 
+		// Load all the languages first, not doing so slow.
+		// Do not use the $file param in any Lang calls.
+		Lang::load(implode('+', $this->language_files));
+
 		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
 
 		// Go through all the search data trying to find this text!
@@ -255,12 +259,12 @@ class Find implements ActionInterface
 					if (
 						stripos($term, $search_term) !== false
 						|| (
-							Lang::txtExists($term, file: implode('+', $this->language_files))
-							&& stripos(Lang::getTxt($term, file: implode('+', $this->language_files)), $search_term) !== false
+							Lang::txtExists($term)
+							&& stripos(Lang::getTxt($term), $search_term) !== false
 						)
 						|| (
-							Lang::txtExists('setting_' . $term, file: implode('+', $this->language_files))
-							&& stripos(Lang::getTxt('setting_' . $term, file: implode('+', $this->language_files)), $search_term) !== false
+							Lang::txtExists('setting_' . $term)
+							&& stripos(Lang::getTxt('setting_' . $term), $search_term) !== false
 						)
 					) {
 						$found = $term;
@@ -270,7 +274,7 @@ class Find implements ActionInterface
 
 				if ($found) {
 					// Format the name - and remove any descriptions the entry may have.
-					$name = Lang::txtExists($found, file: 'Admin') ? Lang::getTxt($found, file: 'Admin') : (Lang::txtExists('setting_' . $found, file: 'Admin') ? Lang::getTxt('setting_' . $found, file: 'Admin') : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+					$name = Lang::txtExists($found) ? Lang::getTxt($found) : (Lang::txtExists('setting_' . $found) ? Lang::getTxt('setting_' . $found) : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
