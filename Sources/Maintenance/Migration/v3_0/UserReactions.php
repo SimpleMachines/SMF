@@ -57,7 +57,7 @@ class UserReactions extends MigrationBase
 			Db::$db->rename_table('{db_prefix}user_likes', '{db_prefix}user_reacts', true);
 
 			// Add the new column
-			$tbl = new UserReacts().
+			$tbl = new UserReacts();
 			Db::$db->add_column('{db_prefix}user_reacts', $tbl->columns);
 
 			// Default reaction is like for now
