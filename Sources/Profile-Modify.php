@@ -562,9 +562,14 @@ function loadProfileFields($force_reload = false)
 			{
 				loadLanguage('Settings');
 
-				$context['allow_no_censored'] = false;
-				if ($user_info['is_admin'] || $context['user']['is_owner'])
-					$context['allow_no_censored'] = !empty($modSettings['allow_no_censored']);
+				if (empty($modSettings['allow_no_censored'])) {
+					foreach ($context['theme_options'] as $k => $v) {
+						if (is_array($v) && $v['id'] === 'show_no_censored') {
+							unset($context['theme_options'][$k]);
+							break;
+						}
+					}
+				}
 
 				return true;
 			},
