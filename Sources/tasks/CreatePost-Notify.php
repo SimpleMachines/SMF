@@ -298,9 +298,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
-				WHERE (' . (!empty($topicOptions['board']) ? 'ln.id_board = {int:board}' : '')
+				WHERE (' . (!empty($topicOptions['board']) ? 'id_board = {int:board}' : '')
 				 . (!empty($topicOptions['board']) && !empty($topicOptions['id']) ? ' or ' : '')
-				 . (!empty($topicOptions['id']) ? 'ln.id_topic = {int:topic}' : '') . ')
+				 . (!empty($topicOptions['id']) ? 'id_topic = {int:topic}' : '') . ')
 					AND id_member IN ({array_int:members})',
 				array(
 					'topic' => $topicOptions['id'],
