@@ -246,6 +246,7 @@ class Mentions
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (!isset($existing_mentions[$row['id_member']]) && stripos($body, static::$char . $row['real_name']) === false) {
 				$break = true;
+
 				// SMF 2.1 would store names containing single quotes escaped, 3.0 does not. Compatbility.
 				if (Config::$backward_compatibility && !isset($existing_mentions[$row['id_member']]) && stripos($body, Utils::htmlspecialchars(static::$char . $row['real_name'], ENT_QUOTES)) !== false) {
 					$row['real_name'] = Utils::htmlspecialchars($row['real_name'], ENT_QUOTES);
@@ -485,6 +486,7 @@ class Mentions
 
 			for ($i = 1; $i <= $count; $i++) {
 				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))));
+
 				// SMF 2.1 would store names containing single quotes escaped, 3.0 does not. Compatbility.
 				if (Config::$backward_compatibility) {
 					$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))), ENT_QUOTES);
