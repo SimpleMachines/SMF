@@ -286,7 +286,7 @@ class Attachments implements ActionInterface
 							$link = '<a href="';
 
 							// In case of a custom avatar URL attachments have a fixed directory.
-							if ($rowData['attachment_type'] == 1) {
+							if ($rowData['attachment_type'] == Attachment::TYPE_AVATAR) {
 								$link .= sprintf('%1$s/%2$s', Config::$modSettings['custom_avatar_url'], $rowData['filename']);
 							}
 							// By default avatars are downloaded almost as attachments.
@@ -302,7 +302,7 @@ class Attachments implements ActionInterface
 
 							// Show a popup on click if it's a picture and we know its dimensions.
 							if (!empty($rowData['width']) && !empty($rowData['height'])) {
-								$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == 1 ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
+								$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == Attachment::TYPE_AVATAR ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 							}
 
 							$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', Utils::htmlspecialchars($rowData['filename'])));
@@ -486,7 +486,7 @@ class Attachments implements ActionInterface
 			WHERE attachment_type = {int:attachment_type}
 				AND id_member = {int:guest_id_member}',
 			[
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'guest_id_member' => 0,
 			],
 		);
@@ -513,7 +513,7 @@ class Attachments implements ActionInterface
 			FROM {db_prefix}attachments
 			WHERE attachment_type != {int:type}',
 			[
-				'type' => 1,
+				'type' => Attachment::TYPE_AVATAR,
 			],
 		);
 		list($attachmentDirSize) = Db::$db->fetch_row($request);
@@ -627,7 +627,7 @@ class Attachments implements ActionInterface
 		// Deleting an attachment?
 		if ($_REQUEST['type'] != 'avatars') {
 			// Get rid of all the old attachments.
-			$messages = Attachment::remove(['attachment_type' => 0, 'poster_time' => (time() - 24 * 60 * 60 * $_POST['age'])], 'messages', true);
+			$messages = Attachment::remove(['attachment_type' => Attachment::TYPE_STANDARD, 'poster_time' => (time() - 24 * 60 * 60 * $_POST['age'])], 'messages', true);
 
 			// Update the messages to reflect the change.
 			if (!empty($messages) && !empty($_POST['notice'])) {
@@ -661,7 +661,7 @@ class Attachments implements ActionInterface
 		User::$me->checkSession('post', 'admin');
 
 		// Find humungous attachments.
-		$messages = Attachment::remove(['attachment_type' => 0, 'size' => 1024 * $_POST['size']], 'messages', true);
+		$messages = Attachment::remove(['attachment_type' => Attachment::TYPE_STANDARD, 'size' => 1024 * $_POST['size']], 'messages', true);
 
 		// And make a note on the post.
 		if (!empty($messages) && !empty($_POST['notice'])) {
@@ -688,7 +688,7 @@ class Attachments implements ActionInterface
 	{
 		User::$me->checkSession('get', 'admin');
 
-		$messages = Attachment::remove(['attachment_type' => 0], '', true);
+		$messages = Attachment::remove(['attachment_type' => Attachment::TYPE_STANDARD], '', true);
 
 		if (!isset($_POST['notice'])) {
 			$_POST['notice'] = Lang::getTxt('attachment_delete_admin', file: 'Admin');
@@ -775,7 +775,7 @@ class Attachments implements ActionInterface
 				FROM {db_prefix}attachments
 				WHERE attachment_type = {int:thumbnail}',
 				[
-					'thumbnail' => 3,
+					'thumbnail' => Attachment::TYPE_THUMB,
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
@@ -793,7 +793,7 @@ class Attachments implements ActionInterface
 						AND thumb.attachment_type = {int:thumbnail}
 						AND tparent.id_attach IS NULL',
 					[
-						'thumbnail' => 3,
+						'thumbnail' => Attachment::TYPE_THUMB,
 						'substep' => $_GET['substep'],
 					],
 				);
@@ -825,7 +825,7 @@ class Attachments implements ActionInterface
 							AND attachment_type = {int:attachment_type}',
 						[
 							'to_remove' => $to_remove,
-							'attachment_type' => 3,
+							'attachment_type' => Attachment::TYPE_THUMB,
 						],
 					);
 				}
@@ -926,7 +926,7 @@ class Attachments implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($result)) {
 					// Get the filename.
-					if ($row['attachment_type'] == 1) {
+					if ($row['attachment_type'] == Attachment::TYPE_AVATAR) {
 						$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 					} else {
 						$filename = Attachment::getFilePath((int) $row['id_attach']);
@@ -1077,7 +1077,7 @@ class Attachments implements ActionInterface
 
 					// If we are repairing remove the file from disk now.
 					if ($fix_errors && in_array('avatar_no_member', $to_fix)) {
-						if ($row['attachment_type'] == 1) {
+						if ($row['attachment_type'] == Attachment::TYPE_AVATAR) {
 							$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 						} else {
 							$filename = Attachment::getFilePath((int) $row['id_attach']);
@@ -1148,7 +1148,7 @@ class Attachments implements ActionInterface
 						'no_msg' => 0,
 						'substep' => $_GET['substep'],
 						'ignore_ids' => $ignore_ids,
-						'attach_thumb' => [0, 3],
+						'attach_thumb' => [Attachment::TYPE_STANDARD, Attachment::TYPE_THUMB],
 					],
 				);
 
@@ -1178,7 +1178,7 @@ class Attachments implements ActionInterface
 						[
 							'to_remove' => $to_remove,
 							'no_member' => 0,
-							'attach_thumb' => [0, 3],
+							'attach_thumb' => [Attachment::TYPE_STANDARD, Attachment::TYPE_THUMB],
 						],
 					);
 				}
@@ -1856,7 +1856,7 @@ class Attachments implements ActionInterface
 					AND attachment_type != {int:attachment_type}',
 				[
 					'folder_id' => $_POST['from'],
-					'attachment_type' => 1,
+					'attachment_type' => Attachment::TYPE_AVATAR,
 				],
 			);
 			list($total_progress) = Db::$db->fetch_row($request);
@@ -1905,7 +1905,7 @@ class Attachments implements ActionInterface
 							AND attachment_type != {int:attachment_type}',
 						[
 							'folder_id' => $new_dir,
-							'attachment_type' => 1,
+							'attachment_type' => Attachment::TYPE_AVATAR,
 						],
 					);
 					list($dir_files, $dir_size) = Db::$db->fetch_row($request);
@@ -1921,7 +1921,7 @@ class Attachments implements ActionInterface
 					LIMIT {int:start}, {int:limit}',
 					[
 						'folder' => $_POST['from'],
-						'attachment_type' => 1,
+						'attachment_type' => Attachment::TYPE_AVATAR,
 						'start' => $start,
 						'limit' => $limit,
 					],
@@ -2418,7 +2418,7 @@ class Attachments implements ActionInterface
 				ORDER BY {raw:sort}
 				LIMIT {int:start}, {int:per_page}',
 				[
-					'attachment_type' => $browse_type == 'thumbs' ? '3' : '0',
+					'attachment_type' => $browse_type == 'thumbs' ? Attachment::TYPE_THUMB : Attachment::TYPE_STANDARD,
 					'guest_id_member' => 0,
 					'sort' => $sort,
 					'start' => $start,
@@ -2464,7 +2464,7 @@ class Attachments implements ActionInterface
 				WHERE a.attachment_type = {int:attachment_type}
 					AND a.id_member = {int:guest_id_member}',
 				[
-					'attachment_type' => $browse_type === 'thumbs' ? '3' : '0',
+					'attachment_type' => $browse_type === 'thumbs' ? Attachment::TYPE_THUMB : Attachment::TYPE_STANDARD,
 					'guest_id_member' => 0,
 				],
 			);
@@ -2491,7 +2491,7 @@ class Attachments implements ActionInterface
 			WHERE attachment_type != {int:type}
 			GROUP BY id_folder',
 			[
-				'type' => 1,
+				'type' => Attachment::TYPE_AVATAR,
 			],
 		);
 

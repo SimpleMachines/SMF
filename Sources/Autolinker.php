@@ -509,7 +509,7 @@ class Autolinker
 
 				foreach ($detected_urls as $pos => $url) {
 					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
-					$prev_pos = $pos;
+					$prev_pos = (int) $pos;
 					$prev_len = strlen($url);
 
 					// If this isn't a clean URL, leave it alone.

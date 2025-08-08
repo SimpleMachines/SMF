@@ -2681,7 +2681,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Reset the attach ID.
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 	}
@@ -2722,7 +2722,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Get rid of their old avatar.
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 	}
@@ -2787,7 +2787,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Remove any attached avatar...
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 
@@ -2917,11 +2917,11 @@ class Profile extends User implements \ArrayAccess
 				],
 			],
 			['id_attach'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		$this->data['filename'] = $image->pathinfo['basename'];
-		$this->data['attachment_type'] = 1;
+		$this->data['attachment_type'] = Attachment::TYPE_AVATAR;
 
 		return null;
 	}

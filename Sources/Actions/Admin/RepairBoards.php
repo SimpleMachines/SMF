@@ -1228,7 +1228,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_cat'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
@@ -1277,7 +1277,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_board'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
@@ -1342,7 +1342,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_topic'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		Db::$db->query(
@@ -1432,7 +1432,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_msg'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			$row['id_topic'] = Db::$db->insert(
@@ -1459,7 +1459,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_topic'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			Db::$db->query(
@@ -1562,7 +1562,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_msg'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		$newTopicID = Db::$db->insert(
@@ -1589,7 +1589,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_topic'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		Db::$db->query(
@@ -1773,7 +1773,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_board'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		Db::$db->query(

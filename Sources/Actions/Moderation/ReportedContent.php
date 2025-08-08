@@ -1194,6 +1194,12 @@ class ReportedContent implements ActionInterface
 			return;
 		}
 
+		$report = $this->getReportDetails($report_id);
+
+		if (empty($report)) {
+			return;
+		}
+
 		$data = array_merge([User::$me->id, User::$me->name, 'reportc', ''], $data);
 
 		$last_comment = Db::$db->insert(
@@ -1210,10 +1216,8 @@ class ReportedContent implements ActionInterface
 			],
 			[$data],
 			['id_comment'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
-
-		$report = $this->getReportDetails($report_id);
 
 		if ($this->type == 'members') {
 			$prefix = 'Member';

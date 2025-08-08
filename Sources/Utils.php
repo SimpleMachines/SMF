@@ -2234,21 +2234,8 @@ class Utils
 		}
 
 		if (str_contains($setLocation, Config::$scripturl)) {
-			// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-			$sid = defined('SID') ? @constant('SID') : null;
-
-			// Put the session ID in.
-			if (isset($sid) && $sid != '' && !preg_match("/[;?]{$sid}/", $setLocation)) {
-				$insert = (str_contains($setLocation, '?') ? ';' : '?') . $sid;
-
-				if (str_contains($setLocation, '#')) {
-					$setLocation = str_replace('#', $insert . '#', $setLocation);
-				} else {
-					$setLocation .= $insert;
-				}
-			}
 			// Keep that debug in there for template debugging!
-			elseif (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
+			if (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
 				$insert = (str_contains($setLocation, '?') ? ';' : '?') . 'debug';
 
 				if (str_contains($setLocation, '#')) {
@@ -2338,7 +2325,7 @@ class Utils
 			}
 
 			// Start up the session URL fixer.
-			ob_start('SMF\\QueryString::ob_sessrewrite');
+			ob_start('SMF\\QueryString::obDebug');
 
 			// More work needed if using "queryless" URLS.
 			ob_start('SMF\\QueryString::rewriteAsQueryless');

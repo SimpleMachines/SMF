@@ -46,58 +46,83 @@ class UpdateUnicode extends BackgroundTask
 	 *******************/
 
 	/**
-	 * @var string The latest official release of the Unicode Character Database.
+	 * @var string
+	 *
+	 * The latest official release of the Unicode Character Database.
 	 */
-	public $ucd_version = '';
+	public string $ucd_version = '';
 
 	/**
-	 * @var string Path to temporary working directory.
+	 * @var string
+	 *
+	 * Path to temporary working directory.
 	 */
-	public $temp_dir = '';
+	public string $temp_dir = '';
 
 	/**
-	 * @var string Convenience alias of Config::$sourcedir . '/Unicode'.
+	 * @var string
+	 *
+	 * Convenience alias of Config::$sourcedir . '/Unicode'.
 	 */
-	public $unicodedir = '';
+	public string $unicodedir = '';
 
 	/*********************
 	 * Internal properties
 	 *********************/
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 *
 	 */
-	private $time_limit = 30;
+	protected bool $allow_concurrent = false;
 
 	/**
-	 * @var array Key-value pairs of character decompositions.
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
-	private $full_decomposition_maps = [];
+	private int $time_limit = 30;
 
 	/**
-	 * @var array Character properties used during normalization.
+	 * @var array
+	 *
+	 * Key-value pairs of character decompositions.
 	 */
-	private $derived_normalization_props = [];
+	private array $full_decomposition_maps = [];
 
 	/**
-	 * @var array Assorted info about Unicode characters.
+	 * @var array
+	 *
+	 * Character properties used during normalization.
 	 */
-	private $char_data = [];
+	private array $derived_normalization_props = [];
 
 	/**
-	 * @var array Statistical info about character scripts (e.g. Latin, Greek, Cyrillic, etc.)
+	 * @var array
+	 *
+	 * Assorted info about Unicode characters.
 	 */
-	private $script_stats = [];
+	private array $char_data = [];
 
 	/**
-	 * @var array Tracks associations between character scripts' short and long names.
+	 * @var array
+	 *
+	 * Statistical info about character scripts (e.g. Latin, Greek, Cyrillic, etc.)
 	 */
-	private $script_aliases = [];
+	private array $script_stats = [];
 
 	/**
-	 * @var array Info about functions to build in SMF's Unicode data files.
+	 * @var array
+	 *
+	 * Tracks associations between character scripts' short and long names.
 	 */
-	private $funcs = [
+	private array $script_aliases = [];
+
+	/**
+	 * @var array
+	 *
+	 * Info about functions to build in SMF's Unicode data files.
+	 */
+	private array $funcs = [
 		[
 			'file' => 'Metadata.php',
 			'regex' => '/if \(!defined\(\'SMF_UNICODE_VERSION\'\)\)(?:\s*{)?\n\tdefine\(\'SMF_UNICODE_VERSION\', \'\d+(\.\d+)*\'\);(?:\n})?/',
@@ -387,17 +412,6 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
-		'idna_maps_not_std3' => [
-			'file' => 'Idna.php',
-			'key_type' => 'hexchar',
-			'val_type' => 'hexchar',
-			'desc' => ['Helper function for idn_to_* polyfills.'],
-			'return' => [
-				'type' => 'array',
-				'desc' => 'Non-STD3 character maps for IDNA processing.',
-			],
-			'data' => [],
-		],
 		'idna_regex' => [
 			'file' => 'Idna.php',
 			'key_type' => 'string',
@@ -522,9 +536,11 @@ class UpdateUnicode extends BackgroundTask
 	];
 
 	/**
-	 * @var array Files to fetch from unicode.org.
+	 * @var array
+	 *
+	 * Files to fetch from unicode.org.
 	 */
-	private $prefetch = [
+	private array $prefetch = [
 		self::DATA_URL_UCD => [
 			'CaseFolding.txt',
 			'DerivedAge.txt',
@@ -639,24 +655,11 @@ class UpdateUnicode extends BackgroundTask
 				$max_fetch_time = max($max_fetch_time, microtime(true) - $fetch_start);
 
 				// If prefetch is taking a really long time, pause and try again later.
-				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time) {
-					Db::$db->insert(
-						'',
-						'{db_prefix}background_tasks',
-						[
-							'task_class' => 'string',
-							'task_data' => 'string',
-							'claimed_time' => 'int',
-						],
-						[
-							[
-								'SMF\\Tasks\\Update_Unicode',
-								'',
-								time() - MAX_CLAIM_THRESHOLD,
-							],
-						],
-						['id_task'],
-					);
+				if (
+					$local_file === false
+					|| microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time
+				) {
+					$this->respawn($this->_details);
 
 					return true;
 				}
@@ -723,17 +726,19 @@ class UpdateUnicode extends BackgroundTask
 		 * Wrapup *
 		 **********/
 		if ($success) {
-			$done_files = [];
+			// If any of the temp files went missing, bail out immediately.
+			foreach ($this->funcs as $func_name => $func_info) {
+				if (
+					!is_readable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+					|| !is_writable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+				) {
+					return true;
+				}
+			}
 
 			foreach ($this->funcs as $func_name => $func_info) {
 				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
 				$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
-
-				if (in_array($file_paths['temp'], $done_files)) {
-					continue;
-				}
-
-				$done_files[] = $file_paths['temp'];
 
 				// Only move if the file has changed, discounting the license block.
 				foreach (['temp', 'real'] as $f) {
@@ -744,7 +749,9 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				if (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
+				if ($file_contents['temp'] === '') {
+					$success = false;
+				} elseif (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
 					$success &= Config::safeFileWrite(
 						$file_paths['real'],
 						file_get_contents($file_paths['temp']),
@@ -769,21 +776,21 @@ class UpdateUnicode extends BackgroundTask
 			// Updating Unicode data means we need to update the spoof detector names.
 			if (empty($this->_details['files_only'])) {
 				Db::$db->insert(
-					'insert',
-					'{db_prefix}background_tasks',
-					[
+					method: 'insert',
+					table: '{db_prefix}background_tasks',
+					columns: [
 						'task_class' => 'string',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
 					],
-					[
+					data: [
 						[
-							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							UpdateSpoofDetectorNames::class,
 							json_encode(['last_member_id' => 0]),
 							0,
 						],
 					],
-					['id_task'],
+					keys: ['id_task'],
 				);
 			}
 		}
@@ -801,7 +808,7 @@ class UpdateUnicode extends BackgroundTask
 	public function export_funcs_to_file(): void
 	{
 		foreach ($this->funcs as $func_name => $func_info) {
-			if (empty($func_info['data'])) {
+			if (!isset($func_info['data'])) {
 				continue;
 			}
 
@@ -843,7 +850,7 @@ class UpdateUnicode extends BackgroundTask
 
 			// Needs to be a writable directory.
 			if (!is_dir($this->temp_dir) || !Utils::makeWritable($this->temp_dir)) {
-				$this->temp_dir = null;
+				$this->temp_dir = '';
 			}
 		}
 	}
@@ -984,12 +991,13 @@ class UpdateUnicode extends BackgroundTask
 	}
 
 	/**
-	 * Builds complete code for the specified element in $this->funcs
-	 * to be inserted into the relevant PHP file. Also builds a regex
-	 * to check whether a copy of the function is already present
-	 * in the file.
+	 * Builds complete code for the specified element in $this->funcs to be
+	 * inserted into the relevant PHP file. Also builds a regex to check whether
+	 * a copy of the function is already present in the file.
 	 *
-	 * @param string|int $func_name Key of an element in $this->funcs.  If an int is provided, it is considered raw code such as a header, and does not replace a function in the file.
+	 * @param string|int $func_name Key of an element in $this->funcs. If an int
+	 *    is provided, it is considered raw code such as a header, and does not
+	 *    replace a function in the file.
 	 *
 	 * @return array PHP code and a regular expression.
 	 */
@@ -1137,7 +1145,7 @@ class UpdateUnicode extends BackgroundTask
 			return true;
 		}
 
-		return version_compare($this->ucd_version, SMF_UNICODE_VERSION, '>=');
+		return !defined('SMF_UNICODE_VERSION') ? true : version_compare($this->ucd_version, SMF_UNICODE_VERSION, '>=');
 	}
 
 	/**
@@ -2142,14 +2150,6 @@ class UpdateUnicode extends BackgroundTask
 				}
 
 				$this->funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
-			} elseif ($fields[1] === 'disallowed_STD3_mapped') {
-				foreach ($entities as $entity) {
-					$this->funcs['idna_maps_not_std3']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
-				}
-
-				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
-			} elseif ($fields[1] === 'disallowed_STD3_valid') {
-				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			}
 		}
 

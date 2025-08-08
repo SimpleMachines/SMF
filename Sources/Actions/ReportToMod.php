@@ -432,7 +432,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 
@@ -460,7 +460,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_comment'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// And get ready to notify people.
@@ -598,7 +598,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 

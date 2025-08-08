@@ -472,7 +472,7 @@ class Topic implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_topic'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;
@@ -1693,7 +1693,7 @@ class Topic implements \ArrayAccess, Routable
 
 		// Get rid of the attachment, if it exists.
 		$attachmentQuery = [
-			'attachment_type' => 0,
+			'attachment_type' => Attachment::TYPE_STANDARD,
 			'id_topic' => $topics,
 		];
 		Attachment::remove($attachmentQuery, 'messages');

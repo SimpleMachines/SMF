@@ -949,7 +949,7 @@ class Attachment implements \ArrayAccess
 						AND attachment_type = {int:attachment_type}',
 					[
 						'id_msg' => (int) $_REQUEST['msg'],
-						'attachment_type' => 0,
+						'attachment_type' => Attachment::TYPE_STANDARD,
 					],
 				);
 				list(Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
@@ -1169,7 +1169,7 @@ class Attachment implements \ArrayAccess
 						AND attachment_type != {int:type}',
 					[
 						'folder_id' => Config::$modSettings['currentAttachmentUploadDir'],
-						'type' => 1,
+						'type' => Attachment::TYPE_AVATAR,
 					],
 				);
 				list(Utils::$context['dir_files'], Utils::$context['dir_size']) = Db::$db->fetch_row($request);
@@ -1402,7 +1402,7 @@ class Attachment implements \ArrayAccess
 			$attachmentColumns,
 			[$attachmentValues],
 			['id_attach'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Attachment couldn't be created.
@@ -1528,7 +1528,7 @@ class Attachment implements \ArrayAccess
 						],
 					],
 					['id_attach'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 
 				if (!empty($attachmentOptions['thumb'])) {
@@ -1609,7 +1609,7 @@ class Attachment implements \ArrayAccess
 				AND a.attachment_type = {int:attachment_type}',
 			[
 				'attachments' => $attachments,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 			],
 		);
 		$attachments = [];
@@ -1648,7 +1648,7 @@ class Attachment implements \ArrayAccess
 				AND a.attachment_type = {int:attachment_type}',
 			[
 				'attachments' => $attachments,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 			],
 		);
 
@@ -1696,7 +1696,7 @@ class Attachment implements \ArrayAccess
 		// @todo This might need more work!
 		$new_condition = [];
 		$query_parameter = [
-			'thumb_attachment_type' => 3,
+			'thumb_attachment_type' => Attachment::TYPE_THUMB,
 		];
 		$do_logging = [];
 
@@ -1751,7 +1751,7 @@ class Attachment implements \ArrayAccess
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Figure out the "encrypted" filename and unlink it ;).
-			if ($row['attachment_type'] == 1) {
+			if ($row['attachment_type'] == Attachment::TYPE_AVATAR) {
 				// if attachment_type = 1, it's... an avatar in a custom avatars directory.
 				// wasn't it obvious? :P
 				// @todo look again at this.
@@ -1807,7 +1807,7 @@ class Attachment implements \ArrayAccess
 					AND a.attachment_type = {int:attachment_type}',
 				[
 					'attachments' => $do_logging,
-					'attachment_type' => 0,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 
@@ -2123,7 +2123,7 @@ class Attachment implements \ArrayAccess
 									],
 								],
 								['id_attach'],
-								1,
+								Db::INSERT_RETURN_MODE_SINGLE,
 							);
 
 							if (!empty($attachment['id_thumb'])) {

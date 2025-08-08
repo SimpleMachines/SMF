@@ -25,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -698,7 +699,7 @@ class Subscriptions implements ActionInterface
 						],
 					],
 					['id_subscribe'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 			// Otherwise must be editing.
@@ -1512,7 +1513,7 @@ class Subscriptions implements ActionInterface
 			self::$all[$row['id_subscribe']] = [
 				'id' => $row['id_subscribe'],
 				'name' => $row['name'],
-				'desc' => $row['description'],
+				'desc' => Parser::transform(Utils::entityDecode($row['description'])),
 				'cost' => $cost,
 				'real_cost' => $row['cost'],
 				'length' => $length,

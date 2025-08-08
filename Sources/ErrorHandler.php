@@ -277,8 +277,9 @@ class ErrorHandler
 		$error_info = [
 			User::$me->id ?? User::$my_id ?? 0,
 			time(),
-			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
+			User::$me->ip ?? IP::getUserIP(),
 			$request_url,
+			$query_string,
 			$error_message,
 			(string) (User::$sc ?? ''),
 			$error_type,

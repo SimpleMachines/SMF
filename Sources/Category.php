@@ -499,7 +499,7 @@ class Category implements \ArrayAccess
 			$cat_columns,
 			[$cat_parameters],
 			['id_cat'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Set the given properties to the newly created category.

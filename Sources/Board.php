@@ -565,7 +565,7 @@ class Board implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_board'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;

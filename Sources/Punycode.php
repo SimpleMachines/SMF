@@ -26,6 +26,7 @@ namespace SMF;
 use function SMF\Unicode\idna_maps;
 use function SMF\Unicode\idna_maps_deviation;
 use function SMF\Unicode\idna_maps_not_std3;
+use function SMF\Unicode\idna_regex;
 
 /**
  * Punycode implementation as described in RFC 3492
@@ -541,27 +542,38 @@ class Punycode
 	{
 		require_once Config::$sourcedir . '/Unicode/Idna.php';
 
-		$regexes = Unicode\idna_regex();
-
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain)) {
-			$errors[] = 'disallowed';
-		}
-
-		$domain = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $domain);
-
-		unset($regexes);
-
+		$regexes = idna_regex();
 		$maps = idna_maps();
 
-		if (!$this->nonTransitional) {
+		if (!$this->nonTransitional && function_exists('SMF\Unicode\idna_maps_deviation')) {
 			$maps = array_merge($maps, idna_maps_deviation());
 		}
 
-		if (!$this->std3) {
+		if (!$this->std3 && function_exists('SMF\Unicode\idna_maps_not_std3')) {
 			$maps = array_merge($maps, idna_maps_not_std3());
 		}
 
-		return Utils::normalize(strtr($domain, $maps));
+		$labels = explode('.', $domain);
+
+		foreach ($labels as $l => $label) {
+			$label = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $label);
+
+			$label = Utils::normalize(strtr($label, $maps));
+
+			if ($this->std3) {
+				$label = strtolower($label);
+			}
+
+			if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label)) {
+				$errors[] = 'disallowed';
+			}
+
+			$labels[$l] = $label;
+		}
+
+		$errors = array_unique($errors);
+
+		return implode('.', $labels);
 	}
 
 	/**
@@ -609,7 +621,7 @@ class Punycode
 
 		$regexes = Unicode\idna_regex();
 
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label)) {
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label)) {
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 

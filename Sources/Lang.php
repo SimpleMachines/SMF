@@ -466,24 +466,29 @@ class Lang
 	{
 		// Either we don't use the cache, or its expired.
 		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null) {
-			// If we don't have our theme information yet, let's get it.
-			if (empty(Theme::$current->settings['default_theme_dir'])) {
-				Theme::load(0, false);
-			}
+			// Special case during install.
+			if (defined('SMF_INSTALLING')) {
+				$language_directories = [Config::$languagesdir];
+			} else {
+				// If we don't have our theme information yet, let's get it.
+				if (empty(Theme::$current->settings['default_theme_dir'])) {
+					Theme::load(0, false);
+				}
 
-			// Default language directories to try.
-			$language_directories = [
-				Config::$languagesdir,
-				Theme::$current->settings['default_theme_dir'] . '/languages',
-			];
+				// Default language directories to try.
+				$language_directories = [
+					Config::$languagesdir,
+					Theme::$current->settings['default_theme_dir'] . '/languages',
+				];
 
-			if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']) {
-				$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
-			}
+				if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']) {
+					$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
+				}
 
-			// We possibly have a base theme directory.
-			if (!empty(Theme::$current->settings['base_theme_dir'])) {
-				$language_directories[] = Theme::$current->settings['base_theme_dir'] . '/languages';
+				// We possibly have a base theme directory.
+				if (!empty(Theme::$current->settings['base_theme_dir'])) {
+					$language_directories[] = Theme::$current->settings['base_theme_dir'] . '/languages';
+				}
 			}
 
 			// Remove any duplicates.
@@ -597,7 +602,15 @@ class Lang
 
 		// Load the specified file.
 		if (is_string($file) && !isset(self::$already_loaded[$file])) {
-			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang);
+			self::load($file, $lang, force_reload: true);
+
+			if (!str_contains($file, 'Modifications')) {
+				self::load('Modifications', $lang, fatal: false, force_reload: true);
+			}
+
+			if (!str_contains($file, 'ThemeStrings')) {
+				self::load('ThemeStrings', $lang, fatal: false, force_reload: true);
+			}
 		}
 
 		$target = &self::${$var};
@@ -740,7 +753,15 @@ class Lang
 				)
 			)
 		) {
-			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang, force_reload: true);
+			self::load($file, $lang, force_reload: true);
+
+			if (!str_contains($file, 'Modifications')) {
+				self::load('Modifications', $lang, fatal: false, force_reload: true);
+			}
+
+			if (!str_contains($file, 'ThemeStrings')) {
+				self::load('ThemeStrings', $lang, fatal: false, force_reload: true);
+			}
 		}
 
 		// Don't waste time when getting a simple string.

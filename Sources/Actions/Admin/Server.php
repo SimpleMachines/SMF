@@ -95,14 +95,14 @@ class Server implements ActionInterface
 	 * Default values for load balancing options.
 	 */
 	public const LOADAVG_DEFAULT_VALUES = [
-		'loadavg_auto_opt' => 1.0,
-		'loadavg_search' => 2.5,
-		'loadavg_allunread' => 2.0,
-		'loadavg_unreadreplies' => 3.5,
-		'loadavg_show_posts' => 2.0,
-		'loadavg_userstats' => 10.0,
-		'loadavg_bbc' => 30.0,
-		'loadavg_forum' => 40.0,
+		'loadavg_auto_opt' => 50.0,
+		'loadavg_search' => 300.0,
+		'loadavg_allunread' => 200.0,
+		'loadavg_unreadreplies' => 200.0,
+		'loadavg_show_posts' => 200.0,
+		'loadavg_userstats' => 150.0,
+		'loadavg_bbc' => 700.0,
+		'loadavg_forum' => 1000.0,
 	];
 
 	/*******************
@@ -596,17 +596,14 @@ class Server implements ActionInterface
 			if (isset($_GET['save'])) {
 				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 			}
-		} elseif (self::$loadAverageDisabled && stripos(PHP_OS, 'darwin') === 0) {
-			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_disabled_osx', file: 'ManageSettings');
-
-			if (isset($_GET['save'])) {
-				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
-			}
 		} elseif (!self::$loadAverageDisabled) {
-			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Config::$modSettings['load_average']], file: 'ManageSettings');
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', file: 'ManageSettings');
 		}
 
-		$config_vars = self::loadBalancingConfigVars();
+		$config_vars = array_merge([
+			['desc', 'loadavg_current_load', 'text_label' => Lang::getTxt('loadavg_current_load', ['load_average' => Sapi::getLoadAverage()], file: 'ManageSettings')],
+			['desc', 'loadavg_processors', 'text_label' => Lang::getTxt('loadavg_processors', ['cpu_count' => Sapi::getCpuCount()], file: 'ManageSettings')],
+		], self::loadBalancingConfigVars());
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=loads;save';
 		Utils::$context['settings_title'] = Lang::getTxt('load_balancing_settings', file: 'Admin');
@@ -1298,27 +1295,7 @@ class Server implements ActionInterface
 		// Assume we can't until proven otherwise.
 		self::$loadAverageDisabled = true;
 
-		// Windows, so we can't.
-		if (DIRECTORY_SEPARATOR === '\\') {
-			return self::$loadAverageDisabled;
-		}
-
-		// Most Linux distros offer a nice file that we can read.
-		Config::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
-
-		if (!empty(Config::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', Config::$modSettings['load_average'], $matches) !== 0) {
-			Config::$modSettings['load_average'] = (float) $matches[1];
-		}
-		// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
-		elseif ((Config::$modSettings['load_average'] = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', Config::$modSettings['load_average'], $matches) !== 0) {
-			Config::$modSettings['load_average'] = (float) $matches[1];
-		}
-		// No shell_exec('uptime') and no /proc/loadavg, so we can't check.
-		else {
-			unset(Config::$modSettings['load_average']);
-		}
-
-		if (!empty(Config::$modSettings['load_average']) || (isset(Config::$modSettings['load_average']) && Config::$modSettings['load_average'] === 0.0)) {
+		if (!Sapi::isOS(Sapi::OS_WINDOWS) && Sapi::getLoadAverage() >= 0.0) {
 			self::$loadAverageDisabled = false;
 		}
 
