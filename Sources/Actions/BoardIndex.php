@@ -99,7 +99,12 @@ class BoardIndex implements ActionInterface, Routable
 		// Retrieve the latest posts if the theme settings require it.
 		if (!empty(Theme::$current->settings['number_recent_posts'])) {
 			if (Theme::$current->settings['number_recent_posts'] > 1) {
-				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), '', [$this, 'cache_getLastPosts'], [Theme::$current->settings['number_recent_posts']]);
+				Utils::$context['latest_posts'] = CacheApi::quickGet(
+					'boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language),
+					'',
+					[$this, 'cache_getLastPosts'],
+					[Theme::$current->settings['number_recent_posts']],
+				);
 			}
 
 			if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post'])) {
@@ -258,12 +263,12 @@ class BoardIndex implements ActionInterface, Routable
 		return [
 			'data' => $this->getLastPosts($number_posts),
 			'expires' => time() + 60,
-			'post_retri_eval' => '
-				foreach ($cache_block[\'data\'] as $k => $post)
-				{
-					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
-					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
-				}',
+			'update_callback' => function (array $cache_block, array &$params) {
+				foreach ($cache_block['data'] as $k => $post) {
+					$cache_block['data'][$k]['time'] = Time::create('@' . $post['raw_timestamp'])->format();
+					$cache_block['data'][$k]['timestamp'] = $post['raw_timestamp'];
+				}
+			},
 		];
 	}
 
