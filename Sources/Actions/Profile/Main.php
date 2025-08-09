@@ -620,14 +620,14 @@ class Main implements ActionInterface, Routable
 		if (!empty($menu->include_data['label'])) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area,
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 
@@ -848,10 +848,6 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->profile_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
-				}
-
 				if (is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
@@ -943,6 +939,7 @@ class Main implements ActionInterface, Routable
 			'extra_url_parameters' => [
 				'u' => Profile::$member->id,
 			],
+			'lang_file' => 'Profile',
 		];
 
 		// Actually create the menu!
