@@ -106,6 +106,8 @@ class Find implements ActionInterface
 	 * add the language file to this array via the integrate_admin_search hook.
 	 */
 	public array $language_files = [
+		'General',
+		'Admin',
 		'Drafts',
 		'Help',
 		'Login',
