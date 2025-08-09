@@ -45,8 +45,6 @@ var atwhoConfig = {
 			});
 		},
 		tplEval: function (tpl, map, caller) {
-			console.log(tpl,map,caller);
-
 			var error, error1, template;
 			template = tpl;
 			try {
