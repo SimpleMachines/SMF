@@ -216,12 +216,12 @@ class Find implements ActionInterface
 		// Go through the admin menu structure trying to find suitably named areas!
 		foreach (Menu::$loaded['admin']['sections'] as $section) {
 			foreach ($section['areas'] as $menu_key => $menu_item) {
-				$search_data['sections'][] = [$menu_item['label'], 'area=' . $menu_key];
+				$search_data['sections'][] = [$menu_item['txt_key'], 'area=' . $menu_key];
 
 				if (!empty($menu_item['subsections'])) {
 					foreach ($menu_item['subsections'] as $key => $sublabel) {
-						if (isset($sublabel['label'])) {
-							$search_data['sections'][] = [$sublabel['label'], 'area=' . $menu_key . ';sa=' . $key];
+						if (isset($sublabel['txt_key'])) {
+							$search_data['sections'][] = [$sublabel['txt_key'], 'area=' . $menu_key . ';sa=' . $key];
 						}
 					}
 				}
