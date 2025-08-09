@@ -520,7 +520,7 @@ class Alert implements \ArrayAccess
 					],
 				],
 				['id_alert'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Update the keys in self::$loaded.
@@ -699,7 +699,7 @@ class Alert implements \ArrayAccess
 			],
 			$inserts,
 			['id_alert'],
-			2,
+			Db::INSERT_RETURN_MODE_MULTI,
 		);
 
 		// Map our temp IDs to the real IDs.

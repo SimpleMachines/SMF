@@ -185,7 +185,7 @@ class Logging
 			],
 			$inserts,
 			['id_action'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		return $id_action;

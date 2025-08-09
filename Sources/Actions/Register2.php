@@ -726,7 +726,7 @@ class Register2 extends Register
 			$column_names,
 			[$values],
 			['id_member'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Call an optional function as notification of registration.

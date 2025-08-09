@@ -3523,6 +3523,132 @@ class PackageUtils
 	}
 
 	/**
+	 * Validate a package during install
+	 *
+	 * @param array $package Package data
+	 * @return array Results from the package validation.
+	 */
+	public static function validateInstallTest(array $package): array
+	{
+		// Don't validate directories.
+		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
+
+		$sendData = [[
+			'sha256_hash' => Utils::$context['package_sha256_hash'],
+			'file_name' => basename($package['file_name']),
+			'custom_id' => $package['custom_id'],
+			'custom_type' => $package['custom_type'],
+		]];
+
+		return self::validateSend($sendData);
+	}
+
+	/**
+	 * Validate multiple packages.
+	 *
+	 * @param array $packages Package data
+	 * @return array Results from the package validation.
+	 */
+	public static function validate(array $packages): array
+	{
+		// Setup our send data.
+		$sendData = [];
+
+		// Go through all packages and get them ready to send up.
+		foreach ($packages as $id_package => $package) {
+			$sha256_hash = hash_file('sha256', $package);
+			$packageInfo = self::getPackageInfo($package);
+
+			$packageID = '';
+
+			if (isset($packageInfo['id'])) {
+				$packageID = $packageInfo['id'];
+			}
+
+			$packageType = 'modification';
+
+			if (isset($package['type'])) {
+				$packageType = $package['type'];
+			}
+
+			$sendData[] = [
+				'sha256_hash' => $sha256_hash,
+				'file_name' => basename($package),
+				'custom_id' => $packageID,
+				'custom_type' => $packageType,
+			];
+		}
+
+		return self::validateSend($sendData);
+	}
+
+	/**
+	 * Sending data off to validate packages.
+	 *
+	 * @param array $sendData Json encoded data to be sent to the validation servers.
+	 * @return array Results from the package validation.
+	 */
+	public static function validateSend(array $sendData): array
+	{
+		// First lets get all package servers into here.
+		if (empty(Utils::$context['package_servers'])) {
+
+			$request = Db::$db->query(
+				'SELECT id_server, name, validation_url, extra
+				FROM {db_prefix}package_servers
+				WHERE validation_url != {string:empty}',
+				[
+					'empty' => '',
+				],
+			);
+			Utils::$context['package_servers'] = [];
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				Utils::$context['package_servers'][$row['id_server']] = $row;
+			}
+			Db::$db->free_result($request);
+		}
+
+		$the_version = SMF_VERSION;
+
+		if (!empty($_SESSION['version_emulate'])) {
+			$the_version = $_SESSION['version_emulate'];
+		}
+
+		// Test each server.
+		$return_data = [];
+
+		foreach (Utils::$context['package_servers'] as $id_server => $server) {
+			$return_data[$id_server] = [];
+
+			// Sub out any variables we support in the validation url.
+			$validate_url = strtr($server['validation_url'], [
+				'{SMF_VERSION}' => urlencode($the_version),
+			]);
+
+			$results = WebFetchApi::fetch($validate_url, 'data=' . json_encode($sendData));
+
+			$parsed_data = Utils::jsonDecode($results, true);
+
+			if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data'])) {
+				foreach ($parsed_data['data'] as $sha256_hash => $status) {
+					if ((string) $status === 'blacklist') {
+						Utils::$context['package_blacklist_found'] = true;
+					}
+
+					$return_data[$id_server][(string) $sha256_hash] = 'package_validation_status_' . ((string) $status);
+				}
+			}
+		}
+
+		return $return_data;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
 	 * Writes a collection of files to a `.tar` or `.tar.gz` archive.
 	 *
 	 * This method creates a tarball of the specified files, optionally compressing it with gzip if available.
@@ -3665,131 +3791,7 @@ class PackageUtils
 		return $dirs;
 	}
 
-	/**
-	 * Validate a package during install
-	 *
-	 * @param array $package Package data
-	 * @return array Results from the package validation.
-	 */
-	public static function validateInstallTest(array $package): array
-	{
-		// Don't validate directories.
-		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
-
-		$sendData = [[
-			'sha256_hash' => Utils::$context['package_sha256_hash'],
-			'file_name' => basename($package['file_name']),
-			'custom_id' => $package['custom_id'],
-			'custom_type' => $package['custom_type'],
-		]];
-
-		return self::validateSend($sendData);
-	}
-
-	/**
-	 * Validate multiple packages.
-	 *
-	 * @param array $packages Package data
-	 * @return array Results from the package validation.
-	 */
-	public static function validate(array $packages): array
-	{
-		// Setup our send data.
-		$sendData = [];
-
-		// Go through all packages and get them ready to send up.
-		foreach ($packages as $id_package => $package) {
-			$sha256_hash = hash_file('sha256', $package);
-			$packageInfo = self::getPackageInfo($package);
-
-			$packageID = '';
-
-			if (isset($packageInfo['id'])) {
-				$packageID = $packageInfo['id'];
-			}
-
-			$packageType = 'modification';
-
-			if (isset($package['type'])) {
-				$packageType = $package['type'];
-			}
-
-			$sendData[] = [
-				'sha256_hash' => $sha256_hash,
-				'file_name' => basename($package),
-				'custom_id' => $packageID,
-				'custom_type' => $packageType,
-			];
-		}
-
-		return self::validateSend($sendData);
-	}
-
-	/**
-	 * Sending data off to validate packages.
-	 *
-	 * @param array $sendData Json encoded data to be sent to the validation servers.
-	 * @return array Results from the package validation.
-	 */
-	public static function validateSend(array $sendData): array
-	{
-		// First lets get all package servers into here.
-		if (empty(Utils::$context['package_servers'])) {
-
-			$request = Db::$db->query(
-				'SELECT id_server, name, validation_url, extra
-				FROM {db_prefix}package_servers
-				WHERE validation_url != {string:empty}',
-				[
-					'empty' => '',
-				],
-			);
-			Utils::$context['package_servers'] = [];
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				Utils::$context['package_servers'][$row['id_server']] = $row;
-			}
-			Db::$db->free_result($request);
-		}
-
-		$the_version = SMF_VERSION;
-
-		if (!empty($_SESSION['version_emulate'])) {
-			$the_version = $_SESSION['version_emulate'];
-		}
-
-		// Test each server.
-		$return_data = [];
-
-		foreach (Utils::$context['package_servers'] as $id_server => $server) {
-			$return_data[$id_server] = [];
-
-			// Sub out any variables we support in the validation url.
-			$validate_url = strtr($server['validation_url'], [
-				'{SMF_VERSION}' => urlencode($the_version),
-			]);
-
-			$results = WebFetchApi::fetch($validate_url, 'data=' . json_encode($sendData));
-
-			$parsed_data = Utils::jsonDecode($results, true);
-
-			if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data'])) {
-				foreach ($parsed_data['data'] as $sha256_hash => $status) {
-					if ((string) $status === 'blacklist') {
-						Utils::$context['package_blacklist_found'] = true;
-					}
-
-					$return_data[$id_server][(string) $sha256_hash] = 'package_validation_status_' . ((string) $status);
-				}
-			}
-		}
-
-		return $return_data;
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
+	
 
 	/**
 	 * When removing a language file or directory, figures out whether that file

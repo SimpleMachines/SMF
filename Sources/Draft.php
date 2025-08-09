@@ -782,7 +782,7 @@ class Draft
 				[
 					'id_draft',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Did everything go as expected?

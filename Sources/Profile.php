@@ -2917,7 +2917,7 @@ class Profile extends User implements \ArrayAccess
 				],
 			],
 			['id_attach'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		$this->data['filename'] = $image->pathinfo['basename'];

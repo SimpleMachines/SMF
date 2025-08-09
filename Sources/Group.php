@@ -460,7 +460,7 @@ class Group implements \ArrayAccess
 				$columns,
 				[$params],
 				['id_group'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;

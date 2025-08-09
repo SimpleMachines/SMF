@@ -1463,7 +1463,7 @@ class PM implements \ArrayAccess
 				],
 			],
 			['id_pm'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Add the recipients.

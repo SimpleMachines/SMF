@@ -108,7 +108,7 @@ class PermissionProfile
 				['profile_name' => 'string'],
 				[[$this->name]],
 				['id_profile'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			if (!empty($this->copied_from)) {

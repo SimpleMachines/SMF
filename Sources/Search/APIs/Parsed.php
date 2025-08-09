@@ -941,7 +941,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				[
 					'id_word',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			foreach ($msg_data as $msg => $wordnums) {

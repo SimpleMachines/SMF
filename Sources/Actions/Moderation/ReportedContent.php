@@ -1216,7 +1216,7 @@ class ReportedContent implements ActionInterface
 			],
 			[$data],
 			['id_comment'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		if ($this->type == 'members') {
