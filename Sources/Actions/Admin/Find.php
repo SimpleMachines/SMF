@@ -272,7 +272,7 @@ class Find implements ActionInterface
 
 				if ($found) {
 					// Format the name - and remove any descriptions the entry may have.
-					$name = Lang::txtExists($found, file: 'Admin') ? Lang::getTxt($found, file: 'Admin') : (Lang::txtExists('setting_' . $found, file: 'Admin') ? Lang::getTxt('setting_' . $found, file: 'Admin') : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+					$name = Lang::txtExists($found) ? Lang::getTxt($found) : (Lang::txtExists('setting_' . $found) ? Lang::getTxt('setting_' . $found) : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
