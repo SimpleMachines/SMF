@@ -244,6 +244,9 @@ class Find implements ActionInterface
 
 		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
 
+		// Avoid imploding these strings on every Lang call below.
+		Lang::load(implode('+', $this->language_files), force_reload: true);
+
 		// Go through all the search data trying to find this text!
 		foreach ($search_data as $section => $data) {
 			foreach ($data as $item) {
@@ -257,12 +260,12 @@ class Find implements ActionInterface
 					if (
 						stripos($term, $search_term) !== false
 						|| (
-							Lang::txtExists($term, file: implode('+', $this->language_files))
-							&& stripos(Lang::getTxt($term, file: implode('+', $this->language_files)), $search_term) !== false
+							Lang::txtExists($term)
+							&& stripos(Lang::getTxt($term), $search_term) !== false
 						)
 						|| (
-							Lang::txtExists('setting_' . $term, file: implode('+', $this->language_files))
-							&& stripos(Lang::getTxt('setting_' . $term, file: implode('+', $this->language_files)), $search_term) !== false
+							Lang::txtExists('setting_' . $term)
+							&& stripos(Lang::getTxt('setting_' . $term), $search_term) !== false
 						)
 					) {
 						$found = $term;
