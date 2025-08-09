@@ -269,12 +269,17 @@ class Lang
 
 			foreach (self::$dirs as $dir) {
 				$attempts[] = [$dir, $name, $lang];
-				$attempts[] = [$dir, $name, self::$default];
-			}
 
-			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
-				foreach (self::$dirs as $dir) {
+				if ($lang !== self::$default) {
+					$attempts[] = [$dir, $name, self::$default];
+				}
+
+				// Fall back to English if none of the preferred languages can be found.
+				if (
+					empty(Config::$modSettings['disable_language_fallback'])
+					&& 'en_US' !== self::$default
+					&& 'en_US' !== $lang
+				) {
 					$attempts[] = [$dir, $name, 'en_US'];
 				}
 			}
