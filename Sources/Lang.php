@@ -310,17 +310,35 @@ class Lang
 							continue;
 						}
 
-						// Add the strings to the appropriate array.
-						self::${$var} = array_merge(self::${$var}, ${$var});
+						foreach (${$var} as $key => $value) {
+							// Don't overwrite strings from Modifications or ThemeStrings
+							// unless $force_reload is true.
+							if (
+								!$force_reload
+								&& array_key_exists($key, self::$loaded_keys[$var] ?? [])
+								&& self::$loaded_keys[$var][$key]['file'] !== $file[1]
+								&& (
+									// Modifications takes precedence over all others.
+									self::$loaded_keys[$var][$key]['file'] === 'Modifications'
+									// ThemeStrings takes precedence over all except Modifications.
+									|| (
+										self::$loaded_keys[$var][$key]['file'] === 'ThemeStrings'
+										&& $file[1] !== 'Modifications'
+									)
+								)
+							) {
+								continue;
+							}
 
-						// Keep track of where these strings came from.
-						self::$loaded_keys[$var] = array_merge(
-							self::$loaded_keys[$var] ?? [],
-							array_combine(
-								array_keys(${$var}),
-								array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
-							),
-						);
+							// Add the string to the appropriate array.
+							self::${$var}[$key] = $value;
+
+							// Keep track of where this string came from.
+							self::$loaded_keys[$var][$key] = [
+								'file' => $file[1],
+								'lang' => $file[2],
+							];
+						}
 
 						unset(${$var});
 					}
