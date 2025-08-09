@@ -602,39 +602,9 @@ class Lang
 			throw new \ValueError();
 		}
 
-		// Can we guess the file based on $var?
-		if (!isset($file)) {
-			switch ($var) {
-				case 'tztxt':
-					$file = 'Timezones';
-					break;
+		$txt_key = array_values((array) $txt_key);
 
-				case 'editortxt':
-					$file = 'Editor';
-					break;
-
-				case 'helptxt':
-					$file = 'Help';
-					break;
-
-				case 'txtBirthdayEmails':
-					$file = 'EmailTemplates';
-					break;
-			}
-		}
-
-		// Load the specified file.
-		if (is_string($file) && !isset(self::$already_loaded[$file])) {
-			self::load($file, $lang, force_reload: true);
-
-			if (!str_contains($file, 'Modifications')) {
-				self::load('Modifications', $lang, fatal: false, force_reload: true);
-			}
-
-			if (!str_contains($file, 'ThemeStrings')) {
-				self::load('ThemeStrings', $lang, fatal: false, force_reload: true);
-			}
-		}
+		self::loadFileForGetTxt($file, $var, $txt_key, '');
 
 		$target = &self::${$var};
 
@@ -734,58 +704,7 @@ class Lang
 			$lang = User::$me->language ?? self::$default;
 		}
 
-		// Can we guess the file based on $var?
-		if (!isset($file)) {
-			switch ($var) {
-				case 'tztxt':
-					$file = 'Timezones';
-					break;
-
-				case 'editortxt':
-					$file = 'Editor';
-					break;
-
-				case 'helptxt':
-					$file = 'Help';
-					break;
-
-				case 'txtBirthdayEmails':
-					$file = 'EmailTemplates';
-					break;
-			}
-		}
-
-		// Check whether we need to load the specified file.
-		if (
-			is_string($file)
-			&& (
-				// If we haven't loaded the file yet, do so now.
-				!isset(self::$loaded_keys[$var][$txt_key[0]])
-
-				// If we loaded it for a different language, reload for the right language.
-				|| self::$loaded_keys[$var][$txt_key[0]]['lang'] !== $lang
-
-				// In the event of key conflicts between different files, give
-				// them the string from the requested file. HOWEVER, if the key
-				// was overwritten in the Modifications or ThemeStrings language
-				// files, then keep that version instead.
-				|| (
-					self::$loaded_keys[$var][$txt_key[0]]['file'] !== $file
-					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'ThemeStrings'
-					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'Modifications'
-				)
-			)
-		) {
-			self::load($file, $lang, force_reload: true);
-
-			if (!str_contains($file, 'Modifications')) {
-				self::load('Modifications', $lang, fatal: false, force_reload: true);
-			}
-
-			if (!str_contains($file, 'ThemeStrings')) {
-				self::load('ThemeStrings', $lang, fatal: false, force_reload: true);
-			}
-		}
+		self::loadFileForGetTxt($file, $var, $txt_key, $lang);
 
 		// Don't waste time when getting a simple string.
 		if ($args === [] && count($txt_key) === 1) {
@@ -1147,6 +1066,97 @@ class Lang
 		}
 
 		return $found;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Helper for Lang::txtExists() and Lang::getTxt() that handles loading the
+	 * requested file or files.
+	 *
+	 * @param ?string $file Name of a language file to load. This is not needed
+	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    To load multiple files, concatenate their names using '+'.
+	 * @param string $var Name of the array to search in. Allowed values are
+	 *    'txt', 'helptxt', 'editortxt', 'tztxt', and 'txtBirthdayEmails'.
+	 * @param string|array $txt_key The key of the Lang::${$var} array that
+	 *    contains the desired string. If this is an array, each item of the
+	 *    array will be used as a sub-key to drill down into deeper levels of
+	 *    the overall array.
+	 * @param string $lang A specific language to load $file from. Use an empty
+	 *    string if the language doesn't matter.
+	 */
+	private static function loadFileForGetTxt(?string $file, string $var, array $txt_key, string $lang): void
+	{
+		// Can we guess the file based on $var?
+		if (!isset($file)) {
+			switch ($var) {
+				case 'tztxt':
+					$file = 'Timezones';
+					break;
+
+				case 'editortxt':
+					$file = 'Editor';
+					break;
+
+				case 'helptxt':
+					$file = 'Help';
+					break;
+
+				case 'txtBirthdayEmails':
+					$file = 'EmailTemplates';
+					break;
+
+				default:
+					// No file specified, so there's nothing else to do.
+					return;
+			}
+		}
+
+		// Get the list of files.
+		$files = array_unique(array_merge(
+			array_filter(explode('+', $file ?? '')),
+			// Append these files to the list because they might override the
+			// normal value.
+			['ThemeStrings', 'Modifications'],
+		));
+
+		// The string has not been loaded.
+		if (!isset(self::$loaded_keys[$var][$txt_key[0]])) {
+			self::load(
+				filename: implode('+', $files),
+				lang: $lang,
+			);
+
+			return;
+		}
+
+		// The string has been loaded but did not come from an expected file.
+		if (!in_array(self::$loaded_keys[$var][$txt_key[0]]['file'], $files)) {
+			self::load(
+				filename: implode('+', $files),
+				lang: $lang,
+				force_reload: true,
+			);
+
+			return;
+		}
+
+		// The string has been loaded from an expected file, but in the wrong language.
+		if (
+			!empty($lang)
+			&& self::$loaded_keys[$var][$txt_key[0]]['lang'] !== $lang
+		) {
+			self::load(
+				filename: self::$loaded_keys[$var][$txt_key[0]]['file'],
+				lang: $lang,
+				force_reload: true,
+			);
+
+			return;
+		}
 	}
 }
 
