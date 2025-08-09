@@ -231,7 +231,7 @@ class Lang
 	 * back to English as a last resort.
 	 *
 	 * @param string $filename The name of a language file, without the file
-	 *    extension.
+	 *    extension. To load multiple files, concatenate their names using '+'.
 	 * @param string $lang A specific language to load this file from.
 	 * @param bool $fatal Whether to die with an error if it can't be loaded.
 	 * @param bool $force_reload Whether to load the file again if it's already
@@ -582,20 +582,19 @@ class Lang
 	/**
 	 * Checks whether the specified language string exists.
 	 *
-	 * @param string|array $txt_key The key of the Lang::$txt array to check.
+	 * @param string|array $txt_key The key of the Lang::${$var} array to check.
 	 *    If this is an array, each item of the array will be used as a sub-key
 	 *    to drill down into deeper levels of the overall array.
 	 * @param string $var Name of the array to search in. Default: 'txt'.
 	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
 	 * @param ?string $file Name of a language file to load. This is not needed
 	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    To load multiple files, concatenate their names using '+'.
 	 *    Default: null.
-	 * @param string $lang A specific language to load $file from. If empty,
-	 *    defaults to the current user's preferred language.
 	 * @throws \ValueError if $var is invalid.
-	 * @return bool Whether or not the specified language string exists
+	 * @return bool Whether or not the specified language string exists.
 	 */
-	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null, string $lang = ''): bool
+	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null): bool
 	{
 		// Validate $var.
 		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
@@ -625,7 +624,7 @@ class Lang
 	 *
 	 * Used for dynamically generated strings.
 	 *
-	 * @param string|array $txt_key The key of the Lang::$txt array that
+	 * @param string|array $txt_key The key of the Lang::${$var} array that
 	 *    contains the desired string. If this is an array, each item of the
 	 *    array will be used as a sub-key to drill down into deeper levels of
 	 *    the overall array.
@@ -674,7 +673,7 @@ class Lang
 	 * requested string. The method can handle argument substitution for both
 	 * MessageFormat and sprintf format strings.
 	 *
-	 * @param string|array $txt_key The key of the Lang::$txt array that
+	 * @param string|array $txt_key The key of the Lang::${$var} array that
 	 *    contains the desired string. If this is an array, each item of the
 	 *    array will be used as a sub-key to drill down into deeper levels of
 	 *    the overall array.
@@ -684,6 +683,7 @@ class Lang
 	 *    Default: 'txt'.
 	 * @param ?string $file Name of a language file to load. This is not needed
 	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    To load multiple files, concatenate their names using '+'.
 	 *    Default: null.
 	 * @param string $lang A specific language to load $file from. If empty,
 	 *    defaults to the current user's preferred language.
