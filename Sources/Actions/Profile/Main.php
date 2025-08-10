@@ -1033,7 +1033,7 @@ class Main implements ActionInterface, Routable
 		}
 
 		if (isset($security_checks['permission'])) {
-			User::$me->isAllowedTo($security_checks['permission']);
+			User::$me->isAllowedTo($security_checks['permission'], any: true);
 		}
 
 		// Create a token if needed.

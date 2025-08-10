@@ -451,7 +451,7 @@ class Menu implements \ArrayAccess
 			return false;
 		}
 
-		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']));
+		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission'], any: true));
 	}
 
 	/**
