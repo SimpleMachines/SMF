@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\ErrorHandler;
 use SMF\IP;
+use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 use SMF\Uuid;
@@ -2317,7 +2318,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 	public function checkConfiguration(): bool
 	{
-		$result = Db::$db->query(
+		$result = $this->query(
 			'show standard_conforming_strings',
 			[
 				'db_error_skip' => true,
@@ -2325,12 +2326,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		if ($result !== false) {
-			$row = Db::$db->fetch_assoc($result);
+			$row = $this->fetch_assoc($result);
 
 			if ($row['standard_conforming_strings'] !== 'on') {
 				throw new \Exception(Lang::$txt['error_pg_scs']);
 			}
-			Db::$db->free_result($result);
+			$this->free_result($result);
 		}
 
 		return true;

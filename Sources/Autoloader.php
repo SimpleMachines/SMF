@@ -55,7 +55,8 @@ spl_autoload_register(function ($class) {
 		if (isset($_SERVER['SCRIPT_NAME'])) {
 			$boarddir = dirname($_SERVER['SCRIPT_NAME']);
 		} elseif (!empty(debug_backtrace())) {
-			$boarddir = dirname(array_pop(debug_backtrace())['file']);
+			$bt = debug_backtrace();
+			$boarddir = dirname(array_pop($bt)['file']);
 		} else {
 			$boarddir = dirname($sourcedir);
 		}

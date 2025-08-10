@@ -41,7 +41,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	private $db_prefix;
 
 	/**
-	 * @var resource result of pg_connect.
+	 * @var \Pgsql\Connection result of pg_connect.
 	 */
 	private $db_connection;
 

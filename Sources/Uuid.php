@@ -721,9 +721,6 @@ class Uuid implements \Stringable
 						// On non-POSIX systems, fall back to user ID because
 						// getmygid() returns nothing useful on non-POSIX systems.
 						throw new \ValueError('uuid_group_non_posix');
-
-						$id = getmyuid();
-						$domain = 0;
 					}
 					break;
 
@@ -736,7 +733,6 @@ class Uuid implements \Stringable
 				// Unknown domain.
 				default:
 					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain], file: 'Errors'));
-					break;
 			}
 		}
 

@@ -296,7 +296,7 @@ class BoardIndex implements ActionInterface, Routable
 		if (!empty($board_index_options['set_latest_post'])) {
 			$latest_post = [
 				'timestamp' => 0,
-				'ref' => 0,
+				'ref' => [],
 			];
 		}
 

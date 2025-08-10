@@ -231,15 +231,17 @@ class UserPermissionSet
 				&& Config::$modSettings['warning_mute'] <= $this->user->warning
 			)
 		) {
+			$post_ban_permissions = [];
+
 			foreach (Permission::getAll() as $permission) {
 				if (!empty($permission->never_banned)) {
 					$post_ban_permissions[] = $permission->name;
 				}
 			}
 
-			IntegrationHook::call('integrate_post_ban_permissions', [&self::$post_ban_permissions]);
+			IntegrationHook::call('integrate_post_ban_permissions', [&$post_ban_permissions]);
 
-			foreach (self::$post_ban_permissions as $permission) {
+			foreach ($post_ban_permissions as $permission) {
 				$this->deny($permission);
 			}
 

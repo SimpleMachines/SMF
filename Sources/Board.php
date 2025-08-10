@@ -811,7 +811,6 @@ class Board implements \ArrayAccess, Routable
 
 			default:
 				throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to], file: 'Errors'));
-				break;
 		}
 
 		// Get a list of children of this board.

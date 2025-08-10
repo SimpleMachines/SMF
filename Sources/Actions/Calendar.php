@@ -279,16 +279,16 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Load up the previous and next months.
-		Utils::$context['calendar_grid_current'] = self::getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
+		Utils::$context['calendar_grid_current'] = self::getCalendarGrid($curPage['start_date'], $calendarOptions, false);
 
 		// Only show previous month if it isn't pre-January of the min-year
 		if (Utils::$context['calendar_grid_current']['previous_calendar']['year'] > Config::$modSettings['cal_minyear'] || $curPage['month'] != 1) {
-			Utils::$context['calendar_grid_prev'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
+			Utils::$context['calendar_grid_prev'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
 		}
 
 		// Only show next month if it isn't post-December of the max-year
 		if (Utils::$context['calendar_grid_current']['next_calendar']['year'] < Config::$modSettings['cal_maxyear'] || $curPage['month'] != 12) {
-			Utils::$context['calendar_grid_next'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
+			Utils::$context['calendar_grid_next'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false);
 		}
 
 		// Basic template stuff.
@@ -742,7 +742,7 @@ class Calendar implements ActionInterface, Routable
 		// RFC 5545 requires "\r\n", not just "\n".
 		$file['content'] = implode("\r\n", $file['content']);
 
-		$file['size'] = strlen($file['content']);
+		$file['size'] = strlen((string) $file['content']);
 
 		// Send it.
 		Utils::emitFile($file);
