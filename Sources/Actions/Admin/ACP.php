@@ -743,6 +743,7 @@ class ACP implements ActionInterface, Routable
 		$menu = new Menu($this->admin_areas, [
 			'do_big_icons' => true,
 			'disable_hook_call' => true,
+			'lang_file' => 'Admin',
 		]);
 
 		// Nothing valid?
@@ -759,14 +760,14 @@ class ACP implements ActionInterface, Routable
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=admin;area=' . $menu->current_area . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=admin;area=' . $menu->current_area . ';sa=' . $menu->current_subsection . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 
@@ -1897,10 +1898,6 @@ class ACP implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->admin_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::txtExists($value, file: 'Admin') ? Lang::getTxt($value, file: 'Admin') : $value;
-				}
-
 				if (is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
