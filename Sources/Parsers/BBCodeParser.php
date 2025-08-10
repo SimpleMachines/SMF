@@ -1323,7 +1323,6 @@ class BBCodeParser extends Parser
 						&& Lang::txtExists(
 							substr($matches[1], strlen($var) + 1),
 							var: $var,
-							lang: self::$locale,
 						)
 					) {
 						return Lang::getTxt(
