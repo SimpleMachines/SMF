@@ -1693,48 +1693,22 @@ class Group implements \ArrayAccess
 		// This should never happen anyway, but a group can't be both allowed and denied.
 		$changed_boards['allow'] = array_diff($changed_boards['allow'], $changed_boards['deny']);
 
-		// Reset the group's existing access permissions.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_group = {int:this_group}',
-			[
-				'this_group' => $this->id,
-			],
-		);
-
-		// This will hold the inserts for the group's new access permissions.
-		$new_perms = [];
-
 		// We're going to need all the boards, one way or another.
 		Category::getTree();
 
 		// Now loop through our changes and apply them.
-		foreach ($changed_boards as $access => $board_ids) {
-			$prop = $access == 'allow' ? 'member_groups' : 'deny_groups';
+		foreach (Board::$loaded as $board) {
+			foreach ($changed_boards as $access => $board_ids) {
+				$prop = $access == 'allow' ? 'member_groups' : 'deny_groups';
 
-			foreach (Board::$loaded as $board) {
 				if (in_array($board->id, $board_ids)) {
 					$board->{$prop} = array_unique(array_merge($board->{$prop}, [$this->id]));
 				} else {
 					$board->{$prop} = array_diff($board->{$prop}, [$this->id]);
 				}
-
-				$board->save();
 			}
 
-			foreach ($board_ids as $board_id) {
-				$new_perms[] = [$this->id, (int) $board_id, $access == 'allow' ? 0 : 1];
-			}
-		}
-
-		if (!empty($new_perms)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}board_permissions_view',
-				['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
-				$new_perms,
-				['id_group', 'id_board', 'deny'],
-			);
+			$board->save(Board::SAVE_GROUP);
 		}
 	}
 

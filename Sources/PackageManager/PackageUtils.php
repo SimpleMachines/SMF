@@ -3791,8 +3791,6 @@ class PackageUtils
 		return $dirs;
 	}
 
-	
-
 	/**
 	 * When removing a language file or directory, figures out whether that file
 	 * or directory is in the main languages directory or in the default theme's

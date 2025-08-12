@@ -861,7 +861,7 @@ class Topic implements \ArrayAccess, Routable
 			$board->unapproved_topics++;
 		}
 
-		$board->save();
+		$board->save(Board::SAVE_STATS);
 
 		// There's been a new topic today.
 		Logging::trackStats(['topics' => '+']);

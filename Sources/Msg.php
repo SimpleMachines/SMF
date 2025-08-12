@@ -1501,10 +1501,10 @@ class Msg implements \ArrayAccess, Routable
 
 		if ($msgOptions['approved']) {
 			$board->num_posts++;
-			$board->save();
+			$board->save(Board::SAVE_STATS);
 		} else {
 			$board->unapproved_posts++;
-			$board->save();
+			$board->save(Board::SAVE_STATS);
 
 			// Add to the approval queue too.
 			Db::$db->insert(
