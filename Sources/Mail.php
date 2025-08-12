@@ -1047,8 +1047,8 @@ class Mail
 	public static function loadEmailTemplate(string $template, array $replacements = [], string $lang = '', bool $loadLang = true): array
 	{
 		if (
-			!Lang::txtExists($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : '')
-			|| !Lang::txtExists($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : '')
+			!Lang::txtExists($template . '_subject', file: 'EmailTemplates')
+			|| !Lang::txtExists($template . '_body', file: 'EmailTemplates')
 		) {
 			ErrorHandler::fatalLang('email_no_template', 'template', [$template]);
 		}
@@ -1056,7 +1056,7 @@ class Mail
 		$ret = [
 			'subject' => Lang::getTxt($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
 			'body' => Lang::getTxt($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
-			'is_html' => Lang::txtExists($template . '_html', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
+			'is_html' => Lang::txtExists($template . '_html', file: 'EmailTemplates'),
 		];
 
 		// Add in the default replacements.

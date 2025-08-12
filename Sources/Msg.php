@@ -339,7 +339,7 @@ class Msg implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_msg'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Can't set id_msg_modified until we know id_msg.
@@ -2592,7 +2592,7 @@ class Msg implements \ArrayAccess, Routable
 						],
 					],
 					['id_topic'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 

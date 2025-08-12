@@ -95,15 +95,18 @@ interface DatabaseApiInterface
 	 * @param array $data Rows of data to insert. Each element of $data must
 	 *    be an array of values corresponding to $columns.
 	 * @param array $keys The keys for the table. Must not empty in replace mode.
-	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
-	 *    Default: 0.
+	 * @param int $returnmode
+	 *	  DatabaseApi::INSERT_RETURN_MODE_OFF (0) = nothing
+	 *	  DatabaseApi::INSERT_RETURN_MODE_SINGLE (1) = last row ID
+	 *	  DatabaseApi::INSERT_RETURN_MODE_MULTI (2) = all row IDs.
+	 *    Default: DatabaseApi::INSERT_RETURN_MODE_OFF.
 	 * @param null|object $connection The connection to use.
 	 *    If null, $db_connection is used.
 	 * @return int|array|null Null if $returnmode is 0, the ID of the most
 	 *    recently inserted row if $returnmode is 1, or the IDS of all the
 	 *    inserted rows if $returnmode is 2.
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null;
 
 	/**
 	 * Gets the ID of the most recently inserted row.
@@ -338,10 +341,6 @@ interface DatabaseApiInterface
 	 */
 	public function detect_charset(?string $table = null, ?string $column = null): string;
 
-	/****************************************
-	 * Methods that formerly lived in DbExtra
-	 ****************************************/
-
 	/**
 	 * Backup $table to $backup_table.
 	 *
@@ -400,10 +399,6 @@ interface DatabaseApiInterface
 	 */
 	public function allow_persistent(): bool;
 
-	/*****************************************
-	 * Methods that formerly lived in DbSearch
-	 *****************************************/
-
 	/**
 	 * Returns the correct query for this search type.
 	 *
@@ -436,10 +431,6 @@ interface DatabaseApiInterface
 	 * @return string|null The PostgreSQL search language, or null for MySQL.
 	 */
 	public function search_language(): ?string;
-
-	/*******************************************
-	 * Methods that formerly lived in DbPackages
-	 *******************************************/
 
 	/**
 	 * This function adds a column.
@@ -579,6 +570,17 @@ interface DatabaseApiInterface
 	 * @return bool Whether or not the operation was successful
 	 */
 	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool;
+
+	/**
+	 * Renames a table.
+	 *
+	 * @param string $old_name The current name of the table.
+	 * @param string $new_name The new name for the table.
+	 * @param bool $allowed_reserved Whether to allow renaming reserved tables.
+	 *    Default: false.
+	 * @return bool Whether or not the operation was successful
+	 */
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false, string $error = 'fatal'): bool;
 
 	/**
 	 * Get table structure.

@@ -285,14 +285,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Only bother if there's something to replace.
 		if (str_contains($db_string, '{')) {
-			// This is needed by the callback function.
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection ?? $this->connection;
-
 			// Do the quoting and escaping
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+			$db_string = preg_replace_callback(
+				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
+				$db_string,
+			);
 		}
 
 		return $db_string;
@@ -343,7 +341,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -434,7 +432,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$with_returning = false;
 
 		// Let's build the returning string. (MySQL allows this only in normal mode)
-		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0) {
+		if (!empty($keys) && (count($keys) > 0) && $returnmode > DatabaseApi::INSERT_RETURN_MODE_OFF) {
 			// We only take the first key.
 			$returning = ' RETURNING ' . $keys[0];
 			$with_returning = true;
@@ -478,14 +476,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			if ($with_returning && $request !== false) {
-				if ($returnmode === 2) {
+				if ($returnmode === DatabaseApi::INSERT_RETURN_MODE_MULTI) {
 					$return_var = [];
 				}
 
 				while (($row = $this->fetch_row($request)) && $with_returning) {
 					if (is_numeric($row[0])) { // try to emulate mysql limitation
 						switch ($returnmode) {
-							case 2:
+							case DatabaseApi::INSERT_RETURN_MODE_MULTI:
 								$return_var[] = (int) $row[0];
 								break;
 
@@ -874,10 +872,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		return strtolower($detected['server_encoding']);
 	}
 
-	/****************************************
-	 * Methods that formerly lived in DbExtra
-	 ****************************************/
-
 	/**
 	 *
 	 */
@@ -1148,10 +1142,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
 
-	/*****************************************
-	 * Methods that formerly lived in DbSearch
-	 *****************************************/
-
 	/**
 	 *
 	 */
@@ -1287,10 +1277,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		return $this->language_ftx;
 	}
-
-	/*******************************************
-	 * Methods that formerly lived in DbPackages
-	 *******************************************/
 
 	/**
 	 *
@@ -1990,6 +1976,53 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false, string $error = 'fatal'): bool
+	{
+		// After stripping away the database name, this is what's left.
+		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $this->prefix, $match) === 1 ? $match[3] : $this->prefix;
+		$database = !empty($match[2]) ? $match[2] : $this->name;
+
+		$full_old_name = str_replace('{db_prefix}', $real_prefix, $old_name);
+		$short_old_name = str_replace('{db_prefix}', $this->prefix, $old_name);
+
+		$full_new_name = str_replace('{db_prefix}', $real_prefix, $new_name);
+		$short_new_name = str_replace('{db_prefix}', $this->prefix, $new_name);
+
+		if (
+			!$allowed_reserved
+			&& (
+				in_array(strtolower($short_old_name), $this->reservedTables)
+				|| in_array(strtolower($short_new_name), $this->reservedTables)
+			)
+		) {
+			return false;
+		}
+
+		// What tables currently exist?
+		$tables = $this->list_tables($database);
+
+		if (
+			// Can't rename a table that doesn't exist.
+			!in_array($full_old_name, $tables)
+			// Can't rename if the new name is already taken.
+			|| in_array($full_new_name, $tables)
+		) {
+			return false;
+		}
+
+		$this->query(
+			'ALTER TABLE ' . $short_old_name . ' RENAME TO ' . $short_new_name,
+			[
+				'security_override' => true,
+			],
+		);
+
+		return true;
+	}
+
+	/**
+	 *
+	 */
 	public function table_structure(string $table_name): array
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
@@ -2488,14 +2521,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * the database.
 	 *
 	 * @param array $matches The matches from preg_replace_callback
+	 * @param array $db_values = array() The values to be inserted into the string
+	 * @param object $connection The connection to use.
 	 * @return string The appropriate string depending on $matches[1]
 	 */
-	protected function replacement__callback(array $matches): string
+	protected function replacement__callback(array $matches, array $db_values, object $connection): string
 	{
-		if (!is_object($this->temp_connection)) {
-			ErrorHandler::displayDbError();
-		}
-
 		if ($matches[1] === 'db_prefix') {
 			return $this->prefix;
 		}
@@ -2516,17 +2547,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . pg_escape_string($this->connection, $matches[2]) . '\'';
 		}
 
-		if (!array_key_exists($matches[2], $this->temp_values)) {
+		if (!array_key_exists($matches[2], $db_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
-		$replacement = $this->temp_values[$matches[2]];
+		$replacement = $db_values[$matches[2]];
 
 		if ($replacement === null) {
 			if (str_starts_with($matches[1], 'array_')) {
 				$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 			}
-			
+
 			return 'NULL';
 		}
 

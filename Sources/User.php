@@ -1342,7 +1342,7 @@ class User implements \ArrayAccess
 
 			$this->total_time_logged_in += (time() - $_SESSION['timeOnlineUpdated']);
 
-			self::updateMemberData($this->id, ['last_login' => time(), 'member_ip' => $this->ip, 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $this->total_time_logged_in]);
+			self::updateMemberData($this->id, ['last_login' => time(), 'member_ip' => $this->ip, 'member_ip2' => IP::getUserIPAlternative(), 'total_time_logged_in' => $this->total_time_logged_in]);
 
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
 				CacheApi::put('user_settings-' . $this->id, self::$profiles[$this->id], 60);
@@ -3897,8 +3897,8 @@ class User implements \ArrayAccess
 		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
 		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
 		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
-		$this->ip = (string) ($is_me ? ($_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip'] ?? '');
-		$this->ip2 = (string) ($is_me ? ($_SERVER['BAN_CHECK_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip2'] ?? '');
+		$this->ip = (string) ($is_me ? IP::getUserIP() : $profile['member_ip'] ?? '');
+		$this->ip2 = (string) ($is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
 		$this->posts = (int) ($profile['posts'] ?? 0);
@@ -4260,7 +4260,7 @@ class User implements \ArrayAccess
 
 			// If it was *at least* five hours ago...
 			if ($visitTime < time() - 5 * 3600) {
-				self::updateMemberData(self::$my_id, ['id_msg_last_visit' => (int) Config::$modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => $_SERVER['REMOTE_ADDR'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']]);
+				self::updateMemberData(self::$my_id, ['id_msg_last_visit' => (int) Config::$modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => IP::getUserIP(), 'member_ip2' => IP::getUserIPAlternative()]);
 
 				self::$profiles[self::$my_id]['last_login'] = time();
 
@@ -4420,7 +4420,7 @@ class User implements \ArrayAccess
 							$_SESSION['id_robot'] = $spider['id_spider'];
 						}
 						// IP stuff is harder.
-						elseif ($_SERVER['REMOTE_ADDR']) {
+						elseif (IP::getUserIP() !== '') {
 							$ips = explode(',', $spider['ip_info']);
 
 							foreach ($ips as $ip) {
@@ -4430,7 +4430,7 @@ class User implements \ArrayAccess
 
 								$ip_range = IP::ip2range($ip);
 
-								$remote_ip = new IP($_SERVER['REMOTE_ADDR']);
+								$remote_ip = new IP(IP::getUserIP());
 
 								if (!empty($ip_range)) {
 									if ($ip_range['low']->toBinary() <= $remote_ip->toBinary() && $ip_range['high']->toBinary() >= $remote_ip->toBinary()) {

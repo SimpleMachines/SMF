@@ -265,6 +265,7 @@ class Main implements ActionInterface, Routable
 		$menuOptions = [
 			'action' => 'moderate',
 			'disable_url_session_check' => true,
+			'lang_file' => 'ModerationCenter',
 		];
 
 		$menu = new Menu($this->moderation_areas, $menuOptions);
@@ -300,14 +301,14 @@ class Main implements ActionInterface, Routable
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area,
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 	}
@@ -429,10 +430,6 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->moderation_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::txtExists($value, file: 'ModerationCenter') ? Lang::getTxt($value, file: 'ModerationCenter') : $value;
-				}
-
 				if (is_string($value)) {
 						$value = strtr($value, [
 							'{scripturl}' => Config::$scripturl,

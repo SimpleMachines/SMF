@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Maintenance\Maintenance;
@@ -1011,7 +1012,7 @@ class Install extends ToolsBase implements ToolsInterface
 		if ($_POST['username'] != '') {
 			Maintenance::$context['password_salt'] = bin2hex(random_bytes(16));
 
-			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
+			$ip = IP::getUserIP();
 
 			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
@@ -1070,7 +1071,7 @@ class Install extends ToolsBase implements ToolsInterface
 						],
 					],
 					['id_member'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 
 				if ((int) Maintenance::$context['id_member'] > 0) {
@@ -1229,7 +1230,7 @@ class Install extends ToolsBase implements ToolsInterface
 			(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
 			// We've just installed!
-			$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
+			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
 
 			if (isset(Maintenance::$context['id_member'])) {
 				User::setMe((int) Maintenance::$context['id_member']);
@@ -1237,7 +1238,7 @@ class Install extends ToolsBase implements ToolsInterface
 				User::load();
 			}
 
-			User::$me->ip = $_SERVER['REMOTE_ADDR'];
+			User::$me->ip = IP::getUserIP();
 
 			Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
 		}

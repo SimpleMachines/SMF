@@ -1402,7 +1402,7 @@ class Attachment implements \ArrayAccess
 			$attachmentColumns,
 			[$attachmentValues],
 			['id_attach'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Attachment couldn't be created.
@@ -1528,7 +1528,7 @@ class Attachment implements \ArrayAccess
 						],
 					],
 					['id_attach'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 
 				if (!empty($attachmentOptions['thumb'])) {
@@ -2123,7 +2123,7 @@ class Attachment implements \ArrayAccess
 									],
 								],
 								['id_attach'],
-								1,
+								Db::INSERT_RETURN_MODE_SINGLE,
 							);
 
 							if (!empty($attachment['id_thumb'])) {

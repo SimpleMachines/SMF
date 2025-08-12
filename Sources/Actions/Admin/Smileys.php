@@ -759,7 +759,7 @@ class Smileys implements ActionInterface
 					],
 				],
 				['id_smiley'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Add the filename info to the smiley_files table
@@ -2538,7 +2538,7 @@ class Smileys implements ActionInterface
 				],
 				[$new_smiley['info']],
 				['id_smiley'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// We'll also need to add filename info to the smiley_files table
