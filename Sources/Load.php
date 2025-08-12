@@ -222,9 +222,9 @@ function reloadSettings()
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
 			$string = $ent_check($string);
-			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~' . ($utf8 ? 'u' : ''), $string, $matches);
+			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen']($smcFunc['substr']($string, 0, $length)) . '}~' . ($utf8 ? 'u' : ''), $string, $matches);
 			$string = $matches[0];
-			while (strlen($string) > $length)
+			while ($smcFunc['strlen']($string) > $length)
 				$string = preg_replace('~(?:' . $ent_list . '|.)$~' . ($utf8 ? 'u' : ''), '', $string);
 			return $string;
 		},
