@@ -899,9 +899,7 @@ class Post implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			Lang::setTxt('error_new_replies', Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']], file: 'Post'));
-
-			$this->errors[] = 'new_replies';
+			$this->errors[] = ['new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), Utils::$context['new_replies']];
 
 			Config::$modSettings['topicSummaryPosts'] = Utils::$context['new_replies'] > Config::$modSettings['topicSummaryPosts'] ? max(Config::$modSettings['topicSummaryPosts'], 5) : Config::$modSettings['topicSummaryPosts'];
 		}
