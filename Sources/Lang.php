@@ -311,6 +311,11 @@ class Lang
 						}
 
 						foreach (${$var} as $key => $value) {
+							// Never overwrite strings that were set via self::setTxt()
+							if ((self::$loaded_keys[$var][$key]['file'] ?? '') === 'setTxt') {
+								continue;
+							}
+
 							// Don't overwrite strings from Modifications or ThemeStrings
 							// unless $force_reload is true.
 							if (
@@ -660,6 +665,9 @@ class Lang
 		}
 
 		$target = $value;
+
+		// Ensure this value won't be overwritten by a reloaded language file.
+		self::$loaded_keys[$var][$txt_key[0]]['file'] = 'setTxt';
 	}
 
 	/**
