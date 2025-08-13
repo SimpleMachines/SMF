@@ -718,8 +718,6 @@ class Uuid implements \Stringable
 						// POSIX systems can actually do this.
 						$id = posix_getgid();
 					} else {
-						// On non-POSIX systems, fall back to user ID because
-						// getmygid() returns nothing useful on non-POSIX systems.
 						throw new \ValueError('uuid_group_non_posix');
 					}
 					break;

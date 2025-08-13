@@ -7979,7 +7979,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ShowDrafts(int $member_id, int $reply_to = 0, int $draft_type = 0): bool
 	{
 		if ($draft_type === 1) {
-			return \SMF\PersonalMessage\DraftPM::showInEditor($member_id, $reply_to);
+			return SMF\PersonalMessage\DraftPM::showInEditor($member_id, $reply_to);
 		}
 
 		return SMF\Draft::showInEditor($member_id, $reply_to);
@@ -7996,7 +7996,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function showProfileDrafts(int $memID, int $draft_type = 0): void
 	{
 		if ($draft_type === 1) {
-			\SMF\PersonalMessage\DraftPM::showInProfile($memID);
+			SMF\PersonalMessage\DraftPM::showInProfile($memID);
 		}
 
 		SMF\Draft::showInProfile($memID);
