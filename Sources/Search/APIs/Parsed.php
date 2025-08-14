@@ -1047,45 +1047,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$prop_classes = utf8_regex_properties();
 
 		$string = preg_replace_callback(
-			'/' .
-				// Flag emojis
-				'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
-				// Or
-				'|' .
-				// Emoji characters
-				'[' . $prop_classes['Emoji'] . ']' .
-				// Possibly followed by modifiers of various sorts
-				'(' .
-					'[' . $prop_classes['Emoji_Modifier'] . ']' .
-					'|' .
-					'\x{FE0F}\x{20E3}?' .
-					'|' .
-					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-				')?' .
-				// Possibly concatenated with Zero Width Joiner and more emojis
-				// (e.g. the "family" emoji sequences)
-				'(' .
-					'\x{200D}[' . $prop_classes['Emoji'] . ']' .
-					'(' .
-						'[' . $prop_classes['Emoji_Modifier'] . ']' .
-						'|' .
-						'\x{FE0F}\x{20E3}?' .
-						'|' .
-						'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-					')?' .
-				')*' .
-			'/u',
-			function ($matches) {
-				// Skip lone ASCII characters that are not actually part of an
-				// emoji sequence. This can happen because the digits 0-9 and
-				// the '*' and '#' characters are the base characters for the
-				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
-					return $matches[0];
-				}
-
-				return ' ' . $matches[0] . ' ';
-			},
+			Utf8String::emojiRegex(),
+			fn($matches) => ' ' . $matches[0] . ' ',
 			$string,
 		);
 
