@@ -11817,7 +11817,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/********************
-	 * Begin SMF\Verifier
+	 * Begin SMF\AntiSpam\Verification
 	 ********************/
 
 	/**
@@ -11829,7 +11829,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function create_control_verification(array &$options, bool $do_test = false): bool|array
 	{
-		return SMF\Verifier::create($options, $do_test);
+		return SMF\AntiSpam\Verification::create($options, $do_test);
 	}
 
 	/**********************************************************

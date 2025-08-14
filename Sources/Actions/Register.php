@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\AntiSpam\Verification;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
@@ -30,7 +31,6 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * Shows the registration form.
@@ -318,7 +318,7 @@ class Register implements ActionInterface, Routable
 
 		// Generate a visual verification code to make sure the user is no bot.
 		if (!empty(Config::$modSettings['reg_verification'])) {
-			$verifier = new Verifier(['id' => 'register']);
+			new Verification(['id' => 'register']);
 		}
 		// Otherwise we have nothing to show.
 		else {

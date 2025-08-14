@@ -18,13 +18,10 @@ namespace SMF\Actions\Admin;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\BackwardCompatibility;
-use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 
@@ -50,78 +47,6 @@ class AntiSpam implements ActionInterface
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
-		// Generate a sample registration image.
-		Utils::$context['verification_image_href'] = Config::$scripturl . '?action=verificationcode;rand=' . bin2hex(random_bytes(16));
-
-		// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
-		Lang::get();
-		Utils::$context['qa_languages'] = [];
-
-		foreach (Utils::$context['languages'] as $lang_id => $lang) {
-			$lang_id = strtr($lang_id, ['-utf8' => '']);
-			$lang['name'] = strtr($lang['name'], ['-utf8' => '']);
-			Utils::$context['qa_languages'][$lang_id] = $lang;
-		}
-
-		// Secondly, load any questions we currently have.
-		Utils::$context['question_answers'] = [];
-
-		$request = Db::$db->query(
-			'SELECT id_question, lngfile, question, answers
-			FROM {db_prefix}qanda',
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$lang = strtr($row['lngfile'], ['-utf8' => '']);
-
-			Utils::$context['question_answers'][$row['id_question']] = [
-				'lngfile' => $lang,
-				'question' => $row['question'],
-				'answers' => (array) Utils::jsonDecode($row['answers'], true),
-			];
-
-			Utils::$context['qa_by_lang'][$lang][] = $row['id_question'];
-		}
-		Db::$db->free_result($request);
-
-		if (empty(Utils::$context['qa_by_lang'][strtr(Lang::$default, ['-utf8' => ''])]) && !empty(Utils::$context['question_answers'])) {
-			if (empty(Utils::$context['settings_insert_above'])) {
-				Utils::$context['settings_insert_above'] = '';
-			}
-
-			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default], file: 'ManageSettings') . '</div>';
-		}
-
-		// Thirdly, push some JavaScript for the form to make it work.
-		$nextrow = !empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1;
-		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::getTxt('setup_verification_add_answer', file: 'ManageSettings'));
-		$default_lang = strtr(Lang::$default, ['-utf8' => '']);
-
-		Theme::addInlineJavaScript(<<<END
-				var nextrow = {$nextrow};
-				$(".qa_link a").click(function() {
-					var id = $(this).parent().attr("id").substring(6);
-					$("#qa_fs_" + id).show();
-					$(this).parent().hide();
-				});
-				$(".qa_fieldset legend a").click(function() {
-					var id = $(this).closest("fieldset").attr("id").substring(6);
-					$("#qa_dt_" + id).show();
-					$(this).closest("fieldset").hide();
-				});
-				$(".qa_add_question a").click(function() {
-					var id = $(this).closest("fieldset").attr("id").substring(6);
-					$('<dt><input type="text" name="question[' + id + '][' + nextrow + ']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[' + id + '][' + nextrow + '][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ ' + {$setup_verification_add_answer} + ' ]</a></div></dd>').insertBefore($(this).parent());
-					nextrow++;
-				});
-				$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
-					var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
-					$('<input type="text" name="' + attr + '" value="" size="50" class="verification_answer">').insertBefore($(this).closest("div"));
-					return false;
-				});
-				$("#qa_dt_{$default_lang} a").click();
-			END, true);
-
 		// Saving?
 		if (isset($_GET['save'])) {
 			User::$me->checkSession();
@@ -140,143 +65,8 @@ class AntiSpam implements ActionInterface
 
 			$save_vars[] = ['text', 'pm_spam_settings'];
 
-			// Handle verification questions.
-			$changes = [
-				'insert' => [],
-				'replace' => [],
-				'delete' => [],
-			];
-
-			$qs_per_lang = [];
-
-			foreach (Utils::$context['qa_languages'] as $lang_id => $dummy) {
-				// If we had some questions for this language before, but don't now, delete everything from that language.
-				if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id])) {
-					$changes['delete'] = array_merge($changes['delete'], Utils::$context['qa_by_lang'][$lang_id]);
-				}
-
-				// Now step through and see if any existing questions no longer exist.
-				if (!empty(Utils::$context['qa_by_lang'][$lang_id])) {
-					foreach (Utils::$context['qa_by_lang'][$lang_id] as $q_id) {
-						if (empty($_POST['question'][$lang_id][$q_id])) {
-							$changes['delete'][] = $q_id;
-						}
-					}
-				}
-
-				// Now let's see if there are new questions or ones that need updating.
-				if (isset($_POST['question'][$lang_id])) {
-					foreach ($_POST['question'][$lang_id] as $q_id => $question) {
-						// Ignore junky ids.
-						$q_id = (int) $q_id;
-
-						if ($q_id <= 0) {
-							continue;
-						}
-
-						// Check the question isn't empty (because they want to delete it?)
-						if (empty($question) || trim($question) == '') {
-							if (isset(Utils::$context['question_answers'][$q_id])) {
-								$changes['delete'][] = $q_id;
-							}
-
-							continue;
-						}
-
-						$question = Utils::htmlspecialchars(trim($question));
-
-						// Get the answers. Firstly check there actually might be some.
-						if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id])) {
-							if (isset(Utils::$context['question_answers'][$q_id])) {
-								$changes['delete'][] = $q_id;
-							}
-
-							continue;
-						}
-
-						// Now get them and check that they might be viable.
-						$answers = [];
-
-						foreach ($_POST['answer'][$lang_id][$q_id] as $answer) {
-							if (!empty($answer) && trim($answer) !== '') {
-								$answers[] = Utils::htmlspecialchars(trim($answer));
-							}
-						}
-
-						if (empty($answers)) {
-							if (isset(Utils::$context['question_answers'][$q_id])) {
-								$changes['delete'][] = $q_id;
-							}
-
-							continue;
-						}
-
-						$answers = Utils::jsonEncode($answers);
-
-						// At this point we know we have a question and some answers. What are we doing with it?
-						if (!isset(Utils::$context['question_answers'][$q_id])) {
-							// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
-							$changes['insert'][] = [$lang_id, $question, $answers];
-						} else {
-							// It's an existing question. Let's see what's changed, if anything.
-							if ($lang_id != Utils::$context['question_answers'][$q_id]['lngfile'] || $question != Utils::$context['question_answers'][$q_id]['question'] || $answers != Utils::$context['question_answers'][$q_id]['answers']) {
-								$changes['replace'][$q_id] = ['lngfile' => $lang_id, 'question' => $question, 'answers' => $answers];
-							}
-						}
-
-						if (!isset($qs_per_lang[$lang_id])) {
-							$qs_per_lang[$lang_id] = 0;
-						}
-						$qs_per_lang[$lang_id]++;
-					}
-				}
-			}
-
-			// OK, so changes?
-			if (!empty($changes['delete'])) {
-				Db::$db->query(
-					'DELETE FROM {db_prefix}qanda
-					WHERE id_question IN ({array_int:questions})',
-					[
-						'questions' => $changes['delete'],
-					],
-				);
-			}
-
-			if (!empty($changes['replace'])) {
-				foreach ($changes['replace'] as $q_id => $question) {
-					Db::$db->query(
-						'UPDATE {db_prefix}qanda
-						SET lngfile = {string:lngfile},
-							question = {string:question},
-							answers = {string:answers}
-						WHERE id_question = {int:id_question}',
-						[
-							'id_question' => $q_id,
-							'lngfile' => $question['lngfile'],
-							'question' => $question['question'],
-							'answers' => $question['answers'],
-						],
-					);
-				}
-			}
-
-			if (!empty($changes['insert'])) {
-				Db::$db->insert(
-					'insert',
-					'{db_prefix}qanda',
-					['lngfile' => 'string-50', 'question' => 'string-255', 'answers' => 'string-65534'],
-					$changes['insert'],
-					['id_question'],
-				);
-			}
-
-			// Lastly, the count of messages needs to be no more than the lowest number of questions for any one language.
-			$count_questions = empty($qs_per_lang) ? 0 : min($qs_per_lang);
-
-			if (empty($count_questions) || $_POST['qa_verification_number'] > $count_questions) {
-				$_POST['qa_verification_number'] = $count_questions;
-			}
+			// Process all of our config vars from various agents.
+			\SMF\AntiSpam\AntiSpam::saveConfigVars();
 
 			IntegrationHook::call('integrate_save_spam_settings', [&$save_vars]);
 
@@ -284,35 +74,7 @@ class AntiSpam implements ActionInterface
 			ACP::saveDBSettings($save_vars);
 			$_SESSION['adm-save'] = true;
 
-			CacheApi::put('verificationQuestions', null, 300);
-
 			Utils::redirectexit('action=admin;area=antispam');
-		}
-
-		$character_range = array_merge(range('A', 'H'), ['K', 'M', 'N', 'P', 'R'], range('T', 'Y'));
-		$_SESSION['visual_verification_code'] = '';
-
-		for ($i = 0; $i < 6; $i++) {
-			$_SESSION['visual_verification_code'] .= $character_range[array_rand($character_range)];
-		}
-
-		// Some javascript for CAPTCHA.
-		Utils::$context['settings_post_javascript'] = '';
-
-		if (Utils::$context['use_graphic_library']) {
-			Utils::$context['settings_post_javascript'] .= '
-			function refreshImages()
-			{
-				var imageType = document.getElementById(\'visual_verification_type\').value;
-				document.getElementById(\'verification_image\').src = \'' . Utils::$context['verification_image_href'] . ';type=\' + imageType;
-			}';
-		}
-
-		// Show the image itself, or text saying we can't.
-		if (Utils::$context['use_graphic_library']) {
-			$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . Lang::getTxt('setting_image_verification_sample', file: 'ManageSettings') . '" id="verification_image"><br>';
-		} else {
-			$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . Lang::getTxt('setting_image_verification_nogd', file: 'ManageSettings') . '</span>';
 		}
 
 		// Hack for PM spam settings.
@@ -353,9 +115,7 @@ class AntiSpam implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		// Generate a sample registration image.
-		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
-
+		$agents = [];
 		$config_vars = [
 			['check', 'reg_verification'],
 			['check', 'search_enable_captcha'],
@@ -390,59 +150,11 @@ class AntiSpam implements ActionInterface
 				'pm_posts_per_hour',
 				'subtext' => Lang::getTxt('pm_posts_per_hour_note', file: 'ManageSettings'),
 			],
-			// Visual verification.
-			['title', 'configure_verification_means'],
-			['desc', 'configure_verification_means_desc'],
-			'vv' => [
-				'select',
-				'visual_verification_type',
-				[
-					Lang::getTxt('setting_image_verification_off', file: 'ManageSettings'),
-					Lang::getTxt('setting_image_verification_vsimple', file: 'ManageSettings'),
-					Lang::getTxt('setting_image_verification_simple', file: 'ManageSettings'),
-					Lang::getTxt('setting_image_verification_medium', file: 'ManageSettings'),
-					Lang::getTxt('setting_image_verification_high', file: 'ManageSettings'),
-					Lang::getTxt('setting_image_verification_extreme', file: 'ManageSettings'),
-				],
-				'subtext' => Lang::getTxt('setting_visual_verification_type_desc', file: 'ManageSettings'),
-				'onchange' => Utils::$context['use_graphic_library'] ? 'refreshImages();' : '',
-			],
-			// reCAPTCHA
-			['title', 'recaptcha_configure'],
-			['desc', 'recaptcha_configure_desc', 'class' => 'windowbg'],
-			[
-				'check',
-				'recaptcha_enabled',
-				'subtext' => Lang::getTxt('recaptcha_enable_desc', file: 'ManageSettings'),
-			],
-			[
-				'text',
-				'recaptcha_site_key',
-				'subtext' => Lang::getTxt('recaptcha_site_key_desc', file: 'ManageSettings'),
-			],
-			[
-				'text',
-				'recaptcha_secret_key',
-				'subtext' => Lang::getTxt('recaptcha_secret_key_desc', file: 'ManageSettings'),
-			],
-			[
-				'select',
-				'recaptcha_theme',
-				[
-					'light' => Lang::getTxt('recaptcha_theme_light', file: 'ManageSettings'),
-					'dark' => Lang::getTxt('recaptcha_theme_dark', file: 'ManageSettings'),
-				],
-			],
-			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
-			['title', 'setup_verification_questions'],
-			['desc', 'setup_verification_questions_desc'],
-			[
-				'int',
-				'qa_verification_number',
-				'subtext' => Lang::getTxt('setting_qa_verification_number_desc', file: 'ManageSettings'),
-			],
-			['callback', 'question_answer_list'],
+			'antispamagents' => ['select', 'antispam_agents', &$agents, 'multiple' => true],
 		];
+
+		// Process all of our config vars from various agents.
+		\SMF\AntiSpam\AntiSpam::getConfigVars($config_vars, $agents);
 
 		IntegrationHook::call('integrate_spam_settings', [&$config_vars]);
 

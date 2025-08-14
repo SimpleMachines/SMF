@@ -17,6 +17,7 @@ namespace SMF\PersonalMessage;
 
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
+use SMF\AntiSpam\Verification;
 use SMF\ArrayAccessHelper;
 use SMF\Autolinker;
 use SMF\Cache\CacheApi;
@@ -36,7 +37,6 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * Represents a single personal message.
@@ -809,7 +809,7 @@ class PM implements \ArrayAccess
 		Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 
 		if (Utils::$context['require_verification']) {
-			$verifier = new Verifier(['id' => 'pm']);
+			new Verification(['id' => 'pm']);
 		}
 
 		IntegrationHook::call('integrate_pm_post');
@@ -1006,8 +1006,8 @@ class PM implements \ArrayAccess
 
 		// Wrong verification code?
 		if (!User::$me->is_admin && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification']) {
-			$verifier = new Verifier(['id' => 'pm']);
-			$post_errors = array_merge($post_errors, $verifier->errors);
+			$veriifcation = new Verification(['id' => 'pm'], true);
+			$post_errors = array_merge($post_errors, $veriifcation->errors);
 		}
 
 		// If they did, give a chance to make amends.
@@ -2171,7 +2171,7 @@ class PM implements \ArrayAccess
 		Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 
 		if (Utils::$context['require_verification'] && !isset($_REQUEST['xml'])) {
-			$verifier = new Verifier(['id' => 'pm']);
+			new Verification(['id' => 'pm']);
 		}
 
 		Utils::$context['to_value'] = empty($named_recipients['to']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['to']) . '&quot;';

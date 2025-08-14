@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\AntiSpam\Verification;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -36,7 +37,6 @@ use SMF\Unicode\SpoofDetector;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * Actually registers the new member.
@@ -146,10 +146,10 @@ class Register2 extends Register
 
 		// Check whether the visual verification code was entered correctly.
 		if (!empty(Config::$modSettings['reg_verification'])) {
-			$verifier = new Verifier(['id' => 'register']);
+			$verification = new Verification(['id' => 'register']);
 
-			if (!empty($verifier->errors)) {
-				foreach ($verifier->errors as $error) {
+			if (!empty($verification->errors)) {
+				foreach ($verification->errors as $error) {
 					$this->errors[] = Lang::getTxt('error_' . $error, [], file: 'Errors');
 				}
 			}
