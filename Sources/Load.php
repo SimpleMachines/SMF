@@ -247,7 +247,7 @@ function reloadSettings()
 						break;
 
 					case 'lower':
-					case 'fold';
+					case 'fold':
 						$string = strtolower($string);
 						break;
 
