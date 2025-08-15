@@ -2483,7 +2483,7 @@ class Theme
 							echo '</pre><div style="background-color: #ffb0b5;"><pre style="margin: 0;">';
 						}
 
-						echo '<span style="color: black;">', sprintf('%' . strlen($n) . 's', $line), ':</span> ';
+						echo '<span style="color: black;">', sprintf('%' . strlen((string) $n) . 's', $line), ':</span> ';
 
 						if (isset($data2[$line]) && $data2[$line] != '') {
 							echo str_starts_with($data2[$line], '</') ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];

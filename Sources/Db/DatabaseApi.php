@@ -24,6 +24,7 @@ use SMF\Uuid;
 
 /**
  * Class DatabaseApi
+ * @mixin DatabaseApiInterface
  */
 abstract class DatabaseApi
 {

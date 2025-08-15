@@ -103,6 +103,20 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected $supports_cte;
 
+	/**
+	 * @var string
+	 *
+	 * MySQL username.
+	 */
+	private $user;
+
+	/**
+	 * @var string
+	 *
+	 * MySQL password.
+	 */
+	private $passwd;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -2561,6 +2575,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->connection,
 			'SET SESSION sql_mode = \'' . implode(',', $sql_mode) . '\'',
 		);
+
+		// We will need this for a autoreconnect later.
+		$this->user = $user;
+		$this->passwd = $passwd;
 	}
 
 	/**
@@ -2766,6 +2784,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
 				break;
 		}
+
+		// We reached a impossible location, but static anlaysis doesnt know that.
+		throw new \Exception();
 	}
 
 	/**
