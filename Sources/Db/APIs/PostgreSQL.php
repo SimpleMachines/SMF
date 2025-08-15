@@ -2714,7 +2714,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 		}
 
-		return '';
+		// We reached a impossible location, but static anlaysis doesnt know that.
+		throw new \Exception();
 	}
 
 	/**
