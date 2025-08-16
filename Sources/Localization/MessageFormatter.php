@@ -547,7 +547,7 @@ class MessageFormatter
 		$skeleton = strtr($skeleton, [
 			'%x100' => 'percent scale/100',
 			',_' => 'group-off',
-			',_' => 'group-min2',
+			',?' => 'group-min2',
 			',!' => 'group-on-aligned',
 			'+!' => 'sign-always',
 			'+_' => 'sign-never',
