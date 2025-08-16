@@ -1412,6 +1412,16 @@ class ExportProfileData extends BackgroundTask
 			}
 		}
 
+		// This should be a very rare occurrence, but it's not impossible.
+		// Unfortunately, we must start over if it does happen.
+		if (!empty($done) && !file_exists($tempfile)) {
+			$done = false;
+			unset($new_item_count);
+			$datatype = reset($datatypes);
+			$progress = array_fill_keys($datatypes, 0);
+			file_put_contents($progressfile, Utils::jsonEncode($progress));
+		}
+
 		// Remove the .tmp extension from the final tempfile so the system knows it's done.
 		if (!empty($done)) {
 			rename($tempfile, $realfile);
