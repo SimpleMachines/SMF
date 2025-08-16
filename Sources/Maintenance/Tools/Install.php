@@ -257,7 +257,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Needs to at least meet our miniumn version.
 		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
-			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => PHP_MIN_VERSION], file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -512,7 +512,7 @@ class Install extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->title]);
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->title, 'min_version' => Db::$db->getMinimumVersion()]);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;

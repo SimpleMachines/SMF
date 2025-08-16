@@ -590,7 +590,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle()]);
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle(), 'min_version' => Db::$db->getMinimumVersion()]);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
