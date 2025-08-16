@@ -73,6 +73,7 @@ class AsciiTransliterator
 			'|\p{Block=Ethiopic}' .
 			'|\p{Block=Ethiopic Supplement}' .
 			'|\p{Block=Ethiopic Extended}' .
+			'|\p{Block=Spacing Modifier Letters}' .
 			'|\p{Block=Superscripts and Subscripts}' .
 			'|\p{Block=Currency Symbols}' .
 			'|\p{Block=Letterlike Symbols}' .
@@ -82,7 +83,7 @@ class AsciiTransliterator
 			'|\p{Block=Enclosed Alphanumerics}' .
 			'|\p{Block=Enclosed CJK Letters and Months}' .
 			'|\p{Block=CJK Compatibility}' .
-		'] nfkc;' .
+		'] Any-NFKC;' .
 		'Any-Latin;' .
 
 		// Remove accents, etc.
