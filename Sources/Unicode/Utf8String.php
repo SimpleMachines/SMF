@@ -1153,6 +1153,68 @@ class Utf8String implements \Stringable
 		return $chars;
 	}
 
+	/**
+	 * Returns a regular expression to detect possible emojis.
+	 *
+	 * Note that this regex is a detector, not a validator. The detected strings
+	 * could very well contain invalid emoji sequences, such as emoji modifiers
+	 * appended to emoji base characters that do not allow those modifiers.
+	 *
+	 * Regex is based on https://unicode.org/reports/tr51/#EBNF_and_Regex
+	 */
+	public static function emojiRegex(): string
+	{
+		require_once __DIR__ . '/RegularExpressions.php';
+
+		$prop_classes = utf8_regex_properties();
+
+		// The digits 0-9 and the * and # characters are technically emoji
+		// characters. This is because those characters can be the base for the
+		// Emoji_Keycap_Sequence emojis (e.g. 1️⃣ is composed of "1" followed by
+		// two emoji modifier characters). To ensure we don't match these ASCII
+		// characters except when they are part of an Emoji_Keycap_Sequence, we
+		// remove them from the general Emoji property class and put them into a
+		// special regex pattern of their own.
+		$emoji = str_replace('\x{0023}\x{002A}\x{0030}-\x{0039}', '', $prop_classes['Emoji']);
+		$keycap_sequence = '[#*0-9](?=\x{FE0F}\x{20E3})';
+
+		return
+			'/' .
+				// A flag emoji
+				'(?P>flag)' .
+
+				// Or
+				'|' .
+
+				// An emoji sequence
+				'(?P>emoji_sequence)' .
+				// Possibly concatenated with Zero Width Joiner and more emojis
+				// (e.g. the "family" emoji sequences)
+				'(?:' .
+					'\x{200D}' .
+					'(?P>emoji_sequence)' .
+				')*' .
+
+				// Define the sub-routines
+				'(?(DEFINE)' .
+					// Flag emojis
+					'(?<flag>[' . $prop_classes['Regional_Indicator'] . ']{2})' .
+					// Emoji characters
+					'(?<emoji_chars>[' . $emoji . ']|' . $keycap_sequence . ')' .
+					// Emoji modifiers of various sorts
+					'(?<emoji_modifiers>' .
+						'[' . $prop_classes['Emoji_Modifier'] . ']' .
+						'|' .
+						'\x{FE0F}\x{20E3}?' .
+						'|' .
+						'[\x{E0020}-\x{E007E}]+\x{E007F}' .
+					')' .
+					// Complete emoji sequences`
+					'(?<emoji_sequence>(?P>emoji_chars)(?P>emoji_modifiers)?)' .
+				')' .
+			'/u';
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1349,45 +1411,9 @@ class Utf8String implements \Stringable
 		require_once __DIR__ . '/RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
-		// Regex source is https://unicode.org/reports/tr51/#EBNF_and_Regex
 		$this->string  = preg_replace_callback(
-			'/' .
-			// Flag emojis
-			'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
-			// Or
-			'|' .
-			// Emoji characters
-			'[' . $prop_classes['Emoji'] . ']' .
-			// Possibly followed by modifiers of various sorts
-			'(' .
-				'[' . $prop_classes['Emoji_Modifier'] . ']' .
-				'|' .
-				'\x{FE0F}\x{20E3}?' .
-				'|' .
-				'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-			')?' .
-			// Possibly concatenated with Zero Width Joiner and more emojis
-			// (e.g. the "family" emoji sequences)
-			'(' .
-				'\x{200D}[' . $prop_classes['Emoji'] . ']' .
-				'(' .
-					'[' . $prop_classes['Emoji_Modifier'] . ']' .
-					'|' .
-					'\x{FE0F}\x{20E3}?' .
-					'|' .
-					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-				')?' .
-			')*' .
-			'/u',
+			self::emojiRegex(),
 			function ($matches) use (&$placeholders) {
-				// Skip lone ASCII characters that are not actually part of an
-				// emoji sequence. This can happen because the digits 0-9 and
-				// the '*' and '#' characters are the base characters for the
-				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
-					return $matches[0];
-				}
-
 				$placeholders[$matches[0]] = "\xEE\xB3\x9B" . md5($matches[0]) . "\xEE\xB3\x9C";
 
 				return $placeholders[$matches[0]];
