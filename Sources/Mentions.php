@@ -305,7 +305,7 @@ class Mentions
 			$count = count($match);
 
 			for ($i = 1; $i <= $count; $i++)
-				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))));
+				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))), ENT_QUOTES);
 		}
 
 		$names = array_unique($names);
