@@ -116,7 +116,7 @@ class SmStats implements ActionInterface, Routable
 			}
 
 			if ($fp) {
-				$length = strlen($stats_to_send);
+				$length = \strlen($stats_to_send);
 
 				$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
 				$out .= 'Host: www.simplemachines.org' . "\r\n";

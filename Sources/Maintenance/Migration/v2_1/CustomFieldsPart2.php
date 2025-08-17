@@ -106,7 +106,7 @@ class CustomFieldsPart2 extends MigrationBase
 				}
 
 				if (!empty($row['gender'])) {
-					$inserts[] = [$row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}'];
+					$inserts[] = [$row['id_member'], 1, 'cust_gender', '{gender_' . \intval($row['gender']) . '}'];
 				}
 			}
 			Db::$db->free_result($request);

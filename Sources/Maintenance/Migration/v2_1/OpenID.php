@@ -40,7 +40,7 @@ class OpenID extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return in_array('openid_assoc', $tables);
+		return \in_array('openid_assoc', $tables);
 	}
 
 	/**

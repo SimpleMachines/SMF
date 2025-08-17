@@ -147,7 +147,7 @@ class Column
 		if (isset($charset)) {
 			$this->charset = strtolower($charset);
 		} elseif (
-			in_array(
+			\in_array(
 				$this->type,
 				[
 					'character varying',

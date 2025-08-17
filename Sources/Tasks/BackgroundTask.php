@@ -85,7 +85,7 @@ abstract class BackgroundTask
 	{
 		$this->_details = $details;
 
-		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(get_class($this)) . '.lock';
+		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(\get_class($this)) . '.lock';
 	}
 
 	/**
@@ -221,7 +221,7 @@ abstract class BackgroundTask
 			],
 			data: [
 				[
-					get_class($this),
+					\get_class($this),
 					json_encode($details),
 					// Subtract TaskRunner::MAX_CLAIM_THRESHOLD because TaskRunner
 					// won't try to re-run a task until that many seconds after

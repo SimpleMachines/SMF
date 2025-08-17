@@ -115,7 +115,7 @@ class QueryString
 		}
 
 		// Are we going to need to parse the ; out?
-		if (!str_contains(ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
+		if (!str_contains(\ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
 			// Get rid of the old one! You don't know where it's been!
 			$_GET = [];
 
@@ -125,14 +125,14 @@ class QueryString
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
-		} elseif (str_contains(ini_get('arg_separator.input'), ';')) {
+		} elseif (str_contains(\ini_get('arg_separator.input'), ';')) {
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
 			foreach ($_GET as $k => $v) {
 				if ((string) $v === $v && str_contains($k, ';')) {
 					$temp = explode(';', $v);
 					$_GET[$k] = $temp[0];
 
-					for ($i = 1, $n = count($temp); $i < $n; $i++) {
+					for ($i = 1, $n = \count($temp); $i < $n; $i++) {
 						@list($key, $val) = @explode('=', $temp[$i], 2);
 
 						if (!isset($_GET[$key])) {
@@ -334,9 +334,9 @@ class QueryString
 		$matched = false;
 
 		if (isset($_REQUEST[$var], $value_list[$_REQUEST[$var]])) {
-			if (is_array($value_list[$_REQUEST[$var]])) {
+			if (\is_array($value_list[$_REQUEST[$var]])) {
 				foreach ($value_list[$_REQUEST[$var]] as $subvar => $subvalues) {
-					$matched |= isset($_REQUEST[$subvar]) && in_array($_REQUEST[$subvar], $subvalues);
+					$matched |= isset($_REQUEST[$subvar]) && \in_array($_REQUEST[$subvar], $subvalues);
 				}
 			} else {
 				$matched = true;
@@ -371,7 +371,7 @@ class QueryString
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
 				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
+				|| \ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
@@ -476,7 +476,7 @@ class QueryString
 	 */
 	public static function buildRoute(array|string $params): string
 	{
-		if (is_string($params)) {
+		if (\is_string($params)) {
 			$params = strtr(ltrim($params, '?'), ';', '&');
 			parse_str($params, $temp);
 
@@ -497,9 +497,9 @@ class QueryString
 
 		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
 
-		if (is_string(self::getRouteParser($route_base))) {
+		if (\is_string(self::getRouteParser($route_base))) {
 			// This call to extract will set new values of $route and $params.
-			extract(call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
+			extract(\call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
 		}
 
 		$route = !empty($route) ? '/' . implode('/', $route) : '';
@@ -537,8 +537,8 @@ class QueryString
 
 		$route = explode('/', trim($path, '/'));
 
-		if (is_string(self::getRouteParser($route[0]))) {
-			$new_params = call_user_func(self::getRouteParser($route[0]) . '::parseRoute', $route);
+		if (\is_string(self::getRouteParser($route[0]))) {
+			$new_params = \call_user_func(self::getRouteParser($route[0]) . '::parseRoute', $route);
 		} else {
 			// Maintain support for the pre-3.0 form of queryless URLs.
 			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', $path), '/', '&')), 1), $new_params);

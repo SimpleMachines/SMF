@@ -397,7 +397,7 @@ class BBCodeParser extends Parser
 	public function parse(string $message, bool $smileys = true, string|int $cache_id = '', array $parse_tags = []): string
 	{
 		// Don't waste cycles
-		if (strval($message) === '') {
+		if (\strval($message) === '') {
 			return '';
 		}
 
@@ -463,7 +463,7 @@ class BBCodeParser extends Parser
 			$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			// Only mess with stuff outside [code] tags.
-			for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				// Value of 2 means we're inside the BBCode.
 				if ($i % 4 == 2) {
 					$parts[$i] = strip_tags($parts[$i]);
@@ -598,7 +598,7 @@ class BBCodeParser extends Parser
 				}
 
 				// Preserve some tags stripping the styling.
-				if (in_array($matches[2], ['a', 'font', 'td'])) {
+				if (\in_array($matches[2], ['a', 'font', 'td'])) {
 					$replacement .= $precedingStyle . $afterStyle;
 					$curCloseTags = '</' . $matches[2] . '>' . $curCloseTags;
 				}
@@ -619,7 +619,7 @@ class BBCodeParser extends Parser
 			// Closing tag.
 			elseif (preg_match('~</([A-Za-z]+)>~', $part, $matches) === 1) {
 				// Is this the element that we've been waiting for to be closed?
-				if (!empty($stack) && strtolower((string) $matches[1]) === $stack[count($stack) - 1]['element']) {
+				if (!empty($stack) && strtolower((string) $matches[1]) === $stack[\count($stack) - 1]['element']) {
 					$byebyeTag = array_pop($stack);
 					$replacement .= $byebyeTag['closeTags'];
 				}
@@ -656,15 +656,15 @@ class BBCodeParser extends Parser
 				$end_pos = strpos($string, '</' . $matches[1] . '>', $start_pos);
 
 				// Remove the align from that tag so it's never checked again.
-				$tag = substr($string, $start_pos, strlen((string) $matches[0]));
-				$content = substr($string, $start_pos + strlen((string) $matches[0]), $end_pos - $start_pos - strlen((string) $matches[0]));
+				$tag = substr($string, $start_pos, \strlen((string) $matches[0]));
+				$content = substr($string, $start_pos + \strlen((string) $matches[0]), $end_pos - $start_pos - \strlen((string) $matches[0]));
 				$tag = str_replace($matches[2], '', $tag);
 
 				// Put the tags back into the body.
 				$string = substr($string, 0, $start_pos) . $tag . '[' . $matches[3] . ']' . $content . '[/' . $matches[3] . ']' . substr($string, $end_pos);
 			} else {
 				// Just get rid of this evil tag.
-				$string = substr($string, 0, $start_pos) . substr($string, $start_pos + strlen((string) $matches[0]));
+				$string = substr($string, 0, $start_pos) . substr($string, $start_pos + \strlen((string) $matches[0]));
 			}
 		}
 
@@ -685,7 +685,7 @@ class BBCodeParser extends Parser
 			$start_pos_test = $start_pos + 4;
 			$start_font_tag_stack = 0;
 
-			while ($start_pos_test < strlen($string)) {
+			while ($start_pos_test < \strlen($string)) {
 				// Where is the next starting font?
 				$next_start_pos = strpos($lower_text, '<font', $start_pos_test);
 				$next_end_pos = strpos($lower_text, '</font>', $start_pos_test);
@@ -741,7 +741,7 @@ class BBCodeParser extends Parser
 			}
 
 			// Remove the tag so it's never checked again.
-			$content = substr($string, $start_pos + strlen((string) $matches[0]), $end_pos - $start_pos - strlen((string) $matches[0]));
+			$content = substr($string, $start_pos + \strlen((string) $matches[0]), $end_pos - $start_pos - \strlen((string) $matches[0]));
 
 			// Put the tags back into the body.
 			$string = substr($string, 0, $start_pos) . $before . $content . $after . substr($string, $end_pos + 7);
@@ -752,7 +752,7 @@ class BBCodeParser extends Parser
 			Sapi::resetTimeout();
 		}
 
-		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (\count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// A toggle that determines whether we're directly under a <ol> or <ul>.
 			$inList = false;
 
@@ -772,7 +772,7 @@ class BBCodeParser extends Parser
 			];
 
 			// $i: text, $i + 1: '/', $i + 2: tag, $i + 3: tail.
-			for ($i = 0, $numParts = count($parts) - 1; $i < $numParts; $i += 4) {
+			for ($i = 0, $numParts = \count($parts) - 1; $i < $numParts; $i += 4) {
 				$tag = strtolower($parts[$i + 2]);
 				$is_opening_tag = $parts[$i + 1] === '';
 
@@ -789,7 +789,7 @@ class BBCodeParser extends Parser
 									str_repeat("\t", $listDepth) . '[li]',
 									'',
 								]);
-								$numParts = count($parts) - 1;
+								$numParts = \count($parts) - 1;
 
 								// The inlist status changes a bit.
 								$inList = false;
@@ -870,7 +870,7 @@ class BBCodeParser extends Parser
 										'', // $i + 3
 										'', // $i + 4
 									]);
-									$numParts = count($parts) - 1;
+									$numParts = \count($parts) - 1;
 
 									// Now that we've closed the li, we're in list space.
 									$inList = true;
@@ -914,7 +914,7 @@ class BBCodeParser extends Parser
 						'', // No tail.
 					]);
 
-					$numParts = count($parts) - 1;
+					$numParts = \count($parts) - 1;
 				}
 			}
 
@@ -939,7 +939,7 @@ class BBCodeParser extends Parser
 				break;
 			}
 
-			$end_pos = $start_pos + strlen((string) $matches[0]);
+			$end_pos = $start_pos + \strlen((string) $matches[0]);
 
 			$params = '';
 			$src = '';
@@ -947,7 +947,7 @@ class BBCodeParser extends Parser
 			$attrs = self::fetchTagAttributes((string) $matches[1]);
 
 			foreach ($attrs as $attrib => $value) {
-				if (in_array($attrib, ['width', 'height'])) {
+				if (\in_array($attrib, ['width', 'height'])) {
 					$params .= ' ' . $attrib . '=' . (int) $value;
 				} elseif ($attrib == 'alt' && trim($value) != '') {
 					$params .= ' alt=' . trim($value);
@@ -962,7 +962,7 @@ class BBCodeParser extends Parser
 				$src = new Url($src);
 
 				// Attempt to fix the path in case it's not present.
-				if (in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
+				if (\in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
 					$base_url = ($src->scheme ?? 'http') . '://' . $src->host . (empty($src->port) ? '' : ':' . $src->port);
 
 					if (str_starts_with((string) $src, '/')) {
@@ -1124,7 +1124,7 @@ class BBCodeParser extends Parser
 				break;
 			}
 
-			$end_pos = $start_pos + strlen((string) $matches[0]);
+			$end_pos = $start_pos + \strlen((string) $matches[0]);
 
 			$tag_type = 'url';
 			$href = '';
@@ -1137,7 +1137,7 @@ class BBCodeParser extends Parser
 					$our_url = new Url(Config::$boardurl);
 
 					// Are we dealing with an FTP link?
-					if (in_array($href->scheme, ['ftp', 'ftps'])) {
+					if (\in_array($href->scheme, ['ftp', 'ftps'])) {
 						$tag_type = 'ftp';
 					}
 					// Or is this a link to an email address?
@@ -1146,7 +1146,7 @@ class BBCodeParser extends Parser
 						$href = $href->path;
 					}
 					// No http(s), so attempt to fix this potential relative URL.
-					elseif (!in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
+					elseif (!\in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
 						$base_url = ($our_url->scheme ?? 'http') . '://' . $our_url->host . (empty($our_url->port) ? '' : ':' . $our_url->port);
 
 						if (str_starts_with((string) $href, '/')) {
@@ -1277,7 +1277,7 @@ class BBCodeParser extends Parser
 		$allowed_tags = [];
 
 		foreach ($temp as $bbc) {
-			if (!in_array($bbc->tag, $disabled_tags)) {
+			if (!\in_array($bbc->tag, $disabled_tags)) {
 				$allowed_tags[] = $bbc->tag;
 			}
 		}
@@ -1321,12 +1321,12 @@ class BBCodeParser extends Parser
 					if (
 						str_starts_with($matches[1], $var . '_')
 						&& Lang::txtExists(
-							substr($matches[1], strlen($var) + 1),
+							substr($matches[1], \strlen($var) + 1),
 							var: $var,
 						)
 					) {
 						return Lang::getTxt(
-							substr($matches[1], strlen($var) + 1),
+							substr($matches[1], \strlen($var) + 1),
 							var: $var,
 							lang: self::$locale,
 						);
@@ -1362,7 +1362,7 @@ class BBCodeParser extends Parser
 
 			// Failsafe.
 			if ($this->pos === false || $this->last_pos > $this->pos) {
-				$this->pos = strlen($this->message) + 1;
+				$this->pos = \strlen($this->message) + 1;
 			}
 
 			// Can't have a one letter smiley, URL, or email! (Sorry.)
@@ -1385,14 +1385,14 @@ class BBCodeParser extends Parser
 					$this->message = substr($this->message, 0, $this->last_pos) . $data . substr($this->message, $this->pos);
 
 					// Since we changed it, look again in case we added or removed a BBCode.  But we don't want to skip any.
-					$old_pos = strlen($data) + $this->last_pos;
+					$old_pos = \strlen($data) + $this->last_pos;
 					$this->pos = strpos($this->message, '[', $this->last_pos);
 					$this->pos = $this->pos === false ? $old_pos : min($this->pos, $old_pos);
 				}
 			}
 
 			// Are we there yet?  Are we there yet?
-			if ($this->pos >= strlen($this->message) - 1) {
+			if ($this->pos >= \strlen($this->message) - 1) {
 				break;
 			}
 
@@ -1409,7 +1409,7 @@ class BBCodeParser extends Parser
 				continue;
 			}
 
-			$this->inside = empty($this->open_bbc) ? null : $this->open_bbc[count($this->open_bbc) - 1];
+			$this->inside = empty($this->open_bbc) ? null : $this->open_bbc[\count($this->open_bbc) - 1];
 
 			// What BBCode do we have?
 			list($bbc, $params) = $this->detectBBCode($tag_character);
@@ -1424,7 +1424,7 @@ class BBCodeParser extends Parser
 					array_pop($this->open_bbc);
 
 					$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->inside->after . "\n" . substr($this->message, $this->pos);
-					$this->pos += strlen($this->inside->after) - 1 + 2;
+					$this->pos += \strlen($this->inside->after) - 1 + 2;
 				}
 
 				continue;
@@ -1446,7 +1446,7 @@ class BBCodeParser extends Parser
 			}
 
 			// Can't read past the end of the message
-			$this->pos1 = min(strlen($this->message), $this->pos1);
+			$this->pos1 = min(\strlen($this->message), $this->pos1);
 
 			$this->transformToHtml($bbc, $params);
 		}
@@ -1460,7 +1460,7 @@ class BBCodeParser extends Parser
 		if ($this->smileys === true) {
 			$message_parts = explode("\n", $this->message);
 
-			for ($i = 0, $n = count($message_parts); $i < $n; $i += 2) {
+			for ($i = 0, $n = \count($message_parts); $i < $n; $i += 2) {
 				$message_parts[$i] = SmileyParser::load()->parse($message_parts[$i]);
 			}
 
@@ -1580,7 +1580,7 @@ class BBCodeParser extends Parser
 			}
 
 			// If we are not doing every BBCode only do ones we are interested in.
-			if (empty($this->parse_tags) || in_array($bbc->tag, $this->parse_tags)) {
+			if (empty($this->parse_tags) || \in_array($bbc->tag, $this->parse_tags)) {
 				$this->bbc_codes[substr($bbc->tag, 0, 1)][] = $bbc;
 			}
 		}
@@ -1664,7 +1664,7 @@ class BBCodeParser extends Parser
 				// Remove action= from the URL - no funny business, now.
 				$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-				$placeholder = sprintf($this->placeholder_template, ++$this->placeholders_counter);
+				$placeholder = \sprintf($this->placeholder_template, ++$this->placeholders_counter);
 				$this->placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
 
 				$replaces[$matches[0][$match]] = $placeholder;
@@ -1692,7 +1692,7 @@ class BBCodeParser extends Parser
 		$look_for = strtolower(substr($this->message, $this->pos + 2, $pos2 - $this->pos - 2));
 
 		// A closing tag that doesn't match any open tags? Skip it.
-		if (!in_array($look_for, array_map(function ($bbc) { return $bbc->tag; }, $this->open_bbc))) {
+		if (!\in_array($look_for, array_map(function ($bbc) { return $bbc->tag; }, $this->open_bbc))) {
 			return;
 		}
 
@@ -1714,7 +1714,7 @@ class BBCodeParser extends Parser
 				}
 
 				// The idea is, if we are LOOKING for a block level BBCode, we can close them on the way.
-				if (strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
+				if (\strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
 					foreach ($this->bbc_codes[$look_for[0]] as $temp) {
 						if ($temp->tag == $look_for) {
 							$block_level = !empty($temp->block_level);
@@ -1762,7 +1762,7 @@ class BBCodeParser extends Parser
 
 		foreach ($to_close as $bbc) {
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->after . "\n" . substr($this->message, $pos2 + 1);
-			$this->pos += strlen($bbc->after) + 2;
+			$this->pos += \strlen($bbc->after) + 2;
 			$pos2 = $this->pos - 1;
 
 			// See the comment at the end of the big loop - just eating whitespace ;).
@@ -1778,7 +1778,7 @@ class BBCodeParser extends Parser
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
-				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + strlen($matches[0]));
+				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + \strlen($matches[0]));
 			}
 		}
 
@@ -1800,7 +1800,7 @@ class BBCodeParser extends Parser
 		$params = [];
 
 		foreach ($this->bbc_codes[$tag_character] as $possible) {
-			$pt_strlen = strlen($possible->tag);
+			$pt_strlen = \strlen($possible->tag);
 
 			// Not a match?
 			if (strtolower(substr($this->message, $this->pos + 1, $pt_strlen)) != $possible->tag) {
@@ -1839,7 +1839,7 @@ class BBCodeParser extends Parser
 			elseif (isset($possible->type)) {
 				// Do we need an equal sign?
 				if (
-					in_array(
+					\in_array(
 						$possible->type,
 						[
 							BBCode::TYPE_UNPARSED_EQUALS,
@@ -1875,16 +1875,16 @@ class BBCodeParser extends Parser
 			}
 
 			// Check allowed tree?
-			if (isset($possible->require_parents) && ($this->inside === null || !in_array($this->inside->tag, $possible->require_parents))) {
+			if (isset($possible->require_parents) && ($this->inside === null || !\in_array($this->inside->tag, $possible->require_parents))) {
 				continue;
 			}
 
-			if (isset($this->inside->require_children) && !in_array($possible->tag, (array) $this->inside->require_children)) {
+			if (isset($this->inside->require_children) && !\in_array($possible->tag, (array) $this->inside->require_children)) {
 				continue;
 			}
 
 			// If this is in the list of disallowed child tags, don't parse it.
-			if (isset($this->inside->disallow_children) && in_array($possible->tag, (array) $this->inside->disallow_children)) {
+			if (isset($this->inside->disallow_children) && \in_array($possible->tag, (array) $this->inside->disallow_children)) {
 				continue;
 			}
 
@@ -1928,8 +1928,8 @@ class BBCodeParser extends Parser
 				// Progressively append more blobs until we find our parameters or run out of blobs
 				$blob_counter = 1;
 
-				while ($blob_counter <= count($blobs)) {
-					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
+				while ($blob_counter <= \count($blobs)) {
+					$given_param_string = implode(']', \array_slice($blobs, 0, $blob_counter++));
 
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
@@ -1948,7 +1948,7 @@ class BBCodeParser extends Parser
 
 				$params = [];
 
-				for ($i = 1, $n = count($matches); $i < $n; $i += 2) {
+				for ($i = 1, $n = \count($matches); $i < $n; $i += 2) {
 					$key = strtok(ltrim($matches[$i]), '=');
 
 					if ($key === false) {
@@ -1996,7 +1996,7 @@ class BBCodeParser extends Parser
 					$bbc->content = strtr($bbc->content, $params);
 				}
 
-				$this->pos1 += strlen($given_param_string);
+				$this->pos1 += \strlen($given_param_string);
 			} else {
 				$bbc = clone $possible;
 				$params = [];
@@ -2013,7 +2013,7 @@ class BBCodeParser extends Parser
 	 */
 	protected function parseItemCode(): void
 	{
-		if ($this->message[$this->pos + 1] == '0' && !in_array($this->message[$this->pos - 1], [';', ' ', "\t", "\n", '>'])) {
+		if ($this->message[$this->pos + 1] == '0' && !\in_array($this->message[$this->pos - 1], [';', ' ', "\t", "\n", '>'])) {
 			return;
 		}
 
@@ -2047,7 +2047,7 @@ class BBCodeParser extends Parser
 
 		$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $this->pos + 3);
 
-		$this->pos += strlen($html) - 1 + 2;
+		$this->pos += \strlen($html) - 1 + 2;
 
 		// Next, find the next break (if any.)  If there's more itemcode after it, keep it going - otherwise close!
 		$pos2 = strpos($this->message, '<br>', $this->pos);
@@ -2058,13 +2058,13 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $pos2) . (!empty($matches[0]) && str_ends_with($matches[0], '[') ? '[/li]' : '[/li][/list]') . substr($this->message, $pos2);
 
-			$this->open_bbc[count($this->open_bbc) - 2]['after'] = '</ul>';
+			$this->open_bbc[\count($this->open_bbc) - 2]['after'] = '</ul>';
 		}
 		// Tell the [list] that it needs to close specially.
 		else {
 			// Move the li over, because we're not sure what we'll hit.
-			$this->open_bbc[count($this->open_bbc) - 1]['after'] = '';
-			$this->open_bbc[count($this->open_bbc) - 2]['after'] = '</li></ul>';
+			$this->open_bbc[\count($this->open_bbc) - 1]['after'] = '';
+			$this->open_bbc[\count($this->open_bbc) - 2]['after'] = '</li></ul>';
 		}
 	}
 
@@ -2074,17 +2074,17 @@ class BBCodeParser extends Parser
 	 */
 	protected function closeInlineTags(): void
 	{
-		$n = count($this->open_bbc) - 1;
+		$n = \count($this->open_bbc) - 1;
 
 		while (empty($this->open_bbc[$n]['block_level']) && $n >= 0) {
 			$n--;
 		}
 
 		// Close all the non block level BBCodes so this BBCode isn't surrounded by them.
-		for ($i = count($this->open_bbc) - 1; $i > $n; $i--) {
+		for ($i = \count($this->open_bbc) - 1; $i > $n; $i--) {
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->open_bbc[$i]['after'] . "\n" . substr($this->message, $this->pos);
 
-			$ot_strlen = strlen($this->open_bbc[$i]['after']);
+			$ot_strlen = \strlen($this->open_bbc[$i]['after']);
 			$this->pos += $ot_strlen + 2;
 			$this->pos1 += $ot_strlen + 2;
 
@@ -2100,7 +2100,7 @@ class BBCodeParser extends Parser
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
-				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + strlen($matches[0]));
+				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + \strlen($matches[0]));
 			}
 
 			array_pop($this->open_bbc);
@@ -2132,7 +2132,7 @@ class BBCodeParser extends Parser
 		}
 
 		// We use this a lot.
-		$tag_strlen = strlen($bbc->tag);
+		$tag_strlen = \strlen($bbc->tag);
 
 		// No type means 'parsed_content'.
 		if (!isset($bbc->type)) {
@@ -2145,7 +2145,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->before . "\n" . substr($this->message, $this->pos1);
 
-			$this->pos += strlen($bbc->before) - 1 + 2;
+			$this->pos += \strlen($bbc->before) - 1 + 2;
 		}
 		// Don't parse the content, just skip it.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_CONTENT) {
@@ -2167,7 +2167,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 			$this->last_pos = $this->pos + 1;
 		}
 		// Don't parse the content, just skip it.
@@ -2178,14 +2178,14 @@ class BBCodeParser extends Parser
 				// but we need to handle raw quotation marks too.
 				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
 
-				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
+				$quoted = substr($this->message, $this->pos1, \strlen($quot)) == $quot;
 
 				if ($bbc->quoted != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += strlen($quot);
+					$this->pos1 += \strlen($quot);
 				}
 			} else {
 				$quoted = false;
@@ -2204,7 +2204,7 @@ class BBCodeParser extends Parser
 			}
 
 			$data = [
-				substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + strlen($quot)))),
+				substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)))),
 				substr($this->message, $this->pos1, $pos2 - $this->pos1),
 			];
 
@@ -2219,7 +2219,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// A closed BBCode, with no content or value.
 		elseif ($bbc->type == BBCode::TYPE_CLOSED) {
@@ -2232,7 +2232,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->content . "\n" . substr($this->message, $pos2 + 1);
 
-			$this->pos += strlen($bbc->content) - 1 + 2;
+			$this->pos += \strlen($bbc->content) - 1 + 2;
 		}
 		// This one is sorta ugly... :/.  Unfortunately, it's needed for flash.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS_CONTENT) {
@@ -2262,7 +2262,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// This has parsed content, and a csv value which is unparsed.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS) {
@@ -2292,7 +2292,7 @@ class BBCodeParser extends Parser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 1);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// A BBCode set to a value, parsed or not.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_EQUALS || $bbc->type == BBCode::TYPE_PARSED_EQUALS) {
@@ -2301,14 +2301,14 @@ class BBCodeParser extends Parser
 				// Will normally be '&quot;' but might be '"'.
 				$quot = substr($this->message, $this->pos1, 1) === '"' ? '"' : '&quot;';
 
-				$quoted = substr($this->message, $this->pos1, strlen($quot)) == $quot;
+				$quoted = substr($this->message, $this->pos1, \strlen($quot)) == $quot;
 
 				if ($bbc->quoted != 'optional' && !$quoted) {
 					return;
 				}
 
 				if ($quoted) {
-					$this->pos1 += strlen($quot);
+					$this->pos1 += \strlen($quot);
 				}
 			} else {
 				$quoted = false;
@@ -2319,13 +2319,13 @@ class BBCodeParser extends Parser
 				$nested_tag = strpos($this->message, '=' . $quot, $this->pos1);
 
 				// Check so this is not just an quoted url ending with a =
-				if ($nested_tag && substr($this->message, $nested_tag, 2 + strlen($quot)) == '=' . $quot . ']') {
+				if ($nested_tag && substr($this->message, $nested_tag, 2 + \strlen($quot)) == '=' . $quot . ']') {
 					$nested_tag = false;
 				}
 
 				if ($nested_tag && $nested_tag < $end_of_value) {
 					// Nested BBCode with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1) + strlen($quot);
+					$nested_tag_pos = strpos($this->message, $quoted == false ? ']' : $quot . ']', $this->pos1) + \strlen($quot);
 				}
 			}
 
@@ -2360,9 +2360,9 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->before, ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
+			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)));
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 
 		// If this is block level, eat any breaks after it.
@@ -2372,7 +2372,7 @@ class BBCodeParser extends Parser
 
 		// Are we trimming outside this BBCode?
 		if (!empty($bbc->trim) && $bbc->trim != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
-			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + strlen($matches[0]));
+			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + \strlen($matches[0]));
 		}
 	}
 
@@ -2390,7 +2390,7 @@ class BBCodeParser extends Parser
 		$key = $value = '';
 		$tag_state = 0; // 0 = key, 1 = attribute with no string, 2 = attribute with string
 
-		for ($i = 0; $i < strlen($string); $i++) {
+		for ($i = 0; $i < \strlen($string); $i++) {
 			// We're either moving from the key to the attribute or we're in a string and this is fine.
 			if ($string[$i] == '=') {
 				if ($tag_state == 0) {
@@ -2448,7 +2448,7 @@ class BBCodeParser extends Parser
 	protected function legalise(string $string): string
 	{
 		// Don't care about the texts that are too short.
-		if (strlen($string) < 3) {
+		if (\strlen($string) < 3) {
 			return $string;
 		}
 
@@ -2477,7 +2477,7 @@ class BBCodeParser extends Parser
 		$align_tags = array_intersect($align_tags, array_keys($valid_tags));
 
 		// These keep track of where we are!
-		if (!empty($align_tags) && count($matches = preg_split('~(\[/?(?:' . implode('|', $align_tags) . ')\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (!empty($align_tags) && \count($matches = preg_split('~(\[/?(?:' . implode('|', $align_tags) . ')\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// The first one is never a tag.
 			$is_tag = false;
 
@@ -2522,14 +2522,14 @@ class BBCodeParser extends Parser
 
 		$lastlen = 0;
 
-		while (strlen($string) !== $lastlen) {
-			$lastlen = strlen($string = preg_replace($back_to_back_pattern, '', $string));
+		while (\strlen($string) !== $lastlen) {
+			$lastlen = \strlen($string = preg_replace($back_to_back_pattern, '', $string));
 		}
 
 		// Need to sort the BBCodes by name length.
 		uksort(
 			$valid_tags,
-			fn($a, $b) => strlen($a) <=> strlen($b),
+			fn($a, $b) => \strlen($a) <=> \strlen($b),
 		);
 
 		// These inline BBCodes can compete with each other regarding style.
@@ -2539,7 +2539,7 @@ class BBCodeParser extends Parser
 		];
 
 		// These keep track of where we are!
-		if (count($parts = preg_split(sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (\count($parts = preg_split(\sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// Start outside [nobbc] or [code] blocks.
 			$in_code = false;
 			$in_nobbc = false;
@@ -2554,12 +2554,12 @@ class BBCodeParser extends Parser
 			$competing_elements = [];
 
 			// $i: text, $i + 1: '[', $i + 2: '/', $i + 3: tag, $i + 4: tag tail.
-			for ($i = 0, $n = count($parts) - 1; $i < $n; $i += 5) {
+			for ($i = 0, $n = \count($parts) - 1; $i < $n; $i += 5) {
 				$tag = $parts[$i + 3];
 				$is_opening_tag = $parts[$i + 2] === '';
 				$is_closing_tag = $parts[$i + 2] === '/';
-				$is_block_level_tag = isset($valid_tags[$tag]) && $valid_tags[$tag] && !in_array($tag, $self_closing_tags);
-				$is_competing_tag = in_array($tag, $competing_tags);
+				$is_block_level_tag = isset($valid_tags[$tag]) && $valid_tags[$tag] && !\in_array($tag, $self_closing_tags);
+				$is_competing_tag = \in_array($tag, $competing_tags);
 
 				// Check if this might be one of those cleaned out tags.
 				if ($tag === '') {
@@ -2639,7 +2639,7 @@ class BBCodeParser extends Parser
 						$block_elements[] = $tag;
 					}
 					// Inline opening tag.
-					elseif (!in_array($tag, $self_closing_tags)) {
+					elseif (!\in_array($tag, $self_closing_tags)) {
 						// Can't have two opening elements with the same contents!
 						if (isset($inline_elements[$element_content])) {
 							// Get rid of this tag.
@@ -2648,7 +2648,7 @@ class BBCodeParser extends Parser
 							// Now try to find the corresponding closing tag.
 							$cur_level = 1;
 
-							for ($j = $i + 5, $m = count($parts) - 1; $j < $m; $j += 5) {
+							for ($j = $i + 5, $m = \count($parts) - 1; $j < $m; $j += 5) {
 								// Find the BBCodes with the same tag
 								if ($parts[$j + 3] === $tag) {
 									// If it's an opening tag, increase the level.
@@ -2677,7 +2677,7 @@ class BBCodeParser extends Parser
 
 								$competing_elements[$tag][] = $parts[$i + 4];
 
-								if (count($competing_elements[$tag]) > 1) {
+								if (\count($competing_elements[$tag]) > 1) {
 									$parts[$i] .= '[/' . $tag . ']';
 								}
 							}
@@ -2708,7 +2708,7 @@ class BBCodeParser extends Parser
 							}
 
 							// Apparently the closing tag was not found on the stack.
-							if (!is_string($element) || $element !== $tag) {
+							if (!\is_string($element) || $element !== $tag) {
 								// Get rid of this particular closing tag, it was never opened.
 								$parts[$i + 1] = substr($parts[$i + 1], 0, -1);
 								$parts[$i + 2] = $parts[$i + 3] = $parts[$i + 4] = '';
@@ -2734,7 +2734,7 @@ class BBCodeParser extends Parser
 					// Inline tag.
 					else {
 						// Are we expecting this tag to end?
-						if (in_array($tag, $inline_elements)) {
+						if (\in_array($tag, $inline_elements)) {
 							foreach (array_reverse($inline_elements, true) as $tag_content_to_be_closed => $tag_to_be_closed) {
 								// Closing it one way or the other.
 								unset($inline_elements[$tag_content_to_be_closed]);
@@ -2751,8 +2751,8 @@ class BBCodeParser extends Parser
 							if ($is_competing_tag && !empty($competing_elements[$tag])) {
 								array_pop($competing_elements[$tag]);
 
-								if (count($competing_elements[$tag]) > 0) {
-									$parts[$i + 5] = '[' . $tag . $competing_elements[$tag][count($competing_elements[$tag]) - 1] . $parts[$i + 5];
+								if (\count($competing_elements[$tag]) > 0) {
+									$parts[$i + 5] = '[' . $tag . $competing_elements[$tag][\count($competing_elements[$tag]) - 1] . $parts[$i + 5];
 								}
 							}
 						}
@@ -2788,8 +2788,8 @@ class BBCodeParser extends Parser
 		// Final clean up of back-to-back tags.
 		$lastlen = 0;
 
-		while (strlen($string) !== $lastlen) {
-			$lastlen = strlen($string = preg_replace($back_to_back_pattern, '', $string));
+		while (\strlen($string) !== $lastlen) {
+			$lastlen = \strlen($string = preg_replace($back_to_back_pattern, '', $string));
 		}
 
 		return $string;
@@ -2873,7 +2873,7 @@ class BBCodeParser extends Parser
 
 				$serialized = serialize($value);
 
-				if (!in_array($serialized, $temp)) {
+				if (!\in_array($serialized, $temp)) {
 					$temp[] = $serialized;
 				} else {
 					unset(self::$codes[$i]);

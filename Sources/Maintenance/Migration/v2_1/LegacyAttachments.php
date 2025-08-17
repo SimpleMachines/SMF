@@ -69,7 +69,7 @@ class LegacyAttachments extends MigrationBase
 		Maintenance::$total_items = $this->getTotalAttachments();
 
 		// We may be using multiple attachment directories.
-		if (!empty(Config::$modSettings['currentAttachmentUploadDir']) && !is_array(Config::$modSettings['attachmentUploadDir']) && empty(Config::$modSettings['json_done'])) {
+		if (!empty(Config::$modSettings['currentAttachmentUploadDir']) && !\is_array(Config::$modSettings['attachmentUploadDir']) && empty(Config::$modSettings['json_done'])) {
 			Config::$modSettings['attachmentUploadDir'] = @unserialize(Config::$modSettings['attachmentUploadDir']);
 		}
 

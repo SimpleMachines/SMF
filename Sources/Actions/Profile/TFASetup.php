@@ -108,7 +108,7 @@ class TFASetup implements ActionInterface
 		$code = $_POST['tfa_code'];
 		$this->totp = new Tfa($_SESSION['tfa_secret']);
 		$this->totp->setRange(1);
-		$valid_code = strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
+		$valid_code = \strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
 
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
 			$backup = bin2hex(random_bytes(8));

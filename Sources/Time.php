@@ -190,7 +190,7 @@ class Time extends \DateTime implements \ArrayAccess
 			self::$user_tz = new \DateTimeZone(User::getTimezone());
 		}
 
-		if (is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
+		if (\is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
 			unset($timezone);
 		}
 
@@ -308,7 +308,7 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+				if ($value instanceof \DateTimeZone || (\is_string($value) && \in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
 					$this->setTimezone($value);
 				}
 				break;
@@ -536,7 +536,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$placeholders = [];
 		$complex = false;
 
-		for ($i = 0; $i < count($parts); $i++) {
+		for ($i = 0; $i < \count($parts); $i++) {
 			// Parts that are not strftime formats.
 			if ($i % 2 === 0 || !isset(self::FORMAT_EQUIVALENTS[$parts[$i]])) {
 				if ($parts[$i] === '') {
@@ -549,7 +549,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that need localized strings.
-			elseif (in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
+			elseif (\in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
 				switch ($parts[$i]) {
 					case 'a':
 						$min = 0;
@@ -600,7 +600,7 @@ class Time extends \DateTime implements \ArrayAccess
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
-			} elseif (in_array($parts[$i], ['p', 'P'])) {
+			} elseif (\in_array($parts[$i], ['p', 'P'])) {
 				if (!Lang::txtExists('time_am', file: 'General') || !Lang::txtExists('time_pm', file: 'General')) {
 					continue;
 				}
@@ -624,7 +624,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that will need further processing.
-			elseif (in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
+			elseif (\in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
 				$complex = true;
 
 				switch ($parts[$i]) {
@@ -673,33 +673,33 @@ class Time extends \DateTime implements \ArrayAccess
 					switch ($matches[2]) {
 						// %j
 						case "\xEE\x84\xA1":
-							$replacement = sprintf('%03d', (int) $matches[1] + 1);
+							$replacement = \sprintf('%03d', (int) $matches[1] + 1);
 							break;
 
 						// %C
 						case "\xEE\x84\xA2":
-							$replacement = substr(sprintf('%04d', $matches[1]), 0, 2);
+							$replacement = substr(\sprintf('%04d', $matches[1]), 0, 2);
 							break;
 
 						// %U and %W
 						case "\xEE\x84\xA3":
 							list($day_of_year, $day_of_week, $first_day) = explode('_', $matches[1]);
-							$replacement = sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
+							$replacement = \sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
 							break;
 
 						// %G
 						case "\xEE\x84\xA4":
-							$replacement = sprintf('%04d', $matches[1]);
+							$replacement = \sprintf('%04d', $matches[1]);
 							break;
 
 						// %g
 						case "\xEE\x84\xA5":
-							$replacement = substr(sprintf('%04d', $matches[1]), -2);
+							$replacement = substr(\sprintf('%04d', $matches[1]), -2);
 							break;
 
 						// %e and %l
 						case "\xEE\x84\xA6":
-							$replacement = sprintf('%2d', $matches[1]);
+							$replacement = \sprintf('%2d', $matches[1]);
 							break;
 
 						// Shouldn't happen, but just in case...
@@ -729,7 +729,7 @@ class Time extends \DateTime implements \ArrayAccess
 	{
 		if ($timezone instanceof \DateTimeZone) {
 			date_timezone_set($this, $timezone);
-		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+		} elseif (\in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
 			date_timezone_set($this, new \DateTimeZone($timezone));
 		} else {
 			throw new \ValueError();
@@ -1083,7 +1083,7 @@ class Time extends \DateTime implements \ArrayAccess
 				'~\d+~',
 			],
 			function ($matches) use (&$placeholders) {
-				$char = mb_chr(0xE000 + count($placeholders));
+				$char = mb_chr(0xE000 + \count($placeholders));
 				$placeholders[$char] = $matches[0];
 
 				return $char;
@@ -1120,7 +1120,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$date = preg_replace_callback(
 			'~\b' . self::$parsable_words_regex . '\b~iu',
 			function ($matches) use (&$placeholders) {
-				$char = mb_chr(0xE000 + count($placeholders));
+				$char = mb_chr(0xE000 + \count($placeholders));
 				$placeholders[$char] = $matches[0];
 
 				return $char;

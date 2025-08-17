@@ -55,7 +55,7 @@ class PersonalMessageNotification extends MigrationBase
 		// See which columns we have
 		$results = Db::$db->list_columns('{db_prefix}members');
 
-		return in_array('pm_email_notify', $results);
+		return \in_array('pm_email_notify', $results);
 	}
 
 	/**

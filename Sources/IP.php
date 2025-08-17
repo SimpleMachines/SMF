@@ -196,7 +196,7 @@ class IP implements \Stringable
 
 		// If we don't need to set a timeout, use PHP's native function.
 		if (empty($timeout)) {
-			$host = \gethostbyaddr($this->ip);
+			$host = gethostbyaddr($this->ip);
 		}
 
 		// Try asking the operating system to look it up for us.
@@ -404,7 +404,7 @@ class IP implements \Stringable
 								$range[1] = [$ranged[1]];
 							}
 
-							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && count($range[0]) < count($octets)) {
+							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && \count($range[0]) < \count($octets)) {
 								$range[0][] = $min;
 							}
 
@@ -435,13 +435,13 @@ class IP implements \Stringable
 		// Finalize the strings.
 		foreach ([0, 1] as $key) {
 			// If it's too long, shorten it.
-			if (count($range[$key]) > $max_parts) {
-				$range[$key] = array_slice($range[$key], 0, $max_parts);
+			if (\count($range[$key]) > $max_parts) {
+				$range[$key] = \array_slice($range[$key], 0, $max_parts);
 			}
 
 			// If they're still too short, pad them out.
-			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts) {
-				if (in_array('*', $range[$key])) {
+			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && \count($range[$key]) < $max_parts) {
+				if (\in_array('*', $range[$key])) {
 					$range[$key] = explode($mode, preg_replace('/\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
 				} else {
 					$range[$key][] = '*';
@@ -632,7 +632,7 @@ class IP implements \Stringable
 	 */
 	protected function hostLookup(int $timeout = 1000): string
 	{
-		if (!function_exists('shell_exec')) {
+		if (!\function_exists('shell_exec')) {
 			return '';
 		}
 
@@ -760,14 +760,14 @@ class IP implements \Stringable
 		}
 
 		// Random transaction number (for routers, etc., to get the reply back)
-		$query = sprintf('%02d', mt_rand(0, 99));
+		$query = \sprintf('%02d', mt_rand(0, 99));
 
 		// Request header.
 		$query .= "\1\0\0\1\0\0\0\0\0\0";
 
 		// The interesting stuff.
 		foreach ($parts as $part) {
-			$query .= chr(strlen($part)) . $part;
+			$query .= \chr(\strlen($part)) . $part;
 		}
 
 		// And the final bit of the request.

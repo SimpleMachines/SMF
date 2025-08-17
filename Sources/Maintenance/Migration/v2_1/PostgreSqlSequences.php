@@ -202,7 +202,7 @@ class PostgreSqlSequences extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		for ($key = Maintenance::getCurrentStart(); $key < count($this->sequences); Maintenance::setCurrentStart()) {
+		for ($key = Maintenance::getCurrentStart(); $key < \count($this->sequences); Maintenance::setCurrentStart()) {
 			$this->handleTimeout();
 
 			$value = $this->sequences[$key];

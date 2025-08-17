@@ -50,7 +50,7 @@ class DebugContextEntry
 	) {
 		// Automatically calculate `num` if not explicitly provided and `source` exists.
 		if ($this->num === null && $this->source !== null) {
-			$this->num = count($this->source);
+			$this->num = \count($this->source);
 		}
 	}
 }

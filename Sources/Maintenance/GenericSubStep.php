@@ -96,7 +96,7 @@ class GenericSubStep implements SubStepInterface
 	 */
 	public function isCandidate(): bool
 	{
-		return !is_callable($this->test) ? true : call_user_func($this->test, ...$this->test_args);
+		return !\is_callable($this->test) ? true : \call_user_func($this->test, ...$this->test_args);
 	}
 
 	/**
@@ -106,6 +106,6 @@ class GenericSubStep implements SubStepInterface
 	 */
 	public function execute(): bool
 	{
-		return !is_callable($this->exec) ? false : call_user_func($this->exec, ...$this->exec_args);
+		return !\is_callable($this->exec) ? false : \call_user_func($this->exec, ...$this->exec_args);
 	}
 }

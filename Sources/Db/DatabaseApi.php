@@ -450,7 +450,7 @@ abstract class DatabaseApi
 					break;
 
 				default:
-					$test = is_array($value) ? reset($value) : $value;
+					$test = \is_array($value) ? reset($value) : $value;
 
 					if (IP::create((string) $test)->isValid()) {
 						$types[$column_name] = 'inet';
@@ -658,6 +658,6 @@ abstract class DatabaseApi
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([DatabaseApi::class, 'exportStatic'])) {
+if (\is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }

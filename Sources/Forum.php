@@ -415,7 +415,7 @@ class Forum
 		// Check if compressed output is enabled, supported, and not already being done.
 		if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent()) {
 			// If zlib is being used, turn off output compression.
-			if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler') {
+			if (\ini_get('zlib.output_compression') >= 1 || \ini_get('output_handler') == 'ob_gzhandler') {
 				Config::$modSettings['enableCompressedOutput'] = '0';
 			} else {
 				ob_end_clean();
@@ -520,8 +520,8 @@ class Forum
 			$current_action = self::findAction($_REQUEST['action'] ?? null);
 
 			if (is_a($current_action, ActionInterface::class, true)) {
-				self::$current_action = call_user_func([$current_action, 'load']);
-			} elseif (is_callable($current_action)) {
+				self::$current_action = \call_user_func([$current_action, 'load']);
+			} elseif (\is_callable($current_action)) {
 				self::$current_action = Actions\GenericAction::load();
 				self::$current_action->setCallable($current_action);
 			}
@@ -671,7 +671,7 @@ class Forum
 				self::$current_action?->isRestrictedGuestAccessAllowed() !== true
 				&& (
 					!isset($_REQUEST['action'])
-					|| !in_array($_REQUEST['action'], self::$guest_access_actions)
+					|| !\in_array($_REQUEST['action'], self::$guest_access_actions)
 				)
 			)
 		) {

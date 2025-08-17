@@ -112,7 +112,7 @@ class MessageFormatter
 		];
 
 		foreach ($args as $arg => $value) {
-			if (!is_string($value)) {
+			if (!\is_string($value)) {
 				continue;
 			}
 
@@ -183,7 +183,7 @@ class MessageFormatter
 								// Try to guess the currency based on country.
 								else {
 									require_once Config::$sourcedir . '/Unicode/Currencies.php';
-									$country_currencies = function_exists('country_currencies') ? country_currencies() : [];
+									$country_currencies = \function_exists('country_currencies') ? country_currencies() : [];
 
 									// If the admin wants to prioritize a certain country, use that.
 									if (!empty(Config::$modSettings['timezone_priority_countries'])) {
@@ -230,7 +230,7 @@ class MessageFormatter
 								break;
 
 							default:
-								$skeleton = is_int($args[$arg_name] + 0) ? '' : '.000';
+								$skeleton = \is_int($args[$arg_name] + 0) ? '' : '.000';
 								$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, $skeleton);
 								break;
 						}
@@ -247,7 +247,7 @@ class MessageFormatter
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
 						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
-					} elseif (is_string($args[$arg_name])) {
+					} elseif (\is_string($args[$arg_name])) {
 						$args[$arg_name] = date_create($args[$arg_name]);
 
 						if ($args[$arg_name] === false) {
@@ -288,7 +288,7 @@ class MessageFormatter
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
 						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
-					} elseif (is_string($args[$arg_name])) {
+					} elseif (\is_string($args[$arg_name])) {
 						$args[$arg_name] = date_create($args[$arg_name]);
 
 						if ($args[$arg_name] === false) {
@@ -323,9 +323,9 @@ class MessageFormatter
 					// Input is a number of seconds.
 					$args[$arg_name] = (int) $args[$arg_name];
 
-					$seconds = sprintf('%02d', $args[$arg_name] % 60);
-					$minutes = sprintf('%02d', $args[$arg_name] >= 60 ? (int) ($args[$arg_name] / 60) % 60 : 0);
-					$hours = sprintf('%02d', $args[$arg_name] >= 3600 ? (int) ($args[$arg_name] / 3600) : 0);
+					$seconds = \sprintf('%02d', $args[$arg_name] % 60);
+					$minutes = \sprintf('%02d', $args[$arg_name] >= 60 ? (int) ($args[$arg_name] / 60) % 60 : 0);
+					$hours = \sprintf('%02d', $args[$arg_name] >= 3600 ? (int) ($args[$arg_name] / 3600) : 0);
 
 					if ($hours === '00' && $minutes === '00') {
 						$final .= Lang::getTxt('number_of_seconds', [$seconds], file: 'General');
@@ -339,7 +339,7 @@ class MessageFormatter
 					if (str_starts_with($rest, 'offset:')) {
 						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
 						$offset = $offset_matches[1];
-						$rest = trim(substr($rest, strlen($offset_matches[0])));
+						$rest = trim(substr($rest, \strlen($offset_matches[0])));
 					} else {
 						$offset = 0;
 					}
@@ -369,7 +369,7 @@ class MessageFormatter
 					if (str_starts_with($rest, 'offset:')) {
 						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
 						$offset = $offset_matches[1];
-						$rest = trim(substr($rest, strlen($offset_matches[0])));
+						$rest = trim(substr($rest, \strlen($offset_matches[0])));
 					} else {
 						$offset = 0;
 					}
@@ -410,7 +410,7 @@ class MessageFormatter
 					break;
 
 				default:
-					if (is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable) {
+					if (\is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable) {
 						$final .= (string) $args[$arg_name];
 					} else {
 						$final .= $part;
@@ -441,7 +441,7 @@ class MessageFormatter
 			throw new \ValueError();
 		}
 
-		if (!in_array($type, ['cardinal', 'ordinal'])) {
+		if (!\in_array($type, ['cardinal', 'ordinal'])) {
 			throw new \ValueError();
 		}
 
@@ -465,7 +465,7 @@ class MessageFormatter
 		 *  - When given a number in scientific notation, it is converted into a
 		 *    normal integer or float before any other operands are calculated.
 		 */
-		if (is_string($num) && (str_contains($num, 'e') || str_contains($num, 'E'))) {
+		if (\is_string($num) && (str_contains($num, 'e') || str_contains($num, 'E'))) {
 			list($num, $c) = explode('e', strtolower($num));
 
 			$c = (int) $c;
@@ -489,13 +489,13 @@ class MessageFormatter
 		$n = abs($num + 0);
 		$i = (int) $num;
 
-		if (!is_float($n)) {
+		if (!\is_float($n)) {
 			$f = $t = $w = $v = 0;
 		} else {
 			$f = (int) substr((string) $num, strpos((string) $num, '.') + 1);
 			$t = (int) rtrim(substr((string) $num, strpos((string) $num, '.') + 1), '0');
-			$v = strlen((string) $num) - strpos((string) $num, '.') - 1;
-			$w = strlen(rtrim(substr((string) $num, strpos((string) $num, '.') + 1), '0'));
+			$v = \strlen((string) $num) - strpos((string) $num, '.') - 1;
+			$w = \strlen(rtrim(substr((string) $num, strpos((string) $num, '.') + 1), '0'));
 		}
 
 		if ($w === 0) {
@@ -579,8 +579,8 @@ class MessageFormatter
 							break;
 					}
 
-					if (strlen($matches[3]) > 1) {
-						$long_form .= '/*' . str_repeat('e', strlen($matches[3]));
+					if (\strlen($matches[3]) > 1) {
+						$long_form .= '/*' . str_repeat('e', \strlen($matches[3]));
 					}
 
 					return $long_form;
@@ -671,15 +671,15 @@ class MessageFormatter
 
 			// Float precision format.
 			if (str_starts_with($stem, '.')) {
-				$significant_integers = strlen(strval(intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(strval($number)), '.');
+				$significant_integers = \strlen(\strval(\intval($number + 0)));
+				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
 
 				preg_match('/\.(0*)(#*)(\*?)/', $stem, $matches);
 
 				if (!empty($matches[3])) {
 					$precision = $significant_decimals;
 				} else {
-					$precision = min(max($significant_decimals, strlen($matches[1] ?? '')), strlen($matches[1] ?? '') + strlen($matches[2] ?? ''));
+					$precision = min(max($significant_decimals, \strlen($matches[1] ?? '')), \strlen($matches[1] ?? '') + \strlen($matches[2] ?? ''));
 				}
 
 				if (!empty($options)) {
@@ -698,7 +698,7 @@ class MessageFormatter
 							preg_match('/(@+)(#*)([*rs]?)/', $option, $matches);
 
 							if (!empty($matches[1]) && (!empty($matches[1]) || !empty($matches[3]))) {
-								$min_sig = strlen($matches[1]);
+								$min_sig = \strlen($matches[1]);
 
 								if (empty($matches[2])) {
 									if ($matches[3] === '*') {
@@ -714,38 +714,38 @@ class MessageFormatter
 					}
 				}
 
-				$number = sprintf("%{$flags}.{$precision}F", $round($number, $precision));
+				$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 
-				if (!empty($options) && in_array('w', $options) && $number == (int) $number) {
-					$number = strval(intval($number));
+				if (!empty($options) && \in_array('w', $options) && $number == (int) $number) {
+					$number = \strval(\intval($number));
 				}
 			}
 			// Significant digits format.
 			elseif (str_starts_with($stem, '@')) {
-				$significant_integers = strlen(strval(intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(strval($number)), '.');
+				$significant_integers = \strlen(\strval(\intval($number + 0)));
+				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
 
 				preg_match('/(@+)(#*)(\*?)/', $stem, $matches);
 
 				if (!empty($matches[3])) {
-					$precision = max($significant_decimals, strlen($matches[1]) - $significant_integers);
-					$number = sprintf("%{$flags}.{$precision}F", $round($number, $precision));
+					$precision = max($significant_decimals, \strlen($matches[1]) - $significant_integers);
+					$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 				} elseif (!empty($matches[2])) {
-					$precision = min(max($significant_decimals, strlen($matches[1]) - $significant_integers), strlen($matches[1]) + strlen($matches[2]) - $significant_integers);
+					$precision = min(max($significant_decimals, \strlen($matches[1]) - $significant_integers), \strlen($matches[1]) + \strlen($matches[2]) - $significant_integers);
 
 					if ($precision >= 0) {
-						$number = sprintf("%{$flags}.{$precision}F", $round($number, $precision));
+						$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 					} else {
 						$number = (string) $round($number, $precision);
 					}
 				} else {
-					$precision = min(max($significant_decimals, strlen($matches[1]) - $significant_integers), strlen($matches[1]) - $significant_integers);
+					$precision = min(max($significant_decimals, \strlen($matches[1]) - $significant_integers), \strlen($matches[1]) - $significant_integers);
 
-					$number = sprintf("%{$flags}.{$precision}F", $round($number, $precision));
+					$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 				}
 
-				if (!empty($options) && in_array('w', $options) && $number == (int) $number) {
-					$number = strval(intval($number));
+				if (!empty($options) && \in_array('w', $options) && $number == (int) $number) {
+					$number = \strval(\intval($number));
 				}
 			} else {
 				switch ($stem) {
@@ -801,10 +801,10 @@ class MessageFormatter
 						$number = $round($number);
 						$number *= $options[0];
 
-						if (is_float($number)) {
-							$precision = is_float($options[0] + 0) ? strlen($options[0]) - strlen(strval(intval($options[0] + 0))) - 1 : 0;
+						if (\is_float($number)) {
+							$precision = \is_float($options[0] + 0) ? \strlen($options[0]) - \strlen(\strval(\intval($options[0] + 0))) - 1 : 0;
 
-							$number = sprintf("%0.{$precision}F", $number);
+							$number = \sprintf("%0.{$precision}F", $number);
 						}
 
 						break;
@@ -812,17 +812,17 @@ class MessageFormatter
 					case 'integer-width':
 						preg_match('/(\*?)(#*)(0*)/', $options[0], $matches);
 
-						$min = strlen($matches[3] ?? '');
-						$max = !empty($matches[1]) ? PHP_INT_MAX : strlen($matches[2] ?? '') + strlen($matches[3] ?? '');
+						$min = \strlen($matches[3] ?? '');
+						$max = !empty($matches[1]) ? PHP_INT_MAX : \strlen($matches[2] ?? '') + \strlen($matches[3] ?? '');
 
-						$number = explode('.', rtrim(sprintf('%' . (is_float($number + 0) ? 'F' : 'd'), $number), '0'));
-						$number[0] = substr(sprintf("%{$flags}{$min}d", $number[0]), -$max);
+						$number = explode('.', rtrim(\sprintf('%' . (\is_float($number + 0) ? 'F' : 'd'), $number), '0'));
+						$number[0] = substr(\sprintf("%{$flags}{$min}d", $number[0]), -$max);
 						$number = implode('.', $number);
 
 						break;
 
 					case 'integer-width-trunc':
-						$number = rtrim(sprintf('%' . (is_float($number + 0) ? 'F' : 'd'), $number), '0');
+						$number = rtrim(\sprintf('%' . (\is_float($number + 0) ? 'F' : 'd'), $number), '0');
 						$number = str_contains($number, '.') ? substr($number, strpos($number, '.')) : '0';
 						break;
 
@@ -846,12 +846,12 @@ class MessageFormatter
 						$currency = $currencies[$options[0]];
 
 						if ($currency['digits'] === 0) {
-							$number = strval(intval($number));
+							$number = \strval(\intval($number));
 						} else {
-							$number = sprintf('%0.' . $currency['digits'] . 'F', $number);
+							$number = \sprintf('%0.' . $currency['digits'] . 'F', $number);
 						}
 
-						$post_processing[] = fn($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::getTxt('currency_format', file: 'General'), ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
+						$post_processing[] = fn($number) => (\in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::getTxt('currency_format', file: 'General'), ['{0}' => \in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
 
 						break;
 
@@ -910,11 +910,11 @@ class MessageFormatter
 		}
 
 		// Ensure $number is a string.
-		if (is_float($number)) {
-			$precision = (int) strpos(strrev(strval($number)), '.');
-			$number = sprintf("%{$flags}.{$precision}F", $number);
-		} elseif (is_int($number)) {
-			$number = sprintf("%{$flags}d", $number);
+		if (\is_float($number)) {
+			$precision = (int) strpos(strrev(\strval($number)), '.');
+			$number = \sprintf("%{$flags}.{$precision}F", $number);
+		} elseif (\is_int($number)) {
+			$number = \sprintf("%{$flags}d", $number);
 		}
 
 		// Apply the relevant grouping to the number.
@@ -934,7 +934,7 @@ class MessageFormatter
 				$prefix = substr($number[0], 0, strcspn($number[0], '1234567890'));
 				$number[0] = substr($number[0], strcspn($number[0], '1234567890'));
 
-				while (strlen($number[0]) % 3 !== 0) {
+				while (\strlen($number[0]) % 3 !== 0) {
 					$number[0] = ' ' . $number[0];
 				}
 

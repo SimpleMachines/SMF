@@ -23,7 +23,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -85,7 +85,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
-		$file = sprintf(
+		$file = \sprintf(
 			'%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_'),
@@ -108,7 +108,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
-		$file = sprintf(
+		$file = \sprintf(
 			'%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_'),
@@ -130,7 +130,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			if ($this->writeFile($file, $cache_data) !== strlen($cache_data)) {
+			if ($this->writeFile($file, $cache_data) !== \strlen($cache_data)) {
 				@unlink($file);
 
 				return false;
@@ -216,7 +216,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	public function setCachedir(?string $dir = null): void
 	{
 		// If it's invalid, use SMF's.
-		if (is_null($dir) || !is_writable($dir)) {
+		if (\is_null($dir) || !is_writable($dir)) {
 			$this->cachedir = Config::$cachedir;
 		} else {
 			$this->cachedir = $dir;

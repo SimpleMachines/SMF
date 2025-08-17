@@ -93,7 +93,7 @@ class Ipv6Base extends MigrationBase
 		$updates = [];
 		$new_ips = [];
 		$cases = [];
-		$count = count($arIp);
+		$count = \count($arIp);
 
 		for ($i = 0; $i < $count; $i++) {
 			$new_ip = trim($arIp[$i]);
@@ -283,7 +283,7 @@ class Ipv6Base extends MigrationBase
 		if ($start <= 1) {
 			// Modify ip size
 			foreach ($table->columns as $col) {
-				if (in_array($col->name, (array) $columns)) {
+				if (\in_array($col->name, (array) $columns)) {
 					$table->alterColumn($col);
 				}
 			}

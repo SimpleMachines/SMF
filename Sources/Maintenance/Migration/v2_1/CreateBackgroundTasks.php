@@ -44,7 +44,7 @@ class CreateBackgroundTasks extends MigrationBase
 
 		$tables = Db::$db->list_tables();
 
-		if (!in_array(Config::$db_prefix . $background_tasks_table->name, $tables)) {
+		if (!\in_array(Config::$db_prefix . $background_tasks_table->name, $tables)) {
 			$background_tasks_table->create();
 		}
 

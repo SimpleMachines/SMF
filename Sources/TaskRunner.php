@@ -121,17 +121,17 @@ class TaskRunner
 	public function __construct()
 	{
 		// For backward compatibility.
-		if (!defined('MAX_CRON_TIME')) {
-			define('MAX_CRON_TIME', self::MAX_CRON_TIME);
+		if (!\defined('MAX_CRON_TIME')) {
+			\define('MAX_CRON_TIME', self::MAX_CRON_TIME);
 		}
 
-		if (!defined('MAX_CLAIM_THRESHOLD')) {
-			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
+		if (!\defined('MAX_CLAIM_THRESHOLD')) {
+			\define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', Sapi::isCLI());
+			\define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
@@ -301,7 +301,7 @@ class TaskRunner
 			[
 				'task_ids' => $task_ids,
 				'task_names' => $task_names,
-				'limit' => count($task_ids) + count($task_names),
+				'limit' => \count($task_ids) + \count($task_names),
 			],
 		);
 

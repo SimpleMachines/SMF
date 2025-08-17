@@ -199,7 +199,7 @@ class SpoofDetector
 			foreach ($vulgar_spoofs as $key => $spoofwords) {
 				foreach ($spoofwords as $spoofword) {
 					// Skip if already defined. This allows overrides.
-					if (in_array($spoofword, $vulgar) || in_array($spoofword, $proper)) {
+					if (\in_array($spoofword, $vulgar) || \in_array($spoofword, $proper)) {
 						continue;
 					}
 

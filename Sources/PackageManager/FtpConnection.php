@@ -152,7 +152,7 @@ class FtpConnection
 	 */
 	public function chdir(string $ftp_path): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -181,7 +181,7 @@ class FtpConnection
 	 */
 	public function chmod(string $ftp_file, int|string $chmod): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -224,7 +224,7 @@ class FtpConnection
 	public function unlink(string $ftp_file): bool
 	{
 		// We are actually connected, right?
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -258,10 +258,10 @@ class FtpConnection
 
 		do {
 			$this->last_message = fgets($this->connection, 1024);
-		} while ((strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
+		} while ((\strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
 
 		// Was the desired response returned?
-		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
+		return \is_array($desired) ? \in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
 	}
 
 	/**
@@ -272,7 +272,7 @@ class FtpConnection
 	public function passive(): bool
 	{
 		// We can't create a passive data connection without a primary one first being there.
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			$this->error = 'no_connection';
 
 			return false;
@@ -315,7 +315,7 @@ class FtpConnection
 	public function create_file(string $ftp_file): bool
 	{
 		// First, we have to be connected... very important.
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -359,7 +359,7 @@ class FtpConnection
 	public function list_dir(string $ftp_path = '', bool $search = false): string|bool
 	{
 		// Are we even connected...?
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -427,20 +427,20 @@ class FtpConnection
 			$current_dir = '';
 		}
 
-		for ($i = 0, $n = count($listing); $i < $n; $i++) {
+		for ($i = 0, $n = \count($listing); $i < $n; $i++) {
 			if (trim($listing[$i]) == '' && isset($listing[$i + 1])) {
 				$current_dir = substr(trim($listing[++$i]), 0, -1);
 				$i++;
 			}
 
 			// Okay, this file's name is:
-			$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
+			$listing[$i] = $current_dir . '/' . trim(\strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
 
-			if ($file[0] == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1)) {
+			if ($file[0] == '*' && substr($listing[$i], -(\strlen($file) - 1)) == substr($file, 1)) {
 				return $listing[$i];
 			}
 
-			if (str_ends_with($file, '*') && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1)) {
+			if (str_ends_with($file, '*') && substr($listing[$i], 0, \strlen($file) - 1) == substr($file, 0, -1)) {
 				return $listing[$i];
 			}
 
@@ -461,7 +461,7 @@ class FtpConnection
 	public function create_dir(string $ftp_dir): bool
 	{
 		// We must be connected to the server to do something.
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -498,8 +498,8 @@ class FtpConnection
 					$path = substr($path, 0, -1);
 				}
 
-				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1) {
-					$path .= dirname($_SERVER['PHP_SELF']);
+				if (\strlen(\dirname($_SERVER['PHP_SELF'])) > 1) {
+					$path .= \dirname($_SERVER['PHP_SELF']);
 				}
 			} elseif (str_starts_with($filesystem_path, '/var/www/')) {
 				$path = substr($filesystem_path, 8);
@@ -510,23 +510,23 @@ class FtpConnection
 			$path = '';
 		}
 
-		if (is_resource($this->connection) && $this->list_dir($path) == '') {
+		if (\is_resource($this->connection) && $this->list_dir($path) == '') {
 			$data = $this->list_dir('', true);
 
 			if ($lookup_file === null) {
 				$lookup_file = $_SERVER['PHP_SELF'];
 			}
 
-			$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
+			$found_path = \dirname($this->locate('*' . basename(\dirname($lookup_file)) . '/' . basename($lookup_file), $data));
 
 			if ($found_path == false) {
-				$found_path = dirname($this->locate(basename($lookup_file)));
+				$found_path = \dirname($this->locate(basename($lookup_file)));
 			}
 
 			if ($found_path != false) {
 				$path = $found_path;
 			}
-		} elseif (is_resource($this->connection)) {
+		} elseif (\is_resource($this->connection)) {
 			$found_path = true;
 		}
 
