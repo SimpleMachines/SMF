@@ -163,11 +163,6 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function gc(int $max_lifetime): int|false
 	{
-		// Just set to the default or lower?  Ignore it for a higher value. (hopefully)
-		if (!empty(Config::$modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || Config::$modSettings['databaseSession_lifetime'] > $max_lifetime)) {
-			$max_lifetime = max(Config::$modSettings['databaseSession_lifetime'], 60);
-		}
-
 		// Clean up after yerself ;).
 		$session_update = Db::$db->query(
 			'DELETE FROM {db_prefix}sessions
@@ -234,9 +229,8 @@ class Session implements \SessionHandlerInterface
 				session_set_save_handler(new self(), true);
 
 				@ini_set('session.gc_probability', '1');
-			} elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
-				@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 			}
+			@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 
 			// Use cache setting sessions?
 			if (empty(Config::$modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli') {
