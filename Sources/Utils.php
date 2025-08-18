@@ -362,7 +362,7 @@ class Utils
 			return $string;
 		}
 
-		// Enables consistency with the behaviour of un_htmlspecialchars.
+		// Enables consistency with the behaviour of self::htmlspecialcharsDecode().
 		if ($nbsp_to_space) {
 			$string = preg_replace('~' . self::ENT_NBSP . '~u', ' ', $string);
 		}
@@ -388,7 +388,7 @@ class Utils
 	}
 
 	/**
-	 * Replaces HTML entities for invalid characters with a substitute.
+	 * Replaces numeric entities for invalid characters with a substitute.
 	 *
 	 * The default substitute is the entity for the replacement character U+FFFD
 	 * (a.k.a. the question-mark-in-a-box).
@@ -711,7 +711,7 @@ class Utils
 	}
 
 	/**
-	 * Like standard mb_strlen(), except that it counts HTML entities as
+	 * Like standard grapheme_strlen(), except that it counts HTML entities as
 	 * single characters. This essentially amounts to getting the length of
 	 * the string as it would appear to a human reader.
 	 *
@@ -720,11 +720,11 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
+		return grapheme_strlen(self::entityDecode($string));
 	}
 
 	/**
-	 * Like standard mb_strpos(), except that it counts HTML entities as
+	 * Like standard grapheme_strpos(), except that it counts HTML entities as
 	 * single characters.
 	 *
 	 * @param string $haystack The string to search in.
@@ -734,35 +734,11 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		$haystack_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		if (strlen($needle) === 1) {
-			$result = array_search($needle, array_slice($haystack_arr, $offset));
-
-			return is_int($result) ? $result + $offset : false;
-		}
-
-		$needle_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		$needle_size = count($needle_arr);
-
-		$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
-
-		while ((int) $result === $result) {
-			$offset += $result;
-
-			if (array_slice($haystack_arr, $offset, $needle_size) === $needle_arr) {
-				return $offset;
-			}
-
-			$result = array_search($needle_arr[0], array_slice($haystack_arr, ++$offset));
-		}
-
-		return false;
+		return grapheme_strpos(self::entityDecode($haystack), self::entityDecode($needle), $offset);
 	}
 
 	/**
-	 * Like standard mb_substr(), except that it counts HTML entities as
+	 * Like standard grapheme_substr(), except that it counts HTML entities as
 	 * single characters.
 	 *
 	 * @param string $string The input string.
@@ -772,14 +748,16 @@ class Utils
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
 	{
-		$ent_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		if (!str_contains($string, '&')) {
+			return (string) grapheme_substr($string, $offset, $length);
+		}
 
-		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
+		return implode('', array_slice(self::entityStrSplit($string), $offset, $length));
 	}
 
 	/**
-	 * Like standard mb_str_split(), except that it counts HTML entities as
-	 * single characters.
+	 * Like standard grapheme_str_split(), except that it counts HTML entities
+	 * as single characters.
 	 *
 	 * @param string $string The input string.
 	 * @param int $length Maximum character length of the substrings to return.
@@ -788,22 +766,14 @@ class Utils
 	public static function entityStrSplit(string $string, int $length = 1): array
 	{
 		if ($length < 1) {
-			throw new \ValueError();
+			throw new \ValueError(__METHOD__ . ': Argument #2 ($length) must be greater than 0');
 		}
 
-		$ent_arr = (array) preg_split('~(' . Utils::ENT_LIST . '|\X)~u', Utils::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		if ($length > 1) {
-			$temp = [];
-
-			while (!empty($ent_arr)) {
-				$temp[] = implode('', array_splice($ent_arr, 0, $length));
-			}
-
-			$ent_arr = $temp;
+		if (!str_contains($string, '&')) {
+			return (array) grapheme_str_split($string, $length);
 		}
 
-		return $ent_arr;
+		return (array) preg_split('~((?:' . self::ENT_LIST . '|\X){' . $length . '})~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 	}
 
 	/**
