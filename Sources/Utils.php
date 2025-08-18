@@ -559,6 +559,9 @@ class Utils
 	 *
 	 * Only affects values.
 	 *
+	 * Note that the default value of $flags is ENT_COMPAT, whereas SMF 2.x's
+	 * htmlspecialchars__recursive() function always used ENT_QUOTES.
+	 *
 	 * @param mixed $var The string or array of strings to add entities to
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
 	 *    Default is ENT_COMPAT.

@@ -506,7 +506,7 @@ class PackageUtils
 
 			$found[] = $row['package_id'];
 
-			$row = Utils::htmlspecialcharsRecursive($row);
+			$row = Utils::htmlspecialcharsRecursive($row, ENT_QUOTES);
 
 			$installed[] = [
 				'id' => $row['id_install'],

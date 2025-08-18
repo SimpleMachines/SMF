@@ -11398,7 +11398,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function htmlspecialchars__recursive(array|string $var, int $level = 0): array|string
 	{
-		return SMF\Utils::htmlspecialcharsRecursive($var);
+		return SMF\Utils::htmlspecialcharsRecursive($var, ENT_QUOTES);
 	}
 
 	/**
