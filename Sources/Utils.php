@@ -542,16 +542,16 @@ class Utils
 	 * sanitizes the string.
 	 *
 	 * @param string $string The string being converted.
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_COMPAT.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @param bool $double_encode Whether to encode apersands in existing
+	 *    entities (e.g. '&quot;' --> '&amp;quot;'). Default: true.
 	 * @return string The converted string.
 	 */
-	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): string
+	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8', bool $double_encode = true): string
 	{
-		$string = self::normalize($string);
-
-		return self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding));
+		return self::sanitizeEntities(\htmlspecialchars(self::normalize($string), $flags, $encoding, $double_encode));
 	}
 
 	/**
@@ -563,17 +563,19 @@ class Utils
 	 * htmlspecialchars__recursive() function always used ENT_QUOTES.
 	 *
 	 * @param mixed $var The string or array of strings to add entities to
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_COMPAT.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @param bool $double_encode Whether to encode apersands in existing
+	 *    entities (e.g. '&quot;' --> '&amp;quot;'). Default: true.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8', bool $double_encode = true): array|string
 	{
 		static $level = 0;
 
 		if (!is_array($var)) {
-			return self::htmlspecialchars((string) $var, $flags, $encoding);
+			return self::htmlspecialchars((string) $var, $flags, $encoding, $double_encode);
 		}
 
 		// Add the htmlspecialchars to every element.
@@ -582,7 +584,7 @@ class Utils
 				$var[$k] = null;
 			} else {
 				$level++;
-				$var[$k] = self::htmlspecialcharsRecursive($v, $flags, $encoding);
+				$var[$k] = self::htmlspecialcharsRecursive($v, $flags, $encoding, $double_encode);
 				$level--;
 			}
 		}
