@@ -599,14 +599,48 @@ class Utils
 	 * replaces '&nbsp;' with a simple space character.
 	 *
 	 * @param string $string A string.
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_QUOTES.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_QUOTES.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
 	 * @return string|false The string without entities, or false on failure.
 	 */
 	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string|false
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
+	}
+
+	/**
+	 * Recursively applies self::htmlspecialcharsDecode() to all elements of an
+	 * array.
+	 *
+	 * Only affects values.
+	 *
+	 * @param mixed $var The string or array of strings to add entities to
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @return array|string The string or array of strings without entities.
+	 */
+	public static function htmlspecialcharsDecodeRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	{
+		static $level = 0;
+
+		if (!is_array($var)) {
+			return self::htmlspecialcharsDecode((string) $var, $flags, $encoding);
+		}
+
+		// Decode the htmlspecialchars in every element.
+		foreach ($var as $k => $v) {
+			if ($level > 25) {
+				$var[$k] = null;
+			} else {
+				$level++;
+				$var[$k] = self::htmlspecialcharsDecodeRecursive($v, $flags, $encoding);
+				$level--;
+			}
+		}
+
+		return $var;
 	}
 
 	/**
