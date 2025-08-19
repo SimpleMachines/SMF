@@ -128,7 +128,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
-			'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
+			'~(?<![\'\\\\])\'([^\']|\'\'|\\\\\')*?\'(?![\'])~',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
