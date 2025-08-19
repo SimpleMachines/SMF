@@ -128,7 +128,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
-			'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
+			'~(?<![\'\\\\])\'([^\']|\'\'|\\\\\')*?\'(?![\'])~',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
@@ -183,7 +183,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$fail = true;
 			}
 
-			if (!empty($fail) && function_exists('log_error')) {
+			if (!empty($fail)) {
 				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 			}
 		}
