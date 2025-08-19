@@ -149,7 +149,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		self::$count++;
 
 		if (!$this->disableQueryCheck && str_contains($db_string, '\'') && empty($db_values['security_override'])) {
-			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
+			$this->error_backtrace('Invalid query string', 'Illegal character (\') used in query:' . "\n" . $db_string, true, __FILE__, __LINE__);
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
@@ -183,7 +183,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				|| preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean)
 				|| preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean)
 			) {
-				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+				$this->error_backtrace('Invalid query string', 'Invalid query string:' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 			}
 		}
 
