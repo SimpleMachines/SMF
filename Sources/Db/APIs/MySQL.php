@@ -170,20 +170,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
+			$clean = trim(strtolower((string) preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
 
-			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
-				$fail = true;
-			}
-			// Trying to change passwords, slow us down, or something?
-			elseif (str_contains($clean, 'sleep') && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
-				$fail = true;
-			} elseif (str_contains($clean, 'benchmark') && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
-				$fail = true;
-			}
-
-			if (!empty($fail)) {
+			if (
+				// Empty string?
+				$clean === ''
+				// Comments?  We don't use comments in our queries, we leave 'em outside!
+				|| strpos($clean, '/*') > 2
+				|| str_contains($clean, '--')
+				|| str_contains($clean, ';')
+				// Trying to change passwords, slow us down, or something?
+				|| preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean)
+				|| preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean)
+			) {
 				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 			}
 		}
