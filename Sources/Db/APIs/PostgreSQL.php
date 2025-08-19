@@ -230,7 +230,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$fail = true;
 			}
 
-			if (!empty($fail) && function_exists('log_error')) {
+			if (!empty($fail)) {
 				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 			}
 		}
