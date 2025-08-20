@@ -121,16 +121,16 @@ class Posts implements ActionInterface
 		}
 
 		// We also need to know where we can delete topics and/or replies to.
-		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'], true, false);
+		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_replies'], true, false);
 
 		if (Utils::$context['current_view'] == 'topics') {
 			$delete_own_boards = $boards_can['remove_own'];
 			$delete_any_boards = $boards_can['remove_any'];
-			$delete_own_replies = [];
+			$delete_replies = [];
 		} else {
 			$delete_own_boards = $boards_can['delete_own'];
 			$delete_any_boards = $boards_can['delete_any'];
-			$delete_own_replies = $boards_can['delete_own_replies'];
+			$delete_replies = $boards_can['delete_replies'];
 		}
 
 		$toAction = [];
@@ -218,8 +218,8 @@ class Posts implements ActionInterface
 						$row['id_member'] == $row['id_member_started']
 						&& $row['id_msg'] != $row['id_first_msg']
 						&& (
-							$delete_own_replies == [0]
-							|| \in_array($row['id_board'], $delete_own_replies)
+							$delete_replies == [0]
+							|| \in_array($row['id_board'], $delete_replies)
 						)
 					) {
 						$can_add = true;
@@ -362,8 +362,8 @@ class Posts implements ActionInterface
 				$row['id_member'] == $row['id_member_started']
 				&& $row['id_msg'] != $row['id_first_msg']
 				&& (
-					$delete_own_replies == [0]
-					|| \in_array($row['id_board'], $delete_own_replies)
+					$delete_replies == [0]
+					|| \in_array($row['id_board'], $delete_replies)
 				)
 			) {
 				$can_delete = true;

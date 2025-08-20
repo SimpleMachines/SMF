@@ -158,7 +158,7 @@ class QueryString
 		}
 
 		// Add entities to GET.  This is kinda like the slashes on everything else.
-		$_GET = Utils::htmlspecialcharsRecursive($_GET);
+		$_GET = Utils::htmlspecialcharsRecursive($_GET, ENT_QUOTES);
 
 		// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 		$_REQUEST = $_POST + $_GET;

@@ -970,7 +970,7 @@ class Post implements ActionInterface, Routable
 			Utils::$context['choices'] = [];
 			$choice_id = 0;
 
-			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options']);
+			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options'], ENT_QUOTES);
 
 			foreach ($_POST['options'] as $option) {
 				if (trim($option) == '') {

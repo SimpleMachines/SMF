@@ -1009,7 +1009,7 @@ class Poll implements \ArrayAccess
 		$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
 		$_POST['question'] = Utils::truncate($_POST['question'], 255);
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
-		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
+		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options'], ENT_QUOTES);
 	}
 
 	/******************

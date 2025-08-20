@@ -237,7 +237,7 @@ class Mentions
 			LIMIT {int:count}',
 			[
 				'ids' => array_keys($existing_mentions),
-				'names' => $possible_names,
+				'names' => Utils::htmlspecialcharsRecursive($possible_names, ENT_QUOTES, double_encode: false),
 				'count' => \count($possible_names),
 			],
 		);
@@ -256,33 +256,6 @@ class Mentions
 		Db::$db->free_result($request);
 
 		return $members;
-	}
-
-	/**
-	 * Like getPossibleMentions(), but for `[member=1]name[/member]` format.
-	 *
-	 * @static
-	 * @param string $body The text to look for mentions in.
-	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
-	 */
-	public static function getExistingMentions(string $body): array
-	{
-		if (empty(self::$excluded_bbc_regex)) {
-			self::setExcludedBbcRegex();
-		}
-
-		// Don't include mentions inside quotations, etc.
-		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
-
-		$existing_mentions = [];
-
-		preg_match_all('~\[member=([0-9]+)\]([^\[]*)\[/member\]~', $body, $matches, PREG_SET_ORDER);
-
-		foreach ($matches as $match_set) {
-			$existing_mentions[$match_set[1]] = trim($match_set[2]);
-		}
-
-		return $existing_mentions;
 	}
 
 	/**
@@ -429,7 +402,7 @@ class Mentions
 		}
 
 		// preparse code does a few things which might mess with our parsing
-		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+		$body = Utils::htmlspecialcharsDecode(preg_replace('~<br[^>]*>~', "\n", $body), ENT_QUOTES);
 
 		if (empty(self::$excluded_bbc_regex)) {
 			self::setExcludedBbcRegex();
@@ -440,7 +413,7 @@ class Mentions
 
 		$matches = [];
 		// Split before every Unicode character.
-		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
+		$string = Utils::entityStrSplit($body);
 		$depth = 0;
 
 		foreach ($string as $k => $char) {
@@ -470,18 +443,44 @@ class Mentions
 		$names = [];
 
 		foreach ($matches as $match) {
-			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
-			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$match = Utils::entityStrSplit($match);
 			$count = \count($match);
 
 			for ($i = 1; $i <= $count; $i++) {
-				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', \array_slice($match, 0, $i))));
+				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', \array_slice($match, 0, $i))), ENT_COMPAT);
 			}
 		}
 
 		$names = array_unique($names);
 
 		return $names;
+	}
+
+	/**
+	 * Like getPossibleMentions(), but for `[member=1]name[/member]` format.
+	 *
+	 * @static
+	 * @param string $body The text to look for mentions in.
+	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
+	 */
+	protected static function getExistingMentions(string $body): array
+	{
+		if (empty(self::$excluded_bbc_regex)) {
+			self::setExcludedBbcRegex();
+		}
+
+		// Don't include mentions inside quotations, etc.
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
+
+		$existing_mentions = [];
+
+		preg_match_all('~\[member=([0-9]+)\]([^\[]*)\[/member\]~', $body, $matches, PREG_SET_ORDER);
+
+		foreach ($matches as $match_set) {
+			$existing_mentions[$match_set[1]] = Utils::htmlspecialchars(Utils::htmlTrim(Utils::htmlspecialcharsDecode($match_set[2], ENT_QUOTES)), ENT_COMPAT);
+		}
+
+		return $existing_mentions;
 	}
 
 	/**

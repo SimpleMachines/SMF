@@ -1519,7 +1519,7 @@ class Profile extends User implements \ArrayAccess
 		// If $_POST hasn't already been sanitized, do that now.
 		if (!$this->post_sanitized) {
 			$_POST = Utils::htmlTrimRecursive($_POST);
-			$_POST = Utils::htmlspecialcharsRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST, ENT_QUOTES);
 			$this->post_sanitized = true;
 		}
 
