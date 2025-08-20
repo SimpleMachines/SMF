@@ -11398,7 +11398,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function htmlspecialchars__recursive(array|string $var, int $level = 0): array|string
 	{
-		return SMF\Utils::htmlspecialcharsRecursive($var);
+		return SMF\Utils::htmlspecialcharsRecursive($var, ENT_QUOTES);
 	}
 
 	/**
@@ -12088,5 +12088,149 @@ if (!function_exists('array_find_key')) {
 		}
 
 		return null;
+	}
+}
+
+if (!function_exists('grapheme_str_split')) {
+	function grapheme_str_split(string $string, int $length = 1): array|false
+	{
+		if ($length < 1 || $length > 1073741823) {
+			throw new \ValueError('grapheme_str_split(): Argument #2 ($length) must be greater than 0 and less than or equal to 1073741823');
+		}
+
+		try {
+			return preg_split('/(\X{' . $length . '})/u', $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+}
+
+if (!function_exists('grapheme_strlen')) {
+	function grapheme_strlen(string $string): int|false|null
+	{
+		if (
+			@preg_match('//u', $string) === false
+			&& preg_last_error() === PREG_BAD_UTF8_ERROR
+		) {
+			return null;
+		}
+
+		return count(grapheme_str_split($string, 1));
+	}
+}
+
+if (!function_exists('grapheme_substr')) {
+	function grapheme_substr(string $string, int $offset = 0, ?int $length = null): string|false
+	{
+		if (($graphemes = grapheme_str_split($string, 1)) === false) {
+			return false;
+		}
+
+		return implode('', array_slice($graphemes, $offset, $length));
+	}
+}
+
+if (!function_exists('grapheme_strpos')) {
+	function grapheme_strpos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		if (!str_contains($haystack, $needle)) {
+			return false;
+		}
+
+		$haystack = grapheme_str_split($haystack, 1);
+
+		if ($haystack === false) {
+			return false;
+		}
+
+		if (abs($offset) >= count($haystack)) {
+			throw new \ValueError('grapheme_strpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)');
+		}
+
+		$skipped = array_splice($haystack, 0, $offset);
+
+		$haystack = implode('', $haystack);
+
+		$before = grapheme_str_split(substr($haystack, 0, strpos($haystack, $needle)), 1);
+
+		return $before === false ? false : count($skipped) + count($before);
+	}
+}
+
+if (!function_exists('grapheme_stripos')) {
+	function grapheme_stripos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		$haystack = mb_convert_case($haystack, MB_CASE_FOLD_SIMPLE);
+		$needle = mb_convert_case($needle, MB_CASE_FOLD_SIMPLE);
+
+		return grapheme_strpos($haystack, $needle, $offset);
+	}
+}
+
+if (!function_exists('grapheme_strrpos')) {
+	function grapheme_strrpos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		if (!str_contains($haystack, $needle)) {
+			return false;
+		}
+
+		$haystack = grapheme_str_split($haystack, 1);
+		$needle = grapheme_str_split($needle, 1);
+
+		if ($haystack === false || $needle === false) {
+			return false;
+		}
+
+		$haystack_len = count($haystack);
+		$needle_len = count($needle);
+
+		if (abs($offset) >= $haystack_len) {
+			throw new \ValueError('grapheme_strrpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)');
+		}
+
+		if ($offset < 0) {
+			$offset = ($haystack_len + $offset) % $haystack_len;
+
+			for ($i = $offset; $i > -1; $i--) {
+				if (array_slice($haystack, $i, $needle_len) === $needle) {
+					break;
+				}
+			}
+
+			return $i < 0 ? false : $i;
+		}
+
+		for ($i = $haystack_len; $i > $offset; $i--) {
+			if (array_slice($haystack, $i, $needle_len) === $needle) {
+				break;
+			}
+		}
+
+		return $i >= $haystack_len - $needle_len ? false : $i;
+	}
+}
+
+if (!function_exists('grapheme_strripos')) {
+	function grapheme_strripos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		$haystack = mb_convert_case($haystack, MB_CASE_FOLD_SIMPLE);
+		$needle = mb_convert_case($needle, MB_CASE_FOLD_SIMPLE);
+
+		return grapheme_strrpos($haystack, $needle, $offset);
+	}
+}
+
+if (!function_exists('grapheme_strstr')) {
+	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	{
+		return $before_needle ? grapheme_substr($haystack, 0, grapheme_strpos($haystack, $needle)) : grapheme_substr($haystack, grapheme_strpos($haystack, $needle));
+	}
+}
+
+if (!function_exists('grapheme_stristr')) {
+	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	{
+		return $before_needle ? grapheme_substr($haystack, 0, grapheme_stripos($haystack, $needle)) : grapheme_substr($haystack, grapheme_stripos($haystack, $needle));
 	}
 }

@@ -801,7 +801,7 @@ class Themes implements ActionInterface
 
 		foreach (Theme::$current->settings as $setting => $dummy) {
 			if (!in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
-				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting]);
+				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting], ENT_QUOTES);
 			}
 		}
 

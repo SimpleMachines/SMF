@@ -296,7 +296,7 @@ class Register2 extends Register
 		}
 
 		// Make sure they are clean, dammit!
-		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars']);
+		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars'], ENT_QUOTES);
 
 		// Check whether we have fields that simply MUST be displayed?
 		$request = Db::$db->query(

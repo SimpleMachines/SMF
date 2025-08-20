@@ -642,7 +642,7 @@ class Main implements ActionInterface, Routable
 		if (Utils::$context['completed_save']) {
 			// Clean up the POST variables.
 			$_POST = Utils::htmlTrimRecursive($_POST);
-			$_POST = Utils::htmlspecialcharsRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST, ENT_QUOTES);
 			Profile::$member->post_sanitized = true;
 
 			if ($this->check_password) {
