@@ -551,7 +551,7 @@ class Utils
 	 */
 	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8', bool $double_encode = true): string
 	{
-		return self::sanitizeEntities(\htmlspecialchars(self::normalize($string), $flags, $encoding, $double_encode));
+		return self::sanitizeEntities(htmlspecialchars(self::normalize($string), $flags, $encoding, $double_encode));
 	}
 
 	/**
@@ -625,7 +625,7 @@ class Utils
 	{
 		static $level = 0;
 
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return self::htmlspecialcharsDecode((string) $var, $flags, $encoding);
 		}
 
@@ -720,7 +720,7 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return \grapheme_strlen(self::entityDecode($string));
+		return grapheme_strlen(self::entityDecode($string));
 	}
 
 	/**
@@ -734,7 +734,7 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		return \grapheme_strpos(self::entityDecode($haystack), self::entityDecode($needle), $offset);
+		return grapheme_strpos(self::entityDecode($haystack), self::entityDecode($needle), $offset);
 	}
 
 	/**
