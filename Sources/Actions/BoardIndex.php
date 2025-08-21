@@ -103,7 +103,7 @@ class BoardIndex implements ActionInterface, Routable
 					'boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language),
 					'',
 					[$this, 'cache_getLastPosts'],
-					[Theme::$current->settings['number_recent_posts']],
+					[(int) Theme::$current->settings['number_recent_posts']],
 				);
 			}
 
