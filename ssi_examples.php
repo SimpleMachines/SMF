@@ -475,7 +475,6 @@ function template_ssi_above()
 		</style>
 		<script>
 			var smf_scripturl = "', SMF\Config::$scripturl, '";
-			var smf_iso_case_folding = ', SMF\Sapi::supportsIsoCaseFolding() ? 'true' : 'false', ';
 			var smf_charset = "UTF-8";
 
 			// Sets all ssi_preview class to hidden, then shows the one requested.
