@@ -48,7 +48,7 @@ class ConvertToInnoDb extends MigrationBase
 			$structure = Db::$db->table_structure($table);
 
 			if ($structure['engine'] !== 'InnoDB') {
-				Db::$db->query(
+				$result = Db::$db->query(
 					'ALTER TABLE {identifier:table}
 					ENGINE {literal:InnoDB}
 					ROW_FORMAT=DYNAMIC',
@@ -57,13 +57,17 @@ class ConvertToInnoDb extends MigrationBase
 					],
 				);
 			} elseif ($structure['row_format'] !== 'Dynamic') {
-				Db::$db->query(
+				$result = Db::$db->query(
 					'ALTER TABLE {identifier:table}
 					ROW_FORMAT=DYNAMIC',
 					[
 						'table' => $table,
 					],
 				);
+			}
+
+			if ($result === false) {
+				return false;
 			}
 		}
 
@@ -73,7 +77,10 @@ class ConvertToInnoDb extends MigrationBase
 		$request = Db::$db->query('SHOW GRANTS');
 
 		while ($row = Db::$db->fetch_row($request)) {
-			if (str_contains($row[0], 'SUPER') || str_contains($row[0], 'SYSTEM_VARIABLES_ADMIN')) {
+			if (
+				str_contains($row[0], 'SUPER')
+				|| str_contains($row[0], 'SYSTEM_VARIABLES_ADMIN')
+			) {
 				$can_set_global_default = true;
 				break;
 			}
@@ -82,12 +89,16 @@ class ConvertToInnoDb extends MigrationBase
 		Db::$db->free_result($request);
 
 		if ($can_set_global_default) {
-			Db::$db->query(
+			$result = Db::$db->query(
 				'SET GLOBAL innodb_default_row_format=DYNAMIC',
 				[
 					'db_error_skip' => true,
 				],
 			);
+
+			if ($result === false) {
+				return false;
+			}
 		}
 
 		return true;
