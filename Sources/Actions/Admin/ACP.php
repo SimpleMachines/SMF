@@ -743,6 +743,7 @@ class ACP implements ActionInterface, Routable
 		$menu = new Menu($this->admin_areas, [
 			'do_big_icons' => true,
 			'disable_hook_call' => true,
+			'lang_file' => 'Admin',
 		]);
 
 		// Nothing valid?
@@ -759,14 +760,14 @@ class ACP implements ActionInterface, Routable
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=admin;area=' . $menu->current_area . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=admin;area=' . $menu->current_area . ';sa=' . $menu->current_subsection . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 
@@ -787,7 +788,7 @@ class ACP implements ActionInterface, Routable
 
 		// Is it valid?
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -821,7 +822,7 @@ class ACP implements ActionInterface, Routable
 
 		foreach ($config_vars as $config_var) {
 			// HR?
-			if (!is_array($config_var)) {
+			if (!\is_array($config_var)) {
 				Utils::$context['config_vars'][] = $config_var;
 			} else {
 				// If it has no name it doesn't have any purpose!
@@ -885,10 +886,10 @@ class ACP implements ActionInterface, Routable
 				}
 
 				Utils::$context['config_vars'][$config_var[1]] = [
-					'label' => $config_var['text_label'] ?? (Lang::txtExists($config_var[1], file: 'Admin') ? Lang::getTxt($config_var[1], file: 'Admin') : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
+					'label' => $config_var['text_label'] ?? (Lang::txtExists($config_var[1], file: 'Admin') ? Lang::getTxt($config_var[1], file: 'Admin') : (isset($config_var[3]) && !\is_array($config_var[3]) ? $config_var[3] : '')),
 					'help' => Lang::txtExists($config_var[1], var: 'helptxt') ? $config_var[1] : '',
 					'type' => $config_var[0],
-					'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], ['int', 'float']) ? 6 : 0)),
+					'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !\is_array($config_var[2]) ? $config_var[2] : (\in_array($config_var[0], ['int', 'float']) ? 6 : 0)),
 					'data' => [],
 					'name' => $config_var[1],
 					'value' => $value,
@@ -919,7 +920,7 @@ class ACP implements ActionInterface, Routable
 				}
 
 				// If this is a select box handle any data.
-				if (!empty($config_var[2]) && is_array($config_var[2])) {
+				if (!empty($config_var[2]) && \is_array($config_var[2])) {
 					// If we allow multiple selections, we need to adjust a few things.
 					if ($config_var[0] == 'select' && !empty($config_var['multiple'])) {
 						Utils::$context['config_vars'][$config_var[1]]['name'] .= '[]';
@@ -928,7 +929,7 @@ class ACP implements ActionInterface, Routable
 					}
 
 					// If it's associative
-					if (isset($config_var[2][0]) && is_array($config_var[2][0])) {
+					if (isset($config_var[2][0]) && \is_array($config_var[2][0])) {
 						Utils::$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
 					} else {
 						foreach ($config_var[2] as $key => $item) {
@@ -937,7 +938,7 @@ class ACP implements ActionInterface, Routable
 					}
 
 					if (empty($config_var['size']) && !empty($config_var['multiple'])) {
-						Utils::$context['config_vars'][$config_var[1]]['size'] = max(4, count($config_var[2]));
+						Utils::$context['config_vars'][$config_var[1]]['size'] = max(4, \count($config_var[2]));
 					}
 				}
 
@@ -1015,7 +1016,7 @@ class ACP implements ActionInterface, Routable
 					$sectionTags = array_diff($bbcTags, Utils::$context['legacy_bbc']);
 				}
 
-				$totalTags = count($sectionTags);
+				$totalTags = \count($sectionTags);
 				$tagsPerColumn = ceil($totalTags / $numColumns);
 
 				$col = 0;
@@ -1028,7 +1029,7 @@ class ACP implements ActionInterface, Routable
 
 					Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = [
 						'tag' => $tag,
-						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt') || in_array($tag, Utils::$context['bbc_sections'][$bbcSection]['forced']),
+						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt') || \in_array($tag, Utils::$context['bbc_sections'][$bbcSection]['forced']),
 					];
 
 					$i++;
@@ -1089,7 +1090,7 @@ class ACP implements ActionInterface, Routable
 		$settings_defs = Config::getSettingsDefs();
 
 		foreach ($settings_defs as $var => $def) {
-			if (!is_string($var)) {
+			if (!\is_string($var)) {
 				continue;
 			}
 
@@ -1097,7 +1098,7 @@ class ACP implements ActionInterface, Routable
 				$config_passwords[] = $var;
 			} else {
 				// Special handling if multiple types are allowed.
-				if (is_array($def['type'])) {
+				if (\is_array($def['type'])) {
 					// Obviously, we don't need null here.
 					$def['type'] = array_filter(
 						$def['type'],
@@ -1106,7 +1107,7 @@ class ACP implements ActionInterface, Routable
 						},
 					);
 
-					$type = count($def['type']) == 1 ? reset($def['type']) : 'multiple';
+					$type = \count($def['type']) == 1 ? reset($def['type']) : 'multiple';
 				} else {
 					$type = $def['type'];
 				}
@@ -1123,7 +1124,7 @@ class ACP implements ActionInterface, Routable
 					case 'integer':
 						// Some things saved as integers are presented as booleans
 						foreach ($config_vars as $config_var) {
-							if (is_array($config_var) && $config_var[0] == $var) {
+							if (\is_array($config_var) && $config_var[0] == $var) {
 								if ($config_var[3] == 'check') {
 									$config_bools[] = $var;
 									break 2;
@@ -1149,7 +1150,7 @@ class ACP implements ActionInterface, Routable
 
 		// Figure out which config vars we're saving here...
 		foreach ($config_vars as $config_var) {
-			if (!is_array($config_var) || $config_var[2] != 'file') {
+			if (!\is_array($config_var) || $config_var[2] != 'file') {
 				continue;
 			}
 
@@ -1172,15 +1173,15 @@ class ACP implements ActionInterface, Routable
 				}
 			}
 
-			if (!in_array($var_name, $config_bools) && !isset($_POST[$var_name])) {
+			if (!\in_array($var_name, $config_bools) && !isset($_POST[$var_name])) {
 				continue;
 			}
 
-			if (in_array($var_name, $config_passwords)) {
+			if (\in_array($var_name, $config_passwords)) {
 				if (isset($_POST[$var_name][1]) && $_POST[$var_name][0] == $_POST[$var_name][1]) {
 					$new_settings[$var_name] = $_POST[$var_name][0];
 				}
-			} elseif (in_array($var_name, $config_nums)) {
+			} elseif (\in_array($var_name, $config_nums)) {
 				$new_settings[$var_name] = (int) $_POST[$var_name];
 
 				// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
@@ -1191,7 +1192,7 @@ class ACP implements ActionInterface, Routable
 				if (isset($config_var['max'])) {
 					$new_settings[$var_name] = min($config_var['max'], $new_settings[$var_name]);
 				}
-			} elseif (in_array($var_name, $config_bools)) {
+			} elseif (\in_array($var_name, $config_bools)) {
 				$new_settings[$var_name] = !empty($_POST[$var_name]);
 			} elseif (isset($config_multis[$var_name])) {
 				$is_acceptable_type = false;
@@ -1223,7 +1224,7 @@ class ACP implements ActionInterface, Routable
 
 		foreach ($config_vars as $config_var) {
 			// We just saved the file-based settings, so skip their definitions.
-			if (!is_array($config_var) || $config_var[2] == 'file') {
+			if (!\is_array($config_var) || $config_var[2] == 'file') {
 				continue;
 			}
 
@@ -1276,14 +1277,14 @@ class ACP implements ActionInterface, Routable
 				$setArray[$var[1]] = !empty($_POST[$var[1]]) ? '1' : '0';
 			}
 			// Select boxes!
-			elseif ($var[0] == 'select' && in_array($_POST[$var[1]], array_keys($var[2]))) {
+			elseif ($var[0] == 'select' && \in_array($_POST[$var[1]], array_keys($var[2]))) {
 				$setArray[$var[1]] = $_POST[$var[1]];
 			} elseif ($var[0] == 'select' && !empty($var['multiple']) && array_intersect($_POST[$var[1]], array_keys($var[2])) != []) {
 				// For security purposes we validate this line by line.
 				$lOptions = [];
 
 				foreach ($_POST[$var[1]] as $invar) {
-					if (in_array($invar, array_keys($var[2]))) {
+					if (\in_array($invar, array_keys($var[2]))) {
 						$lOptions[] = $invar;
 					}
 				}
@@ -1345,7 +1346,7 @@ class ACP implements ActionInterface, Routable
 				}
 			}
 			// Text!
-			elseif (in_array($var[0], ['text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time'])) {
+			elseif (\in_array($var[0], ['text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time'])) {
 				$setArray[$var[1]] = $_POST[$var[1]];
 			}
 			// Passwords!
@@ -1364,7 +1365,7 @@ class ACP implements ActionInterface, Routable
 
 				if (!isset($_POST[$var[1] . '_enabledTags'])) {
 					$_POST[$var[1] . '_enabledTags'] = [];
-				} elseif (!is_array($_POST[$var[1] . '_enabledTags'])) {
+				} elseif (!\is_array($_POST[$var[1] . '_enabledTags'])) {
 					$_POST[$var[1] . '_enabledTags'] = [$_POST[$var[1] . '_enabledTags']];
 				}
 
@@ -1397,13 +1398,13 @@ class ACP implements ActionInterface, Routable
 		$versions = [];
 
 		// Is GD available?  If it is, we should show version information for it too.
-		if (in_array('gd', $checkFor) && function_exists('gd_info')) {
+		if (\in_array('gd', $checkFor) && \function_exists('gd_info')) {
 			$temp = gd_info();
 			$versions['gd'] = ['title' => Lang::getTxt('support_versions_gd', file: 'Admin'), 'version' => $temp['GD Version']];
 		}
 
 		// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
-		if (in_array('imagemagick', $checkFor) && class_exists('Imagick')) {
+		if (\in_array('imagemagick', $checkFor) && class_exists('Imagick')) {
 			$temp = new \Imagick();
 			$temp2 = $temp->getVersion();
 			$im_version = $temp2['versionString'];
@@ -1416,7 +1417,7 @@ class ACP implements ActionInterface, Routable
 		}
 
 		// Now lets check for the Database.
-		if (in_array('db_server', $checkFor)) {
+		if (\in_array('db_server', $checkFor)) {
 			if (!isset(Db::$db_connection) || Db::$db_connection === false) {
 				trigger_error(Lang::getTxt('get_server_versions_no_database', file: 'Errors'), E_USER_NOTICE);
 			} else {
@@ -1436,7 +1437,7 @@ class ACP implements ActionInterface, Routable
 		foreach (CacheApi::detect() as $class_name => $cache_api) {
 			$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
 
-			if (in_array($class_name_txt_key, $checkFor)) {
+			if (\in_array($class_name_txt_key, $checkFor)) {
 				$versions[$class_name_txt_key] = [
 					'title' => Lang::txtExists($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') ? Lang::getTxt($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') : $class_name,
 					'version' => $cache_api->getVersion(),
@@ -1444,7 +1445,7 @@ class ACP implements ActionInterface, Routable
 			}
 		}
 
-		if (in_array('php', $checkFor)) {
+		if (\in_array('php', $checkFor)) {
 			$versions['php'] = [
 				'title' => 'PHP',
 				'version' => PHP_VERSION,
@@ -1452,7 +1453,7 @@ class ACP implements ActionInterface, Routable
 			];
 		}
 
-		if (in_array('server', $checkFor)) {
+		if (\in_array('server', $checkFor)) {
 			$versions['server'] = [
 				'title' => Lang::getTxt('support_versions_server', file: 'Admin'),
 				'version' => $_SERVER['SERVER_SOFTWARE'],
@@ -1759,7 +1760,7 @@ class ACP implements ActionInterface, Routable
 		// Any additional users we must email this to?
 		if (!empty($additional_recipients)) {
 			foreach ($additional_recipients as $recipient) {
-				if (in_array($recipient['email'], $emails_sent)) {
+				if (\in_array($recipient['email'], $emails_sent)) {
 					continue;
 				}
 
@@ -1791,7 +1792,7 @@ class ACP implements ActionInterface, Routable
 		// Validate what type of session check this is.
 		$types = [];
 		IntegrationHook::call('integrate_validateSession', [&$types]);
-		$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+		$type = \in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
@@ -1897,11 +1898,7 @@ class ACP implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->admin_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::txtExists($value, file: 'Admin') ? Lang::getTxt($value, file: 'Admin') : $value;
-				}
-
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
@@ -1911,7 +1908,7 @@ class ACP implements ActionInterface, Routable
 		);
 
 		// Fill in the ID number for the current theme URL.
-		$this->admin_areas['config']['areas']['current_theme']['custom_url'] = sprintf($this->admin_areas['config']['areas']['current_theme']['custom_url'], Theme::$current->settings['theme_id']);
+		$this->admin_areas['config']['areas']['current_theme']['custom_url'] = \sprintf($this->admin_areas['config']['areas']['current_theme']['custom_url'], Theme::$current->settings['theme_id']);
 
 		// Figure out what is enabled or not.
 		$this->admin_areas['forum']['areas']['adminlogoff']['enabled'] = empty(Config::$modSettings['securityDisable']);
@@ -1962,7 +1959,7 @@ class ACP implements ActionInterface, Routable
 	 */
 	protected static function adminLogin_outputPostVars(string $k, string|array $v): string
 	{
-		if (!is_array($v)) {
+		if (!\is_array($v)) {
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';
 		}
 

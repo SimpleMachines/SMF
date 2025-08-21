@@ -64,7 +64,7 @@ class LoginTFA extends Login2
 
 			$code = $_POST['tfa_code'];
 
-			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
+			if (\strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
 				User::updateMemberData($member['id_member'], ['last_login' => time()]);
 
 				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));

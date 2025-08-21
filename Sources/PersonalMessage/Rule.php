@@ -190,7 +190,7 @@ class Rule implements \ArrayAccess
 					],
 				],
 				['id_rule'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;
@@ -370,7 +370,7 @@ class Rule implements \ArrayAccess
 				$realLabels = [];
 
 				foreach (Utils::$context['labels'] as $label) {
-					if (in_array($label['id'], $labels)) {
+					if (\in_array($label['id'], $labels)) {
 						$realLabels[] = $label['id'];
 					}
 				}
@@ -592,7 +592,7 @@ class Rule implements \ArrayAccess
 						't' => 'gid',
 						'v' => (int) $_POST['ruledefgroup'][$ind],
 					];
-				} elseif (in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
+				} elseif (\in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
 					$rule->criteria[] = [
 						't' => $type,
 						'v' => Utils::htmlspecialchars(trim($_POST['ruledef'][$ind])),

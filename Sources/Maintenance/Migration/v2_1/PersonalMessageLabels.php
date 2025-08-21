@@ -78,12 +78,12 @@ class PersonalMessageLabels extends MigrationBase
 		$tables = Db::$db->list_tables();
 
 		if ($start <= 0) {
-			if (!in_array(Config::$db_prefix . 'pm_labels', $tables)) {
+			if (!\in_array(Config::$db_prefix . 'pm_labels', $tables)) {
 				$pm_labels_table->create();
 				$this->handleTimeout(0);
 			}
 
-			if (!in_array(Config::$db_prefix . 'pm_labeled_messages', $tables)) {
+			if (!\in_array(Config::$db_prefix . 'pm_labeled_messages', $tables)) {
 				$pm_labeled_messages_table->create();
 				$this->handleTimeout(0);
 			}

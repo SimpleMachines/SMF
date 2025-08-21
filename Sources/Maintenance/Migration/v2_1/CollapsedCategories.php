@@ -41,7 +41,7 @@ class CollapsedCategories extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return in_array(Config::$db_prefix . 'collapsed_categories', $tables);
+		return \in_array(Config::$db_prefix . 'collapsed_categories', $tables);
 	}
 
 	/**

@@ -193,7 +193,7 @@ class Permissions extends MigrationBase
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (in_array($row['id_group'], [1, 3])) {
+					if (\in_array($row['id_group'], [1, 3])) {
 						continue;
 					}
 
@@ -215,7 +215,7 @@ class Permissions extends MigrationBase
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (in_array($row['id_group'], [-1, 1, 3]) || $row['add_deny'] != 1) {
+					if (\in_array($row['id_group'], [-1, 1, 3]) || $row['add_deny'] != 1) {
 						continue;
 					}
 

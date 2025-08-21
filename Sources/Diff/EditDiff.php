@@ -119,16 +119,16 @@ class EditDiff extends Diff
 	public function import(array $data): static
 	{
 		if (
-			!is_array($data)
-			|| count($data) < 5
-			|| (!is_string($data[0]) && !is_int($data[0]) && !is_float($data[0]))
-			|| !is_string($data[1])
-			|| (!is_string($data[2]) && !is_int($data[2]) && !is_float($data[2]))
-			|| !is_string($data[3])
-			|| !is_array($data[4])
-			|| !is_int($data[5])
-			|| (isset($data[6]) && !is_string($data[6]))
-			|| (isset($data[7]) && !is_string($data[7]))
+			!\is_array($data)
+			|| \count($data) < 5
+			|| (!\is_string($data[0]) && !\is_int($data[0]) && !\is_float($data[0]))
+			|| !\is_string($data[1])
+			|| (!\is_string($data[2]) && !\is_int($data[2]) && !\is_float($data[2]))
+			|| !\is_string($data[3])
+			|| !\is_array($data[4])
+			|| !\is_int($data[5])
+			|| (isset($data[6]) && !\is_string($data[6]))
+			|| (isset($data[7]) && !\is_string($data[7]))
 		) {
 			throw new \ValueError();
 		}
@@ -147,25 +147,25 @@ class EditDiff extends Diff
 
 		foreach ($data[4] as $change) {
 			if (
-				!is_array($change)
-				|| count($change) < 5
-				|| !is_int($change[0])
-				|| !is_int($change[1])
-				|| !is_int($change[2])
-				|| (!is_int($change[3]) && !is_string($change[3]))
-				|| !is_string($change[4])
+				!\is_array($change)
+				|| \count($change) < 5
+				|| !\is_int($change[0])
+				|| !\is_int($change[1])
+				|| !\is_int($change[2])
+				|| (!\is_int($change[3]) && !\is_string($change[3]))
+				|| !\is_string($change[4])
 			) {
 				throw new \ValueError();
 			}
 
 			// We only need the lengths of the deletions.
-			if (is_string($change[3])) {
+			if (\is_string($change[3])) {
 				$change[3] = mb_strlen($change[3]);
 			}
 
 			$this->changes[] = array_combine(
 				['l1', 'l2', 'offset', 'old', 'new'],
-				array_slice($change, 0, 5),
+				\array_slice($change, 0, 5),
 			);
 		}
 

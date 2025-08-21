@@ -274,7 +274,7 @@ class Draft
 			return false;
 		}
 
-		if (in_array('session_timeout', $post_errors)) {
+		if (\in_array('session_timeout', $post_errors)) {
 			return false;
 		}
 
@@ -782,7 +782,7 @@ class Draft
 				[
 					'id_draft',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Did everything go as expected?

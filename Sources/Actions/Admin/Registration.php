@@ -112,10 +112,10 @@ class Registration implements ActionInterface
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -137,7 +137,7 @@ class Registration implements ActionInterface
 			SecurityToken::validate('admin-regc');
 
 			foreach ($_POST as $key => $value) {
-				if (!is_array($_POST[$key])) {
+				if (!\is_array($_POST[$key])) {
 					$_POST[$key] = Utils::htmlTrimRecursive(str_replace(["\n", "\r"], '', Utils::normalize($_POST[$key])));
 				}
 			}
@@ -265,7 +265,7 @@ class Registration implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
+			$backup_file = \dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
 
 			// Off it goes to the agreement file.
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
@@ -279,7 +279,7 @@ class Registration implements ActionInterface
 
 				// If the admin is making multiple changes in a short period of time,
 				// try to simplify the edit history.
-				if (count($edit_history) >= 2) {
+				if (\count($edit_history) >= 2) {
 					// Have any members accepted the current version?
 					$request = Db::$db->query(
 						'',
@@ -408,7 +408,7 @@ class Registration implements ActionInterface
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
-		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::getTxt('agreement_not_writable', file: 'Admin');
+		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(\dirname($agreement_file)) ? '' : Lang::getTxt('agreement_not_writable', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'edit_agreement';
 		Utils::$context['page_title'] = Lang::getTxt('registration_agreement', file: 'General');
@@ -465,7 +465,7 @@ class Registration implements ActionInterface
 
 			// If the admin is making multiple changes in a short period of time,
 			// try to simplify the edit history.
-			if (count($edit_history) >= 2) {
+			if (\count($edit_history) >= 2) {
 				// Have any members accepted the current version?
 				$request = Db::$db->query(
 					'',

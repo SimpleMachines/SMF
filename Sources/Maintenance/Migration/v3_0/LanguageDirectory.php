@@ -119,7 +119,7 @@ class LanguageDirectory extends MigrationBase
 
 		// Rename the privacy policy records.
 		foreach (Config::$modSettings as $variable => $value) {
-			if (is_int($variable) || !str_starts_with($variable, 'policy_')) {
+			if (\is_int($variable) || !str_starts_with($variable, 'policy_')) {
 				continue;
 			}
 
@@ -132,7 +132,7 @@ class LanguageDirectory extends MigrationBase
 				$temp = substr($temp, (int) strpos($temp, '_') + 1);
 			}
 
-			$new_variable = isset($locale) ? substr($variable, 0, -strlen($temp)) . $locale : $variable;
+			$new_variable = isset($locale) ? substr($variable, 0, -\strlen($temp)) . $locale : $variable;
 
 			if ($variable !== $new_variable) {
 				Config::updateModSettings([

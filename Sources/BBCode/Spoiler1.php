@@ -107,7 +107,7 @@ class Spoiler1 extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		$pos2 = stripos($this->parser->message, '[/' . substr($this->parser->message, $this->parser->pos + 1, strlen($bbc['tag'])) . ']', $this->parser->pos1);
+		$pos2 = stripos($this->parser->message, '[/' . substr($this->parser->message, $this->parser->pos + 1, \strlen($bbc['tag'])) . ']', $this->parser->pos1);
 
 		if ($pos2 === false) {
 			return;

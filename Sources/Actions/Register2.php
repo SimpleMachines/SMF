@@ -21,6 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
@@ -170,7 +171,7 @@ class Register2 extends Register
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
-			if (in_array('website', $reg_fields)) {
+			if (\in_array('website', $reg_fields)) {
 				$this->possible_strings = array_merge(['website_url', 'website_title'], $this->possible_strings);
 
 				// Make sure their website URL is squeaky clean
@@ -217,7 +218,7 @@ class Register2 extends Register
 		}
 		// Or birthdate parts...
 		elseif (!empty($_POST['bday1']) && !empty($_POST['bday2'])) {
-			$_POST['birthdate'] = sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
+			$_POST['birthdate'] = \sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
 		}
 
 		// Validate the passed language file.
@@ -283,7 +284,7 @@ class Register2 extends Register
 			$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
 		}
 
-		$reg_options['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : [];
+		$reg_options['theme_vars'] = isset($_POST['options']) && \is_array($_POST['options']) ? $_POST['options'] : [];
 
 		// Note when they accepted the agreement and privacy policy
 		if (!empty(Config::$modSettings['requireAgreement'])) {
@@ -295,7 +296,7 @@ class Register2 extends Register
 		}
 
 		// Make sure they are clean, dammit!
-		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars']);
+		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars'], ENT_QUOTES);
 
 		// Check whether we have fields that simply MUST be displayed?
 		$request = Db::$db->query(
@@ -324,7 +325,7 @@ class Register2 extends Register
 			$value = isset($_POST['customfield'][$row['col_name']]) ? trim($_POST['customfield'][$row['col_name']]) : '';
 
 			// We only care for text fields as the others are valid to be empty.
-			if (!in_array($row['field_type'], ['check', 'select', 'radio'])) {
+			if (!\in_array($row['field_type'], ['check', 'select', 'radio'])) {
 				// Is it too long?
 				if ($row['field_length'] && $row['field_length'] < Utils::entityStrlen($value)) {
 					$custom_field_errors[] = ['custom_field_too_long', [$row['field_name'], $row['field_length']]];
@@ -332,7 +333,7 @@ class Register2 extends Register
 
 				// Any masks to apply?
 				if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none') {
-					if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
+					if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || \strlen($value) > 255)) {
 						$custom_field_errors[] = ['custom_field_invalid_email', [$row['field_name']]];
 					} elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value)) {
 						$custom_field_errors[] = ['custom_field_not_number', [$row['field_name']]];
@@ -368,7 +369,7 @@ class Register2 extends Register
 		$member_id = self::registerMember($reg_options, true);
 
 		// What there actually an error of some kind dear boy?
-		if (is_array($member_id)) {
+		if (\is_array($member_id)) {
 			$this->errors = array_merge($this->errors, $member_id);
 			$_REQUEST['step'] = 2;
 			$this->show();
@@ -470,7 +471,7 @@ class Register2 extends Register
 		$reg_options['username'] = Utils::htmlspecialchars($reg_options['username']);
 
 		// @todo Separate the sprintf?
-		if (empty($reg_options['email']) || !filter_var($reg_options['email'], FILTER_VALIDATE_EMAIL) || strlen($reg_options['email']) > 255) {
+		if (empty($reg_options['email']) || !filter_var($reg_options['email'], FILTER_VALIDATE_EMAIL) || \strlen($reg_options['email']) > 255) {
 			$reg_errors[] = ['lang', 'profile_error_bad_email'];
 		}
 
@@ -594,7 +595,7 @@ class Register2 extends Register
 		];
 
 		// Can't change reserved vars.
-		if (isset($reg_options['theme_vars']) && count(array_intersect(array_keys($reg_options['theme_vars']), $reserved_vars)) != 0) {
+		if (isset($reg_options['theme_vars']) && \count(array_intersect(array_keys($reg_options['theme_vars']), $reserved_vars)) != 0) {
 			ErrorHandler::fatalLang('no_theme');
 		}
 
@@ -607,7 +608,7 @@ class Register2 extends Register
 			'posts' => 0,
 			'date_registered' => time(),
 			'member_ip' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
-			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : $_SERVER['BAN_CHECK_IP'],
+			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative(),
 			'validation_code' => $validation_code,
 			'real_name' => $reg_options['username'],
 			'personal_text' => Config::$modSettings['default_personal_text'],
@@ -627,7 +628,7 @@ class Register2 extends Register
 			'additional_groups' => '',
 			'ignore_boards' => '',
 			'smiley_set' => '',
-			'timezone' => empty(Config::$modSettings['default_timezone']) || !array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
+			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
 		];
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -652,14 +653,14 @@ class Register2 extends Register
 
 		// Check if this group is assignable.
 		if (isset($reg_options['memberGroup'])) {
-			$reg_options['register_vars']['id_group'] = in_array($reg_options['memberGroup'], Group::getUnassignable()) ? Group::REGULAR : $reg_options['memberGroup'];
+			$reg_options['register_vars']['id_group'] = \in_array($reg_options['memberGroup'], Group::getUnassignable()) ? Group::REGULAR : $reg_options['memberGroup'];
 		}
 
 		// Verify that timezone is correct, if provided.
 		if (
 			!empty($reg_options['extra_register_vars'])
 			&& !empty($reg_options['extra_register_vars']['timezone'])
-			&& !array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
+			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
 		) {
 			unset($reg_options['extra_register_vars']['timezone']);
 		}
@@ -704,11 +705,11 @@ class Register2 extends Register
 		foreach ($reg_options['register_vars'] as $var => $val) {
 			$type = 'string';
 
-			if (in_array($var, $known_ints)) {
+			if (\in_array($var, $known_ints)) {
 				$type = 'int';
-			} elseif (in_array($var, $known_floats)) {
+			} elseif (\in_array($var, $known_floats)) {
 				$type = 'float';
-			} elseif (in_array($var, $known_inets)) {
+			} elseif (\in_array($var, $known_inets)) {
 				$type = 'inet';
 			} elseif ($var == 'birthdate') {
 				$type = 'date';
@@ -725,7 +726,7 @@ class Register2 extends Register
 			$column_names,
 			[$values],
 			['id_member'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Call an optional function as notification of registration.

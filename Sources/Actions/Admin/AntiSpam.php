@@ -151,7 +151,7 @@ class AntiSpam implements ActionInterface
 
 			foreach (Utils::$context['qa_languages'] as $lang_id => $dummy) {
 				// If we had some questions for this language before, but don't now, delete everything from that language.
-				if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id])) {
+				if ((!isset($_POST['question'][$lang_id]) || !\is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id])) {
 					$changes['delete'] = array_merge($changes['delete'], Utils::$context['qa_by_lang'][$lang_id]);
 				}
 
@@ -186,7 +186,7 @@ class AntiSpam implements ActionInterface
 						$question = Utils::htmlspecialchars(trim($question));
 
 						// Get the answers. Firstly check there actually might be some.
-						if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id])) {
+						if (!isset($_POST['answer'][$lang_id][$q_id]) || !\is_array($_POST['answer'][$lang_id][$q_id])) {
 							if (isset(Utils::$context['question_answers'][$q_id])) {
 								$changes['delete'][] = $q_id;
 							}
@@ -354,7 +354,7 @@ class AntiSpam implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Generate a sample registration image.
-		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
+		Utils::$context['use_graphic_library'] = \in_array('gd', get_loaded_extensions());
 
 		$config_vars = [
 			['check', 'reg_verification'],

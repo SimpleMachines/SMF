@@ -82,7 +82,7 @@ class Agreement implements ActionInterface, Routable
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -155,7 +155,7 @@ class Agreement implements ActionInterface, Routable
 		// Find the requested diff in the edit history.
 		$edit_history = (array) Utils::jsonDecode(Config::$modSettings[$doc . '_history_' . $_GET['lang']] ?? '[]', true);
 
-		for ($i = 0; $i < count($edit_history); $i++) {
+		for ($i = 0; $i < \count($edit_history); $i++) {
 			$diff = new EditDiff();
 
 			try {
