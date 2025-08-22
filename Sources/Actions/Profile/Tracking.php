@@ -277,7 +277,7 @@ class Tracking implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['poster_ip'] = new IP($row['poster_ip']);
+			$row['poster_ip'] = (string) new IP($row['poster_ip']);
 
 			Utils::$context['ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['poster_ip'] . ';u=' . Profile::$member->id . '">' . $row['poster_ip'] . '</a>';
 
@@ -299,7 +299,7 @@ class Tracking implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['ip'] = new IP($row['ip']);
+			$row['ip'] = (string) new IP($row['ip']);
 
 			Utils::$context['error_ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['ip'] . ';u=' . Profile::$member->id . '">' . $row['ip'] . '</a>';
 
@@ -645,7 +645,7 @@ class Tracking implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$error_messages[] = [
-				'ip' => new IP($row['ip']),
+				'ip' => (string) new IP($row['ip']),
 				'member_link' => $row['id_member'] > 0 ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>' : $row['display_name'],
 				'message' => strtr($row['message'], ['&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '']),
 				'url' => $row['url'],
@@ -735,7 +735,7 @@ class Tracking implements ActionInterface
 
 			$edits[] = [
 				'id' => $row['id_action'],
-				'ip' => new IP($row['ip']),
+				'ip' => (string) new IP($row['ip']),
 				'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
 				'member_link' => Lang::getTxt('trackEdit_deleted_member', file: 'Profile'),
 				'action' => $row['action'],
@@ -923,8 +923,8 @@ class Tracking implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$logins[] = [
 				'time' => Time::create('@' . $row['time'])->format(),
-				'ip' => new IP($row['ip']),
-				'ip2' => new IP($row['ip2']),
+				'ip' => (string) new IP($row['ip']),
+				'ip2' => (string) new IP($row['ip2']),
 			];
 		}
 		Db::$db->free_result($request);
