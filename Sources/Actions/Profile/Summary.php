@@ -59,7 +59,7 @@ class Summary implements ActionInterface
 			'disabled_fields' => isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [],
 			'signature_enabled' => substr(Config::$modSettings['signature_settings'], 0, 1) == 1,
 			'can_see_ip' => User::$me->allowedTo('moderate_forum'),
-			'page_title' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
+			'page_title' => Lang::getTxt('profile_of_username', ['name' => Profile::$member->name]),
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 			'can_issue_warning' => User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,

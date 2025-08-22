@@ -614,7 +614,7 @@ class Main implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
-			'name' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
+			'name' => Lang::getTxt('profile_of_username', ['name' => Profile::$member->name]),
 		];
 
 		if (!empty($menu->include_data['label'])) {
