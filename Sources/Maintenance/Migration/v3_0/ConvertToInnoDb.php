@@ -46,7 +46,9 @@ class ConvertToInnoDb extends MigrationBase
 
 		foreach ($tables as $table) {
 			$structure = Db::$db->table_structure($table);
+
 			$result = true;
+
 			if ($structure['engine'] !== 'InnoDB') {
 				$result = Db::$db->query(
 					'ALTER TABLE {identifier:table}
