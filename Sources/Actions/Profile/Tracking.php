@@ -66,31 +66,11 @@ class Tracking implements ActionInterface
 	 *    array('method', 'txt_key_for_page_title', 'permission')
 	 */
 	public static array $subactions = [
-		'activity' => [
-			'activity',
-			'trackActivity',
-			'moderate_forum',
-		],
-		'ip' => [
-			'ip',
-			'trackIP',
-			'moderate_forum',
-		],
-		'edits' => [
-			'edits',
-			'trackEdits',
-			'moderate_forum',
-		],
-		'groupreq' => [
-			'groupRequests',
-			'trackGroupRequests',
-			'approve_group_requests',
-		],
-		'logins' => [
-			'logins',
-			'trackLogins',
-			'moderate_forum',
-		],
+		'activity' => 'activity',
+		'ip' => 'ip',
+		'edits' => 'edits',
+		'groupreq' => 'groupRequests',
+		'logins' => 'logins',
 	];
 
 	/****************
@@ -106,8 +86,10 @@ class Tracking implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// This is only here for backward compatibility in case a mod needs it.
-		Utils::$context['tracking_area'] = &$this->subaction;
+		// In case a mod needs it.
+		if (!empty(Config::$backward_compatibility)) {
+			Utils::$context['tracking_area'] = &$this->subaction;
+		}
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
@@ -126,12 +108,12 @@ class Tracking implements ActionInterface
 			'trackUser_page_title',
 			[
 				'name' => Profile::$member->name,
-				'subaction' => Lang::getTxt(self::$subactions[$this->subaction][1], file: 'Profile'),
+				'subaction' => Menu::$loaded['profile']->sections['info']['areas']['tracking']['subsections'][Menu::$loaded['profile']->current_subsection]['label'],
 			],
 			file: 'Profile',
 		);
 
-		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			\call_user_func($call);
@@ -143,9 +125,6 @@ class Tracking implements ActionInterface
 	 */
 	public function activity(): void
 	{
-		// Verify if the user has sufficient permissions.
-		User::$me->isAllowedTo('moderate_forum');
-
 		// Set the sub_template.
 		Utils::$context['sub_template'] = 'trackActivity';
 
@@ -1031,8 +1010,8 @@ class Tracking implements ActionInterface
 		}
 
 		// Only show the sub-actions they are allowed to see.
-		foreach (self::$subactions as $sa => $action) {
-			if (!User::$me->allowedTo($action[2])) {
+		foreach (self::$subactions as $sa => $subaction) {
+			if (!empty(Menu::$loaded['profile']->sections['info']['areas']['tracking']['subsections'][$sa]['disabled'])) {
 				unset(self::$subactions[$sa]);
 			}
 		}
