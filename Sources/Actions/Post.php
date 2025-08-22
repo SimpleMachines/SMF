@@ -1744,7 +1744,7 @@ class Post implements ActionInterface, Routable
 		// Are post drafts enabled?
 		Utils::$context['drafts_type'] = 'post';
 		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->allowedTo('post_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && User::$me->allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build a list of drafts that they can load in to the editor
 		if (!empty(Utils::$context['drafts_save'])) {
