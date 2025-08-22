@@ -395,7 +395,7 @@ class Tracking implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['custom_field_titles']['customfield_' . $row['col_name']] = [
-				'title' => $row['field_name'],
+				'title' => Lang::tokenTxtReplace($row['field_name']),
 				'parse_bbc' => $row['bbc'],
 			];
 		}
@@ -740,8 +740,8 @@ class Tracking implements ActionInterface
 				'member_link' => Lang::getTxt('trackEdit_deleted_member', file: 'Profile'),
 				'action' => $row['action'],
 				'action_text' => $action_text,
-				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : $extra['previous']) : '',
-				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : $extra['new']) : '',
+				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : Lang::tokenTxtReplace($extra['previous'])) : '',
+				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : Lang::tokenTxtReplace($extra['new'])) : '',
 				'time' => Time::create('@' . $row['log_time'])->format(),
 			];
 		}
