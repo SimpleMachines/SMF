@@ -69,6 +69,7 @@ function template_options()
 			'id' => 'show_no_censored',
 			'label' => $txt['show_no_censored'],
 			'default' => false,
+			'enabled' => !empty($modSettings['allow_no_censored']),
 		),
 		array(
 			'id' => 'posts_apply_ignore_list',

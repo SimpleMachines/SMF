@@ -562,14 +562,6 @@ function loadProfileFields($force_reload = false)
 			{
 				loadLanguage('Settings');
 
-				if (empty($modSettings['allow_no_censored'])) {
-					foreach ($context['theme_options'] as $k => $v) {
-						if (is_array($v) && $v['id'] === 'show_no_censored') {
-							unset($context['theme_options'][$k]);
-							break;
-						}
-					}
-				}
 
 				return true;
 			},
