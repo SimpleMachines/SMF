@@ -248,7 +248,7 @@ class Main implements ActionInterface, Routable
 						'edits' => [
 							'label' => 'trackEdits',
 							'permission' => [
-								'own' => ['moderate_forum'],
+								'own' => ['moderate_forum', 'profile_forum_own'],
 								'any' => ['moderate_forum'],
 							],
 							'enabled' => true,
@@ -264,14 +264,20 @@ class Main implements ActionInterface, Routable
 						'logins' => [
 							'label' => 'trackLogins',
 							'permission' => [
-								'own' => ['moderate_forum'],
+								'own' => ['moderate_forum', 'profile_identity_own', 'profile_password_own'],
 								'any' => ['moderate_forum'],
 							],
 							'enabled' => true,
 						],
 					],
 					'permission' => [
-						'own' => ['moderate_forum', 'approve_group_requests'],
+						'own' => [
+							'moderate_forum',
+							'approve_group_requests',
+							'profile_forum_own',
+							'profile_identity_own',
+							'profile_password_own',
+						],
 						'any' => ['moderate_forum', 'approve_group_requests'],
 					],
 				],
