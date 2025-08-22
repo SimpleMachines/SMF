@@ -57,7 +57,6 @@ $txt['board_perms_name_post_unapproved_topics'] = 'Post unapproved topics';
 $txt['board_perms_name_post_unapproved_replies_any'] = 'Post unapproved replies in any topic';
 $txt['board_perms_name_post_unapproved_replies_own'] = 'Post unapproved replies in own topic';
 $txt['board_perms_name_post_draft'] = 'Save drafts of posts';
-$txt['board_perms_name_post_autosave_draft'] = 'Automatically save drafts of posts';
 $txt['board_perms_name_remove_any'] = 'Remove any topic';
 $txt['board_perms_name_remove_own'] = 'Remove own topics';
 $txt['board_perms_name_report_any'] = 'Report any post';

@@ -2342,7 +2342,6 @@ function loadIllegalGuestPermissions()
 		'poll_edit',
 		'poll_lock',
 		'poll_remove',
-		'post_autosave_draft',
 		'post_draft',
 		'profile_blurb',
 		'profile_displayed_name',
