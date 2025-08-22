@@ -52,14 +52,6 @@ class ThemeOptions implements ActionInterface
 			Profile::$member->loadCustomFields('theme');
 		}
 
-		if (empty(Utils::$modSettings['allow_no_censored'])) {
-			$k = array_find_key(Utils::$context['theme_options'], fn($v) => is_array($v) && $v['id'] === 'show_no_censored');
-
-			if ($k !== null) {
-				unset(Utils::$context['theme_options'][$k]);
-			}
-		}
-
 		Utils::$context['page_desc'] = Lang::getTxt('theme_info', file: 'Profile');
 
 		Profile::$member->setupContext(

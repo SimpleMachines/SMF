@@ -71,6 +71,7 @@ function template_options()
 			'id' => 'show_no_censored',
 			'label' => Lang::getTxt('show_no_censored'),
 			'default' => false,
+			'enabled' => !empty(Config::$modSettings['allow_no_censored']),
 		),
 		array(
 			'id' => 'posts_apply_ignore_list',
