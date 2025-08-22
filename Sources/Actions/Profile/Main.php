@@ -122,15 +122,15 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'summary',
 					'icon' => 'administration',
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'popup' => [
 					'function' => __NAMESPACE__ . '\\Popup::call',
 					'sub_template' => 'profile_popup',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 					'select' => 'summary',
@@ -139,7 +139,7 @@ class Main implements ActionInterface, Routable
 					'function' => __NAMESPACE__ . '\\AlertsPopup::call',
 					'sub_template' => 'alerts_popup',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 					'select' => 'summary',
@@ -150,8 +150,8 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'statPanel',
 					'icon' => 'stats',
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'showposts' => [
@@ -162,25 +162,37 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'messages' => [
 							'label' => 'showMessages',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 						'topics' => [
 							'label' => 'showTopics',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 						'unwatchedtopics' => [
 							'label' => 'showUnwatched',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => [],
+							],
 							'enabled' => true,
 						],
 						'attach' => [
 							'label' => 'showAttachments',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 					],
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'showdrafts' => [
@@ -189,7 +201,7 @@ class Main implements ActionInterface, Routable
 					'icon' => 'drafts',
 					'enabled' => true,
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 				],
@@ -199,7 +211,7 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'showAlerts',
 					'icon' => 'alerts',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 				],
@@ -209,8 +221,8 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'showPermissions',
 					'icon' => 'permissions',
 					'permission' => [
-						'own' => 'manage_permissions',
-						'any' => 'manage_permissions',
+						'own' => ['manage_permissions'],
+						'any' => ['manage_permissions'],
 					],
 				],
 				'tracking' => [
@@ -221,25 +233,40 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'activity' => [
 							'label' => 'trackActivity',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 						],
 						'ip' => [
 							'label' => 'trackIP',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 						],
 						'edits' => [
 							'label' => 'trackEdits',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 							'enabled' => true,
 						],
 						'groupreq' => [
 							'label' => 'trackGroupRequests',
-							'permission' => 'approve_group_requests',
+							'permission' => [
+								'own' => ['approve_group_requests'],
+								'any' => ['approve_group_requests'],
+							],
 							'enabled' => true,
 						],
 						'logins' => [
 							'label' => 'trackLogins',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 							'enabled' => true,
 						],
 					],
@@ -340,15 +367,21 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'alerts' => [
 							'label' => 'alert_prefs',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 						'topics' => [
 							'label' => 'watched_topics',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 						'boards' => [
 							'label' => 'watched_boards',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 					],
 					'permission' => [
@@ -910,7 +943,21 @@ class Main implements ActionInterface, Routable
 				}
 				// Otherwise pick the right set.
 				else {
-					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner ? 'own' : 'any'];
+					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner && isset($area['permission']['own']) ? 'own' : 'any'];
+				}
+
+				// Next, choose the correct permission sets for the subsections.
+				if (isset($area['subsections'])) {
+					foreach ($area['subsections'] as $subsection_id => $subsection) {
+						if (
+							!empty($subsection['permission'])
+							&& \is_array($subsection['permission'])
+							&& isset($subsection['permission']['any'])
+
+						) {
+							$this->profile_areas[$section_id]['areas'][$area_id]['subsections'][$subsection_id]['permission'] = $subsection['permission'][User::$me->is_owner && isset($subsection['permission']['own']) ? 'own' : 'any'];
+						}
+					}
 				}
 
 				// Password required in most cases
