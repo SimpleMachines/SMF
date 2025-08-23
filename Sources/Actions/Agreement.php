@@ -166,6 +166,9 @@ class Agreement implements ActionInterface, Routable
 
 			// Uh-oh. The edit history got corrupted somehow.
 			if ($hash !== $diff->label1) {
+				Utils::$context['diff'] = '<div style="white-space:pre-wrap">' . Parser::transform($text) . '</div>';
+				Utils::$context['page_title'] = isset($time) ? strip_tags((new Time($time))->setTimezone(User::getTimezone())->format()) : ($doc === 'policy' ? Lang::getTxt('privacy_policy', file: 'General') : Lang::getTxt('registration_agreement', file: 'General'));
+
 				break;
 			}
 
@@ -179,6 +182,7 @@ class Agreement implements ActionInterface, Routable
 
 			$text = $diff->apply($text);
 			$hash = hash('crc32c', $text);
+			$time = $diff->time1;
 		}
 
 		// Something went wrong.

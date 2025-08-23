@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
@@ -84,7 +85,7 @@ class ShowMsgHistory implements ActionInterface, Routable
 
 				// Uh-oh. The edit history got corrupted somehow.
 				if ($hash !== $diff->label1) {
-					Utils::$context['diff'] = $body;
+					Utils::$context['diff'] = Parser::transform($body);
 
 					break;
 				}
