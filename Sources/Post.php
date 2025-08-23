@@ -1183,7 +1183,7 @@ function Post($post_errors = array())
 
 	// Are post drafts enabled?
 	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty($options['drafts_autosave_enabled']);
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
 
 	// Build a list of drafts that they can load in to the editor
 	if (!empty($context['drafts_save']))
