@@ -50,7 +50,7 @@ class EditHistory extends MigrationBase
 
 		// Populate edit_history.
 		$request = Db::$db->query(
-			'SELECT id_msg, modified_time, modified_name, modified_reason, edit_history
+			'SELECT id_msg, body, modified_time, modified_name, modified_reason, edit_history
 			FROM {db_prefix}messages
 			WHERE id_msg > {int:start}',
 			[
@@ -66,7 +66,7 @@ class EditHistory extends MigrationBase
 
 			$row['edit_history'] = json_encode([[
 				(int) $row['modified_time'],
-				'',
+				hash('crc32c', $row['body']),
 				'',
 				'',
 				[],
