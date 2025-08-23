@@ -176,14 +176,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
-			'~(?<![\'\\\\])\'(?' . '>\'\'|\\\\\'|[^\'])*?\'(?![\'])~',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
-			' %s ',
 			' ',
 			'',
 			'',
@@ -217,7 +215,19 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = trim(strtolower((string) preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
+			$clean = preg_split('/(?<![\'\\\\])\'(?![\'])/', $db_string);
+
+			for ($i = 0; $i < \count($clean); $i++) {
+				if ($i % 2 === 1) {
+					$clean[$i] = ' %s ';
+				}
+			}
+
+			$clean = trim(strtolower(preg_replace(
+				$allowed_comments_from,
+				$allowed_comments_to,
+				implode('', $clean),
+			)));
 
 			if (
 				// Empty string?
