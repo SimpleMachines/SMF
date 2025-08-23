@@ -2223,59 +2223,6 @@ class Profile extends User implements \ArrayAccess
 				// And update the user profile.
 				$this->data[$key] = $this->new_data[$db_key];
 			}
-
-			// Logging group changes are a bit different...
-			if ($key == 'id_group' && $field['log_change']) {
-				$this->loadAssignableGroups();
-
-				// Any changes to primary group?
-				if (isset($this->new_data['id_group']) && $this->new_data['id_group'] != $this->group_id) {
-					$this->log_changes[] = [
-						'action' => 'id_group',
-						'log_type' => 'user',
-						'extra' => [
-							'previous' => !empty($this->data[$key]) && isset(Utils::$context['member_groups'][$this->data[$key]]) ? Utils::$context['member_groups'][$this->data[$key]]['name'] : '',
-							'new' => !empty($this->new_data[$key]) && isset(Utils::$context['member_groups'][$this->new_data[$key]]) ? Utils::$context['member_groups'][$this->new_data[$key]]['name'] : '',
-							'applicator' => $this->applicator,
-							'member_affected' => $this->id,
-						],
-					];
-				}
-
-				// Prepare additional groups for comparison.
-				$additional_groups = [
-					'previous' => !empty($this->additional_groups) ? $this->additional_groups : [],
-					'new' => !empty($this->new_data['additional_groups']) ? array_diff(explode(',', $this->new_data['additional_groups']), [0]) : [],
-				];
-
-				sort($additional_groups['previous']);
-				sort($additional_groups['new']);
-
-				// What about additional groups?
-				if ($additional_groups['previous'] != $additional_groups['new']) {
-					foreach ($additional_groups as $type => $groups) {
-						foreach ($groups as $id => $group) {
-							if (isset(Utils::$context['member_groups'][$group])) {
-								$additional_groups[$type][$id] = Utils::$context['member_groups'][$group]['name'];
-							} else {
-								unset($additional_groups[$type][$id]);
-							}
-						}
-						$additional_groups[$type] = implode(', ', $additional_groups[$type]);
-					}
-
-					$this->log_changes[] = [
-						'action' => 'additional_groups',
-						'log_type' => 'user',
-						'extra' => [
-							'previous' => $additional_groups['previous'],
-							'new' => $additional_groups['new'],
-							'applicator' => $this->applicator,
-							'member_affected' => $this->id,
-						],
-					];
-				}
-			}
 		}
 
 		if (!empty($this->new_data['real_name'])) {

@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -691,6 +692,7 @@ class Tracking implements ActionInterface
 	{
 		$edits = [];
 		$applicators = [];
+		$member_groups = null;
 
 		// Get a list of error messages from this ip (range).
 		$request = Db::$db->query(
@@ -715,6 +717,56 @@ class Tracking implements ActionInterface
 
 			if (!empty($extra['applicator'])) {
 				$applicators[] = $extra['applicator'];
+			}
+
+			// Prior to 3.0, group membership changes were always logged twice,
+			// once using the group IDs and again using the group names. We now
+			// only log the IDs, but still need to handle both cases.
+			if ($row['action'] === 'id_group') {
+				if (!is_numeric($extra['new'])) {
+					continue;
+				}
+
+				$member_groups = $member_groups ?? Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+
+				foreach (['previous', 'new'] as $key) {
+					if (!isset($member_groups[(int) $extra[$key]])) {
+						$extra[$key] = Lang::getTxt('no_primary_membergroup', file: 'Profile');
+					} elseif ($member_groups[(int) $extra[$key]]->hidden === Group::INVISIBLE) {
+						$extra[$key] = '<i>' . Lang::getTxt('hidden', file: 'Profile') . '</i>';
+					} else {
+						$extra[$key] = $member_groups[(int) $extra[$key]]->name;
+					}
+				}
+			}
+
+			if ($row['action'] === 'additional_groups') {
+				$extra['previous'] = array_map('trim', explode(',', $extra['previous']));
+				$extra['new'] = array_map('trim', explode(',', $extra['new']));
+
+				if (
+					$extra['previous'] !== array_filter($extra['previous'], 'is_numeric')
+					|| $extra['new'] !== array_filter($extra['new'], 'is_numeric')
+				) {
+					continue;
+				}
+
+				$member_groups = $member_groups ?? Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+
+				foreach (['previous', 'new'] as $key) {
+					foreach ($extra[$key] as $k => $v) {
+						if (
+							!isset($member_groups[(int) $v])
+							|| $member_groups[(int) $v]->hidden === Group::INVISIBLE
+						) {
+							unset($extra[$key][$k]);
+						} else {
+							$extra[$key][$k] = $member_groups[(int) $v]->name;
+						}
+					}
+
+					$extra[$key] = implode(', ', $extra[$key]);
+				}
 			}
 
 			// Work out what the name of the action is.
