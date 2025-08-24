@@ -176,17 +176,6 @@ class Sapi
 	}
 
 	/**
-	 * Checks if the server is able to support case folding.
-	 *
-	 * @see https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
-	 * @return bool True if it does, false otherwise
-	 */
-	public static function supportsIsoCaseFolding(): bool
-	{
-		return \ord(strtolower(\chr(138))) === 154;
-	}
-
-	/**
 	 * A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	 *
 	 * @return bool True if it does, false otherwise
@@ -211,7 +200,6 @@ class Sapi
 			'is_cgi' => self::isCGI(),
 			'is_windows' => self::isOS(self::OS_WINDOWS),
 			'is_mac' => self::isOS(self::OS_MAC),
-			'iso_case_folding' => self::supportsIsoCaseFolding(),
 			'needs_login_fix' => self::needsLoginFix(),
 		];
 	}
