@@ -47,6 +47,14 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	private $cacheDB = null;
 
+	/**
+	 * Support WAL
+	 *
+	 * @link https://www.sqlite.org/wal.html
+	 * @var bool
+	 */
+	private $wal = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -67,6 +75,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
 		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
+
+		if ($this->wal) {
+			$this->cacheDB->exec('PRAGMA journal_mode = wal;');
+		}
 
 		if (filesize($database) == 0) {
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
@@ -185,13 +197,23 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		// If it's invalid, use SMF's.
 		if (!isset($dir) || !is_writable($dir)) {
-			if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite)) {
-				Config::$cachedir_sqlite = Config::$cachedir;
+			// Its a WALuigi!
+			if (
+				isset(Config::$cachedir_sqlite)
+				&& str_starts_with(Config::$cachedir_sqlite, 'wal:')
+				&& is_writable($cachedir = substr(Config::$cachedir_sqlite, 4))
+			) {
+				$this->wal = true;
+				$this->cachedir = $cachedir;
+			} else {
+				if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite)) {
+					Config::$cachedir_sqlite = Config::$cachedir;
 
-				Config::updateSettingsFile(['cachedir_sqlite' => Config::$cachedir_sqlite]);
+					Config::updateSettingsFile(['cachedir_sqlite' => Config::$cachedir_sqlite]);
+				}
+
+				$this->cachedir = Config::$cachedir_sqlite;
 			}
-
-			$this->cachedir = Config::$cachedir_sqlite;
 		} else {
 			$this->cachedir = $dir;
 		}
