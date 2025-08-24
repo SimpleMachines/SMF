@@ -1380,6 +1380,7 @@ class Subscriptions implements ActionInterface
 					'paid_email_to',
 					'subtext' => Lang::getTxt('paid_email_to_desc', file: 'ManagePaid'),
 					'size' => 60,
+					'multiple' => true,
 				],
 				'',
 
