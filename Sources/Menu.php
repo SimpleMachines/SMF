@@ -211,7 +211,12 @@ class Menu implements \ArrayAccess
 	 * The tab buttons typically (but not always) correspond to the menu items
 	 * in the current subsection.
 	 */
-	public array $tab_data = [];
+	public array $tab_data = [
+		'title' => null,
+		'description' => null,
+		'icon_class' => null,
+		'tabs' => [],
+	];
 
 	/**************************
 	 * Public static properties

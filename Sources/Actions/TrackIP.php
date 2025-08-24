@@ -373,7 +373,7 @@ class TrackIP implements ActionInterface, Routable
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$messages[] = [
-				'ip' => new IP($row['poster_ip']),
+				'ip' => (string) new IP($row['poster_ip']),
 				'member_link' => empty($row['id_member']) ? $row['display_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>',
 				'board' => [
 					'id' => $row['id_board'],

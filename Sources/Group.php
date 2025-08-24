@@ -1708,7 +1708,7 @@ class Group implements \ArrayAccess
 				}
 			}
 
-			$board->save(Board::SAVE_GROUP);
+			$board->save(Board::SAVE_GROUPS);
 		}
 	}
 

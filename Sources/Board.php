@@ -2407,7 +2407,7 @@ class Board implements \ArrayAccess, Routable
 	 */
 	protected function saveNew(): void
 	{
-		$groups = getOriginalGroups();
+		$groups = $this->getOriginalGroups();
 
 		$columns = [
 			'id_cat' => 'int',
@@ -2519,7 +2519,7 @@ class Board implements \ArrayAccess, Routable
 			$set = array_merge(
 				$set,
 				[
-					'member_groups = {string:member_groups}',
+					'member_groups = {string:access_groups}',
 					'deny_member_groups = {string:deny_groups}',
 				],
 			);
@@ -2587,7 +2587,7 @@ class Board implements \ArrayAccess, Routable
 	 */
 	protected function saveViewPermissions(): void
 	{
-		$groups = getOriginalGroups();
+		$groups = $this->getOriginalGroups();
 
 		// Before we add new access_groups or deny_groups, remove all of the old entries.
 		Db::$db->query(
