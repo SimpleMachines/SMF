@@ -243,13 +243,13 @@ class Uuid implements \Stringable
 		// Determine the version to use.
 		$this->version = $version ?? self::DEFAULT_VERSION;
 
-		if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
+		if (!\in_array($this->version, self::SUPPORTED_VERSIONS)) {
 			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = self::DEFAULT_VERSION;
 		}
 
 		// Check the input.
-		switch (gettype($input)) {
+		switch (\gettype($input)) {
 			// Convert supported object types to strings.
 			case 'object':
 				if ($input instanceof \DateTimeInterface) {
@@ -278,7 +278,7 @@ class Uuid implements \Stringable
 				break;
 		}
 
-		if (in_array($this->version, [3, 5]) && !isset($input)) {
+		if (\in_array($this->version, [3, 5]) && !isset($input)) {
 			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = 0;
 		}
@@ -441,11 +441,11 @@ class Uuid implements \Stringable
 		// Base64 format is 22 bytes long.
 		// Base32 format is 26 bytes long.
 		// Full format is 32 bytes long, once extraneous characters are removed.
-		if (strlen($input) === 16) {
+		if (\strlen($input) === 16) {
 			$hex = bin2hex($input);
-		} elseif (strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
+		} elseif (\strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
-		} elseif (strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
+		} elseif (\strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
 			$hex = self::decodeBase32Hex(strtr($input, self::BASE32_ALT, self::BASE32_HEX));
 		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
@@ -460,7 +460,7 @@ class Uuid implements \Stringable
 
 		if (
 			// Unknown version.
-			!in_array($version, self::KNOWN_VERSIONS)
+			!\in_array($version, self::KNOWN_VERSIONS)
 			// Version can be 0 only in Nil UUID.
 			|| ($version === 0 && $hex !== '00000000000000000000000000000000')
 			// Version can be 15 only in Max UUID.
@@ -566,7 +566,7 @@ class Uuid implements \Stringable
 	public static function setNamespace(\Stringable|string|bool $ns = false): void
 	{
 		// Manually supplied namespace.
-		if (is_string($ns) || $ns instanceof \Stringable) {
+		if (\is_string($ns) || $ns instanceof \Stringable) {
 			self::$namespace = self::createFromString($ns, true)->getBinary();
 
 			return;
@@ -709,21 +709,16 @@ class Uuid implements \Stringable
 				case 0:
 					// On POSIX systems, use ID of the user executing the script.
 					// On non-POSIX systems, use ID of the user that owns the script.
-					$id = function_exists('posix_getuid') ? posix_getuid() : getmyuid();
+					$id = \function_exists('posix_getuid') ? posix_getuid() : getmyuid();
 					break;
 
 				// Told to use the primary group ID.
 				case 1:
-					if (function_exists('posix_getgid')) {
+					if (\function_exists('posix_getgid')) {
 						// POSIX systems can actually do this.
 						$id = posix_getgid();
 					} else {
-						// On non-POSIX systems, fall back to user ID because
-						// getmygid() returns nothing useful on non-POSIX systems.
 						throw new \ValueError('uuid_group_non_posix');
-
-						$id = getmyuid();
-						$domain = 0;
 					}
 					break;
 
@@ -736,15 +731,14 @@ class Uuid implements \Stringable
 				// Unknown domain.
 				default:
 					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain], file: 'Errors'));
-					break;
 			}
 		}
 
-		$id = sprintf('%08x', $id);
-		$domain = sprintf('%02x', $domain);
+		$id = \sprintf('%08x', $id);
+		$domain = \sprintf('%02x', $domain);
 
 		// Re-randomize the node every time we generate a UUIDv2.
-		self::$node = sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
+		self::$node = \sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
 
 		return $id . $parts['time_mid'] . '0' . $parts['time_high'] . substr($parts['clock_seq'], 0, 2) . $domain . $parts['node'];
 	}
@@ -854,7 +848,7 @@ class Uuid implements \Stringable
 			return str_replace('-', '', self::MAX_UUID);
 		}
 
-		return sprintf('%012x', $timestamp) . bin2hex(random_bytes(10));
+		return \sprintf('%012x', $timestamp) . bin2hex(random_bytes(10));
 	}
 
 	/**
@@ -878,13 +872,13 @@ class Uuid implements \Stringable
 		// allows using random data instead, provided that we set the least
 		// significant bit of its first octet to 1. See RFC 9562, section 6.10.
 		if (!isset(self::$node)) {
-			self::$node = sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
+			self::$node = \sprintf('%012x', hexdec(bin2hex(random_bytes(6))) | 0x10000000000);
 		}
 
 		// Is this a duplicate timestamp?
 		while (
 			isset(self::$prev_timestamps[$this->version][$clock_seq])
-			&& in_array($timestamp, self::$prev_timestamps[$this->version][$clock_seq])
+			&& \in_array($timestamp, self::$prev_timestamps[$this->version][$clock_seq])
 		) {
 			// First try incrementing the timestamp.
 			// Because the spec uses 100-nanosecond intervals, but PHP offers
@@ -893,7 +887,7 @@ class Uuid implements \Stringable
 			$temp = $timestamp;
 
 			for ($i = 0; $i < 9; $i++) {
-				if (!in_array(++$temp, self::$prev_timestamps[$this->version][$clock_seq])) {
+				if (!\in_array(++$temp, self::$prev_timestamps[$this->version][$clock_seq])) {
 					$timestamp = $temp;
 					break 2;
 				}
@@ -904,7 +898,7 @@ class Uuid implements \Stringable
 			$clock_seq = hexdec($clock_seq);
 			$clock_seq++;
 			$clock_seq %= 0x10000;
-			self::$clock_seq[$this->version] = $clock_seq = sprintf('%04x', $clock_seq);
+			self::$clock_seq[$this->version] = $clock_seq = \sprintf('%04x', $clock_seq);
 		}
 
 		self::$prev_timestamps[$this->version][$clock_seq][] = $timestamp;
@@ -922,7 +916,7 @@ class Uuid implements \Stringable
 			return [];
 		}
 
-		$time_hex = sprintf('%015x', $timestamp);
+		$time_hex = \sprintf('%015x', $timestamp);
 
 		return [
 			'time_high' => substr($time_hex, 0, 3),

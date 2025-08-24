@@ -58,12 +58,12 @@ class RemoveKarma extends MigrationBase
 		$member_columns = Db::$db->list_columns('{db_prefix}members');
 
 		// Cleaning up old karma member settings.
-		if (in_array('karma_good', $member_columns)) {
+		if (\in_array('karma_good', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'karma_good');
 		}
 
 		// Does karma bad was enable?
-		if (in_array('karma_bad', $member_columns)) {
+		if (\in_array('karma_bad', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'karma_bad');
 		}
 

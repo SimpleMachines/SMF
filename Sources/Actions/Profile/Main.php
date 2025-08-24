@@ -548,17 +548,17 @@ class Main implements ActionInterface, Routable
 
 	public function canBeLogged(): bool
 	{
-		return isset($_GET['area']) && !in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
+		return isset($_GET['area']) && !\in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
 	}
 
 	public function isSimpleAction(): bool
 	{
-		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']);
+		return isset($_GET['area']) && \in_array($_GET['area'], ['popup', 'alerts_popup']);
 	}
 
 	public function getOutputType(): OutputTypeInterface
 	{
-		return isset($_GET['area']) && in_array($_GET['area'], ['popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+		return isset($_GET['area']) && \in_array($_GET['area'], ['popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
 	}
 
 	public function isAgreementAction(): bool
@@ -642,7 +642,7 @@ class Main implements ActionInterface, Routable
 		if (Utils::$context['completed_save']) {
 			// Clean up the POST variables.
 			$_POST = Utils::htmlTrimRecursive($_POST);
-			$_POST = Utils::htmlspecialcharsRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST, ENT_QUOTES);
 			Profile::$member->post_sanitized = true;
 
 			if ($this->check_password) {
@@ -662,7 +662,7 @@ class Main implements ActionInterface, Routable
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
-				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
+				$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
@@ -670,7 +670,7 @@ class Main implements ActionInterface, Routable
 				}
 
 				// Warn other elements not to jump the gun and do custom changes!
-				if (in_array('bad_password', Profile::$member->save_errors)) {
+				if (\in_array('bad_password', Profile::$member->save_errors)) {
 					Utils::$context['password_auth_failed'] = true;
 				}
 			}
@@ -706,7 +706,7 @@ class Main implements ActionInterface, Routable
 					$msg = $gm_action->change_type;
 				}
 
-				$force_redirect = !in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
+				$force_redirect = !\in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
 
 				Profile::$member->save();
 			}
@@ -729,7 +729,7 @@ class Main implements ActionInterface, Routable
 
 		// Is it valid?
 		if (!empty($call)) {
-			call_user_func($call, Profile::$member->id);
+			\call_user_func($call, Profile::$member->id);
 		}
 
 		// Set the page title if it's not already set...
@@ -848,7 +848,7 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->profile_areas,
 			function (&$value, $key) {
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
@@ -871,7 +871,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['info']['areas']['viewwarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && Profile::$member->warning;
 
-		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups));
+		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups));
 
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
@@ -889,7 +889,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['profile_action']['areas']['issuewarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1;
 
-		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups);
+		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups);
 
 		$this->profile_areas['profile_action']['areas']['subscriptions']['enabled'] = !empty(Config::$modSettings['paid_enabled']) && Utils::$context['subs_available'];
 
@@ -992,7 +992,7 @@ class Main implements ActionInterface, Routable
 
 						$token_name = $area['token'] !== true ? str_replace('%u', (string) Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
 
-						$token_type = isset($area['token_type']) && in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
+						$token_type = isset($area['token_type']) && \in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
 					}
 
 					// Does this require session validating?
@@ -1040,7 +1040,7 @@ class Main implements ActionInterface, Routable
 		}
 
 		// All the subactions that require a user password in order to validate.
-		$this->check_password = User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
+		$this->check_password = User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
 
 		Utils::$context['require_password'] = $this->check_password;
 	}

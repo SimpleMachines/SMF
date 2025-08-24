@@ -243,7 +243,7 @@ class ItemList implements \ArrayAccess
 	protected function checkOptions(array $options): bool
 	{
 		$have_what_we_need = isset($options['id']);
-		$have_what_we_need &= isset($options['columns']) && is_array($options['columns']);
+		$have_what_we_need &= isset($options['columns']) && \is_array($options['columns']);
 		$have_what_we_need &= empty($options['default_sort_col']) || isset($options['columns'][$options['default_sort_col']]);
 		$have_what_we_need &= !isset($options['form']) || isset($options['form']['href']);
 
@@ -265,7 +265,7 @@ class ItemList implements \ArrayAccess
 		}
 
 		// We know the amount of columns, might be useful for the template.
-		$this->num_columns = count($this->options['columns']);
+		$this->num_columns = \count($this->options['columns']);
 
 		if (!empty($this->options['width'])) {
 			$this->width = $this->options['width'];
@@ -328,7 +328,7 @@ class ItemList implements \ArrayAccess
 		}
 
 		// First get an impression of how many items to expect.
-		if (isset($this->options['get_count']['value']) && (is_int($this->options['get_count']['value']) || ctype_digit($this->options['get_count']['value']))) {
+		if (isset($this->options['get_count']['value']) && (\is_int($this->options['get_count']['value']) || ctype_digit($this->options['get_count']['value']))) {
 			$this->total_num_items = $this->options['get_count']['value'];
 		} else {
 			if (isset($this->options['get_count']['file'])) {
@@ -339,7 +339,7 @@ class ItemList implements \ArrayAccess
 
 			$params = $this->options['get_count']['params'] ?? [];
 
-			$this->total_num_items = (int) call_user_func_array($call, array_values($params));
+			$this->total_num_items = (int) \call_user_func_array($call, array_values($params));
 		}
 
 		// Default the start to the beginning...sounds logical.
@@ -368,7 +368,7 @@ class ItemList implements \ArrayAccess
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($this->start != $start) {
-			Utils::redirectexit($this->start_var_name != 'start' ? sprintf($this->page_index->base_url, $start) : $this->page_index->base_url . ';start=' . $start);
+			Utils::redirectexit($this->start_var_name != 'start' ? \sprintf($this->page_index->base_url, $start) : $this->page_index->base_url . ';start=' . $start);
 		}
 
 	}
@@ -436,7 +436,7 @@ class ItemList implements \ArrayAccess
 				}
 				// The most flexible way probably is applying a custom function.
 				elseif (isset($data['function'])) {
-					$cur_data['value'] = call_user_func_array($data['function'], [$list_item]);
+					$cur_data['value'] = \call_user_func_array($data['function'], [$list_item]);
 				}
 				// A modified value (inject the database values).
 				elseif (isset($data['eval'])) {
@@ -478,7 +478,7 @@ class ItemList implements \ArrayAccess
 	 */
 	protected function getItems(): void
 	{
-		if (!empty($this->options['get_items']['value']) && is_array($this->options['get_items']['value'])) {
+		if (!empty($this->options['get_items']['value']) && \is_array($this->options['get_items']['value'])) {
 			$this->items = $this->options['get_items']['value'];
 		} else {
 			// Get the file with the function for the item list.
@@ -488,7 +488,7 @@ class ItemList implements \ArrayAccess
 
 			$call = Utils::getCallable($this->options['get_items']['function']);
 
-			$items = call_user_func_array($call, array_merge([$this->start, $this->items_per_page, $this->db_sort], empty($this->options['get_items']['params']) ? [] : $this->options['get_items']['params']));
+			$items = \call_user_func_array($call, array_merge([$this->start, $this->items_per_page, $this->db_sort], empty($this->options['get_items']['params']) ? [] : $this->options['get_items']['params']));
 
 			$this->items = empty($items) ? [] : $items;
 		}

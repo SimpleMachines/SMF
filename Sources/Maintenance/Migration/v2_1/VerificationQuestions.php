@@ -43,7 +43,7 @@ class VerificationQuestions extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return !in_array(Config::$db_prefix . 'qanda', $tables);
+		return !\in_array(Config::$db_prefix . 'qanda', $tables);
 	}
 
 	/**
@@ -58,7 +58,7 @@ class VerificationQuestions extends MigrationBase
 		$tables = Db::$db->list_tables();
 
 		// Creating draft table.
-		if ($start <= 0 && !in_array(Config::$db_prefix . 'qanda', $tables)) {
+		if ($start <= 0 && !\in_array(Config::$db_prefix . 'qanda', $tables)) {
 			$table->create();
 
 			$this->handleTimeout(++$start);

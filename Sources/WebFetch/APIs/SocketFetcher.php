@@ -170,7 +170,7 @@ class SocketFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
+		if (empty($url->scheme) || !\in_array($url->scheme, ['http', 'https'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -196,7 +196,7 @@ class SocketFetcher extends WebFetchApi
 		];
 
 		// Do we already have an open connection to the socket? If not, open one.
-		if (!is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port) {
+		if (!\is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port) {
 			$this->host = $host;
 			$this->port = $port;
 
@@ -204,7 +204,7 @@ class SocketFetcher extends WebFetchApi
 		}
 
 		// Uh-oh...
-		if (!is_resource($this->fp)) {
+		if (!\is_resource($this->fp)) {
 			$this->closeConnection();
 
 			return $this;
@@ -223,7 +223,7 @@ class SocketFetcher extends WebFetchApi
 			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break) || throw new \Exception('Failed to write to socket');
 			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break) || throw new \Exception('Failed to write to socket');
 			fwrite($this->fp, 'Content-Type: application/x-www-form-urlencoded' . $this->line_break) || throw new \Exception('Failed to write to socket');
-			fwrite($this->fp, 'Content-Length: ' . strlen($post_data) . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Content-Length: ' . \strlen($post_data) . $this->line_break) || throw new \Exception('Failed to write to socket');
 			fwrite($this->fp, $this->line_break) || throw new \Exception('Failed to write to socket');
 			fwrite($this->fp, $post_data) || throw new \Exception('Failed to write to socket');
 		}
@@ -243,7 +243,7 @@ class SocketFetcher extends WebFetchApi
 		}
 
 		// Redirect if the resource has been permanently or temporarily moved.
-		if ($this->current_redirect < $this->max_redirect && in_array($http_code, [301, 302, 307])) {
+		if ($this->current_redirect < $this->max_redirect && \in_array($http_code, [301, 302, 307])) {
 			while (!feof($this->fp) && trim($header = fgets($this->fp, $this->buffer_size)) != '') {
 				$this->response[$this->current_redirect]['headers'][] = $header;
 
@@ -267,11 +267,11 @@ class SocketFetcher extends WebFetchApi
 
 			$this->current_redirect++;
 
-			return $this->request(strval($location), $post_data);
+			return $this->request(\strval($location), $post_data);
 		}
 
 		// Make sure we get a 200 OK.
-		if (!in_array($http_code, [200, 201])) {
+		if (!\in_array($http_code, [200, 201])) {
 			return $this;
 		}
 
@@ -305,7 +305,7 @@ class SocketFetcher extends WebFetchApi
 				// Try to see if this is a chunked data
 				$length = hexdec($line);
 
-				if (!is_int($length)) {
+				if (!\is_int($length)) {
 					break;
 				}
 
@@ -323,10 +323,10 @@ class SocketFetcher extends WebFetchApi
 					}
 
 					$body .= $data;
-					$length -= strlen($data);
+					$length -= \strlen($data);
 
 					if (isset($content_length)) {
-						$content_length -= strlen($data);
+						$content_length -= \strlen($data);
 					}
 
 					// No more chunked data.
@@ -337,8 +337,8 @@ class SocketFetcher extends WebFetchApi
 			} while (true);
 		} else {
 			if (isset($content_length)) {
-				while (!feof($this->fp) && strlen($body) < $content_length) {
-					$body .= fread($this->fp, (int) $content_length - strlen($body));
+				while (!feof($this->fp) && \strlen($body) < $content_length) {
+					$body .= fread($this->fp, (int) $content_length - \strlen($body));
 				}
 			} else {
 				while (!feof($this->fp)) {
@@ -349,7 +349,7 @@ class SocketFetcher extends WebFetchApi
 
 		$this->response[$this->current_redirect]['success'] = true;
 		$this->response[$this->current_redirect]['body'] = $body;
-		$this->response[$this->current_redirect]['size'] = strlen($body);
+		$this->response[$this->current_redirect]['size'] = \strlen($body);
 
 		if (!$this->keep_alive) {
 			$this->closeConnection();
@@ -369,10 +369,10 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public function result(?string $area = null): mixed
 	{
-		$max_result = count($this->response) - 1;
+		$max_result = \count($this->response) - 1;
 
 		// Just return a specified area or the entire result?
-		if (is_null($area)) {
+		if (\is_null($area)) {
 			return $this->response[$max_result];
 		}
 
@@ -394,7 +394,7 @@ class SocketFetcher extends WebFetchApi
 			return $this->response;
 		}
 
-		$response_number = min($response_number, count($this->response) - 1);
+		$response_number = min($response_number, \count($this->response) - 1);
 
 		return $this->response[$response_number];
 	}
@@ -408,7 +408,7 @@ class SocketFetcher extends WebFetchApi
 			return;
 		}
 
-		if (is_resource($this->fp)) {
+		if (\is_resource($this->fp)) {
 			fclose($this->fp);
 		}
 

@@ -37,7 +37,7 @@ class GenericScheduledTask extends ScheduledTask
 		$callable_task = Utils::getCallable($this->_details['callable']);
 
 		// Perform the task.
-		$this->should_log = !empty($callable_task) ? call_user_func($callable_task) : false;
+		$this->should_log = !empty($callable_task) ? \call_user_func($callable_task) : false;
 
 		return true;
 	}

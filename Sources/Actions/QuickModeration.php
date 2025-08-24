@@ -305,7 +305,7 @@ class QuickModeration implements ActionInterface, Routable
 		foreach (self::$action_permissions as $action => $permissions) {
 			// Skip permissions for actions that weren't requested.
 			// Exception: always check the approval permission.
-			if (!in_array($action, $_REQUEST['actions']) && $action !== 'approve') {
+			if (!\in_array($action, $_REQUEST['actions']) && $action !== 'approve') {
 				continue;
 			}
 
@@ -371,7 +371,7 @@ class QuickModeration implements ActionInterface, Routable
 		$temp = [];
 
 		foreach ($_REQUEST['actions'] as $topic => $action) {
-			if (in_array($action, $this->possible_actions)) {
+			if (\in_array($action, $this->possible_actions)) {
 				$temp[(int) $topic] = $action;
 			}
 		}
@@ -386,7 +386,7 @@ class QuickModeration implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'action_topic_ids' => array_keys($_REQUEST['actions']),
-					'limit' => count($_REQUEST['actions']),
+					'limit' => \count($_REQUEST['actions']),
 				],
 			);
 
@@ -463,7 +463,7 @@ class QuickModeration implements ActionInterface, Routable
 					}
 					Db::$db->free_result($request);
 
-					if (in_array($this->topic_actions['move']['to'][$topic], $redirect_boards)) {
+					if (\in_array($this->topic_actions['move']['to'][$topic], $redirect_boards)) {
 						break;
 					}
 
@@ -549,7 +549,7 @@ class QuickModeration implements ActionInterface, Routable
 			LIMIT {int:limit}',
 			[
 				'sticky_topic_ids' => $this->topic_actions['sticky'],
-				'limit' => count($this->topic_actions['sticky']),
+				'limit' => \count($this->topic_actions['sticky']),
 			],
 		);
 
@@ -593,7 +593,7 @@ class QuickModeration implements ActionInterface, Routable
 				[
 					'current_member' => User::$me->id,
 					'locked_topic_ids' => $this->topic_actions['lock'],
-					'limit' => count($locked_topic_ids),
+					'limit' => \count($locked_topic_ids),
 				],
 			);
 
@@ -615,7 +615,7 @@ class QuickModeration implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'locked_topic_ids' => $this->topic_actions['lock'],
-					'limit' => count($this->topic_actions['lock']),
+					'limit' => \count($this->topic_actions['lock']),
 				],
 			);
 
@@ -679,7 +679,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'current_member' => User::$me->id,
 				'move_topic_ids' => $this->topic_actions['move']['topics'],
-				'limit' => count($this->topic_actions['move']['topics']),
+				'limit' => \count($this->topic_actions['move']['topics']),
 			],
 		);
 
@@ -810,7 +810,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'current_member' => User::$me->id,
 				'removed_topic_ids' => $this->topic_actions['remove'],
-				'limit' => count($this->topic_actions['remove']),
+				'limit' => \count($this->topic_actions['remove']),
 			],
 		);
 
@@ -861,7 +861,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'approve_topic_ids' => $this->topic_actions['approve'],
 				'not_approved' => 0,
-				'limit' => count($this->topic_actions['approve']),
+				'limit' => \count($this->topic_actions['approve']),
 			],
 		);
 
@@ -894,7 +894,7 @@ class QuickModeration implements ActionInterface, Routable
 	protected function doMerge(): void
 	{
 		// Merge requires at least two topics.
-		if (count($this->topic_actions['merge']) < 2) {
+		if (\count($this->topic_actions['merge']) < 2) {
 			return;
 		}
 

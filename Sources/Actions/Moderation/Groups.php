@@ -94,10 +94,10 @@ class Groups extends ViewGroups
 		// Get the template stuff up and running.
 		Theme::loadTemplate('ManageMembergroups');
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -120,7 +120,7 @@ class Groups extends ViewGroups
 		parent::members();
 
 		// Removing members from group?
-		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && Utils::$context['group']->assignable) {
+		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && \is_array($_REQUEST['rem']) && Utils::$context['group']->assignable) {
 			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
@@ -144,7 +144,7 @@ class Groups extends ViewGroups
 			foreach ($member_names as $index => $member_name) {
 				$member_names[$index] = trim(Utils::strtolower($member_names[$index]));
 
-				if (strlen($member_names[$index]) == 0) {
+				if (\strlen($member_names[$index]) == 0) {
 					unset($member_names[$index]);
 				}
 			}

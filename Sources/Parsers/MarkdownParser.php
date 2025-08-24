@@ -724,7 +724,7 @@ class MarkdownParser extends Parser
 			$output_type === self::OUTPUT_HTML;
 		}
 
-		if (!in_array($output_type, [self::OUTPUT_BBC, self::OUTPUT_HTML, self::OUTPUT_HTML_STRICT])) {
+		if (!\in_array($output_type, [self::OUTPUT_BBC, self::OUTPUT_HTML, self::OUTPUT_HTML_STRICT])) {
 			throw new \ValueError();
 		}
 
@@ -915,7 +915,7 @@ class MarkdownParser extends Parser
 	{
 		$lines = explode("\n", $string);
 
-		for ($linenum = 0; $linenum < count($lines); $linenum++) {
+		for ($linenum = 0; $linenum < \count($lines); $linenum++) {
 			$line_info = [
 				'linenum' => $linenum,
 				'string' => '',
@@ -971,7 +971,7 @@ class MarkdownParser extends Parser
 						$continue_test = $this->getMethod($this->block_types[$open_block['type']]['continue_test'] ?? false);
 
 						if (
-							is_callable($continue_test)
+							\is_callable($continue_test)
 							&& $continue_test($line_info, $last_container, $o)
 						) {
 							$should_append = true;
@@ -983,13 +983,13 @@ class MarkdownParser extends Parser
 				if ($should_append) {
 					$append = $this->getMethod($this->block_types[$line_info['type']]['append'] ?? false);
 
-					if (is_callable($append)) {
+					if (\is_callable($append)) {
 						$append($line_info, $last_container, $o);
 					}
 				} else {
 					$add = $this->getMethod($this->block_types[$line_info['type']]['add'] ?? null);
 
-					if (is_callable($add)) {
+					if (\is_callable($add)) {
 						$add($line_info, $last_container, $o);
 					}
 
@@ -997,7 +997,7 @@ class MarkdownParser extends Parser
 						if ($o > $last_container) {
 							$close = $this->getMethod($this->block_types[$this->open[$o]['type']]['close'] ?? false);
 
-							if (is_callable($close)) {
+							if (\is_callable($close)) {
 								$close($o);
 							}
 						}
@@ -1022,12 +1022,12 @@ class MarkdownParser extends Parser
 				$closer_test = $this->getMethod($this->block_types[$this->open[$o]['type']]['closer_test'] ?? false);
 
 				if (
-					!is_callable($closer_test)
+					!\is_callable($closer_test)
 					|| $closer_test($line_info, $last_container, $o)
 				) {
 					$close = $this->getMethod($this->block_types[$this->open[$o]['type']]['close'] ?? false);
 
-					if (is_callable($close)) {
+					if (\is_callable($close)) {
 						$close($o);
 					}
 				}
@@ -1073,7 +1073,7 @@ class MarkdownParser extends Parser
 
 			$opener_test = $this->getMethod($def['opener_test'] ?? false);
 
-			if (is_callable($opener_test) && $opener_test($line_info)) {
+			if (\is_callable($opener_test) && $opener_test($line_info)) {
 				$line_info['possible_types'][] = $type;
 			}
 		}
@@ -1117,7 +1117,7 @@ class MarkdownParser extends Parser
 		if (!empty($block['content'])) {
 			$last_child = &$block['content'][array_key_last($block['content'])];
 
-			if (is_array($last_child)) {
+			if (\is_array($last_child)) {
 				$this->findOpen($last_child);
 			}
 		}
@@ -1131,7 +1131,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsBlank(array $line_info): bool
 	{
-		if (in_array('blank', $line_info['possible_types'])) {
+		if (\in_array('blank', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1146,13 +1146,13 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsHr(array $line_info): bool
 	{
-		if (in_array('hr', $line_info['possible_types'])) {
+		if (\in_array('hr', $line_info['possible_types'])) {
 			return true;
 		}
 
 		$first_char = mb_substr($line_info['content'], 0, 1);
 
-		if (!in_array($first_char, ['*', '-', '_'])) {
+		if (!\in_array($first_char, ['*', '-', '_'])) {
 			return false;
 		}
 
@@ -1171,7 +1171,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsAtxHeading(array $line_info): bool
 	{
-		if (in_array('atx_heading', $line_info['possible_types'])) {
+		if (\in_array('atx_heading', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1190,13 +1190,13 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsSetextHeading(array $line_info): bool
 	{
-		if (in_array('setext_heading', $line_info['possible_types'])) {
+		if (\in_array('setext_heading', $line_info['possible_types'])) {
 			return true;
 		}
 
 		$first_char = mb_substr($line_info['content'], 0, 1);
 
-		if (!in_array($first_char, ['=', '-'])) {
+		if (!\in_array($first_char, ['=', '-'])) {
 			return false;
 		}
 
@@ -1215,7 +1215,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsIndentedCode(array $line_info): bool
 	{
-		if (in_array('indented_code', $line_info['possible_types'])) {
+		if (\in_array('indented_code', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1276,7 +1276,7 @@ class MarkdownParser extends Parser
 			if ($this->in_code === 2) {
 				$this->opening_fence_linenum = $line_info['linenum'];
 				$this->opening_fence = substr($line_info['content'], 0, strspn($line_info['content'], substr($line_info['content'], 0, 1)));
-				$this->info_string = Utils::htmlTrim(substr($line_info['content'], strlen($this->opening_fence)));
+				$this->info_string = Utils::htmlTrim(substr($line_info['content'], \strlen($this->opening_fence)));
 			} else {
 				$this->opening_fence_linenum = null;
 				$this->opening_fence = '';
@@ -1307,7 +1307,7 @@ class MarkdownParser extends Parser
 		if ($this->in_code === 2 && $line_info['linenum'] > $this->opening_fence_linenum) {
 			return (
 				str_starts_with($line_info['content'], $this->opening_fence)
-				&& strspn(Utils::htmlTrimRight($line_info['content']), substr($line_info['content'], 0, 1)) === strlen(Utils::htmlTrimRight($line_info['content']))
+				&& strspn(Utils::htmlTrimRight($line_info['content']), substr($line_info['content'], 0, 1)) === \strlen(Utils::htmlTrimRight($line_info['content']))
 			);
 		}
 
@@ -1318,7 +1318,7 @@ class MarkdownParser extends Parser
 		if (
 			$is_fence
 			&& $matches[1] === '`'
-			&& strrpos($line_info['content'], '`') > strlen($matches[0])
+			&& strrpos($line_info['content'], '`') > \strlen($matches[0])
 		) {
 			$is_fence = false;
 		}
@@ -1334,7 +1334,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testOpensQuote(array $line_info): bool
 	{
-		if (in_array('blockquote', $line_info['possible_types'])) {
+		if (\in_array('blockquote', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1354,7 +1354,7 @@ class MarkdownParser extends Parser
 		return (
 			$line_info['string'] === $this->line_info[$line_info['linenum']]['string']
 			&& !$this->testOpensQuote($line_info)
-			&& !in_array('p', $line_info['possible_types'])
+			&& !\in_array('p', $line_info['possible_types'])
 		);
 	}
 
@@ -1366,7 +1366,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testOpensListItem(array $line_info): bool
 	{
-		if (in_array('list_item', $line_info['possible_types'])) {
+		if (\in_array('list_item', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1572,7 +1572,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testOpensHtml(int $type, array $line_info): bool
 	{
-		if (in_array('html_' . $type, $line_info['possible_types'])) {
+		if (\in_array('html_' . $type, $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1662,7 +1662,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function testIsTable(array $line_info): bool
 	{
-		if (in_array('table', $line_info['possible_types'])) {
+		if (\in_array('table', $line_info['possible_types'])) {
 			return true;
 		}
 
@@ -1691,14 +1691,14 @@ class MarkdownParser extends Parser
 		}
 
 		// Must have exactly one header row.
-		if (count($this->open[array_key_last($this->open)]['content']) !== 1) {
+		if (\count($this->open[array_key_last($this->open)]['content']) !== 1) {
 			return false;
 		}
 
 		$thead_cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $last_open['content'][0], -1, PREG_SPLIT_NO_EMPTY));
 		$delim_cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $line_info['content'], -1, PREG_SPLIT_NO_EMPTY));
 
-		if (count($thead_cells) !== count($delim_cells)) {
+		if (\count($thead_cells) !== \count($delim_cells)) {
 			return false;
 		}
 
@@ -1716,7 +1716,7 @@ class MarkdownParser extends Parser
 		// The table delimiter line doesn't count if it was just '-----'.
 		// It must have either a '|' or a ':' in it somewhere.
 		if (
-			count($delim_cells) === 1
+			\count($delim_cells) === 1
 			&& $delim_cells[0] === 'none'
 			&& !preg_match('/(?<!\\\\)\|/u', $line_info['content'])
 		) {
@@ -1739,7 +1739,7 @@ class MarkdownParser extends Parser
 		foreach (array_diff(array_keys($this->block_types), $line_info['tested_types']) as $untested) {
 			$opener_test = $this->getMethod($def['opener_test'] ?? false);
 
-			if (is_callable($opener_test) && $opener_test($line_info)) {
+			if (\is_callable($opener_test) && $opener_test($line_info)) {
 				return false;
 			}
 		}
@@ -1809,7 +1809,7 @@ class MarkdownParser extends Parser
 		$number = ($matches['number'] ?? '') !== '' ? $matches['number'] : null;
 		$num_punct = ($matches['num_punct'] ?? '') !== '' ? $matches['num_punct'] : null;
 
-		$indent = $line_info['indent'] + mb_strlen($marker) + strspn($line_info['content'], ' ', strlen($marker));
+		$indent = $line_info['indent'] + mb_strlen($marker) + strspn($line_info['content'], ' ', \strlen($marker));
 
 		// Check for nested lists.
 		if (
@@ -1975,7 +1975,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function addTable(array $line_info, int $last_container, int $o): void
 	{
-		if ($this->open[$o]['type'] !== 'p' || count($this->open[$o]['content']) !== 1) {
+		if ($this->open[$o]['type'] !== 'p' || \count($this->open[$o]['content']) !== 1) {
 			return;
 		}
 
@@ -2180,7 +2180,7 @@ class MarkdownParser extends Parser
 			}
 
 			// Remove the link reference definition.
-			$content = substr($content, strlen($matches[0]));
+			$content = substr($content, \strlen($matches[0]));
 		}
 
 		$this->open[$o]['content'] = array_filter(explode("\n", $content), 'strlen');
@@ -2220,7 +2220,7 @@ class MarkdownParser extends Parser
 			foreach ($block['content'] as &$value) {
 				$this->parseInlines($value);
 			}
-		} elseif (in_array($block['type'], ['atx_heading', 'setext_heading', 'p', 'td'])) {
+		} elseif (\in_array($block['type'], ['atx_heading', 'setext_heading', 'p', 'td'])) {
 			$content = $this->parseInlineFirstPass($block['content']);
 			$content = $this->parseInlineSecondPass($content);
 
@@ -2245,7 +2245,7 @@ class MarkdownParser extends Parser
 		$code_delim = '';
 		$string_part = '';
 
-		for ($i = 0; $i < count($chars); $i++) {
+		for ($i = 0; $i < \count($chars); $i++) {
 			$char = $chars[$i];
 
 			switch ($char) {
@@ -2350,7 +2350,7 @@ class MarkdownParser extends Parser
 
 				default:
 					if ($escaped) {
-						if (!in_array($char, self::ESCAPEABLE)) {
+						if (!\in_array($char, self::ESCAPEABLE)) {
 							$string_part .= '\\';
 						}
 
@@ -2385,7 +2385,7 @@ class MarkdownParser extends Parser
 		$last_c = array_key_last($content);
 
 		foreach ($content as $c => $string) {
-			if (!is_string($string)) {
+			if (!\is_string($string)) {
 				$new_content[] = $string;
 				continue;
 			}
@@ -2396,7 +2396,7 @@ class MarkdownParser extends Parser
 			$escaped = false;
 			$string_part = '';
 
-			for ($i = 0; $i < count($chars); $i++) {
+			for ($i = 0; $i < \count($chars); $i++) {
 				$char = $chars[$i];
 
 				switch ($char) {
@@ -2485,7 +2485,7 @@ class MarkdownParser extends Parser
 								$temp = $temp[array_key_last($temp)]['content'];
 							}
 
-							if (is_string(end($temp['content']))) {
+							if (\is_string(end($temp['content']))) {
 								$prev_char = mb_substr(end($temp['content']), -1);
 							} else {
 								$prev_char = ' ';
@@ -2503,7 +2503,7 @@ class MarkdownParser extends Parser
 								$temp = $temp[0]['content'];
 							}
 
-							if (is_string(reset($temp['content']))) {
+							if (\is_string(reset($temp['content']))) {
 								$next_char = mb_substr(reset($temp['content']), 0, 1);
 							} else {
 								$next_char = ' ';
@@ -2522,7 +2522,7 @@ class MarkdownParser extends Parser
 						$can_open = $left_flanking && ($char === '*' || !$right_flanking || $prev_is_punct);
 						$can_close = $right_flanking && ($char === '*' || !$left_flanking || $next_is_punct);
 
-						$length = strlen($string_part);
+						$length = \strlen($string_part);
 
 						// Max length of strikethrough delimiter is two chars.
 						if ($char === '~' && $length > 2) {
@@ -2620,7 +2620,7 @@ class MarkdownParser extends Parser
 
 					default:
 						if ($escaped) {
-							if (!in_array($char, self::ESCAPEABLE)) {
+							if (!\in_array($char, self::ESCAPEABLE)) {
 								$string_part .= '\\';
 							}
 
@@ -2639,7 +2639,7 @@ class MarkdownParser extends Parser
 
 		// Change any remaining link/image delimiters into plain text.
 		foreach ($new_content as $key => $value) {
-			if (is_array($value) && in_array($value['type'], ['[', '!['])) {
+			if (\is_array($value) && \in_array($value['type'], ['[', '!['])) {
 				$new_content[$key] = $value['content'];
 			}
 		}
@@ -2660,12 +2660,12 @@ class MarkdownParser extends Parser
 		$new_content = array_values($new_content);
 
 		// Trim whitespace from the beginning of the paragraph.
-		if (is_string($new_content[0])) {
+		if (\is_string($new_content[0])) {
 			$new_content[0] = Utils::htmlTrimLeft($new_content[0]);
 		}
 
 		// Trim whitespace from the end of the paragraph.
-		if (is_string($new_content[array_key_last($new_content)])) {
+		if (\is_string($new_content[array_key_last($new_content)])) {
 			$new_content[array_key_last($new_content)] = Utils::htmlTrimRight($new_content[array_key_last($new_content)]);
 		}
 
@@ -2685,27 +2685,27 @@ class MarkdownParser extends Parser
 		for ($c = array_key_last($content); $c >= 0; $c--) {
 			if (
 				!isset($content[$c])
-				|| !is_array($content[$c])
-				|| !in_array($content[$c]['type'], ['[', '!['])
+				|| !\is_array($content[$c])
+				|| !\in_array($content[$c]['type'], ['[', '!['])
 			) {
 				continue;
 			}
 
 			$delim = &$content[$c];
 
-			$str = implode('', array_slice($chars, $delim['properties']['position'], $i - $delim['properties']['position'])) . ']' . mb_substr(implode('', $chars), $i + 1);
+			$str = implode('', \array_slice($chars, $delim['properties']['position'], $i - $delim['properties']['position'])) . ']' . mb_substr(implode('', $chars), $i + 1);
 
 			// Inline link/image?
 			if (preg_match('~^' . self::REGEX_LINK_INLINE . '~u', $str, $matches)) {
 				$this->parseEmphasis($content, $c);
 
-				$text = array_slice($content, $c + 1);
+				$text = \array_slice($content, $c + 1);
 				$this->amalgamateStrings($text);
 
 				$url = $this->extractLinkUrl($matches['destination'] ?? '');
 				$title = $this->extractLinkTitle($matches['title'] ?? '');
 
-				$content = array_slice($content, 0, $c);
+				$content = \array_slice($content, 0, $c);
 				$content[] = [
 					'type' => $delim['type'] === '![' ? 'image' : 'link',
 					'properties' => [
@@ -2744,13 +2744,13 @@ class MarkdownParser extends Parser
 			if (isset($this->link_reference_definitions[$label_content])) {
 				$this->parseEmphasis($content, $c);
 
-				$text = array_slice($content, $c + 1);
+				$text = \array_slice($content, $c + 1);
 				$this->amalgamateStrings($text);
 
 				$url = $this->link_reference_definitions[$label_content]['url'];
 				$title = $this->link_reference_definitions[$label_content]['title'];
 
-				$content = array_slice($content, 0, $c);
+				$content = \array_slice($content, 0, $c);
 				$content[] = [
 					'type' => $delim['type'] === '![' ? 'image' : 'link',
 					'properties' => [
@@ -2788,7 +2788,7 @@ class MarkdownParser extends Parser
 			$content = array_values($content);
 
 			foreach ($content as $key => $node) {
-				if (is_array($node) && in_array($node['type'], ['*', '_', '~'])) {
+				if (\is_array($node) && \in_array($node['type'], ['*', '_', '~'])) {
 					$content[$key]['properties']['active'] = true;
 				}
 			}
@@ -2808,8 +2808,8 @@ class MarkdownParser extends Parser
 					$node = current($content);
 
 					if (
-						is_array($node)
-						&& in_array($node['type'], ['*', '_', '~'])
+						\is_array($node)
+						&& \in_array($node['type'], ['*', '_', '~'])
 						&& $node['properties']['can_close']
 						&& $node['properties']['active']
 					) {
@@ -2820,8 +2820,8 @@ class MarkdownParser extends Parser
 				}
 
 				if (
-					is_array($node)
-					&& in_array($node['type'], ['*', '_', '~'])
+					\is_array($node)
+					&& \in_array($node['type'], ['*', '_', '~'])
 					&& $node['properties']['can_close']
 					&& $node['properties']['active']
 				) {
@@ -2853,7 +2853,7 @@ class MarkdownParser extends Parser
 					key($content) !== null
 					&& key($content) > $start_after
 					&& !(
-						is_array($node)
+						\is_array($node)
 						&& $node['type'] === $closer['type']
 						&& $node['properties']['can_open']
 						&& (
@@ -2863,7 +2863,7 @@ class MarkdownParser extends Parser
 					)
 				);
 
-				if (is_array($node) && key($content) > $start_after) {
+				if (\is_array($node) && key($content) > $start_after) {
 					$opener_key = key($content);
 					$opener = &$content[$opener_key];
 				} else {
@@ -2872,9 +2872,9 @@ class MarkdownParser extends Parser
 
 				// Build the new version of the content.
 				$max_length = min($opener['properties']['length'], $closer['properties']['length'], 2);
-				$enclosed = array_slice($content, $opener_key + 1, $closer_key - $opener_key - 1);
+				$enclosed = \array_slice($content, $opener_key + 1, $closer_key - $opener_key - 1);
 
-				$temp = array_slice($content, 0, $opener_key);
+				$temp = \array_slice($content, 0, $opener_key);
 
 				if ($opener['properties']['length'] > $max_length) {
 					$new_opener = $opener;
@@ -2886,7 +2886,7 @@ class MarkdownParser extends Parser
 				}
 
 				foreach ($enclosed as $k => $n) {
-					if (is_array($n) && in_array($n['type'], ['*', '_', '~'])) {
+					if (\is_array($n) && \in_array($n['type'], ['*', '_', '~'])) {
 						$enclosed[$k] = $n['content'];
 					}
 				}
@@ -2906,7 +2906,7 @@ class MarkdownParser extends Parser
 					$temp[] = $new_closer;
 				}
 
-				$content = array_values(array_merge($temp, array_slice($content, $closer_key + 1)));
+				$content = array_values(array_merge($temp, \array_slice($content, $closer_key + 1)));
 
 				// Move the internal pointer to position just after the closer.
 				reset($content);
@@ -2922,7 +2922,7 @@ class MarkdownParser extends Parser
 		}
 
 		foreach ($content as $key => $node) {
-			if (is_array($node) && in_array($node['type'], ['*', '_', '~'])) {
+			if (\is_array($node) && \in_array($node['type'], ['*', '_', '~'])) {
 				$content[$key] = $node['content'];
 			}
 		}
@@ -3003,7 +3003,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function extractLinkTitle(string $title = ''): string
 	{
-		if (strlen($title) < 2) {
+		if (\strlen($title) < 2) {
 			return $title;
 		}
 
@@ -3021,13 +3021,13 @@ class MarkdownParser extends Parser
 		$content = array_values($content);
 
 		for ($i = 0; $i <= array_key_last($content); $i++) {
-			if (!isset($content[$i]) || !is_string($content[$i])) {
+			if (!isset($content[$i]) || !\is_string($content[$i])) {
 				continue;
 			}
 
 			$c = $i;
 
-			while (isset($content[$i + 1]) && is_string($content[$i + 1])) {
+			while (isset($content[$i + 1]) && \is_string($content[$i + 1])) {
 				$content[$c] .= $content[++$i];
 				unset($content[$i]);
 			}
@@ -3052,7 +3052,7 @@ class MarkdownParser extends Parser
 	protected function render(array|string $element): void
 	{
 		// Is it a string?
-		if (is_string($element)) {
+		if (\is_string($element)) {
 			if ($this->output_type !== self::OUTPUT_BBC) {
 				$element = htmlspecialchars($element, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, Utils::$context['character_set'], false);
 
@@ -3072,7 +3072,7 @@ class MarkdownParser extends Parser
 		if (isset($this->render_methods[$element['type']])) {
 			$render_method = method_exists($this, $this->render_methods[$element['type']]) ? [$this, $this->render_methods[$element['type']]] : Utils::getCallable($this->render_methods[$element['type']]);
 
-			if (is_callable($render_method)) {
+			if (\is_callable($render_method)) {
 				$render_method($element);
 
 				if ($this->output_type === self::OUTPUT_BBC) {
@@ -3242,8 +3242,8 @@ class MarkdownParser extends Parser
 
 		// Don't bother with single paragraphs inside blockquotes.
 		if (
-			count($element['content']) === 1
-			&& is_array($element['content'][0])
+			\count($element['content']) === 1
+			&& \is_array($element['content'][0])
 			&& $element['content'][0]['type'] === 'p'
 		) {
 			$element['content'] = $element['content'][0]['content'];
@@ -3259,8 +3259,8 @@ class MarkdownParser extends Parser
 			if (
 				$this->rendered === Utils::htmlTrimRight($this->rendered)
 				&& $c !== array_key_last($element['content'])
-				&& is_string($element['content'][$c])
-				&& is_string($element['content'][$c + 1])
+				&& \is_string($element['content'][$c])
+				&& \is_string($element['content'][$c + 1])
 				&& $element['content'][$c + 1] === Utils::htmlTrimLeft($element['content'][$c + 1])
 			) {
 				$this->rendered .= ' ';
@@ -3400,8 +3400,8 @@ class MarkdownParser extends Parser
 
 		// Don't bother with single paragraphs inside list items.
 		if (
-			count($element['content']) === 1
-			&& is_array($element['content'][0])
+			\count($element['content']) === 1
+			&& \is_array($element['content'][0])
 			&& $element['content'][0]['type'] === 'p'
 		) {
 			$element['content'] = $element['content'][0]['content'];
@@ -3418,8 +3418,8 @@ class MarkdownParser extends Parser
 				}
 			} elseif (
 				$this->rendered === Utils::htmlTrimRight($this->rendered)
-				&& is_string($element['content'][$c])
-				&& is_string($element['content'][$c + 1])
+				&& \is_string($element['content'][$c])
+				&& \is_string($element['content'][$c + 1])
 				&& $element['content'][$c + 1] === Utils::htmlTrimLeft($element['content'][$c + 1])
 			) {
 				$this->rendered .= ' ';
@@ -3518,8 +3518,8 @@ class MarkdownParser extends Parser
 
 		// Don't bother with paragraphs inside headings.
 		if (
-			count($element['content']) === 1
-			&& is_array($element['content'][0])
+			\count($element['content']) === 1
+			&& \is_array($element['content'][0])
 			&& $element['content'][0]['type'] === 'p'
 		) {
 			$element['content'] = $element['content'][0]['content'];
@@ -3531,8 +3531,8 @@ class MarkdownParser extends Parser
 			if (
 				$this->rendered === Utils::htmlTrimRight($this->rendered)
 				&& $c !== array_key_last($element['content'])
-				&& is_string($element['content'][$c])
-				&& is_string($element['content'][$c + 1])
+				&& \is_string($element['content'][$c])
+				&& \is_string($element['content'][$c + 1])
 				&& $element['content'][$c + 1] === Utils::htmlTrimLeft($element['content'][$c + 1])
 			) {
 				$this->rendered .= ' ';
@@ -3694,7 +3694,7 @@ class MarkdownParser extends Parser
 			case self::OUTPUT_BBC:
 				$this->rendered .= '[td]';
 
-				if (in_array($element['properties']['align'], ['left', 'right', 'center'])) {
+				if (\in_array($element['properties']['align'], ['left', 'right', 'center'])) {
 					$this->rendered .= '[' . $element['properties']['align'] . 'text]';
 				}
 				break;
@@ -3708,7 +3708,7 @@ class MarkdownParser extends Parser
 			default:
 				$this->rendered .= '<' . $tag;
 
-				if (in_array($element['properties']['align'], ['left', 'right', 'center'])) {
+				if (\in_array($element['properties']['align'], ['left', 'right', 'center'])) {
 					$this->rendered .= ' style="text-align: ' . $element['properties']['align'] . '"';
 				}
 
@@ -3722,8 +3722,8 @@ class MarkdownParser extends Parser
 			if (
 				$this->rendered === Utils::htmlTrimRight($this->rendered)
 				&& $c !== array_key_last($element['content'])
-				&& is_string($element['content'][$c])
-				&& is_string($element['content'][$c + 1])
+				&& \is_string($element['content'][$c])
+				&& \is_string($element['content'][$c + 1])
 				&& $element['content'][$c + 1] === Utils::htmlTrimLeft($element['content'][$c + 1])
 			) {
 				$this->rendered .= ' ';
@@ -3732,7 +3732,7 @@ class MarkdownParser extends Parser
 
 		switch ($this->output_type) {
 			case self::OUTPUT_BBC:
-				if (in_array($element['properties']['align'], ['left', 'right', 'center'])) {
+				if (\in_array($element['properties']['align'], ['left', 'right', 'center'])) {
 					$this->rendered .= '[/' . $element['properties']['align'] . 'text]';
 				}
 
@@ -3772,8 +3772,8 @@ class MarkdownParser extends Parser
 			if (
 				$this->rendered === Utils::htmlTrimRight($this->rendered)
 				&& $c !== array_key_last($element['content'])
-				&& is_string($element['content'][$c])
-				&& is_string($element['content'][$c + 1])
+				&& \is_string($element['content'][$c])
+				&& \is_string($element['content'][$c + 1])
 				&& $element['content'][$c + 1] === Utils::htmlTrimLeft($element['content'][$c + 1])
 			) {
 				$this->rendered .= ' ';
@@ -3822,7 +3822,7 @@ class MarkdownParser extends Parser
 				break;
 
 			default:
-				$this->rendered .= '<a href="' . ($element['properties']['url'] ?? '') . '"' . (strlen($element['properties']['title'] ?? '') > 0 ? ' title="' . $element['properties']['title'] . '"' : '') . '>';
+				$this->rendered .= '<a href="' . ($element['properties']['url'] ?? '') . '"' . (\strlen($element['properties']['title'] ?? '') > 0 ? ' title="' . $element['properties']['title'] . '"' : '') . '>';
 				break;
 		}
 
@@ -3870,7 +3870,7 @@ class MarkdownParser extends Parser
 				break;
 
 			default:
-				$this->rendered .= '<img src="' . ($element['properties']['url'] ?? '') . '"' . (strlen($element['properties']['title'] ?? '') > 0 ? ' title="' . $element['properties']['title'] . '"' : '') . '>';
+				$this->rendered .= '<img src="' . ($element['properties']['url'] ?? '') . '"' . (\strlen($element['properties']['title'] ?? '') > 0 ? ' title="' . $element['properties']['title'] . '"' : '') . '>';
 				break;
 		}
 	}
@@ -4095,11 +4095,11 @@ class MarkdownParser extends Parser
 	 */
 	protected function getMethod(string|bool|null $method): callable|bool|null
 	{
-		if (is_null($method)) {
+		if (\is_null($method)) {
 			return null;
 		}
 
-		if (is_bool($method)) {
+		if (\is_bool($method)) {
 			return function (...$args) use ($method) {
 				return $method;
 			};

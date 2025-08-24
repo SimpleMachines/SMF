@@ -49,14 +49,14 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 	{
 		Sapi::setTimeLimit(MAX_CLAIM_THRESHOLD);
 
-		if (empty($this->_details['last_member_id']) || !is_int($this->_details['last_member_id'])) {
+		if (empty($this->_details['last_member_id']) || !\is_int($this->_details['last_member_id'])) {
 			$this->_details['last_member_id'] = 0;
 		}
 
 		// Just in case the column is missing for some reason...
 		if (
 			$this->_details['last_member_id'] === 0
-			&& !in_array('spoofdetector_name', Db::$db->list_columns('{db_prefix}members'))
+			&& !\in_array('spoofdetector_name', Db::$db->list_columns('{db_prefix}members'))
 		) {
 			Db::$db->add_column(
 				'{db_prefix}messages',

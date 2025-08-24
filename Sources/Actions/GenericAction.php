@@ -58,6 +58,6 @@ class GenericAction implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		call_user_func($this->current_action);
+		\call_user_func($this->current_action);
 	}
 }

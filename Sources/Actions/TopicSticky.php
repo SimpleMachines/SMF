@@ -49,7 +49,7 @@ class TopicSticky implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		if (isset($_GET['sa']) && in_array($_GET['sa'], ['sticky', 'nonsticky'])) {
+		if (isset($_GET['sa']) && \in_array($_GET['sa'], ['sticky', 'nonsticky'])) {
 			// Make sure the user can sticky it, and they are stickying *something*.
 			User::$me->isAllowedTo('make_sticky', Board::$info->id);
 

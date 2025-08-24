@@ -211,10 +211,10 @@ class Smileys implements ActionInterface
 
 		Utils::$context['smiley_sets'] = &self::$smiley_sets;
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -240,7 +240,7 @@ class Smileys implements ActionInterface
 					}
 
 					// Can't the default set or the only one remaining.
-					if (self::$smiley_sets[$id]['is_default'] || count(self::$smiley_sets) < 2) {
+					if (self::$smiley_sets[$id]['is_default'] || \count(self::$smiley_sets) < 2) {
 						continue;
 					}
 
@@ -392,7 +392,7 @@ class Smileys implements ActionInterface
 							continue;
 						}
 
-						if (in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank') {
+						if (\in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank') {
 							$smileys[Utils::convertCase($entry, 'fold')] = $entry;
 						}
 					}
@@ -422,7 +422,7 @@ class Smileys implements ActionInterface
 					}
 					Db::$db->free_result($request);
 
-					Utils::$context['current_set']['can_import'] = count($smileys);
+					Utils::$context['current_set']['can_import'] = \count($smileys);
 
 					Utils::$context['current_set']['import_url'] = Config::$scripturl . '?action=admin;area=smileys;sa=import;set=' . Utils::$context['current_set']['path'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 				}
@@ -435,11 +435,11 @@ class Smileys implements ActionInterface
 				$dir = dir(self::$smileys_dir);
 
 				while ($entry = $dir->read()) {
-					if (!in_array($entry, ['.', '..']) && is_dir(self::$smileys_dir . '/' . $entry)) {
+					if (!\in_array($entry, ['.', '..']) && is_dir(self::$smileys_dir . '/' . $entry)) {
 						Utils::$context['smiley_set_dirs'][] = [
 							'id' => $entry,
 							'path' => self::$smileys_dir . '/' . $entry,
-							'selectable' => $entry == Utils::$context['current_set']['path'] || !in_array($entry, explode(',', Config::$modSettings['smiley_sets_known'])),
+							'selectable' => $entry == Utils::$context['current_set']['path'] || !\in_array($entry, explode(',', Config::$modSettings['smiley_sets_known'])),
 							'current' => $entry == Utils::$context['current_set']['path'],
 						];
 					}
@@ -553,7 +553,7 @@ class Smileys implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['is_default'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$s]">', $rowData['path']);
+							return $rowData['is_default'] ? '' : \sprintf('<input type="checkbox" name="smiley_set[%1$s]">', $rowData['path']);
 						},
 						'class' => 'centercol',
 					],
@@ -662,7 +662,7 @@ class Smileys implements ActionInterface
 				// And make sure it is legitimate
 				$pathinfo = pathinfo($_POST['smiley_filename']);
 
-				if (!in_array($pathinfo['extension'], self::$allowed_extenions)) {
+				if (!\in_array($pathinfo['extension'], self::$allowed_extenions)) {
 					ErrorHandler::fatalLang('smileys_upload_error_types', false, [implode(', ', self::$allowed_extenions)]);
 				}
 
@@ -805,7 +805,7 @@ class Smileys implements ActionInterface
 						continue;
 					}
 
-					if (empty(Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])]) && in_array(strtolower($entry_info['extension']), self::$allowed_extenions)) {
+					if (empty(Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])]) && \in_array(strtolower($entry_info['extension']), self::$allowed_extenions)) {
 						Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])] = [
 							'id' => Utils::htmlspecialchars($entry),
 							'selected' => $entry_info['filename'] == 'smiley' && $smiley_set['path'] == Utils::$context['selected_set'],
@@ -1160,7 +1160,7 @@ class Smileys implements ActionInterface
 									if (
 										empty($rowData['filename_array'][$smiley_set['path']])
 										|| !file_exists(
-											sprintf(
+											\sprintf(
 												'%1$s/%2$s/%3$s',
 												self::$smileys_dir,
 												$smiley_set['path'],
@@ -1175,7 +1175,7 @@ class Smileys implements ActionInterface
 								$description = Utils::htmlspecialchars($rowData['description']);
 
 								if (!empty($missing_sets)) {
-									$description .= sprintf(
+									$description .= \sprintf(
 										'<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>',
 										Lang::getTxt('smileys_not_found_in_set', file: 'ManageSmileys'),
 										implode(', ', $missing_sets),
@@ -1337,7 +1337,7 @@ class Smileys implements ActionInterface
 					while ($entry = $dir->read()) {
 						if (
 							empty(Utils::$context['filenames'][$smiley_set['path']][$entry])
-							&& in_array(pathinfo($entry, PATHINFO_EXTENSION), self::$allowed_extenions)
+							&& \in_array(pathinfo($entry, PATHINFO_EXTENSION), self::$allowed_extenions)
 						) {
 							Utils::$context['filenames'][$smiley_set['path']][$entry] = [
 								'id' => Utils::htmlspecialchars($entry),
@@ -1472,7 +1472,7 @@ class Smileys implements ActionInterface
 				'id' => $location,
 				'title' => Lang::getTxt($location == 'postform' ? 'smileys_location_form' : 'smileys_location_popup', file: 'ManageSmileys'),
 				'description' => Lang::getTxt($location == 'postform' ? 'smileys_location_form_description' : 'smileys_location_popup_description', file: 'ManageSmileys'),
-				'last_row' => count(Utils::$context['smileys'][$location]['rows']),
+				'last_row' => \count(Utils::$context['smileys'][$location]['rows']),
 				'rows' => array_values(Utils::$context['smileys'][$location]['rows']),
 			];
 		}
@@ -1595,7 +1595,7 @@ class Smileys implements ActionInterface
 		if ($extracted && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 			foreach ($extracted as $file) {
 				if (basename($file['filename']) == 'package-info.xml') {
-					$base_path = dirname($file['filename']) . '/';
+					$base_path = \dirname($file['filename']) . '/';
 					break;
 				}
 			}
@@ -1611,7 +1611,7 @@ class Smileys implements ActionInterface
 
 		$smileyInfo = PackageUtils::getPackageInfo(Utils::$context['filename']);
 
-		if (!is_array($smileyInfo)) {
+		if (!\is_array($smileyInfo)) {
 			ErrorHandler::fatalLang($smileyInfo, false);
 		}
 
@@ -1670,7 +1670,7 @@ class Smileys implements ActionInterface
 
 				$file = Config::$packagesdir . '/temp/' . $base_path . $action['filename'];
 
-				if (isset($action['filename']) && (!file_exists($file) || !is_writable(dirname($action['destination'])))) {
+				if (isset($action['filename']) && (!file_exists($file) || !is_writable(\dirname($action['destination'])))) {
 					Utils::$context['has_failure'] = true;
 
 					$thisAction += [
@@ -1712,7 +1712,7 @@ class Smileys implements ActionInterface
 			foreach (Utils::$context['actions'] as $action) {
 				Config::updateModSettings([
 					'smiley_sets_known' => Config::$modSettings['smiley_sets_known'] . ',' . basename($action['action']),
-					'smiley_sets_names' => Config::$modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (count(Utils::$context['actions']) > 1 ? ' ' . (!empty($action['description']) ? Utils::htmlspecialchars($action['description']) : basename($action['action'])) : ''),
+					'smiley_sets_names' => Config::$modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (\count(Utils::$context['actions']) > 1 ? ' ' . (!empty($action['description']) ? Utils::htmlspecialchars($action['description']) : basename($action['action'])) : ''),
 				]);
 			}
 
@@ -1849,7 +1849,7 @@ class Smileys implements ActionInterface
 				}
 
 				// There is a 16 character limit on message icons...
-				if (strlen($_POST['icon_filename']) > 16) {
+				if (\strlen($_POST['icon_filename']) > 16) {
 					ErrorHandler::fatalLang('icon_name_too_long', false);
 				}
 
@@ -1942,9 +1942,9 @@ class Smileys implements ActionInterface
 				'icon' => [
 					'data' => [
 						'function' => function ($rowData) {
-							$images_url = Theme::$current->settings[file_exists(sprintf('%1$s/images/post/%2$s.png', Theme::$current->settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
+							$images_url = Theme::$current->settings[file_exists(\sprintf('%1$s/images/post/%2$s.png', Theme::$current->settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
 
-							return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], Utils::htmlspecialchars($rowData['title']));
+							return \sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], Utils::htmlspecialchars($rowData['title']));
 						},
 						'class' => 'centercol',
 					],
@@ -2199,7 +2199,7 @@ class Smileys implements ActionInterface
 	 */
 	public static function list_getNumSmileySets(): int
 	{
-		return count(explode(',', Config::$modSettings['smiley_sets_known']));
+		return \count(explode(',', Config::$modSettings['smiley_sets_known']));
 	}
 
 	/**
@@ -2345,7 +2345,7 @@ class Smileys implements ActionInterface
 				continue;
 			}
 
-			if (in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank' && strlen($pathinfo['basename']) <= 48) {
+			if (\in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank' && \strlen($pathinfo['basename']) <= 48) {
 				$smiley_files[strtolower($pathinfo['basename'])] = $pathinfo['basename'];
 			}
 		}
@@ -2577,7 +2577,7 @@ class Smileys implements ActionInterface
 		$path = realpath(self::$smileys_dir . DIRECTORY_SEPARATOR . $dir);
 
 		// Must be an immediate child directory of the base smileys directory.
-		if (dirname($path) !== realpath(self::$smileys_dir)) {
+		if (\dirname($path) !== realpath(self::$smileys_dir)) {
 			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 
@@ -2603,7 +2603,7 @@ class Smileys implements ActionInterface
 	 */
 	protected function validateImage(string $name, string $tmp_name): bool
 	{
-		return in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && Utils::checkMimeType($tmp_name, Utils::buildRegex(self::$allowed_mime_types, '~'), true);
+		return \in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && Utils::checkMimeType($tmp_name, Utils::buildRegex(self::$allowed_mime_types, '~'), true);
 	}
 
 	/**
@@ -2620,7 +2620,7 @@ class Smileys implements ActionInterface
 			ErrorHandler::fatalLang('smileys_upload_error_blank', false);
 		}
 
-		if (!is_uploaded_file($tmp_name) || (ini_get('open_basedir') == '' && !file_exists($tmp_name))) {
+		if (!is_uploaded_file($tmp_name) || (\ini_get('open_basedir') == '' && !file_exists($tmp_name))) {
 			ErrorHandler::fatalLang('smileys_upload_error', false);
 		}
 
@@ -2636,7 +2636,7 @@ class Smileys implements ActionInterface
 		$destination_name = basename($name);
 
 		// Make sure they aren't trying to upload a nasty file - for their own good here!
-		if (in_array(strtolower($destination_name), self::$illegal_files)) {
+		if (\in_array(strtolower($destination_name), self::$illegal_files)) {
 			ErrorHandler::fatalLang('smileys_upload_error_illegal', false);
 		}
 

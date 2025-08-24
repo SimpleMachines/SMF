@@ -42,7 +42,7 @@ class Likes extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return !in_array(Config::$db_prefix . 'user_likes', $tables);
+		return !\in_array(Config::$db_prefix . 'user_likes', $tables);
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Likes extends MigrationBase
 		$tables = Db::$db->list_tables();
 
 		// Creating draft table.
-		if ($start <= 0 && !in_array(Config::$db_prefix . 'user_likes', $tables)) {
+		if ($start <= 0 && !\in_array(Config::$db_prefix . 'user_likes', $tables)) {
 			$LikesTable->create();
 
 			$this->handleTimeout(++$start);

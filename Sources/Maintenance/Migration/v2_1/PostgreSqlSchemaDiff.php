@@ -126,7 +126,7 @@ class PostgreSqlSchemaDiff extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		while (Maintenance::getCurrentStart() < count($this->schema_fixes)) {
+		while (Maintenance::getCurrentStart() < \count($this->schema_fixes)) {
 			$fix = $this->schemaFixes[Maintenance::getCurrentStart()];
 
 			$this->query(

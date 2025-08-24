@@ -114,7 +114,7 @@ abstract class ToolsBase
 	 */
 	public function logProgress(mixed $message, bool $ongoing = false, bool $reset = false): void
 	{
-		if (!is_string($message)) {
+		if (!\is_string($message)) {
 			$message = print_r($message, true);
 		}
 
@@ -137,7 +137,7 @@ abstract class ToolsBase
 				] as $dir
 			) {
 				if (!file_exists($dir)) {
-					Utils::makeWritable(dirname($dir));
+					Utils::makeWritable(\dirname($dir));
 					@mkdir($dir, 0750);
 				}
 
@@ -199,7 +199,7 @@ abstract class ToolsBase
 	{
 		static $dbs = [];
 
-		if (count($dbs) > 0) {
+		if (\count($dbs) > 0) {
 			return $dbs;
 		}
 
@@ -309,7 +309,7 @@ abstract class ToolsBase
 			}
 
 			// Now just redirect to a blank.png...
-			header('location: http' . (Sapi::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+			header('location: http' . (Sapi::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . \dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		}
 	}
 
@@ -418,7 +418,7 @@ abstract class ToolsBase
 					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
 				}
 
-				list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+				list($username, $detect_path, $found_path) = $ftp->detect_path(\dirname(__FILE__));
 
 				if ($found_path || !isset(Maintenance::$context['chmod']['path'])) {
 					Maintenance::$context['chmod']['path'] = $detect_path;
@@ -435,7 +435,7 @@ abstract class ToolsBase
 			}
 
 			// We want to do a relative path for FTP.
-			if (!in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
+			if (!\in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
 				$ftp_root = strtr(Config::$boarddir, [Maintenance::$context['chmod']['path'] => '']);
 
 				if (substr($ftp_root, -1) == '/' && (Maintenance::$context['chmod']['path'] == '' || Maintenance::$context['chmod']['path'][0] === '/')) {
@@ -514,7 +514,7 @@ abstract class ToolsBase
 	final public function fixRelativePath(string $path): string
 	{
 		// Fix the . at the start, clear any duplicate slashes, and fix any trailing slash...
-		return addslashes(preg_replace(['~^\.([/\\\]|$)~', '~[/]+~', '~[\\\]+~', '~[/\\\]$~'], [dirname(SMF_SETTINGS_FILE) . '$1', '/', '\\', ''], $path));
+		return addslashes(preg_replace(['~^\.([/\\\]|$)~', '~[/]+~', '~[\\\]+~', '~[/\\\]$~'], [\dirname(SMF_SETTINGS_FILE) . '$1', '/', '\\', ''], $path));
 	}
 
 	/**

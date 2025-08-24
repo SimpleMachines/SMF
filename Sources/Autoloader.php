@@ -53,16 +53,17 @@ spl_autoload_register(function ($class) {
 
 	if (empty($boarddir) || !is_dir($boarddir)) {
 		if (isset($_SERVER['SCRIPT_NAME'])) {
-			$boarddir = dirname($_SERVER['SCRIPT_NAME']);
+			$boarddir = \dirname($_SERVER['SCRIPT_NAME']);
 		} elseif (!empty(debug_backtrace())) {
-			$boarddir = dirname(array_pop(debug_backtrace())['file']);
+			$bt = debug_backtrace();
+			$boarddir = \dirname(array_pop($bt)['file']);
 		} else {
-			$boarddir = dirname($sourcedir);
+			$boarddir = \dirname($sourcedir);
 		}
 	}
 
 	// Do any third-party scripts want in on the fun?
-	if (!defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
+	if (!\defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
 		if (!class_exists(IntegrationHook::class, false) && is_file($sourcedir . '/IntegrationHook.php')) {
 			require_once $sourcedir . '/IntegrationHook.php';
 		}
@@ -75,7 +76,7 @@ spl_autoload_register(function ($class) {
 
 	foreach ($class_map as $prefix => $dirname) {
 		// Does the class use the namespace prefix?
-		$len = strlen($prefix);
+		$len = \strlen($prefix);
 
 		if (strncmp($prefix, $class, $len) !== 0) {
 			continue;

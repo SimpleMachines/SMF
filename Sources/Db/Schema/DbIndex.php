@@ -76,9 +76,9 @@ class DbIndex
 		?string $name = null,
 	) {
 		foreach ($columns as $key => $column) {
-			if (is_string($column)) {
+			if (\is_string($column)) {
 				$this->columns[$key]['name'] = strtolower($column);
-			} elseif (is_array($column) && isset($column['name'])) {
+			} elseif (\is_array($column) && isset($column['name'])) {
 				$column['name'] = strtolower($column['name']);
 				$this->columns[$key] = $column;
 			}

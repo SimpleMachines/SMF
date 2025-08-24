@@ -183,7 +183,7 @@ class Sapi
 	 */
 	public static function supportsIsoCaseFolding(): bool
 	{
-		return ord(strtolower(chr(138))) === 154;
+		return \ord(strtolower(\chr(138))) === 154;
 	}
 
 	/**
@@ -256,7 +256,7 @@ class Sapi
 		}
 
 		// Determine if we should detect a restriction and what restrictions that may be.
-		$open_base_dir = ini_get('open_basedir');
+		$open_base_dir = \ini_get('open_basedir');
 		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
 
 		// Prevent any errors as we search.
@@ -270,11 +270,11 @@ class Sapi
 					break;
 
 				case 'session.save_path':
-					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
+					$possible_temp = rtrim(\ini_get('session.save_path'), '\\/');
 					break;
 
 				case 'upload_tmp_dir':
-					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
+					$possible_temp = rtrim(\ini_get('upload_tmp_dir'), '\\/');
 					break;
 
 				default:
@@ -323,7 +323,7 @@ class Sapi
 	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
 	{
 		// Everything in bytes.
-		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		$memory_needed = self::memoryReturnBytes($needed);
 
 		// Should we account for how much is currently being used?
@@ -334,7 +334,7 @@ class Sapi
 		// If more is needed, request it.
 		if ($memory_current < $memory_needed) {
 			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+			$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		}
 
 		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
@@ -351,13 +351,13 @@ class Sapi
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (is_integer($val)) {
+		if (\is_integer($val)) {
 			return (int) $val;
 		}
 
 		// Separate the number from the designator.
 		$val = trim($val);
-		$num = intval(substr($val, 0, strlen($val) - 1));
+		$num = \intval(substr($val, 0, \strlen($val) - 1));
 		$last = strtolower(substr($val, -1));
 
 		// Convert to bytes.
@@ -409,7 +409,7 @@ class Sapi
 	 */
 	public static function resetTimeout()
 	{
-		if (self::isSoftware(self::SERVER_APACHE) && function_exists('apache_reset_timeout')) {
+		if (self::isSoftware(self::SERVER_APACHE) && \function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
 			} catch (\Exception $e) {
@@ -533,7 +533,7 @@ class Sapi
 				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
 
 				if (isset($matches[0])) {
-					self::$cpu_count = min(count($matches[0]), 1);
+					self::$cpu_count = min(\count($matches[0]), 1);
 				}
 			}
 		} catch (\Exception $ex) {

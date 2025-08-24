@@ -401,7 +401,7 @@ class Menu implements \ArrayAccess
 			$id = self::$max_id;
 		}
 
-		if (!is_int($id)) {
+		if (!\is_int($id)) {
 			$to_delete = $id;
 		} else {
 			foreach (self::$loaded as $action => $menu) {

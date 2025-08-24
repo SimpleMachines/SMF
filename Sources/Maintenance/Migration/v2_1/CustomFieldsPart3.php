@@ -55,7 +55,7 @@ class CustomFieldsPart3 extends MigrationBase
 			$existing_structure = $table->getCurrentStructure();
 
 			foreach ($existing_structure['columns'] as $column) {
-				if (in_array($column['name'], $this->possible_columns)) {
+				if (\in_array($column['name'], $this->possible_columns)) {
 					$col = new Column(
 						name: $column['name'],
 						type: 'varchar',

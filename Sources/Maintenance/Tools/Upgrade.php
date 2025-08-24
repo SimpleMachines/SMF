@@ -590,7 +590,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle()]);
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle(), 'min_version' => Db::$db->getMinimumVersion()]);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -712,13 +712,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Confirm mbstring is loaded...
-		if (!extension_loaded('mbstring')) {
+		if (!\extension_loaded('mbstring')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_mbstring', file: 'Maintenance'));
 		}
 
 		// Confirm fileinfo is loaded...
-		if (!extension_loaded('fileinfo')) {
+		if (!\extension_loaded('fileinfo')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_fileinfo', file: 'Maintenance'));
 		}
@@ -726,7 +726,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Check for https stream support.
 		$supported_streams = stream_get_wrappers();
 
-		if (!in_array('https', $supported_streams)) {
+		if (!\in_array('https', $supported_streams)) {
 			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_https', file: 'Maintenance'));
 		}
@@ -819,8 +819,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$member_columns = Db::$db->list_columns('{db_prefix}members');
 
 		Maintenance::$context['karma_installed'] = [
-			'good' => in_array('karma_good', $member_columns),
-			'bad' => in_array('karma_bad', $member_columns),
+			'good' => \in_array('karma_good', $member_columns),
+			'bad' => \in_array('karma_bad', $member_columns),
 		];
 
 		unset($member_columns);
@@ -1031,7 +1031,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return !str_starts_with($table, 'backup_');
 		});
 
-		Maintenance::$total_substeps = count($table_names);
+		Maintenance::$total_substeps = \count($table_names);
 
 		// Template things.
 		Maintenance::$context['cur_table_name'] = $table_names[Maintenance::getCurrentSubStep()];
@@ -1252,7 +1252,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Delete all the obsolete settings.
 		foreach (Config::getSettingsDefs() as $var => $setting_def) {
-			if (is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
+			if (\is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
 				$file_settings[$var] = $setting_def['default'];
 			}
 		}
@@ -1469,13 +1469,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// String?
 		if (
 			!empty(Config::$modSettings['attachmentUploadDir'])
-			&& is_string(Config::$modSettings['attachmentUploadDir'])
+			&& \is_string(Config::$modSettings['attachmentUploadDir'])
 			&& is_dir(Config::$modSettings['attachmentUploadDir'])
 		) {
 			// OK...
 		}
 		// An array already?
-		elseif (is_array(Config::$modSettings['attachmentUploadDir'])) {
+		elseif (\is_array(Config::$modSettings['attachmentUploadDir'])) {
 			foreach (Config::$modSettings['attachmentUploadDir'] as $dir) {
 				if (!empty($dir) && !is_dir($dir)) {
 					$attach_directory_problem_found = true;
@@ -1484,7 +1484,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 		// Serialized?
 		elseif ($ser_test !== false) {
-			if (is_array($ser_test)) {
+			if (\is_array($ser_test)) {
 				foreach ($ser_test as $dir) {
 					if (!empty($dir) && !is_dir($dir)) {
 						$attach_directory_problem_found = true;
@@ -1498,7 +1498,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 		// JSON?  Note the test returns null if encoding was unsuccessful.
 		elseif ($json_test !== null) {
-			if (is_array($json_test)) {
+			if (\is_array($json_test)) {
 				foreach ($json_test as $dir) {
 					if (!is_dir($dir)) {
 						$attach_directory_problem_found = true;
@@ -1578,7 +1578,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	private function performSubsteps(array $substeps): void
 	{
-		Maintenance::$total_substeps = count($substeps);
+		Maintenance::$total_substeps = \count($substeps);
 
 		// We are preparing for templating.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
