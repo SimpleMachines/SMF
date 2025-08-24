@@ -3,7 +3,7 @@
 // Version: 3.0 Alpha 3; Drafts
 
 // profile
-$txt['drafts_show'] = 'Show drafts';
+$txt['drafts_show'] = 'Show Drafts';
 $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently have saved. From here you can edit them before posting, or you can remove them';
 
 // misc
