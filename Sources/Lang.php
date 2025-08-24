@@ -853,12 +853,12 @@ class Lang
 	 * Tokens take the form of '{key}', where 'key' is the key of some element
 	 * in the Lang::$txt array.
 	 *
-	 * @param string $string The string in which to make replacements.
+	 * @param string|int $string The string in which to make replacements.
 	 * @return string The updated string.
 	 */
-	public static function tokenTxtReplace(string $string = ''): string
+	public static function tokenTxtReplace(string|int $string = ''): string
 	{
-		return self::formatText($string, self::$txt);
+		return self::formatText((string) $string, self::$txt);
 	}
 
 	/**
