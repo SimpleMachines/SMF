@@ -1484,8 +1484,7 @@ function list_getNumMembers($where, $where_params = array())
 		SELECT COUNT(*)
 		FROM {db_prefix}members AS mem
 		WHERE ' . $where,
-		array_merge($where_params, array(
-		))
+		$where_params
 	);
 	list ($num_members) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
