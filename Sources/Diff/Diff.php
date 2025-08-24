@@ -442,6 +442,10 @@ abstract class Diff
 	 */
 	public function apply(string $str1, bool $dynamic_context = false): string
 	{
+		if (empty($this->changes)) {
+			return $str1;
+		}
+
 		$changes = $this->changes;
 
 		$lines = $this->splitLines($str1);

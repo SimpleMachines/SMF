@@ -4870,27 +4870,6 @@ class User implements \ArrayAccess
 			],
 		);
 
-		// Anonymize their name in the modified_name field of posts.
-		Db::$db->update_from(
-			table: [
-				'name' => '{db_prefix}messages',
-				'alias' => 'm',
-			],
-			from_tables: [
-				[
-					'name' => '{db_prefix}members',
-					'alias' => 'mem',
-					'condition' => 'm.modified_name = mem.real_name',
-				],
-			],
-			set: 'm.modified_name = {string:anonymous_name}',
-			where: 'mem.id_member = {int:member}',
-			db_values: [
-				'anonymous_name' => $anonymous_name,
-				'member' => $member,
-			],
-		);
-
 		// Anonymize their name in mentions within posts.
 		Db::$db->query(
 			'UPDATE {db_prefix}messages
@@ -4998,6 +4977,26 @@ class User implements \ArrayAccess
 				'guest_id' => 0,
 				'member' => $member,
 			],
+		);
+
+		// Anonymize their data in the edit history of posts.
+		// We do this via a background task because it might take a while.
+		Db::$db->insert(
+			'insert',
+			'{db_prefix}background_tasks',
+			[
+				'task_class' => 'string-255',
+				'task_data' => 'string',
+				'claimed_time' => 'int',
+			],
+			[
+				[
+					'SMF\\Tasks\\AnonymizeEditHistory',
+					json_encode(['id' => $member]),
+					0,
+				],
+			],
+			[],
 		);
 
 		// Do any mods want to anonymize some custom content?

@@ -116,6 +116,9 @@ class Forum
 		'dlattach' => [
 			'', Actions\AttachmentDownload::class,
 		],
+		'edithistory' => [
+			'', Actions\ShowMsgHistory::class,
+		],
 		'editpoll' => [
 			'', Actions\PollEdit::class,
 		],

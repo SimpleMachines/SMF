@@ -123,13 +123,16 @@ class LanguageDirectory extends MigrationBase
 				continue;
 			}
 
-			if (str_starts_with($variable, 'policy_updated_')) {
-				$locale = Lang::getLocaleFromLanguageName(substr($variable, 15));
-				$new_variable = isset($locale) ? 'policy_updated_' . $locale : $variable;
-			} else {
-				$locale = 'policy_' . Lang::getLocaleFromLanguageName(substr($variable, 7));
-				$new_variable = isset($locale) ? 'policy_' . $locale : $variable;
+			$temp = $variable;
+
+			while (
+				($locale = Lang::getLocaleFromLanguageName($temp)) === null
+				&& str_contains($temp, '_')
+			) {
+				$temp = substr($temp, (int) strpos($temp, '_') + 1);
 			}
+
+			$new_variable = isset($locale) ? substr($variable, 0, -\strlen($temp)) . $locale : $variable;
 
 			if ($variable !== $new_variable) {
 				Config::updateModSettings([
