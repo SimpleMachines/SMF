@@ -268,14 +268,6 @@ interface DatabaseApiInterface
 	public function is_resource(mixed $result): bool;
 
 	/**
-	 * Pings a server connection, and tries to reconnect if necessary.
-	 *
-	 * @param null|object $connection The connection object (if null, $db_connection is used)
-	 * @return bool True on success, or false on failure.
-	 */
-	public function ping(?object $connection = null): bool;
-
-	/**
 	 * Save errors in the database safely.
 	 *
 	 * $error_array must have the following keys in order:

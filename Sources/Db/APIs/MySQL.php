@@ -729,26 +729,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function ping(?object $connection = null): bool
-	{
-		try {
-			mysqli_query($connection ?? $this->connection, 'DO 1');
-		} catch (\Exception) {
-			// If we specified a connection, don't connect.
-			if ($connection !== null) {
-				return false;
-			}
-
-			// Try to restart, This is not fatal as we expect a boolean return.
-			$this->connect($this->user, $this->passwd, ['non_fatal' => true]);
-		}
-
-		return $this->connection !== null;
-	}
-
-	/**
-	 *
-	 */
 	public function error_insert(array $error_array): void
 	{
 		// Without a database we can't do anything.

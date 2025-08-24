@@ -730,14 +730,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function ping(?object $connection = null): bool
-	{
-		return pg_ping($connection ?? $this->connection);
-	}
-
-	/**
-	 *
-	 */
 	public function error_insert(array $error_array): void
 	{
 		// Without a database we can't do anything.
