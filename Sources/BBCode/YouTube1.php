@@ -18,7 +18,7 @@ namespace SMF\BBCode;
 /**
  * Represents the youtube BBCode.
  */
-class YouTube extends BBCode
+class YouTube1 extends BBCode
 {
 	/*******************
 	 * Public properties

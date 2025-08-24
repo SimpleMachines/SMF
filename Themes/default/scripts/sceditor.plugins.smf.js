@@ -810,11 +810,31 @@ sceditor.command.set(
 sceditor.command.set(
 	'youtube', {
 		exec: function (caller) {
-			var editor = this;
+			const editor = this;
 
-			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
-				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube-nocookie.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '" loading="lazy"></iframe></div></div>');
+			editor.commands.youtube._dropDown(editor, caller, function (id, start) {
+				if (typeof start !== "undefined" && start > 0) {
+					editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube-nocookie.com/embed/' + id + '?wmode=opaque&start=' + start + '" data-youtube-id="' + id + '" data-start="' + start + '" loading="lazy"></iframe></div></div>');
+				} else {
+					editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube-nocookie.com/embed/' + id + '?wmode=opaque" data-youtube-id="' + id + '" loading="lazy"></iframe></div></div>');
+				}
 			});
+		},
+		txtExec: function (caller) {
+			const editor = this;
+
+			editor.commands.youtube._dropDown(
+				editor,
+				caller,
+				function (id, start) {
+					if (typeof start !== "undefined" && start > 0) {
+						editor.insertText('[youtube start=' + start + ']' + id + '[/youtube]');
+					} else {
+						editor.insertText('[youtube]' + id + '[/youtube]');
+					}
+
+				}
+			);
 		}
 	}
 ).set(
@@ -1669,14 +1689,41 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		skipLastLineBreak: true,
 		format: function (element, content) {
-			youtube_id = $(element).find('iframe').data('youtube-id');
+			const
+				iframe = $(element).find('iframe'),
+				youtube_id = iframe.data('youtube-id');
+			let attribs = '';
+
+			if (iframe.attr('data-start')) {
+				attribs += " start=" + iframe.attr('data-start');
+			}
 
 			if (typeof youtube_id !== "undefined")
-				return '[youtube]' + youtube_id + '[/youtube]';
+				return '[youtube' + attribs + ']' + youtube_id + '[/youtube]';
 			else
 				return content;
 		},
-		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
+		html: function (token, attrs, content) {
+			const
+				id_match = /^[a-zA-Z0-9_\-]{11}$/g,
+				start = typeof attrs.start !== "undefined" ? attrs.start : 0;
+			let attribs = '';
+
+			if (content.match(id_match) === null || (start.length > 0 && !$.isNumeric(start) || Math.floor(start) != +start || +start <= 0)) {
+				if (attrs.start !== "undefined") {
+					attribs += " start=" + attrs.start;
+				}
+
+				return '[youtube' + attribs + ']' + content + '[/youtube]';
+			}
+
+			if (attrs.start !== "undefined") {
+				return '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque&start=' + attrs.start + '" data-youtube-id="' + content + '" data-start="' + attrs.start + '" loading="lazy" allowfullscreen></iframe></div></div>'
+			}
+			else {
+				return '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="' + content + '" loading="lazy" allowfullscreen></iframe></div></div>'
+			}
+		}
 	}
 );
 
