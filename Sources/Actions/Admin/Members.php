@@ -1457,8 +1457,7 @@ class Members implements ActionInterface
 			'SELECT COUNT(*)
 			FROM {db_prefix}members AS mem
 			WHERE ' . $where,
-			array_merge($where_params, [
-			]),
+			$where_params,
 		);
 		[$num_members] = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
