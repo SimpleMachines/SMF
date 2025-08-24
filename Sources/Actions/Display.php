@@ -344,7 +344,7 @@ class Display implements ActionInterface, Routable
 					$num = $since->format('%m');
 					$unit = 'month';
 				} elseif ($since->format('%a') > 14) {
-					$num = strval(intval(floor($since->format('%a') / 7)));
+					$num = \strval(\intval(floor($since->format('%a') / 7)));
 					$unit = 'week';
 				} else {
 					$num = $since->format('%a');
@@ -405,7 +405,7 @@ class Display implements ActionInterface, Routable
 	protected function checkPrevNextRedirect(): void
 	{
 		// Find the previous or next topic. But don't bother if there's only one.
-		if (isset($_REQUEST['prev_next']) && in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
+		if (isset($_REQUEST['prev_next']) && \in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
 			$prev = $_REQUEST['prev_next'] === 'prev';
 
 			// Just prepare some variables that are used in the query.
@@ -506,9 +506,9 @@ class Display implements ActionInterface, Routable
 	protected function setRobotNoIndex(): void
 	{
 		// Let's do some work on what to search index.
-		if (count($_GET) > 2) {
+		if (\count($_GET) > 2) {
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['topic', 'board', 'start', session_name()])) {
+				if (!\in_array($k, ['topic', 'board', 'start', session_name()])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -855,7 +855,7 @@ class Display implements ActionInterface, Routable
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -883,7 +883,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// The number of guests is equal to the rows minus the ones we actually used ;).
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 
 			Db::$db->free_result($request);
 
@@ -921,7 +921,7 @@ class Display implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
@@ -946,14 +946,14 @@ class Display implements ActionInterface, Routable
 			if (isset($_REQUEST['all'])) {
 				// No limit! (actually, there is a limit, but...)
 				Utils::$context['messages_per_page'] = -1;
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::getTxt('all', file: 'General'));
+				Utils::$context['page_index'] .= \sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::getTxt('all', file: 'General'));
 
 				// Set start back to 0...
 				$_REQUEST['start'] = 0;
 			}
 			// They aren't using it, but the *option* is there, at least.
 			else {
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::getTxt('all', file: 'General'));
+				Utils::$context['page_index'] .= \sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		}
 	}
@@ -984,7 +984,7 @@ class Display implements ActionInterface, Routable
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -1128,7 +1128,7 @@ class Display implements ActionInterface, Routable
 			if (!empty(Utils::$context['linked_calendar_events'])) {
 				Theme::loadTemplate('EventEditor');
 
-				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
+				Utils::$context['linked_calendar_events'][\count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
 	}
@@ -1324,7 +1324,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 
 		if (!empty(Utils::$context['icons'])) {
-			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
+			Utils::$context['icons'][\count(Utils::$context['icons']) - 1]['is_last'] = true;
 		}
 	}
 

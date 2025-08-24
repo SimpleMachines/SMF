@@ -65,7 +65,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public function isSupported(): bool
 	{
-		return function_exists('fsockopen');
+		return \function_exists('fsockopen');
 	}
 
 	/**
@@ -191,7 +191,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 		fputs($this->socket, 'Subject: ' . $subject . "\r\n");
 
-		if (strlen($to) > 0) {
+		if (\strlen($to) > 0) {
 			fputs($this->socket, 'To: <' . $to . '>' . "\r\n");
 		}
 
@@ -284,7 +284,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			 * 450 - DNS Routing issues
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
-			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
+			if ($response_code < 500 && !\in_array($response_code, [450, 451])) {
 				ErrorHandler::log(Lang::getTxt('smtp_error', file: 'General') . $server_response);
 			}
 
@@ -312,9 +312,9 @@ class SMTP extends MailAgent implements MailAgentInterface
 		}
 
 		// See if we can get the domain name from the host itself
-		if (function_exists('gethostname')) {
+		if (\function_exists('gethostname')) {
 			$helo = gethostname();
-		} elseif (function_exists('php_uname')) {
+		} elseif (\function_exists('php_uname')) {
 			$helo = php_uname('n');
 		}
 
@@ -337,7 +337,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			$helo = substr($helo, 4);
 		}
 
-		if (!function_exists('idn_to_ascii')) {
+		if (!\function_exists('idn_to_ascii')) {
 			require_once Config::$sourcedir . '/Subs-Compat.php';
 		}
 

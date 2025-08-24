@@ -80,7 +80,7 @@ class RecurringEvents extends MigrationBase
 				!isset($row['start_time'])
 				|| !isset($row['end_time'])
 				|| !isset($row['timezone'])
-				|| !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))
+				|| !\in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))
 			);
 
 			$start = new \DateTime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''));

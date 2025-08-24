@@ -68,6 +68,12 @@ function template_options()
 			'default' => true,
 		),
 		array(
+			'id' => 'show_no_censored',
+			'label' => Lang::getTxt('show_no_censored'),
+			'default' => false,
+			'enabled' => !empty(Config::$modSettings['allow_no_censored']),
+		),
+		array(
 			'id' => 'posts_apply_ignore_list',
 			'label' => Lang::getTxt('posts_apply_ignore_list', file: 'Profile'),
 			'default' => false,

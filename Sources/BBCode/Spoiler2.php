@@ -83,7 +83,7 @@ class Spoiler2 extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		if (strlen((string) $data) === 0) {
+		if (\strlen((string) $data) === 0) {
 			$data = Lang::getTxt('summary_default', var: 'editortxt');
 		}
 	}

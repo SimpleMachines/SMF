@@ -53,7 +53,7 @@ class CreateLogGroupRequests extends MigrationBase
 
 		foreach ($table->columns as $column) {
 			// Column exists, don't need to do this.
-			if (!in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
+			if (!\in_array($column->name, $this->newColumns) || isset($existing_structure['columns'][$column->name])) {
 				continue;
 			}
 

@@ -92,10 +92,10 @@ class Attachments implements ActionInterface
 	{
 		$this->init();
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -140,7 +140,7 @@ class Attachments implements ActionInterface
 					!empty($_POST['use_subdirectories_for_attachments'])
 					&& !empty(Config::$modSettings['attachment_basedirectories'])
 				) {
-					if (!is_array(Config::$modSettings['attachment_basedirectories'])) {
+					if (!\is_array(Config::$modSettings['attachment_basedirectories'])) {
 						Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 					}
 				} else {
@@ -150,17 +150,17 @@ class Attachments implements ActionInterface
 				if (
 					!empty($_POST['use_subdirectories_for_attachments'])
 					&& !empty($_POST['basedirectory_for_attachments'])
-					&& !in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories'])
+					&& !\in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories'])
 				) {
 					$currentAttachmentUploadDir = Config::$modSettings['currentAttachmentUploadDir'];
 
-					if (!in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachmentUploadDir'])) {
+					if (!\in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachmentUploadDir'])) {
 						if (!Attachment::automanageCreateDirectory($_POST['basedirectory_for_attachments'])) {
 							$_POST['basedirectory_for_attachments'] = Config::$modSettings['basedirectory_for_attachments'];
 						}
 					}
 
-					if (!in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories'])) {
+					if (!\in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories'])) {
 						Config::$modSettings['attachment_basedirectories'][Config::$modSettings['currentAttachmentUploadDir']] = $_POST['basedirectory_for_attachments'];
 
 						Config::updateModSettings([
@@ -287,29 +287,29 @@ class Attachments implements ActionInterface
 
 							// In case of a custom avatar URL attachments have a fixed directory.
 							if ($rowData['attachment_type'] == Attachment::TYPE_AVATAR) {
-								$link .= sprintf('%1$s/%2$s', Config::$modSettings['custom_avatar_url'], $rowData['filename']);
+								$link .= \sprintf('%1$s/%2$s', Config::$modSettings['custom_avatar_url'], $rowData['filename']);
 							}
 							// By default avatars are downloaded almost as attachments.
 							elseif (Utils::$context['browse_type'] == 'avatars') {
-								$link .= sprintf('%1$s?action=dlattach;type=avatar;attach=%2$d', Config::$scripturl, $rowData['id_attach']);
+								$link .= \sprintf('%1$s?action=dlattach;type=avatar;attach=%2$d', Config::$scripturl, $rowData['id_attach']);
 							}
 							// Normal attachments are always linked to a topic ID.
 							else {
-								$link .= sprintf('%1$s?action=dlattach;topic=%2$d.0;attach=%3$d', Config::$scripturl, $rowData['id_topic'], $rowData['id_attach']);
+								$link .= \sprintf('%1$s?action=dlattach;topic=%2$d.0;attach=%3$d', Config::$scripturl, $rowData['id_topic'], $rowData['id_attach']);
 							}
 
 							$link .= '"';
 
 							// Show a popup on click if it's a picture and we know its dimensions.
 							if (!empty($rowData['width']) && !empty($rowData['height'])) {
-								$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == Attachment::TYPE_AVATAR ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
+								$link .= \sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == Attachment::TYPE_AVATAR ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 							}
 
-							$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', Utils::htmlspecialchars($rowData['filename'])));
+							$link .= \sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', Utils::htmlspecialchars($rowData['filename'])));
 
 							// Show the dimensions.
 							if (!empty($rowData['width']) && !empty($rowData['height'])) {
-								$link .= sprintf(' <span class="smalltext">%1$dx%2$d</span>', $rowData['width'], $rowData['height']);
+								$link .= \sprintf(' <span class="smalltext">%1$dx%2$d</span>', $rowData['width'], $rowData['height']);
 							}
 
 							return $link;
@@ -346,7 +346,7 @@ class Attachments implements ActionInterface
 							}
 
 							// Otherwise it must be an avatar, return the link to the owner of it.
-							return sprintf('<a href="%1$s?action=profile;u=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_member'], $rowData['poster_name']);
+							return \sprintf('<a href="%1$s?action=profile;u=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_member'], $rowData['poster_name']);
 						},
 					],
 					'sort' => [
@@ -550,7 +550,7 @@ class Attachments implements ActionInterface
 
 		Utils::$context['attachment_current_files'] = Lang::numberFormat((int) $current_dir_files, 0);
 
-		Utils::$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
+		Utils::$context['attach_multiple_dirs'] = \count($attach_dirs) > 1 ? true : false;
 
 		Utils::$context['attach_dirs'] = $attach_dirs;
 
@@ -805,7 +805,7 @@ class Attachments implements ActionInterface
 						Utils::$context['repair_errors']['missing_thumbnail_parent']++;
 
 						// If we are repairing remove the file from disk now.
-						if ($fix_errors && in_array('missing_thumbnail_parent', $to_fix)) {
+						if ($fix_errors && \in_array('missing_thumbnail_parent', $to_fix)) {
 							$filename = Attachment::getFilePath((int) $row['id_attach']);
 							@unlink($filename);
 						}
@@ -818,7 +818,7 @@ class Attachments implements ActionInterface
 				Db::$db->free_result($result);
 
 				// Do we need to delete what we have?
-				if ($fix_errors && !empty($to_remove) && in_array('missing_thumbnail_parent', $to_fix)) {
+				if ($fix_errors && !empty($to_remove) && \in_array('missing_thumbnail_parent', $to_fix)) {
 					Db::$db->query(
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
@@ -879,7 +879,7 @@ class Attachments implements ActionInterface
 				Db::$db->free_result($result);
 
 				// Do we need to delete what we have?
-				if ($fix_errors && !empty($to_update) && in_array('parent_missing_thumbnail', $to_fix)) {
+				if ($fix_errors && !empty($to_update) && \in_array('parent_missing_thumbnail', $to_fix)) {
 					Db::$db->query(
 						'UPDATE {db_prefix}attachments
 						SET id_thumb = {int:no_thumb}
@@ -946,7 +946,7 @@ class Attachments implements ActionInterface
 									$errors_found[] = 'wrong_folder';
 
 									// Are we going to fix this now?
-									if ($fix_errors && in_array('wrong_folder', $to_fix)) {
+									if ($fix_errors && \in_array('wrong_folder', $to_fix)) {
 										Db::$db->query(
 											'UPDATE {db_prefix}attachments
 											SET id_folder = {int:new_folder}
@@ -971,7 +971,7 @@ class Attachments implements ActionInterface
 						$errors_found[] = 'file_size_of_zero';
 
 						// Fixing?
-						if ($fix_errors && in_array('file_size_of_zero', $to_fix)) {
+						if ($fix_errors && \in_array('file_size_of_zero', $to_fix)) {
 							$to_remove[] = $row['id_attach'];
 							@unlink($filename);
 						}
@@ -980,7 +980,7 @@ class Attachments implements ActionInterface
 						$errors_found[] = 'file_wrong_size';
 
 						// Fix it here?
-						if ($fix_errors && in_array('file_wrong_size', $to_fix)) {
+						if ($fix_errors && \in_array('file_wrong_size', $to_fix)) {
 							Db::$db->query(
 								'UPDATE {db_prefix}attachments
 								SET size = {int:filesize}
@@ -994,19 +994,19 @@ class Attachments implements ActionInterface
 					}
 				}
 
-				if (in_array('file_missing_on_disk', $errors_found)) {
+				if (\in_array('file_missing_on_disk', $errors_found)) {
 					$to_fix[] = 'file_missing_on_disk';
 				}
 
-				if (in_array('file_size_of_zero', $errors_found)) {
+				if (\in_array('file_size_of_zero', $errors_found)) {
 					$to_fix[] = 'file_size_of_zero';
 				}
 
-				if (in_array('file_wrong_size', $errors_found)) {
+				if (\in_array('file_wrong_size', $errors_found)) {
 					$to_fix[] = 'file_wrong_size';
 				}
 
-				if (in_array('wrong_folder', $errors_found)) {
+				if (\in_array('wrong_folder', $errors_found)) {
 					$to_fix[] = 'wrong_folder';
 				}
 
@@ -1076,7 +1076,7 @@ class Attachments implements ActionInterface
 					Utils::$context['repair_errors']['avatar_no_member']++;
 
 					// If we are repairing remove the file from disk now.
-					if ($fix_errors && in_array('avatar_no_member', $to_fix)) {
+					if ($fix_errors && \in_array('avatar_no_member', $to_fix)) {
 						if ($row['attachment_type'] == Attachment::TYPE_AVATAR) {
 							$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 						} else {
@@ -1093,7 +1093,7 @@ class Attachments implements ActionInterface
 				Db::$db->free_result($result);
 
 				// Do we need to delete what we have?
-				if ($fix_errors && !empty($to_remove) && in_array('avatar_no_member', $to_fix)) {
+				if ($fix_errors && !empty($to_remove) && \in_array('avatar_no_member', $to_fix)) {
 					Db::$db->query(
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
@@ -1157,7 +1157,7 @@ class Attachments implements ActionInterface
 					Utils::$context['repair_errors']['attachment_no_msg']++;
 
 					// If we are repairing remove the file from disk now.
-					if ($fix_errors && in_array('attachment_no_msg', $to_fix)) {
+					if ($fix_errors && \in_array('attachment_no_msg', $to_fix)) {
 						$filename = Attachment::getFilePath((int) $row['id_attach']);
 						@unlink($filename);
 					}
@@ -1169,7 +1169,7 @@ class Attachments implements ActionInterface
 				Db::$db->free_result($result);
 
 				// Do we need to delete what we have?
-				if ($fix_errors && !empty($to_remove) && in_array('attachment_no_msg', $to_fix)) {
+				if ($fix_errors && !empty($to_remove) && \in_array('attachment_no_msg', $to_fix)) {
 					Db::$db->query(
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
@@ -1202,7 +1202,7 @@ class Attachments implements ActionInterface
 			foreach ($attach_dirs as $attach_dir) {
 				if ($dir = @opendir($attach_dir)) {
 					while ($file = readdir($dir)) {
-						if (in_array($file, ['.', '..', '.htaccess', 'index.php'])) {
+						if (\in_array($file, ['.', '..', '.htaccess', 'index.php'])) {
 							continue;
 						}
 
@@ -1230,7 +1230,7 @@ class Attachments implements ActionInterface
 									);
 
 									if (Db::$db->num_rows($request) == 0) {
-										if ($fix_errors && in_array('files_without_attachment', $to_fix)) {
+										if ($fix_errors && \in_array('files_without_attachment', $to_fix)) {
 											@unlink($attach_dir . '/' . $file);
 										} else {
 											Utils::$context['repair_errors']['files_without_attachment']++;
@@ -1240,7 +1240,7 @@ class Attachments implements ActionInterface
 									Db::$db->free_result($request);
 								}
 							} else {
-								if ($fix_errors && in_array('files_without_attachment', $to_fix)) {
+								if ($fix_errors && \in_array('files_without_attachment', $to_fix)) {
 									@unlink($attach_dir . '/' . $file);
 								} else {
 									Utils::$context['repair_errors']['files_without_attachment']++;
@@ -1283,7 +1283,7 @@ class Attachments implements ActionInterface
 		// Since this needs to be done eventually.
 		if (!isset(Config::$modSettings['attachment_basedirectories'])) {
 			Config::$modSettings['attachment_basedirectories'] = [];
-		} elseif (!is_array(Config::$modSettings['attachment_basedirectories'])) {
+		} elseif (!\is_array(Config::$modSettings['attachment_basedirectories'])) {
 			Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 		}
 
@@ -1308,7 +1308,7 @@ class Attachments implements ActionInterface
 				// Sorry, these dirs are NOT valid
 				$invalid_dirs = [Config::$boarddir, Theme::$current->settings['default_theme_dir'], Config::$sourcedir];
 
-				if (in_array($path, $invalid_dirs)) {
+				if (\in_array($path, $invalid_dirs)) {
 					$errors[] = $path . ': ' . Lang::getTxt('attach_dir_invalid', file: 'Admin');
 
 					continue;
@@ -1316,9 +1316,9 @@ class Attachments implements ActionInterface
 
 				// Hmm, a new path maybe?
 				// Don't allow empty paths
-				if (!array_key_exists($id, Config::$modSettings['attachmentUploadDir']) && !empty($path)) {
+				if (!\array_key_exists($id, Config::$modSettings['attachmentUploadDir']) && !empty($path)) {
 					// or is it?
-					if (in_array($path, Config::$modSettings['attachmentUploadDir']) || in_array(Config::$boarddir . DIRECTORY_SEPARATOR . $path, Config::$modSettings['attachmentUploadDir'])) {
+					if (\in_array($path, Config::$modSettings['attachmentUploadDir']) || \in_array(Config::$boarddir . DIRECTORY_SEPARATOR . $path, Config::$modSettings['attachmentUploadDir'])) {
 						$errors[] = $path . ': ' . Lang::getTxt('attach_dir_duplicate_msg', file: 'Admin');
 
 						continue;
@@ -1350,7 +1350,7 @@ class Attachments implements ActionInterface
 					}
 
 					// Update the base directory path
-					if (!empty(Config::$modSettings['attachment_basedirectories']) && array_key_exists($id, Config::$modSettings['attachment_basedirectories'])) {
+					if (!empty(Config::$modSettings['attachment_basedirectories']) && \array_key_exists($id, Config::$modSettings['attachment_basedirectories'])) {
 						$base = Config::$modSettings['basedirectory_for_attachments'] == Config::$modSettings['attachmentUploadDir'][$id] ? $path : Config::$modSettings['basedirectory_for_attachments'];
 
 						Config::$modSettings['attachment_basedirectories'][$id] = $path;
@@ -1445,7 +1445,7 @@ class Attachments implements ActionInterface
 
 			// Find the current directory if there's no value carried,
 			if (empty($_POST['current_dir']) || empty($new_dirs[$_POST['current_dir']])) {
-				if (array_key_exists(Config::$modSettings['currentAttachmentUploadDir'], Config::$modSettings['attachmentUploadDir'])) {
+				if (\array_key_exists(Config::$modSettings['currentAttachmentUploadDir'], Config::$modSettings['attachmentUploadDir'])) {
 					$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 				} else {
 					$_POST['current_dir'] = max(array_keys(Config::$modSettings['attachmentUploadDir']));
@@ -1461,7 +1461,7 @@ class Attachments implements ActionInterface
 					|| isset(Config::$modSettings['last_attachments_directory'][0])
 				)
 			) {
-				if (!is_array(Config::$modSettings['last_attachments_directory'])) {
+				if (!\is_array(Config::$modSettings['last_attachments_directory'])) {
 					Config::$modSettings['last_attachments_directory'] = Utils::jsonDecode(Config::$modSettings['last_attachments_directory'], true);
 				}
 
@@ -1500,7 +1500,7 @@ class Attachments implements ActionInterface
 			}
 
 			// Going back to just one path?
-			if (count($new_dirs) == 1) {
+			if (\count($new_dirs) == 1) {
 				// We might need to reset the paths. This loop will just loop through once.
 				foreach ($new_dirs as $id => $dir) {
 					if ($id != 1) {
@@ -1592,7 +1592,7 @@ class Attachments implements ActionInterface
 
 				$current_dir = Config::$modSettings['currentAttachmentUploadDir'];
 
-				if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir'])) {
+				if (!\in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir'])) {
 					if (!Attachment::automanageCreateDirectory($_POST['new_base_dir'])) {
 						$errors[] = $_POST['new_base_dir'] . ': ' . Lang::getTxt('attach_dir_base_no_create', file: 'Admin');
 					}
@@ -1600,7 +1600,7 @@ class Attachments implements ActionInterface
 
 				Config::$modSettings['currentAttachmentUploadDir'] = array_search($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']);
 
-				if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachment_basedirectories'])) {
+				if (!\in_array($_POST['new_base_dir'], Config::$modSettings['attachment_basedirectories'])) {
 					Config::$modSettings['attachment_basedirectories'][Config::$modSettings['currentAttachmentUploadDir']] = $_POST['new_base_dir'];
 				}
 
@@ -1625,7 +1625,7 @@ class Attachments implements ActionInterface
 		}
 
 		if (isset($_SESSION['errors'])) {
-			if (is_array($_SESSION['errors'])) {
+			if (\is_array($_SESSION['errors'])) {
 				$errors = [];
 
 				if (!empty($_SESSION['errors']['dir'])) {
@@ -2081,7 +2081,7 @@ class Attachments implements ActionInterface
 		if (
 			empty(Config::$modSettings['attachment_basedirectories'])
 			&& Config::$modSettings['currentAttachmentUploadDir'] == 1
-			&& count(Config::$modSettings['attachmentUploadDir']) == 1
+			&& \count(Config::$modSettings['attachmentUploadDir']) == 1
 		) {
 			Lang::setTxt('attachmentUploadDir_path', Config::$modSettings['attachmentUploadDir'][1]);
 		}
@@ -2124,8 +2124,8 @@ class Attachments implements ActionInterface
 		$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 		// See if we can find if the server is set up to support the attachment limits
-		$post_max_kb = floor(Sapi::memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(Sapi::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(Sapi::memoryReturnBytes(\ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(Sapi::memoryReturnBytes(\ini_get('upload_max_filesize')) / 1024);
 
 		$config_vars = [
 			['title', 'attachment_manager_settings'],
@@ -2180,7 +2180,7 @@ class Attachments implements ActionInterface
 			(
 				empty(Config::$modSettings['attachment_basedirectories'])
 				&& Config::$modSettings['currentAttachmentUploadDir'] == 1
-				&& count(Config::$modSettings['attachmentUploadDir']) == 1
+				&& \count(Config::$modSettings['attachmentUploadDir']) == 1
 				? [
 					'var_message',
 					'attachmentUploadDir_path',
@@ -2517,7 +2517,7 @@ class Attachments implements ActionInterface
 			$is_base_dir = false;
 
 			if (!empty(Config::$modSettings['attachment_basedirectories'])) {
-				$is_base_dir = in_array($dir, Config::$modSettings['attachment_basedirectories']);
+				$is_base_dir = \in_array($dir, Config::$modSettings['attachment_basedirectories']);
 
 				// Count any sub-folders.
 				foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub) {
@@ -2634,7 +2634,7 @@ class Attachments implements ActionInterface
 
 		while ($file = $dir_handle->read()) {
 			// Now do we have a real file here?
-			if (in_array($file, ['.', '..', '.htaccess', 'index.php'])) {
+			if (\in_array($file, ['.', '..', '.htaccess', 'index.php'])) {
 				continue;
 			}
 

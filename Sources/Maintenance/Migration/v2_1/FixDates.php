@@ -174,7 +174,7 @@ class FixDates extends MigrationBase
 			['tbl' => '{db_prefix}members', 'col' => 'birthdate'],
 		];
 
-		for ($key = Maintenance::getCurrentStart(); $key < count($fixes); Maintenance::setCurrentStart()) {
+		for ($key = Maintenance::getCurrentStart(); $key < \count($fixes); Maintenance::setCurrentStart()) {
 			$fix = $fixes[$key - 7];
 
 			Db::$db->change_column($fix['tbl'], $fix['col'], ['default' => '1004-01-01']);

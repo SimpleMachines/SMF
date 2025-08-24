@@ -34,100 +34,35 @@ class QueryString
 	 *
 	 * Classes listed in this array must implement the Routable interface.
 	 *
+	 * At runtime, the names and classes of one or more routable actions may be
+	 * added to this list.
+	 *
 	 * MOD AUTHORS: To add a new route parser to this list for a custom action
 	 * or content type, use the integrate_route_parsers hook.
 	 */
 	public static array $route_parsers = [
-		'about:unknown'			=> Actions\Unknown::class,
-		'acceptagreement'		=> Actions\AgreementAccept::class,
-		'accepttermsofservice'	=> Actions\AgreementAccept::class,
-		'activate'				=> Actions\Activate::class,
-		'admin'					=> Actions\Admin\Main::class,
-		'agreement'				=> Actions\Agreement::class,
-		'announce'				=> Actions\Announce::class,
-		'attachapprove'			=> Actions\AttachmentApprove::class,
-		'board'					=> Board::class,
-		'boardindex'			=> Actions\BoardIndex::class,
-		'boards'				=> Board::class,
-		'buddy'					=> Actions\BuddyListToggle::class,
-		'calendar'				=> Actions\Calendar::class,
-		'clock'					=> Actions\Calendar::class,
-		'coppa'					=> Actions\CoppaForm::class,
-		'credits'				=> Actions\Credits::class,
-		'deletemsg'				=> Actions\MsgDelete::class,
-		'display'				=> Actions\Display::class,
-		'dlattach'				=> Actions\AttachmentDownload::class,
-		'editpoll'				=> Actions\PollEdit::class,
-		'editpoll2'				=> Actions\PollEdit2::class,
-		'feed'					=> Actions\Feed::class,
-		'groups'				=> Actions\Groups::class,
-		'help'					=> Actions\Help::class,
-		'helpadmin'				=> Actions\HelpAdmin::class,
-		'jsmodify'				=> Actions\JavaScriptModify::class,
-		'jsoption'				=> Actions\ThemeSetOption::class,
-		'likes'					=> Actions\Like::class,
-		'lock'					=> Actions\TopicLock::class,
-		'lockvoting'			=> Actions\PollLock::class,
-		'login'					=> Actions\Login::class,
-		'login2'				=> Actions\Login2::class,
-		'logintfa'				=> Actions\LoginTFA::class,
-		'logout'				=> Actions\Logout::class,
-		'markasread'			=> Actions\MarkRead::class,
-		'mergetopics'			=> Actions\TopicMerge::class,
-		'messageindex'			=> Actions\MessageIndex::class,
-		'mlist'					=> Actions\Memberlist::class,
-		'members'				=> Actions\Profile\Main::class,
-		'member'				=> Actions\Profile\Main::class,
-		'moderate'				=> Actions\Moderation\Main::class,
-		'modifycat'				=> Actions\Admin\Main::class,
-		'movetopic'				=> Actions\TopicMove::class,
-		'movetopic2'			=> Actions\TopicMove2::class,
-		'msg'					=> Msg::class,
-		'msgs'					=> Msg::class,
-		'notifyannouncements'	=> Actions\NotifyAnnouncements::class,
-		'notifyboard'			=> Actions\NotifyBoard::class,
-		'notifytopic'			=> Actions\NotifyTopic::class,
-		'pm'					=> Actions\PersonalMessage::class,
-		'post'					=> Actions\Post::class,
-		'post2'					=> Actions\Post2::class,
-		'printpage'				=> Actions\TopicPrint::class,
-		'profile'				=> Actions\Profile\Main::class,
-		'quickmod'				=> Actions\QuickModeration::class,
-		'quickmod2'				=> Actions\QuickModerationInTopic::class,
-		'quotefast'				=> Actions\QuoteFast::class,
-		'recent'				=> Actions\Recent::class,
-		'reminder'				=> Actions\Reminder::class,
-		'removepoll'			=> Actions\PollRemove::class,
-		'removetopic2'			=> Actions\TopicRemove::class,
-		'reporttm'				=> Actions\ReportToMod::class,
-		'restoretopic'			=> Actions\TopicRestore::class,
-		'search'				=> Actions\Search::class,
-		'search2'				=> Actions\Search2::class,
-		'sendactivation'		=> Actions\SendActivation::class,
-		'signup'				=> Actions\Register::class,
-		'signup2'				=> Actions\Register2::class,
-		'smstats'				=> Actions\SmStats::class,
-		'splittopics'			=> Actions\TopicSplit::class,
-		'stats'					=> Actions\Stats::class,
-		'sticky'				=> Actions\TopicSticky::class,
-		'suggest'				=> Actions\AutoSuggest::class,
-		'termsofservice'		=> Actions\Agreement::class,
-		'themechooser'			=> Actions\ThemeChooser::class,
-		'topic'					=> Topic::class,
-		'topics'				=> Topic::class,
-		'trackip'				=> Actions\TrackIP::class,
-		'unread'				=> Actions\Unread::class,
-		'unreadreplies'			=> Actions\UnreadReplies::class,
-		'uploadAttach'			=> Actions\AttachmentUpload::class,
-		'users'					=> Actions\Profile\Main::class,
-		'user'					=> Actions\Profile\Main::class,
-		'verificationcode'		=> Actions\VerificationCode::class,
-		'viewprofile'			=> Actions\Profile\Main::class,
-		'viewquery'				=> Actions\ViewQuery::class,
-		'viewsmfile'			=> Actions\DisplayAdminFile::class,
-		'vote'					=> Actions\PollVote::class,
-		'who'					=> Actions\Who::class,
-		'xmlhttp'				=> Actions\XmlHttp::class,
+		// 'msgs' is canonical, but we also accept 'msg'.
+		'msgs' => Msg::class,
+		'msg'  => Msg::class,
+
+		// 'topics' is canonical, but we also accept 'topic'.
+		'topics' => Topic::class,
+		'topic'  => Topic::class,
+
+		// 'boards' is canonical, but we also accept 'board'.
+		'boards' => Board::class,
+		'board'  => Board::class,
+
+		// 'members' is canonical, but we also accept 'member', 'users', and 'user'.
+		'members' => Actions\Profile\Main::class,
+		'member'  => Actions\Profile\Main::class,
+		'users'   => Actions\Profile\Main::class,
+		'user'    => Actions\Profile\Main::class,
+
+		// Special case: the agreement action uses an alternate name when routed
+		// in order to avoid a naming conflict with the agreement.txt file.
+		'termsofservice'       => Actions\Agreement::class,
+		'accepttermsofservice' => Actions\AgreementAccept::class,
 	];
 
 	/***********************
@@ -180,7 +115,7 @@ class QueryString
 		}
 
 		// Are we going to need to parse the ; out?
-		if (!str_contains(ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
+		if (!str_contains(\ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
 			// Get rid of the old one! You don't know where it's been!
 			$_GET = [];
 
@@ -190,14 +125,14 @@ class QueryString
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
-		} elseif (str_contains(ini_get('arg_separator.input'), ';')) {
+		} elseif (str_contains(\ini_get('arg_separator.input'), ';')) {
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
 			foreach ($_GET as $k => $v) {
 				if ((string) $v === $v && str_contains($k, ';')) {
 					$temp = explode(';', $v);
 					$_GET[$k] = $temp[0];
 
-					for ($i = 1, $n = count($temp); $i < $n; $i++) {
+					for ($i = 1, $n = \count($temp); $i < $n; $i++) {
 						@list($key, $val) = @explode('=', $temp[$i], 2);
 
 						if (!isset($_GET[$key])) {
@@ -214,9 +149,6 @@ class QueryString
 			}
 		}
 
-		// Let mods add new route parsers to self::$route_parsers.
-		IntegrationHook::call('integrate_route_parsers');
-
 		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
 		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
 
@@ -226,7 +158,7 @@ class QueryString
 		}
 
 		// Add entities to GET.  This is kinda like the slashes on everything else.
-		$_GET = Utils::htmlspecialcharsRecursive($_GET);
+		$_GET = Utils::htmlspecialcharsRecursive($_GET, ENT_QUOTES);
 
 		// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 		$_REQUEST = $_POST + $_GET;
@@ -402,9 +334,9 @@ class QueryString
 		$matched = false;
 
 		if (isset($_REQUEST[$var], $value_list[$_REQUEST[$var]])) {
-			if (is_array($value_list[$_REQUEST[$var]])) {
+			if (\is_array($value_list[$_REQUEST[$var]])) {
 				foreach ($value_list[$_REQUEST[$var]] as $subvar => $subvalues) {
-					$matched |= isset($_REQUEST[$subvar]) && in_array($_REQUEST[$subvar], $subvalues);
+					$matched |= isset($_REQUEST[$subvar]) && \in_array($_REQUEST[$subvar], $subvalues);
 				}
 			} else {
 				$matched = true;
@@ -439,7 +371,7 @@ class QueryString
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
 				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
+				|| \ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
@@ -505,6 +437,38 @@ class QueryString
 	}
 
 	/**
+	 * Gets the fully qualified name of a class that can build and parse routes
+	 * for the given route base.
+	 *
+	 * @param string $route_base The first element of a virtual route path.
+	 * @return ?string Name of a class that implements the Routable interface,
+	 *    or null if there is no class that can handle the $route_base value.
+	 */
+	public static function getRouteParser(string $route_base): ?string
+	{
+		// Let mods add new route parsers to self::$route_parsers.
+		IntegrationHook::call('integrate_route_parsers');
+
+		// If we don't yet have a route parser for $route_base, try to find one.
+		if (!isset(self::$route_parsers[$route_base])) {
+			// Are we dealing with an action that has been renamed?
+			if (isset(Forum::$renamed_actions[$route_base])) {
+				$route_base = Forum::$renamed_actions[$route_base];
+			}
+
+			// If $route_base is the name of a routable action, return the action's class.
+			if (
+				!empty(Forum::$actions[$route_base][1])
+				&& method_exists(Forum::$actions[$route_base][1], 'parseRoute')
+			) {
+				self::$route_parsers[$route_base] = Forum::$actions[$route_base][1];
+			}
+		}
+
+		return self::$route_parsers[$route_base] ?? null;
+	}
+
+	/**
 	 * Builds a routing path based on URL query parameters.
 	 *
 	 * @param array|string $params URL query, as a string or array of parameters.
@@ -512,7 +476,7 @@ class QueryString
 	 */
 	public static function buildRoute(array|string $params): string
 	{
-		if (is_string($params)) {
+		if (\is_string($params)) {
 			$params = strtr(ltrim($params, '?'), ';', '&');
 			parse_str($params, $temp);
 
@@ -533,11 +497,9 @@ class QueryString
 
 		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
 
-		if (
-			isset($route_base, self::$route_parsers[$route_base])
-			&& method_exists(self::$route_parsers[$route_base], 'buildRoute')
-		) {
-			extract(call_user_func(self::$route_parsers[$route_base] . '::buildRoute', $params));
+		if (\is_string(self::getRouteParser($route_base))) {
+			// This call to extract will set new values of $route and $params.
+			extract(\call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
 		}
 
 		$route = !empty($route) ? '/' . implode('/', $route) : '';
@@ -575,16 +537,8 @@ class QueryString
 
 		$route = explode('/', trim($path, '/'));
 
-		// If the action has been renamed, update it to the correct name.
-		if (
-			isset(Forum::$renamed_actions[$route[0]])
-			&& !isset(self::$route_parsers[$route[0]])
-		) {
-			$route[0] = Forum::$renamed_actions[$route[0]];
-		}
-
-		if (isset(self::$route_parsers[$route[0]])) {
-			$new_params = call_user_func(self::$route_parsers[$route[0]] . '::parseRoute', $route);
+		if (\is_string(self::getRouteParser($route[0]))) {
+			$new_params = \call_user_func(self::getRouteParser($route[0]) . '::parseRoute', $route);
 		} else {
 			// Maintain support for the pre-3.0 form of queryless URLs.
 			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', $path), '/', '&')), 1), $new_params);

@@ -206,10 +206,10 @@ class Post implements ActionInterface, Routable
 		// Allow mods to add new sub-actions.
 		IntegrationHook::call('integrate_post_subactions', [&self::$subactions]);
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -278,7 +278,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['move'] = !empty($_REQUEST['move']);
 		Utils::$context['announce'] = !empty($_REQUEST['announce']);
 		Utils::$context['locked'] = !empty($this->locked) || !empty($_REQUEST['lock']);
-		Utils::$context['can_quote'] = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		Utils::$context['can_quote'] = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		// An array to hold all the attachments for this topic.
 		Utils::$context['current_attachments'] = [];
@@ -434,7 +434,7 @@ class Post implements ActionInterface, Routable
 	{
 		$params['action'] = array_shift($route);
 
-		if (!empty($route) && in_array($route[0], self::$subactions)) {
+		if (!empty($route) && \in_array($route[0], self::$subactions)) {
 			$params['sa'] = array_shift($route);
 		}
 
@@ -537,7 +537,7 @@ class Post implements ActionInterface, Routable
 				'timestamp' => $row['poster_time'],
 				'id' => $row['id_msg'],
 				'is_new' => !empty(Utils::$context['new_replies']),
-				'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($row['id_member'], User::$me->ignoreusers),
+				'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($row['id_member'], User::$me->ignoreusers),
 			];
 
 			if (!empty(Utils::$context['new_replies'])) {
@@ -588,7 +588,7 @@ class Post implements ActionInterface, Routable
 
 			// Get a list of boards for the select menu
 			$boardListOptions = [
-				'included_boards' => in_array(0, $this->boards) ? null : $this->boards,
+				'included_boards' => \in_array(0, $this->boards) ? null : $this->boards,
 				'not_redirection' => true,
 				'use_permissions' => true,
 				'selected_board' => !empty(Board::$info->id) ? Board::$info->id : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $this->boards[0]),
@@ -854,7 +854,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (\count(Utils::$context['event']->byday_items) - 1));
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
 		Utils::$context['event']->board = !empty(Utils::$context['event']->board) ? Utils::$context['event']->board : (Board::$info->id ?? (int) Config::$modSettings['cal_defaultboard']);
@@ -899,9 +899,7 @@ class Post implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			Lang::setTxt('error_new_replies', Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']], file: 'Post'));
-
-			$this->errors[] = 'new_replies';
+			$this->errors[] = ['new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), Utils::$context['new_replies']];
 
 			Config::$modSettings['topicSummaryPosts'] = Utils::$context['new_replies'] > Config::$modSettings['topicSummaryPosts'] ? max(Config::$modSettings['topicSummaryPosts'], 5) : Config::$modSettings['topicSummaryPosts'];
 		}
@@ -972,7 +970,7 @@ class Post implements ActionInterface, Routable
 			Utils::$context['choices'] = [];
 			$choice_id = 0;
 
-			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options']);
+			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options'], ENT_QUOTES);
 
 			foreach ($_POST['options'] as $option) {
 				if (trim($option) == '') {
@@ -995,7 +993,7 @@ class Post implements ActionInterface, Routable
 				'is_last' => false,
 			];
 
-			if (count(Utils::$context['choices']) < 2) {
+			if (\count(Utils::$context['choices']) < 2) {
 				Utils::$context['choices'][] = [
 					'id' => $choice_id++,
 					'number' => $choice_id,
@@ -1004,7 +1002,7 @@ class Post implements ActionInterface, Routable
 				];
 			}
 			Utils::$context['last_choice_id'] = $choice_id;
-			Utils::$context['choices'][count(Utils::$context['choices']) - 1]['is_last'] = true;
+			Utils::$context['choices'][\count(Utils::$context['choices']) - 1]['is_last'] = true;
 		}
 
 		// Are you... a guest?
@@ -1291,7 +1289,7 @@ class Post implements ActionInterface, Routable
 			if (str_contains($this->form_message, '[html]')) {
 				$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $this->form_message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-				for ($i = 0, $n = count($parts); $i < $n; $i++) {
+				for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0) {
 						$parts[$i] = preg_replace_callback(
@@ -1360,7 +1358,7 @@ class Post implements ActionInterface, Routable
 
 			// If this isn't a new post, check the current attachments.
 			if (isset($_REQUEST['msg'])) {
-				Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+				Utils::$context['attachments']['quantity'] = \count(Utils::$context['current_attachments']);
 
 				foreach (Utils::$context['current_attachments'] as $attachment) {
 					Utils::$context['attachments']['total_size'] += $attachment['size'];
@@ -1368,7 +1366,7 @@ class Post implements ActionInterface, Routable
 			}
 
 			// A bit of house keeping first.
-			if (!empty($_SESSION['temp_attachments']) && count($_SESSION['temp_attachments']) == 1) {
+			if (!empty($_SESSION['temp_attachments']) && \count($_SESSION['temp_attachments']) == 1) {
 				unset($_SESSION['temp_attachments']);
 			}
 
@@ -1454,7 +1452,7 @@ class Post implements ActionInterface, Routable
 					if ($attachID == 'initial_error') {
 						Lang::setTxt(
 							'error_attach_initial_error',
-							Lang::getTxt('attach_no_upload', file: 'Post') . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</div>',
+							Lang::getTxt('attach_no_upload', file: 'Post') . '<div style="padding: 0 1em;">' . (\is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</div>',
 						);
 
 						$this->errors[] = 'attach_initial_error';
@@ -1471,7 +1469,7 @@ class Post implements ActionInterface, Routable
 						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment, file: 'Post') . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1], file: 'Post') : Lang::getTxt($error, file: 'Post')) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (\is_array($error) ? Lang::getTxt($error[0], (array) $error[1], file: 'Post') : Lang::getTxt($error, file: 'Post')) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1679,20 +1677,20 @@ class Post implements ActionInterface, Routable
 		Utils::$context['error_type'] = 'minor';
 
 		foreach ($this->errors as $post_error) {
-			if (is_array($post_error)) {
+			if (\is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
 				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1], file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error_id, $this->minor_errors)) {
+				if (!\in_array($post_error_id, $this->minor_errors)) {
 					Utils::$context['error_type'] = 'serious';
 				}
 			} else {
 				Utils::$context['post_error'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error, $this->minor_errors)) {
+				if (!\in_array($post_error, $this->minor_errors)) {
 					Utils::$context['error_type'] = 'serious';
 				}
 			}
@@ -1746,7 +1744,7 @@ class Post implements ActionInterface, Routable
 		// Are post drafts enabled?
 		Utils::$context['drafts_type'] = 'post';
 		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->allowedTo('post_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && User::$me->allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build a list of drafts that they can load in to the editor
 		if (!empty(Utils::$context['drafts_save'])) {
@@ -1790,7 +1788,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['icons'] = Editor::getMessageIcons(!empty(Board::$info->id) ? Board::$info->id : 0);
 
 		if (!empty(Utils::$context['icons'])) {
-			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
+			Utils::$context['icons'][\count(Utils::$context['icons']) - 1]['is_last'] = true;
 		}
 
 		// Are we starting a poll? if set the poll icon as selected if its available
@@ -1806,7 +1804,7 @@ class Post implements ActionInterface, Routable
 
 		Utils::$context['icon_url'] = '';
 
-		for ($i = 0, $n = count(Utils::$context['icons']); $i < $n; $i++) {
+		for ($i = 0, $n = \count(Utils::$context['icons']); $i < $n; $i++) {
 			Utils::$context['icons'][$i]['selected'] = Utils::$context['icon'] == Utils::$context['icons'][$i]['value'];
 
 			if (Utils::$context['icons'][$i]['selected']) {

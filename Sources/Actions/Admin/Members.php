@@ -207,7 +207,7 @@ class Members implements ActionInterface
 			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
 		} elseif (isset($this->subaction)) {
 			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
-				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
+				if (!empty($tab_data['selected_actions']) && \in_array($this->subaction, $tab_data['selected_actions'])) {
 					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
 				}
 			}
@@ -217,10 +217,10 @@ class Members implements ActionInterface
 		Utils::$context['postgroups'] = &$this->postgroups;
 		Utils::$context['current_filter'] = &$this->current_filter;
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -361,14 +361,14 @@ class Members implements ActionInterface
 				}
 
 				// Make sure numeric values are really numeric.
-				if (in_array($param_info['type'], ['int', 'age'])) {
+				if (\in_array($param_info['type'], ['int', 'age'])) {
 					$search_params[$param_name] = (int) $search_params[$param_name];
 				}
 				// Date values have to match a date format that PHP recognizes.
 				elseif ($param_info['type'] == 'date') {
 					$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . User::getTimezone());
 
-					if (!is_int($search_params[$param_name])) {
+					if (!\is_int($search_params[$param_name])) {
 						continue;
 					}
 				} elseif ($param_info['type'] == 'inet') {
@@ -390,15 +390,15 @@ class Members implements ActionInterface
 					if ($param_info['type'] == 'age') {
 						// All people that were born between $lowerlimit and $upperlimit are currently the specified age.
 						$datearray = getdate(time());
-						$upperlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name], $datearray['mon'], $datearray['mday']);
-						$lowerlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name] - 1, $datearray['mon'], $datearray['mday']);
+						$upperlimit = \sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name], $datearray['mon'], $datearray['mday']);
+						$lowerlimit = \sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name] - 1, $datearray['mon'], $datearray['mday']);
 
-						if (in_array($search_params['types'][$param_name], ['-', '--', '='])) {
+						if (\in_array($search_params['types'][$param_name], ['-', '--', '='])) {
 							$query_parts[] = ($param_info['db_fields'][0]) . ' > {string:' . $param_name . '_minlimit}';
 							$where_params[$param_name . '_minlimit'] = ($search_params['types'][$param_name] == '--' ? $upperlimit : $lowerlimit);
 						}
 
-						if (in_array($search_params['types'][$param_name], ['+', '++', '='])) {
+						if (\in_array($search_params['types'][$param_name], ['+', '++', '='])) {
 							$query_parts[] = ($param_info['db_fields'][0]) . ' <= {string:' . $param_name . '_pluslimit}';
 							$where_params[$param_name . '_pluslimit'] = ($search_params['types'][$param_name] == '++' ? $lowerlimit : $upperlimit);
 
@@ -430,9 +430,9 @@ class Members implements ActionInterface
 				elseif ($param_info['type'] == 'checkbox') {
 					// Each checkbox or no checkbox at all is checked -> ignore.
 					if (
-						!is_array($search_params[$param_name])
-						|| count($search_params[$param_name]) == 0
-						|| count($search_params[$param_name]) == count($param_info['values'])
+						!\is_array($search_params[$param_name])
+						|| \count($search_params[$param_name]) == 0
+						|| \count($search_params[$param_name]) == \count($param_info['values'])
 					) {
 						continue;
 					}
@@ -443,11 +443,11 @@ class Members implements ActionInterface
 				}
 				// INET.
 				elseif ($param_info['type'] == 'inet') {
-					if (count($search_params[$param_name]) === 1) {
+					if (\count($search_params[$param_name]) === 1) {
 						$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
 
 						$where_params[$param_name] = $search_params[$param_name][0];
-					} elseif (count($search_params[$param_name]) === 2) {
+					} elseif (\count($search_params[$param_name]) === 2) {
 						$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
 
 						$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
@@ -471,7 +471,7 @@ class Members implements ActionInterface
 			$mg_query_parts = [];
 
 			// Primary membergroups, but only if at least was was not selected.
-			if (!empty($search_params['membergroups'][1]) && count($this->membergroups) != count($search_params['membergroups'][1])) {
+			if (!empty($search_params['membergroups'][1]) && \count($this->membergroups) != \count($search_params['membergroups'][1])) {
 				$mg_query_parts[] = 'mem.id_group IN ({array_int:group_check})';
 				$where_params['group_check'] = $search_params['membergroups'][1];
 			}
@@ -481,7 +481,7 @@ class Members implements ActionInterface
 				!empty($search_params['membergroups'][2])
 				&& (
 					empty($search_params['membergroups'][1])
-					|| count($this->membergroups) != count($search_params['membergroups'][1])
+					|| \count($this->membergroups) != \count($search_params['membergroups'][1])
 				)
 			) {
 				foreach ($search_params['membergroups'][2] as $mg) {
@@ -496,7 +496,7 @@ class Members implements ActionInterface
 			}
 
 			// Get all selected post count related membergroups.
-			if (!empty($search_params['postgroups']) && count($search_params['postgroups']) != count($this->postgroups)) {
+			if (!empty($search_params['postgroups']) && \count($search_params['postgroups']) != \count($this->postgroups)) {
 				$query_parts[] = 'id_post_group IN ({array_int:post_groups})';
 				$where_params['post_groups'] = $search_params['postgroups'];
 			}
@@ -639,17 +639,17 @@ class Members implements ActionInterface
 								}
 								// Yesterday.
 								elseif ($num_days_difference == 1) {
-									$difference = sprintf('1 %1$s', Lang::getTxt('viewmembers_day_ago', file: 'Admin'));
+									$difference = \sprintf('1 %1$s', Lang::getTxt('viewmembers_day_ago', file: 'Admin'));
 								}
 								// X days ago.
 								else {
-									$difference = sprintf('%1$d %2$s', $num_days_difference, Lang::getTxt('viewmembers_days_ago', file: 'Admin'));
+									$difference = \sprintf('%1$d %2$s', $num_days_difference, Lang::getTxt('viewmembers_days_ago', file: 'Admin'));
 								}
 							}
 
 							// Show it in italics if they're not activated...
 							if ($rowData['is_activated'] % User::BANNED != User::ACTIVATED) {
-								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::getTxt('not_activated', file: 'Admin'), $difference);
+								$difference = \sprintf('<em title="%1$s">%2$s</em>', Lang::getTxt('not_activated', file: 'Admin'), $difference);
 							}
 
 							return $difference;
@@ -679,7 +679,7 @@ class Members implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '"' . ($rowData['id_member'] == User::$me->id || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
+							return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '"' . ($rowData['id_member'] == User::$me->id || $rowData['id_group'] == 1 || \in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
 						},
 						'class' => 'centercol',
 					],
@@ -767,14 +767,14 @@ class Members implements ActionInterface
 		// Allowed filters are those we can have, in theory.
 		$allowed_filters = $browse_type == 'approve' ? [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA] : [User::NOT_ACTIVATED, User::UNVALIDATED];
 
-		$this->current_filter = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], $allowed_filters) && !empty($this->activation_numbers[$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
+		$this->current_filter = isset($_REQUEST['filter']) && \in_array($_REQUEST['filter'], $allowed_filters) && !empty($this->activation_numbers[$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
 
 		// Sort out the different sub areas that we can actually filter by.
 		$available_filters = [];
 
 		foreach ($this->activation_numbers as $type => $amount) {
 			// We have some of these...
-			if (in_array($type, $allowed_filters) && $amount > 0) {
+			if (\in_array($type, $allowed_filters) && $amount > 0) {
 				$available_filters[] = [
 					'type' => $type,
 					'amount' => $amount,
@@ -790,7 +790,7 @@ class Members implements ActionInterface
 		}
 
 		// This little variable is used to determine if we should flag where we are looking.
-		$show_filter = ($this->current_filter != User::NOT_ACTIVATED && $this->current_filter != User::UNAPPROVED) || count($available_filters) > 1;
+		$show_filter = ($this->current_filter != User::NOT_ACTIVATED && $this->current_filter != User::UNAPPROVED) || \count($available_filters) > 1;
 
 		// The columns that can be sorted.
 		Utils::$context['columns'] = [
@@ -811,7 +811,7 @@ class Members implements ActionInterface
 		// Determine which actions we should allow on this page.
 		if ($browse_type == 'approve') {
 			// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
-			if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
+			if (\in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 				$allowed_actions = [
 					'reject' => Lang::getTxt('admin_browse_w_approve_deletion', file: 'ManageMembers'),
 					'ok' => Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers'),
@@ -855,7 +855,7 @@ class Members implements ActionInterface
 				var message = "";';
 
 		// We have special messages for approving deletion of accounts - it's surprisingly logical - honest.
-		if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
+		if (\in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("reject") != -1)
 					message = "' . Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers') . '";
@@ -980,16 +980,16 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::getTxt('viewmembers_online', file: 'Admin') : Lang::getTxt('date_registered', file: 'General'),
+						'value' => \in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::getTxt('viewmembers_online', file: 'Admin') : Lang::getTxt('date_registered', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Time::create('@' . $rowData[in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'last_login' : 'date_registered'])->format();
+							return Time::create('@' . $rowData[\in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'last_login' : 'date_registered'])->format();
 						},
 					],
 					'sort' => [
-						'default' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login DESC' : 'date_registered DESC',
-						'reverse' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login' : 'date_registered',
+						'default' => \in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login DESC' : 'date_registered DESC',
+						'reverse' => \in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login' : 'date_registered',
 					],
 				],
 				'duplicates' => [
@@ -1079,7 +1079,7 @@ class Members implements ActionInterface
 		}
 
 		// Is there any need to show filters?
-		if (isset($available_filters) && count($available_filters) > 1) {
+		if (isset($available_filters) && \count($available_filters) > 1) {
 			$filterOptions = '
 				<strong>' . Lang::getTxt('admin_browse_filter_by', file: 'ManageMembers') . ':</strong>
 				<select name="filter" onchange="this.form.submit();">';
@@ -1324,7 +1324,7 @@ class Members implements ActionInterface
 		}
 
 		// Log what we did?
-		if (!empty(Config::$modSettings['modlog_enabled']) && in_array($_POST['todo'], ['ok', 'okemail', 'require_activation', 'remind'])) {
+		if (!empty(Config::$modSettings['modlog_enabled']) && \in_array($_POST['todo'], ['ok', 'okemail', 'require_activation', 'remind'])) {
 			$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
 
 			foreach ($member_info as $member) {
@@ -1333,7 +1333,7 @@ class Members implements ActionInterface
 		}
 
 		// Although updateStats *may* catch this, best to do it manually just in case (Doesn't always sort out unapprovedMembers).
-		if (in_array($current_filter, [3, 4, 5])) {
+		if (\in_array($current_filter, [3, 4, 5])) {
 			Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > $member_count ? Config::$modSettings['unapprovedMembers'] - $member_count : 0)]);
 		}
 
@@ -1341,7 +1341,7 @@ class Members implements ActionInterface
 		Logging::updateStats('member', false);
 
 		// If they haven't been deleted, update the post group statistics on them...
-		if (!in_array($_POST['todo'], ['delete', 'deleteemail', 'reject', 'rejectemail', 'remind'])) {
+		if (!\in_array($_POST['todo'], ['delete', 'deleteemail', 'reject', 'rejectemail', 'remind'])) {
 			Logging::updateStats('postgroups', $members);
 		}
 
@@ -1515,9 +1515,9 @@ class Members implements ActionInterface
 		Db::$db->free_result($request);
 
 		foreach ($this->activation_numbers as $activation_type => $total_members) {
-			if (in_array($activation_type, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
+			if (\in_array($activation_type, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
 				$this->awaiting_activation += $total_members;
-			} elseif (in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA])) {
+			} elseif (\in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA])) {
 				$this->awaiting_approval += $total_members;
 			}
 		}
@@ -1586,11 +1586,11 @@ class Members implements ActionInterface
 				'ip2' => (string) $row['member_ip2'],
 			];
 
-			if (in_array((string) $row['member_ip'], $ips)) {
+			if (\in_array((string) $row['member_ip'], $ips)) {
 				$duplicate_members[(string) $row['member_ip']][] = $member_context;
 			}
 
-			if ((string) $row['member_ip'] != (string) $row['member_ip2'] && in_array((string) $row['member_ip2'], $ips)) {
+			if ((string) $row['member_ip'] != (string) $row['member_ip2'] && \in_array((string) $row['member_ip2'], $ips)) {
 				$duplicate_members[(string) $row['member_ip2']][] = $member_context;
 			}
 		}
@@ -1617,7 +1617,7 @@ class Members implements ActionInterface
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// Don't collect lots of the same.
-			if (isset($had_ips[(string) $row['poster_ip']]) && in_array((string) $row['id_member'], $had_ips[(string) $row['poster_ip']])) {
+			if (isset($had_ips[(string) $row['poster_ip']]) && \in_array((string) $row['id_member'], $had_ips[(string) $row['poster_ip']])) {
 				continue;
 			}
 
@@ -1649,7 +1649,7 @@ class Members implements ActionInterface
 				$member_track = [$member['id_member']];
 
 				foreach ($members[$key]['duplicate_members'] as $duplicate_id_member => $duplicate_member) {
-					if (in_array($duplicate_member['id'], $member_track)) {
+					if (\in_array($duplicate_member['id'], $member_track)) {
 						unset($members[$key]['duplicate_members'][$duplicate_id_member]);
 
 						continue;

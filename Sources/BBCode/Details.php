@@ -82,7 +82,7 @@ class Details extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		if (strlen($params['{summary}'] ?? '') === 0) {
+		if (\strlen($params['{summary}'] ?? '') === 0) {
 			$bbc['before'] = Lang::formatText($bbc['before'], ['summary' => Lang::getTxt('details', var: 'editortxt')]);
 		}
 	}

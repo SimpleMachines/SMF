@@ -42,7 +42,7 @@ class CreateMemberLogins extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		if (!in_array(Config::$db_prefix . 'member_logins', $tables)) {
+		if (!\in_array(Config::$db_prefix . 'member_logins', $tables)) {
 			$member_logins = new Schema\v2_1\MemberLogins();
 			$member_logins->create();
 		}

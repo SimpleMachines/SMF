@@ -87,7 +87,7 @@ trait ActionRouter
 		if (str_starts_with(self::class, 'SMF\\Actions')) {
 			if (!isset($params['action'])) {
 				foreach (Forum::$actions as $action => $info) {
-					if (is_string($info[1]) && str_starts_with($info[1], self::class)) {
+					if (\is_string($info[1]) && str_starts_with($info[1], self::class)) {
 						$params['action'] = $action;
 						break;
 					}

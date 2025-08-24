@@ -102,10 +102,10 @@ class Tasks implements ActionInterface
 			];
 		}
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -316,7 +316,7 @@ class Tasks implements ActionInterface
 
 			// Now the offset is easy; easy peasy - except we need to offset by a few hours,
 			// take account of DST at this time of year, and... okay, not so easy.
-			$when = new \DateTime('today ' . sprintf('%1$02d:%2$02d', $h % 24, $m % 60) . ' ' . Config::$modSettings['default_timezone']);
+			$when = new \DateTime('today ' . \sprintf('%1$02d:%2$02d', $h % 24, $m % 60) . ' ' . Config::$modSettings['default_timezone']);
 
 			// Walk back until we find a month that wasn't using DST.
 			// No sane environment will ever reach 1900, but just in case...
@@ -328,7 +328,7 @@ class Tasks implements ActionInterface
 
 			// The other time bits are simple!
 			$interval = max((int) $_POST['regularity'], 1);
-			$unit = in_array(substr($_POST['unit'], 0, 1), ['m', 'h', 'd', 'w']) ? substr($_POST['unit'], 0, 1) : 'd';
+			$unit = \in_array(substr($_POST['unit'], 0, 1), ['m', 'h', 'd', 'w']) ? substr($_POST['unit'], 0, 1) : 'd';
 
 			// Don't allow one minute intervals.
 			if ($interval == 1 && $unit == 'm') {

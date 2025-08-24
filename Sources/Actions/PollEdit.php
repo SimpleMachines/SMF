@@ -94,11 +94,11 @@ class PollEdit implements ActionInterface, Routable
 			do {
 				$poll->addChoice([
 					'id' => empty($poll->choices) ? 0 : max(array_keys($poll->choices)) + 1,
-					'number' => count($poll->choices),
+					'number' => \count($poll->choices),
 					'label' => '',
 					'votes' => -1,
 				], true);
-			} while (count($poll->choices) < 2);
+			} while (\count($poll->choices) < 2);
 		}
 
 		// Basic theme info...

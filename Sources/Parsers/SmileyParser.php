@@ -136,7 +136,7 @@ class SmileyParser extends Parser
 		// Don't parse smileys inside HTML or BBCode tags.
 		$parts = preg_split('~(<[^>]*>|\[\/?' . BBCodeParser::load()->getAllTagsRegex() . '[^\]]*\])~u', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0; $i < count($parts); $i++) {
+		for ($i = 0; $i < \count($parts); $i++) {
 			if ($i % 2 === 0) {
 				$parts[$i] = preg_replace_callback(
 					$this->smiley_preg_search,
@@ -161,7 +161,7 @@ class SmileyParser extends Parser
 
 		return preg_replace_callback(
 			'~(\h?)<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(\h?)~i',
-			fn($match) => in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
+			fn($match) => \in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
 			$string,
 		);
 	}
@@ -207,7 +207,7 @@ class SmileyParser extends Parser
 		$cache_time = !self::$custom_smileys_enabled ? 7200 : 480;
 		$cache_key = 'parsing_smileys' . ($set !== '' ? '_' . $set : '');
 
-		if (is_array($data = CacheApi::get($cache_key, $cache_time))) {
+		if (\is_array($data = CacheApi::get($cache_key, $cache_time))) {
 			self::$data[$set] = $data;
 
 			return self::$data[$set];

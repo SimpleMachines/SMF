@@ -274,7 +274,7 @@ class Draft
 			return false;
 		}
 
-		if (in_array('session_timeout', $post_errors)) {
+		if (\in_array('session_timeout', $post_errors)) {
 			return false;
 		}
 

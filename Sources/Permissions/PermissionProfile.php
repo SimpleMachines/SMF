@@ -177,7 +177,7 @@ class PermissionProfile
 	 */
 	public function canModify(): bool
 	{
-		return !in_array($this->id, [self::NO_POLLS, self::REPLY_ONLY, self::READ_ONLY]);
+		return !\in_array($this->id, [self::NO_POLLS, self::REPLY_ONLY, self::READ_ONLY]);
 	}
 
 	/**
@@ -187,7 +187,7 @@ class PermissionProfile
 	 */
 	public function isPredefined(): bool
 	{
-		return in_array($this->id, [self::DEFAULT, self::NO_POLLS, self::REPLY_ONLY, self::READ_ONLY]);
+		return \in_array($this->id, [self::DEFAULT, self::NO_POLLS, self::REPLY_ONLY, self::READ_ONLY]);
 	}
 
 	/**
@@ -263,7 +263,7 @@ class PermissionProfile
 				self::$loaded[$id] = new self($id, $row['profile_name']);
 			}
 
-			if (!is_null($row['id_board'])) {
+			if (!\is_null($row['id_board'])) {
 				self::$loaded[$id]->boards[] = (int) $row['id_board'];
 			}
 		}
@@ -296,7 +296,7 @@ class PermissionProfile
 
 		foreach (self::loadAll() as $profile) {
 			foreach ($profile->boards() as $board) {
-				if (in_array($board, $boards)) {
+				if (\in_array($board, $boards)) {
 					$loaded[$board] = $profile;
 				}
 			}
