@@ -1453,22 +1453,14 @@ class Members implements ActionInterface
 	 */
 	public static function list_getNumMembers(string $where, array $where_params = []): int
 	{
-		// We know how many members there are in total.
-		if (empty($where) || $where == '1=1') {
-			$num_members = Config::$modSettings['totalMembers'];
-		}
-		// The database knows the amount when there are extra conditions.
-		else {
-			$request = Db::$db->query(
-				'SELECT COUNT(*)
-				FROM {db_prefix}members AS mem
-				WHERE ' . $where,
-				array_merge($where_params, [
-				]),
-			);
-			list($num_members) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
-		}
+		$request = Db::$db->query(
+			'SELECT COUNT(*)
+			FROM {db_prefix}members AS mem
+			WHERE ' . $where,
+			$where_params,
+		);
+		[$num_members] = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		return (int) $num_members;
 	}
