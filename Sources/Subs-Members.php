@@ -1480,23 +1480,15 @@ function list_getNumMembers($where, $where_params = array())
 {
 	global $smcFunc, $modSettings;
 
-	// We know how many members there are in total.
-	if (empty($where) || $where == '1=1')
-		$num_members = $modSettings['totalMembers'];
-
-	// The database knows the amount when there are extra conditions.
-	else
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}members AS mem
-			WHERE ' . $where,
-			array_merge($where_params, array(
-			))
-		);
-		list ($num_members) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-	}
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}members AS mem
+		WHERE ' . $where,
+		array_merge($where_params, array(
+		))
+	);
+	list ($num_members) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	return $num_members;
 }
