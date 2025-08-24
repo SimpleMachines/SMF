@@ -928,7 +928,7 @@ function template_show_settings()
 				elseif ($config_var['type'] == 'select')
 				{
 					echo '
-										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), ' size="', $config_var['size'], '">';
+										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple' : ''), ' size="', $config_var['size'], '">';
 
 					foreach ($config_var['data'] as $option)
 						echo '
@@ -1028,8 +1028,11 @@ function template_show_settings()
 					// Maximum allowed value for this setting.
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
+					// Some input fields allow multiple.
+					$multiple = $type === 'email' && (!empty($config_var['multiple']) ? ' multiple' : '');
+
 					echo '
-										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, $placeholder, '>';
+										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, $multiple, $placeholder, '>';
 				}
 
 				echo isset($config_var['postinput']) ? '
