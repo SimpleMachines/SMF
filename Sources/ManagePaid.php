@@ -117,7 +117,8 @@ function ModifySubscriptionSettings($return_config = false)
 				'email',
 				'paid_email_to',
 				'subtext' => $txt['paid_email_to_desc'],
-				'size' => 60
+				'size' => 60,
+				'multiple' => true
 			),
 			'',
 
