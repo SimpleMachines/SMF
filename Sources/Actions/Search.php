@@ -62,6 +62,11 @@ class Search implements ActionInterface, Routable
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
+		// You cannot search with cookies disabled when captcha is required for guest searches
+		if (empty($_COOKIE) && !empty(Config::$modSettings['search_enable_captcha'])) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
+
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');
@@ -206,11 +211,11 @@ class Search implements ActionInterface, Routable
 
 			// If user selected some particular boards, is this one of them?
 			if (!empty(Utils::$context['search_params']['brd'])) {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = in_array($row['id_board'], Utils::$context['search_params']['brd']);
+				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = \in_array($row['id_board'], Utils::$context['search_params']['brd']);
 			}
 			// User didn't select any boards, so select all except ignored and recycle boards.
 			else {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = !$is_recycle_board && !in_array($row['id_board'], User::$me->ignoreboards);
+				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = !$is_recycle_board && !\in_array($row['id_board'], User::$me->ignoreboards);
 			}
 
 			// If a board wasn't checked that probably should have been ensure the board selection is selected, yo!
@@ -236,7 +241,7 @@ class Search implements ActionInterface, Routable
 			Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 		}
 
-		$max_boards = ceil(count($temp_boards) / 2);
+		$max_boards = ceil(\count($temp_boards) / 2);
 
 		if ($max_boards == 1) {
 			$max_boards = 2;

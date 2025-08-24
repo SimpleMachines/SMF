@@ -109,7 +109,7 @@ class Stats implements ActionInterface, Routable
 			$this->getDailyStats('YEAR(date) = {int:year} AND MONTH(date) = {int:month}', ['year' => $year, 'month' => $month]);
 
 			Utils::$context['yearly'][$year]['months'][$month]['date'] = [
-				'month' => sprintf('%02d', $month),
+				'month' => \sprintf('%02d', $month),
 				'year' => $year,
 			];
 
@@ -199,7 +199,7 @@ class Stats implements ActionInterface, Routable
 		// Let's calculate gender stats only every four minutes.
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : [];
 
-		if (!in_array('gender', $disabled_fields)) {
+		if (!\in_array('gender', $disabled_fields)) {
 			if ((Utils::$context['gender'] = CacheApi::get('stats_gender', 240)) == null) {
 				$result = Db::$db->query(
 					'SELECT default_value
@@ -563,7 +563,7 @@ class Stats implements ActionInterface, Routable
 		while ($row_members = Db::$db->fetch_assoc($members_result)) {
 			$temp2[] = (int) $row_members['id_member'];
 
-			if (count(Utils::$context['stats_blocks']['time_online']) >= 10) {
+			if (\count(Utils::$context['stats_blocks']['time_online']) >= 10) {
 				continue;
 			}
 
@@ -701,8 +701,8 @@ class Stats implements ActionInterface, Routable
 		Utils::$context['yearly'] = [];
 
 		while ($row_months = Db::$db->fetch_assoc($months_result)) {
-			$ID_MONTH = $row_months['stats_year'] . sprintf('%02d', $row_months['stats_month']);
-			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
+			$ID_MONTH = $row_months['stats_year'] . \sprintf('%02d', $row_months['stats_month']);
+			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && \in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
 
 			if (!isset(Utils::$context['yearly'][$row_months['stats_year']])) {
 				Utils::$context['yearly'][$row_months['stats_year']] = [
@@ -722,7 +722,7 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['yearly'][$row_months['stats_year']]['months'][(int) $row_months['stats_month']] = [
 				'id' => $ID_MONTH,
 				'date' => [
-					'month' => sprintf('%02d', $row_months['stats_month']),
+					'month' => \sprintf('%02d', $row_months['stats_month']),
 					'year' => $row_months['stats_year'],
 				],
 				'href' => Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
@@ -818,8 +818,8 @@ class Stats implements ActionInterface, Routable
 
 		while ($row_days = Db::$db->fetch_assoc($days_result)) {
 			Utils::$context['yearly'][$row_days['stats_year']]['months'][(int) $row_days['stats_month']]['days'][] = [
-				'day' => sprintf('%02d', $row_days['stats_day']),
-				'month' => sprintf('%02d', $row_days['stats_month']),
+				'day' => \sprintf('%02d', $row_days['stats_day']),
+				'month' => \sprintf('%02d', $row_days['stats_month']),
 				'year' => $row_days['stats_year'],
 				'new_topics' => Lang::numberFormat($row_days['topics']),
 				'new_posts' => Lang::numberFormat($row_days['posts']),

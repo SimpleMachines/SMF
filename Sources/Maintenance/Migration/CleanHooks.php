@@ -51,7 +51,7 @@ class CleanHooks extends MigrationBase
 
 		$tables = Db::$db->list_tables();
 
-		if (in_array(Config::$db_prefix . 'hooks', $tables)) {
+		if (\in_array(Config::$db_prefix . 'hooks', $tables)) {
 			$this->query(
 				'TRUNCATE TABLE {db_prefix}hooks',
 			);

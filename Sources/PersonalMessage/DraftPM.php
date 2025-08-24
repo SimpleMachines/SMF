@@ -299,7 +299,7 @@ class DraftPM extends Draft
 				);
 
 				while ($result = Db::$db->fetch_assoc($request_2)) {
-					$recipientType = in_array($result['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
+					$recipientType = \in_array($result['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
 					$recipients[$recipientType][] = $result['real_name'];
 				}
 				Db::$db->free_result($request_2);

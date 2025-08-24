@@ -84,6 +84,13 @@ class Sapi
 	 */
 	protected static ?float $current_load = null;
 
+	/**
+	 * @var int
+	 *
+	 * Number of CPUs detected
+	 */
+	protected static ?int $cpu_count = null;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -176,7 +183,7 @@ class Sapi
 	 */
 	public static function supportsIsoCaseFolding(): bool
 	{
-		return ord(strtolower(chr(138))) === 154;
+		return \ord(strtolower(\chr(138))) === 154;
 	}
 
 	/**
@@ -249,7 +256,7 @@ class Sapi
 		}
 
 		// Determine if we should detect a restriction and what restrictions that may be.
-		$open_base_dir = ini_get('open_basedir');
+		$open_base_dir = \ini_get('open_basedir');
 		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
 
 		// Prevent any errors as we search.
@@ -263,11 +270,11 @@ class Sapi
 					break;
 
 				case 'session.save_path':
-					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
+					$possible_temp = rtrim(\ini_get('session.save_path'), '\\/');
 					break;
 
 				case 'upload_tmp_dir':
-					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
+					$possible_temp = rtrim(\ini_get('upload_tmp_dir'), '\\/');
 					break;
 
 				default:
@@ -316,7 +323,7 @@ class Sapi
 	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
 	{
 		// Everything in bytes.
-		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		$memory_needed = self::memoryReturnBytes($needed);
 
 		// Should we account for how much is currently being used?
@@ -327,7 +334,7 @@ class Sapi
 		// If more is needed, request it.
 		if ($memory_current < $memory_needed) {
 			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+			$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		}
 
 		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
@@ -344,13 +351,13 @@ class Sapi
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (is_integer($val)) {
+		if (\is_integer($val)) {
 			return (int) $val;
 		}
 
 		// Separate the number from the designator.
 		$val = trim($val);
-		$num = intval(substr($val, 0, strlen($val) - 1));
+		$num = \intval(substr($val, 0, \strlen($val) - 1));
 		$last = strtolower(substr($val, -1));
 
 		// Convert to bytes.
@@ -402,7 +409,7 @@ class Sapi
 	 */
 	public static function resetTimeout()
 	{
-		if (self::isSoftware(self::SERVER_APACHE) && function_exists('apache_reset_timeout')) {
+		if (self::isSoftware(self::SERVER_APACHE) && \function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
 			} catch (\Exception $e) {
@@ -443,19 +450,19 @@ class Sapi
 
 			// sys_getloadavg returns false on failure.
 			if ($current_load !== false) {
-				return self::$current_load = (float) $current_load[0];
+				return self::$current_load = (float) $current_load[0] / self::getCpuCount();
 			}
 
 			// Most Linux distros offer a nice file that we can read.
 			$current_load = @file_get_contents('/proc/loadavg');
 
 			if (!empty($current_load) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $current_load, $matches) !== 0) {
-				return self::$current_load = (float) $matches[1];
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
 			}
 
 			// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
 			if (($current_load = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', $current_load, $matches) !== 0) {
-				return self::$current_load = (float) $matches[1];
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
 			}
 		} catch (\Exception $ex) {
 		}
@@ -476,5 +483,69 @@ class Sapi
 		}
 
 		return self::getLoadAverage() >= (float) $threshold;
+	}
+
+	/**
+	 * Returns the number of CPUs as reported by the system.
+	 * On Windows we check getenv, do not use wmic as its slow.
+	 * On linux we first attempt with nproc and then fall back to parsing /proc/cpuinfo.
+	 * If all attempts fail, return 1.
+	 * Always ensure we have at least 1 CPU, as this is used in math functions.
+	 *
+	 * @param bool $update Update the db backed cache value.
+	 * @return int Number of CPUs detected.
+	 */
+	public static function getCpuCount(bool $update = false): int
+	{
+		if (self::$cpu_count !== null) {
+			return self::$cpu_count;
+		}
+
+		if (!$update && isset(Config::$modSettings['cpu_count'])) {
+			return (int) Config::$modSettings['cpu_count'];
+		}
+
+		try {
+			// Avoid using wmic commands, otherwise this would work as a fallback: wmic computersystem get NumberOfLogicalProcessors
+			if (self::isOS(self::OS_WINDOWS)) {
+				self::$cpu_count = min((int) getenv('NUMBER_OF_PROCESSORS') ?? 1, 1);
+			}
+			// Apple is special, check sysctl
+			elseif (self::isOS(self::OS_MAC)) {
+				if (($cpu_count = @shell_exec('sysctl -n hw.physicalcpu')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+					self::$cpu_count = min((int) $cpu_count, 1);
+				}
+			}
+			// On most Linux distros, we can runn nproc.
+			elseif (($cpu_count = @shell_exec('nproc --all')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = min((int) $cpu_count, 1);
+			}
+
+			// This works for both Mac and Linux, however it actually reports online cpus, not total CPUs.
+			// Could also use _NPROCESSORS_CONF which is processors configured.
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && ($cpu_count = @shell_exec('getconf _NPROCESSORS_ONLN')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = min((int) $cpu_count, 1);
+			}
+
+			// Borrowed from: https://www.php.net/manual/en/function.sys-getloadavg.php#129847
+			// Maybe consider using awk to simplify this: grep -m 1 'cpu cores' /proc/cpuinfo | awk -F: '{print $2}'
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && file_exists('/proc/cpuinfo')) {
+				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
+
+				if (isset($matches[0])) {
+					self::$cpu_count = min(\count($matches[0]), 1);
+				}
+			}
+		} catch (\Exception $ex) {
+		}
+
+		// No CPUs found, I think we have at least one. Avoids divide by zero errors.
+		if (empty(self::$cpu_count)) {
+			self::$cpu_count = 1;
+		}
+
+		Config::updateModSettings(['cpu_count' => self::$cpu_count]);
+
+		return self::$cpu_count;
 	}
 }

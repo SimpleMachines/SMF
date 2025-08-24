@@ -118,7 +118,7 @@ $txt['error_url'] = 'URL of page causing the error';
 $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
-$txt['error_file_and_line'] = '{file} (Line {line, number, integer})';
+$txt['error_file_and_line'] = '{file} (Line {line, number, :: group-off})';
 $txt['clear_filter'] = 'Clear filter';
 $txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
@@ -133,7 +133,7 @@ $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type: {list}';
 $txt['backtrace_title'] = 'Backtrace information';
 // argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
-$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, integer}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, integer}</a>';
+$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, :: group-off}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, :: group-off}</a>';
 $txt['backtrace_info_internal_function'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from [internal function]';
 
 $txt['errortype_all'] = 'All errors';
@@ -176,13 +176,6 @@ $txt['maintain_rebuild_settings'] = 'Rebuild Settings.php';
 $txt['maintain_rebuild_settings_info'] = 'This task reconstructs your Settings.php file. It does not change the values stored in the file. Instead, it cleans up and reformats your Settings.php file to a pristine version.';
 $txt['maintain_run_now'] = 'Run task now';
 $txt['maintain_return'] = 'Back to Forum Maintenance';
-
-$txt['maintain_backup'] = 'Backup Database';
-$txt['maintain_backup_info'] = 'Download a backup copy of your forum’s database in case of emergency.';
-$txt['maintain_backup_struct'] = 'Save the table structure.';
-$txt['maintain_backup_data'] = 'Save the table data (the important stuff).';
-$txt['maintain_backup_gz'] = 'Compress the file with gzip.';
-$txt['maintain_backup_save'] = 'Download';
 
 $txt['maintain_old'] = 'Remove old posts';
 // The argument for this string is an HTML input element.

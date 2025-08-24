@@ -264,7 +264,7 @@ class News implements ActionInterface
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		call_user_func([$this, self::$subactions[$this->subaction][0]]);
+		\call_user_func([$this, self::$subactions[$this->subaction][0]]);
 	}
 
 	/**
@@ -288,7 +288,7 @@ class News implements ActionInterface
 
 			// Remove the items that were selected.
 			foreach ($temp_news as $i => $news) {
-				if (in_array($i, $_POST['remove'])) {
+				if (\in_array($i, $_POST['remove'])) {
 					unset($temp_news[$i]);
 				}
 			}
@@ -459,7 +459,7 @@ class News implements ActionInterface
 				$_POST[$type] = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $_POST[$type]))));
 
 				foreach ($_POST[$type] as $index => $member) {
-					if (strlen(trim($member)) > 0) {
+					if (\strlen(trim($member)) > 0) {
 						$_POST[$type][$index] = Utils::htmlspecialchars(Utils::strtolower(trim($member)));
 					} else {
 						unset($_POST[$type][$index]);
@@ -471,7 +471,7 @@ class News implements ActionInterface
 			}
 		}
 
-		if (isset($_POST['member_list']) && is_array($_POST['member_list'])) {
+		if (isset($_POST['member_list']) && \is_array($_POST['member_list'])) {
 			$members = [];
 
 			foreach ($_POST['member_list'] as $member_id) {
@@ -481,7 +481,7 @@ class News implements ActionInterface
 			$_POST['members'] = implode(',', $members);
 		}
 
-		if (isset($_POST['exclude_member_list']) && is_array($_POST['exclude_member_list'])) {
+		if (isset($_POST['exclude_member_list']) && \is_array($_POST['exclude_member_list'])) {
 			$members = [];
 
 			foreach ($_POST['exclude_member_list'] as $member_id) {
@@ -557,11 +557,11 @@ class News implements ActionInterface
 		if (
 			(
 				!empty(Utils::$context['recipients']['groups'])
-				&& in_array(3, Utils::$context['recipients']['groups'])
+				&& \in_array(3, Utils::$context['recipients']['groups'])
 			)
 			|| (
 				!empty(Utils::$context['recipients']['exclude_groups'])
-				&& in_array(3, Utils::$context['recipients']['exclude_groups'])
+				&& \in_array(3, Utils::$context['recipients']['exclude_groups'])
 			)
 		) {
 			$request = Db::$db->query(
@@ -575,7 +575,7 @@ class News implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array(3, Utils::$context['recipients'])) {
+				if (\in_array(3, Utils::$context['recipients'])) {
 					Utils::$context['recipients']['exclude_members'][] = $row['identifier'];
 				} else {
 					Utils::$context['recipients']['members'][] = $row['identifier'];
@@ -585,7 +585,7 @@ class News implements ActionInterface
 		}
 
 		// For progress bar!
-		Utils::$context['total_emails'] = count(Utils::$context['recipients']['emails']);
+		Utils::$context['total_emails'] = \count(Utils::$context['recipients']['emails']);
 
 		$request = Db::$db->query(
 			'SELECT COUNT(*)
@@ -688,7 +688,7 @@ class News implements ActionInterface
 
 		// Cleaning groups is simple - although deal with both checkbox and commas.
 		if (isset($_POST['groups'])) {
-			if (is_array($_POST['groups'])) {
+			if (\is_array($_POST['groups'])) {
 				foreach ($_POST['groups'] as $group => $dummy) {
 					Utils::$context['recipients']['groups'][] = (int) $group;
 				}
@@ -703,7 +703,7 @@ class News implements ActionInterface
 
 		// Same for excluded groups
 		if (isset($_POST['exclude_groups'])) {
-			if (is_array($_POST['exclude_groups'])) {
+			if (\is_array($_POST['exclude_groups'])) {
 				foreach ($_POST['exclude_groups'] as $group => $dummy) {
 					Utils::$context['recipients']['exclude_groups'][] = (int) $group;
 				}
@@ -907,7 +907,7 @@ class News implements ActionInterface
 			}
 
 			// Anything to exclude?
-			if (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(0, Utils::$context['recipients']['exclude_groups'])) {
+			if (!empty(Utils::$context['recipients']['exclude_groups']) && \in_array(0, Utils::$context['recipients']['exclude_groups'])) {
 				$sendQuery .= ' AND mem.id_group != {int:regular_group}';
 			}
 
@@ -1030,7 +1030,7 @@ class News implements ActionInterface
 		}
 
 		// Working out progress is a black art of sorts.
-		$percentEmails = Utils::$context['total_emails'] == 0 ? 0 : ((count(Utils::$context['recipients']['emails']) / Utils::$context['total_emails']) * (Utils::$context['total_emails'] / (Utils::$context['total_emails'] + Utils::$context['total_members'])));
+		$percentEmails = Utils::$context['total_emails'] == 0 ? 0 : ((\count(Utils::$context['recipients']['emails']) / Utils::$context['total_emails']) * (Utils::$context['total_emails'] / (Utils::$context['total_emails'] + Utils::$context['total_members'])));
 
 		$percentMembers = (Utils::$context['start'] / Utils::$context['total_members']) * (Utils::$context['total_members'] / (Utils::$context['total_emails'] + Utils::$context['total_members']));
 

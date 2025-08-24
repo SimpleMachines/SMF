@@ -42,7 +42,7 @@ class ModeratorGroups extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return !in_array(Config::$db_prefix . 'moderator_groups', $tables);
+		return !\in_array(Config::$db_prefix . 'moderator_groups', $tables);
 	}
 
 	/**

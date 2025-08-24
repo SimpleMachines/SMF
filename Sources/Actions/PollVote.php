@@ -114,7 +114,7 @@ class PollVote implements ActionInterface, Routable
 		}
 
 		// Too many options checked!
-		if (count($_REQUEST['options']) > $poll->max_votes) {
+		if (\count($_REQUEST['options']) > $poll->max_votes) {
 			ErrorHandler::fatalLang('poll_too_many_votes', false, [$poll->max_votes]);
 		}
 
@@ -129,7 +129,7 @@ class PollVote implements ActionInterface, Routable
 		}
 
 		// If it's a guest don't let them vote again.
-		if (User::$me->is_guest && count($choices) > 0) {
+		if (User::$me->is_guest && \count($choices) > 0) {
 			// Time is stored in case the poll is reset later, plus what they voted for.
 			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 

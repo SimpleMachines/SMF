@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Maintenance\Maintenance;
@@ -256,7 +257,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Needs to at least meet our miniumn version.
 		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
-			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => PHP_MIN_VERSION], file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -271,7 +272,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// How about session support?  Some crazy sysadmin remove it?
-		if (!function_exists('session_start')) {
+		if (!\function_exists('session_start')) {
 			Maintenance::$errors[] = Lang::getTxt('error_session_missing', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('error_session_missing', file: 'Maintenance'));
 		}
@@ -283,25 +284,25 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 		// Very simple check on the session.save_path for Windows.
 		// @todo Move this down later if they don't use database-driven sessions?
-		elseif (@ini_get('session.save_path') == '/tmp' && Sapi::isOS(Sapi::OS_WINDOWS)) {
+		elseif (@\ini_get('session.save_path') == '/tmp' && Sapi::isOS(Sapi::OS_WINDOWS)) {
 			Maintenance::$errors[] = Lang::getTxt('error_session_save_path', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('error_session_save_path', file: 'Maintenance'));
 		}
 
 		// Mod_security blocks everything that smells funny. Let SMF handle security.
 		if (!$this->checkAndTryToFixModSecurity() && !isset($_GET['overmodsecurity'])) {
-			Maintenance::$fatal_error = Lang::getTxt('error_mod_security', file: 'Maintenance') . '<br><br><a href="' . Maintenance::getSelf() . '?overmodsecurity=true">' . Lang::getTxt('error_message_click', file: 'Maintenance') . '</a> ' . Lang::getTxt('error_message_bad_try_again', file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_mod_security', file: 'Maintenance') . '<br><br>' . Lang::getTxt('error_message_bad_try_again', ['url' => Maintenance::getSelf() . '?overmodsecurity=true'], file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('error_mod_security', file: 'Maintenance'));
 		}
 
 		// Confirm mbstring is loaded...
-		if (!extension_loaded('mbstring')) {
+		if (!\extension_loaded('mbstring')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_mbstring', file: 'Maintenance'));
 		}
 
 		// Confirm fileinfo is loaded...
-		if (!extension_loaded('fileinfo')) {
+		if (!\extension_loaded('fileinfo')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_fileinfo', file: 'Maintenance'));
 		}
@@ -309,7 +310,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Check for https stream support.
 		$supported_streams = stream_get_wrappers();
 
-		if (!in_array('https', $supported_streams)) {
+		if (!\in_array('https', $supported_streams)) {
 			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_https', file: 'Maintenance'));
 		}
@@ -356,7 +357,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// With mod_security installed, we could attempt to fix it with .htaccess.
-		if (function_exists('apache_get_modules') && in_array('mod_security', apache_get_modules())) {
+		if (\function_exists('apache_get_modules') && \in_array('mod_security', apache_get_modules())) {
 			$writable_files[] = file_exists(Config::$boarddir . '/.htaccess') ? Config::$boarddir . '/.htaccess' : Config::$boarddir;
 		}
 
@@ -511,7 +512,7 @@ class Install extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->title]);
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->title, 'min_version' => Db::$db->getMinimumVersion()]);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -585,7 +586,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['detected_url'] = 'http' . (Sapi::httpsOn() ? 's' : '') . '://' . $this->defaultHost() . substr(Maintenance::getSelf(), 0, strrpos(Maintenance::getSelf(), '/'));
 
 		// Check if the database sessions will even work.
-		Maintenance::$context['test_dbsession'] = (ini_get('session.auto_start') != 1);
+		Maintenance::$context['test_dbsession'] = (\ini_get('session.auto_start') != 1);
 
 		Maintenance::$context['continue'] = true;
 
@@ -707,7 +708,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$install_tables = Table::getAll($this->schema_version);
 
 		// Before running any of the queries, let's make sure another version isn't already installed.
-		if (in_array(Config::$db_prefix . 'settings', $existing_tables)) {
+		if (\in_array(Config::$db_prefix . 'settings', $existing_tables)) {
 			$result = Db::$db->query(
 				'SELECT variable, value
 				FROM {db_prefix}settings',
@@ -744,7 +745,7 @@ class Install extends ToolsBase implements ToolsInterface
 			$this->logProgress(Lang::getTxt('log_table_create', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);
 
 			// Create the table, unless it already exists.
-			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {
+			if (!\in_array(Config::$db_prefix . $table->name, $existing_tables)) {
 				try {
 					if (!$table->create()) {
 						throw new \Exception(Db::$db->error());
@@ -771,7 +772,7 @@ class Install extends ToolsBase implements ToolsInterface
 					$num_inserts = $table->populate();
 
 					Maintenance::$context['sql_results']['inserts'] += $num_inserts;
-					Maintenance::$context['sql_results']['insert_dups'] += (count($table->initial_data) - $num_inserts);
+					Maintenance::$context['sql_results']['insert_dups'] += (\count($table->initial_data) - $num_inserts);
 
 					$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				} catch (\Throwable $e) {
@@ -831,7 +832,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Was this a refresh?
-		if (count($existing_tables) > 0) {
+		if (\count($existing_tables) > 0) {
 			$this->page_title = Lang::getTxt('user_refresh_install', file: 'Maintenance');
 			Maintenance::$context['was_refresh'] = true;
 		}
@@ -918,7 +919,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// No password?
-		if (strlen($_POST['password1']) < 4) {
+		if (\strlen($_POST['password1']) < 4) {
 			Maintenance::$fatal_error = Lang::getTxt('error_user_settings_no_password', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
@@ -961,7 +962,7 @@ class Install extends ToolsBase implements ToolsInterface
 						break;
 
 					default:
-						Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'Maintenance');
+						Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'General');
 						break;
 				}
 			}
@@ -992,7 +993,7 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		if (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
+		if (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || \strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_admin_email_needed', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
@@ -1000,7 +1001,7 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		if (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
+		if (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || \strlen($_POST['server_email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_server_email_needed', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
@@ -1011,7 +1012,7 @@ class Install extends ToolsBase implements ToolsInterface
 		if ($_POST['username'] != '') {
 			Maintenance::$context['password_salt'] = bin2hex(random_bytes(16));
 
-			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
+			$ip = IP::getUserIP();
 
 			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
@@ -1070,7 +1071,7 @@ class Install extends ToolsBase implements ToolsInterface
 						],
 					],
 					['id_member'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 
 				if ((int) Maintenance::$context['id_member'] > 0) {
@@ -1195,7 +1196,7 @@ class Install extends ToolsBase implements ToolsInterface
 					[
 						session_id(),
 						time(),
-						'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+						'USER_AGENT|s:' . \strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
 					],
 				],
 				['session_id'],
@@ -1229,7 +1230,7 @@ class Install extends ToolsBase implements ToolsInterface
 			(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
 			// We've just installed!
-			$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
+			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
 
 			if (isset(Maintenance::$context['id_member'])) {
 				User::setMe((int) Maintenance::$context['id_member']);
@@ -1237,7 +1238,7 @@ class Install extends ToolsBase implements ToolsInterface
 				User::load();
 			}
 
-			User::$me->ip = $_SERVER['REMOTE_ADDR'];
+			User::$me->ip = IP::getUserIP();
 
 			Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
 		}
@@ -1295,7 +1296,7 @@ class Install extends ToolsBase implements ToolsInterface
 		SecFilterScanPOST Off
 	</IfModule>';
 
-		if (!function_exists('apache_get_modules') || !in_array('mod_security', apache_get_modules())) {
+		if (!\function_exists('apache_get_modules') || !\in_array('mod_security', apache_get_modules())) {
 			return true;
 		}
 
@@ -1494,12 +1495,12 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function determineTimezone(): string
 	{
-		if (isset(Config::$modSettings['default_timezone']) && in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+		if (isset(Config::$modSettings['default_timezone']) && \in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			return Config::$modSettings['default_timezone'];
 		}
 
 		// Get PHP's default timezone, if set
-		$ini_tz = ini_get('date.timezone');
+		$ini_tz = \ini_get('date.timezone');
 
 		if (!empty($ini_tz)) {
 			$timezone_id = $ini_tz;
@@ -1508,7 +1509,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
-		if (!in_array($timezone_id, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+		if (!\in_array($timezone_id, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 

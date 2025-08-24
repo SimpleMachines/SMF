@@ -294,7 +294,7 @@ class GroupPermissionSet
 
 		if (!empty($query_groups)) {
 			// Global permissions.
-			if (in_array(PermissionProfile::DEFAULT, $profiles)) {
+			if (\in_array(PermissionProfile::DEFAULT, $profiles)) {
 				self::loadGlobalPermissionData($query_groups);
 			}
 
@@ -322,7 +322,7 @@ class GroupPermissionSet
 		$groups = array_diff($groups, [Group::MOD]);
 
 		// Admins can do everything.
-		if (in_array(Group::ADMIN, $groups)) {
+		if (\in_array(Group::ADMIN, $groups)) {
 			foreach (Permission::getAll() as $permission) {
 				if ($permission->scope === 'global') {
 					self::$loaded[PermissionProfile::DEFAULT][Group::ADMIN]->permissions[$permission->name] = 1;
@@ -397,7 +397,7 @@ class GroupPermissionSet
 	protected static function loadBoardPermissionData(array $profiles, array $groups): void
 	{
 		// Admins can do everything.
-		if (in_array(Group::ADMIN, $groups)) {
+		if (\in_array(Group::ADMIN, $groups)) {
 			foreach (Permission::getAll() as $permission) {
 				if ($permission->scope === 'board') {
 					foreach ($profiles as $profile) {
@@ -421,7 +421,7 @@ class GroupPermissionSet
 					}
 				}
 
-				if ($hits = count($profiles)) {
+				if ($hits = \count($profiles)) {
 					unset($groups[$g]);
 				}
 			}

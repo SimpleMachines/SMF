@@ -1156,7 +1156,7 @@ class Permission implements \ArrayAccess
 	 */
 	public static function exists(string $name): bool
 	{
-		return array_key_exists($name, self::getAll());
+		return \array_key_exists($name, self::getAll());
 	}
 
 	/**
@@ -1227,7 +1227,7 @@ class Permission implements \ArrayAccess
 		self::integrateLoadPermissionLevels();
 
 		// In case a mod screwed things up...
-		if (!in_array('html', Utils::$context['restricted_bbc'])) {
+		if (!\in_array('html', Utils::$context['restricted_bbc'])) {
 			Utils::$context['restricted_bbc'][] = 'html';
 		}
 
@@ -1241,7 +1241,7 @@ class Permission implements \ArrayAccess
 				'own_any' => null,
 				'view_group' => 'bbc',
 				'scope' => 'global',
-				'hidden' => !in_array($bbc->tag, Utils::$context['restricted_bbc']),
+				'hidden' => !\in_array($bbc->tag, Utils::$context['restricted_bbc']),
 				'vsprintf' => ['permissionname_bbc', [$bbc->tag]],
 			];
 		}
@@ -1316,7 +1316,7 @@ class Permission implements \ArrayAccess
 				$a_prereqs = array_merge($a['assigner_prerequisites'] ?? [], $a['assignee_prerequisites'] ?? []);
 				$b_prereqs = array_merge($b['assigner_prerequisites'] ?? [], $b['assignee_prerequisites'] ?? []);
 
-				return in_array($b['name'], $a_prereqs) ? 1 : (in_array($a['name'], $b_prereqs) ? -1 : empty($b_prereqs) <=> empty($a_prereqs));
+				return \in_array($b['name'], $a_prereqs) ? 1 : (\in_array($a['name'], $b_prereqs) ? -1 : empty($b_prereqs) <=> empty($a_prereqs));
 			},
 		);
 
@@ -1472,7 +1472,7 @@ class Permission implements \ArrayAccess
 
 			// Did the hook remove a permission from Utils::$context['non_guest_permissions']?
 			foreach (self::getAll() as $permission => $perm) {
-				if (!in_array($perm->generic_name, Utils::$context['non_guest_permissions'])) {
+				if (!\in_array($perm->generic_name, Utils::$context['non_guest_permissions'])) {
 					self::$permissions[$permission]->never_guests = false;
 				}
 			}

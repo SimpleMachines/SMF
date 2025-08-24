@@ -43,7 +43,7 @@ class UserDrafts extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return !in_array(Config::$db_prefix . 'user_drafts', $tables) || Maintenance::getCurrentStart() > 0;
+		return !\in_array(Config::$db_prefix . 'user_drafts', $tables) || Maintenance::getCurrentStart() > 0;
 	}
 
 	/**
@@ -58,7 +58,7 @@ class UserDrafts extends MigrationBase
 		$tables = Db::$db->list_tables();
 
 		// Creating draft table.
-		if ($start <= 0 && !in_array(Config::$db_prefix . 'user_drafts', $tables)) {
+		if ($start <= 0 && !\in_array(Config::$db_prefix . 'user_drafts', $tables)) {
 			$drafts_table->create();
 
 			$this->handleTimeout(++$start);

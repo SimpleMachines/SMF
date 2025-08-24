@@ -159,8 +159,8 @@ class IntegrationHook
 		// Loop through each callable.
 		foreach ($this->callables as $id_hook => $callable) {
 			// Is it valid?
-			if (is_callable($callable)) {
-				$this->results[$id_hook] = call_user_func_array($callable, $parameters);
+			if (\is_callable($callable)) {
+				$this->results[$id_hook] = \call_user_func_array($callable, $parameters);
 			}
 			// This failed, but we want to do so silently.
 			elseif ($this->ignore_errors) {
@@ -287,8 +287,8 @@ class IntegrationHook
 	 */
 	final public static function getCallable(string|callable $function, ?string $class = null, bool $is_object = false, ?bool $ignore_errors = null): callable|false
 	{
-		if (!is_string($function)) {
-			return is_callable($function) ? $function : false;
+		if (!\is_string($function)) {
+			return \is_callable($function) ? $function : false;
 		}
 
 		// Abort if file loading fails.
@@ -300,7 +300,7 @@ class IntegrationHook
 		$callable_name = (!empty($class) ? $class . '::' : '') . $function;
 
 		// Process the instances.
-		if ($is_object && is_string($class)) {
+		if ($is_object && \is_string($class)) {
 			Utils::$context['instances'] ??= [];
 
 			if (!isset(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
@@ -322,7 +322,7 @@ class IntegrationHook
 		}
 
 		// Validate the callable.
-		if (!is_callable($callable, false, $callable_name)) {
+		if (!\is_callable($callable, false, $callable_name)) {
 			$ignore_errors ??= !empty(Utils::$context['ignore_hook_errors']);
 
 			if ($ignore_errors) {
@@ -814,6 +814,6 @@ class IntegrationHook
 	 */
 	private static function prepareLegacyName(string $name): string
 	{
-		return in_array($name, self::$no_integrate_names) ? $name : 'integrate_' . $name;
+		return \in_array($name, self::$no_integrate_names) ? $name : 'integrate_' . $name;
 	}
 }

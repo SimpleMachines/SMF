@@ -53,7 +53,7 @@ class ThemeChooser implements ActionInterface, Routable
 		$_REQUEST['u'] = !isset($_REQUEST['u']) ? User::$me->id : (int) $_REQUEST['u'];
 
 		// Only admins can change default values.
-		if (in_array($_REQUEST['u'], [-1, 0])) {
+		if (\in_array($_REQUEST['u'], [-1, 0])) {
 			User::$me->isAllowedTo('admin_forum');
 		}
 		// Is the ability to change themes enabled overall?
@@ -209,7 +209,7 @@ class ThemeChooser implements ActionInterface, Routable
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Figure out which theme it is they are REALLY using.
-			if (!empty(Config::$modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', Config::$modSettings['knownThemes']))) {
+			if (!empty(Config::$modSettings['knownThemes']) && !\in_array($row['id_theme'], explode(',', Config::$modSettings['knownThemes']))) {
 				$row['id_theme'] = $guest_theme;
 			} elseif (empty(Config::$modSettings['theme_allow'])) {
 				$row['id_theme'] = $guest_theme;
@@ -375,7 +375,7 @@ class ThemeChooser implements ActionInterface, Routable
 		return (
 			// The selected theme is enabled.
 			(
-				in_array($id_theme, explode(',', Config::$modSettings['enableThemes']))
+				\in_array($id_theme, explode(',', Config::$modSettings['enableThemes']))
 				|| $id_theme == 0
 			)
 			// And...
@@ -389,7 +389,7 @@ class ThemeChooser implements ActionInterface, Routable
 					// And current user is allowed to change profile extras of the specified user.
 					&& User::$me->allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
 					// And the selected theme is known. (0 means forum default.)
-					&& in_array(
+					&& \in_array(
 						$id_theme,
 						array_merge(
 							[0],

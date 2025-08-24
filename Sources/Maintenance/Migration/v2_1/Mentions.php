@@ -42,7 +42,7 @@ class Mentions extends MigrationBase
 	{
 		$tables = Db::$db->list_tables();
 
-		return !in_array(Config::$db_prefix . 'mentions', $tables);
+		return !\in_array(Config::$db_prefix . 'mentions', $tables);
 	}
 
 	/**

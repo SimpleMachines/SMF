@@ -102,10 +102,8 @@ class LogErrors extends Table
 			),
 			'backtrace' => new Column(
 				name: 'backtrace',
-				type: 'varchar',
-				size: 10000,
+				type: 'text',
 				not_null: true,
-				default: '',
 			),
 		];
 

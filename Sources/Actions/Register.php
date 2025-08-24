@@ -96,10 +96,10 @@ class Register implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -111,6 +111,11 @@ class Register implements ActionInterface, Routable
 		// Check if the administrator has it disabled.
 		if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == '3') {
 			ErrorHandler::fatalLang('registration_disabled', false);
+		}
+
+		// You cannot register with cookies disabled
+		if (empty($_COOKIE)) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
 		}
 
 		// If this user is an admin - redirect them to the admin registration page.
@@ -288,7 +293,7 @@ class Register implements ActionInterface, Routable
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
-			if (in_array('website', $reg_fields)) {
+			if (\in_array('website', $reg_fields)) {
 				unset($reg_fields['website']);
 
 				if (isset($_POST['website_title'])) {

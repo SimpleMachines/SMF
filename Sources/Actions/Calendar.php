@@ -90,10 +90,10 @@ class Calendar implements ActionInterface, Routable
 			'max_year' => Config::$modSettings['cal_maxyear'],
 		];
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -259,9 +259,9 @@ class Calendar implements ActionInterface, Routable
 		// Load all the context information needed to show the calendar grid.
 		$calendarOptions = [
 			'start_day' => !empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0,
-			'show_birthdays' => in_array(Config::$modSettings['cal_showbdays'], [1, 2]),
-			'show_events' => in_array(Config::$modSettings['cal_showevents'], [1, 2]),
-			'show_holidays' => in_array(Config::$modSettings['cal_showholidays'], [1, 2]),
+			'show_birthdays' => \in_array(Config::$modSettings['cal_showbdays'], [1, 2]),
+			'show_events' => \in_array(Config::$modSettings['cal_showevents'], [1, 2]),
+			'show_holidays' => \in_array(Config::$modSettings['cal_showholidays'], [1, 2]),
 			'show_week_num' => true,
 			'short_day_titles' => !empty(Config::$modSettings['cal_short_days']),
 			'short_month_titles' => !empty(Config::$modSettings['cal_short_months']),
@@ -279,16 +279,16 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Load up the previous and next months.
-		Utils::$context['calendar_grid_current'] = self::getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
+		Utils::$context['calendar_grid_current'] = self::getCalendarGrid($curPage['start_date'], $calendarOptions, false);
 
 		// Only show previous month if it isn't pre-January of the min-year
 		if (Utils::$context['calendar_grid_current']['previous_calendar']['year'] > Config::$modSettings['cal_minyear'] || $curPage['month'] != 1) {
-			Utils::$context['calendar_grid_prev'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
+			Utils::$context['calendar_grid_prev'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
 		}
 
 		// Only show next month if it isn't post-December of the max-year
 		if (Utils::$context['calendar_grid_current']['next_calendar']['year'] < Config::$modSettings['cal_maxyear'] || $curPage['month'] != 12) {
-			Utils::$context['calendar_grid_next'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
+			Utils::$context['calendar_grid_next'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false);
 		}
 
 		// Basic template stuff.
@@ -423,7 +423,7 @@ class Calendar implements ActionInterface, Routable
 			User::$me->checkSession();
 
 			// Validate the post...
-			if (!in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
+			if (!\in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
 				self::validateEventPost();
 			}
 
@@ -433,7 +433,7 @@ class Calendar implements ActionInterface, Routable
 			}
 
 			// New - and directing?
-			if (in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
+			if (\in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
 				$_REQUEST['calendar'] = 1;
 
 				if (empty($_POST['topic'])) {
@@ -575,7 +575,7 @@ class Calendar implements ActionInterface, Routable
 		} else {
 			// Load the list of boards and categories in the context.
 			$boardListOptions = [
-				'included_boards' => in_array(0, $boards) ? null : $boards,
+				'included_boards' => \in_array(0, $boards) ? null : $boards,
 				'not_redirection' => true,
 				'use_permissions' => true,
 				'selected_board' => Config::$modSettings['cal_defaultboard'],
@@ -593,7 +593,7 @@ class Calendar implements ActionInterface, Routable
 		];
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (\count(Utils::$context['event']->byday_items) - 1));
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
@@ -686,7 +686,7 @@ class Calendar implements ActionInterface, Routable
 				$event = $occurrence->getParentEvent();
 
 				// Skip if we already exported the full event.
-				if (in_array($event->uid, $full_event_uids)) {
+				if (\in_array($event->uid, $full_event_uids)) {
 					continue;
 				}
 
@@ -742,7 +742,7 @@ class Calendar implements ActionInterface, Routable
 		// RFC 5545 requires "\r\n", not just "\n".
 		$file['content'] = implode("\r\n", $file['content']);
 
-		$file['size'] = strlen($file['content']);
+		$file['size'] = \strlen((string) $file['content']);
 
 		// Send it.
 		Utils::emitFile($file);
@@ -876,7 +876,7 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		foreach ($occurrences as $mday => $array) {
-			$occurrences[$mday][count($array) - 1]['is_last'] = true;
+			$occurrences[$mday][\count($array) - 1]['is_last'] = true;
 		}
 
 		ksort($occurrences);
@@ -1124,7 +1124,7 @@ class Calendar implements ActionInterface, Routable
 					$nDay = 0;
 				}
 
-				$date = $selected_object->format('Y-m-') . sprintf('%02d', $nDay);
+				$date = $selected_object->format('Y-m-') . \sprintf('%02d', $nDay);
 
 				$calendarGrid['weeks'][$nRow]['days'][$nCol] = [
 					'day' => $nDay,
@@ -1308,7 +1308,7 @@ class Calendar implements ActionInterface, Routable
 
 		foreach ($calendarGrid['events'] as $date => $date_events) {
 			foreach ($date_events as $event_key => $event_val) {
-				if (in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
+				if (\in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
 					unset($calendarGrid['events'][$date][$event_key]);
 
 					if (empty($calendarGrid['events'][$date])) {
@@ -1458,11 +1458,11 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Mark the last item so that a list separator can be used in the template.
-		for ($i = 0, $n = count($return_data['calendar_birthdays']); $i < $n; $i++) {
+		for ($i = 0, $n = \count($return_data['calendar_birthdays']); $i < $n; $i++) {
 			$return_data['calendar_birthdays'][$i]['is_last'] = !isset($return_data['calendar_birthdays'][$i + 1]);
 		}
 
-		for ($i = 0, $n = count($return_data['calendar_events']); $i < $n; $i++) {
+		for ($i = 0, $n = \count($return_data['calendar_events']); $i < $n; $i++) {
 			$return_data['calendar_events'][$i]['is_last'] = !isset($return_data['calendar_events'][$i + 1]);
 		}
 
@@ -1503,9 +1503,9 @@ class Calendar implements ActionInterface, Routable
 		foreach ($cache_block['data']['calendar_events'] as $k => $event) {
 			// Remove events that the user may not see or wants to ignore.
 			if (
-				in_array($event->id_board, User::$me->ignoreboards)
+				\in_array($event->id_board, User::$me->ignoreboards)
 				|| (
-					count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
+					\count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
 					&& !User::$me->allowedTo('admin_forum')
 					&& !empty($event->id_board)
 				)
@@ -1713,9 +1713,9 @@ class Calendar implements ActionInterface, Routable
 
 			unset($params['sa']);
 		} elseif (isset($params['year'])) {
-			$route[] = sprintf('%04d', $params['year']);
-			$route[] = sprintf('%02d', $params['month'] ?? 1);
-			$route[] = sprintf('%02d', $params['day'] ?? 1);
+			$route[] = \sprintf('%04d', $params['year']);
+			$route[] = \sprintf('%02d', $params['month'] ?? 1);
+			$route[] = \sprintf('%02d', $params['day'] ?? 1);
 			unset($params['year'], $params['month'], $params['day']);
 		} elseif (isset($params['event'])) {
 			$route[] = 'events';
@@ -1745,7 +1745,7 @@ class Calendar implements ActionInterface, Routable
 			if (isset(self::$subactions[$route[0]])) {
 				$params['sa'] = array_shift($route);
 
-				if ($params['sa'] === 'clock' && in_array($route[0] ?? null, ['bcd', 'rb', 'omfg'])) {
+				if ($params['sa'] === 'clock' && \in_array($route[0] ?? null, ['bcd', 'rb', 'omfg'])) {
 					$params[$route[0]] = true;
 				}
 			} elseif (is_numeric($route[0])) {
@@ -1763,11 +1763,11 @@ class Calendar implements ActionInterface, Routable
 				$params['event'] = array_shift($route);
 
 				if (!empty($route)) {
-					if (!in_array($route[0], self::$subactions)) {
+					if (!\in_array($route[0], self::$subactions)) {
 						$params['recurrenceid'] = array_shift($route);
 					}
 
-					if (!empty($route) && in_array($route[0], self::$subactions)) {
+					if (!empty($route) && \in_array($route[0], self::$subactions)) {
 						$params['sa'] = array_shift($route);
 						$params['eventid'] = $params['event'];
 					}

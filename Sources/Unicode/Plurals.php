@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Unicode;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -45,7 +45,7 @@ function plurals(): array
 		],
 		'ak' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -72,8 +72,8 @@ function plurals(): array
 				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0,
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -85,8 +85,8 @@ function plurals(): array
 				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0,
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -96,8 +96,8 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 5, 7, 8, 9, 10]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 5, 7, 8, 9, 10]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 6,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -124,9 +124,9 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i % 10, [1, 2, 5, 7, 8]) or in_array($i % 100, [20, 50, 70, 80]),
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i % 10, [3, 4]) or in_array($i % 1000, [100, 200, 300, 400, 500, 600, 700, 800, 900]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0 or $i % 10 == 6 or in_array($i % 100, [40, 60, 90]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i % 10, [1, 2, 5, 7, 8]) or \in_array($i % 100, [20, 50, 70, 80]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i % 10, [3, 4]) or \in_array($i % 1000, [100, 200, 300, 400, 500, 600, 700, 800, 900]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0 or $i % 10 == 6 or \in_array($i % 100, [40, 60, 90]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -143,12 +143,12 @@ function plurals(): array
 		'be' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && $n % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [2, 3, 4]) && !in_array($n % 100, [12, 13, 14]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or in_array($n % 10, [5, 6, 7, 8, 9]) or in_array($n % 100, [11, 12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [2, 3, 4]) && !\in_array($n % 100, [12, 13, 14]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or \in_array($n % 10, [5, 6, 7, 8, 9]) or \in_array($n % 100, [11, 12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [2, 3]) && !in_array($n % 100, [12, 13]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [2, 3]) && !\in_array($n % 100, [12, 13]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -175,7 +175,7 @@ function plurals(): array
 		],
 		'bho' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -188,7 +188,7 @@ function plurals(): array
 			'ordinal' => [
 				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0,
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [2, 3, 4, 5, 6]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [2, 3, 4, 5, 6]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -203,8 +203,8 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 5, 7, 8, 9, 10]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 5, 7, 8, 9, 10]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 6,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -217,9 +217,9 @@ function plurals(): array
 		],
 		'br' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && !in_array($n % 100, [11, 71, 91]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 2 && !in_array($n % 100, [12, 72, 92]),
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [3, 4, 9]) && !in_array($n % 100, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && !\in_array($n % 100, [11, 71, 91]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 2 && !\in_array($n % 100, [12, 72, 92]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [3, 4, 9]) && !\in_array($n % 100, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n != 0 && $n % 1000000 == 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -233,7 +233,7 @@ function plurals(): array
 		'bs' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11 or $f % 10 == 1 && $f % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]) or in_array($f % 10, [2, 3, 4]) && !in_array($f % 100, [12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]) or \in_array($f % 10, [2, 3, 4]) && !\in_array($f % 100, [12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -243,11 +243,11 @@ function plurals(): array
 		'ca' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 3]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 3]),
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -264,7 +264,7 @@ function plurals(): array
 		],
 		'ceb' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i, [1, 2, 3]) or $v == 0 && !in_array($i % 10, [4, 6, 9]) or $v != 0 && !in_array($f % 10, [4, 6, 9]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i, [1, 2, 3]) or $v == 0 && !\in_array($i % 10, [4, 6, 9]) or $v != 0 && !\in_array($f % 10, [4, 6, 9]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -289,7 +289,7 @@ function plurals(): array
 		'cs' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [2, 3, 4]) && $v == 0,
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [2, 3, 4]) && $v == 0,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -299,7 +299,7 @@ function plurals(): array
 		],
 		'csw' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -313,17 +313,17 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 7, 8, 9]),
+				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 7, 8, 9]),
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [3, 4]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [5, 6]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [3, 4]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [5, 6]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'da' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1 or $t != 0 && in_array($i, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1 or $t != 0 && \in_array($i, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -349,7 +349,7 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 1 or $f % 100 == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 2 or $f % 100 == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 100, [3, 4]) or in_array($f % 100, [3, 4]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 100, [3, 4]) or \in_array($f % 100, [3, 4]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -403,7 +403,7 @@ function plurals(): array
 		'es' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -439,7 +439,7 @@ function plurals(): array
 		],
 		'ff' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -454,7 +454,7 @@ function plurals(): array
 		],
 		'fil' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i, [1, 2, 3]) or $v == 0 && !in_array($i % 10, [4, 6, 9]) or $v != 0 && !in_array($f % 10, [4, 6, 9]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i, [1, 2, 3]) or $v == 0 && !\in_array($i % 10, [4, 6, 9]) or $v != 0 && !\in_array($f % 10, [4, 6, 9]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -470,8 +470,8 @@ function plurals(): array
 		],
 		'fr' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -498,8 +498,8 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [3, 4, 5, 6]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [7, 8, 9, 10]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [3, 4, 5, 6]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [7, 8, 9, 10]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -509,15 +509,15 @@ function plurals(): array
 		],
 		'gd' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 11]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 12]),
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 11]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 12]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 11]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 12]),
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [3, 13]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 11]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 12]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [3, 13]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -546,7 +546,7 @@ function plurals(): array
 			],
 			'ordinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 6,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -554,7 +554,7 @@ function plurals(): array
 		],
 		'guw' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -562,7 +562,7 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 100, [0, 20, 40, 60, 80]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 100, [0, 20, 40, 60, 80]),
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -596,7 +596,7 @@ function plurals(): array
 			],
 			'ordinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 6,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -610,7 +610,7 @@ function plurals(): array
 		'hr' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11 or $f % 10 == 1 && $f % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]) or in_array($f % 10, [2, 3, 4]) && !in_array($f % 100, [12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]) or \in_array($f % 10, [2, 3, 4]) && !\in_array($f % 100, [12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -621,7 +621,7 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 1 or $f % 100 == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 2 or $f % 100 == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 100, [3, 4]) or in_array($f % 100, [3, 4]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 100, [3, 4]) or \in_array($f % 100, [3, 4]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -634,13 +634,13 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 5]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'hy' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -693,11 +693,11 @@ function plurals(): array
 		'it' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 800]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 800]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -750,13 +750,13 @@ function plurals(): array
 			],
 			'ordinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0 or in_array($i % 100, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 40, 60, 80]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0 or \in_array($i % 100, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 40, 60, 80]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'kab' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -858,13 +858,13 @@ function plurals(): array
 			'cardinal' => [
 				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0,
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [2, 22, 42, 62, 82]) or $n % 1000 == 0 && in_array($n % 100000, [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 40000, 60000, 80000]) or $n != 0 && $n % 1000000 == 100000,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [3, 23, 43, 63, 83]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n != 1 && in_array($n % 100, [1, 21, 41, 61, 81]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [2, 22, 42, 62, 82]) or $n % 1000 == 0 && \in_array($n % 100000, [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 40000, 60000, 80000]) or $n != 0 && $n % 1000000 == 100000,
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [3, 23, 43, 63, 83]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n != 1 && \in_array($n % 100, [1, 21, 41, 61, 81]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 2, 3, 4]) or in_array($n % 100, [1, 2, 3, 4, 21, 22, 23, 24, 41, 42, 43, 44, 61, 62, 63, 64, 81, 82, 83, 84]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 2, 3, 4]) or \in_array($n % 100, [1, 2, 3, 4, 21, 22, 23, 24, 41, 42, 43, 44, 61, 62, 63, 64, 81, 82, 83, 84]),
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 5 or $n % 100 == 5,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -881,7 +881,7 @@ function plurals(): array
 		'lag' => [
 			'cardinal' => [
 				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0,
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]) && $n != 0,
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]) && $n != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -903,7 +903,7 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816, 817, 818, 819, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 846, 847, 848, 849, 850, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861, 862, 863, 864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816, 817, 818, 819, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 846, 847, 848, 849, 850, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861, 862, 863, 864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -915,17 +915,17 @@ function plurals(): array
 		'lld' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 800]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 800]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'ln' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -940,8 +940,8 @@ function plurals(): array
 		],
 		'lt' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && !in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [2, 3, 4, 5, 6, 7, 8, 9]) && !in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && !\in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [2, 3, 4, 5, 6, 7, 8, 9]) && !\in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $f != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -951,7 +951,7 @@ function plurals(): array
 		],
 		'lv' => [
 			'cardinal' => [
-				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]) or $v == 2 && in_array($f % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or \in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]) or $v == 2 && \in_array($f % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && $n % 100 != 11 or $v == 2 && $f % 10 == 1 && $f % 100 != 11 or $v != 2 && $f % 10 == 1,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -967,7 +967,7 @@ function plurals(): array
 		],
 		'mg' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -985,7 +985,7 @@ function plurals(): array
 			'ordinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i % 10 == 1 && $i % 100 != 11,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $i % 10 == 2 && $i % 100 != 12,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i % 10, [7, 8]) && !in_array($i % 100, [17, 18]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i % 10, [7, 8]) && !\in_array($i % 100, [17, 18]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1010,7 +1010,7 @@ function plurals(): array
 		'mo' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0 or $n == 0 or $n != 1 && in_array($n % 100, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0 or $n == 0 or $n != 1 && \in_array($n % 100, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1025,7 +1025,7 @@ function plurals(): array
 			],
 			'ordinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -1043,8 +1043,8 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0 or in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 0 or \in_array($n % 100, [3, 4, 5, 6, 7, 8, 9, 10]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1090,7 +1090,7 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 2, 3, 4]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 2, 3, 4]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1137,7 +1137,7 @@ function plurals(): array
 		],
 		'nso' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1165,8 +1165,8 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [1, 5, 7, 8, 9]),
-				'two' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [1, 5, 7, 8, 9]),
+				'two' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3]),
 				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 4,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $n == 6,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
@@ -1185,7 +1185,7 @@ function plurals(): array
 		],
 		'pa' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1207,8 +1207,8 @@ function plurals(): array
 		'pl' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i != 1 && in_array($i % 10, [0, 1]) or $v == 0 && in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && in_array($i % 100, [12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i != 1 && \in_array($i % 10, [0, 1]) or $v == 0 && \in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && \in_array($i % 100, [12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1217,7 +1217,7 @@ function plurals(): array
 		],
 		'prg' => [
 			'cardinal' => [
-				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]) or $v == 2 && in_array($f % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'zero' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 0 or \in_array($n % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]) or $v == 2 && \in_array($f % 100, [11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $n % 10 == 1 && $n % 100 != 11 or $v == 2 && $f % 10 == 1 && $f % 100 != 11 or $v != 2 && $f % 10 == 1,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -1236,8 +1236,8 @@ function plurals(): array
 		],
 		'pt' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [0, 1]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [0, 1]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1247,7 +1247,7 @@ function plurals(): array
 		'pt-PT' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1260,7 +1260,7 @@ function plurals(): array
 		'ro' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0 or $n == 0 or $n != 1 && in_array($n % 100, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0 or $n == 0 or $n != 1 && \in_array($n % 100, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1277,8 +1277,8 @@ function plurals(): array
 		'ru' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 0 or $v == 0 && in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && in_array($i % 100, [11, 12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 0 or $v == 0 && \in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && \in_array($i % 100, [11, 12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1315,18 +1315,18 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 800]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 800]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'scn' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 800]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 800]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1371,7 +1371,7 @@ function plurals(): array
 		'sh' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11 or $f % 10 == 1 && $f % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]) or in_array($f % 10, [2, 3, 4]) && !in_array($f % 100, [12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]) or \in_array($f % 10, [2, 3, 4]) && !\in_array($f % 100, [12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1381,13 +1381,13 @@ function plurals(): array
 		'shi' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 0 or $n == 1,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [2, 3, 4, 5, 6, 7, 8, 9, 10]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'si' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]) or $i == 0 && $f == 1,
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]) or $i == 0 && $f == 1,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1397,7 +1397,7 @@ function plurals(): array
 		'sk' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($i, [2, 3, 4]) && $v == 0,
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($i, [2, 3, 4]) && $v == 0,
 				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
@@ -1409,7 +1409,7 @@ function plurals(): array
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 1,
 				'two' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 100 == 2,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 100, [3, 4]) or $v != 0,
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 100, [3, 4]) or $v != 0,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1477,7 +1477,7 @@ function plurals(): array
 		'sr' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11 or $f % 10 == 1 && $f % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]) or in_array($f % 10, [2, 3, 4]) && !in_array($f % 100, [12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]) or \in_array($f % 10, [2, 3, 4]) && !\in_array($f % 100, [12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1513,7 +1513,7 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [1, 2]) && !in_array($n % 100, [11, 12]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [1, 2]) && !\in_array($n % 100, [11, 12]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1566,7 +1566,7 @@ function plurals(): array
 		],
 		'ti' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1582,13 +1582,13 @@ function plurals(): array
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n % 10, [6, 9]) or $n == 10,
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n % 10, [6, 9]) or $n == 10,
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
 		'tl' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i, [1, 2, 3]) or $v == 0 && !in_array($i % 10, [4, 6, 9]) or $v != 0 && !in_array($f % 10, [4, 6, 9]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i, [1, 2, 3]) or $v == 0 && !\in_array($i % 10, [4, 6, 9]) or $v != 0 && !\in_array($f % 10, [4, 6, 9]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1632,7 +1632,7 @@ function plurals(): array
 		],
 		'tzm' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]) or in_array($n, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]) or \in_array($n, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1645,8 +1645,8 @@ function plurals(): array
 		'uk' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 1 && $i % 100 != 11,
-				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && in_array($i % 10, [2, 3, 4]) && !in_array($i % 100, [12, 13, 14]),
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 0 or $v == 0 && in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && in_array($i % 100, [11, 12, 13, 14]),
+				'few' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && \in_array($i % 10, [2, 3, 4]) && !\in_array($i % 100, [12, 13, 14]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $v == 0 && $i % 10 == 0 or $v == 0 && \in_array($i % 10, [5, 6, 7, 8, 9]) or $v == 0 && \in_array($i % 100, [11, 12, 13, 14]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
@@ -1689,11 +1689,11 @@ function plurals(): array
 		'vec' => [
 			'cardinal' => [
 				'one' => fn($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0, 1, 2, 3, 4, 5]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !\in_array($c, [0, 1, 2, 3, 4, 5]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
-				'many' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11, 8, 80, 800]),
+				'many' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [11, 8, 80, 800]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
@@ -1720,7 +1720,7 @@ function plurals(): array
 		],
 		'wa' => [
 			'cardinal' => [
-				'one' => fn($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0, 1]),
+				'one' => fn($n, $i, $v, $w, $f, $t, $c) => \in_array($n, [0, 1]),
 				'other' => fn($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
