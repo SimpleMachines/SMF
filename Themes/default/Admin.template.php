@@ -979,7 +979,7 @@ function template_show_settings()
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
-										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, '>';
+										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), '>';
 				}
 
 				echo isset($config_var['postinput']) ? '
