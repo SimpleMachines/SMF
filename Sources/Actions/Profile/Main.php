@@ -992,7 +992,7 @@ class Main implements ActionInterface, Routable
 			'extra_url_parameters' => [
 				'u' => Profile::$member->id,
 			],
-			'lang_file' => 'Profile',
+			'lang_file' => 'Profile' . ($this->profile_areas['info']['areas']['showdrafts']['enabled'] ? '+Drafts' : ''),
 		];
 
 		// Actually create the menu!
