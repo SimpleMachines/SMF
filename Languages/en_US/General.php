@@ -376,6 +376,12 @@ $txt['last_edit_reason'] = '<span class="lastedit reason">Reason</span>: {reason
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 $txt['modified_time'] = 'Last edited';
 $txt['modified_by'] = 'Edited by';
+$txt['edit_history_count'] = 'Edited {0, plural,
+	one {# time}
+	other {# times}
+}';
+$txt['edit_history_linktext'] = '{time} by {member}';
+$txt['edit_history_linktext_reason'] = '{time} by {member}: {reason}';
 
 $txt['recent_posts'] = 'Recent posts';
 

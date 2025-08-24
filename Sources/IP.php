@@ -563,17 +563,7 @@ class IP implements \Stringable
 				// Go through each IP...
 				foreach ($ips as $i => $ip) {
 					// Make sure it's in a valid range...
-					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
-						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-							// Just incase we have a legacy IPv4 address.
-							// @ TODO: Convert to IPv6.
-							if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-								continue;
-							}
-						}
-
+					if (self::isLocal($ip) && !self::isLocal($_SERVER['REMOTE_ADDR'])) {
 						continue;
 					}
 
@@ -582,16 +572,11 @@ class IP implements \Stringable
 				}
 			}
 			// Otherwise just use the only one.
-			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
-				return $_SERVER[$proxyIPheader];
-			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-				// Just incase we have a legacy IPv4 address.
+			elseif (!self::isLocal($_SERVER[$proxyIPheader]) && self::isLocal($_SERVER['REMOTE_ADDR'])) {
+				return static::$user_ip = $_SERVER[$proxyIPheader];
+			} elseif (self::is4in6($_SERVER[$proxyIPheader])) {
 				// @ TODO: Convert to IPv6.
-				if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-					continue;
-				}
+				continue;
 			}
 		}
 
@@ -605,7 +590,7 @@ class IP implements \Stringable
 	 */
 	public static function getUserIPAlternative(): string
 	{
-		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'];
+		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'] ?? '';
 	}
 
 	/**
@@ -615,7 +600,7 @@ class IP implements \Stringable
 	 */
 	public static function setUserIPAlternative(?string $ip = null): void
 	{
-		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'];
+		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'] ?? '';
 	}
 
 	/******************
@@ -774,5 +759,40 @@ class IP implements \Stringable
 		$query .= "\0\0\x0C\0\1";
 
 		return $query;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Check whether this is a local area network address or not.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function isLocal(string $ip): bool
+	{
+		return preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) === 1;
+	}
+
+	/**
+	 * Check whether this is a IPv4 inside of a IPv6.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function is4in6(string $ip): bool
+	{
+		if (!self::create($ip)->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $ip) !== 0) {
+			$ipv4_in_v6 = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $ip);
+
+			// Just incase we have a legacy IPv4 address.
+			if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $ipv4_in_v6) === 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

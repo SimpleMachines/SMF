@@ -47,8 +47,10 @@ class ConvertToInnoDb extends MigrationBase
 		foreach ($tables as $table) {
 			$structure = Db::$db->table_structure($table);
 
+			$result = true;
+
 			if ($structure['engine'] !== 'InnoDB') {
-				Db::$db->query(
+				$result = Db::$db->query(
 					'ALTER TABLE {identifier:table}
 					ENGINE {literal:InnoDB}
 					ROW_FORMAT=DYNAMIC',
@@ -57,7 +59,7 @@ class ConvertToInnoDb extends MigrationBase
 					],
 				);
 			} elseif ($structure['row_format'] !== 'Dynamic') {
-				Db::$db->query(
+				$result = Db::$db->query(
 					'ALTER TABLE {identifier:table}
 					ROW_FORMAT=DYNAMIC',
 					[
@@ -65,15 +67,41 @@ class ConvertToInnoDb extends MigrationBase
 					],
 				);
 			}
+
+			if ($result === false) {
+				return false;
+			}
 		}
 
 		// Try to ensure all future tables use dynamic row format.
-		Db::$db->query(
-			'SET GLOBAL innodb_default_row_format=DYNAMIC',
-			[
-				'db_error_skip' => true,
-			],
-		);
+		$can_set_global_default = false;
+
+		$request = Db::$db->query('SHOW GRANTS');
+
+		while ($row = Db::$db->fetch_row($request)) {
+			if (
+				str_contains($row[0], 'SUPER')
+				|| str_contains($row[0], 'SYSTEM_VARIABLES_ADMIN')
+			) {
+				$can_set_global_default = true;
+				break;
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		if ($can_set_global_default) {
+			$result = Db::$db->query(
+				'SET GLOBAL innodb_default_row_format=DYNAMIC',
+				[
+					'db_error_skip' => true,
+				],
+			);
+
+			if ($result === false) {
+				return false;
+			}
+		}
 
 		return true;
 	}
