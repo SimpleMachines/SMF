@@ -286,9 +286,9 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 		// The current attach folder has some issues...
 		elseif (!is_dir($this->attchDir)) {
-			$this->generalErrors[] = 'attach_folder_warning';
+			$this->generalErrors[] = 'attach_directory_warning';
 
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_directory_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
