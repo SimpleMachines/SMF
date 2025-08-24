@@ -33,8 +33,6 @@ class Verification implements \ArrayAccess
 	 * Public properties
 	 *******************/
 
-	
-
 	/**
 	 * @var string
 	 *

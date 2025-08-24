@@ -107,7 +107,7 @@ class VerificationQuestions extends AntiSpamAgent implements AntiSpamInterface
 
 				shuffle($this->question_ids);
 
-				$this->question_ids = array_slice($this->question_ids, 0, $this->number_questions);
+				$this->question_ids = \array_slice($this->question_ids, 0, $this->number_questions);
 
 				break;
 			}
@@ -154,7 +154,7 @@ class VerificationQuestions extends AntiSpamAgent implements AntiSpamInterface
 			// Second, is their answer in the list of possible answers?
 			$given_answer = trim(Utils::htmlspecialchars(Utils::convertCase($_REQUEST[$this->sessionID()]['q'][$q], 'fold')));
 
-			if (!in_array($given_answer, Config::$modSettings['question_id_cache']['questions'][$q]['answers'])) {
+			if (!\in_array($given_answer, Config::$modSettings['question_id_cache']['questions'][$q]['answers'])) {
 				$incorrectQuestions[] = $q;
 			}
 		}
@@ -296,7 +296,7 @@ class VerificationQuestions extends AntiSpamAgent implements AntiSpamInterface
 
 		foreach (Utils::$context['qa_languages'] as $lang_id => $dummy) {
 			// If we had some questions for this language before, but don't now, delete everything from that language.
-			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id])) {
+			if ((!isset($_POST['question'][$lang_id]) || !\is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id])) {
 				$changes['delete'] = array_merge($changes['delete'], Utils::$context['qa_by_lang'][$lang_id]);
 			}
 
@@ -331,7 +331,7 @@ class VerificationQuestions extends AntiSpamAgent implements AntiSpamInterface
 					$question = Utils::htmlspecialchars(trim($question));
 
 					// Get the answers. Firstly check there actually might be some.
-					if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id])) {
+					if (!isset($_POST['answer'][$lang_id][$q_id]) || !\is_array($_POST['answer'][$lang_id][$q_id])) {
 						if (isset(Utils::$context['question_answers'][$q_id])) {
 							$changes['delete'][] = $q_id;
 						}
@@ -454,7 +454,7 @@ class VerificationQuestions extends AntiSpamAgent implements AntiSpamInterface
 			$this->questions[] = [
 				'id' => $q,
 				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
-				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
+				'is_error' => !empty($incorrectQuestions) && \in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
 				'a' => isset($_REQUEST[$this->sessionID()], $_REQUEST[$this->sessionID()]['q'], $_REQUEST[$this->sessionID()]['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$this->sessionID()]['q'][$q]) : '',
 			];

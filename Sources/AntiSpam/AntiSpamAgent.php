@@ -80,7 +80,7 @@ abstract class AntiSpamAgent
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);

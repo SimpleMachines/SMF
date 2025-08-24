@@ -35,8 +35,6 @@ abstract class AntiSpam
 	 */
 	public const MAX_ERRORS = 3;
 
-	
-
 	/**
 	 * @var string
 	 *
@@ -169,7 +167,7 @@ abstract class AntiSpam
 			return '';
 		}
 
-		if (!empty($form_id) && is_string($agent_id)) {
+		if (!empty($form_id) && \is_string($agent_id)) {
 			$agent_id = Uuid::createFromString($agent_id);
 		}
 
@@ -200,7 +198,7 @@ abstract class AntiSpam
 			return;
 		}
 
-		if (is_string($agent_id)) {
+		if (\is_string($agent_id)) {
 			$agent_id = Uuid::createFromString($agent_id);
 		}
 

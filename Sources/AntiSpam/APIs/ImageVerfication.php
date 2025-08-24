@@ -85,11 +85,11 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 	public function create(?array $options = []): bool
 	{
 		// Some javascript ma'am?
-		if ($this->show_visual && !in_array('smf_captcha', Utils::$context['javascript_files'])) {
+		if ($this->show_visual && !\in_array('smf_captcha', Utils::$context['javascript_files'])) {
 			Theme::loadJavaScriptFile('captcha.js', ['minimize' => true], 'smf_captcha');
 		}
 
-		Utils::$context['use_graphic_library'] = extension_loaded('gd');
+		Utils::$context['use_graphic_library'] = \extension_loaded('gd');
 
 		if (empty($this->code)) {
 			$this->setup();
@@ -149,14 +149,14 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		}
 		// If we have GD, try the nice code.
 		elseif (empty($_REQUEST['format'])) {
-			if (extension_loaded('gd') && !$this->showCodeImage($this->code)) {
+			if (\extension_loaded('gd') && !$this->showCodeImage($this->code)) {
 				Utils::sendHttpStatus(400);
 			}
 			// Otherwise just show a pre-defined letter.
 			elseif (isset($_REQUEST['letter'])) {
 				$_REQUEST['letter'] = (int) $_REQUEST['letter'];
 
-				if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($this->code) && !$this->showLetterImage(strtolower($this->code[$_REQUEST['letter'] - 1]))) {
+				if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= \strlen($this->code) && !$this->showLetterImage(strtolower($this->code[$_REQUEST['letter'] - 1]))) {
 					header('content-type: image/gif');
 
 					die(self::BLANK_IMAGE);
@@ -213,7 +213,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 	public static function getConfigVars(array &$config_vars): void
 	{
 		// Generate a sample registration image.
-		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
+		Utils::$context['use_graphic_library'] = \in_array('gd', get_loaded_extensions());
 
 		$config_vars = array_merge($config_vars, [
 			// Visual verification.
@@ -282,7 +282,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 	 */
 	protected function showCodeImage(string $code): bool
 	{
-		if (!extension_loaded('gd')) {
+		if (!\extension_loaded('gd')) {
 			return false;
 		}
 
@@ -387,7 +387,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		if (!$vary_fonts) {
 			$font_list = [$font_list[0]];
 
-			if (in_array('AnonymousPro.ttf', $ttfont_list)) {
+			if (\in_array('AnonymousPro.ttf', $ttfont_list)) {
 				$ttfont_list = ['AnonymousPro.ttf'];
 			} else {
 				$ttfont_list = empty($ttfont_list) ? [] : [$ttfont_list[0]];
@@ -398,7 +398,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		$characters = [];
 		$loaded_fonts = [];
 
-		for ($i = 0; $i < strlen($code); $i++) {
+		for ($i = 0; $i < \strlen($code); $i++) {
 			$characters[$i] = [
 				'id' => $code[$i],
 				'font' => array_rand($font_list),
@@ -415,7 +415,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		// Determine the dimensions of each character.
 		$extra = $image_type == 4 || $image_type == 5 ? 80 : 45;
 
-		$total_width = $character_spacing * strlen($code) + $extra;
+		$total_width = $character_spacing * \strlen($code) + $extra;
 		$max_height = 0;
 
 		foreach ($characters as $char_index => $character) {
@@ -499,7 +499,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 
 			foreach ($characters as $char_index => $character) {
 				// Can we use true type fonts?
-				$can_do_ttf = function_exists('imagettftext');
+				$can_do_ttf = \function_exists('imagettftext');
 
 				// How much rotation will we give?
 				if ($rotation_type == 'none') {
@@ -527,7 +527,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 					$new_index = $last_index;
 
 					while ($last_index == $new_index) {
-						$new_index = random_int(0, count($colors) - 1);
+						$new_index = random_int(0, \count($colors) - 1);
 					}
 
 					$char_fg_color = $colors[$new_index];
@@ -555,13 +555,13 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 
 					// What font face?
 					if (!empty($ttfont_list)) {
-						$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[random_int(0, count($ttfont_list) - 1)];
+						$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[random_int(0, \count($ttfont_list) - 1)];
 					}
 
 					// What color are we to do it in?
 					$is_reverse = $show_reverse_chars ? random_int(0, 1) : false;
 
-					if (function_exists('imagecolorallocatealpha') && $font_transparent) {
+					if (\function_exists('imagecolorallocatealpha') && $font_transparent) {
 						$char_color = imagecolorallocatealpha(
 							$code_image,
 							$char_fg_color[0],
@@ -614,7 +614,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 
 				if (!$can_do_ttf) {
 					// Rotating the characters a little...
-					if (function_exists('imagerotate')) {
+					if (\function_exists('imagerotate')) {
 						$char_image = imagecreatetruecolor(
 							$character['width'],
 							$character['height'],
@@ -763,7 +763,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		}
 
 		// Show the image.
-		if (function_exists('imagegif')) {
+		if (\function_exists('imagegif')) {
 			header('content-type: image/gif');
 			imagegif($code_image);
 		} else {
@@ -870,7 +870,7 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 		// Loop through all letters of the word $word.
 		$sound_word = '';
 
-		for ($i = 0; $i < count($chars); $i++) {
+		for ($i = 0; $i < \count($chars); $i++) {
 			$sound_letter = implode('', file(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/' . $chars[$i] . '.' . $sound_language . '.wav'));
 
 			if (!str_contains($sound_letter, 'data')) {
@@ -881,15 +881,15 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 
 			switch ($chars[$i] === 's' ? 0 : mt_rand(0, 2)) {
 				case 0:
-					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++) {
+					for ($j = 0, $n = \strlen($sound_letter); $j < $n; $j++) {
 						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++) {
-							$sound_word .= $chars[$i] === 's' ? $sound_letter[$j] : chr(mt_rand(max(ord($sound_letter[$j]) - 1, 0x00), min(ord($sound_letter[$j]) + 1, 0xFF)));
+							$sound_word .= $chars[$i] === 's' ? $sound_letter[$j] : \chr(mt_rand(max(\ord($sound_letter[$j]) - 1, 0x00), min(\ord($sound_letter[$j]) + 1, 0xFF)));
 						}
 					}
 					break;
 
 				case 1:
-					for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2) {
+					for ($j = 0, $n = \strlen($sound_letter) - 1; $j < $n; $j += 2) {
 						$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j + 1] : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j] : $sound_letter[$j + 1]) . $sound_letter[$j + 1] . (mt_rand(0, 3) == 0 ? $sound_letter[$j + 1] : '');
 					}
 					$sound_word .= str_repeat($sound_letter[$n], 2);
@@ -898,22 +898,22 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 				case 2:
 					$shift = 0;
 
-					for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++) {
+					for ($j = 0, $n = \strlen($sound_letter); $j < $n; $j++) {
 						if (mt_rand(0, 10) === 0) {
 							$shift += mt_rand(-3, 3);
 						}
 
 						for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++) {
-							$sound_word .= chr(min(max(ord($sound_letter[$j]) + $shift, 0x00), 0xFF));
+							$sound_word .= \chr(min(max(\ord($sound_letter[$j]) + $shift, 0x00), 0xFF));
 						}
 					}
 					break;
 			}
 
-			$sound_word .= str_repeat(chr(0x80), mt_rand(10000, 10500));
+			$sound_word .= str_repeat(\chr(0x80), mt_rand(10000, 10500));
 		}
 
-		$data_size = strlen($sound_word);
+		$data_size = \strlen($sound_word);
 		$file_size = $data_size + 0x24;
 		$content_length = $file_size + 0x08;
 		$sample_rate = 16000;
@@ -934,8 +934,8 @@ class ImageVerfication extends AntiSpamAgent implements AntiSpamInterface
 			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			list($range) = explode(',', $range, 2);
 			list($range, $range_end) = explode('-', $range);
-			$range = intval($range);
-			$range_end = !$range_end ? $content_length - 1 : intval($range_end);
+			$range = \intval($range);
+			$range_end = !$range_end ? $content_length - 1 : \intval($range_end);
 			$new_length = $range_end - $range + 1;
 
 			Utils::sendHttpStatus(206);
