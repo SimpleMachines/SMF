@@ -343,7 +343,7 @@ class SFTP extends FileSystem implements FileSystemInterface
 			$lookup_file ??= $_SERVER['PHP_SELF'];
 			$files = $this->connection->nlist($directory);
 
-			if (is_array($files)) {
+			if (\is_array($files)) {
 				$found_path = array_search($lookup_file, $files) !== false;
 			}
 		} catch (\Exception $e) {

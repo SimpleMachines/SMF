@@ -174,7 +174,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyAntispamSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\AntiSpam::getConfigVars();
 		}
 
 		return SMF\Actions\Admin\AntiSpam::call();
@@ -226,7 +226,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageAttachmentSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Attachments::attachConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Attachments::load();
@@ -246,7 +246,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ManageAvatarSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Attachments::avatarConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Attachments::load();
@@ -553,7 +553,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyCalendarSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Calendar::getConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Calendar::load();
@@ -866,7 +866,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function AdminLogs(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Logs::getConfigVars();
 		}
 
 		return SMF\Actions\Admin\Logs::call();
@@ -1825,7 +1825,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyPostSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Posts::getConfigVars();
+			return SMF\Actions\Admin\Posts::postConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Posts::load();
@@ -1845,7 +1845,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyTopicSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Posts::getConfigVars();
+			return SMF\Actions\Admin\Posts::topicConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Posts::load();
@@ -1865,7 +1865,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyDraftSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Posts::getConfigVars();
+			return SMF\Actions\Admin\Posts::draftConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Posts::load();
@@ -2113,7 +2113,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function EditSearchSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Search::getConfigVars();
 		}
 
 		$obj = SMF\Actions\Admin\Search::load();
@@ -2869,7 +2869,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ModifyWarningSettings(bool $return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return SMF\Actions\Admin\Attachments::getConfigVars();
+			return SMF\Actions\Admin\Warnings::getConfigVars();
 		}
 
 		return SMF\Actions\Admin\Warnings::call();
@@ -4068,7 +4068,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj->suggest_type = 'member';
 		$obj->execute();
 
-		return Utils::$context['xml_data'];
+		return SMF\Utils::$context['xml_data'];
 	}
 
 	/**
@@ -4082,7 +4082,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj->suggest_type = 'membergroups';
 		$obj->execute();
 
-		return Utils::$context['xml_data'];
+		return SMF\Utils::$context['xml_data'];
 	}
 
 	/**
@@ -4096,7 +4096,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj->suggest_type = 'versions';
 		$obj->execute();
 
-		return Utils::$context['xml_data'];
+		return SMF\Utils::$context['xml_data'];
 	}
 
 	/******************************
@@ -4286,7 +4286,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$selected_date,
 			$calendarOptions,
 			$is_previous,
-			$has_picker,
 		);
 	}
 
@@ -4405,7 +4404,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function removeHolidays(array $holiday_ids): void
 	{
 		foreach ($holiday_ids as $holiday_id) {
-			Calendar\Holiday::remove($holiday_id);
+			SMF\Calendar\Holiday::remove($holiday_id);
 		}
 	}
 
@@ -4530,21 +4529,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function cdata_parse(string $data, string $ns = '', bool $force = false): string
 	{
 		return SMF\Actions\Feed::cdataParse($data, $ns, $force);
-	}
-
-	/******************************
-	 * Begin SMF\Actions\FindMember
-	 ******************************/
-
-	/**
-	 * Called by index.php?action=findmember.
-	 * - is used as a popup for searching members.
-	 * - uses sub template find_members of the Help template.
-	 * - also used to add members for PM's sent using wap2/imode protocol.
-	 */
-	function JSMembers(): void
-	{
-		SMF\Actions\FindMember::call();
 	}
 
 	/**************************
@@ -4827,7 +4811,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Retrieves results of the request passed to it
 	 * Puts results of request into the context for the sub template.
 	 *
-	 * @param resource $request An SQL result resource
+	 * @param resource|object $request An SQL result resource
 	 */
 	function printMemberListRows($request): void
 	{
@@ -5775,7 +5759,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function TrackIP(int $memID = 0): void
 	{
 		if ($memID === 0) {
-			$memID = User::$me->id;
+			$memID = SMF\User::$me->id;
 		}
 
 		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
@@ -6240,7 +6224,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function getSvgSize(string $filepath): array
 	{
-		$image = new Image($filepath);
+		$image = new SMF\Graphics\Image($filepath);
 
 		if ($image->mime_type !== 'image/svg+xml') {
 			return ['width' => null, 'height' => null];
@@ -6261,7 +6245,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function createThumbnail(string $source, int $max_width, int $max_height): bool
 	{
-		return ((new Image($source))->createThumbnail($max_width, $max_height) !== false);
+		return ((new SMF\Graphics\Image($source))->createThumbnail($max_width, $max_height) !== false);
 	}
 
 	/**
@@ -6276,7 +6260,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function reencodeImage(string $source, int $preferred_type = 0): bool
 	{
-		return (new Image($source))->reencode($preferred_type);
+		return (new SMF\Graphics\Image($source))->reencode($preferred_type);
 	}
 
 	/**
@@ -6289,7 +6273,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function checkImageContents(string $source, bool $extensive = false): bool
 	{
-		return (new Image($source))->check($extensive);
+		return (new SMF\Graphics\Image($source))->check($extensive);
 	}
 
 	/**
@@ -6300,7 +6284,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function checkSvgContents(string $source): bool
 	{
-		return (new Image($source))->check();
+		return (new SMF\Graphics\Image($source))->check();
 	}
 
 	/**
@@ -6323,7 +6307,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $max_height,
 		int $preferred_type = 0,
 	): bool {
-		return (new Image($source))->resize($destination, $max_width, $max_height, $preferred_type);
+		return (new SMF\Graphics\Image($source))->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
 	/**
@@ -6355,7 +6339,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $force_resize = false,
 		int $preferred_type = 0,
 	): bool {
-		return (new Image($source))->resize($destination, $max_width, $max_height, $preferred_type);
+		return (new SMF\Graphics\Image($source))->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
 	/***************************************
@@ -6517,9 +6501,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Get a listing of files that will need to be set back to the original state
 	 *
-	 * @param null $dummy1
-	 * @param null $dummy2
-	 * @param null $dummy3
+	 * @param mixed $dummy1
+	 * @param mixed $dummy2
+	 * @param mixed $dummy3
 	 * @param bool $do_change
 	 * @return array An array of info about the files that need to be restored back to their original state
 	 */
@@ -7231,7 +7215,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		SMF\Alert::mark($members, $to_mark, (bool) $read);
 
-		return SMF\Alert::count($memID, $unread);
+		if (is_int($members)) {
+			return SMF\Alert::count($members, !((bool) $read));
+		}
+
+		$count = 0;
+		array_walk($members, function ($memID) use ($count, $read) {
+			$count += SMF\Alert::count($memID, !((bool) $read));
+		});
+
+		return $count;
 	}
 
 	/**
@@ -7861,7 +7854,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		} elseif (isset($tree['node']['id'])) {
 			$list = SMF\Category::$boardList[(int) $tree['node']['id']];
 		} elseif (isset($tree['category'])) {
-			SMF\Category::recursiveBoards($list, SMF\Board::load((int) $tree['id']));
+			$tree = SMF\Board::load((int) $tree['id']);
+			SMF\Category::recursiveBoards($list, $tree);
 		}
 	}
 
@@ -7985,7 +7979,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ShowDrafts(int $member_id, int $reply_to = 0, int $draft_type = 0): bool
 	{
 		if ($draft_type === 1) {
-			return SMF\DraftPM::showInEditor($member_id, $reply_to);
+			return SMF\PersonalMessage\DraftPM::showInEditor($member_id, $reply_to);
 		}
 
 		return SMF\Draft::showInEditor($member_id, $reply_to);
@@ -8002,7 +7996,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function showProfileDrafts(int $memID, int $draft_type = 0): void
 	{
 		if ($draft_type === 1) {
-			SMF\DraftPM::showInProfile($memID);
+			SMF\PersonalMessage\DraftPM::showInProfile($memID);
 		}
 
 		SMF\Draft::showInProfile($memID);
@@ -8508,11 +8502,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function writeLog(bool $force = false): void
 	{
-		if (!isset(User::$me)) {
+		if (!isset(SMF\User::$me)) {
 			return;
 		}
 
-		User::$me->logOnline($force);
+		SMF\User::$me->logOnline($force);
 	}
 
 	/**
@@ -9316,7 +9310,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ob_sessrewrite(string $buffer): string
 	{
-		return SMF\QueryString::ob_sessrewrite($buffer);
+		$buffer = SMF\QueryString::rewriteAsQueryless($buffer);
+		$buffer = SMF\QueryString::obDebug($buffer);
+
+		return $buffer;
 	}
 
 	/****************
@@ -10804,7 +10801,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function url_to_iri(string $url): string|bool
 	{
-		$iri = SMF\Url::create($iri);
+		$iri = SMF\Url::create($url);
 		$iri->toUtf8();
 
 		return (string) $iri === '' ? false : (string) $iri;
@@ -10819,7 +10816,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $url The original URL of the requested resource
 	 * @return string The URL to use
 	 */
-	function get_proxied_url(string $url): SMF\Url
+	function get_proxied_url(string $url): string
 	{
 		return (string) SMF\Url::create($url)->proxied();
 	}
@@ -11333,7 +11330,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		// You're never allowed to do something if your data hasn't been loaded yet!
 		if (!isset(SMF\User::$me)) {
-			return false;
+			return [];
 		}
 
 		return SMF\User::$me->boardsAllowedTo($permissions, $check_access, $simple);
@@ -11401,7 +11398,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function htmlspecialchars__recursive(array|string $var, int $level = 0): array|string
 	{
-		return SMF\Utils::htmlspecialcharsRecursive($var);
+		return SMF\Utils::htmlspecialcharsRecursive($var, ENT_QUOTES);
 	}
 
 	/**
@@ -11749,9 +11746,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param mixed $input The string containing a function name or a static call. The function can also accept a closure, object or a callable array (object/class, valid_callable)
 	 * @param bool $return If true, the function will not call the function/method but instead will return the formatted string.
-	 * @return string|array|bool Either a string or an array that contains a callable function name or an array with a class and method to call. False if the given string cannot produce a callable var.
+	 * @return void|string|array|bool Either a string or an array that contains a callable function name or an array with a class and method to call. False if the given string cannot produce a callable var.
 	 */
-	function call_helper(mixed $input, bool $return = false): mixed
+	function call_helper(mixed $input, bool $return = false)
 	{
 		$callable = SMF\Utils::getCallable($input);
 
@@ -12091,5 +12088,149 @@ if (!function_exists('array_find_key')) {
 		}
 
 		return null;
+	}
+}
+
+if (!function_exists('grapheme_str_split')) {
+	function grapheme_str_split(string $string, int $length = 1): array|false
+	{
+		if ($length < 1 || $length > 1073741823) {
+			throw new \ValueError('grapheme_str_split(): Argument #2 ($length) must be greater than 0 and less than or equal to 1073741823');
+		}
+
+		try {
+			return preg_split('/(\X{' . $length . '})/u', $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+}
+
+if (!function_exists('grapheme_strlen')) {
+	function grapheme_strlen(string $string): int|false|null
+	{
+		if (
+			@preg_match('//u', $string) === false
+			&& preg_last_error() === PREG_BAD_UTF8_ERROR
+		) {
+			return null;
+		}
+
+		return count(grapheme_str_split($string, 1));
+	}
+}
+
+if (!function_exists('grapheme_substr')) {
+	function grapheme_substr(string $string, int $offset = 0, ?int $length = null): string|false
+	{
+		if (($graphemes = grapheme_str_split($string, 1)) === false) {
+			return false;
+		}
+
+		return implode('', array_slice($graphemes, $offset, $length));
+	}
+}
+
+if (!function_exists('grapheme_strpos')) {
+	function grapheme_strpos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		if (!str_contains($haystack, $needle)) {
+			return false;
+		}
+
+		$haystack = grapheme_str_split($haystack, 1);
+
+		if ($haystack === false) {
+			return false;
+		}
+
+		if (abs($offset) >= count($haystack)) {
+			throw new \ValueError('grapheme_strpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)');
+		}
+
+		$skipped = array_splice($haystack, 0, $offset);
+
+		$haystack = implode('', $haystack);
+
+		$before = grapheme_str_split(substr($haystack, 0, strpos($haystack, $needle)), 1);
+
+		return $before === false ? false : count($skipped) + count($before);
+	}
+}
+
+if (!function_exists('grapheme_stripos')) {
+	function grapheme_stripos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		$haystack = mb_convert_case($haystack, MB_CASE_FOLD_SIMPLE);
+		$needle = mb_convert_case($needle, MB_CASE_FOLD_SIMPLE);
+
+		return grapheme_strpos($haystack, $needle, $offset);
+	}
+}
+
+if (!function_exists('grapheme_strrpos')) {
+	function grapheme_strrpos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		if (!str_contains($haystack, $needle)) {
+			return false;
+		}
+
+		$haystack = grapheme_str_split($haystack, 1);
+		$needle = grapheme_str_split($needle, 1);
+
+		if ($haystack === false || $needle === false) {
+			return false;
+		}
+
+		$haystack_len = count($haystack);
+		$needle_len = count($needle);
+
+		if (abs($offset) >= $haystack_len) {
+			throw new \ValueError('grapheme_strrpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)');
+		}
+
+		if ($offset < 0) {
+			$offset = ($haystack_len + $offset) % $haystack_len;
+
+			for ($i = $offset; $i > -1; $i--) {
+				if (array_slice($haystack, $i, $needle_len) === $needle) {
+					break;
+				}
+			}
+
+			return $i < 0 ? false : $i;
+		}
+
+		for ($i = $haystack_len; $i > $offset; $i--) {
+			if (array_slice($haystack, $i, $needle_len) === $needle) {
+				break;
+			}
+		}
+
+		return $i >= $haystack_len - $needle_len ? false : $i;
+	}
+}
+
+if (!function_exists('grapheme_strripos')) {
+	function grapheme_strripos(string $haystack, string $needle, int $offset = 0): int|false
+	{
+		$haystack = mb_convert_case($haystack, MB_CASE_FOLD_SIMPLE);
+		$needle = mb_convert_case($needle, MB_CASE_FOLD_SIMPLE);
+
+		return grapheme_strrpos($haystack, $needle, $offset);
+	}
+}
+
+if (!function_exists('grapheme_strstr')) {
+	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	{
+		return $before_needle ? grapheme_substr($haystack, 0, grapheme_strpos($haystack, $needle)) : grapheme_substr($haystack, grapheme_strpos($haystack, $needle));
+	}
+}
+
+if (!function_exists('grapheme_stristr')) {
+	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	{
+		return $before_needle ? grapheme_substr($haystack, 0, grapheme_stripos($haystack, $needle)) : grapheme_substr($haystack, grapheme_stripos($haystack, $needle));
 	}
 }

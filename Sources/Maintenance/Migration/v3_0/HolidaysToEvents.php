@@ -622,7 +622,7 @@ class HolidaysToEvents extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$exists = count(Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays')) > 0;
+		$exists = \count(Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays')) > 0;
 
 		if ($exists) {
 			if (!isset(User::$me)) {
@@ -642,7 +642,7 @@ class HolidaysToEvents extends MigrationBase
 
 					$holiday['type'] = 1;
 					$holiday['title'] = $holiday['title'] ?? $row['title'];
-					$holiday['allday'] = !isset($holiday['start_time']) || !isset($holiday['timezone']) || !in_array($holiday['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+					$holiday['allday'] = !isset($holiday['start_time']) || !isset($holiday['timezone']) || !\in_array($holiday['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 					$holiday['start'] = new Time($holiday['start_date'] . (!$holiday['allday'] ? ' ' . $holiday['start_time'] . ' ' . $holiday['timezone'] : ''));
 					$holiday['duration'] = new \DateInterval($holiday['duration'] ?? 'P1D');
 					$holiday['recurrence_end'] = new Time($holiday['recurrence_end']);

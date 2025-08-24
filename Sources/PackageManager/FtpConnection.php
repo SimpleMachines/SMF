@@ -126,7 +126,7 @@ class FtpConnection
 	 */
 	public function chdir(string $ftp_path): bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -143,7 +143,7 @@ class FtpConnection
 	 */
 	public function chmod(string $ftp_file, int|string $chmod): bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -159,7 +159,7 @@ class FtpConnection
 	public function unlink(string $ftp_file): bool
 	{
 		// We are actually connected, right?
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -175,12 +175,12 @@ class FtpConnection
 	 */
 	public function check_response(int|string|array $desired): bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
 		// Was the desired response returned?
-		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
+		return \is_array($desired) ? \in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
 	}
 
 	/**
@@ -190,7 +190,7 @@ class FtpConnection
 	 */
 	public function passive(): bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -206,7 +206,7 @@ class FtpConnection
 	public function create_file(string $ftp_file): bool
 	{
 		// First, we have to be connected... very important.
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -223,7 +223,7 @@ class FtpConnection
 	public function list_dir(string $ftp_path = '', bool $search = false): string|bool
 	{
 		// Are we even connected...?
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -239,7 +239,7 @@ class FtpConnection
 	 */
 	public function locate(string $file, ?string $listing = null): string|bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -255,7 +255,7 @@ class FtpConnection
 	public function create_dir(string $ftp_dir): bool
 	{
 		// We must be connected to the server to do something.
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 
@@ -269,7 +269,7 @@ class FtpConnection
 	 */
 	public function close(): bool
 	{
-		if (!is_resource($this->ftp)) {
+		if (!\is_resource($this->ftp)) {
 			return false;
 		}
 

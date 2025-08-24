@@ -97,8 +97,12 @@ interface ToolsInterface
 	 *
 	 * @param mixed $message The message to append to the log.
 	 *    If not a string, will be converted into one using print_r().
+	 * @param bool $ongoing Whether this message indicates an incomplete action.
+	 *    Default: false.
+	 * @param bool $reset If true, wipes out the old contents of the log file.
+	 *    Default: false.
 	 */
-	public function logProgress(mixed $message): void;
+	public function logProgress(mixed $message, bool $ongoing = false, bool $reset = false): void;
 
 	/**
 	 * Last chance to do anything before we exit.

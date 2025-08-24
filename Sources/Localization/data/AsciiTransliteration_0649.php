@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2025 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+// Transliteration maps to replace non-ASCII characters with ASCII approximations.
+$ascii_transliteration[649] = [
+	2 => 'yong',
+	3 => 'cang',
+	4 => 'jian',
+	7 => 'sou',
+	14 => 'yan',
+	17 => 'juan',
+	21 => 'e',
+	24 => 'fen',
+	26 => 'fen',
+	33 => 'guang',
+	34 => 'mai',
+	36 => 'lie',
+	41 => 'chong',
+	43 => 'li',
+	49 => 'zhi',
+	52 => 'xie',
+	55 => 'chou',
+	57 => 'ji',
+	61 => 'pi',
+	66 => 'jie',
+	71 => 'zhou',
+	77 => 'xiong',
+	81 => 'kuang',
+	89 => 'jing',
+	91 => 'hu',
+	94 => 'qian',
+	99 => 'cen',
+	102 => 'qi',
+	103 => 'wan',
+	104 => 'mao',
+	106 => 'dou',
+	116 => 'kou',
+	118 => 'dai',
+	120 => 'nao',
+	122 => 'hong',
+	130 => 'lai',
+	131 => 'duo',
+	132 => 'qian',
+	134 => 'yin',
+	150 => 'lou',
+	151 => 'hui',
+	155 => 'fu',
+	156 => 'mao',
+	158 => 'zhou',
+	161 => 'yong',
+	173 => 'lao',
+	174 => 'ji',
+	175 => 'yi',
+	176 => 'liu',
+	177 => 'cong',
+	179 => 'nan',
+	192 => 'du',
+	208 => 'tun',
+	209 => 'xiang',
+	213 => 'bian',
+	214 => 'chuang',
+	215 => 'wu',
+	217 => 'ju',
+	229 => 'xie',
+	230 => 'pi',
+	231 => 'zhuo',
+	232 => 'rui',
+	234 => 'sao',
+	235 => 'zi',
+	237 => 'zheng',
+	238 => 'mi',
+	240 => 'zu',
+	241 => 'qu',
+	243 => 'chi',
+	245 => 'zhi',
+];

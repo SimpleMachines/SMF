@@ -131,6 +131,10 @@ return (new PhpCsFixer\Config())
 		'nullable_type_declaration' => ['syntax' => 'question_mark'],
 
 		// Namespace notation.
+		'native_function_invocation' => [
+			'include' => ['@compiler_optimized'],
+			'scope' => 'namespaced',
+		],
 		'no_leading_namespace_whitespace' => true,
 
 		// Operator.

@@ -54,7 +54,7 @@ class FetchSMFiles extends ScheduledTask
 			$js_files[$row['id_file']] = [
 				'filename' => $row['filename'],
 				'path' => $row['path'],
-				'parameters' => sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+				'parameters' => \sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 			];
 		}
 		Db::$db->free_result($request);

@@ -111,10 +111,10 @@ class Boards implements ActionInterface
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -130,7 +130,7 @@ class Boards implements ActionInterface
 	{
 		Theme::loadTemplate('ManageBoards');
 
-		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], ['child', 'before', 'after', 'top'])) {
+		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && \in_array($_REQUEST['move_to'], ['child', 'before', 'after', 'top'])) {
 			User::$me->checkSession('get');
 			SecurityToken::validate('admin-bm-' . (int) $_REQUEST['src_board'], 'request');
 
@@ -492,10 +492,10 @@ class Boards implements ActionInterface
 
 		// Load all membergroups except admin and moderator.
 		foreach (Group::loadSimple(Group::LOAD_BOTH, [Group::ADMIN, Group::MOD]) as $group) {
-			$group->allow = in_array($group->id, $curBoard['member_groups']);
-			$group->deny = in_array($group->id, $curBoard['deny_groups']);
+			$group->allow = \in_array($group->id, $curBoard['member_groups']);
+			$group->deny = \in_array($group->id, $curBoard['deny_groups']);
 
-			$group->name = in_array($group->id, [Group::GUEST, Group::REGULAR]) ? Lang::getTxt($group->id === Group::GUEST ? 'parent_guests_only' : 'parent_members_only', file: 'ManageBoards') : $group->name;
+			$group->name = \in_array($group->id, [Group::GUEST, Group::REGULAR]) ? Lang::getTxt($group->id === Group::GUEST ? 'parent_guests_only' : 'parent_members_only', file: 'ManageBoards') : $group->name;
 
 			Utils::$context['groups'][$group->id] = $group;
 		}
@@ -569,7 +569,7 @@ class Boards implements ActionInterface
 		Utils::$context['board']->moderator_list = empty(Utils::$context['board']->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', Utils::$context['board']->moderators) . '&quot;';
 
 		if (!empty(Utils::$context['board']->moderators)) {
-			list(Utils::$context['board']->last_moderator_id) = array_slice(array_keys(Utils::$context['board']->moderators), -1);
+			list(Utils::$context['board']->last_moderator_id) = \array_slice(array_keys(Utils::$context['board']->moderators), -1);
 		}
 
 		// Get all the groups assigned as moderators.
@@ -592,7 +592,7 @@ class Boards implements ActionInterface
 		Utils::$context['board']->moderator_groups_list = empty(Utils::$context['board']->moderator_groups) ? '' : '&quot;' . implode('&quot;, &qout;', Utils::$context['board']->moderator_groups) . '&quot;';
 
 		if (!empty(Utils::$context['board']->moderator_groups)) {
-			list(Utils::$context['board']->last_moderator_group_id) = array_slice(array_keys(Utils::$context['board']->moderator_groups), -1);
+			list(Utils::$context['board']->last_moderator_group_id) = \array_slice(array_keys(Utils::$context['board']->moderator_groups), -1);
 		}
 
 		// Get all the themes...
@@ -656,7 +656,7 @@ class Boards implements ActionInterface
 			}
 			// Change the boardorder of this board?
 			elseif (!empty($_POST['placement']) && !empty($_POST['board_order'])) {
-				if (!in_array($_POST['placement'], ['before', 'after', 'child'])) {
+				if (!\in_array($_POST['placement'], ['before', 'after', 'child'])) {
 					ErrorHandler::fatalLang('mangled_post', false);
 				}
 
@@ -681,7 +681,7 @@ class Boards implements ActionInterface
 				}
 			}
 
-			if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255) {
+			if (\strlen(implode(',', $boardOptions['access_groups'])) > 255 || \strlen(implode(',', $boardOptions['deny_groups'])) > 255) {
 				ErrorHandler::fatalLang('too_many_groups', false);
 			}
 
@@ -691,7 +691,7 @@ class Boards implements ActionInterface
 
 			$boardOptions['moderator_string'] = $_POST['moderators'];
 
-			if (isset($_POST['moderator_list']) && is_array($_POST['moderator_list'])) {
+			if (isset($_POST['moderator_list']) && \is_array($_POST['moderator_list'])) {
 				$moderators = [];
 
 				foreach ($_POST['moderator_list'] as $moderator) {
@@ -703,7 +703,7 @@ class Boards implements ActionInterface
 
 			$boardOptions['moderator_group_string'] = $_POST['moderator_groups'];
 
-			if (isset($_POST['moderator_group_list']) && is_array($_POST['moderator_group_list'])) {
+			if (isset($_POST['moderator_group_list']) && \is_array($_POST['moderator_group_list'])) {
 				$moderator_groups = [];
 
 				foreach ($_POST['moderator_group_list'] as $moderator_group) {

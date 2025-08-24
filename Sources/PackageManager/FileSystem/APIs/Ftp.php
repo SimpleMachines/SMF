@@ -171,7 +171,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function disconnect(): bool
 	{
-		if (is_resource($this->connection)) {
+		if (\is_resource($this->connection)) {
 			fwrite($this->connection, 'QUIT' . "\r\n");
 			fclose($this->connection);
 		}
@@ -203,7 +203,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	{
 		$directory = $this->normalizeFilename($directory);
 
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -237,7 +237,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function changePermissions(string $filename, string $chmod): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -263,7 +263,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function createDirectory(string $directory): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -290,7 +290,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function deleteDirectory(string $directory): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -336,7 +336,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function deleteFile(string $filename): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -371,7 +371,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function writeFile(string $filename, ?string $contents): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -388,10 +388,10 @@ class Ftp extends FileSystem implements FileSystemInterface
 		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $errMsg, 5);
 		$this->last_message = $errMsg;
 
-		if (!is_resource($fp) || !$this->checkResponse(150)) {
+		if (!\is_resource($fp) || !$this->checkResponse(150)) {
 			$this->error = 'bad_file';
 
-			if (is_resource($fp)) {
+			if (\is_resource($fp)) {
 				fclose($fp);
 			}
 
@@ -403,7 +403,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 			$pieces = str_split($contents, 1024 * 4);
 
 			foreach ($pieces as $piece) {
-				fwrite($fp, $piece, strlen($piece));
+				fwrite($fp, $piece, \strlen($piece));
 			}
 		}
 		fclose($fp);
@@ -436,16 +436,16 @@ class Ftp extends FileSystem implements FileSystemInterface
 				$lookup_file = $_SERVER['PHP_SELF'];
 			}
 
-			$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
+			$found_path = \dirname($this->locate('*' . basename(\dirname($lookup_file)) . '/' . basename($lookup_file), $data));
 
 			if ($found_path == false) {
-				$found_path = dirname($this->locate(basename($lookup_file)));
+				$found_path = \dirname($this->locate(basename($lookup_file)));
 			}
 
 			if ($found_path != false) {
 				$path = $found_path;
 			}
-		} elseif (is_resource($this->connection)) {
+		} elseif (\is_resource($this->connection)) {
 			$found_path = true;
 		}
 
@@ -505,7 +505,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function enterPassiveMode(): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			$this->error = 'no_connection';
 
 			return false;
@@ -568,7 +568,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	 */
 	public function listDirectory(string $ftp_path = '', bool $search = false): string|bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!\is_resource($this->connection)) {
 			return false;
 		}
 
@@ -589,10 +589,10 @@ class Ftp extends FileSystem implements FileSystemInterface
 			return false;
 		}
 
-		if (!is_resource($fp) || !$this->checkResponse([150, 125])) {
+		if (!\is_resource($fp) || !$this->checkResponse([150, 125])) {
 			$this->error = 'bad_response';
 
-			if (is_resource($fp)) {
+			if (\is_resource($fp)) {
 				fclose($fp);
 			}
 
@@ -646,20 +646,20 @@ class Ftp extends FileSystem implements FileSystemInterface
 			$current_dir = '';
 		}
 
-		for ($i = 0, $n = count($listing); $i < $n; $i++) {
+		for ($i = 0, $n = \count($listing); $i < $n; $i++) {
 			if (trim($listing[$i]) == '' && isset($listing[$i + 1])) {
 				$current_dir = substr(trim($listing[++$i]), 0, -1);
 				$i++;
 			}
 
 			// Okay, this file's name is:
-			$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
+			$listing[$i] = $current_dir . '/' . trim(\strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
 
-			if ($file[0] == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1)) {
+			if ($file[0] == '*' && substr($listing[$i], -(\strlen($file) - 1)) == substr($file, 1)) {
 				return $listing[$i];
 			}
 
-			if (str_ends_with($file, '*') && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1)) {
+			if (str_ends_with($file, '*') && substr($listing[$i], 0, \strlen($file) - 1) == substr($file, 0, -1)) {
 				return $listing[$i];
 			}
 
@@ -692,9 +692,9 @@ class Ftp extends FileSystem implements FileSystemInterface
 			if ($this->last_message === false) {
 				return false;
 			}
-		} while ((strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < self::RESPONSE_TIMEOUT);
+		} while ((\strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < self::RESPONSE_TIMEOUT);
 
 		// Was the desired response returned?
-		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
+		return \is_array($desired) ? \in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
 	}
 }

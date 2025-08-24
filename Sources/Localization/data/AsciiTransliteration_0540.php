@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2025 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+// Transliteration maps to replace non-ASCII characters with ASCII approximations.
+$ascii_transliteration[540] = [
+	0 => 'na',
+	5 => 'hu',
+	6 => 'nie',
+	11 => 'hui',
+	12 => 'lou',
+	14 => 'ti',
+	16 => 'qiao',
+	17 => 'qiao',
+	18 => 'zhong',
+	22 => 'di',
+	26 => 'lin',
+	29 => 'quan',
+	30 => 'zhuan',
+	32 => 'lei',
+	34 => 'xie',
+	37 => 'ren',
+	40 => 'dang',
+	42 => 'du',
+	43 => 'nian',
+	47 => 'shi',
+	50 => 'xian',
+	57 => 'zhi',
+	61 => 'ai',
+	62 => 'ci',
+	63 => 'pu',
+	65 => 'shi',
+	69 => 'qu',
+	70 => 'shu',
+	71 => 'dian',
+	73 => 'xiao',
+	74 => 'shui',
+	76 => 'huan',
+	80 => 'yi',
+	81 => 'juan',
+	84 => 'zhi',
+	92 => 'zhao',
+	99 => 'xu',
+	111 => 'long',
+	113 => 'zhu',
+	115 => 'suo',
+	119 => 'die',
+	122 => 'qu',
+	124 => 'ke',
+	125 => 'hu',
+	126 => 'ju',
+	128 => 'qing',
+	141 => 'bing',
+	149 => 'ti',
+	151 => 'jue',
+	154 => 'qiu',
+	163 => 'jiang',
+	170 => 'yun',
+	173 => 'mei',
+	174 => 'pi',
+	176 => 'qu',
+	188 => 'mi',
+	191 => 'ti',
+	194 => 'kai',
+	196 => 'bi',
+	198 => 'qu',
+	207 => 'tiao',
+	209 => 'chu',
+	216 => 'ju',
+	218 => 'xi',
+	222 => 'lin',
+	237 => 'chi',
+	238 => 'ji',
+	244 => 'lu',
+	248 => 'li',
+	254 => 'jue',
+];

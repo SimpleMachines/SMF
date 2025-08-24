@@ -95,6 +95,11 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function write(string $session_id, string $data): bool
 	{
+		// Don't bother writing the session if cookies are disabled
+		if (empty($_COOKIE)) {
+			return true;
+		}
+
 		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
 		}
@@ -188,9 +193,7 @@ class Session implements \SessionHandlerInterface
 	{
 		// Attempt to change a few PHP settings.
 		@ini_set('session.use_cookies', '1');
-		@ini_set('session.use_only_cookies', '0');
 		@ini_set('url_rewriter.tags', '');
-		@ini_set('session.use_trans_sid', '0');
 		@ini_set('arg_separator.output', '&amp;');
 
 		// Allows mods to change/add PHP settings
@@ -206,9 +209,9 @@ class Session implements \SessionHandlerInterface
 		// @todo Set the session cookie path?
 
 		// If it's already been started... probably best to skip this.
-		if ((ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '') {
+		if ((\ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '') {
 			// Attempt to end the already-started session.
-			if (ini_get('session.auto_start') == 1) {
+			if (\ini_get('session.auto_start') == 1) {
 				session_write_close();
 			}
 
@@ -224,14 +227,14 @@ class Session implements \SessionHandlerInterface
 			if (!empty(Config::$modSettings['databaseSession_enable'])) {
 				@ini_set('session.serialize_handler', 'php_serialize');
 
-				if (ini_get('session.serialize_handler') != 'php_serialize') {
+				if (\ini_get('session.serialize_handler') != 'php_serialize') {
 					@ini_set('session.serialize_handler', 'php');
 				}
 
 				session_set_save_handler(new self(), true);
 
 				@ini_set('session.gc_probability', '1');
-			} elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
+			} elseif (\ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
 				@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 			}
 

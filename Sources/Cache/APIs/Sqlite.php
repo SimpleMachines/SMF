@@ -22,7 +22,7 @@ use SMF\Lang;
 use SMF\Utils;
 use SQLite3;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -117,7 +117,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		if ($value === null) {
 			$query = 'DELETE FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\';';
 		} else {
-			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(is_bool($value) ? strval(intval($value)) : $value) . '\', ' . $ttl . ');';
+			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(\is_bool($value) ? \strval(\intval($value)) : $value) . '\', ' . $ttl . ');';
 		}
 		$result = $this->cacheDB->exec($query);
 

@@ -99,7 +99,7 @@ class Step
 
 		if (isset($template)) {
 			$this->template = $template;
-		} elseif (is_array($function)) {
+		} elseif (\is_array($function)) {
 			$this->template = $function[1];
 		} else {
 			$this->template = ltrim(substr($function, strrpos($function, '::')), ':');

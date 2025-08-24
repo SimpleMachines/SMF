@@ -50,7 +50,7 @@ class FtpSSL extends FileSystem implements FileSystemInterface
 
 	public function isSupported(): bool
 	{
-		return function_exists('ftp_ssl_connect');
+		return \function_exists('ftp_ssl_connect');
 	}
 
 	/**
@@ -350,7 +350,7 @@ class FtpSSL extends FileSystem implements FileSystemInterface
 				throw new \ErrorException($message, 0, $severity, $file, $line);
 			});
 
-			return call_user_func('ftp_' . $method, ...$args);
+			return \call_user_func('ftp_' . $method, ...$args);
 		} catch (\Throwable $e) {
 			$this->error = $e->getCode();
 			$this->last_message = $e->getMessage();

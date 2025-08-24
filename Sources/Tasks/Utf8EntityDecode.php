@@ -45,11 +45,11 @@ class Utf8EntityDecode extends BackgroundTask
 		// Avoid leaving data in an inconsistent state.
 		ignore_user_abort(true);
 
-		$time_limit = (int) ((Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time')) / 2);
+		$time_limit = (int) ((Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) \ini_get('max_execution_time')) / 2);
 
 		// Check that the table actually exists.
 		if (
-			!in_array(
+			!\in_array(
 				$this->_details['table'],
 				Db::$db->list_tables(false, Db::$db->prefix . '%'),
 			)
@@ -67,7 +67,7 @@ class Utf8EntityDecode extends BackgroundTask
 				$structure['columns'],
 				fn($col) => (
 					!str_ends_with($col['name'], '_utf8entitydecode')
-					&& in_array($col['type'], ['varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set'])
+					&& \in_array($col['type'], ['varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set'])
 				),
 			),
 		);
@@ -110,7 +110,7 @@ class Utf8EntityDecode extends BackgroundTask
 			foreach ($order_by as $col) {
 				if (str_contains($structure['columns'][$col]['type'], 'int')) {
 					$type = 'int';
-				} elseif (in_array($structure['columns'][$col]['type'], ['decimal', 'numeric', 'float', 'double'])) {
+				} elseif (\in_array($structure['columns'][$col]['type'], ['decimal', 'numeric', 'float', 'double'])) {
 					$type = 'float';
 				} else {
 					$type = 'string';
@@ -163,7 +163,7 @@ class Utf8EntityDecode extends BackgroundTask
 
 		// If we have more rows to process, respawn this task.
 		if ($num_rows >= self::LIMIT) {
-			$this->respawn();
+			$this->respawn($this->_details);
 
 			return true;
 		}
@@ -214,7 +214,7 @@ class Utf8EntityDecode extends BackgroundTask
 				$params[$col] = $value;
 			}
 
-			if (in_array($col, $string_columns) && is_string($value)) {
+			if (\in_array($col, $string_columns) && \is_string($value)) {
 				$set[] = $col . ' = {string:decoded_' . $col . '}';
 				$params['decoded_' . $col] = $this->decode($value);
 			}
@@ -294,7 +294,7 @@ class Utf8EntityDecode extends BackgroundTask
 		$data = [];
 
 		foreach ($string_columns as $col) {
-			if (!is_string($row[$col])) {
+			if (!\is_string($row[$col])) {
 				continue;
 			}
 
@@ -360,30 +360,6 @@ class Utf8EntityDecode extends BackgroundTask
 
 		Db::$db->drop_table(
 			table_name: $this->_details['table'] . '_utf8entitydecode',
-		);
-	}
-
-	/**
-	 * Adds a new instance of this task to the task list.
-	 */
-	private function respawn(): void
-	{
-		Db::$db->insert(
-			method: 'insert',
-			table: '{db_prefix}background_tasks',
-			columns: [
-				'task_class' => 'string-255',
-				'task_data' => 'string',
-				'claimed_time' => 'int',
-			],
-			data: [
-				[
-					get_class($this),
-					json_encode($this->_details),
-					0,
-				],
-			],
-			keys: [],
 		);
 	}
 }

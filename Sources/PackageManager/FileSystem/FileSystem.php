@@ -161,7 +161,7 @@ abstract class FileSystem
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
@@ -235,8 +235,8 @@ abstract class FileSystem
 					$path = substr($path, 0, -1);
 				}
 
-				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1) {
-					$path .= dirname($_SERVER['PHP_SELF']);
+				if (\strlen(\dirname($_SERVER['PHP_SELF'])) > 1) {
+					$path .= \dirname($_SERVER['PHP_SELF']);
 				}
 			} elseif (str_starts_with($directory, '/var/www/')) {
 				$path = substr($directory, 8);
@@ -272,7 +272,7 @@ abstract class FileSystem
 
 		// What api we are going to try.
 		if ($api instanceof FileSystemInterface) {
-			$fully_qualified_class_name = get_class($api);
+			$fully_qualified_class_name = \get_class($api);
 		} elseif (strpos($api, self::APIS_NAMESPACE) !== 0) {
 			$fully_qualified_class_name = self::APIS_NAMESPACE . $api;
 		} else {

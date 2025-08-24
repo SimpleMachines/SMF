@@ -114,10 +114,10 @@ class Subscriptions implements ActionInterface
 		// Make sure you can do this.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -166,7 +166,7 @@ class Subscriptions implements ActionInterface
 			],
 			'get_count' => [
 				'function' => function () {
-					return count(self::$all);
+					return \count(self::$all);
 				},
 			],
 			'no_items_label' => Lang::getTxt('paid_none_yet', file: 'ManagePaid'),
@@ -178,7 +178,7 @@ class Subscriptions implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
+							return \sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
 						},
 					],
 				],
@@ -594,7 +594,7 @@ class Subscriptions implements ActionInterface
 			$isRepeatable = isset($_POST['repeatable']) ? 1 : 0;
 			$allowpartial = isset($_POST['allow_partial']) ? 1 : 0;
 			$reminder = isset($_POST['reminder']) ? (int) $_POST['reminder'] : 0;
-			$emailComplete = strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
+			$emailComplete = \strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
 			$_POST['prim_group'] = !empty($_POST['prim_group']) ? (int) $_POST['prim_group'] : 0;
 
 			// Cleanup text fields
@@ -626,7 +626,7 @@ class Subscriptions implements ActionInterface
 				$span = $_POST['span_value'] . $_POST['span_unit'];
 
 				// Sort out the cost.
-				$cost = ['fixed' => sprintf('%01.2f', strtr($_POST['cost'], ',', '.'))];
+				$cost = ['fixed' => \sprintf('%01.2f', strtr($_POST['cost'], ',', '.'))];
 
 				// There needs to be something.
 				if ($cost['fixed'] == '0.00') {
@@ -638,10 +638,10 @@ class Subscriptions implements ActionInterface
 				$span = 'F';
 
 				$cost = [
-					'day' => sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
-					'week' => sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
-					'month' => sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
-					'year' => sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
+					'day' => \sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
+					'week' => \sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
+					'month' => \sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
+					'year' => \sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
 				];
 
 				if ($cost['day'] == '0.00' && $cost['week'] == '0.00' && $cost['month'] == '0.00' && $cost['year'] == '0.00') {
@@ -699,7 +699,7 @@ class Subscriptions implements ActionInterface
 						],
 					],
 					['id_subscribe'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 			// Otherwise must be editing.
@@ -1146,13 +1146,13 @@ class Subscriptions implements ActionInterface
 							foreach ($costs as $duration => $cost) {
 								if ($cost != 0 && $cost == $pending[1] && $duration == $pending[2]) {
 									Utils::$context['pending_payments'][$id] = [
-										'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::getTxt($duration, file: 'ManagePaid')),
+										'desc' => \sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::getTxt($duration, file: 'ManagePaid')),
 									];
 								}
 							}
 						} elseif ($costs['fixed'] == $pending[1]) {
 							Utils::$context['pending_payments'][$id] = [
-								'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']),
+								'desc' => \sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']),
 							];
 						}
 					}
@@ -1353,7 +1353,7 @@ class Subscriptions implements ActionInterface
 			// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
 			Config::$modSettings['paid_currency'] = !empty(Config::$modSettings['paid_currency_code']) ? Config::$modSettings['paid_currency_code'] : '';
 
-			if (!empty(Config::$modSettings['paid_currency_code']) && !in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
+			if (!empty(Config::$modSettings['paid_currency_code']) && !\in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
 				Config::$modSettings['paid_currency'] = 'other';
 			}
 
@@ -1473,7 +1473,7 @@ class Subscriptions implements ActionInterface
 			$costs = Utils::jsonDecode($row['cost'], true);
 
 			if ($row['length'] != 'F' && !empty(Config::$modSettings['paid_currency_symbol']) && !empty($costs['fixed'])) {
-				$cost = sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']);
+				$cost = \sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']);
 			} else {
 				$cost = '???';
 			}
@@ -1890,15 +1890,15 @@ class Subscriptions implements ActionInterface
 		$existingGroups = explode(',', $additional_groups);
 
 		foreach ($existingGroups as $key => $group) {
-			if (empty($group) || (in_array($group, $removals) && !in_array($group, $allowed))) {
+			if (empty($group) || (\in_array($group, $removals) && !\in_array($group, $allowed))) {
 				unset($existingGroups[$key]);
 			}
 		}
 
 		// Finally, do something with the current primary group.
-		if (in_array($id_group, $removals)) {
+		if (\in_array($id_group, $removals)) {
 			// If this primary group is actually allowed keep it.
-			if (in_array($id_group, $allowed)) {
+			if (\in_array($id_group, $allowed)) {
 				$existingGroups[] = $id_group;
 			}
 
@@ -1972,7 +1972,7 @@ class Subscriptions implements ActionInterface
 	public static function reapply(array $users): void
 	{
 		// Make it an array.
-		if (!is_array($users)) {
+		if (!\is_array($users)) {
 			$users = [$users];
 		}
 

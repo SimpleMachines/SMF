@@ -102,7 +102,7 @@ class Table
 	 */
 	public function normalize(): bool
 	{
-		if (count($this->columns) === 0) {
+		if (\count($this->columns) === 0) {
 			return false;
 		}
 
@@ -145,8 +145,8 @@ class Table
 						// If an existing integer column upgraded its type to a
 						// larger one, we want to keep that larger type.
 						(
-							in_array($value, $int_types)
-							&& in_array($col->type, $int_types)
+							\in_array($value, $int_types)
+							&& \in_array($col->type, $int_types)
 							&& array_search($value, $int_types) > array_search($col->type, $int_types)
 						)
 						// If an existing string column upgraded its type to a
@@ -155,12 +155,12 @@ class Table
 						|| (
 							Db::$db->title === MYSQL_TITLE
 							&& (
-								in_array($value, $text_types)
-								&& in_array($col->type, $text_types)
+								\in_array($value, $text_types)
+								&& \in_array($col->type, $text_types)
 								&& array_search($value, $text_types) > array_search($col->type, $text_types)
 							) || (
-								in_array($value, $blob_types)
-								&& in_array($col->type, $blob_types)
+								\in_array($value, $blob_types)
+								&& \in_array($col->type, $blob_types)
 								&& array_search($value, $blob_types) > array_search($col->type, $blob_types)
 							)
 						)
@@ -283,7 +283,7 @@ class Table
 	 */
 	public function create(array $parameters = [], string $if_exists = 'ignore'): bool
 	{
-		if (count($this->columns) === 0) {
+		if (\count($this->columns) === 0) {
 			return false;
 		}
 
@@ -478,7 +478,7 @@ class Table
 		}
 
 		$method = $replace ? 'replace' : 'ignore';
-		$returnmode = isset($auto_col) ? 2 : 0;
+		$returnmode = isset($auto_col) ? Db::INSERT_RETURN_MODE_MULTI : Db::INSERT_RETURN_MODE_OFF;
 
 		// Only do this if we are replacing data or the table is empty.
 		if ($method !== 'replace') {
@@ -505,12 +505,12 @@ class Table
 			'{$attachdir}' => Config::$modSettings['attachmentUploadDir'] ?? json_encode([1 => Db::$db->escape_string(Config::$boarddir . '/attachments')]),
 			'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
 			'{$boardurl}' => Config::$boardurl,
-			'{$enableCompressedOutput}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['compress'])) : (Config::$modSettings['enableCompressedOutput'] ?? 0),
-			'{$databaseSession_enable}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['dbsession'])) : (Config::$modSettings['databaseSession_enable'] ?? 0),
+			'{$enableCompressedOutput}' => \defined('SMF_INSTALLING') ? ((int) !empty($_POST['compress'])) : (Config::$modSettings['enableCompressedOutput'] ?? 0),
+			'{$databaseSession_enable}' => \defined('SMF_INSTALLING') ? ((int) !empty($_POST['dbsession'])) : (Config::$modSettings['databaseSession_enable'] ?? 0),
 			'{$smf_version}' => SMF_VERSION,
 			'{$current_time}' => time(),
 			'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
-			'{$registration_method}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['reg_mode'])) : (Config::$modSettings['registration_method'] ?? 0),
+			'{$registration_method}' => \defined('SMF_INSTALLING') ? ((int) !empty($_POST['reg_mode'])) : (Config::$modSettings['registration_method'] ?? 0),
 		];
 
 		foreach (Lang::$txt as $key => $value) {
@@ -539,7 +539,7 @@ class Table
 			returnmode: $returnmode,
 		);
 
-		$num_inserts = count($ids ?? $this->initial_data);
+		$num_inserts = \count($ids ?? $this->initial_data);
 
 		return $num_inserts;
 	}
