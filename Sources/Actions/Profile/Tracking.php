@@ -706,12 +706,18 @@ class Tracking implements ActionInterface
 					continue;
 				}
 
-				$member_groups = $member_groups ?? Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+				if (!isset($member_groups)) {
+					$member_groups = Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+					Group::loadModeratorsBatch(array_map(fn($g) => $g->id, $member_groups));
+				}
 
 				foreach (['previous', 'new'] as $key) {
 					if (!isset($member_groups[(int) $extra[$key]])) {
 						$extra[$key] = Lang::getTxt('no_primary_membergroup', file: 'Profile');
-					} elseif ($member_groups[(int) $extra[$key]]->hidden === Group::INVISIBLE) {
+					} elseif (
+						$member_groups[(int) $extra[$key]]->hidden === Group::INVISIBLE
+						&& !$member_groups[(int) $extra[$key]]->can_moderate
+					) {
 						$extra[$key] = '<i>' . Lang::getTxt('hidden', file: 'Profile') . '</i>';
 					} else {
 						$extra[$key] = $member_groups[(int) $extra[$key]]->name;
@@ -720,8 +726,8 @@ class Tracking implements ActionInterface
 			}
 
 			if ($row['action'] === 'additional_groups') {
-				$extra['previous'] = array_map('trim', explode(',', $extra['previous']));
-				$extra['new'] = array_map('trim', explode(',', $extra['new']));
+				$extra['previous'] = array_map('trim', explode(',', $extra['previous'] ?? ''));
+				$extra['new'] = array_map('trim', explode(',', $extra['new'] ?? ''));
 
 				if (
 					$extra['previous'] !== array_filter($extra['previous'], 'is_numeric')
@@ -730,13 +736,19 @@ class Tracking implements ActionInterface
 					continue;
 				}
 
-				$member_groups = $member_groups ?? Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+				if (!isset($member_groups)) {
+					$member_groups = Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+					Group::loadModeratorsBatch(array_map(fn($g) => $g->id, $member_groups));
+				}
 
 				foreach (['previous', 'new'] as $key) {
 					foreach ($extra[$key] as $k => $v) {
 						if (
 							!isset($member_groups[(int) $v])
-							|| $member_groups[(int) $v]->hidden === Group::INVISIBLE
+							|| (
+								$member_groups[(int) $v]->hidden === Group::INVISIBLE
+								&& !$member_groups[(int) $v]->can_moderate
+							)
 						) {
 							unset($extra[$key][$k]);
 						} else {
