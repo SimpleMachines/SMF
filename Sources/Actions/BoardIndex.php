@@ -285,8 +285,6 @@ class BoardIndex implements ActionInterface, Routable
 		}
 	}
 
-	
-
 	/**
 	 * Fetches a list of boards and (optional) categories including
 	 * statistical information, child boards and moderators.
