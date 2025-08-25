@@ -351,6 +351,7 @@ $txt['go'] = 'Go';
 $txt['are_sure_remove_topic'] = 'Are you sure you want to remove this topic?';
 $txt['yes'] = 'Yes';
 $txt['no'] = 'No';
+$txt['other'] = 'Other';
 
 $txt['search_end_results'] = 'End of results';
 $txt['search_on'] = 'on';

@@ -3114,13 +3114,18 @@ function template_profile_timeformat_modify()
 								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;">';
 
 	// Help the user by showing a list of common time formats.
-	foreach (Utils::$context['easy_timeformats'] as $time_format)
+	$found = false;
+	foreach (Utils::$context['easy_timeformats'] as $time_format) {
+		$found = $found || $time_format['format'] == Utils::$context['member']['time_format'];
+
 		echo '
 									<option value="', $time_format['format'], '"', $time_format['format'] == Utils::$context['member']['time_format'] ? ' selected' : '', '>', $time_format['title'], '</option>';
+	}
 
 	echo '
+									<option value="other"', !$found ? ' selected' : '', ' disabled>', Lang::getTxt('other', file: 'General'), '</option>
 								</select>
-								<input type="text" name="time_format" id="time_format" value="', Utils::$context['member']['time_format'], '" size="30">
+								<input type="text" name="time_format" id="time_format" value="', Utils::$context['member']['time_format'], '" onchange="document.forms.creator.easyformat.value = \'other\'" size="30">
 							</dd>';
 }
 
