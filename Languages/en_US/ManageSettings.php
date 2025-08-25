@@ -366,6 +366,7 @@ $txt['edit_language_entries_primary'] = 'Below are the primary language settings
 $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, browse to the file you are looking for, and then edit it directly.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
+$txt['edit_language_entries_add'] = 'Add another item';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 
