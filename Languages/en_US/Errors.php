@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Errors
+// Version: 3.0 Alpha 4; Errors
 
 $txt['no_access'] = 'You are not allowed to access this section';
 $txt['not_found'] = 'Sorry, this section is not available at this time.';

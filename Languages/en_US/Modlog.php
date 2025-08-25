@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Modlog
+// Version: 3.0 Alpha 4; Modlog
 
 $txt['modlog_date'] = 'Date';
 $txt['modlog_member'] = 'Member';
