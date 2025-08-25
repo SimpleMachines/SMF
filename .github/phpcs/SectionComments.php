@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -310,7 +310,7 @@ final class SectionComments extends AbstractFixer
 					while (
 						isset($tokens[$insert_at - 1])
 						&& (
-							$tokens[$insert_at - 1]->isGivenKind([T_FINAL, T_READONLY])
+							$tokens[$insert_at - 1]->isGivenKind([T_FINAL, T_READONLY, T_ABSTRACT])
 							|| $tokens[$insert_at - 1]->isWhitespace()
 							|| $tokens[$insert_at - 1]->isComment()
 						)

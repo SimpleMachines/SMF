@@ -144,18 +144,18 @@ class PackageManager
 		}
 
 		// We need to force the "Download" tab as selected.
-		if (in_array(Utils::$context['sub_action'], $this->packageget_subactions)) {
+		if (\in_array(Utils::$context['sub_action'], $this->packageget_subactions)) {
 			Utils::$context['menu_data_' . Utils::$context['admin_menu_id']]['current_subsection'] = 'packageget';
 		}
 
 		// Call the function we're handing control to.
 		if (method_exists($this, $this->subactions[Utils::$context['sub_action']])) {
-			call_user_func([$this, $this->subactions[Utils::$context['sub_action']]]);
+			\call_user_func([$this, $this->subactions[Utils::$context['sub_action']]]);
 		} else {
 			$call = Utils::getCallable($this->subactions[Utils::$context['sub_action']]);
 
 			if (!empty($call)) {
-				call_user_func($call);
+				\call_user_func($call);
 			}
 		}
 	}
@@ -200,7 +200,7 @@ class PackageManager
 		Utils::$context['uninstalling'] = $_REQUEST['sa'] == 'uninstall';
 
 		// Change our last link tree item for more information on this Packages area.
-		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = [
+		Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1] = [
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
 			'name' => Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_actions' : 'install_actions', file: 'Packages'),
 		];
@@ -220,7 +220,7 @@ class PackageManager
 			if (Utils::$context['extracted_files'] && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
-						Utils::$context['base_path'] = dirname($file['filename']) . '/';
+						Utils::$context['base_path'] = \dirname($file['filename']) . '/';
 						break;
 					}
 				}
@@ -260,7 +260,7 @@ class PackageManager
 		// Get the package info...
 		$packageInfo = PackageUtils::getPackageInfo(Utils::$context['filename']);
 
-		if (!is_array($packageInfo)) {
+		if (!\is_array($packageInfo)) {
 			ErrorHandler::fatalLang($packageInfo);
 		}
 
@@ -338,7 +338,7 @@ class PackageManager
 
 			// Only let them uninstall themes it was installed into.
 			foreach ($theme_paths as $id => $data) {
-				if ($id != 1 && !in_array($id, $old_themes)) {
+				if ($id != 1 && !\in_array($id, $old_themes)) {
 					unset($theme_paths[$id]);
 				}
 			}
@@ -352,7 +352,7 @@ class PackageManager
 			} else {
 				// Otherwise they can only upgrade themes from the first time around.
 				foreach ($theme_paths as $id => $data) {
-					if ($id != 1 && !in_array($id, $old_themes)) {
+					if ($id != 1 && !\in_array($id, $old_themes)) {
 						unset($theme_paths[$id]);
 					}
 				}
@@ -443,7 +443,7 @@ class PackageManager
 						$mod_actions = PackageUtils::parseModification(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 					}
 
-					if (count($mod_actions) == 1 && isset($mod_actions[0]) && $mod_actions[0]['type'] == 'error' && $mod_actions[0]['filename'] == '-') {
+					if (\count($mod_actions) == 1 && isset($mod_actions[0]) && $mod_actions[0]['type'] == 'error' && $mod_actions[0]['filename'] == '-') {
 						$mod_actions[0]['filename'] = $action['filename'];
 					}
 
@@ -552,7 +552,7 @@ class PackageManager
 						}
 
 						// We just need it for actual parse changes.
-						if (!in_array($mod_action['type'], ['error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod', 'create-file', 'move-file', 'remove-file'])) {
+						if (!\in_array($mod_action['type'], ['error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod', 'create-file', 'move-file', 'remove-file'])) {
 							if (!isset(Utils::$context['actions'][$actual_filename])) {
 								Utils::$context['actions'][$actual_filename] = [
 									'type' => Lang::$txt['execute_modification'],
@@ -605,7 +605,7 @@ class PackageManager
 					'type' => Lang::getTxt('execute_database_changes', file: 'Packages'),
 					'action' => Utils::htmlspecialchars($action['filename']),
 				];
-			} elseif (in_array($action['type'], ['create-dir', 'create-file'])) {
+			} elseif (\in_array($action['type'], ['create-dir', 'create-file'])) {
 				$thisAction = [
 					'type' => Lang::getTxt($action['type'] == 'create-dir' ? 'package_create_tree' : 'package_create_file', file: 'Packages'),
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], [Config::$boarddir => '.'])),
@@ -666,7 +666,7 @@ class PackageManager
 					'type' => Lang::getTxt('package_requires', file: 'Packages'),
 					'action' => Lang::getTxt('package_check_for', ['requirement' => $action['id'] . (isset($action['version']) ? (' / ' . ($version ? $action['version'] : '<span class="error">' . $action['version'] . '</span>')) : '')], file: 'Packages'),
 				];
-			} elseif (in_array($action['type'], ['require-dir', 'require-file'])) {
+			} elseif (\in_array($action['type'], ['require-dir', 'require-file'])) {
 				// Do this one...
 				$thisAction = [
 					'type' => Lang::getTxt($action['type'] == 'require-dir' ? 'package_extract_tree' : 'package_extract_file', file: 'Packages'),
@@ -676,10 +676,10 @@ class PackageManager
 				// Could this be theme related?
 				if (!empty($action['unparsed_destination']) && preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_destination'], $matches)) {
 					// Is the action already stated?
-					$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
+					$theme_action = !empty($action['theme_action']) && \in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
 
 					// If it's not auto do we think we have something we can act upon?
-					if ($theme_action != 'auto' && !in_array($matches[1], ['languagedir', 'languages_dir', 'imagesdir', 'themedir'])) {
+					if ($theme_action != 'auto' && !\in_array($matches[1], ['languagedir', 'languages_dir', 'imagesdir', 'themedir'])) {
 						$theme_action = '';
 					}
 					// ... or if it's auto do we even want to do anything?
@@ -696,12 +696,12 @@ class PackageManager
 						$themeFinds['other_themes'][] = strtolower(strtr(PackageUtils::parsePath($action['unparsed_destination']), ['\\' => '/']) . '/' . basename($action['filename']));
 					}
 				}
-			} elseif (in_array($action['type'], ['move-dir', 'move-file'])) {
+			} elseif (\in_array($action['type'], ['move-dir', 'move-file'])) {
 				$thisAction = [
 					'type' => Lang::getTxt($action['type'] == 'move-dir' ? 'package_move_tree' : 'package_move_file', file: 'Packages'),
 					'action' => Utils::htmlspecialchars(strtr($action['source'], [Config::$boarddir => '.'])) . ' => ' . Utils::htmlspecialchars(strtr($action['destination'], [Config::$boarddir => '.'])),
 				];
-			} elseif (in_array($action['type'], ['remove-dir', 'remove-file'])) {
+			} elseif (\in_array($action['type'], ['remove-dir', 'remove-file'])) {
 				$thisAction = [
 					'type' => Lang::getTxt($action['type'] == 'remove-dir' ? 'package_delete_tree' : 'package_delete_file', file: 'Packages'),
 					'action' => Utils::htmlspecialchars(strtr($action['filename'], [Config::$boarddir => '.'])),
@@ -710,11 +710,11 @@ class PackageManager
 				// Could this be theme related?
 				if (!empty($action['unparsed_filename']) && preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_filename'], $matches)) {
 					// Is the action already stated?
-					$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
+					$theme_action = !empty($action['theme_action']) && \in_array($action['theme_action'], ['no', 'yes', 'auto']) ? $action['theme_action'] : 'auto';
 					$action['unparsed_destination'] = $action['unparsed_filename'];
 
 					// If it's not auto do we think we have something we can act upon?
-					if ($theme_action != 'auto' && !in_array($matches[1], ['languagedir', 'languages_dir', 'imagesdir', 'themedir'])) {
+					if ($theme_action != 'auto' && !\in_array($matches[1], ['languagedir', 'languages_dir', 'imagesdir', 'themedir'])) {
 						$theme_action = '';
 					}
 					// ... or if it's auto do we even want to do anything?
@@ -737,16 +737,16 @@ class PackageManager
 				continue;
 			}
 
-			if (!in_array($action['type'], ['hook', 'credits'])) {
+			if (!\in_array($action['type'], ['hook', 'credits'])) {
 				if (Utils::$context['uninstalling']) {
-					$file = in_array($action['type'], ['remove-dir', 'remove-file']) ? $action['filename'] : Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
+					$file = \in_array($action['type'], ['remove-dir', 'remove-file']) ? $action['filename'] : Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
 				} else {
 					$file = Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
 				}
 			}
 
 			// Don't fail if a file/directory we're trying to create doesn't exist...
-			if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], ['create-dir', 'create-file']) && $action['error'] != 'ignore') {
+			if (isset($action['filename']) && !file_exists($file) && !\in_array($action['type'], ['create-dir', 'create-file']) && $action['error'] != 'ignore') {
 				Utils::$context['has_failure'] = true;
 
 				$thisAction += [
@@ -791,18 +791,18 @@ class PackageManager
 						$real_path = $theme_data['theme_dir'] . $path;
 
 						// Confirm that we don't already have this dealt with by another entry.
-						if (!in_array(strtolower(strtr($real_path, ['\\' => '/'])), $themeFinds['other_themes'])) {
+						if (!\in_array(strtolower(strtr($real_path, ['\\' => '/'])), $themeFinds['other_themes'])) {
 							// Check if we will need to chmod this.
-							if (!PackageUtils::mktree(dirname($real_path), false)) {
-								$temp = dirname($real_path);
+							if (!PackageUtils::mktree(\dirname($real_path), false)) {
+								$temp = \dirname($real_path);
 
-								while (!file_exists($temp) && strlen($temp) > 1) {
-									$temp = dirname($temp);
+								while (!file_exists($temp) && \strlen($temp) > 1) {
+									$temp = \dirname($temp);
 								}
 								$chmod_files[] = $temp;
 							}
 
-							if ($action_data['type'] == 'require-dir' && !is_writable($real_path) && (file_exists($real_path) || !is_writable(dirname($real_path)))) {
+							if ($action_data['type'] == 'require-dir' && !is_writable($real_path) && (file_exists($real_path) || !is_writable(\dirname($real_path)))) {
 								$chmod_files[] = $real_path;
 							}
 
@@ -875,7 +875,7 @@ class PackageManager
 		Utils::$context['uninstalling'] = $_REQUEST['sa'] == 'uninstall2';
 
 		// Set up the linktree for other.
-		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = [
+		Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1] = [
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
 			'name' => Lang::getTxt(Utils::$context['uninstalling'] ? 'uninstall' : 'extracting', file: 'Packages'),
 		];
@@ -904,7 +904,7 @@ class PackageManager
 			if (!file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
-						Utils::$context['base_path'] = dirname($file['filename']) . '/';
+						Utils::$context['base_path'] = \dirname($file['filename']) . '/';
 						break;
 					}
 				}
@@ -927,7 +927,7 @@ class PackageManager
 
 		if (!empty($_POST['custom_theme'])) {
 			foreach ($_POST['custom_theme'] as $tid) {
-				if (in_array($tid, $known_themes)) {
+				if (\in_array($tid, $known_themes)) {
 					$custom_themes[] = (int) $tid;
 				}
 			}
@@ -979,7 +979,7 @@ class PackageManager
 		// Get the package info...
 		$packageInfo = PackageUtils::getPackageInfo(Utils::$context['filename']);
 
-		if (!is_array($packageInfo)) {
+		if (!\is_array($packageInfo)) {
 			ErrorHandler::fatalLang($packageInfo);
 		}
 
@@ -1044,7 +1044,7 @@ class PackageManager
 
 			// They can only uninstall from what it was originally installed into.
 			foreach ($theme_paths as $id => $data) {
-				if ($id != 1 && !in_array($id, $old_themes)) {
+				if ($id != 1 && !\in_array($id, $old_themes)) {
 					unset($theme_paths[$id]);
 				}
 			}
@@ -1061,7 +1061,7 @@ class PackageManager
 			} else {
 				// Upgrade previous themes only!
 				foreach ($theme_paths as $id => $data) {
-					if ($id != 1 && !in_array($id, $old_themes)) {
+					if ($id != 1 && !\in_array($id, $old_themes)) {
 						unset($theme_paths[$id]);
 					}
 				}
@@ -1073,6 +1073,9 @@ class PackageManager
 		if (!isset($old_version) || Utils::$context['is_installed']) {
 			$install_log = PackageUtils::parsePackageInfo($packageInfo['xml'], false, 'install');
 		}
+
+		// Disable background tasks while the code is in flux.
+		Config::updateSettingsFile(['package_installing' => true]);
 
 		Utils::$context['install_finished'] = false;
 
@@ -1303,7 +1306,7 @@ class PackageManager
 					foreach (Db::$package_log as $k => $log) {
 						if ($log[0] == 'remove_table') {
 							$tables[] = $log[1];
-						} elseif (in_array($log[1], $tables)) {
+						} elseif (\in_array($log[1], $tables)) {
 							unset(Db::$package_log[$k]);
 						}
 					}
@@ -1416,6 +1419,9 @@ class PackageManager
 
 		// Does Config::$backward_compatibility need to be updated?
 		$this->updateBackwardCompatibility();
+
+		// Resume background tasks.
+		Config::updateSettingsFile(['package_installing' => null]);
 	}
 
 	/**
@@ -1514,7 +1520,7 @@ class PackageManager
 			Utils::obExit(false);
 		}
 
-		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = [
+		Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1] = [
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $_REQUEST['package'],
 			'name' => Lang::getTxt('package_examine_file', file: 'Packages'),
 		];
@@ -1526,7 +1532,7 @@ class PackageManager
 		Utils::$context['filename'] = $_REQUEST['file'];
 
 		// Let the unpacker do the work.... but make sure we handle images properly.
-		if (in_array(strtolower(strrchr($_REQUEST['file'], '.')), ['.bmp', '.gif', '.jpeg', '.jpg', '.png', '.webp'])) {
+		if (\in_array(strtolower(strrchr($_REQUEST['file'], '.')), ['.bmp', '.gif', '.jpeg', '.jpg', '.png', '.webp'])) {
 			Utils::$context['filedata'] = '<img src="' . Config::$scripturl . '?action=admin;area=packages;sa=examine;package=' . $_REQUEST['package'] . ';file=' . $_REQUEST['file'] . ';raw" alt="' . $_REQUEST['file'] . '">';
 		} else {
 			if (is_file(Config::$packagesdir . '/' . $_REQUEST['package'])) {
@@ -1710,7 +1716,7 @@ class PackageManager
 		// Current SMF version, which is selected by default
 		Utils::$context['default_version'] = SMF_VERSION;
 
-		if (!in_array(Utils::$context['default_version'], Utils::$context['emulation_versions'])) {
+		if (!\in_array(Utils::$context['default_version'], Utils::$context['emulation_versions'])) {
 			Utils::$context['emulation_versions'][] = Utils::$context['default_version'];
 		}
 
@@ -1785,7 +1791,7 @@ class PackageManager
 			if (Utils::$context['extracted_files'] && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
 					if (basename($file['filename']) == 'package-info.xml') {
-						Utils::$context['base_path'] = dirname($file['filename']) . '/';
+						Utils::$context['base_path'] = \dirname($file['filename']) . '/';
 						break;
 					}
 				}
@@ -1841,7 +1847,7 @@ class PackageManager
 					$old_themes = explode(',', $old_themes);
 
 					foreach ($theme_paths as $id => $data) {
-						if ($id != 1 && !in_array($id, $old_themes)) {
+						if ($id != 1 && !\in_array($id, $old_themes)) {
 							unset($theme_paths[$id]);
 						}
 					}
@@ -2031,7 +2037,7 @@ class PackageManager
 		if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
 			unset(Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['attachments']);
 
-			if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
+			if (!\is_array(Config::$modSettings['attachmentUploadDir'])) {
 				Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 			}
 
@@ -2090,8 +2096,8 @@ class PackageManager
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (substr(strtolower(strtr($row['value'], ['\\' => '/'])), 0, strlen(Config::$boarddir) + 7) == strtolower(strtr(Config::$boarddir, ['\\' => '/']) . '/Themes')) {
-				Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['Themes']['contents'][substr($row['value'], strlen(Config::$boarddir) + 8)] = [
+			if (substr(strtolower(strtr($row['value'], ['\\' => '/'])), 0, \strlen(Config::$boarddir) + 7) == strtolower(strtr(Config::$boarddir, ['\\' => '/']) . '/Themes')) {
+				Utils::$context['file_tree'][strtr(Config::$boarddir, ['\\' => '/'])]['contents']['Themes']['contents'][substr($row['value'], \strlen(Config::$boarddir) + 8)] = [
 					'type' => 'dir_recursive',
 					'list_contents' => true,
 					'contents' => [
@@ -2150,7 +2156,7 @@ class PackageManager
 			Utils::$context['only_find'] = array_merge(Utils::$context['only_find'], $_POST['back_look']);
 		}
 
-		Utils::$context['back_look_data'] = base64_encode(Utils::jsonEncode(array_slice(Utils::$context['look_for'], 0, 15)));
+		Utils::$context['back_look_data'] = base64_encode(Utils::jsonEncode(\array_slice(Utils::$context['look_for'], 0, 15)));
 
 		// Are we finding more files than first thought?
 		Utils::$context['file_offset'] = !empty($_REQUEST['fileoffset']) ? (int) $_REQUEST['fileoffset'] : 0;
@@ -2261,7 +2267,7 @@ class PackageManager
 					// Now add it.
 					Utils::$context['to_process'][$path] = $status;
 				}
-				Utils::$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : count(Utils::$context['to_process']);
+				Utils::$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : \count(Utils::$context['to_process']);
 
 				// Make sure the chmod status is valid?
 				if ($validate_custom) {
@@ -2285,7 +2291,7 @@ class PackageManager
 
 			// Start processing items.
 			foreach (Utils::$context['to_process'] as $path => $status) {
-				if (in_array($status, ['execute', 'writable', 'read'])) {
+				if (\in_array($status, ['execute', 'writable', 'read'])) {
 					PackageUtils::chmod($path, $status);
 				} elseif ($status == 'custom' && !empty($custom_value)) {
 					// Use FTP if we have it.
@@ -2714,11 +2720,11 @@ class PackageManager
 					'type' => $thisPackage->name(),
 				];
 
-				if (in_array($package['type'], ['title', 'text'])) {
+				if (\in_array($package['type'], ['title', 'text'])) {
 					Utils::$context['package_list'][$packageSection][$package['type']] = Utils::htmlspecialchars($thisPackage->fetch('.'));
 				}
 				// It's a Title, Heading, Rule or Text.
-				elseif (in_array($package['type'], ['heading', 'rule'])) {
+				elseif (\in_array($package['type'], ['heading', 'rule'])) {
 					$package['name'] = Utils::htmlspecialchars($thisPackage->fetch('.'));
 				}
 				// It's a Remote link.
@@ -2790,7 +2796,7 @@ class PackageManager
 					}
 
 					$already_exists = PackageUtils::getPackageInfo(basename($package['filename']));
-					$package['download_conflict'] = is_array($already_exists) && $already_exists['id'] == $package['id'] && $already_exists['version'] != $package['version'];
+					$package['download_conflict'] = \is_array($already_exists) && $already_exists['id'] == $package['id'] && $already_exists['version'] != $package['version'];
 
 					$package['href'] = $url . '/' . $package['filename'];
 					$package['link'] = '<a href="' . $package['href'] . '">' . $package['name'] . '</a>';
@@ -2846,10 +2852,10 @@ class PackageManager
 				$package['is_text'] = $package['type'] == 'text';
 				$package['is_line'] = $package['type'] == 'rule';
 
-				$packageNum = in_array($package['type'], ['title', 'heading', 'text', 'remote', 'rule']) ? 0 : $packageNum + 1;
+				$packageNum = \in_array($package['type'], ['title', 'heading', 'text', 'remote', 'rule']) ? 0 : $packageNum + 1;
 				$package['count'] = $packageNum;
 
-				if (!in_array($package['type'], ['title', 'text'])) {
+				if (!\in_array($package['type'], ['title', 'text'])) {
 					Utils::$context['package_list'][$packageSection]['items'][] = $package;
 				}
 
@@ -2874,7 +2880,7 @@ class PackageManager
 
 				$packageInfo = PackageUtils::getPackageInfo($url . '/' . $package['filename']);
 
-				if (is_array($packageInfo) && $packageInfo['xml']->exists('install')) {
+				if (\is_array($packageInfo) && $packageInfo['xml']->exists('install')) {
 					$installs = $packageInfo['xml']->set('install');
 
 					foreach ($installs as $install) {
@@ -2995,7 +3001,7 @@ class PackageManager
 
 		Utils::$context['package'] = PackageUtils::getPackageInfo($package_name);
 
-		if (!is_array(Utils::$context['package'])) {
+		if (!\is_array(Utils::$context['package'])) {
 			ErrorHandler::fatalLang('package_cant_download', false);
 		}
 
@@ -3029,7 +3035,7 @@ class PackageManager
 		// Check the file was even sent!
 		if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '') {
 			ErrorHandler::fatalLang('package_upload_error_nofile', false);
-		} elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name']))) {
+		} elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (\ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name']))) {
 			ErrorHandler::fatalLang('package_upload_error_failed', false);
 		}
 
@@ -3043,7 +3049,7 @@ class PackageManager
 		}
 
 		// We only need the filename...
-		$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
+		$packageName = substr($_FILES['package']['name'], 0, -\strlen($match[0]));
 		$packageFileName = PackageUtils::generateUniqueFilename(Config::$packagesdir, $packageName, $match[1]) . $match[0];
 
 		// Setup the destination and throw an error if the file is already there!
@@ -3062,7 +3068,7 @@ class PackageManager
 		Utils::$context['package_server'] = '';
 
 		// Not really a package, you lazy bum!
-		if (!is_array(Utils::$context['package'])) {
+		if (!\is_array(Utils::$context['package'])) {
 			@unlink($destination);
 			ErrorHandler::fatalLang(
 				'package_upload_error_broken',
@@ -3087,7 +3093,7 @@ class PackageManager
 
 				$packageInfo = PackageUtils::getPackageInfo($package);
 
-				if (!is_array($packageInfo)) {
+				if (!\is_array($packageInfo)) {
 					continue;
 				}
 
@@ -3259,17 +3265,17 @@ class PackageManager
 
 				// Skip directories or files that are named the same.
 				if (is_dir(Config::$packagesdir . '/' . $package)) {
-					if (in_array($package, $dirs)) {
+					if (\in_array($package, $dirs)) {
 						continue;
 					}
 					$dirs[] = $package;
 				} elseif (str_ends_with(strtolower($package), '.tar.gz')) {
-					if (in_array(substr($package, 0, -7), $dirs)) {
+					if (\in_array(substr($package, 0, -7), $dirs)) {
 						continue;
 					}
 					$dirs[] = substr($package, 0, -7);
 				} elseif (str_ends_with(strtolower($package), '.zip') || str_ends_with(strtolower($package), '.tgz')) {
-					if (in_array(substr($package, 0, -4), $dirs)) {
+					if (\in_array(substr($package, 0, -4), $dirs)) {
 						continue;
 					}
 					$dirs[] = substr($package, 0, -4);
@@ -3277,7 +3283,7 @@ class PackageManager
 
 				$packageInfo = PackageUtils::getPackageInfo($package);
 
-				if (!is_array($packageInfo)) {
+				if (!\is_array($packageInfo)) {
 					continue;
 				}
 
@@ -3387,7 +3393,7 @@ class PackageManager
 			}
 			closedir($dir);
 		}
-		Utils::$context['available_packages'] += count($packages);
+		Utils::$context['available_packages'] += \count($packages);
 		array_multisort(
 			$column,
 			isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
@@ -3442,7 +3448,7 @@ class PackageManager
 				$_REQUEST['sa'] = 'servers';
 			}
 
-			if (in_array($_REQUEST['sa'], ['add', 'remove', 'browse'])) {
+			if (\in_array($_REQUEST['sa'], ['add', 'remove', 'browse'])) {
 				$_REQUEST['sa'] = 'server' . $_REQUEST['sa'];
 			}
 
@@ -3582,7 +3588,7 @@ class PackageManager
 				Utils::$context['xml_data']['folders']['children'][] = [
 					'attributes' => [
 						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
-						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
+						'permissions' => substr(\sprintf('%o', $additional_data['perms']['perms']), -4),
 						'folder' => 1,
 						'path' => Utils::$context['only_find'],
 						'level' => $level,
@@ -3631,7 +3637,7 @@ class PackageManager
 				Utils::$context['xml_data']['folders']['children'][] = [
 					'attributes' => [
 						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
-						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
+						'permissions' => substr(\sprintf('%o', $additional_data['perms']['perms']), -4),
 						'folder' => 0,
 						'path' => Utils::$context['only_find'],
 						'level' => $level,

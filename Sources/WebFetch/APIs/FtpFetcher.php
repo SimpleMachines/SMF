@@ -92,8 +92,8 @@ class FtpFetcher extends WebFetchApi
 	 */
 	public function __construct(?string $user = null, ?string $email = null)
 	{
-		$this->user = is_string($user) ? $user : 'anonymous';
-		$this->email = is_string($email) ? $email : (Config::$webmaster_email ?? 'nobody@example.com');
+		$this->user = \is_string($user) ? $user : 'anonymous';
+		$this->email = \is_string($email) ? $email : (Config::$webmaster_email ?? 'nobody@example.com');
 	}
 
 	/**
@@ -114,7 +114,7 @@ class FtpFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, ['ftp', 'ftps'])) {
+		if (empty($url->scheme) || !\in_array($url->scheme, ['ftp', 'ftps'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -177,7 +177,7 @@ class FtpFetcher extends WebFetchApi
 		$ftp->close();
 
 		$this->response[0]['body'] = $body;
-		$this->response[0]['size'] = strlen($body);
+		$this->response[0]['size'] = \strlen($body);
 
 		return $this;
 	}

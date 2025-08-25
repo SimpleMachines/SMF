@@ -21,18 +21,6 @@ namespace SMF\Diff;
  *
  * One-way diffs require less storage space than two-way diffs, but they can
  * only be used to transform $str1 into $str2 and not vice versa.
- *
- * @todo Add a column to the messages table to store the JSON. For each revision
- *       of a post, create an EditDiff using the new text for $str1, the old text
- *       for $str2, and the post's new modification time for $time1. Then use
- *       EditDiff::export() to get a diff of the revision and add it to the edit
- *       history list. During retrieval, the timestamp of each revision will be
- *       available in the first value of the exported JSON, and the crc32c hash
- *       of the string that it applies to will be the second value. The reason
- *       to include the crc32c is to detect and protect against cases where the
- *       text was changed by external processes (e.g. the admin using SQL to
- *       alter message content).
- * @todo Use the same approach to record the edit history of the privacy policy.
  */
 class EditDiff extends Diff
 {
@@ -104,13 +92,6 @@ class EditDiff extends Diff
 		string $reason = '',
 	) {
 		if (isset($str1, $str2)) {
-			// For EditDiffs, we don't want or need subsecond precision.
-			if (is_numeric($time1)) {
-				$time1 = strval(intval($time1));
-			} else {
-				$time1 = (string) $time1 !== '' && ($d = date_create((string) $time1)) !== false ? $d->format('U') : (string) $time1;
-			}
-
 			parent::__construct(
 				$str1,
 				$str2,
@@ -138,25 +119,25 @@ class EditDiff extends Diff
 	public function import(array $data): static
 	{
 		if (
-			!is_array($data)
-			|| count($data) < 5
-			|| (!is_string($data[0]) && !is_int($data[0]) && !is_float($data[0]))
-			|| !is_string($data[1])
-			|| (!is_string($data[2]) && !is_int($data[2]) && !is_float($data[2]))
-			|| !is_string($data[3])
-			|| !is_array($data[4])
-			|| !is_int($data[5])
-			|| (isset($data[6]) && !is_string($data[6]))
-			|| (isset($data[7]) && !is_string($data[7]))
+			!\is_array($data)
+			|| \count($data) < 5
+			|| (!\is_string($data[0]) && !\is_int($data[0]) && !\is_float($data[0]))
+			|| !\is_string($data[1])
+			|| (!\is_string($data[2]) && !\is_int($data[2]) && !\is_float($data[2]))
+			|| !\is_string($data[3])
+			|| !\is_array($data[4])
+			|| !\is_int($data[5])
+			|| (isset($data[6]) && !\is_string($data[6]))
+			|| (isset($data[7]) && !\is_string($data[7]))
 		) {
 			throw new \ValueError();
 		}
 
-		$this->time1 = (string) $data[0] !== '' && ($d = date_create((is_numeric($data[0]) ? '@' : '') . (string) $data[0])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s O') : (string) $data[0];
+		$this->time1 = (string) $data[0] !== '' && ($d = date_create((is_numeric($data[0]) ? '@' : '') . (string) $data[0])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : (string) $data[0];
 
 		$this->label1 = $data[1];
 
-		$this->time2 = (string) $data[2] !== '' && ($d = date_create((is_numeric($data[2]) ? '@' : '') . (string) $data[2])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s O') : (string) $data[2];
+		$this->time2 = (string) $data[2] !== '' && ($d = date_create((is_numeric($data[2]) ? '@' : '') . (string) $data[2])) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : (string) $data[2];
 
 		$this->label2 = $data[3];
 
@@ -166,25 +147,25 @@ class EditDiff extends Diff
 
 		foreach ($data[4] as $change) {
 			if (
-				!is_array($change)
-				|| count($change) < 5
-				|| !is_int($change[0])
-				|| !is_int($change[1])
-				|| !is_int($change[2])
-				|| (!is_int($change[3]) && !is_string($change[3]))
-				|| !is_string($change[4])
+				!\is_array($change)
+				|| \count($change) < 5
+				|| !\is_int($change[0])
+				|| !\is_int($change[1])
+				|| !\is_int($change[2])
+				|| (!\is_int($change[3]) && !\is_string($change[3]))
+				|| !\is_string($change[4])
 			) {
 				throw new \ValueError();
 			}
 
 			// We only need the lengths of the deletions.
-			if (is_string($change[3])) {
+			if (\is_string($change[3])) {
 				$change[3] = mb_strlen($change[3]);
 			}
 
 			$this->changes[] = array_combine(
 				['l1', 'l2', 'offset', 'old', 'new'],
-				array_slice($change, 0, 5),
+				\array_slice($change, 0, 5),
 			);
 		}
 
@@ -202,9 +183,9 @@ class EditDiff extends Diff
 			$change = array_values($change);
 		}
 
-		$ts1 = $this->time1 !== '' && ($d = date_create((is_numeric($this->time1) ? '@' : '') . $this->time1)) !== false ? (int) $d->format('U') : $this->time1;
+		$ts1 = $this->time1 !== '' && ($d = date_create((is_numeric($this->time1) ? '@' : '') . $this->time1)) !== false ? str_replace('.000000', '', $d->format('U.u')) + 0 : $this->time1;
 
-		$ts2 = $this->time2 !== '' && ($d = date_create((is_numeric($this->time2) ? '@' : '') . $this->time2)) !== false ? (int) $d->format('U') : $this->time2;
+		$ts2 = $this->time2 !== '' && ($d = date_create((is_numeric($this->time2) ? '@' : '') . $this->time2)) !== false ? str_replace('.000000', '', $d->format('U.u')) + 0 : $this->time2;
 
 		return [
 			$ts1,
@@ -216,27 +197,5 @@ class EditDiff extends Diff
 			$this->name,
 			$this->reason,
 		];
-	}
-
-	/**
-	 *
-	 */
-	public function apply(string $str1): string
-	{
-		$lines = $this->splitLines($str1);
-
-		$str2 = '';
-
-		foreach (array_reverse($this->changes) as $change) {
-			if (isset($lines[$change['l1']])) {
-				$substring = implode('', array_splice($lines, $change['l1']));
-
-				$str2 = mb_substr($substring, 0, $change['offset']) . $change['new'] . mb_substr($substring, $change['offset'] + $change['old']) . $str2;
-			} else {
-				$str2 = mb_substr($str2, 0, $change['offset']) . $change['new'] . mb_substr($str2, $change['offset'] + $change['old']);
-			}
-		}
-
-		return implode('', $lines) . $str2;
 	}
 }

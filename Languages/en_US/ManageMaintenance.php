@@ -118,7 +118,7 @@ $txt['error_url'] = 'URL of page causing the error';
 $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
-$txt['error_file_and_line'] = '{file} (Line {line, number, integer})';
+$txt['error_file_and_line'] = '{file} (Line {line, number, :: group-off})';
 $txt['clear_filter'] = 'Clear filter';
 $txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
@@ -133,7 +133,7 @@ $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type: {list}';
 $txt['backtrace_title'] = 'Backtrace information';
 // argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
-$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, integer}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, integer}</a>';
+$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, :: group-off}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, :: group-off}</a>';
 $txt['backtrace_info_internal_function'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from [internal function]';
 
 $txt['errortype_all'] = 'All errors';
@@ -175,13 +175,6 @@ $txt['maintain_rebuild_settings_info'] = 'This task reconstructs your Settings.p
 $txt['maintain_run_now'] = 'Run task now';
 $txt['maintain_return'] = 'Back to Forum Maintenance';
 
-$txt['maintain_backup'] = 'Backup Database';
-$txt['maintain_backup_info'] = 'Download a backup copy of your forum’s database in case of emergency.';
-$txt['maintain_backup_struct'] = 'Save the table structure.';
-$txt['maintain_backup_data'] = 'Save the table data (the important stuff).';
-$txt['maintain_backup_gz'] = 'Compress the file with gzip.';
-$txt['maintain_backup_save'] = 'Download';
-
 $txt['maintain_old'] = 'Remove old posts';
 // The argument for this string is an HTML input element.
 $txt['maintain_old_since_days'] = 'Remove all topics not posted in for {input_number} days, which are:';
@@ -208,17 +201,9 @@ $txt['maintain_members_all'] = 'All Membergroups';
 $txt['maintain_members_choose'] = 'Selected Groups';
 $txt['maintain_members_confirm'] = 'Are you sure you really want to delete these member accounts?-n-This cannot be undone!';
 
-$txt['text_title'] = 'Convert to TEXT';
 $txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
-$txt['mediumtext_info'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". It is also possible to revert the column back to TEXT (that operation would reduce the space occupied), but <strong>only if</strong> none of the posts in your database exceed the size of 65535 characters. This condition will be verified before the conversion.';
+$txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". This operation is not reversible.';
 $txt['body_checking_introduction'] = 'This function will convert the column of your database that contains the text of the messages into a "TEXT" format (currently is "MEDIUMTEXT"). This operation will allow to slightly reduce the amount of space occupied by each message (1 byte per message). If any message stored into the database is longer than 65535 characters it will be truncated and part of the text will be lost.';
-$txt['exceeding_messages'] = 'The following messages are longer than 65535 characters and will be truncated by the process:';
-$txt['exceeding_messages_morethan'] = '{0, plural,
-	one {... and # more message.}
-	other {... and # more messages.}
-}';
-$txt['convert_to_text'] = 'No messages are longer than 65535 characters. You can safely proceed with the conversion without losing any part of the text.';
-$txt['convert_to_suggest_text'] = 'The messages body column in your database is currently set as MEDIUMTEXT, but the maximum allowed length set for the messages is less than 65535 characters. You may free some space converting the column to TEXT.';
 
 $txt['maintain_convertentities'] = 'Convert HTML-entities to UTF-8 characters';
 $txt['maintain_convertentities_only_utf8'] = 'The database needs to be in UTF-8 format before HTML-entities can be converted to UTF-8';

@@ -67,6 +67,12 @@ function template_options()
 			'label' => Lang::getTxt('show_no_signatures', file: 'Profile'),
 			'default' => true,
 		],
+		array(
+			'id' => 'show_no_censored',
+			'label' => Lang::getTxt('show_no_censored'),
+			'default' => false,
+			'enabled' => !empty(Config::$modSettings['allow_no_censored']),
+		),
 		[
 			'id' => 'posts_apply_ignore_list',
 			'label' => Lang::getTxt('posts_apply_ignore_list', file: 'Profile'),

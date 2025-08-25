@@ -61,7 +61,7 @@ class Code2 extends BBCode
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['code'])) {
-			$code = is_array($data) ? $data[0] : $data;
+			$code = \is_array($data) ? $data[0] : $data;
 
 			$parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 

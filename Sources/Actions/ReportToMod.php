@@ -119,10 +119,10 @@ class ReportToMod implements ActionInterface, Routable
 			User::$me->isAllowedTo('report_user');
 		}
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -432,7 +432,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 
@@ -460,7 +460,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_comment'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// And get ready to notify people.
@@ -598,7 +598,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 

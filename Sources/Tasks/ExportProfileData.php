@@ -20,7 +20,6 @@ use SMF\Actions\Feed;
 use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -76,17 +75,35 @@ class ExportProfileData extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info to create a follow-up background task, if necessary.
+	 *
 	 */
-	private array $next_task = [];
+	protected bool $allow_concurrent = false;
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 * @var array
+	 *
+	 * Info to create a follow-up background task, if necessary.
+	 */
+	private array $new_details = [];
+
+	/**
+	 * @var int
+	 *
+	 * How long to wait before running a follow-up task.
+	 */
+	private int $delay = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
 	private int $time_limit = 30;
 
 	/**
-	 * @var array The XSLT stylesheet, broken up into logical parts.
+	 * @var array
+	 *
+	 * The XSLT stylesheet, broken up into logical parts.
 	 */
 	private array $xslt_stylesheet = [
 		// Header for the stylesheet. Default value assumes that the stylesheet
@@ -853,7 +870,9 @@ class ExportProfileData extends BackgroundTask
 	];
 
 	/**
-	 * @var string The XSLT stylesheet as a single string.
+	 * @var string
+	 *
+	 * The XSLT stylesheet as a single string.
 	 */
 	private string $stylesheet;
 
@@ -871,6 +890,21 @@ class ExportProfileData extends BackgroundTask
 	 ****************/
 
 	/**
+	 * The constructor.
+	 *
+	 * @param array $details The details for the task
+	 */
+	public function __construct(array $details)
+	{
+		parent::__construct($details);
+
+		// Include the user ID in the md5 hash because we only want to prevent
+		// concurrent tasks from working on the same user's data simultaneously.
+		// It's fine to have concurrent tasks working on different users' data.
+		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(\get_class($this) . $this->_details['uid']) . '.lock';
+	}
+
+	/**
 	 * This is the main dispatcher for the class.
 	 * It calls the correct private function based on the information stored in
 	 * the task details.
@@ -880,14 +914,14 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public function execute(): bool
 	{
-		if (!defined('EXPORTING')) {
-			define('EXPORTING', 1);
+		if (!\defined('EXPORTING')) {
+			\define('EXPORTING', 1);
 		}
 
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
+		$this->time_limit = (int) (Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) \ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -913,7 +947,7 @@ class ExportProfileData extends BackgroundTask
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
 		$hook_methods = [
 			'parser_cache' => 'parser_cache',
-			'pre_parsebbc' => in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
+			'pre_parsebbc' => \in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
 			'post_parsebbc' => 'post_parsebbc',
 			'bbc_codes' => 'bbc_codes',
 			'post_parseAttachBBC' => 'post_parseAttachBBC',
@@ -934,14 +968,8 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// If necessary, create a new background task to continue the export process.
-		if (!empty($this->next_task)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}background_tasks',
-				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				[$this->next_task],
-				[],
-			);
+		if (!empty($this->new_details)) {
+			$this->respawn($this->new_details, time() + $this->delay);
 		}
 
 		ignore_user_abort(false);
@@ -1153,7 +1181,6 @@ class ExportProfileData extends BackgroundTask
 
 		// Setup.
 		$done = false;
-		$delay = 0;
 		$datatypes = array_keys($included);
 
 		$feed = new Feed($datatype, $uid);
@@ -1209,7 +1236,7 @@ class ExportProfileData extends BackgroundTask
 		];
 
 		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
-		$check_diskspace = !empty(Config::$modSettings['export_min_diskspace_pct']) && function_exists('disk_free_space') && function_exists('disk_total_space') && intval(@disk_total_space(Config::$modSettings['export_dir']) >= 1440);
+		$check_diskspace = !empty(Config::$modSettings['export_min_diskspace_pct']) && \function_exists('disk_free_space') && \function_exists('disk_total_space') && \intval(@disk_total_space(Config::$modSettings['export_dir']) >= 1440);
 		$minspace = $check_diskspace ? ceil(disk_total_space(Config::$modSettings['export_dir']) * Config::$modSettings['export_min_diskspace_pct'] / 100) : 0;
 
 		// If a necessary file is missing, we need to start over.
@@ -1231,7 +1258,7 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// Get the data.
-		$xml_data = call_user_func([$feed, $included[$datatype]['func']]);
+		$xml_data = \call_user_func([$feed, $included[$datatype]['func']]);
 
 		// No data retrieved? Just move on then.
 		if (empty($xml_data)) {
@@ -1256,7 +1283,7 @@ class ExportProfileData extends BackgroundTask
 			$profile_basic_items = CacheApi::get('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
 
 			if (empty($profile_basic_items)) {
-				$profile_data = call_user_func([$feed, $included['profile']['func']]);
+				$profile_data = \call_user_func([$feed, $included['profile']['func']]);
 
 				Feed::build('smf', $profile_data, $feed->metadata, 'profile');
 
@@ -1309,10 +1336,10 @@ class ExportProfileData extends BackgroundTask
 				Feed::build('smf', $items, $feed->metadata, 'profile');
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
-				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
+				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= \strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
 					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']], file: 'Errors'));
 
-					$delay = 86400;
+					$this->delay = 86400;
 				} else {
 					// We need a file to write to, of course.
 					if (!file_exists($tempfile)) {
@@ -1322,15 +1349,15 @@ class ExportProfileData extends BackgroundTask
 					// Insert the new data before the feed footer.
 					$handle = fopen($tempfile, 'r+');
 
-					if (is_resource($handle)) {
+					if (\is_resource($handle)) {
 						flock($handle, LOCK_EX);
 
-						fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
+						fseek($handle, \strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
 
 						$bytes_written = fwrite($handle, Utils::$context['feed']['items'] . Utils::$context['feed']['footer']);
 
 						// If we couldn't write everything, revert the changes and consider the write to have failed.
-						if ($bytes_written > 0 && $bytes_written < strlen(Utils::$context['feed']['items'] . Utils::$context['feed']['footer'])) {
+						if ($bytes_written > 0 && $bytes_written < \strlen(Utils::$context['feed']['items'] . Utils::$context['feed']['footer'])) {
 							fseek($handle, $bytes_written * -1, SEEK_END);
 							$pointer_pos = ftell($handle);
 							ftruncate($handle, $pointer_pos);
@@ -1347,7 +1374,7 @@ class ExportProfileData extends BackgroundTask
 
 					// Write failed. We'll try again next time.
 					if (empty($bytes_written)) {
-						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
+						$this->delay = Taskrunner::MAX_CLAIM_THRESHOLD;
 						break;
 					}
 
@@ -1357,12 +1384,12 @@ class ExportProfileData extends BackgroundTask
 					file_put_contents($progressfile, Utils::jsonEncode($progress));
 
 					// Are we done with this datatype yet?
-					if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype])) {
+					if (!isset($last_id) || (\count($items) < $per_page && $last_id >= $latest[$datatype])) {
 						$datatype_done = true;
 					}
 
 					// Finished the file for this chunk, so move on to the next one.
-					if (count($items) >= $per_page - $prev_item_count) {
+					if (\count($items) >= $per_page - $prev_item_count) {
 						rename($tempfile, $realfile);
 						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
 						$prev_item_count = $new_item_count = 0;
@@ -1370,7 +1397,7 @@ class ExportProfileData extends BackgroundTask
 					// This was the last chunk.
 					else {
 						// Should we append more items to this file next time?
-						$new_item_count = isset($last_id) ? $prev_item_count + count($items) : 0;
+						$new_item_count = isset($last_id) ? $prev_item_count + \count($items) : 0;
 					}
 				}
 			}
@@ -1383,6 +1410,16 @@ class ExportProfileData extends BackgroundTask
 			if (!$done) {
 				$datatype = $datatypes[$datatype_key + 1];
 			}
+		}
+
+		// This should be a very rare occurrence, but it's not impossible.
+		// Unfortunately, we must start over if it does happen.
+		if (!empty($done) && !file_exists($tempfile)) {
+			$done = false;
+			unset($new_item_count);
+			$datatype = reset($datatypes);
+			$progress = array_fill_keys($datatypes, 0);
+			file_put_contents($progressfile, Utils::jsonEncode($progress));
 		}
 
 		// Remove the .tmp extension from the final tempfile so the system knows it's done.
@@ -1399,7 +1436,7 @@ class ExportProfileData extends BackgroundTask
 		else {
 			$start[$datatype] = $progress[$datatype];
 
-			$new_details = [
+			$this->new_details = [
 				'format' => $this->_details['format'],
 				'uid' => $uid,
 				'lang' => $lang,
@@ -1413,10 +1450,8 @@ class ExportProfileData extends BackgroundTask
 			];
 
 			if (!empty($new_item_count)) {
-				$new_details['item_count'] = $new_item_count;
+				$this->new_details['item_count'] = $new_item_count;
 			}
-
-			$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay];
 
 			if (!file_exists($tempfile)) {
 				Feed::build('smf', [], $feed->metadata, 'profile');
@@ -1471,14 +1506,14 @@ class ExportProfileData extends BackgroundTask
 		$libxml_options = 0;
 
 		foreach (['LIBXML_COMPACT', 'LIBXML_PARSEHUGE', 'LIBXML_BIGLINES'] as $libxml_option) {
-			if (defined($libxml_option)) {
-				$libxml_options = $libxml_options | constant($libxml_option);
+			if (\defined($libxml_option)) {
+				$libxml_options = $libxml_options | \constant($libxml_option);
 			}
 		}
 
 		// Transform the files to HTML.
 		$i = 0;
-		$num_files = count($new_exportfiles);
+		$num_files = \count($new_exportfiles);
 		$max_transform_time = 0;
 
 		$xmldoc = new DOMDocument();
@@ -1496,13 +1531,11 @@ class ExportProfileData extends BackgroundTask
 			// When deadlines loom, sometimes the best solution is procrastination.
 			if (++$i < $num_files && TIME_START + $this->time_limit < $finished + $max_transform_time * 2) {
 				// After all, there's always next time.
-				if (empty($this->next_task)) {
+				if (empty($this->new_details)) {
 					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
-					$new_details = $this->_details;
-					$new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
-
-					$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD];
+					$this->new_details = $this->_details;
+					$this->new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
 				}
 
 				// So let's just relax and take a well deserved...
@@ -1541,7 +1574,7 @@ class ExportProfileData extends BackgroundTask
 		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
-		$test_length = strlen($this->stylesheet . Utils::$context['feed']['footer']);
+		$test_length = \strlen($this->stylesheet . Utils::$context['feed']['footer']);
 
 		$new_exportfiles = [];
 
@@ -1561,15 +1594,15 @@ class ExportProfileData extends BackgroundTask
 		foreach ($new_exportfiles as $exportfile) {
 			$handle = fopen($exportfile, 'r+');
 
-			if (is_resource($handle)) {
+			if (\is_resource($handle)) {
 				flock($handle, LOCK_EX);
 
-				fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
+				fseek($handle, \strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
 
 				$bytes_written = fwrite($handle, $this->stylesheet . Utils::$context['feed']['footer']);
 
 				// If we couldn't write everything, revert the changes.
-				if ($bytes_written > 0 && $bytes_written < strlen($this->stylesheet . Utils::$context['feed']['footer'])) {
+				if ($bytes_written > 0 && $bytes_written < \strlen($this->stylesheet . Utils::$context['feed']['footer'])) {
 					fseek($handle, $bytes_written * -1, SEEK_END);
 					$pointer_pos = ftell($handle);
 					ftruncate($handle, $pointer_pos);
@@ -1592,7 +1625,7 @@ class ExportProfileData extends BackgroundTask
 	{
 		$xslt_variables = [];
 
-		if (in_array($this->_details['format'], ['HTML', 'XML_XSLT'])) {
+		if (\in_array($this->_details['format'], ['HTML', 'XML_XSLT'])) {
 			if (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')) {
 				$this->_details['format'] = 'XML_XSLT';
 			}

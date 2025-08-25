@@ -170,7 +170,7 @@ class PaidSubs implements ActionInterface
 		}
 
 		// If this is confirmation then it's simpler...
-		if (isset($_GET['confirm'], $_POST['sub_id'])   && is_array($_POST['sub_id'])) {
+		if (isset($_GET['confirm'], $_POST['sub_id'])   && \is_array($_POST['sub_id'])) {
 			// Hopefully just one.
 			foreach ($_POST['sub_id'] as $k => $v) {
 				$id_sub = (int) $k;
@@ -201,14 +201,14 @@ class PaidSubs implements ActionInterface
 			if (Utils::$context['sub']['flexible']) {
 				// Real cost...
 				Utils::$context['value'] = Utils::$context['sub']['costs'][$_POST['cur'][$id_sub]];
-				Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . Lang::getTxt($_POST['cur'][$id_sub], file: 'ManagePaid');
+				Utils::$context['cost'] = \sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . Lang::getTxt($_POST['cur'][$id_sub], file: 'ManagePaid');
 
 				// The period value for paypal.
 				Utils::$context['paypal_period'] = strtoupper(substr($_POST['cur'][$id_sub], 0, 1));
 			} else {
 				// Real cost...
 				Utils::$context['value'] = Utils::$context['sub']['costs']['fixed'];
-				Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']);
+				Utils::$context['cost'] = \sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']);
 
 				// Recurring?
 				preg_match('~(\d*)(\w)~', Utils::$context['sub']['real_length'], $match);
@@ -250,7 +250,7 @@ class PaidSubs implements ActionInterface
 				}
 
 				// Don't get silly.
-				if (count($current_pending) > 9) {
+				if (\count($current_pending) > 9) {
 					$current_pending = [];
 				}
 
@@ -263,7 +263,7 @@ class PaidSubs implements ActionInterface
 					}
 				}
 
-				if (!in_array($new_data, $current_pending)) {
+				if (!\in_array($new_data, $current_pending)) {
 					$current_pending[] = $new_data;
 
 					Db::$db->query(

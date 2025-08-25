@@ -162,7 +162,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		return (Utils::entityStrlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0)) <=> (Utils::entityStrlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0));
+		return (Utils::entityStrlen($a) - (\in_array($a, $this->excludedWords) ? 1000 : 0)) <=> (Utils::entityStrlen($b) - (\in_array($b, $this->excludedWords) ? 1000 : 0));
 	}
 
 	/**
@@ -242,7 +242,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$word = $this->prepareString($word);
 
 		// Is this a blacklisted word?
-		if (in_array($word, $this->blacklisted_words)) {
+		if (\in_array($word, $this->blacklisted_words)) {
 			foreach ($keys as $key) {
 				unset($wordsSearch['all_words'][$key]);
 			}
@@ -280,7 +280,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			$all_words = array_merge($all_words, array_keys($temp));
 
-			if (count($temp) > 1) {
+			if (\count($temp) > 1) {
 				$phrases[] = array_keys($temp);
 			} else {
 				$single_words[] = key($temp);
@@ -357,7 +357,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				}
 
 				// If this word is only wanted when within the phrase, remove its separate entry.
-				if (!in_array($word, $single_words)) {
+				if (!\in_array($word, $single_words)) {
 					unset($found[$word]);
 				}
 			}
@@ -398,11 +398,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 		foreach (array_keys($found) as $word) {
 			$word = Db::$db->fix_mb4(Utils::normalize(Utils::entityDecode($word), 'c'));
 
-			if (!in_array($word, $this->searchArray)) {
+			if (!\in_array($word, $this->searchArray)) {
 				$this->searchArray[] = $word;
 				$this->marked[$word] = '<mark class="highlight">' . $word . '</mark>';
 
-				if (!is_array($this->params['alt_forms'] ?? '')) {
+				if (!\is_array($this->params['alt_forms'] ?? '')) {
 					$this->params['alt_forms'] = [];
 				}
 
@@ -601,7 +601,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			],
 		];
 
-		return is_null($type) ? $subactions : (isset($subactions[$type]) ? [$subactions[$type]] : []);
+		return \is_null($type) ? $subactions : (isset($subactions[$type]) ? [$subactions[$type]] : []);
 	}
 
 	/***********************
@@ -650,7 +650,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		if (SMF === 'BACKGROUND') {
 			$instance = new self();
 
-			$memory_limit = Sapi::memoryReturnBytes(ini_get('memory_limit')) * 0.8;
+			$memory_limit = Sapi::memoryReturnBytes(\ini_get('memory_limit')) * 0.8;
 
 			$word_data = [];
 
@@ -941,11 +941,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 				[
 					'id_word',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			foreach ($msg_data as $msg => $wordnums) {
-				if (!is_array($wordnums)) {
+				if (!\is_array($wordnums)) {
 					Db::$db->query(
 						'DELETE FROM {db_prefix}log_search_parsed
 						WHERE id_word = {int:word} AND id_msg = {int:msg}',
@@ -1047,45 +1047,8 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$prop_classes = utf8_regex_properties();
 
 		$string = preg_replace_callback(
-			'/' .
-				// Flag emojis
-				'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
-				// Or
-				'|' .
-				// Emoji characters
-				'[' . $prop_classes['Emoji'] . ']' .
-				// Possibly followed by modifiers of various sorts
-				'(' .
-					'[' . $prop_classes['Emoji_Modifier'] . ']' .
-					'|' .
-					'\x{FE0F}\x{20E3}?' .
-					'|' .
-					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-				')?' .
-				// Possibly concatenated with Zero Width Joiner and more emojis
-				// (e.g. the "family" emoji sequences)
-				'(' .
-					'\x{200D}[' . $prop_classes['Emoji'] . ']' .
-					'(' .
-						'[' . $prop_classes['Emoji_Modifier'] . ']' .
-						'|' .
-						'\x{FE0F}\x{20E3}?' .
-						'|' .
-						'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-					')?' .
-				')*' .
-			'/u',
-			function ($matches) {
-				// Skip lone ASCII characters that are not actually part of an
-				// emoji sequence. This can happen because the digits 0-9 and
-				// the '*' and '#' characters are the base characters for the
-				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
-					return $matches[0];
-				}
-
-				return ' ' . $matches[0] . ' ';
-			},
+			Utf8String::emojiRegex(),
+			fn($matches) => ' ' . $matches[0] . ' ',
 			$string,
 		);
 
@@ -1101,7 +1064,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			// Get rid of 'http', 'https', etc.
 			if (isset($url_parts['scheme'])) {
-				$substitute = ltrim(substr($substitute, strlen($url_parts['scheme'])), ':/');
+				$substitute = ltrim(substr($substitute, \strlen($url_parts['scheme'])), ':/');
 			}
 
 			if (isset($url_parts['host'])) {
@@ -1111,7 +1074,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				if (str_contains($trimmed_host, '.')) {
 					$tld = substr($trimmed_host, strrpos($trimmed_host, '.') + 1);
 
-					if (in_array($tld, Url::$basic_tlds)) {
+					if (\in_array($tld, Url::$basic_tlds)) {
 						$trimmed_host = substr($trimmed_host, 0, strrpos($trimmed_host, '.'));
 					}
 				}
@@ -1138,7 +1101,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			if (str_contains($substitute, '.')) {
 				$tld = substr($substitute, strrpos($substitute, '.') + 1);
 
-				if (in_array($tld, Url::$basic_tlds)) {
+				if (\in_array($tld, Url::$basic_tlds)) {
 					$substitute = substr($substitute, 0, strrpos($substitute, '.'));
 				}
 			}

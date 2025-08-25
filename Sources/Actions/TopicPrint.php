@@ -170,8 +170,7 @@ class TopicPrint implements ActionInterface, Routable
 					AND a.attachment_type = {int:attachment_type}',
 				[
 					'message_list' => $messages,
-					'attachment_type' => 0,
-					'is_approved' => 1,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			$temp = [];

@@ -378,6 +378,12 @@ $txt['last_edit_reason'] = '<span class="lastedit reason">Reason</span>: {reason
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 $txt['modified_time'] = 'Last edited';
 $txt['modified_by'] = 'Edited by';
+$txt['edit_history_count'] = 'Edited {0, plural,
+	one {# time}
+	other {# times}
+}';
+$txt['edit_history_linktext'] = '{time} by {member}';
+$txt['edit_history_linktext_reason'] = '{time} by {member}: {reason}';
 
 $txt['recent_posts'] = 'Recent posts';
 
@@ -402,7 +408,7 @@ $txt['is_recent_updated'] = '{link} is the most recently updated topic';
 $txt['male'] = 'Male';
 $txt['female'] = 'Female';
 
-$txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
+$txt['error_invalid_characters_username'] = 'Invalid character used in username.';
 
 $txt['welcome_guest'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a>.';
 $txt['welcome_guest_register'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a> or <a href="{register_url}">sign up</a>.';

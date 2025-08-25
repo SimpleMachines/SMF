@@ -110,7 +110,7 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Are they in this group?
-			$member_or_available = in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
+			$member_or_available = \in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
 			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
@@ -120,7 +120,7 @@ class GroupMembership implements ActionInterface
 			Utils::$context['groups'][$member_or_available][$group->id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$group->id]->pending = in_array($group->id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$group->id]->pending = \in_array($group->id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
@@ -130,7 +130,7 @@ class GroupMembership implements ActionInterface
 		}
 
 		// No changing primary group unless you have enough groups!
-		if (count(Utils::$context['groups']['member']) < 2) {
+		if (\count(Utils::$context['groups']['member']) < 2) {
 			Utils::$context['can_edit_primary'] = false;
 		}
 
@@ -192,7 +192,7 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Can't leave a requestable group that you're not part of.
-			if ($new_group_info['type'] == 2 && !in_array($new_group_id, Profile::$member->groups)) {
+			if ($new_group_info['type'] == 2 && !\in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 		}
@@ -212,7 +212,7 @@ class GroupMembership implements ActionInterface
 				// Are they leaving?
 				if (Profile::$member->group_id == $new_group_id) {
 					$new_primary = $can_edit_primary ? 0 : Profile::$member->group_id;
-				} elseif (in_array($new_group_id, Profile::$member->additional_groups)) {
+				} elseif (\in_array($new_group_id, Profile::$member->additional_groups)) {
 					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 				// ... if not, must be joining.
@@ -236,7 +236,7 @@ class GroupMembership implements ActionInterface
 					$new_additional_groups[] = Profile::$member->group_id;
 				}
 
-				if (in_array($new_group_id, $new_additional_groups)) {
+				if (\in_array($new_group_id, $new_additional_groups)) {
 					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 
@@ -289,7 +289,7 @@ class GroupMembership implements ActionInterface
 				}
 
 				$group->is_primary = $group->id == Profile::$member->group_id;
-				$group->is_additional = in_array($group->id, Profile::$member->additional_groups);
+				$group->is_additional = \in_array($group->id, Profile::$member->additional_groups);
 
 				$current_and_assignable_groups[$group->id] = $group;
 			}

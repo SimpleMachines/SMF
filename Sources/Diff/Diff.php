@@ -349,13 +349,13 @@ abstract class Diff
 	public function import(array $data): static
 	{
 		if (
-			!is_array($data)
-			|| count($data) !== 5
-			|| (!is_string($data[0]) && !is_int($data[0]) && !is_float($data[0]))
-			|| !is_string($data[1])
-			|| (!is_string($data[2]) && !is_int($data[2]) && !is_float($data[2]))
-			|| !is_string($data[3])
-			|| !is_array($data[4])
+			!\is_array($data)
+			|| \count($data) !== 5
+			|| (!\is_string($data[0]) && !\is_int($data[0]) && !\is_float($data[0]))
+			|| !\is_string($data[1])
+			|| (!\is_string($data[2]) && !\is_int($data[2]) && !\is_float($data[2]))
+			|| !\is_string($data[3])
+			|| !\is_array($data[4])
 		) {
 			throw new \ValueError();
 		}
@@ -370,15 +370,15 @@ abstract class Diff
 
 		foreach ($data[4] as $change) {
 			if (
-				!is_array($change)
-				|| count($change) < 5
-				|| !is_int($change[0])
-				|| !is_int($change[1])
-				|| !is_int($change[2])
-				|| !is_string($change[3])
-				|| !is_string($change[4])
-				|| (isset($change[5]) && !is_string($change[5]))
-				|| (isset($change[6]) && !is_string($change[6]))
+				!\is_array($change)
+				|| \count($change) < 5
+				|| !\is_int($change[0])
+				|| !\is_int($change[1])
+				|| !\is_int($change[2])
+				|| !\is_string($change[3])
+				|| !\is_string($change[4])
+				|| (isset($change[5]) && !\is_string($change[5]))
+				|| (isset($change[6]) && !\is_string($change[6]))
 			) {
 				throw new \ValueError();
 			}
@@ -386,7 +386,7 @@ abstract class Diff
 			$this->changes[] = array_filter(
 				array_combine(
 					['l1', 'l2', 'offset', 'old', 'new', 'before', 'after'],
-					array_slice(array_pad($change, 7, null), 0, 7),
+					\array_slice(array_pad($change, 7, null), 0, 7),
 				),
 				fn($value) => isset($value),
 			);
@@ -424,12 +424,28 @@ abstract class Diff
 	/**
 	 * Given the original string, constructs the modified string.
 	 *
+	 * The $dynamic_context parameter can be used to increase the likelihood of
+	 * success when lines in the immediate context of a change have been altered
+	 * unexpectedly. When this option is enabled, the matching algorithm will
+	 * initially try to match the change including all surrounding context, but
+	 * if that fails then it will progressively give up one line of context at
+	 * a time until it finds a match or runs out of context lines. Enabling this
+	 * option is especially helpful when applying patches to files that may have
+	 * been altered by third-party modifications.
+	 *
 	 * @param string $str1 The original string.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change. Default: false.
 	 * @throws \ValueError if given a string it cannot work with.
 	 * @return string The modified string.
 	 */
-	public function apply(string $str1): string
+	public function apply(string $str1, bool $dynamic_context = false): string
 	{
+		if (empty($this->changes)) {
+			return $str1;
+		}
+
 		$changes = $this->changes;
 
 		$lines = $this->splitLines($str1);
@@ -438,67 +454,59 @@ abstract class Diff
 			$lines = [];
 		}
 
-		$broken_changes = [];
-		$affected_line_numbers = [];
+		// Find the correct place to apply the change.
+		// This is not applicable to EditDiffs.
+		if (\is_string($this->changes[0]['old'])) {
+			$broken_changes = [];
+			$affected_line_numbers = [];
 
-		// Verify that the existing content is as expected.
-		foreach (array_reverse($changes, true) as $c => $change) {
-			if (!$this->verify($change, $lines)) {
-				$broken_changes[$c] = $change;
-				continue;
-			}
+			foreach (array_reverse($changes, true) as $c => $change) {
+				$change = $this->fixL1($change, $lines, $affected_line_numbers, $dynamic_context);
 
-			$affected_line_numbers = array_merge(
-				$affected_line_numbers,
-				range(
-					$change['l1'] ?? 0,
-					($change['l1'] ?? 0) + count($this->splitLines($change['old'])) - 1,
-				),
-			);
-		}
-
-		// If there was unexpected content, try to adapt.
-		foreach ($broken_changes as $c => $change) {
-			if (($change = $this->fixL1($change, $lines, $affected_line_numbers)) !== false) {
-				unset($broken_changes[$c]);
+				if ($change === false) {
+					$broken_changes[$c] = $changes[$c];
+					continue;
+				}
 
 				$changes[$c] = $change;
 
 				$affected_line_numbers = array_merge(
 					$affected_line_numbers,
 					range(
-						$change['l1'],
-						$change['l1'] + count($this->splitLines($change['old'])) - 1,
+						$change['l1'] ?? 0,
+						($change['l1'] ?? 0) + \count($this->splitLines($change['old'], PREG_SPLIT_NO_EMPTY)),
 					),
 				);
 			}
-		}
 
-		if (!empty($broken_changes)) {
-			ksort($broken_changes);
+			if (!empty($broken_changes)) {
+				ksort($broken_changes);
 
-			// Include info about the changes that couldn't be applied
-			// so that the caller knows exactly what went wrong.
-			throw new \ValueError(json_encode($broken_changes));
+				// Include info about the changes that couldn't be applied
+				// so that the caller knows exactly what went wrong.
+				throw new \ValueError(json_encode($broken_changes));
+			}
 		}
 
 		// Do the job.
 		$str2 = '';
 
 		foreach (array_reverse($changes) as $change) {
+			$old_length = \is_int($change['old']) ? $change['old'] : mb_strlen($change['old']);
+
 			if (isset($lines[$change['l1']])) {
 				$substring = implode('', array_splice($lines, $change['l1']));
 
 				$str2 =
 					mb_substr($substring, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($substring, $change['offset'] + mb_strlen($change['old'])) .
+					mb_substr($substring, $change['offset'] + $old_length) .
 					$str2;
 			} else {
 				$str2 =
 					mb_substr($str2, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($str2, $change['offset'] + mb_strlen($change['old']));
+					mb_substr($str2, $change['offset'] + $old_length);
 			}
 		}
 
@@ -558,17 +566,17 @@ abstract class Diff
 				}
 			}
 
-			$num_words = count($words);
+			$num_words = \count($words);
 
 			foreach (array_reverse($changes, true) as $word_offset => $change) {
 				array_splice(
 					$words,
 					$word_offset,
-					count($change['old']),
+					\count($change['old']),
 					$this->formatDelIns(
 						$change[$reverse ? 'new' : 'old'],
 						$change[$reverse ? 'old' : 'new'],
-						$word_offset + count($change['old']) === $num_words ? ($change['offset'] === 0 ? 2 : 1) : 0,
+						$word_offset + \count($change['old']) === $num_words ? ($change['offset'] === 0 ? 2 : 1) : 0,
 					),
 				);
 			}
@@ -576,17 +584,17 @@ abstract class Diff
 			$formatted = implode('', $words);
 		} else {
 			$lines = $this->splitLines($str1);
-			$num_lines = count($lines);
+			$num_lines = \count($lines);
 
 			foreach (array_reverse($changes, true) as $word_offset => $change) {
 				array_splice(
 					$lines,
 					$change['l1'],
-					$change['l2'] - $change['l1'] + 1,
+					(int) $change['l2'] - $change['l1'] + 1,
 					$this->formatDelIns(
 						$change[$reverse ? 'new' : 'old'],
 						$change[$reverse ? 'old' : 'new'],
-						$change['l2'] + 1 === $num_lines && implode('', $change['old']) === implode('', array_slice($lines, $change['l1'])) ? 2 : 0,
+						$change['l2'] + 1 === $num_lines && implode('', $change['old']) === implode('', \array_slice($lines, $change['l1'])) ? 2 : 0,
 					),
 				);
 			}
@@ -660,13 +668,13 @@ abstract class Diff
 				$word === '<'
 				&& isset($words[$next_key])
 				&& (
-					in_array($words[$next_key], array_keys(self::HTML_DIFF_PREFER_CONTENT))
+					\in_array($words[$next_key], array_keys(self::HTML_DIFF_PREFER_CONTENT))
 					|| (
 						$words[$next_key] === '/'
-						&& in_array($words[$next_key + 1], array_keys(self::HTML_DIFF_PREFER_CONTENT))
+						&& \in_array($words[$next_key + 1], array_keys(self::HTML_DIFF_PREFER_CONTENT))
 					)
 				)
-				&& array_search('>', array_slice($words, $key)) !== false
+				&& array_search('>', \array_slice($words, $key)) !== false
 			) {
 				while (isset($words[$next_key]) && $words[$next_key] !== '>') {
 					$words[$key] .= $words[$next_key];
@@ -680,13 +688,13 @@ abstract class Diff
 				$word === '['
 				&& isset($words[$next_key])
 				&& (
-					in_array($words[$next_key], $bbc_tags)
+					\in_array($words[$next_key], $bbc_tags)
 					|| (
 						$words[$next_key] === '/'
-						&& in_array($words[$next_key + 1], $bbc_tags)
+						&& \in_array($words[$next_key + 1], $bbc_tags)
 					)
 				)
-				&& array_search(']', array_slice($words, $key)) !== false
+				&& array_search(']', \array_slice($words, $key)) !== false
 			) {
 				while (isset($words[$next_key]) && $words[$next_key] !== ']') {
 					$words[$key] .= $words[$next_key];
@@ -805,7 +813,7 @@ abstract class Diff
 			switch ($pair[0] <=> ($pair[1] + $adjust)) {
 				// Line moved up in $str2.
 				case 1:
-					$word_offset += count($words1);
+					$word_offset += \count($words1);
 					break;
 
 				// Line moved down in $str2.
@@ -816,7 +824,7 @@ abstract class Diff
 					unset($change);
 
 					$moved[] = $pair[0];
-					$word_offset += count($words1);
+					$word_offset += \count($words1);
 					break;
 
 				// Line did not move.
@@ -847,7 +855,7 @@ abstract class Diff
 					if (!empty($change['old']) || !empty($change['new'])) {
 						$changes[$word_offset] = $change;
 
-						$word_offset += count($change['old']);
+						$word_offset += \count($change['old']);
 
 						$change = $changes[$word_offset] ?? $default_change;
 						$change['l1'] = $pair[0];
@@ -879,14 +887,14 @@ abstract class Diff
 							$change['new'] = $this->splitWords($lines2[$pair[1]]);
 							$changes[$word_offset] = $change;
 
-							$word_offset += count($change['old']);
+							$word_offset += \count($change['old']);
 
 							$change = $changes[$word_offset] ?? $default_change;
 							$change['l1'] = $pair[0];
 							$change['l2'] = $pair[1];
 						}
 					} else {
-						$word_offset += count($words1);
+						$word_offset += \count($words1);
 					}
 
 					unset($change);
@@ -935,7 +943,7 @@ abstract class Diff
 		$changes = [];
 
 		if ($line1 === $line2) {
-			$word_offset += count($this->splitWords($line1));
+			$word_offset += \count($this->splitWords($line1));
 
 			return $changes;
 		}
@@ -1005,7 +1013,7 @@ abstract class Diff
 					$change['offset'] = $char_offset;
 					$changes[$word_offset] = $change;
 					$char_offset += mb_strlen(implode('', $change['old']));
-					$word_offset += count($change['old']);
+					$word_offset += \count($change['old']);
 
 					unset($change);
 
@@ -1041,7 +1049,7 @@ abstract class Diff
 						$change['offset'] = $char_offset;
 						$changes[$word_offset] = $change;
 						$char_offset += mb_strlen(implode('', $change['old']));
-						$word_offset += count($change['old']);
+						$word_offset += \count($change['old']);
 
 						$change = $changes[$word_offset] ?? $default_change;
 					}
@@ -1054,7 +1062,7 @@ abstract class Diff
 						$change['offset'] = $char_offset;
 						$changes[$word_offset] = $change;
 						$char_offset += mb_strlen(implode('', $change['old']));
-						$word_offset += count($change['old']);
+						$word_offset += \count($change['old']);
 					} else {
 						$char_offset += mb_strlen($words1[$pair[0]]);
 						$word_offset++;
@@ -1077,20 +1085,20 @@ abstract class Diff
 		$word_offsets = array_map('intval', array_keys($changes));
 
 		foreach ($changes as $c => $change) {
-			$this_end = $c + count($change['old']);
+			$this_end = (int) $c + \count($change['old']);
 			$next_start = next($word_offsets);
 
 			if ($next_start <= $this_end) {
 				continue;
 			}
 
-			$words_between = array_slice(
+			$words_between = \array_slice(
 				$words1,
 				$this_end - $init_word_offset,
 				$next_start - $this_end,
 			);
 
-			if (strlen(implode('', $words_between)) <= $merge_threshold) {
+			if (\strlen(implode('', $words_between)) <= $merge_threshold) {
 				$changes[$c]['old'] = array_merge($changes[$c]['old'], $words_between);
 				$changes[$c]['new'] = array_merge($changes[$c]['new'], $words_between);
 			}
@@ -1107,7 +1115,7 @@ abstract class Diff
 
 		// Regardless of what is or isn't included in $changes, we need to
 		// increase $word_offset by the total number of words in $words1.
-		$word_offset = $init_word_offset + count($words1);
+		$word_offset = $init_word_offset + \count($words1);
 
 		return $changes;
 	}
@@ -1167,7 +1175,7 @@ abstract class Diff
 		// Compile into a unified list.
 		$pairs = [];
 
-		for ($i = 0; $i < count($substrings1); $i++) {
+		for ($i = 0; $i < \count($substrings1); $i++) {
 			$pairs[] = [$i, $matching[$i] ?? false];
 		}
 
@@ -1178,7 +1186,7 @@ abstract class Diff
 				$temp = [];
 
 				foreach ($pairs as $pair) {
-					if (!in_array($u, $done) && $pair[1] > $u) {
+					if (!\in_array($u, $done) && $pair[1] > $u) {
 						$temp[] = [false, $u];
 						$done[] = $u;
 					}
@@ -1186,7 +1194,7 @@ abstract class Diff
 					$temp[] = $pair;
 				}
 
-				if (!in_array($u, $done)) {
+				if (!\in_array($u, $done)) {
 					$temp[] = [false, $u];
 					$done[] = $u;
 				}
@@ -1358,7 +1366,7 @@ abstract class Diff
 				continue;
 			}
 
-			for ($next_i = $i + 1; $next_i <= count($possible_matches); $next_i++) {
+			for ($next_i = $i + 1; $next_i <= \count($possible_matches); $next_i++) {
 				if (isset($matching[$next_i])) {
 					break;
 				}
@@ -1377,7 +1385,7 @@ abstract class Diff
 				// Skip possible pairs that we know will not be chosen.
 				foreach ($similar as $lcs => $pairs) {
 					if (
-						(in_array($u, $pairs) && $lcs > mb_strlen($substrings1[$i]))
+						(\in_array($u, $pairs) && $lcs > mb_strlen($substrings1[$i]))
 						|| (isset($pairs[$i]) && $lcs > mb_strlen($substring))
 					) {
 						continue 2;
@@ -1421,14 +1429,14 @@ abstract class Diff
 			foreach ($similar as $lcs => $pairs) {
 				foreach ($pairs as $i => $matches) {
 					foreach ($matches as $u) {
-						if (in_array($u, $done)) {
+						if (\in_array($u, $done)) {
 							continue;
 						}
 
 						if (
 							empty($done)
-							|| in_array($u - 1, $possible_matches[$i - 1] ?? [])
-							|| in_array($u + 1, $possible_matches[$i + 1] ?? [])
+							|| \in_array($u - 1, $possible_matches[$i - 1] ?? [])
+							|| \in_array($u + 1, $possible_matches[$i + 1] ?? [])
 						) {
 							$done[$i] = $u;
 							$possible_matches[$i][] = $u;
@@ -1464,7 +1472,7 @@ abstract class Diff
 		array &$matching,
 		array &$unmatched,
 	): void {
-		$num_possible_matches = count($possible_matches);
+		$num_possible_matches = \count($possible_matches);
 
 		// We look for runs of possible matches, so that we can choose the runs
 		// that will produce the fewest changes.
@@ -1473,10 +1481,10 @@ abstract class Diff
 		$done = [];
 
 		foreach ($possible_matches as $i => $matches) {
-			$num_matches = count($matches);
+			$num_matches = \count($matches);
 
 			// Skip if we already have a match or if there are no possible matches for this substring.
-			if ($num_matches === 0 || isset($matching[$i]) || in_array($i, $done)) {
+			if ($num_matches === 0 || isset($matching[$i]) || \in_array($i, $done)) {
 				continue;
 			}
 
@@ -1488,7 +1496,7 @@ abstract class Diff
 				$prev_i = $i;
 
 				while (
-					in_array($prev_u - 1, $possible_matches[$prev_i - 1] ?? [])
+					\in_array($prev_u - 1, $possible_matches[$prev_i - 1] ?? [])
 					&& !isset($matching[$prev_i - 1])
 					&& $prev_i > 0
 				) {
@@ -1502,7 +1510,7 @@ abstract class Diff
 					// correct match for each.
 					if (
 						$is_unique_match
-						&& count($possible_matches[$prev_i]) === 1
+						&& \count($possible_matches[$prev_i]) === 1
 						&& array_keys($possible_matches, $possible_matches[$prev_i]) === [$prev_i]
 					) {
 						$temp_u = $prev_u + 1;
@@ -1519,7 +1527,7 @@ abstract class Diff
 				$next_i = $i;
 
 				while (
-					in_array($next_u + 1, $possible_matches[$next_i + 1] ?? [])
+					\in_array($next_u + 1, $possible_matches[$next_i + 1] ?? [])
 					&& !isset($matching[$next_i + 1])
 					&& $next_i < $num_possible_matches
 				) {
@@ -1528,7 +1536,7 @@ abstract class Diff
 
 					if (
 						$is_unique_match
-						&& count($possible_matches[$next_i]) === 1
+						&& \count($possible_matches[$next_i]) === 1
 						&& array_keys($possible_matches, $possible_matches[$next_i]) === [$next_i]
 					) {
 						$temp_u = $next_u - 1;
@@ -1547,7 +1555,7 @@ abstract class Diff
 					$next_i => $next_u,
 				];
 
-				if (!in_array($range, $runs[$length] ?? [])) {
+				if (!\in_array($range, $runs[$length] ?? [])) {
 					$runs[$length][] = $range;
 				}
 			}
@@ -1583,16 +1591,16 @@ abstract class Diff
 					!empty($range2)
 					&& ($already_matched = array_intersect($matching, $range2)) !== []
 					&& (
-						in_array(end($range2), $already_matched)
-						|| in_array(reset($range2), $already_matched)
+						\in_array(end($range2), $already_matched)
+						|| \in_array(reset($range2), $already_matched)
 					)
 				) {
-					if (in_array(end($range2), $already_matched)) {
+					if (\in_array(end($range2), $already_matched)) {
 						array_pop($range1);
 						array_pop($range2);
 					}
 
-					if (in_array(reset($range2), $already_matched)) {
+					if (\in_array(reset($range2), $already_matched)) {
 						array_shift($range1);
 						array_shift($range2);
 					}
@@ -1646,7 +1654,7 @@ abstract class Diff
 		int $i,
 		int $match,
 	): bool {
-		$max = count($possible_matches);
+		$max = \count($possible_matches);
 
 		if ($max === 1) {
 			return true;
@@ -1678,7 +1686,7 @@ abstract class Diff
 		}
 
 		foreach ($possible_matches as $key => $value) {
-			if ($key !== $i && in_array($match, $value)) {
+			if ($key !== $i && \in_array($match, $value)) {
 				return false;
 			}
 		}
@@ -1719,8 +1727,8 @@ abstract class Diff
 		$chars1 = mb_str_split($str1);
 		$chars2 = mb_str_split($str2);
 
-		$end1 = count($chars1);
-		$end2 = count($chars2);
+		$end1 = \count($chars1);
+		$end2 = \count($chars2);
 
 		$start1 = 0;
 		$start2 = 0;
@@ -1754,7 +1762,7 @@ abstract class Diff
 				implode('', $bifurcated['suffix2']),
 			);
 
-			return $lcs;
+			return (int) $lcs;
 		}
 
 		// Once we reach the point where bifurcating doesn't help any further,
@@ -1874,13 +1882,13 @@ abstract class Diff
 			return [];
 		}
 
-		$substr2 = implode('', array_slice($strings2, $start2, $end2));
+		$substr2 = implode('', \array_slice($strings2, $start2, $end2));
 
 		if ($substr2 === '') {
 			return [];
 		}
 
-		$middle_start1 = intval(floor(($end1 - $start1) / 2)) + $start1;
+		$middle_start1 = \intval(floor(($end1 - $start1) / 2)) + $start1;
 		$middle_end1 = $middle_start1;
 		$middle_len = 1;
 		$middle_str = $strings1[$middle_start1];
@@ -1919,46 +1927,46 @@ abstract class Diff
 			return [];
 		}
 
-		$middle1 = array_slice($strings1, $middle_start1 - array_key_first($strings1), $middle_len, true);
+		$middle1 = \array_slice($strings1, $middle_start1 - array_key_first($strings1), $middle_len, true);
 
 		$middle_start2 = 0;
-		$middle2 = array_slice($strings2, 0, $middle_len);
+		$middle2 = \array_slice($strings2, 0, $middle_len);
 
 		while ($middle_str !== implode('', $middle2) && $middle_start2 + $middle_len <= $end2) {
-			$middle2 = array_slice($strings2, ++$middle_start2, $middle_len, true);
+			$middle2 = \array_slice($strings2, ++$middle_start2, $middle_len, true);
 		}
 
 		$middle_start2 = array_key_first($middle2);
 
-		if (count($middle2) < $middle_len) {
+		if (\count($middle2) < $middle_len) {
 			return [];
 		}
 
 		$middle_end1 = $middle_start1 + $middle_len;
 		$middle_end2 = $middle_start2 + $middle_len;
 
-		$prefix1 = array_slice(
+		$prefix1 = \array_slice(
 			$strings1,
 			$start1 - array_key_first($strings1),
 			$middle_start1 - $start1,
 			true,
 		);
 
-		$prefix2 = array_slice(
+		$prefix2 = \array_slice(
 			$strings2,
 			$start2 - array_key_first($strings2),
 			$middle_start2 - $start2,
 			true,
 		);
 
-		$suffix1 = array_slice(
+		$suffix1 = \array_slice(
 			$strings1,
 			$middle_end1 - array_key_first($strings1),
 			$end1 - $middle_end1,
 			true,
 		);
 
-		$suffix2 = array_slice(
+		$suffix2 = \array_slice(
 			$strings2,
 			$middle_end2 - array_key_first($strings2),
 			$end2 - $middle_end2,
@@ -2005,7 +2013,7 @@ abstract class Diff
 			elseif (
 				$change['offset'] === 0
 				&& $changes[$prev]['offset'] === 0
-				&& $c === $prev + count($changes[$prev]['old'])
+				&& $c === $prev + \count($changes[$prev]['old'])
 			) {
 				$changes[$prev]['old'] = array_merge($changes[$prev]['old'], $change['old']);
 				$changes[$prev]['new'] = array_merge($changes[$prev]['new'], $change['new']);
@@ -2072,13 +2080,13 @@ abstract class Diff
 				}
 			}
 
-			while (count($new) > 0 && count($old) > 0 && reset($new) === reset($old)) {
+			while (\count($new) > 0 && \count($old) > 0 && reset($new) === reset($old)) {
 				$changes[$c]['offset'] += mb_strlen(reset($old));
 				array_shift($old);
 				array_shift($new);
 			}
 
-			while (count($new) > 0 && count($old) > 0 && end($new) === end($old)) {
+			while (\count($new) > 0 && \count($old) > 0 && end($new) === end($old)) {
 				array_pop($old);
 				array_pop($new);
 			}
@@ -2162,8 +2170,8 @@ abstract class Diff
 			// But make sure that we don't get duplicate lines in this change's
 			// 'before' element and the previous change's 'after' element.
 			if (isset($changes[$c - 1])) {
-				$prev_change_end = $changes[$c - 1]['l1'] + count($this->splitLines($changes[$c - 1]['old'])) - 1;
-				$prev_after_end = $prev_change_end + count($changes[$c - 1]['after']);
+				$prev_change_end = $changes[$c - 1]['l1'] + \count($this->splitLines($changes[$c - 1]['old'])) - 1;
+				$prev_after_end = $prev_change_end + \count($changes[$c - 1]['after']);
 
 				while ($before_start < $prev_after_end) {
 					if ($before_start === $changes[$c]['l1']) {
@@ -2187,14 +2195,14 @@ abstract class Diff
 			}
 
 			// Get the context lines to show before the changes.
-			$changes[$c]['before'] = array_slice(
+			$changes[$c]['before'] = \array_slice(
 				$lines1,
 				$before_start,
 				$changes[$c]['l1'] - $before_start,
 			);
 
 			// Initially assume we want $context number of following lines.
-			$after_start = $changes[$c]['l1'] + count($this->splitLines($changes[$c]['old'])) - 1;
+			$after_start = (int) $changes[$c]['l1'] + \count($this->splitLines($changes[$c]['old'])) - 1;
 			$after_length = $context;
 
 			if (isset($lines1[$after_start + 1])) {
@@ -2209,7 +2217,7 @@ abstract class Diff
 				}
 
 				// Get the context lines to show after the changes.
-				$changes[$c]['after'] = array_slice(
+				$changes[$c]['after'] = \array_slice(
 					$lines1,
 					$after_start,
 					$after_length,
@@ -2223,67 +2231,21 @@ abstract class Diff
 	}
 
 	/**
-	 * Helper for $this->apply() that checks whether a change can be applied.
-	 *
-	 * @param array $change The change to verify.
-	 * @param array $lines Lines of the original string.
-	 * @return bool Whether the change can be applied.
-	 */
-	protected function verify(array $change, array $lines): bool
-	{
-		$substring = implode('', array_slice(
-			$lines,
-			$change['l1'] ?? 0,
-			count($this->splitLines($change['old'])),
-		));
-
-		// If there is unexpected content at this position, the change cannot be applied.
-		if ($change['old'] !== mb_substr($substring, $change['offset'], mb_strlen($change['old']))) {
-			return false;
-		}
-
-		// If this is an insertion with no deletion, try to check the context.
-		if ($change['old'] === '') {
-			if (isset($change['before'])) {
-				$before = $change['before'] === '' ? [] : $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
-
-				foreach (array_reverse($before) as $b => $before_line) {
-					if (($lines[$change['l1'] - $b - 1] ?? null) !== $before_line) {
-						return false;
-					}
-				}
-			}
-
-			if (isset($change['after'])) {
-				$after = $change['after'] === '' ? [] : $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
-
-				$l_last = $change['l1'] + count($this->splitLines($change['old'])) - 1;
-
-				foreach ($after as $a => $after_line) {
-					if (($lines[$l_last + $a] ?? null) !== $after_line) {
-						return false;
-					}
-				}
-			}
-		}
-
-		// Tests passed.
-		return true;
-	}
-
-	/**
 	 * Helper for $this->apply() that uses heuristics to try to find the correct
-	 * line number for a change when $str1 contains unexpected content.
+	 * line number for a change.
 	 *
 	 * @param array $change The change that didn't match.
 	 * @param array $lines Lines of the original string.
 	 * @param array $disallowed Lines numbers that cannot be chosen.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change.
 	 * @return array|false An altered version of $change, or false on error.
 	 */
-	protected function fixL1(array $change, array $lines, array $disallowed): array|false
+	protected function fixL1(array $change, array $lines, array $disallowed, bool $dynamic_context): array|false
 	{
 		// Number to add to $l1 to get the last line number in a block of affected text.
-		$last_offset = count($this->splitLines($change['old'])) - 1;
+		$last_offset = \count($this->splitLines($change['old'])) - 1;
 
 		if ($change['old'] === '') {
 			$possible_matches = array_keys($lines);
@@ -2299,7 +2261,7 @@ abstract class Diff
 			}
 
 			// Filter out incomplete sets of matching lines.
-			if (count($possible_matches) > 1) {
+			if (\count($possible_matches) > 1) {
 				foreach ($possible_matches as $o => $matches) {
 					if (isset($possible_matches[$o - 1])) {
 						$possible_matches[$o] = array_intersect(
@@ -2334,8 +2296,100 @@ abstract class Diff
 			}
 		}
 
-		// Do we need to keep going?
-		switch (count($possible_matches)) {
+		// No matches found.
+		if (\count($possible_matches) === 0) {
+			return false;
+		}
+
+		// Determine how many context lines to use.
+		foreach ($this->changes as $c => $change) {
+			// If any changes are inline, use no context lines.
+			if ($change['offset'] !== 0) {
+				$max_before_context = 0;
+				$max_after_context = 0;
+				break;
+			}
+
+			$max_before_context = max(
+				$max_before_context ?? 0,
+				\count($this->splitLines($change['before'] ?? '', PREG_SPLIT_NO_EMPTY)),
+			);
+
+			$max_after_context = max(
+				$max_after_context ?? 0,
+				\count($this->splitLines($change['after'] ?? '', PREG_SPLIT_NO_EMPTY)),
+			);
+		}
+
+		$total_context = $max_total_context = $max_before_context + $max_after_context;
+
+		// If possible, use the context lines to choose the best possible match.
+		do {
+			$before_context = $max_before_context;
+			$after_context = $max_after_context - ($max_total_context - $total_context);
+			$temp_possible_matches = $possible_matches;
+
+			for ($i = 0; $i < $total_context; $i++) {
+				if (isset($change['before'])) {
+					$before = $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
+					$before = \array_slice($before, $before_context * -1, $before_context);
+
+					foreach ($temp_possible_matches as $m => $l1) {
+						foreach (array_reverse($before) as $b => $before_line) {
+							if (($lines[$l1 - $b - 1] ?? null) !== $before_line) {
+								unset($temp_possible_matches[$m]);
+								continue 2;
+							}
+						}
+					}
+				}
+
+				if (isset($change['after'])) {
+					$after = $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
+					$after = \array_slice($after, 0, $after_context);
+
+					foreach ($temp_possible_matches as $m => $l1) {
+						$l_last = $l1 + $last_offset;
+
+						foreach ($after as $a => $after_line) {
+							if (($lines[$l_last + $a] ?? null) !== $after_line) {
+								unset($temp_possible_matches[$m]);
+								continue 2;
+							}
+						}
+					}
+				}
+
+				switch (\count($temp_possible_matches)) {
+					case 1:
+						// Found it!
+						$possible_matches = $temp_possible_matches;
+						break 2;
+
+					default:
+						if ($before_context === 0 && $after_context === 0) {
+							$possible_matches = $temp_possible_matches;
+							break 2;
+						}
+						break;
+				}
+
+				if ($before_context === 0 || $after_context === $max_after_context) {
+					break;
+				}
+
+				$before_context--;
+				$after_context++;
+			}
+		} while (
+			// If dynamic context is enabled, retry until we find some matches
+			// or we have reduced the number of context lines to zero.
+			$dynamic_context
+			&& \count($temp_possible_matches) === 0
+			&& --$total_context >= 0
+		);
+
+		switch (\count($possible_matches)) {
 			case 0:
 				return false;
 
@@ -2343,40 +2397,6 @@ abstract class Diff
 				$change['l1'] = reset($possible_matches);
 
 				return $change;
-		}
-
-		// Can we use context lines to figure out which possible match to choose?
-		if (isset($change['before'])) {
-			$before = $change['before'] === '' ? [] : $this->splitLines($change['before'], PREG_SPLIT_NO_EMPTY);
-
-			foreach ($possible_matches as $m => $l1) {
-				foreach (array_reverse($before) as $b => $before_line) {
-					if (($lines[$l1 - $b - 1] ?? null) !== $before_line) {
-						unset($possible_matches[$m]);
-						continue 2;
-					}
-				}
-			}
-		}
-
-		if (isset($change['after'])) {
-			$after = $change['after'] === '' ? [] : $this->splitLines($change['after'], PREG_SPLIT_NO_EMPTY);
-
-			foreach ($possible_matches as $m => $l1) {
-				$l_last = $l1 + $last_offset;
-
-				foreach ($after as $a => $after_line) {
-					if (($lines[$l_last + $a] ?? null) !== $after_line) {
-						unset($possible_matches[$m]);
-						continue 2;
-					}
-				}
-			}
-		}
-
-		switch (count($possible_matches)) {
-			case 0:
-				return false;
 
 			default:
 				// If we still have multiple matches, prefer the one closest to the expected position.
@@ -2647,7 +2667,7 @@ abstract class Diff
 						$del_content = [];
 						$ins_content = [];
 
-						for ($i = 0; $i < count($content); $i++) {
+						for ($i = 0; $i < \count($content); $i++) {
 							if ($content[$i] === '') {
 								continue;
 							}
@@ -2862,7 +2882,7 @@ abstract class Diff
 						$del_content = [];
 						$ins_content = [];
 
-						for ($i = 0; $i < count($content); $i++) {
+						for ($i = 0; $i < \count($content); $i++) {
 							if ($content[$i] === '') {
 								continue;
 							}
@@ -3274,7 +3294,7 @@ abstract class Diff
 		// Reconstruct.
 		$parts = preg_split('/(<table\b[^>]*>\X*?<\/table>)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($p = 0; $p < count($parts); $p++) {
+		for ($p = 0; $p < \count($parts); $p++) {
 			if ($p % 2 === 1) {
 				// Parse the table.
 				$table = [
@@ -3292,7 +3312,7 @@ abstract class Diff
 				$buffer = [];
 				$use_buffer = false;
 
-				for ($i = 0; $i < count($table_parts); $i++) {
+				for ($i = 0; $i < \count($table_parts); $i++) {
 					if ($table_parts[$i] === '</table>') {
 						continue;
 					}
@@ -3305,7 +3325,7 @@ abstract class Diff
 						$group = $matches[1];
 					}
 
-					if (str_starts_with($table_parts[$i], '<tr') && in_array($group, ['table', 'caption', 'colgroup'])) {
+					if (str_starts_with($table_parts[$i], '<tr') && \in_array($group, ['table', 'caption', 'colgroup'])) {
 						$group = 'tbody';
 					}
 

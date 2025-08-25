@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Unicode;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
-if (!defined('SMF_UNICODE_VERSION')) {
-	define('SMF_UNICODE_VERSION', '16.0.0.0');
+if (!\defined('SMF_UNICODE_VERSION')) {
+	\define('SMF_UNICODE_VERSION', '16.0.0.0');
 }

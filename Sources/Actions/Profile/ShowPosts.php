@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Attachment;
 use SMF\Autolinker;
 use SMF\Board;
 use SMF\Config;
@@ -31,6 +32,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -104,18 +106,14 @@ class ShowPosts implements ActionInterface
 		$this->setPageTitle();
 
 		// Is the load average too high to allow searching just now?
-		if (
-			!empty(Utils::$context['load_average'])
-			&& !empty(Config::$modSettings['loadavg_show_posts'])
-			&& Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts']
-		) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_show_posts'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -394,7 +392,7 @@ class ShowPosts implements ActionInterface
 			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics as lt
 				LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, ['mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC']) ? '
+				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (\in_array($sort, ['mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC']) ? '
 				LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 			WHERE lt.id_member = {int:current_member}
 				AND unwatched = 1
@@ -488,17 +486,17 @@ class ShowPosts implements ActionInterface
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
+				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
 				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') || User::$me->is_owner ? '' : '
 				AND a.approved = {int:is_approved}') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			[
 				'boards_list' => $boards_allowed,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'no_message' => 0,
 				'current_member' => Profile::$member->id,
-				'is_approved' => 1,
+				'is_approved' => Attachment::APPROVED_TRUE,
 				'board' => Board::$info->id ?? 0,
 				'sort' => $sort,
 				'offset' => $start,
@@ -544,16 +542,16 @@ class ShowPosts implements ActionInterface
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
+				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
 				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			[
 				'boards_list' => $boards_allowed,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'no_message' => 0,
 				'current_member' => Profile::$member->id,
-				'is_approved' => 1,
+				'is_approved' => Attachment::APPROVED_TRUE,
 				'board' => Board::$info->id ?? 0,
 			],
 		);
@@ -938,7 +936,7 @@ class ShowPosts implements ActionInterface
 		}
 
 		// Clean up after posts that cannot be deleted and quoted.
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			Utils::$context['posts'][$counter]['can_delete'] &= Utils::$context['posts'][$counter]['delete_possible'];

@@ -244,7 +244,7 @@ class Credits implements ActionInterface, Routable
 		];
 
 		// Give the translators some credit for their hard work.
-		if (!is_array(Lang::getTxt('translation_credits', file: 'Who'))) {
+		if (!\is_array(Lang::getTxt('translation_credits', file: 'Who'))) {
 			Lang::setTxt(
 				'translation_credits',
 				array_filter(

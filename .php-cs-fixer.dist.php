@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__)
@@ -130,6 +130,10 @@ return (new PhpCsFixer\Config())
 		'nullable_type_declaration' => ['syntax' => 'question_mark'],
 
 		// Namespace notation.
+		'native_function_invocation' => [
+			'include' => ['@compiler_optimized'],
+			'scope' => 'namespaced',
+		],
 		'no_leading_namespace_whitespace' => true,
 
 		// Operator.

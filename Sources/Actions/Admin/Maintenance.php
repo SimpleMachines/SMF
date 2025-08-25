@@ -155,18 +155,18 @@ class Maintenance implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 		Utils::$context['sub_template'] = self::$subactions[$this->subaction]['template'] ?? 'options';
 
-		$call = is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
+		$call = \is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 
 		// Any special activity?
 		if (!empty($this->activity)) {
-			$call = is_string(self::$subactions[$this->subaction]['activities'][$this->activity]) && method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
+			$call = \is_string(self::$subactions[$this->subaction]['activities'][$this->activity]) && method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
 
 			if (!empty($call)) {
-				call_user_func($call);
+				\call_user_func($call);
 			}
 		}
 
@@ -179,7 +179,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function routine(): void
 	{
-		if (isset($_GET['done']) && in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
+		if (isset($_GET['done']) && \in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_' . $_GET['done'], file: 'ManageMaintenance');
 		}
 		Utils::$context['template_layers'][] = 'maintain';
@@ -975,7 +975,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// If there aren't any tables then I believe that would mean the world has exploded...
-		Utils::$context['num_tables'] = count($tables);
+		Utils::$context['num_tables'] = \count($tables);
 
 		if (Utils::$context['num_tables'] == 0) {
 			ErrorHandler::fatal('You appear to be running SMF in a flat file mode... fantastic!', false);
@@ -1023,7 +1023,7 @@ class Maintenance implements ActionInterface
 
 		// Number of tables, etc...
 		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']], file: 'ManageMaintenance');
-		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
+		Utils::$context['num_tables_optimized'] = \count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);
 	}
@@ -1094,7 +1094,7 @@ class Maintenance implements ActionInterface
 			'smileys',
 			'themes',
 		];
-		Utils::$context['num_tables'] = count($tables);
+		Utils::$context['num_tables'] = \count($tables);
 
 		// Loop through all tables that need converting.
 		for (; Utils::$context['table'] < Utils::$context['num_tables']; Utils::$context['table']++) {
@@ -1159,7 +1159,7 @@ class Maintenance implements ActionInterface
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 				if ($row['Key_name'] === 'PRIMARY') {
-					if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !in_array(strtolower($row['Column_name']), $columns)) {
+					if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !\in_array(strtolower($row['Column_name']), $columns)) {
 						$primary_key = $row['Column_name'];
 					}
 
@@ -1261,10 +1261,10 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT and vice versa.
+	 * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT.
 	 * It requires the admin_forum permission.
 	 * This is needed only for MySQL.
-	 * During the conversion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
+	 * We no longer support reverting from MEDIUMTEXT back to TEXT.
 	 * This action is linked from the maintenance screen (if it's applicable).
 	 * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
 	 *
@@ -1287,126 +1287,33 @@ class Maintenance implements ActionInterface
 			}
 		}
 
-		Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-
-		if ($body_type == 'text' || ($body_type != 'text' && isset($_POST['do_conversion']))) {
-			User::$me->checkSession();
-			SecurityToken::validate('admin-maint');
-
-			// Make it longer so we can do their limit.
-			if ($body_type == 'text') {
-				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'mediumtext']);
-			}
-			// Shorten the column so we can have a bit (literally per record) less space occupied
-			else {
-				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'text']);
-			}
-
-			// 3rd party integrations may be interested in knowing about this.
-			IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
-
-			$colData = Db::$db->list_columns('{db_prefix}messages', true);
-
-			foreach ($colData as $column) {
-				if ($column['name'] == 'body') {
-					$body_type = $column['type'];
-				}
-			}
-
-			Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-			Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
-
+		if ($body_type === 'mediumtext') {
 			return;
 		}
 
-		if ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont']))) {
-			User::$me->checkSession();
+		Utils::$context['convert_to'] = 'mediumtext';
 
-			if (empty($_REQUEST['start'])) {
-				SecurityToken::validate('admin-maint');
-			} else {
-				SecurityToken::validate('admin-convertMsg');
-			}
+		User::$me->checkSession();
+		SecurityToken::validate('admin-maint');
 
-			Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
-			Utils::$context['continue_post_data'] = '';
-			Utils::$context['continue_countdown'] = 3;
-			Utils::$context['sub_template'] = 'not_done';
-			$increment = 500;
-			$id_msg_exceeding = isset($_POST['id_msg_exceeding']) ? explode(',', $_POST['id_msg_exceeding']) : [];
+		// Make it longer so we can do their limit.
+		Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'mediumtext']);
 
-			$request = Db::$db->query(
-				'SELECT COUNT(*) as count
-				FROM {db_prefix}messages',
-				[],
-			);
-			list($max_msgs) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
+		// 3rd party integrations may be interested in knowing about this.
+		IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
 
-			// Try for as much time as possible.
-			Sapi::setTimeLimit(600);
+		$colData = Db::$db->list_columns('{db_prefix}messages', true);
 
-			while ($_REQUEST['start'] < $max_msgs) {
-				$request = Db::$db->query(
-					'SELECT id_msg
-					FROM {db_prefix}messages
-					WHERE id_msg BETWEEN {int:start} AND {int:start} + {int:increment}
-						AND LENGTH(body) > 65535',
-					[
-						'start' => $_REQUEST['start'],
-						'increment' => $increment - 1,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$id_msg_exceeding[] = $row['id_msg'];
-				}
-				Db::$db->free_result($request);
-
-				$_REQUEST['start'] += $increment;
-
-				if (microtime(true) - TIME_START > 3) {
-					SecurityToken::create('admin-convertMsg');
-					Utils::$context['continue_post_data'] = '
-						<input type="hidden" name="' . Utils::$context['admin-convertMsg_token_var'] . '" value="' . Utils::$context['admin-convertMsg_token'] . '">
-						<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-						<input type="hidden" name="id_msg_exceeding" value="' . implode(',', $id_msg_exceeding) . '">';
-
-					Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=convertmsgbody;start=' . $_REQUEST['start'];
-					Utils::$context['continue_percent'] = round(100 * $_REQUEST['start'] / $max_msgs);
-
-					return;
-				}
-			}
-			SecurityToken::create('admin-maint');
-			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
-			Utils::$context['sub_template'] = 'convert_msgbody';
-
-			if (!empty($id_msg_exceeding)) {
-				if (count($id_msg_exceeding) > 100) {
-					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100], file: 'ManageMaintenance');
-				} else {
-					$query_msg = $id_msg_exceeding;
-				}
-
-				Utils::$context['exceeding_messages'] = [];
-				$request = Db::$db->query(
-					'SELECT id_msg, id_topic, subject
-					FROM {db_prefix}messages
-					WHERE id_msg IN ({array_int:messages})',
-					[
-						'messages' => $query_msg,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					Utils::$context['exceeding_messages'][] = '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
-				}
-				Db::$db->free_result($request);
+		foreach ($colData as $column) {
+			if ($column['name'] == 'body') {
+				$body_type = $column['type'];
 			}
 		}
+
+		Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
+		Utils::$context['convert_to'] = null;
+
+
 	}
 
 	/**
@@ -1468,7 +1375,7 @@ class Maintenance implements ActionInterface
 			// Need to get all groups then work out which (if any) we avoid.
 			foreach (Group::loadSimple(Group::LOAD_BOTH, [Group::GUEST, Group::MOD]) as $group) {
 				// Avoid this one?
-				if (!in_array($group->id, $groups)) {
+				if (!\in_array($group->id, $groups)) {
 					// Post group?
 					if ($group->min_posts != -1) {
 						$where .= ' AND mem.id_post_group != {int:id_post_group_' . $group->id . '}';
@@ -1481,7 +1388,7 @@ class Maintenance implements ActionInterface
 			}
 
 			// If we have ungrouped unselected we need to avoid those guys.
-			if (!in_array(0, $groups)) {
+			if (!\in_array(0, $groups)) {
 				$where .= ' AND (mem.id_group != 0 OR mem.additional_groups != {string:blank_add_groups})';
 				$where_vars['blank_add_groups'] = '';
 			}
@@ -1497,7 +1404,7 @@ class Maintenance implements ActionInterface
 			$members = [];
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!$row['is_mod'] || !in_array(3, $groups)) {
+				if (!$row['is_mod'] || !\in_array(3, $groups)) {
 					$members[] = $row['id_member'];
 				}
 			}
@@ -1850,7 +1757,7 @@ class Maintenance implements ActionInterface
 		Db::$db->free_result($request);
 
 		// If we have old drafts, remove them
-		if (count($drafts) > 0) {
+		if (\count($drafts) > 0) {
 			Draft::delete($drafts, false);
 		}
 	}
@@ -1922,7 +1829,7 @@ class Maintenance implements ActionInterface
 				'value' => array_reduce(
 					$filtered_hooks,
 					function ($accumulator, $functions) {
-						return $accumulator + count($functions);
+						return $accumulator + \count($functions);
 					},
 					0,
 				),
@@ -2129,7 +2036,7 @@ class Maintenance implements ActionInterface
 
 		array_multisort($sort_array, $sort_types[$sort][1], $temp_data);
 
-		return array_slice($temp_data, $start, $per_page, true);
+		return \array_slice($temp_data, $start, $per_page, true);
 	}
 
 	/**
@@ -2322,7 +2229,7 @@ class Maintenance implements ActionInterface
 	 */
 	protected static function getFileRecursive(string $dirname): array
 	{
-		return \iterator_to_array(
+		return iterator_to_array(
 			new \RecursiveIteratorIterator(
 				new \RecursiveCallbackFilterIterator(
 					new \RecursiveDirectoryIterator($dirname, \FilesystemIterator::UNIX_PATHS),

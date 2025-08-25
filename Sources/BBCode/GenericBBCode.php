@@ -78,7 +78,7 @@ class GenericBBCode extends BBCode
 	{
 		if (
 			!isset($definition['tag'])
-			|| !is_string($definition['tag'])
+			|| !\is_string($definition['tag'])
 			|| $definition['tag'] === ''
 		) {
 			throw new \ValueError();
@@ -88,7 +88,7 @@ class GenericBBCode extends BBCode
 		$this->block_level = !empty($definition['block_level']);
 
 		if (
-			in_array(
+			\in_array(
 				$definition['type'] ?? BBCode::TYPE_PARSED_CONTENT,
 				[
 					BBCode::TYPE_PARSED_CONTENT,
@@ -105,7 +105,7 @@ class GenericBBCode extends BBCode
 			$this->type = $definition['type'] ?? BBCode::TYPE_PARSED_CONTENT;
 		}
 
-		if (is_array($definition['parameters'] ?? null)) {
+		if (\is_array($definition['parameters'] ?? null)) {
 			$this->parameters = $definition['parameters'];
 
 			foreach ($this->parameters as $param => $properties) {
@@ -127,12 +127,12 @@ class GenericBBCode extends BBCode
 			 }
 		}
 
-		if (isset($definition['test'])) {
-			$this->test = (string) $definition['test'];
+		if (\is_string($definition['test'] ?? null)) {
+			$this->test = $definition['test'];
 		}
 
 		if (
-			in_array(
+			\in_array(
 				$this->type,
 				[
 					BBCode::TYPE_CLOSED,
@@ -151,12 +151,12 @@ class GenericBBCode extends BBCode
 			$this->disabled_after = (string) ($definition['disabled_after'] ?? ($this->block_level ? '</div>' : ''));
 		}
 
-		if (in_array($this->type, [BBCode::TYPE_UNPARSED_EQUALS, BBCode::TYPE_PARSED_EQUALS])) {
+		if (\in_array($this->type, [BBCode::TYPE_UNPARSED_EQUALS, BBCode::TYPE_PARSED_EQUALS])) {
 			$this->quoted = isset($definition['quoted']) ? (string) $definition['quoted'] : null;
 		}
 
-		if (in_array($definition['trim'] ?? null, ['inside', 'outside', 'both'])) {
-			$this->test = $definition['trim'];
+		if (\in_array($definition['trim'] ?? null, ['inside', 'outside', 'both'])) {
+			$this->trim = $definition['trim'];
 		}
 
 		if (isset($definition['require_parents'])) {
@@ -181,12 +181,12 @@ class GenericBBCode extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		if (is_string($this->validation_callback)) {
+		if (\is_string($this->validation_callback)) {
 			$this->validation_callback = Utils::getCallable($this->validation_callback);
 		}
 
-		if (is_callable($this->validation_callback)) {
-			call_user_func_array($this->validation_callback, [&$bbc, &$data, $disabled, $params]);
+		if (\is_callable($this->validation_callback)) {
+			\call_user_func_array($this->validation_callback, [&$bbc, &$data, $disabled, $params]);
 		}
 	}
 }

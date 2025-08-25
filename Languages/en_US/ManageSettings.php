@@ -156,7 +156,7 @@ $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
-$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>{0, number, :: .00}</strong>';
+$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>!';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
 $txt['loadavg_auto_opt'] = 'Threshold to disabling automatic database optimization';
 $txt['loadavg_search'] = 'Threshold to disabling search';
@@ -167,8 +167,9 @@ $txt['loadavg_userstats'] = 'Threshold to disabling showing user statistics';
 $txt['loadavg_bbc'] = 'Threshold to disabling BBC formatting when showing posts';
 $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</strong>';
 $txt['loadavg_disabled_windows'] = 'Load balancing support is not available on Windows.';
-$txt['loadavg_disabled_osx'] = 'Load balancing support is not available on OS:X.';
 $txt['loadavg_disabled_conf'] = 'Load balancing support is disabled by your host configuration.';
+$txt['loadavg_current_load'] = 'The current load average is <strong>{load_average, number, :: percent}</strong>';
+$txt['loadavg_processors']  = 'CPU(s) detected: {cpu_count, number}';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
 $txt['setting_password_strength_low'] = 'Low';

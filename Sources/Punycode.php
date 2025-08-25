@@ -26,6 +26,7 @@ namespace SMF;
 use function SMF\Unicode\idna_maps;
 use function SMF\Unicode\idna_maps_deviation;
 use function SMF\Unicode\idna_maps_not_std3;
+use function SMF\Unicode\idna_regex;
 
 /**
  * Punycode implementation as described in RFC 3492
@@ -202,7 +203,7 @@ class Punycode
 					break;
 
 				case self::IDNA_ERROR_EMPTY_LABEL:
-					$parts_count = count($parts);
+					$parts_count = \count($parts);
 
 					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
@@ -217,7 +218,7 @@ class Punycode
 		$output = implode('.', $parts);
 
 		// IDNA_ERROR_DOMAIN_NAME_TOO_LONG
-		if (strlen(rtrim($output, '.')) > 253) {
+		if (\strlen(rtrim($output, '.')) > 253) {
 			return false;
 		}
 
@@ -243,7 +244,7 @@ class Punycode
 
 		foreach ($parts as $p => &$part) {
 			if (str_starts_with($part, static::PREFIX)) {
-				$part = substr($part, strlen(static::PREFIX));
+				$part = substr($part, \strlen(static::PREFIX));
 				$part = $this->decodePart($part);
 
 				if ($part === false) {
@@ -253,7 +254,7 @@ class Punycode
 
 			if ($this->validateLabel($part, false) !== 0) {
 				if ($part === '') {
-					$parts_count = count($parts);
+					$parts_count = \count($parts);
 
 					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
@@ -285,7 +286,7 @@ class Punycode
 		$n = static::INITIAL_N;
 		$bias = static::INITIAL_BIAS;
 		$delta = 0;
-		$h = $b = count($codePoints['basic']);
+		$h = $b = \count($codePoints['basic']);
 
 		$output = '';
 
@@ -369,8 +370,8 @@ class Punycode
 			$pos = 0;
 		}
 
-		$outputLength = strlen($output);
-		$inputLength = strlen($input);
+		$outputLength = \strlen($output);
+		$inputLength = \strlen($input);
 
 		while ($pos < $inputLength) {
 			$oldi = $i;
@@ -489,21 +490,21 @@ class Punycode
 	 */
 	protected function charToCodePoint(string $char): int
 	{
-		$code = ord($char[0]);
+		$code = \ord($char[0]);
 
 		if ($code < 128) {
 			return $code;
 		}
 
 		if ($code < 224) {
-			return (($code - 192) * 64) + (ord($char[1]) - 128);
+			return (($code - 192) * 64) + (\ord($char[1]) - 128);
 		}
 
 		if ($code < 240) {
-			return (($code - 224) * 4096) + ((ord($char[1]) - 128) * 64) + (ord($char[2]) - 128);
+			return (($code - 224) * 4096) + ((\ord($char[1]) - 128) * 64) + (\ord($char[2]) - 128);
 		}
 
-		return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
+		return (($code - 240) * 262144) + ((\ord($char[1]) - 128) * 4096) + ((\ord($char[2]) - 128) * 64) + (\ord($char[3]) - 128);
 	}
 
 	/**
@@ -515,18 +516,18 @@ class Punycode
 	protected function codePointToChar(int $code): string
 	{
 		if ($code <= 0x7F) {
-			return chr($code);
+			return \chr($code);
 		}
 
 		if ($code <= 0x7FF) {
-			return chr(($code >> 6) + 192) . chr(($code & 63) + 128);
+			return \chr(($code >> 6) + 192) . \chr(($code & 63) + 128);
 		}
 
 		if ($code <= 0xFFFF) {
-			return chr(($code >> 12) + 224) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
+			return \chr(($code >> 12) + 224) . \chr((($code >> 6) & 63) + 128) . \chr(($code & 63) + 128);
 		}
 
-		return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
+		return \chr(($code >> 18) + 240) . \chr((($code >> 12) & 63) + 128) . \chr((($code >> 6) & 63) + 128) . \chr(($code & 63) + 128);
 	}
 
 	/**
@@ -541,27 +542,38 @@ class Punycode
 	{
 		require_once Config::$sourcedir . '/Unicode/Idna.php';
 
-		$regexes = Unicode\idna_regex();
-
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain)) {
-			$errors[] = 'disallowed';
-		}
-
-		$domain = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $domain);
-
-		unset($regexes);
-
+		$regexes = idna_regex();
 		$maps = idna_maps();
 
-		if (!$this->nonTransitional) {
+		if (!$this->nonTransitional && \function_exists('SMF\Unicode\idna_maps_deviation')) {
 			$maps = array_merge($maps, idna_maps_deviation());
 		}
 
-		if (!$this->std3) {
+		if (!$this->std3 && \function_exists('SMF\Unicode\idna_maps_not_std3')) {
 			$maps = array_merge($maps, idna_maps_not_std3());
 		}
 
-		return Utils::normalize(strtr($domain, $maps));
+		$labels = explode('.', $domain);
+
+		foreach ($labels as $l => $label) {
+			$label = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $label);
+
+			$label = Utils::normalize(strtr($label, $maps));
+
+			if ($this->std3) {
+				$label = strtolower($label);
+			}
+
+			if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label)) {
+				$errors[] = 'disallowed';
+			}
+
+			$labels[$l] = $label;
+		}
+
+		$errors = array_unique($errors);
+
+		return implode('.', $labels);
 	}
 
 	/**
@@ -573,7 +585,7 @@ class Punycode
 	 */
 	protected function validateLabel(string $label, bool $toPunycode = true): int
 	{
-		$length = strlen($label);
+		$length = \strlen($label);
 
 		if ($length === 0) {
 			return self::IDNA_ERROR_EMPTY_LABEL;
@@ -609,7 +621,7 @@ class Punycode
 
 		$regexes = Unicode\idna_regex();
 
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label)) {
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label)) {
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 

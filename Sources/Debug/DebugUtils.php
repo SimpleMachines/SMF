@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -100,7 +100,7 @@ class DebugUtils
 		$min_indent = PHP_INT_MAX;
 
 		foreach ($matches[0] as $match) {
-			$min_indent = min($min_indent, strlen($match));
+			$min_indent = min($min_indent, \strlen($match));
 		}
 
 		if ($min_indent != PHP_INT_MAX) {
@@ -249,7 +249,7 @@ class DebugUtils
 		if (!empty(Db::$cache)) {
 			foreach (Db::$cache as $query_data) {
 				if (!empty($query_data['w'])) {
-					$warnings += count($query_data['w']);
+					$warnings += \count($query_data['w']);
 				}
 			}
 
@@ -277,7 +277,7 @@ class DebugUtils
 		if (Forum::getCurrentAction() !== null) {
 			self::addDebugContext('debug_action', new DebugContextEntry(
 				extra_lang_params: [
-					'name' => '<code>' . get_class(Forum::getCurrentAction()) . '</code>',
+					'name' => '<code>' . \get_class(Forum::getCurrentAction()) . '</code>',
 					'restrict_guests' => '<code>' . json_encode(Forum::getCurrentAction()->isRestrictedGuestAccessAllowed()) . '</code>',
 					'can_log' => '<code>' . json_encode(Forum::getCurrentAction()->canBeLogged()) . '</code>',
 					'is_simple' => '<code>' . json_encode(Forum::getCurrentAction()->isSimpleAction()) . '</code>',
@@ -316,7 +316,7 @@ class DebugUtils
 			],
 		));
 
-		if (function_exists('memory_get_peak_usage')) {
+		if (\function_exists('memory_get_peak_usage')) {
 			self::addDebugContext('debug_memory_use', new DebugContextEntry(
 				num: (int) ceil(memory_get_peak_usage() / 1024),
 			));
@@ -394,7 +394,7 @@ class DebugUtils
 
 		/* @var DebugContextEntry $info */
 		foreach (self::$debug_context as $lang_key => $info) {
-			if (is_null($info)) {
+			if (\is_null($info)) {
 				continue;
 			}
 
@@ -411,7 +411,7 @@ class DebugUtils
 			}
 
 			if ($source != []) {
-				$additional_info = sprintf(
+				$additional_info = \sprintf(
 					'%1$s' . implode('%2$s%3$s%1$s', $source) . '%2$s',
 					$info->before_source,
 					$info->after_source,
@@ -432,7 +432,7 @@ class DebugUtils
 			echo Lang::getTxt(
 				$lang_key,
 				[
-					'num' => $info->num ?? count($source),
+					'num' => $info->num ?? \count($source),
 					'additional_info' => $additional_info ?? '',
 				] + ($info->extra_lang_params ?? []),
 			);

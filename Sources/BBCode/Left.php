@@ -32,12 +32,12 @@ class Left extends BBCode
 	/**
 	 *
 	 */
-	public ?string $before = '<div class="lefttext"><div class="inline-block">';
+	public ?string $before = '<div class="lefttext">';
 
 	/**
 	 *
 	 */
-	public ?string $after = '</div></div>';
+	public ?string $after = '</div>';
 
 	/**
 	 *

@@ -645,8 +645,13 @@ blockquote cite::before {
 	border: 1px solid #ddd;
 	border-collapse: collapse;
 }
+.lefttext .bbc_table,
 .centertext .bbc_table {
-    margin: auto;
+	margin-right: auto;
+}
+.righttext .bbc_table,
+.centertext .bbc_table {
+	margin-left: auto;
 }
 .bbc_table th,
 .bbc_table td {

@@ -147,8 +147,12 @@ abstract class WebFetchApi implements WebFetchApiInterface
 					self::$still_alive[(string) $url] = $fetcher;
 				}
 
-				// Make the request.
-				$fetcher->request($url, $post_data);
+				// Make the request, if it fails, move on.
+				try {
+					$fetcher->request($url, $post_data);
+				} catch (\Exception $ex) {
+					continue;
+				}
 
 				// If keep_alive was turned off during the request, we don't
 				// need to maintain this instance after we're done the request.
@@ -185,7 +189,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	protected function buildPostData(array|string $post_data): string
 	{
-		if (is_array($post_data)) {
+		if (\is_array($post_data)) {
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {

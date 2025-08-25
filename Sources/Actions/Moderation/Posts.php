@@ -84,10 +84,10 @@ class Posts implements ActionInterface
 	{
 		Theme::loadTemplate('ModerationCenter');
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -121,16 +121,16 @@ class Posts implements ActionInterface
 		}
 
 		// We also need to know where we can delete topics and/or replies to.
-		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'], true, false);
+		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_replies'], true, false);
 
 		if (Utils::$context['current_view'] == 'topics') {
 			$delete_own_boards = $boards_can['remove_own'];
 			$delete_any_boards = $boards_can['remove_any'];
-			$delete_own_replies = [];
+			$delete_replies = [];
 		} else {
 			$delete_own_boards = $boards_can['delete_own'];
 			$delete_any_boards = $boards_can['delete_any'];
-			$delete_own_replies = $boards_can['delete_own_replies'];
+			$delete_replies = $boards_can['delete_replies'];
 		}
 
 		$toAction = [];
@@ -198,7 +198,7 @@ class Posts implements ActionInterface
 				$can_add = false;
 
 				// If we're approving this is simple.
-				if ($curAction == 'approve' && ($any_array == [0] || in_array($row['id_board'], $any_array))) {
+				if ($curAction == 'approve' && ($any_array == [0] || \in_array($row['id_board'], $any_array))) {
 					$can_add = true;
 				}
 				// Delete requires more permission checks...
@@ -208,7 +208,7 @@ class Posts implements ActionInterface
 						$row['id_member'] == User::$me->id
 						&& (
 							$delete_own_boards == [0]
-							|| in_array($row['id_board'], $delete_own_boards)
+							|| \in_array($row['id_board'], $delete_own_boards)
 						)
 					) {
 						$can_add = true;
@@ -218,8 +218,8 @@ class Posts implements ActionInterface
 						$row['id_member'] == $row['id_member_started']
 						&& $row['id_msg'] != $row['id_first_msg']
 						&& (
-							$delete_own_replies == [0]
-							|| in_array($row['id_board'], $delete_own_replies)
+							$delete_replies == [0]
+							|| \in_array($row['id_board'], $delete_replies)
 						)
 					) {
 						$can_add = true;
@@ -229,7 +229,7 @@ class Posts implements ActionInterface
 						$row['id_member'] != User::$me->id
 						&& (
 							$delete_any_boards == [0]
-							|| in_array($row['id_board'], $delete_any_boards)
+							|| \in_array($row['id_board'], $delete_any_boards)
 						)
 					) {
 						$can_add = true;
@@ -352,7 +352,7 @@ class Posts implements ActionInterface
 				$row['id_member'] == User::$me->id
 				&& (
 					$delete_own_boards == [0]
-					|| in_array($row['id_board'], $delete_own_boards)
+					|| \in_array($row['id_board'], $delete_own_boards)
 				)
 			) {
 				$can_delete = true;
@@ -362,8 +362,8 @@ class Posts implements ActionInterface
 				$row['id_member'] == $row['id_member_started']
 				&& $row['id_msg'] != $row['id_first_msg']
 				&& (
-					$delete_own_replies == [0]
-					|| in_array($row['id_board'], $delete_own_replies)
+					$delete_replies == [0]
+					|| \in_array($row['id_board'], $delete_replies)
 				)
 			) {
 				$can_delete = true;
@@ -373,7 +373,7 @@ class Posts implements ActionInterface
 				$row['id_member'] != User::$me->id
 				&& (
 					$delete_any_boards == [0]
-					|| in_array($row['id_board'], $delete_any_boards)
+					|| \in_array($row['id_board'], $delete_any_boards)
 				)
 			) {
 				$can_delete = true;
@@ -476,8 +476,8 @@ class Posts implements ActionInterface
 					' . $approve_query,
 				[
 					'attachments' => $attachments,
-					'not_approved' => 0,
-					'attachment_type' => 0,
+					'not_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			$attachments = [];
@@ -770,8 +770,8 @@ class Posts implements ActionInterface
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items_per_page}',
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'start' => $start,
 				'sort' => $sort,
 				'items_per_page' => $items_per_page,
@@ -837,8 +837,8 @@ class Posts implements ActionInterface
 				AND {query_see_message_board}
 				' . $approve_query,
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 			],
 		);
 		list($total_unapproved_attachments) = Db::$db->fetch_row($request);

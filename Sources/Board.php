@@ -31,6 +31,35 @@ class Board implements \ArrayAccess, Routable
 	use ArrayAccessHelper;
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Parameter value for Board::save() that indicates we want to save just the
+	 * post and topic statistics of the board.
+	 */
+	public const SAVE_STATS = 0b1;
+
+	/**
+	 * Parameter value for Board::save() that indicates we want to save the
+	 * group access data of the board.
+	 */
+	public const SAVE_GROUPS = 0b10;
+
+	/**
+	 * Parameter value for Board::save() that indicates we want to save the
+	 * moderator data of the board.
+	 */
+	public const SAVE_MODS = 0b100;
+
+	/**
+	 * Parameter value for Board::save() that indicates we want to save the
+	 * defining properties of the board. This covers all properties besides
+	 * group access, moderators, and post and topic statistics.
+	 */
+	public const SAVE_DEFINITION = 0b1000;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -462,15 +491,15 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public function __set(string $prop, mixed $value): void
 	{
-		if (in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
-			if (!is_array($value)) {
+		if (\in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
+			if (!\is_array($value)) {
 				$value = explode(',', $value);
 			}
 
 			$value = array_map('intval', array_filter($value, 'strlen'));
 
 			// Special handling for access for board manager groups.
-			if (!empty(Config::$modSettings['board_manager_groups']) && in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups']) && is_array($value)) {
+			if (!empty(Config::$modSettings['board_manager_groups']) && \in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups']) && \is_array($value)) {
 				$board_manager_groups = array_map('intval', array_filter(explode(',', Config::$modSettings['board_manager_groups']), 'strlen'));
 
 				if (($this->prop_aliases[$prop] ?? $prop) === 'deny_groups') {
@@ -500,213 +529,58 @@ class Board implements \ArrayAccess, Routable
 	/**
 	 * Saves this board to the database.
 	 *
-	 * @param array $boardOptions An array of options related to the board.
+	 * Performs permission checks to ensure that we only save board properties
+	 * that the current user is allowed to change.
+	 *
+	 * @param int $level A bitmask of this class's SAVE_* constants to indicate
+	 *    which board properties to save. Default is to save any and all
+	 *    properties that the current user is allowed to change.
 	 */
-	public function save(array $boardOptions = []): void
+	public function save(int $level = self::SAVE_STATS | self::SAVE_GROUPS | self::SAVE_MODS | self::SAVE_DEFINITION): void
 	{
-		User::$me->isAllowedTo('manage_boards');
+		// Can the current user change the board's defining properties?
+		if (!User::$me->allowedTo(['admin_forum', 'manage_boards'], any: true)) {
+			$level &= ~self::SAVE_DEFINITION;
+			$level &= ~self::SAVE_MODS;
+		}
 
-		// Undo any overrides of the group access values.
-		$access_groups = array_unique(array_diff($this->member_groups, $this->overridden_access_groups, [1]));
-		$deny_groups = array_unique(array_diff(array_merge($this->deny_groups, $this->overridden_deny_groups), [1]));
+		// Can the current user change the board's group access?
+		if (!User::$me->allowedTo(['admin_forum', 'manage_boards', 'manage_groups'], any: true)) {
+			$level &= ~self::SAVE_GROUPS;
+		}
 
-		sort($access_groups);
-		sort($deny_groups);
-
-		// Saving a new board.
+		// Board doesn't exist yet.
 		if (empty($this->id)) {
-			$columns = [
-				'id_cat' => 'int',
-				'child_level' => 'int',
-				'id_parent' => 'int',
-				'board_order' => 'int',
-				'id_last_msg' => 'int',
-				'id_msg_updated' => 'int',
-				'member_groups' => 'string-255',
-				'id_profile' => 'int',
-				'name' => 'string-255',
-				'description' => 'string',
-				'num_topics' => 'int',
-				'num_posts' => 'int',
-				'count_posts' => 'int',
-				'id_theme' => 'int',
-				'override_theme' => 'int',
-				'unapproved_posts' => 'int',
-				'unapproved_topics' => 'int',
-				'redirect' => 'string-255',
-				'deny_member_groups' => 'string-255',
-			];
-
-			$params = [
-				$this->cat['id'],
-				$this->child_level,
-				$this->parent,
-				$this->order,
-				$this->last_msg,
-				$this->msg_updated,
-				implode(',', $access_groups),
-				$this->profile,
-				$this->name,
-				$this->description,
-				$this->num_topics,
-				$this->num_posts,
-				(int) $this->count_posts,
-				$this->theme,
-				(int) $this->override_theme,
-				$this->unapproved_posts,
-				$this->unapproved_topics,
-				$this->redirect,
-				implode(',', $deny_groups),
-			];
-
-			$this->id = Db::$db->insert(
-				'',
-				'{db_prefix}boards',
-				$columns,
-				[$params],
-				['id_board'],
-				1,
-			);
-
-			self::$loaded[$this->id] = $this;
-
-			if (!empty(self::$ids)) {
-				self::$ids[] = $this->id;
+			// Don't allow unauthorized users to create boards.
+			if (!($level & self::SAVE_DEFINITION)) {
+				return;
 			}
+
+			$this->saveNew();
+
+			// Ensure we perform all extra steps below.
+			$level = self::SAVE_STATS | self::SAVE_GROUPS | self::SAVE_MODS | self::SAVE_DEFINITION;
 		}
-		// Updating an existing board.
+		// Board already exists, so we just need to update it.
 		else {
-			$set = [
-				'id_cat = {int:id_cat}',
-				'child_level = {int:child_level}',
-				'id_parent = {int:id_parent}',
-				'board_order = {int:board_order}',
-				'id_last_msg = {int:last_msg}',
-				'id_msg_updated = {int:msg_updated}',
-				'member_groups = {string:member_groups}',
-				'id_profile = {int:profile}',
-				'name = {string:board_name}',
-				'description = {string:board_description}',
-				'num_topics = {int:num_topics}',
-				'num_posts = {int:num_posts}',
-				'count_posts = {int:count_posts}',
-				'id_theme = {int:board_theme}',
-				'override_theme = {int:override_theme}',
-				'unapproved_posts = {int:unapproved_posts}',
-				'unapproved_topics = {int:unapproved_topics}',
-				'redirect = {string:redirect}',
-				'deny_member_groups = {string:deny_groups}',
-			];
-
-			$params = [
-				'id' => $this->id,
-				'id_cat' => $this->cat['id'],
-				'child_level' => $this->child_level,
-				'id_parent' => $this->parent,
-				'board_order' => $this->order,
-				'last_msg' => $this->last_msg,
-				'msg_updated' => $this->msg_updated,
-				'member_groups' => implode(',', $access_groups),
-				'profile' => $this->profile,
-				'board_name' => $this->name,
-				'board_description' => $this->description,
-				'num_topics' => $this->num_topics,
-				'num_posts' => $this->num_posts,
-				'count_posts' => (int) $this->count_posts,
-				'board_theme' => $this->theme,
-				'override_theme' => (int) $this->override_theme,
-				'unapproved_posts' => $this->unapproved_posts,
-				'unapproved_topics' => $this->unapproved_topics,
-				'redirect' => $this->redirect,
-				'deny_groups' => implode(',', $deny_groups),
-			];
-
-			// Do any hooks want to add or adjust anything?
-			IntegrationHook::call('integrate_modify_board', [$this->id, $boardOptions, &$set, &$params]);
-
-			Db::$db->query(
-				'UPDATE {db_prefix}boards
-				SET ' . (implode(', ', $set)) . '
-				WHERE id_board = {int:id}',
-				$params,
-			);
+			$this->saveExisting($level);
 		}
 
-		// Before we add new access_groups or deny_groups, remove all of the old entries.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:this_board}',
-			[
-				'this_board' => $this->id,
-			],
-		);
-
-		$inserts = [];
-
-		foreach ($access_groups as $id_group) {
-			$inserts[] = [$id_group, $this->id, 0];
+		// If we saved group info, update the view permissions.
+		if ($level & self::SAVE_GROUPS) {
+			$this->saveViewPermissions();
 		}
 
-		foreach ($deny_groups as $id_group) {
-			$inserts[] = [$id_group, $this->id, 1];
+		// Should we update the moderators for this board?
+		if ($level & self::SAVE_MODS) {
+			$this->saveModerators();
 		}
 
-		if ($inserts != []) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}board_permissions_view',
-				['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
-				$inserts,
-				['id_group', 'id_board', 'deny'],
-			);
+		// Changing the board's defining properties requires some other updates.
+		if ($level & self::SAVE_DEFINITION) {
+			Config::updateModSettings(['settings_updated' => time()]);
+			CacheApi::clean('data');
 		}
-
-		// Reset current moderators for this board - if there are any!
-		Db::$db->query(
-			'DELETE FROM {db_prefix}moderators
-			WHERE id_board = {int:this_board}',
-			[
-				'this_board' => $this->id,
-			],
-		);
-
-		if (!empty($this->moderators)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}moderators',
-				['id_board' => 'int', 'id_member' => 'int'],
-				array_map(fn($mod) => [$this->id, $mod], $this->moderators),
-				['id_board', 'id_member'],
-			);
-		}
-
-		// Reset current moderator groups for this board - if there are any!
-		Db::$db->query(
-			'DELETE FROM {db_prefix}moderator_groups
-			WHERE id_board = {int:this_board}',
-			[
-				'this_board' => $this->id,
-			],
-		);
-
-		if (!empty($this->moderator_groups)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}moderator_groups',
-				['id_board' => 'int', 'id_group' => 'int'],
-				array_map(fn($mod) => [$this->id, $mod], $this->moderator_groups),
-				['id_board', 'id_group'],
-			);
-		}
-
-		// If we were moving boards, ensure that the order is correct.
-		if (isset($boardOptions['move_to'])) {
-			self::reorder();
-		}
-
-		// The caches might now be wrong.
-		Config::updateModSettings(['settings_updated' => time()]);
-		CacheApi::clean('data');
 	}
 
 	/**
@@ -733,6 +607,8 @@ class Board implements \ArrayAccess, Routable
 		bool $first_child = false,
 		bool $save = true,
 	): array {
+		User::$me->isAllowedTo('manage_boards');
+
 		// Do we have what we need?
 		switch ($move_to) {
 			case 'top':
@@ -811,7 +687,6 @@ class Board implements \ArrayAccess, Routable
 
 			default:
 				throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to], file: 'Errors'));
-				break;
 		}
 
 		// Get a list of children of this board.
@@ -840,7 +715,7 @@ class Board implements \ArrayAccess, Routable
 				continue;
 			}
 
-			$board->order += (1 + count($child_list));
+			$board->order += (1 + \count($child_list));
 			$affected_boards[] = $board->id;
 		}
 
@@ -855,6 +730,9 @@ class Board implements \ArrayAccess, Routable
 			foreach ($affected_boards as $board_id) {
 				self::$loaded[$board_id]->save();
 			}
+
+			// Ensure that the order is correct.
+			self::reorder();
 		}
 
 		return $affected_boards;
@@ -1016,11 +894,10 @@ class Board implements \ArrayAccess, Routable
 	 *
 	 * @param ?int $id The ID number of a board, or null for current board.
 	 *    Default: null.
-	 * @param array $props Properties to set for this board. Only used when $id
-	 *    is not null.
-	 * @return object|null An instance of this class, or null on error.
+	 * @param array $props Properties to set for this board.
+	 * @return ?self An instance of this class, or null on error.
 	 */
-	public static function init(?int $id = null, array $props = []): ?object
+	public static function init(?int $id = null, array $props = []): ?self
 	{
 		// This should already have been set, but just in case...
 		if (!isset(self::$board_id)) {
@@ -1045,7 +922,7 @@ class Board implements \ArrayAccess, Routable
 	public static function markBoardsRead(int|array $boards, bool $unread = false): void
 	{
 		// Force $boards to be an array.
-		if (!is_array($boards)) {
+		if (!\is_array($boards)) {
 			$boards = [$boards];
 		} else {
 			$boards = array_unique($boards);
@@ -1256,6 +1133,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function modify(int $board_id, array &$boardOptions): void
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// Load and organize all boards and categories.
 		Category::getTree();
 
@@ -1337,7 +1216,7 @@ class Board implements \ArrayAccess, Routable
 							'invalid_groups' => [Group::ADMIN, Group::MOD],
 							'moderator_group_list' => $moderator_groups,
 						],
-						'limit' => count($moderator_groups),
+						'limit' => \count($moderator_groups),
 					];
 
 					foreach (Group::load([], $query_customizations) as $group) {
@@ -1347,7 +1226,7 @@ class Board implements \ArrayAccess, Routable
 			}
 
 			if (isset($boardOptions['moderators'])) {
-				if (!is_array($boardOptions['moderators'])) {
+				if (!\is_array($boardOptions['moderators'])) {
 					$boardOptions['moderators'] = array_filter(explode(',', $boardOptions['moderators']), 'strlen');
 				}
 
@@ -1355,7 +1234,7 @@ class Board implements \ArrayAccess, Routable
 			}
 
 			if (isset($boardOptions['moderator_groups'])) {
-				if (!is_array($boardOptions['moderator_groups'])) {
+				if (!\is_array($boardOptions['moderator_groups'])) {
 					$boardOptions['moderator_groups'] = array_filter(explode(',', $boardOptions['moderator_groups']), 'strlen');
 				}
 
@@ -1383,6 +1262,9 @@ class Board implements \ArrayAccess, Routable
 		$board->member_groups = $boardOptions['access_groups'] ?? $board->member_groups;
 		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
 
+		// There's an integration hook called in Board::save() that wants to know this.
+		$board->custom['boardOptions'] = $boardOptions;
+
 		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
 			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
@@ -1391,7 +1273,12 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// We're ready to save the changes now.
-		$board->save($boardOptions);
+		$board->save();
+
+		// If we were moving boards, ensure that the order is correct.
+		if (!empty($moved_boards)) {
+			self::reorder();
+		}
 
 		// Log the changes unless told otherwise.
 		if (empty($boardOptions['dont_log'])) {
@@ -1411,12 +1298,14 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function create(array $boardOptions): int
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// Trigger an error if one of the required values is not set.
 		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category'])) {
 			throw new \Exception('create_board_missing_options');
 		}
 
-		if (in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
+		if (\in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
 			throw new \Exception('move_board_no_target');
 		}
 
@@ -1496,6 +1385,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
+		User::$me->isAllowedTo('manage_boards');
+
 		// No boards to delete? Return!
 		if (empty($boards_to_remove)) {
 			return;
@@ -1675,6 +1566,8 @@ class Board implements \ArrayAccess, Routable
 							'selected_board' => $board_id,
 						],
 					);
+
+					self::$loaded[$board_id]->order = $board_order;
 				}
 			}
 		}
@@ -1693,6 +1586,12 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function fixChildren(int $parent, int $newLevel, int $newParent): void
 	{
+		static $recursion_depth = 0;
+
+		if ($recursion_depth === 0) {
+			User::$me->isAllowedTo('manage_boards');
+		}
+
 		// Grab all children of $parent...
 		$children = [];
 
@@ -1724,12 +1623,14 @@ class Board implements \ArrayAccess, Routable
 
 		// Recursively fix the children of the children.
 		foreach ($children as $child) {
+			$recursion_depth++;
 			self::fixChildren($child, $newLevel + 1, $child);
+			$recursion_depth--;
 		}
 	}
 
 	/**
-	 * Takes a board array and sorts it
+	 * Takes an array of boards and sorts it.
 	 *
 	 * @param array &$boards The boards
 	 */
@@ -1743,10 +1644,10 @@ class Board implements \ArrayAccess, Routable
 			if (!empty($boards[$board])) {
 				$ordered[$board] = $boards[$board];
 
-				if (is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
+				if (\is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
 					self::sort($ordered[$board]['children']);
-				} elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
-					Board::sort($ordered[$board]->children);
+				} elseif (\is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
+					self::sort($ordered[$board]->children);
 				}
 			}
 		}
@@ -1755,10 +1656,11 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns the given board's moderators, with their names and links
+	 * Returns the given boards' moderators, with their names and links.
 	 *
-	 * @param array $boards The boards to get moderators of
-	 * @return array An array containing information about the moderators of each board
+	 * @param array $boards The boards to get moderators of.
+	 * @return array An array containing information about the moderators of
+	 *    each board.
 	 */
 	public static function getModerators(array $boards): array
 	{
@@ -1806,10 +1708,11 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns board's moderator groups with their names and link
+	 * Returns the given boards' moderator groups, with their names and links.
 	 *
-	 * @param array $boards The boards to get moderator groups of
-	 * @return array An array containing information about the groups assigned to moderate each board
+	 * @param array $boards The boards to get moderator groups of.
+	 * @return array An array containing information about the groups assigned
+	 *    to moderate each board.
 	 */
 	public static function getModeratorGroups(array $boards): array
 	{
@@ -1863,7 +1766,7 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * Returns whether the child board id is a child of the parent (recursive).
+	 * Returns whether the child board ID is a child of the parent (recursive).
 	 *
 	 * @param int $child The ID of the child board.
 	 * @param int $parent The ID of a parent board.
@@ -1885,6 +1788,7 @@ class Board implements \ArrayAccess, Routable
 
 	/**
 	 * Get all parent boards (requires first parent as parameter)
+	 *
 	 * It finds all the parents of id_parent, and that board itself.
 	 * Additionally, it detects the moderators of said boards.
 	 *
@@ -2015,7 +1919,7 @@ class Board implements \ArrayAccess, Routable
 				if (isset(QueryString::$route_parsers[reset($route)])) {
 					$params = array_merge(
 						$params,
-						call_user_func(
+						\call_user_func(
 							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
 							$route,
 							$params,
@@ -2053,7 +1957,7 @@ class Board implements \ArrayAccess, Routable
 	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0): \Generator
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
-		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
+		if (!empty($params['id_parent']) && \in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
 			// Ensure we include all the necessary fields for the CTE query.
 			preg_match_all('/\bb\.(\w+)/', implode(', ', $selects), $matches);
 
@@ -2087,13 +1991,13 @@ class Board implements \ArrayAccess, Routable
 			$cte_where1 = ['b.id_board = {int:id_parent}'];
 			$cte_where2 = [];
 
-			if (in_array('{query_see_board}', $where)) {
+			if (\in_array('{query_see_board}', $where)) {
 				array_unshift($cte_where1, '{query_see_board}');
 				$cte_where2[] = '{query_see_board}';
 				$where = array_diff($where, ['{query_see_board}']);
 			}
 
-			if (in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where)) {
+			if (\in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where)) {
 				$cte_where2[] = 'b.child_level BETWEEN {int:child_level} AND {int:max_child_level}';
 				$where = array_diff($where, ['b.child_level BETWEEN {int:child_level} AND {int:max_child_level}']);
 			}
@@ -2293,14 +2197,31 @@ class Board implements \ArrayAccess, Routable
 		if (empty($this->id)) {
 			// Set up all the query components.
 			$selects = [
-				'b.id_board', 'b.id_cat', 'b.name', 'b.description',
-				'b.child_level', 'b.id_parent', 'b.board_order', 'b.redirect',
-				'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
-				'b.num_topics', 'b.num_posts', 'b.count_posts', 'b.id_last_msg',
-				'b.id_msg_updated', 'b.id_theme', 'b.override_theme',
-				'b.unapproved_posts', 'b.unapproved_topics', 'c.name AS cat_name',
-				'COALESCE(mg.id_group, 0) AS id_moderator_group', 'mg.group_name',
-				'COALESCE(mem.id_member, 0) AS id_moderator', 'mem.real_name',
+				'b.id_board',
+				'b.id_cat',
+				'b.name',
+				'b.description',
+				'b.child_level',
+				'b.id_parent',
+				'b.board_order',
+				'b.redirect',
+				'b.member_groups',
+				'b.deny_member_groups',
+				'b.id_profile',
+				'b.num_topics',
+				'b.num_posts',
+				'b.count_posts',
+				'b.id_last_msg',
+				'b.id_msg_updated',
+				'b.id_theme',
+				'b.override_theme',
+				'b.unapproved_posts',
+				'b.unapproved_topics',
+				'c.name AS cat_name',
+				'COALESCE(mg.id_group, 0) AS id_moderator_group',
+				'mg.group_name',
+				'COALESCE(mem.id_member, 0) AS id_moderator',
+				'mem.real_name',
 			];
 
 			$params = [
@@ -2466,9 +2387,9 @@ class Board implements \ArrayAccess, Routable
 			return;
 		}
 
-		if (count(array_intersect(User::$me->groups, $this->member_groups)) == 0) {
+		if (\count(array_intersect(User::$me->groups, $this->member_groups)) == 0) {
 			$this->error = 'access';
-		} elseif (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $this->deny_groups)) != 0) {
+		} elseif (!empty(Config::$modSettings['deny_boards_access']) && \count(array_intersect(User::$me->groups, $this->deny_groups)) != 0) {
 			$this->error = 'access';
 		}
 	}
@@ -2533,9 +2454,309 @@ class Board implements \ArrayAccess, Routable
 			}
 		}
 	}
+
+	/**
+	 * Helper method for Board::save() that saves a new board to the database.
+	 */
+	protected function saveNew(): void
+	{
+		$groups = $this->getOriginalGroups();
+
+		$columns = [
+			'id_cat' => 'int',
+			'child_level' => 'int',
+			'id_parent' => 'int',
+			'board_order' => 'int',
+			'id_last_msg' => 'int',
+			'id_msg_updated' => 'int',
+			'member_groups' => 'string-255',
+			'id_profile' => 'int',
+			'name' => 'string-255',
+			'description' => 'string',
+			'num_topics' => 'int',
+			'num_posts' => 'int',
+			'count_posts' => 'int',
+			'id_theme' => 'int',
+			'override_theme' => 'int',
+			'unapproved_posts' => 'int',
+			'unapproved_topics' => 'int',
+			'redirect' => 'string-255',
+			'deny_member_groups' => 'string-255',
+		];
+
+		$params = [
+			$this->cat['id'],
+			$this->child_level,
+			$this->parent,
+			$this->order,
+			$this->last_msg,
+			$this->msg_updated,
+			implode(',', $groups['access_groups']),
+			$this->profile,
+			$this->name,
+			$this->description,
+			$this->num_topics,
+			$this->num_posts,
+			(int) $this->count_posts,
+			$this->theme,
+			(int) $this->override_theme,
+			$this->unapproved_posts,
+			$this->unapproved_topics,
+			$this->redirect,
+			implode(',', $groups['deny_groups']),
+		];
+
+		$this->id = Db::$db->insert(
+			'',
+			'{db_prefix}boards',
+			$columns,
+			[$params],
+			['id_board'],
+			Db::INSERT_RETURN_MODE_SINGLE,
+		);
+
+		$this->saveViewPermissions();
+		$this->saveModerators();
+
+		self::$loaded[$this->id] = $this;
+
+		if (!empty(self::$ids)) {
+			self::$ids[] = $this->id;
+		}
+	}
+
+	/**
+	 * Helper method for Board::save() that saves changes to an existing board.
+	 *
+	 * @param int $level A bitmask of this class's SAVE_* constants to indicate
+	 *    which board properties to save.
+	 */
+	protected function saveExisting(int $level): void
+	{
+		$set = [];
+		$params = [
+			'id' => $this->id,
+		];
+
+		// Are we saving post and topic statistics?
+		if ($level & self::SAVE_STATS) {
+			$set = array_merge(
+				$set,
+				[
+					'id_last_msg = {int:last_msg}',
+					'id_msg_updated = {int:msg_updated}',
+					'num_topics = {int:num_topics}',
+					'num_posts = {int:num_posts}',
+					'unapproved_posts = {int:unapproved_posts}',
+					'unapproved_topics = {int:unapproved_topics}',
+				],
+			);
+
+			$params = array_merge(
+				$params,
+				[
+					'last_msg' => $this->last_msg,
+					'msg_updated' => $this->msg_updated,
+					'num_topics' => $this->num_topics,
+					'num_posts' => $this->num_posts,
+					'unapproved_posts' => $this->unapproved_posts,
+					'unapproved_topics' => $this->unapproved_topics,
+				],
+			);
+		}
+
+		// Are we saving group access?
+		if ($level & self::SAVE_GROUPS) {
+			$groups = $this->getOriginalGroups();
+
+			$set = array_merge(
+				$set,
+				[
+					'member_groups = {string:access_groups}',
+					'deny_member_groups = {string:deny_groups}',
+				],
+			);
+
+			$params = array_merge(
+				$params,
+				array_map(fn($arg) => implode(',', $arg), $groups),
+			);
+		}
+
+		// Are we saving defining properties?
+		if ($level & self::SAVE_DEFINITION) {
+			$set = array_merge(
+				$set,
+				[
+					'id_cat = {int:id_cat}',
+					'child_level = {int:child_level}',
+					'id_parent = {int:id_parent}',
+					'board_order = {int:board_order}',
+					'id_profile = {int:profile}',
+					'name = {string:board_name}',
+					'description = {string:board_description}',
+					'count_posts = {int:count_posts}',
+					'id_theme = {int:board_theme}',
+					'override_theme = {int:override_theme}',
+					'redirect = {string:redirect}',
+				],
+			);
+
+			$params = array_merge(
+				$params,
+				[
+					'id_cat' => $this->cat['id'],
+					'child_level' => $this->child_level,
+					'id_parent' => $this->parent,
+					'board_order' => $this->order,
+					'profile' => $this->profile,
+					'board_name' => $this->name,
+					'board_description' => $this->description,
+					'count_posts' => (int) $this->count_posts,
+					'board_theme' => $this->theme,
+					'override_theme' => (int) $this->override_theme,
+					'redirect' => $this->redirect,
+				],
+			);
+
+			// Do any hooks want to add or adjust anything?
+			IntegrationHook::call('integrate_modify_board', [$this->id, $this->custom['boardOptions'] ?? [], &$set, &$params]);
+		}
+
+		// Perform the update.
+		if (!empty($set)) {
+			Db::$db->query(
+				'UPDATE {db_prefix}boards
+				SET ' . (implode(', ', $set)) . '
+				WHERE id_board = {int:id}',
+				$params,
+			);
+		}
+	}
+
+	/**
+	 * Helper method for Board::save() that updates view permissions (a.k.a.
+	 * group access rights) for a board.
+	 */
+	protected function saveViewPermissions(): void
+	{
+		$groups = $this->getOriginalGroups();
+
+		// Before we add new access_groups or deny_groups, remove all of the old entries.
+		Db::$db->query(
+			'DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:this_board}',
+			[
+				'this_board' => $this->id,
+			],
+		);
+
+		$inserts = [];
+
+		foreach ($groups['access_groups'] as $id_group) {
+			$inserts[] = [$id_group, $this->id, 0];
+		}
+
+		foreach ($groups['deny_groups'] as $id_group) {
+			$inserts[] = [$id_group, $this->id, 1];
+		}
+
+		if ($inserts != []) {
+			Db::$db->insert(
+				method: 'insert',
+				table: '{db_prefix}board_permissions_view',
+				columns: [
+					'id_group' => 'int',
+					'id_board' => 'int',
+					'deny' => 'int',
+				],
+				data: $inserts,
+				keys: ['id_group', 'id_board', 'deny'],
+			);
+		}
+	}
+
+	/**
+	 * Helper method for Board::save() that ensures the list of moderators and
+	 * moderator groups for this board is up to date.
+	 */
+	protected function saveModerators(): void
+	{
+		// Reset current moderators for this board - if there are any!
+		Db::$db->query(
+			'DELETE FROM {db_prefix}moderators
+			WHERE id_board = {int:this_board}',
+			[
+				'this_board' => $this->id,
+			],
+		);
+
+		if (!empty($this->moderators)) {
+			Db::$db->insert(
+				'insert',
+				'{db_prefix}moderators',
+				['id_board' => 'int', 'id_member' => 'int'],
+				array_map(fn($mod) => [$this->id, $mod], $this->moderators),
+				['id_board', 'id_member'],
+			);
+		}
+
+		// Reset current moderator groups for this board - if there are any!
+		Db::$db->query(
+			'DELETE FROM {db_prefix}moderator_groups
+			WHERE id_board = {int:this_board}',
+			[
+				'this_board' => $this->id,
+			],
+		);
+
+		if (!empty($this->moderator_groups)) {
+			Db::$db->insert(
+				'insert',
+				'{db_prefix}moderator_groups',
+				['id_board' => 'int', 'id_group' => 'int'],
+				array_map(fn($mod) => [$this->id, $mod], $this->moderator_groups),
+				['id_board', 'id_group'],
+			);
+		}
+	}
+
+	/**
+	 * Helper method for Board::save() that gets the original, unmodified
+	 * version of the allowed and denied groups for this board.
+	 *
+	 * This is needed because the group access values may have been overridden
+	 * during object construction in order to grant access to groups with the
+	 * manage_boards permission, even if those groups aren't otherwise in the
+	 * list of groups that would have access. Such overrides are necessary in
+	 * order to prevent weird errors and inconsistencies when board managers try
+	 * to manage boards that they would otherwise not have acces to. But we
+	 * don't want to accidentally and permanently add those groups to the list
+	 * of groups that can access the board when we save changes to it, and so we
+	 * need to undo those overrides when saving.
+	 */
+	protected function getOriginalGroups(): array
+	{
+		// Remove any groups that were temporarily granted access.
+		$groups['access_groups'] = array_unique(array_diff(
+			$this->member_groups,
+			$this->overridden_access_groups,
+		));
+
+		// Add back any groups that normally would be denied access.
+		$groups['deny_groups'] = array_unique(array_merge(
+			$this->deny_groups,
+			$this->overridden_deny_groups,
+		));
+
+		sort($groups['access_groups']);
+		sort($groups['deny_groups']);
+
+		return $groups;
+	}
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Board::class, 'exportStatic'])) {
+if (\is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }

@@ -46,58 +46,83 @@ class UpdateUnicode extends BackgroundTask
 	 *******************/
 
 	/**
-	 * @var string The latest official release of the Unicode Character Database.
+	 * @var string
+	 *
+	 * The latest official release of the Unicode Character Database.
 	 */
-	public $ucd_version = '';
+	public string $ucd_version = '';
 
 	/**
-	 * @var string Path to temporary working directory.
+	 * @var string
+	 *
+	 * Path to temporary working directory.
 	 */
-	public $temp_dir = '';
+	public string $temp_dir = '';
 
 	/**
-	 * @var string Convenience alias of Config::$sourcedir . '/Unicode'.
+	 * @var string
+	 *
+	 * Convenience alias of Config::$sourcedir . '/Unicode'.
 	 */
-	public $unicodedir = '';
+	public string $unicodedir = '';
 
 	/*********************
 	 * Internal properties
 	 *********************/
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 *
 	 */
-	private $time_limit = 30;
+	protected bool $allow_concurrent = false;
 
 	/**
-	 * @var array Key-value pairs of character decompositions.
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
-	private $full_decomposition_maps = [];
+	private int $time_limit = 30;
 
 	/**
-	 * @var array Character properties used during normalization.
+	 * @var array
+	 *
+	 * Key-value pairs of character decompositions.
 	 */
-	private $derived_normalization_props = [];
+	private array $full_decomposition_maps = [];
 
 	/**
-	 * @var array Assorted info about Unicode characters.
+	 * @var array
+	 *
+	 * Character properties used during normalization.
 	 */
-	private $char_data = [];
+	private array $derived_normalization_props = [];
 
 	/**
-	 * @var array Statistical info about character scripts (e.g. Latin, Greek, Cyrillic, etc.)
+	 * @var array
+	 *
+	 * Assorted info about Unicode characters.
 	 */
-	private $script_stats = [];
+	private array $char_data = [];
 
 	/**
-	 * @var array Tracks associations between character scripts' short and long names.
+	 * @var array
+	 *
+	 * Statistical info about character scripts (e.g. Latin, Greek, Cyrillic, etc.)
 	 */
-	private $script_aliases = [];
+	private array $script_stats = [];
 
 	/**
-	 * @var array Info about functions to build in SMF's Unicode data files.
+	 * @var array
+	 *
+	 * Tracks associations between character scripts' short and long names.
 	 */
-	private $funcs = [
+	private array $script_aliases = [];
+
+	/**
+	 * @var array
+	 *
+	 * Info about functions to build in SMF's Unicode data files.
+	 */
+	private array $funcs = [
 		[
 			'file' => 'Metadata.php',
 			'regex' => '/if \(!defined\(\'SMF_UNICODE_VERSION\'\)\)(?:\s*{)?\n\tdefine\(\'SMF_UNICODE_VERSION\', \'\d+(\.\d+)*\'\);(?:\n})?/',
@@ -387,17 +412,6 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
-		'idna_maps_not_std3' => [
-			'file' => 'Idna.php',
-			'key_type' => 'hexchar',
-			'val_type' => 'hexchar',
-			'desc' => ['Helper function for idn_to_* polyfills.'],
-			'return' => [
-				'type' => 'array',
-				'desc' => 'Non-STD3 character maps for IDNA processing.',
-			],
-			'data' => [],
-		],
 		'idna_regex' => [
 			'file' => 'Idna.php',
 			'key_type' => 'string',
@@ -522,9 +536,11 @@ class UpdateUnicode extends BackgroundTask
 	];
 
 	/**
-	 * @var array Files to fetch from unicode.org.
+	 * @var array
+	 *
+	 * Files to fetch from unicode.org.
 	 */
-	private $prefetch = [
+	private array $prefetch = [
 		self::DATA_URL_UCD => [
 			'CaseFolding.txt',
 			'DerivedAge.txt',
@@ -591,7 +607,7 @@ class UpdateUnicode extends BackgroundTask
 
 		@ini_set('memory_limit', '256M');
 
-		$this->time_limit = (empty(ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+		$this->time_limit = (empty(\ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : \ini_get('max_execution_time');
 
 		foreach ($this->funcs as $func_name => $func_info) {
 			$file_paths['final'] = implode(DIRECTORY_SEPARATOR, [$this->unicodedir, $func_info['file']]);
@@ -639,24 +655,11 @@ class UpdateUnicode extends BackgroundTask
 				$max_fetch_time = max($max_fetch_time, microtime(true) - $fetch_start);
 
 				// If prefetch is taking a really long time, pause and try again later.
-				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time) {
-					Db::$db->insert(
-						'',
-						'{db_prefix}background_tasks',
-						[
-							'task_class' => 'string',
-							'task_data' => 'string',
-							'claimed_time' => 'int',
-						],
-						[
-							[
-								'SMF\\Tasks\\Update_Unicode',
-								'',
-								time() - MAX_CLAIM_THRESHOLD,
-							],
-						],
-						['id_task'],
-					);
+				if (
+					$local_file === false
+					|| microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time
+				) {
+					$this->respawn($this->_details);
 
 					return true;
 				}
@@ -723,17 +726,19 @@ class UpdateUnicode extends BackgroundTask
 		 * Wrapup *
 		 **********/
 		if ($success) {
-			$done_files = [];
+			// If any of the temp files went missing, bail out immediately.
+			foreach ($this->funcs as $func_name => $func_info) {
+				if (
+					!is_readable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+					|| !is_writable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+				) {
+					return true;
+				}
+			}
 
 			foreach ($this->funcs as $func_name => $func_info) {
 				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
 				$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
-
-				if (in_array($file_paths['temp'], $done_files)) {
-					continue;
-				}
-
-				$done_files[] = $file_paths['temp'];
 
 				// Only move if the file has changed, discounting the license block.
 				foreach (['temp', 'real'] as $f) {
@@ -744,7 +749,9 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				if (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
+				if ($file_contents['temp'] === '') {
+					$success = false;
+				} elseif (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
 					$success &= Config::safeFileWrite(
 						$file_paths['real'],
 						file_get_contents($file_paths['temp']),
@@ -769,21 +776,21 @@ class UpdateUnicode extends BackgroundTask
 			// Updating Unicode data means we need to update the spoof detector names.
 			if (empty($this->_details['files_only'])) {
 				Db::$db->insert(
-					'insert',
-					'{db_prefix}background_tasks',
-					[
+					method: 'insert',
+					table: '{db_prefix}background_tasks',
+					columns: [
 						'task_class' => 'string',
 						'task_data' => 'string',
 						'claimed_time' => 'int',
 					],
-					[
+					data: [
 						[
-							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							UpdateSpoofDetectorNames::class,
 							json_encode(['last_member_id' => 0]),
 							0,
 						],
 					],
-					['id_task'],
+					keys: ['id_task'],
 				);
 			}
 		}
@@ -801,7 +808,7 @@ class UpdateUnicode extends BackgroundTask
 	public function export_funcs_to_file(): void
 	{
 		foreach ($this->funcs as $func_name => $func_info) {
-			if (empty($func_info['data'])) {
+			if (!isset($func_info['data'])) {
 				continue;
 			}
 
@@ -843,7 +850,7 @@ class UpdateUnicode extends BackgroundTask
 
 			// Needs to be a writable directory.
 			if (!is_dir($this->temp_dir) || !Utils::makeWritable($this->temp_dir)) {
-				$this->temp_dir = null;
+				$this->temp_dir = '';
 			}
 		}
 	}
@@ -884,10 +891,10 @@ class UpdateUnicode extends BackgroundTask
 			return $local_file;
 		}
 
-		if (!file_exists(dirname($local_file))) {
-			@mkdir(dirname($local_file), 0777, true);
+		if (!file_exists(\dirname($local_file))) {
+			@mkdir(\dirname($local_file), 0777, true);
 
-			if (!is_dir(dirname($local_file))) {
+			if (!is_dir(\dirname($local_file))) {
 				return false;
 			}
 		}
@@ -984,19 +991,20 @@ class UpdateUnicode extends BackgroundTask
 	}
 
 	/**
-	 * Builds complete code for the specified element in $this->funcs
-	 * to be inserted into the relevant PHP file. Also builds a regex
-	 * to check whether a copy of the function is already present
-	 * in the file.
+	 * Builds complete code for the specified element in $this->funcs to be
+	 * inserted into the relevant PHP file. Also builds a regex to check whether
+	 * a copy of the function is already present in the file.
 	 *
-	 * @param string|int $func_name Key of an element in $this->funcs.  If an int is provided, it is considered raw code such as a header, and does not replace a function in the file.
+	 * @param string|int $func_name Key of an element in $this->funcs. If an int
+	 *    is provided, it is considered raw code such as a header, and does not
+	 *    replace a function in the file.
 	 *
 	 * @return array PHP code and a regular expression.
 	 */
 	private function get_function_code_and_regex(string|int $func_name): array
 	{
 		// No function name means data is raw code.
-		if (!is_string($func_name)) {
+		if (!\is_string($func_name)) {
 			$func_code = implode("\n\n", $this->funcs[$func_name]['data']);
 			$func_regex = $this->funcs[$func_name]['regex'] ?? '/' . preg_quote($func_code, '/') . '/';
 		} else {
@@ -1061,7 +1069,7 @@ class UpdateUnicode extends BackgroundTask
 		foreach ($data as $key => $value) {
 			$func_code .= str_repeat("\t", $indent);
 
-			if (is_int($key)) {
+			if (\is_int($key)) {
 				// do nothing.
 			} elseif ($key_type == 'hexchar') {
 				$func_code .= '"';
@@ -1077,8 +1085,8 @@ class UpdateUnicode extends BackgroundTask
 				$func_code .= var_export($key, true) . ' => ';
 			}
 
-			if (is_array($value)) {
-				if ($val_type == 'string' && count($value) === count($value, COUNT_RECURSIVE)) {
+			if (\is_array($value)) {
+				if ($val_type == 'string' && \count($value) === \count($value, COUNT_RECURSIVE)) {
 					$nextline = "\n" . str_repeat("\t", $indent + 1);
 
 					$func_code = rtrim($func_code);
@@ -1137,7 +1145,7 @@ class UpdateUnicode extends BackgroundTask
 			return true;
 		}
 
-		return version_compare($this->ucd_version, SMF_UNICODE_VERSION, '>=');
+		return !\defined('SMF_UNICODE_VERSION') ? true : version_compare($this->ucd_version, SMF_UNICODE_VERSION, '>=');
 	}
 
 	/**
@@ -1216,7 +1224,7 @@ class UpdateUnicode extends BackgroundTask
 				$ord = $ord_s;
 
 				while ($ord <= $ord_e) {
-					$entities[] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+					$entities[] = '&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';';
 				}
 			}
 
@@ -1224,7 +1232,7 @@ class UpdateUnicode extends BackgroundTask
 
 			if (!isset($fields[2])) {
 				$value = 'SAME';
-			} elseif (in_array($fields[1], ['FC_NFKC', 'NFKC_CF'])) {
+			} elseif (\in_array($fields[1], ['FC_NFKC', 'NFKC_CF'])) {
 				$value = trim($fields[2]) !== '' ? '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';' : '';
 			} else {
 				$value = $fields[2];
@@ -1366,12 +1374,12 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			// Full casefolding.
-			if (in_array($fields[1], ['C', 'F'])) {
+			if (\in_array($fields[1], ['C', 'F'])) {
 				$this->funcs['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 			}
 
 			// Simple casefolding.
-			if (in_array($fields[1], ['C', 'S'])) {
+			if (\in_array($fields[1], ['C', 'S'])) {
 				$this->funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 			}
 		}
@@ -1422,7 +1430,7 @@ class UpdateUnicode extends BackgroundTask
 			$temp = [];
 
 			foreach ($this->funcs['utf8_normalize_d_maps']['data'] as $composed => $decomposed) {
-				if ($iteration === 0 && !in_array($composed, $this->derived_normalization_props['Full_Composition_Exclusion'])) {
+				if ($iteration === 0 && !\in_array($composed, $this->derived_normalization_props['Full_Composition_Exclusion'])) {
 					$this->funcs['utf8_compose_maps']['data'][$decomposed] = $composed;
 				}
 
@@ -1465,17 +1473,17 @@ class UpdateUnicode extends BackgroundTask
 
 				$ord = hexdec(trim($entity, '&#x;'));
 
-				if (is_null($current_range['start'])) {
+				if (\is_null($current_range['start'])) {
 					$current_range['start'] = $ord;
 				}
 
 				if (!isset($current_range['end']) || $ord == $current_range['end'] + 1) {
 					$current_range['end'] = $ord;
 				} else {
-					$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$range_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$range_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
@@ -1485,10 +1493,10 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (isset($current_range['start'])) {
-				$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$range_string = '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$range_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
@@ -1523,7 +1531,7 @@ class UpdateUnicode extends BackgroundTask
 					$fields[$key] = trim($value);
 				}
 
-				if (in_array($fields[1], $this->funcs['utf8_regex_properties']['props'])) {
+				if (\in_array($fields[1], $this->funcs['utf8_regex_properties']['props'])) {
 					if (!isset($this->funcs['utf8_regex_properties']['data'][$fields[1]])) {
 						$this->funcs['utf8_regex_properties']['data'][$fields[1]] = [];
 					}
@@ -1546,7 +1554,7 @@ class UpdateUnicode extends BackgroundTask
 						$ord = $ord_s;
 
 						while ($ord <= $ord_e) {
-							$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+							$this->funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';';
 						}
 					}
 				}
@@ -1597,7 +1605,7 @@ class UpdateUnicode extends BackgroundTask
 			$current_range = ['start' => null, 'end' => null];
 
 			foreach ($ords as $ord) {
-				if (is_null($current_range['start'])) {
+				if (\is_null($current_range['start'])) {
 					$current_range['start'] = $ord;
 				}
 
@@ -1607,20 +1615,20 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$current_range = ['start' => $ord, 'end' => $ord];
 			}
 
 			if (isset($current_range['start'])) {
-				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 			}
 
@@ -1699,7 +1707,7 @@ class UpdateUnicode extends BackgroundTask
 				$fields[$key] = trim($value);
 			}
 
-			if (in_array($fields[1], ['Common', 'Inherited'])) {
+			if (\in_array($fields[1], ['Common', 'Inherited'])) {
 				continue;
 			}
 
@@ -1714,7 +1722,7 @@ class UpdateUnicode extends BackgroundTask
 				$ord = $ord_s;
 
 				while ($ord <= $ord_e) {
-					$this->char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $fields[1];
+					$this->char_data['&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $fields[1];
 				}
 			}
 		}
@@ -1741,7 +1749,7 @@ class UpdateUnicode extends BackgroundTask
 			$char_scripts = [];
 
 			foreach (explode(' ', $fields[1]) as $alias) {
-				if (!in_array($this->script_aliases[$alias], ['Common', 'Inherited'])) {
+				if (!\in_array($this->script_aliases[$alias], ['Common', 'Inherited'])) {
 					$char_scripts[] = $this->script_aliases[$alias];
 				}
 			}
@@ -1760,7 +1768,7 @@ class UpdateUnicode extends BackgroundTask
 
 				while ($ord <= $ord_e) {
 					foreach ($char_scripts as $char_script) {
-						$this->char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $char_script;
+						$this->char_data['&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $char_script;
 					}
 				}
 			}
@@ -1812,7 +1820,7 @@ class UpdateUnicode extends BackgroundTask
 				$ord = $ord_s;
 
 				while ($ord <= $ord_e) {
-					$entity = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+					$entity = '&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';';
 
 					if (empty($this->char_data[$entity]['scripts'])) {
 						continue;
@@ -1961,7 +1969,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$insc = $fields[1];
 
-			if (!in_array($insc, ['Virama', 'Vowel_Dependent'])) {
+			if (!\in_array($insc, ['Virama', 'Vowel_Dependent'])) {
 				continue;
 			}
 
@@ -2038,7 +2046,7 @@ class UpdateUnicode extends BackgroundTask
 			foreach ($inscs as $insc => $value) {
 				sort($value);
 
-				if (!in_array($insc, ['All', 'Letter', 'Nonspacing_Mark', 'Nonspacing_Combining_Mark'])) {
+				if (!\in_array($insc, ['All', 'Letter', 'Nonspacing_Mark', 'Nonspacing_Combining_Mark'])) {
 					continue;
 				}
 
@@ -2047,7 +2055,7 @@ class UpdateUnicode extends BackgroundTask
 				$current_range = ['start' => null, 'end' => null];
 
 				foreach ($value as $ord) {
-					if (is_null($current_range['start'])) {
+					if (\is_null($current_range['start'])) {
 						$current_range['start'] = $ord;
 					}
 
@@ -2057,20 +2065,20 @@ class UpdateUnicode extends BackgroundTask
 						continue;
 					}
 
-					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
 				}
 
 				if (isset($current_range['start'])) {
-					$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 				}
 
@@ -2120,7 +2128,7 @@ class UpdateUnicode extends BackgroundTask
 				$ord = $ord_s;
 
 				while ($ord <= $ord_e) {
-					$entities[] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+					$entities[] = '&#x' . strtoupper(\sprintf('%04s', dechex($ord++))) . ';';
 				}
 			}
 
@@ -2137,19 +2145,11 @@ class UpdateUnicode extends BackgroundTask
 			} elseif ($fields[1] === 'ignored') {
 				$this->funcs['idna_regex']['data']['ignored'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'disallowed') {
-				if (in_array('&#xD800;', $entities)) {
+				if (\in_array('&#xD800;', $entities)) {
 					continue;
 				}
 
 				$this->funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
-			} elseif ($fields[1] === 'disallowed_STD3_mapped') {
-				foreach ($entities as $entity) {
-					$this->funcs['idna_maps_not_std3']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
-				}
-
-				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
-			} elseif ($fields[1] === 'disallowed_STD3_valid') {
-				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			}
 		}
 
@@ -2388,7 +2388,7 @@ class UpdateUnicode extends BackgroundTask
 				$ord = $ord_s;
 
 				while ($ord <= $ord_e) {
-					$scripts_data['&#x' . strtoupper(sprintf('%06s', dechex($ord++))) . ';'][] = $fields[1];
+					$scripts_data['&#x' . strtoupper(\sprintf('%06s', dechex($ord++))) . ';'][] = $fields[1];
 				}
 			}
 		}
@@ -2432,7 +2432,7 @@ class UpdateUnicode extends BackgroundTask
 
 				while ($ord <= $ord_e) {
 					foreach ($char_scripts as $char_script) {
-						$scripts_data['&#x' . strtoupper(sprintf('%06s', dechex($ord++))) . ';'][] = $char_script;
+						$scripts_data['&#x' . strtoupper(\sprintf('%06s', dechex($ord++))) . ';'][] = $char_script;
 					}
 				}
 			}

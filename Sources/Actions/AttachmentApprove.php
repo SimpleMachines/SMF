@@ -62,8 +62,8 @@ class AttachmentApprove implements ActionInterface, Routable
 					AND attachment_type = {int:attachment_type}',
 				[
 					'id_msg' => $id_msg,
-					'is_approved' => 0,
-					'attachment_type' => 0,
+					'is_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 
@@ -92,15 +92,15 @@ class AttachmentApprove implements ActionInterface, Routable
 				AND a.approved = {int:is_approved}',
 			[
 				'attachments' => $attachments,
-				'attachment_type' => 0,
-				'is_approved' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
+				'is_approved' => Attachment::APPROVED_FALSE,
 			],
 		);
 		$attachments = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We can only add it if we can approve in this board!
-			if ($allowed_boards = [0] || in_array($row['id_board'], $allowed_boards)) {
+			if ($allowed_boards = [0] || \in_array($row['id_board'], $allowed_boards)) {
 				$attachments[] = $row['id_attach'];
 
 				// Also come up with the redirection URL.

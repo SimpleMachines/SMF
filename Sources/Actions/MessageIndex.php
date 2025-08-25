@@ -322,7 +322,7 @@ class MessageIndex implements ActionInterface, Routable
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
-				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::getTxt('all', file: 'General'));
+				$pages .= \sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		} else {
 			$pages = '';
@@ -577,7 +577,7 @@ class MessageIndex implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != $start) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, $start));
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];
@@ -867,7 +867,7 @@ class MessageIndex implements ActionInterface, Routable
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -893,7 +893,7 @@ class MessageIndex implements ActionInterface, Routable
 					Utils::$context['view_num_hidden']++;
 				}
 			}
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 			Db::$db->free_result($request);
 
 			// Put them in "last clicked" order.
@@ -927,7 +927,7 @@ class MessageIndex implements ActionInterface, Routable
 
 		// Now we tack the info onto the end of the linktree
 		if (!empty(Utils::$context['link_moderators'])) {
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -999,11 +999,11 @@ class MessageIndex implements ActionInterface, Routable
 	protected function setRobotNoIndex(): void
 	{
 		// Right, let's only index normal stuff!
-		if (count($_GET) > 1) {
+		if (\count($_GET) > 1) {
 			$session_name = session_name();
 
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['board', 'start', $session_name])) {
+				if (!\in_array($k, ['board', 'start', $session_name])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -1039,7 +1039,7 @@ class MessageIndex implements ActionInterface, Routable
 				$boards_allowed = User::$me->boardsAllowedTo('post_new');
 
 				// How many boards can you do this on besides this one?
-				Utils::$context['can_move_any'] = count($boards_allowed) > 1;
+				Utils::$context['can_move_any'] = \count($boards_allowed) > 1;
 			}
 
 			// Set permissions for all the topics.

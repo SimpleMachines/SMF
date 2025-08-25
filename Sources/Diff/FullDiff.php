@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Diff;
 
+use SMF\Time;
 use SMF\Utils;
 
 /**
@@ -65,10 +66,13 @@ class FullDiff extends Diff
 	 * Given the modified string, reconstructs the original string.
 	 *
 	 * @param string $str2 The modified string.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change. Default: false.
 	 * @throws \ValueError if given a string it cannot work with.
 	 * @return string The original string.
 	 */
-	public function revert(string $str2): string
+	public function revert(string $str2, bool $dynamic_context = false): string
 	{
 		$real_changes = $this->changes;
 
@@ -81,7 +85,7 @@ class FullDiff extends Diff
 		}
 
 		try {
-			$str1 = $this->apply($str2);
+			$str1 = $this->apply($str2, $dynamic_context);
 		} catch (\ValueError $e) {
 			$this->changes = $real_changes;
 
@@ -129,14 +133,14 @@ class FullDiff extends Diff
 
 			foreach ($hunk['compiled'] as $b => $blob) {
 				if (
-					in_array($blob['type'], ['del', 'replace_del'])
+					\in_array($blob['type'], ['del', 'replace_del'])
 					&& !empty($blob['lines'])
 				) {
 					$del_empty = false;
 				}
 
 				if (
-					in_array($blob['type'], ['ins', 'replace_ins'])
+					\in_array($blob['type'], ['ins', 'replace_ins'])
 					&& !empty($blob['lines'])
 				) {
 					$ins_empty = false;
@@ -375,7 +379,7 @@ class FullDiff extends Diff
 				array_unshift($output, 'optional' . "\n");
 			}
 
-			array_unshift($output, 'diff --smf ' . $path1 . ' ' . $path2 . "\n");
+			array_unshift($output, 'diff --smf ' . $this->label1 . ' ' . $this->label2 . "\n");
 		}
 
 		if (empty($this->changes)) {
@@ -400,14 +404,14 @@ class FullDiff extends Diff
 
 			foreach ($hunk['compiled'] as $blob) {
 				if (
-					in_array($blob['type'], ['del', 'replace_del'])
+					\in_array($blob['type'], ['del', 'replace_del'])
 					&& !empty($blob['lines'])
 				) {
 					$del_empty = false;
 				}
 
 				if (
-					in_array($blob['type'], ['ins', 'replace_ins'])
+					\in_array($blob['type'], ['ins', 'replace_ins'])
 					&& !empty($blob['lines'])
 				) {
 					$ins_empty = false;
@@ -601,8 +605,8 @@ class FullDiff extends Diff
 				preg_match('/^(rename|copy) from /', $lines[0], $matches)
 				&& preg_match('/^' . $matches[1] . ' to /', $lines[1])
 			) {
-				$old_path = self::unescapePath(rtrim(substr($lines[0], strlen($matches[1]) + 6)));
-				$new_path = self::unescapePath(rtrim(substr($lines[1], strlen($matches[1]) + 4)));
+				$old_path = self::unescapePath(rtrim(substr($lines[0], \strlen($matches[1]) + 6)));
+				$new_path = self::unescapePath(rtrim(substr($lines[1], \strlen($matches[1]) + 4)));
 
 				// Trim off the initial 'a/' and 'b/' that Git prepends to paths.
 				$old_path = str_starts_with($old_path, 'a/') ? substr($old_path, 2) : $old_path;
@@ -938,7 +942,7 @@ class FullDiff extends Diff
 			}
 		}
 
-		$lines = array_slice($lines, $l);
+		$lines = \array_slice($lines, $l);
 
 		if (!empty($temp['old']) || !empty($temp['new'])) {
 			if ($op === 'a') {
@@ -1124,8 +1128,8 @@ class FullDiff extends Diff
 								'after' => $after,
 							];
 
-							$l1 += count($old) + count($after);
-							$l2 += count($new) + count($after);
+							$l1 += \count($old) + \count($after);
+							$l2 += \count($new) + \count($after);
 							$old = [];
 							$new = [];
 							$before = [];
@@ -1155,7 +1159,7 @@ class FullDiff extends Diff
 						}
 
 						if (
-							in_array(substr($lines[$l + 1] ?? '', 0, 1), ['-', '+', ' '])
+							\in_array(substr($lines[$l + 1] ?? '', 0, 1), ['-', '+', ' '])
 							|| substr($lines[$l + 1] ?? '', 0, 3) === '@@ '
 						) {
 							break;
@@ -1170,7 +1174,7 @@ class FullDiff extends Diff
 			}
 		}
 
-		$lines = array_slice($lines, $l);
+		$lines = \array_slice($lines, $l);
 
 		if (!empty($old) || !empty($new)) {
 			$diff->changes[] = [
@@ -1299,7 +1303,7 @@ class FullDiff extends Diff
 				continue;
 			}
 
-			if (in_array(substr($line, 0, 2), ['  ', '+ ', '- ', '! '])) {
+			if (\in_array(substr($line, 0, 2), ['  ', '+ ', '- ', '! '])) {
 				$hunk[$section][] = $line;
 
 				if (str_starts_with($line, '  ')) {
@@ -1319,13 +1323,13 @@ class FullDiff extends Diff
 				&& $lines[$l + 1] !== "***************\n"
 				&& !preg_match('/^\*{3} (\d+)(?:,(\d+))? \*{4}/', $lines[$l + 1])
 				&& !preg_match('/^-{3} (\d+)(?:,(\d+))? -{4}/', $lines[$l + 1])
-				&& !in_array(substr($lines[$l + 1], 0, 2), ['  ', '+ ', '- ', '! '])
+				&& !\in_array(substr($lines[$l + 1], 0, 2), ['  ', '+ ', '- ', '! '])
 			) {
 				break;
 			}
 		}
 
-		$lines = array_slice($lines, $l);
+		$lines = \array_slice($lines, $l);
 
 		if (!empty($hunk['old']) || !empty($hunk['new'])) {
 			$diff->changes = self::addContextHunkToChanges($hunk, $diff->changes, $contains_context);
@@ -1340,7 +1344,7 @@ class FullDiff extends Diff
 		// Do all the cleanup the constructor normally would.
 		$diff->changes = $diff->consolidate($diff->changes);
 		$diff->changes = $diff->wordsToStrings($diff->changes);
-		$diff->changes = array_filter($diff->changes, fn($c) => !empty($c['old']) || !empty($c['new']));
+		$diff->changes = array_filter(array: $diff->changes, callback: fn($c) => !empty($c['old']) || !empty($c['new']));
 		$diff->changes = array_values($diff->changes);
 
 		return [$diff];
@@ -1493,14 +1497,14 @@ class FullDiff extends Diff
 				continue;
 			}
 
-			$context_start = $changes[$c]['l1'] - count($changes[$c]['before']);
-			$prev_context_end = $changes[$c - 1]['l1'] + count($changes[$c - 1]['old']) + count($changes[$c - 1]['after']);
+			$context_start = $changes[$c]['l1'] - \count($changes[$c]['before']);
+			$prev_context_end = $changes[$c - 1]['l1'] + \count($changes[$c - 1]['old']) + \count($changes[$c - 1]['after']);
 
 			if ($context_start > $prev_context_end) {
 				continue;
 			}
 
-			while (count($changes[$c - 1]['after']) > count($changes[$c]['before']) + 1) {
+			while (\count($changes[$c - 1]['after']) > \count($changes[$c]['before']) + 1) {
 				array_unshift($changes[$c]['before'], array_pop($changes[$c - 1]['after']));
 			}
 		}
@@ -1522,13 +1526,13 @@ class FullDiff extends Diff
 			if ($should_trim) {
 				$last_c = array_key_last($changes);
 
-				$temp = array_pop($changes[$last_c][$section]);
+				$temp = array_pop($changes[$last_c][$part]);
 
 				if (str_ends_with($temp, "\n")) {
 					$temp = substr($temp, 0, -1);
 				}
 
-				array_push($changes[$last_c][$section], $temp);
+				array_push($changes[$last_c][$part], $temp);
 			}
 		}
 

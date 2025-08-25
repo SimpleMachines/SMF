@@ -26,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -278,10 +279,8 @@ class Unread implements ActionInterface, Routable
 		$this->linktree_name = Lang::getTxt('unread_topics_visit', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unread';
 
-		if (Utils::$context['showing_all_topics']) {
-			$this->checkLoadAverageAll();
-		} else {
-			$this->checkLoadAverage();
+		if (Sapi::isOverloaded(Utils::$context['showing_all_topics'] ? Config::$modSettings['loadavg_allunread'] ?? null : Config::$modSettings['loadavg_unread'] ?? null)) {
+			ErrorHandler::fatalLang(Utils::$context['showing_all_topics'] ? 'loadavg_allunread_disabled' : 'loadavg_unread_disabled', false);
 		}
 
 		Theme::loadTemplate('Recent');
@@ -293,42 +292,6 @@ class Unread implements ActionInterface, Routable
 
 		foreach (Utils::$context['stable_icons'] as $icon) {
 			Utils::$context['icon_sources'][$icon] = 'images_url';
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show unread posts.
-	 */
-	protected function checkLoadAverage(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_unread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unread']) {
-			ErrorHandler::fatalLang('loadavg_unread_disabled', false);
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show all unread posts.
-	 */
-	protected function checkLoadAverageAll(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_allunread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_allunread']) {
-			ErrorHandler::fatalLang('loadavg_allunread_disabled', false);
 		}
 	}
 
@@ -370,7 +333,7 @@ class Unread implements ActionInterface, Routable
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array($row['id_parent'], $this->boards)) {
+				if (\in_array($row['id_parent'], $this->boards)) {
 					$this->boards[] = $row['id_board'];
 				}
 			}
@@ -478,7 +441,7 @@ class Unread implements ActionInterface, Routable
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'SELECT name
 				FROM {db_prefix}categories
@@ -499,7 +462,7 @@ class Unread implements ActionInterface, Routable
 	protected function setSortMethod(): void
 	{
 		// We only know these.
-		if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
+		if (isset($_REQUEST['sort']) && !\in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
 			$_REQUEST['sort'] = 'last_post';
 		}
 
@@ -538,10 +501,10 @@ class Unread implements ActionInterface, Routable
 		$not_last_page = Utils::$context['start'] + Utils::$context['topics_per_page'] < $this->num_topics;
 
 		$url_limits = [
-			'first' => sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
-			'prev' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'next' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'last' => sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
+			'first' => \sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
+			'prev' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'next' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'last' => \sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
 		];
 
 		if (isset($this->cat_name)) {
@@ -580,7 +543,7 @@ class Unread implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
@@ -616,7 +579,7 @@ class Unread implements ActionInterface, Routable
 		if (Utils::$context['querystring_board_limits'] == ';start=%1$d') {
 			Utils::$context['querystring_board_limits'] = '';
 		} else {
-			Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+			Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 		}
 	}
 
@@ -952,7 +915,7 @@ class Unread implements ActionInterface, Routable
 				[
 					'current_member' => User::$me->id,
 					'topic_list' => $topic_ids,
-					'limit' => count($topic_ids),
+					'limit' => \count($topic_ids),
 				],
 			);
 
@@ -964,7 +927,7 @@ class Unread implements ActionInterface, Routable
 			Db::$db->free_result($result);
 		}
 
-		Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+		Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 
 		Utils::$context['topics_to_mark'] = implode('-', $topic_ids);
 	}

@@ -76,7 +76,7 @@ class XmlArray
 		}
 
 		// Is the input an array? (ie. passed from file()?)
-		if (is_array($data)) {
+		if (\is_array($data)) {
 			$data = implode('', $data);
 		}
 
@@ -120,13 +120,13 @@ class XmlArray
 		}
 
 		// Getting elements into this is a bit complicated...
-		if ($get_elements && !is_string($array)) {
+		if ($get_elements && !\is_string($array)) {
 			$temp = '';
 
 			// Use the _xml() function to get the xml data.
 			foreach ($array->array as $val) {
 				// Skip the name and any attributes.
-				if (is_array($val)) {
+				if (\is_array($val)) {
 					$temp .= $this->_xml($val, null);
 				}
 			}
@@ -136,7 +136,7 @@ class XmlArray
 		}
 
 		// Return the value - taking care to pick out all the text values.
-		return is_string($array) ? $array : $this->_fetch($array->array);
+		return \is_string($array) ? $array : $this->_fetch($array->array);
 	}
 
 	/** Get an element, returns a new XmlArray.
@@ -175,7 +175,7 @@ class XmlArray
 				$trace = debug_backtrace();
 				$i = 0;
 
-				while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this)) {
+				while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
 					$i++;
 				}
 				$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
@@ -200,7 +200,7 @@ class XmlArray
 		}
 
 		// Create the right type of class...
-		$newClass = get_class($this);
+		$newClass = \get_class($this);
 
 		// Return a new XmlArray for the result.
 		return $array === false ? false : new $newClass($array, $this->trim, $this->debug_level, true);
@@ -265,7 +265,7 @@ class XmlArray
 		$i = 0;
 
 		foreach ($temp->array as $item) {
-			if (is_array($item)) {
+			if (\is_array($item)) {
 				$i++;
 			}
 		}
@@ -291,12 +291,12 @@ class XmlArray
 
 		foreach ($xml->array as $val) {
 			// Skip these, they aren't elements.
-			if (!is_array($val) || $val['name'] == '!') {
+			if (!\is_array($val) || $val['name'] == '!') {
 				continue;
 			}
 
 			// Create the right type of class...
-			$newClass = get_class($this);
+			$newClass = \get_class($this);
 
 			// Create a new XmlArray and stick it in the array.
 			$array[] = new $newClass($val, $this->trim, $this->debug_level, true);
@@ -424,9 +424,9 @@ class XmlArray
 		];
 
 		// Loop until we're out of data.
-		while ($data != '') {
+		while ($data !== '') {
 			// Find and remove the next tag.
-			preg_match('/\A<([\w\-:]+)((?:\s+.+?)?)([\s]?\/)?' . '>/', $data, $match);
+			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
 
 			if (isset($match[0])) {
 				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
@@ -525,7 +525,7 @@ class XmlArray
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
 				// Data now starts from where this section ends.
-				$data = substr($data, $last_tag_end + strlen('</' . $match[1] . '>'));
+				$data = substr($data, $last_tag_end + \strlen('</' . $match[1] . '>'));
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
@@ -573,7 +573,7 @@ class XmlArray
 ' . str_repeat('	', $indent) : '';
 
 		// This is a set of elements, with no name...
-		if (is_array($array) && !isset($array['name'])) {
+		if (\is_array($array) && !isset($array['name'])) {
 			$temp = '';
 
 			foreach ($array as $val) {
@@ -602,7 +602,7 @@ class XmlArray
 		foreach ($array as $k => $v) {
 			if (str_starts_with($k, '@')) {
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
-			} elseif (is_array($v)) {
+			} elseif (\is_array($v)) {
 				$output_el .= $this->_xml($v, $indent === null ? null : $indent + 1);
 				$inside_elements = true;
 			}
@@ -630,7 +630,7 @@ class XmlArray
 		$text = '';
 
 		foreach ($array as $value) {
-			if (!is_array($value) || !isset($value['name'])) {
+			if (!\is_array($value) || !isset($value['name'])) {
 				continue;
 			}
 
@@ -664,7 +664,7 @@ class XmlArray
 			preg_replace_callback(
 				'~&#(\d{1,4});~',
 				function ($m) {
-					return chr("{$m[1]}");
+					return \chr("{$m[1]}");
 				},
 				$data,
 			),
@@ -683,7 +683,7 @@ class XmlArray
 	protected function _fetch(array|string|null $array): string
 	{
 		// Don't return anything if this is just a string.
-		if (is_string($array)) {
+		if (\is_string($array)) {
 			return '';
 		}
 
@@ -721,7 +721,7 @@ class XmlArray
 	protected function _path(array $array, string $path, ?int $level, bool $no_error = false): string|array
 	{
 		// Is $array even an array?  It might be false!
-		if (!is_array($array)) {
+		if (!\is_array($array)) {
 			return false;
 		}
 
@@ -732,17 +732,17 @@ class XmlArray
 		$paths = explode('|', $path);
 
 		// A * means all elements of any name.
-		$show_all = in_array('*', $paths);
+		$show_all = \in_array('*', $paths);
 
 		$results = [];
 
 		// Check each element.
 		foreach ($array as $value) {
-			if (!is_array($value) || $value['name'] === '!') {
+			if (!\is_array($value) || $value['name'] === '!') {
 				continue;
 			}
 
-			if ($show_all || in_array($value['name'], $paths)) {
+			if ($show_all || \in_array($value['name'], $paths)) {
 				// Skip elements before "the one".
 				if ($level !== null && $level > 0) {
 					$level--;
@@ -757,7 +757,7 @@ class XmlArray
 			$trace = debug_backtrace();
 			$i = 0;
 
-			while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this)) {
+			while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
 				$i++;
 			}
 			$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
@@ -771,7 +771,7 @@ class XmlArray
 		}
 
 		// Only one result.
-		if (count($results) == 1 || $level !== null) {
+		if (\count($results) == 1 || $level !== null) {
 			return $results[0];
 		}
 

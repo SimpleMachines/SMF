@@ -166,7 +166,7 @@ class ServerSideIncludes
 	{
 		// SSI isn't meant to be used from within the forum,
 		// but apparently someone is doing so anyway...
-		if (defined('SMF') && SMF !== 'SSI') {
+		if (\defined('SMF') && SMF !== 'SSI') {
 			if (!self::$setup_done) {
 				IntegrationHook::call('integrate_SSI');
 			}
@@ -211,7 +211,6 @@ class ServerSideIncludes
 
 		// Seed the random generator?
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-			// @TODO: Calls a deprecated function.
 			Config::generateSeed();
 		}
 
@@ -237,14 +236,14 @@ class ServerSideIncludes
 		}
 
 		// Gzip output? (because it must be boolean and true, this can't be hacked.)
-		if ($this->gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
+		if ($this->gzip === true && \ini_get('zlib.output_compression') != '1' && \ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
 			ob_start('ob_gzhandler');
 		} else {
 			Config::$modSettings['enableCompressedOutput'] = '0';
 		}
 
 		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::ob_sessrewrite');
+		ob_start('SMF\\QueryString::rewriteAsQueryless');
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent()) {
@@ -307,7 +306,7 @@ class ServerSideIncludes
 		}
 
 		// Make sure they didn't muss around with the settings... but only if it's not cli.
-		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
+		if (IP::getUserIP() !== '' && !Sapi::isCLI() && session_id() == '') {
 			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
 		}
 
@@ -338,7 +337,7 @@ class ServerSideIncludes
 
 			// Call a function passed by GET.
 			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
-				call_user_func([__CLASS__, $_GET['ssi_function']]);
+				\call_user_func([__CLASS__, $_GET['ssi_function']]);
 			}
 
 			exit;
@@ -586,12 +585,12 @@ class ServerSideIncludes
 		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board'])) {
 			$exclude_boards = [Config::$modSettings['recycle_board']];
 		} else {
-			$exclude_boards = empty($exclude_boards) ? [] : (is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
+			$exclude_boards = empty($exclude_boards) ? [] : (\is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
 		}
 
 		// What about including certain boards - note we do some protection here as pre-2.0 didn't have this parameter.
-		if (is_array($include_boards) || (int) $include_boards === $include_boards) {
-			$include_boards = is_array($include_boards) ? $include_boards : [$include_boards];
+		if (\is_array($include_boards) || (int) $include_boards === $include_boards) {
+			$include_boards = \is_array($include_boards) ? $include_boards : [$include_boards];
 		} elseif ($include_boards != null) {
 			$include_boards = [];
 		}
@@ -638,7 +637,7 @@ class ServerSideIncludes
 		}
 
 		// Allow the user to request more than one - why not?
-		$post_ids = is_array($post_ids) ? $post_ids : [$post_ids];
+		$post_ids = \is_array($post_ids) ? $post_ids : [$post_ids];
 
 		// Restrict the posts required...
 		$query_where = '
@@ -772,7 +771,7 @@ class ServerSideIncludes
 			if (!empty(Config::$modSettings['enable_likes'])) {
 				$posts[$row['id_msg']]['likes'] = [
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
+					'you' => \in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				];
 			}
@@ -830,12 +829,12 @@ class ServerSideIncludes
 		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0) {
 			$exclude_boards = [Config::$modSettings['recycle_board']];
 		} else {
-			$exclude_boards = empty($exclude_boards) ? [] : (is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
+			$exclude_boards = empty($exclude_boards) ? [] : (\is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
 		}
 
 		// Only some boards?.
-		if (is_array($include_boards) || (int) $include_boards === $include_boards) {
-			$include_boards = is_array($include_boards) ? $include_boards : [$include_boards];
+		if (\is_array($include_boards) || (int) $include_boards === $include_boards) {
+			$include_boards = \is_array($include_boards) ? $include_boards : [$include_boards];
 		} elseif ($include_boards != null) {
 			$output_method = $include_boards;
 			$include_boards = [];
@@ -1380,7 +1379,7 @@ class ServerSideIncludes
 		}
 
 		// Can have more than one member if you really want...
-		$member_ids = is_array($member_ids) ? $member_ids : [$member_ids];
+		$member_ids = \is_array($member_ids) ? $member_ids : [$member_ids];
 
 		// Restrict it right!
 		$query_where = '
@@ -1972,7 +1971,7 @@ class ServerSideIncludes
 		}
 
 		// Too many options checked?
-		if (count($_REQUEST['options']) > $row['max_votes']) {
+		if (\count($_REQUEST['options']) > $row['max_votes']) {
 			Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 		}
 
@@ -1983,7 +1982,7 @@ class ServerSideIncludes
 				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 			}
 			// Already voted?
-			elseif (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))) {
+			elseif (isset($_COOKIE['guest_poll_vote']) && \in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))) {
 				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 			}
 		}
@@ -2072,7 +2071,7 @@ class ServerSideIncludes
 			new self();
 		}
 
-		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)] : '';
+		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, \count(Utils::$context['news_lines']) - 1)] : '';
 
 		// If mods want to do something with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
 		IntegrationHook::call('integrate_ssi_news');
@@ -2195,7 +2194,7 @@ class ServerSideIncludes
 			return (array) $return['calendar_events'];
 		}
 
-		if (!is_array($return)) {
+		if (!\is_array($return)) {
 			return null;
 		}
 
@@ -2394,7 +2393,7 @@ class ServerSideIncludes
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE t.id_first_msg IN ({array_int:post_list})
 			ORDER BY t.id_first_msg DESC
-			LIMIT ' . count($posts),
+			LIMIT ' . \count($posts),
 			[
 				'post_list' => $posts,
 			],
@@ -2485,7 +2484,7 @@ class ServerSideIncludes
 				// Nasty ternary for likes not messing around the "is_last" check.
 				'likes' => !empty(Config::$modSettings['enable_likes']) ? [
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
+					'you' => \in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				] : [],
 			];
@@ -2496,7 +2495,7 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		$return[count($return) - 1]['is_last'] = true;
+		$return[\count($return) - 1]['is_last'] = true;
 
 		// If mods want to do something with this list of posts, let them do that now.
 		IntegrationHook::call('integrate_ssi_boardNews', [&$return]);
@@ -2733,7 +2732,7 @@ class ServerSideIncludes
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = att.id_thumb)') . '
-			WHERE att.attachment_type = 0' . ($attachments_boards === [0] ? '' : '
+			WHERE att.attachment_type = {int:attachment_type}' . ($attachments_boards === [0] ? '' : '
 				AND m.id_board IN ({array_int:boards_can_see})') . (!empty($attachment_ext) ? '
 				AND att.fileext IN ({array_string:attachment_ext})' : '') .
 				(!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -2743,6 +2742,7 @@ class ServerSideIncludes
 			ORDER BY att.id_attach DESC
 			LIMIT {int:num_attachments}',
 			[
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'boards_can_see' => $attachments_boards,
 				'attachment_ext' => $attachment_ext,
 				'num_attachments' => $num_attachments,

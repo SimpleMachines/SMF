@@ -34,100 +34,35 @@ class QueryString
 	 *
 	 * Classes listed in this array must implement the Routable interface.
 	 *
+	 * At runtime, the names and classes of one or more routable actions may be
+	 * added to this list.
+	 *
 	 * MOD AUTHORS: To add a new route parser to this list for a custom action
 	 * or content type, use the integrate_route_parsers hook.
 	 */
 	public static array $route_parsers = [
-		'about:unknown'			=> Actions\Like::class,
-		'acceptagreement'		=> Actions\AgreementAccept::class,
-		'accepttermsofservice'	=> Actions\AgreementAccept::class,
-		'activate'				=> Actions\Activate::class,
-		'admin'					=> Actions\Admin\Main::class,
-		'agreement'				=> Actions\Agreement::class,
-		'announce'				=> Actions\Announce::class,
-		'attachapprove'			=> Actions\AttachmentApprove::class,
-		'board'					=> Board::class,
-		'boardindex'			=> Actions\BoardIndex::class,
-		'boards'				=> Board::class,
-		'buddy'					=> Actions\BuddyListToggle::class,
-		'calendar'				=> Actions\Calendar::class,
-		'clock'					=> Actions\Calendar::class,
-		'coppa'					=> Actions\CoppaForm::class,
-		'credits'				=> Actions\Credits::class,
-		'deletemsg'				=> Actions\MsgDelete::class,
-		'display'				=> Actions\Display::class,
-		'dlattach'				=> Actions\AttachmentDownload::class,
-		'editpoll'				=> Actions\PollEdit::class,
-		'editpoll2'				=> Actions\PollEdit2::class,
-		'feed'					=> Actions\Feed::class,
-		'groups'				=> Actions\Groups::class,
-		'help'					=> Actions\Help::class,
-		'helpadmin'				=> Actions\HelpAdmin::class,
-		'jsmodify'				=> Actions\JavaScriptModify::class,
-		'jsoption'				=> Actions\ThemeSetOption::class,
-		'likes'					=> Actions\Like::class,
-		'lock'					=> Actions\TopicLock::class,
-		'lockvoting'			=> Actions\PollLock::class,
-		'login'					=> Actions\Login::class,
-		'login2'				=> Actions\Login2::class,
-		'logintfa'				=> Actions\LoginTFA::class,
-		'logout'				=> Actions\Logout::class,
-		'markasread'			=> Actions\MarkRead::class,
-		'mergetopics'			=> Actions\TopicMerge::class,
-		'messageindex'			=> Actions\MessageIndex::class,
-		'mlist'					=> Actions\Memberlist::class,
-		'members'				=> Actions\Profile\Main::class,
-		'member'				=> Actions\Profile\Main::class,
-		'moderate'				=> Actions\Moderation\Main::class,
-		'modifycat'				=> Actions\Admin\Main::class,
-		'movetopic'				=> Actions\TopicMove::class,
-		'movetopic2'			=> Actions\TopicMove2::class,
-		'msg'					=> Msg::class,
-		'msgs'					=> Msg::class,
-		'notifyannouncements'	=> Actions\NotifyAnnouncements::class,
-		'notifyboard'			=> Actions\NotifyBoard::class,
-		'notifytopic'			=> Actions\NotifyTopic::class,
-		'pm'					=> Actions\PersonalMessage::class,
-		'post'					=> Actions\Post::class,
-		'post2'					=> Actions\Post2::class,
-		'printpage'				=> Actions\TopicPrint::class,
-		'profile'				=> Actions\Profile\Main::class,
-		'quickmod'				=> Actions\QuickModeration::class,
-		'quickmod2'				=> Actions\QuickModerationInTopic::class,
-		'quotefast'				=> Actions\QuoteFast::class,
-		'recent'				=> Actions\Recent::class,
-		'reminder'				=> Actions\Reminder::class,
-		'removepoll'			=> Actions\PollRemove::class,
-		'removetopic2'			=> Actions\TopicRemove::class,
-		'reporttm'				=> Actions\ReportToMod::class,
-		'restoretopic'			=> Actions\TopicRestore::class,
-		'search'				=> Actions\Search::class,
-		'search2'				=> Actions\Search2::class,
-		'sendactivation'		=> Actions\SendActivation::class,
-		'signup'				=> Actions\Register::class,
-		'signup2'				=> Actions\Register2::class,
-		'smstats'				=> Actions\SmStats::class,
-		'splittopics'			=> Actions\TopicSplit::class,
-		'stats'					=> Actions\Stats::class,
-		'sticky'				=> Actions\TopicSticky::class,
-		'suggest'				=> Actions\AutoSuggest::class,
-		'termsofservice'		=> Actions\Agreement::class,
-		'themechooser'			=> Actions\ThemeChooser::class,
-		'topic'					=> Topic::class,
-		'topics'				=> Topic::class,
-		'trackip'				=> Actions\TrackIP::class,
-		'unread'				=> Actions\Unread::class,
-		'unreadreplies'			=> Actions\UnreadReplies::class,
-		'uploadAttach'			=> Actions\AttachmentUpload::class,
-		'users'					=> Actions\Profile\Main::class,
-		'user'					=> Actions\Profile\Main::class,
-		'verificationcode'		=> Actions\VerificationCode::class,
-		'viewprofile'			=> Actions\Profile\Main::class,
-		'viewquery'				=> Actions\ViewQuery::class,
-		'viewsmfile'			=> Actions\DisplayAdminFile::class,
-		'vote'					=> Actions\PollVote::class,
-		'who'					=> Actions\Who::class,
-		'xmlhttp'				=> Actions\XmlHttp::class,
+		// 'msgs' is canonical, but we also accept 'msg'.
+		'msgs' => Msg::class,
+		'msg'  => Msg::class,
+
+		// 'topics' is canonical, but we also accept 'topic'.
+		'topics' => Topic::class,
+		'topic'  => Topic::class,
+
+		// 'boards' is canonical, but we also accept 'board'.
+		'boards' => Board::class,
+		'board'  => Board::class,
+
+		// 'members' is canonical, but we also accept 'member', 'users', and 'user'.
+		'members' => Actions\Profile\Main::class,
+		'member'  => Actions\Profile\Main::class,
+		'users'   => Actions\Profile\Main::class,
+		'user'    => Actions\Profile\Main::class,
+
+		// Special case: the agreement action uses an alternate name when routed
+		// in order to avoid a naming conflict with the agreement.txt file.
+		'termsofservice'       => Actions\Agreement::class,
+		'accepttermsofservice' => Actions\AgreementAccept::class,
 	];
 
 	/***********************
@@ -180,7 +115,7 @@ class QueryString
 		}
 
 		// Are we going to need to parse the ; out?
-		if (!str_contains(ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
+		if (!str_contains(\ini_get('arg_separator.input'), ';') && !empty($_SERVER['QUERY_STRING'])) {
 			// Get rid of the old one! You don't know where it's been!
 			$_GET = [];
 
@@ -190,14 +125,14 @@ class QueryString
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
-		} elseif (str_contains(ini_get('arg_separator.input'), ';')) {
+		} elseif (str_contains(\ini_get('arg_separator.input'), ';')) {
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
 			foreach ($_GET as $k => $v) {
 				if ((string) $v === $v && str_contains($k, ';')) {
 					$temp = explode(';', $v);
 					$_GET[$k] = $temp[0];
 
-					for ($i = 1, $n = count($temp); $i < $n; $i++) {
+					for ($i = 1, $n = \count($temp); $i < $n; $i++) {
 						@list($key, $val) = @explode('=', $temp[$i], 2);
 
 						if (!isset($_GET[$key])) {
@@ -214,14 +149,16 @@ class QueryString
 			}
 		}
 
-		// Let mods add new route parsers to self::$route_parsers.
-		IntegrationHook::call('integrate_route_parsers');
-
 		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
 		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
 
+		// If the action has been renamed, update it to the correct name.
+		if (isset($_GET['action'], Forum::$renamed_actions[$_GET['action']])) {
+			$_GET['action'] = Forum::$renamed_actions[$_GET['action']];
+		}
+
 		// Add entities to GET.  This is kinda like the slashes on everything else.
-		$_GET = Utils::htmlspecialcharsRecursive($_GET);
+		$_GET = Utils::htmlspecialcharsRecursive($_GET, ENT_QUOTES);
 
 		// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 		$_REQUEST = $_POST + $_GET;
@@ -330,99 +267,13 @@ class QueryString
 			exit;
 		}
 
-		// Make sure we have a valid REMOTE_ADDR.
-		if (!isset($_SERVER['REMOTE_ADDR'])) {
-			$_SERVER['REMOTE_ADDR'] = '';
-
-			// A new magic variable to indicate we think this is command line.
-			$_SERVER['is_cli'] = true;
-		}
-		// Perhaps we have a IPv6 address.
-		elseif (IP::create($_SERVER['REMOTE_ADDR'])->isValid()) {
-			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER['REMOTE_ADDR']);
-		}
-
 		// Try to calculate their most likely IP for those people behind proxies (And the like).
-		$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
+		IP::setUserIPAlternative();
 
-		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
-		if (!isset(Config::$modSettings['proxy_ip_header'])) {
-			Config::$modSettings['proxy_ip_header'] = 'autodetect';
-		}
-
-		// Which headers are we going to check for Reverse Proxy IP headers?
-		if (Config::$modSettings['proxy_ip_header'] == 'disabled') {
-			$reverseIPheaders = [];
-		} elseif (Config::$modSettings['proxy_ip_header'] == 'autodetect') {
-			$reverseIPheaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'];
-		} else {
-			$reverseIPheaders = [Config::$modSettings['proxy_ip_header']];
-		}
-
-		// Find the user's IP address. (but don't let it give you 'unknown'!)
-		foreach ($reverseIPheaders as $proxyIPheader) {
-			// Ignore if this is not set.
-			if (!isset($_SERVER[$proxyIPheader])) {
-				continue;
-			}
-
-			if (!empty(Config::$modSettings['proxy_ip_servers'])) {
-				$valid_sender = false;
-
-				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-					if (
-						$proxy == $_SERVER['REMOTE_ADDR']
-						|| (new IP($_SERVER['REMOTE_ADDR']))->matchToCIDR($proxy)
-					) {
-						$valid_sender = true;
-						break;
-					}
-				}
-
-				if (!$valid_sender) {
-					continue;
-				}
-			}
-
-			// If there are commas, get the last one.. probably.
-			if (str_contains($_SERVER[$proxyIPheader], ',')) {
-				$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
-
-				// Go through each IP...
-				foreach ($ips as $i => $ip) {
-					// Make sure it's in a valid range...
-					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
-						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-							// Just incase we have a legacy IPv4 address.
-							// @ TODO: Convert to IPv6.
-							if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-								continue;
-							}
-						}
-
-						continue;
-					}
-
-					// Otherwise, we've got an IP!
-					$_SERVER['BAN_CHECK_IP'] = trim($ip);
-
-					break;
-				}
-			}
-			// Otherwise just use the only one.
-			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
-				$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
-			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-				// Just incase we have a legacy IPv4 address.
-				// @ TODO: Convert to IPv6.
-				if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-					continue;
-				}
-			}
+		if (!empty(Config::$backward_compatibility)) {
+			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
+			$_SERVER['REMOTE_ADDR'] = IP::getUserIP();
+			$_SERVER['is_cli'] = Sapi::isCLI();
 		}
 
 		// Make sure we know the URL of the current request.
@@ -445,15 +296,6 @@ class QueryString
 
 		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
-
-		// Some final checking.
-		if (!IP::create($_SERVER['BAN_CHECK_IP'])->isValid()) {
-			$_SERVER['BAN_CHECK_IP'] = '';
-		}
-
-		if ($_SERVER['REMOTE_ADDR'] == 'unknown') {
-			$_SERVER['REMOTE_ADDR'] = '';
-		}
 	}
 
 	/**
@@ -492,9 +334,9 @@ class QueryString
 		$matched = false;
 
 		if (isset($_REQUEST[$var], $value_list[$_REQUEST[$var]])) {
-			if (is_array($value_list[$_REQUEST[$var]])) {
+			if (\is_array($value_list[$_REQUEST[$var]])) {
 				foreach ($value_list[$_REQUEST[$var]] as $subvar => $subvalues) {
-					$matched |= isset($_REQUEST[$subvar]) && in_array($_REQUEST[$subvar], $subvalues);
+					$matched |= isset($_REQUEST[$subvar]) && \in_array($_REQUEST[$subvar], $subvalues);
 				}
 			} else {
 				$matched = true;
@@ -529,7 +371,7 @@ class QueryString
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
 				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
+				|| \ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
@@ -595,6 +437,38 @@ class QueryString
 	}
 
 	/**
+	 * Gets the fully qualified name of a class that can build and parse routes
+	 * for the given route base.
+	 *
+	 * @param string $route_base The first element of a virtual route path.
+	 * @return ?string Name of a class that implements the Routable interface,
+	 *    or null if there is no class that can handle the $route_base value.
+	 */
+	public static function getRouteParser(string $route_base): ?string
+	{
+		// Let mods add new route parsers to self::$route_parsers.
+		IntegrationHook::call('integrate_route_parsers');
+
+		// If we don't yet have a route parser for $route_base, try to find one.
+		if (!isset(self::$route_parsers[$route_base])) {
+			// Are we dealing with an action that has been renamed?
+			if (isset(Forum::$renamed_actions[$route_base])) {
+				$route_base = Forum::$renamed_actions[$route_base];
+			}
+
+			// If $route_base is the name of a routable action, return the action's class.
+			if (
+				!empty(Forum::$actions[$route_base][1])
+				&& method_exists(Forum::$actions[$route_base][1], 'parseRoute')
+			) {
+				self::$route_parsers[$route_base] = Forum::$actions[$route_base][1];
+			}
+		}
+
+		return self::$route_parsers[$route_base] ?? null;
+	}
+
+	/**
 	 * Builds a routing path based on URL query parameters.
 	 *
 	 * @param array|string $params URL query, as a string or array of parameters.
@@ -602,7 +476,7 @@ class QueryString
 	 */
 	public static function buildRoute(array|string $params): string
 	{
-		if (is_string($params)) {
+		if (\is_string($params)) {
 			$params = strtr(ltrim($params, '?'), ';', '&');
 			parse_str($params, $temp);
 
@@ -623,11 +497,9 @@ class QueryString
 
 		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
 
-		if (
-			isset($route_base, self::$route_parsers[$route_base])
-			&& method_exists(self::$route_parsers[$route_base], 'buildRoute')
-		) {
-			extract(call_user_func(self::$route_parsers[$route_base] . '::buildRoute', $params));
+		if (\is_string(self::getRouteParser($route_base))) {
+			// This call to extract will set new values of $route and $params.
+			extract(\call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
 		}
 
 		$route = !empty($route) ? '/' . implode('/', $route) : '';
@@ -665,8 +537,8 @@ class QueryString
 
 		$route = explode('/', trim($path, '/'));
 
-		if (isset(self::$route_parsers[$route[0]])) {
-			$new_params = call_user_func(self::$route_parsers[$route[0]] . '::parseRoute', $route);
+		if (\is_string(self::getRouteParser($route[0]))) {
+			$new_params = \call_user_func(self::getRouteParser($route[0]) . '::parseRoute', $route);
 		} else {
 			// Maintain support for the pre-3.0 form of queryless URLs.
 			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', $path), '/', '&')), 1), $new_params);
@@ -683,28 +555,15 @@ class QueryString
 	}
 
 	/**
-	 * Rewrite URLs to include the session ID, if the user is not accepting
-	 * cookies and is using a standard web browser.
+	 * Show debug info if requested.
 	 *
 	 * @param string $buffer The unmodified output buffer.
 	 * @return string The modified buffer.
 	 */
-	public static function ob_sessrewrite(string $buffer): string
+	public static function obDebug(string $buffer): string
 	{
-		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-		$sid = defined('SID') ? @constant('SID') : null;
-
-		// If Config::$scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-		if (Config::$scripturl == '' || !isset($sid)) {
-			return $buffer;
-		}
-
-		// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
-		if (empty($_COOKIE) && $sid != '' && !BrowserDetector::isBrowser('possibly_robot')) {
-			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', '"' . Config::$scripturl . '?' . $sid . '&amp;', $buffer);
-		}
 		// Debugging templates, are we?
-		elseif (isset($_GET['debug'])) {
+		if (isset($_GET['debug'])) {
 			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\??/', '"' . Config::$scripturl . '?debug;', $buffer);
 		}
 

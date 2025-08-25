@@ -472,7 +472,7 @@ class Topic implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_topic'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;
@@ -532,7 +532,7 @@ class Topic implements \ArrayAccess, Routable
 			// are reflected in this object's custom properties, save them too.
 			if (!empty($this->custom)) {
 				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
 						$set[] = $key . ' = {' . $type . ':' . $key . '}';
 						$params[$key] = $this->custom[$key];
 					}
@@ -595,7 +595,7 @@ class Topic implements \ArrayAccess, Routable
 			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), [Board::$info->id]);
 
 			// You can't move this unless you have permission to start new topics on at least one other board.
-			$this->permissions['can_move'] = count($boards_allowed) > 1;
+			$this->permissions['can_move'] = \count($boards_allowed) > 1;
 		}
 
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
@@ -615,7 +615,7 @@ class Topic implements \ArrayAccess, Routable
 		// Handle approval flags...
 		$this->permissions['can_reply_approved'] = $this->permissions['can_reply'];
 		$this->permissions['can_reply'] |= $this->permissions['can_reply_unapproved'];
-		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
+		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
 		$this->permissions['can_mark_unread'] = !User::$me->is_guest;
 		$this->permissions['can_unwatch'] = !User::$me->is_guest;
 		$this->permissions['can_set_notify'] = !User::$me->is_guest;
@@ -861,7 +861,7 @@ class Topic implements \ArrayAccess, Routable
 			$board->unapproved_topics++;
 		}
 
-		$board->save();
+		$board->save(Board::SAVE_STATS);
 
 		// There's been a new topic today.
 		Logging::trackStats(['topics' => '+']);
@@ -1045,6 +1045,10 @@ class Topic implements \ArrayAccess, Routable
 			if ($sticky_state) {
 				Mail::sendNotifications((int) $row['topic'], 'sticky');
 			}
+
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+				CacheApi::put('board-' . $row['board'], null, 120);
+			}
 		}
 
 		return array_map(fn($row) => (int) $row['topic'], $rows);
@@ -1190,10 +1194,10 @@ class Topic implements \ArrayAccess, Routable
 		$log_topics = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched'])];
+			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (\is_null($row['unwatched']) ? 0 : $row['unwatched'])];
 
 			// Prevent queries from getting too big. Taking some steam off.
-			if (count($log_topics) > 500) {
+			if (\count($log_topics) > 500) {
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_topics',
@@ -1429,6 +1433,11 @@ class Topic implements \ArrayAccess, Routable
 			foreach ($topics as $topic_id) {
 				CacheApi::put('topic_board-' . $topic_id, null, 120);
 			}
+			CacheApi::put('board-' . $toBoard, null, 120);
+
+			foreach ($fromBoards as $b => $junk) {
+				CacheApi::put('board-' . $b, null, 120);
+			}
 		}
 
 		$updates = array_keys($fromBoards);
@@ -1508,7 +1517,7 @@ class Topic implements \ArrayAccess, Routable
 				[
 					'recycle_board' => $recycle_board,
 					'topics' => $topics,
-					'limit' => count($topics),
+					'limit' => \count($topics),
 				],
 			);
 
@@ -1632,6 +1641,10 @@ class Topic implements \ArrayAccess, Routable
 						'unapproved_topics' => $stats['unapproved_topics'],
 					],
 				);
+
+				if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+					CacheApi::put('board-' . $stats['id_board'], null, 120);
+				}
 			}
 		}
 		// Remove Polls.
@@ -1644,7 +1657,7 @@ class Topic implements \ArrayAccess, Routable
 			[
 				'no_poll' => 0,
 				'topics' => $topics,
-				'limit' => count($topics),
+				'limit' => \count($topics),
 			],
 		);
 		$polls = [];
@@ -1680,7 +1693,7 @@ class Topic implements \ArrayAccess, Routable
 
 		// Get rid of the attachment, if it exists.
 		$attachmentQuery = [
-			'attachment_type' => 0,
+			'attachment_type' => Attachment::TYPE_STANDARD,
 			'id_topic' => $topics,
 		];
 		Attachment::remove($attachmentQuery, 'messages');
@@ -1738,6 +1751,10 @@ class Topic implements \ArrayAccess, Routable
 		Config::updateModSettings([
 			'calendar_updated' => time(),
 		]);
+
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3 && !empty($recycle_board) && !$ignoreRecycling) {
+			CacheApi::put('board-' . $recycle_board, null);
+		}
 
 		$updates = [];
 
@@ -1826,7 +1843,7 @@ class Topic implements \ArrayAccess, Routable
 				if (isset(QueryString::$route_parsers[reset($route)])) {
 					$params = array_merge(
 						$params,
-						call_user_func(
+						\call_user_func(
 							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
 							$route,
 							$params,
@@ -1958,6 +1975,6 @@ class Topic implements \ArrayAccess, Routable
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Topic::class, 'exportStatic'])) {
+if (\is_callable([Topic::class, 'exportStatic'])) {
 	Topic::exportStatic();
 }

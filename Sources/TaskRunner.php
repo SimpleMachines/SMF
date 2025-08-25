@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\BackgroundTask;
+use SMF\Tasks\ScheduledTask;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
@@ -119,26 +121,25 @@ class TaskRunner
 	public function __construct()
 	{
 		// For backward compatibility.
-		if (!defined('MAX_CRON_TIME')) {
-			define('MAX_CRON_TIME', self::MAX_CRON_TIME);
+		if (!\defined('MAX_CRON_TIME')) {
+			\define('MAX_CRON_TIME', self::MAX_CRON_TIME);
 		}
 
-		if (!defined('MAX_CLAIM_THRESHOLD')) {
-			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
+		if (!\defined('MAX_CLAIM_THRESHOLD')) {
+			\define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', Sapi::isCLI());
+			\define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 				ErrorHandler::displayMaintenanceMessage();
 			}
 
-			// Have we already turned this off? If so, exist gracefully.
-			// @todo Remove this? It's a bad idea to ever disable background tasks.
-			if (file_exists(Config::$cachedir . '/cron.lock')) {
+			// Do nothing if we are in the middle of an install or upgrade.
+			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
 				$this->obExit();
 			}
 
@@ -300,7 +301,7 @@ class TaskRunner
 			[
 				'task_ids' => $task_ids,
 				'task_names' => $task_names,
-				'limit' => count($task_ids) + count($task_names),
+				'limit' => \count($task_ids) + \count($task_names),
 			],
 		);
 
@@ -323,7 +324,7 @@ class TaskRunner
 			$bgtask = new $task_details['task_class']($task_details['task_data']);
 
 			// If the instance isn't actually a scheduled task, skip it.
-			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+			if (!is_subclass_of($bgtask, ScheduledTask::class)) {
 				continue;
 			}
 
@@ -565,22 +566,18 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
-			$bgtask = new $task_details['task_class']($details);
-
-			$success = $bgtask->execute();
+		if (
+			class_exists($task_details['task_class'])
+			&& is_subclass_of($task_details['task_class'], BackgroundTask::class)
+		) {
+			$task_class = $task_details['task_class'];
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
+		elseif (
+			class_exists('SMF\\Tasks\\' . $task_details['task_class'])
+			&& is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], BackgroundTask::class)
+		) {
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
-
-			$bgtask = new $task_class($details);
-
-			$success = $bgtask->execute();
 		}
 		// Uh-oh...
 		else {
@@ -590,11 +587,24 @@ class TaskRunner
 			return true;
 		}
 
+		$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
+
+		$bgtask = new $task_class($details);
+
+		if (!$bgtask->canExecute()) {
+			return true;
+		}
+
+		$success = $bgtask->execute();
+
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+		if (is_subclass_of($bgtask, ScheduledTask::class)) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
+
+		// Trigger the destructor now.
+		unset($bgtask);
 
 		return $success;
 	}

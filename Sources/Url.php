@@ -51,53 +51,53 @@ class Url implements \Stringable
 	public ?string $scheme = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The host component of the URL.
 	 */
-	public string $host;
+	public ?string $host = null;
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * The port component of the URL.
 	 */
-	public int $port;
+	public ?int $port = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The user component of the URL.
 	 */
-	public string $user;
+	public ?string $user = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The password component of the URL.
 	 */
-	public string $pass;
+	public ?string $pass = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The path component of the URL.
 	 */
-	public string $path;
+	public ?string $path = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The query component of the URL.
 	 */
-	public string $query;
+	public ?string $query = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The fragment component of the URL.
 	 */
-	public string $fragment;
+	public ?string $fragment = null;
 
 	/**************************
 	 * Public static properties
@@ -222,7 +222,7 @@ class Url implements \Stringable
 		}
 
 		if (!empty($this->host)) {
-			if (!function_exists('idn_to_ascii')) {
+			if (!\function_exists('idn_to_ascii')) {
 				require_once Config::$sourcedir . '/Subs-Compat.php';
 			}
 
@@ -236,7 +236,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		// Encode any disallowed characters in the rest of the URL
 		$unescaped = [
@@ -274,7 +274,7 @@ class Url implements \Stringable
 		}
 
 		if (!empty($this->host)) {
-			if (!function_exists('idn_to_utf8')) {
+			if (!\function_exists('idn_to_utf8')) {
 				require_once Config::$sourcedir . '/Subs-Compat.php';
 			}
 
@@ -287,7 +287,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		// Decode the rest of the URL, but preserve escaped URL syntax characters.
 		$double_escaped = [
@@ -334,7 +334,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		$this->url = $before_host . $normalized_host . $after_host;
 
@@ -437,7 +437,7 @@ class Url implements \Stringable
 
 			// Set the new value, if any.
 			if (isset($parsed[$prop])) {
-				$this->{$prop} = $parsed[$prop] = is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
+				$this->{$prop} = $parsed[$prop] = \is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
 			}
 		}
 
@@ -523,7 +523,7 @@ class Url implements \Stringable
 	public function hasSSL(): bool
 	{
 		// This check won't work without OpenSSL
-		if (!extension_loaded('openssl')) {
+		if (!\extension_loaded('openssl')) {
 			return true;
 		}
 
@@ -603,7 +603,7 @@ class Url implements \Stringable
 	 */
 	public function isScheme(string|array $scheme): bool
 	{
-		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $scheme));
+		return !empty($this->scheme) && \in_array($this->scheme, array_map('strval', (array) $scheme));
 	}
 
 	/**
@@ -707,12 +707,12 @@ class Url implements \Stringable
 				function ($line) {
 					$line = trim($line);
 
-					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
+					return !(empty($line) || \strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
 				},
 			);
 
 			// Convert Punycode to Unicode
-			if (!function_exists('idn_to_utf8')) {
+			if (!\function_exists('idn_to_utf8')) {
 				require_once Config::$sourcedir . '/Subs-Compat.php';
 			}
 

@@ -26,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -58,8 +59,13 @@ class Search implements ActionInterface, Routable
 	public function execute(): void
 	{
 		// Is the load average too high to allow searching just now?
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
+		}
+
+		// You cannot search with cookies disabled when captcha is required for guest searches
+		if (empty($_COOKIE) && !empty(Config::$modSettings['search_enable_captcha'])) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
 		}
 
 		// Don't load this in XML mode.
