@@ -60,7 +60,6 @@ $txt['current_time'] = 'Current forum time';
 
 
 $txt['language'] = 'Language';
-$txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
 $txt['invalid_registration'] = 'Invalid date registered value. Valid example: {example}';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
