@@ -180,7 +180,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			'check',
 			self::CLASS_KEY . '_cachedir',
 			'subtext' => Lang::getTxt(self::CLASS_KEY . '_wal_subtext', file: 'ManageSettings'),
-	];
+		];
 
 		if (!isset(Utils::$context['settings_post_javascript'])) {
 			Utils::$context['settings_post_javascript'] = '';
