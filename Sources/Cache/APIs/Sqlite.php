@@ -33,6 +33,12 @@ if (!\defined('SMF')) {
  */
 class Sqlite extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	public const CLASS_KEY = 'cache_sqlite';
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -46,14 +52,6 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 * @var SQLite3
 	 */
 	private $cacheDB = null;
-
-	/**
-	 * Support WAL
-	 *
-	 * @link https://www.sqlite.org/wal.html
-	 * @var bool
-	 */
-	private $wal = false;
 
 	/****************
 	 * Public methods
@@ -76,7 +74,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
 
-		if ($this->wal) {
+		// Its a WALuigi!
+		if (!empty(Config::$cache_sqlite_wal)) {
 			$this->cacheDB->exec('PRAGMA journal_mode = wal;');
 		}
 
@@ -165,15 +164,23 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = Lang::getTxt('cache_' . $class_name_txt_key . '_settings', file: 'ManageSettings');
+		$config_vars[] = Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings');
 		$config_vars[] = [
 			'cachedir_' . $class_name_txt_key,
 			Lang::getTxt('cachedir_' . $class_name_txt_key, file: 'ManageSettings'),
 			'file',
 			'text',
 			36,
-			'cache_' . $class_name_txt_key . '_cachedir',
+			self::CLASS_KEY . '_cachedir',
 		];
+		$config_vars[] = [
+			self::CLASS_KEY . '_wal',
+			Lang::getTxt('cache_sqlite_wal', file: 'ManageSettings'),
+			'file',
+			'check',
+			self::CLASS_KEY . '_cachedir',
+			'subtext' => Lang::getTxt(self::CLASS_KEY . '_wal_subtext', file: 'ManageSettings'),
+	];
 
 		if (!isset(Utils::$context['settings_post_javascript'])) {
 			Utils::$context['settings_post_javascript'] = '';
@@ -197,23 +204,13 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		// If it's invalid, use SMF's.
 		if (!isset($dir) || !is_writable($dir)) {
-			// Its a WALuigi!
-			if (
-				isset(Config::$cachedir_sqlite)
-				&& str_starts_with(Config::$cachedir_sqlite, 'wal:')
-				&& is_writable($cachedir = substr(Config::$cachedir_sqlite, 4))
-			) {
-				$this->wal = true;
-				$this->cachedir = $cachedir;
-			} else {
-				if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite)) {
-					Config::$cachedir_sqlite = Config::$cachedir;
+			if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite)) {
+				Config::$cachedir_sqlite = Config::$cachedir;
 
-					Config::updateSettingsFile(['cachedir_sqlite' => Config::$cachedir_sqlite]);
-				}
-
-				$this->cachedir = Config::$cachedir_sqlite;
+				Config::updateSettingsFile(['cachedir_sqlite' => Config::$cachedir_sqlite]);
 			}
+
+			$this->cachedir = Config::$cachedir_sqlite;
 		} else {
 			$this->cachedir = $dir;
 		}
