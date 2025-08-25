@@ -263,18 +263,29 @@ class BoardIndex implements ActionInterface, Routable
 		return [
 			'data' => $this->getLastPosts($number_posts),
 			'expires' => time() + 60,
-			'update_callback' => function (array $cache_block, array &$params) {
-				foreach ($cache_block['data'] as $k => $post) {
-					$cache_block['data'][$k]['time'] = Time::create('@' . $post['raw_timestamp'])->format();
-					$cache_block['data'][$k]['timestamp'] = $post['raw_timestamp'];
-				}
-			},
+			'update_callback' => self::class . '::cache_getLastPostCallback',
 		];
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Processes the data from cache_getLastPosts
+	 *
+	 * @param array $cache_block
+	 * @param array &$params
+	 */
+	public static function cache_getLastPostCallback(array &$cache_block, array &$params): void
+	{
+		foreach ($cache_block['data'] as $k => $post) {
+			$cache_block['data'][$k]['time'] = Time::create('@' . $post['raw_timestamp'])->format();
+			$cache_block['data'][$k]['timestamp'] = $post['raw_timestamp'];
+		}
+	}
+
+	
 
 	/**
 	 * Fetches a list of boards and (optional) categories including
