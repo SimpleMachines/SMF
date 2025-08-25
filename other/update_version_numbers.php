@@ -90,7 +90,7 @@ else {
 $year = date_format(date_create(), 'Y');
 
 // These need to be updated for every new version, even if they have not otherwise changed
-$always_update = ['index.php', 'cron.php', 'proxy.php', 'SSI.php', 'other/install.php', 'other/upgrade.php', 'other/upgrade-helper.php', 'other/Settings.php', 'other/Settings_bak.php'];
+$always_update = ['index.php', 'cron.php', 'proxy.php', 'SSI.php', 'other/install.php', 'other/upgrade.php', 'other/Settings.php', 'other/Settings_bak.php'];
 
 // Checkout a new branch to work in.
 $new_branch = 'update_version_numbers_to_' . preg_replace('/\s+/', '-', strtolower($new_version));
