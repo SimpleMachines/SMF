@@ -551,6 +551,15 @@ function submitThisOnce(oControl)
 
 	return !smf_formSubmitted;
 }
+function reActivateThis(oControl)
+{
+	// oControl might also be a form.
+	var oForm = 'form' in oControl ? oControl.form : oControl;
+
+	var aTextareas = oForm.getElementsByTagName('textarea');
+	for (var i = 0, n = aTextareas.length; i < n; i++)
+		aTextareas[i].readOnly = false;
+}
 
 // Deprecated, as innerHTML is supported everywhere.
 function setInnerHTML(oElement, sToValue)
