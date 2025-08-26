@@ -46,13 +46,15 @@ class EditHistory extends MigrationBase
 
 		if (!isset($existing_structure['columns']['edit_history'])) {
 			$table->addColumn($table->columns['edit_history'], 'ignore');
+			$this->handleTimeout();
 		}
 
 		// Populate edit_history.
 		$request = Db::$db->query(
 			'SELECT id_msg, body, modified_time, modified_name, modified_reason, edit_history
 			FROM {db_prefix}messages
-			WHERE id_msg > {int:start}',
+			WHERE id_msg > {int:start}
+			ORDER BY id_msg ASC',
 			[
 				'start' => Maintenance::getCurrentStart(),
 			],

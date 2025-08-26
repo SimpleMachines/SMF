@@ -16,10 +16,12 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class SearchResultsPrimaryKey extends MigrationBase
 {
+	private static array $columns = ['id_search', 'id_topic', 'id_msg'];
 	/*******************
 	 * Public properties
 	 *******************/
@@ -36,17 +38,27 @@ class SearchResultsPrimaryKey extends MigrationBase
 	/**
 	 *
 	 */
+	public function isCandidate(): bool
+	{
+		$table = new Schema\v3_0\LogSearchResults();
+		$existing_structure = $table->getCurrentStructure();
+
+		$idx = $existing_structure['indexes']['primary'] ?? null;
+	
+		return $idx == null || array_intersect($idx['columns'], self::$columns) !== [];
+	}
+
+	/**
+	 *
+	 */
 	public function execute(): bool
 	{
-		Db::$db->query(
-			'ALTER TABLE {db_prefix}log_search_results DROP PRIMARY KEY',
-			[],
-		);
+		$table = new Schema\v3_0\LogSearchResults();
+		Db::$db->remove_index('{db_prefix}' . $table->name, 'primary');
 
-		Db::$db->query(
-			'ALTER TABLE {db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg)',
-			[],
-		);
+		$this->handleTimeout();
+
+		Db::$db->add_index('{db_prefix}' . $table->name, ['type' => 'primary', 'columns' => self::$columns]);
 
 		return true;
 	}
