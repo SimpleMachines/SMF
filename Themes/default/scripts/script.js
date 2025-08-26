@@ -22,85 +22,138 @@ var is_android = ua.indexOf('android') != -1;
 var ajax_indicator_ele = null;
 
 // Get a response from the server.
-function getServerResponse(sUrl, funcCallback, sType, sDataType)
-{
+function getServerResponse(sUrl, funcCallback, sType = 'GET', sDataType = 'json') {
 	var oCaller = this;
 
-	return oMyDoc = $.ajax({
-		type: sType,
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		cache: false,
-		dataType: sDataType,
-		success: function(response) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, response);
-			}
-		},
+	return smc_Request.fetch(sUrl, {
+		method: sType,
+		cache: 'no-cache'
+	})
+	.then(response => {
+		if (sDataType === 'json') return response.json();
+
+		if (sDataType === 'text') return response.text();
+
+		if (sDataType === 'blob') return response.blob();
+
+		if (sDataType === 'arrayBuffer') return response.arrayBuffer();
+
+		return response;
+	})
+	.then(data => {
+		if (typeof funcCallback !== 'undefined') {
+			funcCallback.call(oCaller, data);
+		}
+
+		return data;
+	})
+	.catch(error => {
+		if (typeof funcCallback !== 'undefined') {
+			funcCallback.call(oCaller, false);
+		}
+
+		return Promise.reject(error);
 	});
+}
+
+class smc_Request {
+	static fetch(sUrl, oOptions, iMilliseconds) {
+		let timeout;
+		let options = oOptions || {};
+
+		if (iMilliseconds) {
+			const controller = new AbortController();
+			options.signal = controller.signal;
+			timeout = setTimeout(() => controller.abort(), iMilliseconds);
+		}
+
+		if (typeof allow_xhjr_credentials !== "undefined" && allow_xhjr_credentials) {
+			options.credentials = 'include';
+		}
+
+		if (options.headers) {
+			if (options.headers instanceof Headers) {
+				options.headers.set("X-SMF-AJAX", 1);
+			} else {
+				options.headers["X-SMF-AJAX"] = 1;
+			}
+		} else {
+			options.headers = {
+				"X-SMF-AJAX": 1
+			};
+		}
+
+		const promise = fetch(sUrl, options)
+			.then(res => res.ok ? res : Promise.reject(res))
+			.catch(err => Promise.reject(new Error(`Network request failed: ${err.message}`)));
+
+		if (iMilliseconds) {
+			return promise.finally(() => timeout && clearTimeout(timeout));
+		}
+
+		return promise;
+	}
+
+	static fetchXML(sUrl, oOptions, iMilliseconds) {
+		return this.fetch(sUrl, oOptions, iMilliseconds)
+			.then(res => res.text())
+			.then(str => new DOMParser().parseFromString(str, "text/xml"));
+	}
 }
 
 // Load an XML document.
-function getXMLDocument(sUrl, funcCallback)
-{
+function getXMLDocument(sUrl, funcCallback, iMilliseconds) {
 	var oCaller = this;
+	const promise = smc_Request.fetchXML(sUrl, null, iMilliseconds);
 
-	return $.ajax({
-		type: 'GET',
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		cache: false,
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
-	});
+	if (funcCallback) {
+		return promise
+			.then(data => {
+				funcCallback.call(oCaller, data);
+				return data;
+			})
+			.catch(err => {
+				funcCallback.call(oCaller, false);
+				return Promise.reject(err);
+			});
+	}
+
+	return promise;
 }
 
 // Send a post form to the server.
-function sendXMLDocument(sUrl, sContent, funcCallback)
-{
+function sendXMLDocument(sUrl, sContent, funcCallback) {
 	var oCaller = this;
-	var oSendDoc = $.ajax({
-		type: 'POST',
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		data: sContent,
-		beforeSend: function(xhr) {
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		},
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.error(jqXHR.responseText);
-		}
+
+	const headers = {};
+	if (typeof sContent === 'string' || sContent instanceof URLSearchParams) {
+		headers['Content-Type'] = 'application/x-www-form-urlencoded';
+	} else if (sContent instanceof Blob) {
+		headers['Content-Type'] = sContent.type || 'application/octet-stream';
+	} else if (!(sContent instanceof FormData)) {
+		headers['Content-Type'] = 'application/json'; // Default to JSON
+		sContent = JSON.stringify(sContent); // Convert object to JSON string
+	}
+
+	const promise = smc_Request.fetchXML(sUrl, {
+		method: 'POST',
+		headers,
+		body: sContent
 	});
 
-	return true;
+	if (funcCallback) {
+		return promise
+			.then(data => {
+				funcCallback.call(oCaller, data);
+				return data;
+			})
+			.catch(err => {
+				funcCallback.call(oCaller, false);
+				return Promise.reject(err);
+			});
+	}
+
+	return promise;
 }
 
 // Convert a string to an 8 bit representation (like in PHP).
@@ -196,76 +249,65 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
-	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
-	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
+	const sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
+	sHeader = sHeader || help_popup_heading_text;
 
-	var containerOptions;
-	if (typeof(sIcon) == 'string' && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon};
-	else
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (typeof(sIcon) != 'string' ? 'help' : sIcon)};
+	let containerOptions;
+	if (sIcon && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null) {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon };
+	} else {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help') };
+	}
 
 	// Create the div that we are going to load
-	var oContainer = new smc_Popup(containerOptions);
-	var oPopup_body = $('#' + oContainer.popup_id).find('.popup_content');
+	const oContainer = new smc_Popup(containerOptions);
+	const oPopup_body = oContainer.cover.querySelector('.popup_content');
 
 	// Load the help page content (we just want the text to show)
-	$.ajax({
-		url: desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax',
+	fetch(desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax', {
+		method: 'GET',
 		headers: {
-			'X-SMF-AJAX': 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		type: "GET",
-		dataType: "html",
-		beforeSend: function () {
-		},
-		success: function (data, textStatus, xhr) {
-			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
-			oPopup_body.html(help_content);
+			'X-SMF-AJAX': '1',
 
-			if (oPopup_body.find('*:not(:has(*)):visible').text().length > 1200) {
-				$('#' + oContainer.popup_id).find('.popup_window').addClass('large');
-			}
+			// @fixme This is checked for in SMF\Actions\Login2::checkAjax().
+			"X-Requested-With": "XMLHttpRequest"
 		},
-		error: function (xhr, textStatus, errorThrown) {
-			oPopup_body.html(textStatus);
-		},
-		statusCode: {
-			403: function(res, status, xhr) {
-				let errorMsg = res.getResponseHeader('x-smf-errormsg');
-				oPopup_body.html(errorMsg ?? banned_text);
-			},
-			500: function() {
-				oPopup_body.html('500 Internal Server Error');
-			}
-		}
-	});
+		credentials: typeof allow_xhjr_credentials !== 'undefined' ? 'include' : 'omit'
+	})
+		.then((res, rej) => res.ok ? res.text() : rej(res))
+		.then(data => {
+			oPopup_body.innerHTML = data;
+		})
+		.catch(error => {
+			const errorMsg = error.headers.get('x-smf-errormsg');
+			oPopup_body.innerHTML = errorMsg || error.message || banned_text;
+		});
+
 	return false;
 }
 
 // Create the popup menus for the top level/user menu area.
 function smc_PopupMenu(oOptions)
 {
-	this.opt = (typeof oOptions == 'object') ? oOptions : {};
+	this.opt = oOptions || {};
 	this.opt.menus = {};
 }
 
 smc_PopupMenu.prototype.add = function (sItem, sUrl)
 {
-	var $menu = $('#' + sItem + '_menu'), $item = $('#' + sItem + '_menu_top');
-	if ($item.length == 0)
+	const menu = document.getElementById(sItem + '_menu');
+	const item = document.getElementById(sItem + '_menu_top');
+
+	if (!item) {
 		return;
+	}
 
-	this.opt.menus[sItem] = {open: false, loaded: false, sUrl: sUrl, itemObj: $item, menuObj: $menu };
+	this.opt.menus[sItem] = { open: false, loaded: false, sUrl: sUrl, itemObj: item, menuObj: menu };
 
-	$item.click({obj: this}, function (e) {
+	item.addEventListener('click', function(e) {
 		e.preventDefault();
-
-		e.data.obj.toggle(sItem);
-	});
+		this.toggle(sItem);
+	}.bind(this));
 }
 
 smc_PopupMenu.prototype.toggle = function (sItem)
@@ -280,57 +322,50 @@ smc_PopupMenu.prototype.open = function (sItem)
 {
 	this.closeAll();
 
-	if (!this.opt.menus[sItem].loaded)
-	{
-		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
+	if (!this.opt.menus[sItem].loaded) {
+		this.opt.menus[sItem].menuObj.innerHTML = '<div class="loading">' + (ajax_notification_text || '') + '</div>';
 
-		$.ajax({
-			url: this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax',
+		fetch(this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax', {
+			method: "GET",
 			headers: {
-				'X-SMF-AJAX': 1
+				'X-SMF-AJAX': 1,
 			},
-			xhrFields: {
-				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-			},
-			type: "GET",
-			dataType: "html",
-			beforeSend: function () {
-			},
-			context: this.opt.menus[sItem].menuObj,
-			success: function (data, textStatus, xhr) {
-				this.html(data);
-
-				if ($(this).hasClass('scrollable'))
-					$(this).customScrollbar({
-						skin: "default-skin",
-						hScroll: false,
-						updateOnWindowResize: true
-					});
+			credentials: typeof allow_xhjr_credentials !== "undefined" ? 'include' : 'same-origin',
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
 			}
+			return response.text();
+		})
+		.then(data => {
+			this.opt.menus[sItem].menuObj.innerHTML = data;
+			this.opt.menus[sItem].loaded = true;
 		});
-
-		this.opt.menus[sItem].loaded = true;
 	}
 
-	this.opt.menus[sItem].menuObj.addClass('visible');
-	this.opt.menus[sItem].itemObj.addClass('open');
+	this.opt.menus[sItem].menuObj.classList.add('visible');
+	this.opt.menus[sItem].itemObj.classList.add('open');
 	this.opt.menus[sItem].open = true;
 
 	// Now set up closing the menu if we click off.
-	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
+	this.opt.menus[sItem].handleClickOutside = function(e) {
+		if (e.target.closest('#' + this.opt.menus[sItem].itemObj.id) || e.target.closest('#' + this.opt.menus[sItem].menuObj.id)) {
 			return;
-		e.data.obj.closeAll();
-		$(document).off('click.menu');
-	});
+		}
+
+		this.closeAll();
+	}.bind(this);
+
+	document.addEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.close = function (sItem)
 {
-	this.opt.menus[sItem].menuObj.removeClass('visible');
-	this.opt.menus[sItem].itemObj.removeClass('open');
+	this.opt.menus[sItem].menuObj.classList.remove('visible');
+	this.opt.menus[sItem].itemObj.classList.remove('open');
 	this.opt.menus[sItem].open = false;
-	$(document).off('click.menu');
+	document.removeEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.closeAll = function ()

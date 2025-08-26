@@ -436,7 +436,7 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
 
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", formData, this.onModifyDone);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", new URLSearchParams(formData).toString(), this.onModifyDone);
 
 	return false;
 }
