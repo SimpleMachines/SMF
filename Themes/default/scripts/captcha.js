@@ -15,18 +15,12 @@ function smfCaptcha(imageURL, uniqueID, useLibrary, letterCount)
 		// Is there anything to cycle images with - if so attach the refresh image function?
 		var cycleHandle = document.getElementById('visual_verification' + uniqueID + '_refresh');
 		if (cycleHandle)
-		{
-			createEventListener(cycleHandle);
 			cycleHandle.addEventListener('click', refreshImages, false);
-		}
 
 		// Maybe a voice is here to spread light?
 		var soundHandle = document.getElementById('visual_verification' + uniqueID + '_sound');
 		if (soundHandle)
-		{
-			createEventListener(soundHandle);
 			soundHandle.addEventListener('click', playSound, false);
-		}
 	}
 
 	// Change the images.
