@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -211,7 +211,12 @@ class Menu implements \ArrayAccess
 	 * The tab buttons typically (but not always) correspond to the menu items
 	 * in the current subsection.
 	 */
-	public array $tab_data = [];
+	public array $tab_data = [
+		'title' => null,
+		'description' => null,
+		'icon_class' => null,
+		'tabs' => [],
+	];
 
 	/**************************
 	 * Public static properties

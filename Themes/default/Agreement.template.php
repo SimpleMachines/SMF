@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -79,11 +79,19 @@ function template_main()
 		</div>';
 	}
 
-	if (!empty(Utils::$context['accept_doc']))
+	if (!empty(Utils::$context['accept_doc'])) {
 		echo '
-		<div id="confirm_buttons">
+		<div id="confirm_buttons">';
+
+		if (!empty(Utils::$context['document_has_visible_changes'])) {
+			echo '
+			<a class="button" href="', Config::$scripturl, '?action=agreement', (!isset($_GET['diff']) ? ';diff' : ''), '">', Lang::getTxt((!isset($_GET['diff']) ? 'diff' : 'nodiff'), file: 'Agreement'), '</a>';
+		}
+
+		echo '
 			<input type="submit" value="', Lang::getTxt('agree', file: 'Agreement'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		</div>
 	</form>';
+	}
 }

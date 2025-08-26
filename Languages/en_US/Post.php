@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Post
+// Version: 3.0 Alpha 4; Post
 
 $txt['post_reply'] = 'Post reply';
 $txt['subject_not_filled'] = 'The subject field was not filled out. It is required.';

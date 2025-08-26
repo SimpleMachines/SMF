@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -2210,7 +2210,6 @@ class Theme
 			'smf_smiley_sets_default' => '"' . Config::$modSettings['smiley_sets_default'] . '"',
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
-			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
 			'smf_charset' => '"UTF-8"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',

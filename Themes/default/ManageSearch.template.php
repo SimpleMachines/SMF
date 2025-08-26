@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -343,7 +343,7 @@ function template_create_index_progress()
 			document.forms.autoSubmit.b.value = "', Lang::getTxt('search_create_index_continue', file: 'Search'), ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 

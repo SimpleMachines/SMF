@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\PackageManager;
@@ -560,7 +560,18 @@ class PackageUtils
 				return 'package_get_error_is_theme';
 			}
 
-			return 'package_get_error_is_zero';
+			if (
+				is_file(Config::$packagesdir . '/' . $gzfilename)
+				&& filesize(Config::$packagesdir . '/' . $gzfilename) === 0
+			) {
+				return 'package_get_error_is_zero';
+			}
+
+			if (!file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
+				return 'package_get_error_missing_xml';
+			}
+
+			return 'package_get_error_packageinfo_corrupt';
 		}
 
 		// Parse package-info.xml into an XmlArray.

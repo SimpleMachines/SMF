@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -1352,7 +1352,7 @@ class Permission implements \ArrayAccess
 			self::$unassignable = array_unique(self::$unassignable);
 
 			// Call the deprecated integrate_load_illegal_permissions hook.
-			self::integrateLoadIllegalPermissions(self::$unassignable);
+			self::integrateLoadIllegalPermissions();
 		}
 
 		return self::$unassignable;
@@ -1396,7 +1396,7 @@ class Permission implements \ArrayAccess
 			self::$non_guest_permissions = array_unique(self::$non_guest_permissions);
 
 			// Call the deprecated integrate_load_illegal_guest_permissions hook.
-			self::$non_guest_permissions = self::integrateLoadIllegalGuestPermissions(self::$non_guest_permissions);
+			self::integrateLoadIllegalGuestPermissions();
 		}
 
 		return self::$non_guest_permissions;

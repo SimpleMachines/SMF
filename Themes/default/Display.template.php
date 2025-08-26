@@ -7,12 +7,13 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\User;
 
@@ -293,7 +294,6 @@ function template_main()
 	{
 		echo '
 			var oInTopicModeration = new InTopicModeration({
-				sSelf: \'oInTopicModeration\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -319,7 +319,6 @@ function template_main()
 		// Add it to the mobile button strip as well
 		echo '
 			var oInTopicModerationMobile = new InTopicModeration({
-				sSelf: \'oInTopicModerationMobile\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -667,14 +666,45 @@ function template_single_post($message)
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
-									<span class="smalltext modified floatright', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
+									<' . (!empty(Config::$modSettings['show_modify']) && !empty($message['edit_history']) ? 'a href="" onclick="return false;"' : 'span') . ' class="smalltext modified floatright', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['last_edit_text']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
 
-	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']))
+	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['last_edit_text']))
 		echo
 										$message['modified']['last_edit_text'];
 
 	echo '
-									</span>
+									</' . (!empty(Config::$modSettings['show_modify']) && !empty($message['edit_history']) ? 'a' : 'span') . '>';
+
+	if (!empty(Config::$modSettings['show_modify']) && !empty($message['edit_history'])) {
+		echo '
+									<div id="edit_history_list_' . $message['id'] . '" class="edit_history_list">
+										<div class="edit_history_count">
+											' . Lang::getTxt('edit_history_count', [count($message['edit_history'])]) . '
+										</div>
+										<ol>';
+
+		foreach ($message['edit_history'] as $diff) {
+			$last_edit_text = Lang::getTxt(
+				'edit_history_linktext' . ($diff->reason !== '' ? '_reason' : ''),
+				[
+					'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+					'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
+					'reason' => $diff->reason,
+				],
+			);
+
+			echo '
+											<li>
+												<a href="' . Config::$scripturl . '?action=edithistory;msg=' . $message['id'] . ';hash=' . $diff->label1 . '" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript($last_edit_text) . ', \'history\');">' . $last_edit_text . '</a>
+											</li>';
+		}
+
+		echo '
+										</ol>
+									</div>';
+	}
+
+	echo '
 								</div>
 								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
 							</div><!-- .keyinfo -->';
@@ -992,7 +1022,6 @@ function template_quickreply()
 		echo '
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
 				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '

@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\BrowserDetector;
@@ -633,8 +633,33 @@ function template_edit_agreement()
 			<div class="windowbg" id="registration_agreement">
 				<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8">
 					<textarea cols="70" rows="20" name="agreement" id="agreement">', Utils::$context['agreement'], '</textarea>
-					<div class="information">
-						<span>', Utils::$context['agreement_info'], '</span>
+					<div class="information">';
+
+	if (empty(Utils::$context['agreement_history'])) {
+		echo '
+						<span>', Utils::$context['agreement_info'], '</span>';
+	} else {
+		echo '
+						<a href="" onclick="return false;" class="modified">', Utils::$context['agreement_info'], '</a>
+						<div id="edit_history_list_' . Utils::$context['current_agreement'] . '" class="edit_history_list">
+							<div class="edit_history_count">
+								' . Lang::getTxt('edit_history_count', [count(Utils::$context['agreement_history'])], file: 'Agreement') . '
+							</div>
+							<ol>';
+
+		foreach (Utils::$context['agreement_history'] as $hash => $linktext) {
+			echo '
+								<li>
+									<a href="' . Config::$scripturl . '?action=agreement;sa=history;doc=0;lang=' . Utils::$context['current_agreement'] . ';hash=' . $hash . '" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript($linktext) . ', \'history\');">' . $linktext . '</a>
+								</li>';
+		}
+
+		echo '
+							</ol>
+						</div>';
+	}
+
+	echo '
 					</div>
 					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
 					<input type="hidden" name="agree_lang" value="', Utils::$context['current_agreement'], '">
@@ -749,7 +774,34 @@ function template_edit_privacy_policy()
 	// Show the actual policy in an oversized text box.
 	echo '
 			<textarea cols="70" rows="20" name="policy" id="agreement">', Utils::$context['privacy_policy'], '</textarea>
-				<div class="information">', Utils::$context['privacy_policy_info'], '</div>
+				<div class="information">';
+
+	if (empty(Utils::$context['privacy_policy_history'])) {
+		echo '
+					<span>', Utils::$context['privacy_policy_info'], '</span>';
+	} else {
+		echo '
+					<a href="" onclick="return false;" class="modified">', Utils::$context['privacy_policy_info'], '</a>
+					<div id="edit_history_list_' . Utils::$context['current_policy_lang'] . '" class="edit_history_list">
+						<div class="edit_history_count">
+							' . Lang::getTxt('edit_history_count', [count(Utils::$context['privacy_policy_history'])], file: 'Agreement') . '
+						</div>
+						<ol>';
+
+		foreach (Utils::$context['privacy_policy_history'] as $hash => $linktext) {
+			echo '
+							<li>
+								<a href="' . Config::$scripturl . '?action=agreement;sa=history;doc=1;lang=' . Utils::$context['current_policy_lang'] . ';hash=' . $hash . '" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript($linktext) . ', \'history\');">' . $linktext . '</a>
+							</li>';
+		}
+
+		echo '
+						</ol>
+					</div>';
+	}
+
+	echo '
+				</div>
 				<div class="righttext">
 					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetPolicyConfirm()" />
 					<input type="hidden" name="policy_lang" value="', Utils::$context['current_policy_lang'], '" />

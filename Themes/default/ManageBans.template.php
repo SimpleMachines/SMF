@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -209,24 +209,14 @@ function template_ban_edit()
 	if (Utils::$context['ban']['is_new'] && empty($_REQUEST['u']))
 		echo '
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'user\',
 			sControlId: \'user\',
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
-			bItemList: false
 		});
 
-		function onUpdateName(oAutoSuggest)
-		{
-			document.getElementById(\'user_check\').checked = true;
-			return true;
-		}
-		oAddMemberSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateName\');';
-
-	echo '
 		function confirmBan(aForm)
 		{
 			if (aForm.ban_name.value == \'\')
@@ -316,14 +306,12 @@ function template_ban_edit_trigger()
 	</div><!-- #manage_bans -->
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'username\',
 			sControlId: \'user\',
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
-			bItemList: false
 		});
 
 		function onUpdateName(oAutoSuggest)

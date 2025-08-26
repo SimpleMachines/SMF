@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -166,6 +166,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\ConvertToInnoDb::class,
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,
+			Migration\v3_0\EditHistory::class,
 			Migration\v3_0\MessageVersion::class,
 			Migration\v3_0\PackageVersion::class,
 			Migration\v3_0\RecurringEvents::class,
@@ -1059,10 +1060,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			);
 		}
 
-		$this->performSubsteps($substeps);
-
-		// Make sure we move on!
-		return true;
+		return $this->performSubsteps($substeps);
 	}
 
 	/**
@@ -1104,7 +1102,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		$this->performSubsteps($substeps);
+		if (!$this->performSubsteps($substeps)) {
+			return false;
+		}
 
 		return Sapi::isCLI();
 	}
@@ -1140,7 +1140,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		$this->performSubsteps($substeps);
+		if (!$this->performSubsteps($substeps)) {
+			return false;
+		}
 
 		return Sapi::isCLI();
 	}
@@ -1577,8 +1579,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Performs a series of substeps.
 	 *
 	 * @param array $substeps All substep objects that we are running.
+	 * @return bool True if we are done, false if we need to timeout and wait.
 	 */
-	private function performSubsteps(array $substeps): void
+	private function performSubsteps(array $substeps): bool
 	{
 		Maintenance::$total_substeps = \count($substeps);
 
@@ -1587,7 +1590,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance::$context['continue'] = true;
 			Maintenance::$context['current_substep'] = $substeps[Maintenance::getCurrentSubStep()]->name ?? '';
 
-			return;
+			return false;
 		}
 
 		// Load up the current user safely.
@@ -1611,7 +1614,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				],
 			]);
 
-			return;
+			return true;
 		}
 
 		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
@@ -1666,7 +1669,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					],
 				]);
 
-				return;
+				return false;
 			}
 
 			try {
@@ -1684,7 +1687,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						],
 					]);
 
-					return;
+					return false;
 				}
 			} catch (\Throwable $e) {
 				$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
@@ -1703,7 +1706,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					],
 				]);
 
-				return;
+				return false;
 			}
 
 			$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
@@ -1727,5 +1730,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				]);
 			}
 		}
+
+		return true;
 	}
 }

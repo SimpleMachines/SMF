@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -245,6 +245,7 @@ class JavaScriptModify implements ActionInterface, Routable
 					|| User::$me->id != $row['id_member']
 				) {
 					$msgOptions['modify_time'] = time();
+					$msgOptions['modify_id'] = User::$me->id;
 					$msgOptions['modify_name'] = User::$me->name;
 					$msgOptions['modify_reason'] = $_POST['modify_reason'] ?? '';
 				}
