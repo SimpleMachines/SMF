@@ -1652,11 +1652,13 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'php', {
 		tags: {
-			span: {
-				'class': 'phpcode'
+			code: {
+				class: 'phpcode'
 			}
 		},
+		allowsEmpty: true,
 		isInline: true,
+		allowedChildren: ['#', '#newline'],
 		format: '[php]{0}[/php]',
 		html: function (element, attrs, content) {
 			// If the content contains multiple lines, format as a code block.
@@ -1684,23 +1686,41 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
-			code: null
+			code: null,
+			div: {
+				class: 'codeheader'
+			},
+			pre: {
+				class: 'bbc_code'
+			}
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			var
-				dom = sceditor.dom,
-				attr = dom.attr,
-				title = attr(element, 'data-title'),
-				from = title ?' =' + title : '';
+			let title = element.getAttribute('data-title');
 
-			return '[code' + from + ']' + "\n" + content.replace('&#91;', '[') + "\n" + '[/code]';
+			if (element.className === 'php')
+				return content;
+			else if (element.tagName === 'DIV')
+				return '';
+			else if (element.tagName === 'PRE')
+				return content;
+			else if (element.parentNode.tagName === 'PRE' && !title)
+			{
+				const t = element.parentNode.previousSibling.textContent;
+
+				if (t.indexOf('(') != -1)
+					title = t.replace(/^[^(]+\(/, '').replace(/\)? \[.+/, '');
+			}
+
+			const from = title ? ' =' + title : '';
+
+			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
 		html: function (element, attrs, content) {
 			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>').replace(/^<br[^>]*>/, '').replace(/<br[^>]*>$/, '') + '</code>'
+			return '<pre class="bbc_code"><code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code></pre>';
 		}
 	}
 );
