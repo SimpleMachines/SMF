@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\User;
 use SMF\Utils;
 
@@ -39,7 +40,7 @@ class AlertsPopup implements ActionInterface
 	public function execute(): void
 	{
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];

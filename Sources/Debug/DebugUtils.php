@@ -228,6 +228,14 @@ class DebugUtils
 		return isset(Config::$db_show_debug) && Config::$db_show_debug === true;
 	}
 
+	/**
+	 * Turns off debugging.
+	 */
+	public static function disable(): void
+	{
+		Config::$db_show_debug = false;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/

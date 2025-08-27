@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
@@ -291,7 +292,7 @@ class Like implements ActionInterface, Routable
 
 		// We do not want to output debug information here.
 		if ($this->js) {
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 		}
 	}
 

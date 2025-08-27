@@ -2204,7 +2204,7 @@ class Utils
 		}
 
 		// Don't need extra stuff...
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// Kill anything else.
 		ob_end_clean();

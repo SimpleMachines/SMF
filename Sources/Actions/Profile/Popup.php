@@ -18,6 +18,7 @@ namespace SMF\Actions\Profile;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
@@ -122,7 +123,7 @@ class Popup implements ActionInterface
 		);
 
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];
