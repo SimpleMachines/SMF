@@ -23,14 +23,15 @@ use SMF\Lang;
 use SMF\Utils;
 
 /**
- * This class provides utilities for debugging, including functions for highlighting JSON and SQL strings,
- * and managing debug context entries.
+ * This class provides utilities for debugging, including functions for
+ * highlighting JSON and SQL strings, and managing debug context entries.
  *
  * To add debug context:
  * - Use the `addDebugContext` method.
  * - Parameters:
  *   - $lang_key (string): The language key under which to store the information.
- *   - $value (DebugContextEntry): An instance of DebugContextEntry containing all the necessary data.
+ *   - $value (DebugContextEntry): An instance of DebugContextEntry containing
+ *     all the necessary data.
  *
  * Example:
  * ```php
@@ -40,8 +41,10 @@ use SMF\Utils;
  * To add a debug source:
  * - Use the `addDebugSource` method.
  * - Parameters:
- *   - $lang_key (string): The language key identifying the debug context entry to update.
- *   - $value (string): The value to append to the `source` array of the debug context entry.
+ *   - $lang_key (string): The language key identifying the debug context entry
+ *     to update.
+ *   - $value (string): The value to append to the `source` array of the debug
+ *     context entry.
  *
  * Example:
  * ```php
@@ -162,13 +165,17 @@ class DebugUtils
 	/**
 	 * Appends a value to the source array of a specific debug context entry.
 	 *
-	 * This method is used to dynamically add individual debug information to an existing
-	 * entry in the debug context. **Important:** Ensure that all `addDebugInfo` calls
-	 * are made before setting the final debug context via `addDebugContext`.
+	 * This method is used to dynamically add individual debug information to an
+	 * existing entry in the debug context.
 	 *
-	 * @param string $lang_key The language key identifying the debug context entry to update.
-	 *    This key corresponds to a specific debug entry stored in `self::$debug_context`.
-	 * @param string $value The value to append to the `source` array of the debug context entry.
+	 * **Important:** Ensure that all `addDebugInfo` calls are made before
+	 * setting the final debug context via `addDebugContext`.
+	 *
+	 * @param string $lang_key The language key identifying the debug context
+	 *    entry to update. This key corresponds to a specific debug entry stored
+	 *    in `self::$debug_context`.
+	 * @param string $value The value to append to the `source` array of the
+	 *    debug context entry.
 	 */
 	public static function addDebugSource(string $lang_key, string $value): void
 	{
@@ -178,9 +185,11 @@ class DebugUtils
 	/**
 	 * Adds information to the debug context.
 	 *
-	 * @param string $lang_key The language key under which to store the information.
-	 *    This key corresponds to the language strings used for rendering debug details.
-	 * @param DebugContextEntry $value The debug context entry containing all the necessary data.
+	 * @param string $lang_key The language key under which to store the
+	 *    information. This key corresponds to the language strings used for
+	 *    rendering debug details.
+	 * @param DebugContextEntry $value The debug context entry containing all
+	 *    the necessary data.
 	 */
 	public static function addDebugContext(string $lang_key, DebugContextEntry $value): void
 	{
@@ -196,6 +205,10 @@ class DebugUtils
 			$_SESSION['view_queries'] ??= 0;
 			$files = self::getIncludedFilesInfo();
 			$warnings = self::collectQueryWarnings();
+
+			foreach (self::$logged as $lang_key => $items) {
+				self::$logged[$lang_key] = array_unique(array_merge($items, Utils::$context['debug'][$lang_key] ?? []));
+			}
 
 			self::createDebugContext($files);
 			self::outputDebugInformation($warnings);
@@ -287,22 +300,18 @@ class DebugUtils
 
 		self::addDebugContext('debug_templates', new DebugContextEntry(
 			source: self::$logged['templates'],
-			open: true,
 		));
 
 		self::addDebugContext('debug_subtemplates', new DebugContextEntry(
 			source: self::$logged['sub_templates'],
-			open: true,
 		));
 
 		self::addDebugContext('debug_language_files', new DebugContextEntry(
 			source: self::$logged['language_files'],
-			open: true,
 		));
 
 		self::addDebugContext('debug_stylesheets', new DebugContextEntry(
 			source: self::$logged['sheets'],
-			open: true,
 		));
 
 		self::addDebugContext('debug_hooks', new DebugContextEntry(
@@ -398,21 +407,17 @@ class DebugUtils
 				continue;
 			}
 
-			$source = array_merge(
-				Utils::$context['debug'][$lang_key] ?? [],
-				self::$logged[$lang_key] ?? [],
-				$info->source ?? [],
-			);
-
 			if ($info->extra_before) {
 				echo $info->extra_before;
-			} elseif ($source == [] || ($info->toggle === false)) {
+			} elseif (empty($info->source) || ($info->toggle === false)) {
 				echo '<div>';
 			}
 
-			if ($source != []) {
+			unset($additional_info);
+
+			if (!empty($info->source)) {
 				$additional_info = \sprintf(
-					'%1$s' . implode('%2$s%3$s%1$s', $source) . '%2$s',
+					'%1$s' . implode('%2$s%3$s%1$s', $info->source) . '%2$s',
 					$info->before_source,
 					$info->after_source,
 					$info->glue_sources,
@@ -432,28 +437,27 @@ class DebugUtils
 			echo Lang::getTxt(
 				$lang_key,
 				[
-					'num' => $info->num ?? \count($source),
+					'num' => $info->num ?? \count($info->source ?? []),
 					'additional_info' => $additional_info ?? '',
 				] + ($info->extra_lang_params ?? []),
 			);
 
 			if ($info->extra_after) {
 				echo $info->extra_after;
-			} elseif ($source == [] || ($info->toggle === false)) {
+			} elseif (empty($info->source) || ($info->toggle === false)) {
 				echo '</div>';
 			}
 			echo "\n\t\t";
 		}
 
 		echo '
-		<br>
 		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
-		<br>';
+		<br>
+		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>';
 
 		self::outputQueryDebugInfo();
 
 		echo '
-		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
 	</div></body></html>';
 	}
 
