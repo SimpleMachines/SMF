@@ -204,7 +204,7 @@ function template_main()
 						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 					</div>
 					<div class="info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_block', '">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'data-msg-id="' . $topic['first_post']['id'] . '">';
+						<div ', (!empty($topic['quick_mod']['modify']) ? 'data-msg-id="' . $topic['first_post']['id'] : ''), '">';
 
 			// Now we handle the icons
 			echo '
