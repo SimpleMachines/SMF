@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\WebFetch\WebFetchApi;
 
 /**
@@ -420,8 +421,8 @@ class Theme
 		}
 
 		if ($loaded) {
-			if (!empty(Config::$db_show_debug)) {
-				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
+			if (DebugUtils::isDebugEnabled()) {
+				DebugUtils::addDebugSource('templates', basename($template_dir) . '/' . $template_name . '.template.php');
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -508,8 +509,8 @@ class Theme
 		$template_name = \is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
 
 		// Add the sub-template to the debug context if debugging is enabled.
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['sub_templates'][] = $template_name;
+		if (DebugUtils::isDebugEnabled()) {
+			DebugUtils::addDebugSource('sub_templates', $template_name);
 		}
 
 		// Determine the template function name and any associated parameters.
@@ -1687,12 +1688,12 @@ class Theme
 				}
 			}
 
-			if (!empty(Config::$db_show_debug)) {
+			if (DebugUtils::isDebugEnabled()) {
 				// Try to keep only what's useful.
 				$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
 				foreach (Utils::$context[$css_group . '_files'] as $file) {
-					Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
+					DebugUtils::addDebugSource('sheets', strtr($file['fileUrl'], $repl));
 				}
 			}
 

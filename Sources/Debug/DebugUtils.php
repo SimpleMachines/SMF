@@ -213,10 +213,6 @@ class DebugUtils
 			$files = self::getIncludedFilesInfo();
 			$warnings = self::collectQueryWarnings();
 
-			foreach (self::$logged as $lang_key => $items) {
-				self::$logged[$lang_key] = array_unique(array_merge($items, Utils::$context['debug'][$lang_key] ?? []));
-			}
-
 			self::createDebugContext($files);
 			self::outputDebugInformation($warnings);
 		}
