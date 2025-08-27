@@ -2275,7 +2275,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (!empty(Config::$db_show_debug)) {
+		if (DebugUtils::isDebugEnabled()) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 

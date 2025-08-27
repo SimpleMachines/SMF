@@ -62,7 +62,7 @@ class ViewQuery implements ActionInterface, Routable
 	public function execute(): void
 	{
 		// We should have debug mode enabled, as well as something to display!
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug'])) {
+		if (!DebugUtils::isDebugEnabled() || !isset($_SESSION['debug'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 

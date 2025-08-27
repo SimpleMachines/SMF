@@ -21,6 +21,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\ServerSideIncludes as SSI;
 
 /**
@@ -104,7 +105,7 @@ class ErrorHandler
 			}
 		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Commonly, undefined indexes will occur inside attributes; try to show them anyway!
 			if ($error_level % 255 != E_ERROR) {
 				$temporary = ob_get_contents();
@@ -207,7 +208,7 @@ class ErrorHandler
 		$error_call++;
 
 		// Collect a backtrace
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false) {
+		if (!DebugUtils::isDebugEnabled()) {
 			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.

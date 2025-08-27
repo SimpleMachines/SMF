@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
@@ -261,7 +262,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Get the file and line number this function was called.
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 
@@ -281,7 +282,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$this->last_result = @pg_query($connection, $db_string);
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
