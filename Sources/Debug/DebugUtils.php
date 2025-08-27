@@ -176,10 +176,17 @@ class DebugUtils
 	 *    in `self::$debug_context`.
 	 * @param string $value The value to append to the `source` array of the
 	 *    debug context entry.
+	 * @param ?string $key Optional string key under which to store `$value`
+	 *    inside `self::$logged[$lang_key]`. If not set, a numeric key will be
+	 *    used. Default: null.
 	 */
-	public static function addDebugSource(string $lang_key, string $value): void
+	public static function addDebugSource(string $lang_key, string $value, ?string $key = null): void
 	{
-		self::$logged[$lang_key][] = $value;
+		if (isset($key)) {
+			self::$logged[$lang_key][$key] = $value;
+		} else {
+			self::$logged[$lang_key][] = $value;
+		}
 	}
 
 	/**
