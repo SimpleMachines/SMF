@@ -23,6 +23,7 @@ $finder = (new PhpCsFixer\Finder())
 		'Sources/minify',
 		'Sources/ReCaptcha',
 		'Sources/ZxcvbnPhp',
+		'Sources/Phpseclib',
 		'Themes',
 	])
 	// Skip ssi_example.php.

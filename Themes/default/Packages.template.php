@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\PackageManager\FileSystem\FileSystem;
 use SMF\Theme;
 use SMF\Url;
 use SMF\Utils;
@@ -362,17 +363,17 @@ function template_view_package()
 	}
 
 	// Are we effectively ready to install?
-	if (!Utils::$context['ftp_needed'] && (!empty(Utils::$context['actions']) || !empty(Utils::$context['database_changes'])))
+	if (!Utils::$context['fs_needed'] && (!empty(Utils::$context['actions']) || !empty(Utils::$context['database_changes'])))
 		echo '
 			<div class="righttext padding">
 				<input type="submit" value="', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_now' : 'package_install_now', file: 'Packages'), '" onclick="return ', !empty(Utils::$context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . Lang::getTxt(Utils::$context['uninstalling'] ? 'package_will_fail_popup_uninstall' : 'package_will_fail_popup', file: 'Packages') . '\'))' : 'submitThisOnce(this)', ';" class="button">
 			</div>';
 
-	// If we need ftp information then demand it!
-	elseif (Utils::$context['ftp_needed'])
+	// If we need file system information then demand it!
+	elseif (Utils::$context['fs_needed'])
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('package_ftp_necessary', file: 'Packages'), '</h3>
+				<h3 class="catbg">', Lang::getTxt('package_fs_necessary', file: 'Packages'), '</h3>
 			</div>
 			<div>
 				', template_control_chmod(), '
@@ -380,7 +381,7 @@ function template_view_package()
 
 	echo '
 
-			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">', (isset(Utils::$context['form_sequence_number']) && !Utils::$context['ftp_needed']) ? '
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">', (isset(Utils::$context['form_sequence_number']) && !Utils::$context['fs_needed']) ? '
 			<input type="hidden" name="seqnum" value="' . Utils::$context['form_sequence_number'] . '">' : '', '
 		</form>';
 
@@ -704,10 +705,10 @@ function template_browse()
  */
 function template_servers()
 {
-	if (!empty(Utils::$context['package_ftp']['error']))
+	if (!empty(Utils::$context['package_fs']['error']))
 		echo '
 	<div class="errorbox">
-		<pre>', Utils::$context['package_ftp']['error'], '</pre>
+		<pre>', Utils::$context['package_fs']['error'], '</pre>
 	</div>';
 
 	echo '
@@ -743,39 +744,39 @@ function template_servers()
 	{
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('package_ftp_necessary', file: 'Packages'), '</h3>
+				<h3 class="catbg">', Lang::getTxt('package_fs_necessary', file: 'Packages'), '</h3>
 			</div>
 			<div class="windowbg">
 				<p>
-					', Lang::getTxt('package_ftp_why_download', file: 'Packages'), '
+					', Lang::getTxt('package_fs_why_download', file: 'Packages'), '
 				</p>
 				<form action="', Config::$scripturl, '?action=admin;area=packages;get" method="post" accept-charset="UTF-8">
 					<dl class="settings">
 						<dt>
-							<label for="ftp_server">', Lang::getTxt('package_ftp_server', file: 'Packages'), '</label>
+							<label for="fs_server">', Lang::getTxt('package_fs_server', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['package_ftp']['server'], '">
-							<label for="ftp_port">', Lang::getTxt('package_ftp_port', file: 'Packages'), '</label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['package_ftp']['port'], '">
+							<input type="text" size="30" name="filesystem[server]" id="fs_server" value="', Utils::$context['package_fs']['server'], '">
+							<label for="fs_port">', Lang::getTxt('package_fs_port', file: 'Packages'), '</label>
+							<input type="text" size="3" name="filesystem[port]" id="fs_port" value="', Utils::$context['pack_fs']['port'], '">
 						</dd>
 						<dt>
-							<label for="ftp_username">', Lang::getTxt('package_ftp_username', file: 'Packages'), '</label>
+							<label for="fs_username">', Lang::getTxt('package_fs_username', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', Utils::$context['package_ftp']['username'], '">
+							<input type="text" size="50" name="filesystem[username]" id="fs_username" value="', Utils::$context['pack_fs']['username'], '">
 						</dd>
 						<dt>
-							<label for="ftp_password">', Lang::getTxt('package_ftp_password', file: 'Packages'), '</label>
+							<label for="fs_password">', Lang::getTxt('package_fs_password', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password">
+							<input type="password" size="50" name="filesystem[password]" id="fs_password">
 						</dd>
 						<dt>
-							<label for="ftp_path">', Lang::getTxt('package_ftp_path', file: 'Packages'), '</label>
+							<label for="fs_path">', Lang::getTxt('package_fs_path', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
+							<input type="text" size="50" name="filesystem[path]" id="fs_path" value="', Utils::$context['pack_fs']['path'], '">
 						</dd>
 					</dl>
 					<div class="righttext">
@@ -1069,90 +1070,34 @@ function template_downloaded()
 }
 
 /**
- * Installation options - FTP info and backup settings
- */
-function template_install_options()
-{
-	if (!empty(Utils::$context['saved_successful']))
-		echo '
-	<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
-
-	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('package_install_options', file: 'Packages'), '</h3>
-		</div>
-		<div class="information noup">
-			', Lang::getTxt('package_install_options_ftp_why', file: 'Packages'), '
-		</div>
-		<div class="windowbg noup">
-			<form action="', Config::$scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="UTF-8">
-				<dl class="settings">
-					<dt>
-						<label for="pack_server"><strong>', Lang::getTxt('package_install_options_ftp_server', file: 'Packages'), '</strong></label>
-					</dt>
-					<dd>
-						<input type="text" name="pack_server" id="pack_server" value="', Utils::$context['package_ftp_server'], '" size="30">
-					</dd>
-					<dt>
-						<label for="pack_port"><strong>', Lang::getTxt('package_install_options_ftp_port', file: 'Packages'), '</strong></label>
-					</dt>
-					<dd>
-						<input type="text" name="pack_port" id="pack_port" size="3" value="', Utils::$context['package_ftp_port'], '">
-					</dd>
-					<dt>
-						<label for="pack_user"><strong>', Lang::getTxt('package_install_options_ftp_user', file: 'Packages'), '</strong></label>
-					</dt>
-					<dd>
-						<input type="text" name="pack_user" id="pack_user" value="', Utils::$context['package_ftp_username'], '" size="30">
-					</dd>
-					<dt>
-						<label for="package_make_backups">', Lang::getTxt('package_install_options_make_backups', file: 'Packages'), '</label>
-					</dt>
-					<dd>
-						<input type="checkbox" name="package_make_backups" id="package_make_backups" value="1"', Utils::$context['package_make_backups'] ? ' checked' : '', '>
-					</dd>
-					<dt>
-						<label for="package_make_full_backups">', Lang::getTxt('package_install_options_make_full_backups', file: 'Packages'), '</label>
-					</dt>
-					<dd>
-						<input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1"', Utils::$context['package_make_full_backups'] ? ' checked' : '', '>
-					</dd>
-				</dl>
-
-				<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			</form>
-		</div><!-- .windowbg -->';
-}
-
-/**
  * CHMOD control form
  *
  * @return bool False if nothing to do.
  */
-function template_control_chmod()
+function template_control_chmod(): void
 {
 	// Nothing to do? Brilliant!
-	if (empty(Utils::$context['package_ftp']))
-		return false;
+	if (empty(Utils::$context['package_fs']))
+		return;
 
-	if (empty(Utils::$context['package_ftp']['form_elements_only']))
+	if (empty(Utils::$context['package_fs']['form_elements_only']))
 	{
 		echo '
-				', Lang::getTxt('package_ftp_why', ['onclick' => 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'], file: 'Packages'), '<br>
+				', Lang::getTxt('package_fs_why', ['onclick' => 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'], file: 'Packages'), '<br>
 				<div id="need_writable_list" class="smalltext">
-					', Lang::getTxt('package_ftp_why_file_list', file: 'Packages'), '
+					', Lang::getTxt('package_fs_why_file_list', file: 'Packages'), '
 					<ul style="display: inline;">';
 
-		if (!empty(Utils::$context['notwritable_files']))
+		if (!empty(Utils::$context['notwritable_files'])) {
 			foreach (Utils::$context['notwritable_files'] as $file)
 				echo '
 						<li>', $file, '</li>';
+		}
 
 		echo '
 					</ul>';
 
-		if (!Sapi::isOS(Sapi::OS_WINDOWS))
+		if (!Sapi::isOS(Sapi::OS_WINDOWS) && !empty(Utils::$context['notwritable_files']))
 			echo '
 					<hr>
 					', Lang::getTxt('package_chmod_linux', file: 'Packages'), '<br>
@@ -1163,141 +1108,108 @@ function template_control_chmod()
 	}
 
 	echo '
-				<div class="bordercolor" id="ftp_error_div" style="', (!empty(Utils::$context['package_ftp']['error']) ? '' : 'display:none;'), 'padding: 1px; margin: 1ex;">
-					<div class="windowbg" id="ftp_error_innerdiv" style="padding: 1ex;">
-						<samp id="ftp_error_message">', !empty(Utils::$context['package_ftp']['error']) ? Utils::$context['package_ftp']['error'] : '', '</samp>
+				<div id="fs_error_div" style="', (!empty(Utils::$context['package_fs']['error']) ? '' : 'display:none;'), 'margin: 1ex;">
+					<div class="errorbox">
+						<div>', !empty(Utils::$context['package_fs']['error']) ? Utils::$context['package_fs']['error'] : '', '</div>
+						<div>', !empty(Utils::$context['package_fs']['message']) ? Utils::$context['package_fs']['message'] : '', '</div>
 					</div>
 				</div>';
 
-	if (!empty(Utils::$context['package_ftp']['destination']))
+	if (!empty(Utils::$context['package_fs']['destination']))
 		echo '
-				<form action="', Utils::$context['package_ftp']['destination'], '" method="post" accept-charset="UTF-8">';
+				<form action="', Utils::$context['package_fs']['destination'], '" method="post" accept-charset="UTF-8">';
 
 	echo '
 					<fieldset>
-					<dl class="settings">
+					<dl class="settings" id="fs_container">
 						<dt>
-							<label for="ftp_server">', Lang::getTxt('package_ftp_server', file: 'Packages'), '</label>
+							<label for="fs_type">', Lang::getTxt('filesystem_type', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['package_ftp']['server'], '">
-							<label for="ftp_port">', Lang::getTxt('package_ftp_port', file: 'Packages'), '</label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['package_ftp']['port'], '">
+							<select name="filesystem[type]" id="fs_type">';
+
+	foreach (Utils::$context['filesystem_types'] as $key => $label) {
+		echo '
+		<option value="', $key, '"', Utils::$context['package_fs']['type'] === $key ? ' selected' : '', '>', $label, '</option>';
+	}
+
+	echo '
+							</select>
+						</dd>
+
+						<dt>
+							<label for="fs_server">', Lang::getTxt('filesystem_server', file: 'Packages'), '</label>
+						</dt>
+						<dd>
+							<input type="text" size="30" name="filesystem[server]" id="fs_server" value="', Utils::$context['package_fs']['server'], '">
+							<label for="fs_port">', Lang::getTxt('filesystem_port', file: 'Packages'), '</label>
+							<input type="text" size="3" name="filesystem[port]" id="fs_port" value="', Utils::$context['package_fs']['port'], '">
 						</dd>
 						<dt>
-							<label for="ftp_username">', Lang::getTxt('package_ftp_username', file: 'Packages'), '</label>
+							<label for="fs_username">', Lang::getTxt('filesystem_username', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', Utils::$context['package_ftp']['username'], '">
+							<input type="text" size="50" name="filesystem[username]" id="fs_username" value="', Utils::$context['package_fs']['username'], '">
 						</dd>
 						<dt>
-							<label for="ftp_password">', Lang::getTxt('package_ftp_password', file: 'Packages'), '</label>
+							<label for="fs_password">', Lang::getTxt('filesystem_password', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password">
+							<input type="password" size="50" name="filesystem[password]" id="fs_password">
 						</dd>
 						<dt>
-							<label for="ftp_path">', Lang::getTxt('package_ftp_path', file: 'Packages'), '</label>
+							<label for="fs_path">', Lang::getTxt('filesystem_path', file: 'Packages'), '</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
+							<input type="text" size="50" name="filesystem[path]" id="fs_path" value="', Utils::$context['package_fs']['path'], '">
 						</dd>
 					</dl>
 					</fieldset>';
 
-	if (empty(Utils::$context['package_ftp']['form_elements_only']))
+	if (empty(Utils::$context['package_fs']['form_elements_only']))
 		echo '
 					<div class="righttext" style="margin: 1ex;">
-						<span id="test_ftp_placeholder_full"></span>
+						<span id="test_fs_placeholder_full"></span>
 						<input type="submit" value="', Lang::getTxt('package_proceed', file: 'Packages'), '" class="button">
 					</div>';
 
-	if (!empty(Utils::$context['package_ftp']['destination']))
+	if (!empty(Utils::$context['package_fs']['destination']))
 		echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
 
 	// Hide the details of the list.
-	if (empty(Utils::$context['package_ftp']['form_elements_only']))
+	if (empty(Utils::$context['package_fs']['form_elements_only']))
 		echo '
 				<script>
 					document.getElementById(\'need_writable_list\').style.display = \'none\';
 				</script>';
 
-	// Quick generate the test button.
-	echo '
-				<script>
-					// Generate a "test ftp" button.
-					var generatedButton = false;
-					function generateFTPTest()
-					{
-						// Don\'t ever call this twice!
-						if (generatedButton)
-							return false;
-						generatedButton = true;
-
-						// No XML?
-						if (!window.XMLHttpRequest || (!document.getElementById("test_ftp_placeholder") && !document.getElementById("test_ftp_placeholder_full")))
-							return false;
-
-						var ftpTest = document.createElement("input");
-						ftpTest.type = "button";
-						ftpTest.onclick = testFTP;
-
-						if (document.getElementById("test_ftp_placeholder"))
-						{
-							ftpTest.value = "', Lang::getTxt('package_ftp_test', file: 'Packages'), '";
-							document.getElementById("test_ftp_placeholder").appendChild(ftpTest);
-						}
-						else
-						{
-							ftpTest.value = "', Lang::getTxt('package_ftp_test_connection', file: 'Packages'), '";
-							document.getElementById("test_ftp_placeholder_full").appendChild(ftpTest);
-						}
-					}
-					function testFTPResults(oXMLDoc)
-					{
-						ajax_indicator(false);
-
-						// This assumes it went wrong!
-						var wasSuccess = false;
-						var message = "', addcslashes(Lang::getTxt('package_ftp_test_failed', file: 'Packages'), "'"), '";
-
-						var results = oXMLDoc.getElementsByTagName(\'results\')[0].getElementsByTagName(\'result\');
-						if (results.length > 0)
-						{
-							if (results[0].getAttribute(\'success\') == 1)
-								wasSuccess = true;
-							message = results[0].firstChild.nodeValue;
-						}
-
-						document.getElementById("ftp_error_div").style.display = "";
-						document.getElementById("ftp_error_div").style.backgroundColor = wasSuccess ? "green" : "red";
-						document.getElementById("ftp_error_innerdiv").style.backgroundColor = wasSuccess ? "#DBFDC7" : "#FDBDBD";
-
-						setInnerHTML(document.getElementById("ftp_error_message"), message);
-					}
-					generateFTPTest();
-				</script>';
-
 	// Make sure the button gets generated last.
 	Utils::$context['insert_after_template'] .= '
 				<script>
-					generateFTPTest();
+					const oFsTest = new smf_fsTest({
+						placeholder: "test_fs_placeholder_full",
+						label: ' . JavaScriptEscape(Lang::getTxt('package_fs_test_connection', file: 'Packages')) . ',
+						failedMsg: ' . JavaScriptEscape(Lang::getTxt('package_fs_test_failed', file: 'Packages')) . ',
+						successMsg: ' . JavaScriptEscape(Lang::getTxt('package_fs_test_success', file: 'Packages')) . ',
+						errorContainer: "fs_error_div",
+						inputContainer: "fs_container",
+					});
 				</script>';
 }
 
 /**
- * Wrapper for the above template function showing that FTP is required
+ * Wrapper for the above template function showing that File System operations are required
  */
-function template_ftp_required()
+function template_fs_required()
 {
 	echo '
 		<fieldset>
 			<legend>
-				', Lang::getTxt('package_ftp_necessary', file: 'Packages'), '
+				', Lang::getTxt('package_fs_necessary', file: 'Packages'), '
 			</legend>
-			<div class="ftp_details">
+			<div class="fs_details">
 				', template_control_chmod(), '
 			</div>
 		</fieldset>';
@@ -1639,17 +1551,18 @@ function template_file_permissions()
 				</dl>
 			</fieldset>';
 
-	// Likely to need FTP?
-	if (empty(Utils::$context['ftp_connected']))
+	// Likely to need File System?
+	if (empty(Utils::$context['fs_connected'])) {
 		echo '
 			<p>
-				', Lang::getTxt('package_file_perms_ftp_details', file: 'Packages'), '
+				', Lang::getTxt('package_file_perms_fs_details', file: 'Packages'), '
 			</p>
 			', template_control_chmod(), '
-			<div class="noticebox">', Lang::getTxt('package_file_perms_ftp_retain', file: 'Packages'), '</div>';
+			<div class="noticebox">', Lang::getTxt('package_file_perms_fs_retain', file: 'Packages'), '</div>';
+	}
 
 	echo '
-			<span id="test_ftp_placeholder_full"></span>
+			<span id="test_fs_placeholder_full"></span>
 			<input type="hidden" name="action_changes" value="1">
 			<input type="submit" value="', Lang::getTxt('package_file_perms_go', file: 'Packages'), '" name="go" class="button">
 		</div><!-- .windowbg -->';
@@ -1728,7 +1641,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		echo '
 				<tr class="windowbg" id="content_', $js_ident, '_more">
 					<td class="smalltext" width="40%">' . str_repeat('&nbsp;', $level * 5), '
-						<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident) . ';fileoffset=', (Utils::$context['file_offset'] + Utils::$context['file_limit']), ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '#fol_' . preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident) . '">', Lang::getTxt('package_file_perms_more_files', file: 'Packages'), '</a>
+						<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident) . ';fileoffset=', ((int) Utils::$context['file_offset'] + Utils::$context['file_limit']), ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '#fol_' . preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident) . '">', Lang::getTxt('package_file_perms_more_files', file: 'Packages'), '</a>
 					</td>
 					<td colspan="6"></td>
 				</tr>';
@@ -1762,10 +1675,10 @@ function template_action_permissions()
 				<h3 class="catbg">', Lang::getTxt('package_file_perms_applying', file: 'Packages'), '</h3>
 			</div>';
 
-	if (!empty(Utils::$context['skip_ftp']))
+	if (!empty(Utils::$context['skip_fs']))
 		echo '
 			<div class="errorbox">
-				', Lang::getTxt('package_file_perms_skipping_ftp', file: 'Packages'), '
+				', Lang::getTxt('package_file_perms_skipping_fs', file: 'Packages'), '
 			</div>';
 
 	// How many have we done?
@@ -1834,10 +1747,10 @@ function template_action_permissions()
 				<input type="hidden" name="dirList" value="', Utils::$context['directory_list_encode'], '">
 				<input type="hidden" name="specialFiles" value="', Utils::$context['special_files_encode'], '">';
 
-	// Are we not using FTP for whatever reason.
-	if (!empty(Utils::$context['skip_ftp']))
+	// Are we not using File System for whatever reason.
+	if (!empty(Utils::$context['skip_fs']))
 		echo '
-				<input type="hidden" name="skip_ftp" value="1">';
+				<input type="hidden" name="skip_fs" value="1">';
 
 	// Retain state.
 	foreach (Utils::$context['back_look_data'] as $path)

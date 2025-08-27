@@ -154,27 +154,34 @@ $txt['package_uninstall_done'] = 'The package has been successfully uninstalled.
 $txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller.<br><br>Please contact the mod author for more information.';
 
 $txt['package_install_options'] = 'Installation Options';
-$txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and FTP access';
-$txt['package_install_options_ftp_why'] = 'Using the package manager’s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br>Here you can set the default values for some fields.';
-$txt['package_install_options_ftp_server'] = 'FTP Server';
-$txt['package_install_options_ftp_port'] = 'Port';
-$txt['package_install_options_ftp_user'] = 'Username';
-$txt['package_install_options_make_backups'] = 'Create Backup versions of replaced files with a tilde (~) on the end of their names.';
-$txt['package_install_options_make_full_backups'] = 'Create a backup of key SMF files whenever a package is installed or uninstalled.';
+$txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and File System access';
+$txt['package_install_options_fs_why'] = 'Using the package manager’s File System Handler functionality is the easiest way to avoid having to manually chmod the files writable through File System yourself for the package manager to work.<br>Here you can set the default values for some fields.';
+$txt['package_make_backups'] = 'Create Backup versions of replaced files with a tilde (~) on the end of their names.';
+$txt['package_make_full_backups'] = 'Create a backup of key SMF files whenever a package is installed or uninstalled.';
 
-$txt['package_ftp_necessary'] = 'FTP Information Required';
-$txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable. This needs to be changed by logging into FTP and using it to chmod or create the files and directories. Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="{onclick}">here</a>.';
-$txt['package_ftp_why_file_list'] = 'The following files need to made writable to continue installation:';
-$txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, must be writable. Currently the system does not have the needed permissions to write to this directory. The package manager can use your FTP information to attempt to fix this problem.';
-$txt['package_ftp_server'] = 'FTP Server';
-$txt['package_ftp_port'] = 'Port';
-$txt['package_ftp_username'] = 'Username';
-$txt['package_ftp_password'] = 'Password';
-$txt['package_ftp_path'] = 'Local path to SMF';
-$txt['package_ftp_test'] = 'Test';
-$txt['package_ftp_test_connection'] = 'Test Connection';
-$txt['package_ftp_test_success'] = 'FTP connection established.';
-$txt['package_ftp_test_failed'] = 'Could not contact server.';
+$txt['package_fs_necessary'] = 'File System Information Required';
+$txt['package_fs_why'] = 'Some of the files the package manager needs to modify are not writable. This needs to be changed by logging into the File System and using it to chmod or create the files and directories. Your credentials information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using a client, such as FTP, - to view a list of the affected files please click <a href="#" onclick="{onclick}">here</a>.';
+$txt['package_fs_why_file_list'] = 'The following files need to made writable to continue installation:';
+$txt['package_fs_why_download'] = 'In order to download packages, the Packages directory, and any files in it, must be writable. Currently the system does not have the needed permissions to write to this directory. The package manager can use your File System credentials information to attempt to fix this problem.';
+$txt['filesystem_type'] = 'File System';
+$txt['filesystem_server'] = 'Server Name';
+$txt['filesystem_port'] = 'Port';
+$txt['filesystem_port_desc'] = 'Use 0 to use default';
+$txt['filesystem_username'] = 'Username';
+$txt['filesystem_password'] = 'Password';
+$txt['filesystem_path'] = 'Local path to SMF';
+$txt['package_fs_test'] = 'Test';
+$txt['package_fs_test_connection'] = 'Test Connection';
+$txt['package_fs_test_success'] = 'Connection established.';
+$txt['package_fs_test_failed'] = 'Could not contact server.';
+$txt['filesystem_error_bad_server'] = 'Invalid Server';
+$txt['filesystem_error_bad_response'] = 'Invalid Response';
+$txt['filesystem_error_bad_credentials'] = 'Invalid Username or Password';
+$txt['filesystem_error_bad_path'] = 'Invalid Path';
+$txt['filesystem_error_bad_file'] = 'Invalid File (Does file exist?)';
+$txt['filesystem_error_no_connection'] = 'No connection found';
+$txt['filesystem_error_delete_filedirectory'] = 'Attempted to delete a file using directory commands';
+$txt['filesystem_error_delete_directoryfile'] = 'Attempted to delete a directory using file commands';
 
 // For a break, use -n- instead of <br>... and don't use entities.
 $txt['package_delete_bad'] = 'The package you are about to delete is currently installed!-n-If you delete it, you may not be able to uninstall it later.-n-Are you sure?';
@@ -233,7 +240,7 @@ $txt['operation_title'] = 'Operations';
 $txt['operation_description_ignore'] = '{desc}, ignoring errors';
 $txt['operation_invalid'] = 'The operation that you selected is invalid.';
 
-$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and folders within your forum directory. Note this only considers key forum folders and files - use an FTP client for additional options.';
+$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and folders within your forum directory. Note this only considers key forum folders and files - use a client for additional options.';
 $txt['package_file_perms_name'] = 'File/Directory Name';
 $txt['package_file_perms_status'] = 'Current Status';
 $txt['package_file_perms_new_status'] = 'New Status';
@@ -255,8 +262,8 @@ $txt['package_file_perms_custom'] = 'If &quot;Custom&quot; has been selected use
 $txt['package_file_perms_pre_restricted'] = 'Restricted - minimum files writable';
 $txt['package_file_perms_pre_standard'] = 'Standard - key files writable';
 $txt['package_file_perms_pre_free'] = 'Free - all files writable';
-$txt['package_file_perms_ftp_details'] = 'On most servers it is only possible to change file permissions using an FTP account. Please enter your FTP details below';
-$txt['package_file_perms_ftp_retain'] = 'Note, SMF will only retain the password information temporarily to aid operation of the package manager.';
+$txt['package_file_perms_fs_details'] = 'On most servers it is only possible to change file permissions using an File System account. Please enter your File System credentials details below';
+$txt['package_file_perms_fs_retain'] = 'Note, SMF will only retain the password information temporarily to aid operation of the package manager.';
 $txt['package_file_perms_go'] = 'Make Changes';
 
 $txt['package_file_perms_applying'] = 'Applying Changes';
@@ -264,7 +271,7 @@ $txt['package_file_perms_items_done'] = '{1, plural,
 	one {{0, number, integer} of # item completed}
 	other {{0, number, integer} of # items completed}
 }';
-$txt['package_file_perms_skipping_ftp'] = '<strong>Warning:</strong> Failed to connect to FTP server, attempting to change permissions without. This is <em>likely</em> to fail - please check the results upon completion and try again with correct FTP details if necessary.';
+$txt['package_file_perms_skipping_fs'] = '<strong>Warning:</strong> Failed to connect to server, attempting to change permissions without. This is <em>likely</em> to fail - please check the results upon completion and try again with correct credentials if necessary.';
 
 $txt['package_file_perms_dirs_done'] = '{1, plural,
 	one {{0, number, integer} of # directory completed}
@@ -297,7 +304,7 @@ $txt['package_file_perms_warning_desc'] = '
 	<li>On some server configurations selecting the wrong permissions may stop SMF from operating.</li>
 	<li>Certain directories such as <em>attachments</em> need to be writable to use that functionality.</li>
 	<li>This functionality is mainly applicable on non-Windows based servers - it will not work as expected on Windows in regards to permission flags.</li>
-	<li>Before proceeding make sure you have an FTP client installed in case you do make an error and need to FTP into the server to remedy it.</li>';
+	<li>Before proceeding make sure you have an File System client installed in case you do make an error and need to access the server to remedy it.</li>';
 
 $txt['package_confirm_view_package_content'] = 'Are you sure you want to view the package contents from this location:<br><br>{0}';
 $txt['package_confirm_proceed'] = 'Proceed';
