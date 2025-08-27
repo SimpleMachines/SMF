@@ -301,7 +301,7 @@ class Lang
 
 					// Keep track of what we're up to, soldier.
 					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
+						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
 					}
 
 					// Load the strings into our properties.
@@ -1068,7 +1068,7 @@ class Lang
 
 				// Keep track of what we're up to, soldier.
 				if (!empty(Config::$db_show_debug)) {
-					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
+					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
 				}
 			}
 		}
