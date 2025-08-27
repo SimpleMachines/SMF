@@ -21,7 +21,6 @@ use SMF\Maintenance\Migration\MigrationBase;
 
 class SearchResultsPrimaryKey extends MigrationBase
 {
-	private static array $columns = ['id_search', 'id_topic', 'id_msg'];
 	/*******************
 	 * Public properties
 	 *******************/
@@ -30,6 +29,12 @@ class SearchResultsPrimaryKey extends MigrationBase
 	 *
 	 */
 	public string $name = 'Improving search results storage';
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	private static array $columns = ['id_search', 'id_topic', 'id_msg'];
 
 	/****************
 	 * Public methods
@@ -44,7 +49,7 @@ class SearchResultsPrimaryKey extends MigrationBase
 		$existing_structure = $table->getCurrentStructure();
 
 		$idx = $existing_structure['indexes']['primary'] ?? null;
-	
+
 		return $idx == null || array_intersect($idx['columns'], self::$columns) !== [];
 	}
 
