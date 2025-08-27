@@ -1627,7 +1627,7 @@ class ACP implements ActionInterface, Routable
 				continue;
 			}
 
-			$language = basename(dirname($filename));
+			$language = basename(\dirname($filename));
 			$short_name = $file->getBasename('.' . $file->getExtension());
 			$name = $file->getBasename();
 
