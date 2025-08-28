@@ -217,7 +217,7 @@ abstract class ToolsBase
 			$db_class = '\\SMF\\Db\\APIs\\' . substr($entry, 0, -4);
 			$db = new $db_class();
 
-			if (!($db instanceof \SMF\Db\DatabaseApi) || !$db->isSupported()) {
+			if (!($db instanceof Db) || !$db->isSupported()) {
 				continue;
 			}
 
@@ -608,7 +608,7 @@ abstract class ToolsBase
 
 		try {
 			Config::updateModSettings($change_array, $update);
-		} catch (\Thowable $e) {
+		} catch (\Exception $e) {
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
 		}
 

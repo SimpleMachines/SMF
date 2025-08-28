@@ -740,14 +740,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function ping(?object $connection = null): bool
-	{
-		return mysqli_ping($connection ?? $this->connection);
-	}
-
-	/**
-	 *
-	 */
 	public function error_insert(array $error_array): void
 	{
 		// Without a database we can't do anything.
