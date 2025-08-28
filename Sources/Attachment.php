@@ -935,8 +935,8 @@ class Attachment implements \ArrayAccess
 		if (!empty(Utils::$context['dir_creation_error'])) {
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
-			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context, file: 'Post'), 'critical');
+			$initial_error = 'attach_directory_warning';
+			ErrorHandler::log(Lang::getTxt('attach_directory_admin_warning', Utils::$context, file: 'Post'), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {

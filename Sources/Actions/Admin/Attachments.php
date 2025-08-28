@@ -758,7 +758,7 @@ class Attachments implements ActionInterface
 			'file_size_of_zero' => 0,
 			'attachment_no_msg' => 0,
 			'avatar_no_member' => 0,
-			'wrong_folder' => 0,
+			'wrong_directory' => 0,
 			'files_without_attachment' => 0,
 		];
 
@@ -942,11 +942,11 @@ class Attachments implements ActionInterface
 							// Loop through the other folders.
 							foreach (Config::$modSettings['attachmentUploadDir'] as $id => $dir) {
 								if (file_exists($dir . '/' . $attachment_name)) {
-									Utils::$context['repair_errors']['wrong_folder']++;
-									$errors_found[] = 'wrong_folder';
+									Utils::$context['repair_errors']['wrong_directory']++;
+									$errors_found[] = 'wrong_directory';
 
 									// Are we going to fix this now?
-									if ($fix_errors && \in_array('wrong_folder', $to_fix)) {
+									if ($fix_errors && \in_array('wrong_directory', $to_fix)) {
 										Db::$db->query(
 											'UPDATE {db_prefix}attachments
 											SET id_folder = {int:new_folder}
@@ -1006,8 +1006,8 @@ class Attachments implements ActionInterface
 					$to_fix[] = 'file_wrong_size';
 				}
 
-				if (\in_array('wrong_folder', $errors_found)) {
-					$to_fix[] = 'wrong_folder';
+				if (\in_array('wrong_directory', $errors_found)) {
+					$to_fix[] = 'wrong_directory';
 				}
 
 				Db::$db->free_result($result);
