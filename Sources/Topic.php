@@ -684,7 +684,6 @@ class Topic implements \ArrayAccess, Routable
 			$reacted_messages = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT r.content_id, r.id_reaction
 				FROM {db_prefix}user_reacts AS r
 					INNER JOIN {db_prefix}messages AS m ON (r.content_id = m.id_msg)
