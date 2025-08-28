@@ -36,12 +36,16 @@ class ConvertToInnoDb extends MigrationBase
 	/**
 	 *
 	 */
+	public function isCandidate(): bool
+	{
+		return Db::$db->title === MYSQL_TITLE;
+	}
+
+	/**
+	 *
+	 */
 	public function execute(): bool
 	{
-		if (Db::$db->title !== MYSQL_TITLE) {
-			return true;
-		}
-
 		$tables = Db::$db->list_tables(false, Db::$db->prefix . '%');
 
 		foreach ($tables as $table) {
