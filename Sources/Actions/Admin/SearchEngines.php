@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -106,10 +106,10 @@ class SearchEngines implements ActionInterface
 			];
 		}
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -201,7 +201,7 @@ class SearchEngines implements ActionInterface
 
 		// If we manually jumped to a date work out the offset.
 		if (isset($_REQUEST['new_date'])) {
-			$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
+			$date_query = \sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
@@ -406,7 +406,7 @@ class SearchEngines implements ActionInterface
 			$urls = Who::determineActions($urls, 'whospider_');
 
 			foreach ($urls as $k => $new_url) {
-				if (is_array($new_url)) {
+				if (\is_array($new_url)) {
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::getTxt($new_url['label'], file: 'Search');
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
@@ -440,7 +440,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ser');
 
@@ -515,7 +515,7 @@ class SearchEngines implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
+							return \sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
 						},
 					],
 					'sort' => [
@@ -1174,10 +1174,10 @@ class SearchEngines implements ActionInterface
 			// Stop if the URL path and the filesystem path diverge.
 			&& basename($path_from_boarddir) === basename($path_from_boardurl)
 			// Stop if we get to the root of the path according to the URL.
-			&& dirname($path_from_boardurl) !== $path_from_boardurl
+			&& \dirname($path_from_boardurl) !== $path_from_boardurl
 		) {
-			$path_from_boarddir = dirname($path_from_boarddir);
-			$path_from_boardurl = dirname($path_from_boardurl);
+			$path_from_boarddir = \dirname($path_from_boarddir);
+			$path_from_boardurl = \dirname($path_from_boardurl);
 		}
 
 		return $path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt';
@@ -1198,7 +1198,7 @@ class SearchEngines implements ActionInterface
 			)
 			|| (
 				!file_exists(Config::$modSettings['robots_txt'])
-				&& !Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))
+				&& !Utils::makeWritable(\dirname(Config::$modSettings['robots_txt']))
 			)
 		) {
 			return;
@@ -1273,7 +1273,7 @@ class SearchEngines implements ActionInterface
 				// Insert our rules before comments, blank lines, or the start
 				// of a new user agent group, but only if user agent that these
 				// rules are for was the only one in its group.
-				if (!empty($insert) && count($user_agents_in_group) === 1) {
+				if (!empty($insert) && \count($user_agents_in_group) === 1) {
 					foreach ($user_agents_in_group as $user_agent) {
 						if (!isset($rules[$user_agent])) {
 							continue;
@@ -1361,7 +1361,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// Where should we save the backup file?
-		if (Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))) {
+		if (Utils::makeWritable(\dirname(Config::$modSettings['robots_txt']))) {
 			$backup_file = preg_replace('/\.txt$/', '.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt', Config::$modSettings['robots_txt']);
 		} elseif (Utils::makeWritable(Config::$boarddir)) {
 			$backup_file = Config::$boarddir . DIRECTORY_SEPARATOR . 'robots.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt';

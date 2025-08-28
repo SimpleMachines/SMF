@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -310,7 +310,7 @@ class Recent implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'board_list' => $_REQUEST['boards'],
-					'limit' => count($_REQUEST['boards']),
+					'limit' => \count($_REQUEST['boards']),
 					'empty' => '',
 				],
 			);
@@ -414,7 +414,7 @@ class Recent implements ActionInterface, Routable
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'SELECT name
 				FROM {db_prefix}categories
@@ -508,7 +508,7 @@ class Recent implements ActionInterface, Routable
 				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)',
 			],
 			'order' => ['m.id_msg DESC'],
-			'limit' => count($this->messages),
+			'limit' => \count($this->messages),
 			'params' => [],
 		];
 
@@ -595,7 +595,7 @@ class Recent implements ActionInterface, Routable
 			}
 		}
 
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			// Some posts - the first posts - can't just be deleted.
@@ -623,7 +623,7 @@ class Recent implements ActionInterface, Routable
 		}
 
 		Utils::$context['linktree'][] = [
-			'url' => sprintf($this->action_url, 0),
+			'url' => \sprintf($this->action_url, 0),
 			'name' => Utils::$context['page_title'],
 		];
 
@@ -631,16 +631,16 @@ class Recent implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
-			Utils::redirectexit(!empty(Board::$info->id) ? sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
+			Utils::redirectexit(!empty(Board::$info->id) ? \sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 
 		Utils::$context['links'] = [
-			'first' => $not_first_page ? sprintf($this->action_url, 0) : '',
-			'prev' => $not_first_page ? sprintf($this->action_url, Utils::$context['start'] - self::PER_PAGE) : '',
-			'next' => $not_last_page ? sprintf($this->action_url, Utils::$context['start'] + self::PER_PAGE) : '',
-			'last' => $not_last_page ? sprintf($this->action_url, $total - ($total % self::PER_PAGE)) : '',
+			'first' => $not_first_page ? \sprintf($this->action_url, 0) : '',
+			'prev' => $not_first_page ? \sprintf($this->action_url, Utils::$context['start'] - self::PER_PAGE) : '',
+			'next' => $not_last_page ? \sprintf($this->action_url, Utils::$context['start'] + self::PER_PAGE) : '',
+			'last' => $not_last_page ? \sprintf($this->action_url, $total - ($total % self::PER_PAGE)) : '',
 			'up' => Config::$scripturl,
 		];
 

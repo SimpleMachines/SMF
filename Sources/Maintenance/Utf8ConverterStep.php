@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -573,7 +573,7 @@ class Utf8ConverterStep extends Step
 
 		// Must convert if any string column's character set isn't utf8mb4.
 		foreach (Db::$db->list_columns($table_name, true) as $column) {
-			if (!in_array($column['type'], self::STRING_COLUMN_TYPES)) {
+			if (!\in_array($column['type'], self::STRING_COLUMN_TYPES)) {
 				continue;
 			}
 
@@ -617,7 +617,7 @@ class Utf8ConverterStep extends Step
 
 		$substeps = $this->getSubSteps();
 
-		Maintenance::$total_substeps = count($substeps);
+		Maintenance::$total_substeps = \count($substeps);
 
 		// Template things.
 		Maintenance::$context['table_count'] = Maintenance::$total_substeps;
@@ -782,7 +782,7 @@ class Utf8ConverterStep extends Step
 
 		// Get the character set for each column.
 		foreach ($table['columns'] as $c => $column) {
-			if (!in_array($column['type'], self::STRING_COLUMN_TYPES)) {
+			if (!\in_array($column['type'], self::STRING_COLUMN_TYPES)) {
 				continue;
 			}
 
@@ -828,7 +828,7 @@ class Utf8ConverterStep extends Step
 		$string_columns = [];
 
 		foreach ($table['columns'] as $c => $column) {
-			if (!in_array($column['type'], self::STRING_COLUMN_TYPES)) {
+			if (!\in_array($column['type'], self::STRING_COLUMN_TYPES)) {
 				continue;
 			}
 
@@ -960,7 +960,7 @@ class Utf8ConverterStep extends Step
 		}
 
 		// If the data was stored in the wrong charset, we must convert it manually.
-		if (!in_array($from_charset, $this->supported_charsets)) {
+		if (!\in_array($from_charset, $this->supported_charsets)) {
 			// Build a huge REPLACE statement.
 			$replace = '{identifier:column}';
 
@@ -972,7 +972,7 @@ class Utf8ConverterStep extends Step
 				try {
 					for ($i = 0; $i <= 0xFF; $i++) {
 						$from = '0x' . strtoupper(dechex($i));
-						$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
+						$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(\chr($i), 'UTF-8', $from_charset)));
 
 						if ($from !== $to) {
 							$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';

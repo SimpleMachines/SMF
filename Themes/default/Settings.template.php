@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -66,6 +66,12 @@ function template_options()
 			'id' => 'show_no_signatures',
 			'label' => Lang::getTxt('show_no_signatures', file: 'Profile'),
 			'default' => true,
+		),
+		array(
+			'id' => 'show_no_censored',
+			'label' => Lang::getTxt('show_no_censored'),
+			'default' => false,
+			'enabled' => !empty(Config::$modSettings['allow_no_censored']),
 		),
 		array(
 			'id' => 'posts_apply_ignore_list',

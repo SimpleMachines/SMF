@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -55,7 +55,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 			// Filter out the stuff we don't need.
 			array_filter(
 				$matches,
-				fn($v, $k) => !is_int($k) && $v !== '',
+				fn($v, $k) => !\is_int($k) && $v !== '',
 				ARRAY_FILTER_USE_BOTH,
 			),
 		);
@@ -113,7 +113,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 				continue;
 			}
 
-			if (is_float($matches[$prop])) {
+			if (\is_float($matches[$prop])) {
 				if (!$can_be_fractional) {
 					throw new \ValueError();
 				}
@@ -263,13 +263,13 @@ class TimeInterval extends \DateInterval implements \Stringable
 
 			switch ($c) {
 				case 'f':
-					if (!in_array('s', $format_chars)) {
+					if (!\in_array('s', $format_chars)) {
 						$result[] = Lang::getTxt($txt_keys[$c], [(float) $this->s + (float) $this->f], file: 'General');
 					}
 					break;
 
 				case 's':
-					if (in_array('f', $format_chars)) {
+					if (\in_array('f', $format_chars)) {
 						$result[] = Lang::getTxt($txt_keys[$c], [(float) $this->s + (float) $this->f], file: 'General');
 					} else {
 						$result[] = Lang::getTxt($txt_keys[$c], [$this->s], file: 'General');
@@ -286,7 +286,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 		// for the smallest unit requested.
 		if (empty($result)) {
 			foreach ($txt_keys as $c => $k) {
-				if (in_array($c, $format_chars)) {
+				if (\in_array($c, $format_chars)) {
 					$result = [Lang::getTxt($txt_keys[$c], [0], file: 'General')];
 				}
 			}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -336,11 +336,11 @@ class Verifier implements \ArrayAccess
 		Theme::loadTemplate('GenericControls');
 
 		// Some javascript ma'am?
-		if ($this->show_visual && !in_array('smf_captcha', Utils::$context['javascript_files'])) {
+		if ($this->show_visual && !\in_array('smf_captcha', Utils::$context['javascript_files'])) {
 			Theme::loadJavaScriptFile('captcha.js', ['minimize' => true], 'smf_captcha');
 		}
 
-		Utils::$context['use_graphic_library'] = extension_loaded('gd');
+		Utils::$context['use_graphic_library'] = \extension_loaded('gd');
 
 		// Skip I, J, L, O, Q, S and Z.
 		Utils::$context['standard_captcha_range'] = array_merge(range('A', 'H'), ['K', 'M', 'N', 'P', 'R'], range('T', 'Y'));
@@ -480,7 +480,7 @@ class Verifier implements \ArrayAccess
 				// Second, is their answer in the list of possible answers?
 				$given_answer = trim(Utils::htmlspecialchars(Utils::convertCase($_REQUEST[$this->id . '_vv']['q'][$q], 'fold')));
 
-				if (!in_array($given_answer, Config::$modSettings['question_id_cache']['questions'][$q]['answers'])) {
+				if (!\in_array($given_answer, Config::$modSettings['question_id_cache']['questions'][$q]['answers'])) {
 					$incorrectQuestions[] = $q;
 				}
 			}
@@ -595,7 +595,7 @@ class Verifier implements \ArrayAccess
 
 					shuffle($this->question_ids);
 
-					$this->question_ids = array_slice($this->question_ids, 0, $this->number_questions);
+					$this->question_ids = \array_slice($this->question_ids, 0, $this->number_questions);
 
 					break;
 				}
@@ -629,7 +629,7 @@ class Verifier implements \ArrayAccess
 			$this->questions[] = [
 				'id' => $q,
 				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
-				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
+				'is_error' => !empty($incorrectQuestions) && \in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
 				'a' => isset($_REQUEST[$this->id . '_vv'], $_REQUEST[$this->id . '_vv']['q'], $_REQUEST[$this->id . '_vv']['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$this->id . '_vv']['q'][$q]) : '',
 			];

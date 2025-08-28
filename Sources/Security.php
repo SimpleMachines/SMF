@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -264,7 +264,7 @@ class Security
 				return true;
 			}
 
-			if (!in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+			if (!\in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 				$_SESSION['forms'][] = (int) $_REQUEST['seqnum'];
 
 				return true;
@@ -282,12 +282,12 @@ class Security
 		if ($action == 'register') {
 			Utils::$context['form_sequence_number'] = 0;
 
-			while (empty(Utils::$context['form_sequence_number']) || in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
+			while (empty(Utils::$context['form_sequence_number']) || \in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
 				Utils::$context['form_sequence_number'] = random_int(1, 16000000);
 			}
 		}
 		// Don't check, just free the stack number.
-		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && \in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 			$_SESSION['forms'] = array_diff($_SESSION['forms'], [$_REQUEST['seqnum']]);
 		}
 		// Bail out if $action is unknown.
@@ -439,7 +439,7 @@ class Security
 					'filename' => $security_file,
 				]];
 
-				if (in_array($security_file, ['Settings.php~', 'Settings_bak.php~'])) {
+				if (\in_array($security_file, ['Settings.php~', 'Settings_bak.php~'])) {
 					$warnings['file'][] = ['not_removed_extra', [
 						'backup_filename' => $security_file,
 						'filename' => substr($security_file, 0, -1),
@@ -517,7 +517,7 @@ class Security
 			}
 
 			if (!file_exists($path . '/.htaccess')) {
-				if (@file_put_contents($path . '/.htaccess', $contents) !== strlen($contents)) {
+				if (@file_put_contents($path . '/.htaccess', $contents) !== \strlen($contents)) {
 					$errors[] = 'htaccess_cannot_create_file';
 				}
 			} elseif (file_get_contents($path . '/.htaccess') !== $contents) {
@@ -539,7 +539,7 @@ class Security
 				END;
 
 			if (!file_exists($path . '/index.php')) {
-				if (@file_put_contents($path . '/index.php', $contents) !== strlen($contents)) {
+				if (@file_put_contents($path . '/index.php', $contents) !== \strlen($contents)) {
 					$errors[] = 'index-php_cannot_create_file';
 				}
 			} elseif (file_get_contents($path . '/index.php') !== $contents) {
@@ -561,9 +561,9 @@ class Security
 	{
 		$option = 'SAMEORIGIN';
 
-		if (is_null($override) && !empty(Config::$modSettings['frame_security'])) {
+		if (\is_null($override) && !empty(Config::$modSettings['frame_security'])) {
 			$option = Config::$modSettings['frame_security'];
-		} elseif (in_array($override, ['SAMEORIGIN', 'DENY'])) {
+		} elseif (\in_array($override, ['SAMEORIGIN', 'DENY'])) {
 			$option = $override;
 		}
 

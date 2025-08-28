@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -217,10 +217,10 @@ class Memberlist implements ActionInterface, Routable
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_memberlist_buttons');
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -300,7 +300,7 @@ class Memberlist implements ActionInterface, Routable
 		Utils::$context['letter_links'] = '';
 
 		for ($i = 97; $i < 123; $i++) {
-			Utils::$context['letter_links'] .= '<a href="' . Config::$scripturl . '?action=mlist;sa=all;start=' . chr($i) . '#letter' . chr($i) . '">' . strtoupper(chr($i)) . '</a> ';
+			Utils::$context['letter_links'] .= '<a href="' . Config::$scripturl . '?action=mlist;sa=all;start=' . \chr($i) . '#letter' . \chr($i) . '">' . strtoupper(\chr($i)) . '</a> ';
 		}
 
 		// Sort out the column information.
@@ -495,7 +495,7 @@ class Memberlist implements ActionInterface, Routable
 			];
 
 			// Search for a name
-			if (in_array('name', $_POST['fields'])) {
+			if (\in_array('name', $_POST['fields'])) {
 				$fields = User::$me->allowedTo('moderate_forum') ? ['member_name', 'real_name'] : ['real_name'];
 				$search_fields[] = 'name';
 			} else {
@@ -504,19 +504,19 @@ class Memberlist implements ActionInterface, Routable
 			}
 
 			// Search for websites.
-			if (in_array('website', $_POST['fields'])) {
+			if (\in_array('website', $_POST['fields'])) {
 				$fields += [7 => 'website_title', 'website_url'];
 				$search_fields[] = 'website';
 			}
 
 			// Search for groups.
-			if (in_array('group', $_POST['fields'])) {
+			if (\in_array('group', $_POST['fields'])) {
 				$fields += [9 => 'COALESCE(group_name, {string:blank_string})'];
 				$search_fields[] = 'group';
 			}
 
 			// Search for an email address?
-			if (in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum')) {
+			if (\in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum')) {
 				$fields += [2 => 'email_address'];
 				$search_fields[] = 'email';
 			}

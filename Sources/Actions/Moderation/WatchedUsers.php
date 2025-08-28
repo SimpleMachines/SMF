@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -64,11 +64,11 @@ class WatchedUsers implements ActionInterface
 
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete'])) {
-			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
+			User::$me->checkSession(!\is_array($_REQUEST['delete']) ? 'get' : 'post');
 
 			$toDelete = [];
 
-			if (!is_array($_REQUEST['delete'])) {
+			if (!\is_array($_REQUEST['delete'])) {
 				$toDelete[] = (int) $_REQUEST['delete'];
 			} else {
 				foreach ($_REQUEST['delete'] as $did) {
@@ -451,7 +451,7 @@ class WatchedUsers implements ActionInterface
 				'body' => $row['body'],
 				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'approved' => $row['approved'],
-				'can_delete' => $delete_boards == [0] || in_array($row['id_board'], $delete_boards),
+				'can_delete' => $delete_boards == [0] || \in_array($row['id_board'], $delete_boards),
 			];
 		}
 		Db::$db->free_result($request);

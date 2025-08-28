@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -211,7 +211,7 @@ class Received implements \ArrayAccess
 		$this->labels = array_diff($this->labels, [$label_id]);
 
 		// If it has no labels, put it back in the inbox.
-		if (empty($this->labels) || in_array(-1, $this->labels)) {
+		if (empty($this->labels) || \in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
 			$this->labels[] = -1;
 		}
@@ -232,7 +232,7 @@ class Received implements \ArrayAccess
 
 		$this->labels = array_map('intval', $this->labels);
 
-		if (empty($this->labels) || in_array(-1, $this->labels)) {
+		if (empty($this->labels) || \in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
 		}
 
@@ -600,12 +600,12 @@ class Received implements \ArrayAccess
 		}
 
 		foreach (Label::load() as $label) {
-			if (in_array($this->id, $label->pms)) {
+			if (\in_array($this->id, $label->pms)) {
 				$this->labels[] = $label->id;
 			}
 		}
 
-		if (empty($this->labels) || in_array(-1, $this->labels)) {
+		if (empty($this->labels) || \in_array(-1, $this->labels)) {
 			$this->in_inbox = true;
 		}
 

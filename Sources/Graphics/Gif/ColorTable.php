@@ -16,7 +16,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -50,11 +50,11 @@ class ColorTable
 		for ($i = 0; $i < $num; $i++) {
 			$rgb = substr($lpData, $i * 3, 3);
 
-			if (strlen($rgb) < 3) {
+			if (\strlen($rgb) < 3) {
 				return false;
 			}
 
-			$this->m_arColors[] = (ord($rgb[2]) << 16) + (ord($rgb[1]) << 8) + ord($rgb[0]);
+			$this->m_arColors[] = (\ord($rgb[2]) << 16) + (\ord($rgb[1]) << 8) + \ord($rgb[0]);
 			$this->m_nColors++;
 		}
 
@@ -67,9 +67,9 @@ class ColorTable
 
 		for ($i = 0; $i < $this->m_nColors; $i++) {
 			$ret .=
-				chr(($this->m_arColors[$i] & 0x000000FF)) . // R
-				chr(($this->m_arColors[$i] & 0x0000FF00) >> 8) . // G
-				chr(($this->m_arColors[$i] & 0x00FF0000) >> 16);  // B
+				\chr(($this->m_arColors[$i] & 0x000000FF)) . // R
+				\chr(($this->m_arColors[$i] & 0x0000FF00) >> 8) . // G
+				\chr(($this->m_arColors[$i] & 0x00FF0000) >> 16);  // B
 		}
 
 		return $ret;
@@ -78,7 +78,7 @@ class ColorTable
 	public function colorIndex(string $rgb): int
 	{
 		$dif = 0;
-		$rgb = intval($rgb) & 0xFFFFFF;
+		$rgb = \intval($rgb) & 0xFFFFFF;
 		$r1 = ($rgb & 0x0000FF);
 		$g1 = ($rgb & 0x00FF00) >> 8;
 		$b1 = ($rgb & 0xFF0000) >> 16;

@@ -12,7 +12,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -88,10 +88,10 @@ class Bans implements ActionInterface
 
 		User::$me->isAllowedTo('manage_bans');
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -106,7 +106,7 @@ class Bans implements ActionInterface
 	public function list(): void
 	{
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 
 			// Make sure every entry is a proper integer.
@@ -215,11 +215,11 @@ class Bans implements ActionInterface
 
 							// This ban has already expired.
 							if ($rowData['expire_time'] < time()) {
-								return sprintf('<span class="red">%1$s</span>', Lang::getTxt('ban_expired', file: 'Admin'));
+								return \sprintf('<span class="red">%1$s</span>', Lang::getTxt('ban_expired', file: 'Admin'));
 							}
 
 							// Still need to wait a few days for this ban to expire.
-							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::getTxt('ban_days', file: 'Admin'));
+							return \sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::getTxt('ban_days', file: 'Admin'));
 						},
 					],
 					'sort' => [
@@ -362,7 +362,7 @@ class Bans implements ActionInterface
 							],
 							'data' => [
 								'function' => function ($ban_item) {
-									if (in_array($ban_item['type'], ['ip', 'hostname', 'email'])) {
+									if (\in_array($ban_item['type'], ['ip', 'hostname', 'email'])) {
 										return '<strong>' . Lang::getTxt($ban_item['type'], file: 'General') . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
 									}
 
@@ -580,7 +580,7 @@ class Bans implements ActionInterface
 	 */
 	public function browseTriggers(): void
 	{
-		if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 
 			self::removeBanTriggers($_POST['remove']);
@@ -594,7 +594,7 @@ class Bans implements ActionInterface
 			Config::updateModSettings(['banLastUpdated' => time()]);
 		}
 
-		Utils::$context['selected_entity'] = isset($_REQUEST['entity']) && in_array($_REQUEST['entity'], ['ip', 'hostname', 'email', 'member']) ? $_REQUEST['entity'] : 'ip';
+		Utils::$context['selected_entity'] = isset($_REQUEST['entity']) && \in_array($_REQUEST['entity'], ['ip', 'hostname', 'email', 'member']) ? $_REQUEST['entity'] : 'ip';
 
 		$listOptions = [
 			'id' => 'ban_trigger_list',
@@ -1082,7 +1082,7 @@ class Bans implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!in_array($row['id_member'], $allMembers)) {
+				if (!\in_array($row['id_member'], $allMembers)) {
 					$allMembers[] = $row['id_member'];
 
 					// Do they need an update?
@@ -1123,7 +1123,7 @@ class Bans implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Don't do this twice!
-			if (!in_array($row['id_member'], $allMembers)) {
+			if (!\in_array($row['id_member'], $allMembers)) {
 				$updates[$row['new_value']][] = $row['id_member'];
 				$allMembers[] = $row['id_member'];
 			}
@@ -1496,7 +1496,7 @@ class Bans implements ActionInterface
 		}
 
 		// Mark the appropriate menu entry as selected
-		if (array_key_exists($this->subaction, Menu::$loaded['admin']->tab_data['tabs'])) {
+		if (\array_key_exists($this->subaction, Menu::$loaded['admin']->tab_data['tabs'])) {
 			Menu::$loaded['admin']->tab_data['tabs'][$this->subaction]['is_selected'] = true;
 		}
 
@@ -1521,7 +1521,7 @@ class Bans implements ActionInterface
 			$ban_info['is_new'] = empty($ban_info['id']);
 			$ban_info['expire_date'] = !empty($_POST['expire_date']) ? (int) $_POST['expire_date'] : 0;
 			$ban_info['expiration'] = [
-				'status' => isset($_POST['expiration']) && in_array($_POST['expiration'], ['never', 'one_day', 'expired']) ? $_POST['expiration'] : 'never',
+				'status' => isset($_POST['expiration']) && \in_array($_POST['expiration'], ['never', 'one_day', 'expired']) ? $_POST['expiration'] : 'never',
 				'days' => $ban_info['expire_date'],
 			];
 			$ban_info['db_expiration'] = $ban_info['expiration']['status'] == 'never' ? 'NULL' : ($ban_info['expiration']['status'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
@@ -1622,8 +1622,8 @@ class Bans implements ActionInterface
 		$return = [];
 
 		foreach ($search_list as $key => $callable) {
-			if (is_callable($callable)) {
-				$return[$key] = call_user_func($callable, $member_id);
+			if (\is_callable($callable)) {
+				$return[$key] = \call_user_func($callable, $member_id);
 			}
 		}
 
@@ -1712,7 +1712,7 @@ class Bans implements ActionInterface
 		];
 
 		foreach ($suggestions as $key => $value) {
-			if (is_array($value)) {
+			if (\is_array($value)) {
 				$triggers[$key] = $value;
 			} else {
 				$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
@@ -1749,7 +1749,7 @@ class Bans implements ActionInterface
 	 */
 	protected function removeBanGroups(array $group_ids): bool
 	{
-		if (!is_array($group_ids)) {
+		if (!\is_array($group_ids)) {
 			$group_ids = [$group_ids];
 		}
 
@@ -1921,7 +1921,7 @@ class Bans implements ActionInterface
 					} else {
 						$ban_triggers['user']['id_member'] = $value;
 					}
-				} elseif (in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
+				} elseif (\in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
 					// Special case, those two are arrays themselves
 					$values = array_unique($value);
 					unset($value);
@@ -1953,7 +1953,7 @@ class Bans implements ActionInterface
 					Utils::$context['ban_errors'][] = 'no_bantype_selected';
 				}
 
-				if (isset($value) && !is_array($value)) {
+				if (isset($value) && !\is_array($value)) {
 					$log_info[] = [
 						'value' => $value,
 						'bantype' => $key,
@@ -2047,7 +2047,7 @@ class Bans implements ActionInterface
 
 		foreach ($triggers as $key => $trigger) {
 			// Exceptions, exceptions, exceptions...always exceptions... :P
-			if (in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
+			if (\in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
 				foreach ($trigger as $real_trigger) {
 					$insertTriggers[] = array_merge($values, $real_trigger);
 				}
@@ -2372,7 +2372,7 @@ class Bans implements ActionInterface
 			return false;
 		}
 
-		if (!is_array($items_ids)) {
+		if (!\is_array($items_ids)) {
 			$items_ids = [$items_ids];
 		}
 

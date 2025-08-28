@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -129,13 +129,13 @@ class Themes implements ActionInterface
 		Theme::deleteAllMinified();
 
 		if (isset(self::$subactions[$this->subaction])) {
-			$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 		} else {
 			$call = Utils::getCallable($this->subaction);
 		}
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -164,7 +164,7 @@ class Themes implements ActionInterface
 				ErrorHandler::fatalLang('themes_none_selectable', false);
 			}
 
-			if (!in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes'])) {
+			if (!\in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes'])) {
 				ErrorHandler::fatalLang('themes_default_selectable', false);
 			}
 
@@ -175,7 +175,7 @@ class Themes implements ActionInterface
 				'knownThemes' => implode(',', $_POST['options']['known_themes']),
 			]);
 
-			if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes'])) {
+			if ((int) $_POST['theme_reset'] == 0 || \in_array($_POST['theme_reset'], $_POST['options']['known_themes'])) {
 				User::updateMemberData(null, ['id_theme' => (int) $_POST['theme_reset']]);
 			}
 
@@ -388,7 +388,7 @@ class Themes implements ActionInterface
 			$setValues = [];
 
 			foreach ($_POST['options'] as $opt => $val) {
-				$setValues[] = [-1, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val];
+				$setValues[] = [-1, $_GET['th'], $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			$old_settings = [];
@@ -396,7 +396,7 @@ class Themes implements ActionInterface
 			foreach ($_POST['default_options'] as $opt => $val) {
 				$old_settings[] = $opt;
 
-				$setValues[] = [-1, 1, $opt, is_array($val) ? implode(',', $val) : $val];
+				$setValues[] = [-1, 1, $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			// If we're actually inserting something..
@@ -467,7 +467,7 @@ class Themes implements ActionInterface
 						FROM {db_prefix}members',
 						[
 							'option' => $opt,
-							'value' => (is_array($val) ? implode(',', $val) : $val),
+							'value' => (\is_array($val) ? implode(',', $val) : $val),
 						],
 						identifier: 'substring',
 					);
@@ -529,7 +529,7 @@ class Themes implements ActionInterface
 						[
 							'current_theme' => $_GET['th'],
 							'option' => $opt,
-							'value' => (is_array($val) ? implode(',', $val) : $val),
+							'value' => (\is_array($val) ? implode(',', $val) : $val),
 						],
 						identifier: 'substring',
 					);
@@ -632,7 +632,7 @@ class Themes implements ActionInterface
 
 		foreach (Utils::$context['options'] as $i => $setting) {
 			// Just skip separators
-			if (!is_array($setting)) {
+			if (!\is_array($setting)) {
 				continue;
 			}
 
@@ -745,7 +745,7 @@ class Themes implements ActionInterface
 			// Make sure items are cast correctly.
 			foreach (Utils::$context['theme_settings'] as $item) {
 				// Disregard this item if this is just a separator.
-				if (!is_array($item)) {
+				if (!\is_array($item)) {
 					continue;
 				}
 
@@ -769,11 +769,11 @@ class Themes implements ActionInterface
 			$inserts = [];
 
 			foreach ($_POST['options'] as $opt => $val) {
-				$inserts[] = [0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val];
+				$inserts[] = [0, $_GET['th'], $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			foreach ($_POST['default_options'] as $opt => $val) {
-				$inserts[] = [0, 1, $opt, is_array($val) ? implode(',', $val) : $val];
+				$inserts[] = [0, 1, $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			// If we're actually inserting something..
@@ -800,8 +800,8 @@ class Themes implements ActionInterface
 		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		foreach (Theme::$current->settings as $setting => $dummy) {
-			if (!in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
-				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting]);
+			if (!\in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
+				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting], ENT_QUOTES);
 			}
 		}
 
@@ -810,7 +810,7 @@ class Themes implements ActionInterface
 
 		foreach (Utils::$context['settings'] as $i => $setting) {
 			// Separators are dummies, so leave them alone.
-			if (!is_array($setting)) {
+			if (!\is_array($setting)) {
 				continue;
 			}
 
@@ -962,7 +962,7 @@ class Themes implements ActionInterface
 			}
 
 			// Call the function and handle the result.
-			$result = call_user_func([$this, $do_actions[$do_action]]);
+			$result = \call_user_func([$this, $do_actions[$do_action]]);
 
 			// Everything went better than expected!
 			if (!empty($result)) {
@@ -1042,7 +1042,7 @@ class Themes implements ActionInterface
 			if (isset($_GET['directory']) && $_GET['directory'] != '') {
 				Utils::$context['theme_files'] = $this->getFileList($currentTheme['theme_dir'] . '/' . $_GET['directory'], $_GET['directory'] . '/');
 
-				$temp = dirname($_GET['directory']);
+				$temp = \dirname($_GET['directory']);
 
 				array_unshift(Utils::$context['theme_files'], [
 					'filename' => $temp == '.' || $temp == '' ? '/ (..)' : $temp . ' (..)',
@@ -1088,14 +1088,14 @@ class Themes implements ActionInterface
 
 		if (isset($_POST['save'])) {
 			if (User::$me->checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true) {
-				if (is_array($_POST['entire_file'])) {
+				if (\is_array($_POST['entire_file'])) {
 					$_POST['entire_file'] = implode("\n", $_POST['entire_file']);
 				}
 
 				$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], ["\r" => '', '   ' => "\t"]));
 
 				// Check for a parse error!
-				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
+				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && \ini_get('display_errors')) {
 					Config::safeFileWrite($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 					$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
@@ -1113,7 +1113,7 @@ class Themes implements ActionInterface
 					// Nuke any minified files and update Config::$modSettings['browser_cache']
 					Theme::deleteAllMinified();
 
-					Utils::redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
+					Utils::redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . \dirname($_REQUEST['filename']));
 				}
 			}
 			// Session timed out.
@@ -1122,7 +1122,7 @@ class Themes implements ActionInterface
 				Utils::$context['sub_template'] = 'edit_file';
 
 				// Recycle the submitted data.
-				if (is_array($_POST['entire_file'])) {
+				if (\is_array($_POST['entire_file'])) {
 					Utils::$context['entire_file'] = Utils::htmlspecialchars(implode("\n", $_POST['entire_file']));
 				} else {
 					Utils::$context['entire_file'] = Utils::htmlspecialchars($_POST['entire_file']);
@@ -1167,7 +1167,7 @@ class Themes implements ActionInterface
 			$j = 0;
 			Utils::$context['file_parts'] = [['lines' => 0, 'line' => 1, 'data' => '']];
 
-			for ($i = 0, $n = count($file_data); $i < $n; $i++) {
+			for ($i = 0, $n = \count($file_data); $i < $n; $i++) {
 				if (isset($file_data[$i + 1]) && str_starts_with($file_data[$i + 1], 'function ')) {
 					// Try to format the functions a little nicer...
 					Utils::$context['file_parts'][$j]['data'] = trim(Utils::$context['file_parts'][$j]['data']) . "\n";
@@ -1644,8 +1644,8 @@ class Themes implements ActionInterface
 		}
 
 		// Is this theme installed and enabled?
-		$single['known'] = in_array($single['id'], $knownThemes);
-		$single['enable'] = in_array($single['id'], $enableThemes);
+		$single['known'] = \in_array($single['id'], $knownThemes);
+		$single['enable'] = \in_array($single['id'], $enableThemes);
 
 		// It should at least return if the theme is a known one or if its enable.
 		return $single;
@@ -1705,8 +1705,8 @@ class Themes implements ActionInterface
 			if (!isset(Utils::$context['themes'][$row['id_theme']])) {
 				Utils::$context['themes'][$row['id_theme']] = [
 					'id' => (int) $row['id_theme'],
-					'known' => in_array($row['id_theme'], $knownThemes),
-					'enable' => in_array($row['id_theme'], $enableThemes),
+					'known' => \in_array($row['id_theme'], $knownThemes),
+					'enable' => \in_array($row['id_theme'], $enableThemes),
 				];
 			}
 
@@ -1768,8 +1768,8 @@ class Themes implements ActionInterface
 			if (!isset(Utils::$context['themes'][$row['id_theme']])) {
 				Utils::$context['themes'][$row['id_theme']] = [
 					'id' => (int) $row['id_theme'],
-					'known' => in_array($row['id_theme'], $knownThemes),
-					'enable' => in_array($row['id_theme'], $enableThemes),
+					'known' => \in_array($row['id_theme'], $knownThemes),
+					'enable' => \in_array($row['id_theme'], $enableThemes),
 				];
 			}
 

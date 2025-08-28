@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -100,10 +100,10 @@ class Mail implements ActionInterface
 			'description' => Lang::getTxt('mailqueue_desc', file: 'ManageMail'),
 		];
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -158,7 +158,7 @@ class Mail implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Utils::entityStrlen($rowData['subject']) > 50 ? sprintf('%1$s...', Utils::htmlspecialchars(Utils::entitySubstr($rowData['subject'], 0, 47))) : Utils::htmlspecialchars($rowData['subject']);
+							return Utils::entityStrlen($rowData['subject']) > 50 ? \sprintf('%1$s...', Utils::htmlspecialchars(Utils::entitySubstr($rowData['subject'], 0, 47))) : Utils::htmlspecialchars($rowData['subject']);
 						},
 						'class' => 'smalltext',
 					],
@@ -192,7 +192,7 @@ class Mail implements ActionInterface
 					'data' => [
 						'function' => function ($rowData) {
 							// We probably have a text label with your priority.
-							$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
+							$txtKey = \sprintf('mq_mpriority_%1$s', $rowData['priority']);
 
 							// But if not, revert to priority 1.
 							if (!Lang::txtExists($txtKey, file: 'ManageMail')) {
@@ -296,7 +296,7 @@ class Mail implements ActionInterface
 		$i = 0;
 
 		foreach (self::$processedBirthdayEmails as $index => $email) {
-			$is_last = ++$i == count(self::$processedBirthdayEmails);
+			$is_last = ++$i == \count(self::$processedBirthdayEmails);
 
 			Utils::$context['settings_insert_above'] .= '
 				' . $index . ': {
@@ -425,15 +425,15 @@ class Mail implements ActionInterface
 			'',
 
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
-			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
-			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => \strlen($subject) + 3],
+			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(\strlen($body) / 25)],
 			'',
 
 			['select', 'mail_type', $apis_names],
 		];
 
 		foreach ($detected_apis as $class_name => $agent) {
-			if (is_callable([$agent, 'agentSettings'])) {
+			if (\is_callable([$agent, 'agentSettings'])) {
 				$agent->agentSettings($config_vars);
 			}
 		}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -106,7 +106,7 @@ class Time1 extends BBCode
 
 		// Special handling for month and day with no year.
 		if (!isset($when) && preg_match('/^(0?\d|1[0-2])-(0?\d|[12]\d|3[01])$/', $date, $matches)) {
-			$when = sprintf('%1$02d-%2$02d', $matches[1], $matches[2]);
+			$when = \sprintf('%1$02d-%2$02d', $matches[1], $matches[2]);
 
 			$data = [$text, $when];
 
@@ -126,14 +126,14 @@ class Time1 extends BBCode
 		) {
 			$parsed = date_parse($sanitized_text);
 
-			if (is_int($parsed['hour']) && is_int($parsed['minute'])) {
+			if (\is_int($parsed['hour']) && \is_int($parsed['minute'])) {
 				if (
 					$parsed['hour'] === 12
 					&& str_starts_with(strtolower($matches[0]), 'a')
 				) {
 					$sanitized_text = preg_replace(
-						'~(?<!:)12:' . sprintf('%02d', $parsed['minute']) . '~',
-						'00:' . sprintf('%02d', $parsed['minute']),
+						'~(?<!:)12:' . \sprintf('%02d', $parsed['minute']) . '~',
+						'00:' . \sprintf('%02d', $parsed['minute']),
 						$sanitized_text,
 					);
 				} elseif (
@@ -142,8 +142,8 @@ class Time1 extends BBCode
 					&& str_starts_with(strtolower($matches[0]), 'p')
 				) {
 					$sanitized_text = preg_replace(
-						'~(?<!:)0?' . $parsed['hour'] . ':' . sprintf('%02d', $parsed['minute']) . '~',
-						($parsed['hour'] + 12) . ':' . sprintf('%02d', $parsed['minute']),
+						'~(?<!:)0?' . $parsed['hour'] . ':' . \sprintf('%02d', $parsed['minute']) . '~',
+						($parsed['hour'] + 12) . ':' . \sprintf('%02d', $parsed['minute']),
 						$sanitized_text,
 					);
 				}
@@ -179,7 +179,7 @@ class Time1 extends BBCode
 				// in locales that use 12 hour time.
 				if (
 					// Time is between 1:00 and 7:59.
-					is_int($parsed['hour'])
+					\is_int($parsed['hour'])
 					&& $parsed['hour'] > 0
 					&& $parsed['hour'] < 8
 					// No explicit AM or PM was given.
@@ -245,10 +245,10 @@ class Time1 extends BBCode
 
 				// If any time parts are populated, populate any missing ones.
 				if (
-					!is_bool($parsed['hour'])
-					|| !is_bool($parsed['minute'])
-					|| !is_bool($parsed['second'])
-					|| !is_bool($parsed['fraction'])
+					!\is_bool($parsed['hour'])
+					|| !\is_bool($parsed['minute'])
+					|| !\is_bool($parsed['second'])
+					|| !\is_bool($parsed['fraction'])
 					|| $parsed['is_localtime']
 				) {
 					$parsed['hour'] = (int) $parsed['hour'];
@@ -337,7 +337,7 @@ class Time1 extends BBCode
 				}
 
 				$fmt_string = implode('-', array_filter(
-					array_slice($fmt, 0, 3),
+					\array_slice($fmt, 0, 3),
 					fn($arg) => $arg !== false,
 				));
 
@@ -346,7 +346,7 @@ class Time1 extends BBCode
 				}
 
 				$fmt_string .= implode(':', array_filter(
-					array_slice($fmt, 3, 3),
+					\array_slice($fmt, 3, 3),
 					fn($arg) => $arg !== false,
 				));
 

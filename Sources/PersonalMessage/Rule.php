@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -370,7 +370,7 @@ class Rule implements \ArrayAccess
 				$realLabels = [];
 
 				foreach (Utils::$context['labels'] as $label) {
-					if (in_array($label['id'], $labels)) {
+					if (\in_array($label['id'], $labels)) {
 						$realLabels[] = $label['id'];
 					}
 				}
@@ -592,7 +592,7 @@ class Rule implements \ArrayAccess
 						't' => 'gid',
 						'v' => (int) $_POST['ruledefgroup'][$ind],
 					];
-				} elseif (in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
+				} elseif (\in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
 					$rule->criteria[] = [
 						't' => $type,
 						'v' => Utils::htmlspecialchars(trim($_POST['ruledef'][$ind])),

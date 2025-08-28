@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Help
+// Version: 3.0 Alpha 4; Help
 
 $txt['close_window'] = 'Close window';
 
@@ -276,8 +276,8 @@ $helptxt['attachment_manager_settings'] = 'Attachments are files that members ca
 $helptxt['attachmentCheckExtensions'] = 'For some communities, you may wish to limit the types of files that users can upload by checking the extension: e.g. myphoto.jpg has an extension of jpg.';
 // References setting attachmentCheckExtensions
 $helptxt['attachmentExtensions'] = 'If "check attachment’s extension" above is enabled, these are the extensions that will be permitted for new attachments.';
-$helptxt['attachmentUploadDir'] = 'The path to your attachment folder on the server<br>(example: /home/sites/yoursite/www/forum/attachments)';
-$helptxt['attachmentDirSizeLimit'] = 'Select how large the attachment folder can be, including all files within it.';
+$helptxt['attachmentUploadDir'] = 'The path to your attachment directory on the server<br>(example: /home/sites/yoursite/www/forum/attachments)';
+$helptxt['attachmentDirSizeLimit'] = 'Select how large the attachment directory can be, including all files within it.';
 $helptxt['attachmentPostLimit'] = 'Select the maximum filesize (in KB) of all attachments made per post. If this is lower than the per-attachment limit, this will be the limit.';
 $helptxt['attachmentSizeLimit'] = 'Select the maximum filesize of each separate attachment.';
 $helptxt['attachmentNumPerPostLimit'] = 'Select the number of attachments a person can make per post.';
@@ -305,7 +305,7 @@ $helptxt['attachment_image_paranoid'] = 'Selecting this setting will enable very
 $helptxt['attachment_image_reencode'] = 'Selecting this setting will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
 $helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br>Checking this setting, the system will estimate the required memory and will then request that amount. If successful, only then will it attempt to create the thumbnail.<br>This will result in fewer white page errors but may result in fewer thumbnails being created. Leaving this unchecked will always cause the system to try to create the thumbnail (with a fixed amount of memory). This may result in more white page errors.';
 $helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
-$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single folder. For most sites this is not a problem, but as a site grows it can be useful to have multiple folders to store attachments in.<br><br>This setting allows you to set whether you manage these folders yourself (e.g. creating a second folder and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down folders by years or even months on very busy sites.';
+$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single directory. For most sites this is not a problem, but as a site grows it can be useful to have multiple direcotries to store attachments in.<br><br>This setting allows you to set whether you manage these directories yourself (e.g. creating a second directory and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down directories by years or even months on very busy sites.';
 $helptxt['dont_show_attach_under_post'] = 'If enabled, the attachments embedded in the post will not appear under the post, but are still subject to be deleted.';
 $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'As with the maximum width, this setting indicates the maximum height a posted image can be.';
@@ -521,7 +521,7 @@ $helptxt['maintenance_backup'] = 'This area allows you to save a copy of all the
 $helptxt['maintenance_rot'] = 'This allows you to <strong>completely</strong> and <strong>irrevocably</strong> remove old topics. It is recommended that you try to make a backup first, just in case you remove something you did not mean to.<br><br><strong>Use this setting with care.</strong>';
 $helptxt['maintenance_members'] = 'This allows you to <strong>completely</strong> and <strong>irrevocably</strong> remove member accounts from your forum. It is <strong>highly</strong> recommended that you try to make a backup first, just in case you remove something you did not mean to.<br><br><strong>Use this setting with care.</strong>';
 
-$helptxt['avatar_server_stored'] = 'This allows your members to pick from avatars stored on your server itself. By default they are stored in the "avatars" directory.<br>As a tip, if you create directories in that folder, you can make "categories" of avatars.';
+$helptxt['avatar_server_stored'] = 'This allows your members to pick from avatars stored on your server itself. By default they are stored in the "avatars" directory.<br>As a tip, if you create sub-directories in that directory, you can make "categories" of avatars.';
 $helptxt['avatar_external'] = 'With this enabled, your members can type in a URL to their own avatar. The downside of this is that, in some cases, they may use avatars that are overly large or portray images you do not want on your forum.';
 $helptxt['avatar_download_external'] = 'With this setting enabled, external avatars will be downloaded from the URLs given by the users. On success, the avatars will be treated like uploaded avatars.';
 $helptxt['avatar_action_too_large'] = 'This setting lets you reject images (from other sites) that are too big, or tells the user’s browser to resize them, or to download them to your server.<br><br>If users put in very large images as their avatars and resize in the browser, it could cause very slow loading for your users - it does not actually resize the file, it just displays it smaller. So a digital photo, for example, would still be loaded in full and then resized only when displayed - so for users this could get quite slow and use a lot of bandwidth.<br><br>On the other hand, downloading them means using your bandwidth and server space, but you also ensure that images are smaller, so it should be faster for users. (Note: downloading and resizing requires either the GD library, or ImageMagick using the Imagick extension)';
@@ -640,7 +640,7 @@ $helptxt['alert_event_new'] = 'This will send out an alert or email as requested
 $helptxt['force_ssl'] = '<strong>Test SSL and HTTPS on your server properly before enabling this, it may cause your forum to become inaccessible.</strong> Enable maintenance mode if you are unable to access the forum after enabling this.<br><br><strong>Changing this setting will update your forum’s primary URL, as well as the URLs for your theme files and images, smileys, and avatars, setting them to either http: or https: based on your selection. Customized URLs will not be affected.</strong>';
 $helptxt['image_proxy_enabled'] = 'Required for embedding external images when in full SSL';
 $helptxt['image_proxy_secret'] = 'Keep this a secret, protects your forum from hotlinking images. Change it in order to render current hotlinked images useless';
-$helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy will cache: bigger images will be not be cached. Cached images are stored in your SMF cache folder, so make sure you have enough free space.';
+$helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy will cache: bigger images will be not be cached. Cached images are stored in your SMF cache directory, so make sure you have enough free space.';
 
 $helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.';
 

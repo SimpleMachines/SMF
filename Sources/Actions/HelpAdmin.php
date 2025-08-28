@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -66,7 +66,7 @@ class HelpAdmin implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['help']) || !is_string($_GET['help'])) {
+		if (!isset($_GET['help']) || !\is_string($_GET['help'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -85,7 +85,7 @@ class HelpAdmin implements ActionInterface, Routable
 		} elseif (
 			substr($_GET['help'], 0, 4) === 'tag_'
 			&& User::$me->allowedTo('admin_forum')
-			&& in_array(
+			&& \in_array(
 				substr($_GET['help'], 4),
 				empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])),
 			)
@@ -130,7 +130,7 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]) && (!Sapi::isCGI() || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) ? 'supported' : 'unsupported',
+						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]) && (!Sapi::isCGI() || \ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) ? 'supported' : 'unsupported',
 					],
 				);
 				break;

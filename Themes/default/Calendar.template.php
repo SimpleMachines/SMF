@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -985,7 +985,7 @@ function template_bcd()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1080,7 +1080,7 @@ function template_hms()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1173,7 +1173,7 @@ function template_omfg()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)

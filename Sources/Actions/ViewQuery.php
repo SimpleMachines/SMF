@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -62,7 +62,7 @@ class ViewQuery implements ActionInterface, Routable
 	public function execute(): void
 	{
 		// We should have debug mode enabled, as well as something to display!
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug'])) {
+		if (!DebugUtils::isDebugEnabled() || !isset($_SESSION['debug'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -206,6 +206,7 @@ class ViewQuery implements ActionInterface, Routable
 				} elseif ($vendor == 'PostgreSQL') {
 					$result = Db::$db->query('(ANALYZE, FORMAT JSON) ' . $select);
 				} elseif ($vendor == 'MySQL' && version_compare($version, '8.3.0', '>=')) {
+					Db::$db->query('SET explain_json_format_version=2');
 					$result = Db::$db->query('EXPLAIN ANALYZE FORMAT=JSON ' . $select);
 				} else {
 					$formatJson = false;

@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; ManageMaintenance
+// Version: 3.0 Alpha 4; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #{0, number, integer} is in non-existent topic #{1, number, integer}.';
@@ -118,7 +118,7 @@ $txt['error_url'] = 'URL of page causing the error';
 $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
-$txt['error_file_and_line'] = '{file} (Line {line, number, integer})';
+$txt['error_file_and_line'] = '{file} (Line {line, number, :: group-off})';
 $txt['clear_filter'] = 'Clear filter';
 $txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
@@ -133,7 +133,7 @@ $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type: {list}';
 $txt['backtrace_title'] = 'Backtrace information';
 // argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
-$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, integer}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, integer}</a>';
+$txt['backtrace_info'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from <a href="{5}?action=admin;area=logs;sa=errorlog;file={4};line={3, number, :: group-off}" onclick="return reqWin(this.href, 600, 480, false);">{2} on line {3, number, :: group-off}</a>';
 $txt['backtrace_info_internal_function'] = '<b>#{0, number, integer}</b>: {1}()<br>Called from [internal function]';
 
 $txt['errortype_all'] = 'All errors';

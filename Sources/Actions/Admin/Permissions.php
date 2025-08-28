@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -211,10 +211,10 @@ class Permissions implements ActionInterface
 
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -443,7 +443,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Update the permissions.
-		if (is_array($_POST['perm'] ?? null)) {
+		if (\is_array($_POST['perm'] ?? null)) {
 			// Load the relevant permission set.
 			$set = current(GroupPermissionSet::load($permission_profile->id, $_GET['group']));
 
@@ -608,10 +608,10 @@ class Permissions implements ActionInterface
 		// Work out what ones are in use.
 		foreach (PermissionProfile::loadAll() as $profile) {
 			Utils::$context['profiles'][$profile->id]['in_use'] = !empty($profile->boards());
-			Utils::$context['profiles'][$profile->id]['boards'] = count($profile->boards());
+			Utils::$context['profiles'][$profile->id]['boards'] = \count($profile->boards());
 			Utils::$context['profiles'][$profile->id]['boards_text'] = Lang::getTxt(
 				'permissions_profile_used_by_count',
-				[count($profile->boards())],
+				[\count($profile->boards())],
 				file: 'ManagePermissions',
 			);
 		}
@@ -738,7 +738,7 @@ class Permissions implements ActionInterface
 						}
 
 						foreach ($set->permissions as $permission_name => $value) {
-							if (!in_array($permission_name, $data)) {
+							if (!\in_array($permission_name, $data)) {
 								continue;
 							}
 
@@ -901,7 +901,7 @@ class Permissions implements ActionInterface
 					continue;
 				}
 
-				$set->permissions[$permission_name] = in_array($permission_name, $group_levels['global'][$level]) || in_array($permission_name, $group_levels['board'][$level]) ? 1 : null;
+				$set->permissions[$permission_name] = \in_array($permission_name, $group_levels['global'][$level]) || \in_array($permission_name, $group_levels['board'][$level]) ? 1 : null;
 			}
 
 			$set->save();
@@ -924,7 +924,7 @@ class Permissions implements ActionInterface
 					continue;
 				}
 
-				$set->permissions[$permission_name] = in_array($permission_name, $group_levels['board'][$level]) ? 1 : null;
+				$set->permissions[$permission_name] = \in_array($permission_name, $group_levels['board'][$level]) ? 1 : null;
 			}
 
 			$set->save();
@@ -951,7 +951,7 @@ class Permissions implements ActionInterface
 						continue;
 					}
 
-					$set->permissions[$permission_name] = in_array($permission_name, $board_levels[$level] ?? []) ? 1 : null;
+					$set->permissions[$permission_name] = \in_array($permission_name, $board_levels[$level] ?? []) ? 1 : null;
 				}
 
 				$set->save();
@@ -1003,7 +1003,7 @@ class Permissions implements ActionInterface
 				'intval',
 				array_filter(
 					(array) $excluded_groups,
-					fn($v) => is_int($v) || is_string($v) && intval($v) == $v,
+					fn($v) => \is_int($v) || \is_string($v) && \intval($v) == $v,
 				),
 			),
 		));
@@ -1122,7 +1122,7 @@ class Permissions implements ActionInterface
 					$new_value === 1
 					&& (
 						!$permission->canBeGrantedTo($set->group)
-						|| in_array(
+						|| \in_array(
 							$set->group,
 							Utils::$context['excluded_permissions'][$permission->name] ?? [],
 						)
@@ -1237,11 +1237,11 @@ class Permissions implements ActionInterface
 	protected function quickSetPredefined(): void
 	{
 		// Make sure it's a predefined permission set we expect.
-		if (!in_array($_POST['predefined'], ['restrict', 'standard', 'moderator', 'maintenance'])) {
+		if (!\in_array($_POST['predefined'], ['restrict', 'standard', 'moderator', 'maintenance'])) {
 			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
-		$level = constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['predefined']));
+		$level = \constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['predefined']));
 
 		foreach (Group::load(array_map('intval', $_POST['group'])) as $group) {
 			$group->setPermissionsByLevel($level, (int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT));
@@ -1312,8 +1312,8 @@ class Permissions implements ActionInterface
 
 		// Check whether our input is within expected range.
 		if (
-			!in_array($_POST['add_remove'], ['add', 'clear', 'deny'])
-			|| !in_array($scope, ['global', 'board'])
+			!\in_array($_POST['add_remove'], ['add', 'clear', 'deny'])
+			|| !\in_array($scope, ['global', 'board'])
 			|| !Permission::get($permission)->canAssign()
 			|| Permission::get($permission)->scope !== $scope
 		) {
@@ -1435,7 +1435,7 @@ class Permissions implements ActionInterface
 		// General permissions?
 		if ($scope == 'global') {
 			foreach (current(GroupPermissionSet::load($profile, $group))->permissions as $perm => $add_deny) {
-				if (is_null($add_deny)) {
+				if (\is_null($add_deny)) {
 					continue;
 				}
 
@@ -1445,7 +1445,7 @@ class Permissions implements ActionInterface
 
 		// Fetch current board permissions...
 		foreach (current(GroupPermissionSet::load($profile, $group))->permissions as $perm => $add_deny) {
-			if (is_null($add_deny)) {
+			if (\is_null($add_deny)) {
 				continue;
 			}
 
@@ -1473,11 +1473,11 @@ class Permissions implements ActionInterface
 						$cur_perm = &Utils::$context['permissions'][$scope]['columns'][$position][$group_name]['permissions'][$perm['id']];
 
 						if ($perm['has_own_any']) {
-							$cur_perm['any']['select'] = in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
+							$cur_perm['any']['select'] = \in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['allowed']) ? 'on' : (\in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
 
-							$cur_perm['own']['select'] = in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
+							$cur_perm['own']['select'] = \in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['allowed']) ? 'on' : (\in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
 						} else {
-							$cur_perm['select'] = in_array($perm['id'], $this->allowed_denied[$scope]['denied']) ? 'deny' : (in_array($perm['id'], $this->allowed_denied[$scope]['allowed']) ? 'on' : 'off');
+							$cur_perm['select'] = \in_array($perm['id'], $this->allowed_denied[$scope]['denied']) ? 'deny' : (\in_array($perm['id'], $this->allowed_denied[$scope]['allowed']) ? 'on' : 'off');
 						}
 
 						// Keep the last value if it's hidden.
@@ -1620,7 +1620,7 @@ class Permissions implements ActionInterface
 			}
 
 			foreach ($groups as $group) {
-				$position = (int) (!in_array($group, self::$left_permission_groups));
+				$position = (int) (!\in_array($group, self::$left_permission_groups));
 
 				Utils::$context['permissions'][$scope]['columns'][$position][$group] = [
 					'type' => $scope,
@@ -1641,7 +1641,7 @@ class Permissions implements ActionInterface
 			}
 
 			// What column should this be located in?
-			$position = (int) (!in_array($permission->view_group, self::$left_permission_groups));
+			$position = (int) (!\in_array($permission->view_group, self::$left_permission_groups));
 
 			// For legibility reasons...
 			$view_group_perms = &Utils::$context['permissions'][$permission->scope]['columns'][$position][$permission->view_group]['permissions'];
@@ -1760,9 +1760,9 @@ class Permissions implements ActionInterface
 							'own_any' => $perm_info[0] ? substr($id, -3) : null,
 							'view_group' => $perm_info[1],
 							'scope' => $scope === 'board' ? 'board' : 'global',
-							'hidden' => in_array($generic_name, $hidden_permissions),
+							'hidden' => \in_array($generic_name, $hidden_permissions),
 							'label' => 'permissionname_' . $generic_name,
-							'never_guests' => in_array($generic_name, Permission::getNonGuestPermissions()),
+							'never_guests' => \in_array($generic_name, Permission::getNonGuestPermissions()),
 						]))->addToKnownPermissions();
 					}
 				}

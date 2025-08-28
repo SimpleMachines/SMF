@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -403,7 +403,7 @@ class Holiday extends Event
 			if (isset(self::$special_rrules[$_POST['RRULE']])) {
 				$event->special_rrule = $_POST['RRULE'];
 
-				if (in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
+				if (\in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
 					$eventOptions['start_date'] = implode('-', self::easter((int) $event->start->format('Y'), $event->special_rrule === 'EASTER_E' ? 'Eastern' : 'Western'));
 				}
 			}

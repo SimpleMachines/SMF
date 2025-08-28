@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -96,10 +96,10 @@ class Membergroups implements ActionInterface
 		// Do the permission check, you might not be allowed here.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -138,16 +138,16 @@ class Membergroups implements ActionInterface
 							if ($rowData['id_group'] == 3) {
 								$group_name = $rowData['group_name'];
 							} else {
-								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+								$color_style = empty($rowData['online_color']) ? '' : \sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-								$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
+								$group_name = \sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
 							if ($rowData['id_group'] == 1) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							} elseif ($rowData['id_group'] == 3) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							}
 
 							return $group_name;
@@ -240,9 +240,9 @@ class Membergroups implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							$colorStyle = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+							$colorStyle = empty($rowData['online_color']) ? '' : \sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-							return sprintf('<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $colorStyle, $rowData['group_name']);
+							return \sprintf('<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $colorStyle, $rowData['group_name']);
 						},
 					],
 					'sort' => [
@@ -352,7 +352,7 @@ class Membergroups implements ActionInterface
 
 			if ($_POST['perm_type'] == 'predefined') {
 				try {
-					$level = constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['level']));
+					$level = \constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['level']));
 				} catch (\Throwable $e) {
 					ErrorHandler::fatalLang('no_access', false);
 				}
@@ -368,7 +368,7 @@ class Membergroups implements ActionInterface
 			}
 
 			// Make sure all boards selected are stored in a proper array.
-			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess'];
+			$accesses = empty($_POST['boardaccess']) || !\is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess'];
 
 			$changed_boards['allow'] = [];
 			$changed_boards['deny'] = [];
@@ -538,7 +538,7 @@ class Membergroups implements ActionInterface
 		}
 
 		// People who can manage boards are a bit special.
-		Utils::$context['can_manage_boards'] = in_array($group->id, Group::getAllowedTo('manage_boards'));
+		Utils::$context['can_manage_boards'] = \in_array($group->id, Group::getAllowedTo('manage_boards'));
 
 		// Can this group moderate any boards?
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
@@ -556,7 +556,7 @@ class Membergroups implements ActionInterface
 				$ext = pathinfo(Theme::$current->settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
 
 				// If the extension is not empty, and it is valid.
-				if (!empty($ext) && in_array($ext, $imageExts)) {
+				if (!empty($ext) && \in_array($ext, $imageExts)) {
 					Utils::$context['possible_icons'][] = $value;
 				}
 			}
@@ -592,7 +592,7 @@ class Membergroups implements ActionInterface
 			$group->set([
 				'max_messages' => isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0,
 				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs((int) $_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
-				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
+				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !\in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
 				'name' => Utils::htmlspecialchars($_POST['group_name']),
 				'description' => isset($_POST['group_desc']) && ($group->id == Group::ADMIN || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '',
 				'type' => !isset($_POST['group_type']) || $_POST['group_type'] < Group::TYPE_PRIVATE || $_POST['group_type'] > Group::TYPE_FREE || ($_POST['group_type'] == Group::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) ? Group::TYPE_PRIVATE : (int) $_POST['group_type'],
@@ -642,7 +642,7 @@ class Membergroups implements ActionInterface
 			$group->save();
 
 			// Time to update the boards this membergroup has access to.
-			$group->updateBoardAccess(empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess']);
+			$group->updateBoardAccess(empty($_POST['boardaccess']) || !\is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess']);
 
 			// Let's check whether our "show group membership" setting is correct.
 			$request = Db::$db->query(
@@ -685,7 +685,7 @@ class Membergroups implements ActionInterface
 		$group->moderator_list = empty($group->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', $group->moderators) . '&quot;';
 
 		if (!empty($group->moderators)) {
-			list($group->last_moderator_id) = array_slice(array_keys($group->moderators), -1);
+			list($group->last_moderator_id) = \array_slice(array_keys($group->moderators), -1);
 		}
 
 		Utils::$context['group'] = $group;

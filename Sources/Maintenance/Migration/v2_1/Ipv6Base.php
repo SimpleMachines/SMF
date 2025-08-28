@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -93,7 +93,7 @@ class Ipv6Base extends MigrationBase
 		$updates = [];
 		$new_ips = [];
 		$cases = [];
-		$count = count($arIp);
+		$count = \count($arIp);
 
 		for ($i = 0; $i < $count; $i++) {
 			$new_ip = trim($arIp[$i]);
@@ -283,7 +283,7 @@ class Ipv6Base extends MigrationBase
 		if ($start <= 1) {
 			// Modify ip size
 			foreach ($table->columns as $col) {
-				if (in_array($col->name, (array) $columns)) {
+				if (\in_array($col->name, (array) $columns)) {
 					$table->alterColumn($col);
 				}
 			}

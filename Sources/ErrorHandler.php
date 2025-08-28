@@ -12,7 +12,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,6 +21,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\ServerSideIncludes as SSI;
 
 /**
@@ -82,7 +83,7 @@ class ErrorHandler
 
 		if (str_contains($file, 'eval()') && !empty(Theme::$current->settings['current_include_filename'])) {
 			$array = debug_backtrace();
-			$count = count($array);
+			$count = \count($array);
 
 			for ($i = 0; $i < $count; $i++) {
 				if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate') {
@@ -104,7 +105,7 @@ class ErrorHandler
 			}
 		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Commonly, undefined indexes will occur inside attributes; try to show them anyway!
 			if ($error_level % 255 != E_ERROR) {
 				$temporary = ob_get_contents();
@@ -207,7 +208,7 @@ class ErrorHandler
 		$error_call++;
 
 		// Collect a backtrace
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false) {
+		if (!DebugUtils::isDebugEnabled()) {
 			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.
@@ -239,7 +240,7 @@ class ErrorHandler
 
 		// Find the best path and query string we can...
 		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
-			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+			$query_string = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
 		} else {
 			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
 		}
@@ -265,7 +266,7 @@ class ErrorHandler
 		}
 
 		// Make sure the category that was specified is a valid one
-		$error_type = in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
+		$error_type = \in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
 
 		// Leave out the call to this method.
 		array_splice($backtrace, 0, 1);
@@ -557,7 +558,7 @@ class ErrorHandler
 			$url['error'] = $error;
 
 			// Url field got a max length of 1024 in db
-			if (strlen($url['error']) > 500) {
+			if (\strlen($url['error']) > 500) {
 				$url['error'] = substr($url['error'], 0, 500);
 			}
 
@@ -617,7 +618,7 @@ class ErrorHandler
 			// Don't get caught in a recursive loop.
 			++$level > 1
 			// If we hit a fatal error during install, don't try to load the theme.
-			|| defined('SMF_INSTALLING')
+			|| \defined('SMF_INSTALLING')
 		) {
 			die($error_message);
 		}
@@ -649,8 +650,8 @@ class ErrorHandler
 
 		// If this is SSI, what do they want us to do?
 		if (SMF == 'SSI') {
-			if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && is_callable(SSI::$on_error_method)) {
-				call_user_func(SSI::$on_error_method);
+			if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && \is_callable(SSI::$on_error_method)) {
+				\call_user_func(SSI::$on_error_method);
 			} elseif (empty(SSI::$on_error_method) || SSI::$on_error_method !== true) {
 				Theme::loadSubTemplate('fatal_error');
 			}
@@ -663,7 +664,7 @@ class ErrorHandler
 		// Alternatively from the cron call?
 		elseif (SMF == 'BACKGROUND') {
 			// We can't rely on even having language files available.
-			if (defined('FROM_CLI') && FROM_CLI) {
+			if (\defined('FROM_CLI') && FROM_CLI) {
 				echo 'cron error: ', Utils::$context['error_message'];
 			} else {
 				echo 'An error occurred. More information may be available in your logs.';
@@ -709,7 +710,7 @@ class ErrorHandler
 			$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 			// survey says ...
-			if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail) {
+			if ($written_bytes !== \strlen($write_db_change) && !$dberror_backup_fail) {
 				// Oops. maybe we have no more disk space left, or some other troubles, troubles...
 				// Copy the file back and run for your life!
 				@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');

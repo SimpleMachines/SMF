@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\MailAgent;
@@ -181,7 +181,7 @@ abstract class MailAgent
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
@@ -216,11 +216,11 @@ abstract class MailAgent
 			}
 		}
 
-		if (!is_null(self::$loaded_api) && is_object(self::$loaded_api)) {
+		if (!\is_null(self::$loaded_api) && \is_object(self::$loaded_api)) {
 			return self::$loaded_api;
 		}
 
-		if (is_null(self::$loaded_api)) {
+		if (\is_null(self::$loaded_api)) {
 			self::$loaded_api = false;
 		}
 

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -82,11 +82,11 @@ class Logging
 		IntegrationHook::call('integrate_log_types', [&$log_types, &$always_log]);
 
 		foreach ($logs as $log) {
-			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log))) {
+			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !\in_array($log['action'], $always_log))) {
 				continue;
 			}
 
-			if (!is_array($log['extra'])) {
+			if (!\is_array($log['extra'])) {
 				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']], file: 'Errors'));
 			}
 
@@ -113,7 +113,7 @@ class Logging
 
 			// @todo cache this?
 			// Is there an associated report on this?
-			if (in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
+			if (\in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
 				$request = Db::$db->query(
 					'SELECT id_report
 					FROM {db_prefix}log_reported
@@ -362,7 +362,7 @@ class Logging
 
 			case 'postgroups':
 				// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-				if ($parameter2 !== null && !in_array('posts', $parameter2)) {
+				if ($parameter2 !== null && !\in_array('posts', $parameter2)) {
 					return;
 				}
 
@@ -407,7 +407,7 @@ class Logging
 					SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
 					END' . ($parameter1 != null ? '
-					WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
+					WHERE ' . (\is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 					[
 						'members' => $parameter1,
 					],
@@ -595,7 +595,7 @@ class Logging
 		}
 
 		// Not allowed sort method? Bang! Error!
-		if (!in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
+		if (!\in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
 			throw new \ValueError('get_members_online_stats_invalid_sort');
 		}
 
@@ -669,7 +669,7 @@ class Logging
 			}
 
 			// Buddies get counted and highlighted.
-			$is_buddy = in_array($row['id_member'], User::$me->buddies);
+			$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 			if ($is_buddy) {
 				$membersOnlineStats['num_buddies']++;
@@ -747,7 +747,7 @@ class Logging
 		ksort($membersOnlineStats['online_groups']);
 
 		// Hidden and non-hidden members make up all online members.
-		$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
+		$membersOnlineStats['num_users_online'] = \count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? \count($spider_finds) : 0);
 
 		IntegrationHook::call('integrate_online_stats', [&$membersOnlineStats]);
 

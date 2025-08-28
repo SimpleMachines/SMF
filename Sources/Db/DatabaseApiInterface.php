@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -266,14 +266,6 @@ interface DatabaseApiInterface
 	 * @return bool True if it is, false otherwise
 	 */
 	public function is_resource(mixed $result): bool;
-
-	/**
-	 * Pings a server connection, and tries to reconnect if necessary.
-	 *
-	 * @param null|object $connection The connection object (if null, $db_connection is used)
-	 * @return bool True on success, or false on failure.
-	 */
-	public function ping(?object $connection = null): bool;
 
 	/**
 	 * Save errors in the database safely.

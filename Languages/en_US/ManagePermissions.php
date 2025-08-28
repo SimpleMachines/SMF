@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; ManagePermissions
+// Version: 3.0 Alpha 4; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';

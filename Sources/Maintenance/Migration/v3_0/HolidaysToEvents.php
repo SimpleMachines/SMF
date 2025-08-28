@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -620,62 +620,66 @@ class HolidaysToEvents extends MigrationBase
 	/**
 	 *
 	 */
+	public function isCandidate(): bool
+	{
+		return \count(Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays')) > 0;
+	}
+
+	/**
+	 *
+	 */
 	public function execute(): bool
 	{
-		$exists = count(Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays')) > 0;
+		if (!isset(User::$me)) {
+			User::load();
+		}
 
-		if ($exists) {
-			if (!isset(User::$me)) {
-				User::load();
-			}
+		$request = Db::$db->query(
+			'SELECT title, GROUP_CONCAT(event_date) as rdates
+			FROM {db_prefix}calendar_holidays
+			GROUP BY title',
+			[],
+		);
 
-			$request = Db::$db->query(
-				'SELECT title, GROUP_CONCAT(event_date) as rdates
-				FROM {db_prefix}calendar_holidays
-				GROUP BY title',
-				[],
-			);
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (isset($this->known_holidays[$row['title']])) {
+				$holiday = &$this->known_holidays[$row['title']];
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (isset($this->known_holidays[$row['title']])) {
-					$holiday = &$this->known_holidays[$row['title']];
+				$holiday['type'] = 1;
+				$holiday['title'] = $holiday['title'] ?? $row['title'];
+				$holiday['allday'] = !isset($holiday['start_time']) || !isset($holiday['timezone']) || !\in_array($holiday['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+				$holiday['start'] = new Time($holiday['start_date'] . (!$holiday['allday'] ? ' ' . $holiday['start_time'] . ' ' . $holiday['timezone'] : ''));
+				$holiday['duration'] = new \DateInterval($holiday['duration'] ?? 'P1D');
+				$holiday['recurrence_end'] = new Time($holiday['recurrence_end']);
+				unset($holiday['start_date'], $holiday['start_time'], $holiday['timezone']);
 
-					$holiday['type'] = 1;
-					$holiday['title'] = $holiday['title'] ?? $row['title'];
-					$holiday['allday'] = !isset($holiday['start_time']) || !isset($holiday['timezone']) || !in_array($holiday['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
-					$holiday['start'] = new Time($holiday['start_date'] . (!$holiday['allday'] ? ' ' . $holiday['start_time'] . ' ' . $holiday['timezone'] : ''));
-					$holiday['duration'] = new \DateInterval($holiday['duration'] ?? 'P1D');
-					$holiday['recurrence_end'] = new Time($holiday['recurrence_end']);
-					unset($holiday['start_date'], $holiday['start_time'], $holiday['timezone']);
+				$event = new Event(0, $this->known_holidays[$row['title']]);
+			} else {
+				$row['type'] = 1;
+				$row['allday'] = true;
+				$row['recurrence_end'] = new Time('9999-12-31');
+				$row['duration'] = new \DateInterval('P1D');
+				$row['rdates'] = explode(',', $row['rdates']);
 
-					$event = new Event(0, $this->known_holidays[$row['title']]);
+				$row['start'] = array_shift($row['rdates']);
+
+				if (preg_match('/^100\d-/', $row['start'])) {
+					$row['start'] = new Time(preg_replace('/^100\d-/', '2000-', $row['start']));
+					$row['rrule'] = 'FREQ=YEARLY';
 				} else {
-					$row['type'] = 1;
-					$row['allday'] = true;
-					$row['recurrence_end'] = new Time('9999-12-31');
-					$row['duration'] = new \DateInterval('P1D');
-					$row['rdates'] = explode(',', $row['rdates']);
-
-					$row['start'] = array_shift($row['rdates']);
-
-					if (preg_match('/^100\d-/', $row['start'])) {
-						$row['start'] = new Time(preg_replace('/^100\d-/', '2000-', $row['start']));
-						$row['rrule'] = 'FREQ=YEARLY';
-					} else {
-						$row['start'] = new Time($row['start']);
-						$row['rrule'] = 'FREQ=DAILY;COUNT=1';
-					}
-
-					$event = new Event(0, $row);
+					$row['start'] = new Time($row['start']);
+					$row['rrule'] = 'FREQ=DAILY;COUNT=1';
 				}
 
-				$event->save();
+				$event = new Event(0, $row);
 			}
 
-			Db::$db->free_result($request);
-
-			Db::$db->drop_table('{db_prefix}calendar_holidays');
+			$event->save();
 		}
+
+		Db::$db->free_result($request);
+
+		Db::$db->drop_table('{db_prefix}calendar_holidays');
 
 		return true;
 	}

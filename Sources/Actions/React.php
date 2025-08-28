@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
@@ -237,7 +238,7 @@ class React implements ActionInterface, Routable
 		// Make sure the user can see and like your content.
 		$this->check();
 
-		if (is_string($this->error)) {
+		if (\is_string($this->error)) {
 			$this->respond();
 
 			return;
@@ -256,9 +257,9 @@ class React implements ActionInterface, Routable
 
 			// Call the appropriate method.
 			if (method_exists($this, self::$subactions[$this->subaction])) {
-				call_user_func([$this, self::$subactions[$this->subaction]]);
+				\call_user_func([$this, self::$subactions[$this->subaction]]);
 			} else {
-				call_user_func(self::$subactions[$this->subaction]);
+				\call_user_func(self::$subactions[$this->subaction]);
 			}
 		}
 
@@ -306,7 +307,7 @@ class React implements ActionInterface, Routable
 
 		// We do not want to output debug information here.
 		if ($this->js) {
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 		}
 	}
 
@@ -645,7 +646,7 @@ class React implements ActionInterface, Routable
 			$call = Utils::getCallable($this->valid_reacts['callback']);
 
 			if (!empty($call)) {
-				call_user_func_array($call, [$this]);
+				\call_user_func_array($call, [$this]);
 			}
 		}
 
@@ -708,7 +709,7 @@ class React implements ActionInterface, Routable
 		$members = array_keys(Utils::$context['reactors']);
 		$loaded = User::load($members);
 
-		if (count($loaded) != count($members)) {
+		if (\count($loaded) != \count($members)) {
 			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
@@ -793,7 +794,7 @@ class React implements ActionInterface, Routable
 		// These fine gentlemen all share the same template.
 		$generic = ['delete', 'insert', 'count'];
 
-		if (in_array($this->subaction, $generic)) {
+		if (\in_array($this->subaction, $generic)) {
 			Utils::$context['sub_template'] = 'generic';
 			Utils::$context['data'] = Lang::txtExists('react_' . $this->data, file: 'General') ? Lang::getTxt('react_' . $this->data, file: 'General') : $this->data;
 		}

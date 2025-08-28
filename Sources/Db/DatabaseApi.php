@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -24,6 +24,7 @@ use SMF\Uuid;
 
 /**
  * Class DatabaseApi
+ * @mixin DatabaseApiInterface
  */
 abstract class DatabaseApi
 {
@@ -148,13 +149,6 @@ abstract class DatabaseApi
 	 * The default character set.
 	 */
 	public string $character_set;
-
-	/**
-	 * @var bool
-	 *
-	 * Local copy of Config::$db_show_debug.
-	 */
-	public bool $show_debug;
 
 	/**
 	 * @var bool
@@ -353,10 +347,6 @@ abstract class DatabaseApi
 			$this->persist = !empty(Config::$db_persist);
 		}
 
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
-		}
-
 		if (!isset($this->disableQueryCheck)) {
 			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
 		}
@@ -449,7 +439,7 @@ abstract class DatabaseApi
 					break;
 
 				default:
-					$test = is_array($value) ? reset($value) : $value;
+					$test = \is_array($value) ? reset($value) : $value;
 
 					if (IP::create((string) $test)->isValid()) {
 						$types[$column_name] = 'inet';
@@ -657,6 +647,6 @@ abstract class DatabaseApi
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([DatabaseApi::class, 'exportStatic'])) {
+if (\is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }

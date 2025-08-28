@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -179,7 +179,7 @@ class SettingsUpdate extends MigrationBase
 
 		// Deleting integration hooks.
 		foreach (Config::$modSettings as $key => $val) {
-			if (substr((string) $key, 0, strlen('integrate_'))  == 'integrate_') {
+			if (substr((string) $key, 0, \strlen('integrate_'))  == 'integrate_') {
 				$newSettings[(string) $key] = null;
 			}
 		}
@@ -202,13 +202,13 @@ class SettingsUpdate extends MigrationBase
 
 			// The rest we have to deal with manually.
 			// Moderation log - modlog_enabled itself should be set but we have others now
-			if (in_array('ml', $admin_features)) {
+			if (\in_array('ml', $admin_features)) {
 				$newSettings[] = ['adminlog_enabled', '1'];
 				$newSettings[] = ['userlog_enabled', '1'];
 			}
 
 			// Post moderation
-			if (in_array('pm', $admin_features)) {
+			if (\in_array('pm', $admin_features)) {
 				$newSettings[] = ['postmod_active', '1'];
 			}
 		}
@@ -234,7 +234,7 @@ class SettingsUpdate extends MigrationBase
 
 		// TimeZone support.
 		if (!empty(Config::$modSettings['time_offset'])) {
-			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
+			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !\in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
 
 			$now = date_create('now', timezone_open(Config::$modSettings['default_timezone']));
 

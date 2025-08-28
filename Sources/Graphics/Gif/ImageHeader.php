@@ -16,7 +16,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -67,7 +67,7 @@ class ImageHeader
 			return false;
 		}
 
-		$b = ord($lpData[8]);
+		$b = \ord($lpData[8]);
 		$this->m_bLocalClr = ($b & 0x80) ? true : false;
 		$this->m_bInterlace = ($b & 0x40) ? true : false;
 		$this->m_bSorted = ($b & 0x20) ? true : false;

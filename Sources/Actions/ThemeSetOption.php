@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -71,7 +71,7 @@ class ThemeSetOption implements ActionInterface, Routable
 		}
 
 		// Can't change reserved vars.
-		if (in_array(strtolower($_GET['var']), Theme::$reservedVars)) {
+		if (\in_array(strtolower($_GET['var']), Theme::$reservedVars)) {
 			Utils::redirectexit(Theme::$current->settings['images_url'] . '/blank.png');
 		}
 
@@ -88,7 +88,7 @@ class ThemeSetOption implements ActionInterface, Routable
 			Theme::$current->options['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
 
 			// New thingy...
-			if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5) {
+			if (isset($_GET['admin_key']) && \strlen($_GET['admin_key']) < 5) {
 				Theme::$current->options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
 			}
 
@@ -111,7 +111,7 @@ class ThemeSetOption implements ActionInterface, Routable
 					Theme::$current->settings['theme_id'],
 					User::$me->id,
 					$_GET['var'],
-					is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val'],
+					\is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val'],
 				],
 			],
 			[

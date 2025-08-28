@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -93,10 +93,10 @@ class Reminder implements ActionInterface, Routable
 		Utils::$context['page_title'] = Lang::getTxt('authentication_reminder', file: 'Profile');
 		Utils::$context['robot_no_index'] = true;
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -119,7 +119,7 @@ class Reminder implements ActionInterface, Routable
 
 		// Make sure we are not being slammed
 		// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
-		if (!in_array($_POST['reminder_type'] ?? null, ['email', 'secret'])) {
+		if (!\in_array($_POST['reminder_type'] ?? null, ['email', 'secret'])) {
 			Security::spamProtection('remind');
 		}
 
@@ -356,7 +356,7 @@ class Reminder implements ActionInterface, Routable
 		}
 
 		// You can't use a blank one!
-		if (strlen(trim($_POST['passwrd1'])) === 0) {
+		if (\strlen(trim($_POST['passwrd1'])) === 0) {
 			ErrorHandler::fatalLang('no_password', false);
 		}
 
@@ -419,7 +419,7 @@ class Reminder implements ActionInterface, Routable
 		$err_msg = 'username_no_exist';
 
 		// Coming with a known ID?
-		$uid = intval(!empty($_REQUEST['uid']) ? $_REQUEST['uid'] : (!empty($_POST['u']) ? $_POST['u'] : 0));
+		$uid = \intval(!empty($_REQUEST['uid']) ? $_REQUEST['uid'] : (!empty($_POST['u']) ? $_POST['u'] : 0));
 
 		// If given a name or email, clean it up like we do during registration.
 		if (isset($_POST['user'])) {

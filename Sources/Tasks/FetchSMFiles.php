@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -54,7 +54,7 @@ class FetchSMFiles extends ScheduledTask
 			$js_files[$row['id_file']] = [
 				'filename' => $row['filename'],
 				'path' => $row['path'],
-				'parameters' => sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+				'parameters' => \sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 			];
 		}
 		Db::$db->free_result($request);
@@ -83,7 +83,7 @@ class FetchSMFiles extends ScheduledTask
 			// Save the file to the database.
 			Db::$db->query(
 				'UPDATE {db_prefix}admin_info_files
-				SET data = SUBSTRING({string:file_data}, 1, 65534)
+				SET data = SUBSTRING({string:file_data}, 1, 16777215)
 				WHERE id_file = {int:id_file}',
 				[
 					'id_file' => $id_file,

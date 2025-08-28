@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -62,11 +62,11 @@ class CreateAlerts extends MigrationBase
 
 		$tables = Db::$db->list_tables();
 
-		if (!in_array($user_alert_table->name, $tables)) {
+		if (!\in_array($user_alert_table->name, $tables)) {
 			$user_alert_table->create();
 		}
 
-		if (!in_array($user_alert_prefs_table->name, $tables)) {
+		if (!\in_array($user_alert_prefs_table->name, $tables)) {
 			$user_alert_prefs_table->create();
 		}
 
@@ -101,7 +101,7 @@ class CreateAlerts extends MigrationBase
 		// First see if we still have a notify_regularity column
 		$member_columns = Db::$db->list_columns('{db_prefix}members');
 
-		if (in_array('notify_regularity', $member_columns)) {
+		if (\in_array('notify_regularity', $member_columns)) {
 			do {
 				$start = Maintenance::getCurrentStart();
 
@@ -127,7 +127,7 @@ class CreateAlerts extends MigrationBase
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$inserts[] = [$row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0];
-					$inserts[] = [$row['id_member'], 'msg_notify_pref', intval($row['notify_regularity']) + 1];
+					$inserts[] = [$row['id_member'], 'msg_notify_pref', \intval($row['notify_regularity']) + 1];
 					$inserts[] = [$row['id_member'], 'msg_notify_type', $row['notify_types']];
 					$inserts[] = [$row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0];
 				}
@@ -150,22 +150,22 @@ class CreateAlerts extends MigrationBase
 			} while (Maintenance::getCurrentStart() < Maintenance::$total_items);
 		}
 
-		if (in_array('notify_send_body', $member_columns)) {
+		if (\in_array('notify_send_body', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'notify_send_body');
 			$this->handleTimeout();
 		}
 
-		if (in_array('notify_types', $member_columns)) {
+		if (\in_array('notify_types', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'notify_types');
 			$this->handleTimeout();
 		}
 
-		if (in_array('notify_regularity', $member_columns)) {
+		if (\in_array('notify_regularity', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'notify_regularity');
 			$this->handleTimeout();
 		}
 
-		if (in_array('notify_announcements', $member_columns)) {
+		if (\in_array('notify_announcements', $member_columns)) {
 			Db::$db->remove_column('{db_prefix}members', 'notify_announcements');
 			$this->handleTimeout();
 		}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -187,7 +187,7 @@ class CurlFetcher extends WebFetchApi
 	public function __construct(array $options = [], int $max_redirect = 3)
 	{
 		// Initialize class variables
-		$this->max_redirect = intval($max_redirect);
+		$this->max_redirect = \intval($max_redirect);
 		$this->user_options = $options;
 
 		// This class handles redirections itself.
@@ -231,7 +231,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// If we can't do it, bail out.
-		if (!function_exists('curl_init')) {
+		if (!\function_exists('curl_init')) {
 			$this->response[] = [
 				'url' => (string) $url,
 				'success' => false,
@@ -246,7 +246,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
+		if (empty($url->scheme) || !\in_array($url->scheme, ['http', 'https'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -265,7 +265,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		$this->setOptions();
-		$this->sendRequest(str_replace(' ', '%20', strval($url)));
+		$this->sendRequest(str_replace(' ', '%20', \strval($url)));
 
 		return $this;
 	}
@@ -281,7 +281,7 @@ class CurlFetcher extends WebFetchApi
 	 */
 	public function result(?string $area = null): mixed
 	{
-		$max_result = count($this->response) - 1;
+		$max_result = \count($this->response) - 1;
 
 		// Just return a specified area or the entire result?
 		if (empty($area)) {
@@ -306,7 +306,7 @@ class CurlFetcher extends WebFetchApi
 			return $this->response;
 		}
 
-		$response_number = min($response_number, count($this->response) - 1);
+		$response_number = min($response_number, \count($this->response) - 1);
 
 		return $this->response[$response_number];
 	}
@@ -412,7 +412,7 @@ class CurlFetcher extends WebFetchApi
 		$this->default_options[CURLOPT_HEADERFUNCTION] = [$this, 'headerCallback'];
 
 		// Any user options to account for.
-		if (is_array($this->user_options)) {
+		if (\is_array($this->user_options)) {
 			$keys = array_merge(array_keys($this->default_options), array_keys($this->user_options));
 			$vals = array_merge($this->default_options, $this->user_options);
 			$this->options = array_combine($keys, $vals);
@@ -462,6 +462,6 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Return the length of what was passed unless you want a Failed writing header error ;)
-		return strlen($header);
+		return \strlen($header);
 	}
 }

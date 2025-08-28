@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -333,7 +333,7 @@ class Unread implements ActionInterface, Routable
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array($row['id_parent'], $this->boards)) {
+				if (\in_array($row['id_parent'], $this->boards)) {
 					$this->boards[] = $row['id_board'];
 				}
 			}
@@ -441,7 +441,7 @@ class Unread implements ActionInterface, Routable
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'SELECT name
 				FROM {db_prefix}categories
@@ -462,7 +462,7 @@ class Unread implements ActionInterface, Routable
 	protected function setSortMethod(): void
 	{
 		// We only know these.
-		if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
+		if (isset($_REQUEST['sort']) && !\in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
 			$_REQUEST['sort'] = 'last_post';
 		}
 
@@ -501,10 +501,10 @@ class Unread implements ActionInterface, Routable
 		$not_last_page = Utils::$context['start'] + Utils::$context['topics_per_page'] < $this->num_topics;
 
 		$url_limits = [
-			'first' => sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
-			'prev' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'next' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'last' => sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
+			'first' => \sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
+			'prev' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'next' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'last' => \sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
 		];
 
 		if (isset($this->cat_name)) {
@@ -543,7 +543,7 @@ class Unread implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
@@ -579,7 +579,7 @@ class Unread implements ActionInterface, Routable
 		if (Utils::$context['querystring_board_limits'] == ';start=%1$d') {
 			Utils::$context['querystring_board_limits'] = '';
 		} else {
-			Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+			Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 		}
 	}
 
@@ -915,7 +915,7 @@ class Unread implements ActionInterface, Routable
 				[
 					'current_member' => User::$me->id,
 					'topic_list' => $topic_ids,
-					'limit' => count($topic_ids),
+					'limit' => \count($topic_ids),
 				],
 			);
 
@@ -927,7 +927,7 @@ class Unread implements ActionInterface, Routable
 			Db::$db->free_result($result);
 		}
 
-		Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+		Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 
 		Utils::$context['topics_to_mark'] = implode('-', $topic_ids);
 	}

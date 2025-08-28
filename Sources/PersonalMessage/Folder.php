@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -500,7 +500,7 @@ class Folder
 		// Get the PMs.
 		$query_customizations = [
 			'order' => ['pm.id_pm' . ($this->descending ? ' DESC' : ' ASC')],
-			'limit' => count(array_keys($conversation->pms)),
+			'limit' => \count(array_keys($conversation->pms)),
 		];
 
 		if (!$this->is_inbox) {

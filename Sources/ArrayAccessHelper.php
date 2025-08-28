@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -52,12 +52,12 @@ trait ArrayAccessHelper
 			return $this->{$prop};
 		}
 
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
+		if (!empty($this->prop_aliases) && \array_key_exists($prop, $this->prop_aliases)) {
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties are calculated dynamically.
-			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
-				$this->custom[$prop] = call_user_func($real_prop, $this);
+			if (str_contains($real_prop, '::') && \is_callable($real_prop)) {
+				$this->custom[$prop] = \call_user_func($real_prop, $this);
 
 				return $this->custom[$prop];
 			}
@@ -68,7 +68,7 @@ trait ArrayAccessHelper
 				if (str_contains($real_prop, '[')) {
 					$real_prop = explode('[', rtrim($real_prop, ']'));
 
-					if (is_object($this->{$real_prop[0]})) {
+					if (\is_object($this->{$real_prop[0]})) {
 						$this->custom[$prop] = !$this->{$real_prop[0]}->{$real_prop[1]};
 					} else {
 						$this->custom[$prop] = !$this->{$real_prop[0]}[$real_prop[1]];
@@ -83,7 +83,7 @@ trait ArrayAccessHelper
 			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]})) {
+				if (\is_object($this->{$real_prop[0]})) {
 					return $this->{$real_prop[0]}->{$real_prop[1]};
 				}
 

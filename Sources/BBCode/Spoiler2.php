@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -83,7 +83,7 @@ class Spoiler2 extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		if (strlen((string) $data) === 0) {
+		if (\strlen((string) $data) === 0) {
 			$data = Lang::getTxt('summary_default', var: 'editortxt');
 		}
 	}

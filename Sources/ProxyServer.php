@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -122,7 +122,7 @@ class ProxyServer
 
 		// Try to create the image cache directory if it doesn't exist
 		if (!file_exists($this->cache)) {
-			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
+			if (!mkdir($this->cache) || !copy(\dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
 				return false;
 			}
 		}
@@ -140,7 +140,7 @@ class ProxyServer
 		}
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = strval($request->toAscii());
+		$request = \strval($request->toAscii());
 
 		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash']) {
 			return false;
@@ -229,7 +229,7 @@ class ProxyServer
 
 		if ($handle = opendir($path)) {
 			while (false !== ($file = readdir($handle))) {
-				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
+				if (is_file($path . $file) && !\in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
 					unlink($path . $file);
 				}
 			}
@@ -294,7 +294,7 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && in_array($mime_type, ['text/plain', 'text/xml']) && str_contains($image, '<svg') && str_contains($image, '</svg>')) {
+		if ($ext == 'svg' && \in_array($mime_type, ['text/plain', 'text/xml']) && str_contains($image, '<svg') && str_contains($image, '</svg>')) {
 			$mime_type = 'image/svg+xml';
 		}
 
@@ -304,7 +304,7 @@ class ProxyServer
 		}
 
 		// Validate the filesize
-		$size = strlen($image);
+		$size = \strlen($image);
 
 		if ($size > ($this->maxSize * 1024)) {
 			$this->redirectexit($request);

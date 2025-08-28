@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\Actions;
@@ -99,10 +99,10 @@ class Groups implements ActionInterface, Routable
 			'name' => Lang::getTxt('groups', file: 'ManageMembers'),
 		];
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -136,16 +136,16 @@ class Groups implements ActionInterface, Routable
 							if ($rowData['id_group'] == 3) {
 								$group_name = $rowData['group_name'];
 							} else {
-								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+								$color_style = empty($rowData['online_color']) ? '' : \sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-								$group_name = sprintf('<a href="%1$s' . $this->action_url . ';sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
+								$group_name = \sprintf('<a href="%1$s' . $this->action_url . ';sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
 							if ($rowData['id_group'] == 1) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							} elseif ($rowData['id_group'] == 3) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							}
 
 							return $group_name;
@@ -219,7 +219,7 @@ class Groups implements ActionInterface, Routable
 		$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
 		// No browsing of guests, membergroup 0 or moderators.
-		if (in_array($_REQUEST['group'], [-1, 0, 3])) {
+		if (\in_array($_REQUEST['group'], [-1, 0, 3])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
@@ -427,7 +427,7 @@ class Groups implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		// If there are more than $limit members, add a 'more' link.
-		if ($limit !== null && count($members) > $limit) {
+		if ($limit !== null && \count($members) > $limit) {
 			array_pop($members);
 
 			return true;

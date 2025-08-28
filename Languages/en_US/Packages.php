@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Packages
+// Version: 3.0 Alpha 4; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -233,7 +233,7 @@ $txt['operation_title'] = 'Operations';
 $txt['operation_description_ignore'] = '{desc}, ignoring errors';
 $txt['operation_invalid'] = 'The operation that you selected is invalid.';
 
-$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and folders within your forum directory. Note this only considers key forum folders and files - use an FTP client for additional options.';
+$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and directories within your forum directory. Note this only considers key forum files and directories - use an FTP client for additional options.';
 $txt['package_file_perms_name'] = 'File/Directory Name';
 $txt['package_file_perms_status'] = 'Current Status';
 $txt['package_file_perms_new_status'] = 'New Status';

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -80,7 +80,7 @@ class RecurringEvents extends MigrationBase
 				!isset($row['start_time'])
 				|| !isset($row['end_time'])
 				|| !isset($row['timezone'])
-				|| !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))
+				|| !\in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))
 			);
 
 			$start = new \DateTime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''));

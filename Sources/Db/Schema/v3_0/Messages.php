@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
 
 namespace SMF\Db\Schema\v3_0;
 
+use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Column;
 use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\GeneratedColumn;
 use SMF\Db\Schema\Table;
 
 /**
@@ -43,7 +45,6 @@ class Messages extends Table
 			'subject' => '{$default_topic_subject}',
 			'poster_name' => 'Simple Machines',
 			'poster_email' => 'info@simplemachines.org',
-			'modified_name' => '',
 			'body' => '{$default_topic_message}',
 			'icon' => 'xx',
 		],
@@ -135,26 +136,32 @@ class Messages extends Table
 				not_null: true,
 				default: 1,
 			),
-			'modified_time' => new Column(
+			'edit_history' => new Column(
+				name: 'edit_history',
+				// Type will automatically be changed to jsonb for PostrgreSQL.
+				type: 'json',
+				default: null,
+			),
+			'modified_time' => new GeneratedColumn(
 				name: 'modified_time',
 				type: 'int',
 				unsigned: true,
-				not_null: true,
-				default: 0,
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE((edit_history #>> '{0,0}'::text[])::integer, 0)" : "COALESCE(edit_history->>'$[0][0]', 0)",
+				stored: true,
 			),
-			'modified_name' => new Column(
+			'modified_name' => new GeneratedColumn(
 				name: 'modified_name',
 				type: 'varchar',
 				size: 255,
-				not_null: true,
-				default: '',
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE(edit_history #>> '{0,6}'::text[], ''::text)" : "COALESCE(edit_history->>'$[0][6]', '')",
+				stored: true,
 			),
-			'modified_reason' => new Column(
+			'modified_reason' => new GeneratedColumn(
 				name: 'modified_reason',
 				type: 'varchar',
 				size: 255,
-				not_null: true,
-				default: '',
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE(edit_history #>> '{0,7}'::text[], ''::text)" : "COALESCE(edit_history->>'$[0][7]', '')",
+				stored: true,
 			),
 			'body' => new Column(
 				name: 'body',

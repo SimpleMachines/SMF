@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -299,7 +299,7 @@ class DraftPM extends Draft
 				);
 
 				while ($result = Db::$db->fetch_assoc($request_2)) {
-					$recipientType = in_array($result['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
+					$recipientType = \in_array($result['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
 					$recipients[$recipientType][] = $result['real_name'];
 				}
 				Db::$db->free_result($request_2);

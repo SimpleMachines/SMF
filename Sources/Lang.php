@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Debug\DebugUtils;
 use SMF\Localization\MessageFormatter;
 
 /**
@@ -300,8 +301,12 @@ class Lang
 					$found = true;
 
 					// Keep track of what we're up to, soldier.
-					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
+					if (DebugUtils::isDebugEnabled()) {
+						DebugUtils::addDebugSource(
+							lang_key: 'language_files',
+							key: implode('|', $file),
+							value: (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php',
+						);
 					}
 
 					// Load the strings into our properties.
@@ -311,11 +316,16 @@ class Lang
 						}
 
 						foreach (${$var} as $key => $value) {
+							// Never overwrite strings that were set via self::setTxt()
+							if ((self::$loaded_keys[$var][$key]['file'] ?? '') === 'setTxt') {
+								continue;
+							}
+
 							// Don't overwrite strings from Modifications or ThemeStrings
 							// unless $force_reload is true.
 							if (
 								!$force_reload
-								&& array_key_exists($key, self::$loaded_keys[$var] ?? [])
+								&& \array_key_exists($key, self::$loaded_keys[$var] ?? [])
 								&& self::$loaded_keys[$var][$key]['file'] !== $file[1]
 								&& (
 									// Modifications takes precedence over all others.
@@ -490,7 +500,7 @@ class Lang
 		// Either we don't use the cache, or its expired.
 		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null) {
 			// Special case during install.
-			if (defined('SMF_INSTALLING')) {
+			if (\defined('SMF_INSTALLING')) {
 				$language_directories = [Config::$languagesdir];
 			} else {
 				// If we don't have our theme information yet, let's get it.
@@ -597,7 +607,7 @@ class Lang
 	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null): bool
 	{
 		// Validate $var.
-		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+		if (!\in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
@@ -637,7 +647,7 @@ class Lang
 	public static function setTxt(string|array $txt_key, string|array $value, string $var = 'txt'): void
 	{
 		// Validate $var.
-		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+		if (!\in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
@@ -660,6 +670,9 @@ class Lang
 		}
 
 		$target = $value;
+
+		// Ensure this value won't be overwritten by a reloaded language file.
+		self::$loaded_keys[$var][$txt_key[0]]['file'] = 'setTxt';
 	}
 
 	/**
@@ -694,7 +707,7 @@ class Lang
 	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt', ?string $file = null, string $lang = ''): string|array
 	{
 		// Validate $var.
-		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+		if (!\in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
@@ -707,7 +720,7 @@ class Lang
 		self::loadFileForGetTxt($file, $var, $txt_key, $lang);
 
 		// Don't waste time when getting a simple string.
-		if ($args === [] && count($txt_key) === 1) {
+		if ($args === [] && \count($txt_key) === 1) {
 			return self::${$var}[$txt_key[0]] ?? '';
 		}
 
@@ -724,19 +737,19 @@ class Lang
 			}
 		}
 
-		if (is_array($target) || empty($args)) {
+		if (\is_array($target) || empty($args)) {
 			return $target;
 		}
 
-		if (!is_string($target)) {
+		if (!\is_string($target)) {
 			throw new \ValueError();
 		}
 
 		// Workaround for a CrowdIn limitation that won't allow translators to
 		// change offset values in strings.
 		if (
-			count($txt_key) === 1
-			&& in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
+			\count($txt_key) === 1
+			&& \in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
 			&& isset(self::$txt['ordinal_last_offset'])
 		) {
 			$target = str_replace(
@@ -765,7 +778,7 @@ class Lang
 	{
 		static $censor_vulgar = null, $censor_proper;
 
-		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '') {
+		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !\is_string($text) || trim($text) === '') {
 			return $text;
 		}
 
@@ -780,7 +793,7 @@ class Lang
 			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
 			// Quote them for use in regular expressions.
-			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
+			for ($i = 0, $n = \count($censor_vulgar); $i < $n; $i++) {
 				// If a word is replaced with itself, just leave it as it is.
 				// Why would the admin replace a word with itself, you ask?
 				// If the spoof detector incorrectly censors an allowed word
@@ -845,12 +858,12 @@ class Lang
 	 * Tokens take the form of '{key}', where 'key' is the key of some element
 	 * in the Lang::$txt array.
 	 *
-	 * @param string $string The string in which to make replacements.
+	 * @param string|int $string The string in which to make replacements.
 	 * @return string The updated string.
 	 */
-	public static function tokenTxtReplace(string $string = ''): string
+	public static function tokenTxtReplace(string|int $string = ''): string
 	{
-		return self::formatText($string, self::$txt);
+		return self::formatText((string) $string, self::$txt);
 	}
 
 	/**
@@ -883,7 +896,7 @@ class Lang
 		}
 
 		// If we have a pattern for this exact number of items, use it.
-		$args = array_merge(['list_pattern_part' => count($list)], $list);
+		$args = array_merge(['list_pattern_part' => \count($list)], $list);
 		$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
 		// Otherwise, build the list normally.
@@ -893,7 +906,7 @@ class Lang
 			$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
 			// Then iteratively prepend items using the "middle" pattern.
-			while (count($list) > 1) {
+			while (\count($list) > 1) {
 				$args = ['list_pattern_part' => 'middle', array_pop($list), $sentence_list];
 				$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 			}
@@ -923,7 +936,7 @@ class Lang
 			throw new \ValueError();
 		}
 
-		if (is_string($number)) {
+		if (\is_string($number)) {
 			$number = $number + 0;
 		}
 
@@ -941,7 +954,7 @@ class Lang
 			}
 		}
 
-		$skeleton = is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
+		$skeleton = \is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}
@@ -995,7 +1008,7 @@ class Lang
 		// Already a locale?
 		// Note: we can't just do in_array($lang, self::LANG_TO_LOCALE) because
 		// new language packs added after 2.1 won't be in self::LANG_TO_LOCALE.
-		if (strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
+		if (\strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
 			return $lang;
 		}
 
@@ -1051,7 +1064,7 @@ class Lang
 						self::$loaded_keys[$var] ?? [],
 						array_combine(
 							array_keys(${$var}),
-							array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
+							array_fill(0, \count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
 						),
 					);
 
@@ -1059,8 +1072,12 @@ class Lang
 				}
 
 				// Keep track of what we're up to, soldier.
-				if (!empty(Config::$db_show_debug)) {
-					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
+				if (DebugUtils::isDebugEnabled()) {
+					DebugUtils::addDebugSource(
+						lang_key: 'language_files',
+						key: implode('|', $file),
+						value: (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php',
+					);
 				}
 			}
 		}
@@ -1134,7 +1151,7 @@ class Lang
 		}
 
 		// The string has been loaded but did not come from an expected file.
-		if (!in_array(self::$loaded_keys[$var][$txt_key[0]]['file'], $files)) {
+		if (!\in_array(self::$loaded_keys[$var][$txt_key[0]]['file'], $files)) {
 			self::load(
 				filename: implode('+', $files),
 				lang: $lang,
@@ -1161,6 +1178,6 @@ class Lang
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Lang::class, 'exportStatic'])) {
+if (\is_callable([Lang::class, 'exportStatic'])) {
 	Lang::exportStatic();
 }

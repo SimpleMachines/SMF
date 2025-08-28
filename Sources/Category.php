@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -551,7 +551,7 @@ class Category implements \ArrayAccess
 			}
 		}
 		// Make sure the safe category is really safe.
-		elseif (in_array($moveBoardsTo, $categories)) {
+		elseif (\in_array($moveBoardsTo, $categories)) {
 			throw new \Exception('cannot_move_to_deleted_category');
 		}
 		// Move the boards inside the categories to a safe category.
@@ -600,9 +600,9 @@ class Category implements \ArrayAccess
 			if (!empty($categories[$cat])) {
 				$ordered[$cat] = $categories[$cat];
 
-				if (is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
+				if (\is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
 					Board::sort($ordered[$cat]['boards']);
-				} elseif (is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
+				} elseif (\is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
 					Board::sort($ordered[$cat]->children);
 				}
 			}
@@ -637,7 +637,7 @@ class Category implements \ArrayAccess
 		);
 
 		foreach (Db::$db->fetch_all($request) as $row) {
-			if (!in_array($row['id_cat'], self::$tree_order['cats'])) {
+			if (!\in_array($row['id_cat'], self::$tree_order['cats'])) {
 				self::$tree_order['cats'][] = $row['id_cat'];
 			}
 
@@ -825,7 +825,7 @@ class Category implements \ArrayAccess
 		$this->set($props);
 		self::$loaded[$this->id] = $this;
 
-		if (count(self::$loaded) > 1) {
+		if (\count(self::$loaded) > 1) {
 			uasort(
 				self::$loaded,
 				function ($a, $b) {
@@ -890,6 +890,6 @@ class Category implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Category::class, 'exportStatic'])) {
+if (\is_callable([Category::class, 'exportStatic'])) {
 	Category::exportStatic();
 }

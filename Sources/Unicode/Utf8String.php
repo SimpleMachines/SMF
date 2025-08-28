@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\Unicode;
@@ -82,7 +82,7 @@ class Utf8String implements \Stringable
 		if (!isset(self::$use_intl_normalizer)) {
 			require_once __DIR__ . '/Metadata.php';
 
-			self::$use_intl_normalizer = extension_loaded('intl') && version_compare(implode('.', \IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>=');
+			self::$use_intl_normalizer = \extension_loaded('intl') && version_compare(implode('.', \IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>=');
 		}
 	}
 
@@ -135,7 +135,7 @@ class Utf8String implements \Stringable
 	public function convertCase(string $case, bool $simple = false): object
 	{
 		// The main case conversion logic
-		if (in_array($case, ['upper', 'lower', 'fold'])) {
+		if (\in_array($case, ['upper', 'lower', 'fold'])) {
 			$chars = preg_split('/(.)/su', $this->string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if ($chars === false) {
@@ -150,7 +150,7 @@ class Utf8String implements \Stringable
 					$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
-					if (in_array($this->language, ['tr', 'az'])) {
+					if (\in_array($this->language, ['tr', 'az'])) {
 						$substitutions['i'] = 'İ';
 					}
 
@@ -161,7 +161,7 @@ class Utf8String implements \Stringable
 					$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
-					if (in_array($this->language, ['tr', 'az'])) {
+					if (\in_array($this->language, ['tr', 'az'])) {
 						$substitutions['İ'] = 'i';
 						$substitutions['I' . "\xCC\x87"] = 'i';
 						$substitutions['I'] = 'ı';
@@ -180,7 +180,7 @@ class Utf8String implements \Stringable
 			}
 
 			$this->string = implode('', $chars);
-		} elseif (in_array($case, ['title', 'ucfirst', 'ucwords'])) {
+		} elseif (\in_array($case, ['title', 'ucfirst', 'ucwords'])) {
 			require_once __DIR__ . '/RegularExpressions.php';
 
 			require_once __DIR__ . '/CaseUpper.php';
@@ -192,7 +192,7 @@ class Utf8String implements \Stringable
 			$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 			// Turkish & Azeri conditional casing, part 1.
-			if (in_array($this->language, ['tr', 'az'])) {
+			if (\in_array($this->language, ['tr', 'az'])) {
 				$upper['i'] = 'İ';
 			}
 
@@ -298,7 +298,7 @@ class Utf8String implements \Stringable
 		}
 
 		// Turkish & Azeri conditional casing, part 2.
-		if ($case !== 'upper' && in_array($this->language, ['tr', 'az'])) {
+		if ($case !== 'upper' && \in_array($this->language, ['tr', 'az'])) {
 			// Remove unnecessary "COMBINING DOT ABOVE" after i
 			$substitutions['i' . "\xCC\x87"] = 'i';
 		}
@@ -467,7 +467,7 @@ class Utf8String implements \Stringable
 				}
 
 				$last_pos = $pos;
-				$last_len = strlen($char);
+				$last_len = \strlen($char);
 				$last_ccc = $ccc;
 			}
 		}
@@ -727,9 +727,9 @@ class Utf8String implements \Stringable
 			require_once __DIR__ . '/RegularExpressions.php';
 			$prop_classes = utf8_regex_properties();
 
-			for ($i = 0; $i < count($chars); $i++) {
-				$substring_before = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
-				$substring_after = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), $i));
+			for ($i = 0; $i < \count($chars); $i++) {
+				$substring_before = implode('', \array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
+				$substring_after = implode('', \array_slice(array_map(fn($char) => $char['char'], $chars), $i));
 
 				// Do not break within CRLF.
 				if ($chars[$i]['char'] === "\r" && isset($chars[$i + 1]) && $chars[$i + 1]['char'] === "\n") {
@@ -780,7 +780,7 @@ class Utf8String implements \Stringable
 
 						// Set the break_after of the last extender to whether there
 						// would be a break if the extenders were not present.
-						$chars[$i + $j]['break_after'] = count($this->extractWords($level)) > 1;
+						$chars[$i + $j]['break_after'] = \count($this->extractWords($level)) > 1;
 
 						$this->string = $current_string;
 					} else {
@@ -1029,11 +1029,11 @@ class Utf8String implements \Stringable
 		$combining_classes = utf8_combining_classes();
 
 		// Replace characters with decomposed forms.
-		for ($i = 0; $i < count($chars); $i++) {
+		for ($i = 0; $i < \count($chars); $i++) {
 			// Hangul characters.
 			// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 			if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3") {
-				if (!function_exists('mb_ord')) {
+				if (!\function_exists('mb_ord')) {
 					require_once Config::$sourcedir . '/Subs-Compat.php';
 				}
 
@@ -1055,7 +1055,7 @@ class Utf8String implements \Stringable
 		$chars = preg_split('/(.)/su', implode('', $chars), 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		// Sort characters into canonical order.
-		for ($i = 1; $i < count($chars); $i++) {
+		for ($i = 1; $i < \count($chars); $i++) {
 			if (empty($combining_classes[$chars[$i]]) || empty($combining_classes[$chars[$i - 1]])) {
 				continue;
 			}
@@ -1090,7 +1090,7 @@ class Utf8String implements \Stringable
 		$substitutions = utf8_compose_maps();
 		$combining_classes = utf8_combining_classes();
 
-		for ($c = 0; $c < count($chars); $c++) {
+		for ($c = 0; $c < \count($chars); $c++) {
 			// Singleton replacements.
 			if (isset($substitutions[$chars[$c]])) {
 				$chars[$c] = $substitutions[$chars[$c]];
@@ -1099,7 +1099,7 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
 			if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5") {
-				if (!function_exists('mb_ord')) {
+				if (!\function_exists('mb_ord')) {
 					require_once Config::$sourcedir . '/Subs-Compat.php';
 				}
 
@@ -1151,6 +1151,68 @@ class Utf8String implements \Stringable
 		}
 
 		return $chars;
+	}
+
+	/**
+	 * Returns a regular expression to detect possible emojis.
+	 *
+	 * Note that this regex is a detector, not a validator. The detected strings
+	 * could very well contain invalid emoji sequences, such as emoji modifiers
+	 * appended to emoji base characters that do not allow those modifiers.
+	 *
+	 * Regex is based on https://unicode.org/reports/tr51/#EBNF_and_Regex
+	 */
+	public static function emojiRegex(): string
+	{
+		require_once __DIR__ . '/RegularExpressions.php';
+
+		$prop_classes = utf8_regex_properties();
+
+		// The digits 0-9 and the * and # characters are technically emoji
+		// characters. This is because those characters can be the base for the
+		// Emoji_Keycap_Sequence emojis (e.g. 1️⃣ is composed of "1" followed by
+		// two emoji modifier characters). To ensure we don't match these ASCII
+		// characters except when they are part of an Emoji_Keycap_Sequence, we
+		// remove them from the general Emoji property class and put them into a
+		// special regex pattern of their own.
+		$emoji = str_replace('\x{0023}\x{002A}\x{0030}-\x{0039}', '', $prop_classes['Emoji']);
+		$keycap_sequence = '[#*0-9](?=\x{FE0F}\x{20E3})';
+
+		return
+			'/' .
+				// A flag emoji
+				'(?P>flag)' .
+
+				// Or
+				'|' .
+
+				// An emoji sequence
+				'(?P>emoji_sequence)' .
+				// Possibly concatenated with Zero Width Joiner and more emojis
+				// (e.g. the "family" emoji sequences)
+				'(?:' .
+					'\x{200D}' .
+					'(?P>emoji_sequence)' .
+				')*' .
+
+				// Define the sub-routines
+				'(?(DEFINE)' .
+					// Flag emojis
+					'(?<flag>[' . $prop_classes['Regional_Indicator'] . ']{2})' .
+					// Emoji characters
+					'(?<emoji_chars>[' . $emoji . ']|' . $keycap_sequence . ')' .
+					// Emoji modifiers of various sorts
+					'(?<emoji_modifiers>' .
+						'[' . $prop_classes['Emoji_Modifier'] . ']' .
+						'|' .
+						'\x{FE0F}\x{20E3}?' .
+						'|' .
+						'[\x{E0020}-\x{E007E}]+\x{E007F}' .
+					')' .
+					// Complete emoji sequences`
+					'(?<emoji_sequence>(?P>emoji_chars)(?P>emoji_modifiers)?)' .
+				')' .
+			'/u';
 	}
 
 	/******************
@@ -1349,45 +1411,9 @@ class Utf8String implements \Stringable
 		require_once __DIR__ . '/RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
-		// Regex source is https://unicode.org/reports/tr51/#EBNF_and_Regex
 		$this->string  = preg_replace_callback(
-			'/' .
-			// Flag emojis
-			'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
-			// Or
-			'|' .
-			// Emoji characters
-			'[' . $prop_classes['Emoji'] . ']' .
-			// Possibly followed by modifiers of various sorts
-			'(' .
-				'[' . $prop_classes['Emoji_Modifier'] . ']' .
-				'|' .
-				'\x{FE0F}\x{20E3}?' .
-				'|' .
-				'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-			')?' .
-			// Possibly concatenated with Zero Width Joiner and more emojis
-			// (e.g. the "family" emoji sequences)
-			'(' .
-				'\x{200D}[' . $prop_classes['Emoji'] . ']' .
-				'(' .
-					'[' . $prop_classes['Emoji_Modifier'] . ']' .
-					'|' .
-					'\x{FE0F}\x{20E3}?' .
-					'|' .
-					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-				')?' .
-			')*' .
-			'/u',
+			self::emojiRegex(),
 			function ($matches) use (&$placeholders) {
-				// Skip lone ASCII characters that are not actually part of an
-				// emoji sequence. This can happen because the digits 0-9 and
-				// the '*' and '#' characters are the base characters for the
-				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
-					return $matches[0];
-				}
-
 				$placeholders[$matches[0]] = "\xEE\xB3\x9B" . md5($matches[0]) . "\xEE\xB3\x9C";
 
 				return $placeholders[$matches[0]];

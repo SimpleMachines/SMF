@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\Tasks\BackgroundTask;
 use SMF\Tasks\ScheduledTask;
 
@@ -121,17 +122,17 @@ class TaskRunner
 	public function __construct()
 	{
 		// For backward compatibility.
-		if (!defined('MAX_CRON_TIME')) {
-			define('MAX_CRON_TIME', self::MAX_CRON_TIME);
+		if (!\defined('MAX_CRON_TIME')) {
+			\define('MAX_CRON_TIME', self::MAX_CRON_TIME);
 		}
 
-		if (!defined('MAX_CLAIM_THRESHOLD')) {
-			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
+		if (!\defined('MAX_CLAIM_THRESHOLD')) {
+			\define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', Sapi::isCLI());
+			\define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
@@ -162,7 +163,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 
 			Db::load();
 
@@ -301,7 +302,7 @@ class TaskRunner
 			[
 				'task_ids' => $task_ids,
 				'task_names' => $task_names,
-				'limit' => count($task_ids) + count($task_names),
+				'limit' => \count($task_ids) + \count($task_names),
 			],
 		);
 

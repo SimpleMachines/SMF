@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Maintenance
+// Version: 3.0 Alpha 4; Maintenance
 
 // This should be the same as the one in General.language.php.
 $txt['lang_rtl'] = '0';
@@ -45,9 +45,11 @@ $txt['log_upgrade_complete'] = 'Upgrade complete!';
 // Errors and warnings.
 $txt['critical_error'] = 'Critical Error!';
 $txt['warning'] = 'Warning!';
+$txt['error_php_too_low'] = 'You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installation requirement.<br><br>Please ask your host to upgrade to at least PHP {min_version}.';
+$txt['error_db_too_low'] = 'Your {name} version does not meet SMF’s minimum installation requirement.<br><br>Please ask your host to upgrade to at least {name} {min_version}.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
+$txt['error_db_privileges'] = 'The {name} user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
-$txt['error_php_too_low'] = 'Warning! You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installations requirements.<br><br>Please ask your host to upgrade.';
 $txt['error_files_not_writable'] = 'The following files must be writable to continue. Please ensure the file permissions are correctly set to allow this:';
 $txt['error_dir_not_writable'] = 'The directory "{dir}" must to be writable to continue. Please make sure the file permissions are correctly set to allow this.';
 $txt['error_sourcefile_missing'] = 'Unable to find the Sources/{file} file. Please make sure it was uploaded properly, and then try again.';
@@ -89,7 +91,7 @@ $txt['ftp_password_info'] = 'The password to login with. <em>This will not be sa
 $txt['ftp_path'] = 'Install Path';
 $txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;, but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
+$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;. Your SMF install directory should be below your FTP path, such as &quot;/public_html/forum&quot;. Your FTP path is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
 $txt['ftp_path_help_close'] = 'Close';
 $txt['ftp_connect'] = 'Connect';
 $txt['ftp_checking_writable'] = 'Checking files are writable';
@@ -449,10 +451,8 @@ $txt['upgrade_completed_time_s'] = 'Upgrade completed in {s, plural,
 // Upgrade error messages
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
-$txt['error_db_too_low'] = 'Your {name} version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.';
-$txt['error_db_privileges'] = 'The {name} user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
-$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
+$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its directory.';
 
 // Attachment & Avatar folder checks
 $txt['warning_av_missing'] = 'Warning! Avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';

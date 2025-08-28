@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Profile
+// Version: 3.0 Alpha 4; Profile
 
 // Some of the things from the popup need their own descriptions
 $txt['popup_forumprofile'] = 'Profile Details';
@@ -60,7 +60,6 @@ $txt['current_time'] = 'Current forum time';
 
 
 $txt['language'] = 'Language';
-$txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
 $txt['invalid_registration'] = 'Invalid date registered value. Valid example: {example}';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
@@ -223,14 +222,14 @@ $txt['deleteAccount_anonymize_forced'] = 'All personally identifying information
 
 $txt['profile_of_username'] = 'Profile of {name}';
 $txt['profileInfo'] = 'Profile Info';
-$txt['showPosts'] = 'Show posts';
+$txt['showPosts'] = 'Show Posts';
 $txt['showPosts_help'] = 'This section allows you to view all posts made by this member. Note that you can only see posts made in areas you currently have access to.';
 $txt['showMessages'] = 'Messages';
 $txt['showTopics'] = 'Topics';
 $txt['showUnwatched'] = 'Unwatched topics';
 $txt['showAttachments'] = 'Attachments';
 $txt['viewWarning_help'] = 'This section allows you to view all warnings issued to this member.';
-$txt['statPanel'] = 'Show stats';
+$txt['statPanel'] = 'Show Stats';
 $txt['editBuddyIgnoreLists'] = 'Buddies/Ignore List';
 $txt['could_not_add_person'] = 'You could not add that person to your list';
 $txt['could_not_remove_person'] = 'You could not remove that person from your list';

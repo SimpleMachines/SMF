@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Handles adding, removing, and calling hooked integration functions.
@@ -79,8 +80,8 @@ class IntegrationHook
 
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['hooks'][] = $this->name;
+		if (DebugUtils::isDebugEnabled()) {
+			DebugUtils::addDebugSource('hooks', $this->name);
 		}
 
 		if (empty(Config::$modSettings[$this->name])) {
@@ -116,8 +117,8 @@ class IntegrationHook
 		// Loop through each callable.
 		foreach ($this->callables as $func_string => $callable) {
 			// Is it valid?
-			if (is_callable($callable)) {
-				$this->results[$func_string] = call_user_func_array($callable, $parameters);
+			if (\is_callable($callable)) {
+				$this->results[$func_string] = \call_user_func_array($callable, $parameters);
 			}
 			// This failed, but we want to do so silently.
 			elseif ($this->ignore_errors) {
@@ -195,7 +196,7 @@ class IntegrationHook
 		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file)) {
+		if (!empty($file) && \is_string($file)) {
 			$function = $file . (!empty($function) ? '|' . $function : '');
 		}
 
@@ -278,7 +279,7 @@ class IntegrationHook
 		}
 
 		// Any files  to load?
-		if (!empty($file) && is_string($file)) {
+		if (!empty($file) && \is_string($file)) {
 			$function = $file . '|' . $function;
 		}
 

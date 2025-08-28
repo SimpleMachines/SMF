@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -99,7 +99,12 @@ class BoardIndex implements ActionInterface, Routable
 		// Retrieve the latest posts if the theme settings require it.
 		if (!empty(Theme::$current->settings['number_recent_posts'])) {
 			if (Theme::$current->settings['number_recent_posts'] > 1) {
-				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), '', [$this, 'cache_getLastPosts'], [Theme::$current->settings['number_recent_posts']]);
+				Utils::$context['latest_posts'] = CacheApi::quickGet(
+					'boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language),
+					'',
+					[$this, 'cache_getLastPosts'],
+					[(int) Theme::$current->settings['number_recent_posts']],
+				);
 			}
 
 			if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post'])) {
@@ -258,18 +263,27 @@ class BoardIndex implements ActionInterface, Routable
 		return [
 			'data' => $this->getLastPosts($number_posts),
 			'expires' => time() + 60,
-			'post_retri_eval' => '
-				foreach ($cache_block[\'data\'] as $k => $post)
-				{
-					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
-					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
-				}',
+			'update_callback' => self::class . '::cache_getLastPostCallback',
 		];
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Processes the data from cache_getLastPosts
+	 *
+	 * @param array $cache_block
+	 * @param array &$params
+	 */
+	public static function cache_getLastPostCallback(array &$cache_block, array &$params): void
+	{
+		foreach ($cache_block['data'] as $k => $post) {
+			$cache_block['data'][$k]['time'] = Time::create('@' . $post['raw_timestamp'])->format();
+			$cache_block['data'][$k]['timestamp'] = $post['raw_timestamp'];
+		}
+	}
 
 	/**
 	 * Fetches a list of boards and (optional) categories including
@@ -296,7 +310,7 @@ class BoardIndex implements ActionInterface, Routable
 		if (!empty($board_index_options['set_latest_post'])) {
 			$latest_post = [
 				'timestamp' => 0,
-				'ref' => 0,
+				'ref' => [],
 			];
 		}
 
@@ -399,7 +413,7 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Find all boards and categories, as well as related information.
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row_board) {
-			$row_board = array_filter($row_board, fn($prop) => !is_null($prop));
+			$row_board = array_filter($row_board, fn($prop) => !\is_null($prop));
 
 			// Ensure the slug for the topic has been set.
 			if (
@@ -422,7 +436,7 @@ class BoardIndex implements ActionInterface, Routable
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 
 			// Perhaps we are ignoring this board?
-			$ignoreThisBoard = in_array($row_board['id_board'], User::$me->ignoreboards);
+			$ignoreThisBoard = \in_array($row_board['id_board'], User::$me->ignoreboards);
 			$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
 			if ($board_index_options['include_categories']) {
@@ -479,7 +493,7 @@ class BoardIndex implements ActionInterface, Routable
 					'is_redirect' => (bool) $row_board['is_redirect'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
+					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || \in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
 					'href' => Config::$scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . Config::$scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',

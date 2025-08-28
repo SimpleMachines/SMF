@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -61,10 +61,10 @@ class Code1 extends BBCode
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['code'])) {
-			$code = is_array($data) ? $data[0] : $data;
+			$code = \is_array($data) ? $data[0] : $data;
 
 			$add_begin = (
-				is_array($data)
+				\is_array($data)
 				&& isset($data[1])
 				&& strtoupper($data[1]) === 'PHP'
 				&& !str_contains($code, '&lt;?php')
@@ -77,7 +77,7 @@ class Code1 extends BBCode
 
 			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
+			for ($php_i = 0, $php_n = \count($php_parts); $php_i < $php_n; $php_i++) {
 				// Do PHP code coloring?
 				if ($php_parts[$php_i] != '&lt;?php') {
 					continue;
@@ -85,14 +85,14 @@ class Code1 extends BBCode
 
 				$php_string = '';
 
-				while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;') {
+				while ($php_i + 1 < \count($php_parts) && $php_parts[$php_i] != '?&gt;') {
 					$php_string .= $php_parts[$php_i];
 					$php_parts[$php_i++] = '';
 				}
 
 				$php_parts[$php_i] = Parser::highlightPhpCode($php_string . $php_parts[$php_i]);
 
-				if (is_array($data) && empty($data[1])) {
+				if (\is_array($data) && empty($data[1])) {
 					$data[1] = 'PHP';
 				}
 			}
@@ -106,7 +106,7 @@ class Code1 extends BBCode
 				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
 			}
 
-			if (is_array($data)) {
+			if (\is_array($data)) {
 				$data[0] = $code;
 			} else {
 				$data = $code;

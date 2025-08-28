@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -196,7 +196,7 @@ class IP implements \Stringable
 
 		// If we don't need to set a timeout, use PHP's native function.
 		if (empty($timeout)) {
-			$host = \gethostbyaddr($this->ip);
+			$host = gethostbyaddr($this->ip);
 		}
 
 		// Try asking the operating system to look it up for us.
@@ -404,7 +404,7 @@ class IP implements \Stringable
 								$range[1] = [$ranged[1]];
 							}
 
-							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && count($range[0]) < count($octets)) {
+							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && \count($range[0]) < \count($octets)) {
 								$range[0][] = $min;
 							}
 
@@ -435,13 +435,13 @@ class IP implements \Stringable
 		// Finalize the strings.
 		foreach ([0, 1] as $key) {
 			// If it's too long, shorten it.
-			if (count($range[$key]) > $max_parts) {
-				$range[$key] = array_slice($range[$key], 0, $max_parts);
+			if (\count($range[$key]) > $max_parts) {
+				$range[$key] = \array_slice($range[$key], 0, $max_parts);
 			}
 
 			// If they're still too short, pad them out.
-			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts) {
-				if (in_array('*', $range[$key])) {
+			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && \count($range[$key]) < $max_parts) {
+				if (\in_array('*', $range[$key])) {
 					$range[$key] = explode($mode, preg_replace('/\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
 				} else {
 					$range[$key][] = '*';
@@ -563,17 +563,7 @@ class IP implements \Stringable
 				// Go through each IP...
 				foreach ($ips as $i => $ip) {
 					// Make sure it's in a valid range...
-					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0) {
-						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-							// Just incase we have a legacy IPv4 address.
-							// @ TODO: Convert to IPv6.
-							if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-								continue;
-							}
-						}
-
+					if (self::isLocal($ip) && !self::isLocal($_SERVER['REMOTE_ADDR'])) {
 						continue;
 					}
 
@@ -582,16 +572,11 @@ class IP implements \Stringable
 				}
 			}
 			// Otherwise just use the only one.
-			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
-				return $_SERVER[$proxyIPheader];
-			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
-				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
-
-				// Just incase we have a legacy IPv4 address.
+			elseif (!self::isLocal($_SERVER[$proxyIPheader]) && self::isLocal($_SERVER['REMOTE_ADDR'])) {
+				return static::$user_ip = $_SERVER[$proxyIPheader];
+			} elseif (self::is4in6($_SERVER[$proxyIPheader])) {
 				// @ TODO: Convert to IPv6.
-				if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0) {
-					continue;
-				}
+				continue;
 			}
 		}
 
@@ -605,7 +590,7 @@ class IP implements \Stringable
 	 */
 	public static function getUserIPAlternative(): string
 	{
-		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'];
+		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'] ?? '';
 	}
 
 	/**
@@ -615,7 +600,7 @@ class IP implements \Stringable
 	 */
 	public static function setUserIPAlternative(?string $ip = null): void
 	{
-		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'];
+		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'] ?? '';
 	}
 
 	/******************
@@ -632,7 +617,7 @@ class IP implements \Stringable
 	 */
 	protected function hostLookup(int $timeout = 1000): string
 	{
-		if (!function_exists('shell_exec')) {
+		if (!\function_exists('shell_exec')) {
 			return '';
 		}
 
@@ -760,19 +745,54 @@ class IP implements \Stringable
 		}
 
 		// Random transaction number (for routers, etc., to get the reply back)
-		$query = sprintf('%02d', mt_rand(0, 99));
+		$query = \sprintf('%02d', mt_rand(0, 99));
 
 		// Request header.
 		$query .= "\1\0\0\1\0\0\0\0\0\0";
 
 		// The interesting stuff.
 		foreach ($parts as $part) {
-			$query .= chr(strlen($part)) . $part;
+			$query .= \chr(\strlen($part)) . $part;
 		}
 
 		// And the final bit of the request.
 		$query .= "\0\0\x0C\0\1";
 
 		return $query;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Check whether this is a local area network address or not.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function isLocal(string $ip): bool
+	{
+		return preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) === 1;
+	}
+
+	/**
+	 * Check whether this is a IPv4 inside of a IPv6.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function is4in6(string $ip): bool
+	{
+		if (!self::create($ip)->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $ip) !== 0) {
+			$ipv4_in_v6 = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $ip);
+
+			// Just incase we have a legacy IPv4 address.
+			if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $ipv4_in_v6) === 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

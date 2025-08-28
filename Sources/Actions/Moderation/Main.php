@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -243,10 +243,10 @@ class Main implements ActionInterface, Routable
 			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
 		}
 
-		$call = is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
+		$call = \is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -364,7 +364,7 @@ class Main implements ActionInterface, Routable
 						$class = substr($mod_area['areas'][$params['area']]['function'], 0, strpos($mod_area['areas'][$params['area']]['function'], '::'));
 
 						if (method_exists($class, 'buildRoute')) {
-							extract(call_user_func($class . '::buildRoute', $params));
+							extract(\call_user_func($class . '::buildRoute', $params));
 						}
 					}
 
@@ -401,7 +401,7 @@ class Main implements ActionInterface, Routable
 					$class = substr($mod_area['areas'][$route[1]]['function'], 0, strpos($mod_area['areas'][$route[1]]['function'], '::'));
 
 					if (method_exists($class, 'parseRoute')) {
-						$params = array_merge($params, call_user_func($class . '::parseRoute', $route));
+						$params = array_merge($params, \call_user_func($class . '::parseRoute', $route));
 						$called_area = true;
 					}
 				}
@@ -430,7 +430,7 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->moderation_areas,
 			function (&$value, $key) {
-				if (is_string($value)) {
+				if (\is_string($value)) {
 						$value = strtr($value, [
 							'{scripturl}' => Config::$scripturl,
 							'{boardurl}' => Config::$boardurl,

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -189,7 +189,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	protected function buildPostData(array|string $post_data): string
 	{
-		if (is_array($post_data)) {
+		if (\is_array($post_data)) {
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -110,10 +110,10 @@ class ShowPosts implements ActionInterface
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -392,7 +392,7 @@ class ShowPosts implements ActionInterface
 			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics as lt
 				LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, ['mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC']) ? '
+				LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (\in_array($sort, ['mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC']) ? '
 				LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 			WHERE lt.id_member = {int:current_member}
 				AND unwatched = 1
@@ -486,7 +486,7 @@ class ShowPosts implements ActionInterface
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
+				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
 				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') || User::$me->is_owner ? '' : '
 				AND a.approved = {int:is_approved}') . '
 			ORDER BY {raw:sort}
@@ -542,7 +542,7 @@ class ShowPosts implements ActionInterface
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
+				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
 				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
@@ -936,7 +936,7 @@ class ShowPosts implements ActionInterface
 		}
 
 		// Clean up after posts that cannot be deleted and quoted.
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			Utils::$context['posts'][$counter]['can_delete'] &= Utils::$context['posts'][$counter]['delete_possible'];

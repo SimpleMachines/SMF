@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -64,7 +64,7 @@ class LoginTFA extends Login2
 
 			$code = $_POST['tfa_code'];
 
-			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
+			if (\strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
 				User::updateMemberData($member['id_member'], ['last_login' => time()]);
 
 				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));

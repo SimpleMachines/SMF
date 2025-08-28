@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Themes
+// Version: 3.0 Alpha 4; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -39,7 +39,7 @@ $txt['theme_install_error_file_1'] = 'The uploaded file exceeds the upload_max_f
 $txt['theme_install_error_file_2'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.';
 $txt['theme_install_error_file_3'] = 'The uploaded file was only partially uploaded.';
 $txt['theme_install_error_file_4'] = 'No file was uploaded.';
-$txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
+$txt['theme_install_error_file_6'] = 'Missing a temporary upload directory.';
 $txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
 $txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
 $txt['theme_install_already_dir'] = 'The name you specified is already been used by another theme, please try a different name.';

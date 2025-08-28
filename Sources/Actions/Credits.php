@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -244,7 +244,7 @@ class Credits implements ActionInterface, Routable
 		];
 
 		// Give the translators some credit for their hard work.
-		if (!is_array(Lang::getTxt('translation_credits', file: 'Who'))) {
+		if (!\is_array(Lang::getTxt('translation_credits', file: 'Who'))) {
 			Lang::setTxt(
 				'translation_credits',
 				array_filter(

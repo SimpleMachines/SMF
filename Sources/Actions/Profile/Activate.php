@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -77,7 +77,7 @@ class Activate implements ActionInterface
 
 			// If we are doing approval, update the stats for the member just in case.
 			if (
-				in_array(
+				\in_array(
 					$prev_is_activated,
 					[
 						User::UNAPPROVED,
@@ -97,7 +97,7 @@ class Activate implements ActionInterface
 			}
 
 			// Inform the user that their account has been approved.
-			if (in_array($prev_is_activated, [User::UNAPPROVED, User::NEED_COPPA])) {
+			if (\in_array($prev_is_activated, [User::UNAPPROVED, User::NEED_COPPA])) {
 				$replacements = [
 					'NAME' => Profile::$member->name,
 					'USERNAME' => Profile::$member->username,

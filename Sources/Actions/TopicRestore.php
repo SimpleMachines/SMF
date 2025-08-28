@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -125,7 +125,7 @@ class TopicRestore implements ActionInterface, Routable
 
 			// Check for topics we are going to fully restore.
 			foreach ($actioned_messages as $topic => $data) {
-				if (in_array($topic, $topics_to_restore)) {
+				if (\in_array($topic, $topics_to_restore)) {
 					unset($actioned_messages[$topic]);
 				}
 			}
@@ -157,7 +157,7 @@ class TopicRestore implements ActionInterface, Routable
 
 			foreach ($actioned_messages as $topic => $data) {
 				// If we have topics we are going to restore the whole lot ignore them.
-				if (in_array($topic, $topics_to_restore)) {
+				if (\in_array($topic, $topics_to_restore)) {
 					unset($actioned_messages[$topic]);
 
 					continue;
@@ -272,7 +272,7 @@ class TopicRestore implements ActionInterface, Routable
 		// !!! This really needs to be rewritten to take a load of messages from ANY topic, it's also inefficient.
 
 		// Is it an array?
-		if (!is_array($msgs)) {
+		if (!\is_array($msgs)) {
 			$msgs = [$msgs];
 		}
 

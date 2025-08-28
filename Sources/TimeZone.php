@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -1795,7 +1795,7 @@ class TimeZone extends \DateTimeZone
 
 		$tzinfo = $this->getTransitions($when, $later);
 
-		if (count($tzinfo) > 1) {
+		if (\count($tzinfo) > 1) {
 			return self::DST_SWITCHES;
 		}
 
@@ -1960,7 +1960,7 @@ class TimeZone extends \DateTimeZone
 			}
 			// Otherwise, use the list of locations (max 5, so things don't get silly)
 			else {
-				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
+				$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
 			}
 
 			// We don't want abbreviations like '+03' or '-11'.
@@ -1970,12 +1970,12 @@ class TimeZone extends \DateTimeZone
 					return !strspn($abbr, '+-');
 				},
 			);
-			$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
+			$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
 			// Show the UTC offset and abbreviation(s).
 			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
-			if (in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
+			if (\in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
 				$priority_timezones[$tzvalue['tzid']] = $desc;
 			} else {
 				$timezones[$tzvalue['tzid']] = $desc;
@@ -2116,7 +2116,7 @@ class TimeZone extends \DateTimeZone
 
 		foreach ($tzids as $tzid) {
 			// Not missing.
-			if (!in_array($tzid, $missing)) {
+			if (!\in_array($tzid, $missing)) {
 				$replacements[$tzid] = $tzid;
 			}
 			// Missing and we have no fallback.
@@ -2126,7 +2126,7 @@ class TimeZone extends \DateTimeZone
 			// Missing, but we have a fallback.
 			else {
 				foreach (self::$fallbacks[$tzid] as &$alt) {
-					$alt['ts'] = is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
+					$alt['ts'] = \is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
 				}
 
 				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
@@ -2140,7 +2140,7 @@ class TimeZone extends \DateTimeZone
 				}
 
 				// Replacement is already in use.
-				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && !str_contains($alt['tzid'], 'Etc/'))) {
+				if (\in_array($alt['tzid'], $replacements) || (\in_array($alt['tzid'], $tzids) && !str_contains($alt['tzid'], 'Etc/'))) {
 					$replacements[$tzid] = '';
 				}
 
@@ -2162,7 +2162,7 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
 	{
-		if (is_string($country_codes)) {
+		if (\is_string($country_codes)) {
 			$country_codes = explode(',', $country_codes);
 		} else {
 			$country_codes = array_map('strval', (array) $country_codes);
@@ -2171,7 +2171,7 @@ class TimeZone extends \DateTimeZone
 		foreach ($country_codes as $key => $country_code) {
 			$country_code = strtoupper(trim($country_code));
 
-			$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
+			$country_tzids = \strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
 
 			$country_codes[$key] = empty($country_tzids) ? null : $country_code;
 		}
@@ -2205,12 +2205,12 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Parseable datetime string?
-		if (is_int($timestamp = strtotime((string) $when))) {
+		if (\is_int($timestamp = strtotime((string) $when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?
 		elseif (is_numeric($when)) {
-			$start = intval($when);
+			$start = \intval($when);
 		}
 		// Invalid value? Just get current Unix timestamp.
 		else {
@@ -2249,7 +2249,7 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Antarctic research stations should be listed last, unless you're running a penguin forum
-		$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
+		$low_priority_tzids = !\in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
 
 		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
 

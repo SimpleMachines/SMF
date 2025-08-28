@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -120,7 +120,7 @@ class Maintenance
 	public static string $query_string = '';
 
 	/**
-	 * @var \SMF\Maintenance\Tools\ToolsInterface
+	 * @var \SMF\Maintenance\Tools\ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
 	 *
 	 * Object containing the tool we are working with.
 	 */
@@ -228,7 +228,7 @@ class Maintenance
 	public function __construct()
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
-		self::$theme_dir = dirname(SMF_SETTINGS_FILE) . '/Themes/default';
+		self::$theme_dir = \dirname(SMF_SETTINGS_FILE) . '/Themes/default';
 
 		// This might be overwritten by the tool, but we need a default value.
 		self::$context['started'] = (int) TIME_START;
@@ -291,7 +291,7 @@ class Maintenance
 			}
 
 			// Call the step and if it returns false that means pause!
-			if (is_callable($callable) && call_user_func($callable) === false) {
+			if (\is_callable($callable) && \call_user_func($callable) === false) {
 				break;
 			}
 
@@ -308,7 +308,7 @@ class Maintenance
 
 		// Last chance to set our template.
 		if (
-			array_key_exists(self::getCurrentStep(), self::$tool->getSteps())
+			\array_key_exists(self::getCurrentStep(), self::$tool->getSteps())
 			&& self::$sub_template === ''
 		) {
 			self::$sub_template = self::$tool->getSteps()[self::getCurrentStep()]->getTemplate();
@@ -320,7 +320,7 @@ class Maintenance
 		if (
 			Sapi::isCLI()
 			&& !empty(self::$tool->script_file)
-			&& self::getCurrentStep() > count(self::$tool->getSteps())
+			&& self::getCurrentStep() > \count(self::$tool->getSteps())
 		) {
 			echo Lang::getTxt('cli_please_delete_file', ['file' => self::$tool->script_file], file: 'Maintenance') . PHP_EOL;
 		}
@@ -388,7 +388,7 @@ class Maintenance
 		}
 
 		// If SMF\Config::$boarddir was not available for some reason, try doing it manually.
-		if (!in_array(SMF_SETTINGS_FILE, get_included_files())) {
+		if (!\in_array(SMF_SETTINGS_FILE, get_included_files())) {
 			require SMF_SETTINGS_FILE;
 		} else {
 			$settingsText = trim(file_get_contents(SMF_SETTINGS_FILE));
@@ -404,7 +404,7 @@ class Maintenance
 			// Since we're using eval, we need to manually replace these with strings.
 			$settingsText = strtr($settingsText, [
 				'__FILE__' => var_export(SMF_SETTINGS_FILE, true),
-				'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
+				'__DIR__' => var_export(\dirname(SMF_SETTINGS_FILE), true),
 			]);
 
 			// Prevents warnings about constants that are already defined.
@@ -426,7 +426,7 @@ class Maintenance
 			}
 		}
 
-		return $boarddir ?? dirname(__DIR__);
+		return $boarddir ?? \dirname(__DIR__);
 	}
 
 	/**
@@ -547,9 +547,6 @@ class Maintenance
 		// Make the connection...
 		if (empty(Db::$db) || !(Db::$db instanceof Db)) {
 			Db::load(['non_fatal' => true]);
-		} else {
-			// If we've returned here, ping/reconnect to be safe
-			Db::$db->ping();
 		}
 
 		// Oh dear god!!
@@ -699,7 +696,7 @@ class Maintenance
 			}
 
 			// We have a valid login.
-			if ($id > 0 && !in_array(1, $groups)) {
+			if ($id > 0 && !\in_array(1, $groups)) {
 				$request = Db::$db->query(
 					'SELECT permission
 					FROM {db_prefix}permissions
@@ -808,25 +805,25 @@ class Maintenance
 			header('content-type: text/html; charset=UTF-8');
 
 			// The top bit.
-			call_user_func([self::$template, 'header']);
+			\call_user_func([self::$template, 'header']);
 
 			if (method_exists(self::$template, 'upper')) {
-				call_user_func([self::$template, 'upper']);
+				\call_user_func([self::$template, 'upper']);
 			}
 
 			// Call the template.
 			if (self::$sub_template !== '') {
 				self::$context['form_url'] = self::getSelf() . '?step=' . self::getCurrentStep();
 
-				call_user_func([self::$template, self::$sub_template]);
+				\call_user_func([self::$template, self::$sub_template]);
 			}
 
 			// Show the footer.
 			if (method_exists(self::$template, 'lower')) {
-				call_user_func([self::$template, 'lower']);
+				\call_user_func([self::$template, 'lower']);
 			}
 
-			call_user_func([self::$template, 'footer']);
+			\call_user_func([self::$template, 'footer']);
 		}
 
 		// Bang - gone!
@@ -884,7 +881,7 @@ class Maintenance
 		}
 
 		if (!empty($_SERVER['argv']) && Sapi::isCLI()) {
-			for ($i = 1; $i < count($_SERVER['argv']); $i++) {
+			for ($i = 1; $i < \count($_SERVER['argv']); $i++) {
 				if (preg_match('/^--([^=\s]+)(?:=(.*))?/', $_SERVER['argv'][$i], $match)) {
 					$_POST[$match[1]] = $match[2] ?? true;
 				}

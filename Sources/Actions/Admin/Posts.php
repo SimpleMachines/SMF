@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -99,10 +99,10 @@ class Posts implements ActionInterface
 			],
 		];
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -133,7 +133,7 @@ class Posts implements ActionInterface
 					list($censored_vulgar[], $censored_proper[]) = array_pad(explode('=', trim($c)), 2, '');
 				}
 			} elseif (isset($_POST['censor_vulgar'], $_POST['censor_proper'])) {
-				if (is_array($_POST['censor_vulgar'])) {
+				if (\is_array($_POST['censor_vulgar'])) {
 					foreach ($_POST['censor_vulgar'] as $i => $value) {
 						if (trim(strtr($value, '*', ' ')) == '') {
 							unset($_POST['censor_vulgar'][$i], $_POST['censor_proper'][$i]);
@@ -176,7 +176,7 @@ class Posts implements ActionInterface
 
 		Utils::$context['censored_words'] = [];
 
-		for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
+		for ($i = 0, $n = \count($censor_vulgar); $i < $n; $i++) {
 			if (empty($censor_vulgar[$i])) {
 				continue;
 			}

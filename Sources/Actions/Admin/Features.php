@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -94,10 +94,10 @@ class Features implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['sub_action'] = $this->subaction;
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -216,13 +216,13 @@ class Features implements ActionInterface
 
 			if (!isset($_POST['disabledBBC_enabledTags'])) {
 				$_POST['disabledBBC_enabledTags'] = [];
-			} elseif (!is_array($_POST['disabledBBC_enabledTags'])) {
+			} elseif (!\is_array($_POST['disabledBBC_enabledTags'])) {
 				$_POST['disabledBBC_enabledTags'] = [$_POST['disabledBBC_enabledTags']];
 			}
 
 			if (!isset($_POST['legacyBBC_enabledTags'])) {
 				$_POST['legacyBBC_enabledTags'] = [];
-			} elseif (!is_array($_POST['legacyBBC_enabledTags'])) {
+			} elseif (!\is_array($_POST['legacyBBC_enabledTags'])) {
 				$_POST['legacyBBC_enabledTags'] = [$_POST['legacyBBC_enabledTags']];
 			}
 
@@ -230,7 +230,7 @@ class Features implements ActionInterface
 
 			// Enable all children if parent is enabled
 			foreach ($bbcTagsChildren as $tag => $children) {
-				if (in_array($tag, $_POST['disabledBBC_enabledTags'])) {
+				if (\in_array($tag, $_POST['disabledBBC_enabledTags'])) {
 					$_POST['disabledBBC_enabledTags'] = array_merge($_POST['disabledBBC_enabledTags'], $children);
 				}
 			}
@@ -365,7 +365,7 @@ class Features implements ActionInterface
 					if (!empty($sig_limits[2])) {
 						$count = 0;
 
-						for ($i = 0; $i < strlen($sig); $i++) {
+						for ($i = 0; $i < \strlen($sig); $i++) {
 							if ($sig[$i] == "\n") {
 								$count++;
 
@@ -484,7 +484,7 @@ class Features implements ActionInterface
 								if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6])) {
 									$sizes = Image::getSizeExternal($matches[7][$key]);
 
-									if (is_array($sizes)) {
+									if (\is_array($sizes)) {
 										// Too wide?
 										if ($sizes[0] > $sig_limits[5] && $sig_limits[5]) {
 											$width = $sig_limits[5];
@@ -601,7 +601,7 @@ class Features implements ActionInterface
 
 			if (!isset($_POST['signature_bbc_enabledTags'])) {
 				$_POST['signature_bbc_enabledTags'] = [];
-			} elseif (!is_array($_POST['signature_bbc_enabledTags'])) {
+			} elseif (!\is_array($_POST['signature_bbc_enabledTags'])) {
 				$_POST['signature_bbc_enabledTags'] = [$_POST['signature_bbc_enabledTags']];
 			}
 
@@ -687,7 +687,7 @@ class Features implements ActionInterface
 
 			if (!empty($_POST['reg'])) {
 				foreach ($_POST['reg'] as $value) {
-					if (in_array($value, $standard_fields) && !isset($disable_fields[$value])) {
+					if (\in_array($value, $standard_fields) && !isset($disable_fields[$value])) {
 						$reg_fields[] = $value;
 					}
 				}
@@ -736,9 +736,9 @@ class Features implements ActionInterface
 					'data' => [
 						'function' => function ($rowData) {
 							$isChecked = $rowData['disabled'] ? '' : ' checked';
-							$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
+							$onClickHandler = $rowData['can_show_register'] ? \sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
 
-							return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
+							return \sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
 						},
 						'style' => 'width: 20%;',
 						'class' => 'centercol',
@@ -754,7 +754,7 @@ class Features implements ActionInterface
 							$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
 							$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
 
-							return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
+							return \sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
 						},
 						'style' => 'width: 20%;',
 						'class' => 'centercol',
@@ -828,7 +828,7 @@ class Features implements ActionInterface
 							$field_name = Lang::tokenTxtReplace($rowData['field_name']);
 							$field_desc = Lang::tokenTxtReplace($rowData['field_desc']);
 
-							return sprintf(
+							return \sprintf(
 								'<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
 								Config::$scripturl,
 								$rowData['id_field'],
@@ -976,7 +976,7 @@ class Features implements ActionInterface
 					'bbc' => $row['bbc'] ? true : false,
 					'default_check' => $row['field_type'] == 'check' && $row['default_value'] ? true : false,
 					'default_select' => $row['field_type'] == 'select' || $row['field_type'] == 'radio' ? $row['default_value'] : '',
-					'options' => strlen($row['field_options']) > 1 ? explode(',', $row['field_options']) : ['', '', ''],
+					'options' => \strlen($row['field_options']) > 1 ? explode(',', $row['field_options']) : ['', '', ''],
 					'active' => $row['active'],
 					'private' => $row['private'],
 					'can_search' => $row['can_search'],
@@ -1019,7 +1019,7 @@ class Features implements ActionInterface
 		}
 
 		// Are we moving it?
-		if (Utils::$context['fid'] && isset($_GET['move']) && in_array(Utils::htmlspecialchars($_GET['move']), $move_to)) {
+		if (Utils::$context['fid'] && isset($_GET['move']) && \in_array(Utils::htmlspecialchars($_GET['move']), $move_to)) {
 			$fields = [];
 			$new_sort = [];
 
@@ -1038,16 +1038,16 @@ class Features implements ActionInterface
 
 			$idx = array_search(Utils::$context['fid'], $fields);
 
-			if ($_GET['move'] == 'down' && count($fields) - 1 > $idx) {
-				$new_sort = array_slice($fields, 0, $idx, true);
+			if ($_GET['move'] == 'down' && \count($fields) - 1 > $idx) {
+				$new_sort = \array_slice($fields, 0, $idx, true);
 				$new_sort[] = $fields[$idx + 1];
 				$new_sort[] = $fields[$idx];
-				$new_sort += array_slice($fields, $idx + 2, count($fields), true);
-			} elseif (Utils::$context['fid'] > 0 and $idx < count($fields)) {
-				$new_sort = array_slice($fields, 0, ($idx - 1), true);
+				$new_sort += \array_slice($fields, $idx + 2, \count($fields), true);
+			} elseif (Utils::$context['fid'] > 0 and $idx < \count($fields)) {
+				$new_sort = \array_slice($fields, 0, ($idx - 1), true);
 				$new_sort[] = $fields[$idx];
 				$new_sort[] = $fields[$idx - 1];
-				$new_sort += array_slice($fields, ($idx + 1), count($fields), true);
+				$new_sort += \array_slice($fields, ($idx + 1), \count($fields), true);
 			} else {
 				// @todo implement an error handler
 				Utils::redirectexit('action=admin;area=featuresettings;sa=profile');
@@ -1171,7 +1171,7 @@ class Features implements ActionInterface
 
 				$i = 0;
 
-				while (in_array($col_name, $current_fields)) {
+				while (\in_array($col_name, $current_fields)) {
 					// First try appending an integer to the supplied name.
 					if ($i <= 9) {
 						$col_name = $initial_col_name . $i;
@@ -1230,7 +1230,7 @@ class Features implements ActionInterface
 						}
 
 						// Still exists?
-						if (in_array($option, $newOptions)) {
+						if (\in_array($option, $newOptions)) {
 							$takenKeys[] = $k;
 						}
 					}
@@ -1238,7 +1238,7 @@ class Features implements ActionInterface
 					// Finally - have we renamed it - or is it really gone?
 					foreach ($optionChanges as $k => $option) {
 						// Just been renamed?
-						if (!in_array($k, $takenKeys) && !empty($newOptions[$k])) {
+						if (!\in_array($k, $takenKeys) && !empty($newOptions[$k])) {
 							Db::$db->query(
 								'UPDATE {db_prefix}themes
 								SET value = {string:new_value}
@@ -1510,7 +1510,7 @@ class Features implements ActionInterface
 		// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : [];
 		$reg_fields = isset(Config::$modSettings['registration_fields']) ? explode(',', Config::$modSettings['registration_fields']) : [];
-		$can_personal_text = !in_array('personal_text', $disabled_fields) && !in_array('personal_text', $reg_fields);
+		$can_personal_text = !\in_array('personal_text', $disabled_fields) && !\in_array('personal_text', $reg_fields);
 
 		$config_vars = [
 			// Big Options... polls, sticky, bbc....
@@ -1574,9 +1574,9 @@ class Features implements ActionInterface
 			[
 				'check',
 				'hide_index_php',
-				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::getTxt('hide_index_php_manual', file: 'ManageSettings') . '</strong>' : '',
+				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (\function_exists('apache_get_modules') && !\in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::getTxt('hide_index_php_manual', file: 'ManageSettings') . '</strong>' : '',
 				// Disable only if we know for sure that it won't work.
-				'disabled' => function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules()),
+				'disabled' => \function_exists('apache_get_modules') && !\in_array('mod_rewrite', apache_get_modules()),
 			],
 			['check', 'use_ascii_slugs'],
 			'',
@@ -1833,9 +1833,9 @@ class Features implements ActionInterface
 				$list[] = [
 					'id' => $field,
 					'label' => Lang::txtExists('standard_profile_field_' . $field, file: 'ManageSettings') ? Lang::getTxt('standard_profile_field_' . $field, file: 'ManageSettings') : (Lang::txtExists($field, file: 'Profile') ? Lang::getTxt($field, file: 'Profile') : $field),
-					'disabled' => in_array($field, $disabled_fields),
-					'on_register' => in_array($field, $registration_fields) && !in_array($field, $fields_no_registration),
-					'can_show_register' => !in_array($field, $fields_no_registration),
+					'disabled' => \in_array($field, $disabled_fields),
+					'on_register' => \in_array($field, $registration_fields) && !\in_array($field, $fields_no_registration),
+					'can_show_register' => !\in_array($field, $fields_no_registration),
 				];
 			}
 		} else {
@@ -2007,8 +2007,8 @@ class Features implements ActionInterface
 			!Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED])
 			// Can't do this if mod_rewrite is disabled.
 			|| (
-				function_exists('apache_get_modules')
-				&& !in_array('mod_rewrite', apache_get_modules())
+				\function_exists('apache_get_modules')
+				&& !\in_array('mod_rewrite', apache_get_modules())
 			)
 		) {
 			return false;

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -165,6 +165,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\ConvertToInnoDb::class,
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,
+			Migration\v3_0\EditHistory::class,
 			Migration\v3_0\MessageVersion::class,
 			Migration\v3_0\PackageVersion::class,
 			Migration\v3_0\RecurringEvents::class,
@@ -558,19 +559,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
 		);
 
-		// Need legacy scripts?
-		foreach (self::VERSION_MAP as $search => $ns) {
-			if (version_compare($this->start_smf_version, $search, '>')) {
-				continue;
-			}
+		try {
+			foreach (self::VERSION_MAP as $search => $ns) {
+				if (version_compare($this->start_smf_version, $search, '>')) {
+					continue;
+				}
 
-			foreach (self::MIGRATIONS[$ns] as $class) {
-				$check &= class_exists($class);
-			}
+				foreach (self::MIGRATIONS[$ns] as $class) {
+					if (!class_exists($class)) {
+						throw new \Exception("{$class} does not exist");
+					}
+				}
 
-			foreach (self::CLEANUPS[$ns] as $class) {
-				$check &= class_exists($class);
+				foreach (self::CLEANUPS[$ns] as $class) {
+					if (!class_exists($class)) {
+						throw new \Exception("{$class} does not exist");
+					}
+				}
 			}
+		}
+		// Developers, set break point here to figure out what you did wrong.
+		 catch (\Exception $ex) {
+			$check = false;
 		}
 
 		if (!$check) {
@@ -590,7 +600,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'<',
 			)
 		) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle()]);
+			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle(), 'min_version' => Db::$db->getMinimumVersion()]);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -712,13 +722,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Confirm mbstring is loaded...
-		if (!extension_loaded('mbstring')) {
+		if (!\extension_loaded('mbstring')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_mbstring', file: 'Maintenance'));
 		}
 
 		// Confirm fileinfo is loaded...
-		if (!extension_loaded('fileinfo')) {
+		if (!\extension_loaded('fileinfo')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_fileinfo', file: 'Maintenance'));
 		}
@@ -726,7 +736,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Check for https stream support.
 		$supported_streams = stream_get_wrappers();
 
-		if (!in_array('https', $supported_streams)) {
+		if (!\in_array('https', $supported_streams)) {
 			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('install_no_https', file: 'Maintenance'));
 		}
@@ -819,8 +829,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$member_columns = Db::$db->list_columns('{db_prefix}members');
 
 		Maintenance::$context['karma_installed'] = [
-			'good' => in_array('karma_good', $member_columns),
-			'bad' => in_array('karma_bad', $member_columns),
+			'good' => \in_array('karma_good', $member_columns),
+			'bad' => \in_array('karma_bad', $member_columns),
 		];
 
 		unset($member_columns);
@@ -1031,7 +1041,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return !str_starts_with($table, 'backup_');
 		});
 
-		Maintenance::$total_substeps = count($table_names);
+		Maintenance::$total_substeps = \count($table_names);
 
 		// Template things.
 		Maintenance::$context['cur_table_name'] = $table_names[Maintenance::getCurrentSubStep()];
@@ -1057,10 +1067,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			);
 		}
 
-		$this->performSubsteps($substeps);
-
-		// Make sure we move on!
-		return true;
+		return $this->performSubsteps($substeps);
 	}
 
 	/**
@@ -1102,7 +1109,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		$this->performSubsteps($substeps);
+		if (!$this->performSubsteps($substeps)) {
+			return false;
+		}
 
 		return Sapi::isCLI();
 	}
@@ -1138,7 +1147,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		$this->performSubsteps($substeps);
+		if (!$this->performSubsteps($substeps)) {
+			return false;
+		}
 
 		return Sapi::isCLI();
 	}
@@ -1252,7 +1263,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Delete all the obsolete settings.
 		foreach (Config::getSettingsDefs() as $var => $setting_def) {
-			if (is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
+			if (\is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
 				$file_settings[$var] = $setting_def['default'];
 			}
 		}
@@ -1469,13 +1480,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// String?
 		if (
 			!empty(Config::$modSettings['attachmentUploadDir'])
-			&& is_string(Config::$modSettings['attachmentUploadDir'])
+			&& \is_string(Config::$modSettings['attachmentUploadDir'])
 			&& is_dir(Config::$modSettings['attachmentUploadDir'])
 		) {
 			// OK...
 		}
 		// An array already?
-		elseif (is_array(Config::$modSettings['attachmentUploadDir'])) {
+		elseif (\is_array(Config::$modSettings['attachmentUploadDir'])) {
 			foreach (Config::$modSettings['attachmentUploadDir'] as $dir) {
 				if (!empty($dir) && !is_dir($dir)) {
 					$attach_directory_problem_found = true;
@@ -1484,7 +1495,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 		// Serialized?
 		elseif ($ser_test !== false) {
-			if (is_array($ser_test)) {
+			if (\is_array($ser_test)) {
 				foreach ($ser_test as $dir) {
 					if (!empty($dir) && !is_dir($dir)) {
 						$attach_directory_problem_found = true;
@@ -1498,7 +1509,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 		// JSON?  Note the test returns null if encoding was unsuccessful.
 		elseif ($json_test !== null) {
-			if (is_array($json_test)) {
+			if (\is_array($json_test)) {
 				foreach ($json_test as $dir) {
 					if (!is_dir($dir)) {
 						$attach_directory_problem_found = true;
@@ -1575,17 +1586,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Performs a series of substeps.
 	 *
 	 * @param array $substeps All substep objects that we are running.
+	 * @return bool True if we are done, false if we need to timeout and wait.
 	 */
-	private function performSubsteps(array $substeps): void
+	private function performSubsteps(array $substeps): bool
 	{
-		Maintenance::$total_substeps = count($substeps);
+		Maintenance::$total_substeps = \count($substeps);
 
 		// We are preparing for templating.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			Maintenance::$context['continue'] = true;
 			Maintenance::$context['current_substep'] = $substeps[Maintenance::getCurrentSubStep()]->name ?? '';
 
-			return;
+			return false;
 		}
 
 		// Load up the current user safely.
@@ -1609,7 +1621,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				],
 			]);
 
-			return;
+			return true;
 		}
 
 		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
@@ -1664,7 +1676,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					],
 				]);
 
-				return;
+				return false;
 			}
 
 			try {
@@ -1682,7 +1694,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						],
 					]);
 
-					return;
+					return false;
 				}
 			} catch (\Throwable $e) {
 				$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
@@ -1701,7 +1713,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					],
 				]);
 
-				return;
+				return false;
 			}
 
 			$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
@@ -1725,5 +1737,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				]);
 			}
 		}
+
+		return true;
 	}
 }

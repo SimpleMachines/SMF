@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -344,7 +344,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Do we want to link to the topic in general or the new messages specifically?
-		if (in_array($this->content_type, ['topic', 'board']) && in_array($this->content_action, ['reply', 'topic', 'unapproved_reply'])) {
+		if (\in_array($this->content_type, ['topic', 'board']) && \in_array($this->content_action, ['reply', 'topic', 'unapproved_reply'])) {
 			$this->extra['topic_suffix'] = 'new;topicseen#new';
 		} elseif (isset($this->extra['topic'])) {
 			$this->extra['topic_suffix'] = '0';
@@ -380,9 +380,9 @@ class Alert implements \ArrayAccess
 			);
 
 			// Assuming all required values are present, build the message.
-			if (!in_array('', $msg_values)) {
+			if (!\in_array('', $msg_values)) {
 				$this->extra[$msg_type] = vsprintf(self::$link_formats[$msg_type][$this->show_links ? 'link' : 'text'], $msg_values);
-			} elseif (in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
+			} elseif (\in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
 				$this->extra[$msg_type] = Lang::getTxt($msg_type == 'board_msg' ? 'board_na' : 'topic_na', file: 'Alerts');
 			} else {
 				$this->extra[$msg_type] = '(' . Lang::getTxt('not_applicable', file: 'General') . ')';
@@ -411,7 +411,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Next, try determining the link based on the content action.
-		if (empty($this->target_href) && in_array($this->content_action, ['register_approval', 'group_request', 'buddy_request'])) {
+		if (empty($this->target_href) && \in_array($this->content_action, ['register_approval', 'group_request', 'buddy_request'])) {
 			switch ($this->content_action) {
 				case 'register_approval':
 					$this->target_href = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
@@ -433,7 +433,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Or maybe we can determine the link based on the content type.
-		if (empty($this->target_href) && in_array($this->content_type, ['msg', 'member', 'event'])) {
+		if (empty($this->target_href) && \in_array($this->content_type, ['msg', 'member', 'event'])) {
 			switch ($this->content_type) {
 				case 'msg':
 					if (!empty($this->content_id)) {
@@ -467,7 +467,7 @@ class Alert implements \ArrayAccess
 				'member_link' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
 			];
 
-			if (is_array($this->extra)) {
+			if (\is_array($this->extra)) {
 				foreach ($this->extra as $k => $v) {
 					$substitutions[$k] = $v;
 				}
@@ -841,7 +841,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Are we being asked for some specific alerts?
-		$ids = is_bool($to_fetch) ? [] : array_filter(array_map('intval', (array) $to_fetch));
+		$ids = \is_bool($to_fetch) ? [] : array_filter(array_map('intval', (array) $to_fetch));
 
 		// Don't reload unnecessarily.
 		foreach (self::$loaded as $alert) {
@@ -1029,7 +1029,7 @@ class Alert implements \ArrayAccess
 		if (Db::$db->affected_rows() > 0) {
 			// First, make sure that all the loaded alerts have the right value.
 			foreach (self::$loaded as $alert) {
-				if (in_array($alert->member, $members) && (!$read || empty($alert->is_read))) {
+				if (\in_array($alert->member, $members) && (!$read || empty($alert->is_read))) {
 					$alert->is_read = $time;
 				}
 			}

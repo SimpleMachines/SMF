@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -122,7 +122,7 @@ class UnreadReplies extends Unread
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_topic)
 			)
-			SELECT t.id_topic, t.id_board, t.id_last_msg, COALESCE(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
+			SELECT t.id_topic, t.id_board, t.id_last_msg, COALESCE(lmr.id_msg, 0) AS id_msg' . (!\in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
@@ -192,7 +192,7 @@ class UnreadReplies extends Unread
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($this->query_parameters, [
-				'order' => (in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? $_REQUEST['sort'] : 't.sort_key') . ($this->ascending ? '' : ' DESC'),
+				'order' => (\in_array($_REQUEST['sort'], ['t.id_last_msg', 't.id_topic']) ? $_REQUEST['sort'] : 't.sort_key') . ($this->ascending ? '' : ' DESC'),
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 			]),
@@ -229,7 +229,7 @@ class UnreadReplies extends Unread
 				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 				'sort' => $_REQUEST['sort'],
-				'limit' => count($topics),
+				'limit' => \count($topics),
 			],
 			identifier: 'substring',
 		);
@@ -328,7 +328,7 @@ class UnreadReplies extends Unread
 				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 				'sort' => $_REQUEST['sort'],
-				'limit' => count($topics),
+				'limit' => \count($topics),
 			],
 			identifier: 'substring',
 		);

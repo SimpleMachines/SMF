@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -130,10 +130,10 @@ class Post2 extends Post
 		// Allow mods to add new sub-actions.
 		IntegrationHook::call('integrate_post2_subactions', [&self::$subactions]);
 
-		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -383,7 +383,7 @@ class Post2 extends Post
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
 					$attach_errors[] = '<dt>' . Lang::getTxt('attach_no_upload', file: 'Post') . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</dd>';
+					$attach_errors[] = '<dd>' . (\is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 
@@ -421,10 +421,10 @@ class Post2 extends Post
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 					foreach ($attachmentOptions['errors'] as $error) {
-						if (!is_array($error)) {
+						if (!\is_array($error)) {
 							$attach_errors[] = '<dd>' . Lang::getTxt($error, ['path' => User::$me->is_admin ? (Utils::$context['attach_dir'] ?? '') : Lang::getTxt('hidden', file: 'General')], file: 'Post') . '</dd>';
 
-							if (in_array($error, $log_these)) {
+							if (\in_array($error, $log_these)) {
 								ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? (Utils::$context['attach_dir'] ?? '') : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
 							}
 						} else {
@@ -493,6 +493,7 @@ class Post2 extends Post
 			// Have admins allowed people to hide their screwups?
 			if (time() - $this->existing_msg->poster_time > Config::$modSettings['edit_wait_time'] || User::$me->id != $this->existing_msg->id_member) {
 				$msgOptions['modify_time'] = time();
+				$msgOptions['modify_id'] = User::$me->id;
 				$msgOptions['modify_name'] = User::$me->name;
 				$msgOptions['modify_reason'] = $_POST['modify_reason'];
 				$msgOptions['poster_time'] = $this->existing_msg->poster_time;
@@ -768,9 +769,9 @@ class Post2 extends Post
 					if (
 						(
 							isset($_SESSION['temp_attachments']['post']['files'], $attachment['name'])
-							&& in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
+							&& \in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
 						)
-						|| in_array($attachID, $keep_temp)
+						|| \in_array($attachID, $keep_temp)
 						|| !str_contains($attachID, 'post_tmp_' . User::$me->id)
 					) {
 						continue;

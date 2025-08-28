@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -187,7 +187,7 @@ function template_maintenance()
 		</form>
 		<script>
 			function start_progress() {
-				setTimeout(\'show_msg()\', 1000);
+				setTimeout(show_msg, 1000);
 			}
 
 			function show_msg() {
@@ -197,7 +197,7 @@ function template_maintenance()
 
 			function show_progress() {
 				$(\'#show_progress\').on("load", "progress.php");
-				setTimeout(\'show_progress()\', 1500);
+				setTimeout(show_progress, 1500);
 			}
 
 		</script>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -327,7 +327,7 @@ class PageIndex implements \Stringable
 	protected function prevPage(): string
 	{
 		if ($this->start != 0 && !$this->start_invalid && $this->show_prevnext) {
-			return sprintf($this->base_link, $this->start - $this->num_per_page, $this->previous_page);
+			return \sprintf($this->base_link, $this->start - $this->num_per_page, $this->previous_page);
 		}
 
 		return '';
@@ -340,7 +340,7 @@ class PageIndex implements \Stringable
 	protected function nextPage(): string
 	{
 		if ($this->start != $this->last_page_value && !$this->start_invalid && $this->show_prevnext) {
-			return sprintf($this->base_link, $this->start + $this->num_per_page, $this->next_page);
+			return \sprintf($this->base_link, $this->start + $this->num_per_page, $this->next_page);
 		}
 
 		return '';
@@ -353,7 +353,7 @@ class PageIndex implements \Stringable
 	protected function firstPage(): string
 	{
 		if ($this->current_page_num - $this->page_contiguous > 1) {
-			return sprintf($this->base_link, 0, '1');
+			return \sprintf($this->base_link, 0, '1');
 		}
 
 		return '';
@@ -366,7 +366,7 @@ class PageIndex implements \Stringable
 	protected function lastPage(): string
 	{
 		if ($this->current_page_num + $this->page_contiguous < $this->last_page_num) {
-			return sprintf($this->base_link, $this->last_page_value, $this->last_page_num);
+			return \sprintf($this->base_link, $this->last_page_value, $this->last_page_num);
 		}
 
 		return '';
@@ -390,16 +390,16 @@ class PageIndex implements \Stringable
 			if ($counter == $this->current_page_num) {
 				// If start was invalid, show page number as a link to the proper start value.
 				if ($this->start_invalid) {
-					$page_range .= sprintf($this->base_link, $this->start, $this->current_page_num);
+					$page_range .= \sprintf($this->base_link, $this->start, $this->current_page_num);
 				}
 				// Show page number as plain text.
 				else {
-					$page_range .= sprintf($this->current_page, $this->current_page_num);
+					$page_range .= \sprintf($this->current_page, $this->current_page_num);
 				}
 			}
 			// Show other pages.
 			else {
-				$page_range .= sprintf($this->base_link, ($counter - 1) * $this->num_per_page, $counter);
+				$page_range .= \sprintf($this->base_link, ($counter - 1) * $this->num_per_page, $counter);
 			}
 		}
 

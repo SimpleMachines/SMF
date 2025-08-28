@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -325,7 +325,7 @@ class Feed implements ActionInterface, Routable
 				$_GET['c'][$i] = (int) $c;
 			}
 
-			if (count($_GET['c']) == 1) {
+			if (\count($_GET['c']) == 1) {
 				$request = Db::$db->query(
 					'SELECT name
 					FROM {db_prefix}categories
@@ -385,7 +385,7 @@ class Feed implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'board_list' => $_GET['boards'],
-					'limit' => count($_GET['boards']),
+					'limit' => \count($_GET['boards']),
 				],
 			);
 
@@ -490,13 +490,13 @@ class Feed implements ActionInterface, Routable
 
 		if (empty($this->data)) {
 			// Should we call one of this class's own methods, or something added by a mod?
-			if (is_callable([$this, self::$subactions[$this->subaction]])) {
+			if (\is_callable([$this, self::$subactions[$this->subaction]])) {
 				$call = [$this, self::$subactions[$this->subaction]];
 			} else {
 				$call = Utils::getCallable(self::$subactions[$this->subaction]);
 			}
 
-			$this->data = !empty($call) ? call_user_func($call, $this->format) : [];
+			$this->data = !empty($call) ? \call_user_func($call, $this->format) : [];
 
 			if (
 				!empty(CacheApi::$enable)
@@ -521,12 +521,12 @@ class Feed implements ActionInterface, Routable
 		$filename[] = $this->metadata['title'];
 		$filename[] = $this->subaction;
 
-		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages'])) {
+		if (\in_array($this->subaction, ['profile', 'posts', 'personal_messages'])) {
 			$filename[] = 'u=' . $this->member;
 		}
 
 		if (!empty($this->boards)) {
-			if (count($this->boards) > 1) {
+			if (\count($this->boards) > 1) {
 				$filename[] = 'boards=' . implode(',', $this->boards);
 			} else {
 				$filename[] = 'board=' . reset($this->boards);
@@ -1913,7 +1913,7 @@ class Feed implements ActionInterface, Routable
 
 		$data = [];
 
-		$show_all = !empty(User::$me->is_admin) || defined('EXPORTING');
+		$show_all = !empty(User::$me->is_admin) || \defined('EXPORTING');
 
 		$query_this_message_board = str_replace(['{query_see_board}', 'b.'], ['{query_see_message_board}', 'm.'], $this->query_this_board);
 
@@ -2682,10 +2682,10 @@ class Feed implements ActionInterface, Routable
 		$namespaces = self::XML_NAMESPACES;
 
 		// Finalize the value of the SMF namespace for this sub-action.
-		$namespaces['smf']['smf'] = sprintf($namespaces['smf']['smf'], $subaction);
+		$namespaces['smf']['smf'] = \sprintf($namespaces['smf']['smf'], $subaction);
 
 		// These sub-actions need the SMF namespace in other feed formats.
-		if (in_array($subaction, ['profile', 'posts', 'personal_messages'])) {
+		if (\in_array($subaction, ['profile', 'posts', 'personal_messages'])) {
 			$namespaces['rss']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['rss2']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['atom']['smf'] = $namespaces['smf']['smf'];
@@ -2732,7 +2732,7 @@ class Feed implements ActionInterface, Routable
 			}
 		}
 
-		$i = in_array($format, ['atom', 'smf']) ? 1 : 2;
+		$i = \in_array($format, ['atom', 'smf']) ? 1 : 2;
 
 		$extraFeedTags_string = '';
 
@@ -2905,7 +2905,7 @@ class Feed implements ActionInterface, Routable
 		}
 		// Looks like we need to do it the hard way.
 		else {
-			for ($pos = 0, $n = strlen($data); $pos < $n; null) {
+			for ($pos = 0, $n = \strlen($data); $pos < $n; null) {
 				$positions = [
 					strpos($data, ']]>', $pos),
 					strpos($data, '<', $pos),
@@ -3004,7 +3004,7 @@ class Feed implements ActionInterface, Routable
 		$params = array_merge($params, self::parseActionRoute($route));
 		$params['type'] = array_shift($route);
 
-		if (count($route) >= 2) {
+		if (\count($route) >= 2) {
 			switch (array_shift($route)) {
 				case 'members':
 					$params['u'] = array_shift($route);
@@ -3108,7 +3108,7 @@ class Feed implements ActionInterface, Routable
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
-		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages']) && $this->member == User::$me->id && !User::$me->is_guest) {
+		if (\in_array($this->subaction, ['profile', 'posts', 'personal_messages']) && $this->member == User::$me->id && !User::$me->is_guest) {
 			return;
 		}
 
@@ -3152,7 +3152,7 @@ class Feed implements ActionInterface, Routable
 				continue;
 			}
 
-			$forceCdata = in_array($key, $forceCdataKeys);
+			$forceCdata = \in_array($key, $forceCdataKeys);
 			$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
 			// First let's indent!
@@ -3174,13 +3174,13 @@ class Feed implements ActionInterface, Routable
 				Utils::$context['feed']['items'] .= '>';
 
 				// The element's value.
-				if (is_array($val)) {
+				if (\is_array($val)) {
 					// An array.  Dump it, and then indent the tag.
 					self::dumpTags($val, $i + 1, $format, $forceCdataKeys, $nsKeys);
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (is_string($val) && str_contains($val, "\n")) {
+				elseif (\is_string($val) && str_contains($val, "\n")) {
 					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl((string) $val), $ns, $forceCdata) : self::fixPossibleUrl((string) $val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.

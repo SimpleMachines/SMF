@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -17,6 +17,7 @@ namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Utils;
 
@@ -179,7 +180,7 @@ abstract class CacheApi
 	 */
 	public function setPrefix(string $prefix = ''): bool
 	{
-		if (!is_string($prefix)) {
+		if (!\is_string($prefix)) {
 			$prefix = '';
 		}
 
@@ -318,13 +319,13 @@ abstract class CacheApi
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
 		}
 
-		return get_class($this);
+		return \get_class($this);
 	}
 
 	/***********************
@@ -357,11 +358,11 @@ abstract class CacheApi
 		}
 
 		// Not overriding this and we have a cacheAPI, send it back.
-		if (empty($overrideCache) && is_object(self::$loadedApi)) {
+		if (empty($overrideCache) && \is_object(self::$loadedApi)) {
 			return self::$loadedApi;
 		}
 
-		if (is_null(self::$loadedApi)) {
+		if (\is_null(self::$loadedApi)) {
 			self::$loadedApi = false;
 		}
 
@@ -499,14 +500,14 @@ abstract class CacheApi
 			// The cache level isn't high enough.
 			|| self::$enable < $level
 			// The item has not been cached or the cached item expired.
-			|| !is_array($cache_block = self::get($key, 3600))
+			|| !\is_array($cache_block = self::get($key, 3600))
 			// The expire time set in the cache item has passed (needed for Zend).
 			|| ($cache_block['expires'] ?? time()) < time()
 			// The cached item has a custom expiration condition evaluating to true.
 			|| (
 				!empty($cache_block['check_outdated'])
 				&& ($cache_block['check_outdated']['callback'] = Utils::getCallable($cache_block['check_outdated']['callback'])) !== false
-				&& call_user_func_array(
+				&& \call_user_func_array(
 					$cache_block['check_outdated']['callback'],
 					$cache_block['check_outdated']['args'] ?? [],
 				)
@@ -516,7 +517,7 @@ abstract class CacheApi
 				require_once Config::$sourcedir . '/' . $file;
 			}
 
-			$cache_block = call_user_func_array($function, $params);
+			$cache_block = \call_user_func_array($function, $params);
 
 			if (!empty(self::$enable) && self::$enable >= $level) {
 				self::put($key, $cache_block, $cache_block['expires'] - time());
@@ -559,8 +560,8 @@ abstract class CacheApi
 
 		self::$count_hits++;
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
-			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(serialize($value))];
+		if (DebugUtils::isDebugEnabled()) {
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : \strlen(serialize($value))];
 			$st = microtime(true);
 		}
 
@@ -572,7 +573,7 @@ abstract class CacheApi
 			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
 		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 		}
 	}
@@ -594,7 +595,7 @@ abstract class CacheApi
 
 		self::$count_hits++;
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'get'];
 			$st = microtime(true);
 			$original_key = $key;
@@ -603,9 +604,9 @@ abstract class CacheApi
 		// Ask the API to get the data.
 		$value = self::$loadedApi->getData($key, $ttl);
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
-			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen((string) $value) : 0;
+			self::$hits[self::$count_hits]['s'] = isset($value) ? \strlen((string) $value) : 0;
 
 			if (empty($value)) {
 				self::$count_misses++;
@@ -621,7 +622,7 @@ abstract class CacheApi
 			return null;
 		}
 
-		if (is_string($value)) {
+		if (\is_string($value)) {
 			try {
 				$temp = @unserialize($value);
 				$value = $temp;
@@ -634,6 +635,6 @@ abstract class CacheApi
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([CacheApi::class, 'exportStatic'])) {
+if (\is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }

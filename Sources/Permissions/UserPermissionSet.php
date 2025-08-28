@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -93,7 +93,7 @@ class UserPermissionSet
 		if (
 			$board instanceof Board
 			&& (
-				in_array($this->user->id, $board->moderators)
+				\in_array($this->user->id, $board->moderators)
 				|| array_intersect($board->moderator_groups, $this->user->groups) !== []
 			)
 		) {
@@ -180,7 +180,7 @@ class UserPermissionSet
 	{
 		foreach ((array) $permission_names as $permission_name) {
 			if (
-				is_string($permission_name)
+				\is_string($permission_name)
 				&& Permission::exists($permission_name)
 			) {
 				$this->permissions[$permission_name] = 1;
@@ -231,15 +231,17 @@ class UserPermissionSet
 				&& Config::$modSettings['warning_mute'] <= $this->user->warning
 			)
 		) {
+			$post_ban_permissions = [];
+
 			foreach (Permission::getAll() as $permission) {
 				if (!empty($permission->never_banned)) {
 					$post_ban_permissions[] = $permission->name;
 				}
 			}
 
-			IntegrationHook::call('integrate_post_ban_permissions', [&self::$post_ban_permissions]);
+			IntegrationHook::call('integrate_post_ban_permissions', [&$post_ban_permissions]);
 
-			foreach (self::$post_ban_permissions as $permission) {
+			foreach ($post_ban_permissions as $permission) {
 				$this->deny($permission);
 			}
 
@@ -284,7 +286,7 @@ class UserPermissionSet
 	{
 		$loaded = [];
 
-		if (empty($boards) || in_array(0, $boards)) {
+		if (empty($boards) || \in_array(0, $boards)) {
 			$loaded[PermissionProfile::DEFAULT] = self::$loaded[$user->id][PermissionProfile::DEFAULT] ?? new self($user);
 		}
 

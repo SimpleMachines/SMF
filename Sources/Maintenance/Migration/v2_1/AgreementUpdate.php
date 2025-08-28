@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -63,9 +63,9 @@ class AgreementUpdate extends MigrationBase
 
 		foreach ($utf8_policy_settings as $var => $val) {
 			// Note this works on the policy_updated_ strings as well...
-			$language = substr($var, 7, strlen($var) - 12);
+			$language = substr($var, 7, \strlen($var) - 12);
 
-			if (!array_key_exists('policy_' . $language, Config::$modSettings)) {
+			if (!\array_key_exists('policy_' . $language, Config::$modSettings)) {
 				$newSettings['policy_' . $language] = $val;
 				$newSettings[$var] = null;
 			}
@@ -79,7 +79,7 @@ class AgreementUpdate extends MigrationBase
 		$files = glob(Config::$boarddir . '/agreement.*-utf8.txt');
 
 		foreach ($files as $filename) {
-			$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+			$newfile = substr($filename, 0, \strlen($filename) - 9) . '.txt';
 
 			// Do not overwrite existing files
 			if (!file_exists($newfile)) {
@@ -174,17 +174,17 @@ class AgreementUpdate extends MigrationBase
 	 */
 	private function upgrade_unserialize($string)
 	{
-		if (!is_string($string)) {
+		if (!\is_string($string)) {
 			$data = false;
 		}
 		// Might be JSON already.
 		elseif (str_starts_with($string, '{')) {
 			$data = @json_decode($string, true);
 
-			if (is_null($data)) {
+			if (\is_null($data)) {
 				$data = false;
 			}
-		} elseif (in_array(substr($string, 0, 2), ['b:', 'i:', 'd:', 's:', 'a:', 'N;'])) {
+		} elseif (\in_array(substr($string, 0, 2), ['b:', 'i:', 'd:', 's:', 'a:', 'N;'])) {
 			$data = @Utils::safeUnserialize($string);
 
 			// The serialized data is broken.
@@ -193,7 +193,7 @@ class AgreementUpdate extends MigrationBase
 				$new_string = preg_replace_callback(
 					'~\bs:(\d+):"(.*?)";(?=$|[bidsaO]:|[{}}]|N;)~s',
 					function ($matches) {
-						return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';
+						return 's:' . \strlen($matches[2]) . ':"' . $matches[2] . '";';
 					},
 					$string,
 				);

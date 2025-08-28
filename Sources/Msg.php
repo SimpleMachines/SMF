@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Diff\EditDiff;
 use SMF\Search\SearchApi;
 
 /**
@@ -184,6 +185,14 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * @var array
 	 *
+	 * An array of EditDiff objects recording the edit history of this message,
+	 * sorted in reverse chronological order (i.e. newest first).
+	 */
+	public array $edit_history = [];
+
+	/**
+	 * @var array
+	 *
 	 * Formatted versions of this message's properties, suitable for display.
 	 */
 	public array $formatted = [];
@@ -285,6 +294,11 @@ class Msg implements \ArrayAccess, Routable
 	{
 		$this->version = preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION);
 
+		// Ensure edit history is in reverse chronological order.
+		if (\count($this->edit_history) >= 2) {
+			usort($this->edit_history, fn($a, $b) => $b->time1 <=> $a->time1);
+		}
+
 		if (empty($this->id)) {
 			$columns = [
 				'id_topic' => 'int',
@@ -294,9 +308,7 @@ class Msg implements \ArrayAccess, Routable
 				'poster_name' => 'string-255',
 				'poster_email' => 'string-255',
 				'poster_ip' => 'inet',
-				'modified_time' => 'int',
-				'modified_name' => 'string-255',
-				'modified_reason' => 'string-255',
+				'edit_history' => 'string',
 				'subject' => 'string-255',
 				'body' => 'string' . (empty(Config::$modSettings['max_messageLength']) ? '' : '-' . max(65534, Config::$modSettings['max_messageLength'])),
 				'icon' => 'string-16',
@@ -314,9 +326,7 @@ class Msg implements \ArrayAccess, Routable
 				$this->poster_name,
 				$this->poster_email,
 				$this->poster_ip,
-				$this->modified_time,
-				$this->modified_name,
-				$this->modified_reason,
+				json_encode(array_map(fn($diff) => $diff->export(), $this->edit_history)),
 				$this->subject,
 				$this->body,
 				$this->icon,
@@ -330,7 +340,7 @@ class Msg implements \ArrayAccess, Routable
 			// are reflected in this object's custom properties, save them too.
 			if (!empty($this->custom)) {
 				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
 						$columns[$key] = $type;
 						$params[] = $this->custom[$key];
 					}
@@ -372,9 +382,7 @@ class Msg implements \ArrayAccess, Routable
 				'poster_name = {string:poster_name}',
 				'poster_email = {string:poster_email}',
 				'poster_ip = {inet:poster_ip}',
-				'modified_time = {int:modified_time}',
-				'modified_name = {string:modified_name}',
-				'modified_reason = {string:modified_reason}',
+				'edit_history = {string:edit_history}',
 				'id_msg_modified = {int:id_msg_modified}',
 				'subject = {string:subject}',
 				'body = {string:body}',
@@ -394,9 +402,7 @@ class Msg implements \ArrayAccess, Routable
 				'poster_name' => (string) $this->poster_name,
 				'poster_email' => (string) $this->poster_email,
 				'poster_ip' => (string) $this->poster_ip,
-				'modified_time' => (int) $this->modified_time,
-				'modified_name' => (string) $this->modified_name,
-				'modified_reason' => (string) $this->modified_reason,
+				'edit_history' => json_encode(array_map(fn($diff) => $diff->export(), $this->edit_history)),
 				'id_msg_modified' => $this->id_msg_modified = (int) Config::$modSettings['maxMsgID'],
 				'subject' => (string) $this->subject,
 				'body' => (string) $this->body,
@@ -411,7 +417,7 @@ class Msg implements \ArrayAccess, Routable
 			// are reflected in this object's custom properties, save them too.
 			if (!empty($this->custom)) {
 				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
 						$set[] = $key . ' = {' . $type . ':' . $key . '}';
 						$params[$key] = $this->custom[$key];
 					}
@@ -439,7 +445,7 @@ class Msg implements \ArrayAccess, Routable
 				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$message_ints]);
 
 				foreach ($messages_columns as $var => $val) {
-					$set[] = $var . ' = {' . (in_array($var, $message_ints) ? 'int' : 'string') . ':' . $var . '}';
+					$set[] = $var . ' = {' . (\in_array($var, $message_ints) ? 'int' : 'string') . ':' . $var . '}';
 					$params[$var] = $val;
 				}
 			}
@@ -494,6 +500,7 @@ class Msg implements \ArrayAccess, Routable
 				'name' => $this->modified_name,
 				'reason' => $this->modified_reason,
 			],
+			'edit_history' => $this->edit_history,
 			'body' => $this->body ?? '',
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
@@ -719,6 +726,17 @@ class Msg implements \ArrayAccess, Routable
 			$value = new IP($value);
 		}
 
+		if ($prop === 'edit_history') {
+			$value = (array) Utils::jsonDecode($value ?? '[]', true);
+
+			usort($value, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($value as $k => $v) {
+				$value[$k] = new EditDiff();
+				$value[$k]->import($v);
+			}
+		}
+
 		$this->customPropertySet($prop, $value);
 	}
 
@@ -911,7 +929,7 @@ class Msg implements \ArrayAccess, Routable
 		// Replace code BBC with placeholders. We'll restore them at the end.
 		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {
 				$substitute = md5($parts[$i]);
 				$code_tags[$substitute] = $parts[$i];
@@ -1088,7 +1106,7 @@ class Msg implements \ArrayAccess, Routable
 			$tags = [];
 
 			foreach (Parser::getBBCodes() as $code) {
-				if (!in_array($code['tag'], $allowed_empty)) {
+				if (!\in_array($code['tag'], $allowed_empty)) {
 					$tags[] = $code['tag'];
 				}
 			}
@@ -1133,7 +1151,7 @@ class Msg implements \ArrayAccess, Routable
 		// We're going to unparse only the stuff outside [code]...
 		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {
 				$substitute = md5($parts[$i]);
 				$code_tags[$substitute] = $parts[$i];
@@ -1311,7 +1329,7 @@ class Msg implements \ArrayAccess, Routable
 			$found = false;
 
 			foreach ($protocols as $protocol) {
-				$found = strncasecmp($replace, $protocol . '://', strlen($protocol) + 3) === 0;
+				$found = strncasecmp($replace, $protocol . '://', \strlen($protocol) + 3) === 0;
 
 				if ($found) {
 					break;
@@ -1320,7 +1338,7 @@ class Msg implements \ArrayAccess, Routable
 
 			$current_protocol = strtolower(Url::create($replace)->scheme ?? '');
 
-			if (in_array($current_protocol, $forbidden_protocols)) {
+			if (\in_array($current_protocol, $forbidden_protocols)) {
 				$replace = 'about:invalid';
 			} elseif (!$found && $protocols[0] == 'http') {
 				// A path
@@ -1532,10 +1550,10 @@ class Msg implements \ArrayAccess, Routable
 
 		if ($msgOptions['approved']) {
 			$board->num_posts++;
-			$board->save();
+			$board->save(Board::SAVE_STATS);
 		} else {
 			$board->unapproved_posts++;
-			$board->save();
+			$board->save(Board::SAVE_STATS);
 
 			// Add to the approval queue too.
 			Db::$db->insert(
@@ -1710,25 +1728,48 @@ class Msg implements \ArrayAccess, Routable
 		if (isset($msgOptions['body'])) {
 			$messages_columns['body'] = $msgOptions['body'];
 
-			// using a custom search index, then lets get the old message so we can update our index as needed
-			if ($searchAPI->supportsMethod('postModified')) {
-				$request = Db::$db->query(
-					'SELECT body
-					FROM {db_prefix}messages
-					WHERE id_msg = {int:id_msg}',
-					[
-						'id_msg' => $msgOptions['id'],
-					],
+			$request = Db::$db->query(
+				'SELECT body, edit_history
+				FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}',
+				[
+					'id_msg' => $msgOptions['id'],
+				],
+			);
+			list($msgOptions['old_body'], $edit_history) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			$edit_history = (array) Utils::jsonDecode($edit_history ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			if ($msgOptions['body'] != $msgOptions['old_body']) {
+				// Body changed, so make a new diff.
+				$msgOptions['modify_time'] = (string) ($msgOptions['modify_time'] ?? time());
+				$msgOptions['modify_id'] = (int) ($msgOptions['modify_id'] ?? 0);
+				$msgOptions['modify_name'] = (string) ($msgOptions['modify_name'] ?? '');
+				$msgOptions['modify_reason'] = (string) ($msgOptions['modify_reason'] ?? '');
+
+				$diff = new EditDiff(
+					$msgOptions['body'],
+					$msgOptions['old_body'],
+					$msgOptions['modify_time'],
+					$msgOptions['modify_id'],
+					$msgOptions['modify_name'],
+					$msgOptions['modify_reason'],
 				);
-				list($msgOptions['old_body']) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
+			} else {
+				// Otherwise, just update the reason.
+				$diff = new EditDiff();
+				$diff->import(array_shift($edit_history));
+				$diff->reason = (string) ($msgOptions['modify_reason'] ?? $diff->reason);
 			}
+
+			array_unshift($edit_history, $diff->export());
+
+			$messages_columns['edit_history'] = json_encode($edit_history);
 		}
 
 		if (!empty($msgOptions['modify_time'])) {
-			$messages_columns['modified_time'] = $msgOptions['modify_time'];
-			$messages_columns['modified_name'] = $msgOptions['modify_name'];
-			$messages_columns['modified_reason'] = $msgOptions['modify_reason'];
 			$messages_columns['id_msg_modified'] = Config::$modSettings['maxMsgID'];
 		}
 
@@ -1786,7 +1827,7 @@ class Msg implements \ArrayAccess, Routable
 		// Filter out unchanged values.
 		$messages_columns = array_filter(
 			$messages_columns,
-			fn($v, $k) => (property_exists(self::class, $k) || array_key_exists($k, self::$prop_aliases)) && $msg->{$k} != $v,
+			fn($v, $k) => (property_exists(self::class, $k) || \array_key_exists($k, self::$prop_aliases)) && $msg->{$k} != $v,
 			ARRAY_FILTER_USE_BOTH,
 		);
 
@@ -1895,7 +1936,7 @@ class Msg implements \ArrayAccess, Routable
 	public static function approve(array|int $msgs, bool $approve = true, bool $notify = true): bool
 	{
 		// @TODO: $msgs = (array) $msgs;
-		if (!is_array($msgs)) {
+		if (!\is_array($msgs)) {
 			$msgs = [$msgs];
 		}
 
@@ -2189,7 +2230,7 @@ class Msg implements \ArrayAccess, Routable
 	public static function clearApprovalAlerts(array $content_ids, string $content_action): void
 	{
 		// Some data hygiene...
-		if (!is_array($content_ids)) {
+		if (!\is_array($content_ids)) {
 			return;
 		}
 
@@ -2199,7 +2240,7 @@ class Msg implements \ArrayAccess, Routable
 			return;
 		}
 
-		if (!in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
+		if (!\in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
 			return;
 		}
 
@@ -2241,7 +2282,7 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// @TODO: $setboards = (array) $setboards;
-		if (!is_array($setboards)) {
+		if (!\is_array($setboards)) {
 			$setboards = [$setboards];
 		}
 
@@ -2408,11 +2449,11 @@ class Msg implements \ArrayAccess, Routable
 		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 			$delete_any = User::$me->boardsAllowedTo('delete_any');
 
-			if (!in_array(0, $delete_any) && !in_array($row['id_board'], $delete_any)) {
+			if (!\in_array(0, $delete_any) && !\in_array($row['id_board'], $delete_any)) {
 				$delete_own = User::$me->boardsAllowedTo('delete_own');
-				$delete_own = in_array(0, $delete_own) || in_array($row['id_board'], $delete_own);
+				$delete_own = \in_array(0, $delete_own) || \in_array($row['id_board'], $delete_own);
 				$delete_replies = User::$me->boardsAllowedTo('delete_replies');
-				$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
+				$delete_replies = \in_array(0, $delete_replies) || \in_array($row['id_board'], $delete_replies);
 
 				if ($row['id_member'] == User::$me->id) {
 					if (!$delete_own) {
@@ -2436,10 +2477,10 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			// Can't delete an unapproved message, if you can't see it!
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any))) {
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(\in_array(0, $delete_any) || \in_array($row['id_board'], $delete_any))) {
 				$approve_posts = User::$me->boardsAllowedTo('approve_posts');
 
-				if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts)) {
+				if (!\in_array(0, $approve_posts) && !\in_array($row['id_board'], $approve_posts)) {
 					return false;
 				}
 			}
@@ -2470,11 +2511,11 @@ class Msg implements \ArrayAccess, Routable
 		if ($row['id_first_msg'] == $message) {
 			if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 				$remove_any = User::$me->boardsAllowedTo('remove_any');
-				$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
+				$remove_any = \in_array(0, $remove_any) || \in_array($row['id_board'], $remove_any);
 
 				if (!$remove_any) {
 					$remove_own = User::$me->boardsAllowedTo('remove_own');
-					$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
+					$remove_own = \in_array(0, $remove_own) || \in_array($row['id_board'], $remove_own);
 				}
 
 				if ($row['id_member'] != User::$me->id && !$remove_any) {
@@ -2879,7 +2920,7 @@ class Msg implements \ArrayAccess, Routable
 	 */
 	public static function parseRoute(array $route, array $params = []): array
 	{
-		if (count($route) >= 2) {
+		if (\count($route) >= 2) {
 			array_shift($route);
 			$params['msg'] = array_shift($route);
 		}

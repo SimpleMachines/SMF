@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\Actions;
@@ -143,7 +143,7 @@ class AttachmentUpload implements ActionInterface, Routable
 	{
 		$this->sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
-		if ($this->canPostAttachment && $this->sa && in_array($this->sa, $this->subActions)) {
+		if ($this->canPostAttachment && $this->sa && \in_array($this->sa, $this->subActions)) {
 			$this->{$this->sa}();
 		}
 		// Just send a generic message.
@@ -258,7 +258,7 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg'])) {
-			Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+			Utils::$context['attachments']['quantity'] = \count(Utils::$context['current_attachments']);
 
 			foreach (Utils::$context['current_attachments'] as $attachment) {
 				Utils::$context['attachments']['total_size'] += $attachment['size'];
@@ -266,7 +266,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 
 		// A bit of house keeping first.
-		if (!empty($_SESSION['temp_attachments']) && count($_SESSION['temp_attachments']) == 1) {
+		if (!empty($_SESSION['temp_attachments']) && \count($_SESSION['temp_attachments']) == 1) {
 			unset($_SESSION['temp_attachments']);
 		}
 
@@ -286,9 +286,9 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 		// The current attach folder has some issues...
 		elseif (!is_dir($this->attchDir)) {
-			$this->generalErrors[] = 'attach_folder_warning';
+			$this->generalErrors[] = 'attach_directory_warning';
 
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_directory_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -472,10 +472,10 @@ class AttachmentUpload implements ActionInterface, Routable
 				foreach ($attachment['errors'] as $error) {
 					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment, file: 'Post');
 
-					if (!is_array($error)) {
+					if (!\is_array($error)) {
 						$attachmentOptions['errors'][] = Lang::getTxt($error, file: 'Post');
 
-						if (in_array($error, $log_these)) {
+						if (\in_array($error, $log_these)) {
 							ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? $this->attchDir : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
 						}
 					} else {
@@ -531,7 +531,7 @@ class AttachmentUpload implements ActionInterface, Routable
 			// Is there any generic errors? made some sense out of them!
 			if ($this->generalErrors) {
 				foreach ($this->generalErrors as $k => $v) {
-					$this->generalErrors[$k] = is_array($v) ? Lang::getTxt($v[0], (array) $v[1], file: 'Post') : Lang::getTxt($v, file: 'Post');
+					$this->generalErrors[$k] = \is_array($v) ? Lang::getTxt($v[0], (array) $v[1], file: 'Post') : Lang::getTxt($v, file: 'Post');
 				}
 			}
 

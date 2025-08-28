@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -50,7 +50,7 @@ class Smileys extends MigrationBase
 			$table = new Schema\v2_1\SmileyFiles();
 			$existing_tables = Db::$db->list_tables();
 
-			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {
+			if (!\in_array(Config::$db_prefix . $table->name, $existing_tables)) {
 				$table->create();
 			}
 
@@ -115,7 +115,7 @@ class Smileys extends MigrationBase
 			// Populate the smiley_files table
 			$smileys_columns = Db::$db->list_columns('{db_prefix}smileys');
 
-			if (in_array('filename', $smileys_columns)) {
+			if (\in_array('filename', $smileys_columns)) {
 				$inserts = [];
 
 				$request = $this->query(
@@ -157,7 +157,7 @@ class Smileys extends MigrationBase
 					);
 
 					// Unless something went horrifically wrong, drop the defunct column
-					if (count($inserts) == Db::$db->affected_rows()) {
+					if (\count($inserts) == Db::$db->affected_rows()) {
 						$table = new Schema\v2_1\Smileys();
 						$existing_structure = $table->getCurrentStructure();
 
@@ -171,10 +171,10 @@ class Smileys extends MigrationBase
 
 			// Set new default if the old one doesn't exist
 			// If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
-			if (!array_key_exists(Config::$modSettings['smiley_sets_default'], $filtered)) {
-				if (array_key_exists('fugue', $filtered)) {
+			if (!\array_key_exists(Config::$modSettings['smiley_sets_default'], $filtered)) {
+				if (\array_key_exists('fugue', $filtered)) {
 					$newdefault = 'fugue';
-				} elseif (!empty($filtered) && is_array($filtered)) {
+				} elseif (!empty($filtered) && \is_array($filtered)) {
 					$newdefault = array_keys($filtered)[0];
 				} else {
 					$newdefault = '';

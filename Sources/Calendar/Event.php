@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -494,7 +494,7 @@ class Event implements \ArrayAccess
 		}
 
 		if (!empty($props['rdates'])) {
-			$this->rdates = is_array($props['rdates']) ? $props['rdates'] : explode(',', $props['rdates']);
+			$this->rdates = \is_array($props['rdates']) ? $props['rdates'] : explode(',', $props['rdates']);
 
 			$vs = $this->view_start->format('Ymd');
 			$ve = $this->view_end->format('Ymd');
@@ -517,7 +517,7 @@ class Event implements \ArrayAccess
 		}
 
 		if (!empty($props['exdates'])) {
-			$this->exdates = is_array($props['exdates']) ? $props['exdates'] : explode(',', $props['exdates']);
+			$this->exdates = \is_array($props['exdates']) ? $props['exdates'] : explode(',', $props['exdates']);
 
 			foreach ($this->exdates as $key => $exdate) {
 				$this->exdates[$key] = new \DateTimeImmutable($exdate);
@@ -822,7 +822,7 @@ class Event implements \ArrayAccess
 		$filecontents[] = 'SEQUENCE:' . $this->sequence;
 
 		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', $this->modified_time ?? time());
-		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
+		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!\in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (\in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
 		$filecontents[] = 'DURATION:' . (string) $this->duration;
 
 		if ((string) $this->recurrence_iterator->getRRule() !== 'FREQ=YEARLY;COUNT=1') {
@@ -1260,7 +1260,7 @@ class Event implements \ArrayAccess
 				break;
 
 			case 'rdates':
-				$this->rdates = is_array($value) ? $value : explode(',', (string) $value);
+				$this->rdates = \is_array($value) ? $value : explode(',', (string) $value);
 
 				foreach ($this->rdates as $key => $rdate) {
 					$rdate = explode('/', $rdate);
@@ -1273,7 +1273,7 @@ class Event implements \ArrayAccess
 				break;
 
 			case 'exdates':
-				$this->exdates = is_array($value) ? $value : explode(',', (string) $value);
+				$this->exdates = \is_array($value) ? $value : explode(',', (string) $value);
 
 				foreach ($this->exdates as $key => $exdate) {
 					$this->exdates[$key] = new \DateTimeImmutable($exdate);
@@ -2030,7 +2030,7 @@ class Event implements \ArrayAccess
 		$temp = '';
 
 		foreach (mb_str_split($line) as $char) {
-			if (strlen($temp . $char) > 75) {
+			if (\strlen($temp . $char) > 75) {
 				$folded[] = $temp;
 				$temp = '';
 			}
@@ -2146,7 +2146,7 @@ class Event implements \ArrayAccess
 		];
 
 		foreach ($eventOptions as $key => $value) {
-			if (is_null($value) || in_array($key, $scalars)) {
+			if (\is_null($value) || \in_array($key, $scalars)) {
 				unset($eventOptions[$key]);
 			}
 		}
@@ -2193,7 +2193,7 @@ class Event implements \ArrayAccess
 				unset($_REQUEST['RRULE']);
 				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
 			}
-		} elseif (in_array($_REQUEST['FREQ'] ?? null, RRule::FREQUENCIES)) {
+		} elseif (\in_array($_REQUEST['FREQ'] ?? null, RRule::FREQUENCIES)) {
 			$rrule = [];
 
 			if (isset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name'])) {
@@ -2233,7 +2233,7 @@ class Event implements \ArrayAccess
 				] as $part
 			) {
 				if (isset($_REQUEST[$part])) {
-					if (is_array($_REQUEST[$part])) {
+					if (\is_array($_REQUEST[$part])) {
 						$rrule[] = $part . '=' . Utils::htmlspecialchars(implode(',', $_REQUEST[$part]));
 					} else {
 						$rrule[] = $part . '=' . Utils::htmlspecialchars($_REQUEST[$part]);
@@ -2529,7 +2529,7 @@ class Event implements \ArrayAccess
 			$row = array_diff($row, array_filter($row, 'is_null'));
 
 			// Is this an all-day event?
-			$row['allday'] = !isset($row['start_time']) || !isset($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+			$row['allday'] = !isset($row['start_time']) || !isset($row['timezone']) || !\in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 
 			// Replace start time and date scalars with a Time object.
 			$row['start'] = new Time($row['start_date'] . (!$row['allday'] ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ' ' . User::getTimezone()));
@@ -2622,11 +2622,11 @@ class Event implements \ArrayAccess
 			if (isset($datetime_string)) {
 				$datetime_string_parsed = date_parse(str_replace(',', '', Time::convertToEnglish($datetime_string)));
 
-				if (is_array($datetime_string_parsed) && empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
+				if (\is_array($datetime_string_parsed) && empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
 					$datetime_string_parsed = array_filter(
 						$datetime_string_parsed,
 						function ($key) {
-							return in_array($key, ['year', 'month', 'day', 'hour', 'minute', 'second']);
+							return \in_array($key, ['year', 'month', 'day', 'hour', 'minute', 'second']);
 						},
 						ARRAY_FILTER_USE_KEY,
 					);
@@ -2658,11 +2658,11 @@ class Event implements \ArrayAccess
 			}
 
 			if ($date_is_valid) {
-				$input[$prefix . '_date'] = sprintf('%04d-%02d-%02d', $year, $month, $day);
+				$input[$prefix . '_date'] = \sprintf('%04d-%02d-%02d', $year, $month, $day);
 			}
 
 			if ($time_is_valid && !$input['allday']) {
-				$input[$prefix . '_time'] = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+				$input[$prefix . '_time'] = \sprintf('%02d:%02d:%02d', $hour, $minute, $second);
 			}
 		}
 

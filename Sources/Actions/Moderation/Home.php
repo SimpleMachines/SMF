@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -116,12 +116,12 @@ class Home implements ActionInterface
 			}
 
 			if (method_exists($this, $block['func'])) {
-				call_user_func([$this, $block['func']]);
+				\call_user_func([$this, $block['func']]);
 			} else {
 				$call = Utils::getCallable($block['func']);
 
 				if (!empty($call)) {
-					call_user_func($call);
+					\call_user_func($call);
 				}
 			}
 
@@ -548,7 +548,7 @@ class Home implements ActionInterface
 		foreach ($valid_blocks as $k => $func) {
 			$func = 'ModBlock' . $func;
 
-			if (is_callable($func)) {
+			if (\is_callable($func)) {
 				Utils::$context['mod_blocks'][] = $func();
 			}
 		}
