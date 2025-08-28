@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Holds some widely used stuff, like $context and $smcFunc.
@@ -342,6 +343,10 @@ class Utils
 
 		if (!empty(Config::$modSettings['restricted_bbc'])) {
 			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
+
+		if (!empty(Config::$backward_compatibility) && DebugUtils::isDebugEnabled()) {
+			self::$context['debug'] = &DebugUtils::$logged;
 		}
 	}
 
@@ -2199,7 +2204,7 @@ class Utils
 		}
 
 		// Don't need extra stuff...
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// Kill anything else.
 		ob_end_clean();
@@ -2270,7 +2275,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (!empty(Config::$db_show_debug)) {
+		if (DebugUtils::isDebugEnabled()) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 
@@ -2493,8 +2498,12 @@ class Utils
 					Utils::$context['instances'][$class] = new $class();
 
 					// Optionally track instance creation for debugging.
-					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['instances'][$class] = $class;
+					if (DebugUtils::isDebugEnabled()) {
+						DebugUtils::addDebugSource(
+							lang_key: 'instances',
+							key: $class,
+							value: $class,
+						);
 					}
 				}
 

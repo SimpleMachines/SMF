@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
@@ -198,7 +199,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Get the file and line number this function was called.
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 
@@ -233,7 +234,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
 				$error_message = nl2br($query_error) . '<br>' . Lang::getTxt('file', file: 'General') . ': ' . $file . '<br>' . Lang::getTxt('line', file: 'General') . ': ' . $line;
 
-				if ($this->show_debug) {
+				if (DebugUtils::isDebugEnabled()) {
 					$error_message .= '<br><br>' . nl2br($db_string);
 				}
 			}
@@ -243,7 +244,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
@@ -2537,7 +2538,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Ignore some errors and strict mode warnings when we are not debugging.
-		mysqli_report(Config::$db_show_debug ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
+		mysqli_report(DebugUtils::isDebugEnabled() ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
 
 		$success = false;
 

@@ -153,13 +153,6 @@ abstract class DatabaseApi
 	/**
 	 * @var bool
 	 *
-	 * Local copy of Config::$db_show_debug.
-	 */
-	public bool $show_debug;
-
-	/**
-	 * @var bool
-	 *
 	 * Local copy of Config::$modSettings['disableQueryCheck'].
 	 */
 	public bool $disableQueryCheck;
@@ -352,10 +345,6 @@ abstract class DatabaseApi
 
 		if (!isset($this->persist)) {
 			$this->persist = !empty(Config::$db_persist);
-		}
-
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
 		}
 
 		if (!isset($this->disableQueryCheck)) {

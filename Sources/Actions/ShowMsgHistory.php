@@ -17,7 +17,7 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\Msg;
 use SMF\Parser;
 use SMF\Routable;
@@ -54,7 +54,7 @@ class ShowMsgHistory implements ActionInterface, Routable
 		Theme::loadTemplate('EditHistory');
 
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];

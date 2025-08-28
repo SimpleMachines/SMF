@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Performs all the necessary setup and security checks for SSI access, and
@@ -189,7 +190,7 @@ class ServerSideIncludes
 			}
 		}
 
-		$this->error_reporting = error_reporting(!empty(Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+		$this->error_reporting = error_reporting(DebugUtils::isDebugEnabled() ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 		if (!isset($this->gzip)) {
 			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
