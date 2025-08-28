@@ -763,6 +763,9 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
+			if (decodeURI(element.href.substr(7)) === content)
+				return '[email]' + content + '[/email]';
+
 			return '[email=' + element.href.substr(7) + ']' + content + '[/email]';
 		},
 		html: function (token, attrs, content)
@@ -781,7 +784,10 @@ sceditor.formats.bbcode.set(
 			if (element.hasAttribute('data-type') && element.getAttribute('data-type') != 'url')
 				return content;
 
-			return '[url=' + decodeURI(element.href) + ']' + content + '[/url]';
+			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, ''))
+				return '[url]' + content + '[/url]';
+
+			return '[url="' + decodeURI(element.href) + '"]' + content + '[/url]';
 		},
 		html: function (token, attrs, content)
 		{
@@ -801,7 +807,10 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
-			return '[iurl=' + decodeURI(element.href) + ']' + content + '[/iurl]';
+			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, ''))
+				return '[iurl]' + content + '[/iurl]';
+
+			return '[iurl="' + decodeURI(element.href) + '"]' + content + '[/iurl]';
 		},
 		html: function (token, attrs, content)
 		{
