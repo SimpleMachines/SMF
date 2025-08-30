@@ -931,8 +931,25 @@ class ExportProfileData extends BackgroundTask
 			$this->_details['format_settings'] = $export_formats['XML_XSLT'];
 		}
 
+		// Load the specifed member. Abort on failure.
+		if (User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile') === []) {
+			// Delete any existing export files.
+			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret()) . '.' . $this->_details['format_settings']['extension'];
+
+			$tempfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.tmp';
+			$progressfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.progress.json';
+
+			foreach (array_merge([$tempfile, $progressfile], glob(Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . '*_' . $idhash_ext)) as $fpath) {
+				@unlink($fpath);
+			}
+
+			// Bail out.
+			ignore_user_abort(false);
+
+			return true;
+		}
+
 		// TaskRunner class doesn't create a User::$me, but this job needs one.
-		User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile');
 		User::setMe($this->_details['uid']);
 
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
