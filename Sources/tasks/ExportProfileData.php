@@ -70,7 +70,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc;
+		global $sourcedir, $smcFunc, $modSettings;
 
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
@@ -93,8 +93,27 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Inform static functions of the export format, etc.
 		self::$export_details = $this->_details;
 
-		// For exports only, members can always see their own posts, even in boards that they can no longer access.
+		// Load the member's basic info.
 		$member_info = $this->getMinUserInfo(array($this->_details['uid']));
+
+		// If the specified member does not exist, abort the export.
+		if (!isset($member_info[$this->_details['uid']])) {
+			// Delete any existing export files.
+			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], get_auth_secret()) . '.' . $this->_details['format_settings']['extension'];
+
+			$tempfile = $modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.tmp';
+			$progressfile = $modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.progress.json';
+
+			foreach (array_merge(array($tempfile, $progressfile), glob($modSettings['export_dir'] . DIRECTORY_SEPARATOR . '*_' . $idhash_ext)) as $fpath)
+				@unlink($fpath);
+
+			// Bail out.
+			ignore_user_abort(false);
+
+			return true;
+		}
+
+		// For exports only, members can always see their own posts, even in boards that they can no longer access.
 		$member_info = array_merge($member_info[$this->_details['uid']], array(
 			'buddies' => array(),
 			'query_see_board' => '1=1',
