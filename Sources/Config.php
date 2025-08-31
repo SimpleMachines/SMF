@@ -1148,8 +1148,9 @@ class Config
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 		self::$modSettings['postmod_active'] = !empty(self::$modSettings['postmod_active']);
 
-		// Ensure the UUID for this forum has been set.
-		if (!isset(self::$modSettings['forum_uuid'])) {
+		// Ensure the UUID for this forum has been set and is valid.
+		if (Uuid::createFromString(self::$modSettings['forum_uuid'] ?? Uuid::NIL_UUID)->getVariant() !== 1) {
+			unset(self::$modSettings['forum_uuid']);
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
