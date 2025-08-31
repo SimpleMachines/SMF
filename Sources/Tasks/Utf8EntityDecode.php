@@ -68,6 +68,8 @@ class Utf8EntityDecode extends BackgroundTask
 				fn($col) => (
 					!str_ends_with($col['name'], '_utf8entitydecode')
 					&& \in_array($col['type'], ['varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set'])
+					// Skip generated columns.
+					&& empty($col['generation_expression'])
 				),
 			),
 		);

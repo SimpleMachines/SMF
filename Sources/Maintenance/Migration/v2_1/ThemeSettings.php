@@ -126,7 +126,7 @@ class ThemeSettings extends MigrationBase
 				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:theme_dir}
-					AND id_theme != {int:default_theme};',
+					AND id_theme != {int:default_theme}',
 				[
 					'default_theme' => 1,
 					'theme_dir' => 'theme_dir',
@@ -147,7 +147,7 @@ class ThemeSettings extends MigrationBase
 			// Cleanup unused theme settings
 			$this->query(
 				'DELETE FROM {db_prefix}themes
-				WHERE id_theme NOT IN ({array_int:known_themes});',
+				WHERE id_theme NOT IN ({array_int:known_themes})',
 				[
 					'known_themes' => $known_themes,
 				],
@@ -158,7 +158,7 @@ class ThemeSettings extends MigrationBase
 			$this->query(
 				'UPDATE {db_prefix}settings
 				SET value = {string:known_themes}
-				WHERE variable = {string:known_theme_str};',
+				WHERE variable = {string:known_theme_str}',
 				[
 					'known_theme_str' => 'knownThemes',
 					'known_themes' => $known_themes,

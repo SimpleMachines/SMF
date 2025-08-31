@@ -397,7 +397,15 @@ class Lang
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
-			if (!$found && $fatal) {
+			if (
+				!$found
+				&& $fatal
+				// A missing ThemeStrings file isn't fatal unless it was explicitly requested.
+				&& (
+					$name !== 'ThemeStrings'
+					|| str_starts_with($filename, 'ThemeStrings')
+				)
+			) {
 				ErrorHandler::log(
 					// Don't call self::formatText() here in case the missing
 					// file is one that we would need in self::formatText()
