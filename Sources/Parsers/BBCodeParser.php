@@ -1159,8 +1159,8 @@ class BBCodeParser extends Parser
 
 				// External URL?
 				if ($attrib == 'target' && $tag_type == 'url') {
-					if (trim($value) == '_blank') {
-						$tag_type == 'iurl';
+					if (trim($value) != '_blank') {
+						$tag_type = 'iurl';
 					}
 				}
 			}
