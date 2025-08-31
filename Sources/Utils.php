@@ -900,7 +900,7 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'upper').
+	 * Convenience alias of Utils::convertCase($string, 'upper')
 	 *
 	 * @param string $string The input string.
 	 * @return string The uppercase version of the input string.
@@ -911,7 +911,7 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'lower').
+	 * Convenience alias of Utils::convertCase($string, 'lower')
 	 *
 	 * @param string $string The input string.
 	 * @return string The lowercase version of the input string.
@@ -922,7 +922,7 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'fold').
+	 * Convenience alias of Utils::convertCase($string, 'fold')
 	 *
 	 * @param string $string The input string.
 	 * @return string The casefolded version of the input string.
@@ -933,7 +933,7 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'title').
+	 * Convenience alias of Utils::convertCase($string, 'title')
 	 *
 	 * @param string $string The input string.
 	 * @return string The titlecase version of the input string.
@@ -944,10 +944,10 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'ucfirst').
+	 * Convenience alias of Utils::convertCase($string, 'ucfirst')
 	 *
 	 * @param string $string The input string.
-	 * @return string The string, but with the first character in uppercase.
+	 * @return string The string, but with the first character in titlecase.
 	 */
 	public static function ucfirst(string $string): string
 	{
@@ -955,15 +955,10 @@ class Utils
 	}
 
 	/**
-	 * Convenience alias of Utils::convertCase($string, 'ucwords').
-	 *
-	 * For nearly all situations, Utils::strtotitle() should be preferred over
-	 * this method. Although there is no difference in the results for English,
-	 * Utils::strtotitle() does a better job capitalizing words correctly for
-	 * other languages.
+	 * Convenience alias of Utils::convertCase($string, 'ucwords')
 	 *
 	 * @param string $string The input string.
-	 * @return string The string, but with the first character of each word in uppercase.
+	 * @return string The string, but with the first character of each word in titlecase.
 	 */
 	public static function ucwords(string $string): string
 	{
