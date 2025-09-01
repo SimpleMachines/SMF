@@ -38,5 +38,4 @@ if (!defined('SMF')) {
 // Initialize.
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
 
-$ssi = new SMF\ServerSideIncludes();
-$ssi->execute();
+(new SMF\ServerSideIncludes())->execute();
