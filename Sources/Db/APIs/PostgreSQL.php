@@ -1833,14 +1833,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
-
-			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
-				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
-
 				if (\is_array($c)) {
 					$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
 				}
+
+				// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
+				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 			}
 
 			$idx_columns = implode(',', $index['columns']);
