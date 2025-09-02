@@ -858,7 +858,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// PostgreSQL uses one character set per database. So sane and simple.
 		if (!isset($detected)) {
 			$request = $this->query(
-				'SHOW SERVER_ENCODING;',
+				'SHOW SERVER_ENCODING',
 				[],
 			);
 
