@@ -140,7 +140,11 @@ class TaskRunner
 			}
 
 			// Do nothing if we are in the middle of an install or upgrade.
-			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
+			if (
+				\defined('SMF_INSTALLING')
+				|| !empty(Config::$custom['package_installing'])
+				|| !empty(Config::$custom['maintenance_tool_progress'])
+			) {
 				$this->obExit();
 			}
 
