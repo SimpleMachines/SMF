@@ -11667,11 +11667,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
+	 * @param string &mime_type Will be set to the detected MIME type.
 	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
 	 */
-	function check_mime_type(string $data, string $type_pattern, bool $is_path = false): int
+	function check_mime_type(string $data, string $type_pattern, bool $is_path = false, ?string &$mime_type = ''): int
 	{
-		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path);
+		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path, $mime_type);
 	}
 
 	/**
