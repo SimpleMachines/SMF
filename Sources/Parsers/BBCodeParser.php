@@ -2700,7 +2700,7 @@ class BBCodeParser extends Parser
 								}
 
 								// Still a block tag was open not equal to this tag.
-								$add_closing_tags[] = $element['type'];
+								$add_closing_tags[] = $element;
 							}
 
 							if (!empty($add_closing_tags)) {
