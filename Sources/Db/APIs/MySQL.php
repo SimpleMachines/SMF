@@ -1539,7 +1539,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			} else {
 				$type_name = $types[$type_name];
 			}
-		} elseif ($type_name == 'boolean') {
+		} elseif (\in_array($type_name, ['boolean', 'bool', 'integer', 'int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
 			$type_size = null;
 		} elseif ($type_name === 'jsonb') {
 			$type_name === 'json';
