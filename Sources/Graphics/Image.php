@@ -386,7 +386,7 @@ class Image
 
 		// Update properties to refer to the new image.
 		$this->source = realpath($destination);
-		$this->mime_type = mime_content_type($this->source);
+		$this->mime_type = Utils::getMimeType($this->source, true);
 		$this->pathinfo = pathinfo($this->source);
 		$this->type = $preferred_type;
 		$this->getDimensionsAndOrientation();
@@ -467,7 +467,7 @@ class Image
 
 		// Update properties to refer to the new image.
 		$this->source = realpath($destination);
-		$this->mime_type = mime_content_type($this->source);
+		$this->mime_type = Utils::getMimeType($this->source, true);
 		$this->pathinfo = pathinfo($this->source);
 		$this->type = $preferred_type;
 		$this->getDimensionsAndOrientation();
