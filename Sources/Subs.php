@@ -6361,16 +6361,20 @@ function get_mime_type($data, $is_path = false)
  * @param string $data The data to check, or the path or URL of a file to check.
  * @param string $type_pattern A regex pattern to match the acceptable MIME types.
  * @param string $is_path If true, $data is a path or URL to a file.
+ * @param string &mime_type Will be set to the detected MIME type.
  * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
  */
-function check_mime_type($data, $type_pattern, $is_path = false)
+function check_mime_type($data, $type_pattern, $is_path = false, &$mime_type = '')
 {
 	// Get the MIME type.
 	$mime_type = get_mime_type($data, $is_path);
 
 	// Couldn't determine it.
 	if ($mime_type === false)
+	{
+		$mime_type = '';
 		return 2;
+	}
 
 	// Check whether the MIME type matches expectations.
 	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
