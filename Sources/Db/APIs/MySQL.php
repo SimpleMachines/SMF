@@ -1402,8 +1402,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			$c = trim($c);
-			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
-			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
+			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? (int) $cols[$c]['size'] : null;
+			list($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
 
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
@@ -1501,8 +1501,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
-		// MySQL is actually the generic baseline.
-
 		$type_name = strtolower($type_name);
 
 		// Generic => Specific.
@@ -1539,14 +1537,38 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			} else {
 				$type_name = $types[$type_name];
 			}
-		} elseif (\in_array($type_name, ['boolean', 'bool', 'integer', 'int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
-			$type_size = null;
 		} elseif ($type_name === 'jsonb') {
 			$type_name === 'json';
 		}
 
-		// We can't have a zero size, remove it.
-		if ($type_size === 0) {
+		if (
+			// We can't have a zero size.
+			$type_size === 0
+			// Always set size to null for types that don't use them.
+			|| \in_array(
+				$type_name,
+				[
+					'boolean',
+					'bool',
+					'integer',
+					'int',
+					'tinyint',
+					'smallint',
+					'mediumint',
+					'bigint',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'enum',
+					'set',
+					'json',
+					'geometry',
+				],
+			)
+		) {
 			$type_size = null;
 		}
 
@@ -1608,7 +1630,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['type'] = $old_info['type'];
 		}
 
-		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
+		if (
+			!\array_key_exists('size', $column_info)
+			|| (
+				!is_numeric($column_info['size'])
+				&& !\is_null($column_info['size'])
+			)
+		) {
 			$column_info['size'] = $old_info['size'];
 		}
 
@@ -1640,12 +1668,28 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// These types cannot have a default value.
-		if (\in_array($column_info['type'], ['blob', 'text', 'json', 'geometry'])) {
+		if (
+			\in_array(
+				$column_info['type'],
+				[
+					'text',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'blob',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'json',
+					'geometry',
+				],
+			)
+		) {
 			$column_info['drop_default'] = true;
 			unset($column_info['default']);
 		}
 
-		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], isset($column_info['size']) ? (int) $column_info['size'] : null);
 
 		if ($size !== null) {
 			$type .= '(' . $size . ')';
@@ -1783,8 +1827,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				// If a size was already specified, we won't be able to match it anyways.
 				$key = array_search($c, array_column($columns, 'name'));
-				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
-				list($type, $size) = $this->calculate_type($columns[$key]['type'], (int) $columns[$key]['size']);
+				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? (int) $columns[$key]['size'] : null;
+				list($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
 
 				if (
 					$key === false
@@ -2847,6 +2891,27 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$column = array_change_key_case($column);
 
+		// These types cannot have a default value.
+		if (
+			\in_array(
+				$column_info['type'],
+				[
+					'text',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'blob',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'json',
+					'geometry',
+				],
+			)
+		) {
+			unset($column['default']);
+		}
+
 		// Is this a generated column?
 		if (isset($column['generation_expression'])) {
 			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
@@ -2882,8 +2947,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Sort out the size... and stuff...
-		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? (int) $column['size'] : null;
+		list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 		if ($size > 0) {
 			$type .= '(' . $size . ')';

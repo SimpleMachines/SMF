@@ -1307,9 +1307,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the specifics...
-		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
@@ -1471,8 +1471,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$type_name = $types[$type_name];
 		}
 
-		// Only char fields got size
-		if (!str_contains($type_name, 'char')) {
+		if (
+			// We can't have a zero size.
+			$type_size === 0
+			// Only char fields have a size.
+			|| !str_contains($type_name, 'char')
+		) {
 			$type_size = null;
 		}
 
@@ -1534,7 +1538,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['type'] = $old_info['type'];
 		}
 
-		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
+		if (
+			!\array_key_exists('size', $column_info)
+			|| (
+				!is_numeric($column_info['size'])
+				&& !\is_null($column_info['size'])
+			)
+		) {
 			$column_info['size'] = $old_info['size'];
 		}
 
@@ -1602,9 +1612,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			)
 			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
 		) {
-			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+			list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 			if ($size !== null) {
 				$type .= '(' . $size . ')';
@@ -1813,8 +1823,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Sort out the size...
-			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-			list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? (int) $column['size'] : null;
+			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
