@@ -3539,8 +3539,7 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
-		$mime_type = get_mime_type($profile_vars['avatar'], true);
-		$mime_valid = strpos($mime_type, 'image/') === 0;
+		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true, $mime_type);
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
@@ -3611,8 +3610,7 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$mime_type = get_mime_type($_FILES['attachment']['tmp_name'], true);
-			$mime_valid = strpos($mime_type, 'image/') === 0;
+			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true, $mime_type);
 			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
 			// SVGs are special.
