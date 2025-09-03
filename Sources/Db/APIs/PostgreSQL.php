@@ -1661,7 +1661,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (\is_null($column_info['default'])) {
 				$default = 'NULL';
 			} elseif (isset($column_info['default']) && is_numeric($column_info['default'])) {
-				$default = strpos($column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
+				$default = strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
 			} else {
 				$default = '\'' . $this->escape_string($column_info['default']) . '\'';
 			}
@@ -1833,12 +1833,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
-			if (\is_array($c)) {
-				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
-			}
-
-			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
+				if (\is_array($c)) {
+					$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+				}
+
+				// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 			}
 
