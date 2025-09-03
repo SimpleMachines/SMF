@@ -596,3 +596,5 @@ $txt['uuid_invalid_string'] = 'Invalid UUID string supplied: {0}';
 $txt['uuid_group_non_posix'] = 'Automatic group domain is unsupported for UUIDv2 on non-POSIX systems. Falling back to user domain.';
 $txt['uuid_unknown_domain'] = 'Cannot generate automatic UUIDv2 for unknown domain: {0}';
 $txt['uuid_timestamp_out_of_range'] = 'Timestamp out of range for UUIDv{0}';
+
+$txt['required_extension_missing'] = 'SMF requires PHP’s {ext} extension. Please enable it in your PHP configuration so that SMF can function correctly.';
