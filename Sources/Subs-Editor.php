@@ -1289,7 +1289,7 @@ function legalise_bbc($text)
 								break;
 
 							// Still a block tag was open not equal to this tag.
-							$addClosingTags[] = $element['type'];
+							$addClosingTags[] = $element;
 						}
 
 						if (!empty($addClosingTags))
