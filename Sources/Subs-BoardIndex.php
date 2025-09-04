@@ -100,7 +100,7 @@ function getBoardIndex($board_index_options)
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
-				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mem.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			WHERE b.id_parent != 0
 			ORDER BY ' . (!empty($board_index_options['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
@@ -123,7 +123,7 @@ function getBoardIndex($board_index_options)
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
-				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mem.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			WHERE {query_see_board}
 				AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
