@@ -401,7 +401,7 @@ class BoardIndex implements ActionInterface, Routable
 			$selects[] = 'am.filename AS member_filename';
 			$selects[] = 'am.attachment_type AS member_attach_type';
 
-			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)';
+			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mem.id_member)';
 		}
 
 		// Give mods access to the query.
