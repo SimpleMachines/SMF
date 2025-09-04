@@ -2334,8 +2334,12 @@ class Profile extends User implements \ArrayAccess
 
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
+					// Decode all entities, including double-encoded ones.
+					while ($value !== html_entity_decode($value)) {
+						$value = html_entity_decode($value);
+					}
+
 					$value = Utils::htmlTrim($value);
-					$valueReference = html_entity_decode($value);
 
 					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
@@ -2344,11 +2348,7 @@ class Profile extends User implements \ArrayAccess
 
 					if (
 						$cf_def['mask'] == 'nohtml'
-						&& (
-							$valueReference != strip_tags($valueReference)
-							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
-							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
-						)
+						&& preg_match('~' . Parsers\MarkdownParser::REGEX_HTML_TAG . '~u', $value)
 					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
@@ -2373,7 +2373,7 @@ class Profile extends User implements \ArrayAccess
 						$value = '';
 					}
 
-					unset($valueReference);
+					$value = Utils::htmlspecialchars($value, ENT_QUOTES);
 				}
 			}
 
