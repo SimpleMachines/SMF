@@ -1275,14 +1275,51 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
+				// Regex to match HTML tags, including opening tags, closing tags, comments,
+				// processing instructions, declarations, and CDATA sections. Matches both
+				// standard HTML5 tag names and custom tag names.
+				$html_tag_regex = '(' .
+					'(?P>opening_tag)' .
+					'|' .
+					'(?P>closing_tag)' .
+					'|' .
+					'(?P>comment)' .
+					'|' .
+					'(?P>processing_instruction)' .
+					'|' .
+					'(?P>declaration)' .
+					'|' .
+					'(?P>cdata)' .
+				')' .
+				'(?(DEFINE)' .
+					'(?<tag_name>[a-zA-Z][a-zA-Z0-9\-]*)' .
+					'(?<attribute_value_unquoted>[^\s"\'=<>`])' .
+					'(?<attribute_value_single_quoted>\'[^\']*\')' .
+					'(?<attribute_value_double_quoted>"[^"]*")' .
+					'(?<attribute_value>(?P>attribute_value_unquoted)|(?P>attribute_value_single_quoted)|(?P>attribute_value_double_quoted))' .
+					'(?<attribute_value_specification>\s*=\s*(?P>attribute_value))' .
+					'(?<attribute_name>[a-zA-Z_:][a-zA-Z0-9_.:\-]*)' .
+					'(?<attribute>\s+(?P>attribute_name)(?P>attribute_value_specification)?)' .
+					'(?<opening_tag><(?P>tag_name)(?P>attribute)*\s*/?>)' .
+					'(?<closing_tag></(?P>tag_name)\s*>)' .
+					'(?<comment><!--(?!-?>)\X*?-->)' .
+					'(?<processing_instruction><' . '\?\X*?\?' . '>)' .
+					'(?<declaration><![A-Z]+\s+[^>]+>)' .
+					'(?<cdata><!\[CDATA\[\X*?\]\]>)' .
+				')';
+
+				// Decode all entities, including double-encoded ones.
+				while ($value !== html_entity_decode($value)) {
+					$value = html_entity_decode($value);
+				}
+
 				$value = $smcFunc['htmltrim']($value);
-				$valueReference = html_entity_decode($value);
 
 				// Try and avoid some checks. '0' could be a valid non-empty value.
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
-				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
+				if ($row['mask'] == 'nohtml' && preg_match('~' . $html_tag_regex . '~u', $value))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_nohtml_fail';
@@ -1311,7 +1348,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 						$value = '';
 				}
 
-				unset($valueReference);
+				$value = $smcFunc['htmlspecialchars']($value, ENT_QUOTES);
 			}
 		}
 
