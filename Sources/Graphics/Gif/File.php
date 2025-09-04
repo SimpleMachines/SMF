@@ -184,5 +184,5 @@ class File
 
 // 64-bit only functions?
 if (!\function_exists('smf_crc32')) {
-	require_once Config::$sourcedir . '/Subs-Compat.php';
+	require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 }

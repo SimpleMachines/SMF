@@ -514,7 +514,7 @@ abstract class CacheApi
 			)
 		) {
 			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
-				require_once Config::$sourcedir . '/' . $file;
+				require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
 			}
 
 			$cache_block = \call_user_func_array($function, $params);

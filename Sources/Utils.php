@@ -2549,14 +2549,14 @@ class Utils
 
 			// Load the file if it can be loaded.
 			if (is_file($path)) {
-				require_once $path;
+				require_once Config::canonicalPath($path);
 			}
 			// No? Try a fallback to Config::$sourcedir.
 			else {
 				$path = Config::$sourcedir . '/' . $file;
 
 				if (is_file($path)) {
-					require_once $path;
+					require_once Config::canonicalPath($path);
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {

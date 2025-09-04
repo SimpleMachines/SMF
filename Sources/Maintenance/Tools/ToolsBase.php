@@ -246,7 +246,7 @@ abstract class ToolsBase
 	{
 		$db_class = '\\SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type);
 
-		require_once Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php';
+		require_once Config::canonicalPath(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
 
 		return new $db_class();
 	}

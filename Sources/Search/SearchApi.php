@@ -904,7 +904,7 @@ abstract class SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			require_once $file_info->getPathname();
+			require_once Config::canonicalPath($file_info->getPathname());
 
 			if (!class_exists($class_name, false)) {
 				continue;

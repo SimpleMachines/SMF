@@ -236,7 +236,7 @@ class Theme
 				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
 
 				if (file_exists($include)) {
-					require_once $include;
+					require_once Config::canonicalPath($include);
 				}
 			}
 		}
@@ -2346,9 +2346,9 @@ class Theme
 		$file_found = file_exists($filename);
 
 		if ($once && $file_found) {
-			require_once $filename;
+			require_once Config::canonicalPath($filename);
 		} elseif ($file_found) {
-			require $filename;
+			require Config::canonicalPath($filename);
 		}
 
 		if ($file_found !== true) {

@@ -683,7 +683,7 @@ class VerificationCode implements ActionInterface, Routable
 		// Include it!
 		header('content-type: image/png');
 
-		include Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png';
+		include Config::canonicalPath(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 		// Nothing more to come.
 		die();
