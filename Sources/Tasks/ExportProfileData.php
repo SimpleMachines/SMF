@@ -1919,31 +1919,6 @@ class ExportProfileData extends BackgroundTask
 				}
 			}
 		}
-		// Autoloading is unavailable for background tasks, so we have to do things the hard way...
-		else {
-			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
-				// Include, not require, because minimization is nice to have but not vital here.
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exception.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Minify.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'path-converter', 'src', 'Converter.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'CSS.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'JS.php']);
-
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
-					Config::$modSettings['minimize_files'] = false;
-				}
-			}
-		}
 
 		// Load our standard CSS files.
 		Theme::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
