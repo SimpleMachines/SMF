@@ -1033,10 +1033,6 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 			if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3") {
-				if (!\function_exists('mb_ord')) {
-					require_once Config::$sourcedir . '/Subs-Compat.php';
-				}
-
 				$s = mb_ord($chars[$i]);
 				$sindex = $s - 0xAC00;
 				$l = (int) (0x1100 + $sindex / (21 * 28));
@@ -1099,10 +1095,6 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
 			if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5") {
-				if (!\function_exists('mb_ord')) {
-					require_once Config::$sourcedir . '/Subs-Compat.php';
-				}
-
 				$l_part = $chars[$c];
 				$v_part = $chars[$c + 1];
 				$t_part = null;
