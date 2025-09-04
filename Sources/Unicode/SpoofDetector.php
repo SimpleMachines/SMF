@@ -50,7 +50,7 @@ class SpoofDetector
 		$chars = Utf8String::decompose($chars, false);
 
 		// 2. Replace confusable characters with their prototypes.
-		require_once __DIR__ . '/Confusables.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 		$substitutions = utf8_confusables();
 
 		foreach ($chars as &$char) {
@@ -79,7 +79,7 @@ class SpoofDetector
 			return [];
 		}
 
-		require_once __DIR__ . '/Confusables.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 
 		$scripts_data = utf8_character_scripts();
 
@@ -434,7 +434,7 @@ class SpoofDetector
 				return true;
 			}
 
-			require_once __DIR__ . '/Confusables.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 			$regexes = utf8_regex_identifier_status();
 
 			// If either string contains Identifier_Status=Restricted characters, reject.

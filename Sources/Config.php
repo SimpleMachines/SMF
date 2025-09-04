@@ -2756,12 +2756,17 @@ class Config
 	 */
 	public static function getDbLastError(): int
 	{
-		if (file_exists(self::$cachedir . '/db_last_error.php')) {
-			include self::$cachedir . '/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/cache/db_last_error.php')) {
-			include self::$boarddir . '/cache/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/db_last_error.php')) {
-			include self::$boarddir . '/db_last_error.php';
+		foreach (
+			[
+				self::$cachedir,
+				self::$boarddir . DIRECTORY_SEPARATOR . 'cache',
+				self::$boarddir,
+			] as $dir
+		) {
+			if (file_exists($dir . DIRECTORY_SEPARATOR . 'db_last_error.php')) {
+				include $dir . DIRECTORY_SEPARATOR . 'db_last_error.php';
+				break;
+			}
 		}
 
 		if (!isset($db_last_error)) {
