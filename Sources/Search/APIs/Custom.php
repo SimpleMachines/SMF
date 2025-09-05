@@ -642,10 +642,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 				if (!empty($tables)) {
 					Db::$db->search_query(
-						'
-						DROP TABLE {db_prefix}log_search_words',
-						[
-						],
+						'DROP TABLE {db_prefix}log_search_words',
 						identifier: 'drop_words_table',
 					);
 				}
@@ -852,10 +849,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (!empty($tables)) {
 			Db::$db->search_query(
-				'
-				DROP TABLE {db_prefix}log_search_words',
-				[
-				],
+				'DROP TABLE {db_prefix}log_search_words',
 				identifier: 'drop_words_table',
 			);
 		}
