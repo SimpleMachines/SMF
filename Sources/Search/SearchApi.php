@@ -1805,7 +1805,7 @@ abstract class SearchApi implements SearchApiInterface
 				'CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 					id_topic int NOT NULL default {string:string_zero},
 					PRIMARY KEY (id_topic)
-				) ENGINE=MEMORY',
+				)' . (\in_array('MEMORY', Db::$db->get_engines()) ? ' ENGINE=MEMORY' : ''),
 				[
 					'string_zero' => '0',
 				],
@@ -2013,7 +2013,7 @@ abstract class SearchApi implements SearchApiInterface
 				'CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 					id_msg int NOT NULL default {string:string_zero},
 					PRIMARY KEY (id_msg)
-				) ENGINE=MEMORY',
+				)' . (\in_array('MEMORY', Db::$db->get_engines()) ? ' ENGINE=MEMORY' : ''),
 				[
 					'string_zero' => '0',
 				],

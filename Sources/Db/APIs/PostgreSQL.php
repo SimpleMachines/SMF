@@ -1151,12 +1151,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		$replacements = [
-			'create_tmp_log_search_topics' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
-			'create_tmp_log_search_messages' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
 			'insert_into_log_messages_fulltext' => [
 				'/NOT\sLIKE/' => 'NOT ILIKE',
 				'/\bLIKE\b/' => 'ILIKE',
