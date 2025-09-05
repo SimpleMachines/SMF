@@ -1282,6 +1282,22 @@ function PlushSearch2()
 			}
 			else
 			{
+				// For MySQL, check whether the MEMORY engine is enabled.
+				$engines = array();
+
+				if ($smcFunc['db_title'] === MYSQL_TITLE)
+				{
+					$request = $smcFunc['db_query']('', 'SHOW ENGINES', array());
+
+					while ($row = $smcFunc['db_fetch_assoc']($request))
+					{
+						if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
+							$engines[] = $row['Engine'];
+					}
+
+					$smcFunc['db_free_result']($request);
+				}
+
 				$main_query = array(
 					'select' => array(
 						'id_search' => $_SESSION['search_cache']['id_search'],
@@ -1356,7 +1372,7 @@ function PlushSearch2()
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 							id_topic int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_topic)
-						) ENGINE=MEMORY',
+						)' . (in_array('MEMORY', $engines) ? ' ENGINE=MEMORY' : ''),
 						array(
 							'string_zero' => '0',
 						)
@@ -1546,7 +1562,7 @@ function PlushSearch2()
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 							id_msg int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_msg)
-						) ENGINE=MEMORY',
+						)' . (in_array('MEMORY', $engines) ? ' ENGINE=MEMORY' : ''),
 						array(
 							'string_zero' => '0',
 						)
