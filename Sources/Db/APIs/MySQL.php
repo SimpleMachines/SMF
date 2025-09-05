@@ -1325,7 +1325,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
-			) ENGINE=InnoDB',
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci',
 			[
 				'string_zero' => '0',
 				'size' => $size,
