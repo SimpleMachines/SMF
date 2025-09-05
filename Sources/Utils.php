@@ -2008,7 +2008,9 @@ class Utils
 		}
 
 		// Provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename']));
+		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
+			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
+		}
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
