@@ -2007,6 +2007,9 @@ class Utils
 			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
 		}
 
+		// Decode any entities in the name.
+		$file['filename'] = Utils::entityDecode($file['filename']);
+
 		// Provide a plain ASCII name for the sake of old browsers.
 		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
 			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
