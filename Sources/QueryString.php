@@ -243,9 +243,9 @@ function cleanRequest()
 		$_GET['action'] = (string) $_GET['action'];
 
 	// Some mail providers like to encode semicolons in activation URLs...
-	if (!empty($_REQUEST['action']) && substr($_SERVER['QUERY_STRING'], 0, 18) == 'action=activate%3b')
+	if (!empty($_REQUEST['action']) && substr(strtolower($_SERVER['QUERY_STRING']), 0, 18) == 'action=activate%3b')
 	{
-		header('location: ' . $scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
+		header('location: ' . $scripturl . '?' . str_ireplace('%3b', ';', $_SERVER['QUERY_STRING']));
 		exit;
 	}
 
