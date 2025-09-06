@@ -1034,6 +1034,14 @@ ADD COLUMN IF NOT EXISTS deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Adding support for board redirects to open in a new tab
+/******************************************************************************/
+---# Adding new columns to boards...
+ALTER TABLE {$db_prefix}boards
+ADD COLUMN IF NOT EXISTS redirect_new_tab smallint NOT NULL DEFAULT '0';
+---#
+
+/******************************************************************************/
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
 ---# Adding the boardindex_max_depth setting.

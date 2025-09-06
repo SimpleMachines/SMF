@@ -646,7 +646,9 @@ function modifyBoard($board_id, &$boardOptions)
 	if (isset($boardOptions['redirect']))
 	{
 		$boardUpdates[] = 'redirect = {string:redirect}';
+		$boardUpdates[] = 'redirect_new_tab = {int:redirect_new_tab}';
 		$boardUpdateParameters['redirect'] = $boardOptions['redirect'];
+		$boardUpdateParameters['redirect_new_tab'] = $boardOptions['redirect_new_tab'];
 	}
 
 	if (isset($boardOptions['num_posts']))
@@ -1373,8 +1375,8 @@ function getBoardTree()
 	$boardColumns = array(
 		'COALESCE(b.id_board, 0) AS id_board', 'b.id_parent', 'b.name AS board_name',
 		'b.description', 'b.child_level', 'b.board_order', 'b.count_posts', 'b.member_groups',
-		'b.id_theme', 'b.override_theme', 'b.id_profile', 'b.redirect', 'b.num_posts',
-		'b.num_topics', 'b.deny_member_groups', 'c.id_cat', 'c.name AS cat_name',
+		'b.id_theme', 'b.override_theme', 'b.id_profile', 'b.redirect', 'b.redirect_new_tab',
+		'b.num_posts', 'b.num_topics', 'b.deny_member_groups', 'c.id_cat', 'c.name AS cat_name',
 		'c.description AS cat_desc', 'c.cat_order', 'c.can_collapse',
 	);
 	$boardParameters = array();
@@ -1448,6 +1450,7 @@ function getBoardTree()
 				'override_theme' => $row['override_theme'],
 				'profile' => $row['id_profile'],
 				'redirect' => $row['redirect'],
+				'redirect_new_tab' => $row['redirect_new_tab'],
 				'prev_board' => $prevBoard
 			);
 			$prevBoard = $row['id_board'];

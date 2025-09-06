@@ -427,6 +427,7 @@ function EditBoard()
 			'profile' => 1,
 			'override_theme' => 0,
 			'redirect' => '',
+			'redirect_new_tab' => 0,
 			'category' => (int) $_REQUEST['cat'],
 			'no_children' => true,
 		);
@@ -695,6 +696,7 @@ function EditBoard2()
 
 		// Are they doing redirection?
 		$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? normalize_iri(trim($_POST['redirect_address'])) : '';
+		$boardOptions['redirect_new_tab'] = !empty($_POST['redirect_address_new_tab']) ? 1 : 0;
 
 		// Profiles...
 		$boardOptions['profile'] = $_POST['profile'] == -1 ? 1 : $_POST['profile'];
@@ -716,7 +718,10 @@ function EditBoard2()
 
 			// If we're turning redirection on check the board doesn't have posts in it - if it does don't make it a redirection board.
 			if ($boardOptions['redirect'] && empty($oldRedirect) && $numPosts)
+			{
 				unset($boardOptions['redirect']);
+				unset($boardOptions['redirect_new_tab']);
+			}
 
 			// Reset the redirection count when switching on/off.
 			elseif (empty($boardOptions['redirect']) != empty($oldRedirect))

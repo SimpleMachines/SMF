@@ -174,7 +174,7 @@ function template_bi_board_info($board)
 	global $context, $scripturl, $txt;
 
 	echo '
-		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+		<a class="subject mobile_subject" href="', $board['href'], '" ', (!empty($board['is_redirect']) && !empty($board['is_redirect_new_tab'])) ? 'target="_blank" rel="noopener"' : '', ' id="b', $board['id'], '">
 			', $board['name'], '
 		</a>';
 

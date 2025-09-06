@@ -53,6 +53,7 @@ function getBoardIndex($board_index_options)
 		'b.name AS board_name',
 		'b.description',
 		'CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect',
+		'b.redirect_new_tab AS is_redirect_new_tab',
 		'b.num_posts',
 		'b.num_topics',
 		'b.unapproved_posts',
@@ -74,14 +75,14 @@ function getBoardIndex($board_index_options)
 	if ($board_index_options['parent_id'] != 0 && $smcFunc['db_cte_support']())
 		$result_boards = $smcFunc['db_query']('', '
 			WITH RECURSIVE
-				boards_cte (child_level, id_board, name, description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
+				boards_cte (child_level, id_board, name, description, redirect, redirect_new_tab, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
 			AS
 			(
-				SELECT b.child_level, b.id_board, b.name, b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
+				SELECT b.child_level, b.id_board, b.name, b.description, b.redirect, b.redirect_new_tab, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board} AND b.id_board = {int:id_parent}
 					UNION ALL
-				SELECT b.child_level, b.id_board, b.name, b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
+				SELECT b.child_level, b.id_board, b.name, b.description, b.redirect, b.redirect_new_tab, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards AS b
 					JOIN boards_cte AS bc ON (b.id_parent = bc.id_board)
 				WHERE {query_see_board}
@@ -256,6 +257,7 @@ function getBoardIndex($board_index_options)
 					'topics' => $row_board['num_topics'],
 					'posts' => $row_board['num_posts'],
 					'is_redirect' => $row_board['is_redirect'],
+					'is_redirect_new_tab' => $row_board['is_redirect_new_tab'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
@@ -317,6 +319,7 @@ function getBoardIndex($board_index_options)
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
 				'is_redirect' => $row_board['is_redirect'],
+				'is_redirect_new_tab' => $row_board['is_redirect_new_tab'],
 				'unapproved_topics' => $row_board['unapproved_topics'],
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),

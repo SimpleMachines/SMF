@@ -287,6 +287,7 @@ CREATE TABLE {$db_prefix}boards (
 	unapproved_posts smallint NOT NULL DEFAULT '0',
 	unapproved_topics smallint NOT NULL DEFAULT '0',
 	redirect varchar(255) NOT NULL DEFAULT '',
+	redirect_new_tab smallint NOT NULL DEFAULT '0',
 	deny_member_groups varchar(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_board)
 );

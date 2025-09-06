@@ -80,6 +80,7 @@ $txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
 $txt['board_redirect'] = 'Redirection Board, redirects to';
+$txt['board_redirect_new_tab'] = 'Redirect opens in a new tab';
 $txt['board_num_topics'] = 'Number of Topics';
 $txt['board_num_posts'] = 'Number of Posts';
 $txt['board_count_posts'] = 'Count Posts';

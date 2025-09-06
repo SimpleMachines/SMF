@@ -137,6 +137,7 @@ CREATE TABLE {$db_prefix}boards (
 	unapproved_posts SMALLINT NOT NULL DEFAULT '0',
 	unapproved_topics SMALLINT NOT NULL DEFAULT '0',
 	redirect VARCHAR(255) NOT NULL DEFAULT '',
+	redirect_new_tab TINYINT NOT NULL DEFAULT '0',
 	deny_member_groups VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_board),
 	UNIQUE idx_categories (id_cat, id_board),

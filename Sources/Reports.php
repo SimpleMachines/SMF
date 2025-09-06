@@ -185,6 +185,7 @@ function BoardReport()
 		'category' => $txt['board_category'],
 		'parent' => $txt['board_parent'],
 		'redirect' => $txt['board_redirect'],
+		'redirect_new_tab' => $txt['board_redirect_new_tab'],
 		'num_topics' => $txt['board_num_topics'],
 		'num_posts' => $txt['board_num_posts'],
 		'count_posts' => $txt['board_count_posts'],
@@ -204,7 +205,7 @@ function BoardReport()
 	// Go through each board!
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
-			b.redirect, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
+			b.redirect, b.redirect_new_tab, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			LEFT JOIN {db_prefix}boards AS par ON (par.id_board = b.id_parent)
@@ -223,7 +224,10 @@ function BoardReport()
 
 		$this_boardSettings = $boardSettings;
 		if (empty($row['redirect']))
+		{
 			unset($this_boardSettings['redirect']);
+			unset($this_boardSettings['redirect_new_tab']);
+		}
 
 		// First off, add in the side key.
 		addData($this_boardSettings);
@@ -236,6 +240,7 @@ function BoardReport()
 			'category' => $row['cat_name'],
 			'parent' => $row['parent_name'],
 			'redirect' => $row['redirect'],
+			'redirect_new_tab' => $row['redirect_new_tab'] ? $txt['yes'] : $txt['no'],
 			'num_posts' => $row['num_posts'],
 			'num_topics' => $row['num_topics'],
 			'count_posts' => empty($row['count_posts']) ? $txt['yes'] : $txt['no'],
@@ -270,7 +275,10 @@ function BoardReport()
 		}
 
 		if (empty($row['redirect']))
+		{
 			unset ($boardData['redirect']);
+			unset ($boardData['redirect_new_tab']);
+		}
 
 		// Next add the main data.
 		addData($boardData);

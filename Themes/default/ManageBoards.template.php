@@ -486,6 +486,16 @@ function template_modify_board()
 							<input type="text" name="redirect_address" value="', $context['board']['redirect'], '" size="40">
 						</dd>
 					</dl>
+
+					<dl class="settings">
+						<dt>
+							<strong>', $txt['mboards_redirect_new_tab'], ':</strong><br>
+							<span class="smalltext">', $txt['mboards_redirect_new_tab_desc'], '</span><br>
+						</dt>
+						<dd>
+							<input type="checkbox" name="redirect_address_new_tab"', !empty($context['board']['redirect_new_tab']) ? " checked" : '', '>
+						</dd>
+					</dl>
 				</div>';
 
 		if ($context['board']['redirect'])
