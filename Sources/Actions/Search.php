@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\AntiSpam\Verification;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,7 +31,6 @@ use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * Shows the search form.
@@ -89,7 +89,7 @@ class Search implements ActionInterface, Routable
 		Utils::$context['require_verification'] = User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 
 		if (Utils::$context['require_verification']) {
-			$verifier = new Verifier(['id' => 'search']);
+			new Verification(['id' => 'search']);
 		}
 
 		// If you got back from search2 by using the linktree, you get your original search parameters back.

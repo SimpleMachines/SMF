@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\AntiSpam\Verification;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -32,7 +33,6 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * Shows the search form.
@@ -442,10 +442,10 @@ class Search2 implements ActionInterface, Routable
 	{
 		// Do we have captcha enabled?
 		if (User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != SearchApi::$loadedApi->params['search'])) {
-			$verifier = new Verifier(['id' => 'search']);
+			$verification = new Verification(['id' => 'search'], true);
 
-			if (!empty($verifier->errors)) {
-				foreach ($verifier->errors as $error) {
+			if (!empty($verification->errors)) {
+				foreach ($verification->errors as $error) {
 					Utils::$context['search_errors'][$error] = true;
 				}
 			}

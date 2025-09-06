@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
+use SMF\AntiSpam\Verification;
 use SMF\Attachment;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -40,7 +41,6 @@ use SMF\TimeZone;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * This class handles posting and modifying replies and new topics.
@@ -1654,7 +1654,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['require_verification'] = !User::$me->is_mod && !User::$me->is_admin && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1));
 
 		if (Utils::$context['require_verification']) {
-			$verifier = new Verifier(['id' => 'post']);
+			new Verification(['id' => 'post']);
 		}
 
 		// If they came from quick reply, and have to enter verification details, give them some notice.

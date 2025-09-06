@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\AntiSpam\Verification;
 use SMF\Attachment;
 use SMF\Autolinker;
 use SMF\Board;
@@ -40,7 +41,6 @@ use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
-use SMF\Verifier;
 
 /**
  * This class handles posting and modifying replies and new topics.
@@ -741,8 +741,8 @@ class Post2 extends Post
 				)
 			)
 		) {
-			$verifier = new Verifier(['id' => 'post']);
-			$this->errors = array_merge($this->errors, $verifier->errors);
+			$verification = new Verification(['id' => 'post'], true);
+			$this->errors = array_merge($this->errors, $verification->errors);
 		}
 	}
 
