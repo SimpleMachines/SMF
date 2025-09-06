@@ -7,6 +7,10 @@ The software is licensed under [BSD 3-clause license](https://opensource.org/lic
 
 Contributions to documentation are licensed under [CC-by-SA 3](https://creativecommons.org/licenses/by-sa/3.0). Third party libraries or sets of images are under their own licenses.
 
+## Feature locked
+This branch is a stable release and locked to new features.  Only bug fixes are accepted.  Please contribute to the current development branch for new features.
+Bug fixes that introduce database changes will typically not be approved without justification.
+
 ## Notes:
 
 Feel free to fork this repository and make your desired changes.
