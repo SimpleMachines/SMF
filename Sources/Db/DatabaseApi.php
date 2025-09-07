@@ -442,9 +442,9 @@ abstract class DatabaseApi
 					$test = \is_array($value) ? reset($value) : $value;
 
 					if (IP::create((string) $test)->isValid()) {
-						$types[$column_name] = 'inet';
+						$type = 'inet';
 					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString((string) $test)) !== Uuid::NIL_UUID) {
-						$types[$column_name] = 'uuid';
+						$type = 'uuid';
 					} else {
 						$type = 'string';
 					}
