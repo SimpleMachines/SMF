@@ -12230,7 +12230,7 @@ if (!function_exists('grapheme_strstr')) {
 }
 
 if (!function_exists('grapheme_stristr')) {
-	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	function grapheme_stristr(string $haystack, string $needle, bool $before_needle = false): string|false
 	{
 		return $before_needle ? grapheme_substr($haystack, 0, grapheme_stripos($haystack, $needle)) : grapheme_substr($haystack, grapheme_stripos($haystack, $needle));
 	}
