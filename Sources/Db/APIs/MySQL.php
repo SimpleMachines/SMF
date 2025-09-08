@@ -1213,10 +1213,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$request = $this->query(
 			'SHOW TABLES
-			FROM `{raw:db}`
+			FROM {identifier:db}
 			{raw:filter}',
 			[
-				'db' => $db[0] == '`' ? strtr($db, ['`' => '']) : $db,
+				'db' => strtr($db, ['`' => '']),
 				'filter' => $filter,
 			],
 		);
@@ -2048,10 +2048,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Find the table engine and add that to the info as well
 		$table_status = $this->query(
 			'SHOW TABLE STATUS
-			IN {raw:db}
+			IN {identifier:db}
 			LIKE {string:table}',
 			[
-				'db' => $database,
+				'db' => strtr($database, ['`' => '']),
 				'table' => $real_table_name,
 			],
 		);
@@ -2151,10 +2151,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$result = $this->query(
 			'SHOW KEYS
-			FROM {raw:table_name}
-			IN {raw:db}',
+			FROM {identifier:table_name}
+			IN {identifier:db}',
 			[
-				'db' => $database,
+				'db' => strtr($database, ['`' => '']),
 				'table_name' => $real_table_name,
 			],
 		);
