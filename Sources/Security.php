@@ -530,8 +530,8 @@ class Security
 				<?php
 
 				// Try to handle it with the upper level index.php. (it should know what to do.)
-				if (file_exists(dirname(__DIR__) . '/index.php')) {
-					include dirname(__DIR__) . '/index.php';
+				if (file_exists(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php')) {
+					include dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php';
 				} else {
 					exit;
 				}
@@ -542,7 +542,7 @@ class Security
 				if (@file_put_contents($path . '/index.php', $contents) !== \strlen($contents)) {
 					$errors[] = 'index-php_cannot_create_file';
 				}
-			} elseif (file_get_contents($path . '/index.php') !== $contents) {
+			} elseif (!\in_array(file_get_contents($path . '/index.php'), [$contents, str_replace('DIRECTORY_SEPARATOR . \'index.php\'', '\'/index.php\'', $contents)])) {
 				$errors[] = 'index-php_exists';
 				continue;
 			}

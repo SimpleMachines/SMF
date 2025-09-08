@@ -21,7 +21,7 @@ if (!defined('SMF')) {
 
 if (SMF == 'PROXY') {
 	// Initialize.
-	require_once __DIR__ . '/index.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
 
 	$proxy = new SMF\ProxyServer();
 	$proxy->serve();

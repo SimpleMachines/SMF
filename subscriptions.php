@@ -31,14 +31,11 @@ $paid_debug = false;
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;
 
-if (!file_exists(__DIR__ . '/SSI.php')) {
+if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'SSI.php')) {
 	die('Cannot find SSI.php');
 }
 
-require_once __DIR__ . '/SSI.php';
-
-// Ensure we don't trip over disabled internal functions
-require_once Config::$sourcedir . '/Subs-Compat.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'SSI.php';
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST)) {

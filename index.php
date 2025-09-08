@@ -68,11 +68,11 @@ if (!defined('TIME_START')) {
 }
 
 if (!defined('SMF_SETTINGS_FILE')) {
-	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
+	define('SMF_SETTINGS_FILE', __DIR__ . DIRECTORY_SEPARATOR . 'Settings.php');
 }
 
 if (!defined('SMF_SETTINGS_BACKUP_FILE')) {
-	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . '/' . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
+	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . DIRECTORY_SEPARATOR . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
 }
 
 /*
@@ -108,18 +108,18 @@ call_user_func(function () {
 			$boarddir = __DIR__;
 		}
 
-		if (is_dir($boarddir . '/Sources')) {
-			$sourcedir = $boarddir . '/Sources';
+		if (is_dir($boarddir . DIRECTORY_SEPARATOR . 'Sources')) {
+			$sourcedir = $boarddir . DIRECTORY_SEPARATOR . 'Sources';
 		}
 	}
 
 	// We need this class, or nothing works.
-	if (!is_file($sourcedir . '/Config.php') || !is_readable($sourcedir . '/Config.php')) {
+	if (!is_file($sourcedir . DIRECTORY_SEPARATOR . 'Config.php') || !is_readable($sourcedir . DIRECTORY_SEPARATOR . 'Config.php')) {
 		die('File not readable: (Sources)/Config.php');
 	}
 
 	// Pass all the settings to SMF\Config.
-	require_once $sourcedir . '/Config.php';
+	require_once $sourcedir . DIRECTORY_SEPARATOR . 'Config.php';
 	SMF\Config::set(get_defined_vars());
 
 	// Ensure $db_last_error is set, too.
@@ -135,10 +135,10 @@ if (SMF === 1) {
  * 3. Load some other essential includes.
  */
 
-require_once SMF\Config::$sourcedir . '/Autoloader.php';
+require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
-require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
+require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';
 
 
 /*********************************************************************

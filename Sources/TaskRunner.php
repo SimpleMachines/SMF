@@ -552,7 +552,7 @@ class TaskRunner
 			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
 			if (file_exists($include)) {
-				require_once $include;
+				require_once Config::canonicalPath($include);
 			}
 		}
 

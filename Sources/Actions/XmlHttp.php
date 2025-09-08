@@ -230,7 +230,7 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function sig_preview(): void
 	{
-		require_once Config::$sourcedir . '/Profile-Modify.php';
+		require_once Config::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
 
 		$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 		$is_owner = $user == User::$me->id;

@@ -2099,7 +2099,7 @@ class Subscriptions implements ActionInterface
 					fclose($fp);
 
 					if (str_contains($header, '// SMF Payment Gateway: ' . strtolower($matches[1]))) {
-						require_once Config::$sourcedir . '/' . $file;
+						require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
 
 						$gateways[] = [
 							'filename' => $file,

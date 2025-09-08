@@ -669,12 +669,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "4ecd9b09871a71e110fa3561e1bd8ab588f48461"
+                "reference": "e6dfbbb08149d1c82e497f0270fc9685361e94be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/4ecd9b09871a71e110fa3561e1bd8ab588f48461",
-                "reference": "4ecd9b09871a71e110fa3561e1bd8ab588f48461",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/e6dfbbb08149d1c82e497f0270fc9685361e94be",
+                "reference": "e6dfbbb08149d1c82e497f0270fc9685361e94be",
                 "shasum": ""
             },
             "require": {
@@ -687,7 +687,7 @@
                 "source": "https://github.com/SimpleMachines/BuildTools/tree/release-3.0",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2024-02-21T21:39:32+00:00"
+            "time": "2025-09-05T00:26:29+00:00"
         },
         {
             "name": "symfony/cache",

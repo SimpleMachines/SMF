@@ -80,7 +80,7 @@ class Utf8String implements \Stringable
 
 		// Can we use the intl extension's Normalizer class?
 		if (!isset(self::$use_intl_normalizer)) {
-			require_once __DIR__ . '/Metadata.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'Metadata.php';
 
 			self::$use_intl_normalizer = \extension_loaded('intl') && version_compare(implode('.', \IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>=');
 		}
@@ -146,7 +146,7 @@ class Utf8String implements \Stringable
 
 			switch ($case) {
 				case 'upper':
-					require_once __DIR__ . '/CaseUpper.php';
+					require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseUpper.php';
 					$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
@@ -157,7 +157,7 @@ class Utf8String implements \Stringable
 					break;
 
 				case 'lower':
-					require_once __DIR__ . '/CaseLower.php';
+					require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseLower.php';
 					$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
 					// Turkish & Azeri conditional casing, part 1.
@@ -170,7 +170,7 @@ class Utf8String implements \Stringable
 					break;
 
 				case 'fold':
-					require_once __DIR__ . '/CaseFold.php';
+					require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseFold.php';
 					$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_maps();
 					break;
 			}
@@ -181,11 +181,11 @@ class Utf8String implements \Stringable
 
 			$this->string = implode('', $chars);
 		} elseif (\in_array($case, ['title', 'ucfirst', 'ucwords'])) {
-			require_once __DIR__ . '/RegularExpressions.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 
-			require_once __DIR__ . '/CaseUpper.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseUpper.php';
 
-			require_once __DIR__ . '/CaseTitle.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseTitle.php';
 
 			$prop_classes = utf8_regex_properties();
 
@@ -240,7 +240,7 @@ class Utf8String implements \Stringable
 		// Greek conditional casing, part 1: Fix lowercase sigma.
 		// Note that this rule doesn't depend on $txt['lang_locale'].
 		if ($case !== 'upper' && str_contains($this->string, 'ς') || str_contains($this->string, 'σ')) {
-			require_once Config::$sourcedir . '/Unicode/RegularExpressions.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 
 			$prop_classes = utf8_regex_properties();
 
@@ -434,7 +434,7 @@ class Utf8String implements \Stringable
 				return false;
 		}
 
-		require_once __DIR__ . '/QuickCheck.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'QuickCheck.php';
 		$qc = utf8_regex_quick_check();
 
 		if (preg_match('/[' . $qc[$prop] . ']/u', $this->string)) {
@@ -448,7 +448,7 @@ class Utf8String implements \Stringable
 		// strings that don't need them, but building and running a perfect regex
 		// would be more expensive in the vast majority of cases, so meh.
 		if (preg_match_all('/([\p{M}\p{Cn}])/u', $this->string, $matches, PREG_OFFSET_CAPTURE)) {
-			require_once __DIR__ . '/CombiningClasses.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'CombiningClasses.php';
 
 			$combining_classes = utf8_combining_classes();
 
@@ -499,7 +499,7 @@ class Utf8String implements \Stringable
 		$level = min(max((int) $level, 0), 2);
 		$substitute = (string) $substitute;
 
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		// We never want non-whitespace control characters
@@ -670,7 +670,7 @@ class Utf8String implements \Stringable
 		// Normalize the whitespace.
 		$this->string = Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		// Split into words, with Unicode awareness.
@@ -724,7 +724,7 @@ class Utf8String implements \Stringable
 				];
 			}
 
-			require_once __DIR__ . '/RegularExpressions.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 			$prop_classes = utf8_regex_properties();
 
 			for ($i = 0; $i < \count($chars); $i++) {
@@ -1012,7 +1012,7 @@ class Utf8String implements \Stringable
 	public static function decompose(array $chars, bool $compatibility = false): array
 	{
 		if (!empty($compatibility)) {
-			require_once __DIR__ . '/DecompositionCompatibility.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'DecompositionCompatibility.php';
 
 			$substitutions = utf8_normalize_kd_maps();
 
@@ -1021,9 +1021,9 @@ class Utf8String implements \Stringable
 			}
 		}
 
-		require_once __DIR__ . '/DecompositionCanonical.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'DecompositionCanonical.php';
 
-		require_once __DIR__ . '/CombiningClasses.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'CombiningClasses.php';
 
 		$substitutions = utf8_normalize_d_maps();
 		$combining_classes = utf8_combining_classes();
@@ -1033,10 +1033,6 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 			if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3") {
-				if (!\function_exists('mb_ord')) {
-					require_once Config::$sourcedir . '/Subs-Compat.php';
-				}
-
 				$s = mb_ord($chars[$i]);
 				$sindex = $s - 0xAC00;
 				$l = (int) (0x1100 + $sindex / (21 * 28));
@@ -1083,9 +1079,9 @@ class Utf8String implements \Stringable
 	 */
 	public static function compose(array $chars): array
 	{
-		require_once __DIR__ . '/Composition.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'Composition.php';
 
-		require_once __DIR__ . '/CombiningClasses.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'CombiningClasses.php';
 
 		$substitutions = utf8_compose_maps();
 		$combining_classes = utf8_combining_classes();
@@ -1099,10 +1095,6 @@ class Utf8String implements \Stringable
 			// Hangul characters.
 			// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
 			if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5") {
-				if (!\function_exists('mb_ord')) {
-					require_once Config::$sourcedir . '/Subs-Compat.php';
-				}
-
 				$l_part = $chars[$c];
 				$v_part = $chars[$c + 1];
 				$t_part = null;
@@ -1164,7 +1156,7 @@ class Utf8String implements \Stringable
 	 */
 	public static function emojiRegex(): string
 	{
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 
 		$prop_classes = utf8_regex_properties();
 
@@ -1377,9 +1369,9 @@ class Utf8String implements \Stringable
 
 		$chars = self::decompose($chars, true);
 
-		require_once __DIR__ . '/CaseFold.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'CaseFold.php';
 
-		require_once __DIR__ . '/DefaultIgnorables.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'DefaultIgnorables.php';
 
 		$substitutions = utf8_casefold_maps();
 		$ignorables = array_flip(utf8_default_ignorables());
@@ -1408,7 +1400,7 @@ class Utf8String implements \Stringable
 	 */
 	protected function preserveEmoji(array &$placeholders): void
 	{
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		$this->string  = preg_replace_callback(
@@ -1438,7 +1430,7 @@ class Utf8String implements \Stringable
 	 */
 	protected function sanitizeVariationSelectors(array &$placeholders, string $substitute): void
 	{
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		$patterns = ['/[' . $prop_classes['Ideographic'] . '][\x{E0100}-\x{E01EF}]/u'];
@@ -1477,7 +1469,7 @@ class Utf8String implements \Stringable
 	 */
 	protected function sanitizeJoinControls(array &$placeholders, int $level, string $substitute): void
 	{
-		require_once __DIR__ . '/RegularExpressions.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 
 		// Zero Width Non-Joiner (U+200C)
 		$zwnj = "\xE2\x80\x8C";

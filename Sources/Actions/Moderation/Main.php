@@ -240,7 +240,7 @@ class Main implements ActionInterface, Routable
 		$this->createMenu();
 
 		if (isset(Menu::$loaded['moderate']->include_data['file'])) {
-			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
+			require_once Config::canonicalPath(Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file']);
 		}
 
 		$call = \is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
