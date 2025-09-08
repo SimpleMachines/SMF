@@ -18,6 +18,7 @@ namespace SMF\Cache\APIs;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Utils;
 use SQLite3;
@@ -53,6 +54,12 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	private $cacheDB = null;
 
+	/**
+	 * Indicates we have logged a error.
+	 * @var bool
+	 */
+	private bool $logOnce = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -71,20 +78,40 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	public function connect(): bool
 	{
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
-		$this->cacheDB = new SQLite3($database);
-		$this->cacheDB->busyTimeout(1000);
 
-		// Its a WALuigi!
-		if (!empty(Config::$cache_sqlite_wal)) {
-			$this->cacheDB->exec('PRAGMA journal_mode = wal;');
+		if (!is_writable($database) || !is_writeable($this->cachedir)) {
+			return false;
 		}
 
-		if (filesize($database) == 0) {
-			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
-			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
-		}
+		try {
+			// Did we disable WAL?  That triggers a read only mode, dump the cache.
+			if (file_exists($this->cachedir . '/' . 'SQLite3Cache.db3-wal') && empty(Config::$modSettings['cache_sqlite_wal'])) {
+				unlink($this->cachedir . '/' . 'SQLite3Cache.db3');
+			}
 
-		return true;
+			$this->cacheDB = new SQLite3($database);
+			$this->cacheDB->busyTimeout(1000);
+			$this->cacheDB->enableExceptions(true);
+
+			// Its a WALuigi!
+			if (!empty(Config::$cache_sqlite_wal)) {
+				$this->cacheDB->exec('PRAGMA journal_mode = wal;');
+			}
+
+			if (filesize($database) == 0) {
+				$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
+				$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
+			}
+
+			return true;
+		} catch (\Exception $ex) {
+			if (!$this->logOnce) {
+				$this->logOnce = true;
+				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+			}
+
+			return false;
+		}
 	}
 
 	/**
@@ -107,7 +134,17 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
 		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
-		$result = $this->cacheDB->query($query);
+
+		try {
+			$result = $this->cacheDB->query($query);
+		} catch (\Exception $ex) {
+			if (!$this->logOnce) {
+				$this->logOnce = true;
+				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+			}
+
+			return null;
+		}
 
 		$value = null;
 
@@ -130,7 +167,17 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		} else {
 			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(\is_bool($value) ? \strval(\intval($value)) : $value) . '\', ' . $ttl . ');';
 		}
-		$result = $this->cacheDB->exec($query);
+
+		try {
+			$result = $this->cacheDB->exec($query);
+		} catch (\Exception $ex) {
+			if (!$this->logOnce) {
+				$this->logOnce = true;
+				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+			}
+
+			return false;
+		}
 
 		return $result;
 	}
@@ -146,10 +193,19 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			$query = 'DELETE FROM cache;';
 		}
 
-		$result = $this->cacheDB->exec($query);
+		try {
+			$result = $this->cacheDB->exec($query);
 
-		$query = 'VACUUM;';
-		$this->cacheDB->exec($query);
+			$query = 'VACUUM;';
+			$this->cacheDB->exec($query);
+		} catch (\Exception $ex) {
+			if (!$this->logOnce) {
+				$this->logOnce = true;
+				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+			}
+
+			$result = false;
+		}
 
 		$this->invalidateCache();
 

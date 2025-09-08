@@ -152,7 +152,7 @@ $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 $txt['cache_sqlite_wal'] = 'Enable SQLite3 WAL';
-$txt['cache_sqlite_wal_subtext'] = 'Read <a href="https://www.sqlite.org/wal.html">Write-Ahead Logging</a> documentation prior to using.';
+$txt['cache_sqlite_wal_subtext'] = 'Read <a href="https://www.sqlite.org/wal.html">Write-Ahead Logging</a> documentation prior to using. If you enable then disable this setting, the database will become readonly.';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>!';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
