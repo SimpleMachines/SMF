@@ -1580,90 +1580,81 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function change_column(string $table_name, string $old_column, array $column_info): bool
 	{
+		// Sanitize input.
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$column_info = array_change_key_case($column_info);
 
-		// Check it does exist!
-		$columns = $this->list_columns($table_name, true);
-		$old_info = null;
+		if (
+			\array_key_exists('size', $column_info)
+			&& !\is_null($column_info['size'])
+			&& $column_info['size'] != (int) $column_info['size']
+		) {
+			unset($column_info['size']);
+		}
 
-		foreach ($columns as $column) {
+		if (isset($column_info['null']) && !isset($column_info['not_null'])) {
+			$column_info['not_null'] = !$column_info['null'];
+			unset($column_info['null']);
+		}
+
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
+
+		// Get the existing column info.
+		foreach ($this->list_columns($table_name, true) as $column) {
 			if ($column['name'] == $old_column) {
 				$old_info = $column;
+				break;
 			}
 		}
 
-		// Nothing?
-		if ($old_info == null) {
+		// Can't change a column that doesn't exist.
+		if (!isset($old_info)) {
 			return false;
 		}
 
-		// backward compatibility
-		if (isset($column_info['null']) && !isset($column_info['not_null'])) {
-			$column_info['not_null'] = !$column_info['null'];
-		}
-
-		// Get the right bits.
-		$column_info['drop_default'] = !empty($column_info['drop_default']);
-
-		if (!isset($column_info['name'])) {
-			$column_info['name'] = $old_column;
-		}
-
-		if (
-			!\array_key_exists('default', $column_info)
-			&& \array_key_exists('default', $old_info)
-			&& !$column_info['drop_default']
+		// Part 1: Fill in anything missing from $column_info
+		foreach (
+			[
+				'name',
+				'type',
+				'size',
+				'unsigned',
+				'generation_expression',
+				'stored',
+				'not_null',
+				'default',
+				'auto',
+			] as $key
 		) {
-			$column_info['default'] = $old_info['default'];
+			$column_info[$key] ??= $old_info[$key] ?? null;
 		}
 
-		if (!isset($column_info['not_null'])) {
-			$column_info['not_null'] = $old_info['not_null'];
-		}
+		// Part 2: Standardize and filter.
 
-		if (!isset($column_info['auto'])) {
-			$column_info['auto'] = $old_info['auto'];
-		}
+		// Standardize the type and size.
+		list($column_info['type'], $column_info['size']) = $this->calculate_type(
+			$column_info['type'],
+			isset($column_info['size']) ? (int) $column_info['size'] : null,
+		);
 
-		if (!isset($column_info['type'])) {
-			$column_info['type'] = $old_info['type'];
-		}
-
+		// Unsigned is only applicable to integers.
 		if (
-			!\array_key_exists('size', $column_info)
-			|| (
-				!is_numeric($column_info['size'])
-				&& !\is_null($column_info['size'])
+			!\in_array(
+				$column_info['type'],
+				[
+					'int',
+					'tinyint',
+					'smallint',
+					'mediumint',
+					'bigint',
+				],
 			)
 		) {
-			$column_info['size'] = $old_info['size'];
+			unset($column_info['unsigned']);
 		}
 
-		if (!isset($column_info['unsigned']) || !\in_array($column_info['type'], ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
-			$column_info['unsigned'] = '';
-		}
-
-		foreach (['generation_expression', 'stored'] as $key) {
-			if (!\array_key_exists($key, $column_info) && \array_key_exists($key, $old_info)) {
-				$column_info[$key] = $old_info[$key];
-			}
-		}
-
-		// Default values and such are inapplicable to generated columns.
-		if (isset($column_info['generation_expression'])) {
-			$column_info['drop_default'] = true;
-			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
-		}
-
-		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
-		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (
-			!empty($column_info['not_null'])
-			&& empty($column_info['drop_default'])
-			&& \array_key_exists('default', $column_info)
-			&& \is_null($column_info['default'])
-		) {
+		// Can't have a DEFAULT NULL on a NOT NULL column.
+		if (\is_null($column_info['default']) && $column_info['not_null']) {
 			unset($column_info['default']);
 		}
 
@@ -1685,52 +1676,64 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			)
 		) {
-			$column_info['drop_default'] = true;
 			unset($column_info['default']);
 		}
 
-		list($type, $size) = $this->calculate_type($column_info['type'], isset($column_info['size']) ? (int) $column_info['size'] : null);
-
-		if ($size !== null) {
-			$type .= '(' . $size . ')';
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
 		}
 
-		// Allow for unsigned integers (mysql only)
-		$type .= \in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? ' unsigned' : '';
+		// If $old_info had a default but $column_info doesn't, then drop the default.
+		if (!\array_key_exists('default', $column_info) && isset($old_info['default'])) {
+			$column_info['drop_default'] = true;
+		}
+
+		// Part 3: Build the query clauses.
+
+		// Set the type clause.
+		$type = $column_info['type'] . (!empty($column_info['size']) ? '(' . $column_info['size'] . ')' : '') . (!empty($column_info['unsigned']) ? ' unsigned' : '');
+
+		// Set the NOT NULL clause.
+		$not_null = !empty($column_info['not_null']) ? ' NOT NULL' : '';
+
+		// Set the default clause.
+		$default = '';
+
+		if (\array_key_exists('default', $column_info)) {
+			if (\is_null($column_info['default'])) {
+				$default = ' DEFAULT NULL';
+			} elseif (is_numeric($column_info['default'])) {
+				$default = ' DEFAULT ' . (strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']));
+			} elseif (\is_string($column_info['default'])) {
+				$default = ' DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
+			}
+		}
+
+		// Set the generated clause.
+		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
+
+		// Set the auto-increment clause.
+		$auto = empty($column_info['auto']) ? '' : ' auto_increment';
+
+		// Part 4: Make the changes.
 
 		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
-				'ALTER TABLE ' . $short_table_name . '
-				ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
+				'ALTER TABLE {identifier:table}
+				ALTER COLUMN {identifier:old_name} DROP DEFAULT',
 				[
-					'security_override' => true,
+					'table' => $short_table_name,
+					'old_name' => $old_column,
 				],
 			);
 		}
 
-		// Set the default clause.
-		$default_clause = '';
-
-		if (!$column_info['drop_default'] && \array_key_exists('default', $column_info)) {
-			if (\is_null($column_info['default'])) {
-				$default_clause = 'DEFAULT NULL';
-			} elseif (is_numeric($column_info['default'])) {
-				$default_clause = 'DEFAULT ' . (strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']));
-			} elseif (\is_string($column_info['default'])) {
-				$default_clause = 'DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
-			}
-		}
-
-		// Is this a generated column?
-		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
-
 		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . (!empty($column_info['not_null']) ? ' NOT NULL' : '') . ' ' .
-				$default_clause . ' ' .
-				(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
+			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . $not_null . $default . $auto,
 			[
 				'security_override' => true,
 			],
