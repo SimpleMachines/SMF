@@ -1026,14 +1026,17 @@ class Utils
 	{
 		static $regexes = [];
 
-		// If it's not an array, there's not much to do. ;)
-		if (!\is_array($strings)) {
-			return preg_quote(@\strval($strings), $delim);
+		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+
+		$normalized_strings = [];
+		foreach ($strings as $str) {
+			if (is_scalar($str)) {
+				$s = (string) $str;
+				$normalized_strings[$s] = mb_strlen($s, $encoding);
+			}
 		}
 
-		$strings = array_filter($strings, 'is_string');
-
-		if (empty($strings)) {
+		if (empty($normalized_strings)) {
 			return '';
 		}
 
@@ -1043,73 +1046,44 @@ class Utils
 			return $regexes[$regex_key];
 		}
 
-		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false) {
-			$current_encoding = mb_internal_encoding();
-			mb_internal_encoding($string_encoding);
-		}
-
 		// Optimizing is faster when we sort by length.
-		usort($strings, fn($a, $b) => mb_strlen($a) <=> mb_strlen($b));
+		asort($normalized_strings);
+		$strings = array_keys($normalized_strings);
 
 		// Can we trim common characters from the end?
 		$trailing = '';
+		unset($normalized_strings);
 
-		while (mb_strlen(reset($strings)) > 1) {
-			$last_char = mb_substr(reset($strings), -1);
+		while (mb_strlen($strings[0], $encoding) > 1) {
+			$last_char = mb_substr($strings[0], -1, 1, $encoding);
 
-			foreach ($strings as $string_num => $string) {
+			foreach ($strings as $string) {
 				if (!str_ends_with($string, $last_char)) {
 					break 2;
 				}
 			}
 
-			$strings = array_map(fn($string) => mb_substr($string, 0, -1), $strings);
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
 			$trailing = $last_char . $trailing;
 		}
 
-		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
-			static $depth = 0;
-			$depth++;
+		// Create the trie from the strings.
+		$trie = [];
+		foreach ($strings as $string) {
+			$chars = mb_str_split($string, 1, $encoding);
 
-			$first = (string) @mb_substr($string, 0, 1);
-
-			// No first character? That's no good.
-			if ($first === '') {
-				// A nested array? Really? Ugh. Fine.
-				if (\is_array($string) && $depth < 20) {
-					foreach ($string as $str) {
-						$trie = $add_string_to_trie($str, $trie);
-					}
+			$node =& $trie;
+			foreach ($chars as $char) {
+				if (!isset($node[$char])) {
+					$node[$char] = [];
 				}
-
-				$depth--;
-
-				return $trie;
+				$node =& $node[$char];
 			}
-
-			if (empty($trie[$first])) {
-				$trie[$first] = [];
-			}
-
-			if (mb_strlen($string) > 1) {
-				// Sanity check on recursion
-				if ($depth > 99) {
-					$trie[$first][mb_substr($string, 1)] = '';
-				} else {
-					$trie[$first] = $add_string_to_trie(mb_substr($string, 1), $trie[$first]);
-				}
-			} else {
-				$trie[$first][''] = '';
-			}
-
-			$depth--;
-
-			return $trie;
-		};
+			$node[''] = '';
+		}
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex, $encoding) {
 			static $depth = 0;
 			$depth++;
 
@@ -1151,12 +1125,12 @@ class Utils
 			// Sort by key length and then alphabetically
 			uksort(
 				$regex,
-				function ($k1, $k2) {
-					$l1 = mb_strlen((string) $k1);
-					$l2 = mb_strlen((string) $k2);
+				function ($k1, $k2) use ($encoding) {
+					$l1 = mb_strlen((string) $k1, $encoding);
+					$l2 = mb_strlen((string) $k2, $encoding);
 
-					if ($l1 == $l2) {
-						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
+					if ($l1 === $l2) {
+						return strcmp((string) $k1, (string) $k2);
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -1168,14 +1142,7 @@ class Utils
 			return implode('|', $regex);
 		};
 
-		// Now that the closures are defined, let's do this thing.
-		$trie = [];
-		$regex = '';
-
-		foreach ($strings as $string) {
-			$trie = $add_string_to_trie((string) $string, $trie);
-		}
-
+		// Build regex (or regex array if requested)
 		if ($return_array === true) {
 			$regex = [];
 
@@ -1194,12 +1161,6 @@ class Utils
 			}
 		}
 
-		// Restore PHP's internal character encoding to whatever it was originally.
-		if (!empty($current_encoding)) {
-			mb_internal_encoding($current_encoding);
-		}
-
-		// Save for later.
 		$regexes[$regex_key] = $regex;
 
 		return $regex;
