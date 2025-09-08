@@ -1029,8 +1029,9 @@ class Utils
 		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
 
 		$normalized_strings = [];
+
 		foreach ($strings as $str) {
-			if (is_scalar($str)) {
+			if (\is_scalar($str)) {
 				$s = (string) $str;
 				$normalized_strings[$s] = mb_strlen($s, $encoding);
 			}
@@ -1069,16 +1070,20 @@ class Utils
 
 		// Create the trie from the strings.
 		$trie = [];
+
 		foreach ($strings as $string) {
 			$chars = mb_str_split($string, 1, $encoding);
 
-			$node =& $trie;
+			$node = &$trie;
+
 			foreach ($chars as $char) {
 				if (!isset($node[$char])) {
 					$node[$char] = [];
 				}
-				$node =& $node[$char];
+
+				$node = &$node[$char];
 			}
+
 			$node[''] = '';
 		}
 
