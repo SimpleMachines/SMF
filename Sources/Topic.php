@@ -452,16 +452,16 @@ class Topic implements \ArrayAccess, Routable
 				$this->id_previous_topic ?? 0,
 			];
 
-			// // If mods added extra columns to the table and those column values
-			// // are reflected in this object's custom properties, save them too.
-			// if (!empty($this->custom)) {
-			// 	foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
-			// 		if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
-			// 			$columns[$key] = $type;
-			// 			$params[] = $this->custom[$key];
-			// 		}
-			// 	}
-			// }
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+						$columns[$key] = $type;
+						$params[] = $this->custom[$key];
+					}
+				}
+			}
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
 			IntegrationHook::call('integrate_before_create_topic', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
