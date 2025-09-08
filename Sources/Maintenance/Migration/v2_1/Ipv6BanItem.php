@@ -85,6 +85,9 @@ class Ipv6BanItem extends MigrationBase
 					WHERE ip_low1 > 0',
 				);
 			} else {
+				// Note, We now support MySQL 8+, which means we could use INET6_ATON.
+				// The upgrade logic was built this way and should remain the same.
+				// If changed, a full upgrade from 2.0 to 3.0 would need to be tested.
 				$this->quote(
 					'UPDATE IGNORE {db_prefix}ban_items
 					SET ip_low =
