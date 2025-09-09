@@ -671,8 +671,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return $return;
 			}
 
-				return is_a($return, 'PgSql\Result');
-
+			return ($return instanceof \PgSql\Result);
 		}
 
 		return false;
