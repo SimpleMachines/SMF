@@ -1083,8 +1083,6 @@ class Utils
 
 				$node = &$node[$char];
 			}
-
-			$node[''] = '';
 		}
 
 		// This recursive closure turns the trie into a regular expression.
@@ -1097,6 +1095,7 @@ class Utils
 
 			$regex = [];
 			$length = 0;
+			$single_chars = [];
 
 			foreach ($trie as $key => $value) {
 				$key_regex = preg_quote((string) $key, $delim);
@@ -1107,24 +1106,34 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (\count(array_keys($value)) == 1) {
-						$new_key_array = explode('(?' . '>', $sub_regex);
+					if (\count($value) == 1) {
+						$new_key_array = explode('(?>', $sub_regex);
 						$new_key .= $new_key_array[0];
-					} else {
-						$sub_regex = '(?' . '>' . $sub_regex . ')';
+					} elseif (!str_starts_with($sub_regex, '[') && !str_ends_with($sub_regex, ']')) {
+						$sub_regex = '(?>' . $sub_regex . ')';
 					}
 				}
+				$str = $key_regex . $sub_regex;
 
 				if ($depth > 1) {
-					$regex[$new_key] = $key_regex . $sub_regex;
+					// Collect single-char leaves for character class
+					if (empty($value) && mb_strlen($str, $encoding) === 1 && \count($trie) !== 1) {
+						$single_chars[] = $str;
+					} else {
+						$regex[$new_key] = $str;
+					}
 				} else {
-					if (($length += \strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex)) {
-						$regex[$new_key] = $key_regex . $sub_regex;
+					if (($length += \strlen($str) + 1) < $max_length || empty($regex)) {
+						$regex[$new_key] = $str;
 						unset($trie[$key]);
 					} else {
 						break;
 					}
 				}
+			}
+
+			if ($single_chars !== [] && $regex === []) {
+				return '[' . implode('',  $single_chars) . ']';
 			}
 
 			// Sort by key length and then alphabetically
