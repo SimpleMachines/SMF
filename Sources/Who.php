@@ -624,7 +624,6 @@ function Credits($in_admin = false)
 						'emanuele',
 						'Hendrik Jan "Compuart" Visser',
 						'Jessica "Suki" González',
-						'Jon "Sesquipedalian" Stovell',
 						'Juan "JayBachatero" Hernandez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
