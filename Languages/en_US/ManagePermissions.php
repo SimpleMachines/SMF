@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManagePermissions
+// Version: 3.0 Alpha 4; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -332,5 +332,3 @@ $txt['permissiongroup_bbc'] = 'BBCode';
 $txt['permissionname_bbc'] = 'Use the [{0}] BBCode';
 $txt['permissionhelp_bbc_html'] = 'This permission allows a member to use the [html] BBCode to embed arbitrary HTML in posts, personal messages, etc.<br><br><strong>Embedding arbitrary HTML can break your site and create major security risks. <u>Do not grant this permission to anyone unless you completely trust them not to break your website!</u></strong>';
 $txt['permissionnote_bbc_html'] = 'Creates a security risk!';
-
-?>

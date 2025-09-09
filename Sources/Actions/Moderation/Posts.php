@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Posts implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -83,13 +82,12 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ModerationCenter');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -99,7 +97,7 @@ class Posts implements ActionInterface
 	public function posts(): void
 	{
 		Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
-		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_unapproved_posts', file: 'ModerationCenter');
 
 		// Work out what boards we can work in!
 		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
@@ -123,16 +121,16 @@ class Posts implements ActionInterface
 		}
 
 		// We also need to know where we can delete topics and/or replies to.
-		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'], true, false);
+		$boards_can = User::$me->boardsAllowedTo(['remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_replies'], true, false);
 
 		if (Utils::$context['current_view'] == 'topics') {
 			$delete_own_boards = $boards_can['remove_own'];
 			$delete_any_boards = $boards_can['remove_any'];
-			$delete_own_replies = [];
+			$delete_replies = [];
 		} else {
 			$delete_own_boards = $boards_can['delete_own'];
 			$delete_any_boards = $boards_can['delete_any'];
-			$delete_own_replies = $boards_can['delete_own_replies'];
+			$delete_replies = $boards_can['delete_replies'];
 		}
 
 		$toAction = [];
@@ -168,7 +166,6 @@ class Posts implements ActionInterface
 
 			// Now for each message work out whether it's actually a topic, and what board it's on.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -201,7 +198,7 @@ class Posts implements ActionInterface
 				$can_add = false;
 
 				// If we're approving this is simple.
-				if ($curAction == 'approve' && ($any_array == [0] || in_array($row['id_board'], $any_array))) {
+				if ($curAction == 'approve' && ($any_array == [0] || \in_array($row['id_board'], $any_array))) {
 					$can_add = true;
 				}
 				// Delete requires more permission checks...
@@ -211,7 +208,7 @@ class Posts implements ActionInterface
 						$row['id_member'] == User::$me->id
 						&& (
 							$delete_own_boards == [0]
-							|| in_array($row['id_board'], $delete_own_boards)
+							|| \in_array($row['id_board'], $delete_own_boards)
 						)
 					) {
 						$can_add = true;
@@ -221,8 +218,8 @@ class Posts implements ActionInterface
 						$row['id_member'] == $row['id_member_started']
 						&& $row['id_msg'] != $row['id_first_msg']
 						&& (
-							$delete_own_replies == [0]
-							|| in_array($row['id_board'], $delete_own_replies)
+							$delete_replies == [0]
+							|| \in_array($row['id_board'], $delete_replies)
 						)
 					) {
 						$can_add = true;
@@ -232,7 +229,7 @@ class Posts implements ActionInterface
 						$row['id_member'] != User::$me->id
 						&& (
 							$delete_any_boards == [0]
-							|| in_array($row['id_board'], $delete_any_boards)
+							|| \in_array($row['id_board'], $delete_any_boards)
 						)
 					) {
 						$can_add = true;
@@ -266,7 +263,6 @@ class Posts implements ActionInterface
 
 		// How many unapproved posts are there?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_first_msg != m.id_msg)
@@ -283,7 +279,6 @@ class Posts implements ActionInterface
 
 		// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}topics AS m
 			WHERE m.approved = {int:not_approved}
@@ -312,9 +307,9 @@ class Posts implements ActionInterface
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];
 		$menu->tab_data = [
-			'title' => Lang::$txt['mc_unapproved_posts'],
+			'title' => Lang::getTxt('mc_unapproved_posts', file: 'ModerationCenter'),
 			'help' => 'postmod',
-			'description' => Lang::$txt['mc_unapproved_posts_desc'],
+			'description' => Lang::getTxt('mc_unapproved_posts_desc', file: 'ModerationCenter'),
 		];
 
 		// Update the tabs with the correct number of posts.
@@ -331,7 +326,6 @@ class Posts implements ActionInterface
 		Utils::$context['unapproved_items'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.smileys_enabled,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -358,7 +352,7 @@ class Posts implements ActionInterface
 				$row['id_member'] == User::$me->id
 				&& (
 					$delete_own_boards == [0]
-					|| in_array($row['id_board'], $delete_own_boards)
+					|| \in_array($row['id_board'], $delete_own_boards)
 				)
 			) {
 				$can_delete = true;
@@ -368,8 +362,8 @@ class Posts implements ActionInterface
 				$row['id_member'] == $row['id_member_started']
 				&& $row['id_msg'] != $row['id_first_msg']
 				&& (
-					$delete_own_replies == [0]
-					|| in_array($row['id_board'], $delete_own_replies)
+					$delete_replies == [0]
+					|| \in_array($row['id_board'], $delete_replies)
 				)
 			) {
 				$can_delete = true;
@@ -379,7 +373,7 @@ class Posts implements ActionInterface
 				$row['id_member'] != User::$me->id
 				&& (
 					$delete_any_boards == [0]
-					|| in_array($row['id_board'], $delete_any_boards)
+					|| \in_array($row['id_board'], $delete_any_boards)
 				)
 			) {
 				$can_delete = true;
@@ -433,7 +427,7 @@ class Posts implements ActionInterface
 	 */
 	public function attachments(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_attachments'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_unapproved_attachments', file: 'General');
 
 		// Once again, permissions are king!
 		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
@@ -472,7 +466,6 @@ class Posts implements ActionInterface
 
 			// Confirm the attachments are eligible for changing!
 			$request = Db::$db->query(
-				'',
 				'SELECT a.id_attach
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -483,8 +476,8 @@ class Posts implements ActionInterface
 					' . $approve_query,
 				[
 					'attachments' => $attachments,
-					'not_approved' => 0,
-					'attachment_type' => 0,
+					'not_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			$attachments = [];
@@ -508,7 +501,7 @@ class Posts implements ActionInterface
 			'id' => 'mc_unapproved_attach',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['mc_unapproved_attachments_none_found'],
+			'no_items_label' => Lang::getTxt('mc_unapproved_attachments_none_found', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 			'default_sort_col' => 'attach_name',
 			'get_items' => [
@@ -526,7 +519,7 @@ class Posts implements ActionInterface
 			'columns' => [
 				'attach_name' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_name'],
+						'value' => Lang::getTxt('mc_unapproved_attach_name', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'filename',
@@ -538,7 +531,7 @@ class Posts implements ActionInterface
 				],
 				'attach_size' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_size'],
+						'value' => Lang::getTxt('mc_unapproved_attach_size', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'size',
@@ -550,7 +543,7 @@ class Posts implements ActionInterface
 				],
 				'attach_poster' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_poster'],
+						'value' => Lang::getTxt('mc_unapproved_attach_poster', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($data) {
@@ -564,7 +557,7 @@ class Posts implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 						'style' => 'width: 18%;',
 					],
 					'data' => [
@@ -579,7 +572,7 @@ class Posts implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['post'],
+						'value' => Lang::getTxt('post', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($data) {
@@ -600,8 +593,8 @@ class Posts implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="item[]" value="%1$d" checked>',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="item[]" value="{id}" checked>',
 							'params' => [
 								'id' => false,
 							],
@@ -623,13 +616,13 @@ class Posts implements ActionInterface
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::$txt['mc_unapproved_sure'] . '\')) submit();">
-							<option value="0">' . Lang::$txt['with_selected'] . ':</option>
+						<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter') . '\')) submit();">
+							<option value="0">' . Lang::getTxt('with_selected', file: 'ModerationCenter') . ':</option>
 							<option value="0" disabled>-------------------</option>
-							<option value="approve">&nbsp;--&nbsp;' . Lang::$txt['approve'] . '</option>
-							<option value="delete">&nbsp;--&nbsp;' . Lang::$txt['delete'] . '</option>
+							<option value="approve">&nbsp;--&nbsp;' . Lang::getTxt('approve', file: 'General') . '</option>
+							<option value="delete">&nbsp;--&nbsp;' . Lang::getTxt('delete', file: 'General') . '</option>
 						</select>
-						<noscript><input type="submit" name="ml_go" value="' . Lang::$txt['go'] . '" class="button"></noscript>',
+						<noscript><input type="submit" name="ml_go" value="' . Lang::getTxt('go', file: 'General') . '" class="button"></noscript>',
 					'class' => 'floatright',
 				],
 			],
@@ -643,9 +636,9 @@ class Posts implements ActionInterface
 		Utils::$context['default_list'] = 'mc_unapproved_attach';
 
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_unapproved_attachments'],
+			'title' => Lang::getTxt('mc_unapproved_attachments', file: 'General'),
 			'help' => '',
-			'description' => Lang::$txt['mc_unapproved_attachments_desc'],
+			'description' => Lang::getTxt('mc_unapproved_attachments_desc', file: 'ModerationCenter'),
 		];
 	}
 
@@ -661,7 +654,6 @@ class Posts implements ActionInterface
 		User::$me->isAllowedTo('approve_posts');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -707,7 +699,6 @@ class Posts implements ActionInterface
 		$msgs = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE approved = {int:not_approved}',
@@ -729,7 +720,6 @@ class Posts implements ActionInterface
 		$attachments = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_attach
 			FROM {db_prefix}attachments
 			WHERE approved = {int:not_approved}',
@@ -764,7 +754,6 @@ class Posts implements ActionInterface
 		$unapproved_items = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, a.filename, a.size, m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -781,8 +770,8 @@ class Posts implements ActionInterface
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items_per_page}',
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'start' => $start,
 				'sort' => $sort,
 				'items_per_page' => $items_per_page,
@@ -840,7 +829,6 @@ class Posts implements ActionInterface
 	{
 		// How many unapproved attachments in total?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -849,8 +837,8 @@ class Posts implements ActionInterface
 				AND {query_see_message_board}
 				' . $approve_query,
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 			],
 		);
 		list($total_unapproved_attachments) = Db::$db->fetch_row($request);
@@ -942,5 +930,3 @@ class Posts implements ActionInterface
 		}
 	}
 }
-
-?>

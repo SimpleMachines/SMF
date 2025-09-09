@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageMail
+// Version: 3.0 Alpha 4; ManageMail
 
 $txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as view and administer the current mail queue.';
 
@@ -65,5 +65,3 @@ $txt['birthday_subject'] = 'Email subject';
 $txt['mailtest_header'] = 'Email Test';
 $txt['mailtest_result_success'] = 'Successfully sent a test message';
 $txt['mailtest_result_failure'] = 'Unable to send a test message, check the <a href="{url}">error log</a> for more information.';
-
-?>

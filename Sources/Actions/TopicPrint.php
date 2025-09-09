@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -78,7 +78,6 @@ class TopicPrint implements ActionInterface, Routable
 
 		// Get the topic starter information.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, m.poster_time, COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_poll
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -99,7 +98,6 @@ class TopicPrint implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty($row['id_poll'])) {
-			Lang::load('Post');
 			$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}
@@ -119,7 +117,6 @@ class TopicPrint implements ActionInterface, Routable
 
 		// Split the topics up so we can print them.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -166,7 +163,6 @@ class TopicPrint implements ActionInterface, Routable
 
 			// build the request
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					a.id_attach, a.id_msg, a.approved, a.width, a.height, a.file_hash, a.filename, a.id_folder, a.mime_type
 				FROM {db_prefix}attachments AS a
@@ -174,8 +170,7 @@ class TopicPrint implements ActionInterface, Routable
 					AND a.attachment_type = {int:attachment_type}',
 				[
 					'message_list' => $messages,
-					'attachment_type' => 0,
-					'is_approved' => 1,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			$temp = [];
@@ -221,5 +216,3 @@ class TopicPrint implements ActionInterface, Routable
 		Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.0';
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -17,6 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
 use SMF\Alert;
+use SMF\Attachment;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Mail;
@@ -30,6 +31,10 @@ use SMF\Utils;
  */
 class CreateAttachment_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -41,7 +46,6 @@ class CreateAttachment_Notify extends BackgroundTask
 	{
 		// Validate the attachment does exist and is the right approval state.
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic, m.id_member, m.subject
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -50,8 +54,8 @@ class CreateAttachment_Notify extends BackgroundTask
 				AND a.approved = {int:is_approved}',
 			[
 				'attachment' => $this->_details['id'],
-				'attachment_type' => 0,
-				'is_approved' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
+				'is_approved' => Attachment::APPROVED_FALSE,
 			],
 		);
 
@@ -63,10 +67,9 @@ class CreateAttachment_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// We need to know who can approve this attachment.
-		$modMembers = User::membersAllowedTo('approve_posts', $id_board);
+		$modMembers = User::getAllowedTo('approve_posts', $id_board);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, email_address, lngfile, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:members})',
@@ -151,5 +154,3 @@ class CreateAttachment_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,20 +30,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Category implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loaded' => 'cat_tree',
-			'boardList' => 'boardList',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -202,6 +190,18 @@ class Category implements \ArrayAccess
 	 * Holds parsed versions of category descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loaded' => 'cat_tree',
+			'boardList' => 'boardList',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -366,7 +366,6 @@ class Category implements \ArrayAccess
 
 			// Grab the categories sorted by cat_order.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_cat, cat_order
 				FROM {db_prefix}categories
 				ORDER BY cat_order',
@@ -391,7 +390,6 @@ class Category implements \ArrayAccess
 			foreach ($cats as $index => $cat) {
 				if ($index != $cat_order[$cat]) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}categories
 						SET cat_order = {int:new_order}
 						WHERE id_cat = {int:current_category}',
@@ -433,7 +431,6 @@ class Category implements \ArrayAccess
 		// Do the updates (if any).
 		if (!empty($catUpdates)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}categories
 				SET
 					' . implode(',
@@ -465,8 +462,7 @@ class Category implements \ArrayAccess
 	{
 		// Check required values.
 		if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '') {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['create_category_no_name'], E_USER_ERROR);
+			throw new \Exception('create_category_no_name');
 		}
 
 		// Set default values.
@@ -503,7 +499,7 @@ class Category implements \ArrayAccess
 			$cat_columns,
 			[$cat_parameters],
 			['id_cat'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Set the given properties to the newly created category.
@@ -524,7 +520,7 @@ class Category implements \ArrayAccess
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $categories The IDs of the categories to delete
-	 * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
+	 * @param null|int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
 	 */
 	public static function delete(array $categories, ?int $moveBoardsTo = null): void
 	{
@@ -537,7 +533,6 @@ class Category implements \ArrayAccess
 			$boards_inside = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_cat IN ({array_int:category_list})',
@@ -556,14 +551,12 @@ class Category implements \ArrayAccess
 			}
 		}
 		// Make sure the safe category is really safe.
-		elseif (in_array($moveBoardsTo, $categories)) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['cannot_move_to_deleted_category'], E_USER_ERROR);
+		elseif (\in_array($moveBoardsTo, $categories)) {
+			throw new \Exception('cannot_move_to_deleted_category');
 		}
 		// Move the boards inside the categories to a safe category.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_cat = {int:new_parent_cat}
 				WHERE id_cat IN ({array_int:category_list})',
@@ -576,7 +569,6 @@ class Category implements \ArrayAccess
 
 		// Do the deletion of the category itself
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}categories
 			WHERE id_cat IN ({array_int:category_list})',
 			[
@@ -608,9 +600,9 @@ class Category implements \ArrayAccess
 			if (!empty($categories[$cat])) {
 				$ordered[$cat] = $categories[$cat];
 
-				if (is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
+				if (\is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
 					Board::sort($ordered[$cat]['boards']);
-				} elseif (is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
+				} elseif (\is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
 					Board::sort($ordered[$cat]->children);
 				}
 			}
@@ -638,7 +630,6 @@ class Category implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board, b.id_cat
 			FROM {db_prefix}categories AS c
 				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
@@ -646,7 +637,7 @@ class Category implements \ArrayAccess
 		);
 
 		foreach (Db::$db->fetch_all($request) as $row) {
-			if (!in_array($row['id_cat'], self::$tree_order['cats'])) {
+			if (!\in_array($row['id_cat'], self::$tree_order['cats'])) {
 				self::$tree_order['cats'][] = $row['id_cat'];
 			}
 
@@ -743,7 +734,6 @@ class Category implements \ArrayAccess
 					// Wrong childlevel...we can silently fix this...
 					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}boards
 							SET child_level = {int:new_child_level}
 							WHERE id_board = {int:selected_board}',
@@ -816,7 +806,6 @@ class Category implements \ArrayAccess
 		// No props provided, so get the standard ones.
 		if (empty($props)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT *
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id}
@@ -836,7 +825,7 @@ class Category implements \ArrayAccess
 		$this->set($props);
 		self::$loaded[$this->id] = $this;
 
-		if (count(self::$loaded) > 1) {
+		if (\count(self::$loaded) > 1) {
 			uasort(
 				self::$loaded,
 				function ($a, $b) {
@@ -881,7 +870,6 @@ class Category implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}categories AS c' . (empty($joins) ? '' : '
@@ -902,8 +890,6 @@ class Category implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Category::class, 'exportStatic'])) {
+if (\is_callable([Category::class, 'exportStatic'])) {
 	Category::exportStatic();
 }
-
-?>

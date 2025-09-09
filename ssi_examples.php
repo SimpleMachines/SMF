@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -475,8 +475,7 @@ function template_ssi_above()
 		</style>
 		<script>
 			var smf_scripturl = "', SMF\Config::$scripturl, '";
-			var smf_iso_case_folding = ', SMF\Sapi::supportsIsoCaseFolding() ? 'true' : 'false', ';
-			var smf_charset = "', SMF\Utils::$context['character_set'], '";
+			var smf_charset = "UTF-8";
 
 			// Sets all ssi_preview class to hidden, then shows the one requested.
 			function showSSIBlock(elementID)
@@ -606,7 +605,7 @@ function template_homepage_sample1_php()
 
 	foreach ($topics as $topic) {
 		echo '
-			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
+			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::getTxt('by', file: 'General'), ' ', $topic['poster']['link'], '</li>';
 	}
 
 	unset($topics);
@@ -653,7 +652,7 @@ foreach ($topics as $topic)
 	// echo \'<pre>\', print_r($topic), \'</pre>\';
 
 	echo \'
-			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
+			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::getTxt(\'by\', file: \'General\'), \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
 }
 
 unset($topics);
@@ -670,5 +669,3 @@ unset($topics);
 
 	return $result;
 }
-
-?>

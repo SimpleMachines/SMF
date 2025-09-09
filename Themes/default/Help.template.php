@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -24,7 +24,7 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<meta name="robots" content="noindex">
 		<title>', Utils::$context['page_title'], '</title>
 		', Theme::template_css(), '
@@ -34,7 +34,7 @@ function template_popup()
 		<div class="windowbg description">
 			', Utils::$context['help_text'], '<br>
 			<br>
-			<a href="javascript:self.close();">', Lang::$txt['close_window'], '</a>
+			<a href="javascript:self.close();">', Lang::getTxt('close_window', file: 'Help'), '</a>
 		</div>
 	</body>
 </html>';
@@ -47,23 +47,21 @@ function template_manual()
 {
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['manual_smf_user_help'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('manual_smf_user_help', file: 'Manual'), '</h3>
 			</div>
 			<div id="help_container">
 				<div id="helpmain" class="windowbg">
-					<p>', Lang::getTxt('manual_welcome', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</p>
-					<p>', Lang::$txt['manual_introduction'], '</p>
+					<p>', Lang::getTxt('manual_welcome', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'Manual'), '</p>
+					<p>', Lang::getTxt('manual_introduction', file: 'Manual'), '</p>
 					<ul>';
 
 	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id)
 		echo '
-						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::$txt['lang_dictionary'] != 'en' ? '/' . Lang::$txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', Lang::$txt['manual_section_' . $section_id . '_title'], '</a> - ', Lang::$txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::getTxt('lang_dictionary', file: 'General') != 'en' ? '/' . Lang::getTxt('lang_dictionary', file: 'General') : ''), '" target="_blank" rel="noopener">', Lang::getTxt('manual_section_' . $section_id . '_title', file: 'Manual'), '</a> - ', Lang::getTxt('manual_section_' . $section_id . '_desc', file: 'Manual'), '</li>';
 
 	echo '
 					</ul>
-					<p>', Lang::getTxt('manual_docs_and_credits', ['wiki_url' => Utils::$context['wiki_url'], 'credits_url' => Config::$scripturl . '?action=credits']), '</p>
+					<p>', Lang::getTxt('manual_docs_and_credits', ['wiki_url' => Utils::$context['wiki_url'], 'credits_url' => Config::$scripturl . '?action=credits'], file: 'Manual'), '</p>
 				</div><!-- #helpmain -->
 			</div><!-- #help_container -->';
 }
-
-?>

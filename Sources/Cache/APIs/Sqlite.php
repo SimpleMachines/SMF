@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,7 +22,7 @@ use SMF\Lang;
 use SMF\Utils;
 use SQLite3;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -33,6 +33,10 @@ if (!defined('SMF')) {
  */
 class Sqlite extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The path to the current directory.
 	 */
@@ -43,6 +47,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	private $cacheDB = null;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -52,7 +60,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -69,7 +77,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -83,7 +91,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -100,7 +108,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -109,7 +117,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		if ($value === null) {
 			$query = 'DELETE FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\';';
 		} else {
-			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(is_bool($value) ? strval(intval($value)) : $value) . '\', ' . $ttl . ');';
+			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString(\is_bool($value) ? \strval(\intval($value)) : $value) . '\', ' . $ttl . ');';
 		}
 		$result = $this->cacheDB->exec($query);
 
@@ -117,7 +125,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache(string $type = ''): bool
 	{
@@ -138,17 +146,17 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = Lang::$txt['cache_' . $class_name_txt_key . '_settings'];
+		$config_vars[] = Lang::getTxt('cache_' . $class_name_txt_key . '_settings', file: 'ManageSettings');
 		$config_vars[] = [
 			'cachedir_' . $class_name_txt_key,
-			Lang::$txt['cachedir_' . $class_name_txt_key],
+			Lang::getTxt('cachedir_' . $class_name_txt_key, file: 'ManageSettings'),
 			'file',
 			'text',
 			36,
@@ -171,9 +179,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @param string $dir A valid path
-	 *
-	 * @return bool If this was successful or not.
+	 * @param string|null $dir A valid path
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
@@ -192,7 +198,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
@@ -204,12 +210,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function housekeeping(): void
 	{
 		$this->cleanCache('expired');
 	}
 }
-
-?>

@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\MessageIndex;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,7 +31,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -45,7 +45,6 @@ use SMF\WebFetch\WebFetchApi;
 class Smileys implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -151,12 +150,6 @@ class Smileys implements ActionInterface
 	 */
 	public static bool $smileys_dir_found;
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -168,32 +161,31 @@ class Smileys implements ActionInterface
 	{
 		User::$me->isAllowedTo('manage_smileys');
 
-		Lang::load('ManageSmileys');
 		Theme::loadTemplate('ManageSmileys');
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['smileys_manage'],
+			'title' => Lang::getTxt('smileys_manage', file: 'Admin'),
 			'help' => 'smileys',
-			'description' => Lang::$txt['smiley_settings_explain'],
+			'description' => Lang::getTxt('smiley_settings_explain', file: 'ManageSmileys'),
 			'tabs' => [
 				'editsets' => [
-					'description' => Lang::$txt['smiley_editsets_explain'],
+					'description' => Lang::getTxt('smiley_editsets_explain', file: 'ManageSmileys'),
 				],
 				'addsmiley' => [
-					'description' => Lang::$txt['smiley_addsmiley_explain'],
+					'description' => Lang::getTxt('smiley_addsmiley_explain', file: 'ManageSmileys'),
 				],
 				'editsmileys' => [
-					'description' => Lang::$txt['smiley_editsmileys_explain'],
+					'description' => Lang::getTxt('smiley_editsmileys_explain', file: 'ManageSmileys'),
 				],
 				'setorder' => [
-					'description' => Lang::$txt['smiley_setorder_explain'],
+					'description' => Lang::getTxt('smiley_setorder_explain', file: 'ManageSmileys'),
 				],
 				'editicons' => [
-					'description' => Lang::$txt['icons_edit_icons_explain'],
+					'description' => Lang::getTxt('icons_edit_icons_explain', file: 'ManageSmileys'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['smiley_settings_explain'],
+					'description' => Lang::getTxt('smiley_settings_explain', file: 'ManageSmileys'),
 				],
 			],
 		];
@@ -211,7 +203,7 @@ class Smileys implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 
-		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
+		Utils::$context['page_title'] = Lang::getTxt('smileys_manage', file: 'Admin');
 		Utils::$context['sub_template'] = $this->subaction;
 
 		self::findSmileysDir();
@@ -219,10 +211,10 @@ class Smileys implements ActionInterface
 
 		Utils::$context['smiley_sets'] = &self::$smiley_sets;
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -248,13 +240,12 @@ class Smileys implements ActionInterface
 					}
 
 					// Can't the default set or the only one remaining.
-					if (self::$smiley_sets[$id]['is_default'] || count(self::$smiley_sets) < 2) {
+					if (self::$smiley_sets[$id]['is_default'] || \count(self::$smiley_sets) < 2) {
 						continue;
 					}
 
 					// Delete this set's entries from the smiley_files table
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE smiley_set = {string:smiley_set}',
 						[
@@ -401,7 +392,7 @@ class Smileys implements ActionInterface
 							continue;
 						}
 
-						if (in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank') {
+						if (\in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank') {
 							$smileys[Utils::convertCase($entry, 'fold')] = $entry;
 						}
 					}
@@ -414,7 +405,6 @@ class Smileys implements ActionInterface
 
 					// Exclude the smileys that are already in the database.
 					$request = Db::$db->query(
-						'',
 						'SELECT filename
 						FROM {db_prefix}smiley_files
 						WHERE filename IN ({array_string:smiley_list})
@@ -432,7 +422,7 @@ class Smileys implements ActionInterface
 					}
 					Db::$db->free_result($request);
 
-					Utils::$context['current_set']['can_import'] = count($smileys);
+					Utils::$context['current_set']['can_import'] = \count($smileys);
 
 					Utils::$context['current_set']['import_url'] = Config::$scripturl . '?action=admin;area=smileys;sa=import;set=' . Utils::$context['current_set']['path'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 				}
@@ -445,11 +435,11 @@ class Smileys implements ActionInterface
 				$dir = dir(self::$smileys_dir);
 
 				while ($entry = $dir->read()) {
-					if (!in_array($entry, ['.', '..']) && is_dir(self::$smileys_dir . '/' . $entry)) {
+					if (!\in_array($entry, ['.', '..']) && is_dir(self::$smileys_dir . '/' . $entry)) {
 						Utils::$context['smiley_set_dirs'][] = [
 							'id' => $entry,
 							'path' => self::$smileys_dir . '/' . $entry,
-							'selectable' => $entry == Utils::$context['current_set']['path'] || !in_array($entry, explode(',', Config::$modSettings['smiley_sets_known'])),
+							'selectable' => $entry == Utils::$context['current_set']['path'] || !\in_array($entry, explode(',', Config::$modSettings['smiley_sets_known'])),
 							'current' => $entry == Utils::$context['current_set']['path'],
 						];
 					}
@@ -479,13 +469,14 @@ class Smileys implements ActionInterface
 					'create_url' => Config::$scripturl . '?action=admin;area=smileys;sa=addsmiley',
 					'import_url' => Utils::$context['current_set']['import_url'],
 				],
+				file: 'ManageSmileys',
 			);
 		}
 
 		$listOptions = [
 			'id' => 'smiley_set_list',
-			'title' => Lang::$txt['smiley_sets'],
-			'no_items_label' => Lang::$txt['smiley_sets_none'],
+			'title' => Lang::getTxt('smiley_sets', file: 'Admin'),
+			'no_items_label' => Lang::getTxt('smiley_sets_none', file: 'ManageSmileys'),
 			'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsets',
 			'default_sort_col' => 'name',
 			'get_items' => [
@@ -497,7 +488,7 @@ class Smileys implements ActionInterface
 			'columns' => [
 				'default' => [
 					'header' => [
-						'value' => Lang::$txt['smiley_sets_default'],
+						'value' => Lang::getTxt('smiley_sets_default', file: 'ManageSmileys'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -513,7 +504,7 @@ class Smileys implements ActionInterface
 				],
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['smiley_sets_name'],
+						'value' => Lang::getTxt('smiley_sets_name', file: 'ManageSmileys'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'name',
@@ -525,11 +516,11 @@ class Smileys implements ActionInterface
 				],
 				'url' => [
 					'header' => [
-						'value' => Lang::$txt['smiley_sets_url'],
+						'value' => Lang::getTxt('smiley_sets_url', file: 'ManageSmileys'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => Config::$modSettings['smileys_url'] . '/<strong>%1$s</strong>/...',
+						'format_text' => [
+							'format' => Config::$modSettings['smileys_url'] . '/<strong>{path}</strong>/...',
 							'params' => [
 								'path' => true,
 							],
@@ -542,12 +533,12 @@ class Smileys implements ActionInterface
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['smiley_set_modify'],
+						'value' => Lang::getTxt('smiley_set_modify', file: 'ManageSmileys'),
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set=%1$s">' . Lang::$txt['smiley_set_modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set={path}">' . Lang::getTxt('smiley_set_modify', file: 'ManageSmileys') . '</a>',
 							'params' => [
 								'path' => true,
 							],
@@ -562,7 +553,7 @@ class Smileys implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['is_default'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$s]">', $rowData['path']);
+							return $rowData['is_default'] ? '' : \sprintf('<input type="checkbox" name="smiley_set[%1$s]">', $rowData['path']);
 						},
 						'class' => 'centercol',
 					],
@@ -575,11 +566,11 @@ class Smileys implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::$txt['smiley_sets_delete'] . '" data-confirm="' . Lang::$txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::$txt['smiley_sets_add'] . '</a> ',
+					'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::getTxt('smiley_sets_delete', file: 'ManageSmileys') . '" data-confirm="' . Lang::getTxt('smiley_sets_confirm', file: 'ManageSmileys') . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::getTxt('smiley_sets_add', file: 'ManageSmileys') . '</a> ',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::$txt['smiley_sets_delete'] . '" data-confirm="' . Lang::$txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::$txt['smiley_sets_add'] . '</a> ',
+					'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::getTxt('smiley_sets_delete', file: 'ManageSmileys') . '" data-confirm="' . Lang::getTxt('smiley_sets_confirm', file: 'ManageSmileys') . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::getTxt('smiley_sets_add', file: 'ManageSmileys') . '</a> ',
 				],
 			],
 		];
@@ -616,7 +607,6 @@ class Smileys implements ActionInterface
 
 			// Check whether the new code has duplicates. It should be unique.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_smiley
 				FROM {db_prefix}smileys
 				WHERE code = {raw:mysql_binary_statement} {string:smiley_code}',
@@ -672,7 +662,7 @@ class Smileys implements ActionInterface
 				// And make sure it is legitimate
 				$pathinfo = pathinfo($_POST['smiley_filename']);
 
-				if (!in_array($pathinfo['extension'], self::$allowed_extenions)) {
+				if (!\in_array($pathinfo['extension'], self::$allowed_extenions)) {
 					ErrorHandler::fatalLang('smileys_upload_error_types', false, [implode(', ', self::$allowed_extenions)]);
 				}
 
@@ -733,7 +723,6 @@ class Smileys implements ActionInterface
 
 			if ($_POST['smiley_location'] != 1) {
 				$request = Db::$db->query(
-					'',
 					'SELECT MAX(smiley_order) + 1
 					FROM {db_prefix}smileys
 					WHERE hidden = {int:smiley_location}
@@ -770,7 +759,7 @@ class Smileys implements ActionInterface
 					],
 				],
 				['id_smiley'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Add the filename info to the smiley_files table
@@ -816,7 +805,7 @@ class Smileys implements ActionInterface
 						continue;
 					}
 
-					if (empty(Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])]) && in_array(strtolower($entry_info['extension']), self::$allowed_extenions)) {
+					if (empty(Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])]) && \in_array(strtolower($entry_info['extension']), self::$allowed_extenions)) {
 						Utils::$context['filenames'][$smiley_set['path']][self::sanitizeFileName($entry_info['filename'])] = [
 							'id' => Utils::htmlspecialchars($entry),
 							'selected' => $entry_info['filename'] == 'smiley' && $smiley_set['path'] == Utils::$context['selected_set'],
@@ -837,7 +826,7 @@ class Smileys implements ActionInterface
 			'id' => 0,
 			'code' => '',
 			'filename' => Utils::$context['filenames'][Utils::$context['selected_set']]['smiley']['id'],
-			'description' => Lang::$txt['smileys_default_description'],
+			'description' => Lang::getTxt('smileys_default_description', file: 'ManageSmileys'),
 			'location' => 0,
 			'is_new' => true,
 		];
@@ -863,7 +852,6 @@ class Smileys implements ActionInterface
 
 				if ($_POST['smiley_action'] == 'delete') {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smileys
 						WHERE id_smiley IN ({array_int:checked_smileys})',
 						[
@@ -872,7 +860,6 @@ class Smileys implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE id_smiley IN ({array_int:checked_smileys})',
 						[
@@ -891,7 +878,6 @@ class Smileys implements ActionInterface
 
 					if (isset($displayTypes[$_POST['smiley_action']])) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}smileys
 							SET hidden = {int:display_type}
 							WHERE id_smiley IN ({array_int:checked_smileys})',
@@ -908,7 +894,6 @@ class Smileys implements ActionInterface
 				// Is it a delete?
 				if (!empty($_POST['deletesmiley']) && $_POST['smiley'] == (int) $_POST['smiley']) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smileys
 						WHERE id_smiley = {int:current_smiley}',
 						[
@@ -917,7 +902,6 @@ class Smileys implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE id_smiley = {int:current_smiley}',
 						[
@@ -1001,7 +985,6 @@ class Smileys implements ActionInterface
 
 					// Check whether the new code has duplicates. It should be unique.
 					$request = Db::$db->query(
-						'',
 						'SELECT id_smiley
 						FROM {db_prefix}smileys
 						WHERE code = {raw:mysql_binary_type} {string:smiley_code}' . (empty($_POST['smiley']) ? '' : '
@@ -1019,7 +1002,6 @@ class Smileys implements ActionInterface
 					Db::$db->free_result($request);
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}smileys
 						SET
 							code = {string:smiley_code},
@@ -1060,9 +1042,9 @@ class Smileys implements ActionInterface
 		if ($this->subaction == 'editsmileys') {
 			// Determine the language specific sort order of smiley locations.
 			$smiley_locations = [
-				Lang::$txt['smileys_location_form'],
-				Lang::$txt['smileys_location_hidden'],
-				Lang::$txt['smileys_location_popup'],
+				Lang::getTxt('smileys_location_form', file: 'ManageSmileys'),
+				Lang::getTxt('smileys_location_hidden', file: 'ManageSmileys'),
+				Lang::getTxt('smileys_location_popup', file: 'ManageSmileys'),
 			];
 
 			asort($smiley_locations);
@@ -1081,7 +1063,7 @@ class Smileys implements ActionInterface
 
 			$listOptions = [
 				'id' => 'smiley_list',
-				'title' => Lang::$txt['smileys_edit'],
+				'title' => Lang::getTxt('smileys_edit', file: 'Admin'),
 				'items_per_page' => 40,
 				'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys',
 				'default_sort_col' => 'filename',
@@ -1091,7 +1073,7 @@ class Smileys implements ActionInterface
 				'get_count' => [
 					'function' => __CLASS__ . '::list_getNumSmileys',
 				],
-				'no_items_label' => Lang::$txt['smileys_no_entries'],
+				'no_items_label' => Lang::getTxt('smileys_no_entries', file: 'ManageSmileys'),
 				'columns' => [
 					'picture' => [
 						'data' => [
@@ -1109,7 +1091,7 @@ class Smileys implements ActionInterface
 					],
 					'smileys_code' => [
 						'header' => [
-							'value' => Lang::$txt['smileys_code'],
+							'value' => Lang::getTxt('smileys_code', file: 'ManageSmileys'),
 						],
 						'data' => [
 							'db_htmlsafe' => 'code',
@@ -1121,7 +1103,7 @@ class Smileys implements ActionInterface
 					],
 					'filename' => [
 						'header' => [
-							'value' => Lang::$txt['smileys_filename'],
+							'value' => Lang::getTxt('smileys_filename', file: 'ManageSmileys'),
 						],
 						'data' => [
 							'function' => function ($rowData) {
@@ -1141,19 +1123,19 @@ class Smileys implements ActionInterface
 					],
 					'location' => [
 						'header' => [
-							'value' => Lang::$txt['smileys_location'],
+							'value' => Lang::getTxt('smileys_location', file: 'ManageSmileys'),
 						],
 						'data' => [
 							'function' => function ($rowData) {
 								if (empty($rowData['hidden'])) {
-									return Lang::$txt['smileys_location_form'];
+									return Lang::getTxt('smileys_location_form', file: 'ManageSmileys');
 								}
 
 								if ($rowData['hidden'] == 1) {
-									return Lang::$txt['smileys_location_hidden'];
+									return Lang::getTxt('smileys_location_hidden', file: 'ManageSmileys');
 								}
 
-								return Lang::$txt['smileys_location_popup'];
+								return Lang::getTxt('smileys_location_popup', file: 'ManageSmileys');
 							},
 						],
 						'sort' => [
@@ -1163,7 +1145,7 @@ class Smileys implements ActionInterface
 					],
 					'description' => [
 						'header' => [
-							'value' => Lang::$txt['smileys_description'],
+							'value' => Lang::getTxt('smileys_description', file: 'ManageSmileys'),
 						],
 						'data' => [
 							'function' => function ($rowData) {
@@ -1178,7 +1160,7 @@ class Smileys implements ActionInterface
 									if (
 										empty($rowData['filename_array'][$smiley_set['path']])
 										|| !file_exists(
-											sprintf(
+											\sprintf(
 												'%1$s/%2$s/%3$s',
 												self::$smileys_dir,
 												$smiley_set['path'],
@@ -1193,9 +1175,9 @@ class Smileys implements ActionInterface
 								$description = Utils::htmlspecialchars($rowData['description']);
 
 								if (!empty($missing_sets)) {
-									$description .= sprintf(
+									$description .= \sprintf(
 										'<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>',
-										Lang::$txt['smileys_not_found_in_set'],
+										Lang::getTxt('smileys_not_found_in_set', file: 'ManageSmileys'),
 										implode(', ', $missing_sets),
 									);
 								}
@@ -1210,12 +1192,12 @@ class Smileys implements ActionInterface
 					],
 					'modify' => [
 						'header' => [
-							'value' => Lang::$txt['smileys_modify'],
+							'value' => Lang::getTxt('smileys_modify', file: 'ManageSmileys'),
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d">' . Lang::$txt['smileys_modify'] . '</a>',
+							'format_text' => [
+								'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley={id_smiley}">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
 								'params' => [
 									'id_smiley' => false,
 								],
@@ -1229,8 +1211,8 @@ class Smileys implements ActionInterface
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d">',
+							'format_text' => [
+								'format' => '<input type="checkbox" name="checked_smileys[]" value="{id_smiley}">',
 								'params' => [
 									'id_smiley' => false,
 								],
@@ -1253,15 +1235,15 @@ class Smileys implements ActionInterface
 						'position' => 'below_table_data',
 						'value' => '
 							<select name="smiley_action" onchange="makeChanges(this.value);">
-								<option value="-1">' . Lang::$txt['smileys_with_selected'] . ':</option>
+								<option value="-1">' . Lang::getTxt('smileys_with_selected', file: 'ManageSmileys') . ':</option>
 								<option value="-1" disabled>--------------</option>
-								<option value="hidden">' . Lang::$txt['smileys_make_hidden'] . '</option>
-								<option value="post">' . Lang::$txt['smileys_show_on_post'] . '</option>
-								<option value="popup">' . Lang::$txt['smileys_show_on_popup'] . '</option>
-								<option value="delete">' . Lang::$txt['smileys_remove'] . '</option>
+								<option value="hidden">' . Lang::getTxt('smileys_make_hidden', file: 'ManageSmileys') . '</option>
+								<option value="post">' . Lang::getTxt('smileys_show_on_post', file: 'ManageSmileys') . '</option>
+								<option value="popup">' . Lang::getTxt('smileys_show_on_popup', file: 'ManageSmileys') . '</option>
+								<option value="delete">' . Lang::getTxt('smileys_remove', file: 'ManageSmileys') . '</option>
 							</select>
 							<noscript>
-								<input type="submit" name="perform_action" value="' . Lang::$txt['go'] . '" class="button">
+								<input type="submit" name="perform_action" value="' . Lang::getTxt('go', file: 'General') . '" class="button">
 							</noscript>',
 						'class' => 'righttext',
 					],
@@ -1273,7 +1255,7 @@ class Smileys implements ActionInterface
 							return false;
 						else if (action == \'delete\')
 						{
-							if (confirm(\'' . Lang::$txt['smileys_confirm'] . '\'))
+							if (confirm(\'' . Lang::getTxt('smileys_confirm', file: 'ManageSmileys') . '\'))
 								document.forms.smileyForm.submit();
 						}
 						else
@@ -1300,7 +1282,6 @@ class Smileys implements ActionInterface
 			Utils::$context['selected_set'] = Config::$modSettings['smiley_sets_default'];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT s.id_smiley AS id, s.code, f.filename, f.smiley_set, s.description, s.hidden AS location
 				FROM {db_prefix}smileys AS s
 					LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -1356,7 +1337,7 @@ class Smileys implements ActionInterface
 					while ($entry = $dir->read()) {
 						if (
 							empty(Utils::$context['filenames'][$smiley_set['path']][$entry])
-							&& in_array(pathinfo($entry, PATHINFO_EXTENSION), self::$allowed_extenions)
+							&& \in_array(pathinfo($entry, PATHINFO_EXTENSION), self::$allowed_extenions)
 						) {
 							Utils::$context['filenames'][$smiley_set['path']][$entry] = [
 								'id' => Utils::htmlspecialchars($entry),
@@ -1396,7 +1377,6 @@ class Smileys implements ActionInterface
 				$_GET['after'] = (int) $_GET['after'];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT smiley_row, smiley_order, hidden
 					FROM {db_prefix}smileys
 					WHERE hidden = {int:location}
@@ -1419,7 +1399,6 @@ class Smileys implements ActionInterface
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}smileys
 				SET smiley_order = smiley_order + 1
 				WHERE hidden = {int:new_location}
@@ -1433,7 +1412,6 @@ class Smileys implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}smileys
 				SET
 					smiley_order = {int:smiley_order} + 1,
@@ -1452,7 +1430,6 @@ class Smileys implements ActionInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, s.description, s.smiley_row, s.smiley_order, s.hidden
 			FROM {db_prefix}smileys AS s
 				LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley AND f.smiley_set = {string:smiley_set})
@@ -1493,9 +1470,9 @@ class Smileys implements ActionInterface
 		foreach (array_keys(Utils::$context['smileys']) as $location) {
 			Utils::$context['smileys'][$location] = [
 				'id' => $location,
-				'title' => $location == 'postform' ? Lang::$txt['smileys_location_form'] : Lang::$txt['smileys_location_popup'],
-				'description' => $location == 'postform' ? Lang::$txt['smileys_location_form_description'] : Lang::$txt['smileys_location_popup_description'],
-				'last_row' => count(Utils::$context['smileys'][$location]['rows']),
+				'title' => Lang::getTxt($location == 'postform' ? 'smileys_location_form' : 'smileys_location_popup', file: 'ManageSmileys'),
+				'description' => Lang::getTxt($location == 'postform' ? 'smileys_location_form_description' : 'smileys_location_popup_description', file: 'ManageSmileys'),
+				'last_row' => \count(Utils::$context['smileys'][$location]['rows']),
 				'rows' => array_values(Utils::$context['smileys'][$location]['rows']),
 			];
 		}
@@ -1506,7 +1483,6 @@ class Smileys implements ActionInterface
 				// Fix empty rows if any.
 				if ($id != $smiley_row[0]['row']) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}smileys
 						SET smiley_row = {int:new_row}
 						WHERE smiley_row = {int:current_row}
@@ -1526,7 +1502,6 @@ class Smileys implements ActionInterface
 				foreach ($smiley_row as $order_id => $smiley) {
 					if ($order_id != $smiley['order']) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}smileys
 							SET smiley_order = {int:new_order}
 							WHERE id_smiley = {int:current_smiley}',
@@ -1550,10 +1525,6 @@ class Smileys implements ActionInterface
 	{
 		User::$me->isAllowedTo('manage_smileys');
 		User::$me->checkSession('request');
-
-		// One of these two may be necessary
-		Lang::load('Errors');
-		Lang::load('Packages');
 
 		// Installing unless proven otherwise
 		$testing = false;
@@ -1595,27 +1566,27 @@ class Smileys implements ActionInterface
 
 		// Make sure temp directory exists and is empty.
 		if (file_exists(Config::$packagesdir . '/temp')) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+			PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 		}
 
-		if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0755)) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+		if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0755)) {
+			PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
-			if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777)) {
-				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+			if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0777)) {
+				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
 				// @todo not sure about url in destination_url
-				SubsPackage::create_chmod_control([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
+				PackageUtils::createChmodControl([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
 
-				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
-				if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777)) {
+				if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0777)) {
 					ErrorHandler::fatalLang('package_cant_download', false);
 				}
 			}
 		}
 
-		$extracted = SubsPackage::read_tgz_file($destination, Config::$packagesdir . '/temp');
+		$extracted = PackageUtils::readTgzFile($destination, Config::$packagesdir . '/temp');
 
 		if (!$extracted) {
 			ErrorHandler::fatalLang('packageget_unable', false, ['https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name]);
@@ -1624,7 +1595,7 @@ class Smileys implements ActionInterface
 		if ($extracted && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 			foreach ($extracted as $file) {
 				if (basename($file['filename']) == 'package-info.xml') {
-					$base_path = dirname($file['filename']) . '/';
+					$base_path = \dirname($file['filename']) . '/';
 					break;
 				}
 			}
@@ -1638,15 +1609,14 @@ class Smileys implements ActionInterface
 			ErrorHandler::fatalLang('package_get_error_missing_xml', false);
 		}
 
-		$smileyInfo = SubsPackage::getPackageInfo(Utils::$context['filename']);
+		$smileyInfo = PackageUtils::getPackageInfo(Utils::$context['filename']);
 
-		if (!is_array($smileyInfo)) {
+		if (!\is_array($smileyInfo)) {
 			ErrorHandler::fatalLang($smileyInfo, false);
 		}
 
 		// See if it is installed?
 		$request = Db::$db->query(
-			'',
 			'SELECT version, themes_installed, db_changes
 			FROM {db_prefix}log_packages
 			WHERE package_id = {string:current_package}
@@ -1664,7 +1634,7 @@ class Smileys implements ActionInterface
 		}
 
 		// Everything is fine, now it's time to do something
-		$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], true, 'install');
+		$actions = PackageUtils::parsePackageInfo($smileyInfo['xml'], true, 'install');
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
 		Utils::$context['has_failure'] = false;
@@ -1694,17 +1664,17 @@ class Smileys implements ActionInterface
 			if ($action['type'] == 'require-dir') {
 				// Do this one...
 				$thisAction = [
-					'type' => $action['type'] == 'require-dir' ? Lang::$txt['package_extract_tree'] : Lang::$txt['package_extract_file'],
+					'type' => Lang::getTxt($action['type'] == 'require-dir' ? 'package_extract_tree' : 'package_extract_file', file: 'Packages'),
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], [Config::$boarddir => '.'])),
 				];
 
 				$file = Config::$packagesdir . '/temp/' . $base_path . $action['filename'];
 
-				if (isset($action['filename']) && (!file_exists($file) || !is_writable(dirname($action['destination'])))) {
+				if (isset($action['filename']) && (!file_exists($file) || !is_writable(\dirname($action['destination'])))) {
 					Utils::$context['has_failure'] = true;
 
 					$thisAction += [
-						'description' => Lang::$txt['package_action_error'],
+						'description' => Lang::getTxt('package_action_error', file: 'Packages'),
 						'failed' => true,
 					];
 				}
@@ -1737,16 +1707,16 @@ class Smileys implements ActionInterface
 		// Do the actual install
 		else {
 			// @TODO Does this call have side effects? ($actions is not used)
-			$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], false, 'install');
+			$actions = PackageUtils::parsePackageInfo($smileyInfo['xml'], false, 'install');
 
 			foreach (Utils::$context['actions'] as $action) {
 				Config::updateModSettings([
 					'smiley_sets_known' => Config::$modSettings['smiley_sets_known'] . ',' . basename($action['action']),
-					'smiley_sets_names' => Config::$modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (count(Utils::$context['actions']) > 1 ? ' ' . (!empty($action['description']) ? Utils::htmlspecialchars($action['description']) : basename($action['action'])) : ''),
+					'smiley_sets_names' => Config::$modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (\count(Utils::$context['actions']) > 1 ? ' ' . (!empty($action['description']) ? Utils::htmlspecialchars($action['description']) : basename($action['action'])) : ''),
 				]);
 			}
 
-			SubsPackage::package_flush_cache();
+			PackageUtils::flushCache();
 
 			// Credits tag?
 			$credits_tag = (empty($credits_tag)) ? '' : Utils::jsonEncode($credits_tag);
@@ -1795,7 +1765,7 @@ class Smileys implements ActionInterface
 		}
 
 		if (file_exists(Config::$packagesdir . '/temp')) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp');
+			PackageUtils::deltree(Config::$packagesdir . '/temp');
 		}
 
 		if (!$testing) {
@@ -1814,7 +1784,6 @@ class Smileys implements ActionInterface
 		$trueOrder = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name
 			FROM {db_prefix}message_icons AS m
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1831,7 +1800,7 @@ class Smileys implements ActionInterface
 				'filename' => $row['filename'],
 				'image_url' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['filename'] . '.png') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.png',
 				'board_id' => $row['id_board'],
-				'board' => empty($row['board_name']) ? Lang::$txt['icons_edit_icons_all_boards'] : $row['board_name'],
+				'board' => empty($row['board_name']) ? Lang::getTxt('icons_edit_icons_all_boards', file: 'ManageSmileys') : $row['board_name'],
 				'order' => $row['icon_order'],
 				'true_order' => $trueOrder++,
 				'after' => $last_icon,
@@ -1855,7 +1824,6 @@ class Smileys implements ActionInterface
 
 				// Do the actual delete!
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}message_icons
 					WHERE id_icon IN ({array_int:icon_list})',
 					[
@@ -1881,7 +1849,7 @@ class Smileys implements ActionInterface
 				}
 
 				// There is a 16 character limit on message icons...
-				if (strlen($_POST['icon_filename']) > 16) {
+				if (\strlen($_POST['icon_filename']) > 16) {
 					ErrorHandler::fatalLang('icon_name_too_long', false);
 				}
 
@@ -1964,30 +1932,30 @@ class Smileys implements ActionInterface
 
 		$listOptions = [
 			'id' => 'message_icon_list',
-			'title' => Lang::$txt['icons_edit_message_icons'],
+			'title' => Lang::getTxt('icons_edit_message_icons', file: 'Admin'),
 			'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editicons',
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getMessageIcons',
 			],
-			'no_items_label' => Lang::$txt['icons_no_entries'],
+			'no_items_label' => Lang::getTxt('icons_no_entries', file: 'ManageSmileys'),
 			'columns' => [
 				'icon' => [
 					'data' => [
 						'function' => function ($rowData) {
-							$images_url = Theme::$current->settings[file_exists(sprintf('%1$s/images/post/%2$s.png', Theme::$current->settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
+							$images_url = Theme::$current->settings[file_exists(\sprintf('%1$s/images/post/%2$s.png', Theme::$current->settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
 
-							return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], Utils::htmlspecialchars($rowData['title']));
+							return \sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], Utils::htmlspecialchars($rowData['title']));
 						},
 						'class' => 'centercol',
 					],
 				],
 				'filename' => [
 					'header' => [
-						'value' => Lang::$txt['smileys_filename'],
+						'value' => Lang::getTxt('smileys_filename', file: 'ManageSmileys'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s.png',
+						'format_text' => [
+							'format' => '{filename}.png',
 							'params' => [
 								'filename' => true,
 							],
@@ -1996,7 +1964,7 @@ class Smileys implements ActionInterface
 				],
 				'description' => [
 					'header' => [
-						'value' => Lang::$txt['smileys_description'],
+						'value' => Lang::getTxt('smileys_description', file: 'ManageSmileys'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'title',
@@ -2004,22 +1972,22 @@ class Smileys implements ActionInterface
 				],
 				'board' => [
 					'header' => [
-						'value' => Lang::$txt['icons_board'],
+						'value' => Lang::getTxt('icons_board', file: 'ManageSmileys'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return empty($rowData['board_name']) ? Lang::$txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
+							return empty($rowData['board_name']) ? Lang::getTxt('icons_edit_icons_all_boards', file: 'ManageSmileys') : $rowData['board_name'];
 						},
 					],
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['smileys_modify'],
+						'value' => Lang::getTxt('smileys_modify', file: 'ManageSmileys'),
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon=%1$s">' . Lang::$txt['smileys_modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon={id_icon}">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
 							'params' => [
 								'id_icon' => false,
 							],
@@ -2033,8 +2001,8 @@ class Smileys implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="checked_icons[]" value="{id_icon}">',
 							'params' => [
 								'id_icon' => false,
 							],
@@ -2049,7 +2017,7 @@ class Smileys implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . Lang::$txt['icons_add_new'] . '</a>',
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . Lang::getTxt('icons_add_new', file: 'ManageSmileys') . '</a>',
 				],
 			],
 		];
@@ -2141,15 +2109,27 @@ class Smileys implements ActionInterface
 			// array('select', 'smiley_sets_default', self::$smiley_sets),
 			['select', 'smiley_sets_default', array_map(fn($set) => $set['raw_name'], self::$smiley_sets)],
 			['check', 'smiley_sets_enable'],
-			['check', 'smiley_enable', 'subtext' => Lang::$txt['smileys_enable_note']],
+			[
+				'check',
+				'smiley_enable',
+				'subtext' => Lang::getTxt('smileys_enable_note', file: 'ManageSmileys'),
+			],
 			['text', 'smileys_url', 40],
 			['warning', !is_dir(self::$smileys_dir) ? 'setting_smileys_dir_wrong' : ''],
 			['text', 'smileys_dir', 'invalid' => !self::$smileys_dir_found, 40],
 			'',
 
 			// Message icons.
-			['check', 'messageIcons_enable', 'subtext' => Lang::$txt['setting_messageIcons_enable_note']],
-			['check', 'messageIconChecks_enable', 'subtext' => Lang::$txt['setting_messageIconChecks_enable_note']],
+			[
+				'check',
+				'messageIcons_enable',
+				'subtext' => Lang::getTxt('setting_messageIcons_enable_note', file: 'ManageSmileys'),
+			],
+			[
+				'check',
+				'messageIconChecks_enable',
+				'subtext' => Lang::getTxt('setting_messageIconChecks_enable_note', file: 'ManageSmileys'),
+			],
 		];
 
 		IntegrationHook::call('integrate_modify_smiley_settings', [&$config_vars]);
@@ -2219,7 +2199,7 @@ class Smileys implements ActionInterface
 	 */
 	public static function list_getNumSmileySets(): int
 	{
-		return count(explode(',', Config::$modSettings['smiley_sets_known']));
+		return \count(explode(',', Config::$modSettings['smiley_sets_known']));
 	}
 
 	/**
@@ -2235,7 +2215,6 @@ class Smileys implements ActionInterface
 		$smileys = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, f.smiley_set, s.description, s.smiley_row, s.smiley_order, s.hidden
 			FROM {db_prefix}smileys AS s
 				LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -2276,7 +2255,6 @@ class Smileys implements ActionInterface
 	public static function list_getNumSmileys(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}smileys',
 			[],
@@ -2300,7 +2278,6 @@ class Smileys implements ActionInterface
 		$message_icons = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name
 			FROM {db_prefix}message_icons AS m
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -2368,7 +2345,7 @@ class Smileys implements ActionInterface
 				continue;
 			}
 
-			if (in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank' && strlen($pathinfo['basename']) <= 48) {
+			if (\in_array($pathinfo['extension'], self::$allowed_extenions) && $pathinfo['filename'] != 'blank' && \strlen($pathinfo['basename']) <= 48) {
 				$smiley_files[strtolower($pathinfo['basename'])] = $pathinfo['basename'];
 			}
 		}
@@ -2379,7 +2356,6 @@ class Smileys implements ActionInterface
 		$existing_smileys = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_smiley, smiley_set, filename
 			FROM {db_prefix}smiley_files',
 			[],
@@ -2491,7 +2467,6 @@ class Smileys implements ActionInterface
 
 		// New smileys go at the end of the list
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(smiley_order)
 			FROM {db_prefix}smileys
 			WHERE hidden = {int:postform}
@@ -2563,7 +2538,7 @@ class Smileys implements ActionInterface
 				],
 				[$new_smiley['info']],
 				['id_smiley'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// We'll also need to add filename info to the smiley_files table
@@ -2602,7 +2577,7 @@ class Smileys implements ActionInterface
 		$path = realpath(self::$smileys_dir . DIRECTORY_SEPARATOR . $dir);
 
 		// Must be an immediate child directory of the base smileys directory.
-		if (dirname($path) !== realpath(self::$smileys_dir)) {
+		if (\dirname($path) !== realpath(self::$smileys_dir)) {
 			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, [Utils::htmlspecialchars($name)]);
 		}
 
@@ -2628,7 +2603,7 @@ class Smileys implements ActionInterface
 	 */
 	protected function validateImage(string $name, string $tmp_name): bool
 	{
-		return in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && Utils::checkMimeType($tmp_name, Utils::buildRegex(self::$allowed_mime_types, '~'), true);
+		return \in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && Utils::checkMimeType($tmp_name, Utils::buildRegex(self::$allowed_mime_types, '~'), true);
 	}
 
 	/**
@@ -2645,7 +2620,7 @@ class Smileys implements ActionInterface
 			ErrorHandler::fatalLang('smileys_upload_error_blank', false);
 		}
 
-		if (!is_uploaded_file($tmp_name) || (ini_get('open_basedir') == '' && !file_exists($tmp_name))) {
+		if (!is_uploaded_file($tmp_name) || (\ini_get('open_basedir') == '' && !file_exists($tmp_name))) {
 			ErrorHandler::fatalLang('smileys_upload_error', false);
 		}
 
@@ -2661,7 +2636,7 @@ class Smileys implements ActionInterface
 		$destination_name = basename($name);
 
 		// Make sure they aren't trying to upload a nasty file - for their own good here!
-		if (in_array(strtolower($destination_name), self::$illegal_files)) {
+		if (\in_array(strtolower($destination_name), self::$illegal_files)) {
 			ErrorHandler::fatalLang('smileys_upload_error_illegal', false);
 		}
 
@@ -2803,5 +2778,3 @@ class Smileys implements ActionInterface
 		}
 	}
 }
-
-?>

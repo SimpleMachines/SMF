@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -379,7 +379,7 @@ class Poll implements \ArrayAccess
 			'lock' => $this->permissions['allow_lock_poll'],
 			'edit' => $this->permissions['allow_edit_poll'],
 			'remove' => $this->permissions['can_remove_poll'],
-			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(count($this->choices), $this->max_votes)]) : '',
+			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(\count($this->choices), $this->max_votes)], file: 'General') : '',
 			'is_expired' => !empty($this->expire_time) && $this->expire_time < time(),
 			'expire_time' => !empty($this->expire_time) ? Time::create('@' . $this->expire_time)->format() : 0,
 			'expiration' => empty($this->expire_time) ? '' : ceil($this->expire_time <= time() ? -1 : ($this->expire_time - time()) / (3600 * 24)),
@@ -502,7 +502,7 @@ class Poll implements \ArrayAccess
 			$this->formatted['buttons']['remove_poll'] = [
 				'text' => 'poll_remove',
 				'image' => 'admin_remove_poll.png',
-				'custom' => 'data-confirm="' . Lang::$txt['poll_remove_warn'] . '"',
+				'custom' => 'data-confirm="' . Lang::getTxt('poll_remove_warn', file: 'General') . '"',
 				'class' => 'you_sure',
 				'url' => Config::$scripturl . '?action=removepoll;topic=' . $this->topic . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			];
@@ -538,7 +538,7 @@ class Poll implements \ArrayAccess
 			unset($choice_props['id_poll']);
 		}
 
-		$choice_props['id'] = (int) ($choice_props['id'] ?? count($this->choices));
+		$choice_props['id'] = (int) ($choice_props['id'] ?? \count($this->choices));
 		$choice_props['poll'] = (int) ($choice_props['poll'] ?? ($this->id ?? 0));
 		$choice_props['votes'] = (int) ($choice_props['votes'] ?? 0);
 		$choice_props['new'] = !empty($choice_props['new']);
@@ -586,7 +586,7 @@ class Poll implements \ArrayAccess
 					],
 				],
 				['id_poll'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Create each answer choice.
@@ -597,7 +597,6 @@ class Poll implements \ArrayAccess
 
 			if (!empty($this->topic)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}topics
 					SET id_poll = {int:id_poll}
 					WHERE id_topic = {int:id_topic}',
@@ -644,7 +643,6 @@ class Poll implements \ArrayAccess
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}polls
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_poll = {int:id_poll}',
@@ -682,7 +680,6 @@ class Poll implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}polls
 			SET num_guest_voters = {int:no_votes}, reset_poll = {int:time}
 			WHERE id_poll = {int:id_poll}',
@@ -694,7 +691,6 @@ class Poll implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}poll_choices
 			SET votes = {int:no_votes}
 			WHERE id_poll = {int:id_poll}',
@@ -705,7 +701,6 @@ class Poll implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -734,11 +729,11 @@ class Poll implements \ArrayAccess
 				return;
 			}
 
-			settype($value, gettype($this->{$prop}));
+			settype($value, \gettype($this->{$prop}));
 			$this->{$prop} = $value;
-		} elseif (array_key_exists($prop, $this->prop_aliases)) {
+		} elseif (\array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
-			if (is_null($value)) {
+			if (\is_null($value)) {
 				return;
 			}
 
@@ -765,7 +760,7 @@ class Poll implements \ArrayAccess
 				if ($real_prop == 'id') {
 					$this->{$real_prop} = (int) $value;
 				} else {
-					settype($value, gettype($this->{$real_prop}));
+					settype($value, \gettype($this->{$real_prop}));
 					$this->{$real_prop} = $value;
 				}
 			}
@@ -796,7 +791,7 @@ class Poll implements \ArrayAccess
 	 * Checks permissions and sanitizes input before doing anything.
 	 *
 	 * @param array &$errors Will hold errors encountered while creating the poll.
-	 * @return self An instance of this class, or null on failure.
+	 * @return self|null An instance of this class, or null on failure.
 	 */
 	public static function create(array &$errors = []): ?self
 	{
@@ -866,9 +861,8 @@ class Poll implements \ArrayAccess
 
 		self::$guest_vote_enabled = false;
 
-		if (isset(Board::$info->id)) {
-			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
-			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
+		if (isset(Board::$info->profile)) {
+			self::$guest_vote_enabled = \in_array(-1, Group::getAllowedTo('poll_vote', Board::$info->profile));
 		}
 
 		return self::$guest_vote_enabled;
@@ -961,6 +955,63 @@ class Poll implements \ArrayAccess
 		return true;
 	}
 
+	/**
+	 * Validates and sanitizes $_POST input for creating or editing a poll.
+	 */
+	public static function sanitizeInput(array &$errors): void
+	{
+		if (!isset($_POST['question']) || trim($_POST['question']) == '') {
+			$errors[] = 'no_question';
+		}
+
+		$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlTrimRecursive($_POST['options']);
+
+		// Get rid of empty ones.
+		foreach ($_POST['options'] as $k => $option) {
+			if ($option == '') {
+				unset($_POST['options'][$k], $_POST['options'][$k]);
+			}
+		}
+
+		// What are you going to vote between with one choice?!?
+		if (\count($_POST['options']) < 2) {
+			$errors[] = 'poll_few';
+		} elseif (\count($_POST['options']) > 256) {
+			$errors[] = 'poll_many';
+		}
+
+		if (!empty($errors)) {
+			return;
+		}
+
+		// Make sure these things are all sane.
+		$_POST['poll_max_votes'] = min(max((int) ($_POST['poll_max_votes'] ?? 1), 1), \count($_POST['options'] ?? []));
+		$_POST['poll_expire'] = min(max((int) ($_POST['poll_expire'] ?? 0), 0), 9999);
+		$_POST['poll_hide'] = (int) ($_POST['poll_hide'] ?? 0);
+		$_POST['poll_change_vote'] = (int) !empty($_POST['poll_change_vote']);
+		$_POST['poll_guest_vote'] = (int) !empty($_POST['poll_guest_vote']);
+
+		// Make sure guests are actually allowed to vote generally.
+		if ($_POST['poll_guest_vote']) {
+			$_POST['poll_guest_vote'] = self::canGuestsVote();
+		}
+
+		// If the user tries to set the poll too far in advance, don't let them.
+		if (!empty($_POST['poll_expire']) && $_POST['poll_expire'] < 1) {
+			ErrorHandler::fatalLang('poll_range_error', false);
+		}
+		// Don't allow them to select option 2 for hidden results if it's not time limited.
+		elseif (empty($_POST['poll_expire']) && $_POST['poll_hide'] == 2) {
+			$_POST['poll_hide'] = 1;
+		}
+
+		// Clean up the question and answers.
+		$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
+		$_POST['question'] = Utils::truncate($_POST['question'], 255);
+		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
+		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options'], ENT_QUOTES);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -996,8 +1047,6 @@ class Poll implements \ArrayAccess
 
 	/**
 	 * Sets object properties based on retrieved database rows.
-	 *
-	 * @param array $row A row from the database.
 	 */
 	protected function initNewPoll(): void
 	{
@@ -1090,7 +1139,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ' . (implode(', ', $this->selects)) . '
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
@@ -1147,7 +1195,6 @@ class Poll implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_choice
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
@@ -1161,11 +1208,11 @@ class Poll implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		$this->voters = array_unique(array_column($votes, 'id_member'));
-		$this->total_voters = count($this->voters) + $this->num_guest_voters;
+		$this->total_voters = \count($this->voters) + $this->num_guest_voters;
 
 		// Did you vote, and what did you vote for?
 		if (!User::$me->is_guest) {
-			$this->has_voted = in_array(User::$me->id, $this->voters);
+			$this->has_voted = \in_array(User::$me->id, $this->voters);
 
 			foreach ($votes as $vote) {
 				if ($vote['id_member'] != User::$me->id) {
@@ -1205,7 +1252,7 @@ class Poll implements \ArrayAccess
 					unset($guestvoted[0], $guestvoted[1]);
 
 					foreach ($this->choices as $choice => $details) {
-						$details->voted_this = in_array($choice, $guestvoted);
+						$details->voted_this = \in_array($choice, $guestvoted);
 						$this->has_voted |= $details->voted_this;
 					}
 				}
@@ -1236,7 +1283,7 @@ class Poll implements \ArrayAccess
 				$this->params['is_approved'] = 1;
 			}
 
-			if ($options & self::CHECK_ACCESS && !in_array(0, ($boardsAllowed = User::$me->boardsAllowedTo('poll_view')))) {
+			if ($options & self::CHECK_ACCESS && !\in_array(0, ($boardsAllowed = User::$me->boardsAllowedTo('poll_view')))) {
 				$this->where[] = 't.id_board IN ({array_int:boards_allowed_see})';
 				$this->params['boards_allowed_see'] = $boardsAllowed;
 			}
@@ -1310,7 +1357,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(p.id_poll)
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
@@ -1345,7 +1391,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lp.id_poll, COUNT(*) AS num_votes
 			FROM {db_prefix}log_polls AS lp
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
@@ -1362,67 +1407,4 @@ class Poll implements \ArrayAccess
 
 		return (int) $most_active;
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Validates and sanitizes $_POST input for creating or editing a poll.
-	 */
-	protected static function sanitizeInput(array &$errors): void
-	{
-		if (!isset($_POST['question']) || trim($_POST['question']) == '') {
-			$errors[] = 'no_question';
-		}
-
-		$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlTrimRecursive($_POST['options']);
-
-		// Get rid of empty ones.
-		foreach ($_POST['options'] as $k => $option) {
-			if ($option == '') {
-				unset($_POST['options'][$k], $_POST['options'][$k]);
-			}
-		}
-
-		// What are you going to vote between with one choice?!?
-		if (count($_POST['options']) < 2) {
-			$errors[] = 'poll_few';
-		} elseif (count($_POST['options']) > 256) {
-			$errors[] = 'poll_many';
-		}
-
-		if (!empty($errors)) {
-			return;
-		}
-
-		// Make sure these things are all sane.
-		$_POST['poll_max_votes'] = min(max((int) ($_POST['poll_max_votes'] ?? 1), 1), count($_POST['options'] ?? []));
-		$_POST['poll_expire'] = min(max((int) ($_POST['poll_expire'] ?? 0), 0), 9999);
-		$_POST['poll_hide'] = (int) ($_POST['poll_hide'] ?? 0);
-		$_POST['poll_change_vote'] = (int) !empty($_POST['poll_change_vote']);
-		$_POST['poll_guest_vote'] = (int) !empty($_POST['poll_guest_vote']);
-
-		// Make sure guests are actually allowed to vote generally.
-		if ($_POST['poll_guest_vote']) {
-			$_POST['poll_guest_vote'] = self::canGuestsVote();
-		}
-
-		// If the user tries to set the poll too far in advance, don't let them.
-		if (!empty($_POST['poll_expire']) && $_POST['poll_expire'] < 1) {
-			ErrorHandler::fatalLang('poll_range_error', false);
-		}
-		// Don't allow them to select option 2 for hidden results if it's not time limited.
-		elseif (empty($_POST['poll_expire']) && $_POST['poll_hide'] == 2) {
-			$_POST['poll_hide'] = 1;
-		}
-
-		// Clean up the question and answers.
-		$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
-		$_POST['question'] = Utils::truncate($_POST['question'], 255);
-		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
-		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
-	}
 }
-
-?>

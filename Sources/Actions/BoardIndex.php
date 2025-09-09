@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -56,12 +56,10 @@ class BoardIndex implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Calendar');
-
 		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 
-		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
+		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']], file: 'General');
 
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl;
@@ -72,8 +70,8 @@ class BoardIndex implements ActionInterface, Routable
 		}
 
 		// Replace the collapse and expand default alts.
-		Theme::addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
-		Theme::addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
+		Theme::addJavaScriptVar('smf_expandAlt', Lang::getTxt('show_category', file: 'General'), true);
+		Theme::addJavaScriptVar('smf_collapseAlt', Lang::getTxt('hide_category', file: 'General'), true);
 
 		if (!empty(Theme::$current->settings['show_newsfader'])) {
 			Theme::loadJavaScriptFile('slippry.min.js', [], 'smf_jquery_slippry');
@@ -101,7 +99,12 @@ class BoardIndex implements ActionInterface, Routable
 		// Retrieve the latest posts if the theme settings require it.
 		if (!empty(Theme::$current->settings['number_recent_posts'])) {
 			if (Theme::$current->settings['number_recent_posts'] > 1) {
-				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), '', [$this, 'cache_getLastPosts'], [Theme::$current->settings['number_recent_posts']]);
+				Utils::$context['latest_posts'] = CacheApi::quickGet(
+					'boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language),
+					'',
+					[$this, 'cache_getLastPosts'],
+					[(int) Theme::$current->settings['number_recent_posts']],
+				);
 			}
 
 			if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post'])) {
@@ -170,7 +173,13 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Mark read button
 		Utils::$context['mark_read_button'] = [
-			'markread' => ['text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']],
+			'markread' => [
+				'text' => 'mark_as_read',
+				'image' => 'markread.png',
+				'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
+				'class' => 'you_sure',
+				'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			],
 		];
 
 		// Allow mods to add additional buttons here
@@ -254,18 +263,27 @@ class BoardIndex implements ActionInterface, Routable
 		return [
 			'data' => $this->getLastPosts($number_posts),
 			'expires' => time() + 60,
-			'post_retri_eval' => '
-				foreach ($cache_block[\'data\'] as $k => $post)
-				{
-					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
-					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
-				}',
+			'update_callback' => self::class . '::cache_getLastPostCallback',
 		];
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Processes the data from cache_getLastPosts
+	 *
+	 * @param array $cache_block
+	 * @param array &$params
+	 */
+	public static function cache_getLastPostCallback(array &$cache_block, array &$params): void
+	{
+		foreach ($cache_block['data'] as $k => $post) {
+			$cache_block['data'][$k]['time'] = Time::create('@' . $post['raw_timestamp'])->format();
+			$cache_block['data'][$k]['timestamp'] = $post['raw_timestamp'];
+		}
+	}
 
 	/**
 	 * Fetches a list of boards and (optional) categories including
@@ -292,7 +310,7 @@ class BoardIndex implements ActionInterface, Routable
 		if (!empty($board_index_options['set_latest_post'])) {
 			$latest_post = [
 				'timestamp' => 0,
-				'ref' => 0,
+				'ref' => [],
 			];
 		}
 
@@ -383,7 +401,7 @@ class BoardIndex implements ActionInterface, Routable
 			$selects[] = 'am.filename AS member_filename';
 			$selects[] = 'am.attachment_type AS member_attach_type';
 
-			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)';
+			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mem.id_member)';
 		}
 
 		// Give mods access to the query.
@@ -395,7 +413,7 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Find all boards and categories, as well as related information.
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row_board) {
-			$row_board = array_filter($row_board, fn($prop) => !is_null($prop));
+			$row_board = array_filter($row_board, fn($prop) => !\is_null($prop));
 
 			// Ensure the slug for the topic has been set.
 			if (
@@ -408,17 +426,17 @@ class BoardIndex implements ActionInterface, Routable
 
 			// Ensure the slug for the member has been set.
 			if (
-				!empty($row['id_member'])
-				&& ($row['real_name'] ?? '') !== ''
-				&& !isset(Slug::$known['member'][(int) $row['id_member']])
+				!empty($row_board['id_member'])
+				&& ($row_board['real_name'] ?? '') !== ''
+				&& !isset(Slug::$known['member'][(int) $row_board['id_member']])
 			) {
-				Slug::create($row['real_name'], 'member', (int) $row['id_member']);
+				Slug::create($row_board['real_name'], 'member', (int) $row_board['id_member']);
 			}
 
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 
 			// Perhaps we are ignoring this board?
-			$ignoreThisBoard = in_array($row_board['id_board'], User::$me->ignoreboards);
+			$ignoreThisBoard = \in_array($row_board['id_board'], User::$me->ignoreboards);
 			$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
 			if ($board_index_options['include_categories']) {
@@ -435,7 +453,7 @@ class BoardIndex implements ActionInterface, Routable
 						'new' => false,
 						'css_class' => '',
 						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
-							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board, file: 'General') . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
 					]);
 
 					$category->parseDescription();
@@ -475,7 +493,7 @@ class BoardIndex implements ActionInterface, Routable
 					'is_redirect' => (bool) $row_board['is_redirect'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
+					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == [0] || \in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
 					'href' => Config::$scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . Config::$scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
@@ -497,13 +515,13 @@ class BoardIndex implements ActionInterface, Routable
 					// For certain types of thing we also set up what the tooltip is.
 					if ($board->is_redirect) {
 						$board->board_class = 'redirect';
-						$board->board_tooltip = Lang::$txt['redirect_board'];
+						$board->board_tooltip = Lang::getTxt('redirect_board', file: 'General');
 					} elseif ($board->new || User::$me->is_guest) {
 						// If we're showing to guests, we want to give them the idea that something interesting is going on!
 						$board->board_class = 'on';
-						$board->board_tooltip = Lang::$txt['new_posts'];
+						$board->board_tooltip = Lang::getTxt('new_posts', file: 'General');
 					} else {
-						$board->board_tooltip = Lang::$txt['old_posts'];
+						$board->board_tooltip = Lang::getTxt('old_posts', file: 'General');
 					}
 				}
 				// This is a child board.
@@ -514,7 +532,7 @@ class BoardIndex implements ActionInterface, Routable
 					// Update the icon if appropriate
 					if ($parent->children_new && $parent->board_class == 'off') {
 						$parent->board_class = 'on2';
-						$parent->board_tooltip = Lang::$txt['new_posts'];
+						$parent->board_tooltip = Lang::getTxt('new_posts', file: 'General');
 					}
 
 					// This is easier to use in many cases for the theme....
@@ -566,7 +584,7 @@ class BoardIndex implements ActionInterface, Routable
 					}
 
 					if (!empty($board->last_post)) {
-						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
+						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::getTxt('not_applicable', file: 'General')]);
 					}
 				}
 			}
@@ -592,7 +610,7 @@ class BoardIndex implements ActionInterface, Routable
 				}
 
 				if (!empty($board->last_post)) {
-					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
+					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::getTxt('not_applicable', file: 'General')]);
 				}
 			}
 		}
@@ -711,13 +729,13 @@ class BoardIndex implements ActionInterface, Routable
 			return [
 				'timestamp' => 0,
 				'href' => '',
-				'link' => Lang::$txt['not_applicable'],
+				'link' => Lang::getTxt('not_applicable', file: 'General'),
 				'member' => [
 					'id' => 0,
-					'name' => Lang::$txt['not_applicable'],
-					'username' => Lang::$txt['not_applicable'],
+					'name' => Lang::getTxt('not_applicable', file: 'General'),
+					'username' => Lang::getTxt('not_applicable', file: 'General'),
 					'href' => '',
-					'link' => Lang::$txt['not_applicable'],
+					'link' => Lang::getTxt('not_applicable', file: 'General'),
 				],
 			];
 		}
@@ -763,5 +781,3 @@ class BoardIndex implements ActionInterface, Routable
 		return $last_post;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -66,16 +66,8 @@ class HelpAdmin implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['help']) || !is_string($_GET['help'])) {
+		if (!isset($_GET['help']) || !\is_string($_GET['help'])) {
 			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// Load the admin help language file and template.
-		Lang::load('Help');
-
-		// Permission specific help?
-		if (isset($_GET['help']) && str_starts_with($_GET['help'], 'permissionhelp')) {
-			Lang::load('ManagePermissions');
 		}
 
 		Theme::loadTemplate('Help');
@@ -84,10 +76,21 @@ class HelpAdmin implements ActionInterface, Routable
 		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
-		if (isset(Lang::$helptxt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$helptxt[$_GET['help']];
-		} elseif (isset(Lang::$txt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$txt[$_GET['help']];
+		if (str_starts_with($_GET['help'], 'permissionhelp') && Lang::txtExists($_GET['help'], file: 'ManagePermissions')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], file: 'ManagePermissions');
+		} elseif (Lang::txtExists($_GET['help'], var: 'helptxt')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], var: 'helptxt');
+		} elseif (Lang::txtExists($_GET['help'])) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help']);
+		} elseif (
+			substr($_GET['help'], 0, 4) === 'tag_'
+			&& User::$me->allowedTo('admin_forum')
+			&& \in_array(
+				substr($_GET['help'], 4),
+				empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])),
+			)
+		) {
+			Utils::$context['help_text'] = Lang::getTxt('restricted_bbc_forced', ['<span class="bbc_tt">[' . substr($_GET['help'], 4) . ']</span>'], var: 'helptxt');
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -97,8 +100,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['months_short'][1],
-						'long' => Lang::$txt['months_titles'][1],
+						'short' => Lang::getTxt(['months_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['months_titles', 1], file: 'General'),
 					],
 				);
 				break;
@@ -107,8 +110,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['days_short'][1],
-						'long' => Lang::$txt['days'][1],
+						'short' => Lang::getTxt(['days_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['days', 1], file: 'General'),
 					],
 				);
 				break;
@@ -117,7 +120,7 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::$txt['hidden'] . ']',
+						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::getTxt('hidden', file: 'General') . ']',
 						'boardurl' => Config::$boardurl,
 					],
 				);
@@ -127,7 +130,7 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]) && (!Sapi::isCGI() || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) ? 'supported' : 'unsupported',
+						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]) && (!Sapi::isCGI() || \ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) ? 'supported' : 'unsupported',
 					],
 				);
 				break;
@@ -165,7 +168,7 @@ class HelpAdmin implements ActionInterface, Routable
 		}
 
 		// Set the page title to something relevant.
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['help'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('help', file: 'General');
 
 		// Don't show any template layers, just the popup sub template.
 		Utils::$context['template_layers'] = [];
@@ -208,5 +211,3 @@ class HelpAdmin implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

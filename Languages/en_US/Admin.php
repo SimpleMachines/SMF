@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Admin
+// Version: 3.0 Alpha 4; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';
 $txt['settings_not_saved'] = 'Your changes were not saved because: {reason}';
@@ -69,9 +69,7 @@ $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if
 $txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attachments to appear twice. Attachments embedded in the post still count towards attachment limits and can still be treated like normal attachments.';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
-$txt['privacy_policy'] = 'Privacy Policy';
 $txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum:';
@@ -105,6 +103,8 @@ $txt['attachment_file_size'] = 'File size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
 $txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
+$txt['attachment_date_in_topic'] = '{date}<br>in <a href="{url}">{subject}</a>';
+
 $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear log';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
@@ -126,12 +126,8 @@ $txt['viewmembers_today'] = 'Today';
 $txt['viewmembers_day_ago'] = 'day ago';
 $txt['viewmembers_days_ago'] = 'days ago';
 
-$txt['display_name'] = 'Display name';
 $txt['email_address'] = 'Email address';
-$txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
-
-$txt['unknown'] = 'unknown';
 
 $txt['security_wrong'] = 'Administration login attempt!
 Referrer: {referrer}
@@ -292,8 +288,6 @@ $txt['not_activated'] = 'Not activated';
 $txt['primary'] = 'Primary';
 $txt['additional'] = 'Additional';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
-$txt['search_for'] = 'Search for';
-$txt['search_match'] = 'Match';
 $txt['member_part_of_these_membergroups'] = 'Member is part of these membergroups';
 $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
@@ -542,7 +536,7 @@ $txt['attach_repair_avatar_no_member'] = '{0, plural,
 	one {# avatar no longer has a member associated with it}
 	other {# avatars no longer have a member associated with them}
 }';
-$txt['attach_repair_wrong_folder'] = '{0, plural,
+$txt['attach_repair_wrong_directory'] = '{0, plural,
 	one {# attachment is in the wrong directory}
 	other {# attachments are in the wrong directory}
 }';
@@ -632,6 +626,8 @@ $txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags which are allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
+$txt['restricted_bbc'] = 'Restricted BBC tags';
+$txt['bbc_title_restricted_bbc'] = 'Select the tags that require permission to use';
 $txt['groups_can_use'] = 'Membergroups allowed to use {0}';
 
 $txt['enableMarkdown'] = 'Enable Markdown';
@@ -751,7 +747,6 @@ $txt['themeadmin_edit_title'] = 'Modify Themes';
 $txt['admin_browse_register_new'] = 'Register new member';
 
 $txt['search_engines'] = 'Search Engines';
-$txt['spiders'] = 'Spiders';
 $txt['spider_logs'] = 'Spider Log';
 $txt['spider_stats'] = 'Stats';
 
@@ -797,5 +792,3 @@ $txt['notifications_desc'] = 'This page allows you to set the default notificati
 $txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries’ privacy and anti-spam laws.';
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
-
-?>

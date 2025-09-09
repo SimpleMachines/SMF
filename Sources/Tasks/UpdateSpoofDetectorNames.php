@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -27,6 +27,19 @@ use SMF\Utils;
  */
 class UpdateSpoofDetectorNames extends BackgroundTask
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
+	protected bool $allow_concurrent = false;
+
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -36,14 +49,14 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 	{
 		Sapi::setTimeLimit(MAX_CLAIM_THRESHOLD);
 
-		if (empty($this->_details['last_member_id']) || !is_int($this->_details['last_member_id'])) {
+		if (empty($this->_details['last_member_id']) || !\is_int($this->_details['last_member_id'])) {
 			$this->_details['last_member_id'] = 0;
 		}
 
 		// Just in case the column is missing for some reason...
 		if (
 			$this->_details['last_member_id'] === 0
-			&& !in_array('spoofdetector_name', Db::$db->list_columns('{db_prefix}members'))
+			&& !\in_array('spoofdetector_name', Db::$db->list_columns('{db_prefix}members'))
 		) {
 			Db::$db->add_column(
 				'{db_prefix}messages',
@@ -80,7 +93,6 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		$updates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, spoofdetector_name
 			FROM {db_prefix}members
 			WHERE id_member > {int:id_member}
@@ -111,35 +123,9 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		}
 
 		if ($this->_details['last_member_id'] < Config::$modSettings['latestMember']) {
-			$this->respawn();
+			$this->respawn($this->_details);
 		}
 
 		return true;
 	}
-
-	/**
-	 * Adds a new instance of this task to the task list.
-	 */
-	private function respawn(): void
-	{
-		Db::$db->insert(
-			'insert',
-			'{db_prefix}background_tasks',
-			[
-				'task_class' => 'string-255',
-				'task_data' => 'string',
-				'claimed_time' => 'int',
-			],
-			[
-				[
-					get_class($this),
-					json_encode($this->_details),
-					0,
-				],
-			],
-			[],
-		);
-	}
 }
-
-?>

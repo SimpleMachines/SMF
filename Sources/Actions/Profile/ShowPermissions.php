@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
+use SMF\Permissions\PermissionProfile;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -33,8 +34,6 @@ class ShowPermissions implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -44,14 +43,12 @@ class ShowPermissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ManagePermissions');
-		Lang::load('Admin');
 		Theme::loadTemplate('ManageMembers');
 
 		// Verify if the user has sufficient permissions.
 		User::$me->isAllowedTo('manage_permissions');
 
-		Utils::$context['page_title'] = Lang::$txt['showPermissions'];
+		Utils::$context['page_title'] = Lang::getTxt('showPermissions', file: 'Profile');
 
 		// If they're an admin we know they can do everything, so we might as well leave.
 		Profile::$member->formatted['has_all_permissions'] = Profile::$member->is_admin;
@@ -61,7 +58,7 @@ class ShowPermissions implements ActionInterface
 		}
 
 		// Load all the permission profiles.
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		$board = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
 		Utils::$context['board'] = $board;
@@ -71,7 +68,6 @@ class ShowPermissions implements ActionInterface
 		Utils::$context['no_access_boards'] = [];
 
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_board, b.name, b.id_profile, b.member_groups, COALESCE(mods.id_member, modgs.id_group, 0) AS is_mod
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -81,10 +77,11 @@ class ShowPermissions implements ActionInterface
 				'current_member' => Profile::$member->id,
 				'current_groups' => Profile::$member->groups,
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!$row['is_mod'] && !Profile::$member->can_manage_boards && count(array_intersect(Profile::$member->groups, explode(',', $row['member_groups']))) === 0) {
+			if (!$row['is_mod'] && !Profile::$member->can_manage_boards && \count(array_intersect(Profile::$member->groups, explode(',', $row['member_groups']))) === 0) {
 				Utils::$context['no_access_boards'][] = [
 					'id' => $row['id_board'],
 					'name' => $row['name'],
@@ -105,7 +102,7 @@ class ShowPermissions implements ActionInterface
 		Board::sort(Utils::$context['boards']);
 
 		if (!empty(Utils::$context['no_access_boards'])) {
-			Utils::$context['no_access_boards'][count(Utils::$context['no_access_boards']) - 1]['is_last'] = true;
+			Utils::$context['no_access_boards'][\count(Utils::$context['no_access_boards']) - 1]['is_last'] = true;
 		}
 
 		Profile::$member->formatted['permissions'] = [
@@ -121,7 +118,6 @@ class ShowPermissions implements ActionInterface
 
 		// Get all general permissions.
 		$result = Db::$db->query(
-			'',
 			'SELECT p.permission, p.add_deny, mg.group_name, p.id_group
 			FROM {db_prefix}permissions AS p
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = p.id_group)
@@ -135,7 +131,7 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
@@ -144,17 +140,20 @@ class ShowPermissions implements ActionInterface
 			}
 
 			// Permissions that end with _own or _any consist of two parts.
-			if (in_array(substr($row['permission'], -4), ['_own', '_any']) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+			if (
+				\in_array(substr($row['permission'], -4), ['_own', '_any'])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
+			) {
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Add this permission if it doesn't exist yet.
 			if (!isset($general_perms[$row['permission']])) {
@@ -179,7 +178,6 @@ class ShowPermissions implements ActionInterface
 		Db::$db->free_result($result);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
 				b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
@@ -202,25 +200,25 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
 			// The name of the permission using the format 'permission name' - 'own/any topic/event/etc.'.
 			if (
-				in_array(substr($row['permission'], -4), ['_own', '_any'])
-				&& isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])
+				\in_array(substr($row['permission'], -4), ['_own', '_any'])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
 			) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Create the structure for this permission.
 			if (!isset($board_perms[$row['permission']])) {
@@ -257,5 +255,3 @@ class ShowPermissions implements ActionInterface
 		}
 	}
 }
-
-?>

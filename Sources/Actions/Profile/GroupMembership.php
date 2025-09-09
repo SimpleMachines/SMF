@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -70,7 +70,7 @@ class GroupMembership implements ActionInterface
 		}
 
 		Utils::$context['primary_group'] = Profile::$member->group_id;
-		Utils::$context['update_message'] = Lang::$txt['group_membership_msg_' . ($_GET['msg'] ?? '')] ?? '';
+		Utils::$context['update_message'] = !empty($_GET['msg']) && Lang::txtExists('group_membership_msg_' . $_GET['msg'], file: 'Profile') ? Lang::getTxt('group_membership_msg_' . $_GET['msg'], file: 'Profile') : '';
 
 		// Can they manage groups?
 		Utils::$context['can_edit_primary'] = $this->canEditPrimary();
@@ -86,7 +86,6 @@ class GroupMembership implements ActionInterface
 
 		// Get any pending join requests.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
@@ -111,7 +110,7 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Are they in this group?
-			$member_or_available = in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
+			$member_or_available = \in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
 			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
@@ -121,17 +120,17 @@ class GroupMembership implements ActionInterface
 			Utils::$context['groups'][$member_or_available][$group->id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$group->id]->pending = in_array($group->id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$group->id]->pending = \in_array($group->id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
 		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR) {
 			Utils::$context['groups']['member'][Group::REGULAR] = Profile::$member->assignable_groups[Group::REGULAR];
-			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::$txt['regular_members'];
+			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::getTxt('regular_members', file: 'Profile');
 		}
 
 		// No changing primary group unless you have enough groups!
-		if (count(Utils::$context['groups']['member']) < 2) {
+		if (\count(Utils::$context['groups']['member']) < 2) {
 			Utils::$context['can_edit_primary'] = false;
 		}
 
@@ -193,7 +192,7 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Can't leave a requestable group that you're not part of.
-			if ($new_group_info['type'] == 2 && !in_array($new_group_id, Profile::$member->groups)) {
+			if ($new_group_info['type'] == 2 && !\in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 		}
@@ -213,7 +212,7 @@ class GroupMembership implements ActionInterface
 				// Are they leaving?
 				if (Profile::$member->group_id == $new_group_id) {
 					$new_primary = $can_edit_primary ? 0 : Profile::$member->group_id;
-				} elseif (in_array($new_group_id, Profile::$member->additional_groups)) {
+				} elseif (\in_array($new_group_id, Profile::$member->additional_groups)) {
 					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 				// ... if not, must be joining.
@@ -237,7 +236,7 @@ class GroupMembership implements ActionInterface
 					$new_additional_groups[] = Profile::$member->group_id;
 				}
 
-				if (in_array($new_group_id, $new_additional_groups)) {
+				if (\in_array($new_group_id, $new_additional_groups)) {
 					$new_additional_groups = array_diff($new_additional_groups, [$new_group_id]);
 				}
 
@@ -290,7 +289,7 @@ class GroupMembership implements ActionInterface
 				}
 
 				$group->is_primary = $group->id == Profile::$member->group_id;
-				$group->is_additional = in_array($group->id, Profile::$member->additional_groups);
+				$group->is_additional = \in_array($group->id, Profile::$member->additional_groups);
 
 				$current_and_assignable_groups[$group->id] = $group;
 			}
@@ -340,7 +339,6 @@ class GroupMembership implements ActionInterface
 	protected function sendJoinRequest(int $new_group_id): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
@@ -420,5 +418,3 @@ class GroupMembership implements ActionInterface
 		);
 	}
 }
-
-?>

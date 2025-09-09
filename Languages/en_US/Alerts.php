@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Alerts
+// Version: 3.0 Alpha 4; Alerts
 
 // Load Alerts strings
 $txt['topic_na'] = '(private topic)';
@@ -44,5 +44,3 @@ $txt['alert_paidsubs_expired'] = 'Your {subscription_name} subscription expired 
 $txt['alert_member_buddy_request'] = '{member_link} added you as their buddy';
 $txt['alert_birthday_msg'] = '{happy_birthday}';
 $txt['alerts_none'] = 'You have no alerts.';
-
-?>

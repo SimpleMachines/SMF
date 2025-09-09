@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -44,7 +44,6 @@ use SMF\Utils;
 class TopicMerge implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -186,10 +185,10 @@ class TopicMerge implements ActionInterface, Routable
 		// Load the template....
 		Theme::loadTemplate('MoveTopic');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -216,14 +215,13 @@ class TopicMerge implements ActionInterface, Routable
 		// Prepare a handy query bit for approval...
 		if (Config::$modSettings['postmod_active']) {
 			$can_approve_boards = User::$me->boardsAllowedTo('approve_posts');
-			$onlyApproved = $can_approve_boards !== [0] && !in_array($_REQUEST['targetboard'], $can_approve_boards);
+			$onlyApproved = $can_approve_boards !== [0] && !\in_array($_REQUEST['targetboard'], $can_approve_boards);
 		} else {
 			$onlyApproved = false;
 		}
 
 		// How many topics are on this board?  (used for paging.)
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}topics AS t
 			WHERE t.id_board = {int:id_board}' . ($onlyApproved ? '
@@ -242,12 +240,11 @@ class TopicMerge implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != $start) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, $start));
 		}
 
 		// Get the topic's subject.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -272,7 +269,7 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['origin_topic'] = $_GET['from'];
 		Utils::$context['origin_subject'] = $subject;
 		Utils::$context['origin_js_subject'] = addcslashes(addslashes($subject), '/');
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 
 		// Check which boards you have merge permissions on.
 		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
@@ -282,7 +279,7 @@ class TopicMerge implements ActionInterface, Routable
 		}
 
 		// No sense in loading this if you can only merge on this board
-		if (count($this->merge_boards) > 1 || in_array(0, $this->merge_boards)) {
+		if (\count($this->merge_boards) > 1 || \in_array(0, $this->merge_boards)) {
 			// Set up a couple of options for our board list
 			$options = [
 				'not_redirection' => true,
@@ -290,7 +287,7 @@ class TopicMerge implements ActionInterface, Routable
 			];
 
 			// Only include these boards in the list (0 means you're an admin')
-			if (!in_array(0, $this->merge_boards)) {
+			if (!\in_array(0, $this->merge_boards)) {
 				$options['included_boards'] = $this->merge_boards;
 			}
 
@@ -301,7 +298,6 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['topics'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic, m.subject, m.id_member, COALESCE(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -340,7 +336,7 @@ class TopicMerge implements ActionInterface, Routable
 		}
 		Db::$db->free_result($request);
 
-		if (empty(Utils::$context['topics']) && count($this->merge_boards) <= 1 && !in_array(0, $this->merge_boards)) {
+		if (empty(Utils::$context['topics']) && \count($this->merge_boards) <= 1 && !\in_array(0, $this->merge_boards)) {
 			ErrorHandler::fatalLang('merge_need_more_topics');
 		}
 
@@ -359,9 +355,8 @@ class TopicMerge implements ActionInterface, Routable
 	{
 		$this->initOptionsAndMerge();
 
-		if (count($this->polls) > 1) {
+		if (\count($this->polls) > 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT t.id_topic, t.id_poll, m.subject, p.question
 				FROM {db_prefix}polls AS p
 					INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
@@ -370,7 +365,7 @@ class TopicMerge implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'polls' => $this->polls,
-					'limit' => count($this->polls),
+					'limit' => \count($this->polls),
 				],
 			);
 
@@ -388,9 +383,8 @@ class TopicMerge implements ActionInterface, Routable
 			Db::$db->free_result($request);
 		}
 
-		if (count($this->boards) > 1) {
+		if (\count($this->boards) > 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:boards})
@@ -398,7 +392,7 @@ class TopicMerge implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'boards' => $this->boards,
-					'limit' => count($this->boards),
+					'limit' => \count($this->boards),
 				],
 			);
 
@@ -418,7 +412,7 @@ class TopicMerge implements ActionInterface, Routable
 			Utils::$context['topics'][$id]['selected'] = $topic['id'] == $this->firstTopic;
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_extra_options';
 	}
 
@@ -436,16 +430,16 @@ class TopicMerge implements ActionInterface, Routable
 		$this->initOptionsAndMerge();
 
 		// Determine target board.
-		$target_board = count($this->boards) > 1 ? (int) $_REQUEST['board'] : $this->boards[0];
+		$target_board = \count($this->boards) > 1 ? (int) $_REQUEST['board'] : $this->boards[0];
 
-		if (!in_array($target_board, $this->boards)) {
+		if (!\in_array($target_board, $this->boards)) {
 			ErrorHandler::fatalLang('no_board');
 		}
 
 		// Determine which poll will survive and which polls won't.
-		$target_poll = count($this->polls) > 1 ? (int) $_POST['poll'] : (count($this->polls) == 1 ? $this->polls[0] : 0);
+		$target_poll = \count($this->polls) > 1 ? (int) $_POST['poll'] : (\count($this->polls) == 1 ? $this->polls[0] : 0);
 
-		if ($target_poll > 0 && !in_array($target_poll, $this->polls)) {
+		if ($target_poll > 0 && !\in_array($target_poll, $this->polls)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -479,7 +473,6 @@ class TopicMerge implements ActionInterface, Routable
 		$first_msg = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT approved, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg, COUNT(*) AS message_count
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})
@@ -538,7 +531,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Get the member ID of the first and last message.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({int:first_msg}, {int:last_msg})
@@ -560,7 +552,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Obtain all the message ids we are going to affect.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topic_list})',
@@ -581,7 +572,6 @@ class TopicMerge implements ActionInterface, Routable
 		// We don't want the search index data though (For non-redirect merges).
 		if (!isset($_POST['postRedirect'])) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_search_subjects
 				WHERE id_topic IN ({array_int:deleted_topics})',
 				[
@@ -599,17 +589,12 @@ class TopicMerge implements ActionInterface, Routable
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
+				Lang::getTxt('movetopic_auto_topic', file: 'General') => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			];
 
-			// Should be in the boardwide language.
+			// Make sure we catch both languages in the reason.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('General', Lang::$default);
-
-				// Make sure we catch both languages in the reason.
-				$reason_replacements += [
-					Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
-				];
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
@@ -625,7 +610,7 @@ class TopicMerge implements ActionInterface, Routable
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']]);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']], file: 'General', lang: Lang::$default);
 
 				$msgOptions = [
 					'icon' => 'moved',
@@ -651,29 +636,20 @@ class TopicMerge implements ActionInterface, Routable
 				// Update subject search index
 				Logging::updateStats('subject', $this_old_topic, $redirect_subject);
 			}
-
-			// Restore language strings to normal.
-			if (User::$me->language != Lang::$default) {
-				Lang::load('General');
-			}
 		}
 
 		// Grab the response prefix (like 'Re: ') in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Change the topic IDs of all messages that will be merged.  Also adjust subjects if 'enforce subject' was checked.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET
 				id_topic = {int:id_topic},
@@ -692,7 +668,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Any reported posts should reflect the new board.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET
 				id_topic = {int:id_topic},
@@ -707,7 +682,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Change the subject of the first message...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET subject = {string:target_subject}
 			WHERE id_msg = {int:first_msg}',
@@ -719,7 +693,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Adjust all calendar events to point to the new topic.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}calendar
 			SET
 				id_topic = {int:id_topic},
@@ -735,7 +708,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Merge log topic entries.
 		// The unwatch setting comes from the oldest topic
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, MIN(id_msg) AS new_id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})
@@ -764,7 +736,6 @@ class TopicMerge implements ActionInterface, Routable
 
 			// Get rid of the old log entries.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_topics
 				WHERE id_topic IN ({array_int:deleted_topics})',
 				[
@@ -775,11 +746,10 @@ class TopicMerge implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		// Merge topic notifications.
-		$notifications = isset($_POST['notifications']) && is_array($_POST['notifications']) ? array_intersect($this->topics, $_POST['notifications']) : [];
+		$notifications = isset($_POST['notifications']) && \is_array($_POST['notifications']) ? array_intersect($this->topics, $_POST['notifications']) : [];
 
 		if (!empty($notifications)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, MAX(sent) AS sent
 				FROM {db_prefix}log_notify
 				WHERE id_topic IN ({array_int:topics_list})
@@ -807,7 +777,6 @@ class TopicMerge implements ActionInterface, Routable
 				unset($replaceEntries);
 
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_topics
 					WHERE id_topic IN ({array_int:deleted_topics})',
 					[
@@ -821,7 +790,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Get rid of the redundant polls.
 		if (!empty($deleted_polls)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}polls
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -830,7 +798,6 @@ class TopicMerge implements ActionInterface, Routable
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}poll_choices
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -839,7 +806,6 @@ class TopicMerge implements ActionInterface, Routable
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_polls
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -851,7 +817,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Cycle through each board...
 		foreach ($this->boardTotals as $id_board => $stats) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET
 					num_topics = CASE WHEN {int:topics} > num_topics THEN 0 ELSE num_topics - {int:topics} END,
@@ -871,7 +836,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Determine the board the final topic resides in
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
@@ -890,7 +854,6 @@ class TopicMerge implements ActionInterface, Routable
 			// and last posts are the same and so on and so forth.
 			foreach ($updated_topics as $old_topic => $id_msg) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}topics
 					SET id_first_msg = id_last_msg,
 						id_member_started = {int:current_user},
@@ -914,7 +877,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Ensure we don't accidentally delete the poll we want to keep...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_poll = 0
 			WHERE id_topic IN ({array_int:deleted_topics})',
@@ -932,7 +894,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Assign the properties of the newly merged topic.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				id_board = {int:id_board},
@@ -977,7 +938,7 @@ class TopicMerge implements ActionInterface, Routable
 		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'topicMerge'])) {
+		if (\is_callable([$searchAPI, 'topicMerge'])) {
 			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : Utils::$context['response_prefix'] . $target_subject);
 		}
 
@@ -1016,7 +977,7 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['target_board'] = (int) $_GET['targetboard'];
 		Utils::$context['target_topic'] = (int) $_GET['to'];
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_done';
 	}
 
@@ -1101,7 +1062,7 @@ class TopicMerge implements ActionInterface, Routable
 		$this->getTopics();
 
 		// There's nothing to merge with just one topic...
-		if (empty($this->topics) || !is_array($this->topics) || count($this->topics) == 1) {
+		if (empty($this->topics) || !\is_array($this->topics) || \count($this->topics) == 1) {
 			ErrorHandler::fatalLang('merge_need_more_topics');
 		}
 
@@ -1145,7 +1106,7 @@ class TopicMerge implements ActionInterface, Routable
 	protected function getTopics(): void
 	{
 		// Already set.
-		if (count($this->topics) > 1) {
+		if (\count($this->topics) > 1) {
 			return;
 		}
 
@@ -1155,7 +1116,7 @@ class TopicMerge implements ActionInterface, Routable
 		}
 
 		// If we came from a form, the topic IDs came by post.
-		if (!empty($_REQUEST['topics']) && is_array($_REQUEST['topics'])) {
+		if (!empty($_REQUEST['topics']) && \is_array($_REQUEST['topics'])) {
 			$this->topics = (array) $_REQUEST['topics'];
 		}
 	}
@@ -1166,7 +1127,6 @@ class TopicMerge implements ActionInterface, Routable
 	protected function getTopicData(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic,
 				m1.subject, m1.poster_time AS time_started, COALESCE(mem1.id_member, 0) AS id_member_started, COALESCE(mem1.real_name, m1.poster_name) AS name_started,
@@ -1181,7 +1141,7 @@ class TopicMerge implements ActionInterface, Routable
 			LIMIT {int:limit}',
 			[
 				'topic_list' => $this->topics,
-				'limit' => count($this->topics),
+				'limit' => \count($this->topics),
 			],
 		);
 
@@ -1206,7 +1166,7 @@ class TopicMerge implements ActionInterface, Routable
 			}
 
 			// We can't see unapproved topics here?
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $this->can_approve_boards != [0] && in_array($row['id_board'], $this->can_approve_boards)) {
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $this->can_approve_boards != [0] && \in_array($row['id_board'], $this->can_approve_boards)) {
 				// If we can't see it, we should not merge it and not adjust counts! Instead skip it.
 				unset($this->topics[$row['id_topic']]);
 
@@ -1285,27 +1245,24 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Make sure they can see all boards....
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:boards})
-				AND {query_see_board}' . (!in_array(0, $this->merge_boards) ? '
+				AND {query_see_board}' . (!\in_array(0, $this->merge_boards) ? '
 				AND b.id_board IN ({array_int:merge_boards})' : '') . '
 			LIMIT {int:limit}',
 			[
 				'boards' => $this->boards,
 				'merge_boards' => $this->merge_boards,
-				'limit' => count($this->boards),
+				'limit' => \count($this->boards),
 			],
 		);
 
 		// If the number of boards that's in the output isn't exactly the same as we've put in there, you're in trouble.
-		if (Db::$db->num_rows($request) != count($this->boards)) {
+		if (Db::$db->num_rows($request) != \count($this->boards)) {
 			ErrorHandler::fatalLang('no_board');
 		}
 
 		Db::$db->free_result($request);
 	}
 }
-
-?>

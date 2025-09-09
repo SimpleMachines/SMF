@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageCalendar
+// Version: 3.0 Alpha 4; ManageCalendar
 
 $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';
 
@@ -67,5 +67,3 @@ $txt['calendar_import_subscribe'] = 'Subscribe to this calendar';
 $txt['calendar_import_subscribe_desc'] = 'Calendars you subscribe to will be reimported regularly.';
 $txt['calendar_import_manage_subscriptions'] = 'Subscribed calendars';
 $txt['calendar_import_unsubscribe'] = 'Unsubscribe';
-
-?>

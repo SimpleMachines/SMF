@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -221,15 +221,13 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('Admin+Modlog');
-
 		// If we're coming from a search, set those variables.
 		$this->setupSearch();
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -241,7 +239,7 @@ class Logs implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Utils::$context['page_title'] = Lang::$txt['modlog_admin_log'];
+		Utils::$context['page_title'] = Lang::getTxt('modlog_admin_log', file: 'Modlog');
 
 		$this->deleteEntries();
 
@@ -254,7 +252,7 @@ class Logs implements ActionInterface
 	 */
 	public function modlog(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['modlog_view'];
+		Utils::$context['page_title'] = Lang::getTxt('modlog_view', file: 'General');
 
 		$this->deleteEntries();
 
@@ -280,7 +278,6 @@ class Logs implements ActionInterface
 		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], ['id_board' => 'b.id_board']) . ' AND ' . strtr(User::$me->mod_cache['bq'], ['id_board' => 't.id_board'])));
 
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_actions AS lm
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lm.id_member)
@@ -329,7 +326,6 @@ class Logs implements ActionInterface
 
 		// Here we have the query getting the log details.
 		$result = Db::$db->query(
-			'',
 			'SELECT
 				lm.id_action, lm.id_member, lm.ip, lm.log_time, lm.action, lm.id_board, lm.id_topic, lm.id_msg, lm.extra,
 				mem.real_name, mg.group_name
@@ -365,7 +361,7 @@ class Logs implements ActionInterface
 			$row['extra'] = Utils::jsonDecode($row['extra'], true);
 
 			// Corrupt?
-			$row['extra'] = is_array($row['extra']) ? $row['extra'] : [];
+			$row['extra'] = \is_array($row['extra']) ? $row['extra'] : [];
 
 			// Add on some of the column stuff info
 			if (!empty($row['id_board'])) {
@@ -399,7 +395,7 @@ class Logs implements ActionInterface
 			if (isset($row['extra']['member'])) {
 				// Guests don't have names!
 				if (empty($row['extra']['member'])) {
-					$row['extra']['member'] = Lang::$txt['modlog_parameter_guest'];
+					$row['extra']['member'] = Lang::getTxt('modlog_parameter_guest', file: 'Modlog');
 				} else {
 					// Try to find it...
 					$members[(int) $row['extra']['member']][] = $row['id_action'];
@@ -429,7 +425,7 @@ class Logs implements ActionInterface
 				if ($seeIP) {
 					$row['extra']['ip_range'] = '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['extra']['ip_range'] . '">' . $row['extra']['ip_range'] . '</a>';
 				} else {
-					$row['extra']['ip_range'] = Lang::$txt['logged'];
+					$row['extra']['ip_range'] = Lang::getTxt('logged', file: 'General');
 				}
 			}
 
@@ -440,11 +436,11 @@ class Logs implements ActionInterface
 
 			// Bans are complex.
 			if ($row['action'] == 'ban' || $row['action'] == 'banremove') {
-				$row['action_text'] = Lang::$txt['modlog_ac_ban' . ($row['action'] == 'banremove' ? '_remove' : '')];
+				$row['action_text'] = Lang::getTxt('modlog_ac_ban' . ($row['action'] == 'banremove' ? '_remove' : ''), file: 'Modlog');
 
 				foreach (['member', 'email', 'ip_range', 'hostname'] as $type) {
 					if (isset($row['extra'][$type])) {
-						$row['action_text'] .= Lang::$txt['modlog_ac_ban_trigger_' . $type];
+						$row['action_text'] .= Lang::getTxt('modlog_ac_ban_trigger_' . $type, file: 'Modlog');
 					}
 				}
 			}
@@ -452,12 +448,12 @@ class Logs implements ActionInterface
 			// The array to go to the template. Note here that action is set to a "default" value of the action doesn't match anything in the descriptions. Allows easy adding of logging events with basic details.
 			$entries[$row['id_action']] = [
 				'id' => $row['id_action'],
-				'ip' => $seeIP ? new IP($row['ip']) : Lang::$txt['logged'],
-				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::$txt['guest'] : $row['group_name'],
-				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
+				'ip' => $seeIP ? new IP($row['ip']) : Lang::getTxt('logged', file: 'General'),
+				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::getTxt('guest', file: 'General') : $row['group_name'],
+				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::getTxt('guest', file: 'General') . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
-				'editable' => !str_starts_with($row['action'], 'clearlog') && !in_array($row['action'], self::$uneditable_actions),
+				'editable' => !str_starts_with($row['action'], 'clearlog') && !\in_array($row['action'], self::$uneditable_actions),
 				'extra' => $row['extra'],
 				'action' => $row['action'],
 				'action_text' => $row['action_text'] ?? '',
@@ -467,14 +463,13 @@ class Logs implements ActionInterface
 
 		if (!empty($boards)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:board_list})
 				LIMIT {int:limit}',
 				[
 					'board_list' => array_keys($boards),
-					'limit' => count(array_keys($boards)),
+					'limit' => \count(array_keys($boards)),
 				],
 			);
 
@@ -495,7 +490,6 @@ class Logs implements ActionInterface
 
 		if (!empty($topics)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT ms.subject, t.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -503,7 +497,7 @@ class Logs implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'topic_list' => array_keys($topics),
-					'limit' => count(array_keys($topics)),
+					'limit' => \count(array_keys($topics)),
 				],
 			);
 
@@ -532,14 +526,13 @@ class Logs implements ActionInterface
 
 		if (!empty($messages)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg, subject
 				FROM {db_prefix}messages
 				WHERE id_msg IN ({array_int:message_list})
 				LIMIT {int:limit}',
 				[
 					'message_list' => array_keys($messages),
-					'limit' => count(array_keys($messages)),
+					'limit' => \count(array_keys($messages)),
 				],
 			);
 
@@ -566,14 +559,13 @@ class Logs implements ActionInterface
 
 		if (!empty($members)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT real_name, id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
 				LIMIT {int:limit}',
 				[
 					'member_list' => array_keys($members),
-					'limit' => count(array_keys($members)),
+					'limit' => \count(array_keys($members)),
 				],
 			);
 
@@ -602,29 +594,27 @@ class Logs implements ActionInterface
 
 			// Mark up any deleted members, topics and boards.
 			foreach (['board', 'board_from', 'board_to', 'member', 'topic', 'new_topic'] as $type) {
-				if (in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
+				if (\in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
 					$entries[$k]['extra'][$type] = $entry['extra']['subject'];
 				} elseif (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
-					$entries[$k]['extra'][$type] = Lang::getTxt('modlog_id', [$entry['extra'][$type]]);
+					$entries[$k]['extra'][$type] = Lang::getTxt('modlog_id', [$entry['extra'][$type]], file: 'Modlog');
 				}
 			}
 
 			if (isset($entry['extra']['report'])) {
 				// Member profile reports go in a different area
 				if (stristr($entry['action'], 'user_report')) {
-					$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::$txt['modlog_report'] . '</a>';
+					$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::getTxt('modlog_report', file: 'Modlog') . '</a>';
 				} else {
-					$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::$txt['modlog_report'] . '</a>';
+					$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::getTxt('modlog_report', file: 'Modlog') . '</a>';
 				}
 			}
 
 			if (empty($entries[$k]['action_text'])) {
-				$entries[$k]['action_text'] = Lang::$txt['modlog_ac_' . $entry['action']] ?? $entry['action'];
+				$entries[$k]['action_text'] = Lang::txtExists('modlog_ac_' . $entry['action'], file: 'Modlog') ? Lang::getTxt('modlog_ac_' . $entry['action'], file: 'Modlog') : $entry['action'];
 			}
 
-			Lang::$txt['action_text'] = $entries[$k]['action_text'];
-			$entries[$k]['action_text'] = Lang::getTxt('action_text', (array) $entries[$k]['extra']);
-			unset(Lang::$txt['action_text']);
+			$entries[$k]['action_text'] = Lang::formatText($entries[$k]['action_text'], (array) $entries[$k]['extra']);
 		}
 
 		// Back we go!
@@ -640,7 +630,7 @@ class Logs implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], self::$actions)) {
+		if (!empty($_REQUEST['action']) && \in_array($_REQUEST['action'], self::$actions)) {
 			$this->action = $_REQUEST['action'];
 		}
 
@@ -699,7 +689,7 @@ class Logs implements ActionInterface
 		$this->search_info = [
 			'string' => $this->search_params['string'],
 			'type' => $this->search_params['type'],
-			'label' => Lang::$txt[self::$search_types[$this->search_params_type]['label']],
+			'label' => Lang::getTxt(self::$search_types[$this->search_params_type]['label'], file: 'Modlog'),
 		];
 
 		// If they are searching by action, then we must do some manual intervention to search in their language!
@@ -735,7 +725,6 @@ class Logs implements ActionInterface
 		SecurityToken::validate('mod-ml');
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 			AND action NOT IN ({array_string:uneditable})',
@@ -759,7 +748,6 @@ class Logs implements ActionInterface
 
 		// No sneaky removing the 'cleared the log' entries.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 				AND id_action IN ({array_string:delete_actions})
@@ -782,10 +770,10 @@ class Logs implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'moderation_log_list',
-			'title' => $this->log_type == 3 ? Lang::$txt['admin_log'] : Lang::$txt['moderation_log'],
+			'title' => $this->log_type == 3 ? Lang::getTxt('admin_log', file: 'Admin') : Lang::getTxt('moderation_log', file: 'Admin'),
 			'width' => '100%',
 			'items_per_page' => $this->per_page,
-			'no_items_label' => Lang::$txt['modlog_' . ($this->log_type == 3 ? 'admin_log_' : '') . 'no_entries_found'],
+			'no_items_label' => Lang::getTxt('modlog_' . ($this->log_type == 3 ? 'admin_log_' : '') . 'no_entries_found', file: 'Modlog'),
 			'base_href' => Config::$scripturl . $this->url_start . (!empty($this->encoded_search_params) ? ';params=' . $this->encoded_search_params : ''),
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -808,7 +796,7 @@ class Logs implements ActionInterface
 			'columns' => [
 				'action' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_action'],
+						'value' => Lang::getTxt('modlog_action', file: 'Modlog'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -822,7 +810,7 @@ class Logs implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_date'],
+						'value' => Lang::getTxt('modlog_date', file: 'Modlog'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -836,7 +824,7 @@ class Logs implements ActionInterface
 				],
 				'moderator' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_member'],
+						'value' => Lang::getTxt('modlog_member', file: 'Modlog'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -850,7 +838,7 @@ class Logs implements ActionInterface
 				],
 				'position' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_position'],
+						'value' => Lang::getTxt('modlog_position', file: 'Modlog'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -864,7 +852,7 @@ class Logs implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_ip'],
+						'value' => Lang::getTxt('modlog_ip', file: 'Modlog'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -903,19 +891,19 @@ class Logs implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						' . Lang::getTxt('modlog_search_by', $this->search_info) . '
+						' . Lang::getTxt('modlog_search_by', $this->search_info, file: 'Modlog') . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars($this->search_info['string']) . '">
-						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button" style="float:none">
+						<input type="submit" name="is_search" value="' . Lang::getTxt('modlog_go', file: 'Modlog') . '" class="button" style="float:none">
 						' . ($this->can_delete ? '
-						<input type="submit" name="remove" value="' . Lang::$txt['modlog_remove'] . '" data-confirm="' . Lang::$txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeall" value="' . Lang::$txt['modlog_removeall'] . '" data-confirm="' . Lang::$txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
+						<input type="submit" name="remove" value="' . Lang::getTxt('modlog_remove', file: 'Modlog') . '" data-confirm="' . Lang::getTxt('modlog_remove_selected_confirm', file: 'Modlog') . '" class="button you_sure">
+						<input type="submit" name="removeall" value="' . Lang::getTxt('modlog_removeall', file: 'Modlog') . '" data-confirm="' . Lang::getTxt('modlog_remove_all_confirm', file: 'Modlog') . '" class="button you_sure">' : ''),
 					'class' => '',
 				],
 				[
 					'position' => 'below_table_data',
 					'value' => $this->can_delete ? '
-						<input type="submit" name="remove" value="' . Lang::$txt['modlog_remove'] . '" data-confirm="' . Lang::$txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeall" value="' . Lang::$txt['modlog_removeall'] . '" data-confirm="' . Lang::$txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : '',
+						<input type="submit" name="remove" value="' . Lang::getTxt('modlog_remove', file: 'Modlog') . '" data-confirm="' . Lang::getTxt('modlog_remove_selected_confirm', file: 'Modlog') . '" class="button you_sure">
+						<input type="submit" name="removeall" value="' . Lang::getTxt('modlog_removeall', file: 'Modlog') . '" data-confirm="' . Lang::getTxt('modlog_remove_all_confirm', file: 'Modlog') . '" class="button you_sure">' : '',
 					'class' => 'floatright',
 				],
 			],
@@ -938,12 +926,10 @@ class Logs implements ActionInterface
 			Menu::$loaded['moderate']->tab_data = $moderation_menu_name;
 		} elseif (isset(Utils::$context['moderation_menu_name'])) {
 			Menu::$loaded['moderate']->tab_data = [
-				'title' => Lang::$txt['modlog_' . ($this->log_type == 3 ? 'admin' : 'moderation') . '_log'],
+				'title' => Lang::getTxt('modlog_' . ($this->log_type == 3 ? 'admin' : 'moderation') . '_log', file: 'Modlog'),
 				'help' => $this->log_type == 3 ? 'adminlog' : 'modlog',
-				'description' => Lang::$txt['modlog_' . ($this->log_type == 3 ? 'admin' : 'moderation') . '_log_desc'],
+				'description' => Lang::getTxt('modlog_' . ($this->log_type == 3 ? 'admin' : 'moderation') . '_log_desc', file: 'Modlog'),
 			];
 		}
 	}
 }
-
-?>

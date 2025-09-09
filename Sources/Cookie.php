@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -20,6 +20,32 @@ namespace SMF;
  */
 class Cookie
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var int
+	 *
+	 * By default, cookies expire after one hour of inactivity.
+	 */
+	public const LENGTH_DEFAULT = 3600;
+
+	/**
+	 * @var int
+	 *
+	 * The two-factor authentication cookie expires after 30 days.
+	 */
+	public const LENGTH_TFA = 2592000;
+
+	/**
+	 * @var int
+	 *
+	 * If the user chooses the "remember me" option, their login cookie won't
+	 * expire for one year.
+	 */
+	public const LENGTH_ONE_YEAR = 31536000;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -131,19 +157,19 @@ class Cookie
 	/**
 	 * Constructor.
 	 *
-	 * @param string $name Name of the cookie.
+	 * @param null|string $name Name of the cookie.
 	 * @param mixed $custom_data Data to include in the cookie.
-	 * @param int $expires When the cookie expires.
+	 * @param null|int $expires When the cookie expires.
 	 *    If not set, determined automatically.
-	 * @param string $domain The domain of the site where the cookie is used.
+	 * @param null|string $domain The domain of the site where the cookie is used.
 	 *    If not set, determined automatically.
-	 * @param string $path The part of the site where the cookie is used.
+	 * @param null|string $path The part of the site where the cookie is used.
 	 *    If not set, determined automatically.
 	 * @param bool $secure Whether cookie must be secure.
 	 *    If not set, determined by Config::$modSettings['secureCookies'].
 	 * @param bool $httponly Whether cookie can only be used for HTTP requests.
 	 *    If not set, determined by Config::$modSettings['httponlyCookies'].
-	 * @param string $samesite Value for the cookie's 'SameSite' attribute.
+	 * @param null|string $samesite Value for the cookie's 'SameSite' attribute.
 	 *    If not set, determined by Config::$modSettings['samesiteCookies'].
 	 */
 	public function __construct(
@@ -163,7 +189,7 @@ class Cookie
 		$this->custom_data = $custom_data ?? [];
 
 		// Special case for the login and TFA cookies.
-		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
+		if (\in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$this->member = (int) ($this->custom_data[0] ?? User::$me->id);
 			$this->hash = $this->custom_data[1] ?? self::encrypt(User::$me->passwd, User::$me->password_salt);
 
@@ -176,7 +202,7 @@ class Cookie
 			}
 		}
 
-		$this->expires = $expires ?? time() + 60 * Config::$modSettings['cookieTime'];
+		$this->expires = $expires ?? time() + self::LENGTH_DEFAULT;
 		$this->domain = $domain ?? self::$default_domain;
 		$this->path = $path ?? self::$default_path;
 		$this->secure = $secure ?? !empty(Config::$modSettings['secureCookies']);
@@ -200,7 +226,7 @@ class Cookie
 	 */
 	public function set(): bool
 	{
-		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
+		if (\in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$data = [
 				$this->member,
 				$this->hash,
@@ -212,7 +238,7 @@ class Cookie
 			$data = array_merge($data, (array) $this->custom_data);
 
 			$value = Utils::jsonEncode($data, JSON_FORCE_OBJECT);
-		} elseif (!is_scalar($this->custom_data)) {
+		} elseif (!\is_scalar($this->custom_data)) {
 			$value = Utils::jsonEncode($this->custom_data, JSON_FORCE_OBJECT);
 		} else {
 			$value = $this->custom_data;
@@ -253,7 +279,7 @@ class Cookie
 		// Special case for the login cookie.
 		if ($name === Config::$cookiename) {
 			// First check for JSON-format cookie
-			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
+			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]*","4":"[^"]*"~', $_COOKIE[$name])) {
 				$data = Utils::jsonDecode($_COOKIE[$name], true);
 			}
 			// Legacy format (for recent upgrades from SMF 2.0.x)
@@ -402,7 +428,7 @@ class Cookie
 			// Backup and remove the old session.
 			$oldSessionData = $_SESSION;
 			$_SESSION = [];
-			session_destroy();
+			@session_destroy();
 
 			// Recreate and restore the new session.
 			Session::load();
@@ -414,6 +440,47 @@ class Cookie
 
 			$_SESSION['login_' . Config::$cookiename] = $_COOKIE[Config::$cookiename];
 		}
+	}
+
+	/**
+	 * Updates the expiry time of the current user's login cookie.
+	 *
+	 * Unlike Cookie::setLoginCookie(), this method does not destroy and replace
+	 * the current session in the process of setting the new cookie. Instead, it
+	 * just updates the current session with the new cookie expiry time.
+	 */
+	public static function updateLoginCookieExpiry(): void
+	{
+		$cookie = self::getCookie(Config::$cookiename);
+
+		// Verify the data.
+		if (
+			User::$me->is_guest
+			|| $cookie->member !== User::$me->id
+			|| $cookie->hash !== self::encrypt(User::$me->passwd, User::$me->password_salt)
+		) {
+			return;
+		}
+
+		// Update the expiry time.
+		$cookie->expires = time() + (User::$me->stay_logged_in ? self::LENGTH_ONE_YEAR : self::LENGTH_DEFAULT);
+
+		// Send the cookie to the browser.
+		$cookie->set();
+
+		// Update the $_COOKIE and $_SESSION data.
+		$_COOKIE[Config::$cookiename] = Utils::jsonEncode(
+			[
+				$cookie->member,
+				$cookie->hash,
+				$cookie->expires,
+				$cookie->domain,
+				$cookie->path,
+			],
+			JSON_FORCE_OBJECT,
+		);
+
+		$_SESSION['login_' . Config::$cookiename] = $_COOKIE[Config::$cookiename];
 	}
 
 	/**
@@ -525,5 +592,3 @@ class Cookie
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 	}
 }
-
-?>

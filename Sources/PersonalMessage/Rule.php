@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -116,6 +116,10 @@ class Rule implements \ArrayAccess
 	 */
 	public static array $loaded = [];
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array
 	 *
@@ -186,13 +190,12 @@ class Rule implements \ArrayAccess
 					],
 				],
 				['id_rule'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;
 		} else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}pm_rules
 				SET
 					rule_name = {string:rule_name},
@@ -234,7 +237,6 @@ class Rule implements \ArrayAccess
 		Utils::$context['rules'] = &self::$loaded;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_rule, rule_name, criteria, actions, delete_pm, is_or
 			FROM {db_prefix}pm_rules
@@ -288,7 +290,6 @@ class Rule implements \ArrayAccess
 		$actions = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				pmr.id_pm, pm.id_member_from, pm.subject, pm.body, mem.id_group
 			FROM {db_prefix}pm_recipients AS pmr
@@ -369,14 +370,13 @@ class Rule implements \ArrayAccess
 				$realLabels = [];
 
 				foreach (Utils::$context['labels'] as $label) {
-					if (in_array($label['id'], $labels)) {
+					if (\in_array($label['id'], $labels)) {
 						$realLabels[] = $label['id'];
 					}
 				}
 
 				if (!empty(Theme::$current->options['pm_remove_inbox_label'])) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}pm_recipients
 						SET in_inbox = {int:in_inbox}
 						WHERE id_pm = {int:id_pm}
@@ -421,7 +421,6 @@ class Rule implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_rules
 			WHERE id_rule IN ({array_int:delete_list})
 				AND id_member = {int:me}',
@@ -447,10 +446,10 @@ class Rule implements \ArrayAccess
 		// The link tree - gotta have this :o
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=manrules',
-			'name' => Lang::$txt['pm_manage_rules'],
+			'name' => Lang::getTxt('pm_manage_rules', file: 'PersonalMessage'),
 		];
 
-		Utils::$context['page_title'] = Lang::$txt['pm_manage_rules'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_manage_rules', file: 'PersonalMessage');
 		Utils::$context['sub_template'] = 'rules';
 
 		// Load them... load them!!
@@ -501,7 +500,6 @@ class Rule implements \ArrayAccess
 
 				if (!empty($members)) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, member_name
 						FROM {db_prefix}members
 						WHERE id_member IN ({array_int:member_list})',
@@ -565,7 +563,6 @@ class Rule implements \ArrayAccess
 					$name = trim($_POST['ruledef'][$ind]);
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE real_name = {string:member_name}
@@ -576,7 +573,6 @@ class Rule implements \ArrayAccess
 					);
 
 					if (Db::$db->num_rows($request) == 0) {
-						Lang::load('Errors');
 						ErrorHandler::fatalLang('invalid_username', false);
 					}
 					list($memID) = Db::$db->fetch_row($request);
@@ -596,7 +592,7 @@ class Rule implements \ArrayAccess
 						't' => 'gid',
 						'v' => (int) $_POST['ruledefgroup'][$ind],
 					];
-				} elseif (in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
+				} elseif (\in_array($type, ['sub', 'msg']) && trim($_POST['ruledef'][$ind]) != '') {
 					$rule->criteria[] = [
 						't' => $type,
 						'v' => Utils::htmlspecialchars(trim($_POST['ruledef'][$ind])),
@@ -654,5 +650,3 @@ class Rule implements \ArrayAccess
 		}
 	}
 }
-
-?>

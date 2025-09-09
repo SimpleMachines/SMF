@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -60,6 +60,24 @@ class IP implements \Stringable
 	 * The host name associated with this IP address.
 	 */
 	protected $host;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * IP of the current user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * or a IP supplied by a reverse proxy.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip = null;
+
+	/**
+	 * The alternative IP of a user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * Used to check the IP in cases where a reverse proxy supplied us the main ip.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip_alternative = null;
 
 	/****************
 	 * Public methods
@@ -178,7 +196,7 @@ class IP implements \Stringable
 
 		// If we don't need to set a timeout, use PHP's native function.
 		if (empty($timeout)) {
-			$host = \gethostbyaddr($this->ip);
+			$host = gethostbyaddr($this->ip);
 		}
 
 		// Try asking the operating system to look it up for us.
@@ -386,7 +404,7 @@ class IP implements \Stringable
 								$range[1] = [$ranged[1]];
 							}
 
-							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && count($range[0]) < count($octets)) {
+							while (filter_var(implode($mode, $range[0]), FILTER_VALIDATE_IP) === false && \count($range[0]) < \count($octets)) {
 								$range[0][] = $min;
 							}
 
@@ -417,13 +435,13 @@ class IP implements \Stringable
 		// Finalize the strings.
 		foreach ([0, 1] as $key) {
 			// If it's too long, shorten it.
-			if (count($range[$key]) > $max_parts) {
-				$range[$key] = array_slice($range[$key], 0, $max_parts);
+			if (\count($range[$key]) > $max_parts) {
+				$range[$key] = \array_slice($range[$key], 0, $max_parts);
 			}
 
 			// If they're still too short, pad them out.
-			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && count($range[$key]) < $max_parts) {
-				if (in_array('*', $range[$key])) {
+			while (filter_var(implode($mode, $range[$key]), FILTER_VALIDATE_IP) === false && \count($range[$key]) < $max_parts) {
+				if (\in_array('*', $range[$key])) {
 					$range[$key] = explode($mode, preg_replace('/\*(?!' . preg_quote($mode . '*') . ')/', '*' . $mode . '*', implode($mode, $range[$key])));
 				} else {
 					$range[$key][] = '*';
@@ -478,6 +496,113 @@ class IP implements \Stringable
 		return $low . '-' . $high;
 	}
 
+	/**
+	 * Determines the IP of the current user.
+	 *
+	 * What it does:
+	 * - Checks REMOTE_ADDR exists
+	 * - If proxy detection is enabled, parses headers to find a valid header.
+	 * - If proxy IP filtering is setup, validates IP is in acceptable ranges
+	 * 		- Single IP or CIDR notation allowed.
+	 * - If a valid match is found return.
+	 */
+	public static function getUserIP(): string
+	{
+		// We already figured it out once.
+		if (static::$user_ip !== null) {
+			return static::$user_ip;
+		}
+
+		if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == 'unknown') {
+			return '';
+		}
+
+		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
+		if (!isset(Config::$modSettings['proxy_ip_header'])) {
+			Config::$modSettings['proxy_ip_header'] = 'autodetect';
+		}
+
+		// Which headers are we going to check for Reverse Proxy IP headers?
+		if (Config::$modSettings['proxy_ip_header'] == 'disabled') {
+			$reverseIPheaders = [];
+		} elseif (Config::$modSettings['proxy_ip_header'] == 'autodetect') {
+			$reverseIPheaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'];
+		} else {
+			$reverseIPheaders = [Config::$modSettings['proxy_ip_header']];
+		}
+
+		// Find the user's IP address. (but don't let it give you 'unknown'!)
+		foreach ($reverseIPheaders as $proxyIPheader) {
+			// Ignore if this is not set.
+			if (!isset($_SERVER[$proxyIPheader])) {
+				continue;
+			}
+
+			if (!empty(Config::$modSettings['proxy_ip_servers'])) {
+				$valid_sender = false;
+
+				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
+					if (
+						$proxy == $_SERVER['REMOTE_ADDR']
+						|| (new IP($_SERVER['REMOTE_ADDR']))->matchToCIDR($proxy)
+					) {
+						$valid_sender = true;
+						break;
+					}
+				}
+
+				if (!$valid_sender) {
+					continue;
+				}
+			}
+
+			// If there are commas, get the last one.. probably.
+			if (str_contains($_SERVER[$proxyIPheader], ',')) {
+				$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
+
+				// Go through each IP...
+				foreach ($ips as $i => $ip) {
+					// Make sure it's in a valid range...
+					if (self::isLocal($ip) && !self::isLocal($_SERVER['REMOTE_ADDR'])) {
+						continue;
+					}
+
+					// Otherwise, we've got an IP!
+					return static::$user_ip = trim($ip);
+				}
+			}
+			// Otherwise just use the only one.
+			elseif (!self::isLocal($_SERVER[$proxyIPheader]) && self::isLocal($_SERVER['REMOTE_ADDR'])) {
+				return static::$user_ip = $_SERVER[$proxyIPheader];
+			} elseif (self::is4in6($_SERVER[$proxyIPheader])) {
+				// @ TODO: Convert to IPv6.
+				continue;
+			}
+		}
+
+		return static::$user_ip = $_SERVER['REMOTE_ADDR'];
+	}
+
+	/**
+	 * Determines the Alternative IP of the current user.
+	 *
+	 * Returns BAN_CHECK_IP if set, otherwise REMOTE_ADDR.
+	 */
+	public static function getUserIPAlternative(): string
+	{
+		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'] ?? '';
+	}
+
+	/**
+	 * Set's the alternative IP for the current user.
+	 * If nothing is provided, we use $_SERVER['REMOTE_ADDR']
+	 * @param ?string $ip
+	 */
+	public static function setUserIPAlternative(?string $ip = null): void
+	{
+		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'] ?? '';
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -492,7 +617,7 @@ class IP implements \Stringable
 	 */
 	protected function hostLookup(int $timeout = 1000): string
 	{
-		if (!function_exists('shell_exec')) {
+		if (!\function_exists('shell_exec')) {
 			return '';
 		}
 
@@ -620,14 +745,14 @@ class IP implements \Stringable
 		}
 
 		// Random transaction number (for routers, etc., to get the reply back)
-		$query = sprintf('%02d', mt_rand(0, 99));
+		$query = \sprintf('%02d', mt_rand(0, 99));
 
 		// Request header.
 		$query .= "\1\0\0\1\0\0\0\0\0\0";
 
 		// The interesting stuff.
 		foreach ($parts as $part) {
-			$query .= chr(strlen($part)) . $part;
+			$query .= \chr(\strlen($part)) . $part;
 		}
 
 		// And the final bit of the request.
@@ -635,6 +760,39 @@ class IP implements \Stringable
 
 		return $query;
 	}
-}
 
-?>
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Check whether this is a local area network address or not.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function isLocal(string $ip): bool
+	{
+		return preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) === 1;
+	}
+
+	/**
+	 * Check whether this is a IPv4 inside of a IPv6.
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	private static function is4in6(string $ip): bool
+	{
+		if (!self::create($ip)->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $ip) !== 0) {
+			$ipv4_in_v6 = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $ip);
+
+			// Just incase we have a legacy IPv4 address.
+			if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $ipv4_in_v6) === 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}

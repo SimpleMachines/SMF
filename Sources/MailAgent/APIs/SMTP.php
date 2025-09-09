@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\MailAgent\APIs;
@@ -18,20 +18,17 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
+use SMF\Sapi;
 use SMF\Url;
-use SMF\Utils;
 
 /**
  * Sends mail via SMTP
  */
 class SMTP extends MailAgent implements MailAgentInterface
 {
-	/**
-	 * @var bool
-	 *
-	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
-	 */
-	private bool $sentAny = false;
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var bool
@@ -40,23 +37,39 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public bool $useTLS = false;
 
-	/**
-	 * @var resource
-	 *
-	 * A file pointer containing the active connection to the SMTP server.
-	 */
-	private object $socket;
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
-	 * {@inheritDoc}
+	 * @var bool
+	 *
+	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
+	 */
+	private bool $sentAny = false;
+
+	/**
+	 * @var resource|false
+	 *
+	 * A file pointer containing the active connection to the SMTP server.
+	 * PHP does not have a type hint for resource of type Stream.  So we just use mixed.
+	 */
+	private mixed $socket;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 *
 	 */
 	public function isSupported(): bool
 	{
-		return function_exists('fsockopen');
+		return \function_exists('fsockopen');
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isConfigured(): bool
 	{
@@ -64,7 +77,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -80,13 +93,13 @@ class SMTP extends MailAgent implements MailAgentInterface
 				}
 
 				if ($this->socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3)) {
-					ErrorHandler::log(Lang::$txt['smtp_port_ssl']);
+					ErrorHandler::log(Lang::getTxt('smtp_port_ssl', file: 'General'));
 				}
 			}
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$this->socket) {
-				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', file: 'General') . ': ' . $errno . ' : ' . $errstr);
 
 				return false;
 			}
@@ -94,7 +107,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 		// Wait for a response of 220, without "-" continuer.
 		if (!$this->serverParse(null, '220')) {
-			ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': No 220 Response');
+			ErrorHandler::log(Lang::getTxt('smtp_no_connect', file: 'General') . ': No 220 Response');
 
 			return false;
 		}
@@ -111,16 +124,9 @@ class SMTP extends MailAgent implements MailAgentInterface
 						return false;
 					}
 
-					// Enable the encryption
-					// php 5.6+ fix
-					$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+					$crypto_method = STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 
-					if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
-					}
-
-					if (!@stream_socket_enable_crypto($this->socket, true, $crypto_method)) {
+					if (!stream_socket_enable_crypto($this->socket, true, $crypto_method)) {
 						return false;
 					}
 
@@ -153,7 +159,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -185,7 +191,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 		fputs($this->socket, 'Subject: ' . $subject . "\r\n");
 
-		if (strlen($to) > 0) {
+		if (\strlen($to) > 0) {
 			fputs($this->socket, 'To: <' . $to . '>' . "\r\n");
 		}
 
@@ -198,14 +204,14 @@ class SMTP extends MailAgent implements MailAgentInterface
 		}
 
 		// Almost done, almost done... don't stop me just yet!
-		Utils::sapiSetTimeLimit(300);
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(300);
+		Sapi::resetTimeout();
 
 		return true;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function disconnect(): bool
 	{
@@ -229,6 +235,10 @@ class SMTP extends MailAgent implements MailAgentInterface
 		$config_vars[] = ['password', 'smtp_password'];
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Parse a message to the SMTP server.
 	 * Sends the specified message to the server, and checks for the
@@ -238,7 +248,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 *
 	 * @param ?string $message The message to send
 	 * @param ?string $code The expected response code
-	 * @param string $response The response from the SMTP server
+	 * @param string|null $response The response from the SMTP server
 	 * @return bool|string Whether it responded as such.
 	 */
 	private function serverParse(?string $message, ?string $code, ?string &$response = null): bool|string
@@ -253,7 +263,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 		while (substr($server_response, 3, 1) != ' ') {
 			if (!($server_response = fgets($this->socket, 256))) {
 				// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-				ErrorHandler::log(Lang::$txt['smtp_bad_response']);
+				ErrorHandler::log(Lang::getTxt('smtp_bad_response', file: 'General'));
 
 				return false;
 			}
@@ -274,8 +284,8 @@ class SMTP extends MailAgent implements MailAgentInterface
 			 * 450 - DNS Routing issues
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
-			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
+			if ($response_code < 500 && !\in_array($response_code, [450, 451])) {
+				ErrorHandler::log(Lang::getTxt('smtp_error', file: 'General') . $server_response);
 			}
 
 			return false;
@@ -302,9 +312,9 @@ class SMTP extends MailAgent implements MailAgentInterface
 		}
 
 		// See if we can get the domain name from the host itself
-		if (function_exists('gethostname')) {
+		if (\function_exists('gethostname')) {
 			$helo = gethostname();
-		} elseif (function_exists('php_uname')) {
+		} elseif (\function_exists('php_uname')) {
 			$helo = php_uname('n');
 		}
 
@@ -327,8 +337,8 @@ class SMTP extends MailAgent implements MailAgentInterface
 			$helo = substr($helo, 4);
 		}
 
-		if (!function_exists('idn_to_ascii')) {
-			require_once Config::$sourcedir . '/Subs-Compat.php';
+		if (!\function_exists('idn_to_ascii')) {
+			require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 		}
 
 		$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -336,5 +346,3 @@ class SMTP extends MailAgent implements MailAgentInterface
 		return $helo;
 	}
 }
-
-?>

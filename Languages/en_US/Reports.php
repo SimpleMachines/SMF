@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Reports
+// Version: 3.0 Alpha 4; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -58,7 +58,6 @@ $txt['board_perms_name_post_unapproved_topics'] = 'Post unapproved topics';
 $txt['board_perms_name_post_unapproved_replies_any'] = 'Post unapproved replies in any topic';
 $txt['board_perms_name_post_unapproved_replies_own'] = 'Post unapproved replies in own topic';
 $txt['board_perms_name_post_draft'] = 'Save drafts of posts';
-$txt['board_perms_name_post_autosave_draft'] = 'Automatically save drafts of posts';
 $txt['board_perms_name_remove_any'] = 'Remove any topic';
 $txt['board_perms_name_remove_own'] = 'Remove own topics';
 $txt['board_perms_name_report_any'] = 'Report any post';
@@ -78,7 +77,6 @@ $txt['member_group_settings'] = 'Settings';
 $txt['member_group_access'] = 'Board Access';
 
 // Board info.
-$txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
 $txt['board_redirect'] = 'Redirection Board, redirects to';
@@ -127,7 +125,6 @@ $txt['group_perms_name_profile_title_any'] = 'Edit any custom title';
 $txt['group_perms_name_profile_title_own'] = 'Edit own custom title';
 $txt['group_perms_name_profile_view'] = 'View any user’s profile';
 $txt['group_perms_name_search_posts'] = 'Search for posts';
-$txt['group_perms_name_send_email_to_members'] = 'Send a forum email to members';
 $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_view_warning_any'] = 'View anyone’s warning status';
@@ -158,5 +155,3 @@ $txt['report_staff_posts'] = 'Posts';
 $txt['report_staff_last_login'] = 'Last Login';
 $txt['report_staff_all_boards'] = 'All boards';
 $txt['report_staff_no_boards'] = 'No boards';
-
-?>

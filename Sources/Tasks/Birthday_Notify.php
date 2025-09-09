@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class Birthday_Notify extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -47,7 +51,6 @@ class Birthday_Notify extends ScheduledTask
 
 		// So who are the lucky ones?  Don't include those who are banned and those who don't want them.
 		$result = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, lngfile, email_address
 			FROM {db_prefix}members
 			WHERE is_activated < {int:banned}
@@ -85,9 +88,14 @@ class Birthday_Notify extends ScheduledTask
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members) {
 				// We need to do some shuffling to make this work properly.
-				Lang::load('EmailTemplates', $lang);
-				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
-				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
+				Lang::setTxt(
+					'happy_birthday_subject',
+					Lang::getTxt($greeting . '_subject', var: 'txtBirthdayEmails', lang: $lang),
+				);
+				Lang::setTxt(
+					'happy_birthday_body',
+					Lang::getTxt($greeting . '_body', var: 'txtBirthdayEmails', lang: $lang),
+				);
 
 				$prefs = Notify::getNotifyPrefs(array_keys($members), ['birthday'], true);
 
@@ -137,5 +145,3 @@ class Birthday_Notify extends ScheduledTask
 		return true;
 	}
 }
-
-?>

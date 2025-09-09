@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Packages
+// Version: 3.0 Alpha 4; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -57,7 +57,6 @@ $txt['language_package'] = 'Language packages';
 $txt['unknown_package'] = 'Unknown packages';
 $txt['smiley_package'] = 'Smiley packages';
 $txt['list_files'] = 'List Files';
-$txt['remove'] = 'Remove';
 $txt['archiving'] = 'Archiving';
 $txt['extracting'] = 'Extracting';
 $txt['avatars_extracted'] = 'The avatars have been installed. You should now be able to use them.';
@@ -226,6 +225,7 @@ $txt['package_emulate_desc'] = 'Sometimes packages are locked to early versions 
 
 // Operations.
 $txt['operation_find'] = 'Find';
+$txt['operation_find_regex'] = 'Find with regular expression';
 $txt['operation_replace'] = 'Replace';
 $txt['operation_after'] = 'Add After';
 $txt['operation_before'] = 'Add Before';
@@ -233,7 +233,7 @@ $txt['operation_title'] = 'Operations';
 $txt['operation_description_ignore'] = '{desc}, ignoring errors';
 $txt['operation_invalid'] = 'The operation that you selected is invalid.';
 
-$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and folders within your forum directory. Note this only considers key forum folders and files - use an FTP client for additional options.';
+$txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and directories within your forum directory. Note this only considers key forum files and directories - use an FTP client for additional options.';
 $txt['package_file_perms_name'] = 'File/Directory Name';
 $txt['package_file_perms_status'] = 'Current Status';
 $txt['package_file_perms_new_status'] = 'New Status';
@@ -315,5 +315,3 @@ $txt['package_validation_status_unknown'] = 'Unknown or Not Found';
 $txt['package_validation_status_clean'] = 'Found';
 $txt['package_validation_status_blacklist'] = 'Blacklisted';
 $txt['package_validation_blacklist_found'] = 'This customization has been found on a blacklist and may be unsafe.';
-
-?>

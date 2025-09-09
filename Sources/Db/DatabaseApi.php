@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,28 +18,33 @@ namespace SMF\Db;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Class DatabaseApi
+ * @mixin DatabaseApiInterface
  */
 abstract class DatabaseApi
 {
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
-	 * @var array
+	 * @var int
 	 *
-	 * BackwardCompatibility settings for this class.
+	 * Insert return modes.
+	 * 	- Off returns null.
+	 * 	- Single returns the last id.
+	 * 	- Multi returns all ids.
 	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'count' => 'db_count',
-			'cache' => 'db_cache',
-			'package_log' => 'db_package_log',
-			'db_connection' => 'db_connection',
-		],
-	];
+	public const INSERT_RETURN_MODE_OFF = 0;
+	public const INSERT_RETURN_MODE_SINGLE = 1;
+	public const INSERT_RETURN_MODE_MULTI = 2;
 
 	/*******************
 	 * Public properties
@@ -134,25 +139,16 @@ abstract class DatabaseApi
 	 * Whether the database supports 4-byte UTF-8 characters.
 	 *
 	 * For PostgreSQL, this will always be set to true.
-	 * For MySQL, this will be set to the value of the Config::$db_mb4.
-	 *
-	 * @todo Use auto-detect for MySQL.
+	 * For MySQL, this will be determined automatically.
 	 */
 	public bool $mb4;
 
 	/**
 	 * @var string
 	 *
-	 * Local copy of Config::$db_character_set.
+	 * The default character set.
 	 */
 	public string $character_set;
-
-	/**
-	 * @var bool
-	 *
-	 * Local copy of Config::$db_show_debug.
-	 */
-	public bool $show_debug;
 
 	/**
 	 * @var bool
@@ -220,9 +216,9 @@ abstract class DatabaseApi
 	 */
 	public static bool $unbuffered = false;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -304,6 +300,164 @@ abstract class DatabaseApi
 		'user_likes',
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'count' => 'db_count',
+			'cache' => 'db_cache',
+			'package_log' => 'db_package_log',
+			'db_connection' => 'db_connection',
+		],
+	];
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Protected constructor to prevent multiple instances.
+	 */
+	public function __construct()
+	{
+		if (!isset($this->server)) {
+			$this->server = (string) Config::$db_server;
+		}
+
+		if (!isset($this->name)) {
+			$this->name = (string) Config::$db_name;
+		}
+
+		if (!isset($this->prefix)) {
+			$this->prefix = (string) Config::$db_prefix;
+		}
+
+		if (!isset($this->port)) {
+			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
+		}
+
+		if (!isset($this->persist)) {
+			$this->persist = !empty(Config::$db_persist);
+		}
+
+		if (!isset($this->disableQueryCheck)) {
+			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
+		}
+
+		$this->prefixReservedTables();
+	}
+
+	/**
+	 * Figures out the best type indicators to use in SMF's query placeholder
+	 * strings and/or insert column type definitions for a given set of columns.
+	 *
+	 * In most cases, this is simply a matter of looking up the expected data
+	 * type for the target column and then translating it to the type indicator
+	 * string that Db::$db->quote() and Db::$db->insert() would expect for that
+	 * column's data type. There are a couple of special cases that we need to
+	 * check for, though, so this method takes care of that.
+	 *
+	 * Calling this method is usually only necessary if we are trying to save
+	 * values to custom columns that were added by mods.
+	 *
+	 * @param string $table_name The name of a table.
+	 * @param array $column_values Array where keys are possible column names
+	 *    and values are the values we plan to set.
+	 * @return array List of recognized column names and their corresponding
+	 *    data type indicators.
+	 */
+	public function getTypeIndicators(string $table_name, array $column_values): array
+	{
+		$columns = $this->list_columns($table_name, true);
+
+		$types = [];
+
+		foreach ($column_values as $column_name => $value) {
+			if (!isset($columns[$column_name])) {
+				continue;
+			}
+
+			switch (strtolower($columns[$column_name]['type'])) {
+				case 'decimal':
+				case 'numeric':
+				case 'float':
+				case 'double':
+				case 'real':
+				case 'double precision':
+				case 'money':
+					$type = 'float';
+					break;
+
+				case 'integer':
+				case 'int':
+				case 'tinyint':
+				case 'smallint':
+				case 'mediumint':
+				case 'bigint':
+				case 'bool':
+				case 'boolean':
+					$type = 'int';
+					break;
+
+				case 'year':
+					$type = 'int';
+					break;
+
+				case 'datetime':
+				case 'timestamp':
+					$type = 'datetime';
+					break;
+
+				case 'date':
+					$type = 'date';
+					break;
+
+				case 'time':
+					$type = 'time';
+					break;
+
+				case 'inet':
+					$type = 'inet';
+					break;
+
+				case 'uuid':
+					$type = 'uuid';
+					break;
+
+				case 'json':
+				case 'jsonb':
+				case 'enum':
+				case 'set':
+					$type = 'string';
+					break;
+
+				default:
+					$test = \is_array($value) ? reset($value) : $value;
+
+					if ((string) IP::create((string) $test) === $test) {
+						$type = 'inet';
+					} elseif ($test instanceof Uuid || (string) @Uuid::createFromString((string) $test) === $test) {
+						$type = 'uuid';
+					} else {
+						$type = 'string';
+					}
+
+					break;
+			}
+
+			$types[$column_name] = $type;
+		}
+
+		return $types;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -337,6 +491,11 @@ abstract class DatabaseApi
 			unset(self::$db);
 			ErrorHandler::displayDbError();
 		}
+
+		self::$db->initialize($options);
+
+		// For backward compatibility.
+		self::$db->mapToSmcFunc();
 
 		return self::$db;
 	}
@@ -377,53 +536,6 @@ abstract class DatabaseApi
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Protected constructor to prevent multiple instances.
-	 */
-	protected function __construct()
-	{
-		if (!isset($this->server)) {
-			$this->server = (string) Config::$db_server;
-		}
-
-		if (!isset($this->name)) {
-			$this->name = (string) Config::$db_name;
-		}
-
-		if (!isset($this->prefix)) {
-			$this->prefix = (string) Config::$db_prefix;
-		}
-
-		if (!isset($this->port)) {
-			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
-		}
-
-		if (!isset($this->persist)) {
-			$this->persist = !empty(Config::$db_persist);
-		}
-
-		if (!isset($this->mb4)) {
-			$this->mb4 = !empty(Config::$db_mb4);
-		}
-
-		if (!isset($this->character_set)) {
-			$this->character_set = (string) Config::$db_character_set;
-		}
-
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
-		}
-
-		if (!isset($this->disableQueryCheck)) {
-			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
-		}
-
-		$this->prefixReservedTables();
-
-		// For backward compatibility.
-		$this->mapToSmcFunc();
-	}
 
 	/**
 	 * Appends the correct prefix to the reserved tables' names.
@@ -485,7 +597,6 @@ abstract class DatabaseApi
 			'db_num_fields' => 'num_fields',
 			'db_num_rows' => 'num_rows',
 			'db_ping' => 'ping',
-			'db_query' => 'query',
 			'db_quote' => 'quote',
 			'db_select_db' => 'select',
 			'db_server_info' => 'server_info',
@@ -527,12 +638,15 @@ abstract class DatabaseApi
 				return $this->$method(...$args);
 			};
 		}
+
+		// Parameters reorded.
+		Utils::$smcFunc['db_query'] = fn(string $identifier, string $db_string, array $db_values = [], ?object $connection = null) => $this->query($db_string, $db_values, $connection, $identifier);
+		Utils::$smcFunc['db_search_query'] = fn(string $identifier, string $db_string, array $db_values = [], ?object $connection = null) => $this->search_query($db_string, $db_values, $connection, $identifier);
+
 	}
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([DatabaseApi::class, 'exportStatic'])) {
+if (\is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
-
-?>

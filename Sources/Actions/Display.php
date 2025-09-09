@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -35,6 +35,7 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
+use SMF\TimeInterval;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -125,7 +126,7 @@ class Display implements ActionInterface, Routable
 	{
 		// What are you gonna display if this is empty?!
 		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
 		$this->checkPrevNextRedirect();
@@ -182,6 +183,7 @@ class Display implements ActionInterface, Routable
 	public function prepareDisplayContext(): array|bool
 	{
 		static $counter = null;
+		static $prev_timestamp = null;
 
 		// Remember which message this is.  (ie. reply #83)
 		if ($counter === null) {
@@ -205,14 +207,14 @@ class Display implements ActionInterface, Routable
 		// Set up the quick buttons.
 		$output['quickbuttons'] = [
 			'quote' => [
-				'label' => Lang::$txt['quote_action'],
+				'label' => Lang::getTxt('quote_action', file: 'General'),
 				'href' => Config::$scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';last_msg=' . Topic::$info->id_last_msg,
 				'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 				'icon' => 'quote',
 				'show' => Utils::$context['can_quote'],
 			],
 			'quote_selected' => [
-				'label' => Lang::$txt['quote_selected_action'],
+				'label' => Lang::getTxt('quote_selected_action', file: 'General'),
 				'id' => 'quoteSelected_' . $output['id'],
 				'href' => 'javascript:void(0)',
 				'custom' => 'style="display:none"',
@@ -220,7 +222,7 @@ class Display implements ActionInterface, Routable
 				'show' => Utils::$context['can_quote'],
 			],
 			'quick_edit' => [
-				'label' => Lang::$txt['quick_edit'],
+				'label' => Lang::getTxt('quick_edit', file: 'General'),
 				'class' => 'quick_edit',
 				'id' => 'modify_button_' . $output['id'],
 				'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
@@ -229,59 +231,59 @@ class Display implements ActionInterface, Routable
 			],
 			'more' => [
 				'modify' => [
-					'label' => Lang::$txt['modify'],
+					'label' => Lang::getTxt('modify', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;msg=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'],
 					'icon' => 'modify_button',
 					'show' => $output['can_modify'],
 				],
 				'remove_topic' => [
-					'label' => Lang::$txt['remove_topic'],
+					'label' => Lang::getTxt('remove_topic', file: 'General'),
 					'href' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => Utils::$context['can_delete'] && (Topic::$info->id_first_msg == $output['id']),
 				],
 				'remove' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message_question'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message_question', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $output['can_remove'] && (Topic::$info->id_first_msg != $output['id']),
 				],
 				'split' => [
-					'label' => Lang::$txt['split'],
+					'label' => Lang::getTxt('split', file: 'General'),
 					'href' => Config::$scripturl . '?action=splittopics;topic=' . Utils::$context['current_topic'] . '.0;at=' . $output['id'],
 					'icon' => 'split_button',
 					'show' => Utils::$context['can_split'] && !empty(Topic::$info->real_num_replies),
 				],
 				'report' => [
-					'label' => Lang::$txt['report_to_mod'],
+					'label' => Lang::getTxt('report_to_mod', file: 'General'),
 					'href' => Config::$scripturl . '?action=reporttm;topic=' . Utils::$context['current_topic'] . '.' . $output['counter'] . ';msg=' . $output['id'],
 					'icon' => 'error',
 					'show' => Utils::$context['can_report_moderator'],
 				],
 				'warn' => [
-					'label' => Lang::$txt['issue_warning'],
+					'label' => Lang::getTxt('issue_warning', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;area=issuewarning;u=' . $output['member']['id'] . ';msg=' . $output['id'],
 					'icon' => 'warn_button',
 					'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest'],
 				],
 				'restore' => [
-					'label' => Lang::$txt['restore_message'],
+					'label' => Lang::getTxt('restore_message', file: 'General'),
 					'href' => Config::$scripturl . '?action=restoretopic;msgs=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'restore_button',
 					'show' => Utils::$context['can_restore_msg'],
 				],
 				'approve' => [
-					'label' => Lang::$txt['approve'],
+					'label' => Lang::getTxt('approve', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'approve_button',
 					'show' => $output['can_approve'],
 				],
 				'unapprove' => [
-					'label' => Lang::$txt['unapprove'],
+					'label' => Lang::getTxt('unapprove', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'unapprove_button',
 					'show' => $output['can_unapprove'],
@@ -295,6 +297,75 @@ class Display implements ActionInterface, Routable
 				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && $output['can_remove'],
 			],
 		];
+
+		// Should we insert a bump notice?
+		if (
+			!empty(Config::$modSettings['oldTopicDays'])
+			&& (
+				empty(Theme::$current->options['view_newest_first'])
+				? $message->id > Topic::$info->id_first_msg
+				: $message->id < Topic::$info->id_last_msg
+			)
+		) {
+			// On the second and following pages of the topic, we unfortunately
+			// need an extra query for the first post on the page.
+			if (!isset($prev_timestamp)) {
+				$request = Db::$db->query(
+					'SELECT poster_time
+					FROM {db_prefix}messages
+					WHERE id_topic = {int:topic}
+						AND poster_time {raw:operator} {int:ts}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
+						AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:me}') . ')') . '
+					ORDER BY id_msg {raw:order}
+					LIMIT 1',
+					[
+						'ts' => $message->poster_time,
+						'operator' => !empty(Theme::$current->options['view_newest_first']) ? '>' : '<',
+						'topic' => Topic::$info->id,
+						'me' => User::$me->id,
+						'is_approved' => 1,
+						'order' => !empty(Theme::$current->options['view_newest_first']) ? 'ASC' : 'DESC',
+					],
+				);
+
+				$row = current(Db::$db->fetch_all($request));
+				$prev_timestamp = $row['poster_time'];
+
+				Db::$db->free_result($request);
+			}
+
+			$since = date_create('@' . $prev_timestamp)->diff(date_create('@' . $message->poster_time));
+
+			if ($since->format('%a') > Config::$modSettings['oldTopicDays']) {
+				if ($since->format('%y') > 0) {
+					$num = $since->format('%y');
+					$unit = 'year';
+				} elseif ($since->format('%m') > 1) {
+					$num = $since->format('%m');
+					$unit = 'month';
+				} elseif ($since->format('%a') > 14) {
+					$num = \strval(\intval(floor($since->format('%a') / 7)));
+					$unit = 'week';
+				} else {
+					$num = $since->format('%a');
+					$unit = 'day';
+				}
+
+				$since = TimeInterval::createFromDateInterval($since);
+
+				$output['bump_notice'] = '<time class="bump_notice" datetime="' . (string) $since . '" title="' . $since->localize() . '">' . Lang::getTxt(
+					'bump_notice',
+					[
+						'num' => $num,
+						'unit' => $unit,
+						'invert' => $since->invert ? 'true' : 'false',
+					],
+					file: 'General',
+				) . '</time>';
+			}
+		}
+
+		$prev_timestamp = $message->poster_time;
 
 		if (empty(Theme::$current->options['view_newest_first'])) {
 			$counter++;
@@ -334,7 +405,7 @@ class Display implements ActionInterface, Routable
 	protected function checkPrevNextRedirect(): void
 	{
 		// Find the previous or next topic. But don't bother if there's only one.
-		if (isset($_REQUEST['prev_next']) && in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
+		if (isset($_REQUEST['prev_next']) && \in_array($_REQUEST['prev_next'], ['prev', 'next']) && Board::$info->num_topics > 1) {
 			$prev = $_REQUEST['prev_next'] === 'prev';
 
 			// Just prepare some variables that are used in the query.
@@ -342,7 +413,6 @@ class Display implements ActionInterface, Routable
 			$order = $prev ? '' : ' DESC';
 
 			$request = Db::$db->query(
-				'',
 				'SELECT t2.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}topics AS t2 ON (
@@ -367,7 +437,6 @@ class Display implements ActionInterface, Routable
 
 				// Roll over - if we're going prev, get the last - otherwise the first.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_topic
 					FROM {db_prefix}topics
 					WHERE id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -437,9 +506,9 @@ class Display implements ActionInterface, Routable
 	protected function setRobotNoIndex(): void
 	{
 		// Let's do some work on what to search index.
-		if (count($_GET) > 2) {
+		if (\count($_GET) > 2) {
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['topic', 'board', 'start', session_name()])) {
+				if (!\in_array($k, ['topic', 'board', 'start', session_name()])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -457,7 +526,6 @@ class Display implements ActionInterface, Routable
 	{
 		if (!User::$me->possibly_robot && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != Topic::$info->id)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET num_views = num_views + 1
 				WHERE id_topic = {int:current_topic}',
@@ -507,7 +575,6 @@ class Display implements ActionInterface, Routable
 
 			// Check for notifications on this topic OR board.
 			$request = Db::$db->query(
-				'',
 				'SELECT sent, id_topic
 				FROM {db_prefix}log_notify
 				WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
@@ -530,7 +597,6 @@ class Display implements ActionInterface, Routable
 				// Only do this once, but mark the notifications as "not sent yet" for next time.
 				if (!empty($row['sent']) && $do_once) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_notify
 						SET sent = {int:is_not_sent}
 						WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
@@ -554,7 +620,6 @@ class Display implements ActionInterface, Routable
 			elseif (isset($_REQUEST['topicseen'])) {
 				// Use the mark read tables... and the last visit to figure out if this should be read or not.
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}topics AS t
 						LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = {int:current_board} AND lb.id_member = {int:current_member})
@@ -651,6 +716,7 @@ class Display implements ActionInterface, Routable
 		// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
 		Utils::$context['topic_notification_mode'] = !User::$me->is_guest ? (Topic::$info->unwatched ? 0 : (Topic::$info->notify_prefs['pref'] & 0x02 ? 3 : (Topic::$info->notify_prefs['pref'] & 0x01 ? 2 : 1))) : 0;
 	}
+
 	/**
 	 * If $_REQUEST['start'] is not a number, figures out the correct numerical
 	 * value and sets $_REQUEST['start'] to that value.
@@ -668,7 +734,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the earliest unread message in the topic. (the use of topics here is just for both tables.)
 					$request = Db::$db->query(
-						'',
 						'SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
 						FROM {db_prefix}topics AS t
 							LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
@@ -690,7 +755,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Start from a certain time index, not a message.
-			if (str_starts_with($_REQUEST['start'], 'from')) {
+			if (str_starts_with((string) $_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 
 				if ($timestamp === 0) {
@@ -698,7 +763,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the number of messages posted before said time...
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE poster_time < {int:timestamp}
@@ -720,7 +784,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Link to a message...
-			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
+			elseif (str_starts_with((string) $_REQUEST['start'], 'msg')) {
 				$this->virtual_msg = (int) substr($_REQUEST['start'], 3);
 
 				if (!Topic::$info->unapproved_posts && $this->virtual_msg >= Topic::$info->id_last_msg) {
@@ -730,7 +794,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the start value for that message......
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE id_msg < {int:virtual_msg}
@@ -767,7 +830,6 @@ class Display implements ActionInterface, Routable
 
 			// Search for members who have this topic set in their GET data.
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 					mg.online_color, mg.id_group, mg.group_name
@@ -793,7 +855,7 @@ class Display implements ActionInterface, Routable
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -821,7 +883,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// The number of guests is equal to the rows minus the ones we actually used ;).
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 
 			Db::$db->free_result($request);
 
@@ -840,7 +902,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		// Create a previous next string if the selected theme has it as a selected option.
-		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
+		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::getTxt('previous_next_back', file: 'General') . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::getTxt('previous_next_forward', file: 'General') . '</a>' : '';
 
 		// If all is set, but not allowed... just unset it.
 		$this->can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Topic::$info->total_visible_posts > Utils::$context['messages_per_page'] && Topic::$info->total_visible_posts < Config::$modSettings['enableAllMessages'];
@@ -859,7 +921,7 @@ class Display implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
@@ -884,14 +946,14 @@ class Display implements ActionInterface, Routable
 			if (isset($_REQUEST['all'])) {
 				// No limit! (actually, there is a limit, but...)
 				Utils::$context['messages_per_page'] = -1;
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::$txt['all']);
+				Utils::$context['page_index'] .= \sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::getTxt('all', file: 'General'));
 
 				// Set start back to 0...
 				$_REQUEST['start'] = 0;
 			}
 			// They aren't using it, but the *option* is there, at least.
 			else {
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::$txt['all']);
+				Utils::$context['page_index'] .= \sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		}
 	}
@@ -909,20 +971,20 @@ class Display implements ActionInterface, Routable
 		if (!empty(Board::$info->moderators)) {
 			// Add a link for each moderator...
 			foreach (Board::$info->moderators as $mod) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Board::$info->moderator_groups)) {
 			// Add a link for each moderator group as well...
 			foreach (Board::$info->moderator_groups as $mod_group) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod_group['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -972,7 +1034,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['topic_starter_id'] = Topic::$info->id_member_started;
 		Utils::$context['subject'] = Topic::$info->subject;
 		Utils::$context['num_views'] = Lang::numberFormat(Topic::$info->num_views);
-		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']]);
+		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']], file: 'General');
 		Utils::$context['mark_unread_time'] = !empty($this->virtual_msg) ? $this->virtual_msg : Topic::$info->new_from;
 
 		// Default this topic to not marked for notifications... of course...
@@ -985,21 +1047,19 @@ class Display implements ActionInterface, Routable
 		];
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), ['&amp;' => '&']),
 			'child_level' => Board::$info->child_level,
 		];
 
 		// For quick reply we need a response prefix in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Are we showing signatures - or disabled fields?
@@ -1019,11 +1079,6 @@ class Display implements ActionInterface, Routable
 		// Load the drafts js file.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
 			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
-		}
-
-		// And the drafts language file.
-		if (!empty(Topic::$info->permissions['drafts_save'])) {
-			Lang::load('Drafts');
 		}
 
 		// Spellcheck
@@ -1062,8 +1117,6 @@ class Display implements ActionInterface, Routable
 			&& !empty(Config::$modSettings['cal_showInTopic'])
 			&& !empty(Config::$modSettings['cal_enabled'])
 		) {
-			Lang::load('Calendar');
-
 			foreach (Topic::$info->getLinkedEvents() as $event) {
 				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
 					$occurrence = $event->getLastOccurrence();
@@ -1075,7 +1128,7 @@ class Display implements ActionInterface, Routable
 			if (!empty(Utils::$context['linked_calendar_events'])) {
 				Theme::loadTemplate('EventEditor');
 
-				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
+				Utils::$context['linked_calendar_events'][\count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
 	}
@@ -1136,7 +1189,6 @@ class Display implements ActionInterface, Routable
 
 		// Get each post and poster in this topic.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -1228,7 +1280,6 @@ class Display implements ActionInterface, Routable
 		// When was the last time this topic was replied to?  Should we warn them about it?
 		if (!empty(Config::$modSettings['oldTopicDays']) && (Topic::$info->permissions['can_reply'] || Topic::$info->permissions['can_reply_unapproved']) && empty(Topic::$info->is_sticky)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_last_msg}
@@ -1255,7 +1306,7 @@ class Display implements ActionInterface, Routable
 			'id' => 'quickReply',
 			'value' => '',
 			'labels' => [
-				'post_button' => Lang::$txt['post'],
+				'post_button' => Lang::getTxt('post', file: 'General'),
 			],
 			// add height and width for the editor
 			'height' => '150px',
@@ -1273,7 +1324,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 
 		if (!empty(Utils::$context['icons'])) {
-			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
+			Utils::$context['icons'][\count(Utils::$context['icons']) - 1]['is_last'] = true;
 		}
 	}
 
@@ -1294,7 +1345,6 @@ class Display implements ActionInterface, Routable
 		}
 
 		if (Calendar::canLinkEvent(false)) {
-			Lang::load('Calendar');
 			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 
@@ -1339,7 +1389,7 @@ class Display implements ActionInterface, Routable
 		}
 
 		if (Topic::$info->permissions['can_delete']) {
-			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 
 		if (Topic::$info->permissions['can_lock']) {
@@ -1360,10 +1410,14 @@ class Display implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] and Utils::$context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_display_buttons', [&Utils::$context['normal_buttons']]);
-		// Note: integrate_mod_buttons is no longer necessary and deprecated, but is kept for backward compatibility with 2.0
-		IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+
+		// NOD AUTHORS: integrate_mod_buttons is deprecated. Use integrate_display_buttons instead.
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+		}
 
 		// If any buttons have a 'test' check, run those tests now to keep things clean.
 		foreach (['normal_buttons', 'mod_buttons'] as $button_strip) {
@@ -1381,5 +1435,3 @@ class Display implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

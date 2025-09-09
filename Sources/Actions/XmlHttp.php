@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -43,7 +43,6 @@ class XmlHttp implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -107,10 +106,10 @@ class XmlHttp implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -151,7 +150,7 @@ class XmlHttp implements ActionInterface, Routable
 	 * Handles retrieving previews of news items, newsletters, signatures and warnings.
 	 * Calls the appropriate function based on $_POST['item']
 	 *
-	 * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
+	 * @return null|bool Returns false if $_POST['item'] isn't set or isn't valid
 	 */
 	public function previews(): ?bool
 	{
@@ -164,11 +163,11 @@ class XmlHttp implements ActionInterface, Routable
 
 		Utils::$context['sub_template'] = 'generic_xml';
 
-		if (!isset($_POST['item']) || !in_array($_POST['item'], $items)) {
+		if (!isset($_POST['item']) || !\in_array($_POST['item'], $items)) {
 			return false;
 		}
 
-		call_user_func([$this, $_POST['item']]);
+		\call_user_func([$this, $_POST['item']]);
 
 		return null;
 	}
@@ -209,18 +208,16 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function newsletterpreview(): void
 	{
-		Lang::load('Errors');
-
 		Utils::$context['post_error']['messages'] = [];
 		Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 		Utils::$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
 		if (empty($_POST['subject'])) {
-			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_subject'];
+			Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_subject', file: 'Errors');
 		}
 
 		if (empty($_POST['message'])) {
-			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_message'];
+			Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_message', file: 'Errors');
 		}
 
 		News::prepareMailingForPreview();
@@ -233,10 +230,7 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function sig_preview(): void
 	{
-		require_once Config::$sourcedir . '/Profile-Modify.php';
-
-		Lang::load('Profile');
-		Lang::load('Errors');
+		require_once Config::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
 
 		$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 		$is_owner = $user == User::$me->id;
@@ -249,7 +243,6 @@ class XmlHttp implements ActionInterface, Routable
 
 		if (!empty($user) && $can_change) {
 			$request = Db::$db->query(
-				'',
 				'SELECT signature
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
@@ -266,7 +259,7 @@ class XmlHttp implements ActionInterface, Routable
 			$allowedTags = Parser::getSigTags();
 
 			if (empty($current_signature)) {
-				$current_signature = Lang::$txt['no_signature_set'];
+				$current_signature = Lang::getTxt('no_signature_set', file: 'Profile');
 			} else {
 				$current_signature = Parser::transform(
 					string: $current_signature,
@@ -279,12 +272,12 @@ class XmlHttp implements ActionInterface, Routable
 				$current_signature = Utils::adjustHeadingLevels($current_signature, null);
 			}
 
-			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
+			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::getTxt('no_signature_preview', file: 'Profile');
 
 			$validation = Profile::validateSignature($preview_signature);
 
 			if ($validation !== true && $validation !== false) {
-				$errors[] = ['value' => Lang::$txt['profile_error_' . $validation], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('profile_error_' . $validation, file: 'Errors'), 'attributes' => ['type' => 'error']];
 			}
 
 			Lang::censorText($preview_signature);
@@ -300,12 +293,12 @@ class XmlHttp implements ActionInterface, Routable
 			$preview_signature = Utils::adjustHeadingLevels($preview_signature, null);
 		} elseif (!$can_change) {
 			if ($is_owner) {
-				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('cannot_profile_extra_own', file: 'Errors'), 'attributes' => ['type' => 'error']];
 			} else {
-				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_any'], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('cannot_profile_extra_any', file: 'Errors'), 'attributes' => ['type' => 'error']];
 			}
 		} else {
-			$errors[] = ['value' => Lang::$txt['no_user_selected'], 'attributes' => ['type' => 'error']];
+			$errors[] = ['value' => Lang::getTxt('no_user_selected', file: 'Errors'), 'attributes' => ['type' => 'error']];
 		}
 
 		Utils::$context['xml_data']['signatures'] = [
@@ -333,7 +326,7 @@ class XmlHttp implements ActionInterface, Routable
 				'children' => array_merge(
 					[
 						[
-							'value' => Lang::$txt['profile_errors_occurred'],
+							'value' => Lang::getTxt('profile_errors_occurred', file: 'Errors'),
 							'attributes' => ['type' => 'errors_occurred'],
 						],
 					],
@@ -348,9 +341,6 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function warning_preview(): void
 	{
-		Lang::load('Errors');
-		Lang::load('ModerationCenter');
-
 		Utils::$context['post_error']['messages'] = [];
 
 		if (User::$me->allowedTo('issue_warning')) {
@@ -360,15 +350,15 @@ class XmlHttp implements ActionInterface, Routable
 
 			if (isset($_POST['issuing'])) {
 				if (empty($_POST['title']) || empty($_POST['body'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['warning_notify_blank'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('warning_notify_blank', file: 'Errors');
 				}
 			} else {
 				if (empty($_POST['title'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_title'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('mc_warning_template_error_no_title', file: 'ModerationCenter');
 				}
 
 				if (empty($_POST['body'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_body'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('mc_warning_template_error_no_body', file: 'ModerationCenter');
 				}
 
 				// Add in few replacements.
@@ -391,7 +381,7 @@ class XmlHttp implements ActionInterface, Routable
 					User::$me->name,
 					Config::$mbname,
 					Config::$scripturl,
-					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General'),
 				];
 
 				$warning_body = str_replace($find, $replace, $warning_body);
@@ -406,7 +396,7 @@ class XmlHttp implements ActionInterface, Routable
 
 			Utils::$context['preview_message'] = $warning_body;
 		} else {
-			Utils::$context['post_error']['messages'][] = ['value' => Lang::$txt['cannot_issue_warning'], 'attributes' => ['type' => 'error']];
+			Utils::$context['post_error']['messages'][] = ['value' => Lang::getTxt('cannot_issue_warning', file: 'Errors'), 'attributes' => ['type' => 'error']];
 		}
 
 		Utils::$context['sub_template'] = 'warning';
@@ -429,5 +419,3 @@ class XmlHttp implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -103,6 +103,10 @@ abstract class Notify implements ActionInterface
 	 */
 	protected string $token;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var array
 	 *
@@ -179,7 +183,7 @@ abstract class Notify implements ActionInterface
 		$members = array_map('intval', (array) $members);
 
 		if (!empty($prefs)) {
-			$prefs = is_array($prefs) ? $prefs : (array) $prefs;
+			$prefs = \is_array($prefs) ? $prefs : (array) $prefs;
 		}
 
 		$result = [];
@@ -188,7 +192,6 @@ abstract class Notify implements ActionInterface
 		$members[] = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, alert_pref, alert_value
 			FROM {db_prefix}user_alerts_prefs
 			WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
@@ -227,7 +230,7 @@ abstract class Notify implements ActionInterface
 	 */
 	public static function setNotifyPrefs(int $memID, array $prefs = []): void
 	{
-		if (empty($prefs) || !is_int($memID)) {
+		if (empty($prefs) || !\is_int($memID)) {
 			return;
 		}
 
@@ -259,7 +262,6 @@ abstract class Notify implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_alerts_prefs
 			WHERE id_member = {int:member}
 				AND alert_pref IN ({array_string:prefs})',
@@ -288,7 +290,6 @@ abstract class Notify implements ActionInterface
 
 		// Get the user info we need
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member AS id, email_address AS email
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
@@ -305,7 +306,7 @@ abstract class Notify implements ActionInterface
 		Db::$db->free_result($request);
 
 		// What token are we expecting?
-		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
+		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, \in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
 
 		// Don't do anything if the token they gave is wrong
 		if ($_REQUEST['token'] !== $expected_token) {
@@ -395,7 +396,7 @@ abstract class Notify implements ActionInterface
 	protected function ask(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 
 		if (self::$member_info['id'] !== User::$me->id) {
 			Utils::$context['notify_info'] = [
@@ -479,7 +480,6 @@ abstract class Notify implements ActionInterface
 			);
 		} else {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:member}
 					AND {raw:column} = {int:id}',
@@ -516,7 +516,7 @@ abstract class Notify implements ActionInterface
 	protected function showConfirmation(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 		Utils::$context['sub_template'] = 'notify_pref_changed';
 
 		Utils::$context['notify_success_msg'] = $this->getSuccessMsg();
@@ -527,5 +527,3 @@ abstract class Notify implements ActionInterface
 	 */
 	abstract protected function getSuccessMsg();
 }
-
-?>

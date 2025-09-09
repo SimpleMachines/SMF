@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Alert;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -42,7 +42,6 @@ use SMF\Utils;
 class ReportedContent implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -119,13 +118,12 @@ class ReportedContent implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!in_array($this->type, self::$types)) {
+		if (!\in_array($this->type, self::$types)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		Utils::$context['report_type'] = $this->type;
 
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ReportedContent');
 
 		// Do we need to show a confirmation message?
@@ -133,13 +131,13 @@ class ReportedContent implements ActionInterface
 		unset($_SESSION['rc_confirmation']);
 
 		// Set up the comforting bits...
-		Utils::$context['page_title'] = Lang::$txt['mc_reported_' . $this->type];
+		Utils::$context['page_title'] = Lang::getTxt('mc_reported_' . $this->type, file: 'General+ModerationCenter');
 
 		// Put the open and closed options into tabs, because we can...
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_reported_' . $this->type],
+			'title' => Lang::getTxt('mc_reported_' . $this->type, file: 'General+ModerationCenter'),
 			'help' => '',
-			'description' => Lang::$txt['mc_reported_' . $this->type . '_desc'],
+			'description' => Lang::getTxt('mc_reported_' . $this->type . '_desc', file: 'ModerationCenter'),
 		];
 
 		// This comes under the umbrella of moderating posts.
@@ -147,10 +145,10 @@ class ReportedContent implements ActionInterface
 			User::$me->isAllowedTo('moderate_forum');
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -319,7 +317,7 @@ class ReportedContent implements ActionInterface
 		// Parameters are slightly different depending on what we're doing here...
 		if ($this->type == 'members') {
 			// Find their ID in the serialized action string...
-			$user_id_length = strlen((string) Utils::$context['report']['user']['id']);
+			$user_id_length = \strlen((string) Utils::$context['report']['user']['id']);
 			$member = 's:6:"member";s:' . $user_id_length . ':"' . Utils::$context['report']['user']['id'] . '";}';
 
 			$params = [
@@ -338,14 +336,12 @@ class ReportedContent implements ActionInterface
 			];
 		}
 
-		Lang::load('Modlog');
-
 		// This is all the information from the moderation log.
 		$listOptions = [
 			'id' => 'moderation_actions_list',
-			'title' => Lang::$txt['mc_modreport_modactions'],
+			'title' => Lang::getTxt('mc_modreport_modactions', file: 'ModerationCenter'),
 			'items_per_page' => 15,
-			'no_items_label' => Lang::$txt['modlog_no_entries_found'],
+			'no_items_label' => Lang::getTxt('modlog_no_entries_found', file: 'Modlog'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report']['id'],
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -360,7 +356,7 @@ class ReportedContent implements ActionInterface
 			'columns' => [
 				'action' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_action'],
+						'value' => Lang::getTxt('modlog_action', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'action_text',
@@ -373,7 +369,7 @@ class ReportedContent implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_date'],
+						'value' => Lang::getTxt('modlog_date', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -386,7 +382,7 @@ class ReportedContent implements ActionInterface
 				],
 				'moderator' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_member'],
+						'value' => Lang::getTxt('modlog_member', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'moderator_link',
@@ -399,7 +395,7 @@ class ReportedContent implements ActionInterface
 				],
 				'position' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_position'],
+						'value' => Lang::getTxt('modlog_position', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'position',
@@ -412,7 +408,7 @@ class ReportedContent implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_ip'],
+						'value' => Lang::getTxt('modlog_ip', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'ip',
@@ -436,10 +432,10 @@ class ReportedContent implements ActionInterface
 
 		// Finally we are done :P
 		if ($this->type == 'members') {
-			Utils::$context['page_title'] = Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['name']]);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['name']], file: 'ModerationCenter');
 			Utils::$context['sub_template'] = 'viewmemberreport';
 		} else {
-			Utils::$context['page_title'] = Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['subject'], 'author_link' => Utils::$context['report']['author']['name']]);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['subject'], 'author_link' => Utils::$context['report']['author']['name']], file: 'ModerationCenter');
 			Utils::$context['sub_template'] = 'viewmodreport';
 		}
 
@@ -577,7 +573,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// Set up the comforting bits...
-		Utils::$context['page_title'] = Lang::$txt['mc_reported_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_reported_posts', file: 'General');
 		Utils::$context['sub_template'] = 'edit_comment';
 
 		if (isset($_REQUEST['save'], $_POST['edit_comment'])   && !empty($_POST['mod_comment'])) {
@@ -621,7 +617,6 @@ class ReportedContent implements ActionInterface
 		$bq = $type == 'members' ? '' : "\n\t\t\t\t" . 'AND ' . User::$me->mod_cache['bq'];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_reported
 			WHERE closed = {int:not_closed}
@@ -701,10 +696,9 @@ class ReportedContent implements ActionInterface
 
 		// Update the report...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET  {raw:action} = {string:value}
-			' . (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
+			' . (\is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
 				' . $board_query,
 			[
 				'action' => $action,
@@ -722,7 +716,6 @@ class ReportedContent implements ActionInterface
 		if ($this->type == 'posts') {
 			// Get the board, topic and message for this report
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, id_topic, id_msg, id_report
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:id_report})',
@@ -742,7 +735,6 @@ class ReportedContent implements ActionInterface
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_report, id_member, membername
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:id_report})',
@@ -772,7 +764,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// See if any report alerts need to be cleaned up upon close/ignore
-		if (in_array($log_report, ['close', 'ignore', 'close_user', 'ignore_user'])) {
+		if (\in_array($log_report, ['close', 'ignore', 'close_user', 'ignore_user'])) {
 			$this->clearReportAlerts($log_report, $extra);
 		}
 
@@ -846,7 +838,6 @@ class ReportedContent implements ActionInterface
 
 		// How many entries are we viewing?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_reported AS lr
 			WHERE lr.closed = {int:view_closed}
@@ -878,7 +869,6 @@ class ReportedContent implements ActionInterface
 		// By George, that means we are in a position to get the reports, jolly good.
 		if ($this->type == 'members') {
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_member,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
@@ -896,7 +886,6 @@ class ReportedContent implements ActionInterface
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
@@ -967,7 +956,6 @@ class ReportedContent implements ActionInterface
 			$report_boards_ids = array_unique($report_boards_ids);
 			$board_names = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:boards})',
@@ -991,7 +979,6 @@ class ReportedContent implements ActionInterface
 		// Now get all the people who reported it.
 		if (!empty($report_ids)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment,
 					COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 				FROM {db_prefix}log_reported_comments AS lrc
@@ -1009,8 +996,8 @@ class ReportedContent implements ActionInterface
 					'time' => Time::create('@' . $row['time_sent'])->format(),
 					'member' => [
 						'id' => $row['id_member'],
-						'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
-						'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
+						'name' => empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter'],
+						'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter']),
 						'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 					],
 				];
@@ -1040,7 +1027,6 @@ class ReportedContent implements ActionInterface
 		// We don't need all this info if we're only getting user info
 		if ($this->type == 'members') {
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_member,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
@@ -1056,7 +1042,6 @@ class ReportedContent implements ActionInterface
 		} else {
 			// Get the report details, need this so we can limit access to a particular board.
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
 					COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
@@ -1102,7 +1087,6 @@ class ReportedContent implements ActionInterface
 
 		// So what bad things do the reporters have to say about it?
 		$request = Db::$db->query(
-			'',
 			'SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
 				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 			FROM {db_prefix}log_reported_comments AS lrc
@@ -1122,8 +1106,8 @@ class ReportedContent implements ActionInterface
 				'time' => Time::create('@' . $row['time_sent'])->format(),
 				'member' => [
 					'id' => $row['id_member'],
-					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
-					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
+					'name' => empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter'],
+					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter']),
 					'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 					'ip' => !empty($row['member_ip']) && User::$me->allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
 				],
@@ -1133,7 +1117,6 @@ class ReportedContent implements ActionInterface
 
 		// Hang about old chap, any comments from moderators on this one?
 		$request = Db::$db->query(
-			'',
 			'SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
 				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS moderator
 			FROM {db_prefix}log_comments AS lc
@@ -1180,7 +1163,6 @@ class ReportedContent implements ActionInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_comment, id_notice, log_time, body, id_member
 			FROM {db_prefix}log_comments
 			WHERE id_comment = {int:id_comment}
@@ -1212,6 +1194,12 @@ class ReportedContent implements ActionInterface
 			return;
 		}
 
+		$report = $this->getReportDetails($report_id);
+
+		if (empty($report)) {
+			return;
+		}
+
 		$data = array_merge([User::$me->id, User::$me->name, 'reportc', ''], $data);
 
 		$last_comment = Db::$db->insert(
@@ -1228,10 +1216,8 @@ class ReportedContent implements ActionInterface
 			],
 			[$data],
 			['id_comment'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
-
-		$report = $this->getReportDetails($report_id);
 
 		if ($this->type == 'members') {
 			$prefix = 'Member';
@@ -1293,7 +1279,6 @@ class ReportedContent implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_comments
 			SET  body = {string:body}
 			WHERE id_comment = {int:id_comment}',
@@ -1316,7 +1301,6 @@ class ReportedContent implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_comments
 			WHERE id_comment = {int:comment_id}',
 			[
@@ -1334,19 +1318,19 @@ class ReportedContent implements ActionInterface
 		foreach (Utils::$context['reports'] as $key => $report) {
 			Utils::$context['reports'][$key]['quickbuttons'] = [
 				'details' => [
-					'label' => Lang::$txt['mc_reportedp_details'],
+					'label' => Lang::getTxt('mc_reportedp_details', file: 'ModerationCenter'),
 					'href' => $report['report_href'],
 					'icon' => 'details',
 				],
 				'ignore' => [
-					'label' => $report['ignore'] ? Lang::$txt['mc_reportedp_unignore'] : Lang::$txt['mc_reportedp_ignore'],
+					'label' => Lang::getTxt($report['ignore'] ? 'mc_reportedp_unignore' : 'mc_reportedp_ignore', file: 'ModerationCenter'),
 					'href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=handle;ignore=' . (int) !$report['ignore'] . ';rid=' . $report['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-report-ignore_token_var'] . '=' . Utils::$context['mod-report-ignore_token'],
-					'javascript' => !$report['ignore'] ? ' data-confirm="' . Lang::$txt['mc_reportedp_ignore_confirm'] . '"' : '',
+					'javascript' => !$report['ignore'] ? ' data-confirm="' . Lang::getTxt('mc_reportedp_ignore_confirm', file: 'ModerationCenter') . '"' : '',
 					'class' => 'you_sure',
 					'icon' => 'ignore',
 				],
 				'close' => [
-					'label' => Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_open'] : Lang::$txt['mc_reportedp_close'],
+					'label' => Lang::getTxt(Utils::$context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', file: 'ModerationCenter'),
 					'href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=handle;closed=' . (int) !$report['closed'] . ';rid=' . $report['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-report-closed_token_var'] . '=' . Utils::$context['mod-report-closed_token'],
 					'icon' => Utils::$context['view_closed'] ? 'folder' : 'close',
 				],
@@ -1355,12 +1339,12 @@ class ReportedContent implements ActionInterface
 			// Only reported posts can be deleted
 			if ($this->type == 'posts') {
 				Utils::$context['reports'][$key]['quickbuttons']['delete'] = [
-					'label' => Lang::$txt['mc_reportedp_delete'],
+					'label' => Lang::getTxt('mc_reportedp_delete', file: 'ModerationCenter'),
 					'href' => Config::$scripturl . '?action=deletemsg;topic=' . $report['topic']['id'] . '.0;msg=' . $report['topic']['id_msg'] . ';modcenter;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('mc_reportedp_delete_confirm', file: 'ModerationCenter') . '"',
 					'class' => 'you_sure',
 					'icon' => 'delete',
-					'show' => !$report['closed'] && (is_array($this->remove_any_boards) && in_array($report['topic']['id_board'], $this->remove_any_boards)),
+					'show' => !$report['closed'] && (\is_array($this->remove_any_boards) && \in_array($report['topic']['id_board'], $this->remove_any_boards)),
 				];
 			}
 
@@ -1373,7 +1357,7 @@ class ReportedContent implements ActionInterface
 
 			Utils::$context['reports'][$key]['quickbuttons'] += [
 				'ban' => [
-					'label' => Lang::$txt['mc_reportedp_ban'],
+					'label' => Lang::getTxt('mc_reportedp_ban', file: 'ModerationCenter'),
 					'href' => $ban_link,
 					'icon' => 'error',
 					'show' => !$report['closed'] && !empty($this->manage_bans) && ($this->type == 'posts' || $this->type == 'members' && !empty($report['user']['id'])),
@@ -1387,5 +1371,3 @@ class ReportedContent implements ActionInterface
 		}
 	}
 }
-
-?>

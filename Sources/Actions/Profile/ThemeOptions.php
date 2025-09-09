@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -52,7 +52,7 @@ class ThemeOptions implements ActionInterface
 			Profile::$member->loadCustomFields('theme');
 		}
 
-		Utils::$context['page_desc'] = Lang::$txt['theme_info'];
+		Utils::$context['page_desc'] = Lang::getTxt('theme_info', file: 'Profile');
 
 		Profile::$member->setupContext(
 			[
@@ -81,5 +81,3 @@ class ThemeOptions implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -8,13 +8,14 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
 
 namespace SMF;
 
+use SMF\BBCode\BBCode;
 use SMF\Cache\CacheApi;
 use SMF\Parsers\BBCodeParser;
 use SMF\Parsers\MarkdownParser;
@@ -166,6 +167,20 @@ abstract class Parser
 	];
 
 	/**
+	 * @var array
+	 *
+	 * Language files that should be loaded in order to populate any Lang::$txt
+	 * strings that are used by BBCodes.
+	 *
+	 * Mods implementing custom BBCodes can add values to this array using the
+	 * integrate_parser_static_vars hook.
+	 */
+	public static array $lang_files = [
+		'General',
+		'Modifications',
+	];
+
+	/**
 	 * @var bool
 	 *
 	 * Whether BBCode should be parsed.
@@ -210,13 +225,6 @@ abstract class Parser
 	/**
 	 * @var string
 	 *
-	 * The character encoding of the strings to be parsed.
-	 */
-	public static string $encoding;
-
-	/**
-	 * @var string
-	 *
 	 * Language locale to use.
 	 */
 	public static string $locale;
@@ -246,9 +254,9 @@ abstract class Parser
 	 */
 	private static array $results = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -308,7 +316,7 @@ abstract class Parser
 		}
 
 		// Do nothing if the requested output type is invalid.
-		if (!is_callable($handlers[$output_type] ?? null)) {
+		if (!\is_callable($handlers[$output_type] ?? null)) {
 			return $string;
 		}
 
@@ -404,18 +412,18 @@ abstract class Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
-	 * Checks whether the server's load average is too high to parse BBCode.
+	 * Checks whether the server's load average is too high to parse BBCode/Markdown.
 	 *
 	 * @return bool Whether the load average is too high.
 	 */
 	protected function highLoadAverage(): bool
 	{
-		return !empty(Utils::$context['load_average']) && !empty(Config::$modSettings['bbc']) && Utils::$context['load_average'] >= Config::$modSettings['bbc'];
+		return Sapi::isOverloaded(Config::$modSettings['bbc'] ?? null);
 	}
 
 	/**
@@ -432,7 +440,7 @@ abstract class Parser
 				$this->disabled[trim($tag)] = true;
 			}
 
-			if (in_array('color', $this->disabled)) {
+			if (\in_array('color', $this->disabled)) {
 				$this->disabled = array_merge(
 					$this->disabled,
 					[
@@ -447,15 +455,15 @@ abstract class Parser
 		}
 
 		if (!empty($this->parse_tags)) {
-			if (!in_array('email', $this->parse_tags)) {
+			if (!\in_array('email', $this->parse_tags)) {
 				$this->disabled['email'] = true;
 			}
 
-			if (!in_array('url', $this->parse_tags)) {
+			if (!\in_array('url', $this->parse_tags)) {
 				$this->disabled['url'] = true;
 			}
 
-			if (!in_array('iurl', $this->parse_tags)) {
+			if (!\in_array('iurl', $this->parse_tags)) {
 				$this->disabled['iurl'] = true;
 			}
 		}
@@ -500,20 +508,29 @@ abstract class Parser
 	/**
 	 * Adjusts a BBCode definition so that it outputs its disabled version.
 	 *
-	 * @param array $code A BBCode definition.
-	 * @return array The disabled version of the BBCode definition.
+	 * @param BBCode $code_def A BBCode definition.
+	 * @return BBCode The disabled version of the BBCode definition.
 	 */
-	protected function disableCode(array $code): array
+	protected function disableCode(BBCode $code_def): BBCode
 	{
-		if (!isset($code['disabled_before']) && !isset($code['disabled_after']) && !isset($code['disabled_content'])) {
-			$code['before'] = !empty($code['block_level']) ? '<div>' : '';
-			$code['after'] = !empty($code['block_level']) ? '</div>' : '';
-			$code['content'] = isset($code['type']) && $code['type'] == 'closed' ? '' : (!empty($code['block_level']) ? '<div>$1</div>' : '$1');
-		} elseif (isset($code['disabled_before']) || isset($code['disabled_after'])) {
-			$code['before'] = $code['disabled_before'] ?? (!empty($code['block_level']) ? '<div>' : '');
-			$code['after'] = $code['disabled_after'] ?? (!empty($code['block_level']) ? '</div>' : '');
+		$code = clone $code_def;
+
+		if (
+			!isset($code->disabled_before)
+			&& !isset($code->disabled_after)
+			&& !isset($code->disabled_content)
+		) {
+			$code->before = !empty($code->block_level) ? '<div>' : '';
+			$code->after = !empty($code->block_level) ? '</div>' : '';
+			$code->content = isset($code->type) && $code->type == BBCode::TYPE_CLOSED ? '' : (!empty($code->block_level) ? '<div>$1</div>' : '$1');
+		} elseif (
+			isset($code->disabled_before)
+			|| isset($code->disabled_after)
+		) {
+			$code->before = $code->disabled_before ?? (!empty($code->block_level) ? '<div>' : '');
+			$code->after = $code->disabled_after ?? (!empty($code->block_level) ? '</div>' : '');
 		} else {
-			$code['content'] = $code['disabled_content'];
+			$code->content = $code->disabled_content;
 		}
 
 		return $code;
@@ -545,13 +562,15 @@ abstract class Parser
 		self::$time_offset = self::$time_offset ?? User::$me->time_offset ?? 0;
 		self::$time_format = self::$time_format ?? User::$me->time_format ?? Time::getTimeFormat();
 
-		self::$locale = self::$locale ?? Lang::$txt['lang_locale'] ?? '';
-		self::$encoding = self::$encoding ?? (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8')));
+		self::$locale = self::$locale ?? Lang::getTxt('lang_locale', file: 'General') ?? '';
 
 		// Smiley settings.
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);
 		self::$smileys_url = self::$smileys_url ?? Config::$modSettings['smileys_url'];
 		self::$smiley_set = self::$smiley_set ?? (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
+
+		// Give mods a chance to make any changes they need.
+		IntegrationHook::call('integrate_parser_static_vars');
 	}
 
 	/**
@@ -696,7 +715,7 @@ abstract class Parser
 		IntegrationHook::call('integrate_parser_cache', [&$cache_key_extras, $input_types, $output_type, $options]);
 
 		// If no cache id was given, make a generic one.
-		$cache_id = strval($options['cache_id'] ?? '') !== '' ? $options['cache_id'] : 'str' . substr(md5($string), 0, 7);
+		$cache_id = \strval($options['cache_id'] ?? '') !== '' ? $options['cache_id'] : 'str' . substr(md5($string), 0, 7);
 
 		// Use a unique identifier key for this combination of string and settings.
 		return 'parse:' . $cache_id . '-' . md5(json_encode([
@@ -705,7 +724,6 @@ abstract class Parser
 			$output_type,
 			$options,
 			// Localization settings.
-			self::$encoding,
 			self::$locale,
 			self::$time_offset,
 			self::$time_format,
@@ -720,5 +738,3 @@ abstract class Parser
 		]));
 	}
 }
-
-?>

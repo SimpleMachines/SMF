@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,6 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -57,11 +58,14 @@ class Search implements ActionInterface, Routable
 	public function execute(): void
 	{
 		// Is the load average too high to allow searching just now?
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
-		Lang::load('Search');
+		// You cannot search with cookies disabled when captcha is required for guest searches
+		if (empty($_COOKIE) && !empty(Config::$modSettings['search_enable_captcha'])) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
 
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
@@ -75,7 +79,7 @@ class Search implements ActionInterface, Routable
 		// Link tree....
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search',
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 
 		Utils::$context['robot_no_index'] = true;
@@ -152,7 +156,6 @@ class Search implements ActionInterface, Routable
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -161,16 +164,18 @@ class Search implements ActionInterface, Routable
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
+					Lang::setTxt(
+						'error_string_too_long',
+						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Errors'),
+					);
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 
 		// Find all the boards this user is allowed to see.
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -179,6 +184,7 @@ class Search implements ActionInterface, Routable
 			[
 				'empty_string' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 		Utils::$context['num_boards'] = Db::$db->num_rows($request);
 		Utils::$context['boards_check_all'] = true;
@@ -205,11 +211,11 @@ class Search implements ActionInterface, Routable
 
 			// If user selected some particular boards, is this one of them?
 			if (!empty(Utils::$context['search_params']['brd'])) {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = in_array($row['id_board'], Utils::$context['search_params']['brd']);
+				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = \in_array($row['id_board'], Utils::$context['search_params']['brd']);
 			}
 			// User didn't select any boards, so select all except ignored and recycle boards.
 			else {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = !$is_recycle_board && !in_array($row['id_board'], User::$me->ignoreboards);
+				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = !$is_recycle_board && !\in_array($row['id_board'], User::$me->ignoreboards);
 			}
 
 			// If a board wasn't checked that probably should have been ensure the board selection is selected, yo!
@@ -235,7 +241,7 @@ class Search implements ActionInterface, Routable
 			Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 		}
 
-		$max_boards = ceil(count($temp_boards) / 2);
+		$max_boards = ceil(\count($temp_boards) / 2);
 
 		if ($max_boards == 1) {
 			$max_boards = 2;
@@ -268,7 +274,6 @@ class Search implements ActionInterface, Routable
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT subject
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -292,10 +297,8 @@ class Search implements ActionInterface, Routable
 			Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
+		Utils::$context['page_title'] = Lang::getTxt('set_parameters', file: 'Search');
 
 		IntegrationHook::call('integrate_search');
 	}
 }
-
-?>

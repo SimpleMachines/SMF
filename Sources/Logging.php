@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -82,20 +82,18 @@ class Logging
 		IntegrationHook::call('integrate_log_types', [&$log_types, &$always_log]);
 
 		foreach ($logs as $log) {
-			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log))) {
+			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !\in_array($log['action'], $always_log))) {
 				continue;
 			}
 
-			if (!is_array($log['extra'])) {
-				Lang::load('Errors');
-				trigger_error(Lang::getTxt('logActions_not_array', [$log['action']]), E_USER_NOTICE);
+			if (!\is_array($log['extra'])) {
+				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']], file: 'Errors'));
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
 			if (isset($log['extra']['topic'])) {
 				if (!is_numeric($log['extra']['topic'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_topic_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_topic_not_numeric');
 				}
 				$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
 				unset($log['extra']['topic']);
@@ -105,8 +103,7 @@ class Logging
 
 			if (isset($log['extra']['message'])) {
 				if (!is_numeric($log['extra']['message'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_message_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_message_not_numeric');
 				}
 				$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
 				unset($log['extra']['message']);
@@ -116,9 +113,8 @@ class Logging
 
 			// @todo cache this?
 			// Is there an associated report on this?
-			if (in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
+			if (\in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_report
 					FROM {db_prefix}log_reported
 					WHERE {raw:column_name} = {int:reported}
@@ -138,14 +134,12 @@ class Logging
 			}
 
 			if (isset($log['extra']['member']) && !is_numeric($log['extra']['member'])) {
-				Lang::load('Errors');
-				trigger_error(Lang::$txt['logActions_member_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError('logActions_member_not_numeric');
 			}
 
 			if (isset($log['extra']['board'])) {
 				if (!is_numeric($log['extra']['board'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_board_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_board_not_numeric');
 				}
 				$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
 				unset($log['extra']['board']);
@@ -155,8 +149,7 @@ class Logging
 
 			if (isset($log['extra']['board_to'])) {
 				if (!is_numeric($log['extra']['board_to'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_board_to_not_numeric');
 				}
 
 				if (empty($board_id)) {
@@ -192,7 +185,7 @@ class Logging
 			],
 			$inserts,
 			['id_action'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		return $id_action;
@@ -242,7 +235,6 @@ class Logging
 				else {
 					// Update the latest activated member (highest id_member) and count.
 					$result = Db::$db->query(
-						'',
 						'SELECT COUNT(*), MAX(id_member)
 						FROM {db_prefix}members
 						WHERE is_activated = {int:is_activated}',
@@ -255,7 +247,6 @@ class Logging
 
 					// Get the latest activated member's display name.
 					$result = Db::$db->query(
-						'',
 						'SELECT real_name
 						FROM {db_prefix}members
 						WHERE id_member = {int:id_member}
@@ -269,7 +260,6 @@ class Logging
 
 					// Update the amount of members awaiting approval
 					$result = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
@@ -291,7 +281,6 @@ class Logging
 				} else {
 					// SUM and MAX on a smaller table is better for InnoDB tables.
 					$result = Db::$db->query(
-						'',
 						'SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
 						FROM {db_prefix}boards
 						WHERE redirect = {string:blank_redirect}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -315,7 +304,6 @@ class Logging
 			case 'subject':
 				// Remove the previous subject (if any).
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_search_subjects
 					WHERE id_topic = {int:id_topic}',
 					[
@@ -357,7 +345,6 @@ class Logging
 					// Get the number of topics - a SUM is better for InnoDB tables.
 					// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
 					$result = Db::$db->query(
-						'',
 						'SELECT SUM(num_topics + unapproved_topics) AS total_topics
 						FROM {db_prefix}boards' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 						WHERE id_board != {int:recycle_board}' : ''),
@@ -375,7 +362,7 @@ class Logging
 
 			case 'postgroups':
 				// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-				if ($parameter2 !== null && !in_array('posts', $parameter2)) {
+				if ($parameter2 !== null && !\in_array('posts', $parameter2)) {
 					return;
 				}
 
@@ -416,12 +403,11 @@ class Logging
 
 				// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
 					END' . ($parameter1 != null ? '
-					WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
+					WHERE ' . (\is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 					[
 						'members' => $parameter1,
 					],
@@ -430,8 +416,7 @@ class Logging
 				break;
 
 			default:
-				Lang::load('Errors');
-				trigger_error(Lang::getTxt('invalid_statistic_type', [$type]), E_USER_NOTICE);
+				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type], file: 'Errors'));
 		}
 	}
 
@@ -485,7 +470,6 @@ class Logging
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_activity
 			SET' . substr($setStringUpdate, 0, -1) . '
 			WHERE date = {date:current_date}',
@@ -530,7 +514,6 @@ class Logging
 		// No entry exists for today yet?
 		if (!isset(Config::$modSettings['mostOnlineUpdated']) || Config::$modSettings['mostOnlineUpdated'] != $date) {
 			$request = Db::$db->query(
-				'',
 				'SELECT most_on
 				FROM {db_prefix}log_activity
 				WHERE date = {date:date}
@@ -612,9 +595,8 @@ class Logging
 		}
 
 		// Not allowed sort method? Bang! Error!
-		elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+		if (!\in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
+			throw new \ValueError('get_members_online_stats_invalid_sort');
 		}
 
 		// Initialize the array that'll be returned later on.
@@ -646,7 +628,6 @@ class Logging
 
 		// Load the users online right now.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				lo.id_member, lo.log_time, lo.id_spider, mem.real_name, mem.member_name, mem.show_online,
 				mg.online_color, mg.id_group, mg.group_name, mg.hidden, mg.group_type, mg.id_parent
@@ -688,7 +669,7 @@ class Logging
 			}
 
 			// Buddies get counted and highlighted.
-			$is_buddy = in_array($row['id_member'], User::$me->buddies);
+			$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 			if ($is_buddy) {
 				$membersOnlineStats['num_buddies']++;
@@ -736,7 +717,7 @@ class Logging
 					'id' => 0,
 					'username' => $spiders[$id],
 					'name' => $link,
-					'group' => Lang::$txt['spiders'],
+					'group' => Lang::getTxt('spiders', file: 'General'),
 					'href' => '',
 					'link' => $link,
 					'is_buddy' => false,
@@ -766,226 +747,10 @@ class Logging
 		ksort($membersOnlineStats['online_groups']);
 
 		// Hidden and non-hidden members make up all online members.
-		$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
+		$membersOnlineStats['num_users_online'] = \count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? \count($spider_finds) : 0);
 
 		IntegrationHook::call('integrate_online_stats', [&$membersOnlineStats]);
 
 		return $membersOnlineStats;
 	}
-
-	/**
-	 * Shows the debug information tracked when Config::$db_show_debug = true.
-	 */
-	public static function displayDebug(): void
-	{
-		// Add to Settings.php if you want to show the debugging information.
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery')) {
-			return;
-		}
-
-		if (empty($_SESSION['view_queries'])) {
-			$_SESSION['view_queries'] = 0;
-		}
-
-		if (empty(Utils::$context['debug']['language_files'])) {
-			Utils::$context['debug']['language_files'] = [];
-		}
-
-		if (empty(Utils::$context['debug']['sheets'])) {
-			Utils::$context['debug']['sheets'] = [];
-		}
-
-		$files = get_included_files();
-		$total_size = 0;
-
-		for ($i = 0, $n = count($files); $i < $n; $i++) {
-			if (file_exists($files[$i])) {
-				$total_size += filesize($files[$i]);
-			}
-
-			$files[$i] = strtr($files[$i], [Config::$boarddir => '.', Config::$sourcedir => '(Sources)', Config::$cachedir => '(Cache)', Theme::$current->settings['actual_theme_dir'] => '(Current Theme)']);
-		}
-
-		$warnings = 0;
-
-		if (!empty(Db::$cache)) {
-			foreach (Db::$cache as $q => $query_data) {
-				if (!empty($query_data['w'])) {
-					$warnings += count($query_data['w']);
-				}
-			}
-
-			$_SESSION['debug'] = &Db::$cache;
-		}
-
-		// Gotta have valid HTML ;).
-		$temp = ob_get_contents();
-		ob_clean();
-
-		$debug_info = [
-			Lang::getTxt(
-				'debug_browser',
-				[
-					'browser_body_id' => Utils::$context['browser_body_id'],
-					'additional_info' => '(<em>' . implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))) . '</em>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_templates',
-				[
-					'num' => count(Utils::$context['debug']['templates']),
-					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['templates']) . '</em>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_subtemplates',
-				[
-					'num' => count(Utils::$context['debug']['sub_templates']),
-					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sub_templates']) . '</em>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_language_files',
-				[
-					'num' => count(Utils::$context['debug']['language_files']),
-					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['language_files']) . '</em>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_stylesheets',
-				[
-					'num' => count(Utils::$context['debug']['sheets']),
-					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sheets']) . '</em>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_hooks',
-				[
-					'num' => count(Utils::$context['debug']['hooks'] ?? []),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
-				],
-			),
-			Lang::getTxt(
-				'debug_files_included',
-				[
-					'num' => count($files),
-					'size' => round($total_size / 1024),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
-				],
-			),
-		];
-
-		if (function_exists('memory_get_peak_usage')) {
-			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)]);
-		}
-
-		// What tokens are active?
-		if (isset($_SESSION['token'])) {
-			$debug_info[] = Lang::getTxt('debug_tokens', ['additional_info' => '<em>' . implode('</em>, <em>', array_keys($_SESSION['token'])) . '</em>']);
-		}
-
-		if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits)) {
-			$missed_entries = [];
-			$entries = [];
-			$total_t = 0;
-			$total_s = 0;
-
-			foreach (CacheApi::$hits as $cache_hit) {
-				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . Lang::getTxt('debug_cache_seconds_bytes', ['seconds' => $cache_hit['t'], 'bytes' => $cache_hit['s']]);
-				$total_t += $cache_hit['t'];
-				$total_s += $cache_hit['s'];
-			}
-
-			if (!isset(CacheApi::$misses)) {
-				CacheApi::$misses = [];
-			}
-
-			foreach (CacheApi::$misses as $missed) {
-				$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
-			}
-
-			$debug_info[] = Lang::getTxt(
-				'debug_cache_hits',
-				[
-					'num' => CacheApi::$count_hits,
-					'seconds_bytes_total' => Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_info" style="display: none;"><em>' . implode('</em>, <em>', $entries) . '</em></span>)',
-				],
-			);
-
-			$debug_info[] = Lang::getTxt(
-				'debug_cache_misses',
-				[
-					'num' => CacheApi::$count_misses,
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_misses_info" style="display: none;"><em>' . implode('</em>, <em>', $missed_entries) . '</em></span>)',
-				],
-			);
-		}
-
-		echo preg_replace('~</body>\s*</html>~', '', $temp), '
-	<div class="smalltext" style="text-align: left; margin: 1ex;">
-		', implode("<br>\n\t\t", $debug_info), '<br>';
-
-		echo '
-		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
-		<br>';
-
-		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
-			foreach (Db::$cache as $q => $query_data) {
-				// Fix the indentation....
-				$query_data['q'] = DebugUtils::trimIndent($query_data['q']);
-
-				// Make the filenames look a bit better.
-				if (isset($query_data['f'])) {
-					$query_data['f'] = preg_replace('/^' . preg_quote(Config::$boarddir, '/') . '/', '...', strtr($query_data['f'], '\\', '/'));
-				}
-
-				$is_select_query = preg_match('/^\s*(?:SELECT|WITH)/i', $query_data['q']) != 0;
-
-				if ($is_select_query) {
-					$select = $query_data['q'];
-				} elseif (preg_match('/^\s*(?:INSERT(?: IGNORE)? INTO \w+|CREATE TEMPORARY TABLE .+?)\KSELECT .+$/is', trim($query_data['q']), $matches) != 0) {
-					$is_select_query = true;
-					$select = $matches[0];
-				}
-
-				// Temporary tables created in earlier queries are not explainable.
-				if ($is_select_query && preg_match('/log_topics_unread|topics_posted_in|tmp_log_search_(?:topics|messages)/i', $select) != 0) {
-					$is_select_query = false;
-				}
-
-				if ($is_select_query) {
-					echo '
-		<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" target="_blank" rel="noopener"  target="_blank" rel="noopener" style="font-weight: bold; text-decoration: none;">';
-				}
-
-					echo '
-			<pre style="tab-size: 2;">', $query_data['q'], '</pre>';
-
-				if ($is_select_query) {
-					echo '
-		</a>';
-				}
-
-				if (!empty($query_data['f']) && !empty($query_data['l'])) {
-					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
-				}
-
-				if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]) . '<br>';
-				} elseif (isset($query_data['t'])) {
-					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]) . '<br>';
-				}
-
-				echo '
-		<br>';
-			}
-		}
-
-		echo '
-		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
-	</div></body></html>';
-	}
 }
-
-?>

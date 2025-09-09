@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Who
+// Version: 3.0 Alpha 4; Who
 
 $txt['who_hidden'] = 'Nothing, or nothing you can see...';
 $txt['who_admin'] = 'Viewing the Administration Center';
@@ -211,5 +211,3 @@ $txt['credits_in_memoriam'] = 'In loving memory of';
 
 // Comma separated list of people who have made more than a token contribution to this translation. Example: 'Alice "The Hammer" Smith, Bob Cratchit, Gandalf the Grey'. (Note: English version contains a single comma so that the string will be shown in CrowdIn.)
 $txt['translation_credits'] = ',';
-
-?>

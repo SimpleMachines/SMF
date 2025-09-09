@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -24,6 +24,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -33,8 +34,6 @@ use SMF\Utils;
 class StatPanel implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/****************
 	 * Public methods
@@ -54,7 +53,7 @@ class StatPanel implements ActionInterface
 		];
 
 		// Is the load average too high to allow searching just now?
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_userstats']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_userstats']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_userstats'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_userstats_disabled', false);
 		}
 
@@ -64,16 +63,15 @@ class StatPanel implements ActionInterface
 		$time_minutes = floor((Profile::$member->total_time_logged_in % 3600) / 60);
 
 		Utils::$context['time_logged_in'] = Lang::sentenceList(array_filter([
-			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days]) : null,
-			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours]) : null,
-			Lang::getTxt('number_of_minutes', [$time_minutes]),
+			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days], file: 'General') : null,
+			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours], file: 'General') : null,
+			Lang::getTxt('number_of_minutes', [$time_minutes], file: 'General'),
 		]));
 
 		Utils::$context['num_posts'] = Lang::numberFormat(Profile::$member->posts);
 
 		// Number of topics started and Number polls started
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*), COUNT( CASE WHEN id_poll != {int:no_poll} THEN 1 ELSE NULL END )
 			FROM {db_prefix}topics
 			WHERE id_member_started = {int:current_member}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -89,13 +87,13 @@ class StatPanel implements ActionInterface
 
 		// Number polls voted in.
 		$result = Db::$db->query(
-			'distinct_poll_votes',
 			'SELECT COUNT(DISTINCT id_poll)
 			FROM {db_prefix}log_polls
 			WHERE id_member = {int:current_member}',
 			[
 				'current_member' => Profile::$member->id,
 			],
+			identifier: 'distinct_poll_votes',
 		);
 		list(Utils::$context['num_votes']) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
@@ -109,7 +107,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['popular_boards'] = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT
 				b.id_board, MAX(b.name) AS name, MAX(b.num_posts) AS num_posts, COUNT(*) AS message_count
 			FROM {db_prefix}messages AS m
@@ -143,7 +140,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['board_activity'] = [];
 
 		$result = Db::$db->query(
-			'profile_board_stats',
 			'SELECT
 				b.id_board, MAX(b.name) AS name, b.num_posts, COUNT(*) AS message_count,
 				CASE WHEN COUNT(*) > MAX(b.num_posts) THEN 1 ELSE COUNT(*) / MAX(b.num_posts) END * 100 AS percentage
@@ -157,6 +153,7 @@ class StatPanel implements ActionInterface
 			[
 				'current_member' => Profile::$member->id,
 			],
+			identifier: 'profile_board_stats',
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
@@ -177,7 +174,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['posts_by_time'] = [];
 
 		$result = Db::$db->query(
-			'user_activity_by_time',
 			'SELECT
 				HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 				COUNT(*) AS post_count
@@ -193,6 +189,7 @@ class StatPanel implements ActionInterface
 				'time_offset' => User::$me->time_offset * 3600,
 				'max_messages' => 1001,
 			],
+			identifier: 'user_activity_by_time',
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
@@ -248,18 +245,18 @@ class StatPanel implements ActionInterface
 				'text' => Utils::$context['time_logged_in'],
 			],
 			'total_posts' => [
-				'text' => Utils::$context['num_posts'] . ' ' . Lang::$txt['statPanel_posts'],
+				'text' => Utils::$context['num_posts'] . ' ' . Lang::getTxt('statPanel_posts', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=messages;u=' . Profile::$member->id,
 			],
 			'total_topics' => [
-				'text' => Utils::$context['num_topics'] . ' ' . Lang::$txt['statPanel_topics'],
+				'text' => Utils::$context['num_topics'] . ' ' . Lang::getTxt('statPanel_topics', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=topics;u=' . Profile::$member->id,
 			],
 			'users_polls' => [
-				'text' => Utils::$context['num_polls'] . ' ' . Lang::$txt['statPanel_polls'],
+				'text' => Utils::$context['num_polls'] . ' ' . Lang::getTxt('statPanel_polls', file: 'Profile'),
 			],
 			'users_votes' => [
-				'text' => Utils::$context['num_votes'] . ' ' . Lang::$txt['statPanel_votes'],
+				'text' => Utils::$context['num_votes'] . ' ' . Lang::getTxt('statPanel_votes', file: 'Profile'),
 			],
 		];
 
@@ -281,5 +278,3 @@ class StatPanel implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -62,9 +62,9 @@ trait ActionRouter
 		return array_merge($params, self::parseActionRoute($route));
 	}
 
-	/************************
+	/*************************
 	 * Internal static methods
-	 ************************/
+	 *************************/
 
 	/**
 	 * Builds a routing path for an action based on URL query parameters.
@@ -87,7 +87,7 @@ trait ActionRouter
 		if (str_starts_with(self::class, 'SMF\\Actions')) {
 			if (!isset($params['action'])) {
 				foreach (Forum::$actions as $action => $info) {
-					if (is_string($info[1]) && str_starts_with($info[1], self::class)) {
+					if (\is_string($info[1]) && str_starts_with($info[1], self::class)) {
 						$params['action'] = $action;
 						break;
 					}
@@ -157,5 +157,3 @@ trait ActionRouter
 		return $params;
 	}
 }
-
-?>

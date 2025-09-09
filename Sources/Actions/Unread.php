@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -26,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -273,15 +274,13 @@ class Unread implements ActionInterface, Routable
 
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? Lang::$txt['unread_topics_all'] : Lang::$txt['unread_topics_visit'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['showing_all_topics'] ? 'unread_topics_all' : 'unread_topics_visit', file: 'General');
 
-		$this->linktree_name = Lang::$txt['unread_topics_visit'];
+		$this->linktree_name = Lang::getTxt('unread_topics_visit', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unread';
 
-		if (Utils::$context['showing_all_topics']) {
-			$this->checkLoadAverageAll();
-		} else {
-			$this->checkLoadAverage();
+		if (Sapi::isOverloaded(Utils::$context['showing_all_topics'] ? Config::$modSettings['loadavg_allunread'] ?? null : Config::$modSettings['loadavg_unread'] ?? null)) {
+			ErrorHandler::fatalLang(Utils::$context['showing_all_topics'] ? 'loadavg_allunread_disabled' : 'loadavg_unread_disabled', false);
 		}
 
 		Theme::loadTemplate('Recent');
@@ -293,42 +292,6 @@ class Unread implements ActionInterface, Routable
 
 		foreach (Utils::$context['stable_icons'] as $icon) {
 			Utils::$context['icon_sources'][$icon] = 'images_url';
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show unread posts.
-	 */
-	protected function checkLoadAverage(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_unread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unread']) {
-			ErrorHandler::fatalLang('loadavg_unread_disabled', false);
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show all unread posts.
-	 */
-	protected function checkLoadAverageAll(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_allunread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_allunread']) {
-			ErrorHandler::fatalLang('loadavg_allunread_disabled', false);
 		}
 	}
 
@@ -357,7 +320,6 @@ class Unread implements ActionInterface, Routable
 
 			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
 				WHERE {query_wanna_see_board}
@@ -371,7 +333,7 @@ class Unread implements ActionInterface, Routable
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array($row['id_parent'], $this->boards)) {
+				if (\in_array($row['id_parent'], $this->boards)) {
 					$this->boards[] = $row['id_board'];
 				}
 			}
@@ -396,7 +358,6 @@ class Unread implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
@@ -426,7 +387,6 @@ class Unread implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE ' . User::$me->{$this->see_board} . '
@@ -451,7 +411,6 @@ class Unread implements ActionInterface, Routable
 		} else {
 			// Don't bother to show deleted posts!
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE ' . User::$me->{$this->see_board} . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -482,9 +441,8 @@ class Unread implements ActionInterface, Routable
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id_cat}
@@ -504,7 +462,7 @@ class Unread implements ActionInterface, Routable
 	protected function setSortMethod(): void
 	{
 		// We only know these.
-		if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
+		if (isset($_REQUEST['sort']) && !\in_array($_REQUEST['sort'], array_keys($this->sort_methods))) {
 			$_REQUEST['sort'] = 'last_post';
 		}
 
@@ -527,10 +485,10 @@ class Unread implements ActionInterface, Routable
 
 		Utils::$context['sort_direction'] = $this->ascending ? 'up' : 'down';
 
-		Lang::$txt['starter'] = Lang::$txt['started_by'];
+		Lang::setTxt('starter', Lang::getTxt('started_by', file: 'General'));
 
 		foreach ($this->sort_methods as $key => $val) {
-			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::$txt[$key] . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
+			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::getTxt($key, file: 'General') . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
 		}
 	}
 
@@ -543,10 +501,10 @@ class Unread implements ActionInterface, Routable
 		$not_last_page = Utils::$context['start'] + Utils::$context['topics_per_page'] < $this->num_topics;
 
 		$url_limits = [
-			'first' => sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
-			'prev' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'next' => sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
-			'last' => sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
+			'first' => \sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
+			'prev' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] - Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'next' => \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start'] + Utils::$context['topics_per_page']) . Utils::$context['querystring_sort_limits'],
+			'last' => \sprintf(Utils::$context['querystring_board_limits'], $this->num_topics - ($this->num_topics % Utils::$context['topics_per_page'])) . Utils::$context['querystring_sort_limits'],
 		];
 
 		if (isset($this->cat_name)) {
@@ -564,10 +522,20 @@ class Unread implements ActionInterface, Routable
 		if (Utils::$context['showing_all_topics']) {
 			Utils::$context['linktree'][] = [
 				'url' => $this->action_url . ';all' . $url_limits['first'],
-				'name' => Lang::$txt['unread_topics_all'],
+				'name' => Lang::getTxt('unread_topics_all', file: 'General'),
 			];
 		} else {
-			Lang::$txt['unread_topics_visit_none'] = strtr(Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), ['?action=unread;all' => '?action=unread;all' . $url_limits['first']]);
+			Lang::setTxt(
+				'unread_topics_visit_none',
+				strtr(
+					Lang::getTxt(
+						'unread_topics_visit_none',
+						['scripturl' => Config::$scripturl],
+						file: 'General',
+					),
+					['?action=unread;all' => '?action=unread;all' . $url_limits['first']],
+				),
+			);
 		}
 
 		// Make sure the starting place makes sense and construct the page index.
@@ -575,7 +543,7 @@ class Unread implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
@@ -611,7 +579,7 @@ class Unread implements ActionInterface, Routable
 		if (Utils::$context['querystring_board_limits'] == ';start=%1$d') {
 			Utils::$context['querystring_board_limits'] = '';
 		} else {
-			Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+			Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 		}
 	}
 
@@ -647,7 +615,6 @@ class Unread implements ActionInterface, Routable
 
 		if (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT MIN(id_msg)
 				FROM {db_prefix}log_mark_read
 				WHERE id_member = {int:current_member}
@@ -662,7 +629,6 @@ class Unread implements ActionInterface, Routable
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT MIN(lmr.id_msg)
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = b.id_board AND lmr.id_member = {int:current_member})
@@ -686,7 +652,6 @@ class Unread implements ActionInterface, Routable
 			} else {
 				// This query is pretty slow, but it's needed to ensure nothing crucial is ignored.
 				$request = Db::$db->query(
-					'',
 					'SELECT MIN(id_msg)
 					FROM {db_prefix}log_topics
 					WHERE id_member = {int:current_member}',
@@ -732,7 +697,6 @@ class Unread implements ActionInterface, Routable
 	protected function makeTempTable(): void
 	{
 		Db::$db->query(
-			'',
 			'DROP TABLE IF EXISTS {db_prefix}log_topics_unread',
 			[
 			],
@@ -740,7 +704,6 @@ class Unread implements ActionInterface, Routable
 
 		// Let's copy things out of the log_topics table, to reduce searching.
 		$this->have_temp_table = Db::$db->query(
-			'',
 			'CREATE TEMPORARY TABLE {db_prefix}log_topics_unread (
 				PRIMARY KEY (id_topic)
 			)
@@ -766,7 +729,6 @@ class Unread implements ActionInterface, Routable
 	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
@@ -795,7 +757,6 @@ class Unread implements ActionInterface, Routable
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}messages AS ms
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ms.id_topic AND t.id_first_msg = ms.id_msg)
@@ -822,6 +783,7 @@ class Unread implements ActionInterface, Routable
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 			]),
+			identifier: 'substring',
 		);
 	}
 
@@ -831,7 +793,6 @@ class Unread implements ActionInterface, Routable
 	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t' . (!empty($this->have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
@@ -863,7 +824,6 @@ class Unread implements ActionInterface, Routable
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}messages AS ms
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ms.id_topic AND t.id_first_msg = ms.id_msg)
@@ -891,6 +851,7 @@ class Unread implements ActionInterface, Routable
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 			]),
+			identifier: 'substring',
 		);
 	}
 
@@ -935,7 +896,7 @@ class Unread implements ActionInterface, Routable
 			Utils::$context['topics'][$row['id_topic']]['last_post']['link'] = '<a href="' . Utils::$context['topics'][$row['id_topic']]['last_post']['href'] . '" rel="nofollow">' . $row['last_subject'] . '</a>';
 
 			// Add "started by" string to first post.
-			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']], file: 'General');
 
 			// This isn't really necessary, but for the sake of consistency
 			// ensure the topic is marked as new.
@@ -945,7 +906,6 @@ class Unread implements ActionInterface, Routable
 
 		if (!empty(Config::$modSettings['enableParticipation']) && !empty($topic_ids)) {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
@@ -955,7 +915,7 @@ class Unread implements ActionInterface, Routable
 				[
 					'current_member' => User::$me->id,
 					'topic_list' => $topic_ids,
-					'limit' => count($topic_ids),
+					'limit' => \count($topic_ids),
 				],
 			);
 
@@ -967,7 +927,7 @@ class Unread implements ActionInterface, Routable
 			Db::$db->free_result($result);
 		}
 
-		Utils::$context['querystring_board_limits'] = sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
+		Utils::$context['querystring_board_limits'] = \sprintf(Utils::$context['querystring_board_limits'], Utils::$context['start']);
 
 		Utils::$context['topics_to_mark'] = implode('-', $topic_ids);
 	}
@@ -983,7 +943,7 @@ class Unread implements ActionInterface, Routable
 				'markread' => [
 					'text' => !empty(Utils::$context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=' . (!empty(Utils::$context['no_board_limits']) ? 'all' : 'board' . Utils::$context['querystring_board_limits']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],
@@ -1005,7 +965,7 @@ class Unread implements ActionInterface, Routable
 				'markread' => [
 					'text' => 'mark_as_read',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=unreadreplies;topics=' . Utils::$context['topics_to_mark'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],
@@ -1024,5 +984,3 @@ class Unread implements ActionInterface, Routable
 		IntegrationHook::call('integrate_recent_buttons');
 	}
 }
-
-?>

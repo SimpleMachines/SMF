@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -78,7 +78,6 @@ class ExportAttachment implements ActionInterface
 
 		// Does this attachment belong to this member?
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_topic
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}attachments AS a ON (m.id_msg = a.id_msg)
@@ -131,5 +130,3 @@ class ExportAttachment implements ActionInterface
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 	}
 }
-
-?>

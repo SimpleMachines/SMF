@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -44,8 +44,6 @@ class LoginTFA extends Login2
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		Lang::load('Profile');
-
 		$member = Utils::$context['tfa_member'];
 
 		// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
@@ -66,10 +64,10 @@ class LoginTFA extends Login2
 
 			$code = $_POST['tfa_code'];
 
-			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
+			if (\strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
 				User::updateMemberData($member['id_member'], ['last_login' => time()]);
 
-				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				Utils::redirectexit();
 			} else {
@@ -99,7 +97,7 @@ class LoginTFA extends Login2
 					'last_login' => time(),
 				]);
 
-				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			} else {
@@ -113,9 +111,7 @@ class LoginTFA extends Login2
 
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login_tfa';
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 	}
 }
-
-?>

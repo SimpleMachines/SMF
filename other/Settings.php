@@ -10,12 +10,12 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 ########## Maintenance ##########
 /**
- * @var int 0, 1, 2
+ * @var int
  *
  * The maintenance "mode":
  * 0: Disable maintenance mode. This is the default.
@@ -138,13 +138,6 @@ $db_persist = false;
  * Send emails on database connection error.
  */
 $db_error_send = false;
-/**
- * @var null|bool
- *
- * Override the default behavior of the database layer for mb4 handling.
- * null keep the default behavior untouched.
- */
-$db_mb4 = null;
 
 ########## Cache Info ##########
 /**
@@ -234,27 +227,7 @@ $languagesdir = __DIR__ . '/Languages';
  */
 $backward_compatibility = 0;
 
-######### Legacy Settings #########
-/**
- * @var string
- *
- * Database character set. Should always be utf8.
- */
-$db_character_set = 'utf8';
-
-if (file_exists(__DIR__ . '/install.php'))
-{
-	$secure = false;
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-		$secure = true;
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-		$secure = true;
-
-	if (basename($_SERVER['PHP_SELF']) != 'install.php')
-	{
-		header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
-		exit;
-	}
+if (file_exists(__DIR__ . '/install.php') && basename($_SERVER['PHP_SELF']) != 'install.php') {
+	header('location: install.php');
+	exit;
 }
-
-?>

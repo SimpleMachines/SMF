@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -97,7 +97,6 @@ class QuickModerationInTopic implements ActionInterface, Routable
 	protected function split(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT subject
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:message}
@@ -128,7 +127,6 @@ class QuickModerationInTopic implements ActionInterface, Routable
 		// Allowed to delete replies to their messages?
 		elseif (User::$me->allowedTo('delete_replies')) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member_started
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:current_topic}
@@ -152,7 +150,6 @@ class QuickModerationInTopic implements ActionInterface, Routable
 
 		// Allowed to remove which messages?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg, subject, id_member, poster_time
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
@@ -163,7 +160,7 @@ class QuickModerationInTopic implements ActionInterface, Routable
 				'current_member' => User::$me->id,
 				'current_topic' => Topic::$topic_id,
 				'message_list' => $this->messages,
-				'limit' => count($this->messages),
+				'limit' => \count($this->messages),
 			],
 		);
 		$message_info = [];
@@ -179,7 +176,6 @@ class QuickModerationInTopic implements ActionInterface, Routable
 
 		// Get the first message in the topic - because you can't delete that!
 		$request = Db::$db->query(
-			'',
 			'SELECT id_first_msg, id_last_msg
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -214,5 +210,3 @@ class QuickModerationInTopic implements ActionInterface, Routable
 		Utils::redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
 }
-
-?>

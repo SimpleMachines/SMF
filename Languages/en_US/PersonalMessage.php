@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; PersonalMessage
+// Version: 3.0 Alpha 4; PersonalMessage
 
 // Things for the popup
 $txt['pm_unread'] = 'Unread';
@@ -13,7 +13,6 @@ $txt['pm_was_sent_to_you'] = 'You received a message';
 $txt['pm_you_were_replied_to'] = 'A message of yours was replied to';
 
 $txt['pm_inbox'] = 'Personal Messages Index';
-$txt['send_message'] = 'Send message';
 $txt['pm_add'] = 'Add';
 $txt['make_bcc'] = 'Add BCC';
 $txt['pm_subject'] = 'Subject: {subject}';
@@ -27,7 +26,7 @@ $txt['sent_items'] = 'Sent Items';
 $txt['new_message'] = 'New Message';
 $txt['delete_message'] = 'Delete Messages';
 // Don't translate "PMBOX" in this string.
-$txt['delete_all'] = 'Delete all messages in your PMBOX';
+$txt['delete_all'] = 'Delete all messages in your {pmbox}';
 $txt['delete_all_confirm'] = 'Are you sure you want to delete all messages?';
 $txt['recipient'] = 'Recipient';
 
@@ -219,5 +218,3 @@ $txt['pm_readable_label'] = 'apply label &quot;{LABEL}&quot;';
 $txt['pm_readable_delete'] = 'delete the message';
 $txt['pm_readable_then'] = 'then';
 $txt['pm_remove_message'] = 'Remove this message';
-
-?>

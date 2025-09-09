@@ -421,6 +421,14 @@ blockquote cite::before {
 	border: 1px solid #ddd;
 	border-collapse: collapse;
 }
+.lefttext .bbc_table,
+.centertext .bbc_table {
+	margin-right: auto;
+}
+.righttext .bbc_table,
+.centertext .bbc_table {
+	margin-left: auto;
+}
 .bbc_table th,
 .bbc_table td {
 	color: inherit;
@@ -480,6 +488,61 @@ blockquote cite::before {
 }
 .bbc_h6 {
 	font-size: 1em;
+}
+.bbc_details,
+.bbc_summary,
+.bbc_details_content {
+	margin: 5px;
+}
+.bbc_details {
+	border: 1px dotted #aaa;
+	margin: 5px;
+}
+.bbc_summary {
+	cursor: pointer;
+	margin: 5px;
+}
+.bbc_details[open] > .bbc_summary {
+    padding-bottom: 7px;
+	border-bottom: 1px dotted #aaa;
+}
+.bbc_inline_spoiler {
+	cursor: pointer;
+	border-radius: 3px;
+	background-color: currentcolor;
+	position: relative;
+	transition-property: background-color;
+	transition-duration: 0.5s;
+}
+.bbc_inline_spoiler.revealed {
+	background-color: transparent;
+}
+.bbc_inline_spoiler > button {
+	all: unset;
+	display: inline;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	border-color: transparent;
+	background-color: transparent;
+}
+.bbc_inline_spoiler > button:focus-visible {
+	outline: 2px solid #7fb0d8;
+}
+.bbc_inline_spoiler > span {
+	/*
+		The visibility value is vital to making spoiler tags work correctly with
+		assistive technologies (e.g. screen readers). If you are customizing the
+		CSS for your theme, you should not change this part.
+	*/
+	visibility: hidden;
+	transition-property: visibility;
+	transition-duration: inherit;
+}
+.bbc_inline_spoiler.revealed > span {
+	visibility: visible;
 }
 
 /* No image should have a border when linked. */
@@ -1113,6 +1176,10 @@ html[lang="el-GR"] .inline_mod_check {
 .titlebg .buttonlist {
 	margin: 0;
 	padding: 0;
+}
+.button.smalltext {
+	font-size: 0.6em;
+	padding: 0 5px;
 }
 
 /* Styles for the general looks of the theme.
@@ -3487,6 +3554,7 @@ img.avatar {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
+	position: relative;
 }
 .keyinfo .postinfo::after, .under_message::after {
 	content: "";
@@ -3504,6 +3572,34 @@ img.avatar {
 	font-weight: normal;
 	font-style: italic;
 	padding: 2px 4px 0 4px;
+}
+.edit_history_list {
+	/* Start with it hidden until toggled on */
+	display: none;
+	z-index: 90;
+	position: absolute;
+	right: 0;
+	top: 2em;
+	background: #fdfdfd;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 1em;
+	min-width: 18.2em;
+	font-weight: normal;
+}
+.edit_history_list li {
+	margin-top: 0.5em;
+	padding-top: 0.5em;
+	border-top: 1px solid #ddd;
+}
+.bump_notice {
+	display: block;
+	margin-top: 1em;
+	padding: 0.5em 0;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	text-align: center;
+	font-style: italic;
 }
 /* PMs postinfo */
 #personal_messages .keyinfo .postinfo {
@@ -4327,4 +4423,39 @@ img.theme_thumbnail {
 
 #lang_main_files_list .name, #member_list .email, #approve_list .email {
 	word-break: break-word;
+}
+
+/* Diff output styling */
+del.diff {
+	background: rgba(255, 0, 0, 0.35);
+}
+ins.diff {
+	background: rgba(0, 255, 0, 0.35);
+}
+.diff:has(
+	address, article, aside, blockquote, caption, center, col, colgroup, dd,
+	details, dialog, dir, div, dl, dt, fieldset, figcaption, figure, footer,
+	form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, legend, listing, main,
+	menu, nav, ol, p, plaintext, pre, search, section, summary, table, tbody,
+	td, tfoot, thead, tr, ul, xmp
+) {
+	display: block;
+}
+del.diff + ins.diff {
+	margin-left: 0.15ch;
+}
+del.diff:has(+ ins.diff) > ol,
+del.diff:has(+ ins.diff) > ul,
+del.diff:has(+ ins.diff) > menu {
+	margin-bottom: 0;
+}
+del.diff + ins.diff > ol,
+del.diff + ins.diff > ul,
+del.diff + ins.diff > menu {
+	margin-top: 0;
+}
+.diff_blank_line::before {
+	content: "↩︎";
+	padding: 0 1px;
+	color: color-mix(in srgb, currentColor 35%, transparent);
 }

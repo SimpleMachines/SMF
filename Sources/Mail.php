@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -34,8 +34,8 @@ class Mail
 	 * @param array|string $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
-	 * @param string $from The address to use for replies
-	 * @param string $message_id If specified, it will be used as local part of the Message-ID header.
+	 * @param null|string $from The address to use for replies
+	 * @param null|string $message_id If specified, it will be used as local part of the Message-ID header.
 	 * @param bool $send_html Whether or not the message is HTML vs. plain text
 	 * @param int $priority The priority of the message
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
@@ -64,7 +64,7 @@ class Mail
 		$mail_result = true;
 
 		// If the recipient list isn't an array, make it one.
-		$to_array = is_array($to) ? $to : [$to];
+		$to_array = \is_array($to) ? $to : [$to];
 
 		// Make sure we actually have email addresses to send this to
 		foreach ($to_array as $k => $v) {
@@ -135,7 +135,7 @@ class Mail
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
-		if (in_array(false, IntegrationHook::call('integrate_outgoing_email', [&$subject, &$message, &$headers, &$to_array]), true)) {
+		if (\in_array(false, IntegrationHook::call('integrate_outgoing_email', [&$subject, &$message, &$headers, &$to_array]), true)) {
 			return false;
 		}
 
@@ -276,7 +276,6 @@ class Mail
 			$nextSendTime = time() + 10;
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:nextSendTime}
 				WHERE variable = {literal:mail_next_send}
@@ -295,7 +294,7 @@ class Mail
 
 		foreach ($to_array as $to) {
 			// Will this insert go over MySQL's limit?
-			$this_insert_len = strlen($to) + strlen($message) + strlen($headers) + 700;
+			$this_insert_len = \strlen($to) + \strlen($message) + \strlen($headers) + 700;
 
 			// Insert limit of 1M (just under the safety) is reached?
 			if ($this_insert_len + $cur_insert_len > 1000000) {
@@ -366,7 +365,6 @@ class Mail
 			$delay = max(TaskRunner::MAX_CRON_TIME, (int) (Config::$modSettings['mail_queue_delay'] ?? 10));
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:next_mail_send}
 				WHERE variable = {literal:mail_next_send}
@@ -411,7 +409,6 @@ class Mail
 		$emails = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
 			ORDER BY priority ASC, id_mail ASC
@@ -441,7 +438,6 @@ class Mail
 		// Delete, delete, delete!!!
 		if (!empty($ids)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_list})',
 				[
@@ -451,10 +447,9 @@ class Mail
 		}
 
 		// Don't believe we have any left?
-		if (count($ids) < $number) {
+		if (\count($ids) < $number) {
 			// Only update the setting if no-one else has beaten us to it.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:no_send}
 				WHERE variable = {literal:mail_next_send}
@@ -547,7 +542,6 @@ class Mail
 			// If we have failed too many times, tell mail to wait a bit and try again.
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}settings
 					SET value = {string:next_mail_send}
 					WHERE variable = {literal:mail_next_send}
@@ -583,7 +577,6 @@ class Mail
 		// We where unable to send the email, clear our failed attempts.
 		if (!empty(Config::$modSettings['mail_failed_attempts'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:zero}
 				WHERE variable = {string:mail_failed_attempts}',
@@ -600,102 +593,39 @@ class Mail
 
 	/**
 	 * Prepare text strings for sending as email body or header.
-	 * In case there are higher ASCII characters in the given string, this
-	 * function will attempt the transport method 'quoted-printable'.
+	 *
+	 * In case there are Unicode characters in the given string, this
+	 * function will attempt the transport method 'base64'.
 	 * Otherwise the transport method '7bit' is used.
 	 *
 	 * @param string $string The string
 	 * @param bool $with_charset Whether we're specifying a charset ($custom_charset must be set here)
-	 * @param bool $hotmail_fix Whether to apply the hotmail fix  (all higher ASCII characters are converted to HTML entities to assure proper display of the mail)
+	 * @param bool $hotmail_fix Whether to apply the hotmail fix  (all Unicode characters are converted to HTML entities to assure proper display of the mail)
 	 * @param string $line_break The linebreak
-	 * @param string $custom_charset If set, it uses this character set
+	 * @param ?string $custom_charset The character set of the incoming string. Optional.
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
 	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", ?string $custom_charset = null): array
 	{
-		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
-
-		// This is the fun part....
-		if (preg_match_all('~&#(\d{3,8});~', $string, $matches) !== 0 && !$hotmail_fix) {
-			// Let's, for now, assume there are only &#021;'ish characters.
-			$simple = true;
-
-			foreach ($matches[1] as $entity) {
-				if ($entity > 128) {
-					$simple = false;
-				}
-			}
-			unset($matches);
-
-			if ($simple) {
-				$string = preg_replace_callback(
-					'~&#(\d{3,8});~',
-					function ($m) {
-						return chr((int) "{$m[1]}");
-					},
-					$string,
-				);
-			} else {
-				// Try to convert the string to UTF-8.
-				if (!Utils::$context['utf8'] && function_exists('iconv')) {
-					$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
-
-					if ($newstring) {
-						$string = $newstring;
-					}
-				}
-
-				$string = Utils::entityDecode($string, true);
-
-				// Unicode, baby.
-				$charset = 'UTF-8';
-			}
+		if (isset($custom_charset)) {
+			$string = mb_convert_encoding($string, 'UTF-8', $custom_charset);
 		}
 
+		$string = Utils::entityDecode($string);
+
 		// Convert all special characters to HTML entities...just for Hotmail :-\
-		if ($hotmail_fix && (Utils::$context['utf8'] || function_exists('iconv') || Utils::$context['character_set'] === 'ISO-8859-1')) {
-			if (!Utils::$context['utf8'] && function_exists('iconv')) {
-				$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
-
-				if ($newstring) {
-					$string = $newstring;
-				}
-			}
-
-			$entityConvert = function ($m) {
-				$c = $m[1];
-
-				if (strlen($c) === 1 && ord($c[0]) <= 0x7F) {
-					return $c;
-				}
-
-				if (strlen($c) === 2 && ord($c[0]) >= 0xC0 && ord($c[0]) <= 0xDF) {
-					return '&#' . (((ord($c[0]) ^ 0xC0) << 6) + (ord($c[1]) ^ 0x80)) . ';';
-				}
-
-				if (strlen($c) === 3 && ord($c[0]) >= 0xE0 && ord($c[0]) <= 0xEF) {
-					return '&#' . (((ord($c[0]) ^ 0xE0) << 12) + ((ord($c[1]) ^ 0x80) << 6) + (ord($c[2]) ^ 0x80)) . ';';
-				}
-
-				if (strlen($c) === 4 && ord($c[0]) >= 0xF0 && ord($c[0]) <= 0xF7) {
-					return '&#' . (((ord($c[0]) ^ 0xF0) << 18) + ((ord($c[1]) ^ 0x80) << 12) + ((ord($c[2]) ^ 0x80) << 6) + (ord($c[3]) ^ 0x80)) . ';';
-				}
-
-				return '';
-			};
-
-			// Convert all 'special' characters to HTML entities.
-			return [$charset, preg_replace_callback('~([\x80-\x{10FFFF}])~u', $entityConvert, $string), '7bit'];
+		if ($hotmail_fix) {
+			return ['UTF-8', mb_encode_numericentity($string, [0x80, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8'), '7bit'];
 		}
 
 		// We don't need to mess with the subject line if no special characters were in it..
-		if (!$hotmail_fix && preg_match('~([^\x09\x0A\x0D\x20-\x7F])~', $string) === 1) {
+		if (preg_match('/([^\x{09}\x{0A}\x{0D}\x{20}-\x{7F}])/u', $string)) {
 			// Base64 encode.
 			$string = base64_encode($string);
 
 			// Show the characterset and the transfer-encoding for header strings.
 			if ($with_charset) {
-				$string = '=?' . $charset . '?B?' . $string . '?=';
+				$string = '=?UTF-8?B?' . $string . '?=';
 			}
 
 			// Break it up in lines (mail body).
@@ -703,10 +633,10 @@ class Mail
 				$string = chunk_split($string, 76, $line_break);
 			}
 
-			return [$charset, $string, 'base64'];
+			return ['UTF-8', $string, 'base64'];
 		}
 
-		return [$charset, $string, '7bit'];
+		return ['UTF-8', $string, '7bit'];
 	}
 
 	/**
@@ -758,13 +688,13 @@ class Mail
 				}
 
 				if ($socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3)) {
-					ErrorHandler::log(Lang::$txt['smtp_port_ssl']);
+					ErrorHandler::log(Lang::getTxt('smtp_port_ssl', file: 'General'));
 				}
 			}
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$socket) {
-				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr]));
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr], file: 'General'));
 
 				return false;
 			}
@@ -779,9 +709,9 @@ class Mail
 		// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
 		if (empty($helo)) {
 			// See if we can get the domain name from the host itself
-			if (function_exists('gethostname')) {
+			if (\function_exists('gethostname')) {
 				$helo = gethostname();
-			} elseif (function_exists('php_uname')) {
+			} elseif (\function_exists('php_uname')) {
 				$helo = php_uname('n');
 			}
 
@@ -804,15 +734,15 @@ class Mail
 				$helo = substr($helo, 4);
 			}
 
-			if (!function_exists('idn_to_ascii')) {
-				require_once Config::$sourcedir . '/Subs-Compat.php';
+			if (!\function_exists('idn_to_ascii')) {
+				require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
 
 			$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 		}
 
 		// SMTP = 1, SMTP - STARTTLS = 2
-		if (in_array(Config::$modSettings['mail_type'], [1, 2]) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
+		if (\in_array(Config::$modSettings['mail_type'], [1, 2]) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
 			// EHLO could be understood to mean encrypted hello...
 			if (self::serverParse('EHLO ' . $helo, $socket, null, $response) == '250') {
 				// Are we using STARTTLS and does the server support STARTTLS?
@@ -825,7 +755,7 @@ class Mail
 					// php 5.6+ fix
 					$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
 
-					if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+					if (\defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
 						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
 					}
@@ -891,7 +821,7 @@ class Mail
 			}
 			fputs($socket, 'Subject: ' . $subject . "\r\n");
 
-			if (strlen($mail_to) > 0) {
+			if (\strlen($mail_to) > 0) {
 				fputs($socket, 'To: <' . $mail_to . '>' . "\r\n");
 			}
 			fputs($socket, $headers . "\r\n\r\n");
@@ -937,7 +867,7 @@ class Mail
 		while (substr($server_response, 3, 1) != ' ') {
 			if (!($server_response = fgets($socket, 256))) {
 				// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-				ErrorHandler::log(Lang::$txt['smtp_bad_response']);
+				ErrorHandler::log(Lang::getTxt('smtp_bad_response', file: 'General'));
 
 				return false;
 			}
@@ -958,8 +888,8 @@ class Mail
 			 * 450 - DNS Routing issues
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
-			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response]));
+			if ($response_code < 500 && !\in_array($response_code, [450, 451])) {
+				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response], file: 'General'));
 			}
 
 			return false;
@@ -990,13 +920,12 @@ class Mail
 
 		// It must be an array - it must!
 		// @TODO: $topics = (array) $topics;
-		if (!is_array($topics)) {
+		if (!\is_array($topics)) {
 			$topics = [$topics];
 		}
 
 		// Get the subject and body...
 		$result = Db::$db->query(
-			'',
 			'SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 			FROM {db_prefix}topics AS t
@@ -1062,14 +991,13 @@ class Mail
 	 *
 	 * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
 	 * @param int $memberID The ID of the member
-	 * @param string $member_name The name of the member (if null, it is pulled from the database)
+	 * @param null|string $member_name The name of the member (if null, it is pulled from the database)
 	 */
 	public static function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
 		if ($member_name == null) {
 			// Get the new user's name....
 			$request = Db::$db->query(
-				'',
 				'SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
@@ -1118,19 +1046,17 @@ class Mail
 	 */
 	public static function loadEmailTemplate(string $template, array $replacements = [], string $lang = '', bool $loadLang = true): array
 	{
-		// First things first, load up the email templates language file, if we need to.
-		if ($loadLang) {
-			Lang::load('EmailTemplates', $lang);
-		}
-
-		if (!isset(Lang::$txt[$template . '_subject']) || !isset(Lang::$txt[$template . '_body'])) {
+		if (
+			!Lang::txtExists($template . '_subject', file: 'EmailTemplates')
+			|| !Lang::txtExists($template . '_body', file: 'EmailTemplates')
+		) {
 			ErrorHandler::fatalLang('email_no_template', 'template', [$template]);
 		}
 
 		$ret = [
-			'subject' => Lang::$txt[$template . '_subject'],
-			'body' => Lang::$txt[$template . '_body'],
-			'is_html' => !empty(Lang::$txt[$template . '_html']),
+			'subject' => Lang::getTxt($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
+			'body' => Lang::getTxt($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
+			'is_html' => Lang::txtExists($template . '_html', file: 'EmailTemplates'),
 		];
 
 		// Add in the default replacements.
@@ -1140,7 +1066,7 @@ class Mail
 			'THEMEURL' => Theme::$current->settings['theme_url'],
 			'IMAGESURL' => Theme::$current->settings['images_url'],
 			'DEFAULT_THEMEURL' => Theme::$current->settings['default_theme_url'],
-			'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+			'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General'),
 		];
 
 		// Split the replacements up into two arrays, for use with str_replace
@@ -1195,5 +1121,3 @@ class Mail
 		return $use_ref ? $ref : $matches[0];
 	}
 }
-
-?>

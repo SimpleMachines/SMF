@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -112,11 +112,11 @@ class AutoSuggest implements ActionInterface, Routable
 		Utils::$context['sub_template'] = 'generic_xml';
 
 		if (method_exists($this, self::$suggest_types[$this->suggest_type])) {
-			Utils::$context['xml_data'] = call_user_func([$this, self::$suggest_types[$this->suggest_type]]);
-		} elseif (function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type])) {
-			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]);
-		} elseif (function_exists('AutoSuggest_Search_' . $this->suggest_type)) {
-			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . $this->suggest_type);
+			Utils::$context['xml_data'] = \call_user_func([$this, self::$suggest_types[$this->suggest_type]]);
+		} elseif (\function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type])) {
+			Utils::$context['xml_data'] = \call_user_func('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]);
+		} elseif (\function_exists('AutoSuggest_Search_' . $this->suggest_type)) {
+			Utils::$context['xml_data'] = \call_user_func('AutoSuggest_Search_' . $this->suggest_type);
 		}
 	}
 
@@ -138,7 +138,6 @@ class AutoSuggest implements ActionInterface, Routable
 
 		// Find the member.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
@@ -188,7 +187,6 @@ class AutoSuggest implements ActionInterface, Routable
 		// Only return groups which are not post-based and not "Hidden",
 		// but not the "Administrators" or "Moderators" groups.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE {raw:group_name} LIKE {string:search}
@@ -236,7 +234,6 @@ class AutoSuggest implements ActionInterface, Routable
 		// First try to get it from the database.
 		$versions = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT data
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:latest_versions}
@@ -301,7 +298,7 @@ class AutoSuggest implements ActionInterface, Routable
 	{
 		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
-		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
+		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || \function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || \function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
 
 	/******************
@@ -339,5 +336,3 @@ class AutoSuggest implements ActionInterface, Routable
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
 }
-
-?>

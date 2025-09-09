@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Who;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -40,7 +40,6 @@ use SMF\Utils;
 class SearchEngines implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -94,24 +93,23 @@ class SearchEngines implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+		Utils::$context['page_title'] = Lang::getTxt('search_engines', file: 'Admin');
 
 		// Tab data might already be set if this was called from Logs::execute().
 		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Some more tab data.
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
-				'description' => Lang::$txt['search_engines_description'],
+				'title' => Lang::getTxt('search_engines', file: 'Admin'),
+				'description' => Lang::getTxt('search_engines_description', file: 'Search'),
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -135,7 +133,6 @@ class SearchEngines implements ActionInterface
 
 			// Delete the entries.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE last_seen < {int:delete_period}',
 				[
@@ -146,7 +143,6 @@ class SearchEngines implements ActionInterface
 
 		// Get the earliest and latest dates.
 		$request = Db::$db->query(
-			'',
 			'SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
 			FROM {db_prefix}log_spider_stats',
 			[
@@ -178,7 +174,7 @@ class SearchEngines implements ActionInterface
 					break;
 				}
 
-				$date_choices[$y . $m] = Lang::$txt['months_short'][$m] . ' ' . $y;
+				$date_choices[$y . $m] = Lang::getTxt(['months_short', $m], file: 'General') . ' ' . $y;
 			}
 		}
 
@@ -188,7 +184,7 @@ class SearchEngines implements ActionInterface
 		// Prepare the HTML.
 		if (!empty($date_choices)) {
 			$date_select = '
-			' . Lang::$txt['spider_stats_select_month'] . ':
+			' . Lang::getTxt('spider_stats_select_month', file: 'Search') . ':
 			<select name="new_date" onchange="document.spider_stat_list.submit();">';
 
 			foreach ($date_choices as $id => $text) {
@@ -199,16 +195,15 @@ class SearchEngines implements ActionInterface
 			$date_select .= '
 			</select>
 			<noscript>
-				<input type="submit" name="go" value="' . Lang::$txt['go'] . '" class="button">
+				<input type="submit" name="go" value="' . Lang::getTxt('go', file: 'General') . '" class="button">
 			</noscript>';
 		}
 
 		// If we manually jumped to a date work out the offset.
 		if (isset($_REQUEST['new_date'])) {
-			$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
+			$date_query = \sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}log_spider_stats
 				WHERE stat_date < {date:date_being_viewed}',
@@ -222,7 +217,7 @@ class SearchEngines implements ActionInterface
 
 		$listOptions = [
 			'id' => 'spider_stat_list',
-			'title' => Lang::$txt['spider_stats'],
+			'title' => Lang::getTxt('spider_stats', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 			'default_sort_col' => 'stat_date',
@@ -232,11 +227,11 @@ class SearchEngines implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumSpiderStats',
 			],
-			'no_items_label' => Lang::$txt['spider_stats_no_entries'],
+			'no_items_label' => Lang::getTxt('spider_stats_no_entries', file: 'Search'),
 			'columns' => [
 				'stat_date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'stat_date',
@@ -248,7 +243,7 @@ class SearchEngines implements ActionInterface
 				],
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['spider_name'],
+						'value' => Lang::getTxt('spider_name', file: 'Search'),
 					],
 					'data' => [
 						'db' => 'spider_name',
@@ -260,7 +255,7 @@ class SearchEngines implements ActionInterface
 				],
 				'page_hits' => [
 					'header' => [
-						'value' => Lang::$txt['spider_stats_page_hits'],
+						'value' => Lang::getTxt('spider_stats_page_hits', file: 'Search'),
 					],
 					'data' => [
 						'db' => 'page_hits',
@@ -297,8 +292,6 @@ class SearchEngines implements ActionInterface
 	 */
 	public function logs(): void
 	{
-		// Load the template and language just incase.
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
 		// Did they want to delete some entries?
@@ -311,7 +304,6 @@ class SearchEngines implements ActionInterface
 
 				// Delete the entries.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_spider_hits
 					WHERE log_time < {int:delete_period}',
 					[
@@ -321,7 +313,6 @@ class SearchEngines implements ActionInterface
 			} else {
 				// Deleting all of them
 				Db::$db->query(
-					'',
 					'TRUNCATE TABLE {db_prefix}log_spider_hits',
 					[],
 				);
@@ -331,8 +322,8 @@ class SearchEngines implements ActionInterface
 		$listOptions = [
 			'id' => 'spider_logs',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'title' => Lang::$txt['spider_logs'],
-			'no_items_label' => Lang::$txt['spider_logs_empty'],
+			'title' => Lang::getTxt('spider_logs', file: 'Admin'),
+			'no_items_label' => Lang::getTxt('spider_logs_empty', file: 'Search'),
 			'base_href' => Utils::$context['admin_area'] == 'sengines' ? Config::$scripturl . '?action=admin;area=sengines;sa=logs' : Config::$scripturl . '?action=admin;area=logs;sa=spiderlog',
 			'default_sort_col' => 'log_time',
 			'get_items' => [
@@ -344,7 +335,7 @@ class SearchEngines implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['spider'],
+						'value' => Lang::getTxt('spider', file: 'General'),
 					],
 					'data' => [
 						'db' => 'spider_name',
@@ -356,7 +347,7 @@ class SearchEngines implements ActionInterface
 				],
 				'log_time' => [
 					'header' => [
-						'value' => Lang::$txt['spider_time'],
+						'value' => Lang::getTxt('spider_time', file: 'Search'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -370,7 +361,7 @@ class SearchEngines implements ActionInterface
 				],
 				'viewing' => [
 					'header' => [
-						'value' => Lang::$txt['spider_viewing'],
+						'value' => Lang::getTxt('spider_viewing', file: 'Search'),
 					],
 					'data' => [
 						'db' => 'url',
@@ -384,11 +375,11 @@ class SearchEngines implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['spider_logs_info'],
+					'value' => Lang::getTxt('spider_logs_info', file: 'Search'),
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="removeAll" value="' . Lang::$txt['spider_log_empty_log'] . '" data-confirm="' . Lang::$txt['spider_log_empty_log_confirm'] . '" class="button you_sure">',
+					'value' => '<input type="submit" name="removeAll" value="' . Lang::getTxt('spider_log_empty_log', file: 'Search') . '" data-confirm="' . Lang::getTxt('spider_log_empty_log_confirm', file: 'Search') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -405,7 +396,7 @@ class SearchEngines implements ActionInterface
 			foreach (Utils::$context['spider_logs']['rows'] as $k => $row) {
 				// Feature disabled?
 				if (empty($row['data']['viewing']['value']) && isset(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] < 3) {
-					Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . Lang::$txt['spider_disabled'] . '</em>';
+					Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . Lang::getTxt('spider_disabled', file: 'Search') . '</em>';
 				} else {
 					$urls[$k] = [$row['data']['viewing']['value'], -1];
 				}
@@ -415,8 +406,8 @@ class SearchEngines implements ActionInterface
 			$urls = Who::determineActions($urls, 'whospider_');
 
 			foreach ($urls as $k => $new_url) {
-				if (is_array($new_url)) {
-					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::$txt[$new_url['label']];
+				if (\is_array($new_url)) {
+					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::getTxt($new_url['label'], file: 'Search');
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 				} else {
@@ -426,7 +417,7 @@ class SearchEngines implements ActionInterface
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['spider_logs'];
+		Utils::$context['page_title'] = Lang::getTxt('spider_logs', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_spider_logs';
 		Utils::$context['default_list'] = 'spider_logs';
 	}
@@ -449,7 +440,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ser');
 
@@ -460,7 +451,6 @@ class SearchEngines implements ActionInterface
 
 			// Delete them all!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}spiders
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -469,7 +459,6 @@ class SearchEngines implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_hits
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -478,7 +467,6 @@ class SearchEngines implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -494,7 +482,6 @@ class SearchEngines implements ActionInterface
 		Utils::$context['spider_last_seen'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, MAX(last_seen) AS last_seen_time
 			FROM {db_prefix}log_spider_stats
 			GROUP BY id_spider',
@@ -510,7 +497,7 @@ class SearchEngines implements ActionInterface
 
 		$listOptions = [
 			'id' => 'spider_list',
-			'title' => Lang::$txt['spiders'],
+			'title' => Lang::getTxt('spiders', file: 'General'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 			'default_sort_col' => 'name',
@@ -520,15 +507,15 @@ class SearchEngines implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumSpiders',
 			],
-			'no_items_label' => Lang::$txt['spiders_no_entries'],
+			'no_items_label' => Lang::getTxt('spiders_no_entries', file: 'Search'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['spider_name'],
+						'value' => Lang::getTxt('spider_name', file: 'Search'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
+							return \sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
 						},
 					],
 					'sort' => [
@@ -538,17 +525,17 @@ class SearchEngines implements ActionInterface
 				],
 				'last_seen' => [
 					'header' => [
-						'value' => Lang::$txt['spider_last_seen'],
+						'value' => Lang::getTxt('spider_last_seen', file: 'Search'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? Time::create('@' . Utils::$context['spider_last_seen'][$rowData['id_spider']])->format() : Lang::$txt['spider_last_never'];
+							return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? Time::create('@' . Utils::$context['spider_last_seen'][$rowData['id_spider']])->format() : Lang::getTxt('spider_last_never', file: 'Search');
 						},
 					],
 				],
 				'user_agent' => [
 					'header' => [
-						'value' => Lang::$txt['spider_agent'],
+						'value' => Lang::getTxt('spider_agent', file: 'Search'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'user_agent',
@@ -560,7 +547,7 @@ class SearchEngines implements ActionInterface
 				],
 				'ip_info' => [
 					'header' => [
-						'value' => Lang::$txt['spider_ip_info'],
+						'value' => Lang::getTxt('spider_ip_info', file: 'Search'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'ip_info',
@@ -577,8 +564,8 @@ class SearchEngines implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_spider}">',
 							'params' => [
 								'id_spider' => false,
 							],
@@ -595,8 +582,8 @@ class SearchEngines implements ActionInterface
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<input type="submit" name="removeSpiders" value="' . Lang::$txt['spiders_remove_selected'] . '" data-confirm="' . Lang::$txt['spider_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="addSpider" value="' . Lang::$txt['spiders_add'] . '" class="button">
+						<input type="submit" name="removeSpiders" value="' . Lang::getTxt('spiders_remove_selected', file: 'Search') . '" data-confirm="' . Lang::getTxt('spider_remove_selected_confirm', file: 'Search') . '" class="button you_sure">
+						<input type="submit" name="addSpider" value="' . Lang::getTxt('spiders_add', file: 'Search') . '" class="button">
 					',
 				],
 			],
@@ -616,11 +603,10 @@ class SearchEngines implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Set up a message.
-		Utils::$context['settings_message'] = Lang::getTxt('spider_settings_desc', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
+		Utils::$context['settings_message'] = Lang::getTxt('spider_settings_desc', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'Search');
 
 		// We need to load the groups for the spider group thingy.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:admin_group}
@@ -642,7 +628,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
@@ -663,7 +649,7 @@ class SearchEngines implements ActionInterface
 		// Final settings...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=sengines;save;sa=settings';
 
-		Utils::$context['settings_title'] = Lang::$txt['settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 		Theme::addInlineJavaScript(self::$javascript_function, true);
 
@@ -679,7 +665,7 @@ class SearchEngines implements ActionInterface
 		// Some standard stuff.
 		Utils::$context['id_spider'] = !empty($_GET['sid']) ? (int) $_GET['sid'] : 0;
 
-		Utils::$context['page_title'] = Utils::$context['id_spider'] ? Lang::$txt['spiders_edit'] : Lang::$txt['spiders_add'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['id_spider'] ? 'spiders_edit' : 'spiders_add', file: 'Search');
 		Utils::$context['sub_template'] = 'spider_edit';
 
 		// Select the 'Spiders' tab.
@@ -710,7 +696,6 @@ class SearchEngines implements ActionInterface
 			// Goes in as it is...
 			if (Utils::$context['id_spider']) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}spiders
 					SET spider_name = {string:spider_name}, user_agent = {string:spider_agent},
 						ip_info = {string:ip_info}
@@ -759,7 +744,6 @@ class SearchEngines implements ActionInterface
 		// An edit?
 		if (Utils::$context['id_spider']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_spider, spider_name, user_agent, ip_info
 				FROM {db_prefix}spiders
 				WHERE id_spider = {int:current_spider}',
@@ -795,9 +779,37 @@ class SearchEngines implements ActionInterface
 	{
 		$config_vars = [
 			// How much detail?
-			['select', 'spider_mode', 'subtext' => Lang::$txt['spider_mode_note'], [Lang::$txt['spider_mode_off'], Lang::$txt['spider_mode_standard'], Lang::$txt['spider_mode_high'], Lang::$txt['spider_mode_vhigh']], 'onchange' => 'disableFields();'],
-			'spider_group' => ['select', 'spider_group', 'subtext' => Lang::$txt['spider_group_note'], [Lang::$txt['spider_group_none'], Lang::$txt['membergroups_members']]],
-			['select', 'show_spider_online', [Lang::$txt['show_spider_online_no'], Lang::$txt['show_spider_online_summary'], Lang::$txt['show_spider_online_detail'], Lang::$txt['show_spider_online_detail_admin']]],
+			[
+				'select',
+				'spider_mode',
+				'subtext' => Lang::getTxt('spider_mode_note', file: 'Search'),
+				[
+					Lang::getTxt('spider_mode_off', file: 'Search'),
+					Lang::getTxt('spider_mode_standard', file: 'Search'),
+					Lang::getTxt('spider_mode_high', file: 'Search'),
+					Lang::getTxt('spider_mode_vhigh', file: 'Search'),
+				],
+				'onchange' => 'disableFields();',
+			],
+			'spider_group' => [
+				'select',
+				'spider_group',
+				'subtext' => Lang::getTxt('spider_group_note', file: 'Search'),
+				[
+					Lang::getTxt('spider_group_none', file: 'Search'),
+					Lang::getTxt('membergroups_members', file: 'Admin'),
+				],
+			],
+			[
+				'select',
+				'show_spider_online',
+				[
+					Lang::getTxt('show_spider_online_no', file: 'Search'),
+					Lang::getTxt('show_spider_online_summary', file: 'Search'),
+					Lang::getTxt('show_spider_online_detail', file: 'Search'),
+					Lang::getTxt('show_spider_online_detail_admin', file: 'Search'),
+				],
+			],
 		];
 
 		// Do some javascript.
@@ -822,17 +834,17 @@ class SearchEngines implements ActionInterface
 		$config_vars[] = '';
 
 		if (empty(Config::$modSettings['robots_txt'])) {
-			$post_input = '<button class="button floatnone" onclick="document.getElementById(\'robots_txt\').value = ' . Utils::escapeJavaScript(self::detectRobotsTxt()) . '; return false;">' . Lang::getTxt('robots_txt_auto') . '</button>';
+			$post_input = '<button class="button floatnone" onclick="document.getElementById(\'robots_txt\').value = ' . Utils::escapeJavaScript(self::detectRobotsTxt()) . '; return false;">' . Lang::getTxt('robots_txt_auto', file: 'Search') . '</button>';
 		} elseif (!is_writable(Config::$modSettings['robots_txt'])) {
 			$invalid = true;
-			$post_input = '<br><span class="error">' . Lang::$txt['robots_txt_not_writable'] . '</span>';
+			$post_input = '<br><span class="error">' . Lang::getTxt('robots_txt_not_writable', file: 'Search') . '</span>';
 		}
 
 		$config_vars = array_merge($config_vars, [
 			[
 				'text',
 				'robots_txt',
-				'subtext' => Lang::$txt['robots_txt_info'],
+				'subtext' => Lang::getTxt('robots_txt_info', file: 'Search'),
 				'size' => 45,
 				'invalid' => $invalid ?? false,
 				'postinput' => $post_input ?? '',
@@ -840,7 +852,7 @@ class SearchEngines implements ActionInterface
 			[
 				'large_text',
 				'meta_keywords',
-				'subtext' => Lang::$txt['meta_keywords_note'],
+				'subtext' => Lang::getTxt('meta_keywords_note', file: 'Search'),
 			],
 		]);
 
@@ -857,7 +869,6 @@ class SearchEngines implements ActionInterface
 		$spider_hits = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 			FROM {db_prefix}log_spider_hits
 			WHERE processed = {int:not_processed}
@@ -884,7 +895,6 @@ class SearchEngines implements ActionInterface
 			$date = Time::strftime('%Y-%m-%d', $stat['last_seen']);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_spider_stats
 				SET page_hits = page_hits + {int:hits},
 					last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
@@ -916,7 +926,6 @@ class SearchEngines implements ActionInterface
 
 		// All processed.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_spider_hits
 			SET processed = {int:is_processed}
 			WHERE processed = {int:not_processed}',
@@ -940,7 +949,6 @@ class SearchEngines implements ActionInterface
 		$spiders = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, spider_name, user_agent, ip_info
 			FROM {db_prefix}spiders
 			ORDER BY {raw:sort}
@@ -968,7 +976,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiders(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_spiders
 			FROM {db_prefix}spiders',
 			[
@@ -993,7 +1000,6 @@ class SearchEngines implements ActionInterface
 		$spider_logs = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 			FROM {db_prefix}log_spider_hits AS sl
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
@@ -1022,7 +1028,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiderLogs(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_logs
 			FROM {db_prefix}log_spider_hits',
 			[
@@ -1048,7 +1053,6 @@ class SearchEngines implements ActionInterface
 		$spider_stats = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 			FROM {db_prefix}log_spider_stats AS ss
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
@@ -1078,7 +1082,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiderStats(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_stats
 			FROM {db_prefix}log_spider_stats',
 			[
@@ -1098,7 +1101,6 @@ class SearchEngines implements ActionInterface
 		$spiders = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, spider_name
 			FROM {db_prefix}spiders',
 			[],
@@ -1135,6 +1137,10 @@ class SearchEngines implements ActionInterface
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Finds and returns the file path to robots.txt, or else the file path
 	 * where it should be created if it doesn't already exist.
@@ -1168,10 +1174,10 @@ class SearchEngines implements ActionInterface
 			// Stop if the URL path and the filesystem path diverge.
 			&& basename($path_from_boarddir) === basename($path_from_boardurl)
 			// Stop if we get to the root of the path according to the URL.
-			&& dirname($path_from_boardurl) !== $path_from_boardurl
+			&& \dirname($path_from_boardurl) !== $path_from_boardurl
 		) {
-			$path_from_boarddir = dirname($path_from_boarddir);
-			$path_from_boardurl = dirname($path_from_boardurl);
+			$path_from_boarddir = \dirname($path_from_boarddir);
+			$path_from_boardurl = \dirname($path_from_boardurl);
 		}
 
 		return $path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt';
@@ -1192,7 +1198,7 @@ class SearchEngines implements ActionInterface
 			)
 			|| (
 				!file_exists(Config::$modSettings['robots_txt'])
-				&& !Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))
+				&& !Utils::makeWritable(\dirname(Config::$modSettings['robots_txt']))
 			)
 		) {
 			return;
@@ -1212,6 +1218,7 @@ class SearchEngines implements ActionInterface
 					$boardpath . '/*.msg',
 					$boardpath . '/*.new',
 					$boardpath . '/*.from',
+					$boardpath . '/msgs/',
 					// Normal URLs of actions that always set Utils::$context['robot_no_index'] to true
 					$scriptpath . '?action=admin',
 					$scriptpath . '?action=credits',
@@ -1266,7 +1273,7 @@ class SearchEngines implements ActionInterface
 				// Insert our rules before comments, blank lines, or the start
 				// of a new user agent group, but only if user agent that these
 				// rules are for was the only one in its group.
-				if (!empty($insert) && count($user_agents_in_group) === 1) {
+				if (!empty($insert) && \count($user_agents_in_group) === 1) {
 					foreach ($user_agents_in_group as $user_agent) {
 						if (!isset($rules[$user_agent])) {
 							continue;
@@ -1354,7 +1361,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// Where should we save the backup file?
-		if (Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))) {
+		if (Utils::makeWritable(\dirname(Config::$modSettings['robots_txt']))) {
 			$backup_file = preg_replace('/\.txt$/', '.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt', Config::$modSettings['robots_txt']);
 		} elseif (Utils::makeWritable(Config::$boarddir)) {
 			$backup_file = Config::$boarddir . DIRECTORY_SEPARATOR . 'robots.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt';
@@ -1370,5 +1377,3 @@ class SearchEngines implements ActionInterface
 		);
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 if (!defined('SMF')) {
@@ -17,5 +17,3 @@ if (!defined('SMF')) {
 
 // Just an alias to help people looking for the package manager in the wrong namespace.
 class_alias('SMF\\PackageManager\\PackageManager', 'SMF\\Actions\\Admin\\PackageManager');
-
-?>

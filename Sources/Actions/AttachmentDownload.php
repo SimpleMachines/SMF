@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -23,7 +23,6 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
@@ -113,7 +112,7 @@ class AttachmentDownload implements ActionInterface, Routable
 			$request = null;
 			IntegrationHook::call('integrate_download_request', [&$request]);
 
-			if (!is_null($request) && Db::$db->is_resource($request)) {
+			if (!\is_null($request) && Db::$db->is_resource($request)) {
 				// No attachment has been found.
 				if (Db::$db->num_rows($request) == 0) {
 					Utils::sendHttpStatus(404, 'File Not Found');
@@ -186,7 +185,7 @@ class AttachmentDownload implements ActionInterface, Routable
 					!empty($file->msg)
 					&& (
 						empty($file->board)
-						|| ($boards_allowed !== [0] && !in_array($file->board, $boards_allowed))
+						|| ($boards_allowed !== [0] && !\in_array($file->board, $boards_allowed))
 					)
 				)
 			)
@@ -201,7 +200,6 @@ class AttachmentDownload implements ActionInterface, Routable
 		// If attachment is unapproved, see if user is allowed to approve
 		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts')) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
@@ -266,15 +264,14 @@ class AttachmentDownload implements ActionInterface, Routable
 			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			list($range) = explode(',', $range, 2);
 			list($range, $range_end) = explode('-', $range);
-			$range = intval($range);
-			$range_end = !$range_end ? $file->size - 1 : intval($range_end);
+			$range = \intval($range);
+			$range_end = !$range_end ? $file->size - 1 : \intval($range_end);
 			$length = $range_end - $range + 1;
 		}
 
 		// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
 		if ($file->type != 3 && empty($this->showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}attachments
 				SET downloads = downloads + 1
 				WHERE id_attach = {int:id_attach}',
@@ -371,15 +368,6 @@ class AttachmentDownload implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		// Some defaults that we need.
-		if (!isset(Utils::$context['character_set'])) {
-			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
-		}
-
-		if (!isset(Utils::$context['utf8'])) {
-			Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-		}
-
 		// Which attachment was requested?
 		$this->id = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 
@@ -387,5 +375,3 @@ class AttachmentDownload implements ActionInterface, Routable
 		$this->showThumb = isset($_REQUEST['thumb']);
 	}
 }
-
-?>

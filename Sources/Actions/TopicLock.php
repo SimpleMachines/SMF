@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -60,7 +60,6 @@ class TopicLock implements ActionInterface, Routable
 
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member_started, locked
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -115,5 +114,3 @@ class TopicLock implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 }
-
-?>

@@ -8,14 +8,14 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
 
 namespace SMF\Unicode;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -3087,5 +3087,3 @@ function utf8_casefold_maps(): array
 		"\xF0\x9E\xA4\xA1" => "\xF0\x9E\xA5\x83",
 	];
 }
-
-?>

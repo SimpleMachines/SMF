@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -229,7 +229,6 @@ class Main implements ActionInterface, Routable
 			self::checkAccessPermissions();
 
 			// Load the language, and the template.
-			Lang::load('ModerationCenter');
 			Theme::loadTemplate(false, 'admin');
 
 			Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
@@ -241,13 +240,13 @@ class Main implements ActionInterface, Routable
 		$this->createMenu();
 
 		if (isset(Menu::$loaded['moderate']->include_data['file'])) {
-			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
+			require_once Config::canonicalPath(Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file']);
 		}
 
-		$call = method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
+		$call = \is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -266,6 +265,7 @@ class Main implements ActionInterface, Routable
 		$menuOptions = [
 			'action' => 'moderate',
 			'disable_url_session_check' => true,
+			'lang_file' => 'ModerationCenter',
 		];
 
 		$menu = new Menu($this->moderation_areas, $menuOptions);
@@ -281,12 +281,12 @@ class Main implements ActionInterface, Routable
 
 		// @todo: html in here is not good
 		$menu->tab_data = [
-			'title' => Lang::$txt['moderation_center'],
+			'title' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 			'help' => '',
 			'description' => '
-				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
+				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name], file: 'General') . '</strong>
 				<br><br>
-				' . Lang::$txt['mc_description'],
+				' . Lang::getTxt('mc_description', file: 'ModerationCenter'),
 		];
 
 		// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
@@ -295,20 +295,20 @@ class Main implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=moderate',
-			'name' => Lang::$txt['moderation_center'],
+			'name' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 		];
 
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area,
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 	}
@@ -364,7 +364,7 @@ class Main implements ActionInterface, Routable
 						$class = substr($mod_area['areas'][$params['area']]['function'], 0, strpos($mod_area['areas'][$params['area']]['function'], '::'));
 
 						if (method_exists($class, 'buildRoute')) {
-							extract(call_user_func($class . '::buildRoute', $params));
+							extract(\call_user_func($class . '::buildRoute', $params));
 						}
 					}
 
@@ -401,7 +401,7 @@ class Main implements ActionInterface, Routable
 					$class = substr($mod_area['areas'][$route[1]]['function'], 0, strpos($mod_area['areas'][$route[1]]['function'], '::'));
 
 					if (method_exists($class, 'parseRoute')) {
-						$params = array_merge($params, call_user_func($class . '::parseRoute', $route));
+						$params = array_merge($params, \call_user_func($class . '::parseRoute', $route));
 						$called_area = true;
 					}
 				}
@@ -430,11 +430,7 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->moderation_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
-				}
-
-				if (is_string($value)) {
+				if (\is_string($value)) {
 						$value = strtr($value, [
 							'{scripturl}' => Config::$scripturl,
 							'{boardurl}' => Config::$boardurl,
@@ -471,5 +467,3 @@ class Main implements ActionInterface, Routable
 		$this->moderation_areas['members']['areas']['reportedmembers']['enabled'] = Utils::$context['can_moderate_users'];
 	}
 }
-
-?>

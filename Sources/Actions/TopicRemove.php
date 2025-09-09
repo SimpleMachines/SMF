@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -58,7 +58,6 @@ class TopicRemove implements ActionInterface, Routable
 		self::removeDeleteConcurrence();
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_member_started, ms.subject, t.approved, t.locked
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -202,7 +201,6 @@ class TopicRemove implements ActionInterface, Routable
 
 		// All we're gonna do here is grab the id_topic's and send them to Topic::remove().
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)
@@ -225,10 +223,4 @@ class TopicRemove implements ActionInterface, Routable
 
 		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
 }
-
-?>

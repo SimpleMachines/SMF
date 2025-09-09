@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -395,7 +395,7 @@ abstract class VTimeZone
 	 *
 	 * @param string $tzid A time zone identifier string.
 	 * @throws \ValueError if $tzid is not a valid time zone identifier.
-	 * @return array An instance of this class.
+	 * @return self An instance of this class.
 	 */
 	public static function load(string $tzid): self
 	{
@@ -410,5 +410,3 @@ abstract class VTimeZone
 		return new $class();
 	}
 }
-
-?>

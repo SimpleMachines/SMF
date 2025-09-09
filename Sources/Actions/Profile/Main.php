@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -122,15 +122,15 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'summary',
 					'icon' => 'administration',
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'popup' => [
 					'function' => __NAMESPACE__ . '\\Popup::call',
 					'sub_template' => 'profile_popup',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 					'select' => 'summary',
@@ -139,7 +139,7 @@ class Main implements ActionInterface, Routable
 					'function' => __NAMESPACE__ . '\\AlertsPopup::call',
 					'sub_template' => 'alerts_popup',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 					'select' => 'summary',
@@ -150,8 +150,8 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'statPanel',
 					'icon' => 'stats',
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'showposts' => [
@@ -162,25 +162,37 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'messages' => [
 							'label' => 'showMessages',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 						'topics' => [
 							'label' => 'showTopics',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 						'unwatchedtopics' => [
 							'label' => 'showUnwatched',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => [],
+							],
 							'enabled' => true,
 						],
 						'attach' => [
 							'label' => 'showAttachments',
-							'permission' => ['is_not_guest', 'profile_view'],
+							'permission' => [
+								'own' => ['is_not_guest', 'profile_view'],
+								'any' => ['is_not_guest', 'profile_view'],
+							],
 						],
 					],
 					'permission' => [
-						'own' => 'is_not_guest',
-						'any' => 'profile_view',
+						'own' => ['is_not_guest'],
+						'any' => ['profile_view'],
 					],
 				],
 				'showdrafts' => [
@@ -189,7 +201,7 @@ class Main implements ActionInterface, Routable
 					'icon' => 'drafts',
 					'enabled' => true,
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 				],
@@ -199,7 +211,7 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'showAlerts',
 					'icon' => 'alerts',
 					'permission' => [
-						'own' => 'is_not_guest',
+						'own' => ['is_not_guest'],
 						'any' => [],
 					],
 				],
@@ -209,8 +221,8 @@ class Main implements ActionInterface, Routable
 					'sub_template' => 'showPermissions',
 					'icon' => 'permissions',
 					'permission' => [
-						'own' => 'manage_permissions',
-						'any' => 'manage_permissions',
+						'own' => ['manage_permissions'],
+						'any' => ['manage_permissions'],
 					],
 				],
 				'tracking' => [
@@ -221,30 +233,51 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'activity' => [
 							'label' => 'trackActivity',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 						],
 						'ip' => [
 							'label' => 'trackIP',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum'],
+								'any' => ['moderate_forum'],
+							],
 						],
 						'edits' => [
 							'label' => 'trackEdits',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum', 'profile_forum_own'],
+								'any' => ['moderate_forum'],
+							],
 							'enabled' => true,
 						],
 						'groupreq' => [
 							'label' => 'trackGroupRequests',
-							'permission' => 'approve_group_requests',
+							'permission' => [
+								'own' => ['approve_group_requests'],
+								'any' => ['approve_group_requests'],
+							],
 							'enabled' => true,
 						],
 						'logins' => [
 							'label' => 'trackLogins',
-							'permission' => 'moderate_forum',
+							'permission' => [
+								'own' => ['moderate_forum', 'profile_identity_own', 'profile_password_own'],
+								'any' => ['moderate_forum'],
+							],
 							'enabled' => true,
 						],
 					],
 					'permission' => [
-						'own' => ['moderate_forum', 'approve_group_requests'],
+						'own' => [
+							'moderate_forum',
+							'approve_group_requests',
+							'profile_forum_own',
+							'profile_identity_own',
+							'profile_password_own',
+						],
 						'any' => ['moderate_forum', 'approve_group_requests'],
 					],
 				],
@@ -340,15 +373,21 @@ class Main implements ActionInterface, Routable
 					'subsections' => [
 						'alerts' => [
 							'label' => 'alert_prefs',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 						'topics' => [
 							'label' => 'watched_topics',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 						'boards' => [
 							'label' => 'watched_boards',
-							'permission' => ['is_not_guest', 'profile_extra_any'],
+							'permission' => [
+								'any' => ['is_not_guest', 'profile_extra_any'],
+							],
 						],
 					],
 					'permission' => [
@@ -548,17 +587,17 @@ class Main implements ActionInterface, Routable
 
 	public function canBeLogged(): bool
 	{
-		return isset($_GET['area']) && !in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
+		return isset($_GET['area']) && !\in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
 	}
 
 	public function isSimpleAction(): bool
 	{
-		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']);
+		return isset($_GET['area']) && \in_array($_GET['area'], ['popup', 'alerts_popup']);
 	}
 
 	public function getOutputType(): OutputTypeInterface
 	{
-		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+		return isset($_GET['area']) && \in_array($_GET['area'], ['popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
 	}
 
 	public function isAgreementAction(): bool
@@ -571,11 +610,6 @@ class Main implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// Don't reload this as we may have processed error strings.
-		if (empty(Profile::$member->save_errors)) {
-			Lang::load('Profile+Drafts');
-		}
-
 		Theme::loadTemplate('Profile');
 
 		// No profile can be found.
@@ -583,18 +617,11 @@ class Main implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
-		// And we care about what the current user can do, not what the user whose profile it is.
-		if (User::$me->mod_cache['gq'] != '0=1') {
-			User::$me->permissions[] = 'approve_group_requests';
-		}
-
 		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
 		Utils::$context['subs_available'] = false;
 
 		if (!empty(Config::$modSettings['paid_enabled'])) {
 			$get_active_subs = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}subscriptions
 				WHERE active = {int:active}',
@@ -610,7 +637,7 @@ class Main implements ActionInterface, Routable
 
 		// Is there an updated message to show?
 		if (isset($_GET['updated'])) {
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		$this->setProfileAreas();
@@ -620,26 +647,26 @@ class Main implements ActionInterface, Routable
 
 		// File to include?
 		if (!empty($menu->include_data['file'])) {
-			require_once Config::$sourcedir . '/' . $menu->include_data['file'];
+			require_once Config::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
 		}
 
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
-			'name' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
+			'name' => Lang::getTxt('profile_of_username', ['name' => Profile::$member->name]),
 		];
 
 		if (!empty($menu->include_data['label'])) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area,
-				'name' => $menu->include_data['label'],
+				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
-				'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
+				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
 
@@ -654,7 +681,7 @@ class Main implements ActionInterface, Routable
 		if (Utils::$context['completed_save']) {
 			// Clean up the POST variables.
 			$_POST = Utils::htmlTrimRecursive($_POST);
-			$_POST = Utils::htmlspecialcharsRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST, ENT_QUOTES);
 			Profile::$member->post_sanitized = true;
 
 			if ($this->check_password) {
@@ -674,7 +701,7 @@ class Main implements ActionInterface, Routable
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
-				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
+				$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
@@ -682,7 +709,7 @@ class Main implements ActionInterface, Routable
 				}
 
 				// Warn other elements not to jump the gun and do custom changes!
-				if (in_array('bad_password', Profile::$member->save_errors)) {
+				if (\in_array('bad_password', Profile::$member->save_errors)) {
 					Utils::$context['password_auth_failed'] = true;
 				}
 			}
@@ -718,7 +745,7 @@ class Main implements ActionInterface, Routable
 					$msg = $gm_action->change_type;
 				}
 
-				$force_redirect = !in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
+				$force_redirect = !\in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
 
 				Profile::$member->save();
 			}
@@ -741,12 +768,12 @@ class Main implements ActionInterface, Routable
 
 		// Is it valid?
 		if (!empty($call)) {
-			call_user_func($call, Profile::$member->id);
+			\call_user_func($call, Profile::$member->id);
 		}
 
 		// Set the page title if it's not already set...
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
+			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area, file: 'Profile')], file: 'Profile'), " \n\r\t\v\x00-");
 		}
 	}
 
@@ -765,6 +792,8 @@ class Main implements ActionInterface, Routable
 	public static function buildRoute(array $params): array
 	{
 		$params['u'] = $params['u'] ?? User::$me->id;
+
+		$route = [];
 
 		if (!empty($params['u'])) {
 			$route[] = 'members';
@@ -858,11 +887,7 @@ class Main implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->profile_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
-				}
-
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
@@ -885,7 +910,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['info']['areas']['viewwarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && Profile::$member->warning;
 
-		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups));
+		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups));
 
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
@@ -903,7 +928,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['profile_action']['areas']['issuewarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1;
 
-		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups);
+		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups);
 
 		$this->profile_areas['profile_action']['areas']['subscriptions']['enabled'] = !empty(Config::$modSettings['paid_enabled']) && Utils::$context['subs_available'];
 
@@ -924,7 +949,21 @@ class Main implements ActionInterface, Routable
 				}
 				// Otherwise pick the right set.
 				else {
-					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner ? 'own' : 'any'];
+					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner && isset($area['permission']['own']) ? 'own' : 'any'];
+				}
+
+				// Next, choose the correct permission sets for the subsections.
+				if (isset($area['subsections'])) {
+					foreach ($area['subsections'] as $subsection_id => $subsection) {
+						if (
+							!empty($subsection['permission'])
+							&& \is_array($subsection['permission'])
+							&& isset($subsection['permission']['any'])
+
+						) {
+							$this->profile_areas[$section_id]['areas'][$area_id]['subsections'][$subsection_id]['permission'] = $subsection['permission'][User::$me->is_owner && isset($subsection['permission']['own']) ? 'own' : 'any'];
+						}
+					}
 				}
 
 				// Password required in most cases
@@ -953,6 +992,7 @@ class Main implements ActionInterface, Routable
 			'extra_url_parameters' => [
 				'u' => Profile::$member->id,
 			],
+			'lang_file' => 'Profile' . ($this->profile_areas['info']['areas']['showdrafts']['enabled'] ? '+Drafts' : ''),
 		];
 
 		// Actually create the menu!
@@ -1005,7 +1045,7 @@ class Main implements ActionInterface, Routable
 
 						$token_name = $area['token'] !== true ? str_replace('%u', (string) Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
 
-						$token_type = isset($area['token_type']) && in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
+						$token_type = isset($area['token_type']) && \in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
 					}
 
 					// Does this require session validating?
@@ -1043,7 +1083,7 @@ class Main implements ActionInterface, Routable
 		}
 
 		if (isset($security_checks['permission'])) {
-			User::$me->isAllowedTo($security_checks['permission']);
+			User::$me->isAllowedTo($security_checks['permission'], any: true);
 		}
 
 		// Create a token if needed.
@@ -1053,10 +1093,8 @@ class Main implements ActionInterface, Routable
 		}
 
 		// All the subactions that require a user password in order to validate.
-		$this->check_password = User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
+		$this->check_password = User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
 
 		Utils::$context['require_password'] = $this->check_password;
 	}
 }
-
-?>

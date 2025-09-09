@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -211,7 +211,12 @@ class Menu implements \ArrayAccess
 	 * The tab buttons typically (but not always) correspond to the menu items
 	 * in the current subsection.
 	 */
-	public array $tab_data = [];
+	public array $tab_data = [
+		'title' => null,
+		'description' => null,
+		'icon_class' => null,
+		'tabs' => [],
+	];
 
 	/**************************
 	 * Public static properties
@@ -292,6 +297,10 @@ class Menu implements \ArrayAccess
 
 		// In most cases, referring to a menu by the associated action is easiest.
 		self::$loaded[$this->current_action] = $this;
+
+		if (!isset($this->options['lang_file'])) {
+			$this->options['lang_file'] = 'General';
+		}
 
 		/*
 		 * Allow extending *any* menu with a single hook.
@@ -397,7 +406,7 @@ class Menu implements \ArrayAccess
 			$id = self::$max_id;
 		}
 
-		if (!is_int($id)) {
+		if (!\is_int($id)) {
 			$to_delete = $id;
 		} else {
 			foreach (self::$loaded as $action => $menu) {
@@ -451,7 +460,7 @@ class Menu implements \ArrayAccess
 			return false;
 		}
 
-		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']));
+		return !(isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission'], any: true));
 	}
 
 	/**
@@ -468,7 +477,8 @@ class Menu implements \ArrayAccess
 
 		$this->sections[$this->section_id] = [
 			'id' => $this->section_id,
-			'title' => $section['title'],
+			'txt_key' => $section['title'],
+			'title' => Lang::txtExists($section['title'], file: $this->options['lang_file']) ? Lang::getTxt($section['title'], file: $this->options['lang_file']) : $section['title'],
 			'amt' => $section['amt'] ?? null,
 			'areas' => [],
 			'selected' => false,
@@ -498,7 +508,7 @@ class Menu implements \ArrayAccess
 			return;
 		}
 
-		if (!isset($area['label']) && (!isset(Lang::$txt[$this->area_id]) || isset($area['select']))) {
+		if (!isset($area['label']) && (!Lang::txtExists($this->area_id, file: $this->options['lang_file']) || isset($area['select']))) {
 			$this->setCurrentSectionAndArea();
 
 			return;
@@ -519,7 +529,8 @@ class Menu implements \ArrayAccess
 		// Define the new area.
 		$this->sections[$this->section_id]['areas'][$this->area_id] = [
 			'id' => $this->area_id,
-			'label' => $area['label'] ?? (Lang::$txt[$this->area_id] ?? $this->area_id),
+			'txt_key' => $area['label'] ?? $this->area_id,
+			'label' => isset($area['label']) && Lang::txtExists($area['label'], file: $this->options['lang_file']) ? Lang::getTxt($area['label'], file: $this->options['lang_file']) : (Lang::txtExists($this->area_id, file: $this->options['lang_file']) ? Lang::getTxt($this->area_id, file: $this->options['lang_file']) : $this->area_id),
 			'url' => $area['custom_url'] ?? $this->base_url . ';area=' . $this->area_id,
 			'amt' => $area['amt'] ?? null,
 			'subsections' => [],
@@ -591,7 +602,8 @@ class Menu implements \ArrayAccess
 		// Define the new subsection.
 		$this_area['subsections'][$this->subsection_id] = [
 			'id' => $this->subsection_id,
-			'label' => $subsection['label'],
+			'txt_key' => $subsection['label'],
+			'label' => Lang::txtExists($subsection['label'], file: $this->options['lang_file']) ? Lang::getTxt($subsection['label'], file: $this->options['lang_file']) : $subsection['label'],
 			'url' => $subsection['url'] ?? $this->base_url . ';area=' . $this->area_id . ';sa=' . $this->subsection_id,
 			'amt' => $subsection['amt'] ?? null,
 			'selected' => false,
@@ -744,5 +756,3 @@ class Menu implements \ArrayAccess
 		}
 	}
 }
-
-?>

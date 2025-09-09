@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -58,15 +58,12 @@ class Credits implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// Don't blink. Don't even blink. Blink and you're dead.
-		Lang::load('Who');
-
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;
 
 		if ($this->in_admin) {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['support_credits_title'],
+				'title' => Lang::getTxt('support_credits_title', file: 'Admin'),
 				'help' => '',
 				'description' => '',
 			];
@@ -74,11 +71,11 @@ class Credits implements ActionInterface, Routable
 
 		Utils::$context['credits'] = [
 			[
-				'pretext' => Lang::getTxt('credits_intro', ['SMF_VERSION' => SMF_VERSION]),
-				'title' => Lang::$txt['credits_team'],
+				'pretext' => Lang::getTxt('credits_intro', ['SMF_VERSION' => SMF_VERSION], file: 'Who'),
+				'title' => Lang::getTxt('credits_team', file: 'Who'),
 				'groups' => [
 					[
-						'title' => Lang::$txt['credits_groups_pm'],
+						'title' => Lang::getTxt('credits_groups_pm', file: 'Who'),
 						'members' => [
 							'Aleksi "Lex" Kilpinen',
 							// Former Project Managers
@@ -88,7 +85,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_dev'],
+						'title' => Lang::getTxt('credits_groups_dev', file: 'Who'),
 						'members' => [
 							// Lead Developer
 							'Shawn Bulen',
@@ -124,7 +121,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_support'],
+						'title' => Lang::getTxt('credits_groups_support', file: 'Who'),
 						'members' => [
 							// Lead Support Specialist
 							'Will "Kindred" Wagner',
@@ -162,7 +159,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_customize'],
+						'title' => Lang::getTxt('credits_groups_customize', file: 'Who'),
 						'members' => [
 							// Lead Customizer
 							'Diego Andrés',
@@ -187,7 +184,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_docs'],
+						'title' => Lang::getTxt('credits_groups_docs', file: 'Who'),
 						'members' => [
 							// Doc Coordinator
 							'Michele "Illori" Davis',
@@ -202,7 +199,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_internationalizers'],
+						'title' => Lang::getTxt('credits_groups_internationalizers', file: 'Who'),
 						'members' => [
 							// Lead Localizer
 							'Nikola "Dzonny" Novaković',
@@ -215,7 +212,7 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_marketing'],
+						'title' => Lang::getTxt('credits_groups_marketing', file: 'Who'),
 						'members' => [
 							// Marketing Coordinator
 
@@ -229,13 +226,13 @@ class Credits implements ActionInterface, Routable
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_site'],
+						'title' => Lang::getTxt('credits_groups_site', file: 'Who'),
 						'members' => [
 							'Jeremy "SleePy" Darwood',
 						],
 					],
 					[
-						'title' => Lang::$txt['credits_groups_servers'],
+						'title' => Lang::getTxt('credits_groups_servers', file: 'Who'),
 						'members' => [
 							'Derek Schwab',
 							'Michael Johnson',
@@ -247,57 +244,65 @@ class Credits implements ActionInterface, Routable
 		];
 
 		// Give the translators some credit for their hard work.
-		if (!is_array(Lang::$txt['translation_credits'])) {
-			Lang::$txt['translation_credits'] = array_filter(array_map('trim', explode(',', Lang::$txt['translation_credits'])));
+		if (!\is_array(Lang::getTxt('translation_credits', file: 'Who'))) {
+			Lang::setTxt(
+				'translation_credits',
+				array_filter(
+					array_map(
+						'trim',
+						explode(',', Lang::getTxt('translation_credits', file: 'Who')),
+					),
+				),
+			);
 		}
 
-		if (!empty(Lang::$txt['translation_credits'])) {
+		if (!empty(Lang::getTxt('translation_credits', file: 'Who'))) {
 			Utils::$context['credits'][] = [
-				'title' => Lang::$txt['credits_groups_translation'],
+				'title' => Lang::getTxt('credits_groups_translation', file: 'Who'),
 				'groups' => [
 					[
-						'title' => Lang::$txt['credits_groups_translation'],
-						'members' => Lang::$txt['translation_credits'],
+						'title' => Lang::getTxt('credits_groups_translation', file: 'Who'),
+						'members' => Lang::getTxt('translation_credits', file: 'Who'),
 					],
 				],
 			];
 		}
 
 		Utils::$context['credits'][] = [
-			'title' => Lang::$txt['credits_special'],
-			'posttext' => Lang::$txt['credits_anyone'],
+			'title' => Lang::getTxt('credits_special', file: 'Who'),
+			'posttext' => Lang::getTxt('credits_anyone', file: 'Who'),
 			'groups' => [
 				[
-					'title' => Lang::$txt['credits_groups_consultants'],
+					'title' => Lang::getTxt('credits_groups_consultants', file: 'Who'),
 					'members' => [
 						'albertlast',
 						'Brett Flannigan',
 						'Mark Rose',
 						'René-Gilles "Nao 尚" Deberdt',
 						'tinoest',
-						Lang::$txt['credits_code_contributors'],
+						Lang::getTxt('credits_code_contributors', file: 'Who'),
 					],
 				],
 				[
-					'title' => Lang::$txt['credits_groups_beta'],
+					'title' => Lang::getTxt('credits_groups_beta', file: 'Who'),
 					'members' => [
-						Lang::$txt['credits_beta_message'],
+						Lang::getTxt('credits_beta_message', file: 'Who'),
 					],
 				],
 				[
-					'title' => Lang::$txt['credits_groups_translators'],
+					'title' => Lang::getTxt('credits_groups_translators', file: 'Who'),
 					'members' => [
-						Lang::$txt['credits_translators_message'],
+						Lang::getTxt('credits_translators_message', file: 'Who'),
 					],
 				],
 				[
-					'title' => Lang::$txt['credits_groups_founder'],
+					'title' => Lang::getTxt('credits_groups_founder', file: 'Who'),
 					'members' => [
 						'Unknown W. "[Unknown]" Brackets',
 					],
 				],
 				[
-					'title' => Lang::$txt['credits_groups_orignal_pm'],
+					'title' => Lang::getTxt('credits_groups_orignal_pm', file: 'Who'),
 					'members' => [
 						'Jeff Lewis',
 						'Joseph Fung',
@@ -305,7 +310,7 @@ class Credits implements ActionInterface, Routable
 					],
 				],
 				[
-					'title' => Lang::$txt['credits_in_memoriam'],
+					'title' => Lang::getTxt('credits_in_memoriam', file: 'Who'),
 					'members' => [
 						'Crip',
 						'K@',
@@ -336,6 +341,7 @@ class Credits implements ActionInterface, Routable
 				'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | © Matias Meno | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 				'<a href="https://github.com/matthiasmullie/minify">Minify</a> | © Matthias Mullie | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 				'<a href="https://github.com/true/php-punycode">PHP-Punycode</a> | © True B.V. | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+				'<a href="https://github.com/mdbassit/Coloris">Coloris</a> | © Mohammed Bassit | Licensed under <a href="https://github.com/mdbassit/Coloris/blob/main/LICENSE">The MIT License (MIT)</a>',
 			],
 			'fonts' => [
 				'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
@@ -351,7 +357,6 @@ class Credits implements ActionInterface, Routable
 			$mods = [];
 
 			$request = Db::$db->query(
-				'substring',
 				'SELECT version, name, credits
 				FROM {db_prefix}log_packages
 				WHERE install_state = {int:installed_mods}
@@ -362,16 +367,17 @@ class Credits implements ActionInterface, Routable
 					'patch_name' => 'smf_patch',
 					'empty' => '',
 				],
+				identifier: 'substring',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$credit_info = Utils::jsonDecode($row['credits'], true);
 
-				$copyright = empty($credit_info['copyright']) ? '' : Lang::getTxt('credits_copyright', ['copyright_holder' => Utils::htmlspecialchars($credit_info['copyright'])]);
+				$copyright = empty($credit_info['copyright']) ? '' : Lang::getTxt('credits_copyright', ['copyright_holder' => Utils::htmlspecialchars($credit_info['copyright'])], file: 'Who');
 
-				$license = empty($credit_info['license']) ? '' : Lang::getTxt('credits_license', ['license' => (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']))]);
+				$license = empty($credit_info['license']) ? '' : Lang::getTxt('credits_license', ['license' => (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']))], file: 'Who');
 
-				$version = Lang::getTxt('credits_version', $row);
+				$version = Lang::getTxt('credits_version', $row, file: 'Who');
 
 				$title = (empty($credit_info['title']) ? $row['name'] : Utils::htmlspecialchars($credit_info['title'])) . ', ' . $version;
 
@@ -391,7 +397,7 @@ class Credits implements ActionInterface, Routable
 			/* Modification Authors:  You may add a copyright statement to this array for your mods.
 				Copyright statements should be in the form of a value only without an array key.  I.E.:
 					'Some Mod by Thantos © 2010',
-					Lang::$txt['some_mod_copyright'],
+					Lang::getTxt('some_mod_copyright', file: 'SomeModLanguageFile'),
 			*/
 			'mods' => [
 			],
@@ -404,7 +410,7 @@ class Credits implements ActionInterface, Routable
 			Theme::loadTemplate('Who');
 			Utils::$context['sub_template'] = 'credits';
 			Utils::$context['robot_no_index'] = true;
-			Utils::$context['page_title'] = Lang::$txt['credits'];
+			Utils::$context['page_title'] = Lang::getTxt('credits', file: 'Who');
 		}
 	}
 
@@ -424,5 +430,3 @@ class Credits implements ActionInterface, Routable
 		self::$obj->execute();
 	}
 }
-
-?>

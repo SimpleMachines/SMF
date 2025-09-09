@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,9 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
+use SMF\Tasks\BackgroundTask;
+use SMF\Tasks\ScheduledTask;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
@@ -40,9 +43,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	/***********
-	 * Constants
-	 ***********/
+	/*****************
+	 * Class constants
+	 *****************/
 
 	/**
 	 * This setting is worth bearing in mind. If you are running this from
@@ -119,26 +122,25 @@ class TaskRunner
 	public function __construct()
 	{
 		// For backward compatibility.
-		if (!defined('MAX_CRON_TIME')) {
-			define('MAX_CRON_TIME', self::MAX_CRON_TIME);
+		if (!\defined('MAX_CRON_TIME')) {
+			\define('MAX_CRON_TIME', self::MAX_CRON_TIME);
 		}
 
-		if (!defined('MAX_CLAIM_THRESHOLD')) {
-			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
+		if (!\defined('MAX_CLAIM_THRESHOLD')) {
+			\define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', Sapi::isCLI());
+			\define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 				ErrorHandler::displayMaintenanceMessage();
 			}
 
-			// Have we already turned this off? If so, exist gracefully.
-			// @todo Remove this? It's a bad idea to ever disable background tasks.
-			if (file_exists(Config::$cachedir . '/cron.lock')) {
+			// Do nothing if we are in the middle of an install or upgrade.
+			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
 				$this->obExit();
 			}
 
@@ -161,7 +163,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 
 			Db::load();
 
@@ -169,6 +171,7 @@ class TaskRunner
 
 			// Just in case there's a problem...
 			set_error_handler(__CLASS__ . '::handleError');
+			set_exception_handler(__CLASS__ . '::handleException');
 
 			User::$sc = '';
 
@@ -202,7 +205,6 @@ class TaskRunner
 
 			if ($result) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
 					[
@@ -237,7 +239,6 @@ class TaskRunner
 
 			if ($result) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
 					[
@@ -294,7 +295,6 @@ class TaskRunner
 		ignore_user_abort(true);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE ' . $task_query . '
@@ -302,7 +302,7 @@ class TaskRunner
 			[
 				'task_ids' => $task_ids,
 				'task_names' => $task_names,
-				'limit' => count($task_ids) + count($task_names),
+				'limit' => \count($task_ids) + \count($task_names),
 			],
 		);
 
@@ -325,7 +325,7 @@ class TaskRunner
 			$bgtask = new $task_details['task_class']($task_details['task_data']);
 
 			// If the instance isn't actually a scheduled task, skip it.
-			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+			if (!is_subclass_of($bgtask, ScheduledTask::class)) {
 				continue;
 			}
 
@@ -341,7 +341,7 @@ class TaskRunner
 	 ***********************/
 
 	/**
-	 * The error handling function
+	 * The error handler.
 	 *
 	 * @param int $error_level One of the PHP error level constants (see )
 	 * @param string $error_string The error message
@@ -362,6 +362,20 @@ class TaskRunner
 		// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
 		if ($error_level % 255 == E_ERROR) {
 			die('No direct access...');
+		}
+	}
+
+	/**
+	 * The exception handler.
+	 *
+	 * Execution always ends after this is called.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function handleException(\Throwable $e): void
+	{
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			ErrorHandler::log(Lang::getTxt($e->getMessage(), file: 'Errors'), 'cron', $e->getFile(), $e->getLine());
 		}
 	}
 
@@ -411,7 +425,6 @@ class TaskRunner
 		// Get the critical info for the tasks.
 		$tasks = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, time_offset, time_regularity, time_unit
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -443,7 +456,6 @@ class TaskRunner
 		// Now make the changes!
 		foreach ($tasks as $id => $time) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}scheduled_tasks
 				SET next_time = {int:next_time}
 				WHERE id_task = {int:id_task}',
@@ -483,7 +495,6 @@ class TaskRunner
 		// care what task it is, merely that it is one in the queue; the order
 		// is irrelevant.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, task_file, task_class, task_data, claimed_time
 			FROM {db_prefix}background_tasks
 			WHERE claimed_time < {int:claim_limit}
@@ -497,7 +508,6 @@ class TaskRunner
 			// We found one. Let's try to claim it immediately.
 			Db::$db->free_result($request);
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}background_tasks
 				SET claimed_time = {int:new_claimed}
 				WHERE id_task = {int:task}
@@ -542,7 +552,7 @@ class TaskRunner
 			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
 			if (file_exists($include)) {
-				require_once $include;
+				require_once Config::canonicalPath($include);
 			}
 		}
 
@@ -557,22 +567,18 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
-			$bgtask = new $task_details['task_class']($details);
-
-			$success = $bgtask->execute();
+		if (
+			class_exists($task_details['task_class'])
+			&& is_subclass_of($task_details['task_class'], BackgroundTask::class)
+		) {
+			$task_class = $task_details['task_class'];
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
+		elseif (
+			class_exists('SMF\\Tasks\\' . $task_details['task_class'])
+			&& is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], BackgroundTask::class)
+		) {
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
-
-			$bgtask = new $task_class($details);
-
-			$success = $bgtask->execute();
 		}
 		// Uh-oh...
 		else {
@@ -582,11 +588,24 @@ class TaskRunner
 			return true;
 		}
 
+		$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
+
+		$bgtask = new $task_class($details);
+
+		if (!$bgtask->canExecute()) {
+			return true;
+		}
+
+		$success = $bgtask->execute();
+
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+		if (is_subclass_of($bgtask, ScheduledTask::class)) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
+
+		// Trigger the destructor now.
+		unset($bgtask);
 
 		return $success;
 	}
@@ -599,7 +618,6 @@ class TaskRunner
 	{
 		// Select the next task to do.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -676,7 +694,6 @@ class TaskRunner
 
 				// Updates next_time for this task so that no parallel processes run it.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}scheduled_tasks
 					SET next_time = {int:next_time}
 					WHERE id_task = {int:id_task}',
@@ -853,5 +870,3 @@ class TaskRunner
 if (!empty(\SMF\Config::$backward_compatibility)) {
 	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
 }
-
-?>

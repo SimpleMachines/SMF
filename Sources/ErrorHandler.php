@@ -12,7 +12,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,6 +21,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\ServerSideIncludes as SSI;
 
 /**
@@ -30,6 +31,30 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * What types of categories do we have for logging errors?
+	 */
+	public static array $known_error_types = [
+		'general',
+		'critical',
+		'database',
+		'undefined_vars',
+		'user',
+		'ban',
+		'template',
+		'debug',
+		'cron',
+		'paidsubs',
+		'backup',
+		'login',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -58,7 +83,7 @@ class ErrorHandler
 
 		if (str_contains($file, 'eval()') && !empty(Theme::$current->settings['current_include_filename'])) {
 			$array = debug_backtrace();
-			$count = count($array);
+			$count = \count($array);
 
 			for ($i = 0; $i < $count; $i++) {
 				if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate') {
@@ -80,7 +105,7 @@ class ErrorHandler
 			}
 		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Commonly, undefined indexes will occur inside attributes; try to show them anyway!
 			if ($error_level % 255 != E_ERROR) {
 				$temporary = ob_get_contents();
@@ -131,14 +156,33 @@ class ErrorHandler
 	/**
 	 * Convenience method to create an instance of this class.
 	 *
-	 * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
-	 * @param string $error_string The error message
-	 * @param string $file The file where the error occurred
-	 * @param int $line The line where the error occurred
+	 * @param int $error_level A pre-defined error-handling constant.
+	 *    (see {@link https://php.net/errorfunc.constants})
+	 * @param string $error_string The error message.
+	 * @param string $file The file where the error occurred.
+	 * @param int $line The line where the error occurred.
 	 */
 	public static function call(int $error_level, string $error_string, string $file, int $line): void
 	{
 		new self($error_level, $error_string, $file, $line);
+	}
+
+	/**
+	 * Generic handler for uncaught exceptions.
+	 *
+	 * Always ends execution.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function catch(\Throwable $e): void
+	{
+		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
+
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			self::log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
+		}
+
+		self::fatal($message, false);
 	}
 
 	/**
@@ -155,7 +199,7 @@ class ErrorHandler
 	 * @param int $line The line where the error occurred.
 	 * @return string The message that was logged.
 	 */
-	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0): string
+	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0, ?array $backtrace = null): string
 	{
 		static $last_error;
 		static $tried_hook = false;
@@ -164,11 +208,11 @@ class ErrorHandler
 		$error_call++;
 
 		// Collect a backtrace
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false) {
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		if (!DebugUtils::isDebugEnabled()) {
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
 		}
 
 		// Are we in a loop?
@@ -196,7 +240,7 @@ class ErrorHandler
 
 		// Find the best path and query string we can...
 		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
-			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+			$query_string = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
 		} else {
 			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
 		}
@@ -209,22 +253,6 @@ class ErrorHandler
 			$query_string .= ($query_string == '' ? 'board=' : ';board=') . $_POST['board'];
 		}
 
-		// What types of categories do we have?
-		$known_error_types = [
-			'general',
-			'critical',
-			'database',
-			'undefined_vars',
-			'user',
-			'ban',
-			'template',
-			'debug',
-			'cron',
-			'paidsubs',
-			'backup',
-			'login',
-		];
-
 		// This prevents us from infinite looping if the hook or call produces an error.
 		$other_error_types = [];
 
@@ -234,11 +262,11 @@ class ErrorHandler
 			// Allow the hook to change the error_type and know about the error.
 			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
 
-			$known_error_types = array_merge($known_error_types, $other_error_types);
+			self::$known_error_types = array_merge(self::$known_error_types, $other_error_types);
 		}
 
 		// Make sure the category that was specified is a valid one
-		$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
+		$error_type = \in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
 
 		// Leave out the call to this method.
 		array_splice($backtrace, 0, 1);
@@ -248,7 +276,7 @@ class ErrorHandler
 		$error_info = [
 			User::$me->id ?? User::$my_id ?? 0,
 			time(),
-			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
+			User::$me->ip ?? IP::getUserIP(),
 			$query_string,
 			$error_message,
 			(string) (User::$sc ?? ''),
@@ -266,7 +294,6 @@ class ErrorHandler
 			// Get an error count, if necessary
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
@@ -286,14 +313,16 @@ class ErrorHandler
 	}
 
 	/**
-	 * An irrecoverable error.
+	 * An unrecoverable error.
 	 *
 	 * This function stops execution and displays an error message.
 	 * It logs the error message if $log is specified.
 	 *
 	 * @param string $error The error message
-	 * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
-	 * @param int $status The HTTP status code associated with this error
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
+	 * @param int $status The HTTP status code associated with this error.
+	 *    Default: 500.
 	 */
 	public static function fatal(string $error, string|bool $log = 'general', int $status = 500): void
 	{
@@ -322,11 +351,14 @@ class ErrorHandler
 	 *  - the information is logged if log is specified.
 	 *
 	 * @param string $error The error message.
-	 * @param string|false $log The type of error, or false to not log it.
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
 	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
+	 * @param string $file Language file that holds the localized error message string.
+	 *    Default: 'Errors'.
 	 */
-	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
+	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403, string $file = 'Errors'): void
 	{
 		static $fatal_error_called = false;
 
@@ -342,13 +374,7 @@ class ErrorHandler
 		}
 
 		// Attempt to load the text string.
-		Lang::load('Errors');
-
-		if (empty(Lang::$txt[$error])) {
-			$error_message = $error;
-		} else {
-			$error_message = Lang::getTxt($error, $sprintf);
-		}
+		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
 
 		// Send a custom header if we have a custom message.
 		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
@@ -360,28 +386,15 @@ class ErrorHandler
 			die($error);
 		}
 
-		$reload_lang_file = true;
-
 		// Log the error in the forum's language, but don't waste the time if we aren't logging
 		if ($log) {
-			Lang::load('Errors', Lang::$default);
-
-			$reload_lang_file = Lang::$default != User::$me->language;
-
-			if (empty(Lang::$txt[$error])) {
-				$error_message = $error;
-			} else {
-				$error_message = Lang::getTxt($error, $sprintf);
-			}
-
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
 			self::log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if ($reload_lang_file && !empty(Lang::$txt[$error])) {
-			Lang::load('Errors');
-
-			$error_message = Lang::getTxt($error, $sprintf);
+		if (!$log || Lang::$default != User::$me->language) {
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
 		}
 
 		self::logOnline($error, $sprintf);
@@ -530,7 +543,6 @@ class ErrorHandler
 
 		// First, we have to get the online log, because we need to break apart the serialized string.
 		$request = Db::$db->query(
-			'',
 			'SELECT url
 			FROM {db_prefix}log_online
 			WHERE session = {string:session}',
@@ -546,7 +558,7 @@ class ErrorHandler
 			$url['error'] = $error;
 
 			// Url field got a max length of 1024 in db
-			if (strlen($url['error']) > 500) {
+			if (\strlen($url['error']) > 500) {
 				$url['error'] = substr($url['error'], 0, 500);
 			}
 
@@ -555,7 +567,6 @@ class ErrorHandler
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_online
 				SET url = {string:url}
 				WHERE session = {string:session}',
@@ -597,7 +608,7 @@ class ErrorHandler
 	 * @uses template_fatal_error()
 	 *
 	 * @param string $error_message The error message
-	 * @param string $error_code An error code
+	 * @param null|string $error_code An error code
 	 */
 	protected static function setupFatalContext(string $error_message, ?string $error_code = null): void
 	{
@@ -607,7 +618,7 @@ class ErrorHandler
 			// Don't get caught in a recursive loop.
 			++$level > 1
 			// If we hit a fatal error during install, don't try to load the theme.
-			|| defined('SMF_INSTALLING')
+			|| \defined('SMF_INSTALLING')
 		) {
 			die($error_message);
 		}
@@ -621,7 +632,7 @@ class ErrorHandler
 		Utils::$context['robot_no_index'] = true;
 
 		if (!isset(Utils::$context['error_title'])) {
-			Utils::$context['error_title'] = Lang::$txt['error_occured'];
+			Utils::$context['error_title'] = Lang::getTxt('error_occured', file: 'General');
 		}
 
 		Utils::$context['error_message'] = Utils::$context['error_message'] ?? $error_message;
@@ -639,8 +650,8 @@ class ErrorHandler
 
 		// If this is SSI, what do they want us to do?
 		if (SMF == 'SSI') {
-			if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && is_callable(SSI::$on_error_method)) {
-				call_user_func(SSI::$on_error_method);
+			if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && \is_callable(SSI::$on_error_method)) {
+				\call_user_func(SSI::$on_error_method);
 			} elseif (empty(SSI::$on_error_method) || SSI::$on_error_method !== true) {
 				Theme::loadSubTemplate('fatal_error');
 			}
@@ -653,7 +664,7 @@ class ErrorHandler
 		// Alternatively from the cron call?
 		elseif (SMF == 'BACKGROUND') {
 			// We can't rely on even having language files available.
-			if (defined('FROM_CLI') && FROM_CLI) {
+			if (\defined('FROM_CLI') && FROM_CLI) {
 				echo 'cron error: ', Utils::$context['error_message'];
 			} else {
 				echo 'An error occurred. More information may be available in your logs.';
@@ -671,7 +682,7 @@ class ErrorHandler
 			PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 			your forum will be in a very easily hackable state.
 		*/
-		trigger_error('No direct access...', E_USER_ERROR);
+		die('No direct access...');
 	}
 
 	/**
@@ -695,11 +706,11 @@ class ErrorHandler
 
 		if (filemtime(Config::$cachedir . '/db_last_error.php') === $last_db_error_change) {
 			// Write the change
-			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n";
 			$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 			// survey says ...
-			if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail) {
+			if ($written_bytes !== \strlen($write_db_change) && !$dberror_backup_fail) {
 				// Oops. maybe we have no more disk space left, or some other troubles, troubles...
 				// Copy the file back and run for your life!
 				@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');
@@ -711,5 +722,3 @@ class ErrorHandler
 		return false;
 	}
 }
-
-?>

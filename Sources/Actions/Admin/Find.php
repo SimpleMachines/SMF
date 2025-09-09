@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -106,6 +106,8 @@ class Find implements ActionInterface
 	 * add the language file to this array via the integrate_admin_search hook.
 	 */
 	public array $language_files = [
+		'General',
+		'Admin',
 		'Drafts',
 		'Help',
 		'Login',
@@ -160,7 +162,7 @@ class Find implements ActionInterface
 		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 		Utils::$context['sub_template'] = 'admin_search_results';
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 
 		// Keep track of what the admin wants.
 		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->subaction) {
@@ -173,10 +175,10 @@ class Find implements ActionInterface
 		if (trim(Utils::$context['search_term']) == '') {
 			Utils::$context['search_results'] = [];
 		} else {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 			if (!empty($call)) {
-				call_user_func($call);
+				\call_user_func($call);
 			}
 		}
 	}
@@ -191,10 +193,8 @@ class Find implements ActionInterface
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 
-		Lang::load(implode('+', $this->language_files));
-
 		foreach ($this->include_files as $file) {
-			require_once Config::$sourcedir . '/' . $file . '.php';
+			require_once Config::canonicalPath(Config::$sourcedir . '/' . $file . '.php');
 		}
 
 		/* This is the huge array that defines everything... it's a huge array of items formatted as follows:
@@ -216,12 +216,12 @@ class Find implements ActionInterface
 		// Go through the admin menu structure trying to find suitably named areas!
 		foreach (Menu::$loaded['admin']['sections'] as $section) {
 			foreach ($section['areas'] as $menu_key => $menu_item) {
-				$search_data['sections'][] = [$menu_item['label'], 'area=' . $menu_key];
+				$search_data['sections'][] = [$menu_item['txt_key'], 'area=' . $menu_key];
 
 				if (!empty($menu_item['subsections'])) {
 					foreach ($menu_item['subsections'] as $key => $sublabel) {
-						if (isset($sublabel['label'])) {
-							$search_data['sections'][] = [$sublabel['label'], 'area=' . $menu_key . ';sa=' . $key];
+						if (isset($sublabel['txt_key'])) {
+							$search_data['sections'][] = [$sublabel['txt_key'], 'area=' . $menu_key . ';sa=' . $key];
 						}
 					}
 				}
@@ -230,26 +230,29 @@ class Find implements ActionInterface
 
 		foreach ($this->settings_search as $setting_area) {
 			// Get a list of their variables.
-			$config_vars = call_user_func($setting_area[0], true);
+			$config_vars = \call_user_func($setting_area[0], true);
 
 			foreach ($config_vars as $var) {
-				if (!empty($var[1]) && !in_array($var[0], ['permissions', 'switch', 'desc'])) {
-					$search_data['settings'][] = [$var[(isset($var[2]) && in_array($var[2], ['file', 'db'])) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && in_array($var[2], ['file', 'db'])) || isset($var[3]) ? (in_array($var[2], ['file', 'db']) ? $var[1] : $var[3]) : ''];
+				if (!empty($var[1]) && !\in_array($var[0], ['permissions', 'switch', 'desc'])) {
+					$search_data['settings'][] = [$var[(isset($var[2]) && \in_array($var[2], ['file', 'db'])) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && \in_array($var[2], ['file', 'db'])) || isset($var[3]) ? (\in_array($var[2], ['file', 'db']) ? $var[1] : $var[3]) : ''];
 				}
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 		Utils::$context['search_results'] = [];
 
 		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
+
+		// Avoid imploding these strings on every Lang call below.
+		Lang::load(implode('+', $this->language_files), force_reload: true);
 
 		// Go through all the search data trying to find this text!
 		foreach ($search_data as $section => $data) {
 			foreach ($data as $item) {
 				$found = false;
 
-				if (!is_array($item[0])) {
+				if (!\is_array($item[0])) {
 					$item[0] = [$item[0]];
 				}
 
@@ -257,12 +260,12 @@ class Find implements ActionInterface
 					if (
 						stripos($term, $search_term) !== false
 						|| (
-							isset(Lang::$txt[$term])
-							&& stripos(Lang::$txt[$term], $search_term) !== false
+							Lang::txtExists($term)
+							&& stripos(Lang::getTxt($term), $search_term) !== false
 						)
 						|| (
-							isset(Lang::$txt['setting_' . $term])
-							&& stripos(Lang::$txt['setting_' . $term], $search_term) !== false
+							Lang::txtExists('setting_' . $term)
+							&& stripos(Lang::getTxt('setting_' . $term), $search_term) !== false
 						)
 					) {
 						$found = $term;
@@ -272,7 +275,7 @@ class Find implements ActionInterface
 
 				if ($found) {
 					// Format the name - and remove any descriptions the entry may have.
-					$name = Lang::$txt[$found] ?? (Lang::$txt['setting_' . $found] ?? (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+					$name = Lang::txtExists($found) ? Lang::getTxt($found) : (Lang::txtExists('setting_' . $found) ? Lang::getTxt('setting_' . $found) : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
@@ -280,7 +283,16 @@ class Find implements ActionInterface
 						'url' => (str_starts_with($item[1], 'area') ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((str_starts_with($item[1], 'area') && $section == 'settings' ? '#' . $item[0][0] : '')),
 						'name' => $name,
 						'type' => $section,
-						'help' => Utils::shorten(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
+						'help' => Utils::shorten(
+							isset($item[2])
+							? strip_tags(Lang::getTxt($item[2], var: 'helptxt'))
+							: (
+								Lang::txtExists($found, var: 'helptxt')
+								? strip_tags(Lang::getTxt($found, var: 'helptxt'))
+								: ''
+							),
+							255,
+						),
 					];
 				}
 			}
@@ -369,5 +381,3 @@ class Find implements ActionInterface
 		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	}
 }
-
-?>

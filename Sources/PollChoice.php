@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -149,7 +149,6 @@ class PollChoice implements \ArrayAccess
 	public function update(): void
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}poll_choices
 			SET label = {string:label}, votes = {int:votes}
 			WHERE id_poll = {int:id_poll}
@@ -169,7 +168,6 @@ class PollChoice implements \ArrayAccess
 	public function delete(): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
@@ -180,7 +178,6 @@ class PollChoice implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}
 				AND id_choice = {int:to_delete}',
@@ -191,5 +188,3 @@ class PollChoice implements \ArrayAccess
 		);
 	}
 }
-
-?>

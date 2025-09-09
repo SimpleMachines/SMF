@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -20,23 +20,27 @@ namespace SMF\Db;
  */
 interface DatabaseApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Performs a query. Takes care of errors too.
 	 *
-	 * @param string $identifier An identifier. Only used in PostgreSQL.
 	 * @param string $db_string The database string
 	 * @param array $db_values = array() The values to be inserted into the string
-	 * @param object $connection = null The connection to use (null to use $db_connection)
+	 * @param null|object $connection = null The connection to use (null to use $db_connection)
+	 * @param null|string $identifier An identifier. Only used in PostgreSQL.
 	 * @return object|bool Returns a query result resource (for SELECT queries), true (for UPDATE queries) or false if the query failed.
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
+	public function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool;
 
 	/**
 	 * Prepares a query string for execution, but does not perform the query.
 	 *
 	 * @param string $db_string The database string.
 	 * @param array $db_values An array of values to be injected into the string.
-	 * @param object $connection = null The connection to use (null to use $db_connection).
+	 * @param null|object $connection = null The connection to use (null to use $db_connection).
 	 * @return string The string with the values inserted.
 	 */
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string;
@@ -44,16 +48,16 @@ interface DatabaseApiInterface
 	/**
 	 * Fetch the next row of a result set as an enumerated array.
 	 *
-	 * @param object $request A query result resource.
-	 * @return array|false One row of data, with numeric keys.
+	 * @param object $result A query result resource.
+	 * @return array|false|null One row of data, with numeric keys.
 	 */
 	public function fetch_row(object $result): array|false|null;
 
 	/**
 	 * Fetch the next row of a result set as an associative array.
 	 *
-	 * @param object $request A query result resource.
-	 * @return array One row of data, with string keys.
+	 * @param object $result A query result resource.
+	 * @return array|false|null One row of data, with string keys.
 	 */
 	public function fetch_assoc(object $result): array|false|null;
 
@@ -91,22 +95,25 @@ interface DatabaseApiInterface
 	 * @param array $data Rows of data to insert. Each element of $data must
 	 *    be an array of values corresponding to $columns.
 	 * @param array $keys The keys for the table. Must not empty in replace mode.
-	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
-	 *    Default: 0.
-	 * @param object $connection The connection to use.
+	 * @param int $returnmode
+	 *	  DatabaseApi::INSERT_RETURN_MODE_OFF (0) = nothing
+	 *	  DatabaseApi::INSERT_RETURN_MODE_SINGLE (1) = last row ID
+	 *	  DatabaseApi::INSERT_RETURN_MODE_MULTI (2) = all row IDs.
+	 *    Default: DatabaseApi::INSERT_RETURN_MODE_OFF.
+	 * @param null|object $connection The connection to use.
 	 *    If null, $db_connection is used.
 	 * @return int|array|null Null if $returnmode is 0, the ID of the most
 	 *    recently inserted row if $returnmode is 1, or the IDS of all the
 	 *    inserted rows if $returnmode is 2.
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null;
 
 	/**
 	 * Gets the ID of the most recently inserted row.
 	 *
 	 * @param string $table The table (only used for Postgres)
-	 * @param string $field = null The specific field (not used here)
-	 * @param object $connection = null The connection (if null, $db_connection is used)
+	 * @param null|string $field = null The specific field (not used here)
+	 * @param null|object $connection = null The connection (if null, $db_connection is used)
 	 * @return int The ID of the most recently inserted row
 	 */
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int;
@@ -130,7 +137,7 @@ interface DatabaseApiInterface
 	 * @param string $set A string containing the SET instructions for the update query.
 	 * @param string $where A string containing any WHERE conditions for the update query.
 	 * @param array $db_values The values to be inserted into the compiled query string.
-	 * @param object $connection The connection to use (if null, $db_connection will be used).
+	 * @param null|object $connection The connection to use (if null, $db_connection will be used).
 	 * @return bool True if the update was successful, otherwise false.
 	 */
 	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool;
@@ -138,7 +145,7 @@ interface DatabaseApiInterface
 	/**
 	 * Gets the number of rows in a result set.
 	 *
-	 * @param object $request A query result resource.
+	 * @param object $result A query result resource.
 	 * @return int The number of rows in the result.
 	 */
 	public function num_rows(object $result): int;
@@ -146,8 +153,8 @@ interface DatabaseApiInterface
 	/**
 	 * Adjusts the result pointer to an arbitrary row in a query result.
 	 *
+	 * @param object $result A query result resource.
 	 * @param int $offset The row offset.
-	 * @param object $request A query result resource.
 	 * @return bool True on success, or false on failure.
 	 */
 	public function data_seek(object $result, int $offset): bool;
@@ -155,7 +162,7 @@ interface DatabaseApiInterface
 	/**
 	 * Gets the number of fields in a result set.
 	 *
-	 * @param object $request A query result resource.
+	 * @param object $result A query result resource.
 	 * @return int The number of fields (columns) in the result.
 	 */
 	public function num_fields(object $result): int;
@@ -164,8 +171,8 @@ interface DatabaseApiInterface
 	 * Escapes special characters in a string for use in an SQL statement,
 	 * taking into account the current character set of the connection.
 	 *
-	 * @param object $connection = null The connection to use (null to use $db_connection).
-	 * @param string The unescaped string.
+	 * @param string $string The string to escape
+	 * @param null|object $connection The connection to use (null to use $db_connection).
 	 * @return string The escaped string.
 	 */
 	public function escape_string(string $string, ?object $connection = null): string;
@@ -173,15 +180,24 @@ interface DatabaseApiInterface
 	/**
 	 * Reverses the escape_string function.
 	 *
-	 * @param string The escaped string.
+	 * @param string $string The escaped string.
 	 * @return string The unescaped string.
 	 */
 	public function unescape_string(string $string): string;
 
 	/**
+	 * Converts four-byte UTF-8 characters to entities, but only if the
+	 * database encoding doesn't accept four-byte characters natively.
+	 *
+	 * @param string $string A UTF-8 string.
+	 * @return string The string, with four-byte chars possibly encoded as entities.
+	 */
+	public function fix_mb4(string $string): string;
+
+	/**
 	 * Gets information, such as the version, about the database server.
 	 *
-	 * @param object $connection The connection to use (if null, $db_connection is used)
+	 * @param null|object $connection The connection to use (if null, $db_connection is used)
 	 * @return string The server info.
 	 */
 	public function server_info(?object $connection = null): string;
@@ -191,7 +207,7 @@ interface DatabaseApiInterface
 	 *
 	 * @todo PostgreSQL requires a $result param, not a $connection.
 	 *
-	 * @param object $connection A connection to use (if null, $db_connection is used)
+	 * @param null|object $connection A connection to use (if null, $db_connection is used)
 	 * @return int The number of affected rows.
 	 */
 	public function affected_rows(?object $connection = null): int;
@@ -200,7 +216,7 @@ interface DatabaseApiInterface
 	 * Do a transaction.
 	 *
 	 * @param string $type The step to perform (i.e. 'begin', 'commit', 'rollback')
-	 * @param object $connection The connection to use (if null, $db_connection is used)
+	 * @param null|object $connection The connection to use (if null, $db_connection is used)
 	 * @return bool True if successful, false otherwise
 	 */
 	public function transaction(string $type = 'commit', ?object $connection = null): bool;
@@ -219,10 +235,19 @@ interface DatabaseApiInterface
 	 * Does nothing on PostgreSQL.
 	 *
 	 * @param string &$database The database
-	 * @param object $connection The connection object (if null, $db_connection is used)
+	 * @param null|object $connection The connection object (if null, $db_connection is used)
 	 * @return bool Whether the database was selected
 	 */
 	public function select(string $database, ?object $connection = null): bool;
+
+	/**
+	 * Gets a list of engines that MySQL supports.
+	 *
+	 * Returns an empty array for PostgreSQL.
+	 *
+	 * @return array Supported engines.
+	 */
+	public function get_engines(): array;
 
 	/**
 	 * Escape the LIKE wildcards so that they match the character and not the wildcard.
@@ -243,20 +268,12 @@ interface DatabaseApiInterface
 	public function is_resource(mixed $result): bool;
 
 	/**
-	 * Pings a server connection, and tries to reconnect if necessary.
-	 *
-	 * @param object $connection The connection object (if null, $db_connection is used)
-	 * @return bool True on success, or false on failure.
-	 */
-	public function ping(?object $connection = null): bool;
-
-	/**
 	 * Save errors in the database safely.
 	 *
 	 * $error_array must have the following keys in order:
 	 * id_member, log_time, ip, url, message, session, error_type, file, line, backtrace
 	 *
-	 * @param array Information about the error.
+	 * @param array $error_array Information about the error.
 	 */
 	public function error_insert(array $error_array): void;
 
@@ -299,16 +316,30 @@ interface DatabaseApiInterface
 	 */
 	public function connect_errno(): int;
 
-	/****************************************
-	 * Methods that formerly lived in DbExtra
-	 ****************************************/
+	/**
+	 * Detects the character set in use for a table, a column, or the database.
+	 *
+	 * If $table is null or the specified table does not exist, the database's
+	 * default character set will be returned.
+	 *
+	 * If $column is null, or if the specified column either does not exist or
+	 * does not store string values, the table's character set will be returned.
+	 *
+	 * @param ?string $table The table to check, or null to get the database's
+	 *    default character set.
+	 * @param ?string $column The column to check, or null to get the table's
+	 *    default character set. This parameter is ignored if $table is null.
+	 * @return string The character set.
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string;
 
 	/**
 	 * Backup $table to $backup_table.
 	 *
 	 * @param string $table The name of the table to backup
 	 * @param string $backup_table The name of the backup table for this table
-	 * @return resource|false -the request handle to the table creation query, false if it failed.
+	 * @return object|false The request handle to the table creation query, or
+	 *    false if it failed.
 	 */
 	public function backup_table(string $table, string $backup_table): object|bool;
 
@@ -316,26 +347,26 @@ interface DatabaseApiInterface
 	 * This function optimizes a table.
 	 *
 	 * @param string $table The table to be optimized
-	 * @return int How much space was gained
+	 * @return int|float How much space was gained
 	 */
 	public function optimize_table(string $table): int|float;
 
 	/**
 	 * Dumps the schema (CREATE) for a table.
 	 *
-	 * @todo why is this needed for?
-	 * @param string $tableName The name of the table
-	 * @return string The "CREATE TABLE" SQL string for this table
+	 * @param string $table_name The name of the table.
+	 * @return string The "CREATE TABLE" SQL string for this table.
 	 */
-	public function table_sql(string $tableName): string;
+	public function table_sql(string $table_name): string;
 
 	/**
 	 * This function lists all tables in the database.
-	 * The listing could be filtered according to $filter.
 	 *
-	 * @param string|bool $db string The database name or false to use the current DB
-	 * @param string|bool $filter String to filter by or false to list all tables
-	 * @return array An array of table names
+	 * The listing can be filtered according to $filter.
+	 *
+	 * @param string|bool $db The database name or false to use the current DB.
+	 * @param string|bool $filter String to filter by or false to list all.
+	 * @return array An array of table names.
 	 */
 	public function list_tables(string|bool $db = false, string|bool $filter = false): array;
 
@@ -360,20 +391,16 @@ interface DatabaseApiInterface
 	 */
 	public function allow_persistent(): bool;
 
-	/*****************************************
-	 * Methods that formerly lived in DbSearch
-	 *****************************************/
-
 	/**
 	 * Returns the correct query for this search type.
 	 *
-	 * @param string $identifier A query identifier
 	 * @param string $db_string The query text
 	 * @param array $db_values An array of values to pass to $this->query()
-	 * @param object $connection The current DB connection resource
+	 * @param null|object $connection The current DB connection resource
+	 * @param null|string $identifier A query identifier
 	 * @return resource The query result resource from $this->query()
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
+	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool;
 
 	/**
 	 * This function will tell you whether this database type supports this search type.
@@ -397,15 +424,11 @@ interface DatabaseApiInterface
 	 */
 	public function search_language(): ?string;
 
-	/*******************************************
-	 * Methods that formerly lived in DbPackages
-	 *******************************************/
-
 	/**
 	 * This function adds a column.
 	 *
 	 * @param string $table_name The name of the table to add the column to
-	 * @param array $column_info An array of column info ({@see smf_db_create_table})
+	 * @param array $column_info An array of column info ({@see create_table})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the column exists. If 'update', column is updated.
 	 * @param string $error
@@ -417,7 +440,7 @@ interface DatabaseApiInterface
 	 * Add an index.
 	 *
 	 * @param string $table_name The name of the table to add the index to
-	 * @param array $index_info An array of index info (see {@link smf_db_create_table()})
+	 * @param array $index_info An array of index info (see {@link create_table()})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the index exists. If 'update', the definition will be updated.
 	 * @param string $error
@@ -429,7 +452,7 @@ interface DatabaseApiInterface
 	 * Get the schema formatted name for a type.
 	 *
 	 * @param string $type_name The data type (int, varchar, smallint, etc.)
-	 * @param int $type_size The size (8, 255, etc.)
+	 * @param null|int $type_size The size (8, 255, etc.)
 	 * @param bool $reverse
 	 * @return array An array containing the appropriate type and size for this DB type
 	 */
@@ -440,7 +463,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table_name The name of the table this column is in
 	 * @param string $old_column The name of the column we want to change
-	 * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+	 * @param array $column_info An array of info about the "new" column definition (see {@link create_table()})
 	 * Note that $column_info also supports two additional parameters that only make sense when changing columns:
 	 * - drop_default - to drop a default that was previously specified
 	 * @return bool
@@ -448,34 +471,82 @@ interface DatabaseApiInterface
 	public function change_column(string $table_name, string $old_column, array $column_info): bool;
 
 	/**
+	 * Renames an index.
+	 *
+	 * If an index named $old_name does not exist, will return false.
+	 * If an index named $new_name already exists, will return false.
+	 * Otherwise, returns whether the index was renamed successfully.
+	 *
+	 * @param string $table_name The name of the table the index is in.
+	 * @param string $old_name The current name of the index.
+	 * @param string $old_name The new name to set for the index.
+	 * @return bool Whether the operation was successful.
+	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool;
+
+	/**
 	 * This function can be used to create a table without worrying about schema
-	 *  compatibilities across supported database systems.
-	 *  - If the table exists will, by default, do nothing.
-	 *  - Builds table with columns as passed to it - at least one column must be sent.
-	 *  The columns array should have one sub-array for each column - these sub arrays contain:
-	 *  	'name' = Column name
-	 *  	'type' = Type of column - values from (smallint, mediumint, int, text, varchar, char, tinytext, mediumtext, largetext)
-	 *  	'size' => Size of column (If applicable) - for example 255 for a large varchar, 10 for an int etc.
-	 *  		If not set SMF will pick a size.
-	 *  	- 'default' = Default value - do not set if no default required.
-	 *  	- 'not_null' => Can it be null (true or false) - if not set default will be false.
-	 *  	- 'auto' => Set to true to make it an auto incrementing column. Set to a numerical value to set from what
-	 *  		 it should begin counting.
-	 *  - Adds indexes as specified within indexes parameter. Each index should be a member of $indexes. Values are:
-	 *  	- 'name' => Index name (If left empty SMF will generate).
-	 *  	- 'type' => Type of index. Choose from 'primary', 'unique' or 'index'. If not set will default to 'index'.
-	 *  	- 'columns' => Array containing columns that form part of key - in the order the index is to be created.
-	 *  - parameters: (None yet)
-	 *  - if_exists values:
-	 *  	- 'ignore' will do nothing if the table exists. (And will return true)
-	 *  	- 'overwrite' will drop any existing table of the same name.
-	 *  	- 'error' will return false if the table already exists.
-	 *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
+	 * compatibilities across supported database systems.
+	 *
+	 * If the table exists will, by default, do nothing.
+	 *
+	 * Builds table with columns as passed to it.
+	 * At least one column must be sent.
+	 *
+	 * The columns array should have one sub-array for each column.
+	 * These sub arrays contain:
+	 *  	'name':
+	 *                Column name
+	 *  	'type':
+	 *                Type of column: smallint, mediumint, int, text, varchar,
+	 *                char, tinytext, mediumtext, or largetext.
+	 *  	'size':
+	 *                Size of column, if applicable.
+	 *                For example 255 for a large varchar, 10 for an int etc.
+	 *  		      If not set SMF will pick a size.
+	 *  	'default':
+	 *                Default value. Do not set if no default required.
+	 *  	'not_null':
+	 *                Whether the column can have a null value.
+	 *                If not set default will be false.
+	 *  	'auto':
+	 *                Set to true to make it an auto incrementing column.
+	 *                Set to a numerical value to set the value it should begin
+	 *                counting from.
+	 *
+	 * Adds indexes as specified within $indexes parameter.
+	 * Each index should be a member of $indexes. Values are:
+	 *  	'name':
+	 *                Index name (If left empty SMF will generate).
+	 *  	'type':
+	 *                Type of index. Choose from 'primary', 'unique' or 'index'.
+	 *                If not set will default to 'index'.
+	 *  	'columns':
+	 *                Array containing columns that form part of key, in the
+	 *                order the index is to be created.
+	 *                Values of 'columns' can either be simple strings or arrays
+	 *                containing a 'name' element and optional 'size' or
+	 *                'opclass' elements. The 'size' element is used by MySQL,
+	 *                and the 'opclass' element is used by PostgreSQL.
+	 *
+	 * $if_exists values:
+	 *  	'ignore':
+	 *                Do nothing if the table exists and return true.
+	 *  	'overwrite':
+	 *                Drop any existing table of the same name and then create
+	 *                a new table.
+	 *  	'error':
+	 *                Return false if the table already exists.
+	 *  	'update':
+	 *                Update the table if the table already exists. This will
+	 *                not change the auto-increment value and only columns with
+	 *                the same name keep the data.
 	 *
 	 * @param string $table_name The name of the table to create
 	 * @param array $columns An array of column info in the specified format
 	 * @param array $indexes An array of index info in the specified format
-	 * @param array $parameters Extra parameters. Currently only 'engine', the desired MySQL storage engine, is used.
+	 * @param array $parameters Extra parameters. Currently only 'engine', the
+	 *    desired MySQL storage engine, is used.
 	 * @param string $if_exists What to do if the table exists.
 	 * @param string $error
 	 * @return bool Whether or not the operation was successful
@@ -493,10 +564,21 @@ interface DatabaseApiInterface
 	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool;
 
 	/**
+	 * Renames a table.
+	 *
+	 * @param string $old_name The current name of the table.
+	 * @param string $new_name The new name for the table.
+	 * @param bool $allowed_reserved Whether to allow renaming reserved tables.
+	 *    Default: false.
+	 * @return bool Whether or not the operation was successful
+	 */
+	public function rename_table(string $old_name, string $new_name, bool $allowed_reserved = false, string $error = 'fatal'): bool;
+
+	/**
 	 * Get table structure.
 	 *
 	 * @param string $table_name The name of the table
-	 * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+	 * @return array An array of table structure - the name, the column info from {@link list_columns()} and the index info from {@link list_indexes()}
 	 */
 	public function table_structure(string $table_name): array;
 
@@ -541,6 +623,111 @@ interface DatabaseApiInterface
 	 * @return bool Whether or not the operation was successful
 	 */
 	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool;
-}
 
-?>
+	/**
+	 * The minimum version that SMF supports for the database.
+	 *
+	 * @return string
+	 */
+	public function getMinimumVersion(): string;
+
+	/**
+	 * Is this database supported.
+	 *
+	 * @return bool True if we can use this database, false otherwise.
+	 */
+	public function isSupported(): bool;
+
+	/**
+	 * Skip issuing a select database command.
+	 *
+	 * @return bool When true, we do not select a database.
+	 */
+	public function skipSelectDatabase(): bool;
+
+	/**
+	 * Default username for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultUser(): string;
+
+	/**
+	 * Default password for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultPassword(): string;
+
+	/**
+	 * Default host for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultHost(): string;
+
+	/**
+	 * Default port for a database connection.
+	 *
+	 * @return int
+	 */
+	public function getDefaultPort(): int;
+
+	/**
+	 * Default database name for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultName(): string;
+
+	/**
+	 * Performs checks to ensure the server is in a sane configuration.
+	 *
+	 * @return bool
+	 */
+	public function checkConfiguration(): bool;
+
+	/**
+	 * Performs checks to ensure we have proper permissions to the database
+	 * in order to perform operations.
+	 *
+	 * @return bool
+	 */
+	public function hasPermissions(): bool;
+
+	/**
+	 * Validate a database prefix.
+	 * When an error occurs, use throw new exception, this will be captured.
+	 *
+	 * @return bool
+	 */
+	public function validatePrefix(&$string): bool;
+
+	/**
+	 * Returns whether it is necessary to select the database by name or not.
+	 *
+	 * @return bool False if we must select the database, true if not.
+	 */
+	public function alwaysHasDb(): bool;
+
+	/**
+	 * Perform additional changes to our SQL connection in order to perform
+	 * commands that are not strict SQL.
+	 *
+	 * @param string $mode The SQL mode we wish to be in, either 'default' or 'strict'.
+	 * @return bool
+	 */
+	public function setSqlMode(string $mode = 'default'): bool;
+
+	/**
+	 * When an error occurs with a query run through a wrapper, we send errors here.
+	 *
+	 * @param string $error_msg as returend by the database interfaces call.
+	 * @param string $query Query we ran
+	 * @return mixed
+	 *    False if we should not do anything,
+	 *    True if we should stop for error.
+	 *    Result from a query can also be returned, if we are able to correct the query.
+	 */
+	public function processError(string $error_msg, string $query): mixed;
+}

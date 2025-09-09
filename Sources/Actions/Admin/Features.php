@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Profile\Notification;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Features implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -96,10 +95,10 @@ class Features implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['sub_action'] = $this->subaction;
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -137,7 +136,7 @@ class Features implements ActionInterface
 			}
 
 			ACP::saveDBSettings($config_vars);
-			$_SESSION['adm-save'] = !empty($htaccess_failed) ? Lang::$txt['queryless_hidden_index_htaccess'] : true;
+			$_SESSION['adm-save'] = !empty($htaccess_failed) ? Lang::getTxt('queryless_hidden_index_htaccess', file: 'ManageSettings') : true;
 
 			// Do a bit of housekeeping
 			if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files']) {
@@ -149,7 +148,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_features'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_features', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -168,7 +167,7 @@ class Features implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['manageposts_bbc_settings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('manageposts_bbc_settings_title', file: 'Admin');
 
 		// Make sure we check the right tags!
 		Config::$modSettings['bbc_disabled_disabledBBC'] = empty(Config::$modSettings['disabledBBC']) ? [] : explode(',', Config::$modSettings['disabledBBC']);
@@ -180,12 +179,7 @@ class Features implements ActionInterface
 		Config::$modSettings['collapse_blank_lines'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_LINES);
 		Config::$modSettings['collapse_single_breaks'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_IN_PARAGRAPHS);
 
-		$extra = '';
-
-		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'])];
-			$extra = ';cowsay';
-		}
+		$extra = isset($_REQUEST['cowsay']) ? ';cowsay' : '';
 
 		// Saving?
 		if (isset($_GET['save'])) {
@@ -223,13 +217,13 @@ class Features implements ActionInterface
 
 			if (!isset($_POST['disabledBBC_enabledTags'])) {
 				$_POST['disabledBBC_enabledTags'] = [];
-			} elseif (!is_array($_POST['disabledBBC_enabledTags'])) {
+			} elseif (!\is_array($_POST['disabledBBC_enabledTags'])) {
 				$_POST['disabledBBC_enabledTags'] = [$_POST['disabledBBC_enabledTags']];
 			}
 
 			if (!isset($_POST['legacyBBC_enabledTags'])) {
 				$_POST['legacyBBC_enabledTags'] = [];
-			} elseif (!is_array($_POST['legacyBBC_enabledTags'])) {
+			} elseif (!\is_array($_POST['legacyBBC_enabledTags'])) {
 				$_POST['legacyBBC_enabledTags'] = [$_POST['legacyBBC_enabledTags']];
 			}
 
@@ -237,7 +231,7 @@ class Features implements ActionInterface
 
 			// Enable all children if parent is enabled
 			foreach ($bbcTagsChildren as $tag => $children) {
-				if (in_array($tag, $_POST['disabledBBC_enabledTags'])) {
+				if (\in_array($tag, $_POST['disabledBBC_enabledTags'])) {
 					$_POST['disabledBBC_enabledTags'] = array_merge($_POST['disabledBBC_enabledTags'], $children);
 				}
 			}
@@ -254,6 +248,9 @@ class Features implements ActionInterface
 				},
 			);
 
+			// Figure out which BBC are restricted.
+			$_POST['restricted_bbc_enabledTags'] = array_diff($bbcTags, !isset($_POST['restricted_bbc_enabledTags']) ? [] : (array) $_POST['restricted_bbc_enabledTags']);
+
 			// Save the Markdown collapse_* settings as a bitmask.
 			$config_vars[] = ['int', 'markdown_brs'];
 			$_POST['markdown_brs'] = (!empty($_POST['collapse_blank_lines']) ? 0 : MarkdownParser::BR_LINES);
@@ -268,7 +265,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
-		Utils::$context['settings_title'] = Lang::$txt['manageposts_bbc_settings_title'];
+		Utils::$context['settings_title'] = Lang::getTxt('manageposts_bbc_settings_title', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -296,7 +293,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_layout'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_layout', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -311,7 +308,7 @@ class Features implements ActionInterface
 		$config_vars = self::sigConfigVars();
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['signature_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('signature_settings', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Disable the max smileys option if we don't allow smileys at all!
@@ -333,7 +330,6 @@ class Features implements ActionInterface
 			$done = false;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(id_member)
 				FROM {db_prefix}members',
 				[
@@ -346,7 +342,6 @@ class Features implements ActionInterface
 				$changes = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, signature
 					FROM {db_prefix}members
 					WHERE id_member BETWEEN {int:step} AND {int:step} + 49
@@ -371,7 +366,7 @@ class Features implements ActionInterface
 					if (!empty($sig_limits[2])) {
 						$count = 0;
 
-						for ($i = 0; $i < strlen($sig); $i++) {
+						for ($i = 0; $i < \strlen($sig); $i++) {
 							if ($sig[$i] == "\n") {
 								$count++;
 
@@ -490,7 +485,7 @@ class Features implements ActionInterface
 								if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6])) {
 									$sizes = Image::getSizeExternal($matches[7][$key]);
 
-									if (is_array($sizes)) {
+									if (\is_array($sizes)) {
 										// Too wide?
 										if ($sizes[0] > $sig_limits[5] && $sig_limits[5]) {
 											$width = $sig_limits[5];
@@ -553,7 +548,6 @@ class Features implements ActionInterface
 				if (!empty($changes)) {
 					foreach ($changes as $id => $sig) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}members
 							SET signature = {string:signature}
 							WHERE id_member = {int:id_member}',
@@ -608,7 +602,7 @@ class Features implements ActionInterface
 
 			if (!isset($_POST['signature_bbc_enabledTags'])) {
 				$_POST['signature_bbc_enabledTags'] = [];
-			} elseif (!is_array($_POST['signature_bbc_enabledTags'])) {
+			} elseif (!\is_array($_POST['signature_bbc_enabledTags'])) {
 				$_POST['signature_bbc_enabledTags'] = [$_POST['signature_bbc_enabledTags']];
 			}
 
@@ -640,17 +634,17 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=sig';
-		Utils::$context['settings_title'] = Lang::$txt['signature_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('signature_settings', file: 'ManageSettings');
 
 		if (!empty($settings_applied)) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['signature_settings_applied'],
+				'label' => Lang::getTxt('signature_settings_applied', file: 'ManageSettings'),
 				'tag' => 'div',
 				'class' => 'infobox',
 			];
 		} else {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::getTxt('signature_settings_warning', ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
+				'label' => Lang::getTxt('signature_settings_warning', ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl], file: 'ManageSettings'),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];
@@ -664,7 +658,7 @@ class Features implements ActionInterface
 	 */
 	public function profile(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['custom_profile_title'];
+		Utils::$context['page_title'] = Lang::getTxt('custom_profile_title', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'show_custom_profile';
 
 		// What about standard fields they can tweak?
@@ -694,7 +688,7 @@ class Features implements ActionInterface
 
 			if (!empty($_POST['reg'])) {
 				foreach ($_POST['reg'] as $value) {
-					if (in_array($value, $standard_fields) && !isset($disable_fields[$value])) {
+					if (\in_array($value, $standard_fields) && !isset($disable_fields[$value])) {
 						$reg_fields[] = $value;
 					}
 				}
@@ -717,7 +711,7 @@ class Features implements ActionInterface
 
 		$listOptions = [
 			'id' => 'standard_profile_fields',
-			'title' => Lang::$txt['standard_profile_title'],
+			'title' => Lang::getTxt('standard_profile_title', file: 'ManageSettings'),
 			'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getProfileFields',
@@ -728,7 +722,7 @@ class Features implements ActionInterface
 			'columns' => [
 				'field' => [
 					'header' => [
-						'value' => Lang::$txt['standard_profile_field'],
+						'value' => Lang::getTxt('standard_profile_field', file: 'ManageSettings'),
 					],
 					'data' => [
 						'db' => 'label',
@@ -737,15 +731,15 @@ class Features implements ActionInterface
 				],
 				'active' => [
 					'header' => [
-						'value' => Lang::$txt['custom_edit_active'],
+						'value' => Lang::getTxt('custom_edit_active', file: 'ManageSettings'),
 						'class' => 'centercol',
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							$isChecked = $rowData['disabled'] ? '' : ' checked';
-							$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
+							$onClickHandler = $rowData['can_show_register'] ? \sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
 
-							return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
+							return \sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
 						},
 						'style' => 'width: 20%;',
 						'class' => 'centercol',
@@ -753,7 +747,7 @@ class Features implements ActionInterface
 				],
 				'show_on_registration' => [
 					'header' => [
-						'value' => Lang::$txt['custom_edit_registration'],
+						'value' => Lang::getTxt('custom_edit_registration', file: 'ManageSettings'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -761,7 +755,7 @@ class Features implements ActionInterface
 							$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
 							$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
 
-							return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
+							return \sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
 						},
 						'style' => 'width: 20%;',
 						'class' => 'centercol',
@@ -776,7 +770,7 @@ class Features implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">',
+					'value' => '<input type="submit" name="save" value="' . Lang::getTxt('save', file: 'General') . '" class="button">',
 				],
 			],
 		];
@@ -784,10 +778,10 @@ class Features implements ActionInterface
 
 		$listOptions = [
 			'id' => 'custom_profile_fields',
-			'title' => Lang::$txt['custom_profile_title'],
+			'title' => Lang::getTxt('custom_profile_title', file: 'ManageSettings'),
 			'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 			'default_sort_col' => 'field_order',
-			'no_items_label' => Lang::$txt['custom_profile_none'],
+			'no_items_label' => Lang::getTxt('custom_profile_none', file: 'ManageSettings'),
 			'items_per_page' => 25,
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getProfileFields',
@@ -801,18 +795,18 @@ class Features implements ActionInterface
 			'columns' => [
 				'field_order' => [
 					'header' => [
-						'value' => Lang::$txt['custom_profile_fieldorder'],
+						'value' => Lang::getTxt('custom_profile_fieldorder', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							$return = '<p class="centertext bold_text">';
 
 							if ($rowData['field_order'] > 1) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move_up'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::getTxt('custom_edit_order_move_up', file: 'ManageSettings') . '"></span></a>';
 							}
 
 							if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder']) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move_down'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::getTxt('custom_edit_order_move_down', file: 'ManageSettings') . '"></span></a>';
 							}
 
 							$return .= '</p>';
@@ -828,14 +822,14 @@ class Features implements ActionInterface
 				],
 				'field_name' => [
 					'header' => [
-						'value' => Lang::$txt['custom_profile_fieldname'],
+						'value' => Lang::getTxt('custom_profile_fieldname', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							$field_name = Lang::tokenTxtReplace($rowData['field_name']);
 							$field_desc = Lang::tokenTxtReplace($rowData['field_desc']);
 
-							return sprintf(
+							return \sprintf(
 								'<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
 								Config::$scripturl,
 								$rowData['id_field'],
@@ -852,13 +846,11 @@ class Features implements ActionInterface
 				],
 				'field_type' => [
 					'header' => [
-						'value' => Lang::$txt['custom_profile_fieldtype'],
+						'value' => Lang::getTxt('custom_profile_fieldtype', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
-
-							return Lang::$txt[$textKey] ?? $textKey;
+							return Lang::txtExists('custom_profile_type_' . $rowData['field_type'], file: 'ManageSettings') ? Lang::getTxt('custom_profile_type_' . $rowData['field_type'], file: 'ManageSettings') : 'custom_profile_type_' . $rowData['field_type'];
 						},
 						'style' => 'width: 15%;',
 					],
@@ -869,11 +861,11 @@ class Features implements ActionInterface
 				],
 				'active' => [
 					'header' => [
-						'value' => Lang::$txt['custom_profile_active'],
+						'value' => Lang::getTxt('custom_profile_active', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no'];
+							return Lang::getTxt($rowData['active'] ? 'yes' : 'no', file: 'General');
 						},
 						'style' => 'width: 8%;',
 					],
@@ -884,11 +876,11 @@ class Features implements ActionInterface
 				],
 				'placement' => [
 					'header' => [
-						'value' => Lang::$txt['custom_profile_placement'],
+						'value' => Lang::getTxt('custom_profile_placement', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Lang::$txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : Utils::$context['cust_profile_fields_placement'][$rowData['placement']])];
+							return Lang::getTxt('custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : Utils::$context['cust_profile_fields_placement'][$rowData['placement']]), file: 'ManageSettings');
 						},
 						'style' => 'width: 8%;',
 					],
@@ -899,8 +891,8 @@ class Features implements ActionInterface
 				],
 				'show_on_registration' => [
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . Lang::$txt['modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid={id_field}">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_field' => false,
 							],
@@ -916,7 +908,7 @@ class Features implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="new" value="' . Lang::$txt['custom_profile_make_new'] . '" class="button">',
+					'value' => '<input type="submit" name="new" value="' . Lang::getTxt('custom_profile_make_new', file: 'ManageSettings') . '" class="button">',
 				],
 			],
 		];
@@ -938,11 +930,8 @@ class Features implements ActionInterface
 		// Sort out the context!
 		Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
 		Menu::$loaded['admin']['current_subsection'] = 'profile';
-		Utils::$context['page_title'] = Utils::$context['fid'] ? Lang::$txt['custom_edit_title'] : Lang::$txt['custom_add_title'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['fid'] ? 'custom_edit_title' : 'custom_add_title', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'edit_profile_field';
-
-		// Load the profile language for section names.
-		Lang::load('Profile');
 
 		// There's really only a few places we can go...
 		$move_to = ['up', 'down'];
@@ -953,7 +942,6 @@ class Features implements ActionInterface
 		if (Utils::$context['fid'] && !isset($_GET['move'])) {
 			Utils::$context['field'] = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
 					show_reg, show_display, show_mlist, show_profile, private, active, default_value, can_search,
@@ -989,7 +977,7 @@ class Features implements ActionInterface
 					'bbc' => $row['bbc'] ? true : false,
 					'default_check' => $row['field_type'] == 'check' && $row['default_value'] ? true : false,
 					'default_select' => $row['field_type'] == 'select' || $row['field_type'] == 'radio' ? $row['default_value'] : '',
-					'options' => strlen($row['field_options']) > 1 ? explode(',', $row['field_options']) : ['', '', ''],
+					'options' => \strlen($row['field_options']) > 1 ? explode(',', $row['field_options']) : ['', '', ''],
 					'active' => $row['active'],
 					'private' => $row['private'],
 					'can_search' => $row['can_search'],
@@ -1032,12 +1020,11 @@ class Features implements ActionInterface
 		}
 
 		// Are we moving it?
-		if (Utils::$context['fid'] && isset($_GET['move']) && in_array(Utils::htmlspecialchars($_GET['move']), $move_to)) {
+		if (Utils::$context['fid'] && isset($_GET['move']) && \in_array(Utils::htmlspecialchars($_GET['move']), $move_to)) {
 			$fields = [];
 			$new_sort = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, field_order
 				FROM {db_prefix}custom_fields
@@ -1052,16 +1039,16 @@ class Features implements ActionInterface
 
 			$idx = array_search(Utils::$context['fid'], $fields);
 
-			if ($_GET['move'] == 'down' && count($fields) - 1 > $idx) {
-				$new_sort = array_slice($fields, 0, $idx, true);
+			if ($_GET['move'] == 'down' && \count($fields) - 1 > $idx) {
+				$new_sort = \array_slice($fields, 0, $idx, true);
 				$new_sort[] = $fields[$idx + 1];
 				$new_sort[] = $fields[$idx];
-				$new_sort += array_slice($fields, $idx + 2, count($fields), true);
-			} elseif (Utils::$context['fid'] > 0 and $idx < count($fields)) {
-				$new_sort = array_slice($fields, 0, ($idx - 1), true);
+				$new_sort += \array_slice($fields, $idx + 2, \count($fields), true);
+			} elseif (Utils::$context['fid'] > 0 and $idx < \count($fields)) {
+				$new_sort = \array_slice($fields, 0, ($idx - 1), true);
 				$new_sort[] = $fields[$idx];
 				$new_sort[] = $fields[$idx - 1];
-				$new_sort += array_slice($fields, ($idx + 1), count($fields), true);
+				$new_sort += \array_slice($fields, ($idx + 1), \count($fields), true);
 			} else {
 				// @todo implement an error handler
 				Utils::redirectexit('action=admin;area=featuresettings;sa=profile');
@@ -1075,7 +1062,6 @@ class Features implements ActionInterface
 			$sql_update .= 'END';
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = ' . $sql_update,
 				[],
@@ -1175,7 +1161,6 @@ class Features implements ActionInterface
 				// Make sure this is unique.
 				$current_fields = [];
 				$request = Db::$db->query(
-					'',
 					'SELECT id_field, col_name
 					FROM {db_prefix}custom_fields',
 				);
@@ -1187,7 +1172,7 @@ class Features implements ActionInterface
 
 				$i = 0;
 
-				while (in_array($col_name, $current_fields)) {
+				while (\in_array($col_name, $current_fields)) {
 					// First try appending an integer to the supplied name.
 					if ($i <= 9) {
 						$col_name = $initial_col_name . $i;
@@ -1225,7 +1210,6 @@ class Features implements ActionInterface
 					)
 				) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND id_member > {int:no_member}',
@@ -1247,7 +1231,7 @@ class Features implements ActionInterface
 						}
 
 						// Still exists?
-						if (in_array($option, $newOptions)) {
+						if (\in_array($option, $newOptions)) {
 							$takenKeys[] = $k;
 						}
 					}
@@ -1255,9 +1239,8 @@ class Features implements ActionInterface
 					// Finally - have we renamed it - or is it really gone?
 					foreach ($optionChanges as $k => $option) {
 						// Just been renamed?
-						if (!in_array($k, $takenKeys) && !empty($newOptions[$k])) {
+						if (!\in_array($k, $takenKeys) && !empty($newOptions[$k])) {
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}themes
 								SET value = {string:new_value}
 								WHERE variable = {string:current_column}
@@ -1279,7 +1262,6 @@ class Features implements ActionInterface
 			// Do the insertion/updates.
 			if (Utils::$context['fid']) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}custom_fields
 					SET
 						field_name = {string:field_name}, field_desc = {string:field_desc},
@@ -1315,7 +1297,6 @@ class Features implements ActionInterface
 				// Just clean up any old selects - these are a pain!
 				if (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && !empty($newOptions)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND value NOT IN ({array_string:new_option_values})
@@ -1389,7 +1370,6 @@ class Features implements ActionInterface
 
 			// Delete the user data first.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE variable = {string:current_column}
 					AND id_member > {int:no_member}',
@@ -1401,7 +1381,6 @@ class Features implements ActionInterface
 
 			// Finally - the field itself is gone!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}custom_fields
 				WHERE id_field = {int:current_field}',
 				[
@@ -1411,7 +1390,6 @@ class Features implements ActionInterface
 
 			// Re-arrange the order.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = field_order - 1
 				WHERE field_order > {int:current_order}',
@@ -1427,7 +1405,6 @@ class Features implements ActionInterface
 
 			$fields = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
 				FROM {db_prefix}custom_fields
 				WHERE show_display = {int:is_displayed}
@@ -1487,7 +1464,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-		Utils::$context['settings_title'] = Lang::$txt['likes'];
+		Utils::$context['settings_title'] = Lang::getTxt('likes', file: 'General');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1513,7 +1490,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
-		Utils::$context['settings_title'] = Lang::$txt['mentions'];
+		Utils::$context['settings_title'] = Lang::getTxt('mentions', file: 'General');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1534,15 +1511,14 @@ class Features implements ActionInterface
 		Utils::$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
 		Theme::loadTemplate('Profile');
-		Lang::load('Profile');
 
 		Profile::load(0);
 		Notification::call();
 
-		Utils::$context['page_title'] = Lang::$txt['notify_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('notify_settings', file: 'Admin');
 
 		// Override the description
-		Utils::$context['description'] = Lang::$txt['notifications_desc'];
+		Utils::$context['description'] = Lang::getTxt('notifications_desc', file: 'Admin');
 		Utils::$context['sub_template'] = 'alert_configuration';
 	}
 
@@ -1561,11 +1537,19 @@ class Features implements ActionInterface
 		// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : [];
 		$reg_fields = isset(Config::$modSettings['registration_fields']) ? explode(',', Config::$modSettings['registration_fields']) : [];
-		$can_personal_text = !in_array('personal_text', $disabled_fields) && !in_array('personal_text', $reg_fields);
+		$can_personal_text = !\in_array('personal_text', $disabled_fields) && !\in_array('personal_text', $reg_fields);
 
 		$config_vars = [
 			// Big Options... polls, sticky, bbc....
-			['select', 'pollMode', [Lang::$txt['disable_polls'], Lang::$txt['enable_polls'], Lang::$txt['polls_as_topics']]],
+			[
+				'select',
+				'pollMode',
+				[
+					Lang::getTxt('disable_polls', file: 'ManageSettings'),
+					Lang::getTxt('enable_polls', file: 'ManageSettings'),
+					Lang::getTxt('polls_as_topics', file: 'ManageSettings'),
+				],
+			],
 			'',
 
 			// Basic stuff, titles, flash, permissions...
@@ -1573,7 +1557,12 @@ class Features implements ActionInterface
 			['check', 'enable_buddylist'],
 			['check', 'allow_hideOnline'],
 			['check', 'titlesEnable'],
-			['text', 'default_personal_text', 'subtext' => Lang::$txt['default_personal_text_note'], 'disabled' => !$can_personal_text],
+			[
+				'text',
+				'default_personal_text',
+				'subtext' => Lang::getTxt('default_personal_text_note', file: 'ManageSettings'),
+				'disabled' => !$can_personal_text,
+			],
 			['check', 'topic_move_any'],
 			['int', 'defaultMaxListItems', 'step' => 1, 'min' => 1, 'max' => 999],
 			'',
@@ -1583,12 +1572,12 @@ class Features implements ActionInterface
 				'select',
 				'jquery_source',
 				[
-					'cdn' => Lang::$txt['jquery_google_cdn'],
-					'cloudflare_cdn' => Lang::$txt['jquery_cloudflare_cdn'],
-					'jquery_cdn' => Lang::$txt['jquery_jquery_cdn'],
-					'microsoft_cdn' => Lang::$txt['jquery_microsoft_cdn'],
-					'local' => Lang::$txt['jquery_local'],
-					'custom' => Lang::$txt['jquery_custom'],
+					'cdn' => Lang::getTxt('jquery_google_cdn', file: 'ManageSettings'),
+					'cloudflare_cdn' => Lang::getTxt('jquery_cloudflare_cdn', file: 'ManageSettings'),
+					'jquery_cdn' => Lang::getTxt('jquery_jquery_cdn', file: 'ManageSettings'),
+					'microsoft_cdn' => Lang::getTxt('jquery_microsoft_cdn', file: 'ManageSettings'),
+					'local' => Lang::getTxt('jquery_local', file: 'ManageSettings'),
+					'custom' => Lang::getTxt('jquery_custom', file: 'ManageSettings'),
 				],
 				'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}',
 			],
@@ -1607,15 +1596,15 @@ class Features implements ActionInterface
 			[
 				'check',
 				'queryless_urls',
-				'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>',
+				'subtext' => '<strong>' . Lang::getTxt('queryless_urls_note', file: 'ManageSettings') . '</strong>',
 				'disabled' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]),
 			],
 			[
 				'check',
 				'hide_index_php',
-				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::$txt['hide_index_php_manual'] . '</strong>' : '',
+				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (\function_exists('apache_get_modules') && !\in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::getTxt('hide_index_php_manual', file: 'ManageSettings') . '</strong>' : '',
 				// Disable only if we know for sure that it won't work.
-				'disabled' => function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules()),
+				'disabled' => \function_exists('apache_get_modules') && !\in_array('mod_rewrite', apache_get_modules()),
 			],
 			['check', 'use_ascii_slugs'],
 			'',
@@ -1623,12 +1612,21 @@ class Features implements ActionInterface
 			// Time zone and formatting.
 			['text', 'time_format'],
 			['select', 'default_timezone', array_filter(TimeZone::list(), 'is_string', ARRAY_FILTER_USE_KEY)],
-			['text', 'timezone_priority_countries', 'subtext' => Lang::$txt['setting_timezone_priority_countries_note']],
+			[
+				'text',
+				'timezone_priority_countries',
+				'subtext' => Lang::getTxt('setting_timezone_priority_countries_note', file: 'ManageSettings'),
+			],
 			'',
 
 			// Who's online?
 			['check', 'who_enabled'],
-			['int', 'lastActive', 6, 'postinput' => Lang::$txt['minutes']],
+			[
+				'int',
+				'lastActive',
+				6,
+				'postinput' => Lang::getTxt('minutes', file: 'General'),
+			],
 			'',
 
 			// Statistics.
@@ -1644,10 +1642,10 @@ class Features implements ActionInterface
 			['check', 'enable_ajax_alerts'],
 			['select', 'alerts_auto_purge',
 				[
-					'0' => Lang::$txt['alerts_auto_purge_0'],
-					'7' => Lang::$txt['alerts_auto_purge_7'],
-					'30' => Lang::$txt['alerts_auto_purge_30'],
-					'90' => Lang::$txt['alerts_auto_purge_90'],
+					'0' => Lang::getTxt('alerts_auto_purge_0', file: 'ManageSettings'),
+					'7' => Lang::getTxt('alerts_auto_purge_7', file: 'ManageSettings'),
+					'30' => Lang::getTxt('alerts_auto_purge_30', file: 'ManageSettings'),
+					'90' => Lang::getTxt('alerts_auto_purge_90', file: 'ManageSettings'),
 				],
 			],
 			['int', 'alerts_per_page', 'step' => 1, 'min' => 0, 'max' => 999],
@@ -1672,31 +1670,44 @@ class Features implements ActionInterface
 			['check', 'enablePostHTML'],
 			['check', 'autoLinkUrls'],
 			'',
-
 			['bbc', 'disabledBBC'],
-
-			// This one is actually pretend...
 			['bbc', 'legacyBBC', 'help' => 'legacy_bbc'],
-
-			// Markdown settings
-			['title', 'markdown_settings', 'text_label' => Lang::$txt['manageposts_markdown_settings_title']],
-			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
-			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
-			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
+			['bbc', 'restricted_bbc', 'help' => 'restricted_bbc'],
 		];
 
 		// Permissions for restricted BBC
 		if (!empty(Utils::$context['restricted_bbc'])) {
-			$config_vars[] = '';
+			Config::$modSettings['bbc_disabled_restricted_bbc'] = array_diff(
+				array_unique(array_map(fn($code) => $code['tag'], Parser::getBBCodes())),
+				Utils::$context['restricted_bbc'],
+			);
+
+			Utils::$context['bbc_forced_restricted_bbc'] = empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc']));
+
+			foreach (Utils::$context['restricted_bbc'] as $bbc) {
+				$config_vars[] = [
+					'permissions',
+					'bbc_' . $bbc,
+					'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
+				];
+			}
+
+			if (isset($_REQUEST['cowsay'])) {
+				$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
+			}
 		}
 
-		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'])];
-		}
-
-		Utils::$context['settings_post_javascript'] = '
-			toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
-			toggleBBCDisabled(\'legacyBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		// Markdown settings
+		$config_vars = array_merge($config_vars, [
+			[
+				'title',
+				'markdown_settings',
+				'text_label' => Lang::getTxt('manageposts_markdown_settings_title', file: 'Admin'),
+			],
+			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
+			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
+			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
+		]);
 
 		IntegrationHook::call('integrate_modify_bbc_settings', [&$config_vars]);
 
@@ -1717,13 +1728,21 @@ class Features implements ActionInterface
 				'int',
 				'compactTopicPagesContiguous',
 				null,
-				Lang::$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . Lang::$txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . Lang::$txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>',
+				Lang::getTxt('contiguous_page_display', file: 'ManageSettings') . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . Lang::getTxt('to_display', file: 'ManageSettings') . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . Lang::getTxt('to_display', file: 'ManageSettings') . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>',
 			],
 			['int', 'defaultMaxMembers'],
 			'',
 
 			// Stuff that just is everywhere - today, search, online, etc.
-			['select', 'todayMod', [Lang::$txt['today_disabled'], Lang::$txt['today_only'], Lang::$txt['yesterday_today']]],
+			[
+				'select',
+				'todayMod',
+				[
+					Lang::getTxt('today_disabled', file: 'ManageSettings'),
+					Lang::getTxt('today_only', file: 'ManageSettings'),
+					Lang::getTxt('yesterday_today', file: 'ManageSettings'),
+				],
+			],
 			['check', 'onlineEnable'],
 			'',
 
@@ -1749,17 +1768,49 @@ class Features implements ActionInterface
 			'',
 
 			// Tweaking settings!
-			['int', 'signature_max_length', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_lines', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_font_size', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'],
-			['int', 'signature_max_smileys', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			[
+				'int',
+				'signature_max_length',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_lines',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_font_size',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'check',
+				'signature_allow_smileys',
+				'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;',
+			],
+			[
+				'int',
+				'signature_max_smileys',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
 			'',
 
 			// Image settings.
-			['int', 'signature_max_images', 'subtext' => Lang::$txt['signature_max_images_note']],
-			['int', 'signature_max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			[
+				'int',
+				'signature_max_images',
+				'subtext' => Lang::getTxt('signature_max_images_note', file: 'ManageSettings'),
+			],
+			[
+				'int',
+				'signature_max_image_width',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_image_height',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
 			'',
 
 			['bbc', 'signature_bbc'],
@@ -1826,16 +1877,15 @@ class Features implements ActionInterface
 			foreach ($standard_fields as $field) {
 				$list[] = [
 					'id' => $field,
-					'label' => Lang::$txt['standard_profile_field_' . $field] ?? (Lang::$txt[$field] ?? $field),
-					'disabled' => in_array($field, $disabled_fields),
-					'on_register' => in_array($field, $registration_fields) && !in_array($field, $fields_no_registration),
-					'can_show_register' => !in_array($field, $fields_no_registration),
+					'label' => Lang::txtExists('standard_profile_field_' . $field, file: 'ManageSettings') ? Lang::getTxt('standard_profile_field_' . $field, file: 'ManageSettings') : (Lang::txtExists($field, file: 'Profile') ? Lang::getTxt($field, file: 'Profile') : $field),
+					'disabled' => \in_array($field, $disabled_fields),
+					'on_register' => \in_array($field, $registration_fields) && !\in_array($field, $fields_no_registration),
+					'can_show_register' => !\in_array($field, $fields_no_registration),
 				];
 			}
 		} else {
 			// Load all the fields.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_field, col_name, field_name, field_desc, field_type, field_order, active, placement
 				FROM {db_prefix}custom_fields
 				ORDER BY {raw:sort}
@@ -1864,7 +1914,6 @@ class Features implements ActionInterface
 	public static function list_getProfileFieldSize(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}custom_fields',
 			[
@@ -1898,37 +1947,34 @@ class Features implements ActionInterface
 	 */
 	protected function init()
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
-		Utils::$context['page_title'] = Lang::$txt['modSettings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('modSettings_title', file: 'General');
 		Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Lang::$default]);
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['modSettings_title'],
+			'title' => Lang::getTxt('modSettings_title', file: 'General'),
 			'help' => 'featuresettings',
-			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
+			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl], file: 'ManageSettings'),
 			'tabs' => [
 				'basic' => [
 				],
 				'bbc' => [
-					'description' => Lang::$txt['manageposts_bbc_settings_description'],
+					'description' => Lang::getTxt('manageposts_bbc_settings_description', file: 'Admin'),
 				],
 				'layout' => [
 				],
 				'sig' => [
-					'description' => Lang::$txt['signature_settings_desc'],
+					'description' => Lang::getTxt('signature_settings_desc', file: 'ManageSettings'),
 				],
 				'profile' => [
-					'description' => Lang::$txt['custom_profile_desc'],
+					'description' => Lang::getTxt('custom_profile_desc', file: 'ManageSettings'),
 				],
 				'likes' => [
 				],
 				'mentions' => [
 				],
 				'alerts' => [
-					'description' => Lang::$txt['notifications_desc'],
+					'description' => Lang::getTxt('notifications_desc', file: 'Admin'),
 				],
 			],
 		];
@@ -1949,7 +1995,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';
@@ -1975,7 +2021,6 @@ class Features implements ActionInterface
 	{
 		// Gotta know the order limit
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(field_order)
 			FROM {db_prefix}custom_fields',
 			[],
@@ -2009,8 +2054,8 @@ class Features implements ActionInterface
 			!Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED])
 			// Can't do this if mod_rewrite is disabled.
 			|| (
-				function_exists('apache_get_modules')
-				&& !in_array('mod_rewrite', apache_get_modules())
+				\function_exists('apache_get_modules')
+				&& !\in_array('mod_rewrite', apache_get_modules())
 			)
 		) {
 			return false;
@@ -2049,5 +2094,3 @@ class Features implements ActionInterface
 		);
 	}
 }
-
-?>

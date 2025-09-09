@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -63,9 +63,9 @@ class SmileyParser extends Parser
 	 */
 	private static self $parser;
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -74,9 +74,6 @@ class SmileyParser extends Parser
 	{
 		if (self::$smiley_set !== 'none') {
 			$data = self::loadData(self::$smiley_set);
-
-			// The non-breaking-space is a complex thing...
-			$non_breaking_space = self::$encoding === 'UTF-8' ? '\x{A0}' : '\xA0';
 
 			$this->smiley_preg_replacements = [];
 			$search_parts = [];
@@ -106,7 +103,7 @@ class SmileyParser extends Parser
 			}
 
 			// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
-			$this->smiley_preg_search = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . (self::$encoding === 'UTF-8' ? 'u' : '');
+			$this->smiley_preg_search = '~(?<=[>:\?\.\s\x{A0}[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~u';
 
 			// Maybe a mod wants to implement an alternative method for smileys
 			// (e.g. emojis instead of images)
@@ -139,7 +136,7 @@ class SmileyParser extends Parser
 		// Don't parse smileys inside HTML or BBCode tags.
 		$parts = preg_split('~(<[^>]*>|\[\/?' . BBCodeParser::load()->getAllTagsRegex() . '[^\]]*\])~u', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0; $i < count($parts); $i++) {
+		for ($i = 0; $i < \count($parts); $i++) {
 			if ($i % 2 === 0) {
 				$parts[$i] = preg_replace_callback(
 					$this->smiley_preg_search,
@@ -164,14 +161,14 @@ class SmileyParser extends Parser
 
 		return preg_replace_callback(
 			'~(\h?)<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(\h?)~i',
-			fn($match) => in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
+			fn($match) => \in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
 			$string,
 		);
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -210,7 +207,7 @@ class SmileyParser extends Parser
 		$cache_time = !self::$custom_smileys_enabled ? 7200 : 480;
 		$cache_key = 'parsing_smileys' . ($set !== '' ? '_' . $set : '');
 
-		if (is_array($data = CacheApi::get($cache_key, $cache_time))) {
+		if (\is_array($data = CacheApi::get($cache_key, $cache_time))) {
 			self::$data[$set] = $data;
 
 			return self::$data[$set];
@@ -220,7 +217,6 @@ class SmileyParser extends Parser
 		self::$data[$set] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, s.description
 			FROM {db_prefix}smileys AS s
 				JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -237,7 +233,7 @@ class SmileyParser extends Parser
 			self::$data[$set][(int) $row['id_smiley']] = [
 				'code' => $row['code'],
 				'filename' => $row['filename'],
-				'description' => !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Lang::$txt['icon_' . strtolower($row['description'])] : $row['description'],
+				'description' => Lang::txtExists('icon_' . strtolower($row['description']), file: 'General') ? Lang::getTxt('icon_' . strtolower($row['description']), file: 'General') : $row['description'],
 			];
 		}
 
@@ -248,5 +244,3 @@ class SmileyParser extends Parser
 		return self::$data[$set];
 	}
 }
-
-?>

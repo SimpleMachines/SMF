@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -32,7 +32,6 @@ class Help implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -74,12 +73,11 @@ class Help implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate('Help');
-		Lang::load('Manual');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -111,11 +109,11 @@ class Help implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=help',
-			'name' => Lang::$txt['help'],
+			'name' => Lang::getTxt('help', file: 'General'),
 		];
 
 		// Lastly, some minor template stuff.
-		Utils::$context['page_title'] = Lang::$txt['manual_smf_user_help'];
+		Utils::$context['page_title'] = Lang::getTxt('manual_smf_user_help', file: 'Manual');
 		Utils::$context['sub_template'] = 'manual';
 	}
 
@@ -142,5 +140,3 @@ class Help implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

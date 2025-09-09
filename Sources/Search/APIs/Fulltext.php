@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -80,7 +80,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	public function __construct()
 	{
 		// Is this database supported?
-		if (!in_array(Config::$db_type, $this->supported_databases)) {
+		if (!\in_array(Config::$db_type, $this->supported_databases)) {
 			$this->is_supported = false;
 
 			return;
@@ -92,7 +92,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -120,14 +120,14 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
 		if (
 			!isset($this->size)
 			&& isset(Utils::$context['table_info']['index_length'])
-			&& is_int(Utils::$context['table_info']['index_length'])
+			&& \is_int(Utils::$context['table_info']['index_length'])
 		) {
 			$this->size = Utils::$context['table_info']['index_length'];
 		}
@@ -141,7 +141,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					pg_indexes_size({string:tablename}) AS index_size',
 				[
@@ -156,7 +155,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		} else {
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
@@ -167,7 +165,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
@@ -188,7 +185,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -200,18 +197,18 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		$x = Utils::entityStrlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0);
-		$y = Utils::entityStrlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0);
+		$x = Utils::entityStrlen($a) - (\in_array($a, $this->excludedWords) ? 1000 : 0);
+		$y = Utils::entityStrlen($b) - (\in_array($b, $this->excludedWords) ? 1000 : 0);
 
 		return $x < $y ? 1 : ($x > $y ? -1 : 0);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -220,20 +217,20 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		if (empty(Config::$modSettings['search_force_index'])) {
 			// A boolean capable search engine and not forced to only use an index, we may use a non indexed search
 			// this is harder on the server so we are restrictive here
-			if (count($subwords) > 1 && preg_match('~[.:@$]~', $word)) {
+			if (\count($subwords) > 1 && preg_match('~[.:@$]~', $word)) {
 				// using special characters that a full index would ignore and the remaining words are short which would also be ignored
 				if ((Utils::entityStrlen(current($subwords)) < $this->min_word_length) && (Utils::entityStrlen(next($subwords)) < $this->min_word_length)) {
 					$wordsSearch['words'][] = trim($word, '/*- ');
-					$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+					$wordsSearch['complex_words'][] = \count($subwords) === 1 ? $word : '"' . $word . '"';
 				}
 			} elseif (Utils::entityStrlen(trim($word, '/*- ')) < $this->min_word_length) {
 				// short words have feelings too
 				$wordsSearch['words'][] = trim($word, '/*- ');
-				$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+				$wordsSearch['complex_words'][] = \count($subwords) === 1 ? $word : '"' . $word . '"';
 			}
 		}
 
-		$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
+		$fulltextWord = \count($subwords) === 1 ? $word : '"' . $word . '"';
 		$wordsSearch['indexed_words'][] = $fulltextWord;
 
 		if ($isExcluded) {
@@ -242,7 +239,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -264,7 +261,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		if (empty(Config::$modSettings['search_simple_fulltext'])) {
 			foreach ($words['words'] as $regularWord) {
-				if (in_array($regularWord, $query_params['excluded_words'])) {
+				if (\in_array($regularWord, $query_params['excluded_words'])) {
 					$query_where[] = 'm.body NOT ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
 				} else {
 					$query_where[] = 'm.body ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
@@ -346,12 +343,12 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 				foreach ($words['indexed_words'] as $fulltextWord) {
 					$query_params['boolean_match'] .= ($row != 0 ? '&' : '');
-					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
+					$query_params['boolean_match'] .= (\in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
 					$row++;
 				}
 			} else {
 				foreach ($words['indexed_words'] as $fulltextWord) {
-					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
+					$query_params['boolean_match'] .= (\in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
 				}
 			}
 
@@ -371,7 +368,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		}
 
 		$ignoreRequest = Db::$db->search_query(
-			'insert_into_log_messages_fulltext',
 			(Db::$db->support_ignore ? ('
 			INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')') : '') . '
@@ -381,13 +377,14 @@ class Fulltext extends SearchApi implements SearchApiInterface
 				AND ', $query_where) . (empty($search_data['max_results']) ? '' : '
 			LIMIT ' . ($search_data['max_results'] - $search_data['indexed_results'])),
 			$query_params,
+			identifier: 'insert_into_log_messages_fulltext',
 		);
 
 		return $ignoreRequest;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -418,7 +415,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getDescription(): string
 	{
@@ -445,7 +442,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		if (Config::$db_type == 'postgresql') {
 			Db::$db->query(
-				'',
 				'DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 				[
 					'db_error_skip' => true,
@@ -455,7 +451,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			$language_ftx = Db::$db->search_language();
 
 			Db::$db->query(
-				'',
 				'CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
 				USING gin(to_tsvector({string:language},body))',
 				[
@@ -465,7 +460,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		} else {
 			// Make sure it's gone before creating it.
 			Db::$db->query(
-				'',
 				'ALTER TABLE {db_prefix}messages
 				DROP INDEX body',
 				[
@@ -474,7 +468,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			);
 
 			Db::$db->query(
-				'',
 				'ALTER TABLE {db_prefix}messages
 				ADD FULLTEXT body (body)',
 				[
@@ -499,7 +492,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		if (Config::$db_type == 'postgresql') {
 			Db::$db->query(
-				'',
 				'DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 				[
 					'db_error_skip' => true,
@@ -507,7 +499,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			);
 		} else {
 			Db::$db->query(
-				'',
 				'ALTER TABLE {db_prefix}messages
 				DROP INDEX ' . implode(',
 				DROP INDEX ', Utils::$context['fulltext_index']),
@@ -539,7 +530,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	{
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					indexname
 				FROM pg_tables t
@@ -565,7 +555,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 			Utils::$context['fulltext_index'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SHOW INDEX
 				FROM {db_prefix}messages',
 				[
@@ -580,14 +569,13 @@ class Fulltext extends SearchApi implements SearchApiInterface
 				}
 				Db::$db->free_result($request);
 
-				if (is_array(Utils::$context['fulltext_index'])) {
+				if (\is_array(Utils::$context['fulltext_index'])) {
 					Utils::$context['fulltext_index'] = array_unique(Utils::$context['fulltext_index']);
 				}
 			}
 
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
@@ -598,7 +586,6 @@ class Fulltext extends SearchApi implements SearchApiInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
@@ -642,13 +629,12 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		// Try to determine the minimum number of letters for a fulltext search.
 		$request = Db::$db->search_query(
-			'max_fulltext_length',
-			'
-			SHOW VARIABLES
+			'SHOW VARIABLES
 			LIKE {string:fulltext_minimum_word_length}',
 			[
 				'fulltext_minimum_word_length' => 'ft_min_word_len',
 			],
+			identifier: 'max_fulltext_length',
 		);
 
 		if ($request !== false && Db::$db->num_rows($request) == 1) {
@@ -663,5 +649,3 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		return (int) $min_word_length;
 	}
 }
-
-?>

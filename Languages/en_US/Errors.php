@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Errors
+// Version: 3.0 Alpha 4; Errors
 
 $txt['no_access'] = 'You are not allowed to access this section';
 $txt['not_found'] = 'Sorry, this section is not available at this time.';
@@ -127,7 +127,6 @@ $txt['cannot_report_any'] = 'You are not allowed to report posts in this board.'
 $txt['cannot_search_posts'] = 'You are not allowed to search for posts in this forum.';
 $txt['cannot_send_mail'] = 'You do not have the privilege of sending out emails to everyone.';
 $txt['cannot_issue_warning'] = 'Sorry, you do not have permission to issue warnings to members.';
-$txt['cannot_send_email_to_members'] = 'Sorry, but the administrator has disallowed sending emails on this board.';
 $txt['cannot_split_any'] = 'Splitting topics is not allowed in this board.';
 $txt['cannot_view_attachments'] = 'It seems that you are not allowed to download or view attachments on this board.';
 $txt['cannot_view_mlist'] = 'You cannot view the memberlist because you do not have permission to do so.';
@@ -142,6 +141,7 @@ $txt['poll_range_error'] = 'Sorry, the poll must run for more than 0 days.';
 $txt['delFirstPost'] = 'You are not allowed to delete the first post in a topic.<p>If you want to delete this topic, click on the Remove Topic link, or ask a moderator/administrator to do it for you.</p>';
 $txt['parent_error'] = 'Unable to create board!';
 $txt['login_cookie_error'] = 'You were unable to login. Please check your cookie settings.';
+$txt['func_cookie_error'] = 'This function requires cookies enabled. Please check your cookie settings.';
 $txt['login_ssl_required'] = 'You can only login via HTTPS';
 $txt['register_ssl_required'] = 'You can only register via HTTPS';
 $txt['incorrect_answer'] = 'Sorry, but you did not answer your question correctly. Please click back to try again, or click back twice to use the default method of obtaining your password.';
@@ -327,7 +327,7 @@ $txt['package_theme_upload_error_broken'] = 'Theme upload failed due to the foll
 
 $txt['package_get_error_not_found'] = 'The package you are trying to install cannot be located. You may want to manually upload the package to your Packages directory.';
 $txt['package_get_error_missing_xml'] = 'The package you are attempting to install is missing the package-info.xml that must be in the root package directory.';
-$txt['package_get_error_is_zero'] = 'Although the package was downloaded to the server it appears to be empty. Please check the Packages directory and the &quot;temp&quot; sub-directory are both writable. If you continue to experience this problem you should try extracting the package on your PC and uploading the extracted files into a subdirectory in your Packages directory and try again. For example, if the package was called shout.tar.gz you should:<br>1) Download the package to your local PC and extract it into files.<br>2) Using an FTP client create a new directory in your &quot;Packages&quot; folder, in this example you may call it "shout".<br>3) Upload all the files from the extracted package to this directory.<br>4) Go back to the package manager browse page and the package will be automatically found by SMF.';
+$txt['package_get_error_is_zero'] = 'Although the package was downloaded to the server it appears to be empty. Please check the Packages directory and the &quot;temp&quot; sub-directory are both writable. If you continue to experience this problem you should try extracting the package on your PC and uploading the extracted files into a subdirectory in your Packages directory and try again. For example, if the package was called shout.tar.gz you should:<br>1) Download the package to your local PC and extract it into files.<br>2) Using an FTP client create a new directory in your &quot;Packages&quot; directory, in this example you may call it "shout".<br>3) Upload all the files from the extracted package to this directory.<br>4) Go back to the package manager browse page and the package will be automatically found by SMF.';
 $txt['package_get_error_packageinfo_corrupt'] = 'SMF was unable to find any valid information within the package-info.xml file included within the Package. There may be an error with the modification, or the package may be corrupt.';
 $txt['package_get_error_is_theme'] = 'You cannot install a Theme from this section, please use the <a href="{MANAGETHEMEURL}">Themes and Layout</a> management page to upload it';
 $txt['package_get_error_is_mod'] = 'You cannot install a mod from this section, please use the <a href="{MANAGEMODURL}">Package manager</a> page to upload it';
@@ -447,6 +447,7 @@ $txt['loadavg_unread_disabled'] = 'The server’s resources are temporarily unde
 $txt['loadavg_userstats_disabled'] = 'This member’s statistics are not currently available due to high load on the server. Please try again later.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
+$txt['unknown_permission'] = 'Tried to check an unknown permission: {0}.';
 
 $txt['mc_no_modreport_specified'] = 'You need to specify which report you wish to view.';
 $txt['mc_no_modreport_found'] = 'The specified report either does not exist or is off limits to you';
@@ -589,11 +590,4 @@ $txt['fetch_web_data_bad_url'] = '{0}: Bad URL';
 
 $txt['unicode_update_failed'] = 'A new version of Unicode is available, but SMF could not update to it. Please make sure {0} and all the files in it are writable. SMF will try to update its Unicode data files again automatically.';
 
-$txt['uuid_unsupported_version'] = 'Unsupported UUID version requested: {0}';
-$txt['uuid_requires_string_input'] = 'UUIDv{0} requires string input, but none was provided.';
-$txt['uuid_invalid_string'] = 'Invalid UUID string supplied: {0}';
-$txt['uuid_group_non_posix'] = 'Automatic group domain is unsupported for UUIDv2 on non-POSIX systems. Falling back to user domain.';
-$txt['uuid_unknown_domain'] = 'Cannot generate automatic UUIDv2 for unknown domain: {0}';
-$txt['uuid_timestamp_out_of_range'] = 'Timestamp out of range for UUIDv{0}';
-
-?>
+$txt['required_extension_missing'] = 'SMF requires PHP’s {ext} extension. Please enable it in your PHP configuration so that SMF can function correctly.';

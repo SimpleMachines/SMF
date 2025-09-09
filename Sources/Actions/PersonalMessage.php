@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -54,7 +54,6 @@ class PersonalMessage implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -291,7 +290,6 @@ class PersonalMessage implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('PersonalMessage+Drafts');
 		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
 
 		$this->buildLimitBar();
@@ -327,7 +325,7 @@ class PersonalMessage implements ActionInterface, Routable
 		// Build the linktree for all the actions...
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm',
-			'name' => Lang::$txt['personal_messages'],
+			'name' => Lang::getTxt('personal_messages', file: 'General'),
 		];
 
 		// No guests!
@@ -352,10 +350,10 @@ class PersonalMessage implements ActionInterface, Routable
 		}
 
 		// Now let's get on with the main job...
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -433,7 +431,7 @@ class PersonalMessage implements ActionInterface, Routable
 			$_REQUEST['pm_action'] = 'delete';
 		}
 
-		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && is_array($_REQUEST['pms'])) {
+		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && \is_array($_REQUEST['pms'])) {
 			foreach ($_REQUEST['pms'] as $pm) {
 				$_REQUEST['pm_actions'][(int) $pm] = $_REQUEST['pm_action'];
 			}
@@ -487,7 +485,7 @@ class PersonalMessage implements ActionInterface, Routable
 				$action = substr($action, 4);
 			}
 
-			if (isset($type) && in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
+			if (isset($type) && \in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
 				$to_label[(int) $pm] = (int) $action;
 				$label_type[(int) $pm] = $type;
 			}
@@ -512,7 +510,7 @@ class PersonalMessage implements ActionInterface, Routable
 		// Back to the folder.
 		$_SESSION['pm_selected'] = array_keys($to_label);
 
-		Utils::redirectexit($this->current_label_redirect . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
+		Utils::redirectexit($this->current_label_redirect . (\count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), \count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
 	}
 
 	/**
@@ -549,11 +547,11 @@ class PersonalMessage implements ActionInterface, Routable
 		// Build the link tree elements.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=prune',
-			'name' => Lang::$txt['pm_prune'],
+			'name' => Lang::getTxt('pm_prune', file: 'PersonalMessage'),
 		];
 
 		Utils::$context['sub_template'] = 'prune';
-		Utils::$context['page_title'] = Lang::$txt['pm_prune'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_prune', file: 'PersonalMessage');
 	}
 
 	/**
@@ -580,7 +578,7 @@ class PersonalMessage implements ActionInterface, Routable
 		}
 
 		Utils::$context['pm_id'] = $pm->id;
-		Utils::$context['page_title'] = Lang::$txt['pm_report_title'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_report_title', file: 'PersonalMessage');
 
 		// If we're here, just send the user to the template, with a few useful context bits.
 		if (!isset($_POST['report'])) {
@@ -590,7 +588,6 @@ class PersonalMessage implements ActionInterface, Routable
 			// Now, get all the administrators.
 			Utils::$context['admins'] = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
@@ -606,7 +603,7 @@ class PersonalMessage implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			// How many admins in total?
-			Utils::$context['admin_count'] = count(Utils::$context['admins']);
+			Utils::$context['admin_count'] = \count(Utils::$context['admins']);
 		}
 		// Otherwise, let's get down to the sending stuff.
 		else {
@@ -634,7 +631,7 @@ class PersonalMessage implements ActionInterface, Routable
 			}
 
 			if ($hidden_recipients) {
-				$recipients[] = Lang::getTxt('pm_report_pm_hidden', [$hidden_recipients]);
+				$recipients[] = Lang::getTxt('pm_report_pm_hidden', [$hidden_recipients], file: 'PersonalMessage');
 			}
 
 			// Prepare the message storage array.
@@ -643,7 +640,6 @@ class PersonalMessage implements ActionInterface, Routable
 			// Now let's get out and loop through the admins.
 			$memberFromName = Utils::htmlspecialcharsDecode($pm->from_name);
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name, lngfile
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_id} OR FIND_IN_SET({int:admin_id}, additional_groups) != 0)
@@ -666,22 +662,35 @@ class PersonalMessage implements ActionInterface, Routable
 				$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
 
 				if (!isset($messagesToSend[$cur_language])) {
-					Lang::load('PersonalMessage', $cur_language, false);
-
 					// Make the body.
-					$report_body = str_replace(['{REPORTER}', '{SENDER}'], [Utils::htmlspecialcharsDecode(User::$me->name), $memberFromName], Lang::$txt['pm_report_pm_user_sent']);
+					$report_body = Lang::getTxt(
+						'pm_report_pm_user_sent',
+						[
+							'REPORTER' => Utils::htmlspecialcharsDecode(User::$me->name),
+							'SENDER' => $memberFromName,
+						],
+						file: 'PersonalMessage',
+						lang: $cur_language,
+					);
 
 					$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 
 					if (!empty($recipients)) {
-						$report_body .= Lang::getTxt('pm_report_pm_other_recipients', ['recipients' => Lang::sentenceList($recipients)]) . "\n\n";
+						$report_body .= Lang::getTxt(
+							'pm_report_pm_other_recipients',
+							[
+								'recipients' => Lang::sentenceList($recipients),
+							],
+							file: 'PersonalMessage',
+							lang: $cur_language,
+						) . "\n\n";
 					}
 
-					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
+					$report_body .= Lang::getTxt('pm_report_pm_unedited_below', file: 'PersonalMessage', lang: $cur_language) . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
 
 					// Plonk it in the array ;)
 					$messagesToSend[$cur_language] = [
-						'subject' => (Utils::entityStrpos($pm->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($pm->subject),
+						'subject' => (Utils::entityStrpos($pm->subject, Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage', lang: $cur_language)) === false ? Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage', lang: $cur_language) : '') . Utils::htmlspecialcharsDecode($pm->subject),
 						'body' => $report_body,
 						'recipients' => [
 							'to' => [],
@@ -698,11 +707,6 @@ class PersonalMessage implements ActionInterface, Routable
 			// Send a different email for each language.
 			foreach ($messagesToSend as $lang => $message) {
 				PM::send($message['recipients'], $message['subject'], $message['body']);
-			}
-
-			// Give the user their own language back!
-			if (!empty(Config::$modSettings['userLanguage'])) {
-				Lang::load('PersonalMessage', '', false);
 			}
 
 			// Leave them with a template.
@@ -741,20 +745,19 @@ class PersonalMessage implements ActionInterface, Routable
 
 		Profile::load(User::$me->id);
 
-		Lang::load('Profile');
 		Theme::loadTemplate('Profile');
 
 		// Since this is internally handled with the profile code because that's how
 		// it was done ages ago, we have to set everything up for handling this...
-		Utils::$context['page_title'] = Lang::$txt['pm_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_settings', file: 'PersonalMessage');
 		User::$me->is_owner = true;
 		Utils::$context['id_member'] = User::$me->id;
 		Utils::$context['require_password'] = false;
 		Utils::$context['menu_item_selected'] = 'settings';
-		Utils::$context['submit_button_text'] = Lang::$txt['pm_settings'];
-		Utils::$context['profile_header_text'] = Lang::$txt['personal_messages'];
+		Utils::$context['submit_button_text'] = Lang::getTxt('pm_settings', file: 'PersonalMessage');
+		Utils::$context['profile_header_text'] = Lang::getTxt('personal_messages', file: 'General');
 		Utils::$context['sub_template'] = 'edit_options';
-		Utils::$context['page_desc'] = Lang::$txt['pm_settings_desc'];
+		Utils::$context['page_desc'] = Lang::getTxt('pm_settings_desc', file: 'Profile');
 
 		Profile::$member->loadThemeOptions();
 		Profile::$member->loadCustomFields('pmprefs');
@@ -762,7 +765,7 @@ class PersonalMessage implements ActionInterface, Routable
 		// Add our position to the linktree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=settings',
-			'name' => Lang::$txt['pm_settings'],
+			'name' => Lang::getTxt('pm_settings', file: 'PersonalMessage'),
 		];
 
 		// Are they saving?
@@ -871,11 +874,11 @@ class PersonalMessage implements ActionInterface, Routable
 		array_walk_recursive(
 			$this->pm_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
+				if (\in_array($key, ['title', 'label'])) {
+					$value = Lang::txtExists($value, file: 'PersonalMessage+Drafts') ? Lang::getTxt($value, file: 'PersonalMessage+Drafts') : $value;
 				}
 
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
@@ -963,7 +966,6 @@ class PersonalMessage implements ActionInterface, Routable
 		if (($limit = CacheApi::get('msgLimit:' . User::$me->id, 360)) === null) {
 			// @todo Why do we do this?  It seems like if they have any limit we should use it.
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
 				FROM {db_prefix}membergroups
 				WHERE id_group IN ({array_int:users_groups})',
@@ -989,10 +991,8 @@ class PersonalMessage implements ActionInterface, Routable
 				'allowed' => $limit,
 				'percent' => $bar,
 				'bar' => min(100, (int) $bar),
-				'text' => Lang::getTxt('pm_currently_using', [User::$me->messages, $bar]),
+				'text' => Lang::getTxt('pm_currently_using', [User::$me->messages, $bar], file: 'PersonalMessage'),
 			];
 		}
 	}
 }
-
-?>

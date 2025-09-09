@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageMembers
+// Version: 3.0 Alpha 4; ManageMembers
 
 $txt['groups'] = 'Groups';
 $txt['viewing_groups'] = 'Viewing Membergroups';
@@ -9,7 +9,6 @@ $txt['membergroups_title'] = 'Manage Membergroups';
 $txt['membergroups_description'] = 'Membergroups are groups of members that have similar permission settings, appearance, or access rights. Some membergroups are based on the amount of posts a user has made. You can assign someone to a membergroup by selecting their profile and changing their account settings.';
 $txt['membergroups_modify'] = 'Modify';
 
-$txt['membergroups_add_group'] = 'Add group';
 $txt['membergroups_regular'] = 'Regular groups';
 $txt['membergroups_post'] = 'Post count based groups';
 $txt['membergroups_guests_na'] = 'n/a';
@@ -79,7 +78,7 @@ $txt['membergroups_members_deadmin_confirm'] = 'Are you sure you wish to remove 
 
 $txt['membergroups_postgroups'] = 'Post groups';
 $txt['membergroups_settings'] = 'Membergroup Settings';
-$txt['groups_manage_membergroups'] = 'Groups allowed to change membergroups';
+$txt['groups_manage_membergroups'] = 'Groups allowed to manage and assign membergroups';
 $txt['membergroups_select_permission_type'] = 'Select permission profile';
 $txt['membergroups_images_url'] = 'Themes/default/images/membericons/';
 $txt['membergroups_select_visible_boards'] = 'Show boards';
@@ -143,7 +142,3 @@ $txt['admin_browse_outstanding_go'] = 'Perform Action';
 $txt['check_for_duplicate'] = 'Check for duplicates';
 $txt['dont_check_for_duplicate'] = 'Do not check for duplicates';
 $txt['duplicates'] = 'Duplicates';
-
-$txt['not_activated'] = 'Not activated';
-
-?>

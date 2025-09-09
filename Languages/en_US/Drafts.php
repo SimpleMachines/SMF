@@ -1,9 +1,9 @@
 <?php
 
-// Version: 3.0 Alpha 2; Drafts
+// Version: 3.0 Alpha 4; Drafts
 
 // profile
-$txt['drafts_show'] = 'Show drafts';
+$txt['drafts_show'] = 'Show Drafts';
 $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently have saved. From here you can edit them before posting, or you can remove them';
 
 // misc
@@ -45,5 +45,3 @@ $txt['drafts_pm_enabled'] = 'Enable the saving of PM drafts';
 $txt['drafts_post_enabled'] = 'Enable the saving of Post drafts';
 $txt['drafts_none'] = 'No subject';
 $txt['drafts_saved'] = 'Draft was successfully saved';
-
-?>

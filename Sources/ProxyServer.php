@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -23,6 +23,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class ProxyServer
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var bool
 	 *
@@ -86,6 +90,10 @@ class ProxyServer
 	 */
 	protected $cachedbody;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Constructor. Loads up the settings for the proxy.
 	 */
@@ -114,7 +122,7 @@ class ProxyServer
 
 		// Try to create the image cache directory if it doesn't exist
 		if (!file_exists($this->cache)) {
-			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
+			if (!mkdir($this->cache) || !copy(\dirname($this->cache) . '/index.php', $this->cache . '/index.php')) {
 				return false;
 			}
 		}
@@ -132,7 +140,7 @@ class ProxyServer
 		}
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = strval($request->toAscii());
+		$request = \strval($request->toAscii());
 
 		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash']) {
 			return false;
@@ -213,6 +221,28 @@ class ProxyServer
 	}
 
 	/**
+	 * Delete all old entries
+	 */
+	public function housekeeping(): void
+	{
+		$path = $this->cache . '/';
+
+		if ($handle = opendir($path)) {
+			while (false !== ($file = readdir($handle))) {
+				if (is_file($path . $file) && !\in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
+					unlink($path . $file);
+				}
+			}
+
+			closedir($handle);
+		}
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Returns the request's hashed filepath
 	 *
 	 * @param \SMF\Url|string $request The request to get the path for
@@ -260,13 +290,7 @@ class ProxyServer
 		}
 
 		// What kind of file did they give us?
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mime_type = finfo_buffer($finfo, $image);
-
-		// SVG needs a little extra care
-		if ($ext == 'svg' && in_array($mime_type, ['text/plain', 'text/xml']) && str_contains($image, '<svg') && str_contains($image, '</svg>')) {
-			$mime_type = 'image/svg+xml';
-		}
+		$mime_type = Utils::getMimeType($image);
 
 		// Make sure the url is returning an image
 		if (!str_starts_with($mime_type, 'image/')) {
@@ -274,7 +298,7 @@ class ProxyServer
 		}
 
 		// Validate the filesize
-		$size = strlen($image);
+		$size = \strlen($image);
 
 		if ($size > ($this->maxSize * 1024)) {
 			$this->redirectexit($request);
@@ -306,24 +330,4 @@ class ProxyServer
 
 		exit;
 	}
-
-	/**
-	 * Delete all old entries
-	 */
-	public function housekeeping(): void
-	{
-		$path = $this->cache . '/';
-
-		if ($handle = opendir($path)) {
-			while (false !== ($file = readdir($handle))) {
-				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
-					unlink($path . $file);
-				}
-			}
-
-			closedir($handle);
-		}
-	}
 }
-
-?>

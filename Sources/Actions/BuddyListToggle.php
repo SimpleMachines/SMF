@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -66,7 +66,7 @@ class BuddyListToggle implements ActionInterface, Routable
 		}
 
 		// Remove if it's already there...
-		if (in_array($this->userReceiver, User::$me->buddies)) {
+		if (\in_array($this->userReceiver, User::$me->buddies)) {
 			User::$me->buddies = array_diff(User::$me->buddies, [$this->userReceiver]);
 		}
 		// ...or add if it's not and if it's not you.
@@ -122,5 +122,3 @@ class BuddyListToggle implements ActionInterface, Routable
 		$this->userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
 	}
 }
-
-?>

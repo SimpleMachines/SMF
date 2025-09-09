@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -108,7 +108,7 @@ class TFASetup implements ActionInterface
 		$code = $_POST['tfa_code'];
 		$this->totp = new Tfa($_SESSION['tfa_secret']);
 		$this->totp->setRange(1);
-		$valid_code = strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
+		$valid_code = \strlen($code) == $this->totp->getCodeLength() && $this->totp->validateCode($code);
 
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
 			$backup = bin2hex(random_bytes(8));
@@ -119,7 +119,7 @@ class TFASetup implements ActionInterface
 				'tfa_backup' => $backup_encrypted,
 			]);
 
-			Cookie::setTFACookie(3153600, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
+			Cookie::setTFACookie(Cookie::LENGTH_TFA, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
 
 			unset($_SESSION['tfa_secret']);
 
@@ -145,5 +145,3 @@ class TFASetup implements ActionInterface
 		Utils::$context['tfa_backup'] = isset($_REQUEST['backup']);
 	}
 }
-
-?>

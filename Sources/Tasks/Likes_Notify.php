@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -26,6 +26,10 @@ use SMF\User;
  */
 class Likes_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -40,7 +44,6 @@ class Likes_Notify extends BackgroundTask
 		// We need to figure out who the owner of this is.
 		if ($this->_details['content_type'] == 'msg') {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups,
 					mem.pm_ignore_list
 				FROM {db_prefix}messages AS m
@@ -61,7 +64,7 @@ class Likes_Notify extends BackgroundTask
 				$ignored_members = explode(',', $row['pm_ignore_list']);
 
 				// If the user is in group 1 anywhere, they can see everything anyway.
-				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0) {
+				if (\in_array(1, $groups) || \count(array_intersect($allowed, $groups)) != 0) {
 					$author = $row['id_member'];
 				}
 			}
@@ -89,7 +92,7 @@ class Likes_Notify extends BackgroundTask
 		}
 
 		// If the person who sent the notification is on this person's ignore list, do nothing.
-		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
+		if (!empty($ignored_members) && \in_array($this->_details['sender_id'], $ignored_members)) {
 			return true;
 		}
 
@@ -106,7 +109,6 @@ class Likes_Notify extends BackgroundTask
 		// Don't spam the alerts: if there is an existing unread alert of the
 		// requested type for the target user from the sender, don't make a new one.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_alert
 			FROM {db_prefix}user_alerts
 			WHERE id_member = {int:id_member}
@@ -143,5 +145,3 @@ class Likes_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

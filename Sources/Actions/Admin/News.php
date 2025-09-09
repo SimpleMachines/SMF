@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
@@ -44,7 +44,6 @@ use SMF\Utils;
 class News implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -239,17 +238,17 @@ class News implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['news_title'],
+			'title' => Lang::getTxt('news_title', file: 'Admin'),
 			'help' => 'edit_news',
-			'description' => Lang::$txt['admin_news_desc'],
+			'description' => Lang::getTxt('admin_news_desc', file: 'Admin'),
 			'tabs' => [
 				'editnews' => [
 				],
 				'mailingmembers' => [
-					'description' => Lang::$txt['news_mailing_desc'],
+					'description' => Lang::getTxt('news_mailing_desc', file: 'Admin'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['news_settings_desc'],
+					'description' => Lang::getTxt('news_settings_desc', file: 'Admin'),
 				],
 			],
 		];
@@ -265,7 +264,7 @@ class News implements ActionInterface
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		call_user_func([$this, self::$subactions[$this->subaction][0]]);
+		\call_user_func([$this, self::$subactions[$this->subaction][0]]);
 	}
 
 	/**
@@ -289,7 +288,7 @@ class News implements ActionInterface
 
 			// Remove the items that were selected.
 			foreach ($temp_news as $i => $news) {
-				if (in_array($i, $_POST['remove'])) {
+				if (\in_array($i, $_POST['remove'])) {
 					unset($temp_news[$i]);
 				}
 			}
@@ -324,7 +323,7 @@ class News implements ActionInterface
 			Logging::logAction('news');
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin');
 
 		// Create the request list.
 		new ItemList($this->list_options);
@@ -348,7 +347,7 @@ class News implements ActionInterface
 		// Is there any confirm message?
 		Utils::$context['newsletter_sent'] = $_SESSION['newsletter_sent'] ?? '';
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'email_members';
 
@@ -404,11 +403,11 @@ class News implements ActionInterface
 	public function compose(): void
 	{
 		// Setup the template!
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_compose';
 
-		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
-		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]) . "\n\n" . '{$board_url}');
+		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::getTxt('subject', file: 'General'));
+		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::getTxt('message', file: 'General') . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General') . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
 		new Editor([
@@ -417,7 +416,7 @@ class News implements ActionInterface
 			'height' => '150px',
 			'width' => '100%',
 			'labels' => [
-				'post_button' => Lang::$txt['sendtopic_send'],
+				'post_button' => Lang::getTxt('sendtopic_send', file: 'General'),
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
@@ -460,7 +459,7 @@ class News implements ActionInterface
 				$_POST[$type] = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $_POST[$type]))));
 
 				foreach ($_POST[$type] as $index => $member) {
-					if (strlen(trim($member)) > 0) {
+					if (\strlen(trim($member)) > 0) {
 						$_POST[$type][$index] = Utils::htmlspecialchars(Utils::strtolower(trim($member)));
 					} else {
 						unset($_POST[$type][$index]);
@@ -472,7 +471,7 @@ class News implements ActionInterface
 			}
 		}
 
-		if (isset($_POST['member_list']) && is_array($_POST['member_list'])) {
+		if (isset($_POST['member_list']) && \is_array($_POST['member_list'])) {
 			$members = [];
 
 			foreach ($_POST['member_list'] as $member_id) {
@@ -482,7 +481,7 @@ class News implements ActionInterface
 			$_POST['members'] = implode(',', $members);
 		}
 
-		if (isset($_POST['exclude_member_list']) && is_array($_POST['exclude_member_list'])) {
+		if (isset($_POST['exclude_member_list']) && \is_array($_POST['exclude_member_list'])) {
 			$members = [];
 
 			foreach ($_POST['exclude_member_list'] as $member_id) {
@@ -495,12 +494,8 @@ class News implements ActionInterface
 		// Clean the other vars.
 		self::send(true);
 
-		// We need a couple strings from the email template file
-		Lang::load('EmailTemplates');
-
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT mem.id_member
 			FROM {db_prefix}ban_groups AS bg
 				INNER JOIN {db_prefix}ban_items AS bi ON (bg.id_ban_group = bi.id_ban_group)
@@ -524,7 +519,6 @@ class News implements ActionInterface
 		$count = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -547,7 +541,6 @@ class News implements ActionInterface
 
 		if (!empty($condition_array)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
@@ -564,15 +557,14 @@ class News implements ActionInterface
 		if (
 			(
 				!empty(Utils::$context['recipients']['groups'])
-				&& in_array(3, Utils::$context['recipients']['groups'])
+				&& \in_array(3, Utils::$context['recipients']['groups'])
 			)
 			|| (
 				!empty(Utils::$context['recipients']['exclude_groups'])
-				&& in_array(3, Utils::$context['recipients']['exclude_groups'])
+				&& \in_array(3, Utils::$context['recipients']['exclude_groups'])
 			)
 		) {
 			$request = Db::$db->query(
-				'',
 				'SELECT DISTINCT mem.id_member AS identifier
 				FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
@@ -583,7 +575,7 @@ class News implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (in_array(3, Utils::$context['recipients'])) {
+				if (\in_array(3, Utils::$context['recipients'])) {
 					Utils::$context['recipients']['exclude_members'][] = $row['identifier'];
 				} else {
 					Utils::$context['recipients']['members'][] = $row['identifier'];
@@ -593,10 +585,9 @@ class News implements ActionInterface
 		}
 
 		// For progress bar!
-		Utils::$context['total_emails'] = count(Utils::$context['recipients']['emails']);
+		Utils::$context['total_emails'] = \count(Utils::$context['recipients']['emails']);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[
@@ -653,7 +644,6 @@ class News implements ActionInterface
 		// One can't simply nullify things around
 		if (empty($_REQUEST['total_members'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members',
 				[
@@ -698,7 +688,7 @@ class News implements ActionInterface
 
 		// Cleaning groups is simple - although deal with both checkbox and commas.
 		if (isset($_POST['groups'])) {
-			if (is_array($_POST['groups'])) {
+			if (\is_array($_POST['groups'])) {
 				foreach ($_POST['groups'] as $group => $dummy) {
 					Utils::$context['recipients']['groups'][] = (int) $group;
 				}
@@ -713,7 +703,7 @@ class News implements ActionInterface
 
 		// Same for excluded groups
 		if (isset($_POST['exclude_groups'])) {
-			if (is_array($_POST['exclude_groups'])) {
+			if (\is_array($_POST['exclude_groups'])) {
 				foreach ($_POST['exclude_groups'] as $group => $dummy) {
 					Utils::$context['recipients']['exclude_groups'][] = (int) $group;
 				}
@@ -852,7 +842,7 @@ class News implements ActionInterface
 			}
 
 			// Non-members can't unsubscribe via the automated system.
-			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']]);
+			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']], file: 'General');
 
 			$to_member = [
 				$email,
@@ -917,7 +907,7 @@ class News implements ActionInterface
 			}
 
 			// Anything to exclude?
-			if (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(0, Utils::$context['recipients']['exclude_groups'])) {
+			if (!empty(Utils::$context['recipients']['exclude_groups']) && \in_array(0, Utils::$context['recipients']['exclude_groups'])) {
 				$sendQuery .= ' AND mem.id_group != {int:regular_group}';
 			}
 
@@ -930,7 +920,6 @@ class News implements ActionInterface
 			$rows = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE ' . $sendQuery . '
@@ -980,7 +969,7 @@ class News implements ActionInterface
 				if (!empty($include_unsubscribe)) {
 					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token], file: 'General');
 				} else {
 					$unsubscribe_link = '';
 				}
@@ -1041,13 +1030,13 @@ class News implements ActionInterface
 		}
 
 		// Working out progress is a black art of sorts.
-		$percentEmails = Utils::$context['total_emails'] == 0 ? 0 : ((count(Utils::$context['recipients']['emails']) / Utils::$context['total_emails']) * (Utils::$context['total_emails'] / (Utils::$context['total_emails'] + Utils::$context['total_members'])));
+		$percentEmails = Utils::$context['total_emails'] == 0 ? 0 : ((\count(Utils::$context['recipients']['emails']) / Utils::$context['total_emails']) * (Utils::$context['total_emails'] / (Utils::$context['total_emails'] + Utils::$context['total_members'])));
 
 		$percentMembers = (Utils::$context['start'] / Utils::$context['total_members']) * (Utils::$context['total_members'] / (Utils::$context['total_emails'] + Utils::$context['total_members']));
 
 		Utils::$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_send';
 	}
 
@@ -1063,7 +1052,7 @@ class News implements ActionInterface
 	{
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'] . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin') . ' - ' . Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Wrap it all up nice and warm...
@@ -1110,8 +1099,8 @@ class News implements ActionInterface
 
 			// Just the remaining settings.
 			['check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'],
-			['int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10],
-			['check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']],
+			['int', 'xmlnews_maxlen', 'subtext' => Lang::getTxt('xmlnews_maxlen_note', file: 'Admin'), 10],
+			['check', 'xmlnews_attachments', 'subtext' => Lang::getTxt('xmlnews_attachments_note', file: 'Admin')],
 		];
 
 		IntegrationHook::call('integrate_modify_news_settings', [&$config_vars]);
@@ -1188,8 +1177,6 @@ class News implements ActionInterface
 	 */
 	public static function prepareMailingForPreview(): void
 	{
-		Lang::load('Errors');
-
 		$processing = ['preview_subject' => 'subject', 'preview_message' => 'message'];
 
 		// Use the default time format.
@@ -1210,7 +1197,7 @@ class News implements ActionInterface
 			Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
 			if (empty(Utils::$context[$key]) && empty($_REQUEST['xml'])) {
-				Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_' . $post];
+				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_' . $post, file: 'Errors');
 			} elseif (!empty($_REQUEST['xml'])) {
 				continue;
 			}
@@ -1295,7 +1282,7 @@ class News implements ActionInterface
 								break;
 
 							default:
-								$new_value = Lang::$txt[$matches[2]] ?? $matches[0];
+								$new_value = Lang::txtExists($matches[2], file: 'General+Admin') ? Lang::getTxt($matches[2], file: 'General+Admin') : $matches[0];
 								break;
 						}
 
@@ -1307,5 +1294,3 @@ class News implements ActionInterface
 		);
 	}
 }
-
-?>

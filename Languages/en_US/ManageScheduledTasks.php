@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageScheduledTasks
+// Version: 3.0 Alpha 4; ManageScheduledTasks
 
 $txt['scheduled_tasks_title'] = 'Scheduled Tasks';
 $txt['scheduled_tasks_header'] = 'All Scheduled Tasks';
@@ -93,5 +93,3 @@ $txt['scheduled_task_desc_prune_log_topics'] = 'Marks boards as read for users i
 $txt['cron_is_real_cron'] = 'Disable JavaScript-based method of running scheduled tasks.';
 $txt['cron_is_real_cron_desc'] = '<strong>Do not check this box</strong> unless you are <strong><u>sure</u></strong> that you have configured another method to tell your server to run SMF’s cron.php on a regular basis.';
 $txt['cron_not_working'] = 'No scheduled tasks have been run in the last 24 hours. Re-enabling JavaScript-based method of running scheduled tasks.';
-
-?>

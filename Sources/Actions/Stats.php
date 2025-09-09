@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -109,29 +109,27 @@ class Stats implements ActionInterface, Routable
 			$this->getDailyStats('YEAR(date) = {int:year} AND MONTH(date) = {int:month}', ['year' => $year, 'month' => $month]);
 
 			Utils::$context['yearly'][$year]['months'][$month]['date'] = [
-				'month' => sprintf('%02d', $month),
+				'month' => \sprintf('%02d', $month),
 				'year' => $year,
 			];
 
 			return;
 		}
 
-		Lang::load('Stats');
 		Theme::loadTemplate('Stats');
 		Theme::loadJavaScriptFile('stats.js', ['default_theme' => true, 'defer' => false, 'minimize' => true], 'smf_stats');
 
 		// Build the link tree......
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=stats',
-			'name' => Lang::$txt['stats_center'],
+			'name' => Lang::getTxt('stats_center', file: 'Stats'),
 		];
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['stats_center'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('stats_center', file: 'Stats');
 
 		Utils::$context['show_member_list'] = User::$me->allowedTo('view_mlist');
 
 		// Get averages...
 		$result = Db::$db->query(
-			'',
 			'SELECT
 				SUM(posts) AS posts, SUM(topics) AS topics, SUM(registers) AS registers,
 				SUM(most_on) AS most_on, MIN(date) AS date, SUM(hits) AS hits
@@ -155,7 +153,6 @@ class Stats implements ActionInterface, Routable
 
 		// How many users are online now.
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_online',
 			[
@@ -166,7 +163,6 @@ class Stats implements ActionInterface, Routable
 
 		// Statistics such as number of boards, categories, etc.
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}boards AS b
 			WHERE b.redirect = {string:blank_redirect}',
@@ -178,7 +174,6 @@ class Stats implements ActionInterface, Routable
 		Db::$db->free_result($result);
 
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}categories AS c',
 			[
@@ -204,10 +199,9 @@ class Stats implements ActionInterface, Routable
 		// Let's calculate gender stats only every four minutes.
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : [];
 
-		if (!in_array('gender', $disabled_fields)) {
+		if (!\in_array('gender', $disabled_fields)) {
 			if ((Utils::$context['gender'] = CacheApi::get('stats_gender', 240)) == null) {
 				$result = Db::$db->query(
-					'',
 					'SELECT default_value
 					FROM {db_prefix}custom_fields
 					WHERE col_name= {string:gender_var}',
@@ -220,7 +214,6 @@ class Stats implements ActionInterface, Routable
 				Db::$db->free_result($result);
 
 				$result = Db::$db->query(
-					'',
 					'SELECT COUNT(*) AS total_members, value AS gender
 					FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}themes AS t ON (
@@ -254,7 +247,6 @@ class Stats implements ActionInterface, Routable
 
 		// Members online so far today.
 		$result = Db::$db->query(
-			'',
 			'SELECT most_on
 			FROM {db_prefix}log_activity
 			WHERE date = {date:today_date}
@@ -270,7 +262,6 @@ class Stats implements ActionInterface, Routable
 
 		// Poster top 10.
 		$members_result = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			WHERE posts > {int:no_posts}
@@ -305,7 +296,6 @@ class Stats implements ActionInterface, Routable
 
 		// Board top 10.
 		$boards_result = Db::$db->query(
-			'',
 			'SELECT id_board, name, num_posts
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -344,7 +334,6 @@ class Stats implements ActionInterface, Routable
 		// Are you on a larger forum?  If so, let's try to limit the number of topics we search through.
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_replies != {int:no_replies}' . (Config::$modSettings['postmod_active'] ? '
@@ -368,7 +357,6 @@ class Stats implements ActionInterface, Routable
 
 		// Topic replies top 10.
 		$topic_reply_result = Db::$db->query(
-			'',
 			'SELECT m.subject, t.num_replies, t.id_board, t.id_topic, b.name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -419,7 +407,6 @@ class Stats implements ActionInterface, Routable
 		// Large forums may need a bit more prodding...
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_views != {int:no_views}
@@ -441,7 +428,6 @@ class Stats implements ActionInterface, Routable
 
 		// Topic views top 10.
 		$topic_view_result = Db::$db->query(
-			'',
 			'SELECT m.subject, t.num_views, t.id_board, t.id_topic, b.name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -492,7 +478,6 @@ class Stats implements ActionInterface, Routable
 		// Try to cache this when possible, because it's a little unavoidably slow.
 		if (($members = CacheApi::get('stats_top_starters', 360)) == null) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member_started, COUNT(*) AS hits
 				FROM {db_prefix}topics' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				WHERE id_board != {int:recycle_board}' : '') . '
@@ -519,7 +504,6 @@ class Stats implements ActionInterface, Routable
 
 		// Topic poster top 10.
 		$members_result = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:member_list})',
@@ -561,7 +545,6 @@ class Stats implements ActionInterface, Routable
 		// Time online top 10.
 		$temp = CacheApi::get('stats_total_time_members', 600);
 		$members_result = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, total_time_logged_in
 			FROM {db_prefix}members
 			WHERE is_activated = {int:is_activated}' .
@@ -580,25 +563,20 @@ class Stats implements ActionInterface, Routable
 		while ($row_members = Db::$db->fetch_assoc($members_result)) {
 			$temp2[] = (int) $row_members['id_member'];
 
-			if (count(Utils::$context['stats_blocks']['time_online']) >= 10) {
+			if (\count(Utils::$context['stats_blocks']['time_online']) >= 10) {
 				continue;
 			}
 
-			// Figure out the days, hours and minutes.
-			$timeDays = floor($row_members['total_time_logged_in'] / 86400);
-			$timeHours = floor(($row_members['total_time_logged_in'] % 86400) / 3600);
-
 			// Figure out which things to show... (days, hours, minutes, etc.)
-			$timelogged = '';
-
-			if ($timeDays > 0) {
-				$timelogged .= $timeDays . Lang::$txt['total_time_logged_d'];
-			}
-
-			if ($timeHours > 0) {
-				$timelogged .= $timeHours . Lang::$txt['total_time_logged_h'];
-			}
-			$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_m'];
+			$timelogged = Lang::getTxt(
+				'total_time_logged',
+				[
+					'days' => max(0, floor($row_members['total_time_logged_in'] / 86400)),
+					'hours' => max(0, floor(($row_members['total_time_logged_in'] % 86400) / 3600)),
+					'minutes' => max(0, floor(($row_members['total_time_logged_in'] % 3600) / 60)),
+				],
+				file: 'General',
+			);
 
 			Utils::$context['stats_blocks']['time_online'][] = [
 				'id' => $row_members['id_member'],
@@ -630,7 +608,6 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['stats_blocks']['liked_messages'] = [];
 			$max_liked_message = 1;
 			$liked_messages = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
 				FROM (
 					SELECT n.id_msg, n.subject, n.likes, n.id_board, n.id_topic
@@ -676,7 +653,6 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['stats_blocks']['liked_users'] = [];
 			$max_liked_users = 1;
 			$liked_users = Db::$db->query(
-				'',
 				'SELECT m.id_member AS liked_user, COUNT(l.content_id) AS count, mem.real_name
 				FROM {db_prefix}user_likes AS l
 					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
@@ -715,7 +691,6 @@ class Stats implements ActionInterface, Routable
 
 		// Activity by month.
 		$months_result = Db::$db->query(
-			'',
 			'SELECT
 				YEAR(date) AS stats_year, MONTH(date) AS stats_month, SUM(hits) AS hits, SUM(registers) AS registers, SUM(topics) AS topics, SUM(posts) AS posts, MAX(most_on) AS most_on, COUNT(*) AS num_days
 			FROM {db_prefix}log_activity
@@ -726,8 +701,8 @@ class Stats implements ActionInterface, Routable
 		Utils::$context['yearly'] = [];
 
 		while ($row_months = Db::$db->fetch_assoc($months_result)) {
-			$ID_MONTH = $row_months['stats_year'] . sprintf('%02d', $row_months['stats_month']);
-			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
+			$ID_MONTH = $row_months['stats_year'] . \sprintf('%02d', $row_months['stats_month']);
+			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && \in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
 
 			if (!isset(Utils::$context['yearly'][$row_months['stats_year']])) {
 				Utils::$context['yearly'][$row_months['stats_year']] = [
@@ -747,12 +722,12 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['yearly'][$row_months['stats_year']]['months'][(int) $row_months['stats_month']] = [
 				'id' => $ID_MONTH,
 				'date' => [
-					'month' => sprintf('%02d', $row_months['stats_month']),
+					'month' => \sprintf('%02d', $row_months['stats_month']),
 					'year' => $row_months['stats_year'],
 				],
 				'href' => Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
-				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::$txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
-				'month' => Lang::$txt['months_titles'][(int) $row_months['stats_month']],
+				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General') . ' ' . $row_months['stats_year'] . '</a>',
+				'month' => Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General'),
 				'year' => $row_months['stats_year'],
 				'new_topics' => Lang::numberFormat($row_months['topics']),
 				'new_posts' => Lang::numberFormat($row_months['posts']),
@@ -834,7 +809,6 @@ class Stats implements ActionInterface, Routable
 	{
 		// Activity by day.
 		$days_result = Db::$db->query(
-			'',
 			'SELECT YEAR(date) AS stats_year, MONTH(date) AS stats_month, DAYOFMONTH(date) AS stats_day, topics, posts, registers, most_on, hits
 			FROM {db_prefix}log_activity
 			WHERE ' . $condition_string . '
@@ -844,8 +818,8 @@ class Stats implements ActionInterface, Routable
 
 		while ($row_days = Db::$db->fetch_assoc($days_result)) {
 			Utils::$context['yearly'][$row_days['stats_year']]['months'][(int) $row_days['stats_month']]['days'][] = [
-				'day' => sprintf('%02d', $row_days['stats_day']),
-				'month' => sprintf('%02d', $row_days['stats_month']),
+				'day' => \sprintf('%02d', $row_days['stats_day']),
+				'month' => \sprintf('%02d', $row_days['stats_month']),
 				'year' => $row_days['stats_year'],
 				'new_topics' => Lang::numberFormat($row_days['topics']),
 				'new_posts' => Lang::numberFormat($row_days['posts']),
@@ -857,5 +831,3 @@ class Stats implements ActionInterface, Routable
 		Db::$db->free_result($days_result);
 	}
 }
-
-?>

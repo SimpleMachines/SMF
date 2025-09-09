@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -184,8 +184,7 @@ class MessageIndex implements ActionInterface, Routable
 	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+			throw new \Exception('get_board_list_cannot_include_and_exclude');
 		}
 
 		$where = [];
@@ -213,13 +212,13 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level, b.redirect
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' . (empty($where) ? '' : '
 			WHERE ' . implode('
 				AND ', $where)),
 			$where_parameters,
+			identifier: 'order_by_board_order',
 		);
 
 		$return_value = [];
@@ -318,7 +317,7 @@ class MessageIndex implements ActionInterface, Routable
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
-				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::$txt['all']);
+				$pages .= \sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		} else {
 			$pages = '';
@@ -394,7 +393,7 @@ class MessageIndex implements ActionInterface, Routable
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']]) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']], file: 'General') . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
 				],
 				'time' => Time::create('@' . $row['first_poster_time'])->format(),
 				'timestamp' => $row['first_poster_time'],
@@ -485,7 +484,6 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		if (Board::$info->redirect) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + 1
 				WHERE id_board = {int:current_board}',
@@ -541,10 +539,10 @@ class MessageIndex implements ActionInterface, Routable
 		$this->sort_column = $this->sort_methods[$this->sort_by]['column'];
 
 		Utils::$context['sort_by'] = $this->sort_by;
-		Lang::$txt['starter'] = Lang::$txt['started_by'];
+		Lang::setTxt('starter', Lang::getTxt('started_by', file: 'General'));
 
 		foreach ($this->sort_methods as $key => $val) {
-			Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . $_REQUEST['start'] . ($this->sort_default == $key ? '' : ';sort=' . $key) . ($this->sort_by == $key && $this->ascending_is_default ? ($this->ascending ? ';desc' : ';asc') : '') . '">' . Lang::$txt[$key] . ($this->sort_by == $key ? ' <span class="main_icons sort_' . ($this->ascending ? 'up' : 'down') . '"></span>' : '') . '</a>';
+			Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . $_REQUEST['start'] . ($this->sort_default == $key ? '' : ';sort=' . $key) . ($this->sort_by == $key && $this->ascending_is_default ? ($this->ascending ? ';desc' : ';asc') : '') . '">' . Lang::getTxt($key, file: 'General') . ($this->sort_by == $key ? ' <span class="main_icons sort_' . ($this->ascending ? 'up' : 'down') . '"></span>' : '') . '</a>';
 		}
 	}
 
@@ -574,7 +572,7 @@ class MessageIndex implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != $start) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(\sprintf(Utils::$context['page_index']->base_url, $start));
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];
@@ -665,7 +663,6 @@ class MessageIndex implements ActionInterface, Routable
 				OFFSET {int:start} ';
 
 		$result = Db::$db->query(
-			'substring',
 			'SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_board, t.id_previous_board,
 				' . (User::$me->is_guest ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
@@ -695,6 +692,7 @@ class MessageIndex implements ActionInterface, Routable
 				' . (!empty($main_where) ? ' WHERE ' . implode("\n\t\t\t\tAND ", $main_where) : '') . '
 			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $this->sort_column . ($this->ascending ? '' : ' DESC'),
 			$params,
+			identifier: 'substring',
 		);
 
 		// Begin 'printing' the message index for current board.
@@ -756,7 +754,6 @@ class MessageIndex implements ActionInterface, Routable
 
 			if (!empty(Board::$info->parent_boards)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_boards
 					SET id_msg = {int:id_msg}
 					WHERE id_member = {int:current_member}
@@ -781,7 +778,6 @@ class MessageIndex implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_board, sent
 				FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
@@ -808,7 +804,6 @@ class MessageIndex implements ActionInterface, Routable
 
 			if (Utils::$context['is_marked_notify'] && !empty($board_sent)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_notify
 					SET sent = {int:is_sent}
 					WHERE id_member = {int:current_member}
@@ -842,7 +837,6 @@ class MessageIndex implements ActionInterface, Routable
 			Utils::$context['view_num_hidden'] = 0;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 					mg.online_color, mg.id_group, mg.group_name
@@ -868,7 +862,7 @@ class MessageIndex implements ActionInterface, Routable
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';
@@ -894,7 +888,7 @@ class MessageIndex implements ActionInterface, Routable
 					Utils::$context['view_num_hidden']++;
 				}
 			}
-			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+			Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - \count(Utils::$context['view_members']);
 			Db::$db->free_result($request);
 
 			// Put them in "last clicked" order.
@@ -915,20 +909,20 @@ class MessageIndex implements ActionInterface, Routable
 
 		if (!empty(Board::$info->moderators)) {
 			foreach (Board::$info->moderators as $mod) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Board::$info->moderator_groups)) {
 			// By default just tack the moderator groups onto the end of the members
 			foreach (Board::$info->moderator_groups as $mod_group) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod_group['name'] . '</a>';
 			}
 		}
 
 		// Now we tack the info onto the end of the linktree
 		if (!empty(Utils::$context['link_moderators'])) {
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -950,6 +944,7 @@ class MessageIndex implements ActionInterface, Routable
 					'posts' => $unposts,
 					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
 				],
+				file: 'General',
 			);
 		}
 
@@ -990,7 +985,7 @@ class MessageIndex implements ActionInterface, Routable
 		Utils::$context['can_approve_posts'] = User::$me->allowedTo('approve_posts');
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), ['&amp;' => '&']),
 			'child_level' => Board::$info->child_level,
 		];
@@ -1002,11 +997,11 @@ class MessageIndex implements ActionInterface, Routable
 	protected function setRobotNoIndex(): void
 	{
 		// Right, let's only index normal stuff!
-		if (count($_GET) > 1) {
+		if (\count($_GET) > 1) {
 			$session_name = session_name();
 
 			foreach ($_GET as $k => $v) {
-				if (!in_array($k, ['board', 'start', $session_name])) {
+				if (!\in_array($k, ['board', 'start', $session_name])) {
 					Utils::$context['robot_no_index'] = true;
 				}
 			}
@@ -1042,7 +1037,7 @@ class MessageIndex implements ActionInterface, Routable
 				$boards_allowed = User::$me->boardsAllowedTo('post_new');
 
 				// How many boards can you do this on besides this one?
-				Utils::$context['can_move_any'] = count($boards_allowed) > 1;
+				Utils::$context['can_move_any'] = \count($boards_allowed) > 1;
 			}
 
 			// Set permissions for all the topics.
@@ -1094,7 +1089,7 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		if (User::$me->is_logged) {
-			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 
 		if (Utils::$context['can_mark_notify']) {
@@ -1119,9 +1114,8 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
 }
-
-?>

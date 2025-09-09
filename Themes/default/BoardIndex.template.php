@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -79,7 +79,7 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
 
 		echo '
 					', $category['link'], '
@@ -178,7 +178,7 @@ function template_bi_board_info($board)
 	// Has it outstanding posts for approval?
 	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
 		echo '
-		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board), '" class="moderation_link amt">!</a>';
+		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board, file: 'General'), '" class="moderation_link amt">!</a>';
 
 	echo '
 		<div class="board_description">', $board['description'], '</div>';
@@ -186,7 +186,7 @@ function template_bi_board_info($board)
 	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 	if (!empty($board['link_moderators']))
 		echo '
-		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])]), '</p>';
+		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])], file: 'General'), '</p>';
 }
 
 /**
@@ -198,7 +198,7 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
+			', Lang::getTxt('number_of_posts', [$board->posts], file: 'General'), '<br>', Lang::getTxt('number_of_topics', [$board->topics], file: 'General'), '
 		</p>';
 }
 
@@ -211,7 +211,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts]), '
+			', Lang::getTxt('number_of_redirects', [$board->posts], file: 'General'), '
 		</p>';
 }
 
@@ -245,13 +245,13 @@ function template_bi_board_children($board)
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
-				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '" class="new_posts">' . Lang::$txt['new'] . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '">' . $child['name'] . '</a>';
+				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '">' . $child['name'] . '</a>';
 			else
-				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']]) . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
+				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']], file: 'General') . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 
 			// Has it posts awaiting approval?
 			if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics']))
-				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child) . '" class="moderation_link amt">!</a>';
+				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child, file: 'General') . '" class="moderation_link amt">!</a>';
 
 			$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
 		}
@@ -266,6 +266,7 @@ function template_bi_board_children($board)
 						'num' => count($children),
 						'list' => implode(' ', $children),
 					],
+					file: 'General',
 				),
 				'</p>
 			</div>';
@@ -293,8 +294,8 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
-				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</a>
+				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
+				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '</a>
 			</h3>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
@@ -321,15 +322,15 @@ function template_info_center()
 			aSwapImages: [
 				{
 					sId: \'upshrink_ic\',
-					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide_infocenter']), ',
-					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show_infocenter']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide_infocenter', file: 'General')), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show_infocenter', file: 'General')), '
 				}
 			],
 			aSwapLinks: [
 				{
 					sId: \'upshrink_link\',
-					msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), ',
-					msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']])), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General')), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General')), '
 				}
 			],
 			oThemeOptions: {
@@ -355,7 +356,7 @@ function template_ic_block_recent()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span> ', Lang::$txt['recent_posts'], '</a>
+					<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span> ', Lang::getTxt('recent_posts', file: 'General'), '</a>
 				</h4>
 			</div>
 			<div id="recent_posts_content">';
@@ -366,7 +367,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a> ', Lang::getTxt('is_recent_updated', ['link' => '&quot;' . Utils::$context['latest_post']['link'] . '&quot;']), ' (', Utils::$context['latest_post']['time'], ')<br>
+					<a href="', Config::$scripturl, '?action=recent">', Lang::getTxt('recent_view', file: 'General'), '</a> ', Lang::getTxt('is_recent_updated', ['link' => '&quot;' . Utils::$context['latest_post']['link'] . '&quot;'], file: 'General'), ' (', Utils::$context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
@@ -375,10 +376,10 @@ function template_ic_block_recent()
 		echo '
 				<table id="ic_recentposts">
 					<tr class="windowbg">
-						<th class="recentpost">', Lang::$txt['message'], '</th>
-						<th class="recentposter">', Lang::$txt['author'], '</th>
-						<th class="recentboard">', Lang::$txt['board'], '</th>
-						<th class="recenttime">', Lang::$txt['date'], '</th>
+						<th class="recentpost">', Lang::getTxt('message', file: 'General'), '</th>
+						<th class="recentposter">', Lang::getTxt('author', file: 'General'), '</th>
+						<th class="recentboard">', Lang::getTxt('board', file: 'General'), '</th>
+						<th class="recenttime">', Lang::getTxt('date', file: 'General'), '</th>
 					</tr>';
 
 		/* Each post in latest_posts has:
@@ -408,7 +409,7 @@ function template_ic_block_calendar()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', Utils::$context['calendar_only_today'] ? Lang::$txt['calendar_today'] : Lang::$txt['calendar_upcoming'], '</a>
+					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming', file: 'Calendar'), '</a>
 				</h4>
 			</div>';
 
@@ -422,38 +423,39 @@ function template_ic_block_calendar()
 
 		echo '
 			<p class="inline holiday">
-				<span class="label">', Lang::$txt['calendar_prompt'], '</span> ', implode(', ', $holidays), '
+				<span class="label">', Lang::getTxt('calendar_prompt', file: 'Calendar'), '</span> ', implode(', ', $holidays), '
 			</p>';
 	}
 
 	// People's birthdays. Like mine. And yours, I guess. Kidding.
-	if (!empty(Utils::$context['calendar_birthdays']))
-	{
+	if (!empty(Utils::$context['calendar_birthdays'])) {
 		echo '
 			<p class="inline">
-				<span class="birthday">', Utils::$context['calendar_only_today'] ? Lang::$txt['birthdays'] : Lang::$txt['birthdays_upcoming'], '</span>';
+				<span class="birthday">', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'birthdays' : 'birthdays_upcoming', file: 'Calendar'), '</span>';
 
 		// Each member in calendar_birthdays has: id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?)
-		foreach (Utils::$context['calendar_birthdays'] as $member)
+		foreach (Utils::$context['calendar_birthdays'] as $bday) {
 			echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong class="fix_rtl_names">' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '">', $bday->is_today ? '<strong class="fix_rtl_names">' : '', $bday->name, $bday->is_today ? '</strong>' : '', isset($bday->age) ? ' (' . $bday->age . ')' : '', '</a>', $bday->is_last ? '' : ', ';
+		}
 
 		echo '
 			</p>';
 	}
 
 	// Events like community get-togethers.
-	if (!empty(Utils::$context['calendar_events']))
-	{
+	if (!empty(Utils::$context['calendar_events'])) {
 		echo '
 			<p class="inline">
-				<span class="event">', Utils::$context['calendar_only_today'] ? Lang::$txt['events'] : Lang::$txt['events_upcoming'], '</span> ';
+				<span class="event">', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'events' : 'events_upcoming', file: 'Calendar'), '</span> ';
 
 		// Each event in calendar_events should have:
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
-		foreach (Utils::$context['calendar_events'] as $event)
+		foreach (Utils::$context['calendar_events'] as $event) {
 			echo '
-				', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . Lang::$txt['calendar_edit'] . '"><span class="main_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
+				', $event->can_edit ? '<a href="' . $event->modify_href . '" title="' . Lang::getTxt('calendar_edit', file: 'Calendar') . '"><span class="main_icons calendar_modify"></span></a> ' : '', $event->href == '' ? '' : '<a href="' . $event->href . '">', $event->is_today ? '<strong>' . $event->title . '</strong>' : $event->title, $event->href == '' ? '' : '</a>', $event->is_last ? '<br>' : ', ';
+		}
+
 		echo '
 			</p>';
 	}
@@ -468,13 +470,13 @@ function template_ic_block_stats()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Lang::$txt['forum_stats'], Utils::$context['show_stats'] ? '</a>' : '', '
+					', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::getTxt('more_stats', file: 'General') . '">' : '', '<span class="main_icons stats"></span> ', Lang::getTxt('forum_stats', file: 'General'), Utils::$context['show_stats'] ? '</a>' : '', '
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['common_stats']['boardindex_total_posts'], !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
-				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
-				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
+				', Utils::$context['common_stats']['boardindex_total_posts'], !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::getTxt('latest_member', file: 'General') . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', (!empty(Utils::$context['latest_post']) ? Lang::getTxt('latest_post', file: 'General') . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
+				<a href="', Config::$scripturl, '?action=recent">', Lang::getTxt('recent_view', file: 'General'), '</a>
 			</p>';
 }
 
@@ -487,23 +489,23 @@ function template_ic_block_online()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Lang::$txt['online_users'], '', Utils::$context['show_who'] ? '</a>' : '', '
+					', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Lang::getTxt('online_users', file: 'General'), '', Utils::$context['show_who'] ? '</a>' : '', '
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::$txt['online'], ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']]), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']]);
+				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::getTxt('online', file: 'General'), ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']], file: 'General'), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']], file: 'General');
 
 	// Handle hidden users and buddies.
 	$bracketList = array();
 
 	if (Utils::$context['show_buddies'])
-		$bracketList[] = Lang::getTxt('number_of_buddies', [Utils::$context['num_buddies']]);
+		$bracketList[] = Lang::getTxt('number_of_buddies', [Utils::$context['num_buddies']], file: 'General');
 
 	if (!empty(Utils::$context['num_spiders']))
-		$bracketList[] = Lang::getTxt('number_of_spiders', [Utils::$context['num_spiders']]);
+		$bracketList[] = Lang::getTxt('number_of_spiders', [Utils::$context['num_spiders']], file: 'General');
 
 	if (!empty(Utils::$context['num_users_hidden']))
-		$bracketList[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['num_users_hidden']]);
+		$bracketList[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['num_users_hidden']], file: 'General');
 
 	$bracketList = array_filter($bracketList, 'strlen');
 
@@ -512,14 +514,14 @@ function template_ic_block_online()
 
 	echo Utils::$context['show_who'] ? '</a>' : '', '
 
-				&nbsp;-&nbsp;', Lang::$txt['most_online_today'], ': <strong>', Lang::numberFormat(Config::$modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
-				', Lang::$txt['most_online_ever'], ': ', Lang::numberFormat(Config::$modSettings['mostOnline']), ' (', Time::create('@' . Config::$modSettings['mostDate'])->format(), ')<br>';
+				&nbsp;-&nbsp;', Lang::getTxt('most_online_today', file: 'General'), ': <strong>', Lang::numberFormat(Config::$modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
+				', Lang::getTxt('most_online_ever', file: 'General'), ': ', Lang::numberFormat(Config::$modSettings['mostOnline']), ' (', Time::create('@' . Config::$modSettings['mostDate'])->format(), ')<br>';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty(Utils::$context['users_online']))
 	{
 		echo '
-				', Lang::getTxt('users_active', ['minutes' => Config::$modSettings['lastActive'], 'list' => Lang::sentenceList(Utils::$context['list_users_online'])]);
+				', Lang::getTxt('users_active', ['minutes' => Config::$modSettings['lastActive'], 'list' => Lang::sentenceList(Utils::$context['list_users_online'])], file: 'General');
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups']))
@@ -530,5 +532,3 @@ function template_ic_block_online()
 	echo '
 			</p>';
 }
-
-?>

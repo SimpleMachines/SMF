@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -31,7 +31,6 @@ use SMF\Utils;
 class Mods implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -68,16 +67,13 @@ class Mods implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
-		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_modifications', file: 'Admin');
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_modifications'],
+			'title' => Lang::getTxt('admin_modifications', file: 'Admin'),
 			'help' => 'modsettings',
-			'description' => Lang::$txt['modification_settings_desc'],
+			'description' => Lang::getTxt('modification_settings_desc', file: 'ManageSettings'),
 			'tabs' => [
 				'general' => [
 				],
@@ -90,10 +86,10 @@ class Mods implements ActionInterface
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['sub_action'] = $this->subaction;
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -105,13 +101,13 @@ class Mods implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=modsettings;save;sa=general';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_modifications_misc'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_modifications_misc', file: 'Admin');
 
 		// No removing this line, you dirty unwashed mod authors. :p
 		if (empty($config_vars)) {
 			Utils::$context['settings_save_dont_show'] = true;
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['modification_no_misc_settings'],
+				'label' => Lang::getTxt('modification_no_misc_settings', file: 'ManageSettings'),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];
@@ -178,5 +174,3 @@ class Mods implements ActionInterface
 		}
 	}
 }
-
-?>

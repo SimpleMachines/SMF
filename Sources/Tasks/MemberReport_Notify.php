@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class MemberReport_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -40,7 +44,7 @@ class MemberReport_Notify extends BackgroundTask
 	public function execute(): bool
 	{
 		// Anyone with moderate_forum can see this report
-		$members = User::membersAllowedTo('moderate_forum');
+		$members = User::getAllowedTo('moderate_forum');
 
 		// And don't send it to them if they're the one who reported it.
 		$members = array_diff($members, [$this->_details['sender_id']]);
@@ -99,7 +103,6 @@ class MemberReport_Notify extends BackgroundTask
 			// First, get everyone's language and details.
 			$emails = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -139,5 +142,3 @@ class MemberReport_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

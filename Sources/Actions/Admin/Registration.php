@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,11 +16,12 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Register2;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Diff\EditDiff;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -40,7 +41,6 @@ use SMF\Utils;
 class Registration implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 	/*******************
 	 * Public properties
@@ -83,29 +83,28 @@ class Registration implements ActionInterface
 	public function execute(): void
 	{
 		// Loading, always loading.
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// Next create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['registration_center'],
+			'title' => Lang::getTxt('registration_center', file: 'Admin'),
 			'help' => 'registrations',
-			'description' => Lang::$txt['admin_settings_desc'],
+			'description' => Lang::getTxt('admin_settings_desc', file: 'Login'),
 			'tabs' => [
 				'register' => [
-					'description' => Lang::$txt['admin_register_desc'],
+					'description' => Lang::getTxt('admin_register_desc', file: 'Login'),
 				],
 				'agreement' => [
-					'description' => Lang::$txt['registration_agreement_desc'],
+					'description' => Lang::getTxt('registration_agreement_desc', file: 'Admin'),
 				],
 				'policy' => [
-					'description' => Lang::$txt['privacy_policy_desc'],
+					'description' => Lang::getTxt('privacy_policy_desc', file: 'Admin'),
 				],
 				'reservednames' => [
-					'description' => Lang::$txt['admin_reserved_desc'],
+					'description' => Lang::getTxt('admin_reserved_desc', file: 'Admin'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['admin_settings_desc'],
+					'description' => Lang::getTxt('admin_settings_desc', file: 'Login'),
 				],
 			],
 		];
@@ -113,10 +112,10 @@ class Registration implements ActionInterface
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -138,7 +137,7 @@ class Registration implements ActionInterface
 			SecurityToken::validate('admin-regc');
 
 			foreach ($_POST as $key => $value) {
-				if (!is_array($_POST[$key])) {
+				if (!\is_array($_POST[$key])) {
 					$_POST[$key] = Utils::htmlTrimRecursive(str_replace(["\n", "\r"], '', Utils::normalize($_POST[$key])));
 				}
 			}
@@ -174,7 +173,7 @@ class Registration implements ActionInterface
 					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
 				];
 
-				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member']);
+				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member'], file: 'Login');
 			}
 		}
 
@@ -182,10 +181,9 @@ class Registration implements ActionInterface
 
 		// Load the assignable member groups.
 		if (User::$me->allowedTo('manage_membergroups')) {
-			Utils::$context['member_groups'][] = Lang::$txt['admin_register_group_none'];
+			Utils::$context['member_groups'][] = Lang::getTxt('admin_register_group_none', file: 'Login');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}
@@ -212,7 +210,7 @@ class Registration implements ActionInterface
 
 		// Basic stuff.
 		Utils::$context['sub_template'] = 'admin_register';
-		Utils::$context['page_title'] = Lang::$txt['registration_center'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_center', file: 'Admin');
 
 		SecurityToken::create('admin-regc');
 
@@ -235,7 +233,7 @@ class Registration implements ActionInterface
 
 		// Is there more than one to edit?
 		Utils::$context['editable_agreements'] = [
-			'en_US' => Lang::$txt['admin_agreement_default'],
+			'en_US' => Lang::getTxt('admin_agreement_default', file: 'Admin'),
 		];
 
 		// Get our languages.
@@ -253,9 +251,9 @@ class Registration implements ActionInterface
 			}
 		}
 
-		$agreement_lang = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
+		Utils::$context['current_agreement'] = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
 
-		$agreement_file = Config::$languagesdir . '/' . $agreement_lang . '/agreement.txt';
+		$agreement_file = Config::$languagesdir . '/' . Utils::$context['current_agreement'] . '/agreement.txt';
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
@@ -267,13 +265,91 @@ class Registration implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
+			$backup_file = \dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
 
 			// Off it goes to the agreement file.
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
 				Utils::$context['saved_successful'] = true;
 
-				$agreement_settings['agreement_updated_' . $agreement_lang] = time();
+				$agreement_settings['agreement_updated_' . Utils::$context['current_agreement']] = time();
+
+				// Get the previous edit history.
+				$edit_history = (array) Utils::jsonDecode(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']] ?? '[]', true);
+				usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+				// If the admin is making multiple changes in a short period of time,
+				// try to simplify the edit history.
+				if (\count($edit_history) >= 2) {
+					// Have any members accepted the current version?
+					$request = Db::$db->query(
+						'',
+						'SELECT COUNT(*)
+						FROM {db_prefix}themes
+						WHERE variable = {string:agreement_accepted}
+							AND id_theme = {int:theme}
+							AND id_member != {int:me}
+							AND value > {int:edited_time}',
+						[
+							'agreement_accepted' => 'agreement_accepted',
+							'theme' => 1,
+							'me' => User::$me->id,
+							'edited_time' => (int) $edit_history[0][0],
+						],
+					);
+					[$num_accepted] = Db::$db->fetch_row($request);
+					Db::$db->free_result($request);
+
+					// If no one else has accepted the current version, we can
+					// simplify the history a bit.
+					if (empty($num_accepted)) {
+						if ($edit_history[1][1] === $diff->label1) {
+							// The admin is simply undoing the last change.
+							$rollback = true;
+						} else {
+							// We can combine the changes.
+							$combine = true;
+						}
+					}
+				}
+
+				// Special case where the admin is simply undoing the last change.
+				if (!empty($rollback)) {
+					// Pretend that the most recently saved version never happened.
+					array_shift($edit_history);
+
+					$agreement_settings['agreement_updated_' . Utils::$context['current_agreement']] = (int) $edit_history[0][0];
+				}
+				// Special case where we can combine this change with the previous one.
+				elseif (!empty($combine)) {
+					// Reconstruct the version prior to the most recently saved version.
+					$prev_diff = (new EditDiff())->import(array_shift($edit_history));
+
+					$diff = new EditDiff(
+						$_POST['agreement'],
+						$prev_diff->apply(Utils::$context['agreement']),
+						date_create($prev_diff->time1)->format('U') == time() ? 'now' : '@' . time(),
+						User::$me->id,
+						User::$me->name,
+						'',
+					);
+
+					array_unshift($edit_history, $diff->export());
+				}
+				// Normal case.
+				else {
+					$diff = new EditDiff(
+						$_POST['agreement'],
+						Utils::$context['agreement'],
+						(int) $edit_history[0][0] === time() ? 'now' : '@' . time(),
+						User::$me->id,
+						User::$me->name,
+						'',
+					);
+
+					array_unshift($edit_history, $diff->export());
+				}
+
+				$agreement_settings['agreement_history_' . Utils::$context['current_agreement']] = json_encode($edit_history);
 
 				// Writing it counts as agreeing to it, right?
 				Db::$db->insert(
@@ -296,14 +372,46 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
+		Utils::$context['agreement_info'] = Lang::getTxt(
+			'admin_agreement_info',
+			[
+				'datetime' =>
+					empty(Config::$modSettings['agreement_updated_' . Utils::$context['current_agreement']])
+					? Lang::getTxt('never', file: 'General')
+					: Time::create('@' . Config::$modSettings['agreement_updated_' . Utils::$context['current_agreement']])->format(),
+			],
+			file: 'Admin',
+		);
+
+		if (!empty(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']])) {
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($edit_history as $diff_data) {
+				$diff = new EditDiff();
+
+				try {
+					$diff->import($diff_data);
+				} catch (\Throwable $e) {
+					break;
+				}
+
+				Utils::$context['agreement_history'][$diff->label1] = Lang::getTxt(
+					'edit_history_linktext',
+					[
+						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
+					],
+				);
+			}
+		}
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
-		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::$txt['agreement_not_writable'];
+		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(\dirname($agreement_file)) ? '' : Lang::getTxt('agreement_not_writable', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'edit_agreement';
-		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_agreement', file: 'General');
 
 		SecurityToken::create('admin-rega');
 	}
@@ -336,23 +444,98 @@ class Registration implements ActionInterface
 		Utils::$context['privacy_policy'] = empty(Config::$modSettings['policy_' . Utils::$context['current_policy_lang']]) ? '' : Config::$modSettings['policy_' . Utils::$context['current_policy_lang']];
 
 		if (isset($_POST['policy'])) {
+			$_POST['policy'] = Utils::normalizeSpaces(Utils::normalize($_POST['policy']));
+		}
+
+		if (isset($_POST['policy']) && $_POST['policy'] != Utils::$context['privacy_policy']) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-regp');
-
-			// Make sure there are no creepy-crawlies in it.
-			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
 			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ?? 0;
 
 			$policy_settings = [
-				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
+				'policy_' . Utils::$context['current_policy_lang'] => $_POST['policy'],
 			];
 
-			if (isset(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']], Config::$modSettings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]])) {
-				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy'];
+			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
+
+			// Get the previous edit history.
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			// If the admin is making multiple changes in a short period of time,
+			// try to simplify the edit history.
+			if (\count($edit_history) >= 2) {
+				// Have any members accepted the current version?
+				$request = Db::$db->query(
+					'',
+					'SELECT COUNT(*)
+					FROM {db_prefix}themes
+					WHERE variable = {string:policy_accepted}
+						AND id_theme = {int:theme}
+						AND id_member != {int:me}
+						AND value > {int:edited_time}',
+					[
+						'policy_accepted' => 'policy_accepted',
+						'theme' => 1,
+						'me' => User::$me->id,
+						'edited_time' => (int) $edit_history[0][0],
+					],
+				);
+				[$num_accepted] = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
+
+				// If no one else has accepted the current version, we can
+				// simplify the history a bit.
+				if (empty($num_accepted)) {
+					if (isset($edit_history[1]) && $edit_history[1][1] === $diff->label1) {
+						// The admin is simply undoing the last change.
+						$rollback = true;
+					} else {
+						// We can combine the changes.
+						$combine = true;
+					}
+				}
 			}
 
-			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
+			// Special case where the admin is simply undoing the last change.
+			if (!empty($rollback)) {
+				// Pretend that the most recently saved version never happened.
+				array_shift($edit_history);
+
+				$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = (int) $edit_history[0][0];
+			}
+			// Special case where we can combine this change with the previous one.
+			elseif (!empty($combine)) {
+				// Reconstruct the version prior to the most recently saved version.
+				$prev_diff = (new EditDiff())->import(array_shift($edit_history));
+
+				$diff = new EditDiff(
+					$_POST['policy'],
+					$prev_diff->apply(Utils::$context['privacy_policy']),
+					date_create($prev_diff->time1)->format('U') == time() ? 'now' : '@' . time(),
+					User::$me->id,
+					User::$me->name,
+					'',
+				);
+
+				array_unshift($edit_history, $diff->export());
+			}
+			// Normal case.
+			else {
+				$diff = new EditDiff(
+					$_POST['policy'],
+					Utils::$context['privacy_policy'],
+					(int) $edit_history[0][0] === time() ? 'now' : '@' . time(),
+					User::$me->id,
+					User::$me->name,
+					'',
+				);
+
+				array_unshift($edit_history, $diff->export());
+			}
+
+			$policy_settings['policy_history_' . Utils::$context['current_policy_lang']] = json_encode($edit_history);
 
 			// Writing it counts as agreeing to it, right?
 			Db::$db->insert(
@@ -367,19 +550,47 @@ class Registration implements ActionInterface
 
 			Logging::logAction('policy_accepted', ['applicator' => User::$me->id], 'user');
 
-			if (Utils::$context['privacy_policy'] !== $policy_text) {
-				Utils::$context['saved_successful'] = true;
-			}
-
 			Config::updateModSettings($policy_settings);
 
-			Utils::$context['privacy_policy'] = $policy_text;
+			Utils::$context['privacy_policy'] = $_POST['policy'];
+
+			Utils::$context['saved_successful'] = true;
 		}
 
-		Utils::$context['privacy_policy_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format()]);
+		Utils::$context['privacy_policy_info'] = Lang::getTxt(
+			'admin_agreement_info',
+			[
+				'datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::getTxt('never', file: 'General') : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format(),
+			],
+			file: 'Admin',
+		);
+
+		if (!empty(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']])) {
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($edit_history as $diff_data) {
+				$diff = new EditDiff();
+
+				try {
+					$diff->import($diff_data);
+				} catch (\Throwable $e) {
+					break;
+				}
+
+				Utils::$context['privacy_policy_history'][$diff->label1] = Lang::getTxt(
+					'edit_history_linktext',
+					[
+						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown', file: 'General') . ')' : $diff->name,
+					],
+					file: 'General',
+				);
+			}
+		}
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
-		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];
+		Utils::$context['page_title'] = Lang::getTxt('privacy_policy', file: 'General');
 
 		SecurityToken::create('admin-regp');
 	}
@@ -425,7 +636,7 @@ class Registration implements ActionInterface
 
 		// Ready the template......
 		Utils::$context['sub_template'] = 'edit_reserved_words';
-		Utils::$context['page_title'] = Lang::$txt['admin_reserved_set'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_reserved_set', file: 'Admin');
 
 		SecurityToken::create('admin-regr');
 	}
@@ -444,7 +655,7 @@ class Registration implements ActionInterface
 
 		// Setup the template
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['registration_center'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_center', file: 'Admin');
 
 		if (isset($_GET['save'])) {
 			User::$me->checkSession();
@@ -465,7 +676,7 @@ class Registration implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=regcenter;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 		// Define some javascript for COPPA.
 		Utils::$context['settings_post_javascript'] = '
@@ -504,21 +715,57 @@ class Registration implements ActionInterface
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 
 		$config_vars = [
-			['select', 'registration_method', [Lang::$txt['setting_registration_standard'], Lang::$txt['setting_registration_activate'], Lang::$txt['setting_registration_approval'], Lang::$txt['setting_registration_disabled']]],
+			[
+				'select',
+				'registration_method',
+				[
+					Lang::getTxt('setting_registration_standard', file: 'Login'),
+					Lang::getTxt('setting_registration_activate', file: 'Login'),
+					Lang::getTxt('setting_registration_approval', file: 'Login'),
+					Lang::getTxt('setting_registration_disabled', file: 'Login'),
+				],
+			],
 			['check', 'send_welcomeEmail'],
 
 			'',
 
-			['check', 'requireAgreement', 'text_label' => Lang::$txt['admin_agreement'], 'value' => !empty(Config::$modSettings['requireAgreement'])],
+			[
+				'check',
+				'requireAgreement',
+				'text_label' => Lang::getTxt('admin_agreement', file: 'Admin'),
+				'value' => !empty(Config::$modSettings['requireAgreement']),
+			],
 			['warning', empty($agreement) ? 'error_no_agreement' : ''],
-			['check', 'requirePolicyAgreement', 'text_label' => Lang::$txt['admin_privacy_policy'], 'value' => !empty(Config::$modSettings['requirePolicyAgreement'])],
+			[
+				'check',
+				'requirePolicyAgreement',
+				'text_label' => Lang::getTxt('admin_privacy_policy', file: 'Admin'),
+				'value' => !empty(Config::$modSettings['requirePolicyAgreement']),
+			],
 			['warning', empty($policy) ? 'error_no_privacy_policy' : ''],
 
 			'',
 
-			['int', 'coppaAge', 'subtext' => Lang::$txt['zero_to_disable'], 'onchange' => 'checkCoppa();'],
-			['select', 'coppaType', [Lang::$txt['setting_coppaType_reject'], Lang::$txt['setting_coppaType_approval']], 'onchange' => 'checkCoppa();'],
-			['large_text', 'coppaPost', 'subtext' => Lang::$txt['setting_coppaPost_desc']],
+			[
+				'int',
+				'coppaAge',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'onchange' => 'checkCoppa();',
+			],
+			[
+				'select',
+				'coppaType',
+				[
+					Lang::getTxt('setting_coppaType_reject', file: 'Login'),
+					Lang::getTxt('setting_coppaType_approval', file: 'Login'),
+				],
+				'onchange' => 'checkCoppa();',
+			],
+			[
+				'large_text',
+				'coppaPost',
+				'subtext' => Lang::getTxt('setting_coppaPost_desc', file: 'Login'),
+			],
 			['text', 'coppaFax'],
 			['text', 'coppaPhone'],
 		];
@@ -549,5 +796,3 @@ class Registration implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -25,7 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\PackageManager\{PackageUtils, XmlArray};
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -55,7 +55,6 @@ use SMF\Utils;
 class Themes implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -102,31 +101,25 @@ class Themes implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		// Load the important language files...
-		Lang::load('Admin');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
-		Lang::load('Drafts');
-
 		// Default the page title to Theme Administration by default.
-		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
+		Utils::$context['page_title'] = Lang::getTxt('themeadmin_title', file: 'Themes');
 
 		if (!empty(Utils::$context['admin_menu_name'])) {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['themeadmin_title'],
-				'description' => Lang::$txt['themeadmin_description'],
+				'title' => Lang::getTxt('themeadmin_title', file: 'Themes'),
+				'description' => Lang::getTxt('themeadmin_description', file: 'Themes'),
 				'tabs' => [
 					'admin' => [
-						'description' => Lang::$txt['themeadmin_admin_desc'],
+						'description' => Lang::getTxt('themeadmin_admin_desc', file: 'Themes'),
 					],
 					'list' => [
-						'description' => Lang::$txt['themeadmin_list_desc'],
+						'description' => Lang::getTxt('themeadmin_list_desc', file: 'Themes'),
 					],
 					'reset' => [
-						'description' => Lang::$txt['themeadmin_reset_desc'],
+						'description' => Lang::getTxt('themeadmin_reset_desc', file: 'Themes'),
 					],
 					'edit' => [
-						'description' => Lang::$txt['themeadmin_edit_desc'],
+						'description' => Lang::getTxt('themeadmin_edit_desc', file: 'Themes'),
 					],
 				],
 			];
@@ -136,13 +129,13 @@ class Themes implements ActionInterface
 		Theme::deleteAllMinified();
 
 		if (isset(self::$subactions[$this->subaction])) {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 		} else {
 			$call = Utils::getCallable($this->subaction);
 		}
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -171,7 +164,7 @@ class Themes implements ActionInterface
 				ErrorHandler::fatalLang('themes_none_selectable', false);
 			}
 
-			if (!in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes'])) {
+			if (!\in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes'])) {
 				ErrorHandler::fatalLang('themes_default_selectable', false);
 			}
 
@@ -182,7 +175,7 @@ class Themes implements ActionInterface
 				'knownThemes' => implode(',', $_POST['options']['known_themes']),
 			]);
 
-			if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes'])) {
+			if ((int) $_POST['theme_reset'] == 0 || \in_array($_POST['theme_reset'], $_POST['options']['known_themes'])) {
 				User::updateMemberData(null, ['id_theme' => (int) $_POST['theme_reset']]);
 			}
 
@@ -289,7 +282,6 @@ class Themes implements ActionInterface
 			Utils::$context['themes'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable IN ({string:name}, {string:theme_dir})
@@ -315,7 +307,6 @@ class Themes implements ActionInterface
 			Db::$db->free_result($request);
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, COUNT(*) AS value
 				FROM {db_prefix}themes
 				WHERE id_member = {int:guest_member}
@@ -334,7 +325,6 @@ class Themes implements ActionInterface
 			$customFields = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT col_name
 				FROM {db_prefix}custom_fields',
 				[
@@ -349,7 +339,6 @@ class Themes implements ActionInterface
 			$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
 			$request = Db::$db->query(
-				'themes_count',
 				'SELECT COUNT(DISTINCT id_member) AS value, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
@@ -359,6 +348,7 @@ class Themes implements ActionInterface
 					'no_member' => 0,
 					'custom_fields' => empty($customFields) ? [] : $customFields,
 				],
+				identifier: 'themes_count',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
@@ -398,7 +388,7 @@ class Themes implements ActionInterface
 			$setValues = [];
 
 			foreach ($_POST['options'] as $opt => $val) {
-				$setValues[] = [-1, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val];
+				$setValues[] = [-1, $_GET['th'], $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			$old_settings = [];
@@ -406,7 +396,7 @@ class Themes implements ActionInterface
 			foreach ($_POST['default_options'] as $opt => $val) {
 				$old_settings[] = $opt;
 
-				$setValues[] = [-1, 1, $opt, is_array($val) ? implode(',', $val) : $val];
+				$setValues[] = [-1, 1, $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			// If we're actually inserting something..
@@ -414,7 +404,6 @@ class Themes implements ActionInterface
 				// Are there options in non-default themes set that should be cleared?
 				if (!empty($old_settings)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme != {int:default_theme}
 							AND id_member = {int:guest_member}
@@ -459,7 +448,6 @@ class Themes implements ActionInterface
 				if ($_POST['default_options_master'][$opt] == 1) {
 					// Delete then insert for ease of database compatibility!
 					Db::$db->query(
-						'substring',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:default_theme}
 							AND id_member > {int:no_member}
@@ -469,24 +457,24 @@ class Themes implements ActionInterface
 							'no_member' => 0,
 							'option' => $opt,
 						],
+						identifier: 'substring',
 					);
 
 					Db::$db->query(
-						'substring',
 						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
 						FROM {db_prefix}members',
 						[
 							'option' => $opt,
-							'value' => (is_array($val) ? implode(',', $val) : $val),
+							'value' => (\is_array($val) ? implode(',', $val) : $val),
 						],
+						identifier: 'substring',
 					);
 
 					$old_settings[] = $opt;
 				} elseif ($_POST['default_options_master'][$opt] == 2) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option_name}
 							AND id_member > {int:no_member}',
@@ -501,7 +489,6 @@ class Themes implements ActionInterface
 			// Delete options from other themes.
 			if (!empty($old_settings)) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}themes
 					WHERE id_theme != {int:default_theme}
 						AND id_member > {int:no_member}
@@ -522,7 +509,6 @@ class Themes implements ActionInterface
 				if ($_POST['options_master'][$opt] == 1) {
 					// Delete then insert for ease of database compatibility - again!
 					Db::$db->query(
-						'substring',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:current_theme}
 							AND id_member > {int:no_member}
@@ -532,10 +518,10 @@ class Themes implements ActionInterface
 							'no_member' => 0,
 							'option' => $opt,
 						],
+						identifier: 'substring',
 					);
 
 					Db::$db->query(
-						'substring',
 						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
@@ -543,12 +529,12 @@ class Themes implements ActionInterface
 						[
 							'current_theme' => $_GET['th'],
 							'option' => $opt,
-							'value' => (is_array($val) ? implode(',', $val) : $val),
+							'value' => (\is_array($val) ? implode(',', $val) : $val),
 						],
+						identifier: 'substring',
 					);
 				} elseif ($_POST['options_master'][$opt] == 2) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option}
 							AND id_member > {int:no_member}
@@ -572,7 +558,6 @@ class Themes implements ActionInterface
 				$customFields = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT col_name
 					FROM {db_prefix}custom_fields',
 					[
@@ -588,7 +573,6 @@ class Themes implements ActionInterface
 			$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
 					AND id_theme = {int:current_theme}
@@ -608,11 +592,6 @@ class Themes implements ActionInterface
 
 		Theme::load($_GET['th'], false);
 
-		Lang::load('Profile');
-
-		// @todo Should we just move these options so they are no longer theme dependant?
-		Lang::load('PersonalMessage');
-
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
 		Theme::loadSubTemplate('options');
@@ -621,7 +600,7 @@ class Themes implements ActionInterface
 		IntegrationHook::call('integrate_theme_options');
 
 		Utils::$context['sub_template'] = 'set_options';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		Utils::$context['options'] = Utils::$context['theme_options'];
 		Utils::$context['theme_settings'] = Theme::$current->settings;
@@ -630,7 +609,6 @@ class Themes implements ActionInterface
 			Utils::$context['theme_options'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT variable, value
 				FROM {db_prefix}themes
 				WHERE id_theme IN (1, {int:current_theme})
@@ -654,7 +632,7 @@ class Themes implements ActionInterface
 
 		foreach (Utils::$context['options'] as $i => $setting) {
 			// Just skip separators
-			if (!is_array($setting)) {
+			if (!\is_array($setting)) {
 				continue;
 			}
 
@@ -716,10 +694,10 @@ class Themes implements ActionInterface
 
 		// Fetch the smiley sets...
 		$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
-		$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
+		$set_names = explode("\n", Lang::getTxt('smileys_none', file: 'General') . "\n" . Config::$modSettings['smiley_sets_names']);
 
 		Utils::$context['smiley_sets'] = [
-			'' => Lang::$txt['smileys_no_default'],
+			'' => Lang::getTxt('smileys_no_default', file: 'Admin'),
 		];
 
 		foreach ($sets as $i => $set) {
@@ -732,9 +710,6 @@ class Themes implements ActionInterface
 
 		// Sadly we really do need to init the template.
 		Theme::loadSubTemplate('init', 'ignore');
-
-		// Also load the actual themes language file - in case of special settings.
-		Lang::load('ThemeStrings', '', false, true);
 
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
@@ -770,7 +745,7 @@ class Themes implements ActionInterface
 			// Make sure items are cast correctly.
 			foreach (Utils::$context['theme_settings'] as $item) {
 				// Disregard this item if this is just a separator.
-				if (!is_array($item)) {
+				if (!\is_array($item)) {
 					continue;
 				}
 
@@ -794,11 +769,11 @@ class Themes implements ActionInterface
 			$inserts = [];
 
 			foreach ($_POST['options'] as $opt => $val) {
-				$inserts[] = [0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val];
+				$inserts[] = [0, $_GET['th'], $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			foreach ($_POST['default_options'] as $opt => $val) {
-				$inserts[] = [0, 1, $opt, is_array($val) ? implode(',', $val) : $val];
+				$inserts[] = [0, 1, $opt, \is_array($val) ? implode(',', $val) : $val];
 			}
 
 			// If we're actually inserting something..
@@ -822,11 +797,11 @@ class Themes implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'set_settings';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		foreach (Theme::$current->settings as $setting => $dummy) {
-			if (!in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
-				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting]);
+			if (!\in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
+				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting], ENT_QUOTES);
 			}
 		}
 
@@ -835,7 +810,7 @@ class Themes implements ActionInterface
 
 		foreach (Utils::$context['settings'] as $i => $setting) {
 			// Separators are dummies, so leave them alone.
-			if (!is_array($setting)) {
+			if (!\is_array($setting)) {
 				continue;
 			}
 
@@ -861,7 +836,7 @@ class Themes implements ActionInterface
 			foreach (Theme::$current->settings['theme_variants'] as $variant) {
 				// Have any text, old chap?
 				Utils::$context['theme_variants'][$variant] = [
-					'label' => Lang::$txt['variant_' . $variant] ?? $variant,
+					'label' => Lang::txtExists('variant_' . $variant, file: 'ThemeStrings') ? Lang::getTxt('variant_' . $variant, file: 'ThemeStrings') : $variant,
 					'thumbnail' => !file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail.png') || file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? Theme::$current->settings['images_url'] . '/thumbnail_' . $variant . '.png' : (Theme::$current->settings['images_url'] . '/thumbnail.png'),
 				];
 			}
@@ -987,12 +962,12 @@ class Themes implements ActionInterface
 			}
 
 			// Call the function and handle the result.
-			$result = call_user_func([$this, $do_actions[$do_action]]);
+			$result = \call_user_func([$this, $do_actions[$do_action]]);
 
 			// Everything went better than expected!
 			if (!empty($result)) {
 				Utils::$context['sub_template'] = 'installed';
-				Utils::$context['page_title'] = Lang::$txt['theme_installed'];
+				Utils::$context['page_title'] = Lang::getTxt('theme_installed', file: 'Themes');
 				Utils::$context['installed_theme'] = $result;
 			}
 		}
@@ -1043,7 +1018,7 @@ class Themes implements ActionInterface
 		$currentTheme = $this->getSingleTheme($_GET['th']);
 
 		Utils::$context['theme_id'] = $currentTheme['id'];
-		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme);
+		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme, file: 'Themes');
 
 		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
@@ -1067,7 +1042,7 @@ class Themes implements ActionInterface
 			if (isset($_GET['directory']) && $_GET['directory'] != '') {
 				Utils::$context['theme_files'] = $this->getFileList($currentTheme['theme_dir'] . '/' . $_GET['directory'], $_GET['directory'] . '/');
 
-				$temp = dirname($_GET['directory']);
+				$temp = \dirname($_GET['directory']);
 
 				array_unshift(Utils::$context['theme_files'], [
 					'filename' => $temp == '.' || $temp == '' ? '/ (..)' : $temp . ' (..)',
@@ -1113,14 +1088,14 @@ class Themes implements ActionInterface
 
 		if (isset($_POST['save'])) {
 			if (User::$me->checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true) {
-				if (is_array($_POST['entire_file'])) {
+				if (\is_array($_POST['entire_file'])) {
 					$_POST['entire_file'] = implode("\n", $_POST['entire_file']);
 				}
 
 				$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], ["\r" => '', '   ' => "\t"]));
 
 				// Check for a parse error!
-				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
+				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && \ini_get('display_errors')) {
 					Config::safeFileWrite($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 					$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
@@ -1138,18 +1113,16 @@ class Themes implements ActionInterface
 					// Nuke any minified files and update Config::$modSettings['browser_cache']
 					Theme::deleteAllMinified();
 
-					Utils::redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
+					Utils::redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . \dirname($_REQUEST['filename']));
 				}
 			}
 			// Session timed out.
 			else {
-				Lang::load('Errors');
-
 				Utils::$context['session_error'] = true;
 				Utils::$context['sub_template'] = 'edit_file';
 
 				// Recycle the submitted data.
-				if (is_array($_POST['entire_file'])) {
+				if (\is_array($_POST['entire_file'])) {
 					Utils::$context['entire_file'] = Utils::htmlspecialchars(implode("\n", $_POST['entire_file']));
 				} else {
 					Utils::$context['entire_file'] = Utils::htmlspecialchars($_POST['entire_file']);
@@ -1183,7 +1156,7 @@ class Themes implements ActionInterface
 			if (!isset($error_file)) {
 				$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 			} else {
-				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0) {
+				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error_file, $match) != 0) {
 					Utils::$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
 				}
 
@@ -1194,7 +1167,7 @@ class Themes implements ActionInterface
 			$j = 0;
 			Utils::$context['file_parts'] = [['lines' => 0, 'line' => 1, 'data' => '']];
 
-			for ($i = 0, $n = count($file_data); $i < $n; $i++) {
+			for ($i = 0, $n = \count($file_data); $i < $n; $i++) {
 				if (isset($file_data[$i + 1]) && str_starts_with($file_data[$i + 1], 'function ')) {
 					// Try to format the functions a little nicer...
 					Utils::$context['file_parts'][$j]['data'] = trim(Utils::$context['file_parts'][$j]['data']) . "\n";
@@ -1341,6 +1314,7 @@ class Themes implements ActionInterface
 
 				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
 					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
+						$entry = Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()];
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
 					}
@@ -1383,7 +1357,7 @@ class Themes implements ActionInterface
 	 * the new theme's name.
 	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
-	 * @return array The newly created theme's info.
+	 * @return array|null The newly created theme's info.
 	 */
 	protected function installFile(): ?array
 	{
@@ -1432,7 +1406,7 @@ class Themes implements ActionInterface
 		];
 
 		// Extract the file on the proper themes dir.
-		$extracted = SubsPackage::read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
+		$extracted = PackageUtils::readTgzFile($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
 
 		if ($extracted) {
 			// Read its info form the XML file.
@@ -1526,8 +1500,8 @@ class Themes implements ActionInterface
 		}
 
 		// And now the entire images directory!
-		SubsPackage::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
-		SubsPackage::package_flush_cache();
+		PackageUtils::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
+		PackageUtils::flushCache();
 
 		// Any data from the default theme that we want?
 		foreach ($this->getSingleTheme(1, ['theme_layers', 'theme_templates']) as $variable => $value) {
@@ -1647,7 +1621,6 @@ class Themes implements ActionInterface
 		$enableThemes = !empty(Config::$modSettings['enableThemes']) ? explode(',', Config::$modSettings['enableThemes']) : [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme = ({int:id_theme})
@@ -1671,8 +1644,8 @@ class Themes implements ActionInterface
 		}
 
 		// Is this theme installed and enabled?
-		$single['known'] = in_array($single['id'], $knownThemes);
-		$single['enable'] = in_array($single['id'], $enableThemes);
+		$single['known'] = \in_array($single['id'], $knownThemes);
+		$single['enable'] = \in_array($single['id'], $enableThemes);
 
 		// It should at least return if the theme is a known one or if its enable.
 		return $single;
@@ -1714,7 +1687,6 @@ class Themes implements ActionInterface
 
 		// Perform the query as requested.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
@@ -1733,8 +1705,8 @@ class Themes implements ActionInterface
 			if (!isset(Utils::$context['themes'][$row['id_theme']])) {
 				Utils::$context['themes'][$row['id_theme']] = [
 					'id' => (int) $row['id_theme'],
-					'known' => in_array($row['id_theme'], $knownThemes),
-					'enable' => in_array($row['id_theme'], $enableThemes),
+					'known' => \in_array($row['id_theme'], $knownThemes),
+					'enable' => \in_array($row['id_theme'], $enableThemes),
 				];
 			}
 
@@ -1780,7 +1752,6 @@ class Themes implements ActionInterface
 
 		// Perform the query as requested.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
@@ -1797,8 +1768,8 @@ class Themes implements ActionInterface
 			if (!isset(Utils::$context['themes'][$row['id_theme']])) {
 				Utils::$context['themes'][$row['id_theme']] = [
 					'id' => (int) $row['id_theme'],
-					'known' => in_array($row['id_theme'], $knownThemes),
-					'enable' => in_array($row['id_theme'], $enableThemes),
+					'known' => \in_array($row['id_theme'], $knownThemes),
+					'enable' => \in_array($row['id_theme'], $enableThemes),
 				];
 			}
 
@@ -1831,13 +1802,20 @@ class Themes implements ActionInterface
 
 		// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 		if (file_exists($path . '/package-info.xml')) {
-			Lang::load('Errors');
-
 			// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 			$this->deltree($path);
 
-			Lang::$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::$txt['package_get_error_is_mod']);
-			ErrorHandler::fatalLang('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
+			ErrorHandler::fatalLang(
+				'package_theme_upload_error_broken',
+				false,
+				Lang::getTxt(
+					'package_get_error_is_mod',
+					[
+						'MANAGEMODURL' => Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+					],
+					file: 'Errors',
+				),
+			);
 		}
 
 		// Parse theme-info.xml into an XmlArray.
@@ -1860,7 +1838,7 @@ class Themes implements ActionInterface
 		$install_versions = $theme_info_xml->fetch('theme-info/install/@for');
 
 		// The theme isn't compatible with the current SMF version.
-		if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions)) {
+		if (!$install_versions || !PackageUtils::matchPackageVersion($the_version, $install_versions)) {
 			$this->deltree($path);
 			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
@@ -1922,7 +1900,6 @@ class Themes implements ActionInterface
 		// OK, is this a newer version of an already installed theme?
 		if (!empty(Utils::$context['to_install']['version'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme
 				FROM {db_prefix}themes
 				WHERE id_member = {int:no_member}
@@ -1941,10 +1918,9 @@ class Themes implements ActionInterface
 
 			// Got something, lets figure it out what to do next.
 			if (!empty($id_to_update) && !empty($to_update['version'])) {
-				switch (SubsPackage::compareVersions(Utils::$context['to_install']['version'], $to_update['version'])) {
+				switch (PackageUtils::compareVersions(Utils::$context['to_install']['version'], $to_update['version'])) {
 					case 1: // Got a newer version, update the old entry.
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}themes
 							SET value = {string:new_value}
 							WHERE variable = {literal:version}
@@ -1981,7 +1957,6 @@ class Themes implements ActionInterface
 
 				// Get the theme info first.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_theme
 					FROM {db_prefix}themes
 					WHERE id_member = {int:no_member}
@@ -2018,7 +1993,6 @@ class Themes implements ActionInterface
 
 		// Find the newest id_theme.
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(id_theme)
 			FROM {db_prefix}themes',
 			[
@@ -2075,7 +2049,6 @@ class Themes implements ActionInterface
 
 		// Remove it from the themes table.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}themes
 			WHERE id_theme = {int:current_theme}',
 			[
@@ -2085,7 +2058,6 @@ class Themes implements ActionInterface
 
 		// Update users preferences.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
@@ -2097,7 +2069,6 @@ class Themes implements ActionInterface
 
 		// Some boards may have it as preferred theme.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
@@ -2210,9 +2181,9 @@ class Themes implements ActionInterface
 				$size = filesize($path . '/' . $entry);
 
 				if ($size > 2048 || $size == 1024) {
-					$size = Lang::numberFormat($size / 1024) . ' ' . Lang::$txt['themeadmin_edit_kilobytes'];
+					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024)], file: 'General');
 				} else {
-					$size = Lang::numberFormat($size) . ' ' . Lang::$txt['themeadmin_edit_bytes'];
+					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)], file: 'General');
 				}
 
 				$list2[] = [
@@ -2232,5 +2203,3 @@ class Themes implements ActionInterface
 		return array_merge($list1, $list2);
 	}
 }
-
-?>

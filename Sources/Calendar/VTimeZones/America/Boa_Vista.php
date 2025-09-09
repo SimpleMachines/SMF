@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -223,5 +223,3 @@ class Boa_Vista extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

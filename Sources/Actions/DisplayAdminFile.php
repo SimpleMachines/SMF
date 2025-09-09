@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ class DisplayAdminFile implements ActionInterface, Routable
 	{
 		Sapi::setMemoryLimit('32M');
 
-		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename'])) {
+		if (empty($_REQUEST['filename']) || !\is_string($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -57,7 +57,6 @@ class DisplayAdminFile implements ActionInterface, Routable
 		$_REQUEST['filename'] = str_replace(Utils::$context['browser_cache'], '', $_REQUEST['filename']);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT data, filetype
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:current_filename}
@@ -96,5 +95,3 @@ class DisplayAdminFile implements ActionInterface, Routable
 		Utils::obExit(false);
 	}
 }
-
-?>

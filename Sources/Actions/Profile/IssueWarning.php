@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -39,8 +39,6 @@ use SMF\Utils;
 class IssueWarning implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -78,8 +76,7 @@ class IssueWarning implements ActionInterface
 		}
 
 		// Get the base (errors related) stuff done.
-		Lang::load('Errors');
-		Utils::$context['custom_error_title'] = Lang::$txt['profile_warning_errors_occured'];
+		Utils::$context['custom_error_title'] = Lang::getTxt('profile_warning_errors_occured', file: 'Profile');
 
 		Utils::$context['warning_limit'] = User::$me->allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];
 
@@ -90,7 +87,6 @@ class IssueWarning implements ActionInterface
 		if (Utils::$context['warning_limit'] > 0) {
 			// Make sure we cannot go outside of our limit for the day.
 			$request = Db::$db->query(
-				'',
 				'SELECT SUM(counter)
 				FROM {db_prefix}log_comments
 				WHERE id_recipient = {int:selected_member}
@@ -134,18 +130,18 @@ class IssueWarning implements ActionInterface
 			Utils::$context['post_errors'] = [];
 
 			foreach ($this->issueErrors as $error) {
-				Utils::$context['post_errors'][] = Lang::$txt[$error];
+				Utils::$context['post_errors'][] = Lang::getTxt($error, file: 'ModerationCenter');
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['profile_issue_warning'];
+		Utils::$context['page_title'] = Lang::getTxt('profile_issue_warning', file: 'Profile');
 
 		// Work our the various levels.
 		Utils::$context['level_effects'] = [
-			0 => Lang::$txt['profile_warning_effect_none'],
-			Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_watch'],
-			Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_moderation'],
-			Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_mute'],
+			0 => Lang::getTxt('profile_warning_effect_none', file: 'Profile'),
+			Config::$modSettings['warning_watch'] => Lang::getTxt('profile_warning_effect_watch', file: 'Profile'),
+			Config::$modSettings['warning_moderate'] => Lang::getTxt('profile_warning_effect_moderation', file: 'Profile'),
+			Config::$modSettings['warning_mute'] => Lang::getTxt('profile_warning_effect_mute', file: 'Profile'),
 		];
 
 		Utils::$context['current_level'] = 0;
@@ -158,9 +154,9 @@ class IssueWarning implements ActionInterface
 
 		$list_options = [
 			'id' => 'view_warnings',
-			'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
+			'title' => Lang::getTxt('profile_viewwarning_previous_warnings', file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
+			'no_items_label' => Lang::getTxt('profile_viewwarning_no_warnings', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=issuewarning;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'log_time',
 			'get_items' => [
@@ -174,7 +170,7 @@ class IssueWarning implements ActionInterface
 			'columns' => [
 				'issued_by' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_issued'],
+						'value' => Lang::getTxt('profile_warning_previous_issued', file: 'Profile'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
@@ -189,7 +185,7 @@ class IssueWarning implements ActionInterface
 				],
 				'log_time' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_time'],
+						'value' => Lang::getTxt('profile_warning_previous_time', file: 'Profile'),
 						'style' => 'width: 30%;',
 					],
 					'data' => [
@@ -202,7 +198,7 @@ class IssueWarning implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_reason'],
+						'value' => Lang::getTxt('profile_warning_previous_reason', file: 'Profile'),
 					],
 					'data' => [
 						'function' => function ($warning) {
@@ -214,7 +210,7 @@ class IssueWarning implements ActionInterface
 							if (!empty($warning['id_notice'])) {
 								$ret .= '
 							<div class="floatright">
-								<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
+								<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::getTxt('profile_warning_previous_notice', file: 'Profile') . '"><span class="main_icons filter centericon"></span></a>
 							</div>';
 							}
 
@@ -224,7 +220,7 @@ class IssueWarning implements ActionInterface
 				],
 				'level' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_level'],
+						'value' => Lang::getTxt('profile_warning_previous_level', file: 'Profile'),
 						'style' => 'width: 6%;',
 					],
 					'data' => [
@@ -244,7 +240,6 @@ class IssueWarning implements ActionInterface
 		// Are they warning because of a message?
 		if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject
 				FROM {db_prefix}messages AS m
 				WHERE m.id_msg = {int:message}
@@ -272,7 +267,6 @@ class IssueWarning implements ActionInterface
 		Utils::$context['notification_templates'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT recipient_name AS template_title, body
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:warntpl}
@@ -300,8 +294,8 @@ class IssueWarning implements ActionInterface
 		// Setup the "default" templates.
 		foreach (['spamming', 'offence', 'insulting'] as $type) {
 			Utils::$context['notification_templates'][] = [
-				'title' => Lang::$txt['profile_warning_notify_title_' . $type],
-				'body' => Lang::getTxt('profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : ''), ['REASON' => Lang::$txt['profile_warning_notify_for_' . $type]]),
+				'title' => Lang::getTxt('profile_warning_notify_title_' . $type, file: 'Profile'),
+				'body' => Lang::getTxt('profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : ''), ['REASON' => Lang::getTxt('profile_warning_notify_for_' . $type, file: 'Profile')]),
 			];
 		}
 
@@ -314,7 +308,7 @@ class IssueWarning implements ActionInterface
 					'MESSAGE' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
 					'SCRIPTURL' => Config::$scripturl,
 					'FORUMNAME' => Config::$mbname,
-					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General'),
 				],
 			);
 		}
@@ -337,7 +331,6 @@ class IssueWarning implements ActionInterface
 		$previous_warnings = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.counter, lc.id_notice
 			FROM {db_prefix}log_comments AS lc
@@ -379,7 +372,6 @@ class IssueWarning implements ActionInterface
 	public static function list_getUserWarningCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE id_recipient = {int:selected_member}
@@ -477,7 +469,7 @@ class IssueWarning implements ActionInterface
 						],
 					],
 					['id_notice'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 		}
@@ -524,7 +516,7 @@ class IssueWarning implements ActionInterface
 			User::updateMemberData(Profile::$member->id, ['warning' => $_POST['warning_level']]);
 
 			// Leave a lovely message.
-			Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::$txt['profile_warning_success'];
+			Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_warning_success', file: 'Profile');
 		} else {
 			// Try to remember some bits.
 			Utils::$context['warning_data'] = [
@@ -568,5 +560,3 @@ class IssueWarning implements ActionInterface
 		];
 	}
 }
-
-?>

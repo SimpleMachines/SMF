@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -193,7 +193,7 @@ class ExportDownload implements ActionInterface
 
 		$included_desc = array_map(
 			function ($datatype) {
-				return Lang::$txt[$datatype];
+				return Lang::getTxt($datatype, file: 'Profile');
 			},
 			$datatypes,
 		);
@@ -206,5 +206,3 @@ class ExportDownload implements ActionInterface
 		return $dlfilename . $suffix . '.' . $this->extension;
 	}
 }
-
-?>

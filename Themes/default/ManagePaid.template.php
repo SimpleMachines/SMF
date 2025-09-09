@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -25,34 +25,34 @@ function template_modify_subscription()
 
 	if (!empty(Utils::$context['disable_groups']))
 		echo '
-		<div class="noticebox">', Lang::$txt['paid_mod_edit_note'], '</div>';
+		<div class="noticebox">', Lang::getTxt('paid_mod_edit_note', file: 'ManagePaid'), '</div>';
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['paid_' . Utils::$context['action_type'] . '_subscription'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('paid_' . Utils::$context['action_type'] . '_subscription', file: 'ManagePaid'), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					', Lang::$txt['paid_mod_name'], '
+					', Lang::getTxt('paid_mod_name', file: 'ManagePaid'), '
 				</dt>
 				<dd>
 					<input type="text" name="name" value="', Utils::$context['sub']['name'], '" size="30">
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_desc'], '
+					', Lang::getTxt('paid_mod_desc', file: 'ManagePaid'), '
 				</dt>
 				<dd>
 					<textarea name="desc" rows="3" cols="40">', Utils::$context['sub']['desc'], '</textarea>
 				</dd>
 				<dt>
-					<label for="repeatable_check">', Lang::$txt['paid_mod_repeatable'], '</label>
+					<label for="repeatable_check">', Lang::getTxt('paid_mod_repeatable', file: 'ManagePaid'), '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="repeatable" id="repeatable_check"', empty(Utils::$context['sub']['repeatable']) ? '' : ' checked', '>
 				</dd>
 				<dt>
-					<label for="activated_check">', Lang::$txt['paid_mod_active'], '</label><br><span class="smalltext">', Lang::$txt['paid_mod_active_desc'], '</span>
+					<label for="activated_check">', Lang::getTxt('paid_mod_active', file: 'ManagePaid'), '</label><br><span class="smalltext">', Lang::getTxt('paid_mod_active_desc', file: 'ManagePaid'), '</span>
 				</dt>
 				<dd>
 					<input type="checkbox" name="active" id="activated_check"', empty(Utils::$context['sub']['active']) ? '' : ' checked', '>
@@ -61,12 +61,12 @@ function template_modify_subscription()
 			<hr>
 			<dl class="settings">
 				<dt>
-					', Lang::$txt['paid_mod_prim_group'], '<br>
-					<span class="smalltext">', Lang::$txt['paid_mod_prim_group_desc'], '</span>
+					', Lang::getTxt('paid_mod_prim_group', file: 'ManagePaid'), '<br>
+					<span class="smalltext">', Lang::getTxt('paid_mod_prim_group_desc', file: 'ManagePaid'), '</span>
 				</dt>
 				<dd>
 					<select name="prim_group"', !empty(Utils::$context['disable_groups']) ? ' disabled' : '', '>
-						<option value="0"', Utils::$context['sub']['prim_group'] == 0 ? ' selected' : '', '>', Lang::$txt['paid_mod_no_group'], '</option>';
+						<option value="0"', Utils::$context['sub']['prim_group'] == 0 ? ' selected' : '', '>', Lang::getTxt('paid_mod_no_group', file: 'ManagePaid'), '</option>';
 
 	// Put each group into the box.
 	foreach (Utils::$context['groups'] as $id => $name)
@@ -77,8 +77,8 @@ function template_modify_subscription()
 					</select>
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_add_groups'], ':<br>
-					<span class="smalltext">', Lang::$txt['paid_mod_add_groups_desc'], '</span>
+					', Lang::getTxt('paid_mod_add_groups', file: 'ManagePaid'), ':<br>
+					<span class="smalltext">', Lang::getTxt('paid_mod_add_groups_desc', file: 'ManagePaid'), '</span>
 				</dt>
 				<dd>';
 
@@ -93,15 +93,15 @@ function template_modify_subscription()
 	echo '
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_reminder'], '<br>
-					<span class="smalltext">', Lang::$txt['paid_mod_reminder_desc'], ' ', Lang::$txt['zero_to_disable'], '</span>
+					', Lang::getTxt('paid_mod_reminder', file: 'ManagePaid'), '<br>
+					<span class="smalltext">', Lang::getTxt('paid_mod_reminder_desc', file: 'ManagePaid'), ' ', Lang::getTxt('zero_to_disable', file: 'Admin'), '</span>
 				</dt>
 				<dd>
 					<input type="number" name="reminder" value="', Utils::$context['sub']['reminder'], '" size="6">
 				</dd>
 				<dt>
-					', Lang::$txt['paid_mod_email'], '<br>
-					<span class="smalltext">', Lang::$txt['paid_mod_email_desc'], '</span>
+					', Lang::getTxt('paid_mod_email', file: 'ManagePaid'), '<br>
+					<span class="smalltext">', Lang::getTxt('paid_mod_email_desc', file: 'ManagePaid'), '</span>
 				</dt>
 				<dd>
 					<textarea name="emailcomplete" rows="6" cols="40">', Utils::$context['sub']['email_complete'], '</textarea>
@@ -109,70 +109,70 @@ function template_modify_subscription()
 			</dl>
 			<hr>
 			<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty(Utils::$context['sub']['duration']) || Utils::$context['sub']['duration'] == 'fixed' ? ' checked' : '', ' onclick="toggleDuration(\'fixed\');">
-			<strong><label for="duration_type_fixed">', Lang::$txt['paid_mod_fixed_price'], '</label></strong>
+			<strong><label for="duration_type_fixed">', Lang::getTxt('paid_mod_fixed_price', file: 'ManagePaid'), '</label></strong>
 			<br>
 			<div id="fixed_area" ', empty(Utils::$context['sub']['duration']) || Utils::$context['sub']['duration'] == 'fixed' ? '' : 'style="display: none;"', '>
 				<fieldset>
 					<dl class="settings">
 						<dt>
-							', Lang::$txt['paid_cost'], ' (', str_replace('%1.2f', '', Config::$modSettings['paid_currency_symbol']), ')
+							', Lang::getTxt('paid_cost', file: 'ManagePaid'), ' (', str_replace('%1.2f', '', Config::$modSettings['paid_currency_symbol']), ')
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost" value="', empty(Utils::$context['sub']['cost']['fixed']) ? '' : Utils::$context['sub']['cost']['fixed'], '" placeholder="0.00" size="4">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_mod_span'], '
+							', Lang::getTxt('paid_mod_span', file: 'ManagePaid'), '
 						</dt>
 						<dd>
 							<input type="number" name="span_value" value="', Utils::$context['sub']['span']['value'], '" size="4">
 							<select name="span_unit">
-								<option value="D"', Utils::$context['sub']['span']['unit'] == 'D' ? ' selected' : '', '>', Lang::$txt['paid_mod_span_days'], '</option>
-								<option value="W"', Utils::$context['sub']['span']['unit'] == 'W' ? ' selected' : '', '>', Lang::$txt['paid_mod_span_weeks'], '</option>
-								<option value="M"', Utils::$context['sub']['span']['unit'] == 'M' ? ' selected' : '', '>', Lang::$txt['paid_mod_span_months'], '</option>
-								<option value="Y"', Utils::$context['sub']['span']['unit'] == 'Y' ? ' selected' : '', '>', Lang::$txt['paid_mod_span_years'], '</option>
+								<option value="D"', Utils::$context['sub']['span']['unit'] == 'D' ? ' selected' : '', '>', Lang::getTxt('paid_mod_span_days', file: 'ManagePaid'), '</option>
+								<option value="W"', Utils::$context['sub']['span']['unit'] == 'W' ? ' selected' : '', '>', Lang::getTxt('paid_mod_span_weeks', file: 'ManagePaid'), '</option>
+								<option value="M"', Utils::$context['sub']['span']['unit'] == 'M' ? ' selected' : '', '>', Lang::getTxt('paid_mod_span_months', file: 'ManagePaid'), '</option>
+								<option value="Y"', Utils::$context['sub']['span']['unit'] == 'Y' ? ' selected' : '', '>', Lang::getTxt('paid_mod_span_years', file: 'ManagePaid'), '</option>
 							</select>
 						</dd>
 					</dl>
 				</fieldset>
 			</div><!-- #fixed_area -->
 			<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty(Utils::$context['sub']['duration']) && Utils::$context['sub']['duration'] == 'flexible' ? ' checked' : '', ' onclick="toggleDuration(\'flexible\');">
-			<strong><label for="duration_type_flexible">', Lang::$txt['paid_mod_flexible_price'], '</label></strong>
+			<strong><label for="duration_type_flexible">', Lang::getTxt('paid_mod_flexible_price', file: 'ManagePaid'), '</label></strong>
 			<br>
 			<div id="flexible_area" ', !empty(Utils::$context['sub']['duration']) && Utils::$context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
 				<fieldset>';
 
 	echo '
 					<div class="information">
-						<strong>', Lang::$txt['paid_mod_price_breakdown'], '</strong><br>
-						', Lang::$txt['paid_mod_price_breakdown_desc'], '
+						<strong>', Lang::getTxt('paid_mod_price_breakdown', file: 'ManagePaid'), '</strong><br>
+						', Lang::getTxt('paid_mod_price_breakdown_desc', file: 'ManagePaid'), '
 					</div>
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['paid_duration'], '</strong>
+							<strong>', Lang::getTxt('paid_duration', file: 'ManagePaid'), '</strong>
 						</dt>
 						<dd>
-							<strong>', Lang::$txt['paid_cost'], ' (', preg_replace('~%[df\.\d]+~', '', Config::$modSettings['paid_currency_symbol']), ')</strong>
+							<strong>', Lang::getTxt('paid_cost', file: 'ManagePaid'), ' (', preg_replace('~%[df\.\d]+~', '', Config::$modSettings['paid_currency_symbol']), ')</strong>
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_day'], '
+							', Lang::getTxt('paid_per_day', file: 'ManagePaid'), '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_day" value="', empty(Utils::$context['sub']['cost']['day']) ? '0' : Utils::$context['sub']['cost']['day'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_week'], '
+							', Lang::getTxt('paid_per_week', file: 'ManagePaid'), '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_week" value="', empty(Utils::$context['sub']['cost']['week']) ? '0' : Utils::$context['sub']['cost']['week'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_month'], '
+							', Lang::getTxt('paid_per_month', file: 'ManagePaid'), '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_month" value="', empty(Utils::$context['sub']['cost']['month']) ? '0' : Utils::$context['sub']['cost']['month'], '" size="5">
 						</dd>
 						<dt>
-							', Lang::$txt['paid_per_year'], '
+							', Lang::getTxt('paid_per_year', file: 'ManagePaid'), '
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_year" value="', empty(Utils::$context['sub']['cost']['year']) ? '0' : Utils::$context['sub']['cost']['year'], '" size="5">
@@ -180,7 +180,7 @@ function template_modify_subscription()
 					</dl>
 				</fieldset>
 			</div><!-- #flexible_area -->
-			<input type="submit" name="save" value="', Lang::$txt['paid_settings_save'], '" class="button">
+			<input type="submit" name="save" value="', Lang::getTxt('paid_settings_save', file: 'ManagePaid'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-pms_token_var'], '" value="', Utils::$context['admin-pms_token'], '">
 		</div><!-- .windowbg -->
@@ -195,11 +195,11 @@ function template_delete_subscription()
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', Utils::$context['sub_id'], ';delete" method="post">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['paid_delete_subscription'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('paid_delete_subscription', file: 'ManagePaid'), '</h3>
 		</div>
 		<div class="windowbg">
-			<p>', Lang::$txt['paid_mod_delete_warning'], '</p>
-			<input type="submit" name="delete_confirm" value="', Lang::$txt['paid_delete_subscription'], '" class="button">
+			<p>', Lang::getTxt('paid_mod_delete_warning', file: 'ManagePaid'), '</p>
+			<input type="submit" name="delete_confirm" value="', Lang::getTxt('paid_delete_subscription', file: 'ManagePaid'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-pmsd_token_var'], '" value="', Utils::$context['admin-pmsd_token'], '">
 		</div>
@@ -226,7 +226,8 @@ function template_modify_user_subscription()
 					[
 						'name' => Utils::$context['current_subscription']['name'],
 						'member' => Utils::$context['sub']['username'] ?? '',
-					]
+					],
+					file: 'ManagePaid',
 				),
 			'</h3>
 		</div>
@@ -237,8 +238,8 @@ function template_modify_user_subscription()
 	if (Utils::$context['action_type'] == 'add')
 		echo '
 				<dt>
-					<strong>', Lang::$txt['paid_username'], '</strong><br>
-					<span class="smalltext">', Lang::$txt['one_username'], '</span>
+					<strong>', Lang::getTxt('paid_username', file: 'ManagePaid'), '</strong><br>
+					<span class="smalltext">', Lang::getTxt('one_username', file: 'ManagePaid'), '</span>
 				</dt>
 				<dd>
 					<input type="text" name="name" id="name_control" value="', Utils::$context['sub']['username'], '" size="30">
@@ -246,17 +247,17 @@ function template_modify_user_subscription()
 
 	echo '
 				<dt>
-					<strong>', Lang::$txt['paid_status'], '</strong>
+					<strong>', Lang::getTxt('paid_status', file: 'ManagePaid'), '</strong>
 				</dt>
 				<dd>
 					<select name="status">
-						<option value="0"', Utils::$context['sub']['status'] == 0 ? ' selected' : '', '>', Lang::$txt['paid_finished'], '</option>
-						<option value="1"', Utils::$context['sub']['status'] == 1 ? ' selected' : '', '>', Lang::$txt['paid_active'], '</option>
+						<option value="0"', Utils::$context['sub']['status'] == 0 ? ' selected' : '', '>', Lang::getTxt('paid_finished', file: 'ManagePaid'), '</option>
+						<option value="1"', Utils::$context['sub']['status'] == 1 ? ' selected' : '', '>', Lang::getTxt('paid_active', file: 'ManagePaid'), '</option>
 					</select>
 				</dd>
 			</dl>
 			<fieldset>
-				<legend>', Lang::$txt['start_date_and_time'], '</legend>
+				<legend>', Lang::getTxt('start_date_and_time', file: 'ManagePaid'), '</legend>
 				<select name="year" id="year" onchange="generateDays();">';
 
 	// Show a list of all the years we allow...
@@ -271,7 +272,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
+					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
 
 	echo '
 				</select>
@@ -290,7 +291,7 @@ function template_modify_user_subscription()
 				<input type="number" name="minute" value="', Utils::$context['sub']['start']['min'], '" size="2" min="0" max="59">
 			</fieldset>
 			<fieldset>
-				<legend>', Lang::$txt['end_date_and_time'], '</legend>
+				<legend>', Lang::getTxt('end_date_and_time', file: 'ManagePaid'), '</legend>
 				<select name="yearend" id="yearend" onchange="generateDays(\'end\');">';
 
 	// Show a list of all the years we allow...
@@ -305,7 +306,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
+					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
 
 	echo '
 				</select>
@@ -323,34 +324,32 @@ function template_modify_user_subscription()
 				:
 				<input type="number" name="minuteend" value="', Utils::$context['sub']['end']['min'], '" size="2" min="0" max="59">
 			</fieldset>
-			<input type="submit" name="save_sub" value="', Lang::$txt['paid_settings_save'], '" class="button">
+			<input type="submit" name="save_sub" value="', Lang::getTxt('paid_settings_save', file: 'ManagePaid'), '" class="button">
 		</div><!-- .windowbg -->
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 	</form>
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'name_subscriber\',
 			sControlId: \'name_control\',
 			sSearchType: \'member\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
-			bItemList: false
-			});
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
+		});
 	</script>';
 
 	if (!empty(Utils::$context['pending_payments']))
 	{
 		echo '
 	<div class="cat_bar">
-		<h3 class="catbg">', Lang::$txt['pending_payments'], '</h3>
+		<h3 class="catbg">', Lang::getTxt('pending_payments', file: 'ManagePaid'), '</h3>
 	</div>
 	<div class="information">
-		', Lang::$txt['pending_payments_desc'], '
+		', Lang::getTxt('pending_payments_desc', file: 'ManagePaid'), '
 	</div>
 	<div class="cat_bar">
-		<h3 class="catbg">', Lang::$txt['pending_payments_value'], '</h3>
+		<h3 class="catbg">', Lang::getTxt('pending_payments_value', file: 'ManagePaid'), '</h3>
 	</div>
 	<div class="windowbg">
 		<ul>';
@@ -360,10 +359,10 @@ function template_modify_user_subscription()
 			<li>
 				', $payment['desc'], '
 				<span class="floatleft">
-					<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', Utils::$context['log_id'], ';pending=', $id, ';accept">', Lang::$txt['pending_payments_accept'], '</a>
+					<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', Utils::$context['log_id'], ';pending=', $id, ';accept">', Lang::getTxt('pending_payments_accept', file: 'ManagePaid'), '</a>
 				</span>
 				<span class="floatright">
-					<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', Utils::$context['log_id'], ';pending=', $id, ';remove">', Lang::$txt['pending_payments_remove'], '</a>
+					<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', Utils::$context['log_id'], ';pending=', $id, ';remove">', Lang::getTxt('pending_payments_remove', file: 'ManagePaid'), '</a>
 				</span>
 			</li>';
 
@@ -384,19 +383,19 @@ function template_user_subscription()
 	<div id="paid_subscription">
 		<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=subscriptions;confirm" method="post">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['subscriptions'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('subscriptions', file: 'ManagePaid'), '</h3>
 			</div>';
 
 	if (empty(Utils::$context['subscriptions']))
 		echo '
 			<div class="information">
-				', Lang::$txt['paid_subs_none'], '
+				', Lang::getTxt('paid_subs_none', file: 'ManagePaid'), '
 			</div>';
 	else
 	{
 		echo '
 			<div class="information">
-				', Lang::$txt['paid_subs_desc'], '
+				', Lang::getTxt('paid_subs_desc', file: 'ManagePaid'), '
 			</div>';
 
 		// Print out all the subscriptions.
@@ -416,12 +415,12 @@ function template_user_subscription()
 
 			if (!$subscription['flexible'])
 				echo '
-				<div><strong>', Lang::$txt['paid_duration'], '</strong> ', $subscription['length'], '</div>';
+				<div><strong>', Lang::getTxt('paid_duration', file: 'ManagePaid'), '</strong> ', $subscription['length'], '</div>';
 
 			if (User::$me->is_owner)
 			{
 				echo '
-				<strong>', Lang::$txt['paid_cost'], '</strong>';
+				<strong>', Lang::getTxt('paid_cost', file: 'ManagePaid'), '</strong>';
 
 				if ($subscription['flexible'])
 				{
@@ -431,7 +430,7 @@ function template_user_subscription()
 					// Print out the costs for this one.
 					foreach ($subscription['costs'] as $duration => $value)
 						echo '
-					<option value="', $duration, '">', sprintf(Config::$modSettings['paid_currency_symbol'], $value), '/', Lang::$txt[$duration], '</option>';
+					<option value="', $duration, '">', sprintf(Config::$modSettings['paid_currency_symbol'], $value), '/', Lang::getTxt($duration, file: 'ManagePaid'), '</option>';
 
 					echo '
 				</select>';
@@ -442,11 +441,11 @@ function template_user_subscription()
 
 				echo '
 				<hr>
-				<input type="submit" name="sub_id[', $subscription['id'], ']" value="', Lang::$txt['paid_order'], '" class="button">';
+				<input type="submit" name="sub_id[', $subscription['id'], ']" value="', Lang::getTxt('paid_order', file: 'ManagePaid'), '" class="button">';
 			}
 			else
 				echo '
-				<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', $subscription['id'], ';uid=', Utils::$context['member']['id'], (empty(Utils::$context['current'][$subscription['id']]) ? '' : ';lid=' . Utils::$context['current'][$subscription['id']]['id']), '">', empty(Utils::$context['current'][$subscription['id']]) ? Lang::$txt['paid_admin_add'] : Lang::$txt['paid_edit_subscription'], '</a>';
+				<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', $subscription['id'], ';uid=', Utils::$context['member']['id'], (empty(Utils::$context['current'][$subscription['id']]) ? '' : ';lid=' . Utils::$context['current'][$subscription['id']]['id']), '">', Lang::getTxt(empty(Utils::$context['current'][$subscription['id']]) ? 'paid_admin_add' : 'paid_edit_subscription', file: 'ManagePaid'), '</a>';
 
 			echo '
 			</div><!-- .windowbg -->';
@@ -457,18 +456,18 @@ function template_user_subscription()
 		</form>
 		<br class="clear">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['paid_current'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('paid_current', file: 'ManagePaid'), '</h3>
 		</div>
 		<div class="information">
-			', Lang::$txt['paid_current_desc'], '
+			', Lang::getTxt('paid_current_desc', file: 'ManagePaid'), '
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th style="width: 30%">', Lang::$txt['paid_name'], '</th>
-					<th>', Lang::$txt['paid_status'], '</th>
-					<th>', Lang::$txt['start_date'], '</th>
-					<th>', Lang::$txt['end_date'], '</th>
+					<th style="width: 30%">', Lang::getTxt('paid_name', file: 'ManagePaid'), '</th>
+					<th>', Lang::getTxt('paid_status', file: 'ManagePaid'), '</th>
+					<th>', Lang::getTxt('start_date', file: 'ManagePaid'), '</th>
+					<th>', Lang::getTxt('end_date', file: 'ManagePaid'), '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -477,7 +476,7 @@ function template_user_subscription()
 		echo '
 				<tr class="windowbg">
 					<td colspan="4">
-						', Lang::$txt['paid_none_yet'], '
+						', Lang::getTxt('paid_none_yet', file: 'ManagePaid'), '
 					</td>
 				</tr>';
 
@@ -511,21 +510,21 @@ function template_choose_payment()
 	echo '
 	<div id="paid_subscription">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['paid_confirm_payment'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('paid_confirm_payment', file: 'ManagePaid'), '</h3>
 		</div>
 		<div class="information">
-			', Lang::$txt['paid_confirm_desc'], '
+			', Lang::getTxt('paid_confirm_desc', file: 'ManagePaid'), '
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', Lang::$txt['subscription'], '</strong>
+					<strong>', Lang::getTxt('subscription', file: 'ManagePaid'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['sub']['name'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['paid_cost'], '</strong>
+					<strong>', Lang::getTxt('paid_cost', file: 'ManagePaid'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['cost'], '
@@ -574,14 +573,12 @@ function template_paid_done()
 	echo '
 	<div id="paid_subscription">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['paid_done'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('paid_done', file: 'ManagePaid'), '</h3>
 		</div>
 		<div class="windowbg">
-			<p>', Lang::$txt['paid_done_desc'], '</p>
+			<p>', Lang::getTxt('paid_done_desc', file: 'ManagePaid'), '</p>
 			<br>
-			<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['member']['id'], ';area=subscriptions">', Lang::$txt['paid_sub_return'], '</a>
+			<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['member']['id'], ';area=subscriptions">', Lang::getTxt('paid_sub_return', file: 'ManagePaid'), '</a>
 		</div>
 	</div>';
 }
-
-?>

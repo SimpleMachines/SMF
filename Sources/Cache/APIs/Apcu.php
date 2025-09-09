@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,7 +18,7 @@ namespace SMF\Cache\APIs;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -29,12 +29,16 @@ if (!defined('SMF')) {
  */
 class Apcu extends CacheApi implements CacheApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
-		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
+		$supported = \function_exists('apcu_fetch') && \function_exists('apcu_store');
 
 		if ($test) {
 			return $supported;
@@ -44,7 +48,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -52,7 +56,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -64,7 +68,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -79,7 +83,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -89,12 +93,10 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
 		return phpversion('apcu');
 	}
 }
-
-?>

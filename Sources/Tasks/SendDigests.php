@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class SendDigests extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -48,7 +52,6 @@ class SendDigests extends ScheduledTask
 		$notify = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 				mem.lngfile, mem.id_member
 			FROM {db_prefix}log_notify AS ln
@@ -90,7 +93,6 @@ class SendDigests extends ScheduledTask
 
 		// Just get the board names.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, name
 			FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:board_list})',
@@ -112,7 +114,6 @@ class SendDigests extends ScheduledTask
 		// Get the actual topics...
 		$types = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 				b.name AS board_name
 			FROM {db_prefix}log_digest AS ld
@@ -181,27 +182,23 @@ class SendDigests extends ScheduledTask
 		$langtxt = [];
 
 		foreach ($langs as $lang) {
-			Lang::load('Post', $lang);
-			Lang::load('General', $lang);
-			Lang::load('EmailTemplates', $lang);
-
 			$langtxt[$lang] = [
-				'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
-				'char_set' => Lang::$txt['lang_character_set'],
-				'intro' => Lang::getTxt('digest_intro_' . ($is_weekly ? 'weekly' : 'daily'), ['forum_name' => Config::$mbname]),
-				'new_topics' => Lang::$txt['digest_new_topics'],
-				'topic_lines' => Lang::$txt['digest_new_topics_line'],
-				'new_replies' => Lang::$txt['digest_new_replies'],
-				'mod_actions' => Lang::$txt['digest_mod_actions'],
-				'replies' => Lang::$txt['digest_num_replies'],
-				'sticky' => Lang::$txt['digest_mod_act_sticky'],
-				'lock' => Lang::$txt['digest_mod_act_lock'],
-				'unlock' => Lang::$txt['digest_mod_act_unlock'],
-				'remove' => Lang::$txt['digest_mod_act_remove'],
-				'move' => Lang::$txt['digest_mod_act_move'],
-				'merge' => Lang::$txt['digest_mod_act_merge'],
-				'split' => Lang::$txt['digest_mod_act_split'],
-				'bye' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+				'subject' => Lang::getTxt('digest_subject_' . ($is_weekly ? 'weekly' : 'daily'), file: 'Post', lang: $lang),
+				'char_set' => 'UTF-8',
+				'intro' => Lang::getTxt('digest_intro_' . ($is_weekly ? 'weekly' : 'daily'), ['forum_name' => Config::$mbname], file: 'Post', lang: $lang),
+				'new_topics' => Lang::getTxt('digest_new_topics', file: 'Post', lang: $lang),
+				'topic_lines' => Lang::getTxt('digest_new_topics_line', file: 'Post', lang: $lang),
+				'new_replies' => Lang::getTxt('digest_new_replies', file: 'Post', lang: $lang),
+				'mod_actions' => Lang::getTxt('digest_mod_actions', file: 'Post', lang: $lang),
+				'replies' => Lang::getTxt('digest_num_replies', file: 'Post', lang: $lang),
+				'sticky' => Lang::getTxt('digest_mod_act_sticky', file: 'Post', lang: $lang),
+				'lock' => Lang::getTxt('digest_mod_act_lock', file: 'Post', lang: $lang),
+				'unlock' => Lang::getTxt('digest_mod_act_unlock', file: 'Post', lang: $lang),
+				'remove' => Lang::getTxt('digest_mod_act_remove', file: 'Post', lang: $lang),
+				'move' => Lang::getTxt('digest_mod_act_move', file: 'Post', lang: $lang),
+				'merge' => Lang::getTxt('digest_mod_act_merge', file: 'Post', lang: $lang),
+				'split' => Lang::getTxt('digest_mod_act_split', file: 'Post', lang: $lang),
+				'bye' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General', lang: $lang),
 			];
 
 			IntegrationHook::call('integrate_daily_digest_lang', [&$langtxt, $lang]);
@@ -223,9 +220,6 @@ class SendDigests extends ScheduledTask
 				continue;
 			}
 
-			// Right character set!
-			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : Config::$modSettings['global_character_set'];
-
 			// Do the start stuff!
 			$email = [
 				'subject' => Config::$mbname . ' - ' . $langtxt[$lang]['subject'],
@@ -239,7 +233,7 @@ class SendDigests extends ScheduledTask
 
 				foreach ($types['topic'] as $id => $board) {
 					foreach ($board['lines'] as $topic) {
-						if (in_array($mid, $topic['members'])) {
+						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_topics'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
@@ -261,7 +255,7 @@ class SendDigests extends ScheduledTask
 
 				foreach ($types['reply'] as $id => $board) {
 					foreach ($board['lines'] as $topic) {
-						if (in_array($mid, $topic['members'])) {
+						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_replies'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
@@ -288,7 +282,7 @@ class SendDigests extends ScheduledTask
 
 					foreach ($type as $id => $board) {
 						foreach ($board['lines'] as $topic) {
-							if (in_array($mid, $topic['members'])) {
+							if (\in_array($mid, $topic['members'])) {
 								if (!$titled) {
 									$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
 									$titled = true;
@@ -308,7 +302,7 @@ class SendDigests extends ScheduledTask
 			}
 
 			// Then just say our goodbyes!
-			$email['body'] .= "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]);
+			$email['body'] .= "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General');
 
 			// Send it - low priority!
 			Mail::send($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
@@ -319,7 +313,6 @@ class SendDigests extends ScheduledTask
 		// Clean up...
 		if ($is_weekly) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_digest
 				WHERE daily != {int:not_daily}',
 				[
@@ -328,7 +321,6 @@ class SendDigests extends ScheduledTask
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_digest
 				SET daily = {int:daily_value}
 				WHERE daily = {int:not_daily}',
@@ -340,7 +332,6 @@ class SendDigests extends ScheduledTask
 		} else {
 			// Clear any only weekly ones, and stop us from sending daily again.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_digest
 				WHERE daily = {int:daily_value}',
 				[
@@ -349,7 +340,6 @@ class SendDigests extends ScheduledTask
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_digest
 				SET daily = {int:both_value}
 				WHERE daily = {int:no_value}',
@@ -363,7 +353,6 @@ class SendDigests extends ScheduledTask
 		// Just in case the member changes their settings mark this as sent.
 		if (!empty($members_sent)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE id_member IN ({array_int:member_list})',
@@ -377,5 +366,3 @@ class SendDigests extends ScheduledTask
 		return true;
 	}
 }
-
-?>

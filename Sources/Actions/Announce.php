@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -41,7 +41,6 @@ class Announce implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -86,15 +85,14 @@ class Announce implements ActionInterface, Routable
 			ErrorHandler::fatalLang('topic_gone', false);
 		}
 
-		Lang::load('Post');
 		Theme::loadTemplate('Post');
 
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
+		Utils::$context['page_title'] = Lang::getTxt('announce_topic', file: 'Post');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -121,7 +119,6 @@ class Announce implements ActionInterface, Routable
 
 		// Get the subject of the topic we're about to announce.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -162,12 +159,11 @@ class Announce implements ActionInterface, Routable
 
 		// Make sure all membergroups are integers and can access the board of the announcement.
 		foreach ($_POST['who'] as $id => $mg) {
-			$_POST['who'][$id] = in_array((int) $mg, $groups) ? (int) $mg : 0;
+			$_POST['who'][$id] = \in_array((int) $mg, $groups) ? (int) $mg : 0;
 		}
 
 		// Get the topic subject and censor it.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.subject, m.body
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -191,7 +187,6 @@ class Announce implements ActionInterface, Routable
 		$rows = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.email_address, mem.lngfile
 			FROM {db_prefix}members AS mem
 			WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
@@ -282,11 +277,6 @@ class Announce implements ActionInterface, Routable
 		Utils::$context['go_back'] = empty($_REQUEST['goback']) ? 0 : 1;
 		Utils::$context['membergroups'] = implode(',', $_POST['who']);
 		Utils::$context['sub_template'] = 'announcement_send';
-
-		// Go back to the correct language for the user ;).
-		if (!empty(Config::$modSettings['userLanguage'])) {
-			Lang::load('Post');
-		}
 	}
 
 	/******************
@@ -303,5 +293,3 @@ class Announce implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

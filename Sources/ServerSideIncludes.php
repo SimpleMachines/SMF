@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,7 +16,9 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Performs all the necessary setup and security checks for SSI access, and
@@ -29,64 +31,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class ServerSideIncludes
 {
-	/******************************
-	 * Properties for internal use.
-	 ******************************/
-
-	/**
-	 * @var int
-	 *
-	 * Remembers the error_reporting level prior to SSI starting, so that we can
-	 * restore it once we are done.
-	 */
-	protected $error_reporting;
-
-	/**
-	 * @var bool
-	 *
-	 * Whether SSI setup has been completed.
-	 */
-	protected static $setup_done = false;
-
-	/******************************************************************
-	 * Properties that allow external scripts to control SSI behaviour.
-	 ******************************************************************/
-
-	/**
-	 * @var array
-	 *
-	 * Names of various global variables that external scripts can declare in
-	 * order to influence the behaviour of SSI.
-	 */
-	protected $ssi_globals = [
-		'ssi_on_error_method',
-		'ssi_maintenance_off',
-		'ssi_theme',
-		'ssi_layers',
-		'ssi_gzip',
-		'ssi_ban',
-		'ssi_guest_access',
-	];
-
-	/**
-	 * @var bool|string
-	 *
-	 * Local copy of the global $ssi_on_error_method variable.
-	 *
-	 * Set this to one of three values depending on what you want to happen in
-	 * the case of a fatal error:
-	 *
-	 *  false:   Default. Will just load the error sub template and die without
-	 *           putting any theme layers around it.
-	 *
-	 *  true:    Will load the error sub template AND put the SMF layers around
-	 *           it. (Not useful if on total custom pages.)
-	 *
-	 *  string:  Name of a callback function to call in the event of an error to
-	 *           allow you to define your own methods. Will die after function
-	 *           returns.
-	 */
-	public static $on_error_method = false;
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var bool
@@ -144,10 +91,270 @@ class ServerSideIncludes
 	 */
 	public $gzip;
 
-	/****************************************************************
-	 * Static methods that allow external scripts to access SMF data.
-	 * These are the interesting parts of this class.
-	 ****************************************************************/
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var bool|string
+	 *
+	 * Local copy of the global $ssi_on_error_method variable.
+	 *
+	 * Set this to one of three values depending on what you want to happen in
+	 * the case of a fatal error:
+	 *
+	 *  false:   Default. Will just load the error sub template and die without
+	 *           putting any theme layers around it.
+	 *
+	 *  true:    Will load the error sub template AND put the SMF layers around
+	 *           it. (Not useful if on total custom pages.)
+	 *
+	 *  string:  Name of a callback function to call in the event of an error to
+	 *           allow you to define your own methods. Will die after function
+	 *           returns.
+	 */
+	public static $on_error_method = false;
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var int
+	 *
+	 * Remembers the error_reporting level prior to SSI starting, so that we can
+	 * restore it once we are done.
+	 */
+	protected $error_reporting;
+
+	/**
+	 * @var array
+	 *
+	 * Names of various global variables that external scripts can declare in
+	 * order to influence the behaviour of SSI.
+	 */
+	protected $ssi_globals = [
+		'ssi_on_error_method',
+		'ssi_maintenance_off',
+		'ssi_theme',
+		'ssi_layers',
+		'ssi_gzip',
+		'ssi_ban',
+		'ssi_guest_access',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether SSI setup has been completed.
+	 */
+	protected static $setup_done = false;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Constructor.
+	 *
+	 * Sets up stuff we need for safe use of SSI.
+	 */
+	public function __construct()
+	{
+		// SSI isn't meant to be used from within the forum,
+		// but apparently someone is doing so anyway...
+		if (\defined('SMF') && SMF !== 'SSI') {
+			if (!self::$setup_done) {
+				IntegrationHook::call('integrate_SSI');
+			}
+
+			self::$setup_done = true;
+		}
+
+		// Don't do the setup steps more than once.
+		if (self::$setup_done) {
+			return;
+		}
+
+		foreach ($this->ssi_globals as $var) {
+			if (isset($GLOBALS[$var])) {
+				if ($var === 'ssi_on_error_method') {
+					self::$on_error_method = $GLOBALS[$var];
+				} else {
+					$this->{substr($var, 4)} = $GLOBALS[$var];
+				}
+			}
+		}
+
+		$this->error_reporting = error_reporting(DebugUtils::isDebugEnabled() ? E_ALL : E_ALL & ~E_DEPRECATED);
+
+		if (!isset($this->gzip)) {
+			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
+		}
+
+		// Don't do john didley if the forum's been shut down completely.
+		if (Config::$maintenance == 2 && $this->maintenance_off !== true) {
+			ErrorHandler::displayMaintenanceMessage();
+		}
+
+		// Initiate the database connection and define some database functions to use.
+		Db::load();
+
+		// Load installed 'Mods' settings.
+		Config::reloadModSettings();
+
+		// Clean the request variables.
+		QueryString::cleanRequest();
+
+		// Seed the random generator?
+		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
+			Config::generateSeed();
+		}
+
+		// Check on any hacking attempts.
+		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $this->theme) {
+			die('No direct access...');
+		}
+
+		if (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $this->theme) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['ssi_layers'], $this->layers) && $_REQUEST['ssi_layers'] == $this->layers) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['context'])) {
+			die('No direct access...');
+		}
+
+		// Gzip output? (because it must be boolean and true, this can't be hacked.)
+		if ($this->gzip === true && \ini_get('zlib.output_compression') != '1' && \ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
+			ob_start('ob_gzhandler');
+		} else {
+			Config::$modSettings['enableCompressedOutput'] = '0';
+		}
+
+		// Primarily, this is to fix the URLs...
+		ob_start('SMF\\QueryString::rewriteAsQueryless');
+
+		// Start the session... known to scramble SSI includes in cases...
+		if (!headers_sent()) {
+			Session::load();
+		} else {
+			if (isset($_COOKIE[session_name()]) || isset($_REQUEST[session_name()])) {
+				// Make a stab at it, but ignore the E_WARNINGs generated because we can't send headers.
+				$temp = error_reporting(error_reporting() & !E_WARNING);
+				Session::load();
+				error_reporting($temp);
+			}
+
+			if (!isset($_SESSION['session_value'])) {
+				// Ensure session_var always starts with a letter.
+				$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
+				$_SESSION['session_value'] = bin2hex(random_bytes(16));
+			}
+			User::$sc = $_SESSION['session_value'];
+		}
+
+		// Get rid of Board::$board_id and Topic::$topic_id... do stuff loadBoard would do.
+		Board::$board_id = null;
+		Topic::$topic_id = null;
+		Utils::$context['linktree'] = [];
+
+		// Load the user and their cookie, as well as their settings.
+		User::load();
+
+		// No one is a moderator outside the forum.
+		User::$me->is_mod = false;
+
+		// Load the current user's permissions....
+		User::$me->loadPermissions();
+
+		// Load the current or SSI theme. (just use $this->theme = id_theme;)
+		Theme::load((int) $this->theme);
+
+		// @todo: probably not the best place, but somewhere it should be set...
+		if (!headers_sent()) {
+			header('content-type: text/html; charset=UTF-8');
+		}
+
+		// Take care of any banning that needs to be done.
+		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
+			User::$me->kickIfBanned();
+		}
+
+		// Do we allow guests in here?
+		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php') {
+			User::$me->kickIfGuest();
+			Utils::obExit(null, true);
+		}
+
+		// Load the stuff like the menu bar, etc.
+		if (isset($this->layers)) {
+			Utils::$context['template_layers'] = $this->layers;
+			Theme::template_header();
+		} else {
+			Theme::setupContext();
+		}
+
+		// Make sure they didn't muss around with the settings... but only if it's not cli.
+		if (IP::getUserIP() !== '' && !Sapi::isCLI() && session_id() == '') {
+			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
+		}
+
+		// Without visiting the forum this session variable might not be set on submit.
+		if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote')) {
+			$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+		}
+
+		// Have the ability to easily add functions to SSI.
+		IntegrationHook::call('integrate_SSI');
+
+		self::$setup_done = true;
+	}
+
+	/**
+	 * Allows accessing an SSI function via URL parameters.
+	 *
+	 * @return true
+	 */
+	public function execute(): bool
+	{
+		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
+		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
+			// You shouldn't just access SSI.php directly by URL!!
+			if (!isset($_GET['ssi_function'])) {
+				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''], file: 'General'));
+			}
+
+			// Call a function passed by GET.
+			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
+				\call_user_func([__CLASS__, $_GET['ssi_function']]);
+			}
+
+			exit;
+		}
+
+		// To avoid side effects later on.
+		unset($_GET['ssi_function']);
+
+		error_reporting($this->error_reporting);
+
+		return true;
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * This shuts down the SSI and shows the footer.
@@ -278,19 +485,16 @@ class ServerSideIncludes
 					[
 						'forum_name' => Utils::$context['forum_name_html_safe'],
 						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ');',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ');',
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
+					file: 'General',
 				);
 			} else {
-				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>';
+				echo Lang::getTxt('hello_member', file: 'General'), ' <strong>', User::$me->name, '</strong>';
 
 				if (User::$me->allowedTo('pm_read')) {
-					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages]);
-
-					if (!empty(User::$me->messages)) {
-						echo ', ', Lang::getTxt('msg_alert_new', [User::$me->unread_messages]);
-					}
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages], file: 'General');
 				}
 			}
 
@@ -349,7 +553,7 @@ class ServerSideIncludes
 			return false;
 		}
 
-		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::$txt['logout'] . '</a>';
+		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::getTxt('logout', file: 'General') . '</a>';
 
 		if ($output_method == 'echo') {
 			echo $link;
@@ -382,12 +586,12 @@ class ServerSideIncludes
 		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board'])) {
 			$exclude_boards = [Config::$modSettings['recycle_board']];
 		} else {
-			$exclude_boards = empty($exclude_boards) ? [] : (is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
+			$exclude_boards = empty($exclude_boards) ? [] : (\is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
 		}
 
 		// What about including certain boards - note we do some protection here as pre-2.0 didn't have this parameter.
-		if (is_array($include_boards) || (int) $include_boards === $include_boards) {
-			$include_boards = is_array($include_boards) ? $include_boards : [$include_boards];
+		if (\is_array($include_boards) || (int) $include_boards === $include_boards) {
+			$include_boards = \is_array($include_boards) ? $include_boards : [$include_boards];
 		} elseif ($include_boards != null) {
 			$include_boards = [];
 		}
@@ -434,7 +638,7 @@ class ServerSideIncludes
 		}
 
 		// Allow the user to request more than one - why not?
-		$post_ids = is_array($post_ids) ? $post_ids : [$post_ids];
+		$post_ids = \is_array($post_ids) ? $post_ids : [$post_ids];
 
 		// Restrict the posts required...
 		$query_where = '
@@ -457,7 +661,7 @@ class ServerSideIncludes
 	 *
 	 * @param string $query_where The WHERE clause for the query
 	 * @param array $query_where_params An array of parameters for the WHERE clause
-	 * @param int $query_limit The maximum number of rows to return
+	 * @param int|string $query_limit The maximum number of rows to return
 	 * @param string $query_order The ORDER BY clause for the query
 	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them.
 	 * @param bool $limit_body If true, will only show the first 384 characters of the post rather than all of it
@@ -483,7 +687,6 @@ class ServerSideIncludes
 
 		// Find all the posts. Newer ones will have higher IDs.
 		$request = Db::$db->query(
-			'substring',
 			'SELECT
 				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, m.version, b.name AS board_name,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
@@ -506,6 +709,7 @@ class ServerSideIncludes
 				'current_member' => User::$me->id,
 				'is_approved' => 1,
 			]),
+			identifier: 'substring',
 		);
 		$posts = [];
 
@@ -568,7 +772,7 @@ class ServerSideIncludes
 			if (!empty(Config::$modSettings['enable_likes'])) {
 				$posts[$row['id_msg']]['likes'] = [
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
+					'you' => \in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				];
 			}
@@ -593,9 +797,7 @@ class ServerSideIncludes
 						[', $post['board']['link'], ']
 					</td>
 					<td style="vertical-align: top">
-						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', Lang::$txt['by'], ' ', $post['poster']['link'], '
-						', $post['is_new'] ? '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+						', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $post['href'] . '">', $post['subject'], '</a>', 'member_link' => $post['poster']['link']], file: 'General')), $post['is_new'] ? ' <a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : '', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -628,12 +830,12 @@ class ServerSideIncludes
 		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0) {
 			$exclude_boards = [Config::$modSettings['recycle_board']];
 		} else {
-			$exclude_boards = empty($exclude_boards) ? [] : (is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
+			$exclude_boards = empty($exclude_boards) ? [] : (\is_array($exclude_boards) ? $exclude_boards : [$exclude_boards]);
 		}
 
 		// Only some boards?.
-		if (is_array($include_boards) || (int) $include_boards === $include_boards) {
-			$include_boards = is_array($include_boards) ? $include_boards : [$include_boards];
+		if (\is_array($include_boards) || (int) $include_boards === $include_boards) {
+			$include_boards = \is_array($include_boards) ? $include_boards : [$include_boards];
 		} elseif ($include_boards != null) {
 			$output_method = $include_boards;
 			$include_boards = [];
@@ -647,7 +849,6 @@ class ServerSideIncludes
 
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 		$request = Db::$db->query(
-			'substring',
 			'SELECT
 				t.id_topic, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
@@ -667,6 +868,7 @@ class ServerSideIncludes
 				'min_message_id' => Config::$modSettings['maxMsgID'] - (!empty(Utils::$context['min_message_topics']) ? Utils::$context['min_message_topics'] : 35) * min($num_recent, 5),
 				'is_approved' => 1,
 			],
+			identifier: 'substring',
 		);
 		$topics = [];
 
@@ -684,7 +886,6 @@ class ServerSideIncludes
 
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 		$request = Db::$db->query(
-			'substring',
 			'SELECT
 				ml.poster_time, mf.subject, mf.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
@@ -703,6 +904,7 @@ class ServerSideIncludes
 				'current_member' => User::$me->id,
 				'topic_list' => array_keys($topics),
 			],
+			identifier: 'substring',
 		);
 		$posts = [];
 
@@ -790,9 +992,7 @@ class ServerSideIncludes
 						[', $post['board']['link'], ']
 					</td>
 					<td style="vertical-align: top">
-						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', Lang::$txt['by'], ' ', $post['poster']['link'], '
-						', !$post['is_new'] ? '' : '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>', '
+						', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $post['href'] . '">', $post['subject'], '</a>', 'member_link' => $post['poster']['link']], file: 'General')), !$post['is_new'] ? '' : ' <a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -822,7 +1022,6 @@ class ServerSideIncludes
 
 		// Find the latest poster.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			ORDER BY posts DESC
@@ -880,7 +1079,6 @@ class ServerSideIncludes
 
 		// Find boards with lots of posts.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				b.name, b.num_topics, b.num_posts, b.id_board,' . (!User::$me->is_guest ? ' 1 AS is_read' : '
 				(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
@@ -921,15 +1119,15 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_table">
 				<tr>
-					<th style="text-align: left">', Lang::$txt['board'], '</th>
-					<th style="text-align: left">', Lang::$txt['board_topics'], '</th>
-					<th style="text-align: left">', Lang::$txt['posts'], '</th>
+					<th style="text-align: left">', Lang::getTxt('board', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('board_topics', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('posts', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($boards as $sBoard) {
 			echo '
 				<tr>
-					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '</td>
+					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : '', '</td>
 					<td style="text-align: right">', Lang::numberFormat($sBoard['num_topics']), '</td>
 					<td style="text-align: right">', Lang::numberFormat($sBoard['num_posts']), '</td>
 				</tr>';
@@ -959,7 +1157,6 @@ class ServerSideIncludes
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			// @todo Why don't we use {query(_wanna)_see_board}?
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_' . ($type != 'replies' ? 'views' : 'replies') . ' != 0' . (Config::$modSettings['postmod_active'] ? '
@@ -982,7 +1179,6 @@ class ServerSideIncludes
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, m.id_topic, t.num_views, t.num_replies
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -1027,8 +1223,8 @@ class ServerSideIncludes
 			<table class="ssi_table">
 				<tr>
 					<th style="text-align: left"></th>
-					<th style="text-align: left">', Lang::$txt['views'], '</th>
-					<th style="text-align: left">', Lang::$txt['replies'], '</th>
+					<th style="text-align: left">', Lang::getTxt('views', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('replies', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($topics as $sTopic) {
@@ -1099,7 +1295,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo '
-		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']]), '<br>';
+		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']], file: 'General'), '<br>';
 
 			return null;
 		}
@@ -1184,7 +1380,7 @@ class ServerSideIncludes
 		}
 
 		// Can have more than one member if you really want...
-		$member_ids = is_array($member_ids) ? $member_ids : [$member_ids];
+		$member_ids = \is_array($member_ids) ? $member_ids : [$member_ids];
 
 		// Restrict it right!
 		$query_where = '
@@ -1203,7 +1399,7 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_fetchGroupMembers()
 	 *
-	 * @param int $group_id The ID of the group to get members from
+	 * @param int|null $group_id The ID of the group to get members from
 	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
 	 * @return ?array Displays a list of group members or returns an array of info about them, depending on output_method.
 	 */
@@ -1235,7 +1431,7 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_queryMembers()
 	 *
-	 * @param string $query_where The info for the WHERE clause of the query
+	 * @param string|null $query_where The info for the WHERE clause of the query
 	 * @param array $query_where_params The parameters for the WHERE clause
 	 * @param string|int $query_limit The number of rows to return or an empty string to return all
 	 * @param string $query_order The info for the ORDER BY clause of the query
@@ -1254,7 +1450,6 @@ class ServerSideIncludes
 
 		// Fetch the members in question.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . $query_where . '
@@ -1345,7 +1540,6 @@ class ServerSideIncludes
 		];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}boards',
 			[
@@ -1355,7 +1549,6 @@ class ServerSideIncludes
 		Db::$db->free_result($result);
 
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}categories',
 			[
@@ -1372,11 +1565,11 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::$txt['total_members'], ': <a href="', Config::$scripturl . '?action=mlist">', Lang::numberFormat($totals['members']), '</a><br>
-			', Lang::$txt['total_posts'], ': ', Lang::numberFormat($totals['posts']), '<br>
-			', Lang::$txt['total_topics'], ': ', Lang::numberFormat($totals['topics']), ' <br>
-			', Lang::$txt['total_cats'], ': ', Lang::numberFormat($totals['categories']), '<br>
-			', Lang::$txt['total_boards'], ': ', Lang::numberFormat($totals['boards']);
+			', Lang::getTxt('total_members', file: 'General'), ': <a href="', Config::$scripturl . '?action=mlist">', Lang::numberFormat($totals['members']), '</a><br>
+			', Lang::getTxt('total_posts', file: 'General'), ': ', Lang::numberFormat($totals['posts']), '<br>
+			', Lang::getTxt('total_topics', file: 'General'), ': ', Lang::numberFormat($totals['topics']), ' <br>
+			', Lang::getTxt('total_cats', file: 'General'), ': ', Lang::numberFormat($totals['categories']), '<br>
+			', Lang::getTxt('total_boards', file: 'General'), ': ', Lang::numberFormat($totals['boards']);
 
 		return null;
 	}
@@ -1416,20 +1609,20 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::getTxt('number_of_guests', [$return['num_guests']]), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']]);
+			', Lang::getTxt('number_of_guests', [$return['num_guests']], file: 'General'), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']], file: 'General');
 
 		$bracketList = [];
 
 		if (!empty(User::$me->buddies)) {
-			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']]);
+			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']], file: 'General');
 		}
 
 		if (!empty($return['num_spiders'])) {
-			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']]);
+			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']], file: 'General');
 		}
 
 		if (!empty($return['num_users_hidden'])) {
-			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']]);
+			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']], file: 'General');
 		}
 
 		if (!empty($bracketList)) {
@@ -1508,13 +1701,13 @@ class ServerSideIncludes
 		SecurityToken::create('login');
 
 		echo '
-			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="UTF-8">
 				<table style="border: none" class="ssi_table">
 					<tr>
-						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::$txt['username'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::getTxt('username', file: 'General'), ':</label>&nbsp;</td>
 						<td><input type="text" id="user" name="user" size="9" value="', User::$me->username, '"></td>
 					</tr><tr>
-						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::$txt['password'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::getTxt('password', file: 'General'), ':</label>&nbsp;</td>
 						<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
 					</tr>
 					<tr>
@@ -1523,7 +1716,7 @@ class ServerSideIncludes
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '" />
 							<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
 						</td>
-						<td><input type="submit" value="', Lang::$txt['login'], '" class="button"></td>
+						<td><input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button"></td>
 					</tr>
 				</table>
 			</form>';
@@ -1581,7 +1774,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1591,7 +1784,7 @@ class ServerSideIncludes
 			}
 
 			echo '
-					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('poll_vote', file: 'General'), '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
@@ -1621,10 +1814,10 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']], file: 'General') : ''), '
 				</div>';
 		} else {
-			echo Lang::$txt['poll_cannot_see'];
+			echo Lang::getTxt('poll_cannot_see', file: 'General');
 		}
 
 		return null;
@@ -1668,7 +1861,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1678,7 +1871,7 @@ class ServerSideIncludes
 			}
 
 			echo '
-					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('poll_vote', file: 'General'), '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
@@ -1708,10 +1901,10 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']], file: 'General') : ''), '
 				</div>';
 		} else {
-			echo Lang::$txt['poll_cannot_see'];
+			echo Lang::getTxt('poll_cannot_see', file: 'General');
 		}
 
 		return null;
@@ -1749,7 +1942,6 @@ class ServerSideIncludes
 
 		// Check if they have already voted, or voting is locked.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				p.id_poll, p.voting_locked, p.expire_time, p.max_votes, p.guest_vote,
 				t.id_topic,
@@ -1780,7 +1972,7 @@ class ServerSideIncludes
 		}
 
 		// Too many options checked?
-		if (count($_REQUEST['options']) > $row['max_votes']) {
+		if (\count($_REQUEST['options']) > $row['max_votes']) {
 			Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 		}
 
@@ -1791,7 +1983,7 @@ class ServerSideIncludes
 				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 			}
 			// Already voted?
-			elseif (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))) {
+			elseif (isset($_COOKIE['guest_poll_vote']) && \in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))) {
 				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 			}
 		}
@@ -1815,7 +2007,6 @@ class ServerSideIncludes
 			['id_poll', 'id_member', 'id_choice'],
 		);
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}poll_choices
 			SET votes = votes + 1
 			WHERE id_poll = {int:current_poll}
@@ -1860,8 +2051,8 @@ class ServerSideIncludes
 		}
 
 		echo '
-			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::$txt['search'], '" class="button">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
+				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::getTxt('search', file: 'General'), '" class="button">
 			</form>';
 
 		return null;
@@ -1881,7 +2072,7 @@ class ServerSideIncludes
 			new self();
 		}
 
-		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)] : '';
+		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, \count(Utils::$context['news_lines']) - 1)] : '';
 
 		// If mods want to do something with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
 		IntegrationHook::call('integrate_ssi_news');
@@ -1926,9 +2117,9 @@ class ServerSideIncludes
 			return (array) $return['calendar_birthdays'];
 		}
 
-		foreach ((array) $return['calendar_birthdays'] as $member) {
+		foreach ((array) $return['calendar_birthdays'] as $bday) {
 			echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">' . $bday->name . '</span>' . (isset($bday->age) ? ' (' . $bday->age . ')' : '') . '</a>' . (!$bday->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2004,17 +2195,16 @@ class ServerSideIncludes
 			return (array) $return['calendar_events'];
 		}
 
-		if (!is_array($return)) {
+		if (!\is_array($return)) {
 			return null;
 		}
 
 		foreach ($return['calendar_events'] as $event) {
-			if ($event['can_edit']) {
-				echo '
-		<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+			if ($event->can_edit) {
+				echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 			}
-			echo '
-		' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+			echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2055,36 +2245,34 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		Lang::load('Calendar');
-
 		if (!empty($return['calendar_holidays'])) {
 			echo '
-				<span class="holiday">' . Lang::$txt['calendar_prompt'] . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
+				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '</span><br>';
 		}
 
 		if (!empty($return['calendar_birthdays'])) {
 			echo '
-				<span class="birthday">' . Lang::$txt['birthdays_upcoming'] . '</span> ';
+				<span class="birthday">' . Lang::getTxt('birthdays_upcoming', file: 'Calendar') . '</span> ';
 
-			foreach ((array) $return['calendar_birthdays'] as $member) {
+			foreach ((array) $return['calendar_birthdays'] as $bday) {
 				echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">', $bday->name, '</span>', isset($bday->age) ? ' (' . $bday->age . ')' : '', '</a>', !$bday->is_last ? ', ' : '';
 			}
+
 			echo '
 				<br>';
 		}
 
 		if (!empty($return['calendar_events'])) {
 			echo '
-				<span class="event">' . Lang::$txt['events_upcoming'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events_upcoming', file: 'Calendar') . '</span> ';
 
 			foreach ((array) $return['calendar_events'] as $event) {
-				if ($event['can_edit']) {
-					echo '
-				<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+				if ($event->can_edit) {
+					echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 				}
-				echo '
-				' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+				echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 			}
 		}
 
@@ -2108,8 +2296,6 @@ class ServerSideIncludes
 		if (!self::$setup_done) {
 			new self();
 		}
-
-		Lang::load('Stats');
 
 		// Must be integers....
 		if ($limit === null) {
@@ -2141,7 +2327,6 @@ class ServerSideIncludes
 
 		// Make sure guests can see this board.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE ' . ($board === null ? '' : 'id_board = {int:current_board}
@@ -2154,7 +2339,7 @@ class ServerSideIncludes
 
 		if (Db::$db->num_rows($request) == 0) {
 			if ($output_method == 'echo') {
-				die(Lang::$txt['ssi_no_guests']);
+				die(Lang::getTxt('ssi_no_guests', file: 'Stats'));
 			}
 
 			return [];
@@ -2174,7 +2359,6 @@ class ServerSideIncludes
 
 		// Find the post ids.
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_first_msg
 			FROM {db_prefix}topics as t
 				LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
@@ -2201,7 +2385,6 @@ class ServerSideIncludes
 
 		// Find the posts.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.icon, m.subject, m.body, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
 				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board,
@@ -2211,7 +2394,7 @@ class ServerSideIncludes
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE t.id_first_msg IN ({array_int:post_list})
 			ORDER BY t.id_first_msg DESC
-			LIMIT ' . count($posts),
+			LIMIT ' . \count($posts),
 			[
 				'post_list' => $posts,
 			],
@@ -2286,11 +2469,11 @@ class ServerSideIncludes
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? Lang::$txt['ssi_comment'] : Lang::$txt['ssi_comments']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . Lang::getTxt('ssi_num_comments', [$row['num_replies']], file: 'Stats') . '</a>',
 				'replies' => $row['num_replies'],
 				'comment_href' => !empty($row['locked']) ? '' : Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
 				'poster' => [
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
@@ -2302,7 +2485,7 @@ class ServerSideIncludes
 				// Nasty ternary for likes not messing around the "is_last" check.
 				'likes' => !empty(Config::$modSettings['enable_likes']) ? [
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
+					'you' => \in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				] : [],
 			];
@@ -2313,7 +2496,7 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		$return[count($return) - 1]['is_last'] = true;
+		$return[\count($return) - 1]['is_last'] = true;
 
 		// If mods want to do something with this list of posts, let them do that now.
 		IntegrationHook::call('integrate_ssi_boardNews', [&$return]);
@@ -2329,7 +2512,7 @@ class ServerSideIncludes
 						', $news['icon'], '
 						<a href="', $news['href'], '">', $news['subject'], '</a>
 					</h3>
-					<div class="news_timestamp">', $news['time'], ' ', Lang::$txt['by'], ' ', $news['poster']['link'], '</div>
+					<div class="news_timestamp">', $news['time'], ' ', Lang::getTxt('by', file: 'General'), ' ', $news['poster']['link'], '</div>
 					<div class="news_body" style="padding: 2ex 0;">', Utils::adjustHeadingLevels($news['body'], 3), '</div>
 					', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
 
@@ -2340,7 +2523,7 @@ class ServerSideIncludes
 
 				if (!empty($news['likes']['can_like'])) {
 					echo '
-							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a></li>';
+							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', Lang::getTxt($news['likes']['you'] ? 'unlike' : 'like', file: 'General'), '</a></li>';
 				}
 
 				if (!empty($news['likes']['count'])) {
@@ -2354,7 +2537,7 @@ class ServerSideIncludes
 					}
 
 					echo '
-							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
+							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General'), '</li>';
 				}
 
 				echo '
@@ -2393,75 +2576,57 @@ class ServerSideIncludes
 			return null;
 		}
 
-		// Find all events which are happening in the near future that the member can see.
-		$request = Db::$db->query(
-			'',
-			'SELECT
-				cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
-				cal.start_time, cal.end_time, cal.timezone, cal.location,
-				cal.id_board, t.id_first_msg, t.approved
-			FROM {db_prefix}calendar AS cal
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
-				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)
-			WHERE cal.start_date <= {date:current_date}
-				AND cal.end_date >= {date:current_date}
-				AND (cal.id_board = {int:no_board} OR {query_wanna_see_board})
-			ORDER BY cal.start_date DESC
-			LIMIT ' . $max_events,
-			[
-				'current_date' => Time::strftime('%Y-%m-%d', time()),
-				'no_board' => 0,
-			],
-		);
-		$return = [];
-		$duplicates = [];
+		$low_date = date_create()->format('Y-m-d');
+		$high_date = date_create('now + 1 year')->format('Y-m-d');
+		$query_customizations = [
+			'limit' => $max_events,
+		];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
+		$occurrences = Event::getOccurrencesInRange($low_date, $high_date, true, $query_customizations);
+
+		foreach ($occurrences as $occurrence) {
 			// Check if we've already come by an event linked to this same topic with the same title... and don't display it if we have.
-			if (!empty($duplicates[$row['title'] . $row['id_topic']])) {
+			if (!empty($duplicates[$occurrence->title . $occurrence->topic])) {
 				continue;
 			}
 
 			// Censor the title.
-			Lang::censorText($row['title']);
+			Lang::censorText($occurrence->getParentEvent()->title);
 
-			if ($row['start_date'] < Time::strftime('%Y-%m-%d', time())) {
-				$date = Time::strftime('%Y-%m-%d', time());
+			if ($occurrence->start_date < $low_date) {
+				$date = $low_date;
 			} else {
-				$date = $row['start_date'];
+				$date = $occurrence->start_date;
 			}
 
-			// If the topic it is attached to is not approved then don't link it.
-			if (!empty($row['id_first_msg']) && !$row['approved']) {
-				$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
+			if (!empty($occurrence->topic)) {
+				$topic = Topic::load($occurrence->topic);
 			}
-
-			$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 			$return[$date][] = [
-				'id' => $row['id_event'],
-				'title' => $row['title'],
-				'location' => $row['location'],
-				'can_edit' => User::$me->allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && User::$me->allowedTo('calendar_edit_own')),
-				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
-				'start_date' => $row['start_date'],
-				'end_date' => $row['end_date'],
-				'start_time' => !$allday ? $row['start_time'] : null,
-				'end_time' => !$allday ? $row['end_time'] : null,
-				'tz' => !$allday ? $row['timezone'] : null,
-				'allday' => $allday,
+				'id' => $occurrence->id_event,
+				'recurrenceid' => $occurrence->id,
+				'title' => $occurrence->title,
+				'location' => $occurrence->location,
+				'can_edit' => $occurrence->can_edit,
+				'modify_href' => $occurrence->modify_href,
+				'href' => $occurrence->href,
+				'link' => $occurrence->link,
+				'start_date' => $occurrence->start_date,
+				'end_date' => $occurrence->end_date,
+				'start_time' => !$occurrence->allday ? $occurrence->start_time : null,
+				'end_time' => !$occurrence->allday ? $occurrence->end_time : null,
+				'tz' => !$occurrence->allday ? $occurrence->timezone : null,
+				'allday' => $occurrence->allday,
 				'is_last' => false,
 			];
 
-			// Let's not show this one again, huh?
-			$duplicates[$row['title'] . $row['id_topic']] = true;
+			// Let's not show this one again.
+			$duplicates[$occurrence->title . $occurrence->topic] = true;
 		}
-		Db::$db->free_result($request);
 
 		foreach ($return as $mday => $array) {
-			$return[$mday][count($array) - 1]['is_last'] = true;
+			$return[$mday][array_key_last($array)]['is_last'] = true;
 		}
 
 		// If mods want to do something with this list of events, let them do that now.
@@ -2471,11 +2636,9 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		Lang::load('Calendar');
-
 		// Well the output method is echo.
 		echo '
-				<span class="event">' . Lang::$txt['events'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events', file: 'Calendar') . '</span> ';
 
 		foreach ($return as $mday => $array) {
 			foreach ($array as $event) {
@@ -2497,8 +2660,8 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_checkPassword()
 	 *
-	 * @param int|string $id The ID or username of a user
-	 * @param string $password The password to check
+	 * @param int|string|null $id The ID or username of a user
+	 * @param string|null $password The password to check
 	 * @param bool $is_username If true, treats $id as a username rather than a user ID
 	 * @return bool Whether or not the password is correct.
 	 */
@@ -2518,7 +2681,6 @@ class ServerSideIncludes
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT passwd, member_name, is_activated
 			FROM {db_prefix}members
 			WHERE ' . ($is_username ? 'member_name' : 'id_member') . ' = {string:id}
@@ -2562,7 +2724,6 @@ class ServerSideIncludes
 
 		// Lets build the query.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				att.id_attach, att.id_msg, att.filename, COALESCE(att.size, 0) AS filesize, att.downloads, mem.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_topic, m.subject, t.id_board, m.poster_time,
@@ -2572,7 +2733,7 @@ class ServerSideIncludes
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = att.id_thumb)') . '
-			WHERE att.attachment_type = 0' . ($attachments_boards === [0] ? '' : '
+			WHERE att.attachment_type = {int:attachment_type}' . ($attachments_boards === [0] ? '' : '
 				AND m.id_board IN ({array_int:boards_can_see})') . (!empty($attachment_ext) ? '
 				AND att.fileext IN ({array_string:attachment_ext})' : '') .
 				(!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -2582,6 +2743,7 @@ class ServerSideIncludes
 			ORDER BY att.id_attach DESC
 			LIMIT {int:num_attachments}',
 			[
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'boards_can_see' => $attachments_boards,
 				'attachment_ext' => $attachment_ext,
 				'num_attachments' => $num_attachments,
@@ -2604,7 +2766,7 @@ class ServerSideIncludes
 				],
 				'file' => [
 					'filename' => $filename,
-					'filesize' => round($row['filesize'] / 1024, 2) . Lang::$txt['kilobyte'],
+					'filesize' => Lang::getTxt('size_kilobyte', [round($row['filesize'] / 1024, 2)], file: 'General'),
 					'downloads' => $row['downloads'],
 					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
 					'link' => '<img src="' . Theme::$current->settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
@@ -2647,10 +2809,10 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_downloads">
 				<tr>
-					<th style="text-align: left; padding: 2">', Lang::$txt['file'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['posted_by'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['downloads'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['filesize'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('file', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('posted_by', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('downloads', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('filesize', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($attachments as $attach) {
@@ -2667,204 +2829,4 @@ class ServerSideIncludes
 
 		return null;
 	}
-
-	/******************
-	 * Primary methods.
-	 ******************/
-
-	/**
-	 * Constructor. Sets up stuff we need for safe use of SSI.
-	 *
-	 */
-	public function __construct()
-	{
-		// SSI isn't meant to be used from within the forum,
-		// but apparently someone is doing so anyway...
-		if (defined('SMF') && SMF !== 'SSI') {
-			if (!self::$setup_done) {
-				IntegrationHook::call('integrate_SSI');
-			}
-
-			self::$setup_done = true;
-		}
-
-		// Don't do the setup steps more than once.
-		if (self::$setup_done) {
-			return;
-		}
-
-		foreach ($this->ssi_globals as $var) {
-			if (isset($GLOBALS[$var])) {
-				if ($var === 'ssi_on_error_method') {
-					self::$on_error_method = $GLOBALS[$var];
-				} else {
-					$this->{substr($var, 4)} = $GLOBALS[$var];
-				}
-			}
-		}
-
-		$this->error_reporting = error_reporting(!empty(Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
-
-		if (!isset($this->gzip)) {
-			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
-		}
-
-		// Don't do john didley if the forum's been shut down completely.
-		if (Config::$maintenance == 2 && $this->maintenance_off !== true) {
-			ErrorHandler::displayMaintenanceMessage();
-		}
-
-		// Initiate the database connection and define some database functions to use.
-		Db::load();
-
-		// Load installed 'Mods' settings.
-		Config::reloadModSettings();
-
-		// Clean the request variables.
-		QueryString::cleanRequest();
-
-		// Seed the random generator?
-		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-			// @TODO: Calls a deprecated function.
-			Config::generateSeed();
-		}
-
-		// Check on any hacking attempts.
-		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $this->theme) {
-			die('No direct access...');
-		}
-
-		if (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $this->theme) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['ssi_layers'], $this->layers) && $_REQUEST['ssi_layers'] == $this->layers) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['context'])) {
-			die('No direct access...');
-		}
-
-		// Gzip output? (because it must be boolean and true, this can't be hacked.)
-		if ($this->gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
-			ob_start('ob_gzhandler');
-		} else {
-			Config::$modSettings['enableCompressedOutput'] = '0';
-		}
-
-		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::ob_sessrewrite');
-
-		// Start the session... known to scramble SSI includes in cases...
-		if (!headers_sent()) {
-			Session::load();
-		} else {
-			if (isset($_COOKIE[session_name()]) || isset($_REQUEST[session_name()])) {
-				// Make a stab at it, but ignore the E_WARNINGs generated because we can't send headers.
-				$temp = error_reporting(error_reporting() & !E_WARNING);
-				Session::load();
-				error_reporting($temp);
-			}
-
-			if (!isset($_SESSION['session_value'])) {
-				// Ensure session_var always starts with a letter.
-				$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
-				$_SESSION['session_value'] = bin2hex(random_bytes(16));
-			}
-			User::$sc = $_SESSION['session_value'];
-		}
-
-		// Get rid of Board::$board_id and Topic::$topic_id... do stuff loadBoard would do.
-		Board::$board_id = null;
-		Topic::$topic_id = null;
-		Utils::$context['linktree'] = [];
-
-		// Load the user and their cookie, as well as their settings.
-		User::load();
-
-		// No one is a moderator outside the forum.
-		User::$me->is_mod = false;
-
-		// Load the current user's permissions....
-		User::$me->loadPermissions();
-
-		// Load the current or SSI theme. (just use $this->theme = id_theme;)
-		Theme::load((int) $this->theme);
-
-		// @todo: probably not the best place, but somewhere it should be set...
-		if (!headers_sent()) {
-			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
-		}
-
-		// Take care of any banning that needs to be done.
-		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
-			User::$me->kickIfBanned();
-		}
-
-		// Do we allow guests in here?
-		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php') {
-			User::$me->kickIfGuest();
-			Utils::obExit(null, true);
-		}
-
-		// Load the stuff like the menu bar, etc.
-		if (isset($this->layers)) {
-			Utils::$context['template_layers'] = $this->layers;
-			Theme::template_header();
-		} else {
-			Theme::setupContext();
-		}
-
-		// Make sure they didn't muss around with the settings... but only if it's not cli.
-		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
-			trigger_error(Lang::$txt['ssi_session_broken'], E_USER_NOTICE);
-		}
-
-		// Without visiting the forum this session variable might not be set on submit.
-		if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote')) {
-			$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
-		}
-
-		// Have the ability to easily add functions to SSI.
-		IntegrationHook::call('integrate_SSI');
-
-		self::$setup_done = true;
-	}
-
-	/**
-	 * Allows accessing an SSI function via URL parameters.
-	 *
-	 * @return true
-	 */
-	public function execute(): bool
-	{
-		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
-		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
-			// You shouldn't just access SSI.php directly by URL!!
-			if (!isset($_GET['ssi_function'])) {
-				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\'']));
-			}
-
-			// Call a function passed by GET.
-			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
-				call_user_func([__CLASS__, $_GET['ssi_function']]);
-			}
-
-			exit;
-		}
-
-		// To avoid side effects later on.
-		unset($_GET['ssi_function']);
-
-		error_reporting($this->error_reporting);
-
-		return true;
-	}
 }
-
-?>

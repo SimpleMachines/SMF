@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -809,6 +809,7 @@ class TimeZone extends \DateTimeZone
 			'America/Santiago',
 			'America/Punta_Arenas',
 			'Pacific/Easter',
+			'America/Coyhaique',
 		],
 		'CM' => [
 			'Africa/Douala',
@@ -1572,6 +1573,26 @@ class TimeZone extends \DateTimeZone
 				'tzid' => 'America/Denver',
 			],
 		],
+
+		// Diverged from America/Santiago in version 2025b.
+		'America/Coyhaique' => [
+			[
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			],
+			[
+				'ts' => '1890-01-01T04:48:16+0000',
+				'tzid' => 'America/Punta_Arenas',
+			],
+			[
+				'ts' => '1946-08-29T04:00:00+0000',
+				'tzid' => 'Chile/Continental',
+			],
+			[
+				'ts' => '2025-03-20T03:00:00+0000',
+				'tzid' => 'America/Punta_Arenas',
+			],
+		],
 	];
 
 	/****************************
@@ -1632,10 +1653,8 @@ class TimeZone extends \DateTimeZone
 	 */
 	public function getLabel(): string
 	{
-		Lang::load('Timezones');
-
-		if (!empty(Lang::$txt[$this->getName()])) {
-			return Lang::$txt[$this->getName()];
+		if (Lang::txtExists($this->getName(), file: 'Timezones')) {
+			return Lang::getTxt($this->getName(), file: 'Timezones');
 		}
 
 		// If there's no $txt string, just guess based on the tzid's name.
@@ -1647,7 +1666,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns this time zone's abbreviations (if any).
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return array The time zone's abbreviations.
@@ -1668,7 +1687,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the "meta-zone" for this time zone at the given timestamp.
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return string The $tztxt variable for this time zone's "meta-zone".
@@ -1676,6 +1695,13 @@ class TimeZone extends \DateTimeZone
 	public function getMetaZone(int|string $when = 'now'): string
 	{
 		list($when, $later) = self::getTimeRange($when);
+
+		if (
+			isset(self::$metazones[$this->getName()])
+			&& Lang::txtExists(self::$metazones[$this->getName()], var: 'tztxt')
+		) {
+			return self::$metazones[$this->getName()];
+		}
 
 		if (empty(self::$metazone_transitions[$when])) {
 			self::buildMetaZoneTransitions($when);
@@ -1688,35 +1714,71 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Doesn't match any existing metazone. Can we build a custom one?
+
+		// Etc/* is straightforward.
+		if (str_starts_with($this->getName(), 'Etc/')) {
+			Lang::setTxt(
+				$this->getName(),
+				'UTC' . $this->getAbbreviations()[0],
+				var: 'tztxt',
+			);
+
+			return $this->getName();
+		}
+
+		// If this is the only time zone it its country, call it that country's time.
 		$tzgeo = $this->getLocation();
 		$country_tzids = self::getSortedTzidsForCountry($tzgeo['country_code']);
 
-		if (count($country_tzids) === 1) {
-			Lang::load('Timezones');
-
-			Lang::$tztxt[$tzgeo['country_code']] = sprintf(Lang::$tztxt['generic_timezone'], Lang::$txt['iso3166'][$tzgeo['country_code']], '%1$s');
+		if ($country_tzids === [$this->getName()]) {
+			Lang::setTxt(
+				$tzgeo['country_code'],
+				Lang::getTxt(
+					'generic_timezone',
+					[
+						Lang::getTxt(['iso3166', $tzgeo['country_code']], file: 'Timezones'),
+						'%1$s',
+					],
+					var: 'tztxt',
+				),
+				var: 'tztxt',
+			);
 
 			return $tzgeo['country_code'];
 		}
 
-		return '';
+		// Otherwise, create a meta-zone just for this oddball time zone.
+		if (!Lang::txtExists($this->getName(), var: 'tztxt')) {
+			Lang::setTxt(
+				$this->getName(),
+				Lang::getTxt(
+					'generic_timezone',
+					[
+						$this->getLabel(),
+						'%1$s',
+					],
+					var: 'tztxt',
+				),
+				var: 'tztxt',
+			);
+		}
+
+		return $this->getName();
 	}
 
 	/**
 	 * Returns the "meta-zone" label for this time zone at the given timestamp.
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return string The $tztxt value for this time zone's "meta-zone".
 	 */
 	public function getMetaZoneLabel(int|string $when = 'now'): string
 	{
-		Lang::load('Timezones');
-
 		$metazone = $this->getMetaZone($when);
 
-		return Lang::$tztxt[$metazone] ?? $metazone;
+		return Lang::txtExists($metazone, var: 'tztxt') ? Lang::getTxt($metazone, var: 'tztxt') : $metazone;
 	}
 
 	/**
@@ -1733,7 +1795,7 @@ class TimeZone extends \DateTimeZone
 
 		$tzinfo = $this->getTransitions($when, $later);
 
-		if (count($tzinfo) > 1) {
+		if (\count($tzinfo) > 1) {
 			return self::DST_SWITCHES;
 		}
 
@@ -1789,9 +1851,6 @@ class TimeZone extends \DateTimeZone
 		if (isset(self::$timezones_when[$when])) {
 			return self::$timezones_when[$when];
 		}
-
-		// Load up any custom time zone descriptions we might have
-		Lang::load('Timezones');
 
 		self::buildMetaZoneTransitions($when);
 
@@ -1871,21 +1930,37 @@ class TimeZone extends \DateTimeZone
 			if (!empty($tzvalue['metazone'])) {
 				switch ($tzvalue['dst_type']) {
 					case 0:
-						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_false']);
+						$desc = Lang::formatText(
+							$tzvalue['metazone'],
+							[
+								Lang::getTxt(
+									'daylight_saving_time_false',
+									var: 'tztxt',
+								),
+							],
+						);
 						break;
 
 					case 1:
-						$desc = sprintf($tzvalue['metazone'], '');
+						$desc = Lang::formatText($tzvalue['metazone'], ['']);
 						break;
 
 					case 2:
-						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_true']);
+						$desc = Lang::formatText(
+							$tzvalue['metazone'],
+							[
+								Lang::getTxt(
+									'daylight_saving_time_true',
+									var: 'tztxt',
+								),
+							],
+						);
 						break;
 				}
 			}
 			// Otherwise, use the list of locations (max 5, so things don't get silly)
 			else {
-				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::$txt['etc'] : '');
+				$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
 			}
 
 			// We don't want abbreviations like '+03' or '-11'.
@@ -1895,12 +1970,12 @@ class TimeZone extends \DateTimeZone
 					return !strspn($abbr, '+-');
 				},
 			);
-			$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
+			$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
 			// Show the UTC offset and abbreviation(s).
 			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
-			if (in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
+			if (\in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
 				$priority_timezones[$tzvalue['tzid']] = $desc;
 			} else {
 				$timezones[$tzvalue['tzid']] = $desc;
@@ -1913,7 +1988,7 @@ class TimeZone extends \DateTimeZone
 
 		$timezones = array_merge(
 			$priority_timezones,
-			['UTC' => 'UTC' . (!empty(Lang::$tztxt['UTC']) ? ' - ' . Lang::$tztxt['UTC'] : ''), '-----'],
+			['UTC' => 'UTC' . (!empty(Lang::getTxt('UTC', var: 'tztxt')) ? ' - ' . Lang::getTxt('UTC', var: 'tztxt') : ''), '-----'],
 			$timezones,
 		);
 
@@ -1934,8 +2009,6 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function getTzidMetazones(int|string $when = 'now'): array
 	{
-		Lang::load('Timezones');
-
 		list($when, $later) = self::getTimeRange($when);
 
 		IntegrationHook::call('integrate_metazones', [&self::$metazones, $when]);
@@ -1952,7 +2025,11 @@ class TimeZone extends \DateTimeZone
 			// Use fallback where possible.
 			if (!empty($alt_tzid) && empty(self::$metazones[$alt_tzid])) {
 				self::$metazones[$alt_tzid] = self::$metazones[$orig_tzid];
-				Lang::$txt[$alt_tzid] = Lang::$txt[$orig_tzid];
+
+				Lang::setTxt(
+					$alt_tzid,
+					Lang::getTxt($orig_tzid, file: 'Timezones'),
+				);
 			}
 
 			// Either way, get rid of the unknown time zone.
@@ -2039,7 +2116,7 @@ class TimeZone extends \DateTimeZone
 
 		foreach ($tzids as $tzid) {
 			// Not missing.
-			if (!in_array($tzid, $missing)) {
+			if (!\in_array($tzid, $missing)) {
 				$replacements[$tzid] = $tzid;
 			}
 			// Missing and we have no fallback.
@@ -2049,7 +2126,7 @@ class TimeZone extends \DateTimeZone
 			// Missing, but we have a fallback.
 			else {
 				foreach (self::$fallbacks[$tzid] as &$alt) {
-					$alt['ts'] = is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
+					$alt['ts'] = \is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
 				}
 
 				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
@@ -2063,7 +2140,7 @@ class TimeZone extends \DateTimeZone
 				}
 
 				// Replacement is already in use.
-				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && !str_contains($alt['tzid'], 'Etc/'))) {
+				if (\in_array($alt['tzid'], $replacements) || (\in_array($alt['tzid'], $tzids) && !str_contains($alt['tzid'], 'Etc/'))) {
 					$replacements[$tzid] = '';
 				}
 
@@ -2085,7 +2162,7 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
 	{
-		if (is_string($country_codes)) {
+		if (\is_string($country_codes)) {
 			$country_codes = explode(',', $country_codes);
 		} else {
 			$country_codes = array_map('strval', (array) $country_codes);
@@ -2094,7 +2171,7 @@ class TimeZone extends \DateTimeZone
 		foreach ($country_codes as $key => $country_code) {
 			$country_code = strtoupper(trim($country_code));
 
-			$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
+			$country_tzids = \strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
 
 			$country_codes[$key] = empty($country_tzids) ? null : $country_code;
 		}
@@ -2116,7 +2193,7 @@ class TimeZone extends \DateTimeZone
 	 * Given a start time in any format that strtotime can understand, gets the
 	 * Unix timestamps for a date range starting then and ending one year later.
 	 *
-	 * @param string $when The date/time used to determine substitute values.
+	 * @param int|string $when The date/time used to determine substitute values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return array The start and end timestamps, in that order.
@@ -2128,12 +2205,12 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Parseable datetime string?
-		if (is_int($timestamp = strtotime((string) $when))) {
+		if (\is_int($timestamp = strtotime((string) $when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?
 		elseif (is_numeric($when)) {
-			$start = intval($when);
+			$start = \intval($when);
 		}
 		// Invalid value? Just get current Unix timestamp.
 		else {
@@ -2172,7 +2249,7 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Antarctic research stations should be listed last, unless you're running a penguin forum
-		$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
+		$low_priority_tzids = !\in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
 
 		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
 
@@ -2184,7 +2261,7 @@ class TimeZone extends \DateTimeZone
 	 * Builds a list of time zone transitions for all "meta-zones" starting from
 	 * $when until one year later.
 	 *
-	 * @param string $when The date/time used to determine substitute values.
+	 * @param int|string $when The date/time used to determine substitute values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 */
@@ -2205,5 +2282,3 @@ class TimeZone extends \DateTimeZone
 		}
 	}
 }
-
-?>

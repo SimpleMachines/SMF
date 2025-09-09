@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,10 @@ use SMF\Utils;
  */
 class GenericTask extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -37,11 +41,9 @@ class GenericTask extends BackgroundTask
 
 		// Perform the task.
 		if (!empty($callable_task)) {
-			call_user_func_array($callable_task, $args);
+			\call_user_func_array($callable_task, $args);
 		}
 
 		return true;
 	}
 }
-
-?>

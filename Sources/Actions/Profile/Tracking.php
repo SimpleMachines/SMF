@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -37,8 +38,6 @@ use SMF\Utils;
 class Tracking implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -67,31 +66,11 @@ class Tracking implements ActionInterface
 	 *    array('method', 'txt_key_for_page_title', 'permission')
 	 */
 	public static array $subactions = [
-		'activity' => [
-			'activity',
-			'trackActivity',
-			'moderate_forum',
-		],
-		'ip' => [
-			'ip',
-			'trackIP',
-			'moderate_forum',
-		],
-		'edits' => [
-			'edits',
-			'trackEdits',
-			'moderate_forum',
-		],
-		'groupreq' => [
-			'groupRequests',
-			'trackGroupRequests',
-			'approve_group_requests',
-		],
-		'logins' => [
-			'logins',
-			'trackLogins',
-			'moderate_forum',
-		],
+		'activity' => 'activity',
+		'ip' => 'ip',
+		'edits' => 'edits',
+		'groupreq' => 'groupRequests',
+		'logins' => 'logins',
 	];
 
 	/****************
@@ -107,13 +86,15 @@ class Tracking implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// This is only here for backward compatibility in case a mod needs it.
-		Utils::$context['tracking_area'] = &$this->subaction;
+		// In case a mod needs it.
+		if (!empty(Config::$backward_compatibility)) {
+			Utils::$context['tracking_area'] = &$this->subaction;
+		}
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['tracking'],
-			'description' => Lang::$txt['tracking_description'],
+			'title' => Lang::getTxt('tracking', file: 'Profile'),
+			'description' => Lang::getTxt('tracking_description', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [],
 		];
@@ -123,12 +104,19 @@ class Tracking implements ActionInterface
 		}
 
 		// Set a page title.
-		Utils::$context['page_title'] = Lang::getTxt('trackUser_page_title', ['name' => Profile::$member->name, 'subaction' => Lang::$txt[self::$subactions[$this->subaction][1]]]);
+		Utils::$context['page_title'] = Lang::getTxt(
+			'trackUser_page_title',
+			[
+				'name' => Profile::$member->name,
+				'subaction' => Menu::$loaded['profile']->sections['info']['areas']['tracking']['subsections'][Menu::$loaded['profile']->current_subsection]['label'],
+			],
+			file: 'Profile',
+		);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -137,9 +125,6 @@ class Tracking implements ActionInterface
 	 */
 	public function activity(): void
 	{
-		// Verify if the user has sufficient permissions.
-		User::$me->isAllowedTo('moderate_forum');
-
 		// Set the sub_template.
 		Utils::$context['sub_template'] = 'trackActivity';
 
@@ -154,9 +139,9 @@ class Tracking implements ActionInterface
 		// Set the options for the list component.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::getTxt('errors_by', Utils::$context['member']),
+			'title' => Lang::getTxt('errors_by', Utils::$context['member'], file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['no_errors_from_user'],
+			'no_items_label' => Lang::getTxt('no_errors_from_user', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -176,11 +161,11 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'ip_address' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . Profile::$member->id . '">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip={ip};u=' . Profile::$member->id . '">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -193,11 +178,11 @@ class Tracking implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s<br><a href="%2$s">%2$s</a>',
+						'format_text' => [
+							'format' => '{message}<br><a href="{url}">{url}</a>',
 							'params' => [
 								'message' => false,
 								'url' => false,
@@ -207,7 +192,7 @@ class Tracking implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -221,7 +206,7 @@ class Tracking implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['errors_desc'],
+					'value' => Lang::getTxt('errors_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -233,7 +218,6 @@ class Tracking implements ActionInterface
 		// If this is a big forum, or a large posting user, let's limit the search.
 		if (Config::$modSettings['totalMessages'] > 50000 && Profile::$member->posts > 500) {
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(id_msg)
 				FROM {db_prefix}messages AS m
 				WHERE m.id_member = {int:current_member}',
@@ -259,7 +243,6 @@ class Tracking implements ActionInterface
 		Utils::$context['ips'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_member}
@@ -274,7 +257,7 @@ class Tracking implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['poster_ip'] = new IP($row['poster_ip']);
+			$row['poster_ip'] = (string) new IP($row['poster_ip']);
 
 			Utils::$context['ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['poster_ip'] . ';u=' . Profile::$member->id . '">' . $row['poster_ip'] . '</a>';
 
@@ -286,7 +269,6 @@ class Tracking implements ActionInterface
 		Utils::$context['error_ips'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS error_count, ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_member}
@@ -297,7 +279,7 @@ class Tracking implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['ip'] = new IP($row['ip']);
+			$row['ip'] = (string) new IP($row['ip']);
 
 			Utils::$context['error_ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['ip'] . ';u=' . Profile::$member->id . '">' . $row['ip'] . '</a>';
 
@@ -316,7 +298,6 @@ class Tracking implements ActionInterface
 			// Get member ID's which are in messages...
 			$message_members = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT DISTINCT mem.id_member
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -336,7 +317,6 @@ class Tracking implements ActionInterface
 			// Fetch their names, cause of the GROUP BY doesn't like giving us that normally.
 			if (!empty($message_members)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, real_name
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:message_members})',
@@ -353,7 +333,6 @@ class Tracking implements ActionInterface
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member != {int:current_member}
@@ -388,7 +367,6 @@ class Tracking implements ActionInterface
 		Utils::$context['custom_field_titles'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, bbc
 			FROM {db_prefix}custom_fields',
 			[
@@ -397,7 +375,7 @@ class Tracking implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Utils::$context['custom_field_titles']['customfield_' . $row['col_name']] = [
-				'title' => $row['field_name'],
+				'title' => Lang::tokenTxtReplace($row['field_name']),
 				'parse_bbc' => $row['bbc'],
 			];
 		}
@@ -406,9 +384,9 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'edit_list',
-			'title' => Lang::$txt['trackEdits'],
+			'title' => Lang::getTxt('trackEdits', file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['trackEdit_no_edits'],
+			'no_items_label' => Lang::getTxt('trackEdit_no_edits', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=edits;u=' . Profile::$member->id,
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -422,7 +400,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'action' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_action'],
+						'value' => Lang::getTxt('trackEdit_action', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'action_text',
@@ -430,7 +408,7 @@ class Tracking implements ActionInterface
 				],
 				'before' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_before'],
+						'value' => Lang::getTxt('trackEdit_before', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'before',
@@ -438,7 +416,7 @@ class Tracking implements ActionInterface
 				],
 				'after' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_after'],
+						'value' => Lang::getTxt('trackEdit_after', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'after',
@@ -446,7 +424,7 @@ class Tracking implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -458,7 +436,7 @@ class Tracking implements ActionInterface
 				],
 				'applicator' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_applicator'],
+						'value' => Lang::getTxt('trackEdit_applicator', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -482,9 +460,9 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'request_list',
-			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member']),
+			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member'], file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['requested_none'],
+			'no_items_label' => Lang::getTxt('requested_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . Profile::$member->id,
 			'default_sort_col' => 'time_applied',
 			'get_items' => [
@@ -498,7 +476,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'group' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group'],
+						'value' => Lang::getTxt('requested_group', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'group_name',
@@ -506,7 +484,7 @@ class Tracking implements ActionInterface
 				],
 				'group_reason' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_reason'],
+						'value' => Lang::getTxt('requested_group_reason', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'group_reason',
@@ -514,7 +492,7 @@ class Tracking implements ActionInterface
 				],
 				'time_applied' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_time'],
+						'value' => Lang::getTxt('requested_group_time', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'time_applied',
@@ -527,7 +505,7 @@ class Tracking implements ActionInterface
 				],
 				'outcome' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_outcome'],
+						'value' => Lang::getTxt('requested_group_outcome', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'outcome',
@@ -553,8 +531,8 @@ class Tracking implements ActionInterface
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_logins_list',
-			'title' => Lang::$txt['trackLogins'],
-			'no_items_label' => Lang::$txt['trackLogins_none_found'],
+			'title' => Lang::getTxt('trackLogins', file: 'Profile'),
+			'no_items_label' => Lang::getTxt('trackLogins_none_found', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'],
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getLogins',
@@ -573,7 +551,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -581,11 +559,11 @@ class Tracking implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a> (<a href="' . Utils::$context['base_url'] . ';searchip=%2$s">%2$s</a>) ',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a> (<a href="' . Utils::$context['base_url'] . ';searchip={ip2}">{ip2}</a>) ',
 							'params' => [
 								'ip' => false,
 								'ip2' => false,
@@ -597,7 +575,7 @@ class Tracking implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['trackLogins_desc'],
+					'value' => Lang::getTxt('trackLogins_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -629,7 +607,6 @@ class Tracking implements ActionInterface
 		$error_messages = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				le.log_time, le.ip, le.url, le.message, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, {string:guest_title}) AS display_name, mem.member_name
@@ -639,7 +616,7 @@ class Tracking implements ActionInterface
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
 			array_merge($where_vars, [
-				'guest_title' => Lang::$txt['guest_title'],
+				'guest_title' => Lang::getTxt('guest_title', file: 'General'),
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,
@@ -648,7 +625,7 @@ class Tracking implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$error_messages[] = [
-				'ip' => new IP($row['ip']),
+				'ip' => (string) new IP($row['ip']),
 				'member_link' => $row['id_member'] > 0 ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>' : $row['display_name'],
 				'message' => strtr($row['message'], ['&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '']),
 				'url' => $row['url'],
@@ -671,7 +648,6 @@ class Tracking implements ActionInterface
 	public static function list_getUserErrorCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_errors
 			WHERE ' . $where,
@@ -695,10 +671,10 @@ class Tracking implements ActionInterface
 	{
 		$edits = [];
 		$applicators = [];
+		$member_groups = null;
 
 		// Get a list of error messages from this ip (range).
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_action, id_member, ip, log_time, action, extra
 			FROM {db_prefix}log_actions
@@ -722,11 +698,73 @@ class Tracking implements ActionInterface
 				$applicators[] = $extra['applicator'];
 			}
 
+			// Prior to 3.0, group membership changes were always logged twice,
+			// once using the group IDs and again using the group names. We now
+			// only log the IDs, but still need to handle both cases.
+			if ($row['action'] === 'id_group') {
+				if (!is_numeric($extra['new'])) {
+					continue;
+				}
+
+				if (!isset($member_groups)) {
+					$member_groups = Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+					Group::loadModeratorsBatch(array_map(fn($g) => $g->id, $member_groups));
+				}
+
+				foreach (['previous', 'new'] as $key) {
+					if (!isset($member_groups[(int) $extra[$key]])) {
+						$extra[$key] = Lang::getTxt('no_primary_membergroup', file: 'Profile');
+					} elseif (
+						$member_groups[(int) $extra[$key]]->hidden === Group::INVISIBLE
+						&& !$member_groups[(int) $extra[$key]]->can_moderate
+					) {
+						$extra[$key] = '<i>' . Lang::getTxt('hidden', file: 'Profile') . '</i>';
+					} else {
+						$extra[$key] = $member_groups[(int) $extra[$key]]->name;
+					}
+				}
+			}
+
+			if ($row['action'] === 'additional_groups') {
+				$extra['previous'] = array_map('trim', explode(',', $extra['previous'] ?? ''));
+				$extra['new'] = array_map('trim', explode(',', $extra['new'] ?? ''));
+
+				if (
+					$extra['previous'] !== array_filter($extra['previous'], 'is_numeric')
+					|| $extra['new'] !== array_filter($extra['new'], 'is_numeric')
+				) {
+					continue;
+				}
+
+				if (!isset($member_groups)) {
+					$member_groups = Group::loadSimple(exclude: [Group::GUEST, Group::MOD]);
+					Group::loadModeratorsBatch(array_map(fn($g) => $g->id, $member_groups));
+				}
+
+				foreach (['previous', 'new'] as $key) {
+					foreach ($extra[$key] as $k => $v) {
+						if (
+							!isset($member_groups[(int) $v])
+							|| (
+								$member_groups[(int) $v]->hidden === Group::INVISIBLE
+								&& !$member_groups[(int) $v]->can_moderate
+							)
+						) {
+							unset($extra[$key][$k]);
+						} else {
+							$extra[$key][$k] = $member_groups[(int) $v]->name;
+						}
+					}
+
+					$extra[$key] = implode(', ', $extra[$key]);
+				}
+			}
+
 			// Work out what the name of the action is.
-			if (isset(Lang::$txt['trackEdit_action_' . $row['action']])) {
-				$action_text = Lang::$txt['trackEdit_action_' . $row['action']];
-			} elseif (isset(Lang::$txt[$row['action']])) {
-				$action_text = Lang::$txt[$row['action']];
+			if (Lang::txtExists('trackEdit_action_' . $row['action'], file: 'Profile')) {
+				$action_text = Lang::getTxt('trackEdit_action_' . $row['action'], file: 'Profile');
+			} elseif (Lang::txtExists($row['action'], file: 'Profile')) {
+				$action_text = Lang::getTxt($row['action'], file: 'Profile');
 			}
 			// Custom field?
 			elseif (isset(Utils::$context['custom_field_titles'][$row['action']])) {
@@ -740,13 +778,13 @@ class Tracking implements ActionInterface
 
 			$edits[] = [
 				'id' => $row['id_action'],
-				'ip' => new IP($row['ip']),
+				'ip' => (string) new IP($row['ip']),
 				'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
-				'member_link' => Lang::$txt['trackEdit_deleted_member'],
+				'member_link' => Lang::getTxt('trackEdit_deleted_member', file: 'Profile'),
 				'action' => $row['action'],
 				'action_text' => $action_text,
-				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : $extra['previous']) : '',
-				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : $extra['new']) : '',
+				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : Lang::tokenTxtReplace($extra['previous'])) : '',
+				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : Lang::tokenTxtReplace($extra['new'])) : '',
 				'time' => Time::create('@' . $row['log_time'])->format(),
 			];
 		}
@@ -757,7 +795,6 @@ class Tracking implements ActionInterface
 			$members = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_member, real_name
 				FROM {db_prefix}members
@@ -790,7 +827,6 @@ class Tracking implements ActionInterface
 	public static function list_getProfileEditCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS edit_count
 			FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
@@ -819,7 +855,6 @@ class Tracking implements ActionInterface
 		$groupreq = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				lgr.id_group, mg.group_name, mg.online_color, lgr.time_applied, lgr.reason, lgr.status,
 				ma.id_member AS id_member_acted, COALESCE(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
@@ -847,7 +882,7 @@ class Tracking implements ActionInterface
 
 			switch ($row['status']) {
 				case 0:
-					$this_req['outcome'] = Lang::$txt['outcome_pending'];
+					$this_req['outcome'] = Lang::getTxt('outcome_pending', file: 'Profile');
 					break;
 
 				case 1:
@@ -858,6 +893,7 @@ class Tracking implements ActionInterface
 							'member_link' => $member_link,
 							'datetime' => Time::create('@' . $row['time_acted'])->format(),
 						],
+						file: 'Profile',
 					);
 					break;
 
@@ -870,6 +906,7 @@ class Tracking implements ActionInterface
 							'datetime' => Time::create('@' . $row['time_acted'])->format(),
 							'reason' => $row['act_reason'],
 						],
+						file: 'Profile',
 					);
 					break;
 			}
@@ -889,7 +926,6 @@ class Tracking implements ActionInterface
 	public static function list_getGroupRequestsCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS req_count
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE id_member = {int:memID}
@@ -917,7 +953,6 @@ class Tracking implements ActionInterface
 	public static function list_getLogins(int $start, int $items_per_page, string $sort, string $where, array $where_vars = []): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT time, ip, ip2
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}
@@ -931,8 +966,8 @@ class Tracking implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$logins[] = [
 				'time' => Time::create('@' . $row['time'])->format(),
-				'ip' => new IP($row['ip']),
-				'ip2' => new IP($row['ip2']),
+				'ip' => (string) new IP($row['ip']),
+				'ip2' => (string) new IP($row['ip2']),
 			];
 		}
 		Db::$db->free_result($request);
@@ -950,7 +985,6 @@ class Tracking implements ActionInterface
 	public static function list_getLoginCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS message_count
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}',
@@ -988,8 +1022,8 @@ class Tracking implements ActionInterface
 		}
 
 		// Only show the sub-actions they are allowed to see.
-		foreach (self::$subactions as $sa => $action) {
-			if (!User::$me->allowedTo($action[2])) {
+		foreach (self::$subactions as $sa => $subaction) {
+			if (!empty(Menu::$loaded['profile']->sections['info']['areas']['tracking']['subsections'][$sa]['disabled'])) {
 				unset(self::$subactions[$sa]);
 			}
 		}
@@ -1003,5 +1037,3 @@ class Tracking implements ActionInterface
 		}
 	}
 }
-
-?>

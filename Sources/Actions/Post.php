@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -49,7 +49,6 @@ class Post implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -207,10 +206,10 @@ class Post implements ActionInterface, Routable
 		// Allow mods to add new sub-actions.
 		IntegrationHook::call('integrate_post_subactions', [&self::$subactions]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -228,15 +227,14 @@ class Post implements ActionInterface, Routable
 	 */
 	public function show(): void
 	{
-		Lang::load('Post+Calendar');
-
-		if (!empty(Config::$modSettings['drafts_post_enabled'])) {
-			Lang::load('Drafts');
-		}
-
 		// You can't reply with a poll... hacker.
 		if (isset($_REQUEST['poll']) && !empty(Topic::$topic_id) && !isset($_REQUEST['msg'])) {
 			unset($_REQUEST['poll']);
+		}
+
+		// You cannot post at all, even with guest posts allowed, with cookies disabled
+		if (empty($_COOKIE)) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
 		}
 
 		// Posting an event?
@@ -280,7 +278,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['move'] = !empty($_REQUEST['move']);
 		Utils::$context['announce'] = !empty($_REQUEST['announce']);
 		Utils::$context['locked'] = !empty($this->locked) || !empty($_REQUEST['lock']);
-		Utils::$context['can_quote'] = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		Utils::$context['can_quote'] = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		// An array to hold all the attachments for this topic.
 		Utils::$context['current_attachments'] = [];
@@ -386,9 +384,6 @@ class Post implements ActionInterface, Routable
 	 * Builds a routing path based on URL query parameters.
 	 *
 	 * @param array $params URL query parameters.
-	 * @param bool $append If true, the action route will be appended to the
-	 *    topic or board route indicated by the topic or board params.
-	 *    Default: false.
 	 * @return array Contains two elements: ['route' => [], 'params' => []].
 	 *    The 'route' element contains the routing path. The 'params' element
 	 *    contains any $params that weren't incorporated into the route.
@@ -439,7 +434,7 @@ class Post implements ActionInterface, Routable
 	{
 		$params['action'] = array_shift($route);
 
-		if (!empty($route) && in_array($route[0], self::$subactions)) {
+		if (!empty($route) && \in_array($route[0], self::$subactions)) {
 			$params['sa'] = array_shift($route);
 		}
 
@@ -505,7 +500,6 @@ class Post implements ActionInterface, Routable
 		// If you're modifying, get only those posts before the current one. (otherwise get all.)
 		Utils::$context['previous_posts'] = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 				m.body, m.smileys_enabled, m.id_msg, m.id_member
@@ -543,7 +537,7 @@ class Post implements ActionInterface, Routable
 				'timestamp' => $row['poster_time'],
 				'id' => $row['id_msg'],
 				'is_new' => !empty(Utils::$context['new_replies']),
-				'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($row['id_member'], User::$me->ignoreusers),
+				'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($row['id_member'], User::$me->ignoreusers),
 			];
 
 			if (!empty(Utils::$context['new_replies'])) {
@@ -594,7 +588,7 @@ class Post implements ActionInterface, Routable
 
 			// Get a list of boards for the select menu
 			$boardListOptions = [
-				'included_boards' => in_array(0, $this->boards) ? null : $this->boards,
+				'included_boards' => \in_array(0, $this->boards) ? null : $this->boards,
 				'not_redirection' => true,
 				'use_permissions' => true,
 				'selected_board' => !empty(Board::$info->id) ? Board::$info->id : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $this->boards[0]),
@@ -617,7 +611,6 @@ class Post implements ActionInterface, Routable
 	{
 		if (empty(Topic::$topic_id) && !empty($_REQUEST['msg'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:msg}
@@ -783,7 +776,15 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
-			Utils::$context['event'] = new Event(-1);
+			$props = [
+				'title' => isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : null,
+				'location' => isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : null,
+			];
+
+			Event::setRequestedStartAndDuration($props);
+			Event::setRequestedRRule($props);
+			Utils::$context['event'] = new Event(-1, $props);
+			Event::setRequestedRDatesAndExDates(Utils::$context['event']);
 			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
 		} else {
 			if (isset($_REQUEST['recurrenceid'])) {
@@ -853,7 +854,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (\count(Utils::$context['event']->byday_items) - 1));
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
 		Utils::$context['event']->board = !empty(Utils::$context['event']->board) ? Utils::$context['event']->board : (Board::$info->id ?? (int) Config::$modSettings['cal_defaultboard']);
@@ -882,7 +883,6 @@ class Post implements ActionInterface, Routable
 
 		// Figure out how many new replies were made while the user was writing.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
@@ -899,9 +899,7 @@ class Post implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			Lang::$txt['error_new_replies'] = Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']]);
-
-			$this->errors[] = 'new_replies';
+			$this->errors[] = ['new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), Utils::$context['new_replies']];
 
 			Config::$modSettings['topicSummaryPosts'] = Utils::$context['new_replies'] > Config::$modSettings['topicSummaryPosts'] ? max(Config::$modSettings['topicSummaryPosts'], 5) : Config::$modSettings['topicSummaryPosts'];
 		}
@@ -912,15 +910,13 @@ class Post implements ActionInterface, Routable
 	 */
 	protected function setResponsePrefix(): void
 	{
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 	}
 
@@ -974,7 +970,7 @@ class Post implements ActionInterface, Routable
 			Utils::$context['choices'] = [];
 			$choice_id = 0;
 
-			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options']);
+			$_POST['options'] = empty($_POST['options']) ? [] : Utils::htmlspecialcharsRecursive($_POST['options'], ENT_QUOTES);
 
 			foreach ($_POST['options'] as $option) {
 				if (trim($option) == '') {
@@ -997,7 +993,7 @@ class Post implements ActionInterface, Routable
 				'is_last' => false,
 			];
 
-			if (count(Utils::$context['choices']) < 2) {
+			if (\count(Utils::$context['choices']) < 2) {
 				Utils::$context['choices'][] = [
 					'id' => $choice_id++,
 					'number' => $choice_id,
@@ -1006,7 +1002,7 @@ class Post implements ActionInterface, Routable
 				];
 			}
 			Utils::$context['last_choice_id'] = $choice_id;
-			Utils::$context['choices'][count(Utils::$context['choices']) - 1]['is_last'] = true;
+			Utils::$context['choices'][\count(Utils::$context['choices']) - 1]['is_last'] = true;
 		}
 
 		// Are you... a guest?
@@ -1042,7 +1038,7 @@ class Post implements ActionInterface, Routable
 
 				Lang::censorText(Utils::$context['preview_subject']);
 			} else {
-				Utils::$context['preview_subject'] = '<em>' . Lang::$txt['no_subject'] . '</em>';
+				Utils::$context['preview_subject'] = '<em>' . Lang::getTxt('no_subject', file: 'General') . '</em>';
 			}
 
 			IntegrationHook::call('integrate_preview_post', [&$this->form_message, &$this->form_subject]);
@@ -1062,13 +1058,12 @@ class Post implements ActionInterface, Routable
 		// Set the destination action for submission.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] : '') . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? Lang::$txt['save'] : Lang::$txt['post'];
+		Utils::$context['submit_label'] = Lang::getTxt(isset($_REQUEST['msg']) ? 'save' : 'post', file: 'General');
 
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty(Topic::$info->id)) {
 			// Get the existing message. Previewing.
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -1110,8 +1105,7 @@ class Post implements ActionInterface, Routable
 			}
 
 			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-				Lang::load('Errors');
-				Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
+				Utils::$context['post_error']['already_announced'] = Lang::getTxt('error_topic_already_announced', file: 'Post');
 			}
 
 			if (!empty(Config::$modSettings['attachmentEnable'])) {
@@ -1121,7 +1115,6 @@ class Post implements ActionInterface, Routable
 			// Allow moderators to change names....
 			if (User::$me->allowedTo('moderate_forum') && !empty(Topic::$info->id)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, poster_name, poster_email
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}
@@ -1157,7 +1150,6 @@ class Post implements ActionInterface, Routable
 
 		// Get the existing message. Editing.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -1198,8 +1190,7 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-			Lang::load('Errors');
-			Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
+			Utils::$context['post_error']['already_announced'] = Lang::getTxt('error_topic_already_announced', file: 'Post');
 		}
 
 		// When was it last modified?
@@ -1208,7 +1199,7 @@ class Post implements ActionInterface, Routable
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
 			Utils::$context['last_modified_name'] = $row['modified_name'];
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General');
 		}
 
 		// Get the stuff ready for the form.
@@ -1240,7 +1231,7 @@ class Post implements ActionInterface, Routable
 		// Set the destination.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = Lang::$txt['save'];
+		Utils::$context['submit_label'] = Lang::getTxt('save', file: 'General');
 	}
 
 	/**
@@ -1258,13 +1249,12 @@ class Post implements ActionInterface, Routable
 		}
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = Lang::$txt['post'];
+		Utils::$context['submit_label'] = Lang::getTxt('post', file: 'General');
 
 		// Posting a quoted reply?
 		if (!empty(Topic::$info->id) && !empty($_REQUEST['quote'])) {
 			// Make sure they _can_ quote this post, and if so get it.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!Config::$modSettings['postmod_active'] || $this->can_approve ? '' : '
@@ -1299,7 +1289,7 @@ class Post implements ActionInterface, Routable
 			if (str_contains($this->form_message, '[html]')) {
 				$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $this->form_message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-				for ($i = 0, $n = count($parts); $i < $n; $i++) {
+				for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0) {
 						$parts[$i] = preg_replace_callback(
@@ -1368,7 +1358,7 @@ class Post implements ActionInterface, Routable
 
 			// If this isn't a new post, check the current attachments.
 			if (isset($_REQUEST['msg'])) {
-				Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+				Utils::$context['attachments']['quantity'] = \count(Utils::$context['current_attachments']);
 
 				foreach (Utils::$context['current_attachments'] as $attachment) {
 					Utils::$context['attachments']['total_size'] += $attachment['size'];
@@ -1376,7 +1366,7 @@ class Post implements ActionInterface, Routable
 			}
 
 			// A bit of house keeping first.
-			if (!empty($_SESSION['temp_attachments']) && count($_SESSION['temp_attachments']) == 1) {
+			if (!empty($_SESSION['temp_attachments']) && \count($_SESSION['temp_attachments']) == 1) {
 				unset($_SESSION['temp_attachments']);
 			}
 
@@ -1406,7 +1396,7 @@ class Post implements ActionInterface, Routable
 
 							if (file_exists($attachment['tmp_name'])) {
 								$this->errors[] = 'temp_attachments_new';
-								Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
+								Utils::$context['files_in_session_warning'] = Lang::getTxt('attached_files_in_session', file: 'Post');
 								unset($_SESSION['temp_attachments']['post']['files']);
 								break;
 							}
@@ -1460,7 +1450,10 @@ class Post implements ActionInterface, Routable
 					}
 
 					if ($attachID == 'initial_error') {
-						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
+						Lang::setTxt(
+							'error_attach_initial_error',
+							Lang::getTxt('attach_no_upload', file: 'Post') . '<div style="padding: 0 1em;">' . (\is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</div>',
+						);
 
 						$this->errors[] = 'attach_initial_error';
 
@@ -1473,10 +1466,10 @@ class Post implements ActionInterface, Routable
 					if (!empty($attachment['errors'])) {
 						Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
 
-						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment) . '<div style="padding: 0 1em;">';
+						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment, file: 'Post') . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (\is_array($error) ? Lang::getTxt($error[0], (array) $error[1], file: 'Post') : Lang::getTxt($error, file: 'Post')) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1504,7 +1497,7 @@ class Post implements ActionInterface, Routable
 					Utils::$context['attachments']['total_size'] += $attachment['size'];
 
 					if (!isset(Utils::$context['files_in_session_warning'])) {
-						Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
+						Utils::$context['files_in_session_warning'] = Lang::getTxt('attached_files_in_session', file: 'Post');
 					}
 
 					Utils::$context['current_attachments'][$attachID] = [
@@ -1563,13 +1556,28 @@ class Post implements ActionInterface, Routable
 				if (!empty(Config::$modSettings[$type])) {
 					Config::$modSettings[$type] = (int) Config::$modSettings[$type];
 
-					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
+					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt(
+						'attach_restrict_' . $type,
+						[
+							'size_with_unit' => Lang::getTxt(
+								Config::$modSettings[$type] >= 1024 ? 'size_megabyte' : 'size_kiobyte',
+								[
+									round(
+										Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type],
+										2,
+									),
+								],
+								file: 'General',
+							),
+						],
+						file: 'Post',
+					);
 
 					// Show the max number of attachments if not 0.
 					if ($type == 'attachmentNumPerPostLimit') {
-						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)]) . ')';
+						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)], file: 'Post') . ')';
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
-						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)]) . ')</span>';
+						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)], file: 'Post') . ')</span>';
 					}
 				}
 			}
@@ -1607,23 +1615,23 @@ class Post implements ActionInterface, Routable
 			Theme::addInlineJavaScript('
 		$(function() {
 			smf_fileUpload({
-				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
-				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone_no']) . ',
-				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::$txt['modify_cancel']) . ',
-				genericError: ' . Utils::escapeJavaScript(Lang::$txt['attach_php_error']) . ',
-				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
-				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::$txt['attach_limit_nag']) . ',
-				text_attachLeft: ' . Utils::escapeJavaScript(Lang::$txt['attachments_left']) . ',
-				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_delete']) . ',
-				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_deleted']) . ',
-				text_insertBBC: ' . Utils::escapeJavaScript(Lang::$txt['attached_insert_bbc']) . ',
-				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_uploaded']) . ',
-				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_unlimited']) . ',
-				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::$txt['attach_max_total_file_size_current']) . ',
-				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
-				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context)) . ',
-				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)])) . ',
+				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
+				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone_no', file: 'Post')) . ',
+				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')) . ',
+				genericError: ' . Utils::escapeJavaScript(Lang::getTxt('attach_php_error', file: 'Post')) . ',
+				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
+				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::getTxt('attach_limit_nag', file: 'Post')) . ',
+				text_attachLeft: ' . Utils::escapeJavaScript(Lang::getTxt('attachments_left', file: 'Post')) . ',
+				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_delete', file: 'Post')) . ',
+				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_deleted', file: 'Post')) . ',
+				text_insertBBC: ' . Utils::escapeJavaScript(Lang::getTxt('attached_insert_bbc', file: 'Post')) . ',
+				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_uploaded', file: 'Post')) . ',
+				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_unlimited', file: 'Post')) . ',
+				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::getTxt('attach_max_total_file_size_current', file: 'Post')) . ',
+				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General')) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General'))) . ',
+				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::getTxt('more_attachments_error', file: 'Post')) . ',
+				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context, file: 'Post')) . ',
+				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)], file: 'Post')) . ',
 				acceptedFiles: ' . Utils::escapeJavaScript($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
@@ -1666,24 +1674,23 @@ class Post implements ActionInterface, Routable
 			return;
 		}
 
-		Lang::load('Errors');
 		Utils::$context['error_type'] = 'minor';
 
 		foreach ($this->errors as $post_error) {
-			if (is_array($post_error)) {
+			if (\is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
-				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1], file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error_id, $this->minor_errors)) {
+				if (!\in_array($post_error_id, $this->minor_errors)) {
 					Utils::$context['error_type'] = 'serious';
 				}
 			} else {
-				Utils::$context['post_error'][$post_error] = Lang::$txt['error_' . $post_error];
+				Utils::$context['post_error'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error, $this->minor_errors)) {
+				if (!\in_array($post_error, $this->minor_errors)) {
 					Utils::$context['error_type'] = 'serious';
 				}
 			}
@@ -1696,17 +1703,17 @@ class Post implements ActionInterface, Routable
 	protected function setPageTitle(): void
 	{
 		if (isset($_REQUEST['poll'])) {
-			Utils::$context['page_title'] = Lang::$txt['new_poll'];
+			Utils::$context['page_title'] = Lang::getTxt('new_poll', file: 'General');
 		} elseif (Utils::$context['make_event']) {
-			Utils::$context['page_title'] = Utils::$context['event']->id == -1 ? Lang::$txt['calendar_post_event'] : Lang::$txt['calendar_edit'];
+			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['event']->id == -1 ? 'calendar_post_event' : 'calendar_edit', file: 'Calendar');
 		} elseif (isset($_REQUEST['msg'])) {
-			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
+			Utils::$context['page_title'] = Lang::getTxt('modify_msg', file: 'General');
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
-			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])]);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])], file: 'General');
 		} elseif (empty(Topic::$info->id)) {
-			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
+			Utils::$context['page_title'] = Lang::getTxt('start_new_topic', file: 'General');
 		} else {
-			Utils::$context['page_title'] = Lang::$txt['post_reply'];
+			Utils::$context['page_title'] = Lang::getTxt('post_reply', file: 'Post');
 		}
 	}
 
@@ -1717,7 +1724,7 @@ class Post implements ActionInterface, Routable
 	{
 		if (empty(Topic::$info->id)) {
 			Utils::$context['linktree'][] = [
-				'name' => '<em>' . Lang::$txt['start_new_topic'] . '</em>',
+				'name' => '<em>' . Lang::getTxt('start_new_topic', file: 'General') . '</em>',
 			];
 		} else {
 			Utils::$context['linktree'][] = [
@@ -1737,7 +1744,7 @@ class Post implements ActionInterface, Routable
 		// Are post drafts enabled?
 		Utils::$context['drafts_type'] = 'post';
 		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->allowedTo('post_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && User::$me->allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build a list of drafts that they can load in to the editor
 		if (!empty(Utils::$context['drafts_save'])) {
@@ -1781,7 +1788,7 @@ class Post implements ActionInterface, Routable
 		Utils::$context['icons'] = Editor::getMessageIcons(!empty(Board::$info->id) ? Board::$info->id : 0);
 
 		if (!empty(Utils::$context['icons'])) {
-			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
+			Utils::$context['icons'][\count(Utils::$context['icons']) - 1]['is_last'] = true;
 		}
 
 		// Are we starting a poll? if set the poll icon as selected if its available
@@ -1797,7 +1804,7 @@ class Post implements ActionInterface, Routable
 
 		Utils::$context['icon_url'] = '';
 
-		for ($i = 0, $n = count(Utils::$context['icons']); $i < $n; $i++) {
+		for ($i = 0, $n = \count(Utils::$context['icons']); $i < $n; $i++) {
 			Utils::$context['icons'][$i]['selected'] = Utils::$context['icon'] == Utils::$context['icons'][$i]['value'];
 
 			if (Utils::$context['icons'][$i]['selected']) {
@@ -1810,7 +1817,7 @@ class Post implements ActionInterface, Routable
 
 			array_unshift(Utils::$context['icons'], [
 				'value' => Utils::$context['icon'],
-				'name' => Lang::$txt['current_icon'],
+				'name' => Lang::getTxt('current_icon', file: 'General'),
 				'url' => Utils::$context['icon_url'],
 				'is_last' => empty(Utils::$context['icons']),
 				'selected' => true,
@@ -1829,7 +1836,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['foo'] = array(
 				'label' => array(
-					'text' => Lang::$txt['foo'], // required
+					'text' => Lang::getTxt('foo'), // required
 					'class' => 'foo', // optional
 				),
 				'input' => array(
@@ -1844,7 +1851,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['bar'] = array(
 				'label' => array(
-					'text' => Lang::$txt['bar'], // required
+					'text' => Lang::getTxt('bar'), // required
 					'class' => 'bar', // optional
 				),
 				'input' => array(
@@ -1854,25 +1861,25 @@ class Post implements ActionInterface, Routable
 					),
 					'options' => array(
 						'option_1' => array(
-							'label' => Lang::$txt['option_1'],
+							'label' => Lang::getTxt('option_1'),
 							'value' => '1',
 							'selected' => true,
 						),
 						'option_2' => array(
-							'label' => Lang::$txt['option_2'],
+							'label' => Lang::getTxt('option_2'),
 							'value' => '2',
 							'selected' => false,
 						),
 						'opt_group_1' => array(
-							'label' => Lang::$txt['opt_group_1'],
+							'label' => Lang::getTxt('opt_group_1'),
 							'options' => array(
 								'option_3' => array(
-									'label' => Lang::$txt['option_3'],
+									'label' => Lang::getTxt('option_3'),
 									'value' => '3',
 									'selected' => false,
 								),
 								'option_4' => array(
-									'label' => Lang::$txt['option_4'],
+									'label' => Lang::getTxt('option_4'),
 									'value' => '4',
 									'selected' => false,
 								),
@@ -1884,7 +1891,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['baz'] = array(
 				'label' => array(
-					'text' => Lang::$txt['baz'], // required
+					'text' => Lang::getTxt('baz'), // required
 					'class' => 'baz', // optional
 				),
 				'input' => array(
@@ -1894,12 +1901,12 @@ class Post implements ActionInterface, Routable
 					),
 					'options' => array(
 						'option_1' => array(
-							'label' => Lang::$txt['option_1'],
+							'label' => Lang::getTxt('option_1'),
 							'value' => '1',
 							'selected' => true,
 						),
 						'option_2' => array(
-							'label' => Lang::$txt['option_2'],
+							'label' => Lang::getTxt('option_2'),
 							'value' => '2',
 							'selected' => false,
 						),
@@ -1950,7 +1957,7 @@ class Post implements ActionInterface, Routable
 		if (isset(Utils::$context['name'], Utils::$context['email'])) {
 			Utils::$context['posting_fields']['guestname'] = [
 				'label' => [
-					'text' => Lang::$txt['name'],
+					'text' => Lang::getTxt('name', file: 'General'),
 					'class' => isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '',
 				],
 				'input' => [
@@ -1967,7 +1974,7 @@ class Post implements ActionInterface, Routable
 			if (empty(Config::$modSettings['guest_post_no_email'])) {
 				Utils::$context['posting_fields']['email'] = [
 					'label' => [
-						'text' => Lang::$txt['email'],
+						'text' => Lang::getTxt('email', file: 'General'),
 						'class' => isset(Utils::$context['post_error']['no_email']) || isset(Utils::$context['post_error']['bad_email']) ? 'error' : '',
 					],
 					'input' => [
@@ -1986,7 +1993,7 @@ class Post implements ActionInterface, Routable
 		if (empty(Board::$info->id)) {
 			Utils::$context['posting_fields']['board'] = [
 				'label' => [
-					'text' => Lang::$txt['calendar_post_in'],
+					'text' => Lang::getTxt('calendar_post_in', file: 'Calendar'),
 				],
 				'input' => [
 					'type' => 'select',
@@ -2010,7 +2017,7 @@ class Post implements ActionInterface, Routable
 		// Gotta have a subject.
 		Utils::$context['posting_fields']['subject'] = [
 			'label' => [
-				'text' => Lang::$txt['subject'],
+				'text' => Lang::getTxt('subject', file: 'General'),
 				'class' => isset(Utils::$context['post_error']['no_subject']) ? 'error' : '',
 			],
 			'input' => [
@@ -2027,7 +2034,7 @@ class Post implements ActionInterface, Routable
 		// Icons are fun.
 		Utils::$context['posting_fields']['icon'] = [
 			'label' => [
-				'text' => Lang::$txt['message_icon'],
+				'text' => Lang::getTxt('message_icon', file: 'General'),
 			],
 			'input' => [
 				'type' => 'select',
@@ -2051,7 +2058,7 @@ class Post implements ActionInterface, Routable
 		if (isset(Utils::$context['editing']) && Config::$modSettings['show_modify']) {
 			Utils::$context['posting_fields']['modify_reason'] = [
 				'label' => [
-					'text' => Lang::$txt['reason_for_edit'],
+					'text' => Lang::getTxt('reason_for_edit', file: 'General'),
 				],
 				'input' => [
 					'type' => 'text',
@@ -2068,5 +2075,3 @@ class Post implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

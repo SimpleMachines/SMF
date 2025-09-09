@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -54,7 +54,6 @@ class Holiday extends Event
 	 *
 	 * @param int $id The ID number of the event.
 	 * @param array $props Properties to set for this event.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
@@ -65,7 +64,25 @@ class Holiday extends Event
 		// For new events, provide all known special RRule options.
 		if ($id <= 0) {
 			foreach (self::$special_rrules as $special_rrule => $info) {
-				$this->rrule_presets[Lang::$txt['calendar_repeat_special']][$special_rrule] = Lang::$txt['calendar_repeat_rrule_presets'][$info['txt_key']] ?? Lang::$txt[$info['txt_key']] ?? Lang::$txt['calendar_repeat_rrule_presets'][$special_rrule] ?? Lang::$txt[$special_rrule] ?? $special_rrule;
+				$special = Lang::getTxt('calendar_repeat_special', file: 'Calendar');
+
+				$props['rrule_presets'][$special][$special_rrule] = $special_rrule;
+
+				foreach (
+					[
+						['calendar_repeat_rrule_presets', $info['txt_key']],
+						$info['txt_key'],
+						['calendar_repeat_rrule_presets', $special_rrule],
+						$special_rrule,
+					] as $txt_key
+				) {
+					if (Lang::txtExists($txt_key, file: 'Calendar')) {
+						$props['rrule_presets'][$special][$special_rrule] = Lang::getTxt($txt_key, file: 'Calendar');
+
+						break;
+					}
+				}
+
 			}
 
 			Theme::addJavaScriptVar('special_rrules', array_keys(self::$special_rrules), true);
@@ -120,7 +137,7 @@ class Holiday extends Event
 	/**
 	 * Loads holidays by ID number.
 	 *
-	 * @param int|array $id ID number of the holiday event.
+	 * @param int $id ID number of the holiday event.
 	 * @param bool $is_topic Ignored.
 	 * @param bool $use_permissions Ignored.
 	 * @return array Instances of this class for the loaded events.
@@ -275,7 +292,6 @@ class Holiday extends Event
 	public static function count(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}calendar
 			WHERE type = {int:type}',
@@ -387,7 +403,7 @@ class Holiday extends Event
 			if (isset(self::$special_rrules[$_POST['RRULE']])) {
 				$event->special_rrule = $_POST['RRULE'];
 
-				if (in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
+				if (\in_array($event->special_rrule, ['EASTER_W', 'EASTER_E'])) {
 					$eventOptions['start_date'] = implode('-', self::easter((int) $event->start->format('Y'), $event->special_rrule === 'EASTER_E' ? 'Eastern' : 'Western'));
 				}
 			}
@@ -582,5 +598,3 @@ class Holiday extends Event
 		return $return;
 	}
 }
-
-?>

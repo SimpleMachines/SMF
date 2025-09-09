@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -46,7 +46,7 @@ class WatchedUsers implements ActionInterface
 	public function execute(): void
 	{
 		// Some important context!
-		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_watched_users_title', file: 'ModerationCenter');
 		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
 		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
@@ -57,18 +57,18 @@ class WatchedUsers implements ActionInterface
 
 		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_watched_users_title'],
+			'title' => Lang::getTxt('mc_watched_users_title', file: 'ModerationCenter'),
 			'help' => '',
-			'description' => Lang::$txt['mc_watched_users_desc'],
+			'description' => Lang::getTxt('mc_watched_users_desc', file: 'ModerationCenter'),
 		];
 
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete'])) {
-			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
+			User::$me->checkSession(!\is_array($_REQUEST['delete']) ? 'get' : 'post');
 
 			$toDelete = [];
 
-			if (!is_array($_REQUEST['delete'])) {
+			if (!\is_array($_REQUEST['delete'])) {
 				$toDelete[] = (int) $_REQUEST['delete'];
 			} else {
 				foreach ($_REQUEST['delete'] as $did) {
@@ -107,9 +107,9 @@ class WatchedUsers implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'watch_user_list',
-			'title' => Lang::$txt['mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member')],
+			'title' => Lang::getTxt('mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member'), file: 'ModerationCenter'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_no_posts'] : Lang::$txt['mc_watched_users_none'],
+			'no_items_label' => Lang::getTxt(Utils::$context['view_posts'] ? 'mc_watched_users_no_posts' : 'mc_watched_users_none', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
 			'default_sort_col' => Utils::$context['view_posts'] ? '' : 'member',
 			'get_items' => [
@@ -129,11 +129,11 @@ class WatchedUsers implements ActionInterface
 			'columns' => [
 				'member' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_member'],
+						'value' => Lang::getTxt('mc_watched_users_member', file: 'ModerationCenter'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id}">{name}</a>',
 							'params' => [
 								'id' => false,
 								'name' => false,
@@ -147,7 +147,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'warning' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_warning'],
+						'value' => Lang::getTxt('mc_watched_users_warning', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($member) {
@@ -161,11 +161,11 @@ class WatchedUsers implements ActionInterface
 				],
 				'posts' => [
 					'header' => [
-						'value' => Lang::$txt['posts'],
+						'value' => Lang::getTxt('posts', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d;area=showposts;sa=messages">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id};area=showposts;sa=messages">{posts}</a>',
 							'params' => [
 								'id' => false,
 								'posts' => false,
@@ -179,7 +179,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'last_login' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_last_login'],
+						'value' => Lang::getTxt('mc_watched_users_last_login', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'last_login',
@@ -191,7 +191,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'last_post' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_last_post'],
+						'value' => Lang::getTxt('mc_watched_users_last_post', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($member) {
@@ -217,7 +217,7 @@ class WatchedUsers implements ActionInterface
 					[
 						'position' => 'bottom_of_list',
 						'value' => '
-						<input type="submit" name="delete_selected" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">',
+						<input type="submit" name="delete_selected" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">',
 						'class' => 'floatright',
 					] : [],
 			],
@@ -257,7 +257,6 @@ class WatchedUsers implements ActionInterface
 	public static function list_getWatchedUserCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members
 			WHERE warning >= {int:warning_watch}',
@@ -284,7 +283,6 @@ class WatchedUsers implements ActionInterface
 	public static function list_getWatchedUsers(int $start, int $items_per_page, string $sort, string $approve_query, array $dummy): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, last_login, posts, warning
 			FROM {db_prefix}members
 			WHERE warning >= {int:warning_watch}
@@ -304,8 +302,8 @@ class WatchedUsers implements ActionInterface
 			$watched_users[$row['id_member']] = [
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
-				'last_login' => $row['last_login'] ? Time::create('@' . $row['last_login'])->format() : Lang::$txt['never'],
-				'last_post' => Lang::$txt['not_applicable'],
+				'last_login' => $row['last_login'] ? Time::create('@' . $row['last_login'])->format() : Lang::getTxt('never', file: 'General'),
+				'last_post' => Lang::getTxt('not_applicable', file: 'General'),
 				'last_post_id' => 0,
 				'warning' => $row['warning'],
 				'posts' => $row['posts'],
@@ -317,7 +315,6 @@ class WatchedUsers implements ActionInterface
 		if (!empty($members)) {
 			// First get the latest messages from these users.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_member, MAX(m.id_msg) AS last_post_id
 				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
@@ -340,7 +337,6 @@ class WatchedUsers implements ActionInterface
 			if (!empty($latest_posts)) {
 				// Now get the time those messages were posted.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, poster_time
 					FROM {db_prefix}messages
 					WHERE id_msg IN ({array_int:message_list})',
@@ -358,7 +354,6 @@ class WatchedUsers implements ActionInterface
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
@@ -390,7 +385,6 @@ class WatchedUsers implements ActionInterface
 	public static function list_getWatchedUserPostsCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -421,7 +415,6 @@ class WatchedUsers implements ActionInterface
 	public static function list_getWatchedUserPosts(int $start, int $items_per_page, string $sort, string $approve_query, array $delete_boards): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
 				m.approved, mem.real_name, m.smileys_enabled
 			FROM {db_prefix}messages AS m
@@ -458,7 +451,7 @@ class WatchedUsers implements ActionInterface
 				'body' => $row['body'],
 				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'approved' => $row['approved'],
-				'can_delete' => $delete_boards == [0] || in_array($row['id_board'], $delete_boards),
+				'can_delete' => $delete_boards == [0] || \in_array($row['id_board'], $delete_boards),
 			];
 		}
 		Db::$db->free_result($request);
@@ -466,5 +459,3 @@ class WatchedUsers implements ActionInterface
 		return $member_posts;
 	}
 }
-
-?>

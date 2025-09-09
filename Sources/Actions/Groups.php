@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\Actions;
@@ -39,7 +39,6 @@ class Groups implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -93,19 +92,17 @@ class Groups implements ActionInterface, Routable
 		User::$me->isAllowedTo('view_mlist');
 
 		// Get the template stuff up and running.
-		Lang::load('ManageMembers');
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . $this->action_url,
-			'name' => Lang::$txt['groups'],
+			'name' => Lang::getTxt('groups', file: 'ManageMembers'),
 		];
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -114,7 +111,7 @@ class Groups implements ActionInterface, Routable
 	 */
 	public function index(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
+		Utils::$context['page_title'] = Lang::getTxt('viewing_groups', file: 'ManageMembers');
 
 		// Use the standard templates for showing this.
 		$listOptions = [
@@ -131,7 +128,7 @@ class Groups implements ActionInterface, Routable
 			'columns' => [
 				'group' => [
 					'header' => [
-						'value' => Lang::$txt['name'],
+						'value' => Lang::getTxt('name', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -139,16 +136,16 @@ class Groups implements ActionInterface, Routable
 							if ($rowData['id_group'] == 3) {
 								$group_name = $rowData['group_name'];
 							} else {
-								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+								$color_style = empty($rowData['online_color']) ? '' : \sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-								$group_name = sprintf('<a href="%1$s' . $this->action_url . ';sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
+								$group_name = \sprintf('<a href="%1$s' . $this->action_url . ';sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
 							if ($rowData['id_group'] == 1) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							} elseif ($rowData['id_group'] == 3) {
-								$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
+								$group_name .= \sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 							}
 
 							return $group_name;
@@ -161,7 +158,7 @@ class Groups implements ActionInterface, Routable
 				],
 				'icons' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_icons'],
+						'value' => Lang::getTxt('membergroups_icons', file: 'ManageMembers'),
 					],
 					'data' => [
 						'db' => 'icons',
@@ -173,22 +170,22 @@ class Groups implements ActionInterface, Routable
 				],
 				'moderators' => [
 					'header' => [
-						'value' => Lang::$txt['moderators'],
+						'value' => Lang::getTxt('moderators', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($group) {
-							return empty($group['moderators']) ? '<em>' . Lang::$txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
+							return empty($group['moderators']) ? '<em>' . Lang::getTxt('membergroups_new_copy_none', file: 'ManageMembers') . '</em>' : implode(', ', $group['moderators']);
 						},
 					],
 				],
 				'members' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_members_top'],
+						'value' => Lang::getTxt('membergroups_members_top', file: 'ManageMembers'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// No explicit members for the moderator group.
-							return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
+							return $rowData['id_group'] == 3 ? Lang::getTxt('membergroups_guests_na', file: 'ManageMembers') : Lang::numberFormat($rowData['num_members']);
 						},
 						'class' => 'centercol',
 					],
@@ -222,7 +219,7 @@ class Groups implements ActionInterface, Routable
 		$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
 		// No browsing of guests, membergroup 0 or moderators.
-		if (in_array($_REQUEST['group'], [-1, 0, 3])) {
+		if (\in_array($_REQUEST['group'], [-1, 0, 3])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
@@ -309,7 +306,7 @@ class Groups implements ActionInterface, Routable
 
 		// Select the template.
 		Utils::$context['sub_template'] = 'group_members';
-		Utils::$context['page_title'] = Lang::$txt['membergroups_members_title'] . ': ' . $group->name;
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_members_title', file: 'ManageMembers') . ': ' . $group->name;
 		SecurityToken::create('mod-mgm');
 	}
 
@@ -415,7 +412,6 @@ class Groups implements ActionInterface, Routable
 		$members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_group = {int:id_group} OR FIND_IN_SET({int:id_group}, additional_groups) != 0' . ($limit === null ? '' : '
@@ -431,7 +427,7 @@ class Groups implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		// If there are more than $limit members, add a 'more' link.
-		if ($limit !== null && count($members) > $limit) {
+		if ($limit !== null && \count($members) > $limit) {
 			array_pop($members);
 
 			return true;
@@ -514,5 +510,3 @@ class Groups implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

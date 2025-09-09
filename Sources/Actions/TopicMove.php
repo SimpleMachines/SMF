@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -60,7 +60,6 @@ class TopicMove implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_member_started, ms.subject, t.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -117,7 +116,7 @@ class TopicMove implements ActionInterface, Routable
 
 		Utils::$context['categories'] = MessageIndex::getBoardList($options);
 
-		Utils::$context['page_title'] = Lang::$txt['move_topic'];
+		Utils::$context['page_title'] = Lang::getTxt('move_topic', file: 'General');
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
@@ -125,17 +124,16 @@ class TopicMove implements ActionInterface, Routable
 		];
 
 		Utils::$context['linktree'][] = [
-			'name' => Lang::$txt['move_topic'],
+			'name' => Lang::getTxt('move_topic', file: 'General'),
 		];
 
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
 		if (User::$me->language != Lang::$default) {
-			Lang::load('General', Lang::$default);
-			$temp = Lang::$txt['movetopic_default'];
-			Lang::load('General');
-
-			Lang::$txt['movetopic_default'] = $temp;
+			Lang::setTxt(
+				'movetopic_default',
+				Lang::getTxt('movetopic_default', file: 'General', lang: Lang::$default),
+			);
 		}
 
 		Utils::$context['sub_template'] = 'move';
@@ -146,5 +144,3 @@ class TopicMove implements ActionInterface, Routable
 		Security::checkSubmitOnce('register');
 	}
 }
-
-?>

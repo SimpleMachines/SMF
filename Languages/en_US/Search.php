@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Search
+// Version: 3.0 Alpha 4; Search
 
 // Comma-separated list of words that should be ignored when searching in this language. Translators should NOT just translate the words in this list. Instead, replace them with common words that should be ignored when searching in the target language.
 $txt['search_stopwords'] = 'a,about,an,are,as,at,be,by,for,from,how,in,is,it,of,on,or,that,the,this,to,was,what,when,where,who,will,with';
@@ -114,8 +114,10 @@ $txt['error_string_too_long'] = '{0, plural,
 }';
 
 $txt['search_adjust_query'] = 'Adjust Search Parameters';
-$txt['search_warning_ignored_word'] = 'The following term has been ignored in your search because it is too short';
-$txt['search_warning_ignored_words'] = 'The following terms have been ignored in your search because they are too short';
+$txt['search_warning_ignored'] = '{number_of_terms, plural,
+	one {The following term has been ignored in your search because it is too short: {list}}
+	other {The following terms have been ignored in your search because they are too short: {list}}
+}';
 $txt['search_adjust_submit'] = 'Revise Search';
 $txt['search_did_you_mean'] = 'You may have meant to search for {suggested_query}.';
 
@@ -156,7 +158,6 @@ $txt['spider_name_desc'] = 'Name by which the spider will be referred.';
 $txt['spider_agent_desc'] = 'User agent associated with this spider.';
 $txt['spider_ip_info_desc'] = 'Comma separated list of IP addresses associated with this spider.';
 
-$txt['spider'] = 'Spider';
 $txt['spider_time'] = 'Time';
 $txt['spider_viewing'] = 'Viewing';
 $txt['spider_logs_empty'] = 'There are currently no spider log entries.';
@@ -187,5 +188,3 @@ $txt['robots_txt_not_writable'] = 'The robots.txt file is not writable.';
 
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'In most situations, this should be left blank.';
-
-?>

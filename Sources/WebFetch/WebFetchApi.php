@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -77,7 +77,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function request(string $url, array|string $post_data = []): ?object
 	{
@@ -85,7 +85,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function result(?string $area = null): mixed
 	{
@@ -93,7 +93,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultRaw(?int $response_number = null): array
 	{
@@ -127,8 +127,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 
 		// No scheme? No data for you!
 		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
-			Lang::load('Errors');
-			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 			$data = false;
 		}
 
@@ -148,8 +147,12 @@ abstract class WebFetchApi implements WebFetchApiInterface
 					self::$still_alive[(string) $url] = $fetcher;
 				}
 
-				// Make the request.
-				$fetcher->request($url, $post_data);
+				// Make the request, if it fails, move on.
+				try {
+					$fetcher->request($url, $post_data);
+				} catch (\Exception $ex) {
+					continue;
+				}
 
 				// If keep_alive was turned off during the request, we don't
 				// need to maintain this instance after we're done the request.
@@ -186,7 +189,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	protected function buildPostData(array|string $post_data): string
 	{
-		if (is_array($post_data)) {
+		if (\is_array($post_data)) {
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {
@@ -201,5 +204,3 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		return trim($post_data);
 	}
 }
-
-?>

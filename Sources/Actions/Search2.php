@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchResult;
 use SMF\Security;
@@ -91,8 +92,6 @@ class Search2 implements ActionInterface, Routable
 		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
 
 		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
-
-		Lang::load('Search');
 
 		Utils::$context['robot_no_index'] = true;
 
@@ -177,10 +176,10 @@ class Search2 implements ActionInterface, Routable
 			$started = $output['first_post']['member']['id'] == User::$me->id;
 
 			$output['quick_mod'] = [
-				'lock' => in_array(0, SearchResult::$boards_can['lock_any']) || in_array($output['board']['id'], SearchResult::$boards_can['lock_any']) || ($started && (in_array(0, SearchResult::$boards_can['lock_own']) || in_array($output['board']['id'], SearchResult::$boards_can['lock_own']))),
-				'sticky' => (in_array(0, SearchResult::$boards_can['make_sticky']) || in_array($output['board']['id'], SearchResult::$boards_can['make_sticky'])),
-				'move' => in_array(0, SearchResult::$boards_can['move_any']) || in_array($output['board']['id'], SearchResult::$boards_can['move_any']) || ($started && (in_array(0, SearchResult::$boards_can['move_own']) || in_array($output['board']['id'], SearchResult::$boards_can['move_own']))),
-				'remove' => in_array(0, SearchResult::$boards_can['remove_any']) || in_array($output['board']['id'], SearchResult::$boards_can['remove_any']) || ($started && (in_array(0, SearchResult::$boards_can['remove_own']) || in_array($output['board']['id'], SearchResult::$boards_can['remove_own']))),
+				'lock' => \in_array(0, SearchResult::$boards_can['lock_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['lock_any']) || ($started && (\in_array(0, SearchResult::$boards_can['lock_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['lock_own']))),
+				'sticky' => (\in_array(0, SearchResult::$boards_can['make_sticky']) || \in_array($output['board']['id'], SearchResult::$boards_can['make_sticky'])),
+				'move' => \in_array(0, SearchResult::$boards_can['move_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['move_any']) || ($started && (\in_array(0, SearchResult::$boards_can['move_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['move_own']))),
+				'remove' => \in_array(0, SearchResult::$boards_can['remove_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['remove_any']) || ($started && (\in_array(0, SearchResult::$boards_can['remove_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['remove_own']))),
 				'restore' => Utils::$context['can_restore_perm'] && (Config::$modSettings['recycle_board'] == $output['board']['id']),
 			];
 
@@ -188,7 +187,7 @@ class Search2 implements ActionInterface, Routable
 			Utils::$context['can_sticky'] |= $output['quick_mod']['sticky'];
 			Utils::$context['can_move'] |= $output['quick_mod']['move'];
 			Utils::$context['can_remove'] |= $output['quick_mod']['remove'];
-			Utils::$context['can_merge'] |= in_array($output['board']['id'], SearchResult::$boards_can['merge_any']);
+			Utils::$context['can_merge'] |= \in_array($output['board']['id'], SearchResult::$boards_can['merge_any']);
 			Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
 			Utils::$context['can_markread'] = User::$me->is_logged;
 
@@ -266,7 +265,7 @@ class Search2 implements ActionInterface, Routable
 	 */
 	protected function checkLoadAverage(): void
 	{
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 	}
@@ -352,16 +351,16 @@ class Search2 implements ActionInterface, Routable
 		// ... and add the links to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search_results'],
+			'name' => Lang::getTxt('search_results', file: 'General'),
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
-		$start = (int) $_REQUEST['start'];
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), Utils::$context['start'], $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
@@ -377,14 +376,14 @@ class Search2 implements ActionInterface, Routable
 			Utils::$context['icon_sources'][$icon] = 'images_url';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('search_results', file: 'General');
 		Utils::$context['get_topics'] = [$this, 'prepareSearchContext'];
 		Utils::$context['can_restore_perm'] = User::$me->allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
 		Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
-			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
+			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('select_destination', file: 'General'))),
 		];
 
 		// Define the sort order options.
@@ -463,7 +462,6 @@ class Search2 implements ActionInterface, Routable
 	protected function getPosters(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}
@@ -472,7 +470,7 @@ class Search2 implements ActionInterface, Routable
 			[
 				'message_list' => $this->messages,
 				'no_member' => 0,
-				'limit' => count(SearchApi::$loadedApi->results),
+				'limit' => \count(SearchApi::$loadedApi->results),
 			],
 		);
 
@@ -520,5 +518,3 @@ class Search2 implements ActionInterface, Routable
 		SearchApi::$loadedApi->setParticipants();
 	}
 }
-
-?>

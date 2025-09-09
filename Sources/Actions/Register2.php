@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,6 +21,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
@@ -130,7 +131,6 @@ class Register2 extends Register
 
 		// Are they under age, and under age users are banned?
 		if (!empty(Config::$modSettings['coppaAge']) && empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-			Lang::load('Errors');
 			ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 		}
 
@@ -141,8 +141,7 @@ class Register2 extends Register
 
 		// Failing that, check the time on it.
 		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit']) {
-			Lang::load('Errors');
-			$this->errors[] = Lang::$txt['error_too_quickly'];
+			$this->errors[] = Lang::getTxt('error_too_quickly', file: 'Errors');
 		}
 
 		// Check whether the visual verification code was entered correctly.
@@ -150,10 +149,8 @@ class Register2 extends Register
 			$verifier = new Verifier(['id' => 'register']);
 
 			if (!empty($verifier->errors)) {
-				Lang::load('Errors');
-
 				foreach ($verifier->errors as $error) {
-					$this->errors[] = Lang::$txt['error_' . $error];
+					$this->errors[] = Lang::getTxt('error_' . $error, [], file: 'Errors');
 				}
 			}
 		}
@@ -174,7 +171,7 @@ class Register2 extends Register
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
-			if (in_array('website', $reg_fields)) {
+			if (\in_array('website', $reg_fields)) {
 				$this->possible_strings = array_merge(['website_url', 'website_title'], $this->possible_strings);
 
 				// Make sure their website URL is squeaky clean
@@ -197,7 +194,6 @@ class Register2 extends Register
 			// If you are a guest, will you be allowed to once you register?
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT add_deny
 					FROM {db_prefix}permissions
 					WHERE id_group = {int:id_group} AND permission = {string:permission}',
@@ -222,7 +218,7 @@ class Register2 extends Register
 		}
 		// Or birthdate parts...
 		elseif (!empty($_POST['bday1']) && !empty($_POST['bday2'])) {
-			$_POST['birthdate'] = sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
+			$_POST['birthdate'] = \sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
 		}
 
 		// Validate the passed language file.
@@ -288,7 +284,7 @@ class Register2 extends Register
 			$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
 		}
 
-		$reg_options['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : [];
+		$reg_options['theme_vars'] = isset($_POST['options']) && \is_array($_POST['options']) ? $_POST['options'] : [];
 
 		// Note when they accepted the agreement and privacy policy
 		if (!empty(Config::$modSettings['requireAgreement'])) {
@@ -300,11 +296,10 @@ class Register2 extends Register
 		}
 
 		// Make sure they are clean, dammit!
-		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars']);
+		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars'], ENT_QUOTES);
 
 		// Check whether we have fields that simply MUST be displayed?
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_type, field_length, mask, show_reg
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:is_active}
@@ -330,7 +325,7 @@ class Register2 extends Register
 			$value = isset($_POST['customfield'][$row['col_name']]) ? trim($_POST['customfield'][$row['col_name']]) : '';
 
 			// We only care for text fields as the others are valid to be empty.
-			if (!in_array($row['field_type'], ['check', 'select', 'radio'])) {
+			if (!\in_array($row['field_type'], ['check', 'select', 'radio'])) {
 				// Is it too long?
 				if ($row['field_length'] && $row['field_length'] < Utils::entityStrlen($value)) {
 					$custom_field_errors[] = ['custom_field_too_long', [$row['field_name'], $row['field_length']]];
@@ -338,7 +333,7 @@ class Register2 extends Register
 
 				// Any masks to apply?
 				if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none') {
-					if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
+					if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || \strlen($value) > 255)) {
 						$custom_field_errors[] = ['custom_field_invalid_email', [$row['field_name']]];
 					} elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value)) {
 						$custom_field_errors[] = ['custom_field_not_number', [$row['field_name']]];
@@ -357,10 +352,8 @@ class Register2 extends Register
 
 		// Process any errors.
 		if (!empty($custom_field_errors)) {
-			Lang::load('Errors');
-
 			foreach ($custom_field_errors as $error) {
-				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1]);
+				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1], file: 'Errors');
 			}
 		}
 
@@ -376,7 +369,7 @@ class Register2 extends Register
 		$member_id = self::registerMember($reg_options, true);
 
 		// What there actually an error of some kind dear boy?
-		if (is_array($member_id)) {
+		if (\is_array($member_id)) {
 			$this->errors = array_merge($this->errors, $member_id);
 			$_REQUEST['step'] = 2;
 			$this->show();
@@ -415,15 +408,15 @@ class Register2 extends Register
 			Theme::loadTemplate('Register');
 
 			Utils::$context += [
-				'page_title' => Lang::$txt['register'],
-				'title' => Lang::$txt['registration_successful'],
+				'page_title' => Lang::getTxt('register', file: 'General'),
+				'title' => Lang::getTxt('registration_successful', file: 'Login'),
 				'sub_template' => 'after',
-				'description' => Config::$modSettings['registration_method'] == 2 ? Lang::$txt['approval_after_registration'] : Lang::$txt['activate_after_registration'],
+				'description' => Lang::getTxt(Config::$modSettings['registration_method'] == 2 ? 'approval_after_registration' : 'activate_after_registration', file: 'Login'),
 			];
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
 
-			Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
 			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Sapi::needsLoginFix());
 		}
@@ -450,8 +443,6 @@ class Register2 extends Register
 	 */
 	public static function registerMember(array &$reg_options, bool $return_errors = false): int|array
 	{
-		Lang::load('Login');
-
 		// Put any errors in here.
 		$reg_errors = [];
 
@@ -480,7 +471,7 @@ class Register2 extends Register
 		$reg_options['username'] = Utils::htmlspecialchars($reg_options['username']);
 
 		// @todo Separate the sprintf?
-		if (empty($reg_options['email']) || !filter_var($reg_options['email'], FILTER_VALIDATE_EMAIL) || strlen($reg_options['email']) > 255) {
+		if (empty($reg_options['email']) || !filter_var($reg_options['email'], FILTER_VALIDATE_EMAIL) || \strlen($reg_options['email']) > 255) {
 			$reg_errors[] = ['lang', 'profile_error_bad_email'];
 		}
 
@@ -518,9 +509,7 @@ class Register2 extends Register
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				Lang::load('Errors');
-
-				if (isset(Lang::$txt['profile_error_password_' . $password_error])) {
+				if (Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors')) {
 					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
 				} else {
 					$error_code = ['done', $password_error, false];
@@ -536,12 +525,11 @@ class Register2 extends Register
 
 		// You may not be allowed to register this email.
 		if (!empty($reg_options['check_email_ban'])) {
-			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
 		}
 
 		// Check if the email address is in use.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
@@ -568,11 +556,7 @@ class Register2 extends Register
 				1 = The text/index.
 				2 = Whether to log.
 				3 = sprintf data if necessary. */
-			if ($error[0] == 'lang') {
-				Lang::load('Errors');
-			}
-
-			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
+			$message = Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {
@@ -611,7 +595,7 @@ class Register2 extends Register
 		];
 
 		// Can't change reserved vars.
-		if (isset($reg_options['theme_vars']) && count(array_intersect(array_keys($reg_options['theme_vars']), $reserved_vars)) != 0) {
+		if (isset($reg_options['theme_vars']) && \count(array_intersect(array_keys($reg_options['theme_vars']), $reserved_vars)) != 0) {
 			ErrorHandler::fatalLang('no_theme');
 		}
 
@@ -624,7 +608,7 @@ class Register2 extends Register
 			'posts' => 0,
 			'date_registered' => time(),
 			'member_ip' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
-			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : $_SERVER['BAN_CHECK_IP'],
+			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative(),
 			'validation_code' => $validation_code,
 			'real_name' => $reg_options['username'],
 			'personal_text' => Config::$modSettings['default_personal_text'],
@@ -644,7 +628,7 @@ class Register2 extends Register
 			'additional_groups' => '',
 			'ignore_boards' => '',
 			'smiley_set' => '',
-			'timezone' => empty(Config::$modSettings['default_timezone']) || !array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
+			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
 		];
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -669,14 +653,14 @@ class Register2 extends Register
 
 		// Check if this group is assignable.
 		if (isset($reg_options['memberGroup'])) {
-			$reg_options['register_vars']['id_group'] = in_array($reg_options['memberGroup'], Group::getUnassignable()) ? Group::REGULAR : $reg_options['memberGroup'];
+			$reg_options['register_vars']['id_group'] = \in_array($reg_options['memberGroup'], Group::getUnassignable()) ? Group::REGULAR : $reg_options['memberGroup'];
 		}
 
 		// Verify that timezone is correct, if provided.
 		if (
 			!empty($reg_options['extra_register_vars'])
 			&& !empty($reg_options['extra_register_vars']['timezone'])
-			&& !array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
+			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
 		) {
 			unset($reg_options['extra_register_vars']['timezone']);
 		}
@@ -721,11 +705,11 @@ class Register2 extends Register
 		foreach ($reg_options['register_vars'] as $var => $val) {
 			$type = 'string';
 
-			if (in_array($var, $known_ints)) {
+			if (\in_array($var, $known_ints)) {
 				$type = 'int';
-			} elseif (in_array($var, $known_floats)) {
+			} elseif (\in_array($var, $known_floats)) {
 				$type = 'float';
-			} elseif (in_array($var, $known_inets)) {
+			} elseif (\in_array($var, $known_inets)) {
 				$type = 'inet';
 			} elseif ($var == 'birthdate') {
 				$type = 'date';
@@ -742,7 +726,7 @@ class Register2 extends Register
 			$column_names,
 			[$values],
 			['id_member'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		// Call an optional function as notification of registration.
@@ -879,5 +863,3 @@ class Register2 extends Register
 		return $member_id;
 	}
 }
-
-?>

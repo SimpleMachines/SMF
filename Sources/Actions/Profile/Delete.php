@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -95,12 +95,11 @@ class Delete implements ActionInterface
 		User::$me->checkSession();
 
 		// Too often, people remove/delete their own only account.
-		if (in_array(1, Profile::$member->groups)) {
+		if (\in_array(1, Profile::$member->groups)) {
 			// Are you allowed to administrate the forum, as they are?
 			User::$me->isAllowedTo('admin_forum');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -126,7 +125,6 @@ class Delete implements ActionInterface
 				// First we find any polls that this user has voted in...
 				$polls_to_update = [];
 				$get_voted_polls = Db::$db->query(
-					'',
 					'SELECT DISTINCT id_poll
 					FROM {db_prefix}log_polls
 					WHERE id_member = {int:selected_member}',
@@ -143,7 +141,6 @@ class Delete implements ActionInterface
 				// Now we delete the votes and update the polls
 				if (!empty($polls_to_update)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}log_polls
 						WHERE id_member = {int:selected_member}',
 						[
@@ -152,7 +149,6 @@ class Delete implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}polls
 						SET votes = votes - 1
 						WHERE id_poll IN ({array_int:polls_to_update})',
@@ -166,7 +162,7 @@ class Delete implements ActionInterface
 			// Next, delete the posts, if requested.
 			if (
 				!empty($_POST['deletePosts'])
-				&& in_array($_POST['remove_type'] ?? '', ['posts', 'topics'])
+				&& \in_array($_POST['remove_type'] ?? '', ['posts', 'topics'])
 				&& User::$me->allowedTo('moderate_forum')
 			) {
 				$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
@@ -177,7 +173,6 @@ class Delete implements ActionInterface
 				if ($_POST['remove_type'] == 'topics') {
 					// Fetch all topics started by this user.
 					$request = Db::$db->query(
-						'',
 						'SELECT t.id_topic
 						FROM {db_prefix}topics AS t
 						WHERE t.id_member_started = {int:selected_member}' . $extra,
@@ -198,7 +193,6 @@ class Delete implements ActionInterface
 
 				// Now delete the remaining messages.
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_msg
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
@@ -261,5 +255,3 @@ class Delete implements ActionInterface
 		}
 	}
 }
-
-?>

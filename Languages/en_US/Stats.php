@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Stats
+// Version: 3.0 Alpha 4; Stats
 
 $txt['most_online'] = 'Most Online';
 $txt['most_online_number_date'] = '{number, number, integer} on {date}';
@@ -37,9 +37,11 @@ $txt['average_hits'] = 'Average page views per day';
 
 $txt['ssi_comment'] = 'comment';
 $txt['ssi_comments'] = 'comments';
+$txt['ssi_num_comments'] = '{0, plural,
+	one {# comment}
+	other {# comments}
+}';
 $txt['ssi_write_comment'] = 'Write Comment';
 $txt['ssi_no_guests'] = 'You cannot specify a board that does not allow guests. Please check the board ID before trying again.';
 // argument(s): forum name
 $txt['xml_rss_desc'] = 'Live information from {forum_name}';
-
-?>

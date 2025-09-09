@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
-use SMF\Lang;
+use SMF\Debug\DebugUtils;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -27,19 +27,21 @@ use SMF\Utils;
  */
 class Popup
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Constructor.
 	 */
 	public function __construct()
 	{
-		Lang::load('PersonalMessage');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
 		}
 
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];
@@ -59,11 +61,11 @@ class Popup
 
 		if (!empty($pms)) {
 			// Just quickly, it's possible that the number of PMs can get out of sync.
-			$count_unread = count($pms);
+			$count_unread = \count($pms);
 
 			if ($count_unread != User::$me->unread_messages) {
 				User::updateMemberData(User::$me->id, ['unread_messages' => $count_unread]);
-				User::$me->unread_messages = count($pms);
+				User::$me->unread_messages = \count($pms);
 			}
 
 			// Now, actually fetch me some PMs.
@@ -91,5 +93,3 @@ class Popup
 		}
 	}
 }
-
-?>

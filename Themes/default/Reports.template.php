@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -21,9 +21,9 @@ use SMF\Utils;
 function template_report_type()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('generate_reports_type', file: 'Reports'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
@@ -43,7 +43,7 @@ function template_report_type()
 	}
 	echo '
 				</dl>
-				<input type="submit" name="continue" value="', Lang::$txt['generate_reports_continue'], '" class="button">
+				<input type="submit" name="continue" value="', Lang::getTxt('generate_reports_continue', file: 'Reports'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>';
@@ -56,7 +56,7 @@ function template_main()
 {
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['results'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('results', file: 'Reports'), '</h3>
 		</div>
 		<div id="report_buttons">';
 
@@ -179,7 +179,7 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Utils::$context['page_title'], '</title>
 		<link rel="stylesheet" href="', Theme::$current->settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
 		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/reports.js', Utils::$context['browser_cache'], '"></script>
@@ -269,5 +269,3 @@ function template_print_below()
 	</body>
 </html>';
 }
-
-?>

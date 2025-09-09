@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -32,8 +32,6 @@ use SMF\Utils;
 class ShowAlerts implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/****************
 	 * Public methods
@@ -116,18 +114,18 @@ class ShowAlerts implements ActionInterface
 		foreach (Utils::$context['alerts'] as $id => $alert) {
 			Utils::$context['alerts'][$id]['quickbuttons'] = [
 				'delete' => [
-					'label' => Lang::$txt['delete'],
+					'label' => Lang::getTxt('delete', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 				],
 				'mark' => [
-					'label' => $alert['is_read'] != 0 ? Lang::$txt['mark_unread'] : Lang::$txt['mark_read_short'],
+					'label' => Lang::getTxt($alert['is_read'] != 0 ? 'mark_unread' : 'mark_read_short', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
 				],
 				'view' => [
-					'label' => Lang::$txt['view'],
+					'label' => Lang::getTxt('view', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 					'icon' => 'move',
 				],
@@ -144,7 +142,7 @@ class ShowAlerts implements ActionInterface
 
 		// Set a nice message.
 		if (!empty($_SESSION['update_message'])) {
-			Utils::$context['update_message'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['update_message'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 			unset($_SESSION['update_message']);
 		}
 
@@ -213,5 +211,3 @@ class ShowAlerts implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\MailAgent\APIs;
@@ -18,15 +18,19 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
-use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Sends mail via SendMail
  */
 class SendMail extends MailAgent implements MailAgentInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(): bool
 	{
@@ -35,7 +39,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isConfigured(): bool
 	{
@@ -44,7 +48,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -52,7 +56,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -78,22 +82,20 @@ class SendMail extends MailAgent implements MailAgentInterface
 
 		try {
 			if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
-				ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to]));
+				ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
 				$mail_result = false;
 			}
 		} catch (\ErrorException $e) {
 			ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to]));
+			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
 			$mail_result = false;
 		}
 		restore_error_handler();
 
 		// Wait, wait, I'm still sending here!
-		Utils::sapiSetTimeLimit();
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit();
+		Sapi::resetTimeout();
 
 		return $mail_result;
 	}
 }
-
-?>

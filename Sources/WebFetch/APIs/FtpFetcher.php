@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -86,14 +86,14 @@ class FtpFetcher extends WebFetchApi
 	/**
 	 * Constructor.
 	 *
-	 * @param string $user User name to connect with. If null, uses 'anonymous'.
-	 * @param string $email Email address to connect with. Defaults to
+	 * @param null|string $user User name to connect with. If null, uses 'anonymous'.
+	 * @param null|string $email Email address to connect with. Defaults to
 	 *    Config::$webmaster_email, or 'nobody@example.com' if that is not set.
 	 */
 	public function __construct(?string $user = null, ?string $email = null)
 	{
-		$this->user = is_string($user) ? $user : 'anonymous';
-		$this->email = is_string($email) ? $email : (Config::$webmaster_email ?? 'nobody@example.com');
+		$this->user = \is_string($user) ? $user : 'anonymous';
+		$this->email = \is_string($email) ? $email : (Config::$webmaster_email ?? 'nobody@example.com');
 	}
 
 	/**
@@ -114,9 +114,8 @@ class FtpFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !in_array($url->scheme, ['ftp', 'ftps'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
+		if (empty($url->scheme) || !\in_array($url->scheme, ['ftp', 'ftps'])) {
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
 		}
@@ -178,7 +177,7 @@ class FtpFetcher extends WebFetchApi
 		$ftp->close();
 
 		$this->response[0]['body'] = $body;
-		$this->response[0]['size'] = strlen($body);
+		$this->response[0]['size'] = \strlen($body);
 
 		return $this;
 	}
@@ -189,7 +188,7 @@ class FtpFetcher extends WebFetchApi
 	 *  - Called as ->result() will return the full final array.
 	 *  - Called as ->result('body') to return the page source of the result.
 	 *
-	 * @param string $area Used to return an area such as body, header, error.
+	 * @param null|string $area Used to return an area such as body, header, error.
 	 * @return mixed The response
 	 */
 	public function result(?string $area = null): mixed
@@ -206,7 +205,7 @@ class FtpFetcher extends WebFetchApi
 	 * Since this class doesn't support redirects, this method is practically
 	 * useless, but it's required to comply with FetcherApiInterface.
 	 *
-	 * @param int $response_number Which response to get, or null for all.
+	 * @param null|int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
 	public function resultRaw(?int $response_number = null): array
@@ -218,5 +217,3 @@ class FtpFetcher extends WebFetchApi
 		return $this->response[0];
 	}
 }
-
-?>

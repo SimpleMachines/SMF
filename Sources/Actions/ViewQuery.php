@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -20,7 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\DebugUtils;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -62,7 +62,7 @@ class ViewQuery implements ActionInterface, Routable
 	public function execute(): void
 	{
 		// We should have debug mode enabled, as well as something to display!
-		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug'])) {
+		if (!DebugUtils::isDebugEnabled() || !isset($_SESSION['debug'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -131,85 +131,95 @@ class ViewQuery implements ActionInterface, Routable
 			}
 
 			echo '
-		<div id="qq', $q, '" style="margin-bottom: 2ex;">';
+			<div id="qq', $q, '" style="margin-bottom: 2ex;">';
 
 			if ($is_select_query) {
 				echo '
-			<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" style="font-weight: bold; text-decoration: none;">';
+				<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" style="font-weight: bold; text-decoration: none;">';
 			}
 
 			echo '
-				<pre style="tab-size: 2;">', DebugUtils::highlightSql($query_data['q']), '</pre>';
+					<pre style="tab-size: 2;">', DebugUtils::highlightSql($query_data['q']), '</pre>';
 
 			if ($is_select_query) {
 				echo '
-			</a>';
+				</a>';
 			}
 
 			if (!empty($query_data['f']) && !empty($query_data['l'])) {
-				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
+				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']], file: 'General');
 			}
 
-			if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]);
+			if (isset($query_data['s'], $query_data['t']) && Lang::txtExists('debug_query_which_took_at', file: 'General')) {
+				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)], file: 'General');
 			} else {
-				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]);
+				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)], file: 'General');
 			}
 
 			echo '
-		</div>';
+			</div>';
 
 			// Explain the query.
 			if ($query_id == $q && $is_select_query) {
-				$result = Db::$db->query('', 'EXPLAIN ' . $select);
+				$result = Db::$db->query('EXPLAIN ' . $select);
 
 				if ($result === false) {
 					echo '
-		<table>
-			<tr><td>', Db::$db->error(), '</td></tr>
-		</table>';
+			<table>
+				<tr><td>', Db::$db->error(), '</td></tr>
+			</table>';
 
 					continue;
 				}
 
 				echo '
-		<table>';
+			<table>';
 
 				$row = Db::$db->fetch_assoc($result);
 
 				echo '
-			<tr>
-				<th>' . implode('</th>
-				<th>', array_keys($row)) . '</th>
-			</tr>';
+				<tr>
+					<th>' . implode('</th>
+					<th>', array_keys($row)) . '</th>
+				</tr>';
 
 				Db::$db->data_seek($result, 0);
 
 				while ($row = Db::$db->fetch_assoc($result)) {
 					echo '
-			<tr>
-				<td>' . implode('</td>
-				<td>', $row) . '</td>
-			</tr>';
+				<tr>
+					<td>' . implode('</td>
+					<td>', $row) . '</td>
+				</tr>';
 				}
 				Db::$db->free_result($result);
 
 				echo '
-		</table>';
+			</table>';
 
-			$vendor = Db::$db->get_vendor();
+				$vendor = Db::$db->get_vendor();
+				$version = Db::$db->get_version();
+				$formatJson = true;
 
-			if ($vendor == 'MariaDB') {
-				$result = Db::$db->query('', 'ANALYZE FORMAT=JSON ' . $select);
-			} else {
-				$result = Db::$db->query(
-					'',
-					'EXPLAIN ' . ($vendor == 'PostgreSQL' ? '(ANALYZE, FORMAT JSON) ' : 'ANALYZE FORMAT=JSON ') . $select,
-				);
-			}
+				if ($vendor === 'MariaDB') {
+					$result = Db::$db->query('ANALYZE FORMAT=JSON ' . $select);
+				} elseif ($vendor == 'PostgreSQL') {
+					$result = Db::$db->query('(ANALYZE, FORMAT JSON) ' . $select);
+				} elseif ($vendor == 'MySQL' && version_compare($version, '8.3.0', '>=')) {
+					Db::$db->query('SET explain_json_format_version=2');
+					$result = Db::$db->query('EXPLAIN ANALYZE FORMAT=JSON ' . $select);
+				} else {
+					$formatJson = false;
+					$result = Db::$db->query('EXPLAIN ANALYZE ' . $select);
+				}
 
-			echo '
-		<pre>' . DebugUtils::highlightJson(Db::$db->fetch_row($result)[0]) . '</pre>';
+				if ($formatJson) {
+					echo '
+			<pre>' . DebugUtils::highlightJson(Db::$db->fetch_row($result)[0]) . '</pre>';
+				} else {
+					echo '
+			<pre>', Db::$db->fetch_row($result)[0], '</pre>';
+				}
 			}
 		}
 
@@ -221,5 +231,3 @@ class ViewQuery implements ActionInterface, Routable
 		Utils::obExit(false);
 	}
 }
-
-?>

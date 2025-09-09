@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -172,17 +172,17 @@ class SearchResult extends \SMF\Msg
 	public function format(int $counter = 0, array $format_options = []): array
 	{
 		// Can't have an empty subject can we?
-		$this->subject = $this->subject != '' ? $this->subject : Lang::$txt['no_subject'];
+		$this->subject = $this->subject != '' ? $this->subject : Lang::getTxt('no_subject', file: 'General');
 
-		$this->first_subject = $this->first_subject != '' ? $this->first_subject : Lang::$txt['no_subject'];
-		$this->last_subject = $this->last_subject != '' ? $this->last_subject : Lang::$txt['no_subject'];
+		$this->first_subject = $this->first_subject != '' ? $this->first_subject : Lang::getTxt('no_subject', file: 'General');
+		$this->last_subject = $this->last_subject != '' ? $this->last_subject : Lang::getTxt('no_subject', file: 'General');
 
 		// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
 		if (empty($this->id_member) || !isset(User::$loaded[$this->id_member])) {
 			// Notice this information isn't used anywhere else.... *cough guest table cough*.
 			$author['name'] = $this->poster_name;
 			$author['id'] = 0;
-			$author['group'] = Lang::$txt['guest_title'];
+			$author['group'] = Lang::getTxt('guest_title', file: 'General');
 			$author['link'] = $this->poster_name;
 			$author['email'] = $this->poster_email;
 		} else {
@@ -240,9 +240,9 @@ class SearchResult extends \SMF\Msg
 					$this->body = Utils::htmlspecialcharsDecode(strtr($this->body, ['&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@']));
 
 					if (empty(Config::$modSettings['search_method']) || $force_partial_word) {
-						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/isu', $this->body, $matches);
 					} else {
-						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/isu', $this->body, $matches);
 					}
 
 					$this->body = '';
@@ -307,7 +307,7 @@ class SearchResult extends \SMF\Msg
 		}
 
 		// Do we have quote tag enabled?
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		// Reference the main color class.
 		$colorClass = 'windowbg';
@@ -331,8 +331,8 @@ class SearchResult extends \SMF\Msg
 			'posted_in' => !empty(SearchApi::$loadedApi->participants[$this->id_topic]),
 			'views' => $this->num_views,
 			'replies' => $this->num_replies,
-			'can_reply' => in_array($this->id_board, self::$boards_can['post_reply_any']) || in_array(0, self::$boards_can['post_reply_any']),
-			'can_quote' => (in_array($this->id_board, self::$boards_can['post_reply_any']) || in_array(0, self::$boards_can['post_reply_any'])) && $quote_enabled,
+			'can_reply' => \in_array($this->id_board, self::$boards_can['post_reply_any']) || \in_array(0, self::$boards_can['post_reply_any']),
+			'can_quote' => (\in_array($this->id_board, self::$boards_can['post_reply_any']) || \in_array(0, self::$boards_can['post_reply_any'])) && $quote_enabled,
 			'first_post' => [
 				'id' => $this->first_msg,
 				'time' => Time::create('@' . $this->first_poster_time)->format(),
@@ -346,7 +346,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->first_member_id,
 					'name' => $this->first_member_name,
 					'href' => !empty($this->first_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->first_member_id : '',
-					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name]) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
+					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name], file: 'General') . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
 				],
 			],
 			'last_post' => [
@@ -362,7 +362,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->last_member_id,
 					'name' => $this->last_member_name,
 					'href' => !empty($this->last_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->last_member_id : '',
-					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name]) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
+					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name], file: 'General') . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
 				],
 			],
 			'board' => [
@@ -474,7 +474,7 @@ class SearchResult extends \SMF\Msg
 			'is_approved' => 1,
 			'current_member' => User::$me->id,
 			'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? User::$me->mod_cache['ap'] : [],
-			'limit' => count($ids),
+			'limit' => \count($ids),
 		];
 
 		if (!empty($ids)) {
@@ -511,7 +511,7 @@ class SearchResult extends \SMF\Msg
 		// Don't mess with the content of HTML tags.
 		$parts = preg_split('~(<[^>]+>)~', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<mark class="highlight">$0</mark>', $parts[$i]) : $parts[$i];
 		}
 
@@ -549,13 +549,11 @@ class SearchResult extends \SMF\Msg
 
 		// How's about some quick moderation?
 		if (!empty(Theme::$current->options['display_quick_mod'])) {
-			Utils::$context['can_lock'] = in_array(0, self::$boards_can['lock_any']);
-			Utils::$context['can_sticky'] = in_array(0, self::$boards_can['make_sticky']);
-			Utils::$context['can_move'] = in_array(0, self::$boards_can['move_any']);
-			Utils::$context['can_remove'] = in_array(0, self::$boards_can['remove_any']);
-			Utils::$context['can_merge'] = in_array(0, self::$boards_can['merge_any']);
+			Utils::$context['can_lock'] = \in_array(0, self::$boards_can['lock_any']);
+			Utils::$context['can_sticky'] = \in_array(0, self::$boards_can['make_sticky']);
+			Utils::$context['can_move'] = \in_array(0, self::$boards_can['move_any']);
+			Utils::$context['can_remove'] = \in_array(0, self::$boards_can['remove_any']);
+			Utils::$context['can_merge'] = \in_array(0, self::$boards_can['merge_any']);
 		}
 	}
 }
-
-?>

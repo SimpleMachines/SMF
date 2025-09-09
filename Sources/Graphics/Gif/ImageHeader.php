@@ -16,7 +16,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,15 +25,31 @@ namespace SMF\Graphics\Gif;
 
 class ImageHeader
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_nLeft;
+
 	public $m_nTop;
+
 	public $m_nWidth;
+
 	public $m_nHeight;
+
 	public $m_bLocalClr;
+
 	public $m_bInterlace;
+
 	public $m_bSorted;
+
 	public $m_nTableSize;
+
 	public $m_colorTable;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
@@ -51,7 +67,7 @@ class ImageHeader
 			return false;
 		}
 
-		$b = ord($lpData[8]);
+		$b = \ord($lpData[8]);
 		$this->m_bLocalClr = ($b & 0x80) ? true : false;
 		$this->m_bInterlace = ($b & 0x40) ? true : false;
 		$this->m_bSorted = ($b & 0x20) ? true : false;
@@ -71,5 +87,3 @@ class ImageHeader
 		return true;
 	}
 }
-
-?>

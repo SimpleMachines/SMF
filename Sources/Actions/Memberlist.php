@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -39,7 +39,6 @@ class Memberlist implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -116,7 +115,11 @@ class Memberlist implements ActionInterface, Routable
 		Theme::loadTemplate('Memberlist');
 
 		foreach ($this->sort_links as $sa => &$sort_link) {
-			$sort_link['label'] = Lang::$txt[$sort_link['label']] ?? ($sort_link['label'] ?? ($sort_link['action'] ?? $sa));
+			if (isset($sort_link['label'])) {
+				$sort_link['label'] = Lang::txtExists($sort_link['label'], file: 'General') ? Lang::getTxt($sort_link['label'], file: 'General') : $sort_link['label'];
+			} else {
+				$sort_link['label'] = $sort_link['action'] ?? $sa;
+			}
 
 			$sort_link['selected'] = $this->subaction === ($sort_link['action'] ?? $sa);
 		}
@@ -129,14 +132,14 @@ class Memberlist implements ActionInterface, Routable
 		// Set up the columns...
 		Utils::$context['columns'] = [
 			'is_online' => [
-				'label' => Lang::$txt['status'],
+				'label' => Lang::getTxt('status', file: 'General'),
 				'sort' => [
 					'down' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
 					'up' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC',
 				],
 			],
 			'real_name' => [
-				'label' => Lang::$txt['name'],
+				'label' => Lang::getTxt('name', file: 'General'),
 				'class' => 'lefttext',
 				'sort' => [
 					'down' => 'mem.real_name DESC',
@@ -144,7 +147,7 @@ class Memberlist implements ActionInterface, Routable
 				],
 			],
 			'website_url' => [
-				'label' => Lang::$txt['website'],
+				'label' => Lang::getTxt('website', file: 'General'),
 				'link_with' => 'website',
 				'sort' => [
 					'down' => User::$me->is_guest ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
@@ -152,21 +155,21 @@ class Memberlist implements ActionInterface, Routable
 				],
 			],
 			'id_group' => [
-				'label' => Lang::$txt['position'],
+				'label' => Lang::getTxt('position', file: 'General'),
 				'sort' => [
 					'down' => 'mg.group_name is null, mg.group_name DESC',
 					'up' => 'mg.group_name is not null, mg.group_name ASC',
 				],
 			],
 			'registered' => [
-				'label' => Lang::$txt['date_registered'],
+				'label' => Lang::getTxt('date_registered', file: 'General'),
 				'sort' => [
 					'down' => 'mem.date_registered DESC',
 					'up' => 'mem.date_registered ASC',
 				],
 			],
 			'post_count' => [
-				'label' => Lang::$txt['posts'],
+				'label' => Lang::getTxt('posts', file: 'General'),
 				'default_sort_rev' => true,
 				'sort' => [
 					'down' => 'mem.posts DESC',
@@ -199,7 +202,7 @@ class Memberlist implements ActionInterface, Routable
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=mlist',
-			'name' => Lang::$txt['members_list'],
+			'name' => Lang::getTxt('members_list', file: 'General'),
 		];
 
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
@@ -214,10 +217,10 @@ class Memberlist implements ActionInterface, Routable
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_memberlist_buttons');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -244,7 +247,6 @@ class Memberlist implements ActionInterface, Routable
 			// Only update the cache if something changed or no cache existed yet.
 			if (empty($memberlist_cache) || empty(Config::$modSettings['memberlist_updated']) || $memberlist_cache['last_update'] < Config::$modSettings['memberlist_updated']) {
 				$request = Db::$db->query(
-					'',
 					'SELECT real_name
 					FROM {db_prefix}members
 					WHERE is_activated = {int:is_activated}
@@ -277,7 +279,6 @@ class Memberlist implements ActionInterface, Routable
 		// Without cache we need an extra query to get the amount of members.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members
 				WHERE is_activated = {int:is_activated}',
@@ -294,35 +295,12 @@ class Memberlist implements ActionInterface, Routable
 			$_REQUEST['sort'] = 'real_name';
 		}
 
-		if (!is_numeric($_REQUEST['start'])) {
-			if (preg_match('~^[^\'\\\\/]~' . (Utils::$context['utf8'] ? 'u' : ''), Utils::strtolower($_REQUEST['start']), $match) === 0) {
-				ErrorHandler::fatal('Are you a wannabe hacker?', false);
-			}
-
-			$_REQUEST['start'] = $match[0];
-
-			$request = Db::$db->query(
-				'substring',
-				'SELECT COUNT(*)
-				FROM {db_prefix}members
-				WHERE LOWER(SUBSTRING(real_name, 1, 1)) < {string:first_letter}
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => User::ACTIVATED,
-					'first_letter' => $_REQUEST['start'],
-				],
-			);
-			list($start) = Db::$db->fetch_row($request);
-			$start = (int) $start;
-			Db::$db->free_result($request);
-		} else {
-			$start = (int) $_REQUEST['start'];
-		}
+		$start = (int) $_REQUEST['start'];
 
 		Utils::$context['letter_links'] = '';
 
 		for ($i = 97; $i < 123; $i++) {
-			Utils::$context['letter_links'] .= '<a href="' . Config::$scripturl . '?action=mlist;sa=all;start=' . chr($i) . '#letter' . chr($i) . '">' . strtoupper(chr($i)) . '</a> ';
+			Utils::$context['letter_links'] .= '<a href="' . Config::$scripturl . '?action=mlist;sa=all;start=' . \chr($i) . '#letter' . \chr($i) . '">' . strtoupper(\chr($i)) . '</a> ';
 		}
 
 		// Sort out the column information.
@@ -360,11 +338,11 @@ class Memberlist implements ActionInterface, Routable
 		Utils::$context['end'] = min($start + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-		Utils::$context['page_title'] = Lang::getTxt('viewing_members', [$start, Utils::$context['end']]);
+		Utils::$context['page_title'] = Lang::getTxt('viewing_members', [$start, Utils::$context['end']], file: 'General');
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $start,
 			'name' => &Utils::$context['page_title'],
-			'extra_after' => '(' . Lang::getTxt('of_total_members', [Utils::$context['num_members']]) . ')',
+			'extra_after' => '(' . Lang::getTxt('of_total_members', [Utils::$context['num_members']], file: 'General') . ')',
 		];
 
 		$limit = $start;
@@ -407,7 +385,6 @@ class Memberlist implements ActionInterface, Routable
 
 		// Select the members from the database.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member
 			FROM {db_prefix}members AS mem' . ($_REQUEST['sort'] === 'is_online' ? '
 				LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
@@ -425,20 +402,6 @@ class Memberlist implements ActionInterface, Routable
 		);
 		$this->printRows($request);
 		Db::$db->free_result($request);
-
-		// Add anchors at the start of each letter.
-		if ($_REQUEST['sort'] == 'real_name') {
-			$last_letter = '';
-
-			foreach (Utils::$context['members'] as $i => $dummy) {
-				$this_letter = Utils::strtolower(Utils::entitySubstr(Utils::$context['members'][$i]['name'], 0, 1));
-
-				if ($this_letter != $last_letter && preg_match('~[a-z]~', $this_letter) === 1) {
-					Utils::$context['members'][$i]['sort_letter'] = Utils::htmlspecialchars($this_letter);
-					$last_letter = $this_letter;
-				}
-			}
-		}
 	}
 
 	/**
@@ -449,13 +412,12 @@ class Memberlist implements ActionInterface, Routable
 	 */
 	public function search(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['mlist_search'];
+		Utils::$context['page_title'] = Lang::getTxt('mlist_search', file: 'General');
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 		$start = (int) $_REQUEST['start'];
 
 		// Can they search custom fields?
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_desc
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
@@ -533,7 +495,7 @@ class Memberlist implements ActionInterface, Routable
 			];
 
 			// Search for a name
-			if (in_array('name', $_POST['fields'])) {
+			if (\in_array('name', $_POST['fields'])) {
 				$fields = User::$me->allowedTo('moderate_forum') ? ['member_name', 'real_name'] : ['real_name'];
 				$search_fields[] = 'name';
 			} else {
@@ -542,19 +504,19 @@ class Memberlist implements ActionInterface, Routable
 			}
 
 			// Search for websites.
-			if (in_array('website', $_POST['fields'])) {
+			if (\in_array('website', $_POST['fields'])) {
 				$fields += [7 => 'website_title', 'website_url'];
 				$search_fields[] = 'website';
 			}
 
 			// Search for groups.
-			if (in_array('group', $_POST['fields'])) {
+			if (\in_array('group', $_POST['fields'])) {
 				$fields += [9 => 'COALESCE(group_name, {string:blank_string})'];
 				$search_fields[] = 'group';
 			}
 
 			// Search for an email address?
-			if (in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum')) {
+			if (\in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum')) {
 				$fields += [2 => 'email_address'];
 				$search_fields[] = 'email';
 			}
@@ -586,7 +548,6 @@ class Memberlist implements ActionInterface, Routable
 			$query = $_POST['search'] == '' ? '= {string:blank_string}' : (Db::$db->case_sensitive ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)
@@ -615,7 +576,6 @@ class Memberlist implements ActionInterface, Routable
 
 			// Find the members from the database.
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
@@ -637,10 +597,10 @@ class Memberlist implements ActionInterface, Routable
 		} else {
 			// These are all the possible fields.
 			Utils::$context['search_fields'] = [
-				'name' => Lang::$txt['mlist_search_name'],
-				'email' => Lang::$txt['mlist_search_email'],
-				'website' => Lang::$txt['mlist_search_website'],
-				'group' => Lang::$txt['mlist_search_group'],
+				'name' => Lang::getTxt('mlist_search_name', file: 'General'),
+				'email' => Lang::getTxt('mlist_search_email', file: 'General'),
+				'website' => Lang::getTxt('mlist_search_website', file: 'General'),
+				'group' => Lang::getTxt('mlist_search_group', file: 'General'),
 			];
 
 			// Sorry, but you can't search by email unless you can view emails
@@ -652,7 +612,7 @@ class Memberlist implements ActionInterface, Routable
 			}
 
 			foreach (Utils::$context['custom_search_fields'] as $field) {
-				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])]);
+				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])], file: 'General');
 			}
 
 			Utils::$context['sub_template'] = 'search';
@@ -686,7 +646,6 @@ class Memberlist implements ActionInterface, Routable
 	{
 		// Get the most posts.
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(posts)
 			FROM {db_prefix}members',
 			[
@@ -749,7 +708,7 @@ class Memberlist implements ActionInterface, Routable
 							output_type: Parser::OUTPUT_TEXT,
 						);
 					} elseif ($column['type'] == 'check') {
-						Utils::$context['members'][$member]['options'][$key] = Utils::$context['members'][$member]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
+						Utils::$context['members'][$member]['options'][$key] = Lang::getTxt(Utils::$context['members'][$member]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
 					}
 
 					// Enclosing the user input within some other text?
@@ -777,7 +736,6 @@ class Memberlist implements ActionInterface, Routable
 		$cpf = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose, default_value
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
@@ -883,5 +841,3 @@ class Memberlist implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

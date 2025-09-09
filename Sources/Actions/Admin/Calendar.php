@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
@@ -46,7 +46,6 @@ use SMF\WebFetch\WebFetchApi;
 class Calendar implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -86,36 +85,33 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Everything's gonna need this.
-		Lang::load('Calendar+ManageCalendar');
-
 		// Set up the two tabs here...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_calendar'],
+			'title' => Lang::getTxt('manage_calendar', file: 'Admin'),
 			'help' => 'calendar',
-			'description' => Lang::$txt['calendar_settings_desc'],
+			'description' => Lang::getTxt('calendar_settings_desc', file: 'ManageCalendar'),
 		];
 
 		if (!empty(Config::$modSettings['cal_enabled'])) {
 			Menu::$loaded['admin']->tab_data['tabs'] = [
 				'holidays' => [
-					'description' => Lang::$txt['manage_holidays_desc'],
+					'description' => Lang::getTxt('manage_holidays_desc', file: 'ManageCalendar'),
 				],
 				'import' => [
-					'description' => Lang::$txt['calendar_import_desc'],
+					'description' => Lang::getTxt('calendar_import_desc', file: 'ManageCalendar'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['calendar_settings_desc'],
+					'description' => Lang::getTxt('calendar_settings_desc', file: 'ManageCalendar'),
 				],
 			];
 		}
 
 		User::$me->isAllowedTo('admin_forum');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -137,7 +133,7 @@ class Calendar implements ActionInterface
 		SecurityToken::create('admin-mc');
 		$listOptions = [
 			'id' => 'holiday_list',
-			'title' => Lang::$txt['current_holidays'],
+			'title' => Lang::getTxt('current_holidays', file: 'ManageCalendar'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
@@ -147,15 +143,15 @@ class Calendar implements ActionInterface
 			'get_count' => [
 				'function' => 'SMF\\Calendar\\Holiday::count',
 			],
-			'no_items_label' => Lang::$txt['holidays_no_entries'],
+			'no_items_label' => Lang::getTxt('holidays_no_entries', file: 'ManageCalendar'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['holidays_title'],
+						'value' => Lang::getTxt('holidays_title', file: 'ManageCalendar'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday={id}">{title}</a>',
 							'params' => [
 								'id' => false,
 								'title' => false,
@@ -169,7 +165,7 @@ class Calendar implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($event) {
@@ -188,7 +184,7 @@ class Calendar implements ActionInterface
 								|| !empty($rrule->bysetpos)
 								|| $event->recurrence_iterator->getRDates() !== []
 							) {
-								return Lang::$txt['holidays_date_varies'];
+								return Lang::getTxt('holidays_date_varies', file: 'ManageCalendar');
 							}
 
 							if (isset($rrule->count) && $rrule->count === 1) {
@@ -209,8 +205,8 @@ class Calendar implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="holiday[%1$d]">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="holiday[{id}]">',
 							'params' => [
 								'id' => false,
 							],
@@ -226,13 +222,13 @@ class Calendar implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
-						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::$txt['holidays_add'] . '</a>',
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">
+						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::getTxt('holidays_add', file: 'ManageCalendar') . '</a>',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
-						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::$txt['holidays_add'] . '</a>',
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">
+						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::getTxt('holidays_add', file: 'ManageCalendar') . '</a>',
 				],
 			],
 		];
@@ -240,7 +236,7 @@ class Calendar implements ActionInterface
 		new ItemList($listOptions);
 
 		// loadTemplate('ManageCalendar');
-		Utils::$context['page_title'] = Lang::$txt['manage_holidays'];
+		Utils::$context['page_title'] = Lang::getTxt('manage_holidays', file: 'Admin');
 
 		// Since the list is the only thing to show, use the default list template.
 		Utils::$context['default_list'] = 'holiday_list';
@@ -255,7 +251,7 @@ class Calendar implements ActionInterface
 		Theme::loadTemplate('ManageCalendar');
 
 		Utils::$context['is_new'] = !isset($_REQUEST['holiday']);
-		Utils::$context['page_title'] = Utils::$context['is_new'] ? Lang::$txt['holidays_add'] : Lang::$txt['holidays_edit'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['is_new'] ? 'holidays_add' : 'holidays_edit', file: 'ManageCalendar');
 		Utils::$context['sub_template'] = 'edit_holiday';
 
 		// Cast this for safety...
@@ -318,7 +314,7 @@ class Calendar implements ActionInterface
 		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', count(Utils::$context['event']->byday_items) - 1);
+		Theme::addJavaScriptVar('monthly_byday_items', \count(Utils::$context['event']->byday_items) - 1);
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
@@ -329,7 +325,7 @@ class Calendar implements ActionInterface
 	{
 		Theme::loadTemplate('ManageCalendar');
 		Utils::$context['sub_template'] = 'import';
-		Utils::$context['page_title'] = Lang::$txt['calendar_import'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar_import', file: 'Admin');
 
 		// Submitting?
 		if (isset($_POST[Utils::$context['session_var']])) {
@@ -364,7 +360,6 @@ class Calendar implements ActionInterface
 					Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_task
 						FROM {db_prefix}scheduled_tasks
 						WHERE task = {string:task}',
@@ -432,13 +427,13 @@ class Calendar implements ActionInterface
 				Utils::$context['calendar_subscriptions'][] = [
 					'hash' => md5($url),
 					'url' => $url,
-					'type' => $type === Event::TYPE_HOLIDAY ? Lang::$txt['calendar_import_type_holiday'] : Lang::$txt['calendar_import_type_event'],
+					'type' => Lang::getTxt($type === Event::TYPE_HOLIDAY ? 'calendar_import_type_holiday' : 'calendar_import_type_event', file: 'ManageCalendar'),
 				];
 			}
 
 			$listOptions = [
 				'id' => 'calendar_subscriptions',
-				'title' => Lang::$txt['calendar_import_manage_subscriptions'],
+				'title' => Lang::getTxt('calendar_import_manage_subscriptions', file: 'ManageCalendar'),
 				'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 				'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=import',
 				// 'default_sort_col' => 'url',
@@ -446,17 +441,17 @@ class Calendar implements ActionInterface
 					'value' => Utils::$context['calendar_subscriptions'],
 				],
 				'get_count' => [
-					'value' => count(Utils::$context['calendar_subscriptions']),
+					'value' => \count(Utils::$context['calendar_subscriptions']),
 				],
-				'no_items_label' => Lang::$txt['none'],
+				'no_items_label' => Lang::getTxt('none', file: 'General'),
 				'columns' => [
 					'url' => [
 						'header' => [
-							'value' => Lang::$txt['url'],
+							'value' => Lang::getTxt('url', file: 'General'),
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '%1$s',
+							'format_text' => [
+								'format' => '{url}',
 								'params' => [
 									'url' => true,
 								],
@@ -471,15 +466,15 @@ class Calendar implements ActionInterface
 						'header' => [
 							'value' => Lang::sentenceList(
 								[
-									Lang::$txt['calendar_import_type_event'],
-									Lang::$txt['calendar_import_type_holiday'],
+									Lang::getTxt('calendar_import_type_event', file: 'ManageCalendar'),
+									Lang::getTxt('calendar_import_type_holiday', file: 'ManageCalendar'),
 								],
 								'or',
 							),
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '%1$s',
+							'format_text' => [
+								'format' => '{type}',
 								'params' => [
 									'type' => false,
 								],
@@ -496,8 +491,8 @@ class Calendar implements ActionInterface
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<input type="checkbox" name="subscribed[%1$s]">',
+							'format_text' => [
+								'format' => '<input type="checkbox" name="subscribed[{hash}]">',
 								'params' => [
 									'hash' => false,
 								],
@@ -511,13 +506,9 @@ class Calendar implements ActionInterface
 					'token' => 'admin-calendarimport',
 				],
 				'additional_rows' => [
-					// [
-					// 	'position' => 'above_column_headers',
-					// 	'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
-					// ],
 					[
 						'position' => 'below_table_data',
-						'value' => '<input type="submit" name="unsubscribe" value="' . Lang::$txt['calendar_import_unsubscribe'] . '" class="button">',
+						'value' => '<input type="submit" name="unsubscribe" value="' . Lang::getTxt('calendar_import_unsubscribe', file: 'ManageCalendar') . '" class="button">',
 					],
 				],
 			];
@@ -536,12 +527,12 @@ class Calendar implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Some important context stuff
-		Utils::$context['page_title'] = Lang::$txt['calendar_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the final touches in place.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managecalendar;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['calendar_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('calendar_settings', file: 'Admin');
 
 		// Saving the settings?
 		if (isset($_GET['save'])) {
@@ -581,12 +572,12 @@ class Calendar implements ActionInterface
 			$boards = [''];
 
 			$request = Db::$db->query(
-				'order_by_board_order',
 				'SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
 				[
 				],
+				identifier: 'order_by_board_order',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
@@ -608,10 +599,43 @@ class Calendar implements ActionInterface
 				'',
 
 				// How many days to show on board index, and where to display events etc?
-				['int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => Lang::$txt['days_word']],
-				['select', 'cal_showholidays', [0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all']]],
-				['select', 'cal_showbdays', [0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all']]],
-				['select', 'cal_showevents', [0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all']]],
+				[
+					'int',
+					'cal_days_for_index',
+					'help' => 'cal_maxdays_advance',
+					6,
+					'postinput' => Lang::getTxt('days_word', file: 'General'),
+				],
+				[
+					'select',
+					'cal_showholidays',
+					[
+						0 => Lang::getTxt('setting_cal_show_never', file: 'ManageCalendar'),
+						1 => Lang::getTxt('setting_cal_show_cal', file: 'ManageCalendar'),
+						3 => Lang::getTxt('setting_cal_show_index', file: 'ManageCalendar'),
+						2 => Lang::getTxt('setting_cal_show_all', file: 'ManageCalendar'),
+					],
+				],
+				[
+					'select',
+					'cal_showbdays',
+					[
+						0 => Lang::getTxt('setting_cal_show_never', file: 'ManageCalendar'),
+						1 => Lang::getTxt('setting_cal_show_cal', file: 'ManageCalendar'),
+						3 => Lang::getTxt('setting_cal_show_index', file: 'ManageCalendar'),
+						2 => Lang::getTxt('setting_cal_show_all', file: 'ManageCalendar'),
+					],
+				],
+				[
+					'select',
+					'cal_showevents',
+					[
+						0 => Lang::getTxt('setting_cal_show_never', file: 'ManageCalendar'),
+						1 => Lang::getTxt('setting_cal_show_cal', file: 'ManageCalendar'),
+						3 => Lang::getTxt('setting_cal_show_index', file: 'ManageCalendar'),
+						2 => Lang::getTxt('setting_cal_show_all', file: 'ManageCalendar'),
+					],
+				],
 				['check', 'cal_export'],
 				'',
 
@@ -628,12 +652,28 @@ class Calendar implements ActionInterface
 				'',
 
 				// Calendar spanning...
-				['int', 'cal_maxspan', 6, 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'],
+				[
+					'int',
+					'cal_maxspan',
+					6,
+					'postinput' => Lang::getTxt('days_word', file: 'General'),
+					'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+					'help' => 'cal_maxevent_span',
+				],
 				'',
 
 				// Miscellaneous layout settings...
 				['check', 'cal_disable_prev_next'],
-				['select', 'cal_week_links', [0 => Lang::$txt['setting_cal_week_links_none'], 1 => Lang::$txt['setting_cal_week_links_mini'], 2 => Lang::$txt['setting_cal_week_links_main'], 3 => Lang::$txt['setting_cal_week_links_both']]],
+				[
+					'select',
+					'cal_week_links',
+					[
+						0 => Lang::getTxt('setting_cal_week_links_none', file: 'ManageCalendar'),
+						1 => Lang::getTxt('setting_cal_week_links_mini', file: 'ManageCalendar'),
+						2 => Lang::getTxt('setting_cal_week_links_main', file: 'ManageCalendar'),
+						3 => Lang::getTxt('setting_cal_week_links_both', file: 'ManageCalendar'),
+					],
+				],
 				['check', 'cal_prev_next_links'],
 				['check', 'cal_short_days'],
 				['check', 'cal_short_months'],
@@ -670,5 +710,3 @@ class Calendar implements ActionInterface
 		}
 	}
 }
-
-?>

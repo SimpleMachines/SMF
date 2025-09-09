@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -64,7 +64,7 @@ function template_init()
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	Theme::$current->settings['page_index'] = array(
-		'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
+		'extra_before' => '<span class="pages">' . Lang::getTxt('pages', file: 'General') . '</span>',
 		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
 		'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
@@ -86,9 +86,9 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '', '>
 <head>
-	<meta charset="', Utils::$context['character_set'], '">';
+	<meta charset="UTF-8">';
 
 	/*
 		You don't need to manually load index.css, this will be set up for you.
@@ -165,8 +165,8 @@ function template_html_above()
 	// If RSS feeds are enabled, advertise the presence of one.
 	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
 		echo '
-	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::$txt['rss'], '" href="', Config::$scripturl, '?action=.xml;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
-	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::$txt['atom'], '" href="', Config::$scripturl, '?action=.xml;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
+	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('rss', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
+	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('atom', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty(Utils::$context['links']['next']))
@@ -224,7 +224,7 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
 						<span class="main_icons inbox"></span>
-						<span class="textmenu">', Lang::$txt['pm_short'], '</span>', !empty(User::$me->unread_messages) ? '
+						<span class="textmenu">', Lang::getTxt('pm_short', file: 'General'), '</span>', !empty(User::$me->unread_messages) ? '
 						<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
 					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
@@ -235,7 +235,7 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
 						<span class="main_icons alerts"></span>
-						<span class="textmenu">', Lang::$txt['alerts'], '</span>', !empty(User::$me->alerts) ? '
+						<span class="textmenu">', Lang::getTxt('alerts', file: 'General'), '</span>', !empty(User::$me->alerts) ? '
 						<span class="amt">' . User::$me->alerts . '</span>' : '', '
 					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
@@ -245,7 +245,7 @@ function template_body_above()
 		if (empty(Theme::$current->settings['login_main_menu']))
 			echo '
 				<li id="nojs_logout">
-					<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['logout'], '</a>
+					<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('logout', file: 'General'), '</a>
 					<script>document.getElementById("nojs_logout").style.display = "none";</script>
 				</li>';
 
@@ -266,9 +266,10 @@ function template_body_above()
 					[
 						'forum_name' => Utils::$context['forum_name_html_safe'],
 						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
+					file: 'General',
 				), '</li>
 			</ul>';
 		}
@@ -277,12 +278,12 @@ function template_body_above()
 			echo '
 			<ul class="floatleft" id="top_info">
 				<li class="welcome">
-					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
+					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '
 				</li>
 				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
+					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');">
 						<span class="main_icons login"></span>
-						<span class="textmenu">', Lang::$txt['login'], '</span>
+						<span class="textmenu">', Lang::getTxt('login', file: 'General'), '</span>
 					</a>
 				</li>';
 
@@ -291,7 +292,7 @@ function template_body_above()
 				<li class="button_signup">
 					<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','">
 						<span class="main_icons regcenter"></span>
-						<span class="textmenu">', Lang::$txt['register'], '</span>
+						<span class="textmenu">', Lang::getTxt('register', file: 'General'), '</span>
 					</a>
 				</li>';
 
@@ -310,6 +311,7 @@ function template_body_above()
 						'login_url' => Config::$scripturl . '?action=login',
 						'onclick' => 'return true;',
 					],
+					file: 'General',
 				), '</li>
 			</ul>';
 
@@ -326,7 +328,7 @@ function template_body_above()
 		echo '
 				</select>
 				<noscript>
-					<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
+					<input type="submit" value="', Lang::getTxt('quick_mod_go', file: 'General'), '">
 				</noscript>
 			</form>';
 	}
@@ -334,7 +336,7 @@ function template_body_above()
 	if (Utils::$context['allow_search'])
 	{
 		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
@@ -342,22 +344,22 @@ function template_body_above()
 
 		echo '
 				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', Lang::$txt['search_entireforum'], ' </option>';
+					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', Lang::getTxt('search_entireforum', file: 'General'), ' </option>';
 
 		// Can't limit it to a specific topic if we are not in one
 		if (!empty(Utils::$context['current_topic']))
 			echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', Lang::$txt['search_thistopic'], '</option>';
+					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', Lang::getTxt('search_thistopic', file: 'General'), '</option>';
 
 		// Can't limit it to a specific board if we are not in one
 		if (!empty(Utils::$context['current_board']))
 			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', Lang::$txt['search_thisboard'], '</option>';
+					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', Lang::getTxt('search_thisboard', file: 'General'), '</option>';
 
 		// Can't search for members if we can't see the memberlist
 		if (!empty(Utils::$context['allow_memberlist']))
 			echo '
-					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', Lang::$txt['search_members'], ' </option>';
+					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', Lang::getTxt('search_members', file: 'General'), ' </option>';
 
 		echo '
 				</select>';
@@ -373,7 +375,7 @@ function template_body_above()
 				<input type="hidden" name="sd_brd" value="', Utils::$context['current_board'], '">';
 
 		echo '
-				<input type="submit" name="search2" value="', Lang::$txt['search'], '" class="button">
+				<input type="submit" name="search2" value="', Lang::getTxt('search', file: 'General'), '" class="button">
 				<input type="hidden" name="advanced" value="0">
 			</form>';
 	}
@@ -404,10 +406,10 @@ function template_body_above()
 		echo '
 						<ul class="unread_links">
 							<li>
-								<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
+								<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
 							</li>
 							<li>
-								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
+								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
 							</li>
 						</ul>';
 
@@ -418,7 +420,7 @@ function template_body_above()
 	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
 		echo '
 					<div class="news">
-						<h2>', Lang::$txt['news'], ': </h2>
+						<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
 						<p>', Utils::$context['random_news_line'], '</p>
 					</div>';
 
@@ -430,12 +432,12 @@ function template_body_above()
 	echo '
 				<a class="mobile_user_menu">
 					<span class="menu_icon"></span>
-					<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
+					<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
 				</a>
 				<div id="main_menu">
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">
-							<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
+							<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
 								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 							</div>
 							', template_menu(), '
@@ -474,7 +476,7 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a></li>
+			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', ' | <a href="#top_section">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a></li>
 			<li class="copyright">', Theme::copyright(), '</li>
 		</ul>';
 
@@ -486,7 +488,8 @@ function template_body_below()
 			[
 				Utils::$context['load_time'],
 				Utils::$context['load_queries']
-			]
+			],
+			file: 'General',
 		), '</p>';
 
 	echo '
@@ -650,7 +653,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . Lang::$txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'. (!empty($value['icon']) ? '<span class="main_icons ' . $value['icon'] . '"></span>' : '') . Lang::getTxt($value['text']) . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -664,9 +667,12 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 						continue;
 
 					$button .= '
-								<a href="' . $element['url'] . '"><strong>' . Lang::$txt[$element['text']] . '</strong>';
-					if (isset(Lang::$txt[$element['text'] . '_desc']))
-						$button .= '<br><span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
+								<a href="' . $element['url'] . '"><strong>' . Lang::getTxt($element['text']) . '</strong>';
+
+					if (Lang::txtExists($element['text'] . '_desc')) {
+						$button .= '<br><span>' . Lang::getTxt($element['text'] . '_desc') . '</span>';
+					}
+
 					$button .= '</a>';
 				}
 				$button .= '
@@ -756,7 +762,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		{
 			$output .= '
 			<li class="post_options">
-				<a href="javascript:void(0);">' . Lang::$txt['post_options'] . '</a>
+				<a href="javascript:void(0);">' . Lang::getTxt('post_options', file: 'General') . '</a>
 				<ul>';
 
 			foreach ($li as $subli)
@@ -790,10 +796,10 @@ function template_maint_warning_above()
 	<div class="errorbox" id="errors">
 		<dl>
 			<dt>
-				<strong id="error_serious">', Lang::$txt['forum_in_maintenance'], '</strong>
+				<strong id="error_serious">', Lang::getTxt('forum_in_maintenance', file: 'General'), '</strong>
 			</dt>
 			<dd class="error" id="error_list">
-				', Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]), '
+				', Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'General'), '
 			</dd>
 		</dl>
 	</div>';
@@ -815,13 +821,11 @@ function template_security_warning_above()
 	echo '
 	<div class="errorbox">
 		<p class="alert">!!</p>
-		<h3>', !isset(Utils::$context['warnings']['file']) && empty(Utils::$context['auth_secret_missing'])
-		? Lang::$txt['generic_warning']
-		: Lang::$txt['security_risk'], '</h3>';
+		<h3>', Lang::getTxt(!isset(Utils::$context['warnings']['file']) && empty(Utils::$context['auth_secret_missing']) ? 'generic_warning' : 'security_risk', file: 'General'), '</h3>';
 
-	foreach (Utils::$context['warnings']['file'] as $security_file) {
+	foreach ((Utils::$context['warnings']['file'] ?? []) as $security_file) {
 		echo '
-		<p>', Lang::getTxt($security_file[0], $security_file[1]), '</p>';
+		<p>', Lang::getTxt($security_file[0], $security_file[1], file: 'General'), '</p>';
 	}
 
 	for ($i = 0, $n = count(Utils::$context['warnings']) - 1; $i < $n; $i++) {
@@ -830,7 +834,7 @@ function template_security_warning_above()
 		<p>' . Utils::$context['warnings'][$i] . '</p>';
 		} else {
 			echo '
-		<p>', Lang::getTxt(Utils::$context['warnings'][$i][0], Utils::$context['warnings'][$i][1] ?? []), '</p>';
+		<p>', Lang::getTxt(Utils::$context['warnings'][$i][0], Utils::$context['warnings'][$i][1] ?? [], file: 'General'), '</p>';
 		}
 	}
 
@@ -855,7 +859,7 @@ function template_banned_warning_above()
 	<div class="noticebox">';
 
 	echo '
-		<p>', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]), '</p>';
+		<p>', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::getTxt('guest_title', file: 'General') : User::$me->name]), '</p>';
 
 	if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
 		echo '
@@ -864,10 +868,10 @@ function template_banned_warning_above()
 
 	if (!empty($_SESSION['ban']['expire_time'])) {
 		echo '
-		<p>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</p>';
+		<p>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)], file: 'General'), '</p>';
 	} else {
 		echo '
-		<p>', Lang::$txt['your_ban_expires_never'], '</p>';
+		<p>', Lang::getTxt('your_ban_expires_never', file: 'General'), '</p>';
 	}
 
 	echo '
@@ -881,5 +885,3 @@ function template_banned_warning_below()
 {
 
 }
-
-?>

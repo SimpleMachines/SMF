@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -21,7 +21,7 @@ function template_edit_holiday()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
@@ -31,11 +31,11 @@ function template_edit_holiday()
 
 	if (Utils::$context['is_new']) {
 		echo '
-				<input type="submit" value="', Lang::$txt['holidays_button_add'], '" class="button">';
+				<input type="submit" value="', Lang::getTxt('holidays_button_add', file: 'ManageCalendar'), '" class="button">';
 	} else {
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['holidays_button_edit'], '" class="button">
-				<input type="submit" name="delete" value="', Lang::$txt['holidays_button_remove'], '" class="button">
+				<input type="submit" name="edit" value="', Lang::getTxt('holidays_button_edit', file: 'ManageCalendar'), '" class="button">
+				<input type="submit" name="delete" value="', Lang::getTxt('holidays_button_remove', file: 'ManageCalendar'), '" class="button">
 				<input type="hidden" name="holiday" value="', Utils::$context['event']['id'], '">';
 	}
 
@@ -53,43 +53,43 @@ function template_import()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="">', Lang::$txt['calendar_import_url'], '</label>
+						<label for="">', Lang::getTxt('calendar_import_url', file: 'ManageCalendar'), '</label>
 						<br>
-						<span class="smalltext">', Lang::$txt['calendar_import_url_desc'], '</span>
+						<span class="smalltext">', Lang::getTxt('calendar_import_url_desc', file: 'ManageCalendar'), '</span>
 					</dt>
 					<dd>
 						<input type="url" name="ics_url" id="ics_url">
 					</dd>
 					<dt>
-						<label>', Lang::$txt['calendar_import_type'], '</label>
+						<label>', Lang::getTxt('calendar_import_type', file: 'ManageCalendar'), '</label>
 					</dt>
 					<dd>
 						<label>
 							<input type="radio" name="type" value="holiday" checked>
-							', Lang::$txt['calendar_import_type_holiday'], '
+							', Lang::getTxt('calendar_import_type_holiday', file: 'ManageCalendar'), '
 						</label>
 						<label>
 							<input type="radio" name="type" value="event">
-							', Lang::$txt['calendar_import_type_event'], '
+							', Lang::getTxt('calendar_import_type_event', file: 'ManageCalendar'), '
 						</label>
 					</dd>
 					<dt>
-						<label>', Lang::$txt['calendar_import_subscribe'], '</label>
+						<label>', Lang::getTxt('calendar_import_subscribe', file: 'ManageCalendar'), '</label>
 						<br>
-						<span class="smalltext">', Lang::$txt['calendar_import_subscribe_desc'], '</span>
+						<span class="smalltext">', Lang::getTxt('calendar_import_subscribe_desc', file: 'ManageCalendar'), '</span>
 					</dt>
 					<dd>
 						<input type="checkbox" name="subscribe" id="subscribe">
 					</dd>
 				</dl>
-				<input type="submit" name="import" value="', Lang::$txt['calendar_import_button'], '" class="button">
+				<input type="submit" name="import" value="', Lang::getTxt('calendar_import_button', file: 'ManageCalendar'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="' . Utils::$context['admin-calendarimport_token_var'] . '" value="' . Utils::$context['admin-calendarimport_token'] . '">
 			</div><!-- .windowbg -->
@@ -99,5 +99,3 @@ function template_import()
 		template_show_list('calendar_subscriptions');
 	}
 }
-
-?>

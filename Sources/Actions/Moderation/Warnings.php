@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -38,7 +38,6 @@ use SMF\Utils;
 class Warnings implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -78,17 +77,16 @@ class Warnings implements ActionInterface
 	public function execute(): void
 	{
 		Theme::loadTemplate('ModerationCenter');
-		Lang::load('Profile');
 
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_warnings'],
-			'description' => Lang::$txt['mc_warnings_description'],
+			'title' => Lang::getTxt('mc_warnings', file: 'ModerationCenter'),
+			'description' => Lang::getTxt('mc_warnings_description', file: 'ModerationCenter'),
 		];
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -98,9 +96,7 @@ class Warnings implements ActionInterface
 	public function log(): void
 	{
 		// Setup context as always.
-		Utils::$context['page_title'] = Lang::$txt['mc_warning_log_title'];
-
-		Lang::load('Modlog');
+		Utils::$context['page_title'] = Lang::getTxt('mc_warning_log_title', file: 'ModerationCenter');
 
 		// If we're coming from a search, get the variables.
 		if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search'])) {
@@ -110,8 +106,8 @@ class Warnings implements ActionInterface
 
 		// This array houses all the valid search types.
 		$searchTypes = [
-			'member' => ['sql' => 'member_name_col', 'label' => Lang::$txt['profile_warning_previous_issued']],
-			'recipient' => ['sql' => 'recipient_name', 'label' => Lang::$txt['mc_warnings_recipient']],
+			'member' => ['sql' => 'member_name_col', 'label' => Lang::getTxt('profile_warning_previous_issued', file: 'Profile')],
+			'recipient' => ['sql' => 'recipient_name', 'label' => Lang::getTxt('mc_warnings_recipient', file: 'ModerationCenter')],
 		];
 
 		// Do the column stuff!
@@ -154,9 +150,9 @@ class Warnings implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'warning_list',
-			'title' => Lang::$txt['mc_warning_log_title'],
+			'title' => Lang::getTxt('mc_warning_log_title', file: 'ModerationCenter'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['mc_warnings_none'],
+			'no_items_label' => Lang::getTxt('mc_warnings_none', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=log;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -169,7 +165,7 @@ class Warnings implements ActionInterface
 			'columns' => [
 				'issuer' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_issued'],
+						'value' => Lang::getTxt('profile_warning_previous_issued', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'issuer_link',
@@ -181,7 +177,7 @@ class Warnings implements ActionInterface
 				],
 				'recipient' => [
 					'header' => [
-						'value' => Lang::$txt['mc_warnings_recipient'],
+						'value' => Lang::getTxt('mc_warnings_recipient', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'recipient_link',
@@ -193,7 +189,7 @@ class Warnings implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_time'],
+						'value' => Lang::getTxt('profile_warning_previous_time', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -205,7 +201,7 @@ class Warnings implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_reason'],
+						'value' => Lang::getTxt('profile_warning_previous_reason', file: 'Profile'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -216,7 +212,7 @@ class Warnings implements ActionInterface
 
 							if (!empty($rowData['id_notice'])) {
 								$output .= '
-									&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
+									&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::getTxt('profile_warning_previous_notice', file: 'Profile') . '"><span class="main_icons filter centericon"></span></a>';
 							}
 
 							return $output;
@@ -225,7 +221,7 @@ class Warnings implements ActionInterface
 				],
 				'points' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_level'],
+						'value' => Lang::getTxt('profile_warning_previous_level', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'counter',
@@ -245,9 +241,9 @@ class Warnings implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . '
+						' . Lang::getTxt('modlog_search', file: 'Modlog') . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
-						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button">',
+						<input type="submit" name="is_search" value="' . Lang::getTxt('modlog_go', file: 'Modlog') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -278,7 +274,6 @@ class Warnings implements ActionInterface
 
 			// Log the actions.
 			$request = Db::$db->query(
-				'',
 				'SELECT recipient_name
 				FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
@@ -299,7 +294,6 @@ class Warnings implements ActionInterface
 
 			// Do the deletes.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
 					AND comment_type = {string:warntpl}
@@ -314,14 +308,14 @@ class Warnings implements ActionInterface
 		}
 
 		// Setup context as always.
-		Utils::$context['page_title'] = Lang::$txt['mc_warning_templates_title'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_warning_templates_title', file: 'ModerationCenter');
 
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'warning_template_list',
-			'title' => Lang::$txt['mc_warning_templates_title'],
+			'title' => Lang::getTxt('mc_warning_templates_title', file: 'ModerationCenter'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['mc_warning_templates_none'],
+			'no_items_label' => Lang::getTxt('mc_warning_templates_none', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=templates;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'default_sort_col' => 'title',
 			'get_items' => [
@@ -334,11 +328,11 @@ class Warnings implements ActionInterface
 			'columns' => [
 				'title' => [
 					'header' => [
-						'value' => Lang::$txt['mc_warning_templates_name'],
+						'value' => Lang::getTxt('mc_warning_templates_name', file: 'ModerationCenter'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=moderate;area=warnings;sa=templateedit;tid=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=moderate;area=warnings;sa=templateedit;tid={id_comment}">{title}</a>',
 							'params' => [
 								'id_comment' => false,
 								'title' => false,
@@ -353,7 +347,7 @@ class Warnings implements ActionInterface
 				],
 				'creator' => [
 					'header' => [
-						'value' => Lang::$txt['mc_warning_templates_creator'],
+						'value' => Lang::getTxt('mc_warning_templates_creator', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'creator',
@@ -365,7 +359,7 @@ class Warnings implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['mc_warning_templates_time'],
+						'value' => Lang::getTxt('mc_warning_templates_time', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -396,11 +390,11 @@ class Warnings implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '&nbsp;<input type="submit" name="delete" value="' . Lang::$txt['mc_warning_template_delete'] . '" data-confirm="' . Lang::$txt['mc_warning_template_delete_confirm'] . '" class="button you_sure">',
+					'value' => '&nbsp;<input type="submit" name="delete" value="' . Lang::getTxt('mc_warning_template_delete', file: 'ModerationCenter') . '" data-confirm="' . Lang::getTxt('mc_warning_template_delete_confirm', file: 'ModerationCenter') . '" class="button you_sure">',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="add" value="' . Lang::$txt['mc_warning_template_add'] . '" class="button">',
+					'value' => '<input type="submit" name="add" value="' . Lang::getTxt('mc_warning_template_add', file: 'ModerationCenter') . '" class="button">',
 				],
 			],
 		];
@@ -422,14 +416,14 @@ class Warnings implements ActionInterface
 		Utils::$context['is_edit'] = Utils::$context['id_template'];
 
 		// Standard template things.
-		Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['mc_warning_template_modify'] : Lang::$txt['mc_warning_template_add'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['is_edit'] ? 'mc_warning_template_modify' : 'mc_warning_template_add', file: 'ModerationCenter');
 		Utils::$context['sub_template'] = 'warn_template';
 		Menu::$loaded['moderate']['current_subsection'] = 'templates';
 
 		// Defaults.
 		Utils::$context['template_data'] = [
 			'title' => '',
-			'body' => Lang::$txt['mc_warning_template_body_default'],
+			'body' => Lang::getTxt('mc_warning_template_body_default', file: 'ModerationCenter'),
 			'personal' => false,
 			'can_edit_personal' => true,
 		];
@@ -437,7 +431,6 @@ class Warnings implements ActionInterface
 		// If it's an edit load it.
 		if (Utils::$context['is_edit']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, id_recipient, recipient_name AS template_title, body
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:id}
@@ -491,7 +484,6 @@ class Warnings implements ActionInterface
 				if (Utils::$context['is_edit']) {
 					// Simple update...
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_comments
 						SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
 						WHERE id_comment = {int:id}
@@ -556,15 +548,15 @@ class Warnings implements ActionInterface
 			} else {
 				Utils::$context['warning_errors'] = [];
 				Utils::$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
-				Utils::$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : Lang::$txt['mc_warning_template_body_default'];
+				Utils::$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : Lang::getTxt('mc_warning_template_body_default', file: 'ModerationCenter');
 				Utils::$context['template_data']['personal'] = !empty($_POST['make_personal']);
 
 				if (empty($_POST['template_title'])) {
-					Utils::$context['warning_errors'][] = Lang::$txt['mc_warning_template_error_no_title'];
+					Utils::$context['warning_errors'][] = Lang::getTxt('mc_warning_template_error_no_title', file: 'ModerationCenter');
 				}
 
 				if (empty($_POST['template_body'])) {
-					Utils::$context['warning_errors'][] = Lang::$txt['mc_warning_template_error_no_body'];
+					Utils::$context['warning_errors'][] = Lang::getTxt('mc_warning_template_error_no_body', file: 'ModerationCenter');
 				}
 			}
 		}
@@ -584,7 +576,6 @@ class Warnings implements ActionInterface
 	public static function list_getWarningCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warning}',
@@ -611,7 +602,6 @@ class Warnings implements ActionInterface
 		$warnings = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
 				COALESCE(mem2.id_member, 0) AS id_recipient, COALESCE(mem2.real_name, lc.recipient_name) AS recipient_name,
 				lc.log_time, lc.body, lc.id_notice, lc.counter
@@ -652,7 +642,6 @@ class Warnings implements ActionInterface
 	public static function list_getWarningTemplateCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warntpl}
@@ -682,7 +671,6 @@ class Warnings implements ActionInterface
 		$templates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
 				lc.log_time, lc.body
@@ -750,5 +738,3 @@ class Warnings implements ActionInterface
 		}
 	}
 }
-
-?>

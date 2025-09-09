@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -72,7 +72,6 @@ class TopicMove2 implements ActionInterface, Routable
 		Security::checkSubmitOnce('check');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member_started, id_first_msg, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -105,7 +104,6 @@ class TopicMove2 implements ActionInterface, Routable
 
 		// Make sure they can see the board they are trying to move to (and get whether posts count in the target board).
 		$request = Db::$db->query(
-			'',
 			'SELECT b.count_posts, b.name, m.subject
 			FROM {db_prefix}boards AS b
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -143,19 +141,16 @@ class TopicMove2 implements ActionInterface, Routable
 			if ($_POST['custom_subject'] != '') {
 				if (isset($_POST['enforce_subject'])) {
 					// Get a response prefix, but in the forum's default language.
-					if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+					if (!isset(Utils::$context['response_prefix'])) {
 						if (Lang::$default === User::$me->language) {
-							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-						} else {
-							Lang::load('General', Lang::$default, false);
-							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-							Lang::load('General');
+							Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+						} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+							Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+							CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 						}
-						CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 					}
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}messages
 						SET subject = {string:subject}
 						WHERE id_topic = {int:current_topic}',
@@ -167,7 +162,6 @@ class TopicMove2 implements ActionInterface, Routable
 				}
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET subject = {string:custom_subject}
 					WHERE id_msg = {int:id_first_msg}',
@@ -187,19 +181,14 @@ class TopicMove2 implements ActionInterface, Routable
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_board'] => '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
-				Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
+				Lang::getTxt('movetopic_auto_board', file: 'General') => '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
+				Lang::getTxt('movetopic_auto_topic', file: 'General') => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
 			];
 
-			// Should be in the boardwide language.
+			// Make sure we catch both languages in the reason.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('General', Lang::$default);
-
-				// Make sure we catch both languages in the reason.
-				$reason_replacements += [
-					Lang::$txt['movetopic_auto_board'] => '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
-					Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
-				];
+				$reason_replacements[Lang::getTxt('movetopic_auto_board', file: 'General', lang: Lang::$default)] = '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]';
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]';
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
@@ -215,7 +204,7 @@ class TopicMove2 implements ActionInterface, Routable
 			$redirect_topic = isset($_POST['redirect_topic']) ? Topic::$topic_id : 0;
 
 			$msgOptions = [
-				'subject' => Lang::getTxt('moved', ['subject' => $subject]),
+				'subject' => Lang::getTxt('moved', ['subject' => $subject], file: 'General', lang: Lang::$default),
 				'body' => $_POST['reason'],
 				'icon' => 'moved',
 				'smileys_enabled' => 1,
@@ -238,7 +227,6 @@ class TopicMove2 implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT count_posts
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
@@ -254,7 +242,6 @@ class TopicMove2 implements ActionInterface, Routable
 			$posters = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -329,7 +316,6 @@ class TopicMove2 implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, b.name
 				FROM {db_prefix}topics as t
 					LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -350,5 +336,3 @@ class TopicMove2 implements ActionInterface, Routable
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
 	}
 }
-
-?>

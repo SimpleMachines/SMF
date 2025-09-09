@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,13 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Search\SearchApi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -35,7 +36,6 @@ use SMF\Utils;
 class Search implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -76,31 +76,30 @@ class Search implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_search'],
+			'title' => Lang::getTxt('manage_search', file: 'Admin'),
 			'help' => 'search',
-			'description' => Lang::$txt['search_settings_desc'],
+			'description' => Lang::getTxt('search_settings_desc', file: 'Search'),
 			'tabs' => [
 				'weights' => [
-					'description' => Lang::$txt['search_weights_desc'],
+					'description' => Lang::getTxt('search_weights_desc', file: 'Search'),
 				],
 				'method' => [
-					'description' => Lang::$txt['search_method_desc'],
+					'description' => Lang::getTxt('search_method_desc', file: 'Search'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['search_settings_desc'],
+					'description' => Lang::getTxt('search_settings_desc', file: 'Search'),
 				],
 			],
 		];
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -113,7 +112,7 @@ class Search implements ActionInterface
 	{
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::$txt['search_settings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('search_settings_title', file: 'Search');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// A form was submitted.
@@ -129,11 +128,8 @@ class Search implements ActionInterface
 			if (isset($_POST['search_stopwords_custom'])) {
 				$_POST['search_stopwords_custom'] = array_diff(
 					preg_split('/[\s,]+/u', $_POST['search_stopwords_custom']),
-					explode(',', Lang::$txt['search_stopwords'] ?? ''),
-					explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
+					SearchApi::getLangStopWords(),
 				);
-
-				sort($_POST['search_stopwords_custom']);
 
 				$_POST['search_stopwords_custom'] = implode(',', array_map([Utils::class, 'htmlspecialchars'], $_POST['search_stopwords_custom']));
 			}
@@ -146,7 +142,7 @@ class Search implements ActionInterface
 
 		// Prep the template!
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managesearch;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['search_settings_title'];
+		Utils::$context['settings_title'] = Lang::getTxt('search_settings_title', file: 'Search');
 
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
@@ -161,7 +157,7 @@ class Search implements ActionInterface
 	 */
 	public function weights(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['search_weights_title'];
+		Utils::$context['page_title'] = Lang::getTxt('search_weights_title', file: 'Search');
 		Utils::$context['sub_template'] = 'modify_weights';
 
 		$factors = [
@@ -214,7 +210,7 @@ class Search implements ActionInterface
 	 */
 	public function method(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['search_method_title'];
+		Utils::$context['page_title'] = Lang::getTxt('search_method_title', file: 'Search');
 		Utils::$context['sub_template'] = 'select_search_method';
 		Utils::$context['supports_fulltext'] = Db::$db->search_support('fulltext');
 
@@ -245,7 +241,6 @@ class Search implements ActionInterface
 		// Get some info about the messages table, to show its size and index size.
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					pg_table_size({string:tablename}) AS table_size,
 					pg_indexes_size({string:tablename}) AS index_size',
@@ -264,7 +259,6 @@ class Search implements ActionInterface
 		} else {
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
@@ -275,7 +269,6 @@ class Search implements ActionInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
@@ -311,7 +304,7 @@ class Search implements ActionInterface
 				break;
 			}
 
-			Utils::$context['table_info'][$type] = Lang::getTxt('size_kilobyte', [Utils::$context['table_info'][$type] / 1024]);
+			Utils::$context['table_info'][$type] = Lang::getTxt('size_kilobyte', [Utils::$context['table_info'][$type] / 1024], file: 'General');
 		}
 
 		Utils::$context['custom_index'] = !empty(Config::$modSettings['search_custom_index_config']);
@@ -333,28 +326,45 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$permanent_stopwords = array_unique(array_merge(
-			explode(',', Lang::$txt['search_stopwords'] ?? ''),
-			explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
-		));
-
-		sort($permanent_stopwords);
-
 		// What are we editing anyway?
 		$config_vars = [
 			// Permission...
 			['permissions', 'search_posts'],
 			// Some simple settings.
 			['int', 'search_results_per_page'],
-			['int', 'search_max_results', 'subtext' => Lang::$txt['search_max_results_disable']],
+			[
+				'int',
+				'search_max_results',
+				'subtext' => Lang::getTxt('search_max_results_disable', file: 'Search'),
+			],
 			'',
 
 			// Some limitations.
-			['int', 'search_floodcontrol_time', 'subtext' => Lang::$txt['search_floodcontrol_time_desc'], 6, 'postinput' => Lang::$txt['seconds']],
+			[
+				'int',
+				'search_floodcontrol_time',
+				'subtext' => Lang::getTxt('search_floodcontrol_time_desc', file: 'Search'),
+				6,
+				'postinput' => Lang::getTxt('seconds', file: 'General'),
+			],
 			'',
 
 			// Allow the admin to set stopwords.
-			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => implode(', ', $permanent_stopwords)]) . '</span>'],
+			[
+				'large_text',
+				'search_stopwords_custom',
+				'rows' => 8,
+				'subtext' => '<span class="infobox block">' . Lang::getTxt(
+					'search_stopwords_permanent',
+					[
+						'list' => Parser::transform(
+							'[tt]' . implode('[/tt], [tt]', SearchApi::getLangStopWords()) . '[/tt]',
+							Parser::INPUT_BBC,
+						),
+					],
+					file: 'Search',
+				) . '</span>',
+			],
 		];
 
 		// Do any mods want access?
@@ -363,8 +373,8 @@ class Search implements ActionInterface
 		// Perhaps the search method wants to add some settings?
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'searchSettings'])) {
-			call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
+		if (\is_callable([$searchAPI, 'searchSettings'])) {
+			\call_user_func_array([$searchAPI, 'searchSettings'], [&$config_vars]);
 		}
 
 		// Let the admin set custom stopwords.
@@ -406,5 +416,3 @@ class Search implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 }
-
-?>

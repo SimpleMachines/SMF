@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -25,7 +25,7 @@ function template_view_scheduled_tasks()
 		if (empty(Utils::$context['scheduled_errors']))
 			echo '
 	<div class="infobox">
-		', Lang::$txt['scheduled_tasks_were_run'], '
+		', Lang::getTxt('scheduled_tasks_were_run', file: 'ManageScheduledTasks'), '
 	</div>';
 
 		else
@@ -34,13 +34,13 @@ function template_view_scheduled_tasks()
 	<div class="errorbox" id="errors">
 		<dl>
 			<dt>
-				<strong id="error_serious">', Lang::$txt['scheduled_tasks_were_run_errors'], '</strong>
+				<strong id="error_serious">', Lang::getTxt('scheduled_tasks_were_run_errors', file: 'ManageScheduledTasks'), '</strong>
 			</dt>';
 
 			foreach (Utils::$context['scheduled_errors'] as $task => $errors)
 				echo '
 			<dd class="error">
-				<strong>', isset(Lang::$txt['scheduled_task_' . $task]) ? Lang::$txt['scheduled_task_' . $task] : $task, '</strong>
+				<strong>', Lang::txtExists('scheduled_task_' . $task, file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $task, file: 'ManageScheduledTasks') : $task, '</strong>
 				<ul>
 					<li>', implode('</li><li>', $errors), '</li>
 				</ul>
@@ -62,44 +62,44 @@ function template_edit_scheduled_tasks()
 {
 	// Starts off with general maintenance procedures.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=scheduledtasks;sa=taskedit;save;tid=', Utils::$context['task']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=scheduledtasks;sa=taskedit;save;tid=', Utils::$context['task']['id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['scheduled_task_edit'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('scheduled_task_edit', file: 'ManageScheduledTasks'), '</h3>
 			</div>
 			<div class="information">
-				<em>', Lang::getTxt('scheduled_task_time_offset', Utils::$context), ' </em>
+				<em>', Lang::getTxt('scheduled_task_time_offset', Utils::$context, file: 'ManageScheduledTasks'), ' </em>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['scheduled_tasks_name'], '</strong>
+						<strong>', Lang::getTxt('scheduled_tasks_name', file: 'ManageScheduledTasks'), '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['task']['name'], '<br>
 						<span class="smalltext">', Utils::$context['task']['desc'], '</span>
 					</dd>
 					<dt>
-						<strong><label for="regularity">', Lang::$txt['scheduled_task_edit_interval'], '</label></strong>
+						<strong><label for="regularity">', Lang::getTxt('scheduled_task_edit_interval', file: 'ManageScheduledTasks'), '</label></strong>
 					</dt>
 					<dd>
-						', Lang::$txt['scheduled_task_edit_repeat'], '
+						', Lang::getTxt('scheduled_task_edit_repeat', file: 'ManageScheduledTasks'), '
 						<input type="number" name="regularity" id="regularity" value="', empty(Utils::$context['task']['regularity']) ? 1 : Utils::$context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" min="0">
 						<select name="unit">
-							<option value="m"', empty(Utils::$context['task']['unit']) || Utils::$context['task']['unit'] == 'm' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_m'], '</option>
-							<option value="h"', Utils::$context['task']['unit'] == 'h' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_h'], '</option>
-							<option value="d"', Utils::$context['task']['unit'] == 'd' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_d'], '</option>
-							<option value="w"', Utils::$context['task']['unit'] == 'w' ? ' selected' : '', '>', Lang::$txt['scheduled_task_reg_unit_w'], '</option>
+							<option value="m"', empty(Utils::$context['task']['unit']) || Utils::$context['task']['unit'] == 'm' ? ' selected' : '', '>', Lang::getTxt('scheduled_task_reg_unit_m', file: 'ManageScheduledTasks'), '</option>
+							<option value="h"', Utils::$context['task']['unit'] == 'h' ? ' selected' : '', '>', Lang::getTxt('scheduled_task_reg_unit_h', file: 'ManageScheduledTasks'), '</option>
+							<option value="d"', Utils::$context['task']['unit'] == 'd' ? ' selected' : '', '>', Lang::getTxt('scheduled_task_reg_unit_d', file: 'ManageScheduledTasks'), '</option>
+							<option value="w"', Utils::$context['task']['unit'] == 'w' ? ' selected' : '', '>', Lang::getTxt('scheduled_task_reg_unit_w', file: 'ManageScheduledTasks'), '</option>
 						</select>
 					</dd>
 					<dt>
-						<strong><label for="start_time">', Lang::$txt['scheduled_task_edit_start_time'], '</label></strong><br>
-						<span class="smalltext">', Lang::$txt['scheduled_task_edit_start_time_desc'], '</span>
+						<strong><label for="start_time">', Lang::getTxt('scheduled_task_edit_start_time', file: 'ManageScheduledTasks'), '</label></strong><br>
+						<span class="smalltext">', Lang::getTxt('scheduled_task_edit_start_time_desc', file: 'ManageScheduledTasks'), '</span>
 					</dt>
 					<dd>
 						<input type="time" name="offset" id="start_time" value="', Utils::$context['task']['offset_formatted'], '">
 					</dd>
 					<dt>
-						<strong><label for="enabled">', Lang::$txt['scheduled_tasks_enabled'], '</label></strong>
+						<strong><label for="enabled">', Lang::getTxt('scheduled_tasks_enabled', file: 'ManageScheduledTasks'), '</label></strong>
 					</dt>
 					<dd>
 						<input type="checkbox" name="enabled" id="enabled"', !Utils::$context['task']['disabled'] ? ' checked' : '', '>
@@ -108,10 +108,8 @@ function template_edit_scheduled_tasks()
 				<div class="righttext">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['admin-st_token_var'], '" value="', Utils::$context['admin-st_token'], '">
-					<input type="submit" name="save" value="', Lang::$txt['scheduled_tasks_save_changes'], '" class="button">
+					<input type="submit" name="save" value="', Lang::getTxt('scheduled_tasks_save_changes', file: 'ManageScheduledTasks'), '" class="button">
 				</div>
 			</div><!-- .windowbg -->
 		</form>';
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ class Security
 	 * Hashes the user's password
 	 *
 	 * @param string $password The unhashed password
-	 * @param int $cost The cost
+	 * @param int|null $cost The cost
 	 * @return string The hashed password
 	 */
 	public static function hashPassword(string $password, ?int $cost = null): string
@@ -157,8 +157,6 @@ class Security
 		$strength = $zxcvbn->passwordStrength($password, array_merge([$username], $restrict_in));
 
 		if ((int) $strength['score'] < (Config::$modSettings['password_strength'] ?? 0) + 2) {
-			Lang::load('Errors');
-
 			// List of known feedback strings from zxcvbn mapped to Lang::$txt keys.
 			$feedback_strings = [
 				'This is a top-10 common password' => 'top_10',
@@ -193,13 +191,13 @@ class Security
 			$feedback = [];
 
 			if (isset($strength['feedback']['warning'], $feedback_strings[$strength['feedback']['warning']])) {
-				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']]);
+				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']], file: 'Errors');
 			}
 
 			if (!empty($strength['feedback']['suggestions'])) {
 				foreach ($strength['feedback']['suggestions'] as $suggestion) {
 					if (isset($feedback_strings[$suggestion])) {
-						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion]);
+						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion], file: 'Errors');
 					}
 				}
 			}
@@ -266,7 +264,7 @@ class Security
 				return true;
 			}
 
-			if (!in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+			if (!\in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 				$_SESSION['forms'][] = (int) $_REQUEST['seqnum'];
 
 				return true;
@@ -284,19 +282,17 @@ class Security
 		if ($action == 'register') {
 			Utils::$context['form_sequence_number'] = 0;
 
-			while (empty(Utils::$context['form_sequence_number']) || in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
+			while (empty(Utils::$context['form_sequence_number']) || \in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
 				Utils::$context['form_sequence_number'] = random_int(1, 16000000);
 			}
 		}
 		// Don't check, just free the stack number.
-		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && \in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 			$_SESSION['forms'] = array_diff($_SESSION['forms'], [$_REQUEST['seqnum']]);
 		}
 		// Bail out if $action is unknown.
 		elseif ($action != 'free') {
-			Lang::load('Errors');
-
-			trigger_error(Lang::getTxt('check_submit_once_invalid_action', [$action]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('check_submit_once_invalid_action', [$action], file: 'Errors'), E_USER_WARNING);
 		}
 
 		return null;
@@ -337,7 +333,6 @@ class Security
 
 		// Delete old entries...
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_floodcontrol
 			WHERE log_time < {int:log_time}
 				AND log_type = {string:log_type}',
@@ -444,7 +439,7 @@ class Security
 					'filename' => $security_file,
 				]];
 
-				if (in_array($security_file, ['Settings.php~', 'Settings_bak.php~'])) {
+				if (\in_array($security_file, ['Settings.php~', 'Settings_bak.php~'])) {
 					$warnings['file'][] = ['not_removed_extra', [
 						'backup_filename' => $security_file,
 						'filename' => substr($security_file, 0, -1),
@@ -499,11 +494,8 @@ class Security
 		foreach ($paths as $path) {
 			if (!is_writable($path)) {
 				$errors[] = 'path_not_writable';
-
 				continue;
 			}
-
-			$directory_name = basename($path);
 
 			// First, create the .htaccess file.
 			$contents = <<<END
@@ -524,47 +516,35 @@ class Security
 					END;
 			}
 
-			if (file_exists($path . '/.htaccess')) {
+			if (!file_exists($path . '/.htaccess')) {
+				if (@file_put_contents($path . '/.htaccess', $contents) !== \strlen($contents)) {
+					$errors[] = 'htaccess_cannot_create_file';
+				}
+			} elseif (file_get_contents($path . '/.htaccess') !== $contents) {
 				$errors[] = 'htaccess_exists';
-
 				continue;
-			}
-
-			$fh = @fopen($path . '/.htaccess', 'w');
-
-			if ($fh) {
-				fwrite($fh, $contents);
-				fclose($fh);
-			} else {
-				$errors[] = 'htaccess_cannot_create_file';
 			}
 
 			// Next, the index.php file
-			if (file_exists($path . '/index.php')) {
-				$errors[] = 'index-php_exists';
-
-				continue;
-			}
-
 			$contents = <<<END
 				<?php
 
 				// Try to handle it with the upper level index.php. (it should know what to do.)
-				if (file_exists(dirname(__DIR__) . '/index.php'))
-					include (dirname(__DIR__) . '/index.php');
-				else
+				if (file_exists(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php')) {
+					include dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php';
+				} else {
 					exit;
+				}
 
-				?>
 				END;
 
-			$fh = @fopen($path . '/index.php', 'w');
-
-			if ($fh) {
-				fwrite($fh, $contents);
-				fclose($fh);
-			} else {
-				$errors[] = 'index-php_cannot_create_file';
+			if (!file_exists($path . '/index.php')) {
+				if (@file_put_contents($path . '/index.php', $contents) !== \strlen($contents)) {
+					$errors[] = 'index-php_cannot_create_file';
+				}
+			} elseif (!\in_array(file_get_contents($path . '/index.php'), [$contents, str_replace('DIRECTORY_SEPARATOR . \'index.php\'', '\'/index.php\'', $contents)])) {
+				$errors[] = 'index-php_exists';
+				continue;
 			}
 		}
 
@@ -574,16 +554,16 @@ class Security
 	/**
 	 * This sets the X-Frame-Options header.
 	 *
-	 * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+	 * @param string|null $override An option to override (either 'SAMEORIGIN' or 'DENY')
 	 * @since 2.1
 	 */
 	public static function frameOptionsHeader(?string $override = null): void
 	{
 		$option = 'SAMEORIGIN';
 
-		if (is_null($override) && !empty(Config::$modSettings['frame_security'])) {
+		if (\is_null($override) && !empty(Config::$modSettings['frame_security'])) {
 			$option = Config::$modSettings['frame_security'];
-		} elseif (in_array($override, ['SAMEORIGIN', 'DENY'])) {
+		} elseif (\in_array($override, ['SAMEORIGIN', 'DENY'])) {
 			$option = $override;
 		}
 
@@ -757,5 +737,3 @@ class Security
 		}
 	}
 }
-
-?>

@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -24,21 +24,21 @@ function template_main()
 	echo '
 	<div id="manage_boards">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['boards_edit'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('boards_edit', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">';
 
 	if (!empty(Utils::$context['move_board']))
 		echo '
 			<div class="noticebox">
-				', Utils::$context['move_title'], ' [<a href="', Config::$scripturl, '?action=admin;area=manageboards">', Lang::$txt['mboards_cancel_moving'], '</a>]', '
+				', Utils::$context['move_title'], ' [<a href="', Config::$scripturl, '?action=admin;area=manageboards">', Lang::getTxt('mboards_cancel_moving', file: 'ManageBoards'), '</a>]', '
 			</div>';
 
 	// No categories so show a label.
 	if (empty(Utils::$context['categories']))
 		echo '
 			<div class="windowbg centertext">
-				', Lang::$txt['mboards_no_cats'], '
+				', Lang::getTxt('mboards_no_cats', file: 'ManageBoards'), '
 			</div>';
 
 	// Loop through every category, listing the boards in each as we go.
@@ -48,21 +48,21 @@ function template_main()
 		echo '
 			<div class="sub_bar">
 				<h3 class="subbg">
-					<a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', Lang::$txt['cat_modify'], '</a>
+					<a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', Lang::getTxt('cat_modify', file: 'ManageBoards'), '</a>
 				</h3>
 			</div>';
 
 		// Boards table header.
 		echo '
-			<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="UTF-8">
 				<ul id="category_', $category['id'], '" class="nolist">';
 
 		if (!empty($category['move_link']))
 			echo '
 					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="main_icons select_above"></span></a></li>';
 
-		$recycle_board = '<a href="' . Config::$scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . Theme::$current->settings['images_url'] . '/post/recycled.png" alt="' . Lang::$txt['recycle_board'] . '" title="' . Lang::$txt['recycle_board'] . '"></a>';
-		$redirect_board = '<img src="' . Theme::$current->settings['images_url'] . '/new_redirect.png" alt="' . Lang::$txt['redirect_board_desc'] . '" title="' . Lang::$txt['redirect_board_desc'] . '">';
+		$recycle_board = '<a href="' . Config::$scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . Theme::$current->settings['images_url'] . '/post/recycled.png" alt="' . Lang::getTxt('recycle_board', file: 'ManageBoards') . '" title="' . Lang::getTxt('recycle_board', file: 'ManageBoards') . '"></a>';
+		$redirect_board = '<img src="' . Theme::$current->settings['images_url'] . '/new_redirect.png" alt="' . Lang::getTxt('redirect_board_desc', file: 'ManageBoards') . '" title="' . Lang::getTxt('redirect_board_desc', file: 'ManageBoards') . '">';
 
 		// List through every board in the category, printing its name and link to modify the board.
 		foreach ($category['boards'] as $board)
@@ -71,9 +71,9 @@ function template_main()
 					<li', !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-' . (Utils::$context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;">
 						<span class="floatleft"><a', $board['move'] ? ' class="red"' : '', ' href="', Config::$scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
 						<span class="floatright">
-							', Utils::$context['can_manage_permissions'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::$txt['mboards_permissions'] . '</a>' : '', '
-							<a href="', Config::$scripturl, '?action=admin;area=manageboards;move=', $board['id'], '" class="button">', Lang::$txt['mboards_move'], '</a>
-							<a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], '" class="button">', Lang::$txt['mboards_modify'], '</a>
+							', Utils::$context['can_manage_permissions'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::getTxt('mboards_permissions', file: 'ManageBoards') . '</a>' : '', '
+							<a href="', Config::$scripturl, '?action=admin;area=manageboards;move=', $board['id'], '" class="button">', Lang::getTxt('mboards_move', file: 'ManageBoards'), '</a>
+							<a href="', Config::$scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], '" class="button">', Lang::getTxt('mboards_modify', file: 'ManageBoards'), '</a>
 						</span><br style="clear: right;">
 					</li>';
 
@@ -94,7 +94,7 @@ function template_main()
 		// Button to add a new board.
 		echo '
 				</ul>
-				<input type="submit" value="', Lang::$txt['mboards_new_board'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('mboards_new_board', file: 'ManageBoards'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>';
 	}
@@ -112,11 +112,11 @@ function template_modify_category()
 	// Print table header.
 	echo '
 	<div id="manage_boards">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="cat" value="', Utils::$context['category']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset(Utils::$context['category']['is_new']) ? Lang::$txt['mboards_new_cat_name'] : Lang::$txt['cat_edit'], '
+					', Lang::getTxt(isset(Utils::$context['category']['is_new']) ? 'mboards_new_cat_name' : 'cat_edit', file: 'ManageBoards'), '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -126,7 +126,7 @@ function template_modify_category()
 	if (count(Utils::$context['category_order']) > 1)
 	{
 		echo '
-					<dt><strong>', Lang::$txt['order'], '</strong></dt>
+					<dt><strong>', Lang::getTxt('order', file: 'ManageBoards'), '</strong></dt>
 					<dd>
 						<select name="cat_order">';
 
@@ -142,22 +142,22 @@ function template_modify_category()
 	// Allow the user to edit the category name and/or choose whether you can collapse the category.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['full_name'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
+						<strong>', Lang::getTxt('full_name', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('name_on_display', file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
 						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30" tabindex="', Utils::$context['tabindex']++, '">
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_description'], '</strong><br>
-						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::$txt['mboards_cat_description_desc']), '</span>
+						<strong>', Lang::getTxt('mboards_description', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::getTxt('mboards_cat_description_desc', file: 'ManageBoards')), '</span>
 					</dt>
 					<dd>
 						<textarea name="cat_desc" rows="3" cols="35">', Utils::$context['category']['description'], '</textarea>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['collapse_enable'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['collapse_desc'], '</span>
+						<strong>', Lang::getTxt('collapse_enable', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('collapse_desc', file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
 						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
@@ -185,11 +185,11 @@ function template_modify_category()
 
 	if (isset(Utils::$context['category']['is_new']))
 		echo '
-				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
+				<input type="submit" name="add" value="', Lang::getTxt('mboards_add_cat_button', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
-				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_cat'], '" data-confirm="', Lang::$txt['cat_delete_confirm'], '" class="button you_sure">';
+				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
+				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_cat', file: 'ManageBoards'), '" data-confirm="', Lang::getTxt('cat_delete_confirm', file: 'ManageBoards'), '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
@@ -213,13 +213,13 @@ function template_confirm_category_delete()
 	// Print table header.
 	echo '
 	<div id="manage_boards" class="roundframe">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="cat" value="', Utils::$context['category']['id'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mboards_delete_cat'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mboards_delete_cat', file: 'ManageBoards'), '</h3>
 			</div>
 			<div class="windowbg">
-				<p>', Lang::$txt['mboards_delete_cat_contains'], '</p>
+				<p>', Lang::getTxt('mboards_delete_cat_contains', file: 'ManageBoards'), '</p>
 				<ul>';
 
 	foreach (Utils::$context['category']['children'] as $child)
@@ -230,12 +230,12 @@ function template_confirm_category_delete()
 				</ul>
 			</div>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mboards_delete_what_do'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mboards_delete_what_do', file: 'ManageBoards'), '</h3>
 			</div>
 			<div class="windowbg">
 				<p>
-					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked>', Lang::$txt['mboards_delete_option1'], '</label><br>
-					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>', Lang::$txt['mboards_delete_option2'], '</label>
+					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked>', Lang::getTxt('mboards_delete_option1', file: 'ManageBoards'), '</label><br>
+					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>', Lang::getTxt('mboards_delete_option2', file: 'ManageBoards'), '</label>
 					<select name="cat_to"', count(Utils::$context['category_order']) == 1 ? ' disabled' : '', '>';
 
 	foreach (Utils::$context['category_order'] as $cat)
@@ -246,8 +246,8 @@ function template_confirm_category_delete()
 	echo '
 					</select>
 				</p>
-				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_confirm'], '" class="button">
-				<input type="submit" name="cancel" value="', Lang::$txt['mboards_delete_cancel'], '" class="button">
+				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_confirm', file: 'ManageBoards'), '" class="button">
+				<input type="submit" name="cancel" value="', Lang::getTxt('mboards_delete_cancel', file: 'ManageBoards'), '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">
@@ -264,11 +264,11 @@ function template_modify_board()
 	// The main table header.
 	echo '
 	<div id="manage_boards">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="boardid" value="', Utils::$context['board']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset(Utils::$context['board']['is_new']) ? Lang::$txt['mboards_new_board_name'] : Lang::$txt['boards_edit'], '
+					', isset(Utils::$context['board']['is_new']) ? Lang::getTxt('mboards_new_board_name', file: 'ManageBoards') : Lang::getTxt('boards_edit', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -277,7 +277,7 @@ function template_modify_board()
 	// Option for choosing the category the board lives in.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['mboards_category'], '</strong>
+						<strong>', Lang::getTxt('mboards_category', file: 'ManageBoards'), '</strong>
 					</dt>
 					<dd>
 						<select name="new_cat" onchange="if (this.form.order) {this.form.order.disabled = this.options[this.selectedIndex].value != 0; this.form.board_order.disabled = this.options[this.selectedIndex].value != 0 || this.form.order.options[this.form.order.selectedIndex].value == \'\';}">';
@@ -294,23 +294,23 @@ function template_modify_board()
 	{
 		echo '
 					<dt>
-						<strong>', Lang::$txt['order'], '</strong>
+						<strong>', Lang::getTxt('order', file: 'ManageBoards'), '</strong>
 					</dt>
 					<dd>';
 
 		// The first select box gives the user the option to position it before, after or as a child of another board.
 		echo '
 						<select id="order" name="placement" onchange="this.form.board_order.disabled = this.options[this.selectedIndex].value == \'\';">
-							', !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::$txt['mboards_unchanged'] . ')</option>' : '', '
-							<option value="after">' . Lang::$txt['mboards_order_after'] . '...</option>
-							<option value="child">' . Lang::$txt['mboards_order_child_of'] . '...</option>
-							<option value="before">' . Lang::$txt['mboards_order_before'] . '...</option>
+							', !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::getTxt('mboards_unchanged', file: 'ManageBoards') . ')</option>' : '', '
+							<option value="after">' . Lang::getTxt('mboards_order_after', file: 'ManageBoards') . '...</option>
+							<option value="child">' . Lang::getTxt('mboards_order_child_of', file: 'ManageBoards') . '...</option>
+							<option value="before">' . Lang::getTxt('mboards_order_before', file: 'ManageBoards') . '...</option>
 						</select>';
 
 		// The second select box lists all the boards in the category.
 		echo '
 						<select id="board_order" name="board_order"', !isset(Utils::$context['board']['is_new']) ? ' disabled' : '', '>
-							', !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::$txt['mboards_unchanged'] . ')</option>' : '';
+							', !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::getTxt('mboards_unchanged', file: 'ManageBoards') . ')</option>' : '';
 
 		foreach (Utils::$context['board_order'] as $order)
 			echo '
@@ -323,29 +323,29 @@ function template_modify_board()
 	// Options for board name and description.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['full_name'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
+						<strong>', Lang::getTxt('full_name', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('name_on_display', file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
 						<input type="text" name="board_name" value="', Utils::$context['board']['name'], '" size="30">
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_description'], '</strong><br>
-						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::$txt['mboards_description_desc']), '</span>
+						<strong>', Lang::getTxt('mboards_description', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::getTxt('mboards_description_desc', file: 'ManageBoards')), '</span>
 					</dt>
 					<dd>
 						<textarea name="desc" rows="3" cols="35">', Utils::$context['board']['description'], '</textarea>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['permission_profile'], '</strong><br>
-						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]) : strip_tags(Lang::$txt['permission_profile_desc']), '</span>
+						<strong>', Lang::getTxt('permission_profile', file: 'ManagePermissions'), '</strong><br>
+						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'ManagePermissions') : strip_tags(Lang::getTxt('permission_profile_desc', file: 'ManagePermissions')), '</span>
 					</dt>
 					<dd>
 						<select name="profile">';
 
 	if (isset(Utils::$context['board']['is_new']))
 		echo '
-							<option value="-1">[', Lang::$txt['permission_profile_inherit'], ']</option>';
+							<option value="-1">[', Lang::getTxt('permission_profile_inherit', file: 'ManagePermissions'), ']</option>';
 
 	foreach (Utils::$context['profiles'] as $id => $profile)
 		echo '
@@ -355,8 +355,8 @@ function template_modify_board()
 						</select>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_groups'], '</strong><br>
-						<span class="smalltext">', empty(Config::$modSettings['deny_boards_access']) ? Lang::$txt['mboards_groups_desc'] : Lang::$txt['boardsaccess_option_desc'], '</span>';
+						<strong>', Lang::getTxt('mboards_groups', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt(empty(Config::$modSettings['deny_boards_access']) ? 'mboards_groups_desc' : 'boardsaccess_option_desc', file: 'ManageBoards'), '</span>';
 
 	echo '
 					</dt>
@@ -367,9 +367,9 @@ function template_modify_board()
 						<table>
 							<tr>
 								<td></td>
-								<th>', Lang::$txt['permissions_option_on'], '</th>
-								<th>', Lang::$txt['permissions_option_off'], '</th>
-								<th>', Lang::$txt['permissions_option_deny'], '</th>
+								<th>', Lang::getTxt('permissions_option_on', file: 'ManagePermissions'), '</th>
+								<th>', Lang::getTxt('permissions_option_off', file: 'ManagePermissions'), '</th>
+								<th>', Lang::getTxt('permissions_option_deny', file: 'ManagePermissions'), '</th>
 							</tr>';
 
 	// List all the membergroups so the user can choose who may access this board.
@@ -378,7 +378,7 @@ function template_modify_board()
 			echo '
 						<label for="groups_', $group['id'], '">
 							<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', in_array($group['id'], Utils::$context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : ''), '>
-							<span', $group['is_post_group'] ? ' class="post_group" title="' . Lang::$txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::$txt['mboards_groups_regular_members'] . '"' : ''), '>
+							<span', $group['is_post_group'] ? ' class="post_group" title="' . Lang::getTxt('mboards_groups_post_group', file: 'ManageBoards') . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::getTxt('mboards_groups_regular_members', file: 'ManageBoards') . '"' : ''), '>
 								', $group['name'], '
 							</span>
 						</label><br>';
@@ -387,7 +387,7 @@ function template_modify_board()
 							<tr>
 								<td>
 									<label for="groups_', $group['id'], '_a">
-										<span', $group['is_post_group'] ? ' class="post_group" title="' . Lang::$txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::$txt['mboards_groups_regular_members'] . '"' : ''), '>
+										<span', $group['is_post_group'] ? ' class="post_group" title="' . Lang::getTxt('mboards_groups_post_group', file: 'ManageBoards') . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::getTxt('mboards_groups_regular_members', file: 'ManageBoards') . '"' : ''), '>
 											', $group['name'], '
 										</span>
 									</label>
@@ -407,7 +407,7 @@ function template_modify_board()
 	if (empty(Config::$modSettings['deny_boards_access']))
 		echo '
 						<span class="select_all_box">
-							<em>', Lang::$txt['check_all'], '</em> <input type="checkbox" onclick="invertAll(this, this.form, \'groups[\');">
+							<em>', Lang::getTxt('check_all', file: 'General'), '</em> <input type="checkbox" onclick="invertAll(this, this.form, \'groups[\');">
 						</span>
 						<br><br>
 					</dd>';
@@ -426,7 +426,7 @@ function template_modify_board()
 									<input type="radio" name="select_all" onclick="selectAllRadio(this, this.form, \'groups\', \'deny\');">
 								</td>
 								<td>
-									<em>', Lang::$txt['check_all'], '</em>
+									<em>', Lang::getTxt('check_all', file: 'General'), '</em>
 								</td>
 							</tr>
 						</table>
@@ -435,16 +435,16 @@ function template_modify_board()
 	// Options to choose moderators, specify as announcement board and choose whether to count posts here.
 	echo '
 					<dt>
-						<strong>', Lang::$txt['mboards_moderators'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['mboards_moderators_desc'], '</span><br>
+						<strong>', Lang::getTxt('mboards_moderators', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('mboards_moderators_desc', file: 'ManageBoards'), '</span><br>
 					</dt>
 					<dd>
 						<input type="text" name="moderators" id="moderators" value="', Utils::$context['board']['moderator_list'], '" size="30">
 						<div id="moderator_container"></div>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['mboards_moderator_groups'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['mboards_moderator_groups_desc'], '</span><br>
+						<strong>', Lang::getTxt('mboards_moderator_groups', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('mboards_moderator_groups_desc', file: 'ManageBoards'), '</span><br>
 					</dt>
 					<dd>
 						<input type="text" name="moderator_groups" id="moderator_groups" value="', Utils::$context['board']['moderator_groups_list'], '" size="30">
@@ -465,8 +465,8 @@ function template_modify_board()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', Utils::$context['board']['topics'] ? ' style="color: gray;"' : '', '>', Lang::$txt['mboards_redirect'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['mboards_redirect_desc'], '</span><br>
+						<strong', Utils::$context['board']['topics'] ? ' style="color: gray;"' : '', '>', Lang::getTxt('mboards_redirect', file: 'ManageBoards'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('mboards_redirect_desc', file: 'ManageBoards'), '</span><br>
 					</dt>
 					<dd>
 						<input type="checkbox" id="redirect_enable" name="redirect_enable"', Utils::$context['board']['redirect'] != '' ? ' checked' : '', ' onclick="refreshOptions();">
@@ -476,8 +476,8 @@ function template_modify_board()
 				<div id="redirect_address_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_redirect_url'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['mboards_redirect_url_desc'], '</span><br>
+							<strong>', Lang::getTxt('mboards_redirect_url', file: 'ManageBoards'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('mboards_redirect_url_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
 							<input type="text" name="redirect_address" value="', Utils::$context['board']['redirect'], '" size="40">
@@ -490,12 +490,12 @@ function template_modify_board()
 				<div id="reset_redirect_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_redirect_reset'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['mboards_redirect_reset_desc'], '</span><br>
+							<strong>', Lang::getTxt('mboards_redirect_reset', file: 'ManageBoards'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('mboards_redirect_reset_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
 							<input type="checkbox" name="reset_redirect">
-							<em>(', Lang::getTxt('mboards_current_redirects', [Utils::$context['board']['posts']]), ')</em>
+							<em>(', Lang::getTxt('mboards_current_redirects', [Utils::$context['board']['posts']], file: 'ManageBoards'), ')</em>
 						</dd>
 					</dl>
 				</div>';
@@ -505,8 +505,8 @@ function template_modify_board()
 				<div id="count_posts_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_count_posts'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['mboards_count_posts_desc'], '</span><br>
+							<strong>', Lang::getTxt('mboards_count_posts', file: 'ManageBoards'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('mboards_count_posts_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
 							<input type="checkbox" name="count"', Utils::$context['board']['count_posts'] ? ' checked' : '', '>
@@ -519,12 +519,12 @@ function template_modify_board()
 				<div id="board_theme_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_theme'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['mboards_theme_desc'], '</span><br>
+							<strong>', Lang::getTxt('mboards_theme', file: 'ManageBoards'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('mboards_theme_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
 							<select name="boardtheme" id="boardtheme" onchange="refreshOptions();">
-								<option value="0"', Utils::$context['board']['theme'] == 0 ? ' selected' : '', '>', Lang::$txt['mboards_theme_default'], '</option>';
+								<option value="0"', Utils::$context['board']['theme'] == 0 ? ' selected' : '', '>', Lang::getTxt('mboards_theme_default', file: 'ManageBoards'), '</option>';
 
 	foreach (Utils::$context['themes'] as $theme)
 		echo '
@@ -538,8 +538,8 @@ function template_modify_board()
 				<div id="override_theme_div">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['mboards_override_theme'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['mboards_override_theme_desc'], '</span><br>
+							<strong>', Lang::getTxt('mboards_override_theme', file: 'ManageBoards'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('mboards_override_theme_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
 							<input type="checkbox" name="override_theme"', Utils::$context['board']['override_theme'] ? ' checked' : '', '>
@@ -574,7 +574,7 @@ function template_modify_board()
 
 	if (!empty(Utils::$context['board']['is_recycle']))
 		echo '
-				<div class="noticebox">', Lang::$txt['mboards_recycle_disabled_delete'], '</div>';
+				<div class="noticebox">', Lang::getTxt('mboards_recycle_disabled_delete', file: 'ManageBoards'), '</div>';
 
 	echo '
 				<input type="hidden" name="rid" value="', Utils::$context['redirect_location'], '">
@@ -589,14 +589,14 @@ function template_modify_board()
 	if (isset(Utils::$context['board']['is_new']))
 		echo '
 				<input type="hidden" name="cur_cat" value="', Utils::$context['board']['category'], '">
-				<input type="submit" name="add" value="', Lang::$txt['mboards_new_board'], '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
+				<input type="submit" name="add" value="', Lang::getTxt('mboards_new_board', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
+				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 
 	if (!isset(Utils::$context['board']['is_new']) && empty(Utils::$context['board']['is_recycle']))
 		echo '
-				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_board'], '" data-confirm="', Lang::$txt['board_delete_confirm'], '" class="button you_sure">';
+				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_board', file: 'ManageBoards'), '" data-confirm="', Lang::getTxt('board_delete_confirm', file: 'ManageBoards'), '" class="button you_sure">';
 	echo '
 			</div><!-- .windowbg -->
 		</form>
@@ -604,7 +604,6 @@ function template_modify_board()
 
 	<script>
 		var oModeratorSuggest = new smc_AutoSuggest({
-			sSelf: \'oModeratorSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'moderators\',
@@ -613,7 +612,7 @@ function template_modify_board()
 			bItemList: true,
 			sPostName: \'moderator_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'moderator_container\',
 			aListItems: [';
 
@@ -629,7 +628,6 @@ function template_modify_board()
 		});
 
 		var oModeratorGroupSuggest = new smc_AutoSuggest({
-			sSelf: \'oModeratorGroupSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'moderator_groups\',
@@ -638,7 +636,7 @@ function template_modify_board()
 			bItemList: true,
 			sPostName: \'moderator_group_list\',
 			sURLMask: \'action=groups;sa=members;group=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'moderator_group_container\',
 			aListItems: [';
 
@@ -716,14 +714,14 @@ function template_confirm_board_delete()
 	// Print table header.
 	echo '
 	<div id="manage_boards" class="roundframe">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="boardid" value="', Utils::$context['board']['id'], '">
 
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mboards_delete_board'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mboards_delete_board', file: 'ManageBoards'), '</h3>
 			</div>
 			<div class="windowbg">
-				<p>', Lang::$txt['mboards_delete_board_contains'], '</p>
+				<p>', Lang::getTxt('mboards_delete_board_contains', file: 'ManageBoards'), '</p>
 				<ul>';
 
 	foreach (Utils::$context['children'] as $child)
@@ -734,12 +732,12 @@ function template_confirm_board_delete()
 				</ul>
 			</div>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mboards_delete_what_do'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mboards_delete_what_do', file: 'ManageBoards'), '</h3>
 			</div>
 			<div class="windowbg">
 				<p>
-					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked>', Lang::$txt['mboards_delete_board_option1'], '</label><br>
-					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', empty(Utils::$context['can_move_children']) ? ' disabled' : '', '>', Lang::$txt['mboards_delete_board_option2'], '</label>:
+					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked>', Lang::getTxt('mboards_delete_board_option1', file: 'ManageBoards'), '</label><br>
+					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"', empty(Utils::$context['can_move_children']) ? ' disabled' : '', '>', Lang::getTxt('mboards_delete_board_option2', file: 'ManageBoards'), '</label>:
 					<select name="board_to"', empty(Utils::$context['can_move_children']) ? ' disabled' : '', '>';
 
 	foreach (Utils::$context['board_order'] as $board)
@@ -750,8 +748,8 @@ function template_confirm_board_delete()
 	echo '
 					</select>
 				</p>
-				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_confirm'], '" class="button">
-				<input type="submit" name="cancel" value="', Lang::$txt['mboards_delete_cancel'], '" class="button">
+				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_confirm', file: 'ManageBoards'), '" class="button">
+				<input type="submit" name="cancel" value="', Lang::getTxt('mboards_delete_cancel', file: 'ManageBoards'), '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-be-' . Utils::$context['board']['id'] . '_token_var'], '" value="', Utils::$context['admin-be-' . Utils::$context['board']['id'] . '_token'], '">
@@ -759,5 +757,3 @@ function template_confirm_board_delete()
 		</form>
 	</div><!-- #manage_boards -->';
 }
-
-?>

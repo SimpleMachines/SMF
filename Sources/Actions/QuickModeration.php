@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -36,12 +36,6 @@ class QuickModeration implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	// code...
 
 	/**************************
 	 * Public static properties
@@ -311,7 +305,7 @@ class QuickModeration implements ActionInterface, Routable
 		foreach (self::$action_permissions as $action => $permissions) {
 			// Skip permissions for actions that weren't requested.
 			// Exception: always check the approval permission.
-			if (!in_array($action, $_REQUEST['actions']) && $action !== 'approve') {
+			if (!\in_array($action, $_REQUEST['actions']) && $action !== 'approve') {
 				continue;
 			}
 
@@ -377,7 +371,7 @@ class QuickModeration implements ActionInterface, Routable
 		$temp = [];
 
 		foreach ($_REQUEST['actions'] as $topic => $action) {
-			if (in_array($action, $this->possible_actions)) {
+			if (\in_array($action, $this->possible_actions)) {
 				$temp[(int) $topic] = $action;
 			}
 		}
@@ -386,14 +380,13 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($_REQUEST['actions'])) {
 			// Find all topics...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:action_topic_ids})
 				LIMIT {int:limit}',
 				[
 					'action_topic_ids' => array_keys($_REQUEST['actions']),
-					'limit' => count($_REQUEST['actions']),
+					'limit' => \count($_REQUEST['actions']),
 				],
 			);
 
@@ -457,7 +450,6 @@ class QuickModeration implements ActionInterface, Routable
 					// Never move topics to redirect boards
 					$redirect_boards = [];
 					$request = Db::$db->query(
-						'',
 						'SELECT id_board
 						FROM {db_prefix}boards
 						WHERE redirect != {string:blank_redirect}',
@@ -471,7 +463,7 @@ class QuickModeration implements ActionInterface, Routable
 					}
 					Db::$db->free_result($request);
 
-					if (in_array($this->topic_actions['move']['to'][$topic], $redirect_boards)) {
+					if (\in_array($this->topic_actions['move']['to'][$topic], $redirect_boards)) {
 						break;
 					}
 
@@ -497,7 +489,6 @@ class QuickModeration implements ActionInterface, Routable
 		$logged_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -538,7 +529,6 @@ class QuickModeration implements ActionInterface, Routable
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET is_sticky = CASE WHEN is_sticky = {int:is_sticky} THEN 0 ELSE 1 END
 			WHERE id_topic IN ({array_int:sticky_topic_ids})',
@@ -553,14 +543,13 @@ class QuickModeration implements ActionInterface, Routable
 		$sticky_cache_status = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
 			LIMIT {int:limit}',
 			[
 				'sticky_topic_ids' => $this->topic_actions['sticky'],
-				'limit' => count($this->topic_actions['sticky']),
+				'limit' => \count($this->topic_actions['sticky']),
 			],
 		);
 
@@ -595,7 +584,6 @@ class QuickModeration implements ActionInterface, Routable
 			$lock_cache_boards = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
@@ -605,7 +593,7 @@ class QuickModeration implements ActionInterface, Routable
 				[
 					'current_member' => User::$me->id,
 					'locked_topic_ids' => $this->topic_actions['lock'],
-					'limit' => count($locked_topic_ids),
+					'limit' => \count($locked_topic_ids),
 				],
 			);
 
@@ -621,14 +609,13 @@ class QuickModeration implements ActionInterface, Routable
 			$lock_cache_boards = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
 				LIMIT {int:limit}',
 				[
 					'locked_topic_ids' => $this->topic_actions['lock'],
-					'limit' => count($this->topic_actions['lock']),
+					'limit' => \count($this->topic_actions['lock']),
 				],
 			);
 
@@ -643,7 +630,6 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($this->topic_actions['lock'])) {
 			// Alternate the locked value.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (User::$me->allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
 				WHERE id_topic IN ({array_int:locked_topic_ids})',
@@ -684,7 +670,6 @@ class QuickModeration implements ActionInterface, Routable
 		$countPosts = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic, t.id_board, b.count_posts
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -694,7 +679,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'current_member' => User::$me->id,
 				'move_topic_ids' => $this->topic_actions['move']['topics'],
-				'limit' => count($this->topic_actions['move']['topics']),
+				'limit' => \count($this->topic_actions['move']['topics']),
 			],
 		);
 
@@ -730,7 +715,6 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($moveTos)) {
 			$topicRecounts = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, count_posts
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:move_boards})',
@@ -759,7 +743,6 @@ class QuickModeration implements ActionInterface, Routable
 
 				// Get all the members who have posted in the moved topics.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, id_topic
 					FROM {db_prefix}messages
 					WHERE id_topic IN ({array_int:moved_topic_ids})',
@@ -819,7 +802,6 @@ class QuickModeration implements ActionInterface, Routable
 		$remove_cache_boards = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT id_topic, id_board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('remove_any') ? '
@@ -828,7 +810,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'current_member' => User::$me->id,
 				'removed_topic_ids' => $this->topic_actions['remove'],
-				'limit' => count($this->topic_actions['remove']),
+				'limit' => \count($this->topic_actions['remove']),
 			],
 		);
 
@@ -871,7 +853,6 @@ class QuickModeration implements ActionInterface, Routable
 		$approve_cache_members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, id_member_started
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
@@ -880,7 +861,7 @@ class QuickModeration implements ActionInterface, Routable
 			[
 				'approve_topic_ids' => $this->topic_actions['approve'],
 				'not_approved' => 0,
-				'limit' => count($this->topic_actions['approve']),
+				'limit' => \count($this->topic_actions['approve']),
 			],
 		);
 
@@ -913,7 +894,7 @@ class QuickModeration implements ActionInterface, Routable
 	protected function doMerge(): void
 	{
 		// Merge requires at least two topics.
-		if (count($this->topic_actions['merge']) < 2) {
+		if (\count($this->topic_actions['merge']) < 2) {
 			return;
 		}
 
@@ -938,5 +919,3 @@ class QuickModeration implements ActionInterface, Routable
 		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 }
-
-?>

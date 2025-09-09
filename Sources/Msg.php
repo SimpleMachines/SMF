@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Diff\EditDiff;
 use SMF\Search\SearchApi;
 
 /**
@@ -184,6 +185,14 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * @var array
 	 *
+	 * An array of EditDiff objects recording the edit history of this message,
+	 * sorted in reverse chronological order (i.e. newest first).
+	 */
+	public array $edit_history = [];
+
+	/**
+	 * @var array
+	 *
 	 * Formatted versions of this message's properties, suitable for display.
 	 */
 	public array $formatted = [];
@@ -265,7 +274,185 @@ class Msg implements \ArrayAccess, Routable
 	{
 		$this->id = $id;
 		$this->set($props);
-		self::$loaded[$id] = $this;
+
+		if (!empty($this->id)) {
+			self::$loaded[$this->id] = $this;
+		}
+	}
+
+	/**
+	 * Saves this message to the database.
+	 */
+	public function save(): void
+	{
+		$this->version = preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION);
+
+		// Ensure edit history is in reverse chronological order.
+		if (\count($this->edit_history) >= 2) {
+			usort($this->edit_history, fn($a, $b) => $b->time1 <=> $a->time1);
+		}
+
+		if (empty($this->id)) {
+			$columns = [
+				'id_topic' => 'int',
+				'id_board' => 'int',
+				'id_member' => 'int',
+				'poster_time' => 'int',
+				'poster_name' => 'string-255',
+				'poster_email' => 'string-255',
+				'poster_ip' => 'inet',
+				'edit_history' => 'string',
+				'subject' => 'string-255',
+				'body' => 'string' . (empty(Config::$modSettings['max_messageLength']) ? '' : '-' . max(65534, Config::$modSettings['max_messageLength'])),
+				'icon' => 'string-16',
+				'smileys_enabled' => 'int',
+				'approved' => 'int',
+				'likes' => 'int',
+				'version' => 'string-5',
+			];
+
+			$params = [
+				$this->id_topic,
+				$this->id_board,
+				$this->id_member,
+				$this->poster_time,
+				$this->poster_name,
+				$this->poster_email,
+				$this->poster_ip,
+				json_encode(array_map(fn($diff) => $diff->export(), $this->edit_history)),
+				$this->subject,
+				$this->body,
+				$this->icon,
+				(int) $this->smileys_enabled,
+				$this->approved,
+				$this->likes,
+				$this->version,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+						$columns[$key] = $type;
+						$params[] = $this->custom[$key];
+					}
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_create_post', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
+
+			$this->id = (int) Db::$db->insert(
+				'',
+				'{db_prefix}messages',
+				$columns,
+				[$params],
+				['id_msg'],
+				Db::INSERT_RETURN_MODE_SINGLE,
+			);
+
+			// Can't set id_msg_modified until we know id_msg.
+			Db::$db->query(
+				'UPDATE {db_prefix}messages
+				SET id_msg_modified = {int:id_msg}
+				WHERE id_msg = {int:id_msg}',
+				[
+					'id_msg' => $this->id_msg_modified = $this->id,
+				],
+			);
+
+			self::$loaded[$this->id] = $this;
+
+			// What if we want to export new posts out to a CMS?
+			IntegrationHook::call('integrate_after_create_post', [$this->custom['msgOptions'], $this->custom['topicOptions'], $this->custom['posterOptions'], $columns, $params]);
+		} else {
+			$set = [
+				'id_topic = {int:id_topic}',
+				'id_board = {int:id_board}',
+				'id_member = {int:id_member}',
+				'poster_time = {int:poster_time}',
+				'poster_name = {string:poster_name}',
+				'poster_email = {string:poster_email}',
+				'poster_ip = {inet:poster_ip}',
+				'edit_history = {string:edit_history}',
+				'id_msg_modified = {int:id_msg_modified}',
+				'subject = {string:subject}',
+				'body = {string:body}',
+				'icon = {string:icon}',
+				'smileys_enabled = {int:smileys_enabled}',
+				'approved = {int:approved}',
+				'likes = {int:likes}',
+				'version = {string:version}',
+			];
+
+			$params = [
+				'id_msg' => (int) $this->id,
+				'id_topic' => (int) $this->id_topic,
+				'id_board' => (int) $this->id_board,
+				'poster_time' => (int) $this->poster_time,
+				'id_member' => (int) $this->id_member,
+				'poster_name' => (string) $this->poster_name,
+				'poster_email' => (string) $this->poster_email,
+				'poster_ip' => (string) $this->poster_ip,
+				'edit_history' => json_encode(array_map(fn($diff) => $diff->export(), $this->edit_history)),
+				'id_msg_modified' => $this->id_msg_modified = (int) Config::$modSettings['maxMsgID'],
+				'subject' => (string) $this->subject,
+				'body' => (string) $this->body,
+				'icon' => (string) $this->icon,
+				'smileys_enabled' => (int) $this->smileys_enabled,
+				'approved' => (int) $this->approved,
+				'likes' => (int) $this->likes,
+				'version' => (string) $this->version,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+						$set[] = $key . ' = {' . $type . ':' . $key . '}';
+						$params[$key] = $this->custom[$key];
+					}
+				}
+			}
+
+			// This silliness is just for backward compatibility.
+			if (!empty(Config::$backward_compatibility)) {
+				$message_ints = [];
+				$messages_columns = [];
+
+				foreach ($set as $statement) {
+					preg_match('/^(\w+)\s*=\s*{(\w+):(\w+)}/', $statement, $matches);
+
+					$messages_columns[$matches[1]] = $params[$matches[3]];
+
+					if ($matches[2] === 'int') {
+						$message_ints[] = $matches[1];
+					}
+				}
+
+				$set = [];
+
+				// MOD AUTHORS: This hook is deprecated. Use integrate_msg_update instead.
+				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$message_ints]);
+
+				foreach ($messages_columns as $var => $val) {
+					$set[] = $var . ' = {' . (\in_array($var, $message_ints) ? 'int' : 'string') . ':' . $var . '}';
+					$params[$var] = $val;
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
+
+			Db::$db->query(
+				'UPDATE {db_prefix}messages
+				SET ' . (implode(', ', $set)) . '
+				WHERE id_msg = {int:id_msg}',
+				$params,
+			);
+		}
 	}
 
 	/**
@@ -295,7 +482,7 @@ class Msg implements \ArrayAccess, Routable
 			'topic' => $this->id_topic,
 			'board' => $format_options['load_board'] ? Board::init($this->id_board) : $this->id_board,
 			'href' => Config::$scripturl . '?msg=' . $this->id . (!empty($format_options['url_params']) ? ';' . implode(';', $format_options['url_params']) : ''),
-			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::$txt['no_subject'],
+			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::getTxt('no_subject', file: 'General'),
 			'time' => Time::create('@' . $this->poster_time)->format(),
 			'timestamp' => $this->poster_time,
 			'raw_timestamp' => $this->poster_time,
@@ -306,10 +493,11 @@ class Msg implements \ArrayAccess, Routable
 				'name' => $this->modified_name,
 				'reason' => $this->modified_reason,
 			],
+			'edit_history' => $this->edit_history,
 			'body' => $this->body ?? '',
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($this->id_member, User::$me->ignoreusers),
 		];
 
 		// Are we showing the icon?
@@ -387,7 +575,7 @@ class Msg implements \ArrayAccess, Routable
 					'name' => $this->poster_name,
 					'username' => $this->poster_name,
 					'id' => 0,
-					'group' => Lang::$txt['guest_title'],
+					'group' => Lang::getTxt('guest_title', file: 'General'),
 					'link' => $this->poster_name,
 					'email' => $this->poster_email,
 					'show_email' => User::$me->allowedTo('moderate_forum'),
@@ -428,7 +616,7 @@ class Msg implements \ArrayAccess, Routable
 				'name' => $this->poster_name,
 				'username' => $this->poster_name,
 				'href' => empty($this->id_member) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id_member,
-				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name]) . '">' . $this->poster_name . '</a>',
+				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name], file: 'General') . '">' . $this->poster_name . '</a>',
 			];
 		}
 
@@ -459,7 +647,7 @@ class Msg implements \ArrayAccess, Routable
 			$this->formatted['preview'] = strip_tags(strtr($this->formatted['body'], ['<br>' => '&#10;']));
 
 			if (Utils::entityStrlen($this->formatted['preview']) > 128) {
-				$this->formatted['preview'] = Utils::entitySubstr($this->formatted['preview'], 0, 128) . (!empty(Utils::$context['utf8']) ? '…' : '...');
+				$this->formatted['preview'] = Utils::entitySubstr($this->formatted['preview'], 0, 128) . '…';
 			}
 		}
 
@@ -472,7 +660,7 @@ class Msg implements \ArrayAccess, Routable
 		if (!empty(Config::$modSettings['enable_likes'])) {
 			$this->formatted['likes'] = [
 				'count' => $this->likes,
-				'you' => in_array($this->id, Utils::$context['my_likes'] ?? []),
+				'you' => \in_array($this->id, Utils::$context['my_likes'] ?? []),
 			];
 
 			if ($format_options['do_permissions']) {
@@ -482,11 +670,11 @@ class Msg implements \ArrayAccess, Routable
 
 		// Info about last modification to this message.
 		if (!empty($this->formatted['modified']['name'])) {
-			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']]);
+			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']], file: 'General');
 
 			// Did they give a reason for editing?
 			if (!empty($this->formatted['modified']['reason'])) {
-				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']]);
+				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']], file: 'General');
 			}
 		}
 
@@ -505,6 +693,17 @@ class Msg implements \ArrayAccess, Routable
 	{
 		if ($prop === 'poster_ip') {
 			$value = new IP($value);
+		}
+
+		if ($prop === 'edit_history') {
+			$value = (array) Utils::jsonDecode($value ?? '[]', true);
+
+			usort($value, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($value as $k => $v) {
+				$value[$k] = new EditDiff();
+				$value[$k]->import($v);
+			}
 		}
 
 		$this->customPropertySet($prop, $value);
@@ -623,14 +822,8 @@ class Msg implements \ArrayAccess, Routable
 		];
 		$message = strtr($message, $control_replacements);
 
-		// This line makes all languages *theoretically* work even with the wrong charset ;).
-		if (empty(Utils::$context['utf8'])) {
-			$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
-		}
 		// Normalize Unicode characters for storage efficiency, better searching, etc.
-		else {
-			$message = Utils::normalize($message);
-		}
+		$message = Utils::normalize($message);
 
 		// Clean out any other funky stuff.
 		$message = Utils::sanitizeChars($message, 0);
@@ -705,7 +898,7 @@ class Msg implements \ArrayAccess, Routable
 		// Replace code BBC with placeholders. We'll restore them at the end.
 		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {
 				$substitute = md5($parts[$i]);
 				$code_tags[$substitute] = $parts[$i];
@@ -714,9 +907,6 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		$message = implode('', $parts);
-
-		// The regular expression non breaking space has many versions.
-		$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// Autolink any plain-text URLs.
 		if (!empty($autolink)) {
@@ -829,25 +1019,25 @@ class Msg implements \ArrayAccess, Routable
 
 		$mistake_fixes = [
 			// Find [table]s not followed by [tr].
-			'~\[table\](?![\s' . $non_breaking_space . ']*\[tr\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[table][tr]',
+			'~\[table\](?![\s\x{A0}]*\[tr\])~su' => '[table][tr]',
 			// Find [tr]s not followed by [td].
-			'~\[tr\](?![\s' . $non_breaking_space . ']*\[td\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[tr][td]',
+			'~\[tr\](?![\s\x{A0}]*\[td\])~su' => '[tr][td]',
 			// Find [/td]s not followed by something valid.
-			'~\[/td\](?![\s' . $non_breaking_space . ']*(?:\[td\]|\[/tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr]',
+			'~\[/td\](?![\s\x{A0}]*(?:\[td\]|\[/tr\]|\[/table\]))~su' => '[/td][/tr]',
 			// Find [/tr]s not followed by something valid.
-			'~\[/tr\](?![\s' . $non_breaking_space . ']*(?:\[tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/tr][/table]',
+			'~\[/tr\](?![\s\x{A0}]*(?:\[tr\]|\[/table\]))~su' => '[/tr][/table]',
 			// Find [/td]s incorrectly followed by [/table].
-			'~\[/td\][\s' . $non_breaking_space . ']*\[/table\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
+			'~\[/td\][\s\x{A0}]*\[/table\]~su' => '[/td][/tr][/table]',
 			// Find [table]s, [tr]s, and [/td]s (possibly correctly) followed by [td].
-			'~\[(table|tr|/td)\]([\s' . $non_breaking_space . ']*)\[td\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
+			'~\[(table|tr|/td)\]([\s\x{A0}]*)\[td\]~su' => '[$1]$2[_td_]',
 			// Now, any [td]s left should have a [tr] before them.
 			'~\[td\]~s' => '[tr][td]',
 			// Look for [tr]s which are correctly placed.
-			'~\[(table|/tr)\]([\s' . $non_breaking_space . ']*)\[tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
+			'~\[(table|/tr)\]([\s\x{A0}]*)\[tr\]~su' => '[$1]$2[_tr_]',
 			// Any remaining [tr]s should have a [table] before them.
 			'~\[tr\]~s' => '[table][tr]',
 			// Look for [/td]s followed by [/tr].
-			'~\[/td\]([\s' . $non_breaking_space . ']*)\[/tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
+			'~\[/td\]([\s\x{A0}]*)\[/tr\]~su' => '[/td]$1[_/tr_]',
 			// Any remaining [/tr]s should have a [/td].
 			'~\[/tr\]~s' => '[/td][/tr]',
 			// Look for properly opened [li]s which aren't closed.
@@ -855,14 +1045,14 @@ class Msg implements \ArrayAccess, Routable
 			'~\[li\]([^\[\]]+?)\[/list\]~s' => '[_li_]$1[_/li_][/list]',
 			'~\[li\]([^\[\]]+?)$~s' => '[li]$1[/li]',
 			// Lists - find correctly closed items/lists.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[/list\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
+			'~\[/li\]([\s\x{A0}]*)\[/list\]~su' => '[_/li_]$1[/list]',
 			// Find list items closed and then opened.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
+			'~\[/li\]([\s\x{A0}]*)\[li\]~su' => '[_/li_]$1[_li_]',
 			// Now, find any [list]s or [/li]s followed by [li].
-			'~\[(list(?: [^\]]*?)?|/li)\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
+			'~\[(list(?: [^\]]*?)?|/li)\]([\s\x{A0}]*)\[li\]~su' => '[$1]$2[_li_]',
 			// Allow for sub lists.
-			'~\[/li\]([\s' . $non_breaking_space . ']*)\[list\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
-			'~\[/list\]([\s' . $non_breaking_space . ']*)\[li\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
+			'~\[/li\]([\s\x{A0}]*)\[list\]~u' => '[_/li_]$1[list]',
+			'~\[/list\]([\s\x{A0}]*)\[li\]~u' => '[/list]$1[_li_]',
 			// Any remaining [li]s weren't inside a [list].
 			'~\[li\]~' => '[list][li]',
 			// Any remaining [/li]s weren't before a [/list].
@@ -885,7 +1075,7 @@ class Msg implements \ArrayAccess, Routable
 			$tags = [];
 
 			foreach (Parser::getBBCodes() as $code) {
-				if (!in_array($code['tag'], $allowed_empty)) {
+				if (!\in_array($code['tag'], $allowed_empty)) {
 					$tags[] = $code['tag'];
 				}
 			}
@@ -904,9 +1094,9 @@ class Msg implements \ArrayAccess, Routable
 
 		// Restore white space entities
 		if (!$previewing) {
-			$message = strtr($message, ['  ' => '&nbsp; ', "\n" => '<br>', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;']);
+			$message = strtr($message, ['  ' => '&nbsp; ', "\n" => '<br>', "\u{A0}" => '&nbsp;']);
 		} else {
-			$message = strtr($message, ['  ' => '&nbsp; ', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;']);
+			$message = strtr($message, ['  ' => '&nbsp; ', "\u{A0}" => '&nbsp;']);
 		}
 
 		// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
@@ -930,7 +1120,7 @@ class Msg implements \ArrayAccess, Routable
 		// We're going to unparse only the stuff outside [code]...
 		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {
 				$substitute = md5($parts[$i]);
 				$code_tags[$substitute] = $parts[$i];
@@ -1108,7 +1298,7 @@ class Msg implements \ArrayAccess, Routable
 			$found = false;
 
 			foreach ($protocols as $protocol) {
-				$found = strncasecmp($replace, $protocol . '://', strlen($protocol) + 3) === 0;
+				$found = strncasecmp($replace, $protocol . '://', \strlen($protocol) + 3) === 0;
 
 				if ($found) {
 					break;
@@ -1117,7 +1307,7 @@ class Msg implements \ArrayAccess, Routable
 
 			$current_protocol = strtolower(Url::create($replace)->scheme ?? '');
 
-			if (in_array($current_protocol, $forbidden_protocols)) {
+			if (\in_array($current_protocol, $forbidden_protocols)) {
 				$replace = 'about:invalid';
 			} elseif (!$found && $protocols[0] == 'http') {
 				// A path
@@ -1166,42 +1356,42 @@ class Msg implements \ArrayAccess, Routable
 
 	/**
 	 * Create a post, either as new topic (id_topic = 0) or in an existing one.
+	 *
 	 * The input parameters of this function assume:
 	 * - Strings have been escaped.
 	 * - Integers have been cast to integer.
 	 * - Mandatory parameters are set.
 	 *
-	 * @param array $msgOptions An array of information/options for the post
-	 * @param array $topicOptions An array of information/options for the topic
-	 * @param array $posterOptions An array of information/options for the poster
-	 * @return bool Whether the operation was a success
+	 * @param array &$msgOptions Information/options about the post.
+	 * @param array &$topicOptions Information/options about the topic.
+	 * @param array &$posterOptions Information/options about the poster.
+	 * @return bool Whether the operation was a success.
 	 */
 	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
 		// Set optional parameters to the default value.
-		$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
+		$msgOptions['icon'] = $msgOptions['icon'] ?? 'xx';
 		$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
-		$msgOptions['attachments'] = empty($msgOptions['attachments']) ? [] : $msgOptions['attachments'];
-		$msgOptions['approved'] = isset($msgOptions['approved']) ? (int) $msgOptions['approved'] : 1;
-		$msgOptions['poster_time'] = isset($msgOptions['poster_time']) ? (int) $msgOptions['poster_time'] : time();
-		$topicOptions['id'] = empty($topicOptions['id']) ? 0 : (int) $topicOptions['id'];
-		$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
+		$msgOptions['attachments'] = (array) ($msgOptions['attachments'] ?? []);
+		$msgOptions['approved'] = (int) ($msgOptions['approved'] ?? 1);
+		$msgOptions['poster_time'] = (int) ($msgOptions['poster_time'] ?? time());
+		$topicOptions['id'] = (int) ($topicOptions['id'] ?? 0);
+		$topicOptions['poll'] = $topicOptions['poll'] ?? null;
 		$topicOptions['lock_mode'] = $topicOptions['lock_mode'] ?? null;
 		$topicOptions['sticky_mode'] = $topicOptions['sticky_mode'] ?? null;
 		$topicOptions['redirect_expires'] = $topicOptions['redirect_expires'] ?? null;
 		$topicOptions['redirect_topic'] = $topicOptions['redirect_topic'] ?? null;
-		$posterOptions['id'] = empty($posterOptions['id']) ? 0 : (int) $posterOptions['id'];
-		$posterOptions['ip'] = empty($posterOptions['ip']) ? User::$me->ip : $posterOptions['ip'];
+		$posterOptions['id'] = (int) ($posterOptions['id'] ?? 0);
+		$posterOptions['ip'] = $posterOptions['ip'] ?? User::$me->ip;
 
 		// Not exactly a post option but it allows hooks and/or other sources to skip sending notifications if they don't want to
-		$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
+		$msgOptions['send_notifications'] = (bool) ($msgOptions['send_notifications'] ?? true);
 
 		// We need to know if the topic is approved. If we're told that's great - if not find out.
 		if (!Config::$modSettings['postmod_active']) {
 			$topicOptions['is_approved'] = true;
 		} elseif (!empty($topicOptions['id']) && !isset($topicOptions['is_approved'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT approved
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:id_topic}
@@ -1218,11 +1408,10 @@ class Msg implements \ArrayAccess, Routable
 		if (!isset($posterOptions['name']) || $posterOptions['name'] == '' || (empty($posterOptions['email']) && !empty($posterOptions['id']))) {
 			if (empty($posterOptions['id'])) {
 				$posterOptions['id'] = 0;
-				$posterOptions['name'] = Lang::$txt['guest_title'];
+				$posterOptions['name'] = Lang::getTxt('guest_title', file: 'General');
 				$posterOptions['email'] = '';
 			} elseif ($posterOptions['id'] != User::$me->id) {
 				$request = Db::$db->query(
-					'',
 					'SELECT member_name, email_address
 					FROM {db_prefix}members
 					WHERE id_member = {int:id_member}
@@ -1234,10 +1423,9 @@ class Msg implements \ArrayAccess, Routable
 
 				// Couldn't find the current poster?
 				if (Db::$db->num_rows($request) == 0) {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']]), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']], file: 'Errors'), E_USER_NOTICE);
 					$posterOptions['id'] = 0;
-					$posterOptions['name'] = Lang::$txt['guest_title'];
+					$posterOptions['name'] = Lang::getTxt('guest_title', file: 'General');
 					$posterOptions['email'] = '';
 				} else {
 					list($posterOptions['name'], $posterOptions['email']) = Db::$db->fetch_row($request);
@@ -1270,107 +1458,44 @@ class Msg implements \ArrayAccess, Routable
 
 		$new_topic = empty($topicOptions['id']);
 
-		$message_columns = [
-			'id_board' => 'int',
-			'id_topic' => 'int',
-			'id_member' => 'int',
-			'subject' => 'string-255',
-			'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
-			'poster_name' => 'string-255',
-			'poster_email' => 'string-255',
-			'poster_time' => 'int',
-			'poster_ip' => 'inet',
-			'smileys_enabled' => 'int',
-			'modified_name' => 'string',
-			'icon' => 'string-16',
-			'approved' => 'int',
-			'version' => 'string-5',
-		];
+		// Create the message.
+		$msg = new self(0, [
+			'id_board' => (int) $topicOptions['board'],
+			'id_topic' => (int) $topicOptions['id'],
+			'id_member' => (int) $posterOptions['id'],
+			'subject' => (string) $msgOptions['subject'],
+			'body' => (string) $msgOptions['body'],
+			'poster_name' => (string) $posterOptions['name'],
+			'poster_email' => (string) $posterOptions['email'],
+			'poster_time' => (int) $msgOptions['poster_time'],
+			'poster_ip' => (string) $posterOptions['ip'],
+			'smileys_enabled' => !empty($msgOptions['smileys_enabled']),
+			'modified_name' => '',
+			'icon' => (string) $msgOptions['icon'],
+			'approved' => (int) $msgOptions['approved'],
+		]);
 
-		$message_parameters = [
-			$topicOptions['board'],
-			$topicOptions['id'],
-			$posterOptions['id'],
-			$msgOptions['subject'],
-			$msgOptions['body'],
-			$posterOptions['name'],
-			$posterOptions['email'],
-			$msgOptions['poster_time'],
-			$posterOptions['ip'],
-			$msgOptions['smileys_enabled'] ? 1 : 0,
-			'',
-			$msgOptions['icon'],
-			$msgOptions['approved'],
-			preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
-		];
+		// Save.
+		$msg->save();
 
-		// What if we want to do anything with posts?
-		IntegrationHook::call('integrate_create_post', [&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters]);
-
-		// Insert the post.
-		$msgOptions['id'] = Db::$db->insert(
-			'',
-			'{db_prefix}messages',
-			$message_columns,
-			[$message_parameters],
-			['id_msg'],
-			1,
-		);
-
-		// Something went wrong creating the message...
-		if (empty($msgOptions['id'])) {
+		// If it didn't work, bail out.
+		if (empty($msg->id)) {
 			return false;
 		}
 
+		$msgOptions['id'] = $msg->id;
+
 		// Fix the attachments.
 		if (!empty($msgOptions['attachments'])) {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}attachments
-				SET id_msg = {int:id_msg}
-				WHERE id_attach IN ({array_int:attachment_list})',
-				[
-					'attachment_list' => $msgOptions['attachments'],
-					'id_msg' => $msgOptions['id'],
-				],
-			);
+			Attachment::assign($msgOptions['attachments'], $msgOptions['id']);
 		}
-
-		// What if we want to export new posts out to a CMS?
-		IntegrationHook::call('integrate_after_create_post', [$msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters]);
 
 		// Insert a new topic (if the topicID was left empty.)
 		if ($new_topic) {
-			$topic_columns = [
-				'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
-				'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
-				'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
-				'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
-			];
-
-			$topic_parameters = [
-				$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
-				$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
-				$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
-				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
-			];
-
-			IntegrationHook::call('integrate_before_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters]);
-
-			$topicOptions['id'] = Db::$db->insert(
-				'',
-				'{db_prefix}topics',
-				$topic_columns,
-				[$topic_parameters],
-				['id_topic'],
-				1,
-			);
-
-			// The topic couldn't be created for some reason.
-			if (empty($topicOptions['id'])) {
-				// We should delete the post that did work, though...
+			// Create the topic. Bail out if it fails.
+			if (!Topic::create($msgOptions, $topicOptions, $posterOptions)) {
+				// Don't leave an orphan post behind.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}',
 					[
@@ -1380,121 +1505,31 @@ class Msg implements \ArrayAccess, Routable
 
 				return false;
 			}
-
-			// Fix the message with the topic.
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}messages
-				SET id_topic = {int:id_topic}
-				WHERE id_msg = {int:id_msg}',
-				[
-					'id_topic' => $topicOptions['id'],
-					'id_msg' => $msgOptions['id'],
-				],
-			);
-
-			// There's been a new topic AND a new post today.
-			Logging::trackStats(['topics' => '+', 'posts' => '+']);
-
-			Logging::updateStats('topic', true);
-			Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
-
-			// What if we want to export new topics out to a CMS?
-			IntegrationHook::call('integrate_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions]);
 		}
 		// The topic already exists, it only needs a little updating.
 		else {
-			$update_parameters = [
-				'poster_id' => $posterOptions['id'],
-				'id_msg' => $msgOptions['id'],
-				'locked' => $topicOptions['lock_mode'],
-				'is_sticky' => $topicOptions['sticky_mode'],
-				'id_topic' => $topicOptions['id'],
-				'counter_increment' => 1,
-			];
-
-			if ($msgOptions['approved']) {
-				$topics_columns = [
-					'id_member_updated = {int:poster_id}',
-					'id_last_msg = {int:id_msg}',
-					'num_replies = num_replies + {int:counter_increment}',
-				];
-			} else {
-				$topics_columns = [
-					'unapproved_posts = unapproved_posts + {int:counter_increment}',
-				];
-			}
-
-			if ($topicOptions['lock_mode'] !== null) {
-				$topics_columns[] = 'locked = {int:locked}';
-			}
-
-			if ($topicOptions['sticky_mode'] !== null) {
-				$topics_columns[] = 'is_sticky = {int:is_sticky}';
-			}
-
-			IntegrationHook::call('integrate_modify_topic', [&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions]);
-
-			// Update the number of replies and the lock/sticky status.
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}topics
-				SET
-					' . implode(', ', $topics_columns) . '
-				WHERE id_topic = {int:id_topic}',
-				$update_parameters,
-			);
-
-			// One new post has been added today.
-			Logging::trackStats(['posts' => '+']);
+			Topic::addReply($msgOptions, $topicOptions, $posterOptions);
 		}
 
-		// Creating is modifying...in a way.
-		// @todo Why not set id_msg_modified on the insert?
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}messages
-			SET id_msg_modified = {int:id_msg}
-			WHERE id_msg = {int:id_msg}',
-			[
-				'id_msg' => $msgOptions['id'],
-			],
-		);
+		// One new post has been added today.
+		Logging::trackStats(['posts' => '+']);
 
-		// Increase the number of posts and topics on the board.
+		// Increase the number of posts on the board.
+		$board = current(Board::load($msg->id_board));
+
 		if ($msgOptions['approved']) {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}boards
-				SET num_posts = num_posts + 1' . ($new_topic ? ', num_topics = num_topics + 1' : '') . '
-				WHERE id_board = {int:id_board}',
-				[
-					'id_board' => $topicOptions['board'],
-				],
-			);
+			$board->num_posts++;
+			$board->save(Board::SAVE_STATS);
 		} else {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}boards
-				SET unapproved_posts = unapproved_posts + 1' . ($new_topic ? ', unapproved_topics = unapproved_topics + 1' : '') . '
-				WHERE id_board = {int:id_board}',
-				[
-					'id_board' => $topicOptions['board'],
-				],
-			);
+			$board->unapproved_posts++;
+			$board->save(Board::SAVE_STATS);
 
 			// Add to the approval queue too.
 			Db::$db->insert(
 				'',
 				'{db_prefix}approval_queue',
-				[
-					'id_msg' => 'int',
-				],
-				[
-					[
-						$msgOptions['id'],
-					],
-				],
+				['id_msg' => 'int'],
+				[[$msg->id]],
 				[],
 			);
 
@@ -1519,47 +1554,6 @@ class Msg implements \ArrayAccess, Routable
 				],
 				['id_task'],
 			);
-		}
-
-		// Mark inserted topic as read (only for the user calling this function).
-		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
-			// Since it's likely they *read* it before replying, let's try an UPDATE first.
-			if (!$new_topic) {
-				Db::$db->query(
-					'',
-					'UPDATE {db_prefix}log_topics
-					SET id_msg = {int:id_msg}
-					WHERE id_member = {int:current_member}
-						AND id_topic = {int:id_topic}',
-					[
-						'current_member' => $posterOptions['id'],
-						'id_msg' => $msgOptions['id'],
-						'id_topic' => $topicOptions['id'],
-					],
-				);
-
-				$flag = Db::$db->affected_rows() != 0;
-			}
-
-			if (empty($flag)) {
-				Db::$db->insert(
-					'ignore',
-					'{db_prefix}log_topics',
-					[
-						'id_topic' => 'int',
-						'id_member' => 'int',
-						'id_msg' => 'int',
-					],
-					[
-						[
-							$topicOptions['id'],
-							$posterOptions['id'],
-							$msgOptions['id'],
-						],
-					],
-					['id_topic', 'id_member'],
-				);
-			}
 		}
 
 		if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != User::$me->id) {
@@ -1664,13 +1658,21 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * Modifying a post...
 	 *
-	 * @param array &$msgOptions An array of information/options for the post
-	 * @param array &$topicOptions An array of information/options for the topic
-	 * @param array &$posterOptions An array of information/options for the poster
-	 * @return bool Whether the post was modified successfully
+	 * @param array &$msgOptions Information/options about the post.
+	 * @param array &$topicOptions Information/options about the topic.
+	 * @param array &$posterOptions Information/options about the poster.
+	 * @return bool Whether the operation was a success.
 	 */
 	public static function modify(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
+		if (empty($msgOptions['id'])) {
+			return false;
+		}
+
+		if (is_numeric($msgOptions['id'])) {
+			$msgOptions['id'] = (int) $msgOptions['id'];
+		}
+
 		$searchAPI = SearchApi::load();
 
 		// This is longer than it has to be, but makes it so we only set/change what we have to.
@@ -1695,38 +1697,54 @@ class Msg implements \ArrayAccess, Routable
 		if (isset($msgOptions['body'])) {
 			$messages_columns['body'] = $msgOptions['body'];
 
-			// using a custom search index, then lets get the old message so we can update our index as needed
-			if ($searchAPI->supportsMethod('postModified')) {
-				$request = Db::$db->query(
-					'',
-					'SELECT body
-					FROM {db_prefix}messages
-					WHERE id_msg = {int:id_msg}',
-					[
-						'id_msg' => $msgOptions['id'],
-					],
+			$request = Db::$db->query(
+				'SELECT body, edit_history
+				FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}',
+				[
+					'id_msg' => $msgOptions['id'],
+				],
+			);
+			list($msgOptions['old_body'], $edit_history) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			$edit_history = (array) Utils::jsonDecode($edit_history ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			if ($msgOptions['body'] != $msgOptions['old_body']) {
+				// Body changed, so make a new diff.
+				$msgOptions['modify_time'] = (string) ($msgOptions['modify_time'] ?? time());
+				$msgOptions['modify_id'] = (int) ($msgOptions['modify_id'] ?? 0);
+				$msgOptions['modify_name'] = (string) ($msgOptions['modify_name'] ?? '');
+				$msgOptions['modify_reason'] = (string) ($msgOptions['modify_reason'] ?? '');
+
+				$diff = new EditDiff(
+					$msgOptions['body'],
+					$msgOptions['old_body'],
+					$msgOptions['modify_time'],
+					$msgOptions['modify_id'],
+					$msgOptions['modify_name'],
+					$msgOptions['modify_reason'],
 				);
-				list($msgOptions['old_body']) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
+			} else {
+				// Otherwise, just update the reason.
+				$diff = new EditDiff();
+				$diff->import(array_shift($edit_history));
+				$diff->reason = (string) ($msgOptions['modify_reason'] ?? $diff->reason);
 			}
+
+			array_unshift($edit_history, $diff->export());
+
+			$messages_columns['edit_history'] = json_encode($edit_history);
 		}
 
 		if (!empty($msgOptions['modify_time'])) {
-			$messages_columns['modified_time'] = $msgOptions['modify_time'];
-			$messages_columns['modified_name'] = $msgOptions['modify_name'];
-			$messages_columns['modified_reason'] = $msgOptions['modify_reason'];
 			$messages_columns['id_msg_modified'] = Config::$modSettings['maxMsgID'];
 		}
 
 		if (isset($msgOptions['smileys_enabled'])) {
-			$messages_columns['smileys_enabled'] = empty($msgOptions['smileys_enabled']) ? 0 : 1;
+			$messages_columns['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
 		}
-
-		// Which columns need to be ints?
-		$messageInts = ['modified_time', 'id_msg_modified', 'smileys_enabled'];
-		$update_parameters = [
-			'id_msg' => $msgOptions['id'],
-		];
 
 		// Update search api
 		if ($searchAPI->supportsMethod('postRemoved')) {
@@ -1742,7 +1760,7 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// Anyone quoted or mentioned?
-		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], (int) $posterOptions['id']);
+		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'] ?? '', (int) $posterOptions['id']);
 		$quoted_modifications = Mentions::modifyMentions('quote', (int) $msgOptions['id'], $quoted_members, (int) $posterOptions['id']);
 
 		if (!empty($quoted_modifications['added'])) {
@@ -1768,104 +1786,46 @@ class Msg implements \ArrayAccess, Routable
 				unset($msgOptions['mentioned_members'][User::$me->id]);
 			}
 		}
-		$topic_columns = [];
-		$topic_parameters = [
-			'id_topic' => $topicOptions['id'],
-		];
-		$possible_topic_columns = [
-			'sticky_mode' => ['int', 'is_sticky'],
-			'lock_mode' => ['int', 'locked'],
-			'poll' =>  ['int', 'id_poll'],
-		];
 
 		// This allows mods to skip sending notifications if they don't want to.
 		$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
 
-		// Maybe a mod wants to make some changes?
-		IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts, &$possible_topic_columns]);
+		// Load the message.
+		$msg = current(self::load($msgOptions['id']));
 
-		foreach ($possible_topic_columns as $var => [$type, $column]) {
-			if (isset($topicOptions[$var])) {
-				// Are we restricting the length?
-				if (strpos($type, 'string-') !== false) {
-					$topic_columns[$column] = $column . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ') ', $column);
-				} else {
-					$topic_columns[$column] = $column . ' = {' . $type . ':' . $column . '} ';
-				}
-				$topic_parameters[$column] = $topicOptions[$var];
-			}
-		}
-
-		foreach ($messages_columns as $var => $val) {
-			$messages_columns[$var] = $var . ' = {' . (in_array($var, $messageInts) ? 'int' : 'string') . ':var_' . $var . '}';
-			$update_parameters['var_' . $var] = $val;
-		}
+		// Filter out unchanged values.
+		$messages_columns = array_filter(
+			$messages_columns,
+			fn($v, $k) => (property_exists(self::class, $k) || \array_key_exists($k, self::$prop_aliases)) && $msg->{$k} != $v,
+			ARRAY_FILTER_USE_BOTH,
+		);
 
 		// Nothing to do?
 		if (empty($messages_columns)) {
 			return true;
 		}
 
-		$messages_columns['version'] = 'version = {string:version}';
-		$update_parameters['version'] = preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION);
+		// Update and save the message.
+		$msg->set($messages_columns);
+		$msg->save();
 
-		// Change the post.
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}messages
-			SET ' . implode(', ', $messages_columns) . '
-			WHERE id_msg = {int:id_msg}',
-			$update_parameters,
-		);
+		// Reload to verify that it saved correctly.
+		$msg = current(self::load($msgOptions['id']));
 
-		// Change the topic.
-		if ($topic_columns !== []) {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}topics
-				SET ' . implode(', ', $topic_columns) . '
-				WHERE id_topic = {int:id_topic}',
-				$topic_parameters,
-			);
-	}
+		foreach ($messages_columns as $key => $value) {
+			if ($msg->{$key} != $value) {
+				return false;
+			}
+		}
+
+		// Update the topic.
+		$topic = Topic::load($topicOptions['id']);
+		$topic->set($topicOptions);
+		$topic->save();
 
 		// Mark the edited post as read.
 		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
-			// Since it's likely they *read* it before editing, let's try an UPDATE first.
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}log_topics
-				SET id_msg = {int:id_msg}
-				WHERE id_member = {int:current_member}
-					AND id_topic = {int:id_topic}',
-				[
-					'current_member' => User::$me->id,
-					'id_msg' => Config::$modSettings['maxMsgID'],
-					'id_topic' => $topicOptions['id'],
-				],
-			);
-
-			$flag = Db::$db->affected_rows() != 0;
-
-			if (empty($flag)) {
-				Db::$db->insert(
-					'ignore',
-					'{db_prefix}log_topics',
-					[
-						'id_topic' => 'int',
-						'id_member' => 'int',
-						'id_msg' => 'int',
-					],
-					[
-						[
-							$topicOptions['id'],
-							User::$me->id,
-							Config::$modSettings['maxMsgID'],
-						],
-					],
-					['id_topic', 'id_member'],
-				);
-			}
+			$topic->markAsRead(User::$me->id, $msg->id);
 		}
 
 		// If there's a custom search index, it needs to be modified...
@@ -1911,7 +1871,6 @@ class Msg implements \ArrayAccess, Routable
 		if (isset($msgOptions['subject'])) {
 			// Only update the subject if this was the first message in the topic.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE id_first_msg = {int:id_first_msg}
@@ -1929,7 +1888,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// Finally, if we are setting the approved state we need to do much more work :(
 		if (Config::$modSettings['postmod_active'] && isset($msgOptions['approved'])) {
-			Msg::approve($msgOptions['id'], $msgOptions['approved']);
+			Msg::approve($msgOptions['id'], !empty($msgOptions['approved']));
 		}
 
 		return true;
@@ -1938,7 +1897,7 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * Approve (or not) some posts... without permission checks...
 	 *
-	 * @param array $msgs Array of message ids
+	 * @param array|int $msgs Array of message ids or the ID of a single message
 	 * @param bool $approve Whether to approve the posts (if false, posts are unapproved)
 	 * @param bool $notify Whether to notify users
 	 * @return bool Whether the operation was successful
@@ -1946,7 +1905,7 @@ class Msg implements \ArrayAccess, Routable
 	public static function approve(array|int $msgs, bool $approve = true, bool $notify = true): bool
 	{
 		// @TODO: $msgs = (array) $msgs;
-		if (!is_array($msgs)) {
+		if (!\is_array($msgs)) {
 			$msgs = [$msgs];
 		}
 
@@ -1966,7 +1925,6 @@ class Msg implements \ArrayAccess, Routable
 		$member_post_changes = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
 				m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 				t.approved AS topic_approved, b.count_posts
@@ -2070,7 +2028,6 @@ class Msg implements \ArrayAccess, Routable
 
 		// Now we have the differences make the changes, first the easy one.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET approved = {int:approved_state}
 			WHERE id_msg IN ({array_int:message_list})',
@@ -2083,7 +2040,6 @@ class Msg implements \ArrayAccess, Routable
 		// If we were unapproving find the last msg in the topics...
 		if (!$approve) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, MAX(id_msg) AS id_last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
@@ -2104,7 +2060,6 @@ class Msg implements \ArrayAccess, Routable
 		// ... next the topics...
 		foreach ($topic_changes as $id => $changes) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET approved = {int:approved}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_replies = num_replies + {int:num_replies}, id_last_msg = {int:id_last_msg}
@@ -2122,7 +2077,6 @@ class Msg implements \ArrayAccess, Routable
 		// ... finally the boards...
 		foreach ($board_changes as $id => $changes) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + {int:num_posts}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_topics = num_topics + {int:num_topics}, unapproved_topics = unapproved_topics + {int:unapproved_topics}
@@ -2179,7 +2133,6 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}approval_queue
 				WHERE id_msg IN ({array_int:message_list})
 					AND id_attach = {int:id_attach}',
@@ -2225,6 +2178,12 @@ class Msg implements \ArrayAccess, Routable
 			}
 		}
 
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+			foreach ($board_changes as $b => $junk) {
+				CacheApi::put('board-' . $b, null, 120);
+			}
+		}
+
 		// In case an external CMS needs to know about this approval/unapproval.
 		IntegrationHook::call('integrate_after_approve_posts', [$approve, $msgs, $topic_changes, $member_post_changes]);
 
@@ -2240,7 +2199,7 @@ class Msg implements \ArrayAccess, Routable
 	public static function clearApprovalAlerts(array $content_ids, string $content_action): void
 	{
 		// Some data hygiene...
-		if (!is_array($content_ids)) {
+		if (!\is_array($content_ids)) {
 			return;
 		}
 
@@ -2250,7 +2209,7 @@ class Msg implements \ArrayAccess, Routable
 			return;
 		}
 
-		if (!in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
+		if (!\in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
 			return;
 		}
 
@@ -2292,7 +2251,7 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// @TODO: $setboards = (array) $setboards;
-		if (!is_array($setboards)) {
+		if (!\is_array($setboards)) {
 			$setboards = [$setboards];
 		}
 
@@ -2303,7 +2262,6 @@ class Msg implements \ArrayAccess, Routable
 		if (!$id_msg) {
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, MAX(id_last_msg) AS id_msg
 				FROM {db_prefix}topics
 				WHERE id_board IN ({array_int:board_list})
@@ -2388,7 +2346,6 @@ class Msg implements \ArrayAccess, Routable
 		// Now commit the changes!
 		foreach ($parent_updates as $id_msg => $boards) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})
@@ -2402,7 +2359,6 @@ class Msg implements \ArrayAccess, Routable
 
 		foreach ($board_updates as $board_data) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_last_msg = {int:id_last_msg}, id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})',
@@ -2433,7 +2389,6 @@ class Msg implements \ArrayAccess, Routable
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_member, m.icon, m.poster_time, m.subject, m.body,
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
@@ -2463,11 +2418,11 @@ class Msg implements \ArrayAccess, Routable
 		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 			$delete_any = User::$me->boardsAllowedTo('delete_any');
 
-			if (!in_array(0, $delete_any) && !in_array($row['id_board'], $delete_any)) {
+			if (!\in_array(0, $delete_any) && !\in_array($row['id_board'], $delete_any)) {
 				$delete_own = User::$me->boardsAllowedTo('delete_own');
-				$delete_own = in_array(0, $delete_own) || in_array($row['id_board'], $delete_own);
+				$delete_own = \in_array(0, $delete_own) || \in_array($row['id_board'], $delete_own);
 				$delete_replies = User::$me->boardsAllowedTo('delete_replies');
-				$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
+				$delete_replies = \in_array(0, $delete_replies) || \in_array($row['id_board'], $delete_replies);
 
 				if ($row['id_member'] == User::$me->id) {
 					if (!$delete_own) {
@@ -2491,10 +2446,10 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			// Can't delete an unapproved message, if you can't see it!
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any))) {
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(\in_array(0, $delete_any) || \in_array($row['id_board'], $delete_any))) {
 				$approve_posts = User::$me->boardsAllowedTo('approve_posts');
 
-				if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts)) {
+				if (!\in_array(0, $approve_posts) && !\in_array($row['id_board'], $approve_posts)) {
 					return false;
 				}
 			}
@@ -2525,11 +2480,11 @@ class Msg implements \ArrayAccess, Routable
 		if ($row['id_first_msg'] == $message) {
 			if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 				$remove_any = User::$me->boardsAllowedTo('remove_any');
-				$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
+				$remove_any = \in_array(0, $remove_any) || \in_array($row['id_board'], $remove_any);
 
 				if (!$remove_any) {
 					$remove_own = User::$me->boardsAllowedTo('remove_own');
-					$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
+					$remove_own = \in_array(0, $remove_own) || \in_array($row['id_board'], $remove_own);
 				}
 
 				if ($row['id_member'] != User::$me->id && !$remove_any) {
@@ -2565,7 +2520,6 @@ class Msg implements \ArrayAccess, Routable
 		if ($row['id_last_msg'] == $message) {
 			// Find the last message, set it, and decrease the post count.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg, id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:id_topic}
@@ -2581,7 +2535,6 @@ class Msg implements \ArrayAccess, Routable
 			Db::$db->free_result($request);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET
 					id_last_msg = {int:id_last_msg},
@@ -2601,7 +2554,6 @@ class Msg implements \ArrayAccess, Routable
 		// Only decrease post counts.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET ' . ($row['approved'] ? '
 					num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : '
@@ -2623,7 +2575,6 @@ class Msg implements \ArrayAccess, Routable
 		if (!empty(Config::$modSettings['recycle_enable']) && $row['id_board'] != Config::$modSettings['recycle_board'] && $row['icon'] != 'recycled') {
 			// Check if the recycle board exists and if so get the read status.
 			$request = Db::$db->query(
-				'',
 				'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -2642,7 +2593,6 @@ class Msg implements \ArrayAccess, Routable
 
 			// Is there an existing topic in the recycle board to group this post with?
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_previous_topic = {int:id_previous_topic}
@@ -2683,7 +2633,7 @@ class Msg implements \ArrayAccess, Routable
 						],
 					],
 					['id_topic'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 
@@ -2693,7 +2643,6 @@ class Msg implements \ArrayAccess, Routable
 			// If the topic creation went successful, move the message.
 			if ($topicID > 0) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET
 						id_topic = {int:id_topic},
@@ -2710,7 +2659,6 @@ class Msg implements \ArrayAccess, Routable
 
 				// Take any reported posts with us...
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_reported
 					SET
 						id_topic = {int:id_topic},
@@ -2769,7 +2717,6 @@ class Msg implements \ArrayAccess, Routable
 
 				// Add one topic and post to the recycle bin board.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET
 						num_topics = num_topics + {int:num_topics_inc},
@@ -2786,7 +2733,6 @@ class Msg implements \ArrayAccess, Routable
 				// Lets increase the num_replies, and the first/last message ID as appropriate.
 				if (!empty($id_recycle_topic)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET num_replies = num_replies + 1' .
 							($message > $last_topic_msg ? ', id_last_msg = {int:id_merged_msg}' : '') .
@@ -2809,7 +2755,6 @@ class Msg implements \ArrayAccess, Routable
 			// If it wasn't approved don't keep it in the queue.
 			if (!$row['approved']) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg = {int:id_msg}
 						AND id_attach = {int:id_attach}',
@@ -2822,7 +2767,6 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET ' . ($row['approved'] ? '
 				num_posts = CASE WHEN num_posts = {int:no_posts} THEN 0 ELSE num_posts - 1 END' : '
@@ -2852,7 +2796,6 @@ class Msg implements \ArrayAccess, Routable
 
 			// Remove the message!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
 				[
@@ -2862,7 +2805,7 @@ class Msg implements \ArrayAccess, Routable
 
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'id_msg' => $message,
 			];
 
@@ -2888,7 +2831,6 @@ class Msg implements \ArrayAccess, Routable
 
 		// Close any moderation reports for this message.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET closed = {int:is_closed}
 			WHERE id_msg = {int:id_msg}',
@@ -2936,7 +2878,7 @@ class Msg implements \ArrayAccess, Routable
 	 */
 	public static function parseRoute(array $route, array $params = []): array
 	{
-		if (count($route) >= 2) {
+		if (\count($route) >= 2) {
 			array_shift($route);
 			$params['msg'] = array_shift($route);
 		}
@@ -2971,7 +2913,6 @@ class Msg implements \ArrayAccess, Routable
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}messages AS m' . (empty($joins) ? '' : '
@@ -2989,5 +2930,3 @@ class Msg implements \ArrayAccess, Routable
 		Db::$db->free_result(self::$messages_request);
 	}
 }
-
-?>

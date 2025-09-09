@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -24,6 +24,10 @@ use SMF\Topic;
  */
 class RemoveTopicRedirects extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -39,7 +43,6 @@ class RemoveTopicRedirects extends ScheduledTask
 
 		// Find all of the old moved topic notices that were set to expire.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE redirect_expires <= {int:redirect_expires}
@@ -55,12 +58,10 @@ class RemoveTopicRedirects extends ScheduledTask
 		Db::$db->free_result($request);
 
 		// Zap, you're gone.
-		if (count($topics) > 0) {
+		if (\count($topics) > 0) {
 			Topic::remove($topics, false, true);
 		}
 
 		return true;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -23,6 +23,7 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Routable;
 use SMF\Sapi;
@@ -113,10 +114,10 @@ class Login2 implements ActionInterface, Routable
 
 		self::checkAjax();
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -145,8 +146,7 @@ class Login2 implements ActionInterface, Routable
 		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 		} else {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['login_no_session_cookie'], E_USER_ERROR);
+			throw new \Exception('login_no_session_cookie');
 		}
 
 		User::$me->password_salt = bin2hex(random_bytes(16));
@@ -203,8 +203,11 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Are you guessing with a script?
-		User::$me->checkSession();
-		SecurityToken::validate('login');
+		// If cookies are disallowed, session & token checks will fail
+		if (!empty($_COOKIE)) {
+			User::$me->checkSession();
+			SecurityToken::validate('login');
+		}
 		Security::spamProtection('login');
 
 		// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -232,27 +235,6 @@ class Login2 implements ActionInterface, Routable
 			ErrorHandler::fatalLang('login_threshold_fail', 'login');
 		}
 
-		// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
-		if (
-			isset($_POST['cookieneverexp'])
-			|| (
-				!empty($_POST['cookielength'])
-				&& $_POST['cookielength'] == -1
-			)
-		) {
-			Config::$modSettings['cookieTime'] = 3153600;
-		} elseif (
-			!empty($_POST['cookielength'])
-			&& (
-				$_POST['cookielength'] >= 1
-				&& $_POST['cookielength'] <= 3153600
-			)
-		) {
-			Config::$modSettings['cookieTime'] = (int) $_POST['cookielength'];
-		}
-
-		Lang::load('Login');
-
 		// Load the template stuff.
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login';
@@ -263,15 +245,22 @@ class Login2 implements ActionInterface, Routable
 		// Set up the default/fallback stuff.
 		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($_POST['user'])) : '';
 		Utils::$context['default_password'] = '';
-		Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
-		Utils::$context['login_errors'] = [Lang::$txt['error_occured']];
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['never_expire'] = !empty($_POST['cookieneverexp']);
+		Utils::$context['login_errors'] = [Lang::getTxt('error_occured', file: 'General')];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=login',
-			'name' => Lang::$txt['login'],
+			'name' => Lang::getTxt('login', file: 'General'),
 		];
+
+		// Cookies are required...
+		if (empty($_COOKIE)) {
+			Utils::$context['login_errors'] = [Lang::getTxt('login_cookie_error', file: 'Errors')];
+
+			return;
+		}
 
 		// Bail out if the username and/or password are obviously invalid.
 		if (!$this->validateInput()) {
@@ -279,8 +268,23 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Are we using any sort of integration to validate the login?
-		if (in_array('retry', IntegrationHook::call('integrate_validate_login', [$_POST['user'], $_POST['passwrd'] ?? null, Config::$modSettings['cookieTime']]), true)) {
-			Utils::$context['login_errors'] = [Lang::$txt['incorrect_password']];
+		if (
+			\in_array(
+				'retry',
+				IntegrationHook::call(
+					'integrate_validate_login',
+					[
+						$_POST['user'],
+						$_POST['passwrd'] ?? null,
+						// This is divided by 60 for compatibility with old mods that
+						// expected a number of minutes rather than a number of seconds.
+						(!empty($_POST['cookieneverexp']) ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
+					],
+				),
+				true,
+			)
+		) {
+			Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
 
 			return;
 		}
@@ -295,7 +299,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Let them try again, it didn't match anything...
 		if (empty($loaded)) {
-			Utils::$context['login_errors'] = [Lang::$txt['username_no_exist']];
+			Utils::$context['login_errors'] = [Lang::getTxt('username_no_exist', file: 'General')];
 
 			return;
 		}
@@ -320,7 +324,7 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Correct password, but they've got no salt. Fix it!
-		if (strlen(User::$profiles[User::$my_id]['password_salt']) < 32) {
+		if (\strlen(User::$profiles[User::$my_id]['password_salt']) < 32) {
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
 			User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['password_salt' => User::$profiles[User::$my_id]['password_salt']]);
@@ -468,21 +472,21 @@ class Login2 implements ActionInterface, Routable
 	{
 		// You forgot to type your username, dummy!
 		if (!isset($_POST['user']) || $_POST['user'] == '') {
-			Utils::$context['login_errors'] = [Lang::$txt['need_username']];
+			Utils::$context['login_errors'] = [Lang::getTxt('need_username', file: 'Login')];
 
 			return false;
 		}
 
 		// Hmm... maybe 'admin' will login with no password. Uhh... NO!
 		if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '') {
-			Utils::$context['login_errors'] = [Lang::$txt['no_password']];
+			Utils::$context['login_errors'] = [Lang::getTxt('no_password', file: 'Login')];
 
 			return false;
 		}
 
 		// No funky symbols either.
 		if (preg_match('~[<>&"\'=\\\]~', preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0) {
-			Utils::$context['login_errors'] = [Lang::$txt['error_invalid_characters_username']];
+			Utils::$context['login_errors'] = [Lang::getTxt('error_invalid_characters_username', file: 'General')];
 
 			return false;
 		}
@@ -521,20 +525,20 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// SMF 1.1 and 2.0 password styles.
-		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
+		if (\strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
-			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
+			if (!empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
 				// Try iconv first, for no particular reason.
-				if (function_exists('iconv')) {
+				if (\function_exists('iconv')) {
 					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], User::$profiles[User::$my_id]['member_name'])) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
 				}
 
 				// Say it aint so, iconv failed!
-				if (empty($other_passwords['iconv']) && function_exists('mb_convert_encoding')) {
+				if (empty($other_passwords['iconv']) && \function_exists('mb_convert_encoding')) {
 					$other_passwords[] = sha1(strtolower(mb_convert_encoding(User::$profiles[User::$my_id]['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
 				}
 			}
@@ -543,7 +547,7 @@ class Login2 implements ActionInterface, Routable
 		// None of the below cases will be used most of the time (because the salt is normally set.)
 		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
 			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+			switch (\strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 13:
 					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
 					$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
@@ -582,7 +586,7 @@ class Login2 implements ActionInterface, Routable
 		}
 		// If the salt is set let's try some other options
 		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
-			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+			switch (\strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 32:
 					// MyBB
 					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
@@ -616,7 +620,7 @@ class Login2 implements ActionInterface, Routable
 		IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
-		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
+		if (\in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
 			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
@@ -635,9 +639,9 @@ class Login2 implements ActionInterface, Routable
 			// We'll give you another chance...
 			else {
 				// Log an error so we know that it didn't go well in the error log.
-				ErrorHandler::log(Lang::$txt['incorrect_password'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+				ErrorHandler::log(Lang::getTxt('incorrect_password', file: 'Login') . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
-				Utils::$context['login_errors'] = [Lang::$txt['incorrect_password']];
+				Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
 
 				return false;
 			}
@@ -654,7 +658,7 @@ class Login2 implements ActionInterface, Routable
 	protected function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
 	{
 		// Too long or too short?
-		if (strlen($passwd_hash) != 34) {
+		if (\strlen($passwd_hash) != 34) {
 			return null;
 		}
 
@@ -676,11 +680,11 @@ class Login2 implements ActionInterface, Routable
 		$i = 0;
 
 		while ($i < 16) {
-			$value = ord($hash[$i++]);
+			$value = \ord($hash[$i++]);
 			$output .= $range[$value & 0x3f];
 
 			if ($i < 16) {
-				$value |= ord($hash[$i]) << 8;
+				$value |= \ord($hash[$i]) << 8;
 			}
 
 			$output .= $range[($value >> 6) & 0x3f];
@@ -690,7 +694,7 @@ class Login2 implements ActionInterface, Routable
 			}
 
 			if ($i < 16) {
-				$value |= ord($hash[$i]) << 16;
+				$value |= \ord($hash[$i]) << 16;
 			}
 
 			$output .= $range[($value >> 12) & 0x3f];
@@ -722,7 +726,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Check if the account is activated - COPPA first...
 		if ($activation_status == User::NEED_COPPA) {
-			Utils::$context['login_errors'][] = Lang::$txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['coppa_need_more_details'] . '</a>';
+			Utils::$context['login_errors'][] = Lang::getTxt('coppa_no_consent', file: 'Login') . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::getTxt('coppa_need_more_details', file: 'Login') . '</a>';
 
 			return false;
 		}
@@ -732,14 +736,14 @@ class Login2 implements ActionInterface, Routable
 			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
-		elseif (in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
+		elseif (\in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			if (isset($_REQUEST['undelete'])) {
 				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => User::$profiles[User::$my_id]['is_activated'] >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED]);
 
 				Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)]);
 			} else {
 				Utils::$context['disable_login_hashing'] = true;
-				Utils::$context['login_errors'][] = Lang::$txt['awaiting_delete_account'];
+				Utils::$context['login_errors'][] = Lang::getTxt('awaiting_delete_account', file: 'Login');
 				Utils::$context['login_show_undelete'] = true;
 
 				return false;
@@ -747,9 +751,9 @@ class Login2 implements ActionInterface, Routable
 		}
 		// Standard activation?
 		elseif ($activation_status != User::ACTIVATED) {
-			ErrorHandler::log(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+			ErrorHandler::log(Lang::getTxt('activate_not_completed1', file: 'Login') . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
-			Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';
+			Utils::$context['login_errors'][] = Lang::getTxt('activate_not_completed1', file: 'Login') . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::getTxt('activate_not_completed2', file: 'Login') . '</a>';
 
 			return false;
 		}
@@ -763,13 +767,23 @@ class Login2 implements ActionInterface, Routable
 	protected function DoLogin(): void
 	{
 		// Call login integration functions.
-		IntegrationHook::call('integrate_login', [User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']]);
+		IntegrationHook::call(
+			'integrate_login',
+			[
+				User::$profiles[User::$my_id]['member_name'],
+				null,
+				// This is divided by 60 for compatibility with old mods that
+				// expected a number of minutes rather than a number of seconds.
+				(!empty(Utils::$context['never_expire']) ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
+			],
+		);
 
 		// Get ready to set the cookie...
 		User::setMe(User::$my_id);
+		User::$me->stay_logged_in = !empty(Utils::$context['never_expire']);
 
 		// Bam!  Cookie set.  A session too, just in case.
-		Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
+		Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 		// Reset the login threshold.
 		if (isset($_SESSION['failed_login'])) {
@@ -790,7 +804,7 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// You've logged in, haven't you?
-		$update = ['member_ip' => User::$me->ip, 'member_ip2' => $_SERVER['BAN_CHECK_IP']];
+		$update = ['member_ip' => User::$me->ip, 'member_ip2' => IP::getUserIPAlternative()];
 
 		if (empty(User::$me->tfa_secret)) {
 			$update['last_login'] = time();
@@ -800,7 +814,6 @@ class Login2 implements ActionInterface, Routable
 
 		// Get rid of the online entry for that old guest....
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_online
 			WHERE session = {string:session}',
 			[
@@ -842,5 +855,3 @@ class Login2 implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

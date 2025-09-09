@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -44,7 +44,7 @@ class ShowNotice implements ActionInterface
 		// Before we get too excited, is the current user allowed to see this?
 		User::$me->isAllowedTo(['issue_warning', 'view_warning_any']);
 
-		Utils::$context['page_title'] = Lang::$txt['show_notice'];
+		Utils::$context['page_title'] = Lang::getTxt('show_notice', file: 'ModerationCenter');
 		Utils::$context['sub_template'] = 'show_notice';
 		Utils::$context['template_layers'] = [];
 
@@ -53,7 +53,6 @@ class ShowNotice implements ActionInterface
 		$id_notice = (int) $_GET['nid'];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT body, subject
 			FROM {db_prefix}log_member_notices
 			WHERE id_notice = {int:id_notice}',
@@ -74,5 +73,3 @@ class ShowNotice implements ActionInterface
 		);
 	}
 }
-
-?>

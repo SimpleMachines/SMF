@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -35,9 +35,9 @@ class Url implements \Stringable
 	 * Class constants
 	 *****************/
 
-	 public const SCHEME_HTTPS = 'https';
-	 public const SCHEME_HTTP = 'http';
-	 public const SCHEME_GRAVATAR = 'gravatar';
+	public const SCHEME_HTTPS = 'https';
+	public const SCHEME_HTTP = 'http';
+	public const SCHEME_GRAVATAR = 'gravatar';
 
 	/*******************
 	 * Public properties
@@ -51,53 +51,53 @@ class Url implements \Stringable
 	public ?string $scheme = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The host component of the URL.
 	 */
-	public string $host;
+	public ?string $host = null;
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * The port component of the URL.
 	 */
-	public int $port;
+	public ?int $port = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The user component of the URL.
 	 */
-	public string $user;
+	public ?string $user = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The password component of the URL.
 	 */
-	public string $pass;
+	public ?string $pass = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The path component of the URL.
 	 */
-	public string $path;
+	public ?string $path = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The query component of the URL.
 	 */
-	public string $query;
+	public ?string $query = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The fragment component of the URL.
 	 */
-	public string $fragment;
+	public ?string $fragment = null;
 
 	/**************************
 	 * Public static properties
@@ -222,8 +222,8 @@ class Url implements \Stringable
 		}
 
 		if (!empty($this->host)) {
-			if (!function_exists('idn_to_ascii')) {
-				require_once Config::$sourcedir . '/Subs-Compat.php';
+			if (!\function_exists('idn_to_ascii')) {
+				require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
 
 			// Convert the host using the Punycode algorithm
@@ -236,7 +236,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		// Encode any disallowed characters in the rest of the URL
 		$unescaped = [
@@ -274,8 +274,8 @@ class Url implements \Stringable
 		}
 
 		if (!empty($this->host)) {
-			if (!function_exists('idn_to_utf8')) {
-				require_once Config::$sourcedir . '/Subs-Compat.php';
+			if (!\function_exists('idn_to_utf8')) {
+				require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
 
 			// Decode the domain from Punycode.
@@ -287,7 +287,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		// Decode the rest of the URL, but preserve escaped URL syntax characters.
 		$double_escaped = [
@@ -334,7 +334,7 @@ class Url implements \Stringable
 		}
 
 		$before_host = substr($this->url, 0, $pos);
-		$after_host = substr($this->url, $pos + strlen($this->host ?? ''));
+		$after_host = substr($this->url, $pos + \strlen($this->host ?? ''));
 
 		$this->url = $before_host . $normalized_host . $after_host;
 
@@ -419,7 +419,7 @@ class Url implements \Stringable
 	 * @param int $component Optional flag for parse_url's second parameter.
 	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
 	 */
-	public function parse(int $component = -1): string|int|array|null|bool
+	public function parse(int $component = -1): string|int|array|bool|null
 	{
 		$url = preg_replace_callback(
 			'~[^\x00-\x7F\pZ\pC]|%~u',
@@ -437,7 +437,7 @@ class Url implements \Stringable
 
 			// Set the new value, if any.
 			if (isset($parsed[$prop])) {
-				$this->{$prop} = $parsed[$prop] = is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
+				$this->{$prop} = $parsed[$prop] = \is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
 			}
 		}
 
@@ -523,7 +523,7 @@ class Url implements \Stringable
 	public function hasSSL(): bool
 	{
 		// This check won't work without OpenSSL
-		if (!extension_loaded('openssl')) {
+		if (!\extension_loaded('openssl')) {
 			return true;
 		}
 
@@ -603,7 +603,7 @@ class Url implements \Stringable
 	 */
 	public function isScheme(string|array $scheme): bool
 	{
-		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $scheme));
+		return !empty($this->scheme) && \in_array($this->scheme, array_map('strval', (array) $scheme));
 	}
 
 	/**
@@ -707,13 +707,13 @@ class Url implements \Stringable
 				function ($line) {
 					$line = trim($line);
 
-					return !(empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
+					return !(empty($line) || \strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'));
 				},
 			);
 
 			// Convert Punycode to Unicode
-			if (!function_exists('idn_to_utf8')) {
-				require_once Config::$sourcedir . '/Subs-Compat.php';
+			if (!\function_exists('idn_to_utf8')) {
+				require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
 
 			foreach ($tlds as &$tld) {
@@ -777,5 +777,3 @@ class Url implements \Stringable
 		$this->is_ascii = mb_check_encoding($this->url, 'ASCII');
 	}
 }
-
-?>

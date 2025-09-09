@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; General
+// Version: 3.0 Alpha 4; General
 
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English (US)';
@@ -12,8 +12,6 @@ $txt['lang_dictionary'] = 'en';
 //https://developers.google.com/recaptcha/docs/language
 $txt['lang_recaptcha'] = 'en';
 
-// Ensure you remember to use uppercase for character set strings.
-$txt['lang_character_set'] = 'UTF-8';
 // Character set right to left?  0 = ltr; 1 = rtl
 $txt['lang_rtl'] = '0';
 
@@ -195,6 +193,9 @@ $txt['login'] = 'Log in';
 $txt['username'] = 'Username';
 $txt['password'] = 'Password';
 
+$txt['registration_agreement'] = 'Registration Agreement';
+$txt['privacy_policy'] = 'Privacy Policy';
+
 $txt['username_no_exist'] = 'That username does not exist.';
 $txt['no_user_with_email'] = 'There are no usernames associated with that email.';
 
@@ -203,6 +204,7 @@ $txt['remove_topic'] = 'Remove topic';
 $txt['topics'] = 'Topics';
 $txt['modify_msg'] = 'Modify message';
 $txt['name'] = 'Name';
+$txt['display_name'] = 'Display name';
 $txt['email'] = 'Email';
 $txt['user_email_address'] = 'Email address';
 $txt['subject'] = 'Subject';
@@ -294,7 +296,6 @@ $txt['unnotify'] = 'Unnotify';
 $txt['regards_team'] = 'Regards,
 The {forum_name} Team.';
 
-$txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
 $txt['pages'] = 'Pages';
@@ -375,6 +376,12 @@ $txt['last_edit_reason'] = '<span class="lastedit reason">Reason</span>: {reason
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 $txt['modified_time'] = 'Last edited';
 $txt['modified_by'] = 'Edited by';
+$txt['edit_history_count'] = 'Edited {0, plural,
+	one {# time}
+	other {# times}
+}';
+$txt['edit_history_linktext'] = '{time} by {member}';
+$txt['edit_history_linktext_reason'] = '{time} by {member}: {reason}';
 
 $txt['recent_posts'] = 'Recent posts';
 
@@ -399,7 +406,7 @@ $txt['is_recent_updated'] = '{link} is the most recently updated topic';
 $txt['male'] = 'Male';
 $txt['female'] = 'Female';
 
-$txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
+$txt['error_invalid_characters_username'] = 'Invalid character used in username.';
 
 $txt['welcome_guest'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a>.';
 $txt['welcome_guest_register'] = 'Welcome to <strong>{forum_name}</strong>. Please <a href="{login_url}" onclick="{onclick}">log in</a> or <a href="{register_url}">sign up</a>.';
@@ -524,8 +531,7 @@ $txt['total_members'] = 'Total Members';
 $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
-$txt['time_logged_in'] = 'Time to stay logged in';
-$txt['always_logged_in'] = 'Forever';
+$txt['remember_me'] = 'Remember me';
 
 $txt['preview'] = 'Preview';
 
@@ -533,6 +539,7 @@ $txt['logged'] = 'Logged';
 $txt['show_ip'] = 'Show IP address';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
+$txt['ip_address'] = 'IP address';
 $txt['url'] = 'URL';
 $txt['www'] = 'WWW';
 
@@ -622,6 +629,7 @@ $txt['your_pms'] = 'Your Personal Messages';
 
 $txt['kilobyte'] = 'KB';
 $txt['megabyte'] = 'MB';
+$txt['size_byte'] = '{0, number} B';
 $txt['size_kilobyte'] = '{0, number} KB';
 $txt['size_megabyte'] = '{0, number} MB';
 
@@ -640,6 +648,7 @@ $txt['fulledit'] = 'Full&nbsp;edit';
 $txt['edit'] = 'Edit';
 $txt['quick_edit'] = 'Quick Edit';
 $txt['post_options'] = 'More...';
+$txt['spoiler_toggle'] = 'Show or hide spoiler content';
 
 $txt['merge_to_topic_id'] = 'ID of target topic';
 $txt['split'] = 'Split Topic';
@@ -888,21 +897,21 @@ $txt['number_of_users'] = '{0, plural,
 
 $txt['buddy'] = 'Buddy';
 $txt['buddies'] = 'Buddies';
-$txt['buddy_plural'] = '{0, plural, {
+$txt['buddy_plural'] = '{0, plural,
 	one {buddy}
 	other {buddies}
 }';
-$txt['number_of_buddy'] = '{0, plural, {
+$txt['number_of_buddies'] = '{0, plural,
 	one {# buddy}
 	other {# buddies}
 }';
 
 $txt['hidden'] = 'Hidden';
-$txt['hidden_plural'] = '{0, plural, {
+$txt['hidden_plural'] = '{0, plural,
 	one {hidden}
 	other {hidden}
 }';
-$txt['number_of_hidden_members'] = '{0, plural, {
+$txt['number_of_hidden_members'] = '{0, plural,
 	one {# hidden}
 	other {# hidden}
 }';
@@ -923,11 +932,11 @@ $txt['merged_subject'] = '[MERGED] {subject}';
 $txt['mergetopic_default'] = 'This topic has been merged into {topic_link}.';
 
 $txt['response_prefix'] = 'Re: ';
-$txt['current_icon'] = 'Current Icon';
-$txt['message_icon'] = 'Message Icon';
+$txt['current_icon'] = 'Current icon';
+$txt['message_icon'] = 'Message icon';
 
-$txt['smileys_current'] = 'Current Smiley Set';
-$txt['smileys_none'] = 'No Smileys';
+$txt['smileys_current'] = 'Current smiley set';
+$txt['smileys_none'] = 'No smileys';
 $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 
 $txt['search_results'] = 'Search Results';
@@ -937,6 +946,16 @@ $txt['search_no_results'] = 'Sorry, no matches were found';
 $txt['total_time_logged_d'] = 'd ';
 $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';
+$txt['total_time_logged'] = '{days, select,
+	0 {}
+	other {{days, number, integer} d }
+}{hours, select,
+	0 {}
+	other {{hours, number, integer} h }
+}{minutes, select,
+	0 {}
+	other {{minutes, number, integer} m}
+}';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
 
@@ -985,6 +1004,45 @@ $txt['error_old_topic'] = 'Warning: {0, plural,
 	one {this topic has not been posted in for at least # day.}
 	other {this topic has not been posted in for at least # days.}
 }<br>Unless you are sure you want to reply, please consider starting a new topic.';
+
+$txt['bump_notice'] = '{invert, select,
+	true {{unit, select,
+		year {{num, plural,
+			one {# year earlier...}
+			other {# years earlier...}
+		}}
+		month {{num, plural,
+			one {# month earlier...}
+			other {# months earlier...}
+		}}
+		week {{num, plural,
+			one {# week earlier...}
+			other {# weeks earlier...}
+		}}
+		other {{num, plural,
+			one {# day earlier...}
+			other {# days earlier...}
+		}}
+	}}
+	other {{unit, select,
+		year {{num, plural,
+			one {# year later...}
+			other {# years later...}
+		}}
+		month {{num, plural,
+			one {# month later...}
+			other {# months later...}
+		}}
+		week {{num, plural,
+			one {# week later...}
+			other {# weeks later...}
+		}}
+		other {{num, plural,
+			one {# day later...}
+			other {# days later...}
+		}}
+	}}
+}';
 
 $txt['split_selected_posts'] = 'Selected posts ({reset_link})';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
@@ -1079,8 +1137,7 @@ $txt['debug_subtemplates'] = 'Sub templates: {num, number, integer} {additional_
 $txt['debug_language_files'] = 'Language files: {num, number, integer} {additional_info}';
 $txt['debug_stylesheets'] = 'Style sheets: {num, number, integer} {additional_info}';
 $txt['debug_files_included'] = 'Files included: {num, number, integer} - {size, number, integer} KB {additional_info}';
-$txt['debug_memory_use'] = 'Memory used: {size, number, integer} KB';
-$txt['debug_show'] = 'show';
+$txt['debug_memory_use'] = 'Memory used: {num, number, integer} KB';
 $txt['debug_cache_hits'] = 'Cache hits: {num, number, integer} - {seconds_bytes_total} {additional_info}';
 $txt['debug_cache_misses'] = 'Cache misses: {num, number, integer} {additional_info}';
 $txt['debug_cache_seconds_bytes'] = '{seconds, number, integer}s - {bytes, plural,
@@ -1113,8 +1170,9 @@ $txt['debug_query_which_took_at'] = '{0, plural,
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
-$txt['debug_tokens'] = 'Tokens: {additional_info}';
-$txt['debug_browser'] = 'Browser ID: {browser_body_id} {additional_info}';
+$txt['debug_tokens'] = 'Tokens: {num, number, integer} {additional_info}';
+$txt['debug_browser'] = 'Browser ID: {browser_body_id} ({additional_info})';
+$txt['debug_action'] = 'Current action: {name} (allow restricted guest access: {restrict_guests}, can be logged: {can_log}, is simple: {is_simple})';
 $txt['debug_hooks'] = 'Hooks called: {num, number, integer} {additional_info}';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 
@@ -1172,7 +1230,7 @@ $txt['mobile_generic_menu'] = '{label} Menu';
 // Punctuation mark that is normally used to separate list items in a sentence.
 $txt['sentence_list_separator'] = ',';
 
-// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "2", start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
 $txt['sentence_list_pattern']['and'] = '{list_pattern_part, select,
 	1 {{0}}
 	2 {{0} and {1}}
@@ -1222,5 +1280,3 @@ $txt['sentence_list_pattern']['xor_alt'] = '{list_pattern_part, select,
 	end {{0}; or {1}}
 	other {}
 }';
-
-?>

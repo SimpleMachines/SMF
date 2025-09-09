@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -49,7 +49,6 @@ class TopicSplit implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -78,12 +77,6 @@ class TopicSplit implements ActionInterface, Routable
 		'selectTopics' => 'select',
 		'splitSelection' => 'splitSelection',
 	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods
@@ -120,10 +113,10 @@ class TopicSplit implements ActionInterface, Routable
 		// Load up the "dependencies" - the template and getMsgMemberID().
 		Theme::loadTemplate(!isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -148,7 +141,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Retrieve the subject and stuff of the specific topic/message.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, t.num_replies, t.unapproved_posts, t.id_first_msg, t.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -194,7 +186,7 @@ class TopicSplit implements ActionInterface, Routable
 			'subject' => $_REQUEST['subname'],
 		];
 		Utils::$context['sub_template'] = 'ask';
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 
 		return null;
 	}
@@ -217,7 +209,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Clean up the subject.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// Redirect to the selector if they chose selective.
@@ -231,7 +223,6 @@ class TopicSplit implements ActionInterface, Routable
 		if ($_POST['step2'] == 'afterthis') {
 			// Fetch the message IDs of the topic that are at or after the message.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -258,7 +249,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/**
@@ -274,7 +265,7 @@ class TopicSplit implements ActionInterface, Routable
 	 */
 	public function select(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['select_split_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('select_split_posts', file: 'General');
 
 		// Haven't selected anything have we?
 		$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? [] : $_SESSION['split_selection'][Topic::$topic_id];
@@ -318,7 +309,6 @@ class TopicSplit implements ActionInterface, Routable
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -347,7 +337,6 @@ class TopicSplit implements ActionInterface, Routable
 
 			if (!empty($_SESSION['split_selection'][Topic::$topic_id])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
@@ -390,7 +379,6 @@ class TopicSplit implements ActionInterface, Routable
 			$_SESSION['split_selection'][Topic::$topic_id] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -411,7 +399,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get the number of messages (not) selected to be split.
 		$request = Db::$db->query(
-			'',
 			'SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
 			FROM {db_prefix}messages AS m
 			WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -442,7 +429,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -491,7 +477,6 @@ class TopicSplit implements ActionInterface, Routable
 		if (!empty($_SESSION['split_selection'][Topic::$topic_id])) {
 			// Get the messages and stick them into an array.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -588,7 +573,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Default the subject in case it's blank.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// You must've selected some messages!  Can't split out none!
@@ -598,7 +583,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/***********************
@@ -630,7 +615,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get some board info.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
@@ -644,7 +628,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Find the new first and last not in the list. (old topic)
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				MIN(m.id_msg) AS myid_first_msg, MAX(m.id_msg) AS myid_last_msg, COUNT(*) AS message_count, m.approved
 			FROM {db_prefix}messages AS m
@@ -701,7 +684,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Find the first and last in the list. (new topic)
 		$request = Db::$db->query(
-			'',
 			'SELECT MIN(id_msg) AS myid_first_msg, MAX(id_msg) AS myid_last_msg, COUNT(*) AS message_count, approved
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:msg_list})
@@ -791,7 +773,7 @@ class TopicSplit implements ActionInterface, Routable
 				],
 			],
 			['id_topic'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		if ($split2_ID_TOPIC <= 0) {
@@ -809,7 +791,6 @@ class TopicSplit implements ActionInterface, Routable
 		// Valid subject?
 		if ($new_subject != '') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET
 					id_topic = {int:id_topic},
@@ -820,7 +801,7 @@ class TopicSplit implements ActionInterface, Routable
 					'id_topic' => $split2_ID_TOPIC,
 					'new_subject' => $new_subject,
 					'split_first_msg' => $split2_first_msg,
-					'new_subject_replies' => Lang::$txt['response_prefix'] . $new_subject,
+					'new_subject_replies' => Lang::getTxt('response_prefix', file: 'General') . $new_subject,
 				],
 			);
 
@@ -830,7 +811,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Any associated reported posts better follow...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET id_topic = {int:id_topic}
 			WHERE id_msg IN ({array_int:split_msgs})',
@@ -842,7 +822,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Mess with the old topic's first, last, and number of messages.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				num_replies = {int:num_replies},
@@ -865,7 +844,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Now, put the first/last message back to what they should be.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				id_first_msg = {int:id_first_msg},
@@ -881,7 +859,6 @@ class TopicSplit implements ActionInterface, Routable
 		// If the new topic isn't approved ensure the first message flags this just in case.
 		if (!$split2_approved) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET approved = {int:approved}
 				WHERE id_msg = {int:id_msg}
@@ -896,7 +873,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// The board has more topics now (Or more unapproved ones!).
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET ' . ($split2_approved ? '
 				num_topics = num_topics + 1' : '
@@ -910,7 +886,6 @@ class TopicSplit implements ActionInterface, Routable
 		// Copy log topic entries.
 		// @todo This should really be chunked.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic = {int:id_topic}',
@@ -951,7 +926,7 @@ class TopicSplit implements ActionInterface, Routable
 		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'topicSplit'])) {
+		if (\is_callable([$searchAPI, 'topicSplit'])) {
 			$searchAPI->topicSplit($split2_ID_TOPIC, $splitMessages);
 		}
 
@@ -1002,5 +977,3 @@ class TopicSplit implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

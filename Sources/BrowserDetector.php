@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -49,42 +49,14 @@ class BrowserDetector
 	 */
 	private bool $_is_mobile = false;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * An instance of this class.
 	 */
 	protected static $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Convenience method.
-	 */
-	public static function call()
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		self::$obj->detectBrowser();
-	}
-
-	/**
-	 * Are we using this browser?
-	 *
-	 * @param string $browser The browser we are checking for.
-	 * @return bool Whether or not the current browser is what we're looking for.
-	 */
-	public static function isBrowser(string $browser): bool
-	{
-		// Don't know any browser!
-		if (!isset(self::$obj) || empty(self::$obj->_browsers)) {
-			self::call();
-		}
-
-		return !empty(self::$obj->_browsers[$browser]) || !empty(self::$obj->_browsers['is_' . $browser]);
-	}
 
 	/****************
 	 * Public methods
@@ -133,7 +105,7 @@ class BrowserDetector
 			$this->_browsers['possibly_robot'] = !empty(User::$me->possibly_robot);
 
 			// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], ['login', 'login2', 'register', 'signup'])) || !User::$me->is_guest) {
+			if ((isset($_REQUEST['action']) && \in_array($_REQUEST['action'], ['login', 'login2', 'register', 'signup'])) || !User::$me->is_guest) {
 				$this->_browsers['possibly_robot'] = false;
 			}
 		} else {
@@ -318,6 +290,38 @@ class BrowserDetector
 		return $this->_browsers['is_opera_mini'];
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Convenience method.
+	 */
+	public static function call()
+	{
+		if (!isset(self::$obj)) {
+			self::$obj = new self();
+		}
+
+		self::$obj->detectBrowser();
+	}
+
+	/**
+	 * Are we using this browser?
+	 *
+	 * @param string $browser The browser we are checking for.
+	 * @return bool Whether or not the current browser is what we're looking for.
+	 */
+	public static function isBrowser(string $browser): bool
+	{
+		// Don't know any browser!
+		if (!isset(self::$obj) || empty(self::$obj->_browsers)) {
+			self::call();
+		}
+
+		return !empty(self::$obj->_browsers[$browser]) || !empty(self::$obj->_browsers['is_' . $browser]);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -489,7 +493,7 @@ class BrowserDetector
 			$active = array_reverse(array_keys($this->_browsers, true));
 
 			foreach ($active as $browser) {
-				if (array_key_exists($browser, $browser_priority)) {
+				if (\array_key_exists($browser, $browser_priority)) {
 					Utils::$context['browser_body_id'] = $browser_priority[$browser];
 					break;
 				}
@@ -537,5 +541,3 @@ class BrowserDetector
 		];
 	}
 }
-
-?>

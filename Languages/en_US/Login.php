@@ -1,10 +1,8 @@
 <?php
 
-// Version: 3.0 Alpha 2; Login
+// Version: 3.0 Alpha 4; Login
 
 // Registration agreement page.
-$txt['registration_agreement'] = 'Registration Agreement';
-$txt['privacy_policy'] = 'Privacy Policy';
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
 $txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
@@ -180,5 +178,3 @@ $txt['registration_policy_missing'] = 'The privacy policy is either missing or e
 $txt['logout_confirm'] = 'Are you sure you want to log out?';
 $txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
 $txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
-
-?>

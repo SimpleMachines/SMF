@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,13 +25,16 @@ spl_autoload_register(function ($class) {
 
 	static $class_map = [
 		// Some special cases.
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'ZxcvbnPhp\\' => 'ZxcvbnPhp/',
+		'ReCaptcha\\' => '{$sourcedir}/ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => '{$sourcedir}/minify/src/',
+		'MatthiasMullie\\PathConverter\\' => '{$sourcedir}/minify/path-converter/src/',
+		'ZxcvbnPhp\\' => '{$sourcedir}/ZxcvbnPhp/',
+
+		// The path to the Themes dir is hardcoded.
+		'SMF\\Themes\\' => '{$boarddir}/Themes/',
 
 		// In general, the SMF namespace maps to $sourcedir.
-		'SMF\\' => '',
+		'SMF\\' => '{$sourcedir}/',
 	];
 
 	// Ensure $sourcedir is set to something valid.
@@ -43,10 +46,26 @@ spl_autoload_register(function ($class) {
 		$sourcedir = __DIR__;
 	}
 
+	// Ensure $boarddir is set to something valid.
+	if (class_exists(Config::class, false) && isset(Config::$boarddir)) {
+		$boarddir = Config::$boarddir;
+	}
+
+	if (empty($boarddir) || !is_dir($boarddir)) {
+		if (isset($_SERVER['SCRIPT_NAME'])) {
+			$boarddir = \dirname($_SERVER['SCRIPT_NAME']);
+		} elseif (!empty(debug_backtrace())) {
+			$bt = debug_backtrace();
+			$boarddir = \dirname(array_pop($bt)['file']);
+		} else {
+			$boarddir = \dirname($sourcedir);
+		}
+	}
+
 	// Do any third-party scripts want in on the fun?
-	if (!defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
+	if (!\defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
 		if (!class_exists(IntegrationHook::class, false) && is_file($sourcedir . '/IntegrationHook.php')) {
-			require_once $sourcedir . '/IntegrationHook.php';
+			require_once $sourcedir . DIRECTORY_SEPARATOR . 'IntegrationHook.php';
 		}
 
 		if (class_exists(IntegrationHook::class, false)) {
@@ -57,7 +76,7 @@ spl_autoload_register(function ($class) {
 
 	foreach ($class_map as $prefix => $dirname) {
 		// Does the class use the namespace prefix?
-		$len = strlen($prefix);
+		$len = \strlen($prefix);
 
 		if (strncmp($prefix, $class, $len) !== 0) {
 			continue;
@@ -66,10 +85,21 @@ spl_autoload_register(function ($class) {
 		// Get the relative class name.
 		$relative_class = substr($class, $len);
 
+		// If unspecified, assume it is relative to $sourcedir.
+		if (!str_contains($dirname, '{')) {
+			$dirname = '{$sourcedir}/' . $dirname;
+		}
+
+		// Get the full $dirname.
+		$dirname = strtr($dirname, [
+			'{$sourcedir}' => $sourcedir,
+			'{$boarddir}' => $boarddir,
+		]);
+
 		// Replace the namespace prefix with the base directory, replace namespace
 		// separators with directory separators in the relative class name, append
 		// with .php
-		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
+		$filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $dirname . $relative_class) . '.php';
 
 		// Failsafe: Never load a file named index.php.
 		if (basename($filename) === 'index.php') {
@@ -77,12 +107,10 @@ spl_autoload_register(function ($class) {
 		}
 
 		// If the file exists, require it.
-		if (file_exists($filename = $sourcedir . '/' . $filename)) {
+		if (file_exists($filename)) {
 			require $filename;
 
 			return;
 		}
 	}
 });
-
-?>

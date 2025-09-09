@@ -1,9 +1,8 @@
 <?php
 
-// Version: 3.0 Alpha 2; Post
+// Version: 3.0 Alpha 4; Post
 
 $txt['post_reply'] = 'Post reply';
-$txt['message_icon'] = 'Message icon';
 $txt['subject_not_filled'] = 'The subject field was not filled out. It is required.';
 $txt['message_body_not_filled'] = 'The message body was not filled out. It is required.';
 // Use numeric entities in the below string.
@@ -59,7 +58,6 @@ $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowe
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
 $txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br>Only admins and moderators can reply.';
-$txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attachment_requires_approval'] = 'Note that any files attached will not be displayed until approved by a moderator.';
 $txt['error_temp_attachments'] = 'There are attachments found, which you have attached before but not posted. These attachments are now attached to this post. If you do not want to include them in this post, you can remove them <a href="#postAttachment">here</a>.';
 // Use numeric entities in the below string.
@@ -68,8 +66,8 @@ $txt['js_post_will_require_approval'] = 'Reminder: This post will not appear unt
 $txt['enter_comment'] = 'Enter comment';
 $txt['report_submit'] = 'Submit';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {0, number} {unit}';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {0, number} {unit}';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {size_with_unit}';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {size_with_unit}';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '{0, number, integer} per post';
 $txt['attach_restrictions'] = 'Restrictions: {list}';
 
@@ -167,8 +165,8 @@ $txt['attach_check_nag'] = 'Unable to continue due to incomplete data ({0}).';
 $txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is {0, number, integer} KB. Space remaining is {1, number, integer} KB.';
 $txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
 $txt['attach_max_size_progress'] = 'The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB.';
-$txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
-$txt['attach_folder_admin_warning'] = 'The path to the attachments directory ({attach_dir}) is incorrect. Please correct it in the attachment settings area of your admin panel.';
+$txt['attach_directory_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
+$txt['attach_directory_admin_warning'] = 'The path to the attachments directory ({attach_dir}) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
 $txt['attach_remaining'] = '<span class="attach_remaining">{0, number, integer}</span> remaining';
@@ -219,5 +217,3 @@ $txt['attachments_limit_per_post']['one'] = '{0, plural,
 $txt['approval_status'] = 'Approval status';
 $txt['approval_status_1'] = 'Approved';
 $txt['approval_status_0'] = 'Awaiting approval';
-
-?>

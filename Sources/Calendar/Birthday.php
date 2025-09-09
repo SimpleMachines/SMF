@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -116,7 +116,7 @@ class Birthday extends Event
 	/**
 	 * Loads a member's birthday.
 	 *
-	 * @param int|array $id ID number of the member.
+	 * @param int $id ID number of the member.
 	 * @param bool $is_topic Ignored.
 	 * @param bool $use_permissions Ignored.
 	 * @return array Instances of this class for the loaded events.
@@ -161,7 +161,7 @@ class Birthday extends Event
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Ignored.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<Event> Iterating over result gives Event instances.
+	 * @return \Generator<Event> Iterating over result gives Event instances.
 	 */
 	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
 	{
@@ -245,7 +245,7 @@ class Birthday extends Event
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<EventOccurrence> Iterating over result gives
+	 * @return \Generator<EventOccurrence> Iterating over result gives
 	 *    EventOccurrence instances.
 	 */
 	public static function getOccurrencesInRange(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
@@ -291,6 +291,21 @@ class Birthday extends Event
 	 */
 	public static function setRequestedStartAndDuration(array &$eventOptions): void {}
 
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param array $eventOptions An array of optional time and date parameters
+	 *    (span, start_year, end_month, etc., etc.)
+	 */
+	public static function setRequestedRRule(array &$eventOptions): void {}
+
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param Event $event An event that is being created or modified.
+	 */
+	public static function setRequestedRDatesAndExDates(Event $event): void {}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -313,12 +328,11 @@ class Birthday extends Event
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}members AS m' . (empty($joins) ? '' : '
@@ -351,21 +365,6 @@ class Birthday extends Event
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
 	 *
-	 * @param array $eventOptions An array of optional time and date parameters
-	 *    (span, start_year, end_month, etc., etc.)
-	 */
-	protected static function setRequestedRRule(array &$eventOptions): void {}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
-	 * @param Event $event An event that is being created or modified.
-	 */
-	protected static function setRequestedRDatesAndExDates(Event $event): void {}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
 	 * @param array $input Array of info about event start and end times.
 	 * @return array Standardized version of $input array.
 	 */
@@ -374,5 +373,3 @@ class Birthday extends Event
 		return $input;
 	}
 }
-
-?>

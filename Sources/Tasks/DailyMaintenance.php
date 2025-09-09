@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,12 +22,17 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ProxyServer;
+use SMF\Sapi;
 
 /**
  * Does some daily cleaning up.
  */
 class DailyMaintenance extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -47,7 +52,6 @@ class DailyMaintenance extends ScheduledTask
 
 			// Find every member who has a warning level...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, warning
 				FROM {db_prefix}members
 				WHERE warning > {int:no_warning}',
@@ -67,7 +71,6 @@ class DailyMaintenance extends ScheduledTask
 
 				// Find out when they were last warned.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_recipient, MAX(log_time) AS last_warning
 					FROM {db_prefix}log_comments
 					WHERE id_recipient IN ({array_int:member_list})
@@ -94,7 +97,6 @@ class DailyMaintenance extends ScheduledTask
 				if (!empty($member_changes)) {
 					foreach ($member_changes as $change) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}members
 							SET warning = {int:warning}
 							WHERE id_member = {int:id_member}',
@@ -115,7 +117,6 @@ class DailyMaintenance extends ScheduledTask
 
 		// Clean up some old login history information.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}member_logins
 			WHERE time < {int:oldLogins}',
 			[
@@ -135,7 +136,7 @@ class DailyMaintenance extends ScheduledTask
 			$export_files = glob(rtrim(Config::$modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
 
 			foreach ($export_files as $export_file) {
-				if (!in_array(basename($export_file), ['index.php', '.htaccess']) && filemtime($export_file) <= $expiry_date) {
+				if (!\in_array(basename($export_file), ['index.php', '.htaccess']) && filemtime($export_file) <= $expiry_date) {
 					@unlink($export_file);
 				}
 			}
@@ -146,11 +147,12 @@ class DailyMaintenance extends ScheduledTask
 			Alert::purge(-1, (int) (time() - 86400 * Config::$modSettings['alerts_auto_purge']));
 		}
 
+		// Recheck the cpu counts.
+		Sapi::getCpuCount(true);
+
 		// Anyone else have something to do?
 		IntegrationHook::call('integrate_daily_maintenance');
 
 		return true;
 	}
 }
-
-?>

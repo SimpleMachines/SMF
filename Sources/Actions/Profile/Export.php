@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -149,7 +149,6 @@ class Export implements ActionInterface
 			// If requested by the user, delete any existing export files and background tasks.
 			if (isset($_POST['delete'], $_POST['format'])   && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE task_class = {string:class}
 						AND task_data LIKE {string:details}',
@@ -186,7 +185,7 @@ class Export implements ActionInterface
 			$included_desc = [];
 
 			foreach ($included as $datatype) {
-				$included_desc[] = Lang::$txt[$datatype];
+				$included_desc[] = Lang::getTxt($datatype, file: 'Profile');
 			}
 
 			$dlfilename = array_merge([Utils::$context['forum_name'], Utils::$context['member']['username']], $included_desc);
@@ -206,7 +205,7 @@ class Export implements ActionInterface
 					}
 
 					if (!isset($latest[$datatype])) {
-						$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
+						$latest[$datatype] = \is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
 					}
 
 					if ($latest[$datatype] > $progress[$datatype]) {
@@ -222,7 +221,7 @@ class Export implements ActionInterface
 					$exportbasename = basename($exportfilepath);
 
 					$part = substr($exportbasename, 0, strcspn($exportbasename, '_'));
-					$suffix = count($exportfilepaths) == 1 ? '' : '_' . $part;
+					$suffix = \count($exportfilepaths) == 1 ? '' : '_' . $part;
 
 					$size = filesize($exportfilepath) / 1024;
 					$units = ['KB', 'MB', 'GB', 'TB'];
@@ -275,16 +274,16 @@ class Export implements ActionInterface
 				if ($datatype == 'profile' || !empty($_POST[$datatype])) {
 					$included[$datatype] = $datatype_settings[$format];
 
-					$included_desc[] = Lang::$txt[$datatype];
+					$included_desc[] = Lang::getTxt($datatype, file: 'Profile');
 
 					$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
 
 					if (!isset($latest[$datatype])) {
-						$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
+						$latest[$datatype] = \is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
 					}
 
 					if (!isset($total[$datatype])) {
-						$total[$datatype] = is_callable($datatype_settings['total']) ? $datatype_settings['total'](Utils::$context['id_member']) : $datatype_settings['total'];
+						$total[$datatype] = \is_callable($datatype_settings['total']) ? $datatype_settings['total'](Utils::$context['id_member']) : $datatype_settings['total'];
 					}
 				}
 			}
@@ -340,15 +339,22 @@ class Export implements ActionInterface
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
-		Utils::$context['page_title'] = Lang::$txt['export_profile_data'];
+		Utils::$context['page_title'] = Lang::getTxt('export_profile_data', file: 'Profile');
 
 		if (empty(Config::$modSettings['export_expiry'])) {
 			unset(Lang::$txt['export_profile_data_desc_list']['expiry']);
 		} else {
-			Lang::$txt['export_profile_data_desc_list']['expiry'] = Lang::getTxt(['export_profile_data_desc_list', 'expiry'], [Config::$modSettings['export_expiry']]);
+			Lang::setTxt(
+				['export_profile_data_desc_list', 'expiry'],
+				Lang::getTxt(
+					['export_profile_data_desc_list', 'expiry'],
+					[Config::$modSettings['export_expiry']],
+					file: 'Profile',
+				),
+			);
 		}
 
-		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
+		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::getTxt('export_profile_data_desc_list', file: 'Profile')) . '</li>'], file: 'Profile');
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
@@ -385,11 +391,9 @@ class Export implements ActionInterface
 
 		// Make sure the directory has the correct permissions.
 		if (!is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
-			Lang::load('Errors');
-
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback], 'Errors', file: 'Errors'));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 
@@ -398,7 +402,7 @@ class Export implements ActionInterface
 			}
 			// Uh-oh. Even the default location failed.
 			else {
-				ErrorHandler::log(Lang::$txt['export_dir_not_writable']);
+				ErrorHandler::log(Lang::getTxt('export_dir_not_writable', file: 'Errors'));
 
 				return false;
 			}
@@ -422,7 +426,7 @@ class Export implements ActionInterface
 				self::$formats,
 				function (&$value, $key) {
 					if ($key === 'description') {
-						$value = Lang::$txt[$value] ?? $value;
+						$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 					}
 				},
 			);
@@ -480,7 +484,7 @@ class Export implements ActionInterface
 				// 'JSON' => array(),
 			],
 			'posts' => [
-				'label' => Lang::$txt['export_include_posts'],
+				'label' => Lang::getTxt('export_include_posts', file: 'Profile'),
 				'total' => Utils::$context['member']['real_posts'],
 				'latest' => function ($uid) {
 					static $latest_post;
@@ -492,7 +496,6 @@ class Export implements ActionInterface
 					$query_this_board = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? 'b.id_board != ' . Config::$modSettings['recycle_board'] : '1=1';
 
 					$request = Db::$db->query(
-						'',
 						'SELECT m.id_msg
 						FROM {db_prefix}messages as m
 							INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -527,7 +530,7 @@ class Export implements ActionInterface
 				// 'JSON' => array(),
 			],
 			'personal_messages' => [
-				'label' => Lang::$txt['export_include_personal_messages'],
+				'label' => Lang::getTxt('export_include_personal_messages', file: 'Profile'),
 				'total' => function ($uid) {
 					static $total_pms;
 
@@ -536,7 +539,6 @@ class Export implements ActionInterface
 					}
 
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
@@ -560,7 +562,6 @@ class Export implements ActionInterface
 					}
 
 					$request = Db::$db->query(
-						'',
 						'SELECT pm.id_pm
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
@@ -601,5 +602,3 @@ class Export implements ActionInterface
 		Utils::$context['export_formats'] = self::$formats;
 	}
 }
-
-?>

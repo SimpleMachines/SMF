@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -29,6 +29,26 @@ namespace SMF;
  */
 class Sapi
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Constants for webserver software names.
+	 */
+	public const SERVER_IIS = 'iis';
+	public const SERVER_APACHE = 'apache';
+	public const SERVER_LITESPEED = 'litespeed';
+	public const SERVER_LIGHTTPD = 'lighttpd';
+	public const SERVER_NGINX = 'nginx';
+
+	/**
+	 * Constants for operating system names.
+	 */
+	public const OS_WINDOWS = 'Windows';
+	public const OS_MAC = 'Darwin';
+	public const OS_LINUX = 'Linux';
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -46,19 +66,30 @@ class Sapi
 		self::SERVER_NGINX => 'nginx',
 	];
 
-	/*****************
-	 * Class constants
-	 *****************/
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
-	public const SERVER_IIS = 'iis';
-	public const SERVER_APACHE = 'apache';
-	public const SERVER_LITESPEED = 'litespeed';
-	public const SERVER_LIGHTTPD = 'lighttpd';
-	public const SERVER_NGINX = 'nginx';
+	/**
+	 * @var string
+	 *
+	 * Path to a temporary directory.
+	 */
+	protected static string $temp_dir;
 
-	public const OS_WINDOWS = 'Windows';
-	public const OS_MAC = 'Darwin';
-	public const OS_LINUX = 'Linux';
+	/**
+	 * @var float
+	 *
+	 * Current system load
+	 */
+	protected static ?float $current_load = null;
+
+	/**
+	 * @var int
+	 *
+	 * Number of CPUs detected
+	 */
+	protected static ?int $cpu_count = null;
 
 	/***********************
 	 * Public static methods
@@ -145,17 +176,6 @@ class Sapi
 	}
 
 	/**
-	 * Checks if the server is able to support case folding.
-	 *
-	 * @see https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
-	 * @return bool True if it does, false otherwise
-	 */
-	public static function supportsIsoCaseFolding(): bool
-	{
-		return ord(strtolower(chr(138))) === 154;
-	}
-
-	/**
 	 * A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	 *
 	 * @return bool True if it does, false otherwise
@@ -180,7 +200,6 @@ class Sapi
 			'is_cgi' => self::isCGI(),
 			'is_windows' => self::isOS(self::OS_WINDOWS),
 			'is_mac' => self::isOS(self::OS_MAC),
-			'iso_case_folding' => self::supportsIsoCaseFolding(),
 			'needs_login_fix' => self::needsLoginFix(),
 		];
 	}
@@ -206,7 +225,76 @@ class Sapi
 	 */
 	public static function getTempDir(): string
 	{
-		return Config::getTempDir();
+		// Already did this.
+		if (!empty(self::$temp_dir)) {
+			return self::$temp_dir;
+		}
+
+		// Temp Directory options order.
+		$temp_dir_options = [
+			0 => 'sys_get_temp_dir',
+			1 => 'upload_tmp_dir',
+			2 => 'session.save_path',
+			3 => 'cachedir',
+		];
+
+		// Is Config::$cachedir a valid option?
+		if (empty(Config::$cachedir) || !is_dir(Config::$cachedir) || !is_writable(Config::$cachedir)) {
+			$temp_dir_options = array_diff($temp_dir_options, ['cachedir']);
+		}
+
+		// Determine if we should detect a restriction and what restrictions that may be.
+		$open_base_dir = \ini_get('open_basedir');
+		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
+
+		// Prevent any errors as we search.
+		$old_error_reporting = error_reporting(0);
+
+		// Search for a working temp directory.
+		foreach ($temp_dir_options as $id_temp => $temp_option) {
+			switch ($temp_option) {
+				case 'cachedir':
+					$possible_temp = rtrim(Config::$cachedir, '\\/');
+					break;
+
+				case 'session.save_path':
+					$possible_temp = rtrim(\ini_get('session.save_path'), '\\/');
+					break;
+
+				case 'upload_tmp_dir':
+					$possible_temp = rtrim(\ini_get('upload_tmp_dir'), '\\/');
+					break;
+
+				default:
+					$possible_temp = sys_get_temp_dir();
+					break;
+			}
+
+			// Check if we have a restriction preventing this from working.
+			if ($restriction) {
+				foreach ($restriction as $dir) {
+					if (str_contains($possible_temp, $dir) && is_writable($possible_temp)) {
+						self::$temp_dir = $possible_temp;
+						break;
+					}
+				}
+			}
+			// No restrictions, but need to check for writable status.
+			elseif (is_writable($possible_temp)) {
+				self::$temp_dir = $possible_temp;
+				break;
+			}
+		}
+
+		// Fall back to sys_get_temp_dir even though it won't work, so we have something.
+		if (empty(self::$temp_dir)) {
+			self::$temp_dir = sys_get_temp_dir();
+		}
+
+		// Put things back.
+		error_reporting($old_error_reporting);
+
+		return self::$temp_dir;
 	}
 
 	/**
@@ -223,7 +311,7 @@ class Sapi
 	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
 	{
 		// Everything in bytes.
-		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		$memory_needed = self::memoryReturnBytes($needed);
 
 		// Should we account for how much is currently being used?
@@ -234,7 +322,7 @@ class Sapi
 		// If more is needed, request it.
 		if ($memory_current < $memory_needed) {
 			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+			$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		}
 
 		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
@@ -251,13 +339,13 @@ class Sapi
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (is_integer($val)) {
+		if (\is_integer($val)) {
 			return (int) $val;
 		}
 
 		// Separate the number from the designator.
 		$val = trim($val);
-		$num = intval(substr($val, 0, strlen($val) - 1));
+		$num = \intval(substr($val, 0, \strlen($val) - 1));
 		$last = strtolower(substr($val, -1));
 
 		// Convert to bytes.
@@ -291,12 +379,14 @@ class Sapi
 	 * Makes call to the Server API (SAPI) to increase the time limit.
 	 *
 	 * @param int $limit Requested amount of time, defaults to 600 seconds.
+	 * @return bool True on success, or false on failure.
 	 */
-	public static function setTimeLimit(int $limit = 600)
+	public static function setTimeLimit(int $limit = 600): bool
 	{
 		try {
-			set_time_limit($limit);
+			return set_time_limit($limit);
 		} catch (\Exception $e) {
+			return false;
 		}
 	}
 
@@ -307,13 +397,143 @@ class Sapi
 	 */
 	public static function resetTimeout()
 	{
-		if (self::isSoftware(self::SERVER_APACHE) && function_exists('apache_reset_timeout')) {
+		if (self::isSoftware(self::SERVER_APACHE) && \function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
 			} catch (\Exception $e) {
 			}
 		}
 	}
-}
 
-?>
+	/**
+	 * Determiens the load average.
+	 * On windows we return -0.01.
+	 * On Linux we attempt to use sys_getloadavg, fall back to traditional reading of /proc/loadavg.
+	 * If we can't load the load average, we return -0.01
+	 * Linux Note: The returned value is a percent represented as a float. However, the percent
+	 * 	can exceed 1.00 (100%) if more than 1 cpu is present. In a 4 cpu system, the max would
+	 * 	be 400% or 4.00.
+	 *
+	 * @return float
+	 */
+	public static function getLoadAverage(): float
+	{
+		if (self::$current_load !== null) {
+			return self::$current_load;
+		}
+
+		/*
+		 * It is possible to get Windows load average using a method such as:
+		 * 		wmic cpu get loadpercentage /all /format:value
+		 * 		typeperf -sc 1 "\Processor(_Total)\% Processor Time"
+		 * However this is slow to respond
+		 */
+		if (self::isOS(self::OS_WINDOWS)) {
+			return self::$current_load = -0.01;
+		}
+
+		try {
+			// False | array[0 => 1 minute, 1 => 5 minute, 2 => 15 minute].
+			$current_load = sys_getloadavg();
+
+			// sys_getloadavg returns false on failure.
+			if ($current_load !== false) {
+				return self::$current_load = (float) $current_load[0] / self::getCpuCount();
+			}
+
+			// Most Linux distros offer a nice file that we can read.
+			$current_load = @file_get_contents('/proc/loadavg');
+
+			if (!empty($current_load) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $current_load, $matches) !== 0) {
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
+			}
+
+			// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
+			if (($current_load = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', $current_load, $matches) !== 0) {
+				return self::$current_load = (float) $matches[1] / self::getCpuCount();
+			}
+		} catch (\Exception $ex) {
+		}
+
+		// No sys_getloadavg, shell_exec('uptime') and no /proc/loadavg, so we can't check.
+		return self::$current_load = -0.01;
+	}
+
+	/**
+	 * Checks if the server load meets a threshold.
+	 *
+	 * @param null|int|float|string $threshold
+	 */
+	public static function isOverloaded(int|float|string|null $threshold): bool
+	{
+		if (empty($threshold)) {
+			return false;
+		}
+
+		return self::getLoadAverage() >= (float) $threshold;
+	}
+
+	/**
+	 * Returns the number of CPUs as reported by the system.
+	 * On Windows we check getenv, do not use wmic as its slow.
+	 * On linux we first attempt with nproc and then fall back to parsing /proc/cpuinfo.
+	 * If all attempts fail, return 1.
+	 * Always ensure we have at least 1 CPU, as this is used in math functions.
+	 *
+	 * @param bool $update Update the db backed cache value.
+	 * @return int Number of CPUs detected.
+	 */
+	public static function getCpuCount(bool $update = false): int
+	{
+		if (self::$cpu_count !== null) {
+			return self::$cpu_count;
+		}
+
+		if (!$update && isset(Config::$modSettings['cpu_count'])) {
+			return (int) Config::$modSettings['cpu_count'];
+		}
+
+		try {
+			// Avoid using wmic commands, otherwise this would work as a fallback: wmic computersystem get NumberOfLogicalProcessors
+			if (self::isOS(self::OS_WINDOWS)) {
+				self::$cpu_count = min((int) getenv('NUMBER_OF_PROCESSORS') ?? 1, 1);
+			}
+			// Apple is special, check sysctl
+			elseif (self::isOS(self::OS_MAC)) {
+				if (($cpu_count = @shell_exec('sysctl -n hw.physicalcpu')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+					self::$cpu_count = max((int) $cpu_count, 1);
+				}
+			}
+			// On most Linux distros, we can runn nproc.
+			elseif (($cpu_count = @shell_exec('nproc --all')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = max((int) $cpu_count, 1);
+			}
+
+			// This works for both Mac and Linux, however it actually reports online cpus, not total CPUs.
+			// Could also use _NPROCESSORS_CONF which is processors configured.
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && ($cpu_count = @shell_exec('getconf _NPROCESSORS_ONLN')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
+				self::$cpu_count = max((int) $cpu_count, 1);
+			}
+
+			// Borrowed from: https://www.php.net/manual/en/function.sys-getloadavg.php#129847
+			// Maybe consider using awk to simplify this: grep -m 1 'cpu cores' /proc/cpuinfo | awk -F: '{print $2}'
+			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && file_exists('/proc/cpuinfo')) {
+				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
+
+				if (isset($matches[0])) {
+					self::$cpu_count = max(\count($matches[0]), 1);
+				}
+			}
+		} catch (\Exception $ex) {
+		}
+
+		// No CPUs found, I think we have at least one. Avoids divide by zero errors.
+		if (empty(self::$cpu_count)) {
+			self::$cpu_count = 1;
+		}
+
+		Config::updateModSettings(['cpu_count' => self::$cpu_count]);
+
+		return self::$cpu_count;
+	}
+}

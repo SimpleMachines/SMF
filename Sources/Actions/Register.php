@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -96,10 +96,10 @@ class Register implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -113,6 +113,11 @@ class Register implements ActionInterface, Routable
 			ErrorHandler::fatalLang('registration_disabled', false);
 		}
 
+		// You cannot register with cookies disabled
+		if (empty($_COOKIE)) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
+
 		// If this user is an admin - redirect them to the admin registration page.
 		if (User::$me->allowedTo('moderate_forum') && !User::$me->is_guest) {
 			Utils::redirectexit('action=admin;area=regcenter;sa=register');
@@ -122,7 +127,6 @@ class Register implements ActionInterface, Routable
 			Utils::redirectexit();
 		}
 
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// How many steps have we done so far today?
@@ -147,10 +151,10 @@ class Register implements ActionInterface, Routable
 		// Under age restrictions?
 		if (Utils::$context['show_coppa']) {
 			Utils::$context['skip_coppa'] = false;
-			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']]);
-			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']]);
+			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']], file: 'Login');
+			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']], file: 'Login');
 		} elseif ($agree_txt_key != '') {
-			Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
+			Utils::$context['agree'] = Lang::getTxt($agree_txt_key . 'agree', file: 'Login');
 		}
 
 		// Does this user agree to the registration agreement?
@@ -164,7 +168,6 @@ class Register implements ActionInterface, Routable
 
 				// Are they saying they're under age, while under age registration is disabled?
 				if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-					Lang::load('Login');
 					ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 				}
 			}
@@ -176,7 +179,7 @@ class Register implements ActionInterface, Routable
 
 		// Show the user the right form.
 		Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-		Utils::$context['page_title'] = $current_step == 1 ? Lang::$txt['registration_agreement'] : Lang::$txt['registration_form'];
+		Utils::$context['page_title'] = Lang::getTxt($current_step == 1 ? 'registration_agreement' : 'registration_form', file: 'General+Login');
 
 		// Kinda need this.
 		if (Utils::$context['sub_template'] == 'registration_form') {
@@ -186,7 +189,7 @@ class Register implements ActionInterface, Routable
 		// Add the register chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=signup',
-			'name' => Lang::$txt['register'],
+			'name' => Lang::getTxt('register', file: 'General'),
 		];
 
 		// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.
@@ -225,7 +228,7 @@ class Register implements ActionInterface, Routable
 			// Nothing to show, lets disable registration and inform the admin of this error
 			if (empty(Utils::$context['agreement'])) {
 				// No file found or a blank file, log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_agreement_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_agreement_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -267,7 +270,7 @@ class Register implements ActionInterface, Routable
 				);
 			} else {
 				// None was found; log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_policy_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_policy_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -278,20 +281,19 @@ class Register implements ActionInterface, Routable
 
 		// Or any standard ones?
 		if (!empty(Config::$modSettings['registration_fields'])) {
-			require_once Config::$sourcedir . '/Profile-Modify.php';
+			require_once Config::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
 
 			// Setup some important context.
-			Lang::load('Profile');
 			Theme::loadTemplate('Profile');
 
 			User::$me->is_owner = true;
 
 			// Here, and here only, emulate the permissions the user would have to do this.
-			User::$me->permissions = array_merge(User::$me->permissions, ['profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb']);
+			User::$me->permission_sets[0]->grant(['profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb']);
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
-			if (in_array('website', $reg_fields)) {
+			if (\in_array('website', $reg_fields)) {
 				unset($reg_fields['website']);
 
 				if (isset($_POST['website_title'])) {
@@ -372,5 +374,3 @@ class Register implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

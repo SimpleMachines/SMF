@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
@@ -87,7 +88,7 @@ class Like implements ActionInterface, Routable
 	protected bool $js = false;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]
@@ -223,7 +224,7 @@ class Like implements ActionInterface, Routable
 		// Make sure the user can see and like your content.
 		$this->check();
 
-		if (is_string($this->error)) {
+		if (\is_string($this->error)) {
 			$this->respond();
 
 			return;
@@ -242,9 +243,9 @@ class Like implements ActionInterface, Routable
 
 			// Call the appropriate method.
 			if (method_exists($this, self::$subactions[$this->subaction])) {
-				call_user_func([$this, self::$subactions[$this->subaction]]);
+				\call_user_func([$this, self::$subactions[$this->subaction]]);
 			} else {
-				call_user_func(self::$subactions[$this->subaction]);
+				\call_user_func(self::$subactions[$this->subaction]);
 			}
 		}
 
@@ -291,7 +292,7 @@ class Like implements ActionInterface, Routable
 
 		// We do not want to output debug information here.
 		if ($this->js) {
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 		}
 	}
 
@@ -330,7 +331,6 @@ class Like implements ActionInterface, Routable
 			// is quite easy to do for messages - and we'll get the topic ID
 			// while we're at it, because we need it later for other things.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
@@ -414,7 +414,7 @@ class Like implements ActionInterface, Routable
 
 		// Is the user able to like this?
 		// Viewing a list of likes doesn't require this permission.
-		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like'])) {
+		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && \is_string($this->valid_likes['can_like'])) {
 			$this->error = $this->valid_likes['can_like'];
 
 			return;
@@ -427,7 +427,6 @@ class Like implements ActionInterface, Routable
 	protected function delete(): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
@@ -546,7 +545,6 @@ class Like implements ActionInterface, Routable
 	protected function count(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -582,7 +580,6 @@ class Like implements ActionInterface, Routable
 
 		// Do we already like this?
 		$request = Db::$db->query(
-			'',
 			'SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -610,7 +607,6 @@ class Like implements ActionInterface, Routable
 		// Update the likes count for messages.
 		if ($this->type == 'msg') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET likes = {int:num_likes}
 				WHERE id_msg = {int:id_msg}',
@@ -625,7 +621,7 @@ class Like implements ActionInterface, Routable
 			$call = Utils::getCallable($this->valid_likes['callback']);
 
 			if (!empty($call)) {
-				call_user_func_array($call, [$this]);
+				\call_user_func_array($call, [$this]);
 			}
 		}
 
@@ -666,7 +662,6 @@ class Like implements ActionInterface, Routable
 		Utils::$context['likers'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, like_time
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -687,7 +682,7 @@ class Like implements ActionInterface, Routable
 		$members = array_keys(Utils::$context['likers']);
 		$loaded = User::load($members);
 
-		if (count($loaded) != count($members)) {
+		if (\count($loaded) != \count($members)) {
 			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
@@ -706,11 +701,10 @@ class Like implements ActionInterface, Routable
 			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => count(Utils::$context['likers'])]));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => \count(Utils::$context['likers'])], file: 'General'));
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Likes');
-		Lang::load('Help'); // For the close window button.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'popup';
 
@@ -751,7 +745,7 @@ class Like implements ActionInterface, Routable
 			// Is this request coming from an AJAX call?
 			if ($this->js) {
 				Utils::$context['sub_template'] = 'generic';
-				Utils::$context['data'] = Lang::$txt[$this->error] ?? Lang::$txt['like_error'];
+				Utils::$context['data'] = Lang::getTxt(Lang::txtExists($this->error, file: 'General') ? $this->error : 'like_error', file: 'General');
 			}
 			// Nope? Then just do a redirect to whatever URL was provided.
 			else {
@@ -772,9 +766,9 @@ class Like implements ActionInterface, Routable
 		// These fine gentlemen all share the same template.
 		$generic = ['delete', 'insert', 'count'];
 
-		if (in_array($this->subaction, $generic)) {
+		if (\in_array($this->subaction, $generic)) {
 			Utils::$context['sub_template'] = 'generic';
-			Utils::$context['data'] = Lang::$txt['like_' . $this->data] ?? $this->data;
+			Utils::$context['data'] = Lang::txtExists('like_' . $this->data, file: 'General') ? Lang::getTxt('like_' . $this->data, file: 'General') : $this->data;
 		}
 		// Directly pass the current called sub-action and the data
 		// generated by its associated Method.
@@ -811,5 +805,3 @@ class Like implements ActionInterface, Routable
 		die;
 	}
 }
-
-?>

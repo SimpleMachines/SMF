@@ -16,7 +16,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,15 +25,31 @@ namespace SMF\Graphics\Gif;
 
 class Image
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_disp;
+
 	public $m_bUser;
+
 	public $m_bTrans;
+
 	public $m_nDelay;
+
 	public $m_nTrans;
+
 	public $m_lpComm;
+
 	public $m_gih;
+
 	public $m_data;
+
 	public $m_lzw;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
@@ -47,7 +63,7 @@ class Image
 		$datLen = 0;
 
 		while (true) {
-			$b = ord($data[0]);
+			$b = \ord($data[0]);
 			$data = substr($data, 1);
 			$datLen++;
 
@@ -102,24 +118,24 @@ class Image
 	{
 		$extLen = 0;
 
-		$b = ord($data[0]);
+		$b = \ord($data[0]);
 		$data = substr($data, 1);
 		$extLen++;
 
 		switch ($b) {
 			// Graphic Control...
 			case 0xF9:
-				$b = ord($data[1]);
+				$b = \ord($data[1]);
 				$this->m_disp = ($b & 0x1C) >> 2;
 				$this->m_bUser = ($b & 0x02) ? true : false;
 				$this->m_bTrans = ($b & 0x01) ? true : false;
 				list($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
-				$this->m_nTrans = ord($data[4]);
+				$this->m_nTrans = \ord($data[4]);
 				break;
 
 			// Comment...
 			case 0xFE:
-				$this->m_lpComm = substr($data, 1, ord($data[0]));
+				$this->m_lpComm = substr($data, 1, \ord($data[0]));
 				break;
 
 			// Plain text...
@@ -132,14 +148,14 @@ class Image
 		}
 
 		// Skip default as defs may change.
-		$b = ord($data[0]);
+		$b = \ord($data[0]);
 		$data = substr($data, 1);
 		$extLen++;
 
 		while ($b > 0) {
 			$data = substr($data, $b);
 			$extLen += $b;
-			$b = ord($data[0]);
+			$b = \ord($data[0]);
 			$data = substr($data, 1);
 			$extLen++;
 		}
@@ -188,5 +204,3 @@ class Image
 		$this->m_data = $data;
 	}
 }
-
-?>

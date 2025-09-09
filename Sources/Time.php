@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -180,7 +180,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 */
@@ -190,7 +190,7 @@ class Time extends \DateTime implements \ArrayAccess
 			self::$user_tz = new \DateTimeZone(User::getTimezone());
 		}
 
-		if (is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
+		if (\is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
 			unset($timezone);
 		}
 
@@ -308,7 +308,7 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+				if ($value instanceof \DateTimeZone || (\is_string($value) && \in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
 					$this->setTimezone($value);
 				}
 				break;
@@ -457,11 +457,11 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 *  - %c, %x, %X: Output will always use ISO 8601 format.
 	 *
-	 * @param string $format The format string to use. Defaults to the current
+	 * @param string|null $format The format string to use. Defaults to the current
 	 *    user's preferred time format.
-	 * @param bool $relative Whether to show "yesterday" and "today" for recent
+	 * @param bool|null $relative Whether to show "yesterday" and "today" for recent
 	 *    dates. Defaults to true if $format is empty, or false otherwise.
-	 * @param bool $strftime True if $format uses strftime format specifiers,
+	 * @param bool|null $strftime True if $format uses strftime format specifiers,
 	 *    false if it uses DateTime format specifiers. If null, attempts to
 	 *    detect the format type automatically.
 	 * @return string The formatted date and time.
@@ -520,7 +520,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$relative_day = null;
 			}
 
-			$prefix = Lang::$txt[$relative_day] ?? '';
+			$prefix = isset($relative_day) && Lang::txtExists($relative_day, file: 'General') ? Lang::getTxt($relative_day, file: 'General') : '';
 		}
 
 		$format = !empty($prefix) ? self::getTimeFormat($format) : $format;
@@ -536,7 +536,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$placeholders = [];
 		$complex = false;
 
-		for ($i = 0; $i < count($parts); $i++) {
+		for ($i = 0; $i < \count($parts); $i++) {
 			// Parts that are not strftime formats.
 			if ($i % 2 === 0 || !isset(self::FORMAT_EQUIVALENTS[$parts[$i]])) {
 				if ($parts[$i] === '') {
@@ -549,7 +549,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that need localized strings.
-			elseif (in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
+			elseif (\in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
 				switch ($parts[$i]) {
 					case 'a':
 						$min = 0;
@@ -591,17 +591,17 @@ class Time extends \DateTime implements \ArrayAccess
 				$txt_strings_exist = true;
 
 				for ($num = $min; $num <= $max; $num++) {
-					if (!isset(Lang::$txt[$key][$num])) {
+					if (!Lang::txtExists([$key, $num], file: 'General')) {
 						$txt_strings_exist = false;
 						break;
 					}
 
-					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::$txt[$key][$num];
+					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::getTxt([$key, $num], file: 'General');
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
-			} elseif (in_array($parts[$i], ['p', 'P'])) {
-				if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm'])) {
+			} elseif (\in_array($parts[$i], ['p', 'P'])) {
+				if (!Lang::txtExists('time_am', file: 'General') || !Lang::txtExists('time_pm', file: 'General')) {
 					continue;
 				}
 
@@ -610,21 +610,21 @@ class Time extends \DateTime implements \ArrayAccess
 				switch ($parts[$i]) {
 					// Upper case.
 					case 'p':
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_am']);
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_pm']);
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::getTxt('time_am', file: 'General'));
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::getTxt('time_pm', file: 'General'));
 						break;
 
 					// Lower case.
 					case 'P':
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::$txt['time_am']);
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::$txt['time_pm']);
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::getTxt('time_am', file: 'General'));
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::getTxt('time_pm', file: 'General'));
 						break;
 				}
 
 				$parts[$i] = $placeholder;
 			}
 			// Parts that will need further processing.
-			elseif (in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
+			elseif (\in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
 				$complex = true;
 
 				switch ($parts[$i]) {
@@ -673,33 +673,33 @@ class Time extends \DateTime implements \ArrayAccess
 					switch ($matches[2]) {
 						// %j
 						case "\xEE\x84\xA1":
-							$replacement = sprintf('%03d', (int) $matches[1] + 1);
+							$replacement = \sprintf('%03d', (int) $matches[1] + 1);
 							break;
 
 						// %C
 						case "\xEE\x84\xA2":
-							$replacement = substr(sprintf('%04d', $matches[1]), 0, 2);
+							$replacement = substr(\sprintf('%04d', $matches[1]), 0, 2);
 							break;
 
 						// %U and %W
 						case "\xEE\x84\xA3":
 							list($day_of_year, $day_of_week, $first_day) = explode('_', $matches[1]);
-							$replacement = sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
+							$replacement = \sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
 							break;
 
 						// %G
 						case "\xEE\x84\xA4":
-							$replacement = sprintf('%04d', $matches[1]);
+							$replacement = \sprintf('%04d', $matches[1]);
 							break;
 
 						// %g
 						case "\xEE\x84\xA5":
-							$replacement = substr(sprintf('%04d', $matches[1]), -2);
+							$replacement = substr(\sprintf('%04d', $matches[1]), -2);
 							break;
 
 						// %e and %l
 						case "\xEE\x84\xA6":
-							$replacement = sprintf('%2d', $matches[1]);
+							$replacement = \sprintf('%2d', $matches[1]);
 							break;
 
 						// Shouldn't happen, but just in case...
@@ -722,13 +722,14 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
 	 *    \DateTimeZone object or a valid time zone identifier string.
-	 * @return staitc An reference to this object.
+	 * @throws \ValueError if $timezone is invalid
+	 * @return static reference to this object.
 	 */
 	public function setTimezone(\DateTimeZone|string $timezone): static
 	{
 		if ($timezone instanceof \DateTimeZone) {
 			date_timezone_set($this, $timezone);
-		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+		} elseif (\in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
 			date_timezone_set($this, new \DateTimeZone($timezone));
 		} else {
 			throw new \ValueError();
@@ -748,7 +749,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 * @return self An instance of this class.
@@ -761,8 +762,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTimeInterface object to a Time object.
 	 *
-	 * @param string $object A \DateTimeInterface object.
-	 * @param Time A Time object.
+	 * @param \DateTimeInterface $object A \DateTimeInterface object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromInterface(\DateTimeInterface $object): static
 	{
@@ -772,8 +773,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTime object to a Time object.
 	 *
-	 * @param string $object A \DateTime object.
-	 * @param Time A Time object.
+	 * @param \DateTime $object A \DateTime object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromMutable(\DateTime $object): static
 	{
@@ -783,8 +784,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTimeImmutable object to a Time object.
 	 *
-	 * @param string $object A \DateTimeImmutable object.
-	 * @param Time A Time object.
+	 * @param \DateTimeImmutable $object A \DateTimeImmutable object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromImmutable(\DateTimeImmutable $object): static
 	{
@@ -1082,7 +1083,7 @@ class Time extends \DateTime implements \ArrayAccess
 				'~\d+~',
 			],
 			function ($matches) use (&$placeholders) {
-				$char = mb_chr(0xE000 + count($placeholders));
+				$char = mb_chr(0xE000 + \count($placeholders));
 				$placeholders[$char] = $matches[0];
 
 				return $char;
@@ -1119,7 +1120,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$date = preg_replace_callback(
 			'~\b' . self::$parsable_words_regex . '\b~iu',
 			function ($matches) use (&$placeholders) {
-				$char = mb_chr(0xE000 + count($placeholders));
+				$char = mb_chr(0xE000 + \count($placeholders));
 				$placeholders[$char] = $matches[0];
 
 				return $char;
@@ -1129,7 +1130,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 		// Build an array of regular expressions to translate the current language strings to English.
 		$replacements = array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_titles']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('months_titles', file: 'General')),
 			[
 				'January', 'February', 'March', 'April', 'May', 'June',
 				'July', 'August', 'September', 'October', 'November', 'December',
@@ -1137,23 +1138,23 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('months_short', file: 'General')),
 			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('days', file: 'General')),
 			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('days_short', file: 'General')),
 			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		);
 
 		// Find all possible variants of AM and PM for this language.
-		$replacements['~' . preg_quote(Lang::$txt['time_am'], '~') . '~iu'] = 'AM';
-		$replacements['~' . preg_quote(Lang::$txt['time_pm'], '~') . '~iu'] = 'PM';
+		$replacements['~' . preg_quote(Lang::getTxt('time_am', file: 'General'), '~') . '~iu'] = 'AM';
+		$replacements['~' . preg_quote(Lang::getTxt('time_pm', file: 'General'), '~') . '~iu'] = 'PM';
 
 		if (($am = self::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
 			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
@@ -1169,7 +1170,7 @@ class Time extends \DateTime implements \ArrayAccess
 		// In theory, it would be nice to do the same for other keywords used by
 		// PHP's date parser, but that would get very complicated very quickly.
 		foreach (['today', 'yesterday', 'tomorrow'] as $word) {
-			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::$txt[$word]);
+			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::getTxt($word, file: 'General'));
 			$replacements['~\b' . preg_quote($translated_word, '~') . '\b~iu'] = $word;
 		}
 
@@ -1480,5 +1481,3 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 	}
 }
-
-?>

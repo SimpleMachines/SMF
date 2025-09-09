@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\WebFetch\WebFetchApi;
 
 /**
@@ -195,31 +196,27 @@ class Theme
 		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
 		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
 
-		if (isset(Config::$modSettings['load_average'])) {
-			Utils::$context['load_average'] = Config::$modSettings['load_average'];
+		if (Sapi::getLoadAverage() >= 0.00) {
+			Utils::$context['load_average'] = Sapi::getLoadAverage();
 		}
 
 		$this->loadTemplatesAndLangFiles();
 
 		// Allow overriding the forum's default time/number formats.
-		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
-			User::$me->time_format = Lang::$txt['time_format'];
+		if (empty(User::$profiles[User::$me->id]['time_format']) && Lang::txtExists('time_format', file: 'ThemeStrings')) {
+			User::$me->time_format = Lang::getTxt('time_format', file: 'ThemeStrings');
 		}
 
-		// Set the character set from the template.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+		// Set the text direction from the language strings.
+		Utils::$context['right_to_left'] = !empty(Lang::getTxt('lang_rtl', file: 'General'));
 
 		// Guests may still need a name.
 		if (User::$me->is_guest && empty(User::$me->name)) {
-			User::$me->name = Lang::$txt['guest_title'];
+			User::$me->name = Lang::getTxt('guest_title', file: 'General');
 		}
 
-		// Any theme-related strings that need to be loaded?
-		Lang::load('ThemeStrings', '', false);
-
 		// Make a special URL for the language.
-		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
+		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (Lang::txtExists('image_lang', file: 'ThemeStrings') ? Lang::getTxt('image_lang', file: 'ThemeStrings') : User::$me->language);
 
 		$this->loadCss();
 
@@ -239,7 +236,7 @@ class Theme
 				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
 
 				if (file_exists($include)) {
-					require_once $include;
+					require_once Config::canonicalPath($include);
 				}
 			}
 		}
@@ -271,13 +268,13 @@ class Theme
 			}
 			// The theme is the forum's default.
 			else {
-				$id = (int) Config::$modSettings['theme_guests'] ?? 1;
+				$id = (int) (Config::$modSettings['theme_guests'] ?? 1);
 			}
 
 			// Sometimes the user can choose their own theme.
 			if (!empty(Config::$modSettings['theme_allow']) || (isset(User::$me) && User::$me->allowedTo('admin_forum'))) {
 				// The theme was specified by REQUEST.
-				if (!empty($_REQUEST['theme']) && (User::$me->allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', Config::$modSettings['knownThemes'])))) {
+				if (!empty($_REQUEST['theme']) && (User::$me->allowedTo('admin_forum') || \in_array($_REQUEST['theme'], explode(',', Config::$modSettings['knownThemes'])))) {
 					$id = (int) $_REQUEST['theme'];
 					$_SESSION['id_theme'] = $id;
 				}
@@ -298,7 +295,7 @@ class Theme
 			} elseif (!empty(Config::$modSettings['enableThemes'])) {
 				$themes = explode(',', Config::$modSettings['enableThemes']);
 
-				if (!in_array($id, $themes)) {
+				if (!\in_array($id, $themes)) {
 					$id = (int) Config::$modSettings['theme_guests'];
 				} else {
 					$id = (int) $id;
@@ -337,8 +334,11 @@ class Theme
 
 	/**
 	 * This loads the bare minimum data to allow us to load language files!
+	 *
+	 * @param bool $load_lang Whether to load the basic language files.
+	 *    Default: true.
 	 */
-	public static function loadEssential(): void
+	public static function loadEssential(bool $load_lang = true): void
 	{
 		// Load the theme used for guests.
 		$id = !empty(Config::$modSettings['theme_guests']) ? (int) Config::$modSettings['theme_guests'] : 1;
@@ -361,19 +361,18 @@ class Theme
 		}
 
 		// For backward compatibility.
-		$GLOBALS['settings'] = &self::$current->settings;
-		$GLOBALS['options']  = &self::$current->options;
+		if (!empty(Config::$backward_compatibility)) {
+			$GLOBALS['settings'] = &self::$current->settings;
+			$GLOBALS['options']  = &self::$current->options;
+		}
 
 		// Assume we want this.
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('General+Modifications');
-
-		// Just in case it wasn't already set elsewhere.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+		if ($load_lang) {
+			Lang::load('General+Modifications');
+		}
 
 		// Tell ErrorHandler::fatalLang() to not reload the theme.
 		Utils::$context['theme_loaded'] = true;
@@ -397,7 +396,7 @@ class Theme
 	{
 		// Do any style sheets first, cause we're easy with those.
 		if (!empty($style_sheets)) {
-			if (!is_array($style_sheets)) {
+			if (!\is_array($style_sheets)) {
 				$style_sheets = [$style_sheets];
 			}
 
@@ -422,13 +421,13 @@ class Theme
 		}
 
 		if ($loaded) {
-			if (!empty(Config::$db_show_debug)) {
-				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
+			if (DebugUtils::isDebugEnabled()) {
+				DebugUtils::addDebugSource('templates', basename($template_dir) . '/' . $template_name . '.template.php');
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
-			if (function_exists('template_' . $template_name . '_init')) {
-				call_user_func('template_' . $template_name . '_init');
+			if (\function_exists('template_' . $template_name . '_init')) {
+				\call_user_func('template_' . $template_name . '_init');
 			}
 
 			return true;
@@ -440,10 +439,9 @@ class Theme
 			self::$current->settings['template_dirs'][] = self::$current->settings['default_theme_dir'];
 
 			if (!empty(User::$me->is_admin) && !isset($_GET['th'])) {
-				Lang::load('Errors');
 				echo '
 	<div class="alert errorbox">
-		<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', Lang::$txt['theme_dir_wrong'], '</a>
+		<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', Lang::getTxt('theme_dir_wrong', file: 'Errors'), '</a>
 	</div>';
 			}
 
@@ -453,7 +451,16 @@ class Theme
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', ['template_name' => (string) $template_name, 'type' => 'file']);
 		} elseif ($fatal) {
-			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} template file.', ['template_name' => (string) $template_name, 'type' => 'file']), 'template'));
+			die(ErrorHandler::log(
+				Lang::formatText(
+					Lang::txtExists('theme_template_error', file: 'General') ? Lang::getTxt('theme_template_error', file: 'General') : 'Unable to load the {template_name} template file.',
+					[
+						'template_name' => (string) $template_name,
+						'type' => 'file',
+					],
+				),
+				'template',
+			));
 		} else {
 			return false;
 		}
@@ -499,15 +506,15 @@ class Theme
 	 */
 	public static function loadSubTemplate(string|array $sub_template_name, bool|string $fatal = false): void
 	{
-		$template_name = is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
+		$template_name = \is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
 
 		// Add the sub-template to the debug context if debugging is enabled.
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['sub_templates'][] = $template_name;
+		if (DebugUtils::isDebugEnabled()) {
+			DebugUtils::addDebugSource('sub_templates', $template_name);
 		}
 
 		// Determine the template function name and any associated parameters.
-		if (is_array($sub_template_name)) {
+		if (\is_array($sub_template_name)) {
 			$theme_function = 'template_' . $sub_template_name[0];
 			$function_params = $sub_template_name[1] ?? [];
 		} else {
@@ -516,8 +523,8 @@ class Theme
 		}
 
 		// Attempt to call the sub-template function.
-		if (is_callable($theme_function)) {
-			call_user_func_array($theme_function, $function_params);
+		if (\is_callable($theme_function)) {
+			\call_user_func_array($theme_function, $function_params);
 		} else {
 			// Handle errors based on the $fatal parameter.
 			if ($fatal === false) {
@@ -528,8 +535,11 @@ class Theme
 				);
 			} elseif ($fatal !== 'ignore') {
 				$error_message = Lang::formatText(
-					Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.',
-					['template_name' => $template_name, 'type' => 'sub'],
+					Lang::txtExists('theme_template_error', file: 'General') ? Lang::getTxt('theme_template_error', file: 'General') : 'Unable to load the {template_name} sub-template.',
+					[
+						'template_name' => (string) $template_name,
+						'type' => 'file',
+					],
 				);
 
 				die(ErrorHandler::log($error_message, 'template'));
@@ -537,7 +547,7 @@ class Theme
 		}
 
 		// Show debug markers for administrators if enabled.
-		if (isset(User::$me) && User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($template_name, ['init', 'html_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
+		if (isset(User::$me) && User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !\in_array($template_name, ['init', 'html_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
 			echo "\n" . '<div class="noticebox">---- ', $template_name, ' ends ----</div>';
 		}
 	}
@@ -584,15 +594,16 @@ class Theme
 			Utils::$context['css_files_order'] = [];
 		}
 
-		$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
-			(array_key_exists('browser_cache', Utils::$context) ? Utils::$context['browser_cache'] : '') :
-			(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+		$params['seed'] = (!\array_key_exists('seed', $params) || (\array_key_exists('seed', $params) && $params['seed'] === true)) ?
+			(\array_key_exists('browser_cache', Utils::$context) ? Utils::$context['browser_cache'] : '') :
+			(\is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 		$params['force_current'] = $params['force_current'] ?? false;
 		$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 		$params['minimize'] = $params['minimize'] ?? true;
 		$params['external'] = $params['external'] ?? false;
 		$params['validate'] = $params['validate'] ?? true;
 		$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
+		$params['noscript'] = !empty($params['noscript']);
 		$params['attributes'] = $params['attributes'] ?? [];
 
 		// Account for shorthand like admin.css?alp21 filenames
@@ -630,16 +641,18 @@ class Theme
 
 		$mtime = empty($mtime) ? 0 : $mtime;
 
+		$css_group = $params['noscript'] ? 'css_noscript_files' : 'css_files';
+
 		// Add it to the array for use in the template
 		if (!empty($fileName) && !empty($fileUrl)) {
 			// Find a free number/position
-			while (isset(Utils::$context['css_files_order'][$params['order_pos']])) {
+			while (isset(Utils::$context[$css_group . '_order'][$params['order_pos']])) {
 				$params['order_pos']++;
 			}
 
-			Utils::$context['css_files_order'][$params['order_pos']] = $id;
+			Utils::$context[$css_group . '_order'][$params['order_pos']] = $id;
 
-			Utils::$context['css_files'][$id] = ['fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime];
+			Utils::$context[$css_group][$id] = ['fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime];
 		}
 
 		if (!empty(Utils::$context['right_to_left']) && !empty($params['rtl'])) {
@@ -661,17 +674,19 @@ class Theme
 	 * - All code added with this function is added to the same <style> tag,
 	 *   so do make sure your css is valid!
 	 *
-	 * @param string $css Some css code
-	 * @return bool Adds the CSS to the Utils::$context['css_header'] array or returns if no CSS is specified
+	 * @param string $css Some CSS code.
+	 * @param bool $noscript Whether to wrap this CSS in <noscript> tags.
+	 *    Default: false.
+	 * @return bool Whether the the CSS was added.
 	 */
-	public static function addInlineCss(string $css): bool
+	public static function addInlineCss(string $css, bool $noscript = false): bool
 	{
 		// Gotta add something...
 		if (empty($css)) {
 			return false;
 		}
 
-		Utils::$context['css_header'][] = $css;
+		Utils::$context[$noscript ? 'css_noscript_header' : 'css_header'][] = $css;
 
 		return true;
 	}
@@ -713,9 +728,9 @@ class Theme
 	 */
 	public static function loadJavaScriptFile(string $fileName, array $params = [], string $id = ''): void
 	{
-		$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
-			(array_key_exists('browser_cache', Utils::$context) ? Utils::$context['browser_cache'] : '') :
-			(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+		$params['seed'] = (!\array_key_exists('seed', $params) || (\array_key_exists('seed', $params) && $params['seed'] === true)) ?
+			(\array_key_exists('browser_cache', Utils::$context) ? Utils::$context['browser_cache'] : '') :
+			(\is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 		$params['force_current'] = $params['force_current'] ?? false;
 		$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 		$params['async'] = $params['async'] ?? false;
@@ -782,13 +797,13 @@ class Theme
 	public static function addJavaScriptVar(string $key, mixed $value, bool $escape = false): void
 	{
 		// Variable name must be a valid string.
-		if (!is_string($key) || $key === '' || is_numeric($key)) {
+		if (!\is_string($key) || $key === '' || is_numeric($key)) {
 			return;
 		}
 
 		// Take care of escaping the value for JavaScript?
 		if (!empty($escape)) {
-			switch (gettype($value)) {
+			switch (\gettype($value)) {
 				// Illegal.
 				case 'resource':
 					break;
@@ -804,7 +819,7 @@ class Theme
 					array_walk_recursive(
 						$value,
 						function ($v, $k) use (&$replacements) {
-							if (is_string($v)) {
+							if (\is_string($v)) {
 								$replacements[json_encode($v)] = Utils::escapeJavaScript($v, true);
 							}
 						},
@@ -824,7 +839,7 @@ class Theme
 
 		// At this point, value should contain suitably escaped JavaScript code.
 		// If it obviously doesn't, declare the var with an undefined value.
-		if (!is_string($value) && !is_numeric($value)) {
+		if (!\is_string($value) && !is_numeric($value)) {
 			$value = null;
 		}
 
@@ -883,7 +898,7 @@ class Theme
 		// Get some news...
 		Utils::$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes(Config::$modSettings['news'])))));
 
-		for ($i = 0, $n = count(Utils::$context['news_lines']); $i < $n; $i++) {
+		for ($i = 0, $n = \count(Utils::$context['news_lines']); $i < $n; $i++) {
 			if (trim(Utils::$context['news_lines'][$i]) == '') {
 				continue;
 			}
@@ -898,7 +913,7 @@ class Theme
 		}
 
 		if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged)) {
-			Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)];
+			Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, \count(Utils::$context['news_lines']) - 1)];
 		}
 
 		if (!User::$me->is_guest) {
@@ -937,8 +952,8 @@ class Theme
 			self::addInlineJavaScript('
 			jQuery(document).ready(function($) {
 				new smc_Popup({
-					heading: ' . Utils::escapeJavaScript(Lang::$txt['show_personal_messages_heading']) . ',
-					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
+					heading: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages_heading', file: 'General')) . ',
+					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'], file: 'General')) . ',
 					icon_class: \'main_icons mail_new\'
 				});
 			});');
@@ -946,7 +961,7 @@ class Theme
 
 		// Add a generic "Are you sure?" confirmation message.
 		self::addInlineJavaScript('
-		var smf_you_sure =' . Utils::escapeJavaScript(Lang::$txt['quickmod_confirm']) . ';');
+		var smf_you_sure =' . Utils::escapeJavaScript(Lang::getTxt('quickmod_confirm', file: 'General')) . ';');
 
 		// Now add the capping code for avatars.
 		if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize') {
@@ -981,6 +996,7 @@ class Theme
 				'topics' => Utils::$context['common_stats']['total_topics'],
 				'members' => Utils::$context['common_stats']['total_members'],
 			],
+			file: 'General',
 		);
 
 		if (empty(self::$current->settings['theme_version'])) {
@@ -1001,6 +1017,7 @@ class Theme
 					'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
 					'pagenum' => Utils::$context['current_page'] + 1,
 				],
+				file: 'General',
 			);
 		}
 
@@ -1051,8 +1068,6 @@ class Theme
 
 		$cacheTime = (int) Config::$modSettings['lastActive'] * 60;
 
-		Lang::load('Calendar');
-
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event'])) {
 			Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && User::$me->allowedTo('calendar_post');
@@ -1087,7 +1102,7 @@ class Theme
 		if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated']) {
 			$buttons = [
 				'home' => [
-					'title' => Lang::$txt['home'],
+					'title' => Lang::getTxt('home', file: 'General'),
 					'href' => Config::$scripturl,
 					'show' => true,
 					'sub_buttons' => [
@@ -1095,39 +1110,39 @@ class Theme
 					'is_last' => Utils::$context['right_to_left'],
 				],
 				'search' => [
-					'title' => Lang::$txt['search'],
+					'title' => Lang::getTxt('search', file: 'General'),
 					'href' => Config::$scripturl . '?action=search',
 					'show' => Utils::$context['allow_search'],
 					'sub_buttons' => [
 					],
 				],
 				'admin' => [
-					'title' => Lang::$txt['admin'],
+					'title' => Lang::getTxt('admin', file: 'General'),
 					'href' => Config::$scripturl . '?action=admin',
 					'show' => Utils::$context['allow_admin'],
 					'sub_buttons' => [
 						'featuresettings' => [
-							'title' => Lang::$txt['modSettings_title'],
+							'title' => Lang::getTxt('modSettings_title', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=featuresettings',
 							'show' => User::$me->allowedTo('admin_forum'),
 						],
 						'packages' => [
-							'title' => Lang::$txt['package'],
+							'title' => Lang::getTxt('package', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=packages',
 							'show' => User::$me->allowedTo('admin_forum'),
 						],
 						'errorlog' => [
-							'title' => Lang::$txt['errorlog'],
+							'title' => Lang::getTxt('errorlog', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 							'show' => User::$me->allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
 						],
 						'permissions' => [
-							'title' => Lang::$txt['edit_permissions'],
+							'title' => Lang::getTxt('edit_permissions', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=permissions',
 							'show' => User::$me->allowedTo('manage_permissions'),
 						],
 						'memberapprove' => [
-							'title' => Lang::$txt['approve_members_waiting'],
+							'title' => Lang::getTxt('approve_members_waiting', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 							'show' => !empty(Utils::$context['unapproved_members']),
 							'is_last' => true,
@@ -1135,32 +1150,32 @@ class Theme
 					],
 				],
 				'moderate' => [
-					'title' => Lang::$txt['moderate'],
+					'title' => Lang::getTxt('moderate', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate',
 					'show' => Utils::$context['allow_moderation_center'],
 					'sub_buttons' => [
 						'modlog' => [
-							'title' => Lang::$txt['modlog_view'],
+							'title' => Lang::getTxt('modlog_view', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=modlog',
 							'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 						],
 						'poststopics' => [
-							'title' => Lang::$txt['mc_unapproved_poststopics'],
+							'title' => Lang::getTxt('mc_unapproved_poststopics', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
 							'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 						],
 						'attachments' => [
-							'title' => Lang::$txt['mc_unapproved_attachments'],
+							'title' => Lang::getTxt('mc_unapproved_attachments', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 							'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 						],
 						'reports' => [
-							'title' => Lang::$txt['mc_reported_posts'],
+							'title' => Lang::getTxt('mc_reported_posts', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
 							'show' => !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 						],
 						'reported_members' => [
-							'title' => Lang::$txt['mc_reported_members'],
+							'title' => Lang::getTxt('mc_reported_members', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
 							'show' => User::$me->allowedTo('moderate_forum'),
 							'is_last' => true,
@@ -1168,17 +1183,17 @@ class Theme
 					],
 				],
 				'calendar' => [
-					'title' => Lang::$txt['calendar'],
+					'title' => Lang::getTxt('calendar', file: 'Calendar'),
 					'href' => Config::$scripturl . '?action=calendar',
 					'show' => Utils::$context['allow_calendar'],
 					'sub_buttons' => [
 						'view' => [
-							'title' => Lang::$txt['calendar_menu'],
+							'title' => Lang::getTxt('calendar_menu', file: 'General'),
 							'href' => Config::$scripturl . '?action=calendar',
 							'show' => Utils::$context['allow_calendar_event'],
 						],
 						'post' => [
-							'title' => Lang::$txt['calendar_post_event'],
+							'title' => Lang::getTxt('calendar_post_event', file: 'Calendar'),
 							'href' => Config::$scripturl . '?action=calendar;sa=post',
 							'show' => Utils::$context['allow_calendar_event'],
 							'is_last' => true,
@@ -1186,17 +1201,17 @@ class Theme
 					],
 				],
 				'mlist' => [
-					'title' => Lang::$txt['members_title'],
+					'title' => Lang::getTxt('members_title', file: 'General'),
 					'href' => Config::$scripturl . '?action=mlist',
 					'show' => Utils::$context['allow_memberlist'],
 					'sub_buttons' => [
 						'mlist_view' => [
-							'title' => Lang::$txt['mlist_menu_view'],
+							'title' => Lang::getTxt('mlist_menu_view', file: 'General'),
 							'href' => Config::$scripturl . '?action=mlist',
 							'show' => true,
 						],
 						'mlist_search' => [
-							'title' => Lang::$txt['mlist_search'],
+							'title' => Lang::getTxt('mlist_search', file: 'General'),
 							'href' => Config::$scripturl . '?action=mlist;sa=search',
 							'show' => true,
 							'is_last' => true,
@@ -1208,16 +1223,16 @@ class Theme
 				// the main forum menu on your theme, set Theme::$current->settings['login_main_menu'] to
 				// true in your theme's template_init() function in index.template.php.
 				'login' => [
-					'title' => Lang::$txt['login'],
+					'title' => Lang::getTxt('login', file: 'General'),
 					'href' => Config::$scripturl . '?action=login',
-					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
 					'show' => User::$me->is_guest && !empty(self::$current->settings['login_main_menu']),
 					'sub_buttons' => [
 					],
 					'is_last' => !Utils::$context['right_to_left'],
 				],
 				'logout' => [
-					'title' => Lang::$txt['logout'],
+					'title' => Lang::getTxt('logout', file: 'General'),
 					'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'show' => !User::$me->is_guest && !empty(self::$current->settings['login_main_menu']),
 					'sub_buttons' => [
@@ -1225,7 +1240,7 @@ class Theme
 					'is_last' => !Utils::$context['right_to_left'],
 				],
 				'signup' => [
-					'title' => Lang::$txt['register'],
+					'title' => Lang::getTxt('register', file: 'General'),
 					'href' => Config::$scripturl . '?action=signup',
 					'icon' => 'regcenter',
 					'show' => User::$me->is_guest && Utils::$context['can_register'] && !empty(self::$current->settings['login_main_menu']),
@@ -1296,7 +1311,7 @@ class Theme
 
 		// Logging out requires the session id in the url.
 		if (isset(Utils::$context['menu_buttons']['logout'])) {
-			Utils::$context['menu_buttons']['logout']['href'] = sprintf(Utils::$context['menu_buttons']['logout']['href'], Utils::$context['session_var'], Utils::$context['session_id']);
+			Utils::$context['menu_buttons']['logout']['href'] = \sprintf(Utils::$context['menu_buttons']['logout']['href'], Utils::$context['session_var'], Utils::$context['session_id']);
 		}
 
 		// Figure out which action we are doing so we can set the active tab.
@@ -1338,7 +1353,6 @@ class Theme
 			// Get an error count, if necessary
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
@@ -1397,13 +1411,13 @@ class Theme
 			if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie')) {
 				header('content-type: application/xhtml+xml');
 			} elseif (!isset($_REQUEST['xml'])) {
-				header('content-type: text/html; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: text/html; charset=UTF-8');
 			}
 		}
 
 		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? (isset($_REQUEST['xml']) ? 'application/xml' : 'text/html');
 
-		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		header('Content-Type: ' . $content_type . '; charset=UTF-8');
 
 		// Collect layers to be added
 		$layers = [];
@@ -1463,7 +1477,7 @@ class Theme
 		Utils::$context['load_time'] = round(microtime(true) - TIME_START, 3);
 		Utils::$context['load_queries'] = Db::$count;
 
-		if (!empty(Utils::$context['template_layers']) && is_array(Utils::$context['template_layers'])) {
+		if (!empty(Utils::$context['template_layers']) && \is_array(Utils::$context['template_layers'])) {
 			foreach (array_reverse(Utils::$context['template_layers']) as $layer) {
 				self::loadSubTemplate($layer . '_below', true);
 			}
@@ -1492,11 +1506,11 @@ class Theme
 			echo "\n\t<script>";
 
 			foreach (Utils::$context['javascript_vars'] as $key => $value) {
-				if (!is_string($key) || is_numeric($key)) {
+				if (!\is_string($key) || is_numeric($key)) {
 					continue;
 				}
 
-				if (!is_string($value) && !is_numeric($value)) {
+				if (!\is_string($value) && !is_numeric($value)) {
 					$value = null;
 				}
 
@@ -1512,7 +1526,7 @@ class Theme
 			// While we have JavaScript files to place in the template.
 			foreach (Utils::$context['javascript_files'] as $id => $js_file) {
 				// Last minute call! allow theme authors to disable single files.
-				if (!empty(self::$current->settings['disable_files']) && in_array($id, self::$current->settings['disable_files'])) {
+				if (!empty(self::$current->settings['disable_files']) && \in_array($id, self::$current->settings['disable_files'])) {
 					continue;
 				}
 
@@ -1535,7 +1549,7 @@ class Theme
 
 					if (!empty($js_file['options']['attributes'])) {
 						foreach ($js_file['options']['attributes'] as $key => $value) {
-							if (is_bool($value)) {
+							if (\is_bool($value)) {
 								echo !empty($value) ? ' ' . $key : '';
 							} else {
 								echo ' ', $key, '="', $value, '"';
@@ -1594,88 +1608,108 @@ class Theme
 		// Use this hook to minify/optimize CSS files
 		IntegrationHook::call('integrate_pre_css_output');
 
-		$toMinify = [];
-		$normal = [];
-
-		uasort(
-			Utils::$context['css_files'],
-			function ($a, $b) {
-				return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-			},
-		);
-
-		foreach (Utils::$context['css_files'] as $id => $file) {
-			// Last minute call! allow theme authors to disable single files.
-			if (!empty(self::$current->settings['disable_files']) && in_array($id, self::$current->settings['disable_files'])) {
-				continue;
-			}
-
-			// Files are minimized unless they explicitly opt out.
-			if (!isset($file['options']['minimize'])) {
-				$file['options']['minimize'] = true;
-			}
-
-			if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss'])) {
-				$toMinify[] = $file;
-
-				// Grab a random seed.
-				if (!isset($minSeed) && isset($file['options']['seed'])) {
-					$minSeed = $file['options']['seed'];
+		foreach (['css', 'css_noscript'] as $css_group) {
+			if ($css_group === 'css_noscript') {
+				if (
+					empty(Utils::$context[$css_group . '_files'])
+					&& empty(Utils::$context[$css_group . '_header'])
+				) {
+					break;
 				}
-			} else {
-				$normal[] = [
-					'url' => $file['fileUrl'] . ($file['options']['seed'] ?? ''),
-					'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : [],
-				];
+
+				Utils::$context[$css_group . '_files'] = Utils::$context[$css_group . '_files'] ?? [];
+				Utils::$context[$css_group . '_header'] = Utils::$context[$css_group . '_header'] ?? [];
+
+				echo "\n\t" . '<noscript>';
 			}
-		}
 
-		if (!empty($toMinify)) {
-			$result = self::custMinify($toMinify, 'css');
+			$toMinify = [];
+			$normal = [];
 
-			$minSuccessful = array_keys($result) === ['smf_minified'];
+			uasort(
+				Utils::$context[$css_group . '_files'],
+				function ($a, $b) {
+					return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+				},
+			);
 
-			foreach ($result as $minFile) {
-				echo "\n\t" . '<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
+			foreach (Utils::$context[$css_group . '_files'] as $id => $file) {
+				// Last minute call! allow theme authors to disable single files.
+				if (!empty(self::$current->settings['disable_files']) && \in_array($id, self::$current->settings['disable_files'])) {
+					continue;
+				}
+
+				// Files are minimized unless they explicitly opt out.
+				if (!isset($file['options']['minimize'])) {
+					$file['options']['minimize'] = true;
+				}
+
+				if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss'])) {
+					$toMinify[] = $file;
+
+					// Grab a random seed.
+					if (!isset($minSeed) && isset($file['options']['seed'])) {
+						$minSeed = $file['options']['seed'];
+					}
+				} else {
+					$normal[] = [
+						'url' => $file['fileUrl'] . ($file['options']['seed'] ?? ''),
+						'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : [],
+					];
+				}
 			}
-		}
 
-		// Print the rest after the minified files.
-		if (!empty($normal)) {
-			foreach ($normal as $nf) {
-				echo "\n\t" . '<link rel="stylesheet" href="', $nf['url'], '"';
+			if (!empty($toMinify)) {
+				$result = self::custMinify($toMinify, 'css');
 
-				if (!empty($nf['attributes'])) {
-					foreach ($nf['attributes'] as $key => $value) {
-						if (is_bool($value)) {
-							echo !empty($value) ? ' ' . $key : '';
-						} else {
-							echo ' ', $key, '="', $value, '"';
+				$minSuccessful = array_keys($result) === ['smf_minified'];
+
+				foreach ($result as $minFile) {
+					echo "\n\t" . '<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
+				}
+			}
+
+			// Print the rest after the minified files.
+			if (!empty($normal)) {
+				foreach ($normal as $nf) {
+					echo "\n\t" . '<link rel="stylesheet" href="', $nf['url'], '"';
+
+					if (!empty($nf['attributes'])) {
+						foreach ($nf['attributes'] as $key => $value) {
+							if (\is_bool($value)) {
+								echo !empty($value) ? ' ' . $key : '';
+							} else {
+								echo ' ', $key, '="', $value, '"';
+							}
 						}
 					}
+
+					echo '>';
+				}
+			}
+
+			if (DebugUtils::isDebugEnabled()) {
+				// Try to keep only what's useful.
+				$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
+
+				foreach (Utils::$context[$css_group . '_files'] as $file) {
+					DebugUtils::addDebugSource('sheets', strtr($file['fileUrl'], $repl));
+				}
+			}
+
+			if (!empty(Utils::$context[$css_group . '_header'])) {
+				echo "\n\t" . '<style>';
+
+				foreach (Utils::$context[$css_group . '_header'] as $css) {
+					echo "\n\t" . trim($css);
 				}
 
-				echo '>';
-			}
-		}
-
-		if (!empty(Config::$db_show_debug)) {
-			// Try to keep only what's useful.
-			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
-
-			foreach (Utils::$context['css_files'] as $file) {
-				Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
-			}
-		}
-
-		if (!empty(Utils::$context['css_header'])) {
-			echo "\n\t" . '<style>';
-
-			foreach (Utils::$context['css_header'] as $css) {
-				echo "\n\t" . trim($css);
+				echo "\n\t" . '</style>';
 			}
 
-			echo "\n\t" . '</style>';
+			if ($css_group === 'css_noscript') {
+				echo "\n\t" . '</noscript>';
+			}
 		}
 	}
 
@@ -1690,8 +1724,8 @@ class Theme
 	public static function custMinify(array $data, string $type): array
 	{
 		$types = ['css', 'js'];
-		$type = !empty($type) && in_array($type, $types) ? $type : false;
-		$data = is_array($data) ? $data : [];
+		$type = !empty($type) && \in_array($type, $types) ? $type : false;
+		$data = \is_array($data) ? $data : [];
 
 		if (empty($type) || empty($data)) {
 			return $data;
@@ -1739,8 +1773,7 @@ class Theme
 
 		// File has to exist. If it doesn't, try to create it.
 		if (@fopen($minified_file, 'w') === false || !Utils::makeWritable($minified_file)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file], file: 'Errors'), 'general');
 
 			// The process failed, so roll back to print each individual file.
 			return $data;
@@ -1756,8 +1789,7 @@ class Theme
 
 			// The file couldn't be located so it won't be added. Log this error.
 			if (empty($toAdd)) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id]), 'general');
+				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id], file: 'Errors'), 'general');
 
 				continue;
 			}
@@ -1773,8 +1805,7 @@ class Theme
 
 		// Minify process failed.
 		if (!filesize($minified_file)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file], file: 'Errors'), 'general');
 
 			// The process failed so roll back to print each individual file.
 			return $data;
@@ -1798,7 +1829,6 @@ class Theme
 
 		// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme AS id, value AS dir
 			FROM {db_prefix}themes
 			WHERE variable = {string:var}',
@@ -1830,8 +1860,7 @@ class Theme
 
 		// If any of the files could not be deleted, log an error about it.
 		if (!empty($not_deleted)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)]), 'general');
+			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)], file: 'Errors'), 'general');
 		}
 	}
 
@@ -1899,7 +1928,7 @@ class Theme
 			$themeData = $temp;
 
 			// If $member is 0 or -1, we might already have everything we need.
-			if (array_key_exists($member, $themeData)) {
+			if (\array_key_exists($member, $themeData)) {
 				$flag = !empty($themeData[0]) && !empty($themeData[-1]);
 			}
 			// Nothing cached for this member.
@@ -1909,7 +1938,7 @@ class Theme
 		} else {
 			$themeData = [-1 => [], 0 => []];
 
-			if (!array_key_exists($member, $themeData)) {
+			if (!\array_key_exists($member, $themeData)) {
 				$themeData[$member] = [];
 			}
 		}
@@ -1917,7 +1946,6 @@ class Theme
 		if (empty($flag)) {
 			// Load variables from the current or default theme, global or this user's.
 			$result = Db::$db->query(
-				'',
 				'SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN ({array_int:members})' : ' = {int:id_member}') . '
@@ -1934,12 +1962,12 @@ class Theme
 			// Pick between $this->settings and $this->options depending on whose data it is.
 			foreach (Db::$db->fetch_all($result) as $row) {
 				// There are just things we shouldn't be able to change as members.
-				if ($row['id_member'] != 0 && in_array($row['variable'], self::$reservedVars)) {
+				if ($row['id_member'] != 0 && \in_array($row['variable'], self::$reservedVars)) {
 					continue;
 				}
 
 				// If this is the theme_dir of the default theme, store it.
-				if (in_array($row['variable'], ['theme_dir', 'theme_url', 'images_url']) && $row['id_theme'] == '1' && empty($row['id_member'])) {
+				if (\in_array($row['variable'], ['theme_dir', 'theme_url', 'images_url']) && $row['id_theme'] == '1' && empty($row['id_member'])) {
 					$themeData[0]['default_' . $row['variable']] = $row['value'];
 				}
 
@@ -2029,7 +2057,7 @@ class Theme
 	{
 		$smiley_sets_known = explode(',', Config::$modSettings['smiley_sets_known'] ?? '');
 
-		if (empty(Config::$modSettings['smiley_sets_enable']) || (User::$me->smiley_set != 'none' && !in_array(User::$me->smiley_set, $smiley_sets_known))) {
+		if (empty(Config::$modSettings['smiley_sets_enable']) || (User::$me->smiley_set != 'none' && !\in_array(User::$me->smiley_set, $smiley_sets_known))) {
 			User::$me->smiley_set = !empty($this->settings['smiley_sets_default']) ? $this->settings['smiley_sets_default'] : Config::$modSettings['smiley_sets_default'];
 		}
 	}
@@ -2043,23 +2071,25 @@ class Theme
 		Utils::$context['insert_after_template'] = '';
 
 		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
-		IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		}
 
 		Utils::$context['simple_action'] = (
 			(Forum::getCurrentAction())?->isSimpleAction() === true
-			|| in_array(Utils::$context['current_action'], $this->simpleActions)
+			|| \in_array(Utils::$context['current_action'], $this->simpleActions)
 			|| (
 				isset($this->simpleAreas[Utils::$context['current_action']], $_REQUEST['area'])
-				&& in_array($_REQUEST['area'], $this->simpleAreas[Utils::$context['current_action']])
+				&& \in_array($_REQUEST['area'], $this->simpleAreas[Utils::$context['current_action']])
 			)
 			|| (
 				isset($this->simpleSubActions[Utils::$context['current_action']])
-				&& in_array(Utils::$context['current_subaction'], $this->simpleSubActions[Utils::$context['current_action']])
+				&& \in_array(Utils::$context['current_subaction'], $this->simpleSubActions[Utils::$context['current_action']])
 			)
 		);
 
 		// See if there is any extra param to check.
-		$requires_xml = false;
+		$requires_xml = Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml;
 
 		foreach ($this->extraParams as $key => $extra) {
 			if (isset($_REQUEST[$extra])) {
@@ -2069,17 +2099,16 @@ class Theme
 			}
 		}
 
-		// Output is fully XML, so no need for the index template.
-		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requires_xml)) {
-			self::loadTemplate('Xml');
-			Utils::$context['template_layers'] = [];
-		}
-
 		// Attempt to load language files.
 		Lang::load('General+ThemeStrings+Modifications', '', false);
 
+		// Output is fully XML, so no need for the index template.
+		if (isset($_REQUEST['xml']) && (\in_array(Utils::$context['current_action'], $this->xmlActions) || $requires_xml)) {
+			self::loadTemplate('Xml');
+			Utils::$context['template_layers'] = [];
+		}
 		// These actions don't require the index template at all.
-		if (!empty(Utils::$context['simple_action'])) {
+		elseif (!empty(Utils::$context['simple_action'])) {
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?
@@ -2124,6 +2153,8 @@ class Theme
 		if (Utils::$context['right_to_left']) {
 			self::loadCSSFile('rtl.css', ['order_pos' => 4000], 'smf_rtl');
 		}
+
+		self::loadCSSFile('noscript.css', ['minimize' => true, 'order_pos' => 1, 'noscript' => true], 'smf_noscript');
 	}
 
 	/**
@@ -2143,12 +2174,12 @@ class Theme
 
 			// User selection?
 			if (empty($this->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum')) {
-				Utils::$context['theme_variant'] = !empty($_SESSION['id_variant']) && in_array($_SESSION['id_variant'], $this->settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($this->options['theme_variant']) && in_array($this->options['theme_variant'], $this->settings['theme_variants']) ? $this->options['theme_variant'] : '');
+				Utils::$context['theme_variant'] = !empty($_SESSION['id_variant']) && \in_array($_SESSION['id_variant'], $this->settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($this->options['theme_variant']) && \in_array($this->options['theme_variant'], $this->settings['theme_variants']) ? $this->options['theme_variant'] : '');
 			}
 
 			// If not a user variant, select the default.
-			if (Utils::$context['theme_variant'] == '' || !in_array(Utils::$context['theme_variant'], $this->settings['theme_variants'])) {
-				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
+			if (Utils::$context['theme_variant'] == '' || !\in_array(Utils::$context['theme_variant'], $this->settings['theme_variants'])) {
+				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && \in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
 			}
 
 			// Do this to keep things easier in the templates.
@@ -2180,18 +2211,17 @@ class Theme
 			'smf_smiley_sets_default' => '"' . Config::$modSettings['smiley_sets_default'] . '"',
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
-			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
-			'smf_charset' => '"' . Utils::$context['character_set'] . '"',
+			'smf_charset' => '"UTF-8"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 			'smf_member_id' => User::$me->id,
-			'ajax_notification_text' => Utils::escapeJavaScript(Lang::$txt['ajax_in_progress']),
-			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::$txt['help_popup']),
-			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name])),
-			'smf_txt_expand' => Utils::escapeJavaScript(Lang::$txt['code_expand']),
-			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::$txt['code_shrink']),
-			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::$txt['hide']),
-			'smf_expandAlt' => Utils::escapeJavaScript(Lang::$txt['show']),
+			'ajax_notification_text' => Utils::escapeJavaScript(Lang::getTxt('ajax_in_progress', file: 'General')),
+			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::getTxt('help_popup', file: 'General')),
+			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name], file: 'General')),
+			'smf_txt_expand' => Utils::escapeJavaScript(Lang::getTxt('code_expand', file: 'General')),
+			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::getTxt('code_shrink', file: 'General')),
+			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')),
+			'smf_expandAlt' => Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')),
 			'smf_quote_expand' => !empty(Config::$modSettings['quote_expand']) ? Config::$modSettings['quote_expand'] : 'false',
 			'allow_xhjr_credentials' => !empty(Config::$modSettings['allow_cors_credentials']) ? 'true' : 'false',
 		];
@@ -2204,7 +2234,7 @@ class Theme
 			'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-' . JQUERY_VERSION . '.min.js',
 		];
 
-		if (isset(Config::$modSettings['jquery_source']) && array_key_exists(Config::$modSettings['jquery_source'], $jQueryUrls)) {
+		if (isset(Config::$modSettings['jquery_source']) && \array_key_exists(Config::$modSettings['jquery_source'], $jQueryUrls)) {
 			self::loadJavaScriptFile($jQueryUrls[Config::$modSettings['jquery_source']], ['external' => true, 'seed' => false], 'smf_jquery');
 		} elseif (isset(Config::$modSettings['jquery_source']) && Config::$modSettings['jquery_source'] == 'local') {
 			self::loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', ['seed' => false], 'smf_jquery');
@@ -2269,14 +2299,14 @@ class Theme
 				if (
 					!empty($element['groups'])
 					&& (
-						count(array_intersect(User::$me->groups, $element['groups'])) == 0
+						\count(array_intersect(User::$me->groups, $element['groups'])) == 0
 						|| (
 							!empty(Config::$modSettings['deny_boards_access'])
-							&& count(array_intersect(User::$me->groups, $element['deny_groups'])) != 0
+							&& \count(array_intersect(User::$me->groups, $element['deny_groups'])) != 0
 						)
 					)
 				) {
-					Utils::$context['linktree'][$k]['name'] = Lang::$txt['restricted_board'];
+					Utils::$context['linktree'][$k]['name'] = Lang::getTxt('restricted_board', file: 'General');
 					Utils::$context['linktree'][$k]['extra_before'] = '<i>';
 					Utils::$context['linktree'][$k]['extra_after'] = '</i>';
 					unset(Utils::$context['linktree'][$k]['url']);
@@ -2307,7 +2337,7 @@ class Theme
 		@ini_set('track_errors', '1');
 
 		// Don't include the file more than once, if $once is true.
-		if ($once && in_array($filename, $templates)) {
+		if ($once && \in_array($filename, $templates)) {
 			return;
 		}
 
@@ -2317,9 +2347,9 @@ class Theme
 		$file_found = file_exists($filename);
 
 		if ($once && $file_found) {
-			require_once $filename;
+			require_once Config::canonicalPath($filename);
 		} elseif ($file_found) {
-			require $filename;
+			require Config::canonicalPath($filename);
 		}
 
 		if ($file_found !== true) {
@@ -2332,7 +2362,7 @@ class Theme
 			}
 
 			if (isset($_GET['debug'])) {
-				header('content-type: application/xhtml+xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: application/xhtml+xml; charset=UTF-8');
 			}
 
 			// Don't cache error pages!!
@@ -2340,42 +2370,50 @@ class Theme
 			header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 			header('cache-control: no-cache');
 
-			if (!isset(Lang::$txt['template_parse_error'])) {
-				Lang::$txt['template_parse_error'] = 'Template Parse Error!';
-				Lang::$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-				Lang::$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
-				Lang::$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
+			if (!Lang::txtExists('template_parse_error')) {
+				Lang::setTxt(
+					'template_parse_error',
+					'Template Parse Error!',
+				);
+				Lang::setTxt(
+					'template_parse_error_message',
+					'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.',
+				);
+				Lang::setTxt(
+					'template_parse_error_details',
+					'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.',
+				);
+				Lang::setTxt(
+					'template_parse_errmsg',
+					'Unfortunately more information is not available at this time as to exactly what is wrong.',
+				);
 			}
 
 			// First, let's get the doctype and language information out of the way.
-			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>';
-
-			if (isset(Utils::$context['character_set'])) {
-				echo "\n\t\t" . '<meta charset="', Utils::$context['character_set'], '">';
-			}
+			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>' . "\n\t\t" . '<meta charset="UTF-8">';
 
 			if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum')) {
 				echo "\n\t\t" . '<title>', Config::$mtitle, '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Config::$mtitle, '</h3>' . "\n\t\t", Config::$mmessage, "\n\t" . '</body>' . "\n" . '</html>';
 			} elseif (!User::$me->allowedTo('admin_forum')) {
-				echo "\n\t" . '<title>', Lang::$txt['template_parse_error'], '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t\t", Lang::$txt['template_parse_error_message'], "\n\t" . '</body>' . "\n" . '</html>';
+				echo "\n\t" . '<title>', Lang::getTxt('template_parse_error', file: 'General'), '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Lang::getTxt('template_parse_error', file: 'General'), '</h3>' . "\n\t\t", Lang::getTxt('template_parse_error_message', file: 'General'), "\n\t" . '</body>' . "\n" . '</html>';
 			} else {
 				$error = WebFetchApi::fetch(Config::$boardurl . strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']));
 
 				$error_array = error_get_last();
 
-				if (empty($error) && ini_get('track_errors') && !empty($error_array)) {
+				if (empty($error) && \ini_get('track_errors') && !empty($error_array)) {
 					$error = $error_array['message'];
 				}
 
 				if (empty($error)) {
-					$error = Lang::$txt['template_parse_errmsg'];
+					$error = Lang::getTxt('template_parse_errmsg', file: 'General');
 				}
 
 				$error = strtr($error, ['<b>' => '<strong>', '</b>' => '</strong>']);
 
-				echo "\n\t\t" . '<title>', Lang::$txt['template_parse_error'], '</title>' . "\n\t" . '</head>';
+				echo "\n\t\t" . '<title>', Lang::getTxt('template_parse_error', file: 'General'), '</title>' . "\n\t" . '</head>';
 
-				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t";
+				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::getTxt('template_parse_error', file: 'General'), '</h3>' . "\n\t";
 
 				echo Lang::getTxt(
 					'template_parse_error_details',
@@ -2384,6 +2422,7 @@ class Theme
 						'boardurl' => Config::$boardurl,
 						'scripturl' => Config::$scripturl,
 					],
+					file: 'General',
 				);
 
 				if (!empty($error)) {
@@ -2440,12 +2479,12 @@ class Theme
 					}
 
 					// Show the relevant lines...
-					for ($n = min($match[1] + 4, count($data2) + 1); $line <= $n; $line++) {
+					for ($n = min($match[1] + 4, \count($data2) + 1); $line <= $n; $line++) {
 						if ($line == $match[1]) {
 							echo '</pre><div style="background-color: #ffb0b5;"><pre style="margin: 0;">';
 						}
 
-						echo '<span style="color: black;">', sprintf('%' . strlen($n) . 's', $line), ':</span> ';
+						echo '<span style="color: black;">', \sprintf('%' . \strlen((string) $n) . 's', $line), ':</span> ';
 
 						if (isset($data2[$line]) && $data2[$line] != '') {
 							echo str_starts_with($data2[$line], '</') ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
@@ -2477,5 +2516,3 @@ class Theme
 		}
 	}
 }
-
-?>

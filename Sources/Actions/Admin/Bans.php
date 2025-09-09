@@ -12,7 +12,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -20,8 +20,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Bans implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -89,10 +88,10 @@ class Bans implements ActionInterface
 
 		User::$me->isAllowedTo('manage_bans');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -107,7 +106,7 @@ class Bans implements ActionInterface
 	public function list(): void
 	{
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 
 			// Make sure every entry is a proper integer.
@@ -132,7 +131,7 @@ class Bans implements ActionInterface
 
 		$listOptions = [
 			'id' => 'ban_list',
-			'title' => Lang::$txt['ban_title'],
+			'title' => Lang::getTxt('ban_title', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 			'default_sort_col' => 'added',
@@ -143,11 +142,11 @@ class Bans implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumBans',
 			],
-			'no_items_label' => Lang::$txt['ban_no_entries'],
+			'no_items_label' => Lang::getTxt('ban_no_entries', file: 'Admin'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['ban_name'],
+						'value' => Lang::getTxt('ban_name', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'name',
@@ -159,7 +158,7 @@ class Bans implements ActionInterface
 				],
 				'notes' => [
 					'header' => [
-						'value' => Lang::$txt['ban_notes'],
+						'value' => Lang::getTxt('ban_notes', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'notes',
@@ -172,7 +171,7 @@ class Bans implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['ban_reason'],
+						'value' => Lang::getTxt('ban_reason', file: 'General'),
 					],
 					'data' => [
 						'db' => 'reason',
@@ -185,7 +184,7 @@ class Bans implements ActionInterface
 				],
 				'added' => [
 					'header' => [
-						'value' => Lang::$txt['ban_added'],
+						'value' => Lang::getTxt('ban_added', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -205,22 +204,22 @@ class Bans implements ActionInterface
 				],
 				'expires' => [
 					'header' => [
-						'value' => Lang::$txt['ban_expires'],
+						'value' => Lang::getTxt('ban_expires', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// This ban never expires...whahaha.
 							if ($rowData['expire_time'] === null) {
-								return Lang::$txt['never'];
+								return Lang::getTxt('never', file: 'General');
 							}
 
 							// This ban has already expired.
 							if ($rowData['expire_time'] < time()) {
-								return sprintf('<span class="red">%1$s</span>', Lang::$txt['ban_expired']);
+								return \sprintf('<span class="red">%1$s</span>', Lang::getTxt('ban_expired', file: 'Admin'));
 							}
 
 							// Still need to wait a few days for this ban to expire.
-							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::$txt['ban_days']);
+							return \sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::getTxt('ban_days', file: 'Admin'));
 						},
 					],
 					'sort' => [
@@ -230,7 +229,7 @@ class Bans implements ActionInterface
 				],
 				'num_triggers' => [
 					'header' => [
-						'value' => Lang::$txt['ban_triggers'],
+						'value' => Lang::getTxt('ban_triggers', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'num_triggers',
@@ -242,12 +241,12 @@ class Bans implements ActionInterface
 				],
 				'actions' => [
 					'header' => [
-						'value' => Lang::$txt['ban_actions'],
+						'value' => Lang::getTxt('ban_actions', file: 'Admin'),
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . Lang::$txt['modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg={id_ban_group}">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_ban_group' => false,
 							],
@@ -261,8 +260,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban_group}">',
 							'params' => [
 								'id_ban_group' => false,
 							],
@@ -277,11 +276,11 @@ class Bans implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'top_of_list',
-					'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
+					'value' => '<input type="submit" name="removeBans" value="' . Lang::getTxt('ban_remove_selected', file: 'Admin') . '" class="button">',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
+					'value' => '<input type="submit" name="removeBans" value="' . Lang::getTxt('ban_remove_selected', file: 'Admin') . '" class="button">',
 				],
 			],
 			'javascript' => '
@@ -293,11 +292,11 @@ class Bans implements ActionInterface
 				if (removeItems == 0)
 				{
 					e.preventDefault();
-					return alert("' . Lang::$txt['select_item_check'] . '");
+					return alert("' . Lang::getTxt('select_item_check', file: 'General') . '");
 				}
 
 
-				return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
+				return confirm("' . Lang::getTxt('ban_remove_selected_confirm', file: 'Admin') . '");
 			});',
 		];
 
@@ -325,16 +324,13 @@ class Bans implements ActionInterface
 
 		$ban_group_id = Utils::$context['ban']['id'] ?? (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
 
-		// Template needs this to show errors using javascript
-		Lang::load('Errors');
-
 		SecurityToken::create('admin-bet');
 
 		Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edit';
 
 		if (!empty(Utils::$context['ban_errors'])) {
 			foreach (Utils::$context['ban_errors'] as $error) {
-				Utils::$context['error_messages'][$error] = Lang::$txt[$error];
+				Utils::$context['error_messages'][$error] = Lang::getTxt($error, file: 'Errors');
 			}
 		} else {
 			// If we're editing an existing ban, get it from the database.
@@ -344,7 +340,7 @@ class Bans implements ActionInterface
 				$listOptions = [
 					'id' => 'ban_items',
 					'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
-					'no_items_label' => Lang::$txt['ban_no_triggers'],
+					'no_items_label' => Lang::getTxt('ban_no_triggers', file: 'Errors'),
 					'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 					'get_items' => [
 						'function' => __CLASS__ . '::list_getBanItems',
@@ -361,27 +357,27 @@ class Bans implements ActionInterface
 					'columns' => [
 						'type' => [
 							'header' => [
-								'value' => Lang::$txt['ban_banned_entity'],
+								'value' => Lang::getTxt('ban_banned_entity', file: 'Admin'),
 								'style' => 'width: 60%;text-align: left;',
 							],
 							'data' => [
 								'function' => function ($ban_item) {
-									if (in_array($ban_item['type'], ['ip', 'hostname', 'email'])) {
-										return '<strong>' . Lang::$txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
+									if (\in_array($ban_item['type'], ['ip', 'hostname', 'email'])) {
+										return '<strong>' . Lang::getTxt($ban_item['type'], file: 'General') . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
 									}
 
 									if ($ban_item['type'] == 'user') {
-										return '<strong>' . Lang::$txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
+										return '<strong>' . Lang::getTxt('username', file: 'General') . ':</strong>&nbsp;' . $ban_item['user']['link'];
 									}
 
-									return '<strong>' . Lang::$txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
+									return '<strong>' . Lang::getTxt('unknown', file: 'General') . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
 								},
 								'style' => 'text-align: left;',
 							],
 						],
 						'hits' => [
 							'header' => [
-								'value' => Lang::$txt['ban_hits'],
+								'value' => Lang::getTxt('ban_hits', file: 'Admin'),
 								'style' => 'width: 15%; text-align: center;',
 							],
 							'data' => [
@@ -391,12 +387,12 @@ class Bans implements ActionInterface
 						],
 						'id' => [
 							'header' => [
-								'value' => Lang::$txt['ban_actions'],
+								'value' => Lang::getTxt('ban_actions', file: 'Admin'),
 								'style' => 'width: 15%; text-align: center;',
 							],
 							'data' => [
 								'function' => function ($ban_item) {
-									return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . Lang::$txt['ban_edit_trigger'] . '</a>';
+									return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . Lang::getTxt('ban_edit_trigger', file: 'Admin') . '</a>';
 								},
 								'style' => 'text-align: center;',
 							],
@@ -407,8 +403,8 @@ class Bans implements ActionInterface
 								'style' => 'width: 5%; text-align: center;',
 							],
 							'data' => [
-								'sprintf' => [
-									'format' => '<input type="checkbox" name="ban_items[]" value="%1$d">',
+								'format_text' => [
+									'format' => '<input type="checkbox" name="ban_items[]" value="{id}">',
 									'params' => [
 										'id' => false,
 									],
@@ -424,7 +420,7 @@ class Bans implements ActionInterface
 						[
 							'position' => 'above_column_headers',
 							'value' => '
-							<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
+							<input type="submit" name="remove_selection" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::getTxt('ban_add_trigger', file: 'Admin') . '</a>',
 							'style' => 'text-align: right;',
 						],
 						[
@@ -437,7 +433,7 @@ class Bans implements ActionInterface
 						[
 							'position' => 'below_table_data',
 							'value' => '
-							<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
+							<input type="submit" name="remove_selection" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::getTxt('ban_add_trigger', file: 'Admin') . '</a>',
 							'style' => 'text-align: right;',
 						],
 						[
@@ -457,11 +453,11 @@ class Bans implements ActionInterface
 				if (removeItems == 0)
 				{
 					e.preventDefault();
-					return alert("' . Lang::$txt['select_item_check'] . '");
+					return alert("' . Lang::getTxt('select_item_check', file: 'General') . '");
 				}
 
 
-				return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
+				return confirm("' . Lang::getTxt('ban_remove_selected_confirm', file: 'Admin') . '");
 			});',
 				];
 
@@ -501,7 +497,6 @@ class Bans implements ActionInterface
 				// Overwrite some of the default form values if a user ID was given.
 				if (!empty($_REQUEST['u'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, real_name, member_ip, email_address
 						FROM {db_prefix}members
 						WHERE id_member = {int:current_user}
@@ -545,7 +540,6 @@ class Bans implements ActionInterface
 				// We came from the mod center.
 				elseif (isset($_GET['msg']) && !empty($_GET['msg'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT poster_name, poster_ip, poster_email
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:message}
@@ -586,7 +580,7 @@ class Bans implements ActionInterface
 	 */
 	public function browseTriggers(): void
 	{
-		if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 
 			self::removeBanTriggers($_POST['remove']);
@@ -600,15 +594,15 @@ class Bans implements ActionInterface
 			Config::updateModSettings(['banLastUpdated' => time()]);
 		}
 
-		Utils::$context['selected_entity'] = isset($_REQUEST['entity']) && in_array($_REQUEST['entity'], ['ip', 'hostname', 'email', 'member']) ? $_REQUEST['entity'] : 'ip';
+		Utils::$context['selected_entity'] = isset($_REQUEST['entity']) && \in_array($_REQUEST['entity'], ['ip', 'hostname', 'email', 'member']) ? $_REQUEST['entity'] : 'ip';
 
 		$listOptions = [
 			'id' => 'ban_trigger_list',
-			'title' => Lang::$txt['ban_trigger_browse'],
+			'title' => Lang::getTxt('ban_trigger_browse', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . Utils::$context['selected_entity'],
 			'default_sort_col' => 'banned_entity',
-			'no_items_label' => Lang::$txt['ban_no_triggers'],
+			'no_items_label' => Lang::getTxt('ban_no_triggers', file: 'Admin'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getBanTriggers',
 				'params' => [
@@ -624,16 +618,16 @@ class Bans implements ActionInterface
 			'columns' => [
 				'banned_entity' => [
 					'header' => [
-						'value' => Lang::$txt['ban_banned_entity'],
+						'value' => Lang::getTxt('ban_banned_entity', file: 'Admin'),
 					],
 				],
 				'ban_name' => [
 					'header' => [
-						'value' => Lang::$txt['ban_name'],
+						'value' => Lang::getTxt('ban_name', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg={id_ban_group}">{name}</a>',
 							'params' => [
 								'id_ban_group' => false,
 								'name' => false,
@@ -647,7 +641,7 @@ class Bans implements ActionInterface
 				],
 				'hits' => [
 					'header' => [
-						'value' => Lang::$txt['ban_hits'],
+						'value' => Lang::getTxt('ban_hits', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'hits',
@@ -663,8 +657,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban}">',
 							'params' => [
 								'id_ban' => false,
 							],
@@ -681,11 +675,14 @@ class Bans implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['username'] . '</a>',
+					'value' => implode('&nbsp;|&nbsp;', array_map(
+						fn($entity) => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . $entity . '">' . (Utils::$context['selected_entity'] === $entity ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::getTxt($entity === 'member' ? 'username' : $entity, file: 'General') . '</a>',
+						['ip', 'hostname', 'email', 'member'],
+					)),
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="remove_triggers" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" data-confirm="' . Lang::$txt['ban_remove_selected_triggers_confirm'] . '" class="button you_sure">',
+					'value' => '<input type="submit" name="remove_triggers" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_remove_selected_triggers_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -723,8 +720,8 @@ class Bans implements ActionInterface
 			];
 		} elseif (Utils::$context['selected_entity'] === 'member') {
 			$listOptions['columns']['banned_entity']['data'] = [
-				'sprintf' => [
-					'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+				'format_text' => [
+					'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id_member}">{real_name}</a>',
 					'params' => [
 						'id_member' => false,
 						'real_name' => false,
@@ -809,7 +806,6 @@ class Bans implements ActionInterface
 			];
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
 					bi.ip_low, bi.ip_high,
@@ -884,7 +880,7 @@ class Bans implements ActionInterface
 
 		$listOptions = [
 			'id' => 'ban_log',
-			'title' => Lang::$txt['ban_log'],
+			'title' => Lang::getTxt('ban_log', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Utils::$context['admin_area'] == 'ban' ? Config::$scripturl . '?action=admin;area=ban;sa=log' : Config::$scripturl . '?action=admin;area=logs;sa=banlog',
 			'default_sort_col' => 'date',
@@ -894,15 +890,15 @@ class Bans implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumBanLogEntries',
 			],
-			'no_items_label' => Lang::$txt['ban_log_no_entries'],
+			'no_items_label' => Lang::getTxt('ban_log_no_entries', file: 'Admin'),
 			'columns' => [
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_ip'],
+						'value' => Lang::getTxt('ban_log_ip', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=trackip;searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -915,7 +911,7 @@ class Bans implements ActionInterface
 				],
 				'email' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_email'],
+						'value' => Lang::getTxt('ban_log_email', file: 'Admin'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'email',
@@ -927,11 +923,11 @@ class Bans implements ActionInterface
 				],
 				'member' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_member'],
+						'value' => Lang::getTxt('ban_log_member', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id_member}">{real_name}</a>',
 							'params' => [
 								'id_member' => false,
 								'real_name' => false,
@@ -945,7 +941,7 @@ class Bans implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_date'],
+						'value' => Lang::getTxt('ban_log_date', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -963,8 +959,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban_log}">',
 							'params' => [
 								'id_ban_log' => false,
 							],
@@ -983,14 +979,14 @@ class Bans implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeSelected" value="' . Lang::getTxt('ban_log_remove_selected', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_selected_confirm', file: 'Admin') . '" class="button you_sure">
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('ban_log_remove_all', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_all_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeSelected" value="' . Lang::getTxt('ban_log_remove_selected', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_selected_confirm', file: 'Admin') . '" class="button you_sure">
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('ban_log_remove_all', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_all_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -999,7 +995,7 @@ class Bans implements ActionInterface
 
 		new ItemList($listOptions);
 
-		Utils::$context['page_title'] = Lang::$txt['ban_log'];
+		Utils::$context['page_title'] = Lang::getTxt('ban_log', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'ban_log';
 	}
@@ -1025,7 +1021,6 @@ class Bans implements ActionInterface
 		$memberEmailWild = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bi.id_member, bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -1080,7 +1075,6 @@ class Bans implements ActionInterface
 		// Find all banned members.
 		if (!empty($queryPart)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.is_activated
 				FROM {db_prefix}members AS mem
 				WHERE ' . implode(' OR ', $queryPart),
@@ -1088,7 +1082,7 @@ class Bans implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!in_array($row['id_member'], $allMembers)) {
+				if (!\in_array($row['id_member'], $allMembers)) {
 					$allMembers[] = $row['id_member'];
 
 					// Do they need an update?
@@ -1104,7 +1098,6 @@ class Bans implements ActionInterface
 		// We welcome our new members in the realm of the banned.
 		if (!empty($newMembers)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_online
 				WHERE id_member IN ({array_int:new_banned_members})',
 				[
@@ -1115,7 +1108,6 @@ class Bans implements ActionInterface
 
 		// Find members that are wrongfully marked as banned.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.is_activated - {int:ban_flag} AS new_value
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
@@ -1131,7 +1123,7 @@ class Bans implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Don't do this twice!
-			if (!in_array($row['id_member'], $allMembers)) {
+			if (!\in_array($row['id_member'], $allMembers)) {
 				$updates[$row['new_value']][] = $row['id_member'];
 				$allMembers[] = $row['id_member'];
 			}
@@ -1161,7 +1153,6 @@ class Bans implements ActionInterface
 		$bans = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, COUNT(bi.id_ban) AS num_triggers
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -1191,7 +1182,6 @@ class Bans implements ActionInterface
 	public static function list_getNumBans(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_bans
 			FROM {db_prefix}ban_groups',
 			[
@@ -1217,7 +1207,6 @@ class Bans implements ActionInterface
 		$ban_items = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
@@ -1310,7 +1299,6 @@ class Bans implements ActionInterface
 		$ban_group_id = Utils::$context['ban_group_id'] ?? 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(bi.id_ban)
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -1348,7 +1336,6 @@ class Bans implements ActionInterface
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.ip_low, bi.ip_high, bi.hostname, bi.email_address, bi.hits,
 				bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
@@ -1392,7 +1379,6 @@ class Bans implements ActionInterface
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}ban_items AS bi' . ($trigger_type === 'member' ? '
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)' : '
@@ -1421,7 +1407,6 @@ class Bans implements ActionInterface
 		$log_entries = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 			FROM {db_prefix}log_banned AS lb
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
@@ -1453,7 +1438,6 @@ class Bans implements ActionInterface
 	public static function list_getNumBanLogEntries(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_banned AS lb',
 			[
@@ -1480,24 +1464,24 @@ class Bans implements ActionInterface
 		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Tabs for browsing the different ban functions.
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['ban_title'],
+				'title' => Lang::getTxt('ban_title', file: 'Admin'),
 				'help' => 'ban_members',
-				'description' => Lang::$txt['ban_description'],
+				'description' => Lang::getTxt('ban_description', file: 'Admin'),
 				'tabs' => [
 					'list' => [
-						'description' => Lang::$txt['ban_description'],
+						'description' => Lang::getTxt('ban_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 					],
 					'add' => [
-						'description' => Lang::$txt['ban_description'],
+						'description' => Lang::getTxt('ban_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 					],
 					'browse' => [
-						'description' => Lang::$txt['ban_trigger_browse_description'],
+						'description' => Lang::getTxt('ban_trigger_browse_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=browse',
 					],
 					'log' => [
-						'description' => Lang::$txt['ban_log_description'],
+						'description' => Lang::getTxt('ban_log_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=log',
 						'is_last' => true,
 					],
@@ -1512,11 +1496,11 @@ class Bans implements ActionInterface
 		}
 
 		// Mark the appropriate menu entry as selected
-		if (array_key_exists($this->subaction, Menu::$loaded['admin']->tab_data['tabs'])) {
+		if (\array_key_exists($this->subaction, Menu::$loaded['admin']->tab_data['tabs'])) {
 			Menu::$loaded['admin']->tab_data['tabs'][$this->subaction]['is_selected'] = true;
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['ban_title'];
+		Utils::$context['page_title'] = Lang::getTxt('ban_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 
@@ -1537,7 +1521,7 @@ class Bans implements ActionInterface
 			$ban_info['is_new'] = empty($ban_info['id']);
 			$ban_info['expire_date'] = !empty($_POST['expire_date']) ? (int) $_POST['expire_date'] : 0;
 			$ban_info['expiration'] = [
-				'status' => isset($_POST['expiration']) && in_array($_POST['expiration'], ['never', 'one_day', 'expired']) ? $_POST['expiration'] : 'never',
+				'status' => isset($_POST['expiration']) && \in_array($_POST['expiration'], ['never', 'one_day', 'expired']) ? $_POST['expiration'] : 'never',
 				'days' => $ban_info['expire_date'],
 			];
 			$ban_info['db_expiration'] = $ban_info['expiration']['status'] == 'never' ? 'NULL' : ($ban_info['expiration']['status'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
@@ -1638,8 +1622,8 @@ class Bans implements ActionInterface
 		$return = [];
 
 		foreach ($search_list as $key => $callable) {
-			if (is_callable($callable)) {
-				$return[$key] = call_user_func($callable, $member_id);
+			if (\is_callable($callable)) {
+				$return[$key] = \call_user_func($callable, $member_id);
 			}
 		}
 
@@ -1658,7 +1642,6 @@ class Bans implements ActionInterface
 		$message_ips = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_user}
@@ -1688,7 +1671,6 @@ class Bans implements ActionInterface
 		$error_ips = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_user}
@@ -1730,7 +1712,7 @@ class Bans implements ActionInterface
 		];
 
 		foreach ($suggestions as $key => $value) {
-			if (is_array($value)) {
+			if (\is_array($value)) {
 				$triggers[$key] = $value;
 			} else {
 				$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
@@ -1767,7 +1749,7 @@ class Bans implements ActionInterface
 	 */
 	protected function removeBanGroups(array $group_ids): bool
 	{
-		if (!is_array($group_ids)) {
+		if (!\is_array($group_ids)) {
 			$group_ids = [$group_ids];
 		}
 
@@ -1778,7 +1760,6 @@ class Bans implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}ban_groups
 			WHERE id_ban_group IN ({array_int:ban_list})',
 			[
@@ -1788,7 +1769,6 @@ class Bans implements ActionInterface
 
 		// Remove all ban triggers for these bans groups
 		$request = Db::$db->query(
-			'',
 			'SELECT id_ban
 			FROM {db_prefix}ban_items
 			WHERE id_ban_group IN ({array_int:ban_list})',
@@ -1821,10 +1801,10 @@ class Bans implements ActionInterface
 	{
 		if (empty($ids)) {
 			Db::$db->query(
-				'truncate_table',
 				'TRUNCATE {db_prefix}log_banned',
 				[
 				],
+				identifier: 'truncate_table',
 			);
 		} else {
 			$ids = array_filter(array_unique(array_map('intval', (array) $ids)));
@@ -1834,7 +1814,6 @@ class Bans implements ActionInterface
 			}
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_banned
 				WHERE id_ban_log IN ({array_int:ban_list})',
 				[
@@ -1897,7 +1876,6 @@ class Bans implements ActionInterface
 
 					// Check the user is not banning an admin.
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -1921,7 +1899,6 @@ class Bans implements ActionInterface
 					$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', Utils::htmlspecialchars($value, ENT_QUOTES));
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
 						FROM {db_prefix}members
 						WHERE member_name = {string:username} OR real_name = {string:username}
@@ -1944,7 +1921,7 @@ class Bans implements ActionInterface
 					} else {
 						$ban_triggers['user']['id_member'] = $value;
 					}
-				} elseif (in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
+				} elseif (\in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
 					// Special case, those two are arrays themselves
 					$values = array_unique($value);
 					unset($value);
@@ -1976,7 +1953,7 @@ class Bans implements ActionInterface
 					Utils::$context['ban_errors'][] = 'no_bantype_selected';
 				}
 
-				if (isset($value) && !is_array($value)) {
+				if (isset($value) && !\is_array($value)) {
 					$log_info[] = [
 						'value' => $value,
 						'bantype' => $key,
@@ -2005,7 +1982,6 @@ class Bans implements ActionInterface
 		$is_valid = true;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bg.id_ban_group, bg.name
 			FROM {db_prefix}ban_groups AS bg
 			INNER JOIN {db_prefix}ban_items AS bi ON
@@ -2071,7 +2047,7 @@ class Bans implements ActionInterface
 
 		foreach ($triggers as $key => $trigger) {
 			// Exceptions, exceptions, exceptions...always exceptions... :P
-			if (in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
+			if (\in_array($key, ['ips_in_messages', 'ips_in_errors'])) {
 				foreach ($trigger as $real_trigger) {
 					$insertTriggers[] = array_merge($values, $real_trigger);
 				}
@@ -2142,7 +2118,6 @@ class Bans implements ActionInterface
 		$trigger = array_merge($values, $trigger);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}ban_items
 			SET
 				hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
@@ -2189,7 +2164,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['id'])) {
 			// Verify the ban group exists.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE id_ban_group = {int:ban_group}
@@ -2208,7 +2182,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['name'])) {
 			// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}
@@ -2228,7 +2201,6 @@ class Bans implements ActionInterface
 
 		if (empty(Utils::$context['ban_errors'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}ban_groups
 				SET
 					name = {string:ban_name},
@@ -2286,7 +2258,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['name'])) {
 			// Check whether a ban with this name already exists.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}' . '
@@ -2358,7 +2329,6 @@ class Bans implements ActionInterface
 		$suggestions = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, member_ip, email_address
 			FROM {db_prefix}members
 			WHERE id_member = {int:current_user}
@@ -2388,7 +2358,7 @@ class Bans implements ActionInterface
 	 * Doesn't clean the inputs.
 	 *
 	 * @param array|int $items_ids The triggers to remove.
-	 * @param int $group_id The ID of the group these triggers are associated with.
+	 * @param null|int $group_id The ID of the group these triggers are associated with.
 	 *    If null, the triggers will be deleted from all groups.
 	 * @return bool Whether the operation was successful.
 	 */
@@ -2402,7 +2372,7 @@ class Bans implements ActionInterface
 			return false;
 		}
 
-		if (!is_array($items_ids)) {
+		if (!\is_array($items_ids)) {
 			$items_ids = [$items_ids];
 		}
 
@@ -2413,7 +2383,6 @@ class Bans implements ActionInterface
 
 		// First order of business: Load up the info so we can log this...
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
@@ -2482,7 +2451,6 @@ class Bans implements ActionInterface
 
 		if (isset($group_id)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})
 					AND id_ban_group = {int:ban_group}',
@@ -2493,7 +2461,6 @@ class Bans implements ActionInterface
 			);
 		} elseif (!empty($items_ids)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})',
 				[
@@ -2539,5 +2506,3 @@ class Bans implements ActionInterface
 		}
 	}
 }
-
-?>

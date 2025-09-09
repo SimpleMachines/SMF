@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -28,7 +28,7 @@ class Slug implements \Stringable
 	 **************************/
 
 	/**
-	 * @var array
+	 * @var self
 	 *
 	 * The slug in the requested URL, if any.
 	 *
@@ -238,6 +238,10 @@ class Slug implements \Stringable
 	{
 		self::$requested = new self('', $type, $id);
 		self::$requested->slug = $slug;
+
+		// self::$known should only contain slugs that we know to be correct,
+		// whereas the slug in the requested URL is untrustworthy.
+		unset(self::$known[$type][$id]);
 	}
 
 	/**
@@ -272,7 +276,7 @@ class Slug implements \Stringable
 		$this->slug = rawurldecode($string);
 
 		// Decode any HTML entities.
-		$this->slug = Utils::entityDecode($this->slug, true);
+		$this->slug = Utils::entityDecode($this->slug);
 
 		// Get rid of formatting characters, punctuation, etc.
 		// Note: does not remove apostrophes inside words, so we do that later.
@@ -280,9 +284,7 @@ class Slug implements \Stringable
 
 		// Remove common words.
 		if (!isset(self::$common_words_regex)) {
-			Lang::load('Search');
-
-			self::$common_words_regex = '/\b' . Utils::buildRegex(explode(',', Lang::getTxt('search_stopwords')), '/') . '\b/iu';
+			self::$common_words_regex = '/(?<!\w)' . Utils::buildRegex(Search\SearchApi::getLangStopWords(), '/') . '(?!\w)/iu';
 		}
 
 		$this->slug = preg_replace(self::$common_words_regex, ' ', $this->slug);
@@ -406,5 +408,3 @@ class Slug implements \Stringable
 		}
 	}
 }
-
-?>

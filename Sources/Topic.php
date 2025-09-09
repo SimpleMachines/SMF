@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,19 +30,8 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'topic_id' => 'topic',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -209,6 +198,15 @@ class Topic implements \ArrayAccess, Routable
 	/**
 	 * @var int
 	 *
+	 * For redirection topics, the Unix timestamp when the redirect expires.
+	 *
+	 * Redirection topics are usually deleted automatically once they expire.
+	 */
+	public int $redirect_expires;
+
+	/**
+	 * @var int
+	 *
 	 * For topics in the recycle board, the ID number of the board that this
 	 * topic used to be in.
 	 */
@@ -308,9 +306,12 @@ class Topic implements \ArrayAccess, Routable
 	protected array $prop_aliases = [
 		'id_topic' => 'id',
 		'locked' => 'is_locked',
+		'lock_mode' => 'is_locked',
+		'sticky_mode' => 'is_sticky',
 		'approved' => 'is_approved',
 		'topic_started_name' => 'started_name',
 		'topic_started_time' => 'started_time',
+		'poll' => 'id_poll',
 	];
 
 	/**
@@ -362,6 +363,17 @@ class Topic implements \ArrayAccess, Routable
 		'can_reply_unapproved' => 'post_unapproved_replies',
 	];
 
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'topic_id' => 'topic',
+		],
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -371,7 +383,6 @@ class Topic implements \ArrayAccess, Routable
 	 *
 	 * @param int $id The ID number of the topic.
 	 * @param array $props Properties to set for this topic.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id, array $props = [])
 	{
@@ -380,13 +391,163 @@ class Topic implements \ArrayAccess, Routable
 
 		// If the topic is constructed before User::$me is set, the properties
 		// passed in $props are probably not what they will be later.
-		if (isset(User::$me)) {
-			self::$loaded[$id] = $this;
+		if (isset(User::$me) && !empty($this->id)) {
+			self::$loaded[$this->id] = $this;
 		}
 
 		// Create the slug for this topic.
 		if (isset($this->subject)) {
 			Slug::create($this->subject, 'topic', $id);
+		}
+	}
+
+	/**
+	 * Saves this topic to the database.
+	 */
+	public function save(): void
+	{
+		// Ensure the hooks have what they expect.
+		foreach (['msgOptions', 'topicOptions', 'posterOptions'] as $key) {
+			if (!isset($this->custom[$key])) {
+				$this->custom[$key] = [];
+			}
+		}
+
+		if (empty($this->id)) {
+			$columns = [
+				'id_board' => 'int',
+				'id_member_started' => 'int',
+				'id_member_updated' => 'int',
+				'id_first_msg' => 'int',
+				'id_last_msg' => 'int',
+				'locked' => 'int',
+				'is_sticky' => 'int',
+				'approved' => 'int',
+				'num_views' => 'int',
+				'num_replies' => 'int',
+				'id_poll' => 'int',
+				'unapproved_posts' => 'int',
+				'id_redirect_topic' => 'int',
+				'redirect_expires' => 'int',
+				'id_previous_board' => 'int',
+				'id_previous_topic' => 'int',
+			];
+
+			$params = [
+				$this->id_board,
+				$this->id_member_started,
+				$this->id_member_updated,
+				$this->id_first_msg,
+				$this->id_last_msg,
+				(int) ($this->is_locked ?? 0),
+				(int) ($this->is_sticky ?? 0),
+				(int) ($this->is_approved ?? 0),
+				$this->num_views ?? 0,
+				$this->num_replies ?? 0,
+				$this->id_poll ?? 0,
+				$this->unapproved_posts ?? 0,
+				$this->id_redirect_topic ?? 0,
+				$this->redirect_expires ?? 0,
+				$this->id_previous_board ?? 0,
+				$this->id_previous_topic ?? 0,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+						$columns[$key] = $type;
+						$params[] = $this->custom[$key];
+					}
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_before_create_topic', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
+
+			$this->id = (int) Db::$db->insert(
+				'',
+				'{db_prefix}topics',
+				$columns,
+				[$params],
+				['id_topic'],
+				Db::INSERT_RETURN_MODE_SINGLE,
+			);
+
+			self::$loaded[$this->id] = $this;
+
+			// Ensure the first message knows it is part of this topic.
+			Db::$db->query(
+				'UPDATE {db_prefix}messages
+				SET id_topic = {int:id_topic}
+				WHERE id_msg = {int:id_msg}',
+				[
+					'id_topic' => $this->id,
+					'id_msg' => $this->id_first_msg,
+				],
+			);
+		} else {
+			$set = [
+				'id_topic = {int:id_topic}',
+				'id_board = {int:id_board}',
+				'id_member_started = {int:id_member_started}',
+				'id_member_updated = {int:id_member_updated}',
+				'id_first_msg = {int:id_first_msg}',
+				'id_last_msg = {int:id_last_msg}',
+				'locked = {int:locked}',
+				'is_sticky = {int:is_sticky}',
+				'approved = {int:approved}',
+				'num_views = {int:num_views}',
+				'num_replies = {int:num_replies}',
+				'id_poll = {int:id_poll}',
+				'unapproved_posts = {int:unapproved_posts}',
+				'id_redirect_topic = {int:id_redirect_topic}',
+				'redirect_expires = {int:redirect_expires}',
+				'id_previous_board = {int:id_previous_board}',
+				'id_previous_topic = {int:id_previous_topic}',
+			];
+
+			$params = [
+				'id_topic' => (int) $this->id,
+				'id_board' => (int) $this->id_board,
+				'id_member_started' => (int) $this->id_member_started,
+				'id_member_updated' => (int) $this->id_member_updated,
+				'id_first_msg' => (int) $this->id_first_msg,
+				'id_last_msg' => (int) $this->id_last_msg,
+				'locked' => (int) $this->is_locked,
+				'is_sticky' => (int) $this->is_sticky,
+				'approved' => (int) $this->is_approved,
+				'num_views' => (int) $this->num_views,
+				'num_replies' => (int) $this->num_replies,
+				'id_poll' => (int) $this->id_poll,
+				'unapproved_posts' => (int) $this->unapproved_posts,
+				'id_redirect_topic' => (int) $this->id_redirect_topic,
+				'redirect_expires' => (int) $this->redirect_expires,
+				'id_previous_board' => (int) $this->id_previous_board,
+				'id_previous_topic' => (int) $this->id_previous_topic,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+						$set[] = $key . ' = {' . $type . ':' . $key . '}';
+						$params[$key] = $this->custom[$key];
+					}
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_modify_topic', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
+
+			Db::$db->query(
+				'UPDATE {db_prefix}topics
+				SET ' . (implode(', ', $set)) . '
+				WHERE id_topic = {int:id_topic}',
+				$params,
+			);
 		}
 	}
 
@@ -434,7 +595,7 @@ class Topic implements \ArrayAccess, Routable
 			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), [Board::$info->id]);
 
 			// You can't move this unless you have permission to start new topics on at least one other board.
-			$this->permissions['can_move'] = count($boards_allowed) > 1;
+			$this->permissions['can_move'] = \count($boards_allowed) > 1;
 		}
 
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
@@ -454,7 +615,7 @@ class Topic implements \ArrayAccess, Routable
 		// Handle approval flags...
 		$this->permissions['can_reply_approved'] = $this->permissions['can_reply'];
 		$this->permissions['can_reply'] |= $this->permissions['can_reply_unapproved'];
-		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
+		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
 		$this->permissions['can_mark_unread'] = !User::$me->is_guest;
 		$this->permissions['can_unwatch'] = !User::$me->is_guest;
 		$this->permissions['can_set_notify'] = !User::$me->is_guest;
@@ -507,7 +668,6 @@ class Topic implements \ArrayAccess, Routable
 	/**
 	 * Gets the IDs of messages in this topic that the current user likes.
 	 *
-	 * @param int $topic The topic ID to fetch the info from.
 	 * @return array IDs of messages in this topic that the current user likes.
 	 */
 	public function getLikedMsgs(): array
@@ -523,7 +683,6 @@ class Topic implements \ArrayAccess, Routable
 			$liked_messages = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT content_id
 				FROM {db_prefix}user_likes AS l
 					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
@@ -559,6 +718,58 @@ class Topic implements \ArrayAccess, Routable
 		}
 
 		return array_intersect_key(Event::$loaded, array_flip($this->events ?? []));
+	}
+
+	/**
+	 * Mark this topic as read for the specified user.
+	 *
+	 * @param int $id_member The ID of the member who has read this topic.
+	 * @param int $id_msg The ID of the last message that was read.
+	 * @throws \ValueError if either param is invalid.
+	 */
+	public function markAsRead(int $id_member, int $id_msg): void
+	{
+		if ($id_member <= 0) {
+			throw new \ValueError();
+		}
+
+		if ($id_msg < 0) {
+			throw new \ValueError();
+		}
+
+		// If there is an existing record, update it.
+		Db::$db->query(
+			'UPDATE {db_prefix}log_topics
+			SET id_msg = (CASE WHEN id_msg < {int:id_msg} THEN {int:id_msg} ELSE id_msg END)
+			WHERE id_member = {int:id_member}
+				AND id_topic = {int:id_topic}',
+			[
+				'id_topic' => $this->id,
+				'id_member' => $id_member,
+				'id_msg' => $id_msg,
+			],
+		);
+
+		// If there was no existing record, insert one.
+		if (Db::$db->affected_rows() == 0) {
+			Db::$db->insert(
+				'ignore',
+				'{db_prefix}log_topics',
+				[
+					'id_topic' => 'int',
+					'id_member' => 'int',
+					'id_msg' => 'int',
+				],
+				[
+					[
+						$this->id,
+						$id_member,
+						$id_msg,
+					],
+				],
+				['id_topic', 'id_member'],
+			);
+		}
 	}
 
 	/***********************
@@ -597,6 +808,127 @@ class Topic implements \ArrayAccess, Routable
 	}
 
 	/**
+	 * Creates a new topic in the database.
+	 *
+	 * Called from Msg::create().
+	 *
+	 * @param array &$msgOptions Information about the post.
+	 * @param array &$topicOptions Information about the topic.
+	 * @param array &$posterOptions Information about the poster.
+	 * @return bool Whether the operation was a success.
+	 */
+	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		$topic = new self(0, [
+			'id_board' => (int) $topicOptions['board'],
+			'id_member_started' => (int) $posterOptions['id'],
+			'id_member_updated' => (int) $posterOptions['id'],
+			'id_first_msg' => (int) $msgOptions['id'],
+			'id_last_msg' => (int) $msgOptions['id'],
+			'is_locked' => (int) ($topicOptions['lock_mode'] ?? 0),
+			'is_sticky' => (int) ($topicOptions['sticky_mode'] ?? 0),
+			'is_approved' => (int) $msgOptions['approved'],
+			'num_views' => 0,
+			'num_replies' => 0,
+			'id_poll' => (int) ($topicOptions['poll'] ?? 0),
+			'unapproved_posts' => (int) empty($msgOptions['approved']),
+			'id_redirect_topic' => (int) ($topicOptions['redirect_topic'] ?? 0),
+			'redirect_expires' => (int) ($topicOptions['redirect_expires'] ?? 0),
+			'id_previous_board' => 0,
+			'id_previous_topic' => 0,
+		]);
+
+		$topic->custom['msgOptions'] = &$msgOptions;
+		$topic->custom['topicOptions'] = &$topicOptions;
+		$topic->custom['posterOptions'] = &$posterOptions;
+
+		// Save.
+		$topic->save();
+
+		// If it didn't work, bail out.
+		if (empty($topic->id)) {
+			return false;
+		}
+
+		$topic->custom['topicOptions']['id'] = $topic->id;
+
+		// Increase the number of topics on the board.
+		$board = current(Board::load($topic->id_board));
+
+		if ($topic->custom['msgOptions']['approved']) {
+			$board->num_topics++;
+		} else {
+			$board->unapproved_topics++;
+		}
+
+		$board->save(Board::SAVE_STATS);
+
+		// There's been a new topic today.
+		Logging::trackStats(['topics' => '+']);
+		Logging::updateStats('topic', true);
+		Logging::updateStats('subject', $topic->custom['topicOptions']['id'], $topic->custom['msgOptions']['subject']);
+
+		// What if we want to export new topics out to a CMS?
+		IntegrationHook::call('integrate_create_topic', [$topic->custom['msgOptions'], $topic->custom['topicOptions'], $topic->custom['posterOptions']]);
+
+		if (!empty($topic->custom['topicOptions']['mark_as_read']) && !User::$me->is_guest) {
+			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Updates a topic in the database when a new reply is added to it.
+	 *
+	 * Called from Msg::create().
+	 *
+	 * @param array &$msgOptions Information about the post.
+	 * @param array &$topicOptions Information about the topic.
+	 * @param array &$posterOptions Information about the poster.
+	 * @return bool Whether the operation was a success.
+	 */
+	public static function addReply(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		$topic = self::load($topicOptions['id']);
+
+		$topic->custom['msgOptions'] = &$msgOptions;
+		$topic->custom['topicOptions'] = &$topicOptions;
+		$topic->custom['posterOptions'] = &$posterOptions;
+
+		if (!empty($topic->custom['msgOptions']['approved'])) {
+			$topic->id_member_updated = (int) $topic->custom['posterOptions']['id'];
+			$topic->id_last_msg = (int) $topic->custom['msgOptions']['id'];
+			$topic->num_replies++;
+		} else {
+			$topic->unapproved_posts++;
+		}
+
+		if (isset($topic->custom['topicOptions']['lock_mode'])) {
+			$topic->is_locked = (int) $topic->custom['topicOptions']['lock_mode'];
+		}
+
+		if (isset($topic->custom['topicOptions']['sticky_mode'])) {
+			$topic->is_sticky = (int) $topic->custom['topicOptions']['sticky_mode'];
+		}
+
+		$topic->save();
+
+		// Reload to verify that it saved correctly.
+		$topic->loadTopicInfo();
+
+		if ($topic->id_last_msg !== (int) $topic->custom['msgOptions']['id']) {
+			return false;
+		}
+
+		if (!empty($topic->custom['topicOptions']['mark_as_read']) && !User::$me->is_guest) {
+			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sets the locked state for one or more topics.
 	 *
 	 * Doesn't check permissions.
@@ -616,7 +948,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Get the topics that we need to change.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
@@ -636,7 +967,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Update the lock state of the topics.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET locked = {int:level}
 			WHERE id_topic IN ({array_int:topics})',
@@ -679,7 +1009,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Get the topics that we need to change.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
@@ -699,7 +1028,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Toggle the sticky value.... pretty simple ;).
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET is_sticky = {int:state}
 			WHERE id_topic IN ({array_int:topics})',
@@ -716,6 +1044,10 @@ class Topic implements \ArrayAccess, Routable
 			// Notify people that this topic has been stickied?
 			if ($sticky_state) {
 				Mail::sendNotifications((int) $row['topic'], 'sticky');
+			}
+
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+				CacheApi::put('board-' . $row['board'], null, 120);
 			}
 		}
 
@@ -743,7 +1075,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Just get the messages to be approved and pass through...
 		$request = Db::$db->query(
-			'',
 			'SELECT id_first_msg
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topic_list})
@@ -807,7 +1138,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Determine the source boards...
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
@@ -849,7 +1179,6 @@ class Topic implements \ArrayAccess, Routable
 		// Move over the mark_read data. (because it may be read and now not by some!)
 		$SaveAServer = max(0, Config::$modSettings['maxMsgID'] - 50000);
 		$request = Db::$db->query(
-			'',
 			'SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
@@ -865,10 +1194,10 @@ class Topic implements \ArrayAccess, Routable
 		$log_topics = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched'])];
+			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (\is_null($row['unwatched']) ? 0 : $row['unwatched'])];
 
 			// Prevent queries from getting too big. Taking some steam off.
-			if (count($log_topics) > 500) {
+			if (\count($log_topics) > 500) {
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_topics',
@@ -902,7 +1231,6 @@ class Topic implements \ArrayAccess, Routable
 
 		foreach ($fromBoards as $stats) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET
 					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
@@ -924,7 +1252,6 @@ class Topic implements \ArrayAccess, Routable
 			$totalUnapprovedPosts += $stats['unapproved_posts'];
 		}
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET
 				num_topics = num_topics + {int:total_topics},
@@ -945,7 +1272,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Move the topic.  Done.  :P
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',
 				unapproved_posts = {int:no_unapproved}, approved = {int:is_approved}' : '') . '
@@ -961,7 +1287,6 @@ class Topic implements \ArrayAccess, Routable
 		// If this was going to the recycle bin, check what messages are being recycled, and remove them from the queue.
 		if ($isRecycleDest && ($totalUnapprovedTopics || $totalUnapprovedPosts)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
@@ -982,7 +1307,6 @@ class Topic implements \ArrayAccess, Routable
 			// Empty the approval queue for these, as we're going to approve them next.
 			if (!empty($approval_msgs)) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg IN ({array_int:message_list})
 						AND id_attach = {int:id_attach}',
@@ -995,7 +1319,6 @@ class Topic implements \ArrayAccess, Routable
 
 			// Get all the current max and mins.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})',
@@ -1015,7 +1338,6 @@ class Topic implements \ArrayAccess, Routable
 
 			// Check the MAX and MIN are correct.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topics})
@@ -1029,7 +1351,6 @@ class Topic implements \ArrayAccess, Routable
 				// If not, update.
 				if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max']) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET id_first_msg = {int:first_msg}, id_last_msg = {int:last_msg}
 						WHERE id_topic = {int:selected_topic}',
@@ -1045,7 +1366,6 @@ class Topic implements \ArrayAccess, Routable
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_board = {int:id_board}' . ($isRecycleDest ? ',approved = {int:is_approved}' : '') . '
 			WHERE id_topic IN ({array_int:topics})',
@@ -1056,7 +1376,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
@@ -1066,7 +1385,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}calendar
 			SET id_board = {int:id_board}
 			WHERE id_topic IN ({array_int:topics})',
@@ -1078,7 +1396,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Mark target board as seen, if it was already marked as seen before.
 		$request = Db::$db->query(
-			'',
 			'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -1115,6 +1432,11 @@ class Topic implements \ArrayAccess, Routable
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
 			foreach ($topics as $topic_id) {
 				CacheApi::put('topic_board-' . $topic_id, null, 120);
+			}
+			CacheApi::put('board-' . $toBoard, null, 120);
+
+			foreach ($fromBoards as $b => $junk) {
+				CacheApi::put('board-' . $b, null, 120);
 			}
 		}
 
@@ -1160,7 +1482,6 @@ class Topic implements \ArrayAccess, Routable
 		// Decrease the post counts.
 		if ($decreasePostCount) {
 			$requestMembers = Db::$db->query(
-				'',
 				'SELECT m.id_member, COUNT(*) AS posts
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1188,7 +1509,6 @@ class Topic implements \ArrayAccess, Routable
 		// Recycle topics that aren't in the recycle board...
 		if (!empty($recycle_board) && !$ignoreRecycling) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_board, unapproved_posts, approved
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:topics})
@@ -1197,7 +1517,7 @@ class Topic implements \ArrayAccess, Routable
 				[
 					'recycle_board' => $recycle_board,
 					'topics' => $topics,
-					'limit' => count($topics),
+					'limit' => \count($topics),
 				],
 			);
 
@@ -1212,7 +1532,6 @@ class Topic implements \ArrayAccess, Routable
 
 					// Set the id_previous_board for this topic - and make it not sticky.
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET id_previous_board = {int:id_previous_board}, is_sticky = {int:not_sticky}
 						WHERE id_topic = {int:id_topic}',
@@ -1229,10 +1548,9 @@ class Topic implements \ArrayAccess, Routable
 				self::move($recycleTopics, (int) Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
-				require_once Config::$sourcedir . '/Actions/Moderation/Main.php';
+				require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Moderation/Main.php');
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_reported
 					SET closed = {int:is_closed}
 					WHERE id_topic IN ({array_int:recycle_topics})',
@@ -1269,7 +1587,6 @@ class Topic implements \ArrayAccess, Routable
 
 		// Find out how many posts we are deleting.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
 				SUM(num_replies) AS num_replies
 			FROM {db_prefix}topics
@@ -1309,7 +1626,6 @@ class Topic implements \ArrayAccess, Routable
 				Sapi::resetTimeout();
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET
 						num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
@@ -1325,11 +1641,14 @@ class Topic implements \ArrayAccess, Routable
 						'unapproved_topics' => $stats['unapproved_topics'],
 					],
 				);
+
+				if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+					CacheApi::put('board-' . $stats['id_board'], null, 120);
+				}
 			}
 		}
 		// Remove Polls.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_poll
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
@@ -1338,7 +1657,7 @@ class Topic implements \ArrayAccess, Routable
 			[
 				'no_poll' => 0,
 				'topics' => $topics,
-				'limit' => count($topics),
+				'limit' => \count($topics),
 			],
 		);
 		$polls = [];
@@ -1350,7 +1669,6 @@ class Topic implements \ArrayAccess, Routable
 
 		if (!empty($polls)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}polls
 				WHERE id_poll IN ({array_int:polls})',
 				[
@@ -1358,7 +1676,6 @@ class Topic implements \ArrayAccess, Routable
 				],
 			);
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}poll_choices
 				WHERE id_poll IN ({array_int:polls})',
 				[
@@ -1366,7 +1683,6 @@ class Topic implements \ArrayAccess, Routable
 				],
 			);
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_polls
 				WHERE id_poll IN ({array_int:polls})',
 				[
@@ -1377,14 +1693,13 @@ class Topic implements \ArrayAccess, Routable
 
 		// Get rid of the attachment, if it exists.
 		$attachmentQuery = [
-			'attachment_type' => 0,
+			'attachment_type' => Attachment::TYPE_STANDARD,
 			'id_topic' => $topics,
 		];
 		Attachment::remove($attachmentQuery, 'messages');
 
 		// Delete anything related to the topic.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1392,7 +1707,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}calendar
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1400,7 +1714,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1408,7 +1721,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_notify
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1416,7 +1728,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1424,7 +1735,6 @@ class Topic implements \ArrayAccess, Routable
 			],
 		);
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1441,6 +1751,10 @@ class Topic implements \ArrayAccess, Routable
 		Config::updateModSettings([
 			'calendar_updated' => time(),
 		]);
+
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3 && !empty($recycle_board) && !$ignoreRecycling) {
+			CacheApi::put('board-' . $recycle_board, null);
+		}
 
 		$updates = [];
 
@@ -1510,7 +1824,9 @@ class Topic implements \ArrayAccess, Routable
 			$params['action'] = 'display';
 			array_shift($route);
 
-			preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches);
+			if (!preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches)) {
+				return $params;
+			}
 
 			$topic = $matches[2];
 
@@ -1527,7 +1843,7 @@ class Topic implements \ArrayAccess, Routable
 				if (isset(QueryString::$route_parsers[reset($route)])) {
 					$params = array_merge(
 						$params,
-						call_user_func(
+						\call_user_func(
 							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
 							$route,
 							$params,
@@ -1592,7 +1908,6 @@ class Topic implements \ArrayAccess, Routable
 		// @todo if we get id_board in this query and cache it, we can save a query on posting
 		// Get all the important topic info.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $topic_selects) . '
 			FROM {db_prefix}topics AS t
@@ -1632,7 +1947,6 @@ class Topic implements \ArrayAccess, Routable
 			&& !User::$me->allowedTo('approve_posts')
 		) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(id_member) AS my_unapproved_posts
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -1661,8 +1975,6 @@ class Topic implements \ArrayAccess, Routable
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Topic::class, 'exportStatic'])) {
+if (\is_callable([Topic::class, 'exportStatic'])) {
 	Topic::exportStatic();
 }
-
-?>

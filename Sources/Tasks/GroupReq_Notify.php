@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class GroupReq_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -41,7 +45,6 @@ class GroupReq_Notify extends BackgroundTask
 	{
 		// Do we have any group moderators?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}group_moderators
 			WHERE id_group = {int:selected_group}',
@@ -57,7 +60,7 @@ class GroupReq_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// Make sure anyone who can moderate_membergroups gets notified as well
-		$moderators = array_unique(array_merge($moderators, User::membersAllowedTo('manage_membergroups')));
+		$moderators = array_unique(array_merge($moderators, User::getAllowedTo('manage_membergroups')));
 
 		if (!empty($moderators)) {
 			// Figure out who wants to be alerted/emailed about this
@@ -102,7 +105,6 @@ class GroupReq_Notify extends BackgroundTask
 				Theme::loadEssential();
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, email_address, lngfile, member_name, mod_prefs
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:moderator_list})
@@ -130,5 +132,3 @@ class GroupReq_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

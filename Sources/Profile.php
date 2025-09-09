@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Image;
+use SMF\Permissions\Permission;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
@@ -28,21 +29,8 @@ use SMF\Graphics\Image;
  */
 class Profile extends User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profile_fields' => 'profile_fields',
-			'profile_vars' => 'profile_vars',
-			'cur_profile' => 'cur_profile',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -168,7 +156,7 @@ class Profile extends User implements \ArrayAccess
 	public static int $memID;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
@@ -261,6 +249,23 @@ class Profile extends User implements \ArrayAccess
 	 * in some places to be able to distinguish these from the others.
 	 */
 	protected array $cf_save_errors = [];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profile_fields' => 'profile_fields',
+			'profile_vars' => 'profile_vars',
+			'cur_profile' => 'cur_profile',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -359,61 +364,31 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => [$this, 'validateAvatarData'],
 				'save_key' => 'avatar',
 			],
-			'bday1' => [
-				'type' => 'callback',
-				'callback_func' => 'birthdate',
+			'birthdate' => [
+				'type' => 'date',
+				'label' => Lang::getTxt('dob', file: 'Profile'),
 				'permission' => 'profile_extra',
 				'preload' => function () {
-					// Split up the birthdate....
-					list($uyear, $umonth, $uday) = explode('-', empty($this->birthdate) || $this->birthdate === '1004-01-01' ? '--' : $this->birthdate);
-
-					Utils::$context['member']['birth_date'] = [
-						'year' => $uyear,
-						'month' => $umonth,
-						'day' => $uday,
-					];
+					$this->data['birthdate'] = $this->formatted['birthdate'];
 
 					return true;
 				},
 				'input_validate' => function (&$value) {
-					if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0) {
-						// Set to blank?
-						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
-							$value = '1004-01-01';
-						} else {
-							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
-						}
-					} else {
-						$value = '1004-01-01';
-					}
-
-					$this->new_data['birthdate'] = $value;
-					$this->birthdate = $value;
-
-					return false;
-				},
-			],
-			// Setting the birthdate the old style way?
-			'birthdate' => [
-				'type' => 'hidden',
-				'permission' => 'profile_extra',
-				'input_validate' => function (&$value) {
-					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
-					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+					try {
+						$value = Time::create($value)->format('Y-m-d', false, false);
 
 						return true;
+					} catch (\Throwable $e) {
+						$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
+
+						return false;
 					}
-
-					$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
-
-					return false;
 				},
 			],
 			'date_registered' => [
 				'type' => 'date',
-				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::$txt['not_applicable'] : Time::strftime('%Y-%m-%d', $this->date_registered),
-				'label' => Lang::$txt['date_registered'],
+				'value' => empty($this->date_registered) || !\is_int($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::strftime('%Y-%m-%d', $this->date_registered),
+				'label' => Lang::getTxt('date_registered', file: 'General'),
 				'log_change' => true,
 				'permission' => 'moderate_forum',
 				'input_validate' => function (&$value) {
@@ -421,11 +396,11 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())], file: 'Profile');
 					}
 
 					// As long as it doesn't equal "N/A"...
-					if ($value != Lang::$txt['not_applicable'] && $value != strtotime(Time::strftime('%Y-%m-%d', $this->date_registered))) {
+					if ($value != Lang::getTxt('not_applicable', file: 'General') && $value != strtotime(Time::strftime('%Y-%m-%d', $this->date_registered))) {
 						$diff = $this->date_registered - strtotime(Time::strftime('%Y-%m-%d', $this->date_registered));
 
 						$value = $value + $diff;
@@ -437,9 +412,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'email_address' => [
-				'type' => 'email',
-				'label' => Lang::$txt['user_email_address'],
-				'subtext' => Lang::$txt['valid_email'],
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
+				'label' => Lang::getTxt('user_email_address', file: 'General'),
+				'subtext' => Lang::getTxt('valid_email', file: 'General'),
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -447,7 +423,7 @@ class Profile extends User implements \ArrayAccess
 					{
 						if (this.email_address.value != "' . (!empty($this->email) ? $this->email : '') . '")
 						{
-							alert(' . Utils::escapeJavaScript(Lang::$txt['email_change_logout']) . ');
+							alert(' . Utils::escapeJavaScript(Lang::getTxt('email_change_logout', file: 'Profile')) . ');
 							return true;
 						}
 					}, false);' : '',
@@ -492,7 +468,6 @@ class Profile extends User implements \ArrayAccess
 				'enabled' => Config::$modSettings['theme_allow'] || User::$me->allowedTo('admin_forum'),
 				'preload' => function () {
 					$request = Db::$db->query(
-						'',
 						'SELECT value
 						FROM {db_prefix}themes
 						WHERE id_theme = {int:id_theme}
@@ -508,7 +483,7 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['member']['theme'] = [
 						'id' => $this->theme,
-						'name' => empty($this->theme) ? Lang::$txt['theme_forum_default'] : $name,
+						'name' => empty($this->theme) ? Lang::getTxt('theme_forum_default', file: 'Profile') : $name,
 					];
 
 					return true;
@@ -524,7 +499,7 @@ class Profile extends User implements \ArrayAccess
 				'options' => function () {
 					return array_map(fn($lang) => $lang['name'], Lang::get());
 				},
-				'label' => Lang::$txt['preferred_language'],
+				'label' => Lang::getTxt('preferred_language', file: 'Profile'),
 				'permission' => 'profile_identity',
 				'enabled' => !empty(Config::$modSettings['userLanguage']),
 				'value' => $this->language,
@@ -548,11 +523,11 @@ class Profile extends User implements \ArrayAccess
 			// The username is not always editable - so adjust it as such.
 			'member_name' => [
 				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
-				'label' => Lang::$txt['username'],
-				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
+				'label' => Lang::getTxt('username', file: 'General'),
+				'postinput' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
-				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
+				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::getTxt('username_warning', file: 'Profile') . '</div>' : '',
 				'input_validate' => function (&$value) {
 					if (User::$me->allowedTo('admin_forum')) {
 						// Maybe they are trying to change their password as well?
@@ -585,9 +560,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd1' => [
-				'type' => 'password',
-				'label' => Lang::$txt['choose_pass'],
-				'subtext' => Lang::$txt['password_strength'],
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
+				'label' => Lang::getTxt('choose_pass', file: 'General'),
+				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -609,9 +585,7 @@ class Profile extends User implements \ArrayAccess
 
 					// Were there errors?
 					if ($password_error != null) {
-						Lang::load('Errors');
-
-						return (isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'password_' : '') . $password_error;
+						return (Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'password_' : '') . $password_error;
 					}
 
 					// Set up the new password variable... ready for storage.
@@ -621,8 +595,8 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd2' => [
-				'type' => 'password',
-				'label' => Lang::$txt['verify_pass'],
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
+				'label' => Lang::getTxt('verify_pass', file: 'General'),
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -630,7 +604,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'personal_text' => [
 				'type' => 'text',
-				'label' => Lang::$txt['personal_text'],
+				'label' => Lang::getTxt('personal_text', file: 'General'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="50"'],
 				'size' => 50,
@@ -666,7 +640,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'posts' => [
 				'type' => 'int',
-				'label' => Lang::$txt['profile_posts'],
+				'label' => Lang::getTxt('profile_posts', file: 'Profile'),
 				'log_change' => true,
 				'size' => 7,
 				'min' => 0,
@@ -688,8 +662,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'real_name' => [
 				'type' => User::$me->allowedTo('profile_displayed_name_own') || User::$me->allowedTo('profile_displayed_name_any') || User::$me->allowedTo('moderate_forum') ? 'text' : 'label',
-				'label' => Lang::$txt['name'],
-				'subtext' => Lang::$txt['display_name_desc'],
+				'label' => Lang::getTxt('name', file: 'General'),
+				'subtext' => Lang::getTxt('display_name_desc', file: 'Profile'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="60"'],
 				'permission' => 'profile_displayed_name',
@@ -714,17 +688,17 @@ class Profile extends User implements \ArrayAccess
 			],
 			'secret_question' => [
 				'type' => 'text',
-				'label' => Lang::$txt['secret_question'],
-				'subtext' => Lang::$txt['secret_desc'],
+				'label' => Lang::getTxt('secret_question', file: 'Profile'),
+				'subtext' => Lang::getTxt('secret_desc', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_password',
 			],
 			'secret_answer' => [
 				'type' => 'text',
-				'label' => Lang::$txt['secret_answer'],
-				'subtext' => Lang::$txt['secret_desc2'],
+				'label' => Lang::getTxt('secret_answer', file: 'Profile'),
+				'subtext' => Lang::getTxt('secret_desc2', file: 'Profile'),
 				'size' => 20,
-				'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . Lang::$txt['secret_why_blank'] . '</a></span>',
+				'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . Lang::getTxt('secret_why_blank', file: 'Profile') . '</a></span>',
 				'value' => '',
 				'permission' => 'profile_password',
 				'input_validate' => function (&$value) {
@@ -743,7 +717,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'show_online' => [
 				'type' => 'check',
-				'label' => Lang::$txt['show_online'],
+				'label' => Lang::getTxt('show_online', file: 'Profile'),
 				'permission' => 'profile_identity',
 				'enabled' => !empty(Config::$modSettings['allow_hideOnline']) || User::$me->allowedTo('moderate_forum'),
 			],
@@ -757,12 +731,11 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['smiley_sets'] = explode(',', 'none,,' . Config::$modSettings['smiley_sets_known']);
 
-					$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Lang::$txt['smileys_forum_board_default'] . "\n" . Config::$modSettings['smiley_sets_names']);
+					$set_names = explode("\n", Lang::getTxt('smileys_none', file: 'General') . "\n" . Lang::getTxt('smileys_forum_board_default', file: 'General') . "\n" . Config::$modSettings['smiley_sets_names']);
 
 					$filenames = [];
 
 					$result = Db::$db->query(
-						'',
 						'SELECT f.filename, f.smiley_set
 						FROM {db_prefix}smiley_files AS f
 							JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
@@ -791,9 +764,7 @@ class Profile extends User implements \ArrayAccess
 						}
 						// No images at all? That's no good. Let the admin know, and quietly skip for this user.
 						else {
-							Lang::load('Errors', Lang::$default);
-
-							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]], file: 'Errors', lang: Lang::$default));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}
@@ -830,7 +801,7 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					$smiley_sets = explode(',', Config::$modSettings['smiley_sets_known']);
 
-					if (!in_array($value, $smiley_sets) && $value != 'none') {
+					if (!\in_array($value, $smiley_sets) && $value != 'none') {
 						$value = '';
 					}
 
@@ -874,27 +845,27 @@ class Profile extends User implements \ArrayAccess
 					Utils::$context['easy_timeformats'] = [
 						[
 							'format' => '',
-							'title' => Lang::$txt['timeformat_default'],
+							'title' => Lang::getTxt('timeformat_default', file: 'Profile'),
 						],
 						[
 							'format' => '%B %d, %Y, %I:%M:%S %p',
-							'title' => Lang::$txt['timeformat_easy1'],
+							'title' => Lang::getTxt('timeformat_easy1', file: 'Profile'),
 						],
 						[
 							'format' => '%B %d, %Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy2'],
+							'title' => Lang::getTxt('timeformat_easy2', file: 'Profile'),
 						],
 						[
 							'format' => '%Y-%m-%d, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy3'],
+							'title' => Lang::getTxt('timeformat_easy3', file: 'Profile'),
 						],
 						[
 							'format' => '%d %B %Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy4'],
+							'title' => Lang::getTxt('timeformat_easy4', file: 'Profile'),
 						],
 						[
 							'format' => '%d-%m-%Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy5'],
+							'title' => Lang::getTxt('timeformat_easy5', file: 'Profile'),
 						],
 					];
 
@@ -914,7 +885,7 @@ class Profile extends User implements \ArrayAccess
 				'options' => TimeZone::list(),
 				'disabled_options' => array_filter(array_keys(TimeZone::list()), 'is_int'),
 				'permission' => 'profile_extra',
-				'label' => Lang::$txt['timezone'],
+				'label' => Lang::getTxt('timezone', file: 'Profile'),
 				'value' => empty(User::$me->timezone) ? Config::$modSettings['default_timezone'] : User::$me->timezone,
 				'input_validate' => function ($value) {
 					$tz = TimeZone::list();
@@ -928,7 +899,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'usertitle' => [
 				'type' => 'text',
-				'label' => Lang::$txt['custom_title'],
+				'label' => Lang::getTxt('custom_title', file: 'Profile'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="50"'],
 				'size' => 50,
@@ -944,8 +915,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'website_title' => [
 				'type' => 'text',
-				'label' => Lang::$txt['website_title'],
-				'subtext' => Lang::$txt['include_website_url'],
+				'label' => Lang::getTxt('website_title', file: 'Profile'),
+				'subtext' => Lang::getTxt('include_website_url', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_website',
 				'link_with' => 'website',
@@ -959,18 +930,18 @@ class Profile extends User implements \ArrayAccess
 			],
 			'website_url' => [
 				'type' => 'url',
-				'label' => Lang::$txt['website_url'],
-				'subtext' => Lang::$txt['complete_url'],
+				'label' => Lang::getTxt('website_url', file: 'Profile'),
+				'subtext' => Lang::getTxt('complete_url', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_website',
 				// Fix the URL...
 				'input_validate' => function (&$value) {
-					if (strlen(trim($value)) > 0 && !str_contains($value, '://')) {
+					if (\strlen(trim($value)) > 0 && !str_contains($value, '://')) {
 						$value = 'http://' . $value;
 						$value = Url::create($value, true)->validate()->toUtf8();
 					}
 
-					if (strlen($value) < 8 || (!str_starts_with($value, 'http://') && !str_starts_with($value, 'https://'))) {
+					if (\strlen($value) < 8 || (!str_starts_with($value, 'http://') && !str_starts_with($value, 'https://'))) {
 						$value = '';
 					}
 
@@ -987,8 +958,18 @@ class Profile extends User implements \ArrayAccess
 		// For each of the above let's take out the bits which don't apply - to save memory and security!
 		foreach ($this->standard_fields as $key => $field) {
 			// Do we have permission to do this?
-			if (isset($field['permission']) && !User::$me->allowedTo((User::$me->is_owner ? [$field['permission'] . '_own', $field['permission'] . '_any'] : $field['permission'] . '_any')) && !User::$me->allowedTo($field['permission'])) {
-				unset($this->standard_fields[$key]);
+			if (isset($field['permission'])) {
+				$permissions = array_map(
+					fn($p) => $p->name,
+					array_filter(
+						Permission::getByGenericName($field['permission']),
+						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+					),
+				);
+
+				if (empty($permissions) || !User::$me->allowedTo($permissions, any: true)) {
+					unset($this->standard_fields[$key]);
+				}
 			}
 
 			// Is it enabled?
@@ -997,7 +978,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Is it specifically disabled?
-			if (in_array($key, $disabled_fields) || (isset($field['link_with']) && in_array($field['link_with'], $disabled_fields))) {
+			if (\in_array($key, $disabled_fields) || (isset($field['link_with']) && \in_array($field['link_with'], $disabled_fields))) {
 				unset($this->standard_fields[$key]);
 			}
 		}
@@ -1021,7 +1002,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Skip custom fields that don't belong in the area we are viewing.
-			if (!in_array($area, ['summary', $cf_def['show_profile']])) {
+			if (!\in_array($area, ['summary', $cf_def['show_profile']])) {
 				continue;
 			}
 
@@ -1062,7 +1043,7 @@ class Profile extends User implements \ArrayAccess
 			if (isset($_POST['customfield'], $_POST['customfield'][$cf_def['col_name']])) {
 				$value = Utils::htmlspecialchars($_POST['customfield'][$cf_def['col_name']]);
 
-				if (in_array($cf_def['field_type'], ['select', 'radio'])) {
+				if (\in_array($cf_def['field_type'], ['select', 'radio'])) {
 					$value = $cf_def['field_options'][$value] ?? '';
 				}
 			}
@@ -1080,7 +1061,7 @@ class Profile extends User implements \ArrayAccess
 
 				$input_html = '<input type="checkbox" name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($true ? ' checked' : '') . '>';
 
-				$output_html = $true ? Lang::$txt['yes'] : Lang::$txt['no'];
+				$output_html = Lang::getTxt($true ? 'yes' : 'no', file: 'General');
 			} elseif ($cf_def['field_type'] == 'select') {
 				$input_html = '<select name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"><option value="-1"></option>';
 
@@ -1171,7 +1152,7 @@ class Profile extends User implements \ArrayAccess
 
 		Utils::$context['member']['options'] = $this->data['options'] ?? [];
 
-		if (isset($_POST['options']) && is_array($_POST['options'])) {
+		if (isset($_POST['options']) && \is_array($_POST['options'])) {
 			foreach ($_POST['options'] as $k => $v) {
 				Utils::$context['member']['options'][$k] = $v;
 			}
@@ -1323,9 +1304,9 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['signature_warning'] = '';
 
 		if (Utils::$context['signature_limits']['max_image_width'] && Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']]);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']], file: 'Profile');
 		} elseif (Utils::$context['signature_limits']['max_image_width'] || Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']]);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']], file: 'Profile');
 		}
 
 		if (empty(Utils::$context['do_preview'])) {
@@ -1336,7 +1317,6 @@ class Profile extends User implements \ArrayAccess
 			$validation = self::validateSignature($signature);
 
 			if (empty(Utils::$context['post_errors'])) {
-				Lang::load('Errors');
 				Utils::$context['post_errors'] = [];
 			}
 
@@ -1394,14 +1374,14 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			$group->is_primary = $this->data['id_group'] == $group->id;
-			$group->is_additional = in_array($group->id, $this->additional_groups);
+			$group->is_additional = \in_array($group->id, $this->additional_groups);
 		}
 
 		// For the templates.
 		Utils::$context['member_groups'] = [
 			0 => [
 				'id' => 0,
-				'name' => Lang::$txt['no_primary_membergroup'],
+				'name' => Lang::getTxt('no_primary_membergroup', file: 'Profile'),
 				'is_primary' => $this->data['id_group'] == 0,
 				'can_be_additional' => false,
 				'can_be_primary' => true,
@@ -1435,7 +1415,7 @@ class Profile extends User implements \ArrayAccess
 
 		// First check for any linked sets.
 		foreach ($this->standard_fields as $key => $field) {
-			if (isset($field['link_with']) && in_array($field['link_with'], $fields)) {
+			if (isset($field['link_with']) && \in_array($field['link_with'], $fields)) {
 				$fields[] = $key;
 			}
 		}
@@ -1449,14 +1429,14 @@ class Profile extends User implements \ArrayAccess
 				$cur_field = &$this->standard_fields[$field];
 
 				// Does it have a preload and does that preload succeed?
-				if (isset($cur_field['preload']) && !call_user_func(...((array) $cur_field['preload']))) {
+				if (isset($cur_field['preload']) && !\call_user_func(...((array) $cur_field['preload']))) {
 					continue;
 				}
 
 				// If this is anything but complex we need to do more cleaning!
 				if ($cur_field['type'] != 'callback' && $cur_field['type'] != 'hidden') {
 					if (!isset($cur_field['label'])) {
-						$cur_field['label'] = Lang::$txt[$field] ?? $field;
+						$cur_field['label'] = Lang::txtExists($field, file: 'Profile') ? Lang::getTxt($field, file: 'Profile') : $field;
 					}
 
 					// Everything has a value!
@@ -1509,7 +1489,7 @@ class Profile extends User implements \ArrayAccess
 			if (this.oldpasswrd.value == "")
 			{
 				event.preventDefault();
-				alert(' . (Utils::escapeJavaScript(Lang::$txt['required_security_reasons'])) . ');
+				alert(' . (Utils::escapeJavaScript(Lang::getTxt('required_security_reasons', file: 'Profile'))) . ');
 				return false;
 			}
 		}, false);' : ''), true);
@@ -1539,14 +1519,14 @@ class Profile extends User implements \ArrayAccess
 		// If $_POST hasn't already been sanitized, do that now.
 		if (!$this->post_sanitized) {
 			$_POST = Utils::htmlTrimRecursive($_POST);
-			$_POST = Utils::htmlspecialcharsRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST, ENT_QUOTES);
 			$this->post_sanitized = true;
 		}
 
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
+		if (User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
 			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
 		}
 
@@ -1561,8 +1541,6 @@ class Profile extends User implements \ArrayAccess
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
-			// Load the language file so we can give a nice explanation of the errors.
-			Lang::load('Errors');
 			Utils::$context['post_errors'] = $this->save_errors;
 
 			return;
@@ -1601,7 +1579,6 @@ class Profile extends User implements \ArrayAccess
 		// Delete any removed custom fields or theme options.
 		if (!empty($this->new_cf_data['deletes']) || !empty($this->new_options['deletes'])) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE id_member = {int:id_member}
 					AND (
@@ -1648,12 +1625,12 @@ class Profile extends User implements \ArrayAccess
 		// Do we have any post save functions to execute?
 		if (!empty(Utils::$context['profile_execute_on_save'])) {
 			foreach (Utils::$context['profile_execute_on_save'] as $saveFunc) {
-				call_user_func(...((array) $saveFunc));
+				\call_user_func(...((array) $saveFunc));
 			}
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', ['name' => $this->username]);
+		Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
@@ -1682,7 +1659,6 @@ class Profile extends User implements \ArrayAccess
 
 		// Email addresses should be and stay unique.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
@@ -1714,7 +1690,7 @@ class Profile extends User implements \ArrayAccess
 		$unassignable = Group::getUnassignable();
 
 		// The account page allows you to change your id_group - but not to a protected group!
-		if (!empty($unassignable) && in_array($value, $unassignable) && !in_array($value, $this->groups)) {
+		if (!empty($unassignable) && \in_array($value, $unassignable) && !\in_array($value, $this->groups)) {
 			$value = $this->data['id_group'];
 		}
 
@@ -1736,12 +1712,11 @@ class Profile extends User implements \ArrayAccess
 
 		// Make sure there is always an admin.
 		if ($this->is_admin) {
-			$stillAdmin = $value == 1 || in_array(1, $additional_groups);
+			$stillAdmin = $value == 1 || \in_array(1, $additional_groups);
 
 			// If they would no longer be an admin, look for another...
 			if (!$stillAdmin) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -1817,7 +1792,7 @@ class Profile extends User implements \ArrayAccess
 				break;
 		}
 
-		if (is_string($result)) {
+		if (\is_string($result)) {
 			return $result;
 		}
 
@@ -1846,7 +1821,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string $dataset Ignored.
+	 * @param string|null $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
 	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
@@ -1890,7 +1865,6 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT *
 			FROM {db_prefix}custom_fields
 			ORDER BY field_order',
@@ -1925,14 +1899,28 @@ class Profile extends User implements \ArrayAccess
 
 			// Too many lines?
 			if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2]) {
-				Lang::$txt['profile_error_signature_max_lines'] = Lang::getTxt('profile_error_signature_max_lines', [$sig_limits[2]]);
+				Lang::setTxt(
+					'profile_error_signature_max_lines',
+					Lang::getTxt(
+						'profile_error_signature_max_lines',
+						[$sig_limits[2]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_lines';
 			}
 
 			// Too many images?!
 			if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3]) {
-				Lang::$txt['profile_error_signature_max_image_count'] = Lang::getTxt('profile_error_signature_max_image_count', [$sig_limits[3]]);
+				Lang::setTxt(
+					'profile_error_signature_max_image_count',
+					Lang::getTxt(
+						'profile_error_signature_max_image_count',
+						[$sig_limits[3]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_image_count';
 			}
@@ -1947,7 +1935,14 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			if (!empty($sig_limits[4]) && $sig_limits[4] > 0 && $smiley_count > $sig_limits[4]) {
-				Lang::$txt['profile_error_signature_max_smileys'] = Lang::getTxt('profile_error_signature_max_smileys', [$sig_limits[4]]);
+				Lang::setTxt(
+					'profile_error_signature_max_smileys',
+					Lang::getTxt(
+						'profile_error_signature_max_smileys',
+						[$sig_limits[4]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_smileys';
 			}
@@ -1969,7 +1964,14 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					if ($limit_broke) {
-						Lang::$txt['profile_error_signature_max_font_size'] = Lang::getTxt('profile_error_signature_max_font_size', [$limit_broke]);
+						Lang::setTxt(
+							'profile_error_signature_max_font_size',
+							Lang::getTxt(
+								'profile_error_signature_max_font_size',
+								[$limit_broke],
+								file: 'Profile',
+							),
+						);
 
 						return 'signature_max_font_size';
 					}
@@ -2033,7 +2035,7 @@ class Profile extends User implements \ArrayAccess
 						if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6])) {
 							$sizes = Image::getSizeExternal($matches[7][$key]);
 
-							if (is_array($sizes)) {
+							if (\is_array($sizes)) {
 								// Too wide?
 								if ($sizes[0] > $sig_limits[5] && $sig_limits[5]) {
 									$width = $sig_limits[5];
@@ -2074,12 +2076,16 @@ class Profile extends User implements \ArrayAccess
 				if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
 					$disabledTags = array_unique($disabledTags);
 
-					Lang::$txt['profile_error_signature_disabled_bbc'] = Lang::getTxt(
+					Lang::setTxt(
 						'profile_error_signature_disabled_bbc',
-						[
-							'num_disabled_tags' => count($disabledTags),
-							'list_disabled_tags' => Lang::sentenceList($disabledTags),
-						],
+						Lang::getTxt(
+							'profile_error_signature_disabled_bbc',
+							[
+								'num_disabled_tags' => \count($disabledTags),
+								'list_disabled_tags' => Lang::sentenceList($disabledTags),
+							],
+							file: 'Profile',
+						),
 					);
 
 					return 'signature_disabled_bbc';
@@ -2093,7 +2099,14 @@ class Profile extends User implements \ArrayAccess
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {
 			$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
 
-			Lang::$txt['profile_error_signature_max_length'] = Lang::getTxt('profile_error_signature_max_length', [$sig_limits[1]]);
+			Lang::setTxt(
+				'profile_error_signature_max_length',
+				Lang::getTxt(
+					'profile_error_signature_max_length',
+					[$sig_limits[1]],
+					file: 'Profile',
+				),
+			);
 
 			return 'signature_max_length';
 		}
@@ -2155,7 +2168,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Make sure there are no evil characters in the input.
-			$_POST[$key] = Utils::sanitizeChars(Utils::normalize($_POST[$key]), in_array($key, ['member_name', 'real_name']) ? 1 : 0);
+			$_POST[$key] = Utils::sanitizeChars(Utils::normalize($_POST[$key]), \in_array($key, ['member_name', 'real_name']) ? 1 : 0);
 
 			// What gets updated?
 			$db_key = $field['save_key'] ?? $key;
@@ -2210,59 +2223,6 @@ class Profile extends User implements \ArrayAccess
 				// And update the user profile.
 				$this->data[$key] = $this->new_data[$db_key];
 			}
-
-			// Logging group changes are a bit different...
-			if ($key == 'id_group' && $field['log_change']) {
-				$this->loadAssignableGroups();
-
-				// Any changes to primary group?
-				if (isset($this->new_data['id_group']) && $this->new_data['id_group'] != $this->group_id) {
-					$this->log_changes[] = [
-						'action' => 'id_group',
-						'log_type' => 'user',
-						'extra' => [
-							'previous' => !empty($this->data[$key]) && isset(Utils::$context['member_groups'][$this->data[$key]]) ? Utils::$context['member_groups'][$this->data[$key]]['name'] : '',
-							'new' => !empty($this->new_data[$key]) && isset(Utils::$context['member_groups'][$this->new_data[$key]]) ? Utils::$context['member_groups'][$this->new_data[$key]]['name'] : '',
-							'applicator' => $this->applicator,
-							'member_affected' => $this->id,
-						],
-					];
-				}
-
-				// Prepare additional groups for comparison.
-				$additional_groups = [
-					'previous' => !empty($this->additional_groups) ? $this->additional_groups : [],
-					'new' => !empty($this->new_data['additional_groups']) ? array_diff(explode(',', $this->new_data['additional_groups']), [0]) : [],
-				];
-
-				sort($additional_groups['previous']);
-				sort($additional_groups['new']);
-
-				// What about additional groups?
-				if ($additional_groups['previous'] != $additional_groups['new']) {
-					foreach ($additional_groups as $type => $groups) {
-						foreach ($groups as $id => $group) {
-							if (isset(Utils::$context['member_groups'][$group])) {
-								$additional_groups[$type][$id] = Utils::$context['member_groups'][$group]['name'];
-							} else {
-								unset($additional_groups[$type][$id]);
-							}
-						}
-						$additional_groups[$type] = implode(', ', $additional_groups[$type]);
-					}
-
-					$this->log_changes[] = [
-						'action' => 'additional_groups',
-						'log_type' => 'user',
-						'extra' => [
-							'previous' => $additional_groups['previous'],
-							'new' => $additional_groups['new'],
-							'applicator' => $this->applicator,
-							'member_affected' => $this->id,
-						],
-					];
-				}
-			}
 		}
 
 		if (!empty($this->new_data['real_name'])) {
@@ -2286,7 +2246,7 @@ class Profile extends User implements \ArrayAccess
 			$_POST['brd'] = [];
 		}
 
-		if (!is_array($_POST['brd'])) {
+		if (!\is_array($_POST['brd'])) {
 			$_POST['brd'] = [$_POST['brd']];
 		}
 
@@ -2347,7 +2307,7 @@ class Profile extends User implements \ArrayAccess
 				}
 
 				// Owners can only modify levels 0 and 2.
-				if (!in_array($cf_def['private'], [0, 2])) {
+				if (!\in_array($cf_def['private'], [0, 2])) {
 					continue;
 				}
 			}
@@ -2374,8 +2334,12 @@ class Profile extends User implements \ArrayAccess
 
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
+					// Decode all entities, including double-encoded ones.
+					while ($value !== html_entity_decode($value)) {
+						$value = html_entity_decode($value);
+					}
+
 					$value = Utils::htmlTrim($value);
-					$valueReference = html_entity_decode($value);
 
 					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
@@ -2384,11 +2348,7 @@ class Profile extends User implements \ArrayAccess
 
 					if (
 						$cf_def['mask'] == 'nohtml'
-						&& (
-							$valueReference != strip_tags($valueReference)
-							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
-							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
-						)
+						&& preg_match('~' . Parsers\MarkdownParser::REGEX_HTML_TAG . '~u', $value)
 					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
@@ -2397,7 +2357,7 @@ class Profile extends User implements \ArrayAccess
 						&& !empty($value)
 						&& (
 							!filter_var($value, FILTER_VALIDATE_EMAIL)
-							|| strlen($value) > 255
+							|| \strlen($value) > 255
 						)
 					) {
 						$mask_error = 'custom_field_mail_fail';
@@ -2413,7 +2373,7 @@ class Profile extends User implements \ArrayAccess
 						$value = '';
 					}
 
-					unset($valueReference);
+					$value = Utils::htmlspecialchars($value, ENT_QUOTES);
 				}
 			}
 
@@ -2422,7 +2382,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// If they tried to set a bad value, report the error.
-			if (is_string($mask_error)) {
+			if (\is_string($mask_error)) {
 				$this->cf_save_errors[] = $mask_error;
 			}
 			// Did it change?
@@ -2478,7 +2438,7 @@ class Profile extends User implements \ArrayAccess
 		// Now that the hook is done, we can set deletes to just the value we need.
 		$this->new_cf_data['deletes'] = array_map(fn($del) => $del['variable'], $deletes);
 
-		if (!empty($hook_errors) && is_array($hook_errors)) {
+		if (!empty($hook_errors) && \is_array($hook_errors)) {
 			$this->cf_save_errors = array_merge($this->cf_save_errors, $hook_errors);
 		}
 
@@ -2502,7 +2462,7 @@ class Profile extends User implements \ArrayAccess
 				continue;
 			}
 
-			if (count(array_intersect(array_keys($_POST[$key]), self::RESERVED_VARS)) != 0) {
+			if (\count(array_intersect(array_keys($_POST[$key]), self::RESERVED_VARS)) != 0) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 		}
@@ -2510,7 +2470,7 @@ class Profile extends User implements \ArrayAccess
 		self::loadCustomFieldDefinitions();
 
 		// These are the theme changes...
-		if (isset($_POST['options']) && is_array($_POST['options'])) {
+		if (isset($_POST['options']) && \is_array($_POST['options'])) {
 			foreach ($_POST['options'] as $opt => $val) {
 				if (isset(self::$custom_field_definitions[$opt])) {
 					continue;
@@ -2529,13 +2489,13 @@ class Profile extends User implements \ArrayAccess
 				$this->new_options['updates'][] = [
 					$id_theme,
 					$opt,
-					is_array($val) ? implode(',', $val) : $val,
+					\is_array($val) ? implode(',', $val) : $val,
 					$this->id,
 				];
 			}
 		}
 
-		if (isset($_POST['default_options']) && is_array($_POST['default_options'])) {
+		if (isset($_POST['default_options']) && \is_array($_POST['default_options'])) {
 			foreach ($_POST['default_options'] as $opt => $val) {
 				if (isset(self::$custom_field_definitions[$opt])) {
 					continue;
@@ -2554,7 +2514,7 @@ class Profile extends User implements \ArrayAccess
 				$this->new_options['updates'][] = [
 					1,
 					$opt,
-					is_array($val) ? implode(',', $val) : $val,
+					\is_array($val) ? implode(',', $val) : $val,
 					$this->id,
 				];
 
@@ -2586,7 +2546,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		while ($line = $dir->read()) {
-			if (in_array($line, ['.', '..', 'blank.png', 'index.php'])) {
+			if (\in_array($line, ['.', '..', 'blank.png', 'index.php'])) {
 				continue;
 			}
 
@@ -2605,8 +2565,8 @@ class Profile extends User implements \ArrayAccess
 		if ($level == 0) {
 			$result[] = [
 				'filename' => 'blank.png',
-				'checked' => in_array(Utils::$context['member']['avatar']['server_pic'], ['', 'blank.png']),
-				'name' => Lang::$txt['no_pic'],
+				'checked' => \in_array(Utils::$context['member']['avatar']['server_pic'], ['', 'blank.png']),
+				'name' => Lang::getTxt('no_pic', file: 'Profile'),
 				'is_dir' => false,
 			];
 		}
@@ -2628,7 +2588,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		foreach ($files as $line) {
-			$filename = substr($line, 0, (strlen($line) - strlen(strrchr($line, '.'))));
+			$filename = substr($line, 0, (\strlen($line) - \strlen(strrchr($line, '.'))));
 			$extension = substr(strrchr($line, '.'), 1);
 
 			// Make sure it is an image.
@@ -2668,7 +2628,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Reset the attach ID.
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 	}
@@ -2709,7 +2669,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Get rid of their old avatar.
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 	}
@@ -2734,7 +2694,7 @@ class Profile extends User implements \ArrayAccess
 		$url = str_replace(' ', '%20', $url);
 
 		// External URL is too long.
-		if (strlen($url) > 255) {
+		if (\strlen($url) > 255) {
 			return 'bad_avatar_url_too_long';
 		}
 
@@ -2774,7 +2734,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Remove any attached avatar...
 		$this->data['id_attach'] = 0;
-		$this->data['attachment_type'] = 0;
+		$this->data['attachment_type'] = Attachment::TYPE_STANDARD;
 		$this->data['filename'] = '';
 		Attachment::remove(['id_member' => $this->id]);
 
@@ -2904,11 +2864,11 @@ class Profile extends User implements \ArrayAccess
 				],
 			],
 			['id_attach'],
-			1,
+			Db::INSERT_RETURN_MODE_SINGLE,
 		);
 
 		$this->data['filename'] = $image->pathinfo['basename'];
-		$this->data['attachment_type'] = 1;
+		$this->data['attachment_type'] = Attachment::TYPE_AVATAR;
 
 		return null;
 	}
@@ -2960,7 +2920,6 @@ class Profile extends User implements \ArrayAccess
 
 		// Log the user out.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:selected_member}',
 			[
@@ -2988,13 +2947,10 @@ class Profile extends User implements \ArrayAccess
 	 * - mails the new password to the email address of the user.
 	 * - if username is not set, only a new password is generated and sent.
 	 *
-	 * @param string $username The new username. If set, also checks the validity of the username
+	 * @param string|null $username The new username. If set, also checks the validity of the username
 	 */
 	protected function resetPassword(?string $username = null): void
 	{
-		// Language...
-		Lang::load('Login');
-
 		if ($username !== null) {
 			$username = trim(Utils::normalizeSpaces(Utils::sanitizeChars($username, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 		}
@@ -3036,7 +2992,7 @@ class Profile extends User implements \ArrayAccess
 	protected static function reloadUser(int $memID): void
 	{
 		if ($memID == User::$me->id && isset($_POST['passwrd2']) && $_POST['passwrd2'] != '') {
-			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
+			Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
 		}
 
 		User::reload($memID, 'profile');
@@ -3046,8 +3002,6 @@ class Profile extends User implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Profile::class, 'exportStatic'])) {
+if (\is_callable([Profile::class, 'exportStatic'])) {
 	Profile::exportStatic();
 }
-
-?>

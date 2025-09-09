@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -24,7 +24,6 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Mentions;
 use SMF\Parser;
-use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -36,6 +35,10 @@ use SMF\Utils;
  */
 class CreatePost_Notify extends BackgroundTask
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Constants for reply types.
 	 */
@@ -59,8 +62,14 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public const MENTION_DELAY = 5;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
-	 * @var array Info about members to be notified.
+	 * @var array
+	 *
+	 * Info about members to be notified.
 	 */
 	private $members = [
 		// These three contain nested arrays of member info.
@@ -76,20 +85,30 @@ class CreatePost_Notify extends BackgroundTask
 	];
 
 	/**
-	 * @var array Alerts to be inserted into the alerts table.
+	 * @var array
+	 *
+	 * Alerts to be inserted into the alerts table.
 	 */
 	private $alert_rows = [];
 
 	/**
-	 * @var array Members' notification and alert preferences.
+	 * @var array
+	 *
+	 * Members' notification and alert preferences.
 	 */
 	private $prefs = [];
 
 	/**
-	 * @var int Timestamp after which email notifications should be sent about
-	 *			mentions and quotes in unwatched and/or edited posts.
+	 * @var int
+	 *
+	 * Timestamp after which email notifications should be sent about mentions
+	 * and quotes in unwatched and/or edited posts.
 	 */
 	private $mention_mail_time = 0;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -110,8 +129,7 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Board id is required; if missing, log an error and return
 		if (!isset($topicOptions['board'])) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::$txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			ErrorHandler::log(Lang::getTxt('missing_board_id', file: 'Errors'), 'general', __FILE__, __LINE__);
 
 			return true;
 		}
@@ -139,7 +157,6 @@ class CreatePost_Notify extends BackgroundTask
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, deny
 			FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:current_board}',
@@ -156,7 +173,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
@@ -181,7 +197,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			$is_denied = array_intersect($group_permissions['denied'], $groups) != [];
 
-			if (!in_array(1, $groups) && ($is_denied || array_intersect($groups, $group_permissions['allowed']) == [])) {
+			if (!\in_array(1, $groups) && ($is_denied || array_intersect($groups, $group_permissions['allowed']) == [])) {
 				continue;
 			}
 
@@ -197,9 +213,14 @@ class CreatePost_Notify extends BackgroundTask
 		if (!empty($this->members['mentioned']) || !empty($this->members['quoted'])) {
 			foreach (['mentioned', 'quoted'] as $member_type) {
 				foreach ($this->members[$member_type] as $member_id => $member_data) {
+					// The member receiving the alert has ignored the member mentioning them.
+					if (!empty($member_data['mentioned_by']['ignored'])) {
+						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
+					}
+
 					$is_denied = array_intersect($group_permissions['denied'], $member_data['groups']) != [];
 
-					if (!in_array(1, $member_data['groups']) && ($is_denied || array_intersect($member_data['groups'], $group_permissions['allowed']) == [])) {
+					if (!\in_array(1, $member_data['groups']) && ($is_denied || array_intersect($member_data['groups'], $group_permissions['allowed']) == [])) {
 						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
 					}
 				}
@@ -235,7 +256,6 @@ class CreatePost_Notify extends BackgroundTask
 			else {
 				if (!empty($this->_details['respawns'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT modified_time
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:msg}
@@ -300,7 +320,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		if (!empty($members_to_log)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
@@ -352,35 +371,23 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			if ($new_details['respawns']++ < 10) {
-				Db::$db->insert(
-					'',
-					'{db_prefix}background_tasks',
-					[
-						'task_class' => 'string',
-						'task_data' => 'string',
-						'claimed_time' => 'int',
-					],
-					[
-						[
-							'SMF\\Tasks\\CreatePost_Notify',
-							Utils::jsonEncode($new_details),
-							max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
-						],
-					],
-					['id_task'],
-				);
+				$this->respawn($new_details, $this->mention_mail_time);
 			}
 		}
 
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Update an alert if a message was updated since the alert was created.
 	 *
 	 * @param int $msg_id Message ID to update
 	 */
-	private function updateAlerts(int $msg_id): void
+	protected function updateAlerts(int $msg_id): void
 	{
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns'])) {
@@ -392,7 +399,6 @@ class CreatePost_Notify extends BackgroundTask
 			$old_alerts = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT content_action, id_member
 				FROM {db_prefix}user_alerts
 				WHERE content_id = {int:msg_id}
@@ -412,7 +418,6 @@ class CreatePost_Notify extends BackgroundTask
 
 			if (!empty($old_alerts)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT content_type, id_mentioned
 					FROM {db_prefix}mentions
 					WHERE content_id = {int:msg_id}
@@ -474,7 +479,7 @@ class CreatePost_Notify extends BackgroundTask
 
 		$user_ids = array_keys($this->members['watching']);
 
-		if (!in_array($posterOptions['id'], $user_ids)) {
+		if (!\in_array($posterOptions['id'], $user_ids)) {
 			$user_ids[] = $posterOptions['id'];
 		}
 		User::load($user_ids, User::LOAD_BY_ID, 'minimal');
@@ -482,7 +487,7 @@ class CreatePost_Notify extends BackgroundTask
 		$parsed_message = [];
 
 		foreach ($this->members['watching'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -491,17 +496,17 @@ class CreatePost_Notify extends BackgroundTask
 
 			// Don't send a notification if:
 			// 1. The watching member ignored the member who did the action.
-			if (!empty($member_data['pm_ignore_list']) && in_array($member_data['id_member_updated'], explode(',', $member_data['pm_ignore_list']))) {
+			if (!empty($member_data['pm_ignore_list']) && \in_array($member_data['id_member_updated'], explode(',', $member_data['pm_ignore_list']))) {
 				continue;
 			}
 
 			// 2. The watching member is not interested in moderation on this topic.
-			if (!in_array($type, ['reply', 'topic']) && ($notify_types == self::NOTIFY_TYPE_ONLY_REPLIES || ($notify_types == self::NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION && $member_id != $member_data['id_member_started']))) {
+			if (!\in_array($type, ['reply', 'topic']) && ($notify_types == self::NOTIFY_TYPE_ONLY_REPLIES || ($notify_types == self::NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION && $member_id != $member_data['id_member_started']))) {
 				continue;
 			}
 
 			// 3. This is the watching member's own post.
-			if (in_array($type, ['reply', 'topic']) && $member_id == $posterOptions['id']) {
+			if (\in_array($type, ['reply', 'topic']) && $member_id == $posterOptions['id']) {
 				continue;
 			}
 
@@ -511,7 +516,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// 5. The watching member doesn't want notifications until later.
-			if (in_array($frequency, [
+			if (\in_array($frequency, [
 				self::FREQUENCY_NOTHING,
 				self::FREQUENCY_DAILY_DIGEST,
 				self::FREQUENCY_WEEKLY_DIGEST])) {
@@ -524,7 +529,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// 7. The watching member isn't on club security's VIP list.
-			if (!empty($this->_details['members_only']) && !in_array($member_id, $this->_details['members_only'])) {
+			if (!empty($this->_details['members_only']) && !\in_array($member_id, $this->_details['members_only'])) {
 				continue;
 			}
 
@@ -564,8 +569,6 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			Lang::load('General+Modifications+ThemeStrings', $member_data['lngfile'], false);
-
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {
@@ -573,7 +576,7 @@ class CreatePost_Notify extends BackgroundTask
 				Parser::$time_offset = $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
 				Parser::$smiley_set = $member_data['smiley_set'];
-				Parser::$locale = Lang::$txt['lang_locale'];
+				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
@@ -611,7 +614,7 @@ class CreatePost_Notify extends BackgroundTask
 				Parser::$time_offset = User::$me->time_offset;
 				Parser::$time_format = User::$me->$time_format;
 				Parser::$smiley_set = (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
-				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language);
+				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
 			}
 
 			// Bitwise check: Receiving an alert?
@@ -620,8 +623,8 @@ class CreatePost_Notify extends BackgroundTask
 					'alert_time' => time(),
 					'id_member' => (int) $member_id,
 					// Only tell sender's information for new topics and replies
-					'id_member_started' => in_array($type, ['topic', 'reply']) ? (int) $posterOptions['id'] : 0,
-					'member_name' => in_array($type, ['topic', 'reply']) ? $posterOptions['name'] : '',
+					'id_member_started' => \in_array($type, ['topic', 'reply']) ? (int) $posterOptions['id'] : 0,
+					'member_name' => \in_array($type, ['topic', 'reply']) ? $posterOptions['name'] : '',
 					'content_type' => $content_type,
 					'content_id' => (int) $topicOptions['id'],
 					'content_action' => $type,
@@ -630,7 +633,7 @@ class CreatePost_Notify extends BackgroundTask
 						'topic' => (int) $topicOptions['id'],
 						'board' => (int) $topicOptions['board'],
 						'content_subject' => $parsed_message[$localization]['subject'],
-						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, ['reply', 'topic']) ? '.new;topicseen#new' : '.0'),
+						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (\in_array($type, ['reply', 'topic']) ? '.new;topicseen#new' : '.0'),
 					]),
 				];
 			}
@@ -672,7 +675,7 @@ class CreatePost_Notify extends BackgroundTask
 		User::load($posterOptions['id'], User::LOAD_BY_ID, 'minimal');
 
 		foreach ($this->members['quoted'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -709,7 +712,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['quoted_members'][$member_id]);
-			} elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching'])) {
+			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'QUOTENAME' => Utils::htmlspecialcharsDecode(User::$loaded[$posterOptions['id']]->name ?? $posterOptions['name']),
@@ -741,7 +744,7 @@ class CreatePost_Notify extends BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 
 		foreach ($this->members['mentioned'] as $member_id => $member_data) {
-			if (in_array($member_id, $this->members['done'])) {
+			if (\in_array($member_id, $this->members['done'])) {
 				continue;
 			}
 
@@ -778,7 +781,7 @@ class CreatePost_Notify extends BackgroundTask
 			if (!($pref & self::RECEIVE_NOTIFY_EMAIL)) {
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['mentioned_members'][$member_id]);
-			} elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching'])) {
+			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'MENTIONNAME' => $member_data['mentioned_by']['name'],
@@ -802,5 +805,3 @@ class CreatePost_Notify extends BackgroundTask
 		}
 	}
 }
-
-?>

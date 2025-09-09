@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,7 +22,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -33,7 +33,15 @@ if (!defined('SMF')) {
  */
 class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const CLASS_KEY = 'cache_memcached';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -49,8 +57,12 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	private $servers;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function __construct()
 	{
@@ -72,7 +84,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -86,7 +98,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -97,7 +109,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		$level = 0;
 
 		// We should keep trying if a server times out, but only for the amount of servers we have.
-		while (!$connected && $level < count($this->servers)) {
+		while (!$connected && $level < \count($this->servers)) {
 			++$level;
 
 			$server = $this->servers[array_rand($this->servers)];
@@ -122,7 +134,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -139,7 +151,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -149,7 +161,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function quit(): bool
 	{
@@ -157,7 +169,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -167,19 +179,20 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
-		if (!in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
-			$config_vars[] = Lang::$txt[self::CLASS_KEY . '_settings'];
+		if (!\in_array(Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings'), $config_vars)) {
+			$config_vars[] = Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings');
 			$config_vars[] = [
 				self::CLASS_KEY,
-				Lang::$txt[self::CLASS_KEY . '_servers'],
+				Lang::getTxt(self::CLASS_KEY . '_servers', file: 'ManageSettings'),
 				'file',
 				'text',
 				0,
-				'subtext' => Lang::$txt[self::CLASS_KEY . '_servers_subtext']];
+				'subtext' => Lang::getTxt(self::CLASS_KEY . '_servers_subtext', file: 'ManageSettings'),
+			];
 		}
 
 		if (!isset(Utils::$context['settings_post_javascript'])) {
@@ -196,11 +209,11 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
-		if (!is_object($this->memcache)) {
+		if (!\is_object($this->memcache)) {
 			return false;
 		}
 
@@ -214,5 +227,3 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		return false;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -53,14 +53,14 @@ class EventOccurrence implements \ArrayAccess
 	public int $id_event;
 
 	/**
-	 * @var SMF\Time
+	 * @var Time
 	 *
 	 * A Time object representing the start of this occurrence of the event.
 	 */
 	public Time $start;
 
 	/**
-	 * @var SMF\Time
+	 * @var EventAdjustment
 	 *
 	 * An EventAdjustment object representing changes made to this occurrence of
 	 * the event, if any.
@@ -93,7 +93,7 @@ class EventOccurrence implements \ArrayAccess
 	];
 
 	/**
-	 * @var SMF\Time
+	 * @var Time
 	 *
 	 * A Time object representing the unadjusted start of this occurrence.
 	 */
@@ -108,7 +108,6 @@ class EventOccurrence implements \ArrayAccess
 	 *
 	 * @param int $id_event The ID number of the parent event.
 	 * @param array $props Properties to set for this occurrence.
-	 * @return EventOccurrence An instance of this class.
 	 */
 	public function __construct(int $id_event = 0, array $props = [])
 	{
@@ -214,7 +213,7 @@ class EventOccurrence implements \ArrayAccess
 		$filecontents[] = 'RECURRENCE-ID' . (isset($this->adjustment) && $this->adjustment->affects_future ? ';RANGE=THISANDFUTURE' : '') . ($this->allday ? ';VALUE=DATE' : '') . ':' . $this->id;
 
 		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', $this->modified_time ?? time());
-		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
+		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!\in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (\in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
 		$filecontents[] = 'DURATION:' . (string) $this->duration;
 
 		if ($this->getParentEvent() instanceof Holiday) {
@@ -491,7 +490,7 @@ class EventOccurrence implements \ArrayAccess
 	 */
 	public function __isset(string $prop): bool
 	{
-		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
+		if (\in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
 		}
 
@@ -669,5 +668,3 @@ class EventOccurrence implements \ArrayAccess
 		}
 	}
 }
-
-?>

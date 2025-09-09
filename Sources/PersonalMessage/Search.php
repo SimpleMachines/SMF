@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -183,11 +184,11 @@ class Search
 		Utils::$context['start'] = &$this->start;
 		Utils::$context['params'] = &$this->compressed_params;
 
-		Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_search_title', file: 'PersonalMessage');
 		Menu::$loaded['pm']['current_area'] = 'search';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=search',
-			'name' => Lang::$txt['pm_search_bar_title'],
+			'name' => Lang::getTxt('pm_search_bar_title', file: 'PersonalMessage'),
 		];
 	}
 
@@ -213,17 +214,15 @@ class Search
 			Utils::$context['search_labels'][] = [
 				'id' => $label['id'],
 				'name' => $label['name'],
-				'checked' => !empty($searchedLabels) ? in_array($label['id'], $searchedLabels) : true,
+				'checked' => !empty($searchedLabels) ? \in_array($label['id'], $searchedLabels) : true,
 			];
 		}
 
 		// Are all the labels checked?
-		Utils::$context['check_all'] = empty($searchedLabels) || count(Utils::$context['search_labels']) == count($searchedLabels);
+		Utils::$context['check_all'] = empty($searchedLabels) || \count(Utils::$context['search_labels']) == \count($searchedLabels);
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
-
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -231,7 +230,7 @@ class Search
 					continue;
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 
@@ -243,7 +242,7 @@ class Search
 	 */
 	public function performSearch(): void
 	{
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
@@ -286,7 +285,6 @@ class Search
 
 		// @todo This doesn't support sent item searching yet.
 		$request = Db::$db->query(
-			'',
 			'SELECT pm.id_pm, pm.id_member_from
 			FROM {db_prefix}pm_recipients AS pmr
 				INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)
@@ -313,9 +311,9 @@ class Search
 		}
 		Db::$db->free_result($request);
 
-		Utils::$context['num_results'] = count($pms);
-		Utils::$context['messages'] = array_slice($pms, $this->start, $this->per_page);
-		Utils::$context['posters'] = array_slice($posters, $this->start, $this->per_page);
+		Utils::$context['num_results'] = \count($pms);
+		Utils::$context['messages'] = \array_slice($pms, $this->start, $this->per_page);
+		Utils::$context['posters'] = \array_slice($posters, $this->start, $this->per_page);
 
 		// Load the users...
 		User::load(Utils::$context['posters']);
@@ -402,7 +400,7 @@ class Search
 			list($this->params['sort'], $this->params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 		}
 
-		$this->params['sort'] = !empty($this->params['sort']) && in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'pm.id_pm';
+		$this->params['sort'] = !empty($this->params['sort']) && \in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'pm.id_pm';
 
 		$this->params['sort_dir'] = !empty($this->params['sort_dir']) && $this->params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 	}
@@ -460,10 +458,10 @@ class Search
 
 		$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
 
-		for ($k = 0, $n = count($possible_users); $k < $n; $k++) {
+		for ($k = 0, $n = \count($possible_users); $k < $n; $k++) {
 			$possible_users[$k] = trim($possible_users[$k]);
 
-			if (strlen($possible_users[$k]) == 0) {
+			if (\strlen($possible_users[$k]) == 0) {
 				unset($possible_users[$k]);
 			}
 		}
@@ -490,7 +488,6 @@ class Search
 		// Who matches those criteria?
 		// @todo This doesn't support sent item searching.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . implode(' OR ', $where_clause),
@@ -539,7 +536,7 @@ class Search
 			}
 
 			// Assuming we have some labels - make them all integers.
-			if (!empty($_REQUEST['searchlabel']) && is_array($_REQUEST['searchlabel'])) {
+			if (!empty($_REQUEST['searchlabel']) && \is_array($_REQUEST['searchlabel'])) {
 				$_REQUEST['searchlabel'] = array_map('intval', $_REQUEST['searchlabel']);
 			} else {
 				$_REQUEST['searchlabel'] = [];
@@ -553,9 +550,9 @@ class Search
 				Utils::$context['search_errors']['no_labels_selected'] = true;
 			}
 			// Otherwise prepare the query!
-			elseif (count($_REQUEST['searchlabel']) != count(Label::$loaded)) {
+			elseif (\count($_REQUEST['searchlabel']) != \count(Label::$loaded)) {
 				// Special case here... "inbox" isn't a real label...
-				if (in_array(-1, $_REQUEST['searchlabel'])) {
+				if (\in_array(-1, $_REQUEST['searchlabel'])) {
 					Utils::$context['search_in'][] = Label::$loaded[-1]['name'];
 
 					$this->label_query = '	AND pmr.in_inbox = {int:in_inbox}';
@@ -615,12 +612,12 @@ class Search
 	protected function setSearchQuery(): void
 	{
 		// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), $this->params['search'], $matches, PREG_PATTERN_ORDER);
+		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~u', $this->params['search'], $matches, PREG_PATTERN_ORDER);
 
 		$searchArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
+		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~u', ' ', $this->params['search']));
 
 		// A minus sign in front of a word excludes the word.... so...
 		$excludedWords = [];
@@ -630,7 +627,7 @@ class Search
 			if ($word == '-') {
 				$word = Utils::strtolower(trim($searchArray[$index]));
 
-				if (strlen($word) > 0) {
+				if (\strlen($word) > 0) {
 					$excludedWords[] = $word;
 				}
 
@@ -643,7 +640,7 @@ class Search
 			if (str_starts_with(trim($word), '-')) {
 				$word = substr(Utils::strtolower($word), 1);
 
-				if (strlen($word) > 0) {
+				if (\strlen($word) > 0) {
 					$excludedWords[] = $word;
 				}
 
@@ -687,9 +684,9 @@ class Search
 			}
 
 			if ($this->params['subject_only']) {
-				$andQueryParts[] = 'pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
+				$andQueryParts[] = 'pm.subject' . (\in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '}';
 			} else {
-				$andQueryParts[] = '(pm.subject' . (in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '} ' . (in_array($word, $excludedWords) ? 'AND pm.body NOT' : 'OR pm.body') . ' LIKE {string:search_' . $index . '})';
+				$andQueryParts[] = '(pm.subject' . (\in_array($word, $excludedWords) ? ' NOT' : '') . ' LIKE {string:search_' . $index . '} ' . (\in_array($word, $excludedWords) ? 'AND pm.body NOT' : 'OR pm.body') . ' LIKE {string:search_' . $index . '})';
 			}
 
 			$this->searchq_parameters['search_' . $index] = '%' . strtr($word, ['_' => '\\_', '%' => '\\%']) . '%';
@@ -702,5 +699,3 @@ class Search
 		}
 	}
 }
-
-?>

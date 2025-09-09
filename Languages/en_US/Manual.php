@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Manual
+// Version: 3.0 Alpha 4; Manual
 
 /* Everything in this file is for the Simple Machines help manual
    If you are looking at translating the manual into another language
@@ -35,5 +35,3 @@ $txt['manual_section_calendar_desc'] = 'Users can keep track of events, holidays
 $txt['manual_section_features_desc'] = 'Here is a list of the most popular features in SMF.';
 
 $txt['agreement_disabled'] = 'Registration agreement disabled';
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -106,7 +106,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -121,7 +121,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -150,7 +150,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -158,15 +158,15 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		return (Utils::entityStrlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0)) <=> (Utils::entityStrlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0));
+		return (Utils::entityStrlen($a) - (\in_array($a, $this->excludedWords) ? 1000 : 0)) <=> (Utils::entityStrlen($b) - (\in_array($b, $this->excludedWords) ? 1000 : 0));
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -190,7 +190,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT (
 					pg_total_relation_size({string:dictionary})
 					+ pg_total_relation_size({string:parsed})
@@ -208,7 +207,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT (data_length + index_length) AS size
 				FROM information_schema.TABLES
 				WHERE table_schema = {string:db_name}
@@ -233,7 +231,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -244,7 +242,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$word = $this->prepareString($word);
 
 		// Is this a blacklisted word?
-		if (in_array($word, $this->blacklisted_words)) {
+		if (\in_array($word, $this->blacklisted_words)) {
 			foreach ($keys as $key) {
 				unset($wordsSearch['all_words'][$key]);
 			}
@@ -261,7 +259,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -282,7 +280,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			$all_words = array_merge($all_words, array_keys($temp));
 
-			if (count($temp) > 1) {
+			if (\count($temp) > 1) {
 				$phrases[] = array_keys($temp);
 			} else {
 				$single_words[] = key($temp);
@@ -313,7 +311,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT sd.word, si.id_msg, si.wordnums
 			FROM {db_prefix}log_search_dictionary AS sd
 				INNER JOIN {db_prefix}log_search_parsed AS si ON (sd.id_word = si.id_word)
@@ -360,7 +357,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				}
 
 				// If this word is only wanted when within the phrase, remove its separate entry.
-				if (!in_array($word, $single_words)) {
+				if (!\in_array($word, $single_words)) {
 					unset($found[$word]);
 				}
 			}
@@ -399,13 +396,13 @@ class Parsed extends SearchApi implements SearchApiInterface
 		// Help SearchResult::highlight() to highlight the matches we actually
 		// found, not just the strings that were originally requested.
 		foreach (array_keys($found) as $word) {
-			$word = Utils::fixUtf8mb4(Utils::normalize(Utils::entityDecode($word, true), 'c'));
+			$word = Db::$db->fix_mb4(Utils::normalize(Utils::entityDecode($word), 'c'));
 
-			if (!in_array($word, $this->searchArray)) {
+			if (!\in_array($word, $this->searchArray)) {
 				$this->searchArray[] = $word;
 				$this->marked[$word] = '<mark class="highlight">' . $word . '</mark>';
 
-				if (!is_array($this->params['alt_forms'] ?? '')) {
+				if (!\is_array($this->params['alt_forms'] ?? '')) {
 					$this->params['alt_forms'] = [];
 				}
 
@@ -473,7 +470,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		// Returning this query is the purpose of the method.
 		return Db::$db->search_query(
-			'insert_into_log_messages_parsed',
 			'INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')' . '
 			SELECT ' . implode(', ', $query_select) . '
@@ -482,11 +478,12 @@ class Parsed extends SearchApi implements SearchApiInterface
 				AND ', $query_where) . (empty($search_data['max_results']) ? '' : '
 			LIMIT ' . ($search_data['max_results'] - $search_data['indexed_results'])),
 			$query_params,
+			identifier: 'insert_into_log_messages_parsed',
 		);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -502,7 +499,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -526,7 +523,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
@@ -550,11 +547,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function formContext(): void
 	{
-		Utils::$context['search_params']['ignore_accents'] = !empty(Utils::$context['search_params']['ignore_accents']) || (!isset(Utils::$context['search_params']['ignore_accents']) && !empty(Lang::$txt['search_ignore_accents_by_default']));
+		Utils::$context['search_params']['ignore_accents'] = !empty(Utils::$context['search_params']['ignore_accents']) || (!isset(Utils::$context['search_params']['ignore_accents']) && !empty(Lang::getTxt('search_ignore_accents_by_default', file: 'Search')));
 
 
 		Utils::$context['search_options']['ignore_accents'] = [
@@ -564,7 +561,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultsContext(): void
 	{
@@ -572,7 +569,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(?string $type = null): array
 	{
@@ -604,7 +601,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			],
 		];
 
-		return is_null($type) ? $subactions : (isset($subactions[$type]) ? [$subactions[$type]] : []);
+		return \is_null($type) ? $subactions : (isset($subactions[$type]) ? [$subactions[$type]] : []);
 	}
 
 	/***********************
@@ -653,7 +650,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		if (SMF === 'BACKGROUND') {
 			$instance = new self();
 
-			$memory_limit = Sapi::memoryReturnBytes(ini_get('memory_limit')) * 0.8;
+			$memory_limit = Sapi::memoryReturnBytes(\ini_get('memory_limit')) * 0.8;
 
 			$word_data = [];
 
@@ -758,7 +755,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT d.word
 			FROM {db_prefix}log_search_parsed AS p
 				INNER JOIN {db_prefix}log_search_dictionary AS d ON (p.id_word = d.id_word)
@@ -774,10 +770,10 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		Db::$db->free_result($request);
 
-		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
+		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w)), $stopwords);
 
 		Config::updateModSettings([
-			'search_stopwords_parsed' => implode(',', $stopwords),
+			'search_stopwords_parsed' => implode(',', array_diff($stopwords, self::getLangStopWords())),
 			'search_stopwords_parsed_updated' => time(),
 		]);
 	}
@@ -797,13 +793,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		// Blacklist any stopwords for the current language.
-		if (isset(Lang::$txt['search_stopwords'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
-			));
-		}
+		// Blacklist any stopwords for the installed languages.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			self::getLangStopWords(),
+		));
 
 		// Blacklist any stopwords that we found automatically.
 		if (isset(Config::$modSettings['search_stopwords_parsed'])) {
@@ -836,7 +830,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		// Some extra stuff that is specific to this API.
 		self::$default_params['alt_forms'] = '';
-		self::$default_params['ignore_accents'] = !empty(Lang::$txt['search_ignore_accents_by_default']);
+		self::$default_params['ignore_accents'] = !empty(Lang::getTxt('search_ignore_accents_by_default', file: 'Search'));
 
 		$this->params['ignore_accents'] = !empty($this->params['ignore_accents']) || !empty($_REQUEST['ignore_accents']);
 	}
@@ -947,13 +941,12 @@ class Parsed extends SearchApi implements SearchApiInterface
 				[
 					'id_word',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			foreach ($msg_data as $msg => $wordnums) {
-				if (!is_array($wordnums)) {
+				if (!\is_array($wordnums)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}log_search_parsed
 						WHERE id_word = {int:word} AND id_msg = {int:msg}',
 						[
@@ -969,7 +962,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 				// If this word + message combo already exists, update it.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_search_parsed
 					SET wordnums = {string:wordnums}
 					WHERE id_word = {int:word} AND id_msg = {int:msg}',
@@ -1051,49 +1043,12 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$string = mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 
 		// Separate emoji from regular words.
-		require_once Config::$sourcedir . '/Unicode/RegularExpressions.php';
+		require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/RegularExpressions.php');
 		$prop_classes = utf8_regex_properties();
 
 		$string = preg_replace_callback(
-			'/' .
-				// Flag emojis
-				'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
-				// Or
-				'|' .
-				// Emoji characters
-				'[' . $prop_classes['Emoji'] . ']' .
-				// Possibly followed by modifiers of various sorts
-				'(' .
-					'[' . $prop_classes['Emoji_Modifier'] . ']' .
-					'|' .
-					'\x{FE0F}\x{20E3}?' .
-					'|' .
-					'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-				')?' .
-				// Possibly concatenated with Zero Width Joiner and more emojis
-				// (e.g. the "family" emoji sequences)
-				'(' .
-					'\x{200D}[' . $prop_classes['Emoji'] . ']' .
-					'(' .
-						'[' . $prop_classes['Emoji_Modifier'] . ']' .
-						'|' .
-						'\x{FE0F}\x{20E3}?' .
-						'|' .
-						'[\x{E0020}-\x{E007E}]+\x{E007F}' .
-					')?' .
-				')*' .
-			'/u',
-			function ($matches) {
-				// Skip lone ASCII characters that are not actually part of an
-				// emoji sequence. This can happen because the digits 0-9 and
-				// the '*' and '#' characters are the base characters for the
-				// "Emoji_Keycap_Sequence" emojis.
-				if (strlen($matches[0]) === 1) {
-					return $matches[0];
-				}
-
-				return ' ' . $matches[0] . ' ';
-			},
+			Utf8String::emojiRegex(),
+			fn($matches) => ' ' . $matches[0] . ' ',
 			$string,
 		);
 
@@ -1109,7 +1064,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 			// Get rid of 'http', 'https', etc.
 			if (isset($url_parts['scheme'])) {
-				$substitute = ltrim(substr($substitute, strlen($url_parts['scheme'])), ':/');
+				$substitute = ltrim(substr($substitute, \strlen($url_parts['scheme'])), ':/');
 			}
 
 			if (isset($url_parts['host'])) {
@@ -1119,7 +1074,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				if (str_contains($trimmed_host, '.')) {
 					$tld = substr($trimmed_host, strrpos($trimmed_host, '.') + 1);
 
-					if (in_array($tld, Url::$basic_tlds)) {
+					if (\in_array($tld, Url::$basic_tlds)) {
 						$trimmed_host = substr($trimmed_host, 0, strrpos($trimmed_host, '.'));
 					}
 				}
@@ -1146,7 +1101,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			if (str_contains($substitute, '.')) {
 				$tld = substr($substitute, strrpos($substitute, '.') + 1);
 
-				if (in_array($tld, Url::$basic_tlds)) {
+				if (\in_array($tld, Url::$basic_tlds)) {
 					$substitute = substr($substitute, 0, strrpos($substitute, '.'));
 				}
 			}
@@ -1197,7 +1152,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			$word = Utils::truncate(Utils::fixUtf8mb4($word), 255);
+			$word = Utils::truncate(Db::$db->fix_mb4($word), 255);
 
 			$word_data[$word][] = $wordnum;
 		}
@@ -1222,7 +1177,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		$string = preg_replace_callback(
 			'/[\p{Mn}]/u',
-			fn($matches) => mb_encode_numericentity($matches[0], [0, 0xFFFFFF, 0, 0x10FFFF], 'UTF-8'),
+			fn($matches) => mb_encode_numericentity($matches[0], [0, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8'),
 			$string,
 		);
 
@@ -1261,7 +1216,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		} else {
 			// MySQL needs more work...
 			$request = Db::$db->query(
-				'',
 				'SELECT COLLATION_NAME
 				FROM information_schema.columns
 				WHERE TABLE_SCHEMA = {string:db_name}
@@ -1385,5 +1339,3 @@ class Parsed extends SearchApi implements SearchApiInterface
 		);
 	}
 }
-
-?>

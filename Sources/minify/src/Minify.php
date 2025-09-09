@@ -147,7 +147,7 @@ abstract class Minify
      *
      * @return string The minified data
      */
-    public function minify($path = null)
+    public function minify($path = null) : string
     {
         $content = $this->execute($path);
 
@@ -165,12 +165,12 @@ abstract class Minify
     /**
      * Minify & gzip the data & (optionally) saves it to a file.
      *
-     * @param string[optional] $path  Path to write the data to
-     * @param int[optional]    $level Compression level, from 0 to 9
+     * @param string[optionl] $path  Path to write the data to
+     * @param int[optional] $level Compression level, from 0 to 9
      *
      * @return string The minified & gzipped data
      */
-    public function gzip($path = null, $level = 9)
+    public function gzip($path = null, $level = 9) : string
     {
         $content = $this->execute($path);
         $content = gzencode($content, $level, FORCE_GZIP);
@@ -205,7 +205,7 @@ abstract class Minify
      *
      * @return string The minified data
      */
-    abstract public function execute($path = null);
+    abstract public function execute(?string $path = null) : string;
 
     /**
      * Load data.
@@ -214,7 +214,7 @@ abstract class Minify
      *
      * @return string
      */
-    protected function load($data)
+    protected function load($data) : string
     {
         // check if the data is a file
         if ($this->canImportFile($data)) {

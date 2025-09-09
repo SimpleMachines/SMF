@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -116,7 +116,7 @@ class SmStats implements ActionInterface, Routable
 			}
 
 			if ($fp) {
-				$length = strlen($stats_to_send);
+				$length = \strlen($stats_to_send);
 
 				$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
 				$out .= 'Host: www.simplemachines.org' . "\r\n";
@@ -134,5 +134,3 @@ class SmStats implements ActionInterface, Routable
 		die('OK');
 	}
 }
-
-?>

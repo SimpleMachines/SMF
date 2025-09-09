@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Themes
+// Version: 3.0 Alpha 4; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -39,7 +39,7 @@ $txt['theme_install_error_file_1'] = 'The uploaded file exceeds the upload_max_f
 $txt['theme_install_error_file_2'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.';
 $txt['theme_install_error_file_3'] = 'The uploaded file was only partially uploaded.';
 $txt['theme_install_error_file_4'] = 'No file was uploaded.';
-$txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
+$txt['theme_install_error_file_6'] = 'Missing a temporary upload directory.';
 $txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
 $txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
 $txt['theme_install_already_dir'] = 'The name you specified is already been used by another theme, please try a different name.';
@@ -48,8 +48,10 @@ $txt['theme_install_invalid_id'] = 'This is not a valid theme ID.';
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
 $txt['theme_set'] = 'Use this theme';
-$txt['theme_user'] = 'person is using this theme.';
-$txt['theme_users'] = 'people are using this theme.';
+$txt['theme_num_users'] = '{0, plural,
+	one {# person is using this theme.}
+	other {# people are using this theme.}
+}';
 $txt['theme_pick_variant'] = 'Select Variant';
 
 $txt['theme_edit'] = 'Edit Theme';
@@ -153,8 +155,6 @@ $txt['themeadmin_browsing_theme'] = 'Browsing files in theme: {name}';
 $txt['themeadmin_edit_filename'] = 'Filename';
 $txt['themeadmin_edit_modified'] = 'Last Modified';
 $txt['themeadmin_edit_size'] = 'Size';
-$txt['themeadmin_edit_bytes'] = 'B';
-$txt['themeadmin_edit_kilobytes'] = 'KB';
 $txt['themeadmin_edit_error'] = 'The file you tried to save generated the following error:';
 $txt['themeadmin_edit_on_line'] = 'Beginning on line {line, number, integer}';
 $txt['themeadmin_edit_preview'] = 'Preview';
@@ -164,5 +164,3 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 // Open Graph
 $txt['og_image'] = 'Open Graph image';
 $txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
-
-?>

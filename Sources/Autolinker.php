@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -155,13 +155,6 @@ class Autolinker
 	 *********************/
 
 	/**
-	 * @var string
-	 *
-	 * The character encoding being used.
-	 */
-	protected string $encoding = 'UTF-8';
-
-	/**
 	 * @var bool
 	 *
 	 * If true, will only link URLs with basic TLDs.
@@ -239,9 +232,9 @@ class Autolinker
 	 */
 	private static self $instance;
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -251,20 +244,6 @@ class Autolinker
 	public function __construct(bool $only_basic = false)
 	{
 		$this->only_basic = $only_basic;
-
-		if (!empty(Utils::$context['utf8'])) {
-			$this->encoding = 'UTF-8';
-		} else {
-			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : $this->encoding);
-
-			if (in_array($this->encoding, mb_encoding_aliases('UTF-8'))) {
-				$this->encoding = 'UTF-8';
-			}
-		}
-
-		if ($this->encoding !== 'UTF-8') {
-			self::$domain_label_chars = '0-9A-Za-z\-';
-		}
 
 		// In case a mod wants to control behaviour for a special URI scheme.
 		if (!self::$integrate_autolinker_schemes_done) {
@@ -369,7 +348,7 @@ class Autolinker
 	 * detected URLs in the string, and the values are the URLs themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text URLs.
+	 * @param bool $plaintext_only If true, only look for plain text URLs.
 	 * @return array Positional info about any detected URLs.
 	 */
 	public function detectUrls(string $string, bool $plaintext_only = false): array
@@ -379,7 +358,7 @@ class Autolinker
 		// An entity right after the URL can break the autolinker.
 		$string = preg_replace_callback(
 			'~(' . Utils::ENT_LIST . ')*(?=\s|$)~u',
-			fn($matches) => str_repeat(' ', strlen($matches[0])),
+			fn($matches) => str_repeat(' ', \strlen($matches[0])),
 			$string,
 		);
 
@@ -402,15 +381,15 @@ class Autolinker
 					'((?' . '>' . '[^\[]|\[/?(?!' . $no_autolink_regex . ')' . '|(?1))*)' .
 					// 4 = Closing BBC markup element.
 					'(\[/\2\])' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[3])) . $matches[4],
+				'~iu',
+				fn($matches) => $matches[1] . str_repeat('x', \strlen($matches[3])) . $matches[4],
 				$string,
 			);
 
 			// Overwrite all BBC markup elements.
 			$string = preg_replace_callback(
-				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn($matches) => str_repeat(' ', strlen($matches[0])),
+				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~iu',
+				fn($matches) => str_repeat(' ', \strlen($matches[0])),
 				$string,
 			);
 
@@ -423,21 +402,21 @@ class Autolinker
 					'((?' . '>' . '[^<]|</?(?!a)' . '|(?1))*)' .
 					// 3 = Closing 'a' markup element.
 					'(</a>)' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[2])) . $matches[3],
+				'~iu',
+				fn($matches) => $matches[1] . str_repeat('x', \strlen($matches[2])) . $matches[3],
 				$string,
 			);
 
 			// Overwrite all HTML elements.
 			$string = preg_replace_callback(
-				'~</?(\w+)\b([^>]*)>~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
-				fn($matches) => str_repeat(' ', strlen($matches[0])),
+				'~</?(\w+)\b([^>]*)>~iu',
+				fn($matches) => str_repeat(' ', \strlen($matches[0])),
 				$string,
 			);
 		}
 
 		preg_match_all(
-			'~' . $this->url_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . $this->url_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -462,7 +441,7 @@ class Autolinker
 	 * addresses themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text email
+	 * @param bool $plaintext_only If true, only look for plain text email
 	 *    addresses.
 	 * @return array Positional info about any detected email addresses.
 	 */
@@ -474,7 +453,7 @@ class Autolinker
 		$this->setEmailRegex();
 
 		preg_match_all(
-			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -507,7 +486,7 @@ class Autolinker
 		foreach (self::$no_autolink_tags as $tag) {
 			$parts = preg_split('~(\[/' . $tag . '\]|\[' . $tag . '\b(?:[^\]]*)\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				if ($i % 4 == 2) {
 					$placeholder = md5($parts[$i]);
 					$placeholders[$placeholder] = $parts[$i];
@@ -530,8 +509,8 @@ class Autolinker
 
 				foreach ($detected_urls as $pos => $url) {
 					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
-					$prev_pos = $pos;
-					$prev_len = strlen($url);
+					$prev_pos = (int) $pos;
+					$prev_len = \strlen($url);
 
 					// If this isn't a clean URL, leave it alone.
 					if ($url !== (string) Url::create($url)->sanitize()) {
@@ -553,9 +532,9 @@ class Autolinker
 						}
 
 						// Is this version of PHP capable of validating this email address?
-						$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+						$can_validate = \defined('FILTER_FLAG_EMAIL_UNICODE') || \strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
 
-						$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
+						$flags = \defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
 
 						if (!$can_validate || filter_var($url->path, FILTER_VALIDATE_EMAIL, $flags) !== false) {
 							$placeholders[md5($url->path)] = $url->path;
@@ -580,9 +559,9 @@ class Autolinker
 
 					// Make sure that $full_url really is valid
 					if (
-						in_array($url->scheme, self::$schemes['forbidden'])
+						\in_array($url->scheme, self::$schemes['forbidden'])
 						|| (
-							!in_array($url->scheme, self::$schemes['no_authority'])
+							!\in_array($url->scheme, self::$schemes['no_authority'])
 							&& !$full_url->isValid()
 						)
 					) {
@@ -601,25 +580,18 @@ class Autolinker
 		}
 
 		if ($link_emails) {
-			$string = $new_string;
-
 			$detected_emails = $this->detectEmails($string, true);
 
-			if (!empty($detected_emails)) {
-				$new_string = '';
-				$prev_pos = 0;
-				$prev_len = 0;
-
-				foreach ($detected_emails as $pos => $email) {
-					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
-					$prev_pos = $pos;
-					$prev_len = strlen($email);
-
-					$new_string .= '[email]' . $email . '[/email]';
-				}
-
-				$new_string .= substr($string, $prev_pos + $prev_len);
-			}
+			$new_string = strtr(
+				$new_string,
+				array_combine(
+					$detected_emails,
+					array_map(
+						fn($email) => '[email]' . $email . '[/email]',
+						$detected_emails,
+					),
+				),
+			);
 		}
 
 		if (!empty($placeholders)) {
@@ -639,6 +611,19 @@ class Autolinker
 	{
 		static $tags_to_fix_regex;
 
+		$placeholders = [];
+
+		$string = preg_replace_callback(
+			'~\[(nobbc|nolink)\].*?\[/\1\]~',
+			function ($match) use (&$placeholders) {
+				$placeholder = md5($match[0]);
+				$placeholders[$placeholder] = $match[0];
+
+				return $placeholder;
+			},
+			$string,
+		);
+
 		// In case a mod wants to add tags to the list of BBC to fix URLs in.
 		if (!self::$integrate_autolinker_fix_tags_done) {
 			IntegrationHook::call('integrate_autolinker_fix_tags', [&self::$tags_to_fix]);
@@ -652,7 +637,7 @@ class Autolinker
 
 		$parts = preg_split('~(\[/?' . $tags_to_fix_regex . '\b[^\]]*\])~u', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 4 == 1) {
 				unset($href, $bbc);
 
@@ -694,7 +679,7 @@ class Autolinker
 				$first_url = reset($detected_urls);
 
 				// Valid URL.
-				if (count($detected_urls) === 1 && $parts[$i] === $first_url) {
+				if (\count($detected_urls) === 1 && $parts[$i] === $first_url) {
 					// BBC param is unnecessary if it is identical to the content.
 					if (!empty($href) && $href === $first_url) {
 						$parts[$i - 1] = '[' . $bbc . ']';
@@ -705,7 +690,7 @@ class Autolinker
 				}
 
 				// One URL, plus some unexpected cruft...
-				if (count($detected_urls) === 1) {
+				if (\count($detected_urls) === 1) {
 					foreach ($detected_urls as $url) {
 						if (!str_starts_with($parts[$i], $url)) {
 							$parts[$i - 1] = substr($parts[$i], 0, strpos($parts[$i], $url)) . $parts[$i - 1];
@@ -713,14 +698,14 @@ class Autolinker
 						}
 
 						if (!str_ends_with($parts[$i], $url)) {
-							$parts[$i + 1] .= substr($parts[$i], strlen($url));
-							$parts[$i] = substr($parts[$i], 0, strlen($url));
+							$parts[$i + 1] .= substr($parts[$i], \strlen($url));
+							$parts[$i] = substr($parts[$i], 0, \strlen($url));
 						}
 					}
 				}
 
 				// Multiple URLs inside one BBCode? Weird. Fix them.
-				if (count($detected_urls) > 1) {
+				if (\count($detected_urls) > 1) {
 					$parts[$i - 1] = '';
 					$parts[$i + 1] = '';
 
@@ -735,12 +720,12 @@ class Autolinker
 			}
 		}
 
-		return implode('', $parts);
+		return strtr(implode('', $parts), $placeholders);
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -801,9 +786,9 @@ class Autolinker
 		file_put_contents(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js', implode("\n", $js));
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Sets $this->tld_regex.
@@ -814,7 +799,7 @@ class Autolinker
 			return;
 		}
 
-		if (!$this->only_basic && $this->encoding === 'UTF-8') {
+		if (!$this->only_basic) {
 			Url::setTldRegex();
 			$this->tld_regex = Config::$modSettings['tld_regex'];
 		} else {
@@ -1293,5 +1278,3 @@ class Autolinker
 		$this->js_url_regexes['naked_domain'] = $space_lookbehind . '(?:' . $domain . ')(?:(?=\/)' . $path_component . $query_component . $fragment_component . ')?' . $end;
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -21,7 +21,6 @@ use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Poll;
 use SMF\Routable;
 use SMF\Topic;
@@ -55,8 +54,6 @@ class PollVote implements ActionInterface, Routable
 	{
 		// Make sure they can vote.
 		User::$me->isAllowedTo('poll_vote');
-
-		Lang::load('Post');
 
 		$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 
@@ -97,7 +94,6 @@ class PollVote implements ActionInterface, Routable
 
 				// Delete off the log.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_polls
 					WHERE id_member = {int:current_member}
 						AND id_poll = {int:id_poll}',
@@ -118,7 +114,7 @@ class PollVote implements ActionInterface, Routable
 		}
 
 		// Too many options checked!
-		if (count($_REQUEST['options']) > $poll->max_votes) {
+		if (\count($_REQUEST['options']) > $poll->max_votes) {
 			ErrorHandler::fatalLang('poll_too_many_votes', false, [$poll->max_votes]);
 		}
 
@@ -133,7 +129,7 @@ class PollVote implements ActionInterface, Routable
 		}
 
 		// If it's a guest don't let them vote again.
-		if (User::$me->is_guest && count($choices) > 0) {
+		if (User::$me->is_guest && \count($choices) > 0) {
 			// Time is stored in case the poll is reset later, plus what they voted for.
 			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 
@@ -165,5 +161,3 @@ class PollVote implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 }
-
-?>

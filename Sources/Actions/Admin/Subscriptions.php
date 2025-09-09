@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -25,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -39,7 +40,6 @@ use SMF\Utils;
 class Subscriptions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -80,12 +80,6 @@ class Subscriptions implements ActionInterface
 	 */
 	public static array $all = [];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -95,26 +89,24 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Load the required language and template.
-		Lang::load('ManagePaid');
 		Theme::loadTemplate('ManagePaid');
 
-		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
 
 		// Tabs for browsing the different subscription functions.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['paid_subscriptions'],
+			'title' => Lang::getTxt('paid_subscriptions', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['paid_subscriptions_desc'],
+			'description' => Lang::getTxt('paid_subscriptions_desc', file: 'ManagePaid'),
 		];
 
 		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
 			Menu::$loaded['admin']->tab_data['tabs'] = [
 				'view' => [
-					'description' => Lang::$txt['paid_subs_view_desc'],
+					'description' => Lang::getTxt('paid_subs_view_desc', file: 'ManagePaid'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['paid_subs_settings_desc'],
+					'description' => Lang::getTxt('paid_subs_settings_desc', file: 'ManagePaid'),
 				],
 			];
 		}
@@ -122,10 +114,10 @@ class Subscriptions implements ActionInterface
 		// Make sure you can do this.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = \is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -142,13 +134,13 @@ class Subscriptions implements ActionInterface
 		}
 
 		// Some basic stuff.
-		Utils::$context['page_title'] = Lang::$txt['paid_subs_view'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_subs_view', file: 'Admin');
 
 		$all = self::getSubs();
 
 		$listOptions = [
 			'id' => 'subscription_list',
-			'title' => Lang::$txt['subscriptions'],
+			'title' => Lang::getTxt('subscriptions', file: 'ManagePaid'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=view',
 			'get_items' => [
@@ -174,35 +166,35 @@ class Subscriptions implements ActionInterface
 			],
 			'get_count' => [
 				'function' => function () {
-					return count(self::$all);
+					return \count(self::$all);
 				},
 			],
-			'no_items_label' => Lang::$txt['paid_none_yet'],
+			'no_items_label' => Lang::getTxt('paid_none_yet', file: 'ManagePaid'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['paid_name'],
+						'value' => Lang::getTxt('paid_name', file: 'ManagePaid'),
 						'style' => 'width: 35%;',
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
+							return \sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
 						},
 					],
 				],
 				'cost' => [
 					'header' => [
-						'value' => Lang::$txt['paid_cost'],
+						'value' => Lang::getTxt('paid_cost', file: 'ManagePaid'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['flexible'] ? '<em>' . Lang::$txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
+							return $rowData['flexible'] ? '<em>' . Lang::getTxt('flexible', file: 'ManagePaid') . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
 						},
 					],
 				],
 				'pending' => [
 					'header' => [
-						'value' => Lang::$txt['paid_pending'],
+						'value' => Lang::getTxt('paid_pending', file: 'ManagePaid'),
 						'style' => 'width: 18%;',
 						'class' => 'centercol',
 					],
@@ -213,7 +205,7 @@ class Subscriptions implements ActionInterface
 				],
 				'finished' => [
 					'header' => [
-						'value' => Lang::$txt['paid_finished'],
+						'value' => Lang::getTxt('paid_finished', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -223,7 +215,7 @@ class Subscriptions implements ActionInterface
 				],
 				'total' => [
 					'header' => [
-						'value' => Lang::$txt['paid_active'],
+						'value' => Lang::getTxt('paid_active', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -233,12 +225,12 @@ class Subscriptions implements ActionInterface
 				],
 				'is_active' => [
 					'header' => [
-						'value' => Lang::$txt['paid_is_active'],
+						'value' => Lang::getTxt('paid_is_active', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no']) . '</span>';
+							return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . Lang::getTxt($rowData['active'] ? 'yes' : 'no', file: 'General') . '</span>';
 						},
 						'class' => 'centercol',
 					],
@@ -246,7 +238,7 @@ class Subscriptions implements ActionInterface
 				'modify' => [
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . Lang::getTxt('modify', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -254,7 +246,7 @@ class Subscriptions implements ActionInterface
 				'delete' => [
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . Lang::$txt['delete'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . Lang::getTxt('delete', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -266,11 +258,11 @@ class Subscriptions implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_table_headers',
-					'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
+					'value' => '<input type="submit" name="add" value="' . Lang::getTxt('paid_add_subscription', file: 'ManagePaid') . '" class="button">',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
+					'value' => '<input type="submit" name="add" value="' . Lang::getTxt('paid_add_subscription', file: 'ManagePaid') . '" class="button">',
 				],
 			],
 		];
@@ -291,14 +283,13 @@ class Subscriptions implements ActionInterface
 	public function viewUsers(): void
 	{
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['viewing_users_subscribed'];
+		Utils::$context['page_title'] = Lang::getTxt('viewing_users_subscribed', file: 'ManagePaid');
 
 		// ID of the subscription.
 		Utils::$context['sub_id'] = (int) $_REQUEST['sid'];
 
 		// Load the subscription information.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, name, description, cost, length, id_group, add_groups, active
 			FROM {db_prefix}subscriptions
 			WHERE id_subscribe = {int:current_subscription}',
@@ -325,11 +316,11 @@ class Subscriptions implements ActionInterface
 		// Are we searching for people?
 		$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND COALESCE(mem.real_name, {string:guest}) LIKE {string:search}' : '';
 
-		$search_vars = empty($_POST['sub_search']) ? [] : ['search' => '%' . $_POST['sub_search'] . '%', 'guest' => Lang::$txt['guest']];
+		$search_vars = empty($_POST['sub_search']) ? [] : ['search' => '%' . $_POST['sub_search'] . '%', 'guest' => Lang::getTxt('guest', file: 'General')];
 
 		$listOptions = [
 			'id' => 'subscribed_users_list',
-			'title' => Lang::getTxt('view_users_subscribed', $row),
+			'title' => Lang::getTxt('view_users_subscribed', $row, file: 'ManagePaid'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id'],
 			'default_sort_col' => 'name',
@@ -349,16 +340,16 @@ class Subscriptions implements ActionInterface
 					$search_vars,
 				],
 			],
-			'no_items_label' => Lang::$txt['no_subscribers'],
+			'no_items_label' => Lang::getTxt('no_subscribers', file: 'ManagePaid'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['who_member'],
+						'value' => Lang::getTxt('who_member', file: 'General'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['id_member'] == 0 ? Lang::$txt['guest'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
+							return $rowData['id_member'] == 0 ? Lang::getTxt('guest', file: 'General') : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
 						},
 					],
 					'sort' => [
@@ -368,7 +359,7 @@ class Subscriptions implements ActionInterface
 				],
 				'status' => [
 					'header' => [
-						'value' => Lang::$txt['paid_status'],
+						'value' => Lang::getTxt('paid_status', file: 'ManagePaid'),
 						'style' => 'width: 10%;',
 					],
 					'data' => [
@@ -381,7 +372,7 @@ class Subscriptions implements ActionInterface
 				],
 				'payments_pending' => [
 					'header' => [
-						'value' => Lang::$txt['paid_payments_pending'],
+						'value' => Lang::getTxt('paid_payments_pending', file: 'ManagePaid'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -394,7 +385,7 @@ class Subscriptions implements ActionInterface
 				],
 				'start_time' => [
 					'header' => [
-						'value' => Lang::$txt['start_date'],
+						'value' => Lang::getTxt('start_date', file: 'ManagePaid'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
@@ -408,7 +399,7 @@ class Subscriptions implements ActionInterface
 				],
 				'end_time' => [
 					'header' => [
-						'value' => Lang::$txt['end_date'],
+						'value' => Lang::getTxt('end_date', file: 'ManagePaid'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
@@ -427,7 +418,7 @@ class Subscriptions implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . Lang::getTxt('modify', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -452,16 +443,16 @@ class Subscriptions implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="add" value="' . Lang::$txt['add_subscriber'] . '" class="button">
-						<input type="submit" name="finished" value="' . Lang::$txt['complete_selected'] . '" data-confirm="' . Lang::$txt['complete_are_sure'] . '" class="button you_sure">
-						<input type="submit" name="delete" value="' . Lang::$txt['delete_selected'] . '" data-confirm="' . Lang::$txt['delete_are_sure'] . '" class="button you_sure">
+						<input type="submit" name="add" value="' . Lang::getTxt('add_subscriber', file: 'ManagePaid') . '" class="button">
+						<input type="submit" name="finished" value="' . Lang::getTxt('complete_selected', file: 'ManagePaid') . '" data-confirm="' . Lang::getTxt('complete_are_sure', file: 'ManagePaid') . '" class="button you_sure">
+						<input type="submit" name="delete" value="' . Lang::getTxt('delete_selected', file: 'ManagePaid') . '" data-confirm="' . Lang::getTxt('delete_are_sure', file: 'ManagePaid') . '" class="button you_sure">
 					',
 				],
 				[
 					'position' => 'top_of_list',
 					'value' => '
 						<div class="flow_auto">
-							<input type="submit" name="ssearch" value="' . Lang::$txt['search_sub'] . '" class="button" style="margin-top: 3px;">
+							<input type="submit" name="ssearch" value="' . Lang::getTxt('search_sub', file: 'ManagePaid') . '" class="button" style="margin-top: 3px;">
 							<input type="text" name="sub_search" value="" class="floatright">
 						</div>
 					',
@@ -487,7 +478,7 @@ class Subscriptions implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = Utils::$context['action_type'] == 'delete' ? 'delete_subscription' : 'modify_subscription';
-		Utils::$context['page_title'] = Lang::$txt['paid_' . Utils::$context['action_type'] . '_subscription'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_' . Utils::$context['action_type'] . '_subscription', file: 'ManagePaid');
 
 		// Delete it?
 		if (isset($_POST['delete_confirm'], $_REQUEST['delete'])) {
@@ -498,7 +489,6 @@ class Subscriptions implements ActionInterface
 			$members = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT ls.id_member, ls.old_id_group, mem.id_group, mem.additional_groups
 				FROM {db_prefix}log_subscribed AS ls
 					INNER JOIN {db_prefix}members AS mem ON (ls.id_member = mem.id_member)
@@ -522,7 +512,6 @@ class Subscriptions implements ActionInterface
 				$add_groups = '';
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_group, add_groups
 					FROM {db_prefix}subscriptions
 					WHERE id_subscribe = {int:current_subscription}',
@@ -575,7 +564,6 @@ class Subscriptions implements ActionInterface
 
 			// Delete the subscription
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}subscriptions
 				WHERE id_subscribe = {int:current_subscription}',
 				[
@@ -585,7 +573,6 @@ class Subscriptions implements ActionInterface
 
 			// And delete any subscriptions to it to clear the phantom data too.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_subscribe = {int:current_subscription}',
 				[
@@ -607,7 +594,7 @@ class Subscriptions implements ActionInterface
 			$isRepeatable = isset($_POST['repeatable']) ? 1 : 0;
 			$allowpartial = isset($_POST['allow_partial']) ? 1 : 0;
 			$reminder = isset($_POST['reminder']) ? (int) $_POST['reminder'] : 0;
-			$emailComplete = strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
+			$emailComplete = \strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
 			$_POST['prim_group'] = !empty($_POST['prim_group']) ? (int) $_POST['prim_group'] : 0;
 
 			// Cleanup text fields
@@ -639,7 +626,7 @@ class Subscriptions implements ActionInterface
 				$span = $_POST['span_value'] . $_POST['span_unit'];
 
 				// Sort out the cost.
-				$cost = ['fixed' => sprintf('%01.2f', strtr($_POST['cost'], ',', '.'))];
+				$cost = ['fixed' => \sprintf('%01.2f', strtr($_POST['cost'], ',', '.'))];
 
 				// There needs to be something.
 				if ($cost['fixed'] == '0.00') {
@@ -651,10 +638,10 @@ class Subscriptions implements ActionInterface
 				$span = 'F';
 
 				$cost = [
-					'day' => sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
-					'week' => sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
-					'month' => sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
-					'year' => sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
+					'day' => \sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
+					'week' => \sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
+					'month' => \sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
+					'year' => \sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
 				];
 
 				if ($cost['day'] == '0.00' && $cost['week'] == '0.00' && $cost['month'] == '0.00' && $cost['year'] == '0.00') {
@@ -712,14 +699,13 @@ class Subscriptions implements ActionInterface
 						],
 					],
 					['id_subscribe'],
-					1,
+					Db::INSERT_RETURN_MODE_SINGLE,
 				);
 			}
 			// Otherwise must be editing.
 			else {
 				// Don't do groups if there are active members
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_subscribed
 					WHERE id_subscribe = {int:current_subscription}
@@ -733,7 +719,6 @@ class Subscriptions implements ActionInterface
 				Db::$db->free_result($request);
 
 				Db::$db->query(
-					'substring',
 					'UPDATE {db_prefix}subscriptions
 						SET name = SUBSTRING({string:name}, 1, 60), description = SUBSTRING({string:description}, 1, 255), active = {int:is_active},
 						length = SUBSTRING({string:length}, 1, 4), cost = {string:cost}' . ($disableGroups ? '' : ', id_group = {int:id_group},
@@ -754,6 +739,7 @@ class Subscriptions implements ActionInterface
 						'additional_groups' => !empty($addgroups) ? $addgroups : '',
 						'email_complete' => $emailComplete,
 					],
+					identifier: 'substring',
 				);
 			}
 
@@ -787,7 +773,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise load up all the details.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT name, description, cost, length, id_group, add_groups, active, repeatable, allow_partial, email_complete, reminder
 				FROM {db_prefix}subscriptions
 				WHERE id_subscribe = {int:current_subscription}
@@ -834,7 +819,6 @@ class Subscriptions implements ActionInterface
 
 			// Does this have members who are active?
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}log_subscribed
 				WHERE id_subscribe = {int:current_subscription}
@@ -852,7 +836,6 @@ class Subscriptions implements ActionInterface
 		Utils::$context['groups'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:moderator_group}
@@ -887,12 +870,11 @@ class Subscriptions implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = 'modify_user_subscription';
-		Utils::$context['page_title'] = Lang::$txt[Utils::$context['action_type'] . '_subscriber'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['action_type'] . '_subscriber', file: 'ManagePaid');
 
 		// If we haven't been passed the subscription ID get it.
 		if (Utils::$context['log_id'] && !Utils::$context['sub_id']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_subscribe
 				FROM {db_prefix}log_subscribed
 				WHERE id_sublog = {int:current_log_item}',
@@ -951,7 +933,6 @@ class Subscriptions implements ActionInterface
 			if (empty(Utils::$context['log_id'])) {
 				// Find the user...
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, id_group
 					FROM {db_prefix}members
 					WHERE real_name = {string:name}
@@ -971,7 +952,6 @@ class Subscriptions implements ActionInterface
 
 				// Ensure the member doesn't already have a subscription!
 				$request = Db::$db->query(
-					'',
 					'SELECT id_subscribe
 					FROM {db_prefix}log_subscribed
 					WHERE id_subscribe = {int:current_subscription}
@@ -1021,7 +1001,6 @@ class Subscriptions implements ActionInterface
 			// Updating.
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, status
 					FROM {db_prefix}log_subscribed
 					WHERE id_sublog = {int:current_log_item}',
@@ -1043,7 +1022,6 @@ class Subscriptions implements ActionInterface
 					self::add(Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_subscribed
 						SET start_time = {int:start_time}, end_time = {int:end_time}, status = {int:status}
 						WHERE id_sublog = {int:current_log_item}',
@@ -1073,7 +1051,6 @@ class Subscriptions implements ActionInterface
 				}
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_subscribe, id_member
 					FROM {db_prefix}log_subscribed
 					WHERE id_sublog IN ({array_int:subscription_list})',
@@ -1119,7 +1096,6 @@ class Subscriptions implements ActionInterface
 
 			if (isset($_GET['uid'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT real_name
 					FROM {db_prefix}members
 					WHERE id_member = {int:current_member}',
@@ -1136,7 +1112,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise load the existing info.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT ls.id_sublog, ls.id_subscribe, ls.id_member, start_time, end_time, status, payments_pending, pending_details,
 					COALESCE(mem.real_name, {string:blank_string}) AS username
 				FROM {db_prefix}log_subscribed AS ls
@@ -1171,13 +1146,13 @@ class Subscriptions implements ActionInterface
 							foreach ($costs as $duration => $cost) {
 								if ($cost != 0 && $cost == $pending[1] && $duration == $pending[2]) {
 									Utils::$context['pending_payments'][$id] = [
-										'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::$txt[$duration]),
+										'desc' => \sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::getTxt($duration, file: 'ManagePaid')),
 									];
 								}
 							}
 						} elseif ($costs['fixed'] == $pending[1]) {
 							Utils::$context['pending_payments'][$id] = [
-								'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']),
+								'desc' => \sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']),
 							];
 						}
 					}
@@ -1199,7 +1174,6 @@ class Subscriptions implements ActionInterface
 
 							// Update the entry.
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}log_subscribed
 								SET payments_pending = payments_pending - 1, pending_details = {string:pending_details}
 								WHERE id_sublog = {int:current_subscription_item}',
@@ -1259,11 +1233,11 @@ class Subscriptions implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		if (empty(Config::$modSettings['paid_enabled'])) {
-			Utils::$context['settings_title'] = Lang::$txt['paid_subscriptions'];
+			Utils::$context['settings_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
 		} else {
-			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl]);
+			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl], file: 'ManagePaid');
 			Menu::$loaded['admin']['current_subsection'] = 'settings';
-			Utils::$context['settings_title'] = Lang::$txt['settings'];
+			Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 			// We want JavaScript for our currency options.
 			Theme::addInlineJavaScript('
@@ -1301,7 +1275,7 @@ class Subscriptions implements ActionInterface
 		}
 
 		// Some important context stuff
-		Utils::$context['page_title'] = Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the final touches in place.
@@ -1317,7 +1291,6 @@ class Subscriptions implements ActionInterface
 			if ($old != $new) {
 				// So we're changing this fundamental status. Great.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}scheduled_tasks
 					SET disabled = {int:disabled}
 					WHERE task = {string:task}',
@@ -1350,7 +1323,7 @@ class Subscriptions implements ActionInterface
 				// Sort out the currency stuff.
 				if ($_POST['paid_currency'] != 'other') {
 					$_POST['paid_currency_code'] = $_POST['paid_currency'];
-					$_POST['paid_currency_symbol'] = Lang::$txt[$_POST['paid_currency'] . '_symbol'];
+					$_POST['paid_currency_symbol'] = Lang::getTxt($_POST['paid_currency'] . '_symbol', file: 'ManagePaid');
 				}
 				unset($config_vars['dummy_currency']);
 			}
@@ -1380,7 +1353,7 @@ class Subscriptions implements ActionInterface
 			// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
 			Config::$modSettings['paid_currency'] = !empty(Config::$modSettings['paid_currency_code']) ? Config::$modSettings['paid_currency_code'] : '';
 
-			if (!empty(Config::$modSettings['paid_currency_code']) && !in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
+			if (!empty(Config::$modSettings['paid_currency_code']) && !\in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
 				Config::$modSettings['paid_currency'] = 'other';
 			}
 
@@ -1396,17 +1369,18 @@ class Subscriptions implements ActionInterface
 					'select',
 					'paid_email',
 					[
-						0 => Lang::$txt['paid_email_no'],
-						1 => Lang::$txt['paid_email_error'],
-						2 => Lang::$txt['paid_email_all'],
+						0 => Lang::getTxt('paid_email_no', file: 'ManagePaid'),
+						1 => Lang::getTxt('paid_email_error', file: 'ManagePaid'),
+						2 => Lang::getTxt('paid_email_all', file: 'ManagePaid'),
 					],
-					'subtext' => Lang::$txt['paid_email_desc'],
+					'subtext' => Lang::getTxt('paid_email_desc', file: 'ManagePaid'),
 				],
 				[
 					'email',
 					'paid_email_to',
-					'subtext' => Lang::$txt['paid_email_to_desc'],
+					'subtext' => Lang::getTxt('paid_email_to_desc', file: 'ManagePaid'),
 					'size' => 60,
+					'multiple' => true,
 				],
 				'',
 
@@ -1414,34 +1388,34 @@ class Subscriptions implements ActionInterface
 					'select',
 					'paid_currency',
 					[
-						'usd' => Lang::$txt['usd'],
-						'eur' => Lang::$txt['eur'],
-						'gbp' => Lang::$txt['gbp'],
-						'cad' => Lang::$txt['cad'],
-						'aud' => Lang::$txt['aud'],
-						'other' => Lang::$txt['other'],
+						'usd' => Lang::getTxt('usd', file: 'ManagePaid'),
+						'eur' => Lang::getTxt('eur', file: 'ManagePaid'),
+						'gbp' => Lang::getTxt('gbp', file: 'ManagePaid'),
+						'cad' => Lang::getTxt('cad', file: 'ManagePaid'),
+						'aud' => Lang::getTxt('aud', file: 'ManagePaid'),
+						'other' => Lang::getTxt('other', file: 'ManagePaid'),
 					],
 					'javascript' => 'onchange="toggleOther();"',
 				],
 				[
 					'text',
 					'paid_currency_code',
-					'subtext' => Lang::$txt['paid_currency_code_desc'],
+					'subtext' => Lang::getTxt('paid_currency_code_desc', file: 'ManagePaid'),
 					'size' => 5,
 					'force_div_id' => 'custom_currency_code_div',
 				],
 				[
 					'text',
 					'paid_currency_symbol',
-					'subtext' => Lang::$txt['paid_currency_symbol_desc'],
+					'subtext' => Lang::getTxt('paid_currency_symbol_desc', file: 'ManagePaid'),
 					'size' => 8,
 					'force_div_id' => 'custom_currency_symbol_div',
 				],
 				[
 					'check',
 					'paidsubs_test',
-					'subtext' => Lang::$txt['paidsubs_test_desc'],
-					'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . Lang::$txt['paidsubs_test_confirm'] . '\') : true;',
+					'subtext' => Lang::getTxt('paidsubs_test_desc', file: 'ManagePaid'),
+					'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . Lang::getTxt('paidsubs_test_confirm', file: 'ManagePaid') . '\') : true;',
 				],
 			];
 
@@ -1454,7 +1428,7 @@ class Subscriptions implements ActionInterface
 				$setting_data = $gatewayClass->getGatewaySettings();
 
 				if (!empty($setting_data)) {
-					$config_vars[] = ['title', $gatewayClass->title, 'text_label' => (Lang::$txt['paidsubs_gateway_title_' . $gatewayClass->title] ?? $gatewayClass->title)];
+					$config_vars[] = ['title', $gatewayClass->title, 'text_label' => (Lang::txtExists('paidsubs_gateway_title_' . $gatewayClass->title, file: 'ManagePaid+Modifications') ? Lang::getTxt('paidsubs_gateway_title_' . $gatewayClass->title, file: 'ManagePaid+Modifications') : $gatewayClass->title)];
 
 					$config_vars = array_merge($config_vars, $setting_data);
 				}
@@ -1488,11 +1462,7 @@ class Subscriptions implements ActionInterface
 			return self::$all;
 		}
 
-		// Make sure this is loaded, just in case.
-		Lang::load('ManagePaid');
-
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, name, description, cost, length, id_group, add_groups, active, repeatable
 			FROM {db_prefix}subscriptions',
 			[
@@ -1504,7 +1474,7 @@ class Subscriptions implements ActionInterface
 			$costs = Utils::jsonDecode($row['cost'], true);
 
 			if ($row['length'] != 'F' && !empty(Config::$modSettings['paid_currency_symbol']) && !empty($costs['fixed'])) {
-				$cost = sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']);
+				$cost = \sprintf(Config::$modSettings['paid_currency_symbol'], $costs['fixed']);
 			} else {
 				$cost = '???';
 			}
@@ -1518,22 +1488,22 @@ class Subscriptions implements ActionInterface
 
 				switch ($match[2]) {
 					case 'D':
-						$length .= Lang::$txt['paid_mod_span_days'];
+						$length .= Lang::getTxt('paid_mod_span_days', file: 'ManagePaid');
 						$num_length *= 86400;
 						break;
 
 					case 'W':
-						$length .= Lang::$txt['paid_mod_span_weeks'];
+						$length .= Lang::getTxt('paid_mod_span_weeks', file: 'ManagePaid');
 						$num_length *= 604800;
 						break;
 
 					case 'M':
-						$length .= Lang::$txt['paid_mod_span_months'];
+						$length .= Lang::getTxt('paid_mod_span_months', file: 'ManagePaid');
 						$num_length *= 2629743;
 						break;
 
 					case 'Y':
-						$length .= Lang::$txt['paid_mod_span_years'];
+						$length .= Lang::getTxt('paid_mod_span_years', file: 'ManagePaid');
 						$num_length *= 31556926;
 						break;
 				}
@@ -1544,7 +1514,7 @@ class Subscriptions implements ActionInterface
 			self::$all[$row['id_subscribe']] = [
 				'id' => $row['id_subscribe'],
 				'name' => $row['name'],
-				'desc' => $row['description'],
+				'desc' => Parser::transform(Utils::entityDecode($row['description'])),
 				'cost' => $cost,
 				'real_cost' => $row['cost'],
 				'length' => $length,
@@ -1564,7 +1534,6 @@ class Subscriptions implements ActionInterface
 
 		// Do the counts.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS member_count, id_subscribe, status
 			FROM {db_prefix}log_subscribed
 			GROUP BY id_subscribe, status',
@@ -1583,7 +1552,6 @@ class Subscriptions implements ActionInterface
 
 		// How many payments are we waiting on?
 		$request = Db::$db->query(
-			'',
 			'SELECT SUM(payments_pending) AS total_pending, id_subscribe
 			FROM {db_prefix}log_subscribed
 			GROUP BY id_subscribe',
@@ -1651,7 +1619,6 @@ class Subscriptions implements ActionInterface
 
 		// Firstly, see whether it exists, and is active. If so then this is merely an extension.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_sublog, end_time, start_time
 			FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}
@@ -1685,7 +1652,6 @@ class Subscriptions implements ActionInterface
 
 			// As everything else should be good, just update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET end_time = {int:end_time}, start_time = {int:start_time}, reminder_sent = {int:no_reminder_sent}
 				WHERE id_sublog = {int:current_subscription_item}',
@@ -1703,7 +1669,6 @@ class Subscriptions implements ActionInterface
 
 		// If we're here, that means we don't have an active subscription - that means we need to do some work!
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_group, m.additional_groups
 			FROM {db_prefix}members AS m
 			WHERE m.id_member = {int:current_member}',
@@ -1748,7 +1713,6 @@ class Subscriptions implements ActionInterface
 
 		// Store the new settings.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
 			WHERE id_member = {int:current_member}',
@@ -1761,7 +1725,6 @@ class Subscriptions implements ActionInterface
 
 		// Now log the subscription - maybe we have a dormant subscription we can restore?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_sublog, end_time, start_time
 			FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}
@@ -1794,7 +1757,6 @@ class Subscriptions implements ActionInterface
 
 			// As everything else should be good, just update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET start_time = {int:start_time}, end_time = {int:end_time}, old_id_group = {int:old_id_group}, status = {int:is_active}, reminder_sent = {int:no_reminder_sent}
 				WHERE id_sublog = {int:current_subscription_item}',
@@ -1856,7 +1818,6 @@ class Subscriptions implements ActionInterface
 
 		// Load the user core bits.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_group, m.additional_groups
 			FROM {db_prefix}members AS m
 			WHERE m.id_member = {int:current_member}',
@@ -1869,7 +1830,6 @@ class Subscriptions implements ActionInterface
 			Db::$db->free_result($request);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_member = {int:current_member}',
 				[
@@ -1889,7 +1849,6 @@ class Subscriptions implements ActionInterface
 		$new_id_group = -1;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, old_id_group
 			FROM {db_prefix}log_subscribed
 			WHERE id_member = {int:current_member}
@@ -1932,15 +1891,15 @@ class Subscriptions implements ActionInterface
 		$existingGroups = explode(',', $additional_groups);
 
 		foreach ($existingGroups as $key => $group) {
-			if (empty($group) || (in_array($group, $removals) && !in_array($group, $allowed))) {
+			if (empty($group) || (\in_array($group, $removals) && !\in_array($group, $allowed))) {
 				unset($existingGroups[$key]);
 			}
 		}
 
 		// Finally, do something with the current primary group.
-		if (in_array($id_group, $removals)) {
+		if (\in_array($id_group, $removals)) {
 			// If this primary group is actually allowed keep it.
-			if (in_array($id_group, $allowed)) {
+			if (\in_array($id_group, $allowed)) {
 				$existingGroups[] = $id_group;
 			}
 
@@ -1966,7 +1925,6 @@ class Subscriptions implements ActionInterface
 
 		// Update the member
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_group = {int:primary_group}, additional_groups = {string:existing_groups}
 			WHERE id_member = {int:current_member}',
@@ -1980,7 +1938,6 @@ class Subscriptions implements ActionInterface
 		// Disable the subscription.
 		if (!$delete) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET status = {int:not_active}
 				WHERE id_member = {int:current_member}
@@ -1995,7 +1952,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise delete it!
 		else {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_member = {int:current_member}
 					AND id_subscribe = {int:current_subscription}',
@@ -2017,7 +1973,7 @@ class Subscriptions implements ActionInterface
 	public static function reapply(array $users): void
 	{
 		// Make it an array.
-		if (!is_array($users)) {
+		if (!\is_array($users)) {
 			$users = [$users];
 		}
 
@@ -2025,7 +1981,6 @@ class Subscriptions implements ActionInterface
 		$groups = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_group, additional_groups
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})',
@@ -2043,7 +1998,6 @@ class Subscriptions implements ActionInterface
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ls.id_member, ls.old_id_group, s.id_group, s.add_groups
 			FROM {db_prefix}log_subscribed AS ls
 				INNER JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
@@ -2086,7 +2040,6 @@ class Subscriptions implements ActionInterface
 			$addgroups = implode(',', $group['additional']);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
 				WHERE id_member = {int:current_member}
@@ -2146,7 +2099,7 @@ class Subscriptions implements ActionInterface
 					fclose($fp);
 
 					if (str_contains($header, '// SMF Payment Gateway: ' . strtolower($matches[1]))) {
-						require_once Config::$sourcedir . '/' . $file;
+						require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
 
 						$gateways[] = [
 							'filename' => $file,
@@ -2179,7 +2132,6 @@ class Subscriptions implements ActionInterface
 	{
 		// Get the total amount of users.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS total_subs
 			FROM {db_prefix}log_subscribed AS ls
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
@@ -2215,7 +2167,6 @@ class Subscriptions implements ActionInterface
 		$subscribers = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ls.id_sublog, COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
 				ls.status, ls.payments_pending
 			FROM {db_prefix}log_subscribed AS ls
@@ -2228,7 +2179,7 @@ class Subscriptions implements ActionInterface
 				'current_subscription' => $id_sub,
 				'no_end_time' => 0,
 				'no_payments_pending' => 0,
-				'guest' => Lang::$txt['guest'],
+				'guest' => Lang::getTxt('guest', file: 'General'),
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,
@@ -2244,7 +2195,7 @@ class Subscriptions implements ActionInterface
 				'end_date' => $row['end_time'] == 0 ? 'N/A' : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending' => $row['payments_pending'],
 				'status' => $row['status'],
-				'status_text' => $row['status'] == 0 ? ($row['payments_pending'] == 0 ? Lang::$txt['paid_finished'] : Lang::$txt['paid_pending']) : Lang::$txt['paid_active'],
+				'status_text' => Lang::getTxt($row['status'] == 0 ? ($row['payments_pending'] == 0 ? 'paid_finished' : 'paid_pending') : 'paid_active', file: 'ManagePaid'),
 			];
 		}
 		Db::$db->free_result($request);
@@ -2274,5 +2225,3 @@ class Subscriptions implements ActionInterface
 		}
 	}
 }
-
-?>

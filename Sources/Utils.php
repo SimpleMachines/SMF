@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Holds some widely used stuff, like $context and $smcFunc.
@@ -23,18 +24,6 @@ use SMF\Db\DatabaseApi as Db;
 class Utils
 {
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'context' => 'context',
-			'smcFunc' => 'smcFunc',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -244,7 +233,7 @@ class Utils
 	 * SMF's venerable $context variable, now available as Utils::$context.
 	 */
 	public static $context = [
-		// Assume UTF-8 until proven otherwise.
+		// We always use UTF-8, but some old mods might want to check.
 		'utf8' => true,
 		'character_set' => 'UTF-8',
 		// Define a list of icons used across multiple places.
@@ -289,14 +278,6 @@ class Utils
 		'restricted_bbc' => [
 			'html',
 		],
-		// Login Cookie times. Format: time => txt
-		'login_cookie_times' => [
-			3153600 => 'always_logged_in',
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-		],
 		'show_spellchecking' => false,
 	];
 
@@ -327,6 +308,22 @@ class Utils
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'context' => 'context',
+			'smcFunc' => 'smcFunc',
+		],
+	];
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -341,62 +338,45 @@ class Utils
 			self::$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . Config::$modSettings['browser_cache'];
 		}
 
-		// UTF-8?
-		if (isset(Config::$modSettings['global_character_set'])) {
-			self::$context['character_set'] = Config::$modSettings['global_character_set'];
-			self::$context['utf8'] = self::$context['character_set'] === 'UTF-8';
-		}
-
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
+
+		if (!empty(Config::$modSettings['restricted_bbc'])) {
+			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
+
+		if (!empty(Config::$backward_compatibility) && DebugUtils::isDebugEnabled()) {
+			self::$context['debug'] = &DebugUtils::$logged;
+		}
 	}
 
 	/**
-	 * Decodes and sanitizes HTML entities.
-	 *
-	 * If database does not support 4-byte UTF-8 characters, entities for 4-byte
-	 * characters are left in place, unless the $mb4 argument is set to true.
+	 * Decodes and sanitizes named and numerical character entities.
 	 *
 	 * @param string $string The string in which to decode entities.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @param int $flags Flags to pass to html_entity_decode.
 	 * 		Default: ENT_QUOTES | ENT_HTML5.
 	 * @param bool $nbsp_to_space If true, decode '&nbsp;' to space character.
 	 * 		Default: false.
 	 * @return string The string with the entities decoded.
 	 */
-	public static function entityDecode(string $string, bool $mb4 = false, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
+	public static function entityDecode(string $string, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
 	{
 		// Don't waste time on empty strings.
 		if (trim($string) === '') {
 			return $string;
 		}
 
-		// In theory this is always UTF-8, but...
-		if (empty(self::$context['character_set'])) {
-			$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
-		} elseif (str_contains(self::$context['character_set'], 'ISO-8859-') && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
-			$charset = 'ISO-8859-1';
-		} else {
-			$charset = self::$context['character_set'];
-		}
-
-		// Enables consistency with the behaviour of un_htmlspecialchars.
+		// Enables consistency with the behaviour of self::htmlspecialcharsDecode().
 		if ($nbsp_to_space) {
 			$string = preg_replace('~' . self::ENT_NBSP . '~u', ' ', $string);
 		}
 
 		// Do the deed.
-		$string = html_entity_decode($string, $flags, $charset);
+		$string = html_entity_decode($string, $flags, 'UTF-8');
 
 		// Remove any illegal character entities.
 		$string = self::sanitizeEntities($string);
-
-		// Finally, make sure we don't break the database.
-		if (!$mb4) {
-			$string = self::fixUtf8mb4($string);
-		}
 
 		return $string;
 	}
@@ -413,7 +393,7 @@ class Utils
 	}
 
 	/**
-	 * Replaces HTML entities for invalid characters with a substitute.
+	 * Replaces numeric entities for invalid characters with a substitute.
 	 *
 	 * The default substitute is the entity for the replacement character U+FFFD
 	 * (a.k.a. the question-mark-in-a-box).
@@ -450,7 +430,7 @@ class Utils
 
 					// Code points that are guaranteed never to be characters.
 					|| ($num >= 0xFDD0 && $num <= 0xFDEF)
-					|| (in_array($num % 0x10000, [0xFFFE, 0xFFFF]))
+					|| (\in_array($num % 0x10000, [0xFFFE, 0xFFFF]))
 
 					// Out of range.
 					|| $num > 0x10FFFF
@@ -479,52 +459,30 @@ class Utils
 	 *      2: Disallow all formatting characters. Use for internal comparisons
 	 *         only, such as in the word censor, search contexts, etc.
 	 *      Default: 0.
-	 * @param string|null $substitute Replacement string for the invalid characters.
-	 *      If not set, the Unicode replacement character (U+FFFD) will be used
-	 *      (or a fallback like "?" if necessary).
+	 * @param string $substitute Replacement string for the invalid characters.
+	 *      Default: the Unicode replacement character (U+FFFD).
 	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|false
+	public static function sanitizeChars(string $string, int $level = 0, string $substitute = "\u{FFFD}"): string|false
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
 
-		// What substitute character should we use?
-		if (isset($substitute)) {
-			$substitute = strval($substitute);
-		} elseif (!empty(Utils::$context['utf8'])) {
-			// Raw UTF-8 bytes for U+FFFD.
-			$substitute = "\xEF\xBF\xBD";
-		} elseif (!empty(Utils::$context['character_set']) && is_callable('mb_decode_numericentity')) {
-			// Get whatever the default replacement character is for this encoding.
-			$substitute = mb_decode_numericentity('&#xFFFD;', [0xFFFD, 0xFFFD, 0, 0xFFFF], Utils::$context['character_set']);
-		} else {
-			$substitute = '?';
-		}
-
 		// Fix any invalid byte sequences.
-		if (!empty(Utils::$context['character_set'])) {
-			// For UTF-8, this preg_match test is much faster than mb_check_encoding.
-			$malformed = !empty(Utils::$context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, Utils::$context['character_set']));
+		// For UTF-8, this preg_match test is much faster than mb_check_encoding.
+		if (@preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR) {
+			// mb_convert_encoding will replace invalid byte sequences with our substitute.
+			if (\is_callable('mb_convert_encoding')) {
+				$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, 'UTF-8');
 
-			if ($malformed) {
-				// mb_convert_encoding will replace invalid byte sequences with our substitute.
-				if (is_callable('mb_convert_encoding')) {
-					if (!is_callable('mb_ord')) {
-						require_once Config::$sourcedir . '/Subs-Compat.php';
-					}
+				$mb_substitute_character = mb_substitute_character();
+				mb_substitute_character($substitute_ord);
 
-					$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, Utils::$context['character_set']);
+				$string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
 
-					$mb_substitute_character = mb_substitute_character();
-					mb_substitute_character($substitute_ord);
-
-					$string = mb_convert_encoding($string, Utils::$context['character_set'], Utils::$context['character_set']);
-
-					mb_substitute_character($mb_substitute_character);
-				} else {
-					return false;
-				}
+				mb_substitute_character($mb_substitute_character);
+			} else {
+				return false;
 			}
 		}
 
@@ -532,11 +490,7 @@ class Utils
 		$string = Utils::normalizeSpaces($string, true);
 
 		// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
-		if (!empty(Utils::$context['utf8'])) {
-			$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
-		} else {
-			$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
-		}
+		$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 
 		return $string;
 	}
@@ -575,13 +529,13 @@ class Utils
 
 		if ($vspace) {
 			// \R is like \v, except it handles "\r\n" as a single unit.
-			$patterns[] = '/\R/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/\R/u';
 			$replacements[] = $options['no_breaks'] ? ' ' : "\n";
 		}
 
 		if ($hspace) {
 			// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
-			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/u';
 			$replacements[] = ' ';
 		}
 
@@ -589,20 +543,20 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for standard htmlspecialchars() that ensures the output respects
-	 * the database's support (or lack thereof) for four-byte UTF-8 characters.
+	 * Wrapper for standard htmlspecialchars() that additionally normalizes and
+	 * sanitizes the string.
 	 *
 	 * @param string $string The string being converted.
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_COMPAT.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @param bool $double_encode Whether to encode apersands in existing
+	 *    entities (e.g. '&quot;' --> '&amp;quot;'). Default: true.
 	 * @return string The converted string.
 	 */
-	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): string
+	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8', bool $double_encode = true): string
 	{
-		$string = self::normalize($string);
-
-		return self::fixUtf8mb4(self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding)));
+		return self::sanitizeEntities(htmlspecialchars(self::normalize($string), $flags, $encoding, $double_encode));
 	}
 
 	/**
@@ -610,18 +564,23 @@ class Utils
 	 *
 	 * Only affects values.
 	 *
+	 * Note that the default value of $flags is ENT_COMPAT, whereas SMF 2.x's
+	 * htmlspecialchars__recursive() function always used ENT_QUOTES.
+	 *
 	 * @param mixed $var The string or array of strings to add entities to
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_COMPAT.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @param bool $double_encode Whether to encode apersands in existing
+	 *    entities (e.g. '&quot;' --> '&amp;quot;'). Default: true.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8', bool $double_encode = true): array|string
 	{
 		static $level = 0;
 
-		if (!is_array($var)) {
-			return self::htmlspecialchars((string) $var, $flags, $encoding);
+		if (!\is_array($var)) {
+			return self::htmlspecialchars((string) $var, $flags, $encoding, $double_encode);
 		}
 
 		// Add the htmlspecialchars to every element.
@@ -630,7 +589,7 @@ class Utils
 				$var[$k] = null;
 			} else {
 				$level++;
-				$var[$k] = self::htmlspecialcharsRecursive($v, $flags, $encoding);
+				$var[$k] = self::htmlspecialcharsRecursive($v, $flags, $encoding, $double_encode);
 				$level--;
 			}
 		}
@@ -645,14 +604,48 @@ class Utils
 	 * replaces '&nbsp;' with a simple space character.
 	 *
 	 * @param string $string A string.
-	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
-	 *    Default is ENT_QUOTES.
-	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_QUOTES.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
 	 * @return string|false The string without entities, or false on failure.
 	 */
 	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string|false
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
+	}
+
+	/**
+	 * Recursively applies self::htmlspecialcharsDecode() to all elements of an
+	 * array.
+	 *
+	 * Only affects values.
+	 *
+	 * @param mixed $var The string or array of strings to add entities to
+	 * @param int $flags Bitmask of flags to pass to \htmlspecialchars().
+	 *    Default: ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default: 'UTF-8'.
+	 * @return array|string The string or array of strings without entities.
+	 */
+	public static function htmlspecialcharsDecodeRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	{
+		static $level = 0;
+
+		if (!\is_array($var)) {
+			return self::htmlspecialcharsDecode((string) $var, $flags, $encoding);
+		}
+
+		// Decode the htmlspecialchars in every element.
+		foreach ($var as $k => $v) {
+			if ($level > 25) {
+				$var[$k] = null;
+			} else {
+				$level++;
+				$var[$k] = self::htmlspecialcharsDecodeRecursive($v, $flags, $encoding);
+				$level--;
+			}
+		}
+
+		return $var;
 	}
 
 	/**
@@ -704,7 +697,7 @@ class Utils
 		static $level = 0;
 
 		// Remove spaces (32), tabs (9), returns (13, 10, and 11), nulls (0), and hard spaces. (160)
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return self::htmlTrim($var);
 		}
 
@@ -723,7 +716,7 @@ class Utils
 	}
 
 	/**
-	 * Like standard mb_strlen(), except that it counts HTML entities as
+	 * Like standard grapheme_strlen(), except that it counts HTML entities as
 	 * single characters. This essentially amounts to getting the length of
 	 * the string as it would appear to a human reader.
 	 *
@@ -732,11 +725,11 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
+		return grapheme_strlen(self::entityDecode($string));
 	}
 
 	/**
-	 * Like standard mb_strpos(), except that it counts HTML entities as
+	 * Like standard grapheme_strpos(), except that it counts HTML entities as
 	 * single characters.
 	 *
 	 * @param string $haystack The string to search in.
@@ -746,52 +739,30 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		$haystack_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		if (strlen($needle) === 1) {
-			$result = array_search($needle, array_slice($haystack_arr, $offset));
-
-			return is_int($result) ? $result + $offset : false;
-		}
-
-		$needle_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		$needle_size = count($needle_arr);
-
-		$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
-
-		while ((int) $result === $result) {
-			$offset += $result;
-
-			if (array_slice($haystack_arr, $offset, $needle_size) === $needle_arr) {
-				return $offset;
-			}
-
-			$result = array_search($needle_arr[0], array_slice($haystack_arr, ++$offset));
-		}
-
-		return false;
+		return grapheme_strpos(self::entityDecode($haystack), self::entityDecode($needle), $offset);
 	}
 
 	/**
-	 * Like standard mb_substr(), except that it counts HTML entities as
+	 * Like standard grapheme_substr(), except that it counts HTML entities as
 	 * single characters.
 	 *
 	 * @param string $string The input string.
 	 * @param int $offset Offset where substring will start.
-	 * @param int $length Maximum length, in characters, of the substring.
+	 * @param int|null $length Maximum length, in characters, of the substring.
 	 * @return string The substring.
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
 	{
-		$ent_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		if (!str_contains($string, '&')) {
+			return (string) grapheme_substr($string, $offset, $length);
+		}
 
-		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
+		return implode('', \array_slice(self::entityStrSplit($string), $offset, $length));
 	}
 
 	/**
-	 * Like standard mb_str_split(), except that it counts HTML entities as
-	 * single characters.
+	 * Like standard grapheme_str_split(), except that it counts HTML entities
+	 * as single characters.
 	 *
 	 * @param string $string The input string.
 	 * @param int $length Maximum character length of the substrings to return.
@@ -800,22 +771,14 @@ class Utils
 	public static function entityStrSplit(string $string, int $length = 1): array
 	{
 		if ($length < 1) {
-			throw new \ValueError();
+			throw new \ValueError(__METHOD__ . ': Argument #2 ($length) must be greater than 0');
 		}
 
-		$ent_arr = (array) preg_split('~(' . Utils::ENT_LIST . '|\X)~u', Utils::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		if ($length > 1) {
-			$temp = [];
-
-			while (!empty($ent_arr)) {
-				$temp[] = implode('', array_splice($ent_arr, 0, $length));
-			}
-
-			$ent_arr = $temp;
+		if (!str_contains($string, '&')) {
+			return (array) grapheme_str_split($string, $length);
 		}
 
-		return $ent_arr;
+		return (array) preg_split('~((?:' . self::ENT_LIST . '|\X){' . $length . '})~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 	}
 
 	/**
@@ -835,7 +798,7 @@ class Utils
 	{
 		$string = self::sanitizeEntities($string);
 
-		while (is_string($string) && strlen($string) > $length) {
+		while (\is_string($string) && \strlen($string) > $length) {
 			$string = preg_replace('~(?:' . self::ENT_LIST . '|\X)$~u', '', $string);
 		}
 
@@ -902,11 +865,9 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
@@ -935,7 +896,7 @@ class Utils
 			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
-		return $mb4 ? $string : self::fixUtf8mb4($string);
+		return $string;
 	}
 
 	/**
@@ -979,7 +940,7 @@ class Utils
 	 */
 	public static function strtotitle(string $string): string
 	{
-		return self::convertCase($string, 'upper');
+		return self::convertCase($string, 'title');
 	}
 
 	/**
@@ -1056,7 +1017,7 @@ class Utils
 	 * array in order to test all possible matches.
 	 *
 	 * @param array $strings An array of strings to make a regex for.
-	 * @param string $delim Optional delimiter character to pass to preg_quote().
+	 * @param string|null $delim Optional delimiter character to pass to preg_quote().
 	 * @param bool $return_array If true, returns an array of regexes.
 	 * @return string|array One or more regular expressions to match any of the
 	 *    input strings.
@@ -1065,9 +1026,19 @@ class Utils
 	{
 		static $regexes = [];
 
-		// If it's not an array, there's not much to do. ;)
-		if (!is_array($strings)) {
-			return preg_quote(@strval($strings), $delim);
+		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+
+		$normalized_strings = [];
+
+		foreach ($strings as $str) {
+			if (\is_scalar($str)) {
+				$s = (string) $str;
+				$normalized_strings[$s] = mb_strlen($s, $encoding);
+			}
+		}
+
+		if (empty($normalized_strings)) {
+			return '';
 		}
 
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
@@ -1076,54 +1047,48 @@ class Utils
 			return $regexes[$regex_key];
 		}
 
-		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false) {
-			$current_encoding = mb_internal_encoding();
-			mb_internal_encoding($string_encoding);
+		// Optimizing is faster when we sort by length.
+		asort($normalized_strings);
+		$strings = array_keys($normalized_strings);
+
+		// Can we trim common characters from the end?
+		$trailing = '';
+		unset($normalized_strings);
+
+		while (mb_strlen($strings[0], $encoding) > 1) {
+			$last_char = mb_substr($strings[0], -1, 1, $encoding);
+
+			foreach ($strings as $string) {
+				if (!str_ends_with($string, $last_char)) {
+					break 2;
+				}
+			}
+
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
+			$trailing = $last_char . $trailing;
 		}
 
-		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
-			static $depth = 0;
-			$depth++;
+		// Create the trie from the strings.
+		$trie = [];
 
-			$first = (string) @mb_substr($string, 0, 1);
+		foreach ($strings as $string) {
+			$chars = mb_str_split($string, 1, $encoding);
 
-			// No first character? That's no good.
-			if ($first === '') {
-				// A nested array? Really? Ugh. Fine.
-				if (is_array($string) && $depth < 20) {
-					foreach ($string as $str) {
-						$trie = $add_string_to_trie($str, $trie);
-					}
+			$node = &$trie;
+
+			foreach ($chars as $char) {
+				if (!isset($node[$char])) {
+					$node[$char] = [];
 				}
 
-				$depth--;
-
-				return $trie;
+				$node = &$node[$char];
 			}
 
-			if (empty($trie[$first])) {
-				$trie[$first] = [];
-			}
-
-			if (mb_strlen($string) > 1) {
-				// Sanity check on recursion
-				if ($depth > 99) {
-					$trie[$first][mb_substr($string, 1)] = '';
-				} else {
-					$trie[$first] = $add_string_to_trie(mb_substr($string, 1), $trie[$first]);
-				}
-			} else {
-				$trie[$first][''] = '';
-			}
-
-			$depth--;
-
-			return $trie;
-		};
+			$node[''] = '';
+		}
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex, $encoding) {
 			static $depth = 0;
 			$depth++;
 
@@ -1142,7 +1107,7 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (count(array_keys($value)) == 1) {
+					if (\count(array_keys($value)) == 1) {
 						$new_key_array = explode('(?' . '>', $sub_regex);
 						$new_key .= $new_key_array[0];
 					} else {
@@ -1153,7 +1118,7 @@ class Utils
 				if ($depth > 1) {
 					$regex[$new_key] = $key_regex . $sub_regex;
 				} else {
-					if (($length += strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex)) {
+					if (($length += \strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex)) {
 						$regex[$new_key] = $key_regex . $sub_regex;
 						unset($trie[$key]);
 					} else {
@@ -1165,12 +1130,12 @@ class Utils
 			// Sort by key length and then alphabetically
 			uksort(
 				$regex,
-				function ($k1, $k2) {
-					$l1 = mb_strlen((string) $k1);
-					$l2 = mb_strlen((string) $k2);
+				function ($k1, $k2) use ($encoding) {
+					$l1 = mb_strlen((string) $k1, $encoding);
+					$l2 = mb_strlen((string) $k2, $encoding);
 
-					if ($l1 == $l2) {
-						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
+					if ($l1 === $l2) {
+						return strcmp((string) $k1, (string) $k2);
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -1182,30 +1147,25 @@ class Utils
 			return implode('|', $regex);
 		};
 
-		// Now that the closures are defined, let's do this thing.
-		$trie = [];
-		$regex = '';
-
-		foreach ($strings as $string) {
-			$trie = $add_string_to_trie((string) $string, $trie);
-		}
-
+		// Build regex (or regex array if requested)
 		if ($return_array === true) {
 			$regex = [];
 
 			while (!empty($trie)) {
 				$regex[] = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
 			}
+
+			if ($trailing !== '') {
+				$regex = array_map(fn($r) => '(?' . '>' . $r . $trailing . ')', $regex);
+			}
 		} else {
 			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+
+			if ($trailing !== '') {
+				$regex = '(?' . '>' . $regex . $trailing . ')';
+			}
 		}
 
-		// Restore PHP's internal character encoding to whatever it was originally.
-		if (!empty($current_encoding)) {
-			mb_internal_encoding($current_encoding);
-		}
-
-		// Save for later.
 		$regexes[$regex_key] = $regex;
 
 		return $regex;
@@ -1236,7 +1196,7 @@ class Utils
 	 */
 	public static function adjustHeadingLevels(mixed $str, ?int $modifier = 0): mixed
 	{
-		if (!is_string($str)) {
+		if (!\is_string($str)) {
 			return $str;
 		}
 
@@ -1245,7 +1205,7 @@ class Utils
 			function ($matches) use ($modifier) {
 				$l = (int) $matches[2] + (int) $modifier;
 
-				if (!is_null($modifier) && $l >= 1 && $l <= 6) {
+				if (!\is_null($modifier) && $l >= 1 && $l <= 6) {
 					return '<' . $matches[1] . 'h' . $l . $matches[3] . '>';
 				}
 
@@ -1271,7 +1231,7 @@ class Utils
 			"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
 			"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
 			"\x1E", "\x1F",
-			// Remove \xFFFE and \xFFFF
+			// Remove U-FFFE and U-FFFF
 			"\xEF\xBF\xBE", "\xEF\xBF\xBF",
 		];
 
@@ -1279,8 +1239,8 @@ class Utils
 
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
-		if (!empty(Utils::$context['utf8']) && str_contains($string, "\xED")) {
-			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+		if (str_contains($string, "\xED")) {
+			$string = preg_replace('/[\x{D800}-\x{DFFF}]/u', '', $string);
 		}
 
 		return $string;
@@ -1322,7 +1282,7 @@ class Utils
 	 */
 	public static function stripslashesRecursive(string|array $var, int $level = 0): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return stripslashes($var);
 		}
 
@@ -1348,7 +1308,7 @@ class Utils
 	 */
 	public static function urldecodeRecursive(string|array $var, int $level = 0): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return urldecode($var);
 		}
 
@@ -1373,7 +1333,7 @@ class Utils
 	 */
 	public static function escapestringRecursive(array|string $var): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return Db::$db->escape_string($var);
 		}
 
@@ -1398,7 +1358,7 @@ class Utils
 	 */
 	public static function unescapestringRecursive(array|string $var): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return Db::$db->unescape_string($var);
 		}
 
@@ -1444,7 +1404,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = self::truncate(strval($value), (int) $param_length);
+					$value = self::truncate(\strval($value), (int) $param_length);
 				},
 			);
 
@@ -1470,7 +1430,7 @@ class Utils
 		array_walk_recursive(
 			$array,
 			function ($value, $key) use (&$length) {
-				$length += strlen((string) $value);
+				$length += \strlen((string) $value);
 			},
 		);
 
@@ -1545,12 +1505,10 @@ class Utils
 			$json_debug = debug_backtrace();
 			$json_debug = $json_debug[0];
 
-			Lang::load('Errors');
-
 			if (!empty($json_debug)) {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical', $json_debug['file'], $json_debug['line']);
 			} else {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical');
 			}
 
 			// Null should be returned in all cases where json can not be decoded.
@@ -1590,13 +1548,13 @@ class Utils
 	public static function safeSerialize(mixed $value): string
 	{
 		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
-		if (function_exists('mb_internal_encoding')
-			&& (((int) ini_get('mbstring.func_overload')) & 2)) {
+		if (\function_exists('mb_internal_encoding')
+			&& (((int) \ini_get('mbstring.func_overload')) & 2)) {
 			$mb_int_enc = mb_internal_encoding();
 			mb_internal_encoding('ASCII');
 		}
 
-		switch (gettype($value)) {
+		switch (\gettype($value)) {
 			case 'NULL':
 				$out = 'N;';
 				break;
@@ -1614,7 +1572,7 @@ class Utils
 				break;
 
 			case 'string':
-				$out = 's:' . strlen($value) . ':"' . $value . '";';
+				$out = 's:' . \strlen($value) . ':"' . $value . '";';
 				break;
 
 			case 'array':
@@ -1624,7 +1582,7 @@ class Utils
 				array_walk_recursive(
 					$value,
 					function ($v) use (&$contains_invalid) {
-						if (is_object($v) || is_resource($v)) {
+						if (\is_object($v) || \is_resource($v)) {
 							$contains_invalid = true;
 						}
 					},
@@ -1639,7 +1597,7 @@ class Utils
 						$out .= self::safeSerialize($k) . self::safeSerialize($v);
 					}
 
-					$out = 'a:' . count($value) . ':{' . $out . '}';
+					$out = 'a:' . \count($value) . ':{' . $out . '}';
 				}
 				break;
 
@@ -1667,14 +1625,14 @@ class Utils
 	public static function safeUnserialize(string $str): mixed
 	{
 		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
-		if (function_exists('mb_internal_encoding')
-			&& (((int) ini_get('mbstring.func_overload')) & 0x02)) {
+		if (\function_exists('mb_internal_encoding')
+			&& (((int) \ini_get('mbstring.func_overload')) & 0x02)) {
 			$mb_int_enc = mb_internal_encoding();
 			mb_internal_encoding('ASCII');
 		}
 
 		// Input is not a string.
-		if (empty($str) || !is_string($str)) {
+		if (empty($str) || !\is_string($str)) {
 			$out = false;
 		}
 		// The substrings 'O:' and 'C:' are used to serialize objects.
@@ -1753,18 +1711,18 @@ class Utils
 					case 2:
 						if ($type == '}') {
 							// Array size is less than expected.
-							if (count($list) < end($expected)) {
+							if (\count($list) < end($expected)) {
 								return false;
 							}
 
 							unset($list);
-							$list = &$stack[count($stack) - 1];
+							$list = &$stack[\count($stack) - 1];
 							array_pop($stack);
 
 							// Go to terminal state if we're at the end of the root array.
 							array_pop($expected);
 
-							if (count($expected) == 0) {
+							if (\count($expected) == 0) {
 								$state = 1;
 							}
 
@@ -1773,7 +1731,7 @@ class Utils
 
 						if ($type == 'i' || $type == 's') {
 							// Array size exceeds expected length.
-							if (count($list) >= end($expected)) {
+							if (\count($list) >= end($expected)) {
 								return false;
 							}
 
@@ -1853,82 +1811,48 @@ class Utils
 	/**
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
-	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param string $data The data to check, or the path or URL of a file to
+	 *    check.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
 	{
-		$finfo_loaded = extension_loaded('fileinfo');
-		$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+		// Fileinfo extension is required.
+		if (!\extension_loaded('fileinfo')) {
+			ErrorHandler::log(Lang::getTxt('required_extension_missing', ['ext' => 'fileinfo'], file: 'Errors'));
 
-		// Oh well. We tried.
-		if (!$finfo_loaded && !$exif_loaded) {
 			return false;
 		}
 
 		// Start with the 'empty' MIME type.
 		$mime_type = 'application/x-empty';
 
-		if ($finfo_loaded) {
-			// Just some nice, simple data to analyze.
-			if (empty($is_path)) {
-				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		// Just some nice, simple data to analyze.
+		if (!$is_path) {
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		}
+		// A file, or maybe a URL?
+		else {
+			$path = $data;
+
+			// Local file.
+			if (file_exists($path)) {
+				$mime_type = mime_content_type($path);
 			}
-			// A file, or maybe a URL?
-			else {
-				$path = $data;
+			// URL.
+			elseif ($data = WebFetch\WebFetchApi::fetch($path)) {
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
 
-				// Local file.
-				if (file_exists($path)) {
-					$mime_type = mime_content_type($path);
-				}
-				// URL.
-				elseif ($data = WebFetch\WebFetchApi::fetch($path)) {
-					$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+				// SVG sometimes needs a little extra help.
+				if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
+					// Detection sometimes fails if the <svg> element isn't first.
+					$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
 
-					// SVG sometimes needs a little extra help.
-					if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
-						// Detection sometimes fails if the <svg> element isn't first.
-						$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
-
-						if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml') {
-							$mime_type = 'image/svg+xml';
-						}
+					if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml') {
+						$mime_type = 'image/svg+xml';
 					}
 				}
-			}
-		}
-		// Workaround using Exif requires a local file.
-		else {
-			// If $data is a URL to fetch, do so.
-			if (!empty($is_path) && !file_exists($data)) {
-				$data = WebFetch\WebFetchApi::fetch($data);
-
-				if ($data === false) {
-					return false;
-				}
-
-				$is_path = false;
-			}
-
-			// If we don't have a local file, create one and use it.
-			if (empty($is_path)) {
-				$temp_file = tempnam(Config::$cachedir, md5($data));
-				file_put_contents($temp_file, $data);
-				$is_path = true;
-				$data = $temp_file;
-			}
-
-			$imagetype = @exif_imagetype($data);
-
-			if (isset($temp_file)) {
-				unlink($temp_file);
-			}
-
-			// Unfortunately, this workaround only works for image files.
-			if ($imagetype !== false) {
-				$mime_type = image_type_to_mime_type($imagetype);
 			}
 		}
 
@@ -1938,18 +1862,24 @@ class Utils
 	/**
 	 * Checks whether a file or data has the expected MIME type.
 	 *
-	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+	 * @param string $data The data to check, or the path or URL of a file to
+	 *    check.
+	 * @param string $type_pattern A regex pattern to match the acceptable MIME
+	 *    types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
-	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+	 * @param string &mime_type Will be set to the detected MIME type.
+	 * @return int 1 if the detected MIME type matches the pattern, 0 if it
+	 *    doesn't, or 2 if we can't check.
 	 */
-	public static function checkMimeType(string $data, string $type_pattern, bool $is_path = false): int
+	public static function checkMimeType(string $data, string $type_pattern, bool $is_path = false, ?string &$mime_type = ''): int
 	{
 		// Get the MIME type.
 		$mime_type = self::getMimeType($data, $is_path);
 
 		// Couldn't determine it.
 		if ($mime_type === false) {
+			$mime_type = '';
+
 			return 2;
 		}
 
@@ -2010,14 +1940,14 @@ class Utils
 		}
 
 		// Do we want to send an embedded thumbnail image?
-		if ($show_thumb && $file instanceof Attachment && $file->embedded_thumb && function_exists('exif_thumbnail')) {
+		if ($show_thumb && $file instanceof Attachment && $file->embedded_thumb && \function_exists('exif_thumbnail')) {
 			$thumb = [
 				'content' => exif_thumbnail($file->path, $width, $height, $type),
 				'filename' => $file->filename ?? null,
 				'mtime' => $file->mtime ?? null,
 				'disposition' => $file->disposition ?? 'attachment',
 			];
-			$thumb['size'] = strlen($thumb['content']);
+			$thumb['size'] = \strlen($thumb['content']);
 			$thumb['width'] = $width;
 			$thumb['height'] = $height;
 			$thumb['etag'] = sha1($thumb['content']);
@@ -2030,7 +1960,7 @@ class Utils
 		// We always need a file size.
 		if (!isset($file['size'])) {
 			if (isset($file['content'])) {
-				$file['size'] = strlen($file['content']);
+				$file['size'] = \strlen($file['content']);
 			} elseif (isset($file['path']) && file_exists($file['path'])) {
 				$file['size'] = filesize($file['path']);
 			} else {
@@ -2043,11 +1973,13 @@ class Utils
 			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
 		}
 
-		// Convert the filename to UTF-8, cuz most browsers dig that.
-		$file['filename'] = !self::$context['utf8'] ? mb_convert_encoding($file['filename'], 'UTF-8', self::$context['character_set']) : $file['filename'];
+		// Decode any entities in the name.
+		$file['filename'] = Utils::entityDecode($file['filename']);
 
-		// Also provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
+		// Provide a plain ASCII name for the sake of old browsers.
+		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
+			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
+		}
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
@@ -2062,7 +1994,7 @@ class Utils
 		}
 
 		// Start a new output buffer.
-		$output_already_compressed = @ini_get('zlib.output_compression') > 0 || @ini_get('output_handler') == 'ob_gzhandler';
+		$output_already_compressed = @\ini_get('zlib.output_compression') > 0 || @\ini_get('output_handler') == 'ob_gzhandler';
 		$ob_handler = !$output_already_compressed && !empty(Config::$modSettings['enableCompressedOutput']) ? 'ob_gzhandler' : null;
 		ob_start($ob_handler);
 
@@ -2080,7 +2012,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && \in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
@@ -2091,8 +2023,8 @@ class Utils
 			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			list($range) = explode(',', $range, 2);
 			list($range, $range_end) = explode('-', $range);
-			$range = intval($range);
-			$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
+			$range = \intval($range);
+			$range_end = !$range_end ? $file['size'] - 1 : \intval($range_end);
 			$length = $range_end - $range + 1;
 
 			self::sendHttpStatus(206);
@@ -2122,8 +2054,8 @@ class Utils
 					$buffer = substr($file['content'], $offset, $chunksize);
 					echo $buffer;
 					flush();
-					$bytes_sent += strlen($buffer);
-					$offset += strlen($buffer);
+					$bytes_sent += \strlen($buffer);
+					$offset += \strlen($buffer);
 				}
 			} else {
 				$fp = fopen($file['path'], 'rb');
@@ -2134,13 +2066,13 @@ class Utils
 					$buffer = fread($fp, $chunksize);
 					echo $buffer;
 					flush();
-					$bytes_sent += strlen($buffer);
+					$bytes_sent += \strlen($buffer);
 				}
 				fclose($fp);
 			}
 		} else {
 			// Since we don't do output compression for files this large...
-			if (!is_null($ob_handler) && $file['size'] > 4194304) {
+			if (!\is_null($ob_handler) && $file['size'] > 4194304) {
 				header_remove('Content-Encoding');
 
 				while (@ob_get_level() > 0) {
@@ -2205,7 +2137,7 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
-	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
+	 * @return bool|null If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
 	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
@@ -2215,7 +2147,7 @@ class Utils
 		}
 
 		// Don't need extra stuff...
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// Kill anything else.
 		ob_end_clean();
@@ -2259,21 +2191,8 @@ class Utils
 		}
 
 		if (str_contains($setLocation, Config::$scripturl)) {
-			// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-			$sid = defined('SID') ? @constant('SID') : null;
-
-			// Put the session ID in.
-			if (isset($sid) && $sid != '' && !preg_match("/[;?]{$sid}/", $setLocation)) {
-				$insert = (str_contains($setLocation, '?') ? ';' : '?') . $sid;
-
-				if (str_contains($setLocation, '#')) {
-					$setLocation = str_replace('#', $insert . '#', $setLocation);
-				} else {
-					$setLocation .= $insert;
-				}
-			}
 			// Keep that debug in there for template debugging!
-			elseif (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
+			if (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
 				$insert = (str_contains($setLocation, '?') ? ';' : '?') . 'debug';
 
 				if (str_contains($setLocation, '#')) {
@@ -2299,7 +2218,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (!empty(Config::$db_show_debug)) {
+		if (DebugUtils::isDebugEnabled()) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 
@@ -2357,12 +2276,13 @@ class Utils
 							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
 							'pagenum' => Utils::$context['current_page'] + 1,
 						],
+						file: 'General',
 					);
 				}
 			}
 
 			// Start up the session URL fixer.
-			ob_start('SMF\\QueryString::ob_sessrewrite');
+			ob_start('SMF\\QueryString::obDebug');
 
 			// More work needed if using "queryless" URLS.
 			ob_start('SMF\\QueryString::rewriteAsQueryless');
@@ -2370,7 +2290,7 @@ class Utils
 			// Force the browser not to collapse tabs inside posts, etc.
 			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
 
-			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
+			if (!empty(Theme::$current->settings['output_buffers']) && \is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);
 			} elseif (!empty(Theme::$current->settings['output_buffers'])) {
 				$buffers = Theme::$current->settings['output_buffers'];
@@ -2412,13 +2332,12 @@ class Utils
 				Theme::template_footer();
 
 				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
-				if (Forum::getCurrentAction()?->isSimpleAction() === false
-					|| (
-						Forum::getCurrentAction() === null
-						&& !isset($_REQUEST['xml'])
-					)
+				if (
+					Forum::getCurrentAction()?->isSimpleAction() === false
+					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
+					&& !isset($_REQUEST['xml'])
 				) {
-					Logging::displayDebug();
+					Debug\DebugUtils::displayDebug();
 				}
 			}
 		}
@@ -2451,30 +2370,47 @@ class Utils
 	}
 
 	/**
-	 * Parses the given input to determine if it represents a callable entity.
+	 * Parses the given input to determine if is a callable entity or can be
+	 * turned into one, and then returns either a callable or false.
 	 *
-	 * This method supports various formats of callables, including closures,
-	 * callable arrays, static methods, and class methods with optional
-	 * instance creation.
+	 * If $input is already a callable entity, it will simply be returned.
+	 * Otherwise, this method will attempt to turn it into one.
 	 *
-	 * - If a class method is specified with a "#", it attempts to create
-	 *   a new instance of the class.
-	 * - If a static method is specified, it validates the method is callable.
-	 * - If input is a closure or callable array, it checks its validity.
-	 * - Plain functions are validated as callable.
-	 * - Objects themselves are not accepted as callables.
+	 * Two special syntaxes can be used with string input, as follows:
+	 *
+	 *  - Instructions to load a specific file can be given by prepending a file
+	 *    path followed by a `|` character to the $input string. This amounts to
+	 *    a form of autoloading for callables that are not class-based. These
+	 *    file paths support the wildcards $boarddir, $sourcedir, and $themedir.
+	 *
+	 *    Example: '$sourcedir/foo.php|func_name' will load ./Sources/foo.php
+	 *    and then return 'func_name'.
+	 *
+	 *  - If a class method is specified with a "#" character appended to it, an
+	 *    instance of that class will be automatically created and added to
+	 *    Utils::$context['instances'], and the returned value from this method
+	 *    will be a callable array that will call the specified method on that
+	 *    instance. Note, however, that there is no way to pass arguments to the
+	 *    class's constructor when using this syntax. For that reason, it is
+	 *    usually better to construct the object directly rather than using this
+	 *    syntax to do the job for you.
+	 *
+	 *    Example: 'SMF\Foo::methodName#' will create an instance of SMF\Foo and
+	 *    then return an array containing the instantiated object and the string
+	 *    'methodName'.
 	 *
 	 * @param string|callable $input Input to parse as a callable.
-	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
-	 *
-	 * @return callable|false Returns the callable if valid, or false on failure.
+	 * @param ?bool $ignore_errors Optional. Whether to suppress errors if the
+	 *    callable is invalid. If null, falls back to the current value of
+	 *    Utils::$context['ignore_hook_errors']. Default: null.
+	 * @return callable|false Either a valid callable or false on failure.
 	 */
 	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{
 		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (!is_string($input)) {
-			return is_callable($input) ? $input : false;
+		if (!\is_string($input)) {
+			return \is_callable($input) ? $input : false;
 		}
 
 		// Sanitize and trim the input.
@@ -2505,8 +2441,12 @@ class Utils
 					Utils::$context['instances'][$class] = new $class();
 
 					// Optionally track instance creation for debugging.
-					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['instances'][$class] = $class;
+					if (DebugUtils::isDebugEnabled()) {
+						DebugUtils::addDebugSource(
+							lang_key: 'instances',
+							key: $class,
+							value: $class,
+						);
 					}
 				}
 
@@ -2521,35 +2461,18 @@ class Utils
 		}
 
 		// Validate the callable.
-		if (!is_callable($callable, false, $callable_name)) {
+		if (!\is_callable($callable, false, $callable_name)) {
 			if ($ignore_errors) {
 				return false;
 			}
 
 			// Log error for invalid callables.
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name], file: 'Errors'), 'general');
 
 			return false;
 		}
 
 		return $callable;
-	}
-
-	/**
-	 * Converts four-byte Unicode characters to entities, but only if the
-	 * database can't handle four-byte characters natively.
-	 *
-	 * @param string $string A UTF-8 string.
-	 * @return string The string, with four-byte chars encoded as entities.
-	 */
-	final public static function fixUtf8mb4(string $string): string
-	{
-		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
-			return $string;
-		}
-
-		return mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 	}
 
 	/*************************
@@ -2597,19 +2520,18 @@ class Utils
 
 			// Load the file if it can be loaded.
 			if (is_file($path)) {
-				require_once $path;
+				require_once Config::canonicalPath($path);
 			}
 			// No? Try a fallback to Config::$sourcedir.
 			else {
 				$path = Config::$sourcedir . '/' . $file;
 
 				if (is_file($path)) {
-					require_once $path;
+					require_once Config::canonicalPath($path);
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
-					Lang::load('Errors');
-					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path], file: 'Errors'), 'general');
 
 					// File couldn't be loaded.
 					return false;
@@ -2622,8 +2544,6 @@ class Utils
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Utils::class, 'exportStatic'])) {
+if (\is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -55,7 +55,6 @@ class AttachmentApprove implements ActionInterface, Routable
 			$id_msg = (int) $_GET['mid'];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_attach
 				FROM {db_prefix}attachments
 				WHERE id_msg = {int:id_msg}
@@ -63,8 +62,8 @@ class AttachmentApprove implements ActionInterface, Routable
 					AND attachment_type = {int:attachment_type}',
 				[
 					'id_msg' => $id_msg,
-					'is_approved' => 0,
-					'attachment_type' => 0,
+					'is_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 
@@ -85,7 +84,6 @@ class AttachmentApprove implements ActionInterface, Routable
 
 		// Validate the attachments exist and are the right approval state.
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -94,15 +92,15 @@ class AttachmentApprove implements ActionInterface, Routable
 				AND a.approved = {int:is_approved}',
 			[
 				'attachments' => $attachments,
-				'attachment_type' => 0,
-				'is_approved' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
+				'is_approved' => Attachment::APPROVED_FALSE,
 			],
 		);
 		$attachments = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We can only add it if we can approve in this board!
-			if ($allowed_boards = [0] || in_array($row['id_board'], $allowed_boards)) {
+			if ($allowed_boards = [0] || \in_array($row['id_board'], $allowed_boards)) {
 				$attachments[] = $row['id_attach'];
 
 				// Also come up with the redirection URL.
@@ -127,5 +125,3 @@ class AttachmentApprove implements ActionInterface, Routable
 		Utils::redirectexit($redirect);
 	}
 }
-
-?>

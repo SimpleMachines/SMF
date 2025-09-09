@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\MailAgent;
@@ -19,6 +19,10 @@ use SMF\Utils;
 
 abstract class MailAgent
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * @var string
 	 *
@@ -54,15 +58,15 @@ abstract class MailAgent
 	public static string $agent;
 
 	/**
-	 * @var \SMF\MailAgent\MailAgentInterface|bool
+	 * @var \SMF\MailAgent\MailAgentInterface|bool|null
 	 *
 	 * The loaded agent, or false on failure.
 	 */
-	public static MailAgentInterface|bool $loaded_api;
+	public static MailAgentInterface|bool|null $loaded_api = null;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var string The maximum SMF version that this will work with.
@@ -114,7 +118,8 @@ abstract class MailAgent
 	 * @param string $to
 	 * @param string $subject
 	 * @param string $message Message should be formatted with html/plain text.
-	 * @param array $headers Any additional headers.
+	 * @param string $headers Any additional headers
+	 * @return bool Always returns false
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -142,7 +147,7 @@ abstract class MailAgent
 	 * Is our SMF version supported with this Agent.
 	 *
 	 * @param string $smfVersion
-	 * @return string the value of $key.
+	 * @return bool Whether the specified version is compatible
 	 */
 	public function isCompatible(string $smfVersion): bool
 	{
@@ -176,7 +181,7 @@ abstract class MailAgent
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
@@ -211,16 +216,16 @@ abstract class MailAgent
 			}
 		}
 
-		if (is_object(self::$loaded_api)) {
+		if (!\is_null(self::$loaded_api) && \is_object(self::$loaded_api)) {
 			return self::$loaded_api;
 		}
 
-		if (is_null(self::$loaded_api)) {
+		if (\is_null(self::$loaded_api)) {
 			self::$loaded_api = false;
 		}
 
 		// What agent we are going to try.
-		$agent_class_name = !empty(self::$agent) ? self::$agent : self::APIS_DEFAULT;
+		$agent_class_name = !empty(self::$agent) && !$loadDefault ? self::$agent : self::APIS_DEFAULT;
 		$fully_qualified_class_name = self::APIS_NAMESPACE . $agent_class_name;
 
 		// Do some basic tests.
@@ -250,10 +255,6 @@ abstract class MailAgent
 			if ($agent_api && $agent_api->connect() === false) {
 				$agent_api = false;
 			}
-		}
-
-		if (!$agent_api && $agent_class_name !== self::APIS_DEFAULT) {
-			$agent_api = self::load(false);
 		}
 
 		return $agent_api;
@@ -299,5 +300,3 @@ abstract class MailAgent
 		return $loaded_apis;
 	}
 }
-
-?>

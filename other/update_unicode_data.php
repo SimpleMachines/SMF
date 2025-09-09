@@ -26,7 +26,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -57,9 +57,8 @@ foreach (['SMF_VERSION', 'SMF_SOFTWARE_YEAR'] as $const) {
 require_once $sourcedir . '/Autoloader.php';
 SMF\Config::$boarddir = $boarddir;
 SMF\Config::$sourcedir = $sourcedir;
+SMF\Config::$language = 'en_US';
 
 // 5. Do the job.
 $unicode_updater = new SMF\Tasks\UpdateUnicode(['files_only' => true]);
 $unicode_updater->execute();
-
-?>

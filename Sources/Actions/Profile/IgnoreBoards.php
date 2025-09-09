@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -50,7 +50,6 @@ class IgnoreBoards implements ActionInterface
 		Utils::$context['categories'] = [];
 
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
 				' . (!empty(Profile::$member->data['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 			FROM {db_prefix}boards AS b
@@ -61,6 +60,7 @@ class IgnoreBoards implements ActionInterface
 				'ignore_boards' => !empty(Profile::$member->data['ignore_boards']) ? explode(',', Profile::$member->data['ignore_boards']) : [],
 				'empty_string' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
@@ -102,7 +102,7 @@ class IgnoreBoards implements ActionInterface
 			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 		}
 
-		$max_boards = max(2, ceil(count($temp_boards) / 2));
+		$max_boards = max(2, ceil(\count($temp_boards) / 2));
 
 		// Now, alternate them so they can be shown left and right ;).
 		Utils::$context['board_columns'] = [];
@@ -134,5 +134,3 @@ class IgnoreBoards implements ActionInterface
 		}
 	}
 }
-
-?>

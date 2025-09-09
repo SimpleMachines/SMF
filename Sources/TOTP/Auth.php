@@ -18,7 +18,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -32,6 +32,10 @@ namespace SMF\TOTP;
  */
 class Auth
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array Internal lookup table
 	 */
@@ -57,11 +61,15 @@ class Auth
 	 */
 	private int $range = 2;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Initialize the object and set up the lookup table
 	 *     Optionally the Initialization key
 	 *
-	 * @param string $initKey Initialization key
+	 * @param null|string $initKey Initialization key
 	 */
 	public function __construct(?string $initKey = null)
 	{
@@ -146,7 +154,7 @@ class Auth
 	 */
 	public function setLookup(array $lookup): self
 	{
-		if (!is_array($lookup)) {
+		if (!\is_array($lookup)) {
 			throw new \InvalidArgumentException('Lookup value must be an array');
 		}
 		$this->lookup = $lookup;
@@ -218,15 +226,15 @@ class Auth
 	 * Validate the given code
 	 *
 	 * @param string $code Code entered by user
-	 * @param string $initKey Initialization key
-	 * @param string $timestamp Timestamp for calculation
-	 * @param int $range Seconds before/after to validate hash against
+	 * @param null|string $initKey Initialization key
+	 * @param null|string $timestamp Timestamp for calculation
+	 * @param null|string $range Seconds before/after to validate hash against
 	 * @throws \InvalidArgumentException If incorrect code length
 	 * @return bool Pass/fail of validation
 	 */
 	public function validateCode(string $code, ?string $initKey = null, ?string $timestamp = null, ?string $range = null): bool
 	{
-		if (strlen($code) !== $this->getCodeLength()) {
+		if (\strlen($code) !== $this->getCodeLength()) {
 			throw new \InvalidArgumentException('Incorrect code length');
 		}
 
@@ -248,8 +256,8 @@ class Auth
 	/**
 	 * Generate a one-time code
 	 *
-	 * @param string $initKey Initialization key [optional]
-	 * @param string $timestamp Timestamp for calculation [optional]
+	 * @param null|string $initKey Initialization key [optional]
+	 * @param null|string $timestamp Timestamp for calculation [optional]
 	 * @return string Generated code/hash
 	 */
 	public function generateOneTime(?string $initKey = null, ?string $timestamp = null): string
@@ -280,7 +288,7 @@ class Auth
 		$code = '';
 
 		for ($i = 0; $i < $length; $i++) {
-			$code .= $lookup[random_int(0, strlen($lookup) - 1)];
+			$code .= $lookup[random_int(0, \strlen($lookup) - 1)];
 		}
 
 		return $code;
@@ -304,13 +312,13 @@ class Auth
 	 */
 	public function truncateHash(string $hash): string
 	{
-		$offset = ord($hash[19]) & 0xf;
+		$offset = \ord($hash[19]) & 0xf;
 
 		return (string) ((
-			((ord($hash[$offset + 0]) & 0x7f) << 24) |
-			((ord($hash[$offset + 1]) & 0xff) << 16) |
-			((ord($hash[$offset + 2]) & 0xff) << 8) |
-			(ord($hash[$offset + 3]) & 0xff)
+			((\ord($hash[$offset + 0]) & 0x7f) << 24) |
+			((\ord($hash[$offset + 1]) & 0xff) << 16) |
+			((\ord($hash[$offset + 2]) & 0xff) << 8) |
+			(\ord($hash[$offset + 3]) & 0xff)
 		) % pow(10, $this->getCodeLength()));
 	}
 
@@ -334,14 +342,14 @@ class Auth
 		$length = 0;
 		$binary = '';
 
-		for ($i = 0; $i < strlen($hash); $i++) {
+		for ($i = 0; $i < \strlen($hash); $i++) {
 			$buffer = $buffer << 5;
 			$buffer += $lookup[$hash[$i]];
 			$length += 5;
 
 			if ($length >= 8) {
 				$length -= 8;
-				$binary .= chr(($buffer & (0xFF << $length)) >> $length);
+				$binary .= \chr(($buffer & (0xFF << $length)) >> $length);
 			}
 		}
 
@@ -362,5 +370,3 @@ class Auth
 		return $url;
 	}
 }
-
-?>

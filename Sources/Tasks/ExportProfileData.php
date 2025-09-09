@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -20,7 +20,6 @@ use SMF\Actions\Feed;
 use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -76,17 +75,35 @@ class ExportProfileData extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info to create a follow-up background task, if necessary.
+	 *
 	 */
-	private array $next_task = [];
+	protected bool $allow_concurrent = false;
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 * @var array
+	 *
+	 * Info to create a follow-up background task, if necessary.
+	 */
+	private array $new_details = [];
+
+	/**
+	 * @var int
+	 *
+	 * How long to wait before running a follow-up task.
+	 */
+	private int $delay = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
 	private int $time_limit = 30;
 
 	/**
-	 * @var array The XSLT stylesheet, broken up into logical parts.
+	 * @var array
+	 *
+	 * The XSLT stylesheet, broken up into logical parts.
 	 */
 	private array $xslt_stylesheet = [
 		// Header for the stylesheet. Default value assumes that the stylesheet
@@ -853,7 +870,9 @@ class ExportProfileData extends BackgroundTask
 	];
 
 	/**
-	 * @var string The XSLT stylesheet as a single string.
+	 * @var string
+	 *
+	 * The XSLT stylesheet as a single string.
 	 */
 	private string $stylesheet;
 
@@ -871,6 +890,21 @@ class ExportProfileData extends BackgroundTask
 	 ****************/
 
 	/**
+	 * The constructor.
+	 *
+	 * @param array $details The details for the task
+	 */
+	public function __construct(array $details)
+	{
+		parent::__construct($details);
+
+		// Include the user ID in the md5 hash because we only want to prevent
+		// concurrent tasks from working on the same user's data simultaneously.
+		// It's fine to have concurrent tasks working on different users' data.
+		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(\get_class($this) . $this->_details['uid']) . '.lock';
+	}
+
+	/**
 	 * This is the main dispatcher for the class.
 	 * It calls the correct private function based on the information stored in
 	 * the task details.
@@ -880,14 +914,14 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public function execute(): bool
 	{
-		if (!defined('EXPORTING')) {
-			define('EXPORTING', 1);
+		if (!\defined('EXPORTING')) {
+			\define('EXPORTING', 1);
 		}
 
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
+		$this->time_limit = (int) (Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) \ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -897,8 +931,25 @@ class ExportProfileData extends BackgroundTask
 			$this->_details['format_settings'] = $export_formats['XML_XSLT'];
 		}
 
+		// Load the specifed member. Abort on failure.
+		if (User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile') === []) {
+			// Delete any existing export files.
+			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret()) . '.' . $this->_details['format_settings']['extension'];
+
+			$tempfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.tmp';
+			$progressfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.progress.json';
+
+			foreach (array_merge([$tempfile, $progressfile], glob(Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . '*_' . $idhash_ext)) as $fpath) {
+				@unlink($fpath);
+			}
+
+			// Bail out.
+			ignore_user_abort(false);
+
+			return true;
+		}
+
 		// TaskRunner class doesn't create a User::$me, but this job needs one.
-		User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile');
 		User::setMe($this->_details['uid']);
 
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
@@ -913,7 +964,7 @@ class ExportProfileData extends BackgroundTask
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
 		$hook_methods = [
 			'parser_cache' => 'parser_cache',
-			'pre_parsebbc' => in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
+			'pre_parsebbc' => \in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
 			'post_parsebbc' => 'post_parsebbc',
 			'bbc_codes' => 'bbc_codes',
 			'post_parseAttachBBC' => 'post_parseAttachBBC',
@@ -934,913 +985,13 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// If necessary, create a new background task to continue the export process.
-		if (!empty($this->next_task)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}background_tasks',
-				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				[$this->next_task],
-				[],
-			);
+		if (!empty($this->new_details)) {
+			$this->respawn($this->new_details, time() + $this->delay);
 		}
 
 		ignore_user_abort(false);
 
 		return true;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * The workhorse of this class. Compiles profile data to XML files.
-	 */
-	protected function exportXml(): void
-	{
-		// For convenience...
-		$uid = $this->_details['uid'];
-		$lang = $this->_details['lang'];
-		$included = $this->_details['included'];
-		$start = $this->_details['start'];
-		$latest = $this->_details['latest'];
-		$datatype = $this->_details['datatype'];
-
-		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile'])) {
-			return;
-		}
-
-		// Setup.
-		$done = false;
-		$delay = 0;
-		$datatypes = array_keys($included);
-
-		$feed = new Feed($datatype, $uid);
-		$feed->format = 'smf';
-		$feed->ascending = true;
-		$feed->limit = !empty(Config::$modSettings['export_rate']) ? (int) Config::$modSettings['export_rate'] : 250;
-		$feed->start_after = $start[$datatype];
-
-		Theme::loadEssential();
-		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
-		User::$me->language = $lang;
-		Lang::load(implode('+', array_unique(['General', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
-
-		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
-		$feed->query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
-
-		// We need a valid export directory.
-		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
-			if (Export::createDir() === false) {
-				return;
-			}
-		}
-
-		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-
-		$idhash = hash_hmac('sha1', (string) $uid, Config::getAuthSecret());
-		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
-
-		// Increment the file number until we reach one that doesn't exist.
-		$filenum = 1;
-		$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
-
-		while (file_exists($realfile)) {
-			$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-		}
-
-		$tempfile = $export_dir_slash . $idhash_ext . '.tmp';
-		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
-
-		$feed->metadata = [
-			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
-			'desc' => Lang::sentenceList(array_map(
-				function ($datatype) {
-					return Lang::$txt[$datatype];
-				},
-				array_keys($included),
-			)),
-			'author' => Config::$mbname,
-			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
-			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace('_', '-', substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], '.'))) : 'en',
-			'self' => '', // Unused, but can't be null.
-			'page' => &$filenum,
-		];
-
-		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
-		$check_diskspace = !empty(Config::$modSettings['export_min_diskspace_pct']) && function_exists('disk_free_space') && function_exists('disk_total_space') && intval(@disk_total_space(Config::$modSettings['export_dir']) >= 1440);
-		$minspace = $check_diskspace ? ceil(disk_total_space(Config::$modSettings['export_dir']) * Config::$modSettings['export_min_diskspace_pct'] / 100) : 0;
-
-		// If a necessary file is missing, we need to start over.
-		if (!file_exists($tempfile) || !file_exists($progressfile) || filesize($progressfile) == 0) {
-			foreach (array_merge([$tempfile, $progressfile], glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath) {
-				@unlink($fpath);
-			}
-
-			$filenum = 1;
-			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
-
-			Feed::build('smf', [], $feed->metadata, 'profile');
-			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
-
-			$progress = array_fill_keys($datatypes, 0);
-			file_put_contents($progressfile, Utils::jsonEncode($progress));
-		} else {
-			$progress = Utils::jsonDecode(file_get_contents($progressfile), true);
-		}
-
-		// Get the data.
-		$xml_data = call_user_func([$feed, $included[$datatype]['func']]);
-
-		// No data retrieved? Just move on then.
-		if (empty($xml_data)) {
-			$datatype_done = true;
-		}
-		// Basic profile data is quick and easy.
-		elseif ($datatype == 'profile') {
-			Feed::build('smf', $xml_data, $feed->metadata, 'profile');
-			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
-
-			$progress[$datatype] = time();
-			$datatype_done = true;
-
-			// Cache for subsequent reuse.
-			$profile_basic_items = Utils::$context['feed']['items'];
-
-			CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
-		}
-		// Posts and PMs...
-		else {
-			// We need the basic profile data in every export file.
-			$profile_basic_items = CacheApi::get('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
-
-			if (empty($profile_basic_items)) {
-				$profile_data = call_user_func([$feed, $included['profile']['func']]);
-
-				Feed::build('smf', $profile_data, $feed->metadata, 'profile');
-
-				$profile_basic_items = Utils::$context['feed']['items'];
-
-				CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
-
-				unset(Utils::$context['feed']);
-			}
-
-			$per_page = $this->_details['format_settings']['per_page'];
-			$prev_item_count = empty($this->_details['item_count']) ? 0 : $this->_details['item_count'];
-
-			// If the temp file has grown enormous, save it so we can start a new one.
-			clearstatcache();
-
-			if (file_exists($tempfile) && filesize($tempfile) >= 1024 * 1024 * 250) {
-				rename($tempfile, $realfile);
-				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-
-				if (empty(Utils::$context['feed']['header'])) {
-					Feed::build('smf', [], $feed->metadata, 'profile');
-				}
-
-				file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer']]), LOCK_EX);
-
-				$prev_item_count = 0;
-			}
-
-			// Split $xml_data into reasonably sized chunks.
-			if (empty($prev_item_count)) {
-				$xml_data = array_chunk($xml_data, $per_page);
-			} else {
-				$first_chunk = array_splice($xml_data, 0, (int) ($per_page - $prev_item_count));
-				$xml_data = array_merge([$first_chunk], array_chunk($xml_data, $per_page));
-				unset($first_chunk);
-			}
-
-			foreach ($xml_data as $chunk => $items) {
-				unset($new_item_count, $last_id);
-
-				// Remember the last item so we know where to start next time.
-				$last_item = end($items);
-
-				if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id') {
-					$last_id = $last_item['content'][0]['content'];
-				}
-
-				// Build the XML string from the data.
-				Feed::build('smf', $items, $feed->metadata, 'profile');
-
-				// If disk space is insufficient, pause for a day so the admin can fix it.
-				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
-					Lang::load('Errors');
-
-					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
-
-					$delay = 86400;
-				} else {
-					// We need a file to write to, of course.
-					if (!file_exists($tempfile)) {
-						file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer']]), LOCK_EX);
-					}
-
-					// Insert the new data before the feed footer.
-					$handle = fopen($tempfile, 'r+');
-
-					if (is_resource($handle)) {
-						flock($handle, LOCK_EX);
-
-						fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
-
-						$bytes_written = fwrite($handle, Utils::$context['feed']['items'] . Utils::$context['feed']['footer']);
-
-						// If we couldn't write everything, revert the changes and consider the write to have failed.
-						if ($bytes_written > 0 && $bytes_written < strlen(Utils::$context['feed']['items'] . Utils::$context['feed']['footer'])) {
-							fseek($handle, $bytes_written * -1, SEEK_END);
-							$pointer_pos = ftell($handle);
-							ftruncate($handle, $pointer_pos);
-							rewind($handle);
-							fseek($handle, 0, SEEK_END);
-							fwrite($handle, Utils::$context['feed']['footer']);
-
-							$bytes_written = false;
-						}
-
-						flock($handle, LOCK_UN);
-						fclose($handle);
-					}
-
-					// Write failed. We'll try again next time.
-					if (empty($bytes_written)) {
-						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
-						break;
-					}
-
-					// All went well.
-					// Track progress by ID where appropriate, and by time otherwise.
-					$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-					file_put_contents($progressfile, Utils::jsonEncode($progress));
-
-					// Are we done with this datatype yet?
-					if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype])) {
-						$datatype_done = true;
-					}
-
-					// Finished the file for this chunk, so move on to the next one.
-					if (count($items) >= $per_page - $prev_item_count) {
-						rename($tempfile, $realfile);
-						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-						$prev_item_count = $new_item_count = 0;
-					}
-					// This was the last chunk.
-					else {
-						// Should we append more items to this file next time?
-						$new_item_count = isset($last_id) ? $prev_item_count + count($items) : 0;
-					}
-				}
-			}
-		}
-
-		if (!empty($datatype_done)) {
-			$datatype_key = array_search($datatype, $datatypes);
-			$done = !isset($datatypes[$datatype_key + 1]);
-
-			if (!$done) {
-				$datatype = $datatypes[$datatype_key + 1];
-			}
-		}
-
-		// Remove the .tmp extension from the final tempfile so the system knows it's done.
-		if (!empty($done)) {
-			rename($tempfile, $realfile);
-		}
-		// Oops. Apparently some sneaky monkey cancelled the export while we weren't looking.
-		elseif (!file_exists($progressfile)) {
-			@unlink($tempfile);
-
-			return;
-		}
-		// We have more work to do again later.
-		else {
-			$start[$datatype] = $progress[$datatype];
-
-			$new_details = [
-				'format' => $this->_details['format'],
-				'uid' => $uid,
-				'lang' => $lang,
-				'included' => $included,
-				'start' => $start,
-				'latest' => $latest,
-				'datatype' => $datatype,
-				'format_settings' => $this->_details['format_settings'],
-				'last_page' => $this->_details['last_page'],
-				'dlfilename' => $this->_details['dlfilename'],
-			];
-
-			if (!empty($new_item_count)) {
-				$new_details['item_count'] = $new_item_count;
-			}
-
-			$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay];
-
-			if (!file_exists($tempfile)) {
-				Feed::build('smf', [], $feed->metadata, 'profile');
-
-				file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', Utils::$context['feed']['footer']]), LOCK_EX);
-			}
-		}
-
-		file_put_contents($progressfile, Utils::jsonEncode($progress));
-	}
-
-	/**
-	 * Compiles profile data to HTML.
-	 *
-	 * Internally calls exportXml() and then uses an XSLT stylesheet to
-	 * transform the XML files into HTML.
-	 */
-	protected function exportHtml(): void
-	{
-		Utils::$context['export_last_page'] = $this->_details['last_page'];
-		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
-
-		// Get the XSLT stylesheet.
-		$this->buildStylesheet();
-
-		// Perform the export to XML.
-		$this->exportXml();
-
-		// Determine which files, if any, are ready to be transformed.
-		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
-		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
-
-		$new_exportfiles = [];
-
-		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file) {
-			if (file_get_contents($completed_file, false, null, 0, 6) == '<?xml ') {
-				$new_exportfiles[] = $completed_file;
-			}
-		}
-
-		if (empty($new_exportfiles)) {
-			return;
-		}
-
-		// Set up the XSLT processor.
-		$xslt = new DOMDocument();
-		$xslt->loadXML($this->stylesheet);
-		$xsltproc = new XSLTProcessor();
-		$xsltproc->importStylesheet($xslt);
-
-		$libxml_options = 0;
-
-		foreach (['LIBXML_COMPACT', 'LIBXML_PARSEHUGE', 'LIBXML_BIGLINES'] as $libxml_option) {
-			if (defined($libxml_option)) {
-				$libxml_options = $libxml_options | constant($libxml_option);
-			}
-		}
-
-		// Transform the files to HTML.
-		$i = 0;
-		$num_files = count($new_exportfiles);
-		$max_transform_time = 0;
-
-		$xmldoc = new DOMDocument();
-
-		foreach ($new_exportfiles as $exportfile) {
-			Sapi::resetTimeout();
-
-			$started = microtime(true);
-			$xmldoc->load($exportfile, $libxml_options);
-			$xsltproc->transformToURI($xmldoc, $exportfile);
-			$finished = microtime(true);
-
-			$max_transform_time = max($max_transform_time, $finished - $started);
-
-			// When deadlines loom, sometimes the best solution is procrastination.
-			if (++$i < $num_files && TIME_START + $this->time_limit < $finished + $max_transform_time * 2) {
-				// After all, there's always next time.
-				if (empty($this->next_task)) {
-					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
-
-					$new_details = $this->_details;
-					$new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
-
-					$this->next_task = [__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD];
-				}
-
-				// So let's just relax and take a well deserved...
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Compiles profile data to XML with embedded XSLT.
-	 *
-	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
-	 * the XML so that it can be processed by the client.
-	 */
-	protected function exportXmlXslt(): void
-	{
-		Utils::$context['export_last_page'] = $this->_details['last_page'];
-		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
-
-		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
-		IntegrationHook::add('integrate_xml_data', __CLASS__ . '::add_dtd', false);
-
-		// Make sure the stylesheet is set.
-		$this->buildStylesheet();
-
-		// Perform the export to XML.
-		$this->exportXml();
-
-		// Just in case...
-		if (empty(Utils::$context['feed']['footer'])) {
-			Feed::build('smf', [], array_fill_keys(['title', 'desc', 'source', 'self'], ''), 'profile');
-		}
-
-		// Find any completed files that don't yet have the stylesheet embedded in them.
-		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
-		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
-
-		$test_length = strlen($this->stylesheet . Utils::$context['feed']['footer']);
-
-		$new_exportfiles = [];
-
-		clearstatcache();
-
-		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file) {
-			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== $this->stylesheet . Utils::$context['feed']['footer']) {
-				$new_exportfiles[] = $completed_file;
-			}
-		}
-
-		if (empty($new_exportfiles)) {
-			return;
-		}
-
-		// Embedding the XSLT means writing to the file yet again.
-		foreach ($new_exportfiles as $exportfile) {
-			$handle = fopen($exportfile, 'r+');
-
-			if (is_resource($handle)) {
-				flock($handle, LOCK_EX);
-
-				fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
-
-				$bytes_written = fwrite($handle, $this->stylesheet . Utils::$context['feed']['footer']);
-
-				// If we couldn't write everything, revert the changes.
-				if ($bytes_written > 0 && $bytes_written < strlen($this->stylesheet . Utils::$context['feed']['footer'])) {
-					fseek($handle, $bytes_written * -1, SEEK_END);
-					$pointer_pos = ftell($handle);
-					ftruncate($handle, $pointer_pos);
-					rewind($handle);
-					fseek($handle, 0, SEEK_END);
-					fwrite($handle, Utils::$context['feed']['footer']);
-				}
-
-				flock($handle, LOCK_UN);
-				fclose($handle);
-			}
-		}
-	}
-
-	/**
-	 * Finalizes the XSLT stylesheet used to transform an XML-based profile
-	 * export file into the desired output format.
-	 */
-	protected function buildStylesheet(): void
-	{
-		$xslt_variables = [];
-
-		if (in_array($this->_details['format'], ['HTML', 'XML_XSLT'])) {
-			if (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')) {
-				$this->_details['format'] = 'XML_XSLT';
-			}
-
-			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
-			$export_formats = Export::getFormats();
-
-			Lang::load('Profile');
-
-			/* Notes:
-			 * 1. The 'value' can be one of the following:
-			 *    - an integer or string
-			 *    - an XPath expression
-			 *    - raw XML, which may or not include other XSLT statements.
-			 *
-			 * 2. Always set 'no_cdata_parse' to true when the value is raw XML.
-			 *
-			 * 3. Set 'xpath' to true if the value is an XPath expression. When this
-			 *    is true, the value will be placed in the 'select' attribute of the
-			 *    <xsl:variable> element rather than in a child node.
-			 *
-			 * 4. Set 'param' to true in order to create an <xsl:param> instead
-			 *    of an <xsl:variable>.
-			 *
-			 * A word to PHP coders: Do not let the term "variable" mislead you.
-			 * XSLT variables are roughly equivalent to PHP constants rather
-			 * than PHP variables; once the value has been set, it is immutable.
-			 * Keeping this in mind may spare you from some confusion and
-			 * frustration while working with XSLT.
-			 */
-			$xslt_variables = [
-				'scripturl' => [
-					'value' => Config::$scripturl,
-				],
-				'themeurl' => [
-					'value' => Theme::$current->settings['default_theme_url'],
-				],
-				'member_id' => [
-					'value' => $this->_details['uid'],
-				],
-				'last_page' => [
-					'param' => true,
-					'value' => !empty(Utils::$context['export_last_page']) ? Utils::$context['export_last_page'] : 1,
-					'xpath' => true,
-				],
-				'dlfilename' => [
-					'param' => true,
-					'value' => !empty(Utils::$context['export_dlfilename']) ? Utils::$context['export_dlfilename'] : '',
-				],
-				'ext' => [
-					'value' => $export_formats[$this->_details['format']]['extension'],
-				],
-				'forum_copyright' => [
-					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
-				],
-				'txt_summary_heading' => [
-					'value' => Lang::$txt['summary'],
-				],
-				'txt_posts_heading' => [
-					'value' => Lang::$txt['posts'],
-				],
-				'txt_personal_messages_heading' => [
-					'value' => Lang::$txt['personal_messages'],
-				],
-				'txt_view_source_button' => [
-					'value' => Lang::$txt['export_view_source_button'],
-				],
-				'txt_download_original' => [
-					'value' => Lang::$txt['export_download_original'],
-				],
-				'txt_help' => [
-					'value' => Lang::$txt['help'],
-				],
-				'txt_terms_rules' => [
-					'value' => Lang::$txt['terms_and_rules'],
-				],
-				'txt_go_up' => [
-					'value' => Lang::$txt['go_up'],
-				],
-				'txt_pages' => [
-					'value' => Lang::$txt['pages'],
-				],
-			];
-
-			// Let mods adjust the XSLT variables.
-			IntegrationHook::call('integrate_export_xslt_variables', [&$xslt_variables, $this->_details['format']]);
-
-			$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
-			$xslt_variables['dltoken'] = [
-				'value' => hash_hmac('sha1', $idhash, Config::getAuthSecret()),
-			];
-
-			if ($this->_details['format'] == 'XML_XSLT') {
-				$this->xslt_stylesheet['header'] = "\n" . implode("\n", [
-					'',
-					'<xsl:stylesheet version="1.0" xmlns:xsl="' . self::XML_NAMESPACES['xsl'] . '" xmlns:html="' . self::XML_NAMESPACES['html'] . '" xmlns:smf="' . self::XML_NAMESPACES['smf'] . '" exclude-result-prefixes="smf html" id="stylesheet">',
-					'',
-					"\t" . '<xsl:template match="xsl:stylesheet"/>',
-					"\t" . '<xsl:template match="xsl:stylesheet" mode="detailedinfo"/>',
-				]);
-			}
-
-			// Insert the XSLT variables.
-			foreach ($xslt_variables as $name => $var) {
-				$element = !empty($var['param']) ? 'param' : 'variable';
-
-				if (!empty($this->xslt_stylesheet['variables'])) {
-					$this->xslt_stylesheet['variables'] .= "\n";
-				}
-
-				$this->xslt_stylesheet['variables'] .= "\t" . '<xsl:' . $element . ' name="' . $name . '"';
-
-				if (isset($var['xpath'])) {
-					$this->xslt_stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
-				} else {
-					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse((string) $var['value'])) . '</xsl:' . $element . '>';
-				}
-			}
-
-			// Template to insert CSS and JavaScript
-			$this->xslt_stylesheet['css_js'] = "\t" . '<xsl:template name="css_js">';
-
-			$this->loadCssJs();
-
-			if (!empty(Utils::$context['export_css_files'])) {
-				foreach (Utils::$context['export_css_files'] as $css_file) {
-					$url = $css_file['fileUrl'];
-
-					$this->xslt_stylesheet['css_js'] .= <<<END
-
-								<link rel="stylesheet">
-									<xsl:attribute name="href">
-										<xsl:text>{$url}</xsl:text>
-									</xsl:attribute>
-						END;
-
-					if (!empty($css_file['options']['attributes'])) {
-						foreach ($css_file['options']['attributes'] as $key => $value) {
-							if ($value === false) {
-								continue;
-							}
-
-							$value = $value === true ? $key : $value;
-
-							$this->xslt_stylesheet['css_js'] .= <<<END
-											<xsl:attribute name="{$key}">
-												<xsl:text>{$value}</xsl:text>
-											</xsl:attribute>
-								END;
-						}
-					}
-
-					$this->xslt_stylesheet['css_js'] .= <<<END
-
-								</link>
-						END;
-				}
-			}
-
-			if (!empty(Utils::$context['export_css_header'])) {
-				$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<style><![CDATA[' . "\n" . implode("\n", Utils::$context['export_css_header']) . "\n" . ']]>' . "\n" . '</style>';
-			}
-
-			if (!empty(Utils::$context['export_javascript_vars'])) {
-				$this->xslt_stylesheet['css_js'] .=  "\n\t\t" . '<script><![CDATA[';
-
-				foreach (Utils::$context['export_javascript_vars'] as $var => $val) {
-					$this->xslt_stylesheet['css_js'] .= "\nvar " . $var . (!empty($val) ? ' = ' . $val : '') . ';';
-				}
-
-				$this->xslt_stylesheet['css_js'] .= "\n" . ']]>' . "\n\t\t" . '</script>';
-			}
-
-			if (!empty(Utils::$context['export_javascript_files'])) {
-				foreach (Utils::$context['export_javascript_files'] as $js_file) {
-					$url = $js_file['fileUrl'];
-
-					$this->xslt_stylesheet['css_js'] .= <<<END
-
-								<script>
-									<xsl:attribute name="src">
-										<xsl:text>{$url}</xsl:text>
-									</xsl:attribute>
-						END;
-
-					if (!empty($js_file['options']['attributes'])) {
-						foreach ($js_file['options']['attributes'] as $key => $value) {
-							if ($value === false) {
-								continue;
-							}
-
-							$value = $value === true ? $key : $value;
-
-							$this->xslt_stylesheet['css_js'] .= <<<END
-											<xsl:attribute name="{$key}">
-												<xsl:text>{$value}</xsl:text>
-											</xsl:attribute>
-								END;
-						}
-					}
-
-					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '</script>';
-				}
-			}
-
-			if (!empty(Utils::$context['export_javascript_inline']['standard'])) {
-				$this->xslt_stylesheet['css_js'] .=  "\n\t\t" . '<script><![CDATA[' . "\n" . implode("\n", Utils::$context['export_javascript_inline']['standard']) . "\n" . ']]>' . "\n" . '</script>';
-			}
-
-			if (!empty(Utils::$context['export_javascript_inline']['defer'])) {
-				$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<script><![CDATA[' . "\n" . 'window.addEventListener("DOMContentLoaded", function() {';
-
-				$this->xslt_stylesheet['css_js'] .= "\n\t" . str_replace("\n", "\n\t", implode("\n", Utils::$context['export_javascript_inline']['defer']));
-
-				$this->xslt_stylesheet['css_js'] .= "\n" . '});' . "\n" . ']]>' . "\n\t\t" . '</script>';
-			}
-
-			$this->xslt_stylesheet['css_js'] .= "\n\t" . '</xsl:template>';
-		}
-
-		// Let mods adjust the XSLT stylesheet.
-		IntegrationHook::call('integrate_export_xslt_stylesheet', [&$this->xslt_stylesheet, $this->_details['format']]);
-
-		$this->stylesheet = implode("\n\n", $this->xslt_stylesheet);
-
-		if ($this->_details['format'] == 'XML_XSLT') {
-			$placeholders = [];
-
-			if (preg_match_all('/<!\[CDATA\[\X*?\]\]>/u', $this->stylesheet, $matches)) {
-				foreach ($matches[0] as $cdata) {
-					$placeholders[$cdata] = md5($cdata);
-				}
-			}
-
-			$this->stylesheet = strtr($this->stylesheet, $placeholders);
-			$this->stylesheet = preg_replace('/^(?!\n)/mu', "\t", $this->stylesheet);
-			$this->stylesheet = strtr($this->stylesheet, array_flip($placeholders));
-		}
-	}
-
-	/**
-	 * Loads and prepares CSS and JavaScript for insertion into an XSLT stylesheet.
-	 */
-	protected function loadCssJs(): void
-	{
-		// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
-		if (SMF != 'BACKGROUND') {
-			foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
-				if (isset(Utils::$context[$var])) {
-					Utils::$context['real_' . $var] = Utils::$context[$var];
-				}
-
-				if ($var == 'javascript_inline') {
-					foreach (Utils::$context[$var] as $key => $value) {
-						Utils::$context[$var][$key] = [];
-					}
-				} else {
-					Utils::$context[$var] = [];
-				}
-			}
-		}
-		// Autoloading is unavailable for background tasks, so we have to do things the hard way...
-		else {
-			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
-				// Include, not require, because minimization is nice to have but not vital here.
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exception.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Minify.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'path-converter', 'src', 'Converter.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'CSS.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'JS.php']);
-
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
-					Config::$modSettings['minimize_files'] = false;
-				}
-			}
-		}
-
-		// Load our standard CSS files.
-		Theme::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
-		Theme::loadCSSFile('responsive.css', ['force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000], 'smf_responsive');
-
-		if (Utils::$context['right_to_left']) {
-			Theme::loadCSSFile('rtl.css', ['order_pos' => 4000], 'smf_rtl');
-		}
-
-		// In case any mods added relevant CSS.
-		IntegrationHook::call('integrate_pre_css_output');
-
-		// This next chunk mimics some of Theme::template_css()
-		$css_to_minify = [];
-		$normal_css_files = [];
-
-		usort(
-			Utils::$context['css_files'],
-			function ($a, $b) {
-				return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-			},
-		);
-
-		foreach (Utils::$context['css_files'] as $css_file) {
-			if (!isset($css_file['options']['minimize'])) {
-				$css_file['options']['minimize'] = true;
-			}
-
-			if (!empty($css_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
-				$css_to_minify[] = $css_file;
-			} else {
-				$normal_css_files[] = $css_file;
-			}
-		}
-
-		$minified_css_files = !empty($css_to_minify) ? Theme::custMinify($css_to_minify, 'css') : [];
-
-		Utils::$context['css_files'] = [];
-
-		foreach (array_merge($minified_css_files, $normal_css_files) as $css_file) {
-			// Embed the CSS in a <style> element if possible, since exports are supposed to be standalone files.
-			if (file_exists($css_file['filePath'])) {
-				Utils::$context['css_header'][] = file_get_contents($css_file['filePath']);
-			} elseif (!empty($css_file['fileUrl'])) {
-				Utils::$context['css_files'][] = $css_file;
-			}
-		}
-
-		// Next, we need to do for JavaScript what we just did for CSS.
-		Theme::loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', ['external' => true, 'seed' => false], 'smf_jquery');
-
-		// There might be JavaScript that we need to add in order to support custom BBC or something.
-		IntegrationHook::call('integrate_pre_javascript_output', [false]);
-		IntegrationHook::call('integrate_pre_javascript_output', [true]);
-
-		$js_to_minify = [];
-		$all_js_files = [];
-
-		foreach (Utils::$context['javascript_files'] as $js_file) {
-			if (!empty($js_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
-				if (!empty($js_file['options']['async'])) {
-					$js_to_minify['async'][] = $js_file;
-				} elseif (!empty($js_file['options']['defer'])) {
-					$js_to_minify['defer'][] = $js_file;
-				} else {
-					$js_to_minify['standard'][] = $js_file;
-				}
-			} else {
-				$all_js_files[] = $js_file;
-			}
-		}
-
-		Utils::$context['javascript_files'] = [];
-
-		foreach ($js_to_minify as $type => $js_files) {
-			if (!empty($js_files)) {
-				$minified_js_files = Theme::custMinify($js_files, 'js');
-				$all_js_files = array_merge($all_js_files, $minified_js_files);
-			}
-		}
-
-		foreach ($all_js_files as $js_file) {
-			// As with the CSS, embed whatever JavaScript we can.
-			if (file_exists($js_file['filePath'])) {
-				Utils::$context['javascript_inline'][(!empty($js_file['options']['defer']) ? 'defer' : 'standard')][] = file_get_contents($js_file['filePath']);
-			} elseif (!empty($js_file['fileUrl'])) {
-				Utils::$context['javascript_files'][] = $js_file;
-			}
-		}
-
-		// We need to embed the smiley images, too. To save space, we store the image data in JS variables.
-		$smiley_mimetypes = [
-			'gif' => 'image/gif',
-			'png' => 'image/png',
-			'jpg' => 'image/jpeg',
-			'jpeg' => 'image/jpeg',
-			'tiff' => 'image/tiff',
-			'svg' => 'image/svg+xml',
-			'webp' => 'image/webp',
-		];
-
-		foreach (glob(implode(DIRECTORY_SEPARATOR, [Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'])) as $smiley_file) {
-			$pathinfo = pathinfo($smiley_file);
-
-			if (!isset($smiley_mimetypes[$pathinfo['extension']])) {
-				continue;
-			}
-
-			$var = implode('_', ['smf', 'smiley', $pathinfo['filename'], $pathinfo['extension']]);
-
-			if (!isset(Utils::$context['javascript_vars'][$var])) {
-				Utils::$context['javascript_vars'][$var] = '\'data:' . $smiley_mimetypes[$pathinfo['extension']] . ';base64,' . base64_encode(file_get_contents($smiley_file)) . '\'';
-			}
-		}
-
-		Utils::$context['javascript_inline']['defer'][] = implode("\n", [
-			'$("img.smiley").each(function() {',
-			'	var data_uri_var = $(this).attr("src").replace(/.*\/(\w+)\.(\w+)$/, "smf_smiley_$1_$2");',
-			'	$(this).attr("src", window[data_uri_var]);',
-			'});',
-		]);
-
-		// Now move everything to the special export version of these arrays.
-		foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
-			if (isset(Utils::$context[$var])) {
-				Utils::$context['export_' . $var] = Utils::$context[$var];
-			}
-
-			unset(Utils::$context[$var]);
-		}
-
-		// Finally, restore the real values.
-		if (SMF !== 'BACKGROUND') {
-			foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
-				if (isset(Utils::$context['real_' . $var])) {
-					Utils::$context[$var] = Utils::$context['real_' . $var];
-				}
-
-				unset(Utils::$context['real_' . $var]);
-			}
-		}
 	}
 
 	/***********************
@@ -1862,13 +1013,9 @@ class ExportProfileData extends BackgroundTask
 		string $subaction,
 		string &$doctype,
 	): void {
-		if (!isset(Lang::$txt['export_open_in_browser'])) {
-			Lang::load('Profile');
-		}
-
 		$doctype = implode("\n", [
 			'<!--',
-			"\t" . Lang::$txt['export_open_in_browser'],
+			"\t" . Lang::getTxt('export_open_in_browser', file: 'Profile'),
 			'-->',
 			'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
 			'<!DOCTYPE smf:xml-feed [',
@@ -1971,9 +1118,9 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
 	{
-		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
-		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::$txt['export_download_original'] . '</a>';
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
 		if ($params['{display}'] == 'link') {
 			$returnContext .= ' (' . $orig_link . ')';
@@ -2027,6 +1174,893 @@ class ExportProfileData extends BackgroundTask
 			) . $hidden_orig_link . '</span>';
 		}
 	}
-}
 
-?>
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * The workhorse of this class. Compiles profile data to XML files.
+	 */
+	protected function exportXml(): void
+	{
+		// For convenience...
+		$uid = $this->_details['uid'];
+		$lang = $this->_details['lang'];
+		$included = $this->_details['included'];
+		$start = $this->_details['start'];
+		$latest = $this->_details['latest'];
+		$datatype = $this->_details['datatype'];
+
+		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile'])) {
+			return;
+		}
+
+		// Setup.
+		$done = false;
+		$datatypes = array_keys($included);
+
+		$feed = new Feed($datatype, $uid);
+		$feed->format = 'smf';
+		$feed->ascending = true;
+		$feed->limit = !empty(Config::$modSettings['export_rate']) ? (int) Config::$modSettings['export_rate'] : 250;
+		$feed->start_after = $start[$datatype];
+
+		Theme::loadEssential();
+		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
+		User::$me->language = $lang;
+		Lang::load(implode('+', array_unique(['General', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
+
+		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
+		$feed->query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
+
+		// We need a valid export directory.
+		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
+			if (Export::createDir() === false) {
+				return;
+			}
+		}
+
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+
+		$idhash = hash_hmac('sha1', (string) $uid, Config::getAuthSecret());
+		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
+
+		// Increment the file number until we reach one that doesn't exist.
+		$filenum = 1;
+		$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
+
+		while (file_exists($realfile)) {
+			$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+		}
+
+		$tempfile = $export_dir_slash . $idhash_ext . '.tmp';
+		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
+
+		$feed->metadata = [
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name], file: 'Profile'),
+			'desc' => Lang::sentenceList(array_map(
+				function ($datatype) {
+					return Lang::getTxt($datatype, file: 'Profile');
+				},
+				array_keys($included),
+			)),
+			'author' => Config::$mbname,
+			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
+			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
+			'self' => '', // Unused, but can't be null.
+			'page' => &$filenum,
+		];
+
+		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
+		$check_diskspace = !empty(Config::$modSettings['export_min_diskspace_pct']) && \function_exists('disk_free_space') && \function_exists('disk_total_space') && \intval(@disk_total_space(Config::$modSettings['export_dir']) >= 1440);
+		$minspace = $check_diskspace ? ceil(disk_total_space(Config::$modSettings['export_dir']) * Config::$modSettings['export_min_diskspace_pct'] / 100) : 0;
+
+		// If a necessary file is missing, we need to start over.
+		if (!file_exists($tempfile) || !file_exists($progressfile) || filesize($progressfile) == 0) {
+			foreach (array_merge([$tempfile, $progressfile], glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath) {
+				@unlink($fpath);
+			}
+
+			$filenum = 1;
+			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
+
+			Feed::build('smf', [], $feed->metadata, 'profile');
+			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
+
+			$progress = array_fill_keys($datatypes, 0);
+			file_put_contents($progressfile, Utils::jsonEncode($progress));
+		} else {
+			$progress = Utils::jsonDecode(file_get_contents($progressfile), true);
+		}
+
+		// Get the data.
+		$xml_data = \call_user_func([$feed, $included[$datatype]['func']]);
+
+		// No data retrieved? Just move on then.
+		if (empty($xml_data)) {
+			$datatype_done = true;
+		}
+		// Basic profile data is quick and easy.
+		elseif ($datatype == 'profile') {
+			Feed::build('smf', $xml_data, $feed->metadata, 'profile');
+			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
+
+			$progress[$datatype] = time();
+			$datatype_done = true;
+
+			// Cache for subsequent reuse.
+			$profile_basic_items = Utils::$context['feed']['items'];
+
+			CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
+		}
+		// Posts and PMs...
+		else {
+			// We need the basic profile data in every export file.
+			$profile_basic_items = CacheApi::get('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
+
+			if (empty($profile_basic_items)) {
+				$profile_data = \call_user_func([$feed, $included['profile']['func']]);
+
+				Feed::build('smf', $profile_data, $feed->metadata, 'profile');
+
+				$profile_basic_items = Utils::$context['feed']['items'];
+
+				CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
+
+				unset(Utils::$context['feed']);
+			}
+
+			$per_page = $this->_details['format_settings']['per_page'];
+			$prev_item_count = empty($this->_details['item_count']) ? 0 : $this->_details['item_count'];
+
+			// If the temp file has grown enormous, save it so we can start a new one.
+			clearstatcache();
+
+			if (file_exists($tempfile) && filesize($tempfile) >= 1024 * 1024 * 250) {
+				rename($tempfile, $realfile);
+				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+
+				if (empty(Utils::$context['feed']['header'])) {
+					Feed::build('smf', [], $feed->metadata, 'profile');
+				}
+
+				file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer']]), LOCK_EX);
+
+				$prev_item_count = 0;
+			}
+
+			// Split $xml_data into reasonably sized chunks.
+			if (empty($prev_item_count)) {
+				$xml_data = array_chunk($xml_data, $per_page);
+			} else {
+				$first_chunk = array_splice($xml_data, 0, (int) ($per_page - $prev_item_count));
+				$xml_data = array_merge([$first_chunk], array_chunk($xml_data, $per_page));
+				unset($first_chunk);
+			}
+
+			foreach ($xml_data as $chunk => $items) {
+				unset($new_item_count, $last_id);
+
+				// Remember the last item so we know where to start next time.
+				$last_item = end($items);
+
+				if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id') {
+					$last_id = $last_item['content'][0]['content'];
+				}
+
+				// Build the XML string from the data.
+				Feed::build('smf', $items, $feed->metadata, 'profile');
+
+				// If disk space is insufficient, pause for a day so the admin can fix it.
+				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= \strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']], file: 'Errors'));
+
+					$this->delay = 86400;
+				} else {
+					// We need a file to write to, of course.
+					if (!file_exists($tempfile)) {
+						file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer']]), LOCK_EX);
+					}
+
+					// Insert the new data before the feed footer.
+					$handle = fopen($tempfile, 'r+');
+
+					if (\is_resource($handle)) {
+						flock($handle, LOCK_EX);
+
+						fseek($handle, \strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
+
+						$bytes_written = fwrite($handle, Utils::$context['feed']['items'] . Utils::$context['feed']['footer']);
+
+						// If we couldn't write everything, revert the changes and consider the write to have failed.
+						if ($bytes_written > 0 && $bytes_written < \strlen(Utils::$context['feed']['items'] . Utils::$context['feed']['footer'])) {
+							fseek($handle, $bytes_written * -1, SEEK_END);
+							$pointer_pos = ftell($handle);
+							ftruncate($handle, $pointer_pos);
+							rewind($handle);
+							fseek($handle, 0, SEEK_END);
+							fwrite($handle, Utils::$context['feed']['footer']);
+
+							$bytes_written = false;
+						}
+
+						flock($handle, LOCK_UN);
+						fclose($handle);
+					}
+
+					// Write failed. We'll try again next time.
+					if (empty($bytes_written)) {
+						$this->delay = Taskrunner::MAX_CLAIM_THRESHOLD;
+						break;
+					}
+
+					// All went well.
+					// Track progress by ID where appropriate, and by time otherwise.
+					$progress[$datatype] = !isset($last_id) ? time() : $last_id;
+					file_put_contents($progressfile, Utils::jsonEncode($progress));
+
+					// Are we done with this datatype yet?
+					if (!isset($last_id) || (\count($items) < $per_page && $last_id >= $latest[$datatype])) {
+						$datatype_done = true;
+					}
+
+					// Finished the file for this chunk, so move on to the next one.
+					if (\count($items) >= $per_page - $prev_item_count) {
+						rename($tempfile, $realfile);
+						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+						$prev_item_count = $new_item_count = 0;
+					}
+					// This was the last chunk.
+					else {
+						// Should we append more items to this file next time?
+						$new_item_count = isset($last_id) ? $prev_item_count + \count($items) : 0;
+					}
+				}
+			}
+		}
+
+		if (!empty($datatype_done)) {
+			$datatype_key = array_search($datatype, $datatypes);
+			$done = !isset($datatypes[$datatype_key + 1]);
+
+			if (!$done) {
+				$datatype = $datatypes[$datatype_key + 1];
+			}
+		}
+
+		// This should be a very rare occurrence, but it's not impossible.
+		// Unfortunately, we must start over if it does happen.
+		if (!empty($done) && !file_exists($tempfile)) {
+			$done = false;
+			unset($new_item_count);
+			$datatype = reset($datatypes);
+			$progress = array_fill_keys($datatypes, 0);
+			file_put_contents($progressfile, Utils::jsonEncode($progress));
+		}
+
+		// Remove the .tmp extension from the final tempfile so the system knows it's done.
+		if (!empty($done)) {
+			rename($tempfile, $realfile);
+		}
+		// Oops. Apparently some sneaky monkey cancelled the export while we weren't looking.
+		elseif (!file_exists($progressfile)) {
+			@unlink($tempfile);
+
+			return;
+		}
+		// We have more work to do again later.
+		else {
+			$start[$datatype] = $progress[$datatype];
+
+			$this->new_details = [
+				'format' => $this->_details['format'],
+				'uid' => $uid,
+				'lang' => $lang,
+				'included' => $included,
+				'start' => $start,
+				'latest' => $latest,
+				'datatype' => $datatype,
+				'format_settings' => $this->_details['format_settings'],
+				'last_page' => $this->_details['last_page'],
+				'dlfilename' => $this->_details['dlfilename'],
+			];
+
+			if (!empty($new_item_count)) {
+				$this->new_details['item_count'] = $new_item_count;
+			}
+
+			if (!file_exists($tempfile)) {
+				Feed::build('smf', [], $feed->metadata, 'profile');
+
+				file_put_contents($tempfile, implode('', [Utils::$context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', Utils::$context['feed']['footer']]), LOCK_EX);
+			}
+		}
+
+		file_put_contents($progressfile, Utils::jsonEncode($progress));
+	}
+
+	/**
+	 * Compiles profile data to HTML.
+	 *
+	 * Internally calls exportXml() and then uses an XSLT stylesheet to
+	 * transform the XML files into HTML.
+	 */
+	protected function exportHtml(): void
+	{
+		Utils::$context['export_last_page'] = $this->_details['last_page'];
+		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
+
+		// Get the XSLT stylesheet.
+		$this->buildStylesheet();
+
+		// Perform the export to XML.
+		$this->exportXml();
+
+		// Determine which files, if any, are ready to be transformed.
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
+		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
+
+		$new_exportfiles = [];
+
+		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file) {
+			if (file_get_contents($completed_file, false, null, 0, 6) == '<?xml ') {
+				$new_exportfiles[] = $completed_file;
+			}
+		}
+
+		if (empty($new_exportfiles)) {
+			return;
+		}
+
+		// Set up the XSLT processor.
+		$xslt = new DOMDocument();
+		$xslt->loadXML($this->stylesheet);
+		$xsltproc = new XSLTProcessor();
+		$xsltproc->importStylesheet($xslt);
+
+		$libxml_options = 0;
+
+		foreach (['LIBXML_COMPACT', 'LIBXML_PARSEHUGE', 'LIBXML_BIGLINES'] as $libxml_option) {
+			if (\defined($libxml_option)) {
+				$libxml_options = $libxml_options | \constant($libxml_option);
+			}
+		}
+
+		// Transform the files to HTML.
+		$i = 0;
+		$num_files = \count($new_exportfiles);
+		$max_transform_time = 0;
+
+		$xmldoc = new DOMDocument();
+
+		foreach ($new_exportfiles as $exportfile) {
+			Sapi::resetTimeout();
+
+			$started = microtime(true);
+			$xmldoc->load($exportfile, $libxml_options);
+			$xsltproc->transformToURI($xmldoc, $exportfile);
+			$finished = microtime(true);
+
+			$max_transform_time = max($max_transform_time, $finished - $started);
+
+			// When deadlines loom, sometimes the best solution is procrastination.
+			if (++$i < $num_files && TIME_START + $this->time_limit < $finished + $max_transform_time * 2) {
+				// After all, there's always next time.
+				if (empty($this->new_details)) {
+					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
+
+					$this->new_details = $this->_details;
+					$this->new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
+				}
+
+				// So let's just relax and take a well deserved...
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Compiles profile data to XML with embedded XSLT.
+	 *
+	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
+	 * the XML so that it can be processed by the client.
+	 */
+	protected function exportXmlXslt(): void
+	{
+		Utils::$context['export_last_page'] = $this->_details['last_page'];
+		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
+
+		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
+		IntegrationHook::add('integrate_xml_data', __CLASS__ . '::add_dtd', false);
+
+		// Make sure the stylesheet is set.
+		$this->buildStylesheet();
+
+		// Perform the export to XML.
+		$this->exportXml();
+
+		// Just in case...
+		if (empty(Utils::$context['feed']['footer'])) {
+			Feed::build('smf', [], array_fill_keys(['title', 'desc', 'source', 'self'], ''), 'profile');
+		}
+
+		// Find any completed files that don't yet have the stylesheet embedded in them.
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
+		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
+
+		$test_length = \strlen($this->stylesheet . Utils::$context['feed']['footer']);
+
+		$new_exportfiles = [];
+
+		clearstatcache();
+
+		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file) {
+			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== $this->stylesheet . Utils::$context['feed']['footer']) {
+				$new_exportfiles[] = $completed_file;
+			}
+		}
+
+		if (empty($new_exportfiles)) {
+			return;
+		}
+
+		// Embedding the XSLT means writing to the file yet again.
+		foreach ($new_exportfiles as $exportfile) {
+			$handle = fopen($exportfile, 'r+');
+
+			if (\is_resource($handle)) {
+				flock($handle, LOCK_EX);
+
+				fseek($handle, \strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
+
+				$bytes_written = fwrite($handle, $this->stylesheet . Utils::$context['feed']['footer']);
+
+				// If we couldn't write everything, revert the changes.
+				if ($bytes_written > 0 && $bytes_written < \strlen($this->stylesheet . Utils::$context['feed']['footer'])) {
+					fseek($handle, $bytes_written * -1, SEEK_END);
+					$pointer_pos = ftell($handle);
+					ftruncate($handle, $pointer_pos);
+					rewind($handle);
+					fseek($handle, 0, SEEK_END);
+					fwrite($handle, Utils::$context['feed']['footer']);
+				}
+
+				flock($handle, LOCK_UN);
+				fclose($handle);
+			}
+		}
+	}
+
+	/**
+	 * Finalizes the XSLT stylesheet used to transform an XML-based profile
+	 * export file into the desired output format.
+	 */
+	protected function buildStylesheet(): void
+	{
+		$xslt_variables = [];
+
+		if (\in_array($this->_details['format'], ['HTML', 'XML_XSLT'])) {
+			if (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')) {
+				$this->_details['format'] = 'XML_XSLT';
+			}
+
+			require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
+			$export_formats = Export::getFormats();
+
+			/* Notes:
+			 * 1. The 'value' can be one of the following:
+			 *    - an integer or string
+			 *    - an XPath expression
+			 *    - raw XML, which may or not include other XSLT statements.
+			 *
+			 * 2. Always set 'no_cdata_parse' to true when the value is raw XML.
+			 *
+			 * 3. Set 'xpath' to true if the value is an XPath expression. When this
+			 *    is true, the value will be placed in the 'select' attribute of the
+			 *    <xsl:variable> element rather than in a child node.
+			 *
+			 * 4. Set 'param' to true in order to create an <xsl:param> instead
+			 *    of an <xsl:variable>.
+			 *
+			 * A word to PHP coders: Do not let the term "variable" mislead you.
+			 * XSLT variables are roughly equivalent to PHP constants rather
+			 * than PHP variables; once the value has been set, it is immutable.
+			 * Keeping this in mind may spare you from some confusion and
+			 * frustration while working with XSLT.
+			 */
+			$xslt_variables = [
+				'scripturl' => [
+					'value' => Config::$scripturl,
+				],
+				'themeurl' => [
+					'value' => Theme::$current->settings['default_theme_url'],
+				],
+				'member_id' => [
+					'value' => $this->_details['uid'],
+				],
+				'last_page' => [
+					'param' => true,
+					'value' => !empty(Utils::$context['export_last_page']) ? Utils::$context['export_last_page'] : 1,
+					'xpath' => true,
+				],
+				'dlfilename' => [
+					'param' => true,
+					'value' => !empty(Utils::$context['export_dlfilename']) ? Utils::$context['export_dlfilename'] : '',
+				],
+				'ext' => [
+					'value' => $export_formats[$this->_details['format']]['extension'],
+				],
+				'forum_copyright' => [
+					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
+				],
+				'txt_summary_heading' => [
+					'value' => Lang::getTxt('summary', file: 'General'),
+				],
+				'txt_posts_heading' => [
+					'value' => Lang::getTxt('posts', file: 'General'),
+				],
+				'txt_personal_messages_heading' => [
+					'value' => Lang::getTxt('personal_messages', file: 'General'),
+				],
+				'txt_view_source_button' => [
+					'value' => Lang::getTxt('export_view_source_button', file: 'Profile'),
+				],
+				'txt_download_original' => [
+					'value' => Lang::getTxt('export_download_original', file: 'Profile'),
+				],
+				'txt_help' => [
+					'value' => Lang::getTxt('help', file: 'General'),
+				],
+				'txt_terms_rules' => [
+					'value' => Lang::getTxt('terms_and_rules', file: 'General'),
+				],
+				'txt_go_up' => [
+					'value' => Lang::getTxt('go_up', file: 'General'),
+				],
+				'txt_pages' => [
+					'value' => Lang::getTxt('pages', file: 'General'),
+				],
+			];
+
+			// Let mods adjust the XSLT variables.
+			IntegrationHook::call('integrate_export_xslt_variables', [&$xslt_variables, $this->_details['format']]);
+
+			$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
+			$xslt_variables['dltoken'] = [
+				'value' => hash_hmac('sha1', $idhash, Config::getAuthSecret()),
+			];
+
+			if ($this->_details['format'] == 'XML_XSLT') {
+				$this->xslt_stylesheet['header'] = "\n" . implode("\n", [
+					'',
+					'<xsl:stylesheet version="1.0" xmlns:xsl="' . self::XML_NAMESPACES['xsl'] . '" xmlns:html="' . self::XML_NAMESPACES['html'] . '" xmlns:smf="' . self::XML_NAMESPACES['smf'] . '" exclude-result-prefixes="smf html" id="stylesheet">',
+					'',
+					"\t" . '<xsl:template match="xsl:stylesheet"/>',
+					"\t" . '<xsl:template match="xsl:stylesheet" mode="detailedinfo"/>',
+				]);
+			}
+
+			// Insert the XSLT variables.
+			foreach ($xslt_variables as $name => $var) {
+				$element = !empty($var['param']) ? 'param' : 'variable';
+
+				if (!empty($this->xslt_stylesheet['variables'])) {
+					$this->xslt_stylesheet['variables'] .= "\n";
+				}
+
+				$this->xslt_stylesheet['variables'] .= "\t" . '<xsl:' . $element . ' name="' . $name . '"';
+
+				if (isset($var['xpath'])) {
+					$this->xslt_stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
+				} else {
+					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse((string) $var['value'])) . '</xsl:' . $element . '>';
+				}
+			}
+
+			// Template to insert CSS and JavaScript
+			$this->xslt_stylesheet['css_js'] = "\t" . '<xsl:template name="css_js">';
+
+			$this->loadCssJs();
+
+			foreach (['css', 'css_noscript'] as $css_group) {
+				if ($css_group === 'css_noscript') {
+					if (
+						empty(Utils::$context['export_' . $css_group . '_files'])
+						&& empty(Utils::$context['export_' . $css_group . '_header'])
+					) {
+						break;
+					}
+
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<noscript>';
+				}
+
+				if (!empty(Utils::$context['export_' . $css_group . '_files'])) {
+					foreach (Utils::$context['export_' . $css_group . '_files'] as $css_file) {
+						$url = $css_file['fileUrl'];
+
+						$this->xslt_stylesheet['css_js'] .= <<<END
+
+									<link rel="stylesheet">
+										<xsl:attribute name="href">
+											<xsl:text>{$url}</xsl:text>
+										</xsl:attribute>
+							END;
+
+						if (!empty($css_file['options']['attributes'])) {
+							foreach ($css_file['options']['attributes'] as $key => $value) {
+								if ($value === false) {
+									continue;
+								}
+
+								$value = $value === true ? $key : $value;
+
+								$this->xslt_stylesheet['css_js'] .= <<<END
+												<xsl:attribute name="{$key}">
+													<xsl:text>{$value}</xsl:text>
+												</xsl:attribute>
+									END;
+							}
+						}
+
+						$this->xslt_stylesheet['css_js'] .= <<<END
+
+									</link>
+							END;
+					}
+				}
+
+				if (!empty(Utils::$context['export_' . $css_group . '_header'])) {
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<style><![CDATA[' . "\n" . implode("\n", Utils::$context['export_css_header']) . "\n" . ']]>' . "\n" . '</style>';
+				}
+
+				if ($css_group === 'css_noscript') {
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '</noscript>';
+				}
+			}
+
+			if (!empty(Utils::$context['export_javascript_vars'])) {
+				$this->xslt_stylesheet['css_js'] .=  "\n\t\t" . '<script><![CDATA[';
+
+				foreach (Utils::$context['export_javascript_vars'] as $var => $val) {
+					$this->xslt_stylesheet['css_js'] .= "\nvar " . $var . (!empty($val) ? ' = ' . $val : '') . ';';
+				}
+
+				$this->xslt_stylesheet['css_js'] .= "\n" . ']]>' . "\n\t\t" . '</script>';
+			}
+
+			if (!empty(Utils::$context['export_javascript_files'])) {
+				foreach (Utils::$context['export_javascript_files'] as $js_file) {
+					$url = $js_file['fileUrl'];
+
+					$this->xslt_stylesheet['css_js'] .= <<<END
+
+								<script>
+									<xsl:attribute name="src">
+										<xsl:text>{$url}</xsl:text>
+									</xsl:attribute>
+						END;
+
+					if (!empty($js_file['options']['attributes'])) {
+						foreach ($js_file['options']['attributes'] as $key => $value) {
+							if ($value === false) {
+								continue;
+							}
+
+							$value = $value === true ? $key : $value;
+
+							$this->xslt_stylesheet['css_js'] .= <<<END
+											<xsl:attribute name="{$key}">
+												<xsl:text>{$value}</xsl:text>
+											</xsl:attribute>
+								END;
+						}
+					}
+
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '</script>';
+				}
+			}
+
+			if (!empty(Utils::$context['export_javascript_inline']['standard'])) {
+				$this->xslt_stylesheet['css_js'] .=  "\n\t\t" . '<script><![CDATA[' . "\n" . implode("\n", Utils::$context['export_javascript_inline']['standard']) . "\n" . ']]>' . "\n" . '</script>';
+			}
+
+			if (!empty(Utils::$context['export_javascript_inline']['defer'])) {
+				$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<script><![CDATA[' . "\n" . 'window.addEventListener("DOMContentLoaded", function() {';
+
+				$this->xslt_stylesheet['css_js'] .= "\n\t" . str_replace("\n", "\n\t", implode("\n", Utils::$context['export_javascript_inline']['defer']));
+
+				$this->xslt_stylesheet['css_js'] .= "\n" . '});' . "\n" . ']]>' . "\n\t\t" . '</script>';
+			}
+
+			$this->xslt_stylesheet['css_js'] .= "\n\t" . '</xsl:template>';
+		}
+
+		// Let mods adjust the XSLT stylesheet.
+		IntegrationHook::call('integrate_export_xslt_stylesheet', [&$this->xslt_stylesheet, $this->_details['format']]);
+
+		$this->stylesheet = implode("\n\n", $this->xslt_stylesheet);
+
+		if ($this->_details['format'] == 'XML_XSLT') {
+			$placeholders = [];
+
+			if (preg_match_all('/<!\[CDATA\[\X*?\]\]>/u', $this->stylesheet, $matches)) {
+				foreach ($matches[0] as $cdata) {
+					$placeholders[$cdata] = md5($cdata);
+				}
+			}
+
+			$this->stylesheet = strtr($this->stylesheet, $placeholders);
+			$this->stylesheet = preg_replace('/^(?!\n)/mu', "\t", $this->stylesheet);
+			$this->stylesheet = strtr($this->stylesheet, array_flip($placeholders));
+		}
+	}
+
+	/**
+	 * Loads and prepares CSS and JavaScript for insertion into an XSLT stylesheet.
+	 */
+	protected function loadCssJs(): void
+	{
+		// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
+		if (SMF != 'BACKGROUND') {
+			foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+				if (isset(Utils::$context[$var])) {
+					Utils::$context['real_' . $var] = Utils::$context[$var];
+				}
+
+				if ($var == 'javascript_inline') {
+					foreach (Utils::$context[$var] as $key => $value) {
+						Utils::$context[$var][$key] = [];
+					}
+				} else {
+					Utils::$context[$var] = [];
+				}
+			}
+		}
+
+		// Load our standard CSS files.
+		Theme::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
+		Theme::loadCSSFile('responsive.css', ['force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000], 'smf_responsive');
+
+		if (Utils::$context['right_to_left']) {
+			Theme::loadCSSFile('rtl.css', ['order_pos' => 4000], 'smf_rtl');
+		}
+
+		// In case any mods added relevant CSS.
+		IntegrationHook::call('integrate_pre_css_output');
+
+		// This next chunk mimics some of Theme::template_css()
+		foreach (['css', 'css_noscript'] as $css_group) {
+			$css_to_minify = [];
+			$normal_css_files = [];
+
+			usort(
+				Utils::$context[$css_group . '_files'],
+				function ($a, $b) {
+					return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+				},
+			);
+
+			foreach (Utils::$context[$css_group . '_files'] as $css_file) {
+				if (!isset($css_file['options']['minimize'])) {
+					$css_file['options']['minimize'] = true;
+				}
+
+				if (!empty($css_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
+					$css_to_minify[] = $css_file;
+				} else {
+					$normal_css_files[] = $css_file;
+				}
+			}
+
+			$minified_css_files = !empty($css_to_minify) ? Theme::custMinify($css_to_minify, 'css') : [];
+
+			Utils::$context[$css_group . '_files'] = [];
+
+			foreach (array_merge($minified_css_files, $normal_css_files) as $css_file) {
+				// Embed the CSS in a <style> element if possible, since exports are supposed to be standalone files.
+				if (file_exists($css_file['filePath'])) {
+					Utils::$context[$css_group . '_header'][] = file_get_contents($css_file['filePath']);
+				} elseif (!empty($css_file['fileUrl'])) {
+					Utils::$context[$css_group . '_files'][] = $css_file;
+				}
+			}
+		}
+
+		// Next, we need to do for JavaScript what we just did for CSS.
+		Theme::loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', ['external' => true, 'seed' => false], 'smf_jquery');
+
+		// There might be JavaScript that we need to add in order to support custom BBC or something.
+		IntegrationHook::call('integrate_pre_javascript_output', [false]);
+		IntegrationHook::call('integrate_pre_javascript_output', [true]);
+
+		$js_to_minify = [];
+		$all_js_files = [];
+
+		foreach (Utils::$context['javascript_files'] as $js_file) {
+			if (!empty($js_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
+				if (!empty($js_file['options']['async'])) {
+					$js_to_minify['async'][] = $js_file;
+				} elseif (!empty($js_file['options']['defer'])) {
+					$js_to_minify['defer'][] = $js_file;
+				} else {
+					$js_to_minify['standard'][] = $js_file;
+				}
+			} else {
+				$all_js_files[] = $js_file;
+			}
+		}
+
+		Utils::$context['javascript_files'] = [];
+
+		foreach ($js_to_minify as $type => $js_files) {
+			if (!empty($js_files)) {
+				$minified_js_files = Theme::custMinify($js_files, 'js');
+				$all_js_files = array_merge($all_js_files, $minified_js_files);
+			}
+		}
+
+		foreach ($all_js_files as $js_file) {
+			// As with the CSS, embed whatever JavaScript we can.
+			if (file_exists($js_file['filePath'])) {
+				Utils::$context['javascript_inline'][(!empty($js_file['options']['defer']) ? 'defer' : 'standard')][] = file_get_contents($js_file['filePath']);
+			} elseif (!empty($js_file['fileUrl'])) {
+				Utils::$context['javascript_files'][] = $js_file;
+			}
+		}
+
+		// We need to embed the smiley images, too. To save space, we store the image data in JS variables.
+		$smiley_mimetypes = [
+			'gif' => 'image/gif',
+			'png' => 'image/png',
+			'jpg' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'tiff' => 'image/tiff',
+			'svg' => 'image/svg+xml',
+			'webp' => 'image/webp',
+		];
+
+		foreach (glob(implode(DIRECTORY_SEPARATOR, [Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'])) as $smiley_file) {
+			$pathinfo = pathinfo($smiley_file);
+
+			if (!isset($smiley_mimetypes[$pathinfo['extension']])) {
+				continue;
+			}
+
+			$var = implode('_', ['smf', 'smiley', $pathinfo['filename'], $pathinfo['extension']]);
+
+			if (!isset(Utils::$context['javascript_vars'][$var])) {
+				Utils::$context['javascript_vars'][$var] = '\'data:' . $smiley_mimetypes[$pathinfo['extension']] . ';base64,' . base64_encode(file_get_contents($smiley_file)) . '\'';
+			}
+		}
+
+		Utils::$context['javascript_inline']['defer'][] = implode("\n", [
+			'$("img.smiley").each(function() {',
+			'	var data_uri_var = $(this).attr("src").replace(/.*\/(\w+)\.(\w+)$/, "smf_smiley_$1_$2");',
+			'	$(this).attr("src", window[data_uri_var]);',
+			'});',
+		]);
+
+		// Now move everything to the special export version of these arrays.
+		foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+			if (isset(Utils::$context[$var])) {
+				Utils::$context['export_' . $var] = Utils::$context[$var];
+			}
+
+			unset(Utils::$context[$var]);
+		}
+
+		// Finally, restore the real values.
+		if (SMF !== 'BACKGROUND') {
+			foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+				if (isset(Utils::$context['real_' . $var])) {
+					Utils::$context[$var] = Utils::$context['real_' . $var];
+				}
+
+				unset(Utils::$context['real_' . $var]);
+			}
+		}
+	}
+}

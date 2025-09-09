@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -88,7 +88,6 @@ class Conversation
 	{
 		// Find all the PMs in this conversation.
 		$request = Db::$db->query(
-			'',
 			'SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from, pm.deleted_by_sender,
 				pmr.id_member, pmr.bcc, pmr.deleted
 			FROM {db_prefix}personal_messages AS pm
@@ -198,7 +197,6 @@ class Conversation
 		$params['me'] = User::$me->id;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(DISTINCT pm.id_pm_head)
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
@@ -271,7 +269,6 @@ class Conversation
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
@@ -290,5 +287,3 @@ class Conversation
 		return self::$recent[$paramskey];
 	}
 }
-
-?>

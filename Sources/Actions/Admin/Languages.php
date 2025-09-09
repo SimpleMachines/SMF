@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -26,7 +26,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\PackageManager\XmlArray;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -40,7 +40,6 @@ use SMF\WebFetch\WebFetchApi;
 class Languages implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -82,21 +81,20 @@ class Languages implements ActionInterface
 	public function execute(): void
 	{
 		Theme::loadTemplate('ManageLanguages');
-		Lang::load('ManageSettings');
 
-		Utils::$context['page_title'] = Lang::$txt['edit_languages'];
+		Utils::$context['page_title'] = Lang::getTxt('edit_languages', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['language_configuration'],
-			'description' => Lang::$txt['language_description'],
+			'title' => Lang::getTxt('language_configuration', file: 'Admin'),
+			'description' => Lang::getTxt('language_description', file: 'Admin'),
 		];
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -119,7 +117,7 @@ class Languages implements ActionInterface
 				'columns' => [
 					'name' => [
 						'header' => [
-							'value' => Lang::$txt['name'],
+							'value' => Lang::getTxt('name', file: 'General'),
 						],
 						'data' => [
 							'db' => 'name',
@@ -127,7 +125,7 @@ class Languages implements ActionInterface
 					],
 					'description' => [
 						'header' => [
-							'value' => Lang::$txt['add_language_smf_desc'],
+							'value' => Lang::getTxt('add_language_smf_desc', file: 'ManageSettings'),
 						],
 						'data' => [
 							'db' => 'description',
@@ -135,7 +133,7 @@ class Languages implements ActionInterface
 					],
 					'version' => [
 						'header' => [
-							'value' => Lang::$txt['add_language_smf_version'],
+							'value' => Lang::getTxt('add_language_smf_version', file: 'ManageSettings'),
 						],
 						'data' => [
 							'db' => 'version',
@@ -143,7 +141,7 @@ class Languages implements ActionInterface
 					],
 					'utf8' => [
 						'header' => [
-							'value' => Lang::$txt['add_language_smf_utf8'],
+							'value' => Lang::getTxt('add_language_smf_utf8', file: 'ManageSettings'),
 						],
 						'data' => [
 							'db' => 'utf8',
@@ -151,7 +149,7 @@ class Languages implements ActionInterface
 					],
 					'install_link' => [
 						'header' => [
-							'value' => Lang::$txt['add_language_smf_install'],
+							'value' => Lang::getTxt('add_language_smf_install', file: 'ManageSettings'),
 							'class' => 'centercol',
 						],
 						'data' => [
@@ -182,8 +180,6 @@ class Languages implements ActionInterface
 	 */
 	public function download(): void
 	{
-		Lang::load('ManageSettings');
-
 		// Clearly we need to know what to request.
 		if (!isset($_GET['did'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -206,7 +202,7 @@ class Languages implements ActionInterface
 			foreach ($_POST['copy_file'] as $file) {
 				// Check it's not very bad.
 				if (str_contains($file, '..') || (!str_starts_with($file, 'Themes') && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file))) {
-					ErrorHandler::fatal(Lang::$txt['languages_download_illegal_paths']);
+					ErrorHandler::fatal(Lang::getTxt('languages_download_illegal_paths', file: 'ManageSettings'));
 				}
 
 				$chmod_files[] = Config::$boarddir . '/' . $file;
@@ -214,21 +210,21 @@ class Languages implements ActionInterface
 			}
 
 			// Call this in case we have work to do.
-			$file_status = SubsPackage::create_chmod_control($chmod_files);
+			$file_status = PackageUtils::createChmodControl($chmod_files);
 			$files_left = $file_status['files']['notwritable'];
 
 			// Something not writable?
 			if (!empty($files_left)) {
-				Utils::$context['error_message'] = Lang::$txt['languages_download_not_chmod'];
+				Utils::$context['error_message'] = Lang::getTxt('languages_download_not_chmod', file: 'ManageSettings');
 			}
 			// Otherwise, go go go!
 			elseif (!empty($install_files)) {
-				SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
+				PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
 
 				// Make sure the files aren't stuck in the cache.
-				SubsPackage::package_flush_cache();
+				PackageUtils::flushCache();
 
-				Utils::$context['install_complete'] = Lang::getTxt('languages_download_complete_desc', ['url' => Config::$scripturl . '?action=admin;area=languages']);
+				Utils::$context['install_complete'] = Lang::getTxt('languages_download_complete_desc', ['url' => Config::$scripturl . '?action=admin;area=languages'], file: 'ManageSettings');
 
 				return;
 			}
@@ -236,11 +232,11 @@ class Languages implements ActionInterface
 
 		// Open up the old china.
 		if (!isset($archive_content)) {
-			$archive_content = SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
+			$archive_content = PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
 		}
 
 		if (empty($archive_content)) {
-			ErrorHandler::fatal(Lang::$txt['add_language_error_no_response']);
+			ErrorHandler::fatal(Lang::getTxt('add_language_error_no_response', file: 'ManageSettings'));
 		}
 
 		// Now for each of the files, let's do some *stuff*
@@ -258,7 +254,7 @@ class Languages implements ActionInterface
 			$extension = $pathinfo['extension'];
 
 			// Don't do anything with files we don't understand.
-			if (!in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp'])) {
+			if (!\in_array($extension, ['php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp'])) {
 				continue;
 			}
 
@@ -368,28 +364,23 @@ class Languages implements ActionInterface
 		// Before we go to far can we make anything writable, eh, eh?
 		if (!empty(Utils::$context['make_writable'])) {
 			// What is left to be made writable?
-			$file_status = SubsPackage::create_chmod_control(Utils::$context['make_writable']);
+			$file_status = PackageUtils::createChmodControl(Utils::$context['make_writable']);
 			Utils::$context['still_not_writable'] = $file_status['files']['notwritable'];
 
 			// Mark those which are now writable as such.
 			foreach (Utils::$context['files'] as $type => $data) {
 				foreach ($data as $k => $file) {
-					if (!$file['writable'] && !in_array($file['destination'], Utils::$context['still_not_writable'])) {
+					if (!$file['writable'] && !\in_array($file['destination'], Utils::$context['still_not_writable'])) {
 						Utils::$context['files'][$type][$k]['writable'] = true;
 					}
 				}
-			}
-
-			// Are we going to need more language stuff?
-			if (!empty(Utils::$context['still_not_writable'])) {
-				Lang::load('Packages');
 			}
 		}
 
 		// This is the list for the main files.
 		$listOptions = [
 			'id' => 'lang_main_files_list',
-			'title' => Lang::$txt['languages_download_main_files'],
+			'title' => Lang::getTxt('languages_download_main_files', file: 'ManageSettings'),
 			'get_items' => [
 				'function' => function () {
 					return Utils::$context['files']['lang'];
@@ -398,27 +389,27 @@ class Languages implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['languages_download_filename'],
+						'value' => Lang::getTxt('languages_download_filename', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::getTxt('languages_download_dest', $rowData) . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::$txt['languages_download_older'] : '');
+							return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . Lang::getTxt('languages_download_dest', $rowData, file: 'ManageSettings') . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . Lang::getTxt('languages_download_older', file: 'ManageSettings') : '');
 						},
 					],
 				],
 				'writable' => [
 					'header' => [
-						'value' => Lang::$txt['languages_download_writable'],
+						'value' => Lang::getTxt('languages_download_writable', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . ($rowData['writable'] ? Lang::$txt['yes'] : Lang::$txt['no']) . '</span>';
+							return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . Lang::getTxt($rowData['writable'] ? 'yes' : 'no', file: 'General') . '</span>';
 						},
 					],
 				],
 				'version' => [
 					'header' => [
-						'value' => Lang::$txt['languages_download_version'],
+						'value' => Lang::getTxt('languages_download_version', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -428,17 +419,17 @@ class Languages implements ActionInterface
 				],
 				'exists' => [
 					'header' => [
-						'value' => Lang::$txt['languages_download_exists'],
+						'value' => Lang::getTxt('languages_download_exists', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['exists'] ? ($rowData['exists'] == 'same' ? Lang::$txt['languages_download_exists_same'] : Lang::$txt['languages_download_exists_different']) : Lang::$txt['no'];
+							return $rowData['exists'] ? ($rowData['exists'] == 'same' ? Lang::getTxt('languages_download_exists_same', file: 'ManageSettings') : Lang::getTxt('languages_download_exists_different', file: 'ManageSettings')) : Lang::getTxt('no', file: 'General');
 						},
 					],
 				],
 				'copy' => [
 					'header' => [
-						'value' => Lang::$txt['languages_download_overwrite'],
+						'value' => Lang::getTxt('languages_download_overwrite', file: 'ManageSettings'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -497,7 +488,7 @@ class Languages implements ActionInterface
 			'id' => 'language_list',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=languages',
-			'title' => Lang::$txt['edit_languages'],
+			'title' => Lang::getTxt('edit_languages', file: 'ManageSettings'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getLanguages',
 			],
@@ -507,7 +498,7 @@ class Languages implements ActionInterface
 			'columns' => [
 				'default' => [
 					'header' => [
-						'value' => Lang::$txt['languages_default'],
+						'value' => Lang::getTxt('languages_default', file: 'ManageSettings'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -520,18 +511,18 @@ class Languages implements ActionInterface
 				],
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['languages_lang_name'],
+						'value' => Lang::getTxt('languages_lang_name', file: 'ManageSettings'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
+							return \sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
 						},
 						'class' => 'centercol',
 					],
 				],
 				'character_set' => [
 					'header' => [
-						'value' => Lang::$txt['languages_character_set'],
+						'value' => Lang::getTxt('languages_character_set', file: 'ManageSettings'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'char_set',
@@ -540,7 +531,7 @@ class Languages implements ActionInterface
 				],
 				'count' => [
 					'header' => [
-						'value' => Lang::$txt['languages_users'],
+						'value' => Lang::getTxt('languages_users', file: 'ManageSettings'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'count',
@@ -549,7 +540,7 @@ class Languages implements ActionInterface
 				],
 				'locale' => [
 					'header' => [
-						'value' => Lang::$txt['languages_locale'],
+						'value' => Lang::getTxt('languages_locale', file: 'ManageSettings'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'locale',
@@ -562,7 +553,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', Config::$scripturl, $rowData['id'], Lang::$txt['edit']);
+							return \sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', Config::$scripturl, $rowData['id'], Lang::getTxt('edit', file: 'General'));
 						},
 						'style' => 'width: 8%;',
 						'class' => 'centercol',
@@ -576,7 +567,7 @@ class Languages implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="set_default" value="' . Lang::$txt['save'] . '"' . (is_writable(SMF_SETTINGS_FILE) ? '' : ' disabled') . ' class="button">',
+					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="set_default" value="' . Lang::getTxt('save', file: 'General') . '"' . (is_writable(SMF_SETTINGS_FILE) ? '' : ' disabled') . ' class="button">',
 				],
 			],
 		];
@@ -594,7 +585,7 @@ class Languages implements ActionInterface
 		if (!is_writable(SMF_SETTINGS_FILE)) {
 			$listOptions['additional_rows'][] = [
 				'position' => 'after_title',
-				'value' => Lang::$txt['language_settings_writable'],
+				'value' => Lang::getTxt('language_settings_writable', file: 'ManageSettings'),
 				'class' => 'smalltext alert',
 			];
 		}
@@ -641,18 +632,18 @@ class Languages implements ActionInterface
 
 		// Setup the template stuff.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=languages;sa=settings;save';
-		Utils::$context['settings_title'] = Lang::$txt['language_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('language_settings', file: 'Admin');
 		Utils::$context['save_disabled'] = Server::$settings_not_writable;
 
 		if (Server::$settings_not_writable) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['settings_not_writable'],
+				'label' => Lang::getTxt('settings_not_writable', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
 		} elseif (Server::$settings_backup_fail) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['admin_backup_fail'],
+				'label' => Lang::getTxt('admin_backup_fail', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
@@ -667,11 +658,9 @@ class Languages implements ActionInterface
 	 */
 	public function editEntries()
 	{
-		Lang::load('ManageSettings');
-
 		// Select the languages tab.
 		Menu::$loaded['admin']['current_subsection'] = 'edit';
-		Utils::$context['page_title'] = Lang::$txt['edit_languages'];
+		Utils::$context['page_title'] = Lang::getTxt('edit_languages', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'modify_language_entries';
 
 		$lang_id = $_GET['lid'];
@@ -686,13 +675,12 @@ class Languages implements ActionInterface
 		// Get all the theme data.
 		$themes = [
 			1 => [
-				'name' => Lang::$txt['dvc_default'],
+				'name' => Lang::getTxt('dvc_default', file: 'Admin'),
 				'theme_dir' => Theme::$current->settings['default_theme_dir'],
 			],
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme != {int:default_theme}
@@ -742,7 +730,7 @@ class Languages implements ActionInterface
 
 		// Check we have themes with a path and a name - just in case - and add the path.
 		foreach ($themes as $id => $data) {
-			if (count($data) != 2) {
+			if (\count($data) != 2) {
 				unset($themes[$id]);
 			} elseif (is_dir($data['theme_dir'] . '/languages')) {
 				$lang_dirs[$id] = $data['theme_dir'] . '/languages';
@@ -760,7 +748,7 @@ class Languages implements ActionInterface
 		Utils::$context['possible_files'] = [
 			0 => [
 				'id' => 0,
-				'name' => Lang::$txt['languages_default'],
+				'name' => Lang::getTxt('languages_default', file: 'ManageSettings'),
 				'files' => [],
 			],
 		];
@@ -788,7 +776,7 @@ class Languages implements ActionInterface
 
 				Utils::$context['possible_files'][$theme]['files'][] = [
 					'id' => $matches[1],
-					'name' => Lang::$txt['lang_file_desc_' . $matches[1]] ?? $matches[1],
+					'name' => Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') ? Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') : $matches[1],
 					'selected' => $theme_id == $theme && $file_id == $matches[1],
 				];
 			}
@@ -813,7 +801,7 @@ class Languages implements ActionInterface
 			if (!empty(Config::$modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $lang_id . '$$$')) {
 				$_SESSION['last_backup_for'] = $lang_id . '$$$';
 
-				$result = SubsPackage::package_create_backup('backup_lang_' . $lang_id);
+				$result = PackageUtils::createBackup('backup_lang_' . $lang_id);
 
 				if (!$result) {
 					ErrorHandler::fatalLang('could_not_language_backup', false);
@@ -843,14 +831,13 @@ class Languages implements ActionInterface
 			if (!empty($images_dirs)) {
 				foreach ($images_dirs as $curPath) {
 					if (is_dir($curPath)) {
-						SubsPackage::deltree($curPath);
+						PackageUtils::deltree($curPath);
 					}
 				}
 			}
 
 			// Members can no longer use this language.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET lngfile = {empty}
 				WHERE lngfile = {string:current_language}',
@@ -899,7 +886,11 @@ class Languages implements ActionInterface
 			$replace_array = [];
 
 			foreach ($primary_settings as $setting => $type) {
-				$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				if ($setting === 'lang_character_set') {
+					$replace_array['/\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+\R/u'] = '';
+				} else {
+					$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~u'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? '\'1\'' : '\'0\'') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, 'UTF-8') : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				}
 			}
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
@@ -914,17 +905,21 @@ class Languages implements ActionInterface
 		// Quickly load General language entries.
 		$old_txt = Lang::$txt;
 
-		require $general_filename;
+		require Config::canonicalPath($general_filename);
 
-		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : Lang::getTxt('lang_file_not_writable', ['file' => $general_filename]);
+		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : Lang::getTxt('lang_file_not_writable', ['file' => $general_filename], file: 'ManageSettings');
 
 		// Setup the primary settings context.
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
 
 		foreach ($primary_settings as $setting => $type) {
+			if ($setting === 'lang_character_set') {
+				continue;
+			}
+
 			Utils::$context['primary_settings'][$setting] = [
 				'label' => str_replace('lang_', '', $setting),
-				'value' => $type === 'bool' ? !empty(Lang::$txt[$setting]) : Lang::$txt[$setting],
+				'value' => $type === 'bool' ? Lang::txtExists($setting, file: 'ManageSettings') : Lang::getTxt($setting, file: 'ManageSettings'),
 			];
 		}
 
@@ -942,7 +937,7 @@ class Languages implements ActionInterface
 
 			if (!empty($_POST['edit'])) {
 				foreach ($_POST['edit'] as $k => $v) {
-					if (is_string($v)) {
+					if (\is_string($v)) {
 						// Only try to save if 'edit' was specified and if the string has changed
 						if (
 							$v == 'edit'
@@ -961,7 +956,7 @@ class Languages implements ActionInterface
 								'string' => $this->cleanLangString($_POST['entry'][$k], false),
 							];
 						}
-					} elseif (is_array($v)) {
+					} elseif (\is_array($v)) {
 						foreach ($v as $subk => $subv) {
 							if (
 								$subv == 'edit'
@@ -988,11 +983,11 @@ class Languages implements ActionInterface
 		Utils::$context['can_add_lang_entry'] = [];
 
 		if ($current_file) {
-			Utils::$context['entries_not_writable_message'] = is_writable($current_file) ? '' : Lang::getTxt('lang_entries_not_writable', ['file' => $current_file]);
+			Utils::$context['entries_not_writable_message'] = is_writable($current_file) ? '' : Lang::getTxt('lang_entries_not_writable', ['file' => $current_file], file: 'ManageSettings');
 
 			// How many strings will PHP let us edit at once?
 			// Each string needs 3 inputs, and there are 5 others in the form.
-			Utils::$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
+			Utils::$context['max_inputs'] = floor(\ini_get('max_input_vars') / 3) - 5;
 
 			// Do we want to override the helptxt for certain types of text variables?
 			$special_groups = [
@@ -1007,7 +1002,7 @@ class Languages implements ActionInterface
 				foreach ($allows_add_remove[$file_id]['add'] as $var_group) {
 					$group = !empty($special_groups[$file_id][$var_group]) ? $special_groups[$file_id][$var_group] : $var_group;
 
-					if (in_array($var_group, $allows_add_remove[$file_id]['add'])) {
+					if (\in_array($var_group, $allows_add_remove[$file_id]['add'])) {
 						Utils::$context['can_add_lang_entry'][$group] = true;
 					}
 				}
@@ -1017,12 +1012,12 @@ class Languages implements ActionInterface
 			// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 			$entries = [];
 
-			foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . (Utils::$context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob) {
+			foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~mu', preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob) {
 				// Comment lines at the end of the blob can make terrible messes
-				$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . (Utils::$context['utf8'] ? 'u' : ''), '', $blob);
+				$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~u', '', $blob);
 
 				// Extract the variable
-				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . (Utils::$context['utf8'] ? 'u' : ''), strtr($blob, ["\r" => '']), $matches)) {
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~msu', strtr($blob, ["\r" => '']), $matches)) {
 					// If no valid subkey was found, we need it to be explicitly null
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
@@ -1030,7 +1025,7 @@ class Languages implements ActionInterface
 					$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = [
 						'type' => $matches[1],
 						'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
-						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && \in_array($matches[1], $allows_add_remove[$file_id]['remove']),
 						'key' => $matches[2],
 						'subkey' => $matches[3],
 						'full' => $matches[0],
@@ -1046,7 +1041,7 @@ class Languages implements ActionInterface
 
 			foreach ($entries as $entryKey => $entryValue) {
 				// Ignore some things we set separately.
-				if (in_array($entryKey, array_keys($primary_settings))) {
+				if (\in_array($entryKey, array_keys($primary_settings))) {
 					continue;
 				}
 
@@ -1105,7 +1100,7 @@ class Languages implements ActionInterface
 						# Followed by a comma or the end of the string
 						(?=,|$)
 
-						/x' . (Utils::$context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
+						/xu', $entryValue['entry'], $matches);
 
 					if (empty($m)) {
 						continue;
@@ -1148,7 +1143,7 @@ class Languages implements ActionInterface
 							$save_cache['enabled'] = true;
 						}
 						// Should we remove this one?
-						elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove']) {
+						elseif (isset($remove_strings[$entryKey]) && \in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove']) {
 							$save_cache['enabled'] = true;
 						}
 						// Just keep this one as it is
@@ -1228,7 +1223,7 @@ class Languages implements ActionInterface
 					}
 
 					// Remove this entry only if it is allowed
-					if (isset($remove_strings[$entryValue['key']]) && in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove']) {
+					if (isset($remove_strings[$entryValue['key']]) && \in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove']) {
 						$entryValue['entry'] = '\'\'';
 
 						$final_saves[$entryKey] = [
@@ -1243,7 +1238,7 @@ class Languages implements ActionInterface
 						'key' => $entryValue['key'],
 						'subkey' => $entryValue['subkey'],
 						'value' => $editing_string,
-						'rows' => strlen($editing_string) / 38 + substr_count($editing_string, "\n") + 1,
+						'rows' => \strlen($editing_string) / 38 + substr_count($editing_string, "\n") + 1,
 						'can_remove' => $entryValue['can_remove'],
 					];
 				}
@@ -1266,7 +1261,7 @@ class Languages implements ActionInterface
 					}
 
 					// Remove this entry only if it is allowed
-					if (in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove']) {
+					if (\in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove']) {
 						$entryValue['entry'] = '\'\'';
 
 						$final_saves[$entryKey] = [
@@ -1281,7 +1276,7 @@ class Languages implements ActionInterface
 						'key' => $entryValue['key'],
 						'subkey' => null,
 						'value' => $editing_string,
-						'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
+						'rows' => (int) (\strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
 						'can_remove' => $entryValue['can_remove'],
 					];
 				}
@@ -1293,7 +1288,7 @@ class Languages implements ActionInterface
 
 				foreach ($add_strings as $string_key => $string_val) {
 					// Adding a normal string
-					if (isset($string_val['string']) && is_string($string_val['string'])) {
+					if (isset($string_val['string']) && \is_string($string_val['string'])) {
 						$type = $special_types[$string_val['group']] ?? $string_val['group'];
 
 						if (empty(Utils::$context['can_add_lang_entry'][$type])) {
@@ -1337,7 +1332,7 @@ class Languages implements ActionInterface
 				// Apply our changes.
 				foreach ($final_saves as $save) {
 					if (!empty($save['is_regex'])) {
-						$file_contents = preg_replace('~' . $save['find'] . '~' . (Utils::$context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
+						$file_contents = preg_replace('~' . $save['find'] . '~u', $save['replace'], $file_contents);
 					} else {
 						$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 					}
@@ -1363,7 +1358,7 @@ class Languages implements ActionInterface
 
 				Theme::addInlineJavaScript('
 					function add_lang_entry(group) {
-						var key = prompt("' . Lang::$txt['languages_enter_key'] . '");
+						var key = prompt("' . Lang::getTxt('languages_enter_key', file: 'ManageSettings') . '");
 
 						if (key !== null) {
 							++entry_num;
@@ -1379,11 +1374,11 @@ class Languages implements ActionInterface
 
 							var bracket_regex = /[\[\]]/
 							if (bracket_regex.test(key)) {
-								alert("' . Lang::$txt['languages_invalid_key'] . '" + key + subkey);
+								alert("' . Lang::getTxt('languages_invalid_key', file: 'ManageSettings') . '" + key + subkey);
 								return;
 							}
 
-							$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\\"entry_" + entry_num + "\\"><input id=\\"entry_" + entry_num + "_edit\\" class=\\"entry_toggle\\" type=\\"checkbox\\" name=\\"edit[" + key + "]" + subkey + "\\" value=\\"add\\" data-target=\\"#entry_" + entry_num + "\\" checked> <label for=\\"entry_" + entry_num + "_edit\\">' . Lang::$txt['edit'] . '</label> <input type=\\"hidden\\" class=\\"entry_oldvalue\\" name=\\"grp[" + key + "]\\" value=\\"" + group + "\\"> <textarea name=\\"entry[" + key + "]" + subkey + "\\" class=\\"entry_textfield\\" cols=\\"40\\" rows=\\"1\\" style=\\"width: 96%; margin-bottom: 2em;\\"></textarea></dd>");
+							$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\\"entry_" + entry_num + "\\"><input id=\\"entry_" + entry_num + "_edit\\" class=\\"entry_toggle\\" type=\\"checkbox\\" name=\\"edit[" + key + "]" + subkey + "\\" value=\\"add\\" data-target=\\"#entry_" + entry_num + "\\" checked> <label for=\\"entry_" + entry_num + "_edit\\">' . Lang::getTxt('edit', file: 'General') . '</label> <input type=\\"hidden\\" class=\\"entry_oldvalue\\" name=\\"grp[" + key + "]\\" value=\\"" + group + "\\"> <textarea name=\\"entry[" + key + "]" + subkey + "\\" class=\\"entry_textfield\\" cols=\\"40\\" rows=\\"1\\" style=\\"width: 96%; margin-bottom: 2em;\\"></textarea></dd>");
 						}
 					};');
 
@@ -1408,7 +1403,7 @@ class Languages implements ActionInterface
 							if (++num_inputs <= max_inputs) {
 								target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
 							} else {
-								alert("' . Lang::getTxt('languages_max_inputs_warning', [Utils::$context['max_inputs']]) . '");
+								alert("' . Lang::getTxt('languages_max_inputs_warning', [Utils::$context['max_inputs']], file: 'ManageSettings') . '");
 								$(this).prop("checked", false);
 							}
 						} else {
@@ -1469,8 +1464,8 @@ class Languages implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		$config_vars = [
-			'language' => ['language', Lang::$txt['default_language'], 'file', 'select', [], null, 'disabled' => !is_writable(SMF_SETTINGS_FILE)],
-			['userLanguage', Lang::$txt['userLanguage'], 'db', 'check', null, 'userLanguage'],
+			'language' => ['language', Lang::getTxt('default_language', file: 'Admin'), 'file', 'select', [], null, 'disabled' => !is_writable(SMF_SETTINGS_FILE)],
+			['userLanguage', Lang::getTxt('userLanguage', file: 'ManageSettings'), 'db', 'check', null, 'userLanguage'],
 		];
 
 		IntegrationHook::call('integrate_language_settings', [&$config_vars]);
@@ -1513,9 +1508,9 @@ class Languages implements ActionInterface
 					'id' => $file->fetch('id'),
 					'name' => Utils::ucwords($file->fetch('name')),
 					'version' => $file->fetch('version'),
-					'utf8' => Lang::$txt['yes'],
+					'utf8' => Lang::getTxt('yes', file: 'General'),
 					'description' => $file->fetch('description'),
-					'install_link' => '<a href="' . Config::$scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::$txt['add_language_smf_install'] . '</a>',
+					'install_link' => '<a href="' . Config::$scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::getTxt('add_language_smf_install', file: 'ManageSettings') . '</a>',
 				];
 			}
 
@@ -1535,7 +1530,7 @@ class Languages implements ActionInterface
 	 */
 	public static function list_getNumLanguages(): int
 	{
-		return count(Lang::get());
+		return \count(Lang::get());
 	}
 
 	/**
@@ -1579,7 +1574,7 @@ class Languages implements ActionInterface
 			$languages[$lang['filename']] = [
 				'id' => $lang['filename'],
 				'count' => 0,
-				'char_set' => $txt['lang_character_set'],
+				'char_set' => 'UTF-8',
 				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
 				'locale' => $txt['lang_locale'],
 				'name' => $lang['name'],
@@ -1588,7 +1583,6 @@ class Languages implements ActionInterface
 
 		// Work out how many people are using each language.
 		$request = Db::$db->query(
-			'',
 			'SELECT lngfile, COUNT(*) AS num_users
 			FROM {db_prefix}members
 			GROUP BY lngfile',
@@ -1659,7 +1653,7 @@ class Languages implements ActionInterface
 			// We'll revert it back to an entity when saving.
 			$string = str_replace('&apos;', "\\'", $string);
 
-			for ($i = 0; $i < strlen($string); $i++) {
+			for ($i = 0; $i < \strlen($string); $i++) {
 				// Handle escapes first.
 				if ($string[$i] == '\\') {
 					// Toggle the escape.
@@ -1726,7 +1720,7 @@ class Languages implements ActionInterface
 						$new_string .= '{%' . $matches[1] . '%}';
 
 						// We're not going to reparse this.
-						$i += strlen($matches[1]) - 1;
+						$i += \strlen($matches[1]) - 1;
 					}
 
 					continue;
@@ -1754,7 +1748,7 @@ class Languages implements ActionInterface
 			// This is for deciding whether to HTML a quote.
 			$in_html = false;
 
-			for ($i = 0; $i < strlen($string); $i++) {
+			for ($i = 0; $i < \strlen($string); $i++) {
 				// We don't do parsed strings apart from for breaks.
 				if ($in_string == 2) {
 					$in_string = 0;
@@ -1780,7 +1774,7 @@ class Languages implements ActionInterface
 						}
 
 						$new_string .= $matches[1];
-						$i += strlen($matches[1]) + 3;
+						$i += \strlen($matches[1]) + 3;
 						$in_string = 0;
 					}
 
@@ -1850,5 +1844,3 @@ class Languages implements ActionInterface
 		return $new_string;
 	}
 }
-
-?>

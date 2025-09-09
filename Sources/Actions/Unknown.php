@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -23,18 +23,23 @@ use SMF\Utils;
 /**
  * Class Unknown
  */
-class Unknown implements ActionInterface
+class Unknown implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
-	/********************
-	 * Mysterious methods
-	 ********************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function canBeLogged(): bool
 	{
 		return false;
 	}
+
+	/********************
+	 * Mysterious methods
+	 ********************/
 
 	/**
 	 * What's this? I dunno, what are you talking about? Never seen this before, nope. No sir.
@@ -95,5 +100,3 @@ class Unknown implements ActionInterface
 		Utils::obExit(false);
 	}
 }
-
-?>

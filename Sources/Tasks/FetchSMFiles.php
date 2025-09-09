@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -28,6 +28,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class FetchSMFiles extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -40,7 +44,6 @@ class FetchSMFiles extends ScheduledTask
 		$js_files = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_file, filename, path, parameters
 			FROM {db_prefix}admin_info_files',
 			[
@@ -51,14 +54,13 @@ class FetchSMFiles extends ScheduledTask
 			$js_files[$row['id_file']] = [
 				'filename' => $row['filename'],
 				'path' => $row['path'],
-				'parameters' => sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+				'parameters' => \sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 			];
 		}
 		Db::$db->free_result($request);
 
 		// Just in case we run into a problem.
 		Theme::loadEssential();
-		Lang::load('Errors', Lang::$default, false);
 
 		foreach ($js_files as $id_file => $file) {
 			// Create the url
@@ -71,28 +73,26 @@ class FetchSMFiles extends ScheduledTask
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false) {
-				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url]);
+				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default);
 
-				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url]));
+				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default));
 
 				return true;
 			}
 
 			// Save the file to the database.
 			Db::$db->query(
-				'substring',
 				'UPDATE {db_prefix}admin_info_files
-				SET data = SUBSTRING({string:file_data}, 1, 65534)
+				SET data = SUBSTRING({string:file_data}, 1, 16777215)
 				WHERE id_file = {int:id_file}',
 				[
 					'id_file' => $id_file,
 					'file_data' => $file_data,
 				],
+				identifier: 'substring',
 			);
 		}
 
 		return true;
 	}
 }
-
-?>

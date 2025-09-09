@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -90,7 +90,7 @@ class Recent implements ActionInterface, Routable
 	protected int $total_posts = 0;
 
 	/**
-	 * @var array
+	 * @var array|null
 	 *
 	 * IDs of some recent messages.
 	 */
@@ -118,7 +118,7 @@ class Recent implements ActionInterface, Routable
 		Utils::$context['posts'] = [];
 
 		Theme::loadTemplate('Recent');
-		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('recent_posts', file: 'General');
 		Utils::$context['sub_template'] = 'recent';
 
 		Utils::$context['is_redirect'] = false;
@@ -179,7 +179,6 @@ class Recent implements ActionInterface, Routable
 	{
 		// Find it by the board - better to order by board than sort the entire messages table.
 		$request = Db::$db->query(
-			'substring',
 			'SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
 				m.smileys_enabled
 			FROM {db_prefix}messages AS m' . (!empty(Config::$modSettings['postmod_active']) ? '
@@ -194,6 +193,7 @@ class Recent implements ActionInterface, Routable
 				'recycle_board' => Config::$modSettings['recycle_board'],
 				'is_approved' => 1,
 			],
+			identifier: 'substring',
 		);
 
 		if (Db::$db->num_rows($request) == 0) {
@@ -254,7 +254,6 @@ class Recent implements ActionInterface, Routable
 		if (!empty($_REQUEST['c'])) {
 			$boards = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
@@ -303,7 +302,6 @@ class Recent implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
@@ -312,7 +310,7 @@ class Recent implements ActionInterface, Routable
 				LIMIT {int:limit}',
 				[
 					'board_list' => $_REQUEST['boards'],
-					'limit' => count($_REQUEST['boards']),
+					'limit' => \count($_REQUEST['boards']),
 					'empty' => '',
 				],
 			);
@@ -347,7 +345,6 @@ class Recent implements ActionInterface, Routable
 		// Requested a single board.
 		elseif (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT num_posts, redirect
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}
@@ -393,7 +390,6 @@ class Recent implements ActionInterface, Routable
 			$this->total_posts = 0;
 
 			$get_num_posts = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.name, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
@@ -418,9 +414,8 @@ class Recent implements ActionInterface, Routable
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id_cat}
@@ -453,7 +448,6 @@ class Recent implements ActionInterface, Routable
 				// Find the most recent messages they can *view*.
 				// @todo SLOW This query is really slow still, probably?
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_msg
 					FROM {db_prefix}messages AS m ' . (!empty(Config::$modSettings['postmod_active']) ? '
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
@@ -514,7 +508,7 @@ class Recent implements ActionInterface, Routable
 				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)',
 			],
 			'order' => ['m.id_msg DESC'],
-			'limit' => count($this->messages),
+			'limit' => \count($this->messages),
 			'params' => [],
 		];
 
@@ -601,7 +595,7 @@ class Recent implements ActionInterface, Routable
 			}
 		}
 
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			// Some posts - the first posts - can't just be deleted.
@@ -629,7 +623,7 @@ class Recent implements ActionInterface, Routable
 		}
 
 		Utils::$context['linktree'][] = [
-			'url' => sprintf($this->action_url, 0),
+			'url' => \sprintf($this->action_url, 0),
 			'name' => Utils::$context['page_title'],
 		];
 
@@ -637,16 +631,16 @@ class Recent implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
-			Utils::redirectexit(!empty(Board::$info->id) ? sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
+			Utils::redirectexit(!empty(Board::$info->id) ? \sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 
 		Utils::$context['links'] = [
-			'first' => $not_first_page ? sprintf($this->action_url, 0) : '',
-			'prev' => $not_first_page ? sprintf($this->action_url, Utils::$context['start'] - self::PER_PAGE) : '',
-			'next' => $not_last_page ? sprintf($this->action_url, Utils::$context['start'] + self::PER_PAGE) : '',
-			'last' => $not_last_page ? sprintf($this->action_url, $total - ($total % self::PER_PAGE)) : '',
+			'first' => $not_first_page ? \sprintf($this->action_url, 0) : '',
+			'prev' => $not_first_page ? \sprintf($this->action_url, Utils::$context['start'] - self::PER_PAGE) : '',
+			'next' => $not_last_page ? \sprintf($this->action_url, Utils::$context['start'] + self::PER_PAGE) : '',
+			'last' => $not_last_page ? \sprintf($this->action_url, $total - ($total % self::PER_PAGE)) : '',
 			'up' => Config::$scripturl,
 		];
 
@@ -664,21 +658,21 @@ class Recent implements ActionInterface, Routable
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [
 				'reply' => [
-					'label' => Lang::$txt['reply'],
+					'label' => Lang::getTxt('reply', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.0',
 					'icon' => 'reply_button',
 					'show' => $post['can_reply'],
 				],
 				'quote' => [
-					'label' => Lang::$txt['quote_action'],
+					'label' => Lang::getTxt('quote_action', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.0;quote=' . $post['id'],
 					'icon' => 'quote',
 					'show' => $post['can_quote'],
 				],
 				'delete' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';recent;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $post['can_delete'],
@@ -687,5 +681,3 @@ class Recent implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

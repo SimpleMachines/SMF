@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,6 +25,10 @@ use SMF\Theme;
  */
 class RemoveOldDrafts extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -46,7 +50,6 @@ class RemoveOldDrafts extends ScheduledTask
 
 		// Find all of the old drafts.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_draft
 			FROM {db_prefix}user_drafts
 			WHERE poster_time <= {int:poster_time_old}',
@@ -61,12 +64,10 @@ class RemoveOldDrafts extends ScheduledTask
 		Db::$db->free_result($request);
 
 		// If we have old ones, remove them.
-		if (count($drafts) > 0) {
+		if (\count($drafts) > 0) {
 			Draft::delete($drafts, false);
 		}
 
 		return true;
 	}
 }
-
-?>

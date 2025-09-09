@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -19,8 +19,10 @@ use SMF\ActionInterface;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
 use SMF\Alert;
+use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -39,8 +41,6 @@ use SMF\Utils;
 class Notification implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -317,16 +317,16 @@ class Notification implements ActionInterface
 
 		if (isset(Menu::$loaded['profile'])) {
 			Menu::$loaded['profile']->tab_data = [
-				'title' => Lang::$txt['notification'],
+				'title' => Lang::getTxt('notification', file: 'Profile'),
 				'help' => '',
-				'description' => Lang::$txt['notification_info'],
+				'description' => Lang::getTxt('notification_info', file: 'Profile'),
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -410,60 +410,28 @@ class Notification implements ActionInterface
 				}
 
 				foreach ($option['opts'] as &$value) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}
 			}
 		}
 
-		// Now, now, we could pass this through global but we should really get into the habit of
-		// passing content to hooks, not expecting hooks to splatter everything everywhere.
 		IntegrationHook::call('integrate_alert_types', [&$this->alert_types, &$this->group_options]);
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 		if (!empty(Profile::$member->id)) {
-			$group_permissions = ['manage_membergroups'];
-			$board_permissions = [];
-
-			foreach ($this->alert_types as $group => $items) {
-				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						if (empty($alert_value['permission']['is_board'])) {
-							$group_permissions[] = $alert_value['permission']['name'];
-						} else {
-							$board_permissions[] = $alert_value['permission']['name'];
-						}
-					}
-				}
+			// Disable membergroup requests if this user can't moderate any groups.
+			if (empty(Profile::$member->groupsCanModerate())) {
+				unset($this->alert_types['members']['request_group']);
 			}
 
-			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
-
-			if (empty($member_groups['manage_membergroups']['allowed'])) {
-				$request = Db::$db->query(
-					'',
-					'SELECT COUNT(*)
-					FROM {db_prefix}group_moderators
-					WHERE id_member = {int:memID}',
-					[
-						'memID' => Profile::$member->id,
-					],
-				);
-				list($is_group_moderator) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				if (empty($is_group_moderator)) {
-					unset($this->alert_types['members']['request_group']);
-				}
-			}
-
+			// Disable any types that this user doesn't have the permissions for.
 			foreach ($this->alert_types as $group => $items) {
 				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						$allowed = count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
-
-						if (!$allowed) {
-							unset($this->alert_types[$group][$alert_key]);
-						}
+					if (
+						isset($alert_value['permission'])
+						&& !Profile::$member->allowedTo($alert_value['permission']['name'], $alert_value['permission']['is_board'] ? Board::getAll() : null, true)
+					) {
+						unset($this->alert_types[$group][$alert_key]);
 					}
 				}
 
@@ -548,7 +516,7 @@ class Notification implements ActionInterface
 
 			$this->changeNotifications();
 
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');
@@ -560,13 +528,11 @@ class Notification implements ActionInterface
 	public function markRead(): void
 	{
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'alerts_all_read';
-
-		Lang::load('Alerts');
 
 		// Now we're all set up.
 		User::$me->kickIfGuest();
@@ -591,7 +557,7 @@ class Notification implements ActionInterface
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -603,7 +569,7 @@ class Notification implements ActionInterface
 			'id' => 'topic_notification_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['notifications_topics_none'] . '<br><br>' . Lang::$txt['notifications_topics_howto'],
+			'no_items_label' => Lang::getTxt('notifications_topics_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_topics_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=topics',
 			'default_sort_col' => 'last_post',
@@ -618,7 +584,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_topics'],
+						'value' => Lang::getTxt('notifications_topics', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -626,9 +592,10 @@ class Notification implements ActionInterface
 							return Lang::getTxt(
 								'topic_in_board',
 								[
-									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : ''),
+									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : ''),
 									'board_link' => $topic['board_link'],
 								],
+								file: 'General',
 							);
 						},
 					],
@@ -639,7 +606,7 @@ class Notification implements ActionInterface
 				],
 				'started_by' => [
 					'header' => [
-						'value' => Lang::$txt['started_by'],
+						'value' => Lang::getTxt('started_by', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -652,12 +619,12 @@ class Notification implements ActionInterface
 				],
 				'last_post' => [
 					'header' => [
-						'value' => Lang::$txt['last_post'],
+						'value' => Lang::getTxt('last_post', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
 						'function' => function ($topic) {
-							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']]) . '</span>';
+							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']], file: 'General') . '</span>';
 						},
 					],
 					'sort' => [
@@ -667,7 +634,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -675,7 +642,7 @@ class Notification implements ActionInterface
 							$pref = $topic['notify_pref'];
 							$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
 
-							return Lang::$txt['notify_topic_' . $mode];
+							return Lang::getTxt('notify_topic_' . $mode, file: 'General');
 						},
 					],
 				],
@@ -686,8 +653,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_topics[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -710,8 +677,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_topics" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_topics" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -727,12 +694,12 @@ class Notification implements ActionInterface
 	public function boards(): void
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
-		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards'])) {
+		if (isset($_POST['edit_notify_boards']) || isset($_POST['remove_notify_boards'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -743,7 +710,7 @@ class Notification implements ActionInterface
 		$list_options = [
 			'id' => 'board_notification_list',
 			'width' => '100%',
-			'no_items_label' => Lang::$txt['notifications_boards_none'] . '<br><br>' . Lang::$txt['notifications_boards_howto'],
+			'no_items_label' => Lang::getTxt('notifications_boards_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_boards_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=boards',
 			'default_sort_col' => 'board_name',
@@ -754,7 +721,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'board_name' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_boards'],
+						'value' => Lang::getTxt('notifications_boards', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -762,7 +729,7 @@ class Notification implements ActionInterface
 							$link = $board['link'];
 
 							if ($board['new']) {
-								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
+								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>';
 							}
 
 							return $link;
@@ -775,7 +742,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -783,7 +750,7 @@ class Notification implements ActionInterface
 							$pref = $board['notify_pref'];
 							$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
 
-							return Lang::$txt['notify_board_' . $mode];
+							return Lang::getTxt('notify_board_' . $mode, file: 'General');
 						},
 					],
 				],
@@ -794,8 +761,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_boards[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -818,8 +785,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_boards" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_boards" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -827,6 +794,83 @@ class Notification implements ActionInterface
 
 		// Create the board notification list.
 		new ItemList($list_options);
+	}
+
+	/**
+	 * Make any notification changes that need to be made.
+	 *
+	 * This is only public for backward compatibility purposes. In future
+	 * versions of SMF it will be protected. Nothing outside of this class
+	 * should ever call this method.
+	 */
+	public function changeNotifications(): void
+	{
+		// Update the boards they are being notified about.
+		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
+			// Make sure only integers are deleted.
+			foreach ($_POST['notify_boards'] as $index => $id) {
+				$_POST['notify_boards'][$index] = (int) $id;
+			}
+
+			// id_board = 0 is reserved for topic notifications.
+			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
+
+			Db::$db->query(
+				'DELETE FROM {db_prefix}log_notify
+				WHERE id_board IN ({array_int:board_list})
+					AND id_member = {int:selected_member}',
+				[
+					'board_list' => $_POST['notify_boards'],
+					'selected_member' => Profile::$member->id,
+				],
+			);
+		}
+
+		// Update the topics they are being notified about.
+		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics'])) {
+			foreach ($_POST['notify_topics'] as $index => $id) {
+				$_POST['notify_topics'][$index] = (int) $id;
+			}
+
+			// Make sure there are no zeros left.
+			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
+
+			Db::$db->query(
+				'DELETE FROM {db_prefix}log_notify
+				WHERE id_topic IN ({array_int:topic_list})
+					AND id_member = {int:selected_member}',
+				[
+					'topic_list' => $_POST['notify_topics'],
+					'selected_member' => Profile::$member->id,
+				],
+			);
+
+			foreach ($_POST['notify_topics'] as $topic) {
+				Notify::setNotifyPrefs(Profile::$member->id, ['topic_notify_' . $topic => 0]);
+			}
+		}
+
+		// Are we removing topic preferences?
+		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics'])) {
+			$prefs = [];
+
+			foreach ($_POST['notify_topics'] as $topic) {
+				$prefs[] = 'topic_notify_' . $topic;
+			}
+
+			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
+		}
+
+		// Are we removing board preferences?
+		if (isset($_POST['remove_notify_boards']) && !empty($_POST['notify_boards'])) {
+			$prefs = [];
+
+			foreach ($_POST['notify_boards'] as $board) {
+				$prefs[] = 'board_notify_' . $board;
+			}
+
+			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
+		}
 	}
 
 	/***********************
@@ -841,7 +885,6 @@ class Notification implements ActionInterface
 	public static function list_getTopicNotificationCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify AS ln' . (!Config::$modSettings['postmod_active'] && User::$me->query_see_board === '1=1' ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
@@ -876,7 +919,6 @@ class Notification implements ActionInterface
 		$notification_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 				t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
@@ -946,7 +988,6 @@ class Notification implements ActionInterface
 		$notification_boards = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
@@ -993,81 +1034,4 @@ class Notification implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-
-	/**
-	 * Make any notification changes that need to be made.
-	 */
-	protected function changeNotifications(): void
-	{
-		// Update the boards they are being notified about.
-		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
-			// Make sure only integers are deleted.
-			foreach ($_POST['notify_boards'] as $index => $id) {
-				$_POST['notify_boards'][$index] = (int) $id;
-			}
-
-			// id_board = 0 is reserved for topic notifications.
-			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
-
-			Db::$db->query(
-				'',
-				'DELETE FROM {db_prefix}log_notify
-				WHERE id_board IN ({array_int:board_list})
-					AND id_member = {int:selected_member}',
-				[
-					'board_list' => $_POST['notify_boards'],
-					'selected_member' => Profile::$member->id,
-				],
-			);
-		}
-
-		// Update the topics they are being notified about.
-		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics'])) {
-			foreach ($_POST['notify_topics'] as $index => $id) {
-				$_POST['notify_topics'][$index] = (int) $id;
-			}
-
-			// Make sure there are no zeros left.
-			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
-
-			Db::$db->query(
-				'',
-				'DELETE FROM {db_prefix}log_notify
-				WHERE id_topic IN ({array_int:topic_list})
-					AND id_member = {int:selected_member}',
-				[
-					'topic_list' => $_POST['notify_topics'],
-					'selected_member' => Profile::$member->id,
-				],
-			);
-
-			foreach ($_POST['notify_topics'] as $topic) {
-				Notify::setNotifyPrefs(Profile::$member->id, ['topic_notify_' . $topic => 0]);
-			}
-		}
-
-		// Are we removing topic preferences?
-		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics'])) {
-			$prefs = [];
-
-			foreach ($_POST['notify_topics'] as $topic) {
-				$prefs[] = 'topic_notify_' . $topic;
-			}
-
-			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
-		}
-
-		// Are we removing board preferences?
-		if (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards'])) {
-			$prefs = [];
-
-			foreach ($_POST['notify_boards'] as $board) {
-				$prefs[] = 'board_notify_' . $board;
-			}
-
-			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
-		}
-	}
 }
-
-?>

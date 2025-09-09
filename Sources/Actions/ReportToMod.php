@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -37,13 +37,6 @@ class ReportToMod implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -126,10 +119,10 @@ class ReportToMod implements ActionInterface, Routable
 			User::$me->isAllowedTo('report_user');
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -168,7 +161,6 @@ class ReportToMod implements ActionInterface, Routable
 		if (isset($_REQUEST['msg'])) {
 			// Check the message's ID - don't want anyone reporting a post they can't even see!
 			$result = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_member, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -197,7 +189,6 @@ class ReportToMod implements ActionInterface, Routable
 		} else {
 			// Check the user's ID
 			$result = Db::$db->query(
-				'',
 				'SELECT id_member, real_name, member_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:current_user}',
@@ -218,11 +209,18 @@ class ReportToMod implements ActionInterface, Routable
 
 		Utils::$context['comment_body'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
 
-		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : Lang::getTxt('report_profile', ['member_name' => $display_name]);
-		Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
+		Utils::$context['page_title'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod' : 'report_profile',
+			['member_name' => $display_name ?? ''],
+			file: 'General',
+		);
+
+		Utils::$context['notice'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod_func' : 'report_profile_func',
+			file: 'General',
+		);
 
 		// Show the inputs for the comment, etc.
-		Lang::load('Post');
 		Theme::loadTemplate('ReportToMod');
 
 		Theme::addInlineJavaScript('
@@ -237,7 +235,7 @@ class ReportToMod implements ActionInterface, Routable
 					if ($.trim(error_box.html()) == \'\')
 						error_box.append("<ul id=\'error_list\'></ul>");
 
-					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::$txt['post_too_long']) . ' + "</li>");
+					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::getTxt('post_too_long', file: 'Post')) . ' + "</li>");
 				}
 			}
 			else
@@ -279,12 +277,10 @@ class ReportToMod implements ActionInterface, Routable
 
 		// Any errors?
 		if (!empty($post_errors)) {
-			Lang::load('Errors');
-
 			Utils::$context['post_errors'] = [];
 
 			foreach ($post_errors as $post_error) {
-				Utils::$context['post_errors'][$post_error] = Lang::$txt['error_' . $post_error];
+				Utils::$context['post_errors'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 			}
 
 			$this->previewing = false;
@@ -344,7 +340,6 @@ class ReportToMod implements ActionInterface, Routable
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_topic, m.id_board, m.subject, m.body, m.id_member AS id_poster, m.poster_name, mem.real_name
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
@@ -364,7 +359,6 @@ class ReportToMod implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_msg = {int:id_msg}
@@ -391,7 +385,6 @@ class ReportToMod implements ActionInterface, Routable
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',
@@ -439,7 +432,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 
@@ -467,7 +460,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_comment'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// And get ready to notify people.
@@ -517,7 +510,6 @@ class ReportToMod implements ActionInterface, Routable
 		$_POST['u'] = (int) $id_member;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
@@ -535,7 +527,6 @@ class ReportToMod implements ActionInterface, Routable
 		$user_name = Utils::htmlspecialcharsDecode($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_member = {int:id_member}
@@ -564,7 +555,6 @@ class ReportToMod implements ActionInterface, Routable
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',
@@ -608,7 +598,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 		}
 
@@ -673,5 +663,3 @@ class ReportToMod implements ActionInterface, Routable
 		Utils::redirectexit('reportsent;action=profile;u=' . $id_member);
 	}
 }
-
-?>

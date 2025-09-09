@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -29,6 +29,10 @@ use SMF\Utils;
  */
 class GroupAct_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -40,7 +44,6 @@ class GroupAct_Notify extends BackgroundTask
 	{
 		// Get the details of all the members concerned...
 		$request = Db::$db->query(
-			'',
 			'SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
 				mem.lngfile, mem.member_name,  mg.group_name, mg.hidden
 			FROM {db_prefix}log_group_requests AS lgr
@@ -139,5 +142,3 @@ class GroupAct_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

@@ -16,7 +16,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,16 +25,33 @@ namespace SMF\Graphics\Gif;
 
 class FileHeader
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_lpVer;
+
 	public $m_nWidth;
+
 	public $m_nHeight;
+
 	public $m_bGlobalClr;
+
 	public $m_nColorRes;
+
 	public $m_bSorted;
+
 	public $m_nTableSize;
+
 	public $m_nBgColor;
+
 	public $m_nPixelRatio;
+
 	public $m_colorTable;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
@@ -57,13 +74,13 @@ class FileHeader
 			return false;
 		}
 
-		$b = ord(substr($lpData, 10, 1));
+		$b = \ord(substr($lpData, 10, 1));
 		$this->m_bGlobalClr = ($b & 0x80) ? true : false;
 		$this->m_nColorRes = ($b & 0x70) >> 4;
 		$this->m_bSorted = ($b & 0x08) ? true : false;
 		$this->m_nTableSize = 2 << ($b & 0x07);
-		$this->m_nBgColor = ord(substr($lpData, 11, 1));
-		$this->m_nPixelRatio = ord(substr($lpData, 12, 1));
+		$this->m_nBgColor = \ord(substr($lpData, 11, 1));
+		$this->m_nPixelRatio = \ord(substr($lpData, 12, 1));
 		$hdrLen = 13;
 
 		if ($this->m_bGlobalClr) {
@@ -79,5 +96,3 @@ class FileHeader
 		return true;
 	}
 }
-
-?>

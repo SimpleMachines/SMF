@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -274,7 +274,7 @@ class Draft
 			return false;
 		}
 
-		if (in_array('session_timeout', $post_errors)) {
+		if (\in_array('session_timeout', $post_errors)) {
 			return false;
 		}
 
@@ -328,7 +328,6 @@ class Draft
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft IN ({array_int:drafts})' . ($check ? '
 				AND id_member = {int:id_member}' : ''),
@@ -357,13 +356,10 @@ class Draft
 			return false;
 		}
 
-		Lang::load('Drafts');
-
 		Utils::$context['drafts'] = [];
 
 		// Load the drafts this user has available.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, poster_time, id_board, id_topic, id_draft
 			FROM {db_prefix}user_drafts
 			WHERE id_member = {int:id_member}' . (!empty($topic) ? '
@@ -382,7 +378,7 @@ class Draft
 		// Add them to the drafts array for display.
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
@@ -408,8 +404,6 @@ class Draft
 	 */
 	public static function showInProfile(int $memID): void
 	{
-		Lang::load('Drafts');
-
 		// Some initial context.
 		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 		Utils::$context['current_member'] = $memID;
@@ -420,7 +414,6 @@ class Draft
 			$id_delete = (int) $_REQUEST['delete'];
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}user_drafts
 				WHERE id_draft = {int:id_draft}
 					AND id_member = {int:id_member}
@@ -443,7 +436,6 @@ class Draft
 		// Get the count of applicable drafts on the boards they can (still) see ...
 		// @todo .. should we just let them see their drafts even if they have lost board access ?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_drafts AS ud
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
@@ -485,7 +477,6 @@ class Draft
 		// @todo ... do we want to do this?  If they were able to create a draft, do we remove their access to said draft if they loose
 		//           access to the board or if the topic moves to a board they can not see?
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				b.id_board, b.name AS bname,
 				ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
@@ -518,7 +509,7 @@ class Draft
 			$row['subject'] = Utils::htmlTrim($row['subject']);
 
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			Lang::censorText($row['body']);
@@ -552,14 +543,14 @@ class Draft
 				'sticky' => $row['is_sticky'],
 				'quickbuttons' => [
 					'edit' => [
-						'label' => Lang::$txt['draft_edit'],
+						'label' => Lang::getTxt('draft_edit', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=post;' . (empty($row['id_topic']) ? 'board=' . $row['id_board'] : 'topic=' . $row['id_topic']) . '.0;id_draft=' . $row['id_draft'],
 						'icon' => 'modify_button',
 					],
 					'delete' => [
-						'label' => Lang::$txt['draft_delete'],
+						'label' => Lang::getTxt('draft_delete', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['member']['id'] . ';area=showdrafts;delete=' . $row['id_draft'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-						'javascript' => 'data-confirm="' . Lang::$txt['draft_remove'] . '"',
+						'javascript' => 'data-confirm="' . Lang::getTxt('draft_remove', file: 'Drafts') . '"',
 						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					],
@@ -575,8 +566,8 @@ class Draft
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['drafts_show'],
-			'description' => Lang::$txt['drafts_show_desc'],
+			'title' => Lang::getTxt('drafts_show', file: 'Drafts'),
+			'description' => Lang::getTxt('drafts_show_desc', file: 'Drafts'),
 			'icon_class' => 'main_icons drafts',
 		];
 		Utils::$context['sub_template'] = 'showDrafts';
@@ -604,7 +595,6 @@ class Draft
 
 		// Fetch this draft's info from the database.
 		$request = Db::$db->query(
-			'',
 			'SELECT *
 			FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}' . ($check ? '
@@ -714,7 +704,6 @@ class Draft
 		// Updating an existing draft.
 		if (!empty($this->id)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}user_drafts
 				SET
 					id_topic = {int:id_topic},
@@ -793,7 +782,7 @@ class Draft
 				[
 					'id_draft',
 				],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Did everything go as expected?
@@ -812,6 +801,10 @@ class Draft
 		return Utils::$context['draft_saved'];
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Returns an XML response to an autosave AJAX request.
 	 *
@@ -821,17 +814,13 @@ class Draft
 	 */
 	protected static function xml(int $id_draft): void
 	{
-		Lang::load('Drafts');
+		header('content-type: text/xml; charset=UTF-8');
 
-		header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
-
-		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
+		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()], file: 'Drafts'), ']]></draft>
 		</drafts>';
 
 		Utils::obExit(false);
 	}
 }
-
-?>

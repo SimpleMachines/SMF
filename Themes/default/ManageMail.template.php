@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -23,13 +23,13 @@ function template_browse()
 	<div id="manage_mail">
 		<div id="mailqueue_stats">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mailqueue_stats'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mailqueue_stats', file: 'ManageMail'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
-					<dt><strong>', Lang::$txt['mailqueue_size'], '</strong></dt>
+					<dt><strong>', Lang::getTxt('mailqueue_size', file: 'ManageMail'), '</strong></dt>
 					<dd>', Utils::$context['mail_queue_size'], '</dd>
-					<dt><strong>', Lang::$txt['mailqueue_oldest'], '</strong></dt>
+					<dt><strong>', Lang::getTxt('mailqueue_oldest', file: 'ManageMail'), '</strong></dt>
 					<dd>', Utils::$context['oldest_mail'], '</dd>
 				</dl>
 			</div>
@@ -51,9 +51,9 @@ function template_mailtest()
 	if (!empty(Utils::$context['result']))
 	{
 		if (Utils::$context['result'] == 'failure')
-			$result_txt = Lang::getTxt('mailtest_result_failure', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc']);
+			$result_txt = Lang::getTxt('mailtest_result_failure', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'], file: 'ManageMail');
 		else
-			$result_txt = Lang::$txt['mailtest_result_success'];
+			$result_txt = Lang::getTxt('mailtest_result_success', file: 'ManageMail');
 
 		echo '
 					<div class="', Utils::$context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';
@@ -62,19 +62,17 @@ function template_mailtest()
 	echo '
 	<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['mailtest_header'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('mailtest_header', file: 'ManageMail'), '</h3>
 		</div>
 		<div class="windowbg">
 				<dl id="post_header">
-					<dt><span id="caption_subject">', Lang::$txt['subject'], '</span></dt>
+					<dt><span id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</span></dt>
 					<dd><input type="text" name="subject" tabindex="1" size="80" maxlength="80"></dd>
 				</dl>
 				<textarea class="editor" name="message" rows="5" cols="200" tabindex="2"></textarea>
 				<dl id="post_footer">
-					<dd><input type="submit" value="', Lang::$txt['send_message'], '" class="button"></dd>
+					<dd><input type="submit" value="', Lang::getTxt('send_message', file: 'General'), '" class="button"></dd>
 				</dl>
 		</div>
 	</form>';
 }
-
-?>

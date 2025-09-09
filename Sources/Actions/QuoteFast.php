@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -57,8 +58,6 @@ class QuoteFast implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Post');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Post');
 		}
@@ -87,20 +86,21 @@ class QuoteFast implements ActionInterface, Routable
 				'm.id_msg IN ({array_int:message_list})',
 			],
 			'order' => [],
-			'params' => [
-				'not_locked' => 0,
-			],
+			'params' => [],
 		];
 
 		$bq = User::$me->mod_cache['bq'];
 
-		if (isset($_REQUEST['modify']) || $bq != '1=1') {
+		if (isset($_REQUEST['modify']) && $bq != '1=1') {
+			$query_customizations['params']['not_locked'] = 0;
 			$query_customizations['where'][] = 't.locked = {int:not_locked}' . ($bq == '0=1' || $bq == '1=1' ? '' : ' OR m.' . $bq);
 		}
 
 		$row = current(Msg::load((int) $_REQUEST['quote'], $query_customizations));
 
 		if ($row === false) {
+			ErrorHandler::fatalLang('no_message', false);
+
 			return;
 		}
 
@@ -175,5 +175,3 @@ class QuoteFast implements ActionInterface, Routable
 		IntegrationHook::call('integrate_quotefast', [$row]);
 	}
 }
-
-?>

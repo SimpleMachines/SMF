@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -209,7 +209,7 @@ class Alert implements \ArrayAccess
 	protected static array $qb = [];
 
 	/**
-	 * @var array
+	 * @var bool
 	 *
 	 * Whether self::$link_formats has been finalized.
 	 */
@@ -275,7 +275,6 @@ class Alert implements \ArrayAccess
 	public function format(bool $with_avatar = false, bool $show_links = false): void
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
-		Lang::load('Alerts');
 
 		if (!$this->visible) {
 			return;
@@ -345,7 +344,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Do we want to link to the topic in general or the new messages specifically?
-		if (in_array($this->content_type, ['topic', 'board']) && in_array($this->content_action, ['reply', 'topic', 'unapproved_reply'])) {
+		if (\in_array($this->content_type, ['topic', 'board']) && \in_array($this->content_action, ['reply', 'topic', 'unapproved_reply'])) {
 			$this->extra['topic_suffix'] = 'new;topicseen#new';
 		} elseif (isset($this->extra['topic'])) {
 			$this->extra['topic_suffix'] = '0';
@@ -381,12 +380,12 @@ class Alert implements \ArrayAccess
 			);
 
 			// Assuming all required values are present, build the message.
-			if (!in_array('', $msg_values)) {
+			if (!\in_array('', $msg_values)) {
 				$this->extra[$msg_type] = vsprintf(self::$link_formats[$msg_type][$this->show_links ? 'link' : 'text'], $msg_values);
-			} elseif (in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
-				$this->extra[$msg_type] = Lang::$txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
+			} elseif (\in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
+				$this->extra[$msg_type] = Lang::getTxt($msg_type == 'board_msg' ? 'board_na' : 'topic_na', file: 'Alerts');
 			} else {
-				$this->extra[$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
+				$this->extra[$msg_type] = '(' . Lang::getTxt('not_applicable', file: 'General') . ')';
 			}
 		}
 
@@ -412,7 +411,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Next, try determining the link based on the content action.
-		if (empty($this->target_href) && in_array($this->content_action, ['register_approval', 'group_request', 'buddy_request'])) {
+		if (empty($this->target_href) && \in_array($this->content_action, ['register_approval', 'group_request', 'buddy_request'])) {
 			switch ($this->content_action) {
 				case 'register_approval':
 					$this->target_href = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
@@ -434,7 +433,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Or maybe we can determine the link based on the content type.
-		if (empty($this->target_href) && in_array($this->content_type, ['msg', 'member', 'event'])) {
+		if (empty($this->target_href) && \in_array($this->content_type, ['msg', 'member', 'event'])) {
 			switch ($this->content_type) {
 				case 'msg':
 					if (!empty($this->content_id)) {
@@ -462,19 +461,19 @@ class Alert implements \ArrayAccess
 		// Finally, set this alert's text string.
 		$txt_key = 'alert_' . $this->content_type . '_' . $this->content_action;
 
-		if (isset(Lang::$txt[$txt_key])) {
+		if (Lang::txtExists($txt_key, file: 'Alerts')) {
 			$substitutions = [
 				'scripturl' => Config::$scripturl,
 				'member_link' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
 			];
 
-			if (is_array($this->extra)) {
+			if (\is_array($this->extra)) {
 				foreach ($this->extra as $k => $v) {
 					$substitutions[$k] = $v;
 				}
 			}
 
-			$this->text = Lang::getTxt($txt_key, $substitutions);
+			$this->text = Lang::getTxt($txt_key, $substitutions, file: 'Alerts');
 		}
 	}
 
@@ -521,7 +520,7 @@ class Alert implements \ArrayAccess
 					],
 				],
 				['id_alert'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Update the keys in self::$loaded.
@@ -537,7 +536,6 @@ class Alert implements \ArrayAccess
 		// Updating an existing alert.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}user_alerts
 				SET
 					alert_time = {int:timestamp},
@@ -701,7 +699,7 @@ class Alert implements \ArrayAccess
 			],
 			$inserts,
 			['id_alert'],
-			2,
+			Db::INSERT_RETURN_MODE_MULTI,
 		);
 
 		// Map our temp IDs to the real IDs.
@@ -742,8 +740,6 @@ class Alert implements \ArrayAccess
 	 */
 	public static function load(int|array $ids = [], array $query_customizations = [], bool $simple_access_check = false): array
 	{
-		Lang::load('Alerts');
-
 		$loaded = [];
 		$possible_msgs = [];
 		$possible_topics = [];
@@ -815,8 +811,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more alert IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination.
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination.
 	 *    Ignored if $to_fetch is a list of IDs.
 	 * @return array An array of instances of this class.
 	 */
@@ -845,7 +841,7 @@ class Alert implements \ArrayAccess
 		}
 
 		// Are we being asked for some specific alerts?
-		$ids = is_bool($to_fetch) ? [] : array_filter(array_map('intval', (array) $to_fetch));
+		$ids = \is_bool($to_fetch) ? [] : array_filter(array_map('intval', (array) $to_fetch));
 
 		// Don't reload unnecessarily.
 		foreach (self::$loaded as $alert) {
@@ -891,8 +887,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination. Ignored if
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination. Ignored if
 	 *    $to_fetch is a list of IDs.
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of
@@ -980,7 +976,6 @@ class Alert implements \ArrayAccess
 		$time = $read ? time() : 0;
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_alert IN ({array_int:to_mark})
@@ -1020,7 +1015,6 @@ class Alert implements \ArrayAccess
 		$time = $read ? time() : 0;
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_member IN ({array_int:members})
@@ -1035,7 +1029,7 @@ class Alert implements \ArrayAccess
 		if (Db::$db->affected_rows() > 0) {
 			// First, make sure that all the loaded alerts have the right value.
 			foreach (self::$loaded as $alert) {
-				if (in_array($alert->member, $members) && (!$read || empty($alert->is_read))) {
+				if (\in_array($alert->member, $members) && (!$read || empty($alert->is_read))) {
 					$alert->is_read = $time;
 				}
 			}
@@ -1099,7 +1093,6 @@ class Alert implements \ArrayAccess
 		$members = (array) $members;
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_alerts
 			WHERE id_alert IN ({array_int:ids})
 				AND id_member IN ({array_int:members}',
@@ -1131,7 +1124,6 @@ class Alert implements \ArrayAccess
 		$before = $before > 0 ? $before : time();
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_alerts
 			WHERE is_read > 0
 				AND is_read < {int:before}' . ($memID > 0 ? '
@@ -1398,7 +1390,6 @@ class Alert implements \ArrayAccess
 
 		if ($simple) {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 				WHERE ' . self::$qb[$memID]['query_see_message_board'] . '
@@ -1409,7 +1400,6 @@ class Alert implements \ArrayAccess
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
@@ -1443,11 +1433,11 @@ class Alert implements \ArrayAccess
 	/**
 	 * Checks whether a member can see the topics that some alerts refer to.
 	 *
+	 * @param array $possible_topics Key-value pairs of alert IDs and topic IDs.
 	 * @param int $memID ID of the member.
 	 * @param bool $simple If true, do nothing beyond checking the access.
 	 *    If false, also get some info about the topic in question.
 	 *    Default: false.
-	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
 	protected static function checkTopicAccess(array $possible_topics, int $memID, bool $simple = false): array
@@ -1473,7 +1463,6 @@ class Alert implements \ArrayAccess
 
 		if ($simple) {
 			$request = Db::$db->query(
-				'',
 				'SELECT t.id_topic
 				FROM {db_prefix}topics AS t
 				WHERE ' . self::$qb[$memID]['query_see_topic_board'] . '
@@ -1484,7 +1473,6 @@ class Alert implements \ArrayAccess
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
@@ -1548,7 +1536,6 @@ class Alert implements \ArrayAccess
 		// Note that unread alerts are never purged.
 		if (!empty($deletes)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}user_alerts
 				WHERE id_alert IN ({array_int:alerts})
 					AND id_member = {int:member}',
@@ -1563,7 +1550,6 @@ class Alert implements \ArrayAccess
 		// Do it directly to avoid creating a loop in User::updateMemberData().
 		if ($num_unread_deletes > 0) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
 				WHERE id_member = {int:member}',
@@ -1598,7 +1584,6 @@ class Alert implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}user_alerts AS a' . (empty($joins) ? '' : '
@@ -1616,5 +1601,3 @@ class Alert implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 }
-
-?>

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -19,7 +19,6 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
@@ -60,7 +59,6 @@ class Logout extends Login2
 		}
 		// Prompt to logout?
 		elseif (!$internal && !isset($_GET[Utils::$context['session_var']])) {
-			Lang::load('Login');
 			Theme::loadTemplate('Login');
 			Utils::$context['sub_template'] = 'logout';
 
@@ -96,7 +94,6 @@ class Logout extends Login2
 
 			// If you log out, you aren't online anymore :P.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				[
@@ -171,7 +168,4 @@ class Logout extends Login2
 
 		return ['route' => $route, 'params' => $params];
 	}
-
 }
-
-?>

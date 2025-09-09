@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Timezones
+// Version: 3.0 Alpha 4; Timezones
 
 // Standard Time or Daylight Saving Time
 $tztxt['daylight_saving_time_false'] = 'Standard';
@@ -260,6 +260,7 @@ $txt['America/Chicago'] = 'Chicago';
 $txt['America/Chihuahua'] = 'Chihuahua';
 $txt['America/Ciudad_Juarez'] = 'Ciudad Juárez';
 $txt['America/Costa_Rica'] = 'San José';
+$txt['America/Coyhaique'] = 'Coyhaique';
 $txt['America/Creston'] = 'Creston';
 $txt['America/Cuiaba'] = 'Cuiabá';
 $txt['America/Curacao'] = 'Curaçao';
@@ -507,8 +508,8 @@ $txt['Europe/Isle_of_Man'] = 'Isle of Man';
 $txt['Europe/Istanbul'] = 'Istanbul';
 $txt['Europe/Jersey'] = 'Jersey';
 $txt['Europe/Kaliningrad'] = 'Kaliningrad';
-$txt['Europe/Kyiv'] = 'Kyiv';
 $txt['Europe/Kirov'] = 'Kirov';
+$txt['Europe/Kyiv'] = 'Kyiv';
 $txt['Europe/Lisbon'] = 'Lisbon';
 $txt['Europe/Ljubljana'] = 'Ljubljana';
 $txt['Europe/London'] = 'London';
@@ -848,5 +849,3 @@ $txt['iso3166']['YT'] = 'Mayotte';
 $txt['iso3166']['ZA'] = 'South Africa';
 $txt['iso3166']['ZM'] = 'Zambia';
 $txt['iso3166']['ZW'] = 'Zimbabwe';
-
-?>

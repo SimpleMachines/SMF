@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ class TopicSticky implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		if (isset($_GET['sa']) && in_array($_GET['sa'], ['sticky', 'nonsticky'])) {
+		if (isset($_GET['sa']) && \in_array($_GET['sa'], ['sticky', 'nonsticky'])) {
 			// Make sure the user can sticky it, and they are stickying *something*.
 			User::$me->isAllowedTo('make_sticky', Board::$info->id);
 
@@ -72,5 +72,3 @@ class TopicSticky implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 }
-
-?>

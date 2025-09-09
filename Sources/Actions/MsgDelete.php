@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -57,7 +57,6 @@ class MsgDelete implements ActionInterface, Routable
 		TopicRemove::removeDeleteConcurrence();
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = {int:id_msg} AND m.id_topic = {int:current_topic})
@@ -166,5 +165,3 @@ class MsgDelete implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

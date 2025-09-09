@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class MemberReportReply_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -42,7 +46,6 @@ class MemberReportReply_Notify extends BackgroundTask
 		// Let's see. Let us, first of all, establish the list of possible people.
 		$possible_members = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}log_comments
 			WHERE id_notice = {int:report}
@@ -69,9 +72,8 @@ class MemberReportReply_Notify extends BackgroundTask
 			return true;
 		}
 
-		// We need to know who can moderate this board - and therefore who can see this report.
-		// First up, people who have moderate_board in the board this topic was in.
-		$members = User::membersAllowedTo('moderate_forum');
+		// We need to know who can moderate members and therefore who can see this report.
+		$members = User::getAllowedTo('moderate_forum');
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		$prefs = Notify::getNotifyPrefs($members, 'member_report_reply', true);
@@ -126,7 +128,6 @@ class MemberReportReply_Notify extends BackgroundTask
 			// First, get everyone's language and details.
 			$emails = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -165,5 +166,3 @@ class MemberReportReply_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>
