@@ -1317,8 +1317,8 @@ class RepairBoards implements ActionInterface
 			],
 		);
 
-		$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
-		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
+		$memberStartedID = (int) Board::getMsgMemberID((int) $row['myid_first_msg']);
+		$memberUpdatedID = (int) Board::getMsgMemberID((int) $row['myid_last_msg']);
 
 		$newTopicID = Db::$db->insert(
 			'',
