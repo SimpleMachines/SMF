@@ -1049,7 +1049,7 @@ class Utils
 
 		// Optimizing is faster when we sort by length.
 		asort($normalized_strings);
-		$strings = array_keys($normalized_strings);
+		$strings = array_map('strval', array_keys($normalized_strings));
 
 		// Can we trim common characters from the end?
 		$trailing = '';
