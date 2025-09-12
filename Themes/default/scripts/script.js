@@ -968,24 +968,24 @@ function create_ajax_indicator_ele()
 // This function will retrieve the contents needed for the jump to boxes.
 function grabJumpToContent(elem)
 {
-	var oXMLDoc = getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml');
-	var aBoardsAndCategories = [];
-
 	ajax_indicator(true);
 
-	oXMLDoc.done(function(data, textStatus, jqXHR){
+	getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', function(oXMLDoc)
+	{
+		let aBoardsAndCategories = [];
+		const items = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('item');
 
-		var items = $(data).find('item');
-			items.each(function(i) {
-			aBoardsAndCategories[i] = {
-				id: parseInt($(this).attr('id')),
-				isCategory: $(this).attr('type') == 'category',
-				name: this.firstChild.nodeValue.removeEntities(),
+		for (const item of items)
+		{
+			aBoardsAndCategories.push({
+				id: parseInt(item.getAttribute('id')),
+				isCategory: item.getAttribute('type') === 'category',
+				name: item.firstChild.nodeValue.removeEntities(),
 				is_current: false,
-				isRedirect: parseInt($(this).attr('is_redirect')),
-				childLevel: parseInt($(this).attr('childlevel'))
-			}
-		});
+				isRedirect: parseInt(item.getAttribute('is_redirect')),
+				childLevel: parseInt(item.getAttribute('childlevel'))
+			});
+		}
 
 		ajax_indicator(false);
 
