@@ -350,7 +350,7 @@ function template_main()
 		echo '
 	<script>
 		if (typeof(window.XMLHttpRequest) != "undefined")
-			aJumpTo[aJumpTo.length] = new JumpTo({
+			new JumpTo({
 				sContainerId: "quick_mod_jump_to",
 				sClassName: "qaction",
 				sJumpToTemplate: "%dropdown_list%",
@@ -549,7 +549,7 @@ function template_topic_legend()
 		echo '
 			<script>
 				if (typeof(window.XMLHttpRequest) != "undefined")
-					aJumpTo[aJumpTo.length] = new JumpTo({
+					new JumpTo({
 						sContainerId: "message_index_jump_to",
 						sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 						iCurBoardId: ', Utils::$context['current_board'], ',

@@ -461,7 +461,7 @@ function template_results()
 		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
 		<script>
 		if (typeof(window.XMLHttpRequest) != "undefined")
-			aJumpTo[aJumpTo.length] = new JumpTo({
+			new JumpTo({
 				sContainerId: "search_jump_to",
 				sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 				iCurBoardId: 0,

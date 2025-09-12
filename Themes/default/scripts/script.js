@@ -965,131 +965,291 @@ function create_ajax_indicator_ele()
 	document.body.appendChild(ajax_indicator_ele);
 }
 
-// This function will retrieve the contents needed for the jump to boxes.
-function grabJumpToContent(elem)
-{
-	ajax_indicator(true);
+/**
+ * Parse an HTML template string into a DocumentFragment.
+ *
+ * @param {string} template - The HTML string to parse.
+ * @returns {DocumentFragment} - A fragment containing parsed nodes.
+ */
+function parseTemplateToFragment(template) {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(template, 'text/html');
+	const frag = document.createDocumentFragment();
 
-	getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', function(oXMLDoc)
-	{
-		let aBoardsAndCategories = [];
-		const items = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('item');
-
-		for (const item of items)
-		{
-			aBoardsAndCategories.push({
-				id: parseInt(item.getAttribute('id')),
-				isCategory: item.getAttribute('type') === 'category',
-				name: item.firstChild.nodeValue.removeEntities(),
-				is_current: false,
-				isRedirect: parseInt(item.getAttribute('is_redirect')),
-				childLevel: parseInt(item.getAttribute('childlevel'))
-			});
-		}
-
-		ajax_indicator(false);
-
-		for (var i = 0, n = aJumpTo.length; i < n; i++)
-		{
-			aJumpTo[i].fillSelect(aBoardsAndCategories);
-		}
-	});
-}
-
-// This'll contain all JumpTo objects on the page.
-var aJumpTo = new Array();
-
-// *** JumpTo class.
-function JumpTo(oJumpToOptions)
-{
-	this.opt = oJumpToOptions;
-	this.dropdownList = null;
-	this.showSelect();
-
-	// Register a change event after the select has been created.
-	$('#' + this.opt.sContainerId).one('mouseenter', function() {
-		grabJumpToContent(this);
-	});
-}
-
-// Show the initial select box (onload). Method of the JumpTo class.
-JumpTo.prototype.showSelect = function ()
-{
-	var sChildLevelPrefix = '';
-	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
-		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
-	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
-}
-
-// Fill the jump to box with entries. Method of the JumpTo class.
-JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
-{
-	// Don't do this twice.
-	$('#' + this.opt.sContainerId).off('mouseenter');
-
-	// Create an option that'll be above and below the category.
-	var oDashOption = document.createElement('option');
-	oDashOption.appendChild(document.createTextNode(this.opt.sCatSeparator));
-	oDashOption.disabled = 'disabled';
-	oDashOption.value = '';
-
-	if ('onbeforeactivate' in document)
-		this.dropdownList.onbeforeactivate = null;
-	else
-		this.dropdownList.onfocus = null;
-
-	if (this.opt.bNoRedirect)
-		this.dropdownList.options[0].disabled = 'disabled';
-
-	// Create a document fragment that'll allowing inserting big parts at once.
-	var oListFragment = document.createDocumentFragment();
-
-	// Loop through all items to be added.
-	for (var i = 0, n = aBoardsAndCategories.length; i < n; i++)
-	{
-		var j, sChildLevelPrefix, oOption;
-
-		// If we've reached the currently selected board add all items so far.
-		if (!aBoardsAndCategories[i].isCategory && aBoardsAndCategories[i].id == this.opt.iCurBoardId)
-		{
-			this.dropdownList.insertBefore(oListFragment, this.dropdownList.options[0]);
-			oListFragment = document.createDocumentFragment();
-			continue;
-		}
-
-		if (aBoardsAndCategories[i].isCategory)
-			oListFragment.appendChild(oDashOption.cloneNode(true));
-		else
-			for (j = aBoardsAndCategories[i].childLevel, sChildLevelPrefix = ''; j > 0; j--)
-				sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-
-		oOption = document.createElement('option');
-		oOption.appendChild(document.createTextNode((aBoardsAndCategories[i].isCategory ? this.opt.sCatPrefix : sChildLevelPrefix + this.opt.sBoardPrefix) + aBoardsAndCategories[i].name));
-		if (!this.opt.bNoRedirect)
-			oOption.value = aBoardsAndCategories[i].isCategory ? '#c' + aBoardsAndCategories[i].id : '?board=' + aBoardsAndCategories[i].id + '.0';
-		else
-		{
-			if (aBoardsAndCategories[i].isCategory || aBoardsAndCategories[i].isRedirect)
-				oOption.disabled = 'disabled';
-			else
-				oOption.value = aBoardsAndCategories[i].id;
-		}
-		oListFragment.appendChild(oOption);
-
-		if (aBoardsAndCategories[i].isCategory)
-			oListFragment.appendChild(oDashOption.cloneNode(true));
+	while (doc.body.firstChild) {
+		frag.appendChild(doc.body.firstChild);
 	}
 
-	// Add the remaining items after the currently selected item.
-	this.dropdownList.appendChild(oListFragment);
+	return frag;
+}
 
-	// Add an onchange action
-	if (!this.opt.bNoRedirect)
-		this.dropdownList.onchange = function() {
-			if (this.selectedIndex > 0 && this.options[this.selectedIndex].value)
-				window.location.href = smf_scripturl + this.options[this.selectedIndex].value.substr(smf_scripturl.indexOf('?') == -1 || this.options[this.selectedIndex].value.substr(0, 1) != '?' ? 0 : 1);
+/**
+ * Replace a single placeholder in all text nodes and attributes within a fragment or element.
+ *
+ * This function traverses all text nodes under the specified root node using a TreeWalker.
+ * When it finds a text node containing the placeholder, it checks the type of the replacement value.
+ * If the value is a string, it simply replaces all occurrences of the placeholder in the text node.
+ * If the value is a Node, the function splits the text node into "before" and "after" segments,
+ * inserts the replacement node between them, and removes the original text node.
+ *
+ * After processing all text nodes, the function iterates over all elements within the root node
+ * and examines their attributes. Only string replacements are supported in attributes, so if
+ * an attribute value contains the placeholder, it is replaced using standard string substitution.
+ *
+ * @param {Node} root The root node (fragment, element, etc.)
+ * @param {string} placeholder The placeholder to replace (e.g. "%select_id%").
+ * @param {string|Node} value Replacement string or DOM node.
+ */
+function replacePlaceholder(root, placeholder, value) {
+	const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+
+	let node;
+	while ((node = walker.nextNode())) {
+		const idx = node.nodeValue.indexOf(placeholder);
+
+		if (idx !== -1) {
+			if (value instanceof Node) {
+				// Split text into before/after parts
+				const before = node.nodeValue.slice(0, idx);
+				const after = node.nodeValue.slice(idx + placeholder.length);
+
+				const parent = node.parentNode;
+				if (before) {
+					parent.insertBefore(document.createTextNode(before), node);
+				}
+				parent.insertBefore(value, node);
+				if (after) {
+					parent.insertBefore(document.createTextNode(after), node);
+				}
+
+				parent.removeChild(node);
+			} else {
+				node.nodeValue = node.nodeValue.replace(placeholder, value);
+			}
 		}
+	}
+
+	if (typeof value === 'string') {
+		const elements = root.querySelectorAll('*');
+		for (let i = 0; i < elements.length; i++) {
+			const el = elements[i];
+			for (let j = 0; j < el.attributes.length; j++) {
+				const attr = el.attributes[j];
+				if (attr.value.includes(placeholder)) {
+					attr.value = attr.value.replace(placeholder, value);
+				}
+			}
+		}
+	}
+}
+
+class JumpTo {
+	static instances = [];
+
+	constructor(opt) {
+		this.opt = opt;
+		this.dropdownList = null;
+		this.oContainer = document.getElementById(opt.sContainerId);
+		this.sTemplate = opt.sJumpToTemplate || '%dropdown_list%';
+		this.showSelect();
+
+		let timeout = null;
+
+		// Register instance
+		JumpTo.instances.push(this);
+
+		// Detect if a "coarse pointer" (usually a touch screen) is the primary input device.
+		if (window.matchMedia("(pointer: coarse)").matches)
+		{
+			const focusHandler = () =>
+			{
+				this.grabJumpToContent();
+				this.oContainer.removeEventListener('focus', focusHandler);
+			};
+			this.oContainer.addEventListener('focus', focusHandler);
+		}
+		else
+		{
+			const mouseOverHandler = () =>
+			{
+				timeout = setTimeout(() =>
+				{
+					this.grabJumpToContent();
+					this.oContainer.removeEventListener('mouseover', mouseOverHandler);
+					this.oContainer.removeEventListener('mouseout', mouseOutHandler);
+				}, 200);
+			};
+
+			const mouseOutHandler = () =>
+			{
+				clearTimeout(timeout);
+			};
+
+			this.oContainer.addEventListener('mouseover', mouseOverHandler);
+			this.oContainer.addEventListener('mouseout', mouseOutHandler);
+		}
+	}
+
+	// This function will retrieve the contents needed for the jump to boxes.
+	grabJumpToContent()
+	{
+		ajax_indicator(true);
+
+		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', (xml) =>
+		{
+			const items = xml.getElementsByTagName('smf')[0].getElementsByTagName('item');
+			const boards = [];
+
+			for (let i = 0; i < items.length; i++)
+			{
+				const item = items[i];
+				boards.push({
+					id: parseInt(item.getAttribute('id')),
+					isCategory: item.getAttribute('type') === 'category',
+					name: item.firstChild.nodeValue.removeEntities(),
+					is_current: false,
+					isRedirect: parseInt(item.getAttribute('is_redirect')),
+					childLevel: parseInt(item.getAttribute('childlevel'))
+				});
+			}
+
+			ajax_indicator(false);
+
+			for (let i = 0; i < JumpTo.instances.length; i++)
+			{
+				JumpTo.instances[i].fillSelect(boards);
+			}
+		});
+	}
+
+	// Show select using template
+	showSelect()
+	{
+		const el = this.oContainer;
+		const frag = parseTemplateToFragment(this.sTemplate);
+
+		// Create select element
+		const select = document.createElement('select');
+		select.id = this.opt.sContainerId + '_select';
+		select.name = this.opt.sCustomName || select.id;
+		if (this.opt.sClassName)
+		{
+			select.className = this.opt.sClassName;
+		}
+		if (this.opt.bDisabled)
+		{
+			select.disabled = true;
+		}
+
+		// Default option
+		const defaultOption = document.createElement('option');
+		defaultOption.value = this.opt.bNoRedirect ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0';
+		defaultOption.textContent = this.opt.sBoardChildLevelIndicator.repeat(this.opt.iCurBoardChildLevel) + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities();
+		select.appendChild(defaultOption);
+
+		// Replace placeholders using node walker
+		replacePlaceholder(frag, '%select_id%', this.opt.sContainerId + '_select');
+		replacePlaceholder(frag, '%dropdown_list%', select);
+
+		if (this.opt.sGoButtonLabel)
+		{
+			const btn = document.createElement('button');
+			btn.className = 'button';
+			btn.textContent = this.opt.sGoButtonLabel;
+			btn.addEventListener('click', () =>
+			{
+				window.location.href = smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0';
+			});
+
+			frag.append(' ', btn);
+		}
+
+		// Append processed template to container
+		el.innerHTML = ''; // clear existing
+		el.appendChild(frag);
+
+		this.dropdownList = select;
+
+		if (!this.opt.bNoRedirect)
+		{
+			select.addEventListener('change', function()
+			{
+				const val = this.options[this.selectedIndex].value;
+				if (this.selectedIndex > 0 && val)
+				{
+					window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
+				}
+			});
+		}
+	}
+
+	// Fill select with boards/categories
+	fillSelect(boards)
+	{
+		if (!this.dropdownList)
+		{
+			return;
+		}
+
+		const fragment = document.createDocumentFragment();
+		const dashOptionTemplate = document.createElement('option');
+		dashOptionTemplate.textContent = this.opt.sCatSeparator;
+		dashOptionTemplate.disabled = true;
+
+		if (this.opt.bNoRedirect)
+		{
+			if (this.dropdownList.options[0])
+			{
+				this.dropdownList.options[0].disabled = true;
+			}
+		}
+
+		let lastWasCategory = false;
+
+		for (let i = 0; i < boards.length; i++)
+		{
+			const item = boards[i];
+
+			// If we've reached the currently selected board add all items so far.
+			if (!item.isCategory && item.id === this.opt.iCurBoardId)
+			{
+				this.dropdownList.insertBefore(fragment, this.dropdownList.options[0]);
+				continue;
+			}
+
+			if (item.isCategory)
+			{
+				if (!lastWasCategory)
+				{
+					fragment.appendChild(dashOptionTemplate.cloneNode(true));
+					lastWasCategory = true;
+				}
+			}
+			else
+			{
+				lastWasCategory = false;
+			}
+
+			const option = document.createElement('option');
+			option.textContent = (item.isCategory ? this.opt.sCatPrefix : this.opt.sBoardChildLevelIndicator.repeat(item.childLevel) + this.opt.sBoardPrefix) + item.name;
+			option.value = item.isCategory ? '#c' + item.id : '?board=' + item.id + '.0';
+
+			if (this.opt.bNoRedirect && (item.isCategory || item.isRedirect))
+			{
+				option.disabled = true;
+			}
+
+			fragment.appendChild(option);
+
+			if (item.isCategory)
+			{
+				fragment.appendChild(dashOptionTemplate.cloneNode(true));
+			}
+		}
+
+		// Add the remaining items after the currently selected item.
+		this.dropdownList.appendChild(fragment);
+	}
 }
 
 // A global array containing all IconList objects.
@@ -1731,20 +1891,20 @@ function expand_quote_parent(oElement)
 }
 
 function avatar_fallback(e) {
-    var e = window.e || e;
+	var e = window.e || e;
 	var default_url = smf_avatars_url + '/default.png';
 
-    if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
-        return;
+	if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
+		return;
 
 	e.target.src = default_url;
 	return true;
 }
 
 if (document.addEventListener)
-    document.addEventListener("error", avatar_fallback, true);
+	document.addEventListener("error", avatar_fallback, true);
 else
-    document.attachEvent("error", avatar_fallback);
+	document.attachEvent("error", avatar_fallback);
 
 // SMF Preview handler.
 function smc_preview_post(oOptions)

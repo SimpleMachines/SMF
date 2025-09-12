@@ -371,7 +371,7 @@ function template_main()
 					sFormRemoveAccessKeys: \'postmodify\'' : '', '
 				});
 
-				aJumpTo[aJumpTo.length] = new JumpTo({
+				new JumpTo({
 					sContainerId: "display_jump_to",
 					sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 					iCurBoardId: ', Utils::$context['current_board'], ',
