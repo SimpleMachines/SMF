@@ -294,13 +294,13 @@ function template_main()
 	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && Utils::$context['can_remove_post'])
 	{
 		echo '
-				var strips = [
+				const strips = [
 					{ id: "moderationbuttons", display: "moderationbuttons_strip", varName: "oInTopicModeration" },
 					{ id: "moderationbuttons_mobile", display: "moderationbuttons_strip_mobile", varName: "oInTopicModerationMobile" }
 				];
 
-				for (var i = 0; i < strips.length; i++) {
-					var strip = strips[i];
+				for (let i = 0; i < strips.length; i++) {
+					const strip = strips[i];
 					window[strip.varName] = new InTopicModeration({
 						sCheckboxContainerMask: "in_topic_mod_check_",
 						aMessageIds: ["', implode('", "', Utils::$context['removableMessageIDs']), '"],
