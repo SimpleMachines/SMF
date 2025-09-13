@@ -42,24 +42,17 @@ class MailType extends MigrationBase
 			'UPDATE {db_prefix}settings
 			SET value =
 				CASE
-					WHEN value = 0
-						THEN {string:SendMail}
-					WHEN value = 1
-						THEN {string:SMTP}
-					WHEN value = 2
-						THEN {string:SMTPTLS}
+					WHEN value = {literal:0}
+						THEN {literal:SendMail}
+					WHEN value = {literal:1}
+						THEN {literal:SMTP}
+					WHEN value = {literal:2}
+						THEN {literal:SMTPTLS}
 					ELSE
 						value
 					END
-			WHERE variable = {string:mail_type}
-				AND value IN (0,1,2)',
-			[
-				'SendMail' => 'SendMail',
-				'SMTP' => 'SMTP',
-				'SMTPTLS' => 'SMTPTLS',
-				'mail_type' => 'mail_type',
-				'int_values' => [0, 1, 2],
-			],
+			WHERE variable = {literal:mail_type}
+				AND value IN ({literal:0},{literal:1},{literal:2})',
 		);
 
 		return true;
