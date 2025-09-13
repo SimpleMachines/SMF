@@ -1252,157 +1252,147 @@ class JumpTo {
 	}
 }
 
-// A global array containing all IconList objects.
-var aIconLists = new Array();
+// IconList class
+function IconList(options) {
+	this.opt = options || {};
 
-// *** IconList object.
-function IconList(oOptions)
-{
-	this.opt = oOptions;
+	// Default CSS classes
+	this.opt.sBoxClass = this.opt.sBoxClass || 'icon_list_box';
+	this.opt.sContainerClass = this.opt.sContainerClass || 'icon_list_container';
+	this.opt.sItemClass = this.opt.sItemClass || 'icon_list_item';
+
 	this.bListLoaded = false;
 	this.oContainerDiv = null;
-	this.funcMousedownHandler = null;
-	this.funcParent = this;
 	this.iCurMessageId = 0;
-	this.iCurTimeout = 0;
+	this.oClickedIcon = null;
 
-	// Add backwards compatibility with old themes.
-	if (!('sSessionVar' in this.opt))
-		this.opt.sSessionVar = 'sesc';
+	if (!IconList.instances) IconList.instances = [];
+	IconList.instances.push(this);
 
 	this.initIcons();
 }
 
 // Replace all message icons by icons with hoverable and clickable div's.
-IconList.prototype.initIcons = function ()
-{
-	for (var i = document.images.length - 1, iPrefixLength = this.opt.sIconIdPrefix.length; i >= 0; i--)
-		if (document.images[i].id.substr(0, iPrefixLength) == this.opt.sIconIdPrefix)
-			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '"></div>');
-}
+IconList.prototype.initIcons = function () {
+	const prefixLength = this.opt.sIconIdPrefix.length;
+	const imgs = document.images;
 
-// Event for the mouse hovering over the original icon.
-IconList.prototype.onBoxHover = function (oDiv, bMouseOver)
-{
-	oDiv.style.border = bMouseOver ? this.opt.iBoxBorderWidthHover + 'px solid ' + this.opt.sBoxBorderColorHover : '';
-	oDiv.style.background = bMouseOver ? this.opt.sBoxBackgroundHover : this.opt.sBoxBackground;
-	oDiv.style.padding = bMouseOver ? (3 - this.opt.iBoxBorderWidthHover) + 'px' : '3px'
-}
+	for (let i = 0; i < imgs.length; i++) {
+		const img = imgs[i];
+		if (img.id.substr(0, prefixLength) === this.opt.sIconIdPrefix) {
+			const div = document.createElement('div');
+			div.className = this.opt.sBoxClass;
+			div.appendChild(img.cloneNode(true));
+
+			div.addEventListener('click', this.openPopup.bind(this, div, parseInt(img.id.substr(prefixLength), 10)));
+
+			img.parentNode.replaceChild(div, img);
+		}
+	}
+};
 
 // Show the list of icons after the user clicked the original icon.
-IconList.prototype.openPopup = function (oDiv, iMessageId)
-{
-	this.iCurMessageId = iMessageId;
+IconList.prototype.openPopup = function (div, messageId) {
+	this.iCurMessageId = messageId;
+	this.oClickedIcon = div;
 
-	if (!this.bListLoaded && this.oContainerDiv == null)
-	{
-		// Create a container div.
+	if (!this.bListLoaded && this.oContainerDiv == null) {
 		this.oContainerDiv = document.createElement('div');
-		this.oContainerDiv.id = 'iconList';
-		this.oContainerDiv.style.display = 'none';
-		this.oContainerDiv.style.cursor = 'pointer';
-		this.oContainerDiv.style.position = 'absolute';
-		this.oContainerDiv.style.background = this.opt.sContainerBackground;
-		this.oContainerDiv.style.border = this.opt.sContainerBorder;
-		this.oContainerDiv.style.padding = '6px 0px';
+		this.oContainerDiv.className = this.opt.sContainerClass;
 		document.body.appendChild(this.oContainerDiv);
 
-		// Start to fetch its contents.
 		ajax_indicator(true);
-		sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=messageicons;board=' + this.opt.iBoardId + ';xml', '', this.onIconsReceived);
+		getXMLDocument(
+			smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=messageicons;board=' + this.opt.iBoardId + ';xml',
+			this.onIconsReceived.bind(this)
+		);
 	}
 
-	// Set the position of the container.
-	var aPos = smf_itemPos(oDiv);
+	const pos = smf_itemPos(div);
+	this.oContainerDiv.style.top = (pos[1] + div.offsetHeight) + 'px';
+	this.oContainerDiv.style.left = (pos[0] - 1) + 'px';
 
-	this.oContainerDiv.style.top = (aPos[1] + oDiv.offsetHeight) + 'px';
-	this.oContainerDiv.style.left = (aPos[0] - 1) + 'px';
-	this.oClickedIcon = oDiv;
+	if (this.bListLoaded) this.oContainerDiv.style.display = 'block';
 
-	if (this.bListLoaded)
-		this.oContainerDiv.style.display = 'block';
-
-	document.body.addEventListener('mousedown', this.onWindowMouseDown, false);
-}
+	document.body.addEventListener('mousedown', IconList.onWindowMouseDown);
+};
 
 // Setup the list of icons once it is received through xmlHTTP.
 IconList.prototype.onIconsReceived = function (oXMLDoc)
 {
-	var icons = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('icon');
-	var sItems = '';
-
-	for (var i = 0, n = icons.length; i < n; i++)
-		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle"></span>';
-
-	setInnerHTML(this.oContainerDiv, sItems);
-	this.oContainerDiv.style.display = 'block';
-	this.bListLoaded = true;
-
-	if (is_ie)
-		this.oContainerDiv.style.width = this.oContainerDiv.clientWidth + 'px';
+	if (!oXMLDoc) return;
 
 	ajax_indicator(false);
-}
+	const icons = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('icon');
+	const frag = document.createDocumentFragment();
 
-// Event handler for hovering over the icons.
-IconList.prototype.onItemHover = function (oDiv, bMouseOver)
-{
-	oDiv.style.background = bMouseOver ? this.opt.sItemBackgroundHover : this.opt.sItemBackground;
-	oDiv.style.border = bMouseOver ? this.opt.sItemBorderHover : this.opt.sItemBorder;
-	if (this.iCurTimeout != 0)
-		window.clearTimeout(this.iCurTimeout);
-	if (bMouseOver)
-		this.onBoxHover(this.oClickedIcon, true);
-	else
-		this.iCurTimeout = window.setTimeout(this.opt.sBackReference + '.collapseList();', 500);
-}
+	for (let i = 0; i < icons.length; i++) {
+		const icon = icons[i];
+		const span = document.createElement('span');
+		span.className = this.opt.sItemClass;
+
+		const img = document.createElement('img');
+		img.src = icon.getAttribute('url');
+		img.alt = icon.getAttribute('name');
+		img.title = icon.firstChild ? icon.firstChild.nodeValue : '';
+		img.style.verticalAlign = 'middle';
+
+		span.appendChild(img);
+
+		span.addEventListener('pointerdown', this.onItemMouseDown.bind(this, span, icon.getAttribute('value')));
+
+		frag.appendChild(span);
+	}
+
+	this.oContainerDiv.appendChild(frag);
+	this.oContainerDiv.style.display = 'block';
+	this.bListLoaded = true;
+};
 
 // Event handler for clicking on one of the icons.
-IconList.prototype.onItemMouseDown = function (oDiv, sNewIcon)
-{
-	if (this.iCurMessageId != 0)
-	{
-		ajax_indicator(true);
-		this.tmpMethod = getXMLDocument;
-		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + smf_session_var + '=' + smf_session_id + ';icon=' + sNewIcon + ';xml'),
-		oThis = this;
-		delete this.tmpMethod;
-		ajax_indicator(false);
+IconList.prototype.onItemMouseDown = function(span, newIcon) {
+	if (this.iCurMessageId === 0) return;
 
-		oXMLDoc.done(function(data, textStatus, jqXHR){
-			oMessage = $(data).find('message')
-			curMessageId = oMessage.attr('id').replace( /^\D+/g, '');
+	ajax_indicator(true);
+	getXMLDocument(
+		smf_prepareScriptUrl(smf_scripturl) +
+		'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' +
+		smf_session_var + '=' + smf_session_id + ';icon=' + newIcon + ';xml',
+		oXMLDoc => {
+			ajax_indicator(false);
+			if (!oXMLDoc) return;
 
-			if (oMessage.find('error').length == 0)
-			{
-				if (oThis.opt.bShowModify && oMessage.find('modified').length != 0)
-					$('#modified_' + curMessageId).html(oMessage.find('modified').text());
+			const messageEl = oXMLDoc.getElementsByTagName('message')[0];
+			if (!messageEl) return;
 
-				oThis.oClickedIcon.getElementsByTagName('img')[0].src = oDiv.getElementsByTagName('img')[0].src;
+			const curMessageId = (messageEl.getAttribute('id') || '').replace(/^\D+/g, '');
+			if (!messageEl.getElementsByTagName('error')[0]) {
+				const modifiedEl = messageEl.getElementsByTagName('modified')[0];
+				if (this.opt.bShowModify && modifiedEl) {
+					const modContainer = document.getElementById('modified_' + curMessageId);
+					if (modContainer) modContainer.innerHTML = modifiedEl.textContent;
+				}
+				const img = this.oClickedIcon.getElementsByTagName('img')[0];
+				if (img) img.src = span.getElementsByTagName('img')[0].src;
 			}
-		});
-	}
-}
+		}
+	);
+};
 
 // Event handler for clicking outside the list (will make the list disappear).
-IconList.prototype.onWindowMouseDown = function ()
-{
-	for (var i = aIconLists.length - 1; i >= 0; i--)
-	{
-		aIconLists[i].funcParent.tmpMethod = aIconLists[i].collapseList;
-		aIconLists[i].funcParent.tmpMethod();
-		delete aIconLists[i].funcParent.tmpMethod;
+IconList.onWindowMouseDown = function() {
+	if (!IconList.instances) return;
+	for (const inst of IconList.instances) {
+		inst.collapseList();
 	}
-}
+};
 
 // Collapse the list of icons.
-IconList.prototype.collapseList = function()
-{
-	this.onBoxHover(this.oClickedIcon, false);
+IconList.prototype.collapseList = function() {
+	if (!this.oClickedIcon || !this.oContainerDiv) return;
 	this.oContainerDiv.style.display = 'none';
 	this.iCurMessageId = 0;
-	document.body.removeEventListener('mousedown', this.onWindowMouseDown, false);
-}
+};
 
 // Handy shortcuts for getting the mouse position on the screen - only used for IE at the moment.
 function smf_mousePose(oEvent)

@@ -503,7 +503,7 @@ blockquote cite::before {
 	margin: 5px;
 }
 .bbc_details[open] > .bbc_summary {
-    padding-bottom: 7px;
+	padding-bottom: 7px;
 	border-bottom: 1px dotted #aaa;
 }
 .bbc_inline_spoiler {
@@ -4018,6 +4018,39 @@ p.information img {
 .topic_pages::after {
 	content: " \00bb"
 }
+
+/* Icon container (normal) */
+.icon_list_box {
+	background: transparent;
+	padding: 3px;
+	text-align: center;
+	cursor: pointer;
+}
+.icon_list_box:hover {
+	background: #ffffff;
+	border: 1px solid #adadad;
+	padding: 2px;
+}
+.icon_list_container {
+	position: absolute;
+	cursor: pointer;
+	background: #ffffff;
+	border: 1px solid #adadad;
+	padding: 6px 0;
+	z-index: 1000;
+}
+.icon_list_item {
+	padding: 2px 3px;
+	line-height: 20px;
+	border: 1px solid #ffffff;
+	background: transparent;
+	display: inline-block;
+}
+.icon_list_item:hover {
+	background: #e0e0f0;
+	border: 1px dotted gray;
+}
+
 /* Mentions */
 .atwho-view {
 	position: absolute;
@@ -4255,7 +4288,7 @@ h3.profile_hd::before,
 	margin-top: 12px;
 }
 #attachment_previews {
-    display: none;
+	display: none;
 }
 #attachment_previews div.descbox > div,
 #attachment_previews div.errorbox > div,

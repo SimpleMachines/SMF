@@ -384,8 +384,7 @@ function template_main()
 					sGoButtonLabel: "', Lang::getTxt('go', file: 'General'), '"
 				});
 
-				aIconLists[aIconLists.length] = new IconList({
-					sBackReference: "aIconLists[" + aIconLists.length + "]",
+				new IconList({
 					sIconIdPrefix: "msg_icon_",
 					sScriptUrl: smf_scripturl,
 					bShowModify: ', !empty(Config::$modSettings['show_modify']) ? 'true' : 'false', ',
@@ -393,17 +392,7 @@ function template_main()
 					iTopicId: ', Utils::$context['current_topic'], ',
 					sSessionId: smf_session_id,
 					sSessionVar: smf_session_var,
-					sLabelIconList: "', Lang::getTxt('message_icon', file: 'General'), '",
-					sBoxBackground: "transparent",
-					sBoxBackgroundHover: "#ffffff",
-					iBoxBorderWidthHover: 1,
-					sBoxBorderColorHover: "#adadad" ,
-					sContainerBackground: "#ffffff",
-					sContainerBorder: "1px solid #adadad",
-					sItemBorder: "1px solid #ffffff",
-					sItemBorderHover: "1px dotted gray",
-					sItemBackground: "transparent",
-					sItemBackgroundHover: "#e0e0f0"
+					sLabelIconList: "', Lang::getTxt('message_icon', file: 'General'), '"
 				});
 			}';
 
