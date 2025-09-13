@@ -346,7 +346,7 @@ function template_main()
 	// Show breadcrumbs at the bottom too.
 	theme_linktree();
 
-	echo '
+		echo '
 	<script>
 		window.addEventListener("DOMContentLoaded", function() {';
 
@@ -549,7 +549,7 @@ function template_topic_legend()
 	if (!empty(Utils::$context['jump_to']))
 		echo '
 			<script>
-				if (typeof(window.XMLHttpRequest) != "undefined")
+				window.addEventListener("DOMContentLoaded", function() {
 					new JumpTo({
 						sContainerId: "message_index_jump_to",
 						sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
@@ -562,6 +562,7 @@ function template_topic_legend()
 						sCatPrefix: "",
 						sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
 					});
+				});
 			</script>';
 
 	echo '

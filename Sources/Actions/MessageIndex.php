@@ -961,7 +961,7 @@ class MessageIndex implements ActionInterface, Routable
 		Theme::loadTemplate('MessageIndex');
 
 		// Javascript for inline editing.
-		Theme::loadJavaScriptFile('topic.js', ['defer' => false, 'minimize' => true], 'smf_topic');
+		Theme::loadJavaScriptFile('topic.js', ['defer' => true, 'minimize' => true], 'smf_topic');
 
 		// 'Print' the header and board info.
 		Utils::$context['page_title'] = strip_tags(Board::$info->name);

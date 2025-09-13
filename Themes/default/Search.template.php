@@ -460,18 +460,19 @@ function template_results()
 	echo '
 		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
 		<script>
-		if (typeof(window.XMLHttpRequest) != "undefined")
-			new JumpTo({
-				sContainerId: "search_jump_to",
-				sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
-				iCurBoardId: 0,
-				iCurBoardChildLevel: 0,
-				sCurBoardName: "', Utils::$context['jump_to']['board_name'], '",
-				sBoardChildLevelIndicator: "==",
-				sBoardPrefix: "=> ",
-				sCatSeparator: "-----------------------------",
-				sCatPrefix: "",
-				sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
+			window.addEventListener("DOMContentLoaded", function() {
+				new JumpTo({
+					sContainerId: "search_jump_to",
+					sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
+					iCurBoardId: 0,
+					iCurBoardChildLevel: 0,
+					sCurBoardName: "', Utils::$context['jump_to']['board_name'], '",
+					sBoardChildLevelIndicator: "==",
+					sBoardPrefix: "=> ",
+					sCatSeparator: "-----------------------------",
+					sCatPrefix: "",
+					sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
+				});
 			});
 		</script>
 	</div>';
