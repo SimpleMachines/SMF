@@ -1,3 +1,354 @@
+class JumpTo {
+	static instances = [];
+
+	constructor(opt) {
+		this.opt = opt;
+		this.dropdownList = null;
+		this.oContainer = document.getElementById(opt.sContainerId);
+		this.sTemplate = opt.sJumpToTemplate || '%dropdown_list%';
+		this.showSelect();
+
+		let timeout = null;
+
+		// Register instance
+		JumpTo.instances.push(this);
+
+		// Detect if a "coarse pointer" (usually a touch screen) is the primary input device.
+		if (window.matchMedia("(pointer: coarse)").matches)
+		{
+			const focusHandler = () =>
+			{
+				this.grabJumpToContent();
+				this.oContainer.removeEventListener('focus', focusHandler);
+			};
+			this.oContainer.addEventListener('focus', focusHandler);
+		}
+		else
+		{
+			const mouseOverHandler = () =>
+			{
+				timeout = setTimeout(() =>
+				{
+					this.grabJumpToContent();
+					this.oContainer.removeEventListener('mouseover', mouseOverHandler);
+					this.oContainer.removeEventListener('mouseout', mouseOutHandler);
+				}, 200);
+			};
+
+			const mouseOutHandler = () =>
+			{
+				clearTimeout(timeout);
+			};
+
+			this.oContainer.addEventListener('mouseover', mouseOverHandler);
+			this.oContainer.addEventListener('mouseout', mouseOutHandler);
+		}
+	}
+
+	// This function will retrieve the contents needed for the jump to boxes.
+	grabJumpToContent()
+	{
+		ajax_indicator(true);
+
+		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', (xml) =>
+		{
+			const items = xml.getElementsByTagName('smf')[0].getElementsByTagName('item');
+			const boards = [];
+
+			for (let i = 0; i < items.length; i++)
+			{
+				const item = items[i];
+				boards.push({
+					id: parseInt(item.getAttribute('id')),
+					isCategory: item.getAttribute('type') === 'category',
+					name: item.firstChild.nodeValue.removeEntities(),
+					is_current: false,
+					isRedirect: parseInt(item.getAttribute('is_redirect')),
+					childLevel: parseInt(item.getAttribute('childlevel'))
+				});
+			}
+
+			ajax_indicator(false);
+
+			for (let i = 0; i < JumpTo.instances.length; i++)
+			{
+				JumpTo.instances[i].fillSelect(boards);
+			}
+		});
+	}
+
+	// Show select using template
+	showSelect()
+	{
+		const el = this.oContainer;
+		const frag = parseTemplateToFragment(this.sTemplate);
+
+		// Create select element
+		const select = document.createElement('select');
+		select.id = this.opt.sContainerId + '_select';
+		select.name = this.opt.sCustomName || select.id;
+		if (this.opt.sClassName)
+		{
+			select.className = this.opt.sClassName;
+		}
+		if (this.opt.bDisabled)
+		{
+			select.disabled = true;
+		}
+
+		// Default option
+		const defaultOption = document.createElement('option');
+		defaultOption.value = this.opt.bNoRedirect ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0';
+		defaultOption.textContent = this.opt.sBoardChildLevelIndicator.repeat(this.opt.iCurBoardChildLevel) + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities();
+		select.appendChild(defaultOption);
+
+		// Replace placeholders using node walker
+		replacePlaceholder(frag, '%select_id%', this.opt.sContainerId + '_select');
+		replacePlaceholder(frag, '%dropdown_list%', select);
+
+		if (this.opt.sGoButtonLabel)
+		{
+			const btn = document.createElement('button');
+			btn.className = 'button';
+			btn.textContent = this.opt.sGoButtonLabel;
+			btn.addEventListener('click', () =>
+			{
+				window.location.href = smf_prepareScriptUrl(smf_scripturl) + (this.opt.sUrlPrefix || '') + 'board=' + this.opt.iCurBoardId + '.0';
+			});
+
+			frag.append(' ', btn);
+		}
+
+		// Append processed template to container
+		el.innerHTML = ''; // clear existing
+		el.appendChild(frag);
+
+		this.dropdownList = select;
+
+		if (!this.opt.bNoRedirect)
+		{
+			select.addEventListener('change', function(self)
+			{
+				const val = this.options[this.selectedIndex].value;
+				if (this.selectedIndex > 0 && val)
+				{
+					window.location.href = smf_prepareScriptUrl(smf_scripturl) + (self.opt.sUrlPrefix || '') + (val.startsWith('?') ? val.substring(1) : val);
+				}
+			}.bind(select, this));
+		}
+	}
+
+	// Fill select with boards/categories
+	fillSelect(boards)
+	{
+		if (!this.dropdownList)
+		{
+			return;
+		}
+
+		const fragment = document.createDocumentFragment();
+		const dashOptionTemplate = document.createElement('option');
+		dashOptionTemplate.textContent = this.opt.sCatSeparator;
+		dashOptionTemplate.disabled = true;
+
+		if (this.opt.bNoRedirect)
+		{
+			if (this.dropdownList.options[0])
+			{
+				this.dropdownList.options[0].disabled = true;
+			}
+		}
+
+		let lastWasCategory = false;
+
+		for (let i = 0; i < boards.length; i++)
+		{
+			const item = boards[i];
+
+			// If we've reached the currently selected board add all items so far.
+			if (!item.isCategory && item.id === this.opt.iCurBoardId)
+			{
+				this.dropdownList.insertBefore(fragment, this.dropdownList.options[0]);
+				continue;
+			}
+
+			if (item.isCategory)
+			{
+				if (!lastWasCategory)
+				{
+					fragment.appendChild(dashOptionTemplate.cloneNode(true));
+					lastWasCategory = true;
+				}
+			}
+			else
+			{
+				lastWasCategory = false;
+			}
+
+			const option = document.createElement('option');
+			option.textContent = (item.isCategory ? this.opt.sCatPrefix : this.opt.sBoardChildLevelIndicator.repeat(item.childLevel) + this.opt.sBoardPrefix) + item.name;
+			option.value = item.isCategory ? '#c' + item.id : '?board=' + item.id + '.0';
+
+			if (this.opt.bNoRedirect && (item.isCategory || item.isRedirect))
+			{
+				option.disabled = true;
+			}
+
+			fragment.appendChild(option);
+
+			if (item.isCategory)
+			{
+				fragment.appendChild(dashOptionTemplate.cloneNode(true));
+			}
+		}
+
+		// Add the remaining items after the currently selected item.
+		this.dropdownList.appendChild(fragment);
+	}
+}
+
+// *** IconList object
+function IconList(options) {
+	this.opt = options || {};
+
+	// Default CSS classes
+	this.opt.sBoxClass = this.opt.sBoxClass || 'icon_list_box';
+	this.opt.sContainerClass = this.opt.sContainerClass || 'icon_list_container';
+	this.opt.sItemClass = this.opt.sItemClass || 'icon_list_item';
+
+	this.bListLoaded = false;
+	this.oContainerDiv = null;
+	this.iCurMessageId = 0;
+	this.oClickedIcon = null;
+
+	if (!IconList.instances) IconList.instances = [];
+	IconList.instances.push(this);
+
+	this.initIcons();
+}
+
+// Replace all message icons by icons with hoverable and clickable div's.
+IconList.prototype.initIcons = function () {
+	const prefixLength = this.opt.sIconIdPrefix.length;
+	const imgs = document.images;
+
+	for (let i = 0; i < imgs.length; i++) {
+		const img = imgs[i];
+		if (img.id.substr(0, prefixLength) === this.opt.sIconIdPrefix) {
+			const div = document.createElement('div');
+			div.className = this.opt.sBoxClass;
+			div.appendChild(img.cloneNode(true));
+
+			div.addEventListener('click', this.openPopup.bind(this, div, parseInt(img.id.substr(prefixLength), 10)));
+
+			img.parentNode.replaceChild(div, img);
+		}
+	}
+};
+
+// Show the list of icons after the user clicked the original icon.
+IconList.prototype.openPopup = function (div, messageId) {
+	this.iCurMessageId = messageId;
+	this.oClickedIcon = div;
+
+	if (!this.bListLoaded && this.oContainerDiv == null) {
+		this.oContainerDiv = document.createElement('div');
+		this.oContainerDiv.className = this.opt.sContainerClass;
+		document.body.appendChild(this.oContainerDiv);
+
+		ajax_indicator(true);
+		getXMLDocument(
+			smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=messageicons;board=' + this.opt.iBoardId + ';xml',
+			this.onIconsReceived.bind(this)
+		);
+	}
+
+	const pos = smf_itemPos(div);
+	this.oContainerDiv.style.top = (pos[1] + div.offsetHeight) + 'px';
+	this.oContainerDiv.style.left = (pos[0] - 1) + 'px';
+
+	if (this.bListLoaded) this.oContainerDiv.style.display = 'block';
+
+	document.body.addEventListener('mousedown', IconList.onWindowMouseDown);
+};
+
+// Setup the list of icons once it is received through xmlHTTP.
+IconList.prototype.onIconsReceived = function (oXMLDoc)
+{
+	if (!oXMLDoc) return;
+
+	ajax_indicator(false);
+	const icons = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('icon');
+	const frag = document.createDocumentFragment();
+
+	for (let i = 0; i < icons.length; i++) {
+		const icon = icons[i];
+		const span = document.createElement('span');
+		span.className = this.opt.sItemClass;
+
+		const img = document.createElement('img');
+		img.src = icon.getAttribute('url');
+		img.alt = icon.getAttribute('name');
+		img.title = icon.firstChild ? icon.firstChild.nodeValue : '';
+		img.style.verticalAlign = 'middle';
+
+		span.appendChild(img);
+
+		span.addEventListener('pointerdown', this.onItemMouseDown.bind(this, span, icon.getAttribute('value')));
+
+		frag.appendChild(span);
+	}
+
+	this.oContainerDiv.appendChild(frag);
+	this.oContainerDiv.style.display = 'block';
+	this.bListLoaded = true;
+};
+
+// Event handler for clicking on one of the icons.
+IconList.prototype.onItemMouseDown = function(span, newIcon) {
+	if (this.iCurMessageId === 0) return;
+
+	ajax_indicator(true);
+	getXMLDocument(
+		smf_prepareScriptUrl(smf_scripturl) +
+		'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' +
+		smf_session_var + '=' + smf_session_id + ';icon=' + newIcon + ';xml',
+		oXMLDoc => {
+			ajax_indicator(false);
+			if (!oXMLDoc) return;
+
+			const messageEl = oXMLDoc.getElementsByTagName('message')[0];
+			if (!messageEl) return;
+
+			const curMessageId = (messageEl.getAttribute('id') || '').replace(/^\D+/g, '');
+			if (!messageEl.getElementsByTagName('error')[0]) {
+				const modifiedEl = messageEl.getElementsByTagName('modified')[0];
+				if (this.opt.bShowModify && modifiedEl) {
+					const modContainer = document.getElementById('modified_' + curMessageId);
+					if (modContainer) modContainer.innerHTML = modifiedEl.textContent;
+				}
+				const img = this.oClickedIcon.getElementsByTagName('img')[0];
+				if (img) img.src = span.getElementsByTagName('img')[0].src;
+			}
+		}
+	);
+};
+
+// Event handler for clicking outside the list (will make the list disappear).
+IconList.onWindowMouseDown = function() {
+	if (!IconList.instances) return;
+	for (const inst of IconList.instances) {
+		inst.collapseList();
+	}
+};
+
+// Collapse the list of icons.
+IconList.prototype.collapseList = function() {
+	if (!this.oClickedIcon || !this.oContainerDiv) return;
+	this.oContainerDiv.style.display = 'none';
+	this.iCurMessageId = 0;
+};
+
 // *** QuickModifyTopic object.
 function QuickModifyTopic(oOptions)
 {
@@ -7,26 +358,35 @@ function QuickModifyTopic(oOptions)
 	this.sCurMessageId = '';
 	this.sBuffSubject = '';
 	this.oCurSubjectDiv = null;
-	this.oTopicModHandle = document;
+	this.oTopicModHandle = this.opt.oTopicModHandle || document;
 	this.bInEditMode = false;
-	this.bMouseOnDiv = false;
-	this.init();
-}
+	this.aTextFields = ['subject'];
+	this.oSourceElments = {};
 
-// Used to initialise the object event handlers
-QuickModifyTopic.prototype.init = function ()
-{
-	// Detect and act on keypress
+	const oElement = this.oTopicModHandle.getElementById(oOptions.sTopicContainer);
+	for (const el of oElement.children)
+	{
+		if (el.children[1].dataset.msgId)
+			el.children[1].addEventListener(
+				'dblclick',
+				this.modify_topic.bind(this, el.children[1].dataset.msgId)
+			);
+	}
+
+	// detect and act on keypress
 	this.oTopicModHandle.onkeydown = this.modify_topic_keypress.bind(this);
 
 	// Used to detect when we've stopped editing.
-	this.oTopicModHandle.onclick = this.modify_topic_click.bind(this);
-};
+	this.oTopicModHandle.addEventListener('click', function (oEvent)
+	{
+		if (this.bInEditMode && oEvent.target.tagName != 'INPUT')
+			this.modify_topic_save(smf_session_id, smf_session_var);
+	}.bind(this));
+}
 
 // called from the double click in the div
 QuickModifyTopic.prototype.modify_topic = function (topic_id, first_msg_id)
 {
-	// already editing
 	if (this.bInEditMode)
 	{
 		// Same message then just return, otherwise drop out of this edit.
@@ -37,12 +397,27 @@ QuickModifyTopic.prototype.modify_topic = function (topic_id, first_msg_id)
 	}
 
 	this.bInEditMode = true;
-	this.bMouseOnDiv = true;
 	this.iCurTopicId = topic_id;
 
-	// Get the topics current subject
-	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=quotefast;quote=" + first_msg_id + ";modify;xml", '', this.onDocReceived_modify_topic);
+	this.sCurMessageId = 'msg_' + first_msg_id;
+	this.oCurSubjectDiv = document.getElementById('msg_' + first_msg_id);
+	var oInput = document.createElement('input');
+	oInput.type = 'text';
+	oInput.name = 'subject';
+	oInput.value = this.oCurSubjectDiv.textContent;
+	oInput.size = '60';
+	oInput.style.width = '99%';
+	oInput.maxlength = '80';
+	oInput.onkeydown = this.modify_topic_keypress.bind(this);
+	this.oCurSubjectDiv.after(oInput);
+	oInput.focus();
+
+	if (this.opt.funcOnAfterCreate) {
+		this.opt.funcOnAfterCreate.call(this);
+	}
+
+	// Here we hide any other things they want hidden on edit.
+	this.set_hidden_topic_areas('none');
 }
 
 // callback function from the modify_topic ajax call
@@ -55,11 +430,6 @@ QuickModifyTopic.prototype.onDocReceived_modify_topic = function (XMLDoc)
 		return true;
 	}
 
-	this.sCurMessageId = XMLDoc.getElementsByTagName("message")[0].getAttribute("id");
-	this.oCurSubjectDiv = document.getElementById('msg_' + this.sCurMessageId.substr(4));
-	this.sBuffSubject = getInnerHTML(this.oCurSubjectDiv);
-
-	// Here we hide any other things they want hidden on edit.
 	this.set_hidden_topic_areas('none');
 
 	// Show we are in edit mode and allow the edit
@@ -70,7 +440,10 @@ QuickModifyTopic.prototype.onDocReceived_modify_topic = function (XMLDoc)
 // Cancel out of an edit and return things to back to what they were
 QuickModifyTopic.prototype.modify_topic_cancel = function ()
 {
-	setInnerHTML(this.oCurSubjectDiv, this.sBuffSubject);
+	for (var i of this.aTextFields)
+		if (i in document.forms.quickModForm)
+			document.forms.quickModForm[i].remove();
+
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
 
@@ -87,36 +460,20 @@ QuickModifyTopic.prototype.set_hidden_topic_areas = function (set_style)
 	}
 }
 
-// For templating, shown that an inline edit is being made.
-QuickModifyTopic.prototype.modify_topic_show_edit = function (subject)
-{
-	// Just template the subject.
-	setInnerHTML(this.oCurSubjectDiv, '<input type="text" name="subject" value="' + subject + '" size="60" style="width: 95%;" maxlength="80"><input type="hidden" name="topic" value="' + this.iCurTopicId + '"><input type="hidden" name="msg" value="' + this.sCurMessageId.substr(4) + '">');
-
-	// attach mouse over and out events to this new div
-	this.oCurSubjectDiv.instanceRef = this;
-	this.oCurSubjectDiv.onmouseout = function (oEvent) {return this.instanceRef.modify_topic_mouseout(oEvent);};
-	this.oCurSubjectDiv.onmouseover = function (oEvent) {return this.instanceRef.modify_topic_mouseover(oEvent);};
-}
-
-// Yup that's right, save it
+// Yup thats right, save it
 QuickModifyTopic.prototype.modify_topic_save = function (cur_session_id, cur_session_var)
 {
 	if (!this.bInEditMode)
 		return true;
 
-	// Add backwards compatibility with old themes.
-	if (typeof(cur_session_var) == 'undefined')
-		cur_session_var = 'sesc';
-
-	var i, x = new Array();
-	x[x.length] = 'subject=' + document.forms.quickModForm['subject'].value.php_to8bit().php_urlencode();
-	x[x.length] = 'topic=' + parseInt(document.forms.quickModForm.elements['topic'].value);
-	x[x.length] = 'msg=' + parseInt(document.forms.quickModForm.elements['msg'].value);
+	let x = [];
+	for (var i of this.aTextFields)
+		if (i in document.forms.quickModForm)
+			x.push(i + '=' + document.forms.quickModForm[i].value.php_to8bit().php_urlencode());
 
 	// send in the call to save the updated topic subject
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=jsmodify;topic=" + parseInt(document.forms.quickModForm.elements['topic'].value) + ";" + cur_session_var + "=" + cur_session_id + ";xml", x.join("&"), this.modify_topic_done);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=jsmodify;topic=" + this.iCurTopicId + ";" + cur_session_var + "=" + cur_session_id + ";xml", x.join("&"), this.modify_topic_done);
 
 	return false;
 }
@@ -134,29 +491,31 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	}
 
 	var message = XMLDoc.getElementsByTagName("smf")[0].getElementsByTagName("message")[0];
-	var subject = message.getElementsByTagName("subject")[0];
+	var subject = message.getElementsByTagName("subject")[0].childNodes[0].nodeValue;
 	var error = message.getElementsByTagName("error")[0];
 
 	// No subject or other error?
 	if (!subject || error)
 		return false;
 
-	this.modify_topic_hide_edit(subject.childNodes[0].nodeValue);
+	setInnerHTML(this.oCurSubjectDiv, '<a href="' + smf_scripturl + '?topic=' + this.iCurTopicId + '.0">' + subject + '<' +'/a>')
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
+
+	for (var i of this.aTextFields)
+	{
+		if (this.oSourceElments[i])
+			setInnerHTML(this.oSourceElments[i], message.getElementsByTagName(i)[0].childNodes[0].nodeValue);
+
+		if (i in document.forms.quickModForm)
+			document.forms.quickModForm[i].remove();
+	}
 
 	// redo tips if they are on since we just pulled the rug out on this one
 	if ($.isFunction($.fn.SMFtooltip))
 		$('.preview').SMFtooltip().smf_tooltip_off;
 
 	return false;
-}
-
-// Done with the edit, put in new subject and link.
-QuickModifyTopic.prototype.modify_topic_hide_edit = function (subject)
-{
-	// Re-template the subject!
-	setInnerHTML(this.oCurSubjectDiv, '<a href="' + smf_scripturl + '?topic=' + this.iCurTopicId + '.0">' + subject + '<' +'/a>');
 }
 
 // keypress event ... like enter or escape
@@ -181,25 +540,6 @@ QuickModifyTopic.prototype.modify_topic_keypress = function (oEvent)
 				oEvent.preventDefault();
 		}
 	}
-}
-
-// A click event to signal the finish of the edit
-QuickModifyTopic.prototype.modify_topic_click = function (oEvent)
-{
-	if (this.bInEditMode && !this.bMouseOnDiv)
-		this.modify_topic_save(smf_session_id, smf_session_var);
-}
-
-// Moved out of the editing div
-QuickModifyTopic.prototype.modify_topic_mouseout = function (oEvent)
-{
-	this.bMouseOnDiv = false;
-}
-
-// Moved back over the editing div
-QuickModifyTopic.prototype.modify_topic_mouseover = function (oEvent)
-{
-	this.bMouseOnDiv = true;
 }
 
 // *** QuickReply object.
@@ -436,7 +776,7 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
 
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", formData, this.onModifyDone);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", new URLSearchParams(formData).toString(), this.onModifyDone);
 
 	return false;
 }

@@ -432,6 +432,8 @@ class Search2 implements ActionInterface, Routable
 			}
 		}
 
+		Theme::loadJavaScriptFile('topic.js', ['defer' => true, 'minimize' => true], 'smf_topic');
+
 		SearchApi::$loadedApi->resultsContext();
 	}
 
