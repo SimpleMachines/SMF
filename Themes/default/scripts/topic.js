@@ -113,7 +113,7 @@ class JumpTo {
 			btn.textContent = this.opt.sGoButtonLabel;
 			btn.addEventListener('click', () =>
 			{
-				window.location.href = smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0';
+				window.location.href = smf_prepareScriptUrl(smf_scripturl) + (this.opt.sUrlPrefix || '') + 'board=' + this.opt.iCurBoardId + '.0';
 			});
 
 			frag.append(' ', btn);
@@ -127,14 +127,14 @@ class JumpTo {
 
 		if (!this.opt.bNoRedirect)
 		{
-			select.addEventListener('change', function()
+			select.addEventListener('change', function(self)
 			{
 				const val = this.options[this.selectedIndex].value;
 				if (this.selectedIndex > 0 && val)
 				{
-					window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
+					window.location.href = smf_prepareScriptUrl(smf_scripturl) + (self.opt.sUrlPrefix || '') + (val.startsWith('?') ? val.substring(1) : val);
 				}
-			});
+			}.bind(select, this));
 		}
 	}
 
