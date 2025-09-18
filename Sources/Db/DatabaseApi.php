@@ -441,7 +441,7 @@ abstract class DatabaseApi
 				default:
 					$test = \is_array($value) ? reset($value) : $value;
 
-					if ((string) IP::create((string) $test) === $test) {
+					if ($test !== '' && (string) IP::create((string) $test) === $test) {
 						$type = 'inet';
 					} elseif ($test instanceof Uuid || (string) @Uuid::createFromString((string) $test) === $test) {
 						$type = 'uuid';
