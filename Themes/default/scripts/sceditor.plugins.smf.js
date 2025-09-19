@@ -16,9 +16,10 @@
 		let opts;
 		let line;
 
-		const appendEmoticon = (code, { newrow, url, tooltip }) => {
-			if (newrow)
+		const appendEmoticon = (code, { newRow, url, tooltip }) => {
+			if (newRow) {
 				line.appendChild(document.createElement('br'));
+			}
 
 			const i = document.createElement("img");
 			i.src = opts.emoticonsRoot + url;
