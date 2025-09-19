@@ -2897,7 +2897,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// These types cannot have a default value.
 		if (
 			\in_array(
-				$column_info['type'],
+				$column['type'],
 				[
 					'text',
 					'tinytext',
