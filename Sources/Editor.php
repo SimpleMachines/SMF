@@ -708,7 +708,7 @@ class Editor implements \ArrayAccess, \Stringable
 		Theme::loadCSSFile('jquery.sceditor.theme.css', ['force_current' => true, 'validate' => true], 'smf_jquery_sceditor_theme');
 
 		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
-		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', ['minimize' => true], 'smf_sceditor_smf');
+		Theme::loadJavaScriptFile('sceditor.plugins.smf.js', ['minimize' => true], 'smf_sceditor_smf');
 
 		$locale_key = Lang::getTxt('lang_dictionary', file: 'General');
 
