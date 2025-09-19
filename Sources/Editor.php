@@ -49,6 +49,10 @@ use SMF\Db\DatabaseApi as Db;
  *    - `commandsWithText`: Configures buttons to show text alongside icons.
  *
  * Hooks:
+ * - Hook: `integrate_sceditor_locale`
+ * - Parameters:
+ *   - `array &$translation_map`: Reference to the array of localization strings.
+ *
  * - Hook: `integrate_sceditor_options`
  * - Parameters:
  *   - `array &$this->sce_options`: Reference to the array of SCEditor options.
@@ -706,26 +710,30 @@ class Editor implements \ArrayAccess, \Stringable
 		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
 		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', ['minimize' => true], 'smf_sceditor_smf');
 
-		$scExtraLangs = '
-		sceditor.locale["' . Lang::getTxt('lang_dictionary', file: 'General') . '"] = {
-			"Width (optional):": "' . Lang::getTxt('width', var: 'editortxt') . '",
-			"Height (optional):": "' . Lang::getTxt('height', var: 'editortxt') . '",
-			"Insert": "' . Lang::getTxt('insert', var: 'editortxt') . '",
-			"Description (optional):": "' . Lang::getTxt('description', var: 'editortxt') . '",
-			"Rows:": "' . Lang::getTxt('rows', var: 'editortxt') . '",
-			"Cols:": "' . Lang::getTxt('cols', var: 'editortxt') . '",
-			"URL:": "' . Lang::getTxt('url', var: 'editortxt') . '",
-			"E-mail:": "' . Lang::getTxt('email', var: 'editortxt') . '",
-			"Video URL:": "' . Lang::getTxt('video_url', var: 'editortxt') . '",
-			"More": "' . Lang::getTxt('more', var: 'editortxt') . '",
-			"Close": "' . Lang::getTxt('close', var: 'editortxt') . '",
-			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '",
-			details: "' . Lang::getTxt('details', var: 'editortxt') . '",
-			spoiler: "' . Lang::getTxt('spoiler', var: 'editortxt') . '",
-			summaryPrompt: "' . Lang::getTxt('summary_prompt', var: 'editortxt') . '",
-		};';
+		$locale_key = Lang::getTxt('lang_dictionary', file: 'General');
 
-		Theme::addInlineJavaScript($scExtraLangs, true);
+		$translation_map = [
+			'Width (optional):' => Lang::getTxt('width', var: 'editortxt'),
+			'Height (optional):' => Lang::getTxt('height', var: 'editortxt'),
+			'Insert' => Lang::getTxt('insert', var: 'editortxt'),
+			'Description (optional):' => Lang::getTxt('description', var: 'editortxt'),
+			'Rows:' => Lang::getTxt('rows', var: 'editortxt'),
+			'Cols:' => Lang::getTxt('cols', var: 'editortxt'),
+			'URL:' => Lang::getTxt('url', var: 'editortxt'),
+			'E-mail:' => Lang::getTxt('email', var: 'editortxt'),
+			'Video URL:' => Lang::getTxt('video_url', var: 'editortxt'),
+			'More' => Lang::getTxt('more', var: 'editortxt'),
+			'Close' => Lang::getTxt('close', var: 'editortxt'),
+			'dateFormat' => Lang::getTxt('dateformat', var: 'editortxt'),
+			'details' => Lang::getTxt('details', var: 'editortxt'),
+			'spoiler' => Lang::getTxt('spoiler', var: 'editortxt'),
+			'summaryPrompt' => Lang::getTxt('summary_prompt', var: 'editortxt'),
+		];
+		IntegrationHook::call('integrate_sceditor_locale', [&$translation_map]);
+
+		$sc_extra_langs = 'sceditor.locale["' . $locale_key . '"] = ' . json_encode($translation_map, JSON_UNESCAPED_UNICODE) . ';';
+
+		Theme::addInlineJavaScript($sc_extra_langs, true);
 
 		Theme::addInlineJavaScript('
 		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
