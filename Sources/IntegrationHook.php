@@ -662,13 +662,15 @@ class IntegrationHook
 			]);
 		}
 
+		$path = Config::canonicalPath($path);
+
 		// Load the file if it can be loaded.
 		if (is_file($path)) {
 			require_once $path;
 		}
 		// No? Try a fallback to Config::$sourcedir.
 		else {
-			$path = Config::$sourcedir . '/' . $file;
+			$path = Config::canonicalPath(Config::$sourcedir . '/' . $file;
 
 			if (is_file($path)) {
 				require_once $path;
