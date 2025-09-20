@@ -1603,7 +1603,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					)
 				)
 			)
-			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
+			|| ($column_info['generation_expression'] ?? '') !== ($old_info['generation_expression'] ?? '')
 		) {
 			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
