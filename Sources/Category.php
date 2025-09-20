@@ -70,7 +70,7 @@ class Category implements \ArrayAccess
 	 *
 	 * Whether the current user has collapsed this category.
 	 */
-	public bool $is_collapsed;
+	public bool $is_collapsed = false;
 
 	/**
 	 * @var int
@@ -87,7 +87,7 @@ class Category implements \ArrayAccess
 	public int $last_board_order;
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * Boards that are children of this category.
 	 */
@@ -105,7 +105,7 @@ class Category implements \ArrayAccess
 	 *
 	 * HTML anchor link for this category.
 	 */
-	public string $link;
+	public string $link = '';
 
 	/**
 	 * @var string
@@ -127,7 +127,7 @@ class Category implements \ArrayAccess
 	 *
 	 * Whether this category contains posts that the current user hasn't read.
 	 */
-	public bool $new;
+	public bool $new = false;
 
 	/**
 	 * @var bool
@@ -141,14 +141,14 @@ class Category implements \ArrayAccess
 	 **************************/
 
 	/**
-	 * @var array
+	 * @var Category[]
 	 *
 	 * All loaded instances of this class.
 	 */
 	public static array $loaded = [];
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * A list of boards grouped by category ID.
 	 */
@@ -816,7 +816,7 @@ class Category implements \ArrayAccess
 			);
 
 			if (Db::$db->num_rows($request) > 0) {
-				$props = Db::$db->fetch_all($request);
+				$props = Db::$db->fetch_assoc($request);
 			}
 			Db::$db->free_result($request);
 		}
