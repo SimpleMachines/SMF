@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Localization;
 
+use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Unicode\Utf8String;
@@ -118,9 +119,11 @@ class AsciiTransliterator
 	 * that the returned string contains nothing but ASCII.
 	 *
 	 * @param string $string A UTF-8 string.
+	 * @param string $substitute Substitute to use for characters that have no
+	 *    ASCII approximation. Default: '[?]'
 	 * @return string An ASCII string.
 	 */
-	public static function toAscii(string $string): string
+	public static function toAscii(string $string, string $substitute = '[?]'): string
 	{
 		$string = class_exists('\Transliterator') ? self::intl($string) : self::manual($string);
 
@@ -137,10 +140,18 @@ class AsciiTransliterator
 			$string,
 		);
 
-		// Replace any remaining non-ASCII characters with '[?]'.
+		// Replace any remaining non-ASCII graphemes with $substitute.
+		// Explanation: \X in the regex matches a grapheme cluster, which can
+		// contain one base character and any number of combining marks. Then
+		// in mb_ord($m[0]) we pass the entire grapheme cluster to mb_ord(),
+		// but mb_ord() only ever returns the ord for the base character. If
+		// the base character is not ASCII, we replace the grapheme with our
+		// substitute. If the base character is ASCII, then we replace the
+		// grapheme with the first byte of the grapheme (i.e. $m[0][0]), which
+		// will be just the ASCII character itself without any combining marks.
 		$string = preg_replace_callback(
 			'/\X/u',
-			fn($m) => mb_ord($m[0]) > 0x7f ? '[?]' : $m[0],
+			fn($m) => mb_ord($m[0]) > 0x7f ? $substitute : $m[0][0],
 			$string,
 		);
 
@@ -280,7 +291,7 @@ class AsciiTransliterator
 			$ord = mb_ord($char);
 
 			if (file_exists(__DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php')) {
-				include_once __DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php';
+				include_once Config::canonicalPath(__DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php');
 
 				$new_chars[$char_num] = $ascii_transliteration[$ord >> 8][$ord & 255] ?? $char;
 			}

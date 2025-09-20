@@ -86,7 +86,7 @@ class Uuid implements \Stringable
 	 * UUID versions that this class will recognize as valid.
 	 *
 	 * Versions 0 and 15 refer to the special nil and max UUIDs.
-	 * Version 8 is for "experimental or vender-specific use cases."
+	 * Version 8 is for "experimental or vendor-specific use cases."
 	 */
 	public const KNOWN_VERSIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 15];
 
@@ -235,17 +235,26 @@ class Uuid implements \Stringable
 	 * preserve or enforce a particular position in a sorting sequence, so the
 	 * ability to do so is available.
 	 *
-	 * @param int|null $version The UUID version to create.
-	 * @param mixed $input Input for the UUID generator, if applicable.
+	 * @param int $version The UUID version to create.
+	 * @param \DateTimeInterface|\Stringable|string|array|int|float|null $input
+	 *    Input for the UUID generator, if applicable.
+	 * @throws \Exception if $version is unsupported.
+	 * @throws \Exception if $version is 2 and $input['domain'] is invalid.
+	 * @throws \Exception if $version is 2 and $input['id'] is not set and can't
+	 *    be determined automatically.
+	 * @throws \Exception if $version is 3 or 5, no namespace UUID is set, and
+	 *    attempting to generate a new namespace UUID fails.
+	 * @throws \ValueError if $input is invalid.
 	 */
-	public function __construct(?int $version = null, mixed $input = null)
-	{
+	public function __construct(
+		int $version = self::DEFAULT_VERSION,
+		\DateTimeInterface|\Stringable|string|array|int|float|null $input = null,
+	) {
 		// Determine the version to use.
-		$this->version = $version ?? self::DEFAULT_VERSION;
+		$this->version = $version;
 
 		if (!\in_array($this->version, self::SUPPORTED_VERSIONS)) {
-			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
-			$this->version = self::DEFAULT_VERSION;
+			throw new \Exception('Unsupported UUID version requested: ' . $this->version);
 		}
 
 		// Check the input.
@@ -256,31 +265,19 @@ class Uuid implements \Stringable
 					$input = $input->format('U.u');
 				} elseif ($input instanceof \Stringable) {
 					$input = (string) $input;
-				} else {
-					$input = null;
 				}
 				break;
 
 			// UUIDv2 wants an array, but nothing else does.
 			case 'array':
-				$input = $this->version !== 2 ? reset($input) : $input;
-				break;
-
-			// Expected types.
-			case 'string':
-			case 'integer':
-			case 'double':
-				break;
-
-			// Unexpected types.
-			default:
-				$input = null;
+				if ($this->version !== 2) {
+					throw new \ValueError('Invalid UUID input');
+				}
 				break;
 		}
 
 		if (\in_array($this->version, [3, 5]) && !isset($input)) {
-			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
-			$this->version = 0;
+			throw new \ValueError('UUIDv' . $this->version . ' requires string input, but none was provided.');
 		}
 
 		// Generate hexadecimal value.
@@ -294,7 +291,7 @@ class Uuid implements \Stringable
 				break;
 
 			case 3:
-				$hex = $this->getHexV3($input);
+				$hex = $this->getHexV3((string) $input);
 				break;
 
 			case 4:
@@ -302,7 +299,7 @@ class Uuid implements \Stringable
 				break;
 
 			case 5:
-				$hex = $this->getHexV5($input);
+				$hex = $this->getHexV5((string) $input);
 				break;
 
 			case 6:
@@ -349,7 +346,39 @@ class Uuid implements \Stringable
 	}
 
 	/**
+	 * Returns the variant of this UUID.
+	 *
+	 * The possible values are as follows, with descriptions taken from
+	 * RFC 9562:
+	 *
+	 *  0 => Reserved. Network Computing System (NCS) backward compatibility,
+	 *       and includes Nil UUID.
+	 *  1 => The variant specified in RFC 9562.
+	 *  2 => Reserved. Microsoft Corporation backward compatibility.
+	 *  3 => Reserved for future definition and includes Max UUID.
+	 *
+	 * In practice, variant 1 is the only UUID variant in use, apart from the
+	 * special cases of the Nil and Max UUIDs, which are the only examples of
+	 * variants 0 and 3 that one will ever encounter.
+	 *
+	 * @return int The variant of this UUID.
+	 */
+	public function getVariant(): int
+	{
+		$variant = hexdec(substr($this->uuid, 19, 1));
+
+		return match (true) {
+			$variant < 0x8 => 0,
+			$variant < 0xc => 1,
+			$variant < 0xe => 2,
+			default => 3,
+		};
+	}
+
+	/**
 	 * Returns the version of this UUID.
+	 *
+	 * This is only meaningful for variant 1 UUIDs.
 	 *
 	 * @return int The version of this UUID.
 	 */
@@ -408,12 +437,22 @@ class Uuid implements \Stringable
 	 * This is just syntactical sugar to simplify method chaining and procedural
 	 * coding styles, much like `date_create()` does for `new \DateTime()`.
 	 *
-	 * @param int|null $version The UUID version to create.
-	 * @param mixed $input Input for the UUID generator, if applicable.
+	 * @param int $version The UUID version to create.
+	 * @param \DateTimeInterface|\Stringable|string|array|int|float|null $input
+	 *    Input for the UUID generator, if applicable.
+	 * @throws \Exception if $version is unsupported.
+	 * @throws \Exception if $version is 2 and $input['domain'] is invalid.
+	 * @throws \Exception if $version is 2 and $input['id'] is not set and can't
+	 *    be determined automatically.
+	 * @throws \Exception if $version is 3 or 5, no namespace UUID is set, and
+	 *    attempting to generate a new namespace UUID fails.
+	 * @throws \ValueError if $input is invalid.
 	 * @return Uuid A new Uuid object.
 	 */
-	public static function create(?int $version = null, mixed $input = null): Uuid
-	{
+	public static function create(
+		int $version = self::DEFAULT_VERSION,
+		\DateTimeInterface|\Stringable|string|array|int|float|null $input = null,
+	): Uuid {
 		return new self($version, $input);
 	}
 
@@ -422,13 +461,15 @@ class Uuid implements \Stringable
 	 *
 	 * If the input UUID string is invalid, behaviour depends on the $strict
 	 * parameter:
-	 *  - If $strict is false, a warning error will be triggered and an
-	 *    instance of this class for the nil UUID will be created.
-	 *  - If $strict is true, a fatal error will be triggered.
+	 *  - If $strict is false, an instance of this class for the nil UUID will
+	 *    be created.
+	 *  - If $strict is true, a \ValueError will be thrown.
 	 *
 	 * @param \Stringable|string $input A UUID string. May be compressed or
 	 *    uncompressed.
-	 * @param bool $strict If set to true, invalid input causes a fatal error.
+	 * @param bool $strict If set to true, invalid input causes a \ValueError.
+	 *    Default: false.
+	 * @throws \ValueError if $input is invalid and $strict is true.
 	 * @return Uuid A Uuid object.
 	 */
 	public static function createFromString(\Stringable|string $input, bool $strict = false): Uuid
@@ -436,6 +477,8 @@ class Uuid implements \Stringable
 		if ($input instanceof self) {
 			return $input;
 		}
+
+		$input = (string) $input;
 
 		// Binary format is 16 bytes long.
 		// Base64 format is 22 bytes long.
@@ -446,27 +489,32 @@ class Uuid implements \Stringable
 		} elseif (\strlen($input) === 22 && strspn($input, self::BASE64_SORTABLE) === 22) {
 			$hex = bin2hex(base64_decode(strtr($input, self::BASE64_SORTABLE, self::BASE64_STANDARD), true));
 		} elseif (\strlen($input) === 26 && strspn(strtolower($input), self::BASE32_ALT) === 26) {
-			$hex = self::decodeBase32Hex(strtr($input, self::BASE32_ALT, self::BASE32_HEX));
-		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
-			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
+			$hex = self::decodeBase32Hex(strtr(strtolower($input), self::BASE32_ALT, self::BASE32_HEX));
+		} elseif (strspn(str_replace(['{', '-', '}'], '', strtolower($input)), '0123456789ABCDEFabcdef') === 32) {
+			$hex = str_replace(['{', '-', '}'], '', strtolower($input));
+		} elseif ($strict) {
+			throw new \ValueError("Invalid UUID string supplied: {$input}");
 		} else {
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
-
 			$hex = '00000000000000000000000000000000';
 		}
+
+		// Get the variant.
+		$variant = hexdec(substr($hex, 16, 1));
+
+		$variant = match (true) {
+			$variant < 0x8 => 0,
+			$variant < 0xc => 1,
+			$variant < 0xe => 2,
+			default => 3,
+		};
 
 		// Validate the version.
 		$version = hexdec(substr($hex, 12, 1));
 
-		if (
-			// Unknown version.
-			!\in_array($version, self::KNOWN_VERSIONS)
-			// Version can be 0 only in Nil UUID.
-			|| ($version === 0 && $hex !== '00000000000000000000000000000000')
-			// Version can be 15 only in Max UUID.
-			|| ($version === 15 && $hex !== 'ffffffffffffffffffffffffffffffff')
-		) {
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
+		if ($variant === 1 && !\in_array($version, self::KNOWN_VERSIONS)) {
+			if ($strict) {
+				throw new \ValueError("Invalid UUID string supplied: {$input}");
+			}
 
 			$hex = '00000000000000000000000000000000';
 			$version = 0;
@@ -524,6 +572,8 @@ class Uuid implements \Stringable
 	/**
 	 * Returns the fully expanded value of self::$namespace.
 	 *
+	 * @throws \Exception if self::$namespace is not set and attempting to
+	 *    generate a new namespace UUID fails.
 	 * @return string A UUID string.
 	 */
 	public static function getNamespace(): string
@@ -548,13 +598,14 @@ class Uuid implements \Stringable
 	 * namespace UUID will be generated automatically.
 	 *
 	 * If $ns is a valid UUID string, that string will be used as the namespace
-	 * UUID. A fatal error will be triggered if the string isn't a valid UUID.
+	 * UUID. A \ValueError will be thrown if the string isn't a valid UUID.
 	 *
 	 * If $ns is true, any existing value of self::$namespace will be replaced
 	 * with the default value. This is helpful if you need to reset the value of
 	 * self::$namespace after temporarily using a custom namespace.
 	 *
-	 * The default namespace UUID is the UUIDv5 for Config::$scripturl.
+	 * The default namespace UUID is Config::$modSettings['forum_uuid'], or if
+	 * that is unavailable, the UUIDv5 for Config::$scripturl.
 	 *
 	 * See RFC 9562, section 6.5.
 	 *
@@ -562,6 +613,8 @@ class Uuid implements \Stringable
 	 *    reset to the automatically generated default value, or false to use
 	 *    the current value (which will be set to the default if undefined).
 	 *    Default: false.
+	 * @throws \Exception if attempting to generate a new namespace UUID fails.
+	 * @throws \ValueError if $ns is an invalid UUID string.
 	 */
 	public static function setNamespace(\Stringable|string|bool $ns = false): void
 	{
@@ -582,7 +635,10 @@ class Uuid implements \Stringable
 			$forum_uuid = self::createFromString(Config::$modSettings['forum_uuid']);
 
 			// Check that Config::$modSettings['forum_uuid'] is valid.
-			if ((string) $forum_uuid === Config::$modSettings['forum_uuid']) {
+			if (
+				(string) $forum_uuid === Config::$modSettings['forum_uuid']
+				&& $forum_uuid->getVariant() === 1
+			) {
 				// It's good, so use it.
 				self::$namespace = $forum_uuid->getBinary();
 
@@ -616,10 +672,10 @@ class Uuid implements \Stringable
 	 * network card's MAC address) or a random value. In this implementation,
 	 * both values are initialized with random values each time the script runs.
 	 *
-	 * @param \Stringable|string|int|float|null $input Timestamp or date string.
+	 * @param string|int|float|null $input Timestamp or date string.
 	 * @return string 32 hexadecimal digits.
 	 */
-	protected function getHexV1(\Stringable|string|int|float|null $input): string
+	protected function getHexV1(string|int|float|null $input): string
 	{
 		$this->setTimestamp($input);
 		$parts = $this->getGregTimeParts();
@@ -679,14 +735,17 @@ class Uuid implements \Stringable
 	 * should always provide a value in $input['id'] rather than relying on
 	 * automatically determined values. ... Or better yet, don't use UUIDv2.
 	 *
-	 * @param array $input array
+	 * @param array $input Example: ['domain' => 0, 'id' => 123].
+	 * @throws \Exception if $input['domain'] is invalid.
+	 * @throws \Exception if $input['id'] is not set and cannot be determined
+	 *    automatically.
 	 * @return string 32 hexadecimal digits.
 	 */
 	protected function getHexV2(array $input): string
 	{
 		$domain = $input['domain'] ?? 0;
 		$id = $input['id'] ?? null;
-		$timestamp = $input['timestamp'] ?? null;
+		$timestamp = $input['timestamp'] ?? 'now';
 
 		if ($domain < 0) {
 			$this->version = 0;
@@ -714,12 +773,11 @@ class Uuid implements \Stringable
 
 				// Told to use the primary group ID.
 				case 1:
-					if (\function_exists('posix_getgid')) {
-						// POSIX systems can actually do this.
-						$id = posix_getgid();
-					} else {
-						throw new \ValueError('uuid_group_non_posix');
+					if (!\function_exists('posix_getgid')) {
+						throw new \Exception('Automatic group domain is unsupported for UUIDv2 on non-POSIX systems.');
 					}
+
+					$id = posix_getgid();
 					break;
 
 				// Told to use organization ID.
@@ -730,7 +788,7 @@ class Uuid implements \Stringable
 
 				// Unknown domain.
 				default:
-					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain], file: 'Errors'));
+					throw new \Exception("Cannot generate automatic UUIDv2 for unknown domain: {$domain}");
 			}
 		}
 
@@ -747,6 +805,8 @@ class Uuid implements \Stringable
 	 * UUIDv3: Creates a UUID for a name within a namespace using an MD5 hash.
 	 *
 	 * @param string $input The input string.
+	 * @throws \Exception if self::$namespace is not set and attempting to
+	 *    generate a new namespace UUID fails.
 	 * @return string 32 hexadecimal digits.
 	 */
 	protected function getHexV3(string $input): string
@@ -772,6 +832,8 @@ class Uuid implements \Stringable
 	 * UUIDv5: Creates a UUID for a name within a namespace using an SHA-1 hash.
 	 *
 	 * @param string $input The input string.
+	 * @throws \Exception if self::$namespace is not set and attempting to
+	 *    generate a new namespace UUID fails.
 	 * @return string 32 hexadecimal digits.
 	 */
 	protected function getHexV5(string $input): string
@@ -800,10 +862,10 @@ class Uuid implements \Stringable
 	 * network card's MAC address) or a random value. In this implementation,
 	 * both values are initialized with random values each time the script runs.
 	 *
-	 * @param \Stringable|string|int|float|null $input Timestamp or date string.
+	 * @param string|int|float|null $input Timestamp or date string.
 	 * @return string 32 hexadecimal digits.
 	 */
-	protected function getHexV6(\Stringable|string|int|float|null $input): string
+	protected function getHexV6(string|int|float|null $input): string
 	{
 		$this->setTimestamp($input);
 		$parts = $this->getGregTimeParts();
@@ -827,10 +889,10 @@ class Uuid implements \Stringable
 	 *
 	 * Uniqueness is ensured by appending 74 random bits to the timestamp.
 	 *
-	 * @param \Stringable|string|int|float|null $input Timestamp or date string.
+	 * @param string|int|float|null $input Timestamp or date string.
 	 * @return string 32 hexadecimal digits.
 	 */
-	protected function getHexV7(\Stringable|string|int|float|null $input): string
+	protected function getHexV7(string|int|float|null $input): string
 	{
 		$this->setTimestamp($input);
 		$timestamp = $this->adjustTimestamp();
@@ -910,7 +972,7 @@ class Uuid implements \Stringable
 			return [];
 		}
 
-		if ($timestamp > 1152921504606846975) {
+		if ($timestamp > 0xfffffffffffffff) {
 			$this->version = 15;
 
 			return [];
@@ -930,9 +992,9 @@ class Uuid implements \Stringable
 	/**
 	 * Sets $this->timestamp to a microsecond-precision Unix timestamp.
 	 *
-	 * @param \Stringable|string|int|float|null $input A timestamp or date string.
+	 * @param string|int|float|null $input A timestamp or date string.
 	 */
-	protected function setTimestamp(\Stringable|string|int|float|null $input): void
+	protected function setTimestamp(string|int|float|null $input): void
 	{
 		$input = (string) ($input ?? 'now');
 
@@ -958,7 +1020,7 @@ class Uuid implements \Stringable
 	}
 
 	/**
-	 * Adjusts a Unix timestamp to meet the needs of the this UUID version.
+	 * Adjusts a Unix timestamp to meet the needs of this UUID version.
 	 *
 	 * @return int A timestamp value appropriate for this UUID version.
 	 */
@@ -980,20 +1042,9 @@ class Uuid implements \Stringable
 			case 7:
 				$timestamp *= 1000;
 				break;
-
-			default:
-				trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
-
-				return (int) $timestamp;
 		}
 
-		$timestamp = (int) $timestamp;
-
-		if ($timestamp < 0) {
-			trigger_error(Lang::getTxt('uuid_timestamp_out_of_range', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
-		}
-
-		return $timestamp;
+		return (int) $timestamp;
 	}
 
 	/*************************

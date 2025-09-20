@@ -44,6 +44,10 @@ class SpoofDetector extends MigrationBase
 
 		// Add the spoofdetector_name column.
 		foreach ($table->columns as $column) {
+			if (!str_contains($column->name, 'spoofdetector')) {
+				continue;
+			}
+
 			if (!isset($existing_structure['columns'][$column->name])) {
 				$table->addColumn($column);
 
@@ -53,6 +57,10 @@ class SpoofDetector extends MigrationBase
 
 		// Add indexes for the spoofdetector_name column.
 		foreach ($table->indexes as $index) {
+			if (!str_contains($index->name, 'spoofdetector')) {
+				continue;
+			}
+
 			if (!isset($existing_structure['indexes'][$index->name])) {
 				$table->addIndex($index);
 

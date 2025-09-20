@@ -83,7 +83,7 @@ class FetchSMFiles extends ScheduledTask
 			// Save the file to the database.
 			Db::$db->query(
 				'UPDATE {db_prefix}admin_info_files
-				SET data = SUBSTRING({string:file_data}, 1, 65534)
+				SET data = SUBSTRING({string:file_data}, 1, 16777215)
 				WHERE id_file = {int:id_file}',
 				[
 					'id_file' => $id_file,

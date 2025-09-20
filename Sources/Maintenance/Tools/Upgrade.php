@@ -560,19 +560,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
 		);
 
-		// Need legacy scripts?
-		foreach (self::VERSION_MAP as $search => $ns) {
-			if (version_compare($this->start_smf_version, $search, '>')) {
-				continue;
-			}
+		try {
+			foreach (self::VERSION_MAP as $search => $ns) {
+				if (version_compare($this->start_smf_version, $search, '>')) {
+					continue;
+				}
 
-			foreach (self::MIGRATIONS[$ns] as $class) {
-				$check &= class_exists($class);
-			}
+				foreach (self::MIGRATIONS[$ns] as $class) {
+					if (!class_exists($class)) {
+						throw new \Exception("{$class} does not exist");
+					}
+				}
 
-			foreach (self::CLEANUPS[$ns] as $class) {
-				$check &= class_exists($class);
+				foreach (self::CLEANUPS[$ns] as $class) {
+					if (!class_exists($class)) {
+						throw new \Exception("{$class} does not exist");
+					}
+				}
 			}
+		}
+		// Developers, set break point here to figure out what you did wrong.
+		 catch (\Exception $ex) {
+			$check = false;
 		}
 
 		if (!$check) {

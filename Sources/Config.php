@@ -1151,8 +1151,9 @@ class Config
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 		self::$modSettings['postmod_active'] = !empty(self::$modSettings['postmod_active']);
 
-		// Ensure the UUID for this forum has been set.
-		if (!isset(self::$modSettings['forum_uuid'])) {
+		// Ensure the UUID for this forum has been set and is valid.
+		if (Uuid::createFromString(self::$modSettings['forum_uuid'] ?? Uuid::NIL_UUID)->getVariant() !== 1) {
+			unset(self::$modSettings['forum_uuid']);
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
@@ -2767,12 +2768,17 @@ class Config
 	 */
 	public static function getDbLastError(): int
 	{
-		if (file_exists(self::$cachedir . '/db_last_error.php')) {
-			include self::$cachedir . '/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/cache/db_last_error.php')) {
-			include self::$boarddir . '/cache/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/db_last_error.php')) {
-			include self::$boarddir . '/db_last_error.php';
+		foreach (
+			[
+				self::$cachedir,
+				self::$boarddir . DIRECTORY_SEPARATOR . 'cache',
+				self::$boarddir,
+			] as $dir
+		) {
+			if (file_exists($dir . DIRECTORY_SEPARATOR . 'db_last_error.php')) {
+				include $dir . DIRECTORY_SEPARATOR . 'db_last_error.php';
+				break;
+			}
 		}
 
 		if (!isset($db_last_error)) {
@@ -2854,6 +2860,129 @@ class Config
 				self::updateModSettings(['cron_last_checked' => time()]);
 			}
 		}
+	}
+
+	/**
+	 * Normalizes directory separators and resolves '.' and '..' in a file path.
+	 *
+	 * The $path does not need to point to an existing file.
+	 *
+	 * If $path does point to an existing file, or if an ancestor directory of
+	 * $path exists, then \realpath() will be used to resolve that part of the
+	 * path, unless the $real parameter is set to false.
+	 *
+	 * @param string $path The file path.
+	 * @param string|bool $base_dir Base directory for relative paths.
+	 *    - If a string, relative paths are prepended with the string and a
+	 *      directory separator. Note that directory separators in this string
+	 *      will be normalized just like in $path.
+	 *    - If true, relative paths are prepended with the current working
+	 *      directory and a directory separator.
+	 *    - If false, relative paths are processed as given.
+	 *    Default: false.
+	 * @param bool $real Whether to get the real path for existing files. This
+	 *    can be set to false if the caller wants to canonicalize a hypothetical
+	 *    path without any possibility of the real file structure interfering
+	 *    with the result.
+	 *    Default: true.
+	 * @return string The canonical file path.
+	 */
+	public static function canonicalPath(string $path, string|bool $base_dir = false, bool $real = true): string
+	{
+		// If $path points to a real file, this is all we need to do.
+		if (!empty($real) && ($realpath = @realpath($path)) !== false) {
+			return $realpath;
+		}
+
+		$base_dir = \is_string($base_dir) ? rtrim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $base_dir), DIRECTORY_SEPARATOR) : (!empty($base_dir) ? getcwd() : false);
+
+		$path = trim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, (string) $path));
+
+		// We need to know the path of the root directory.
+		if (DIRECTORY_SEPARATOR === '/') {
+			$root = '';
+			$is_absolute = str_starts_with($path, DIRECTORY_SEPARATOR);
+		} else {
+			// Windows network shares and devices.
+			if (str_starts_with($path, DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR)) {
+				if (\in_array(substr($path, 2, 2), ['?' . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR])) {
+					$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, 3));
+				} else {
+					$root = '';
+
+					for ($i = 0; $i < 3; $i++) {
+						$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, \strlen($root) + 1));
+					}
+				}
+			}
+			// Windows absolute DOS-style path.
+			elseif (strpos($path, ':') !== false && strpos($path, DIRECTORY_SEPARATOR) === strpos($path, ':') + 1) {
+				$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR));
+			}
+			// Windows relative path.
+			else {
+				$root = substr(getcwd(), 0, strcspn(getcwd(), DIRECTORY_SEPARATOR));
+
+				// If relative to current drive's root, make it absolute.
+				if (strpos($path, DIRECTORY_SEPARATOR) === 0) {
+					$path = $root . $path;
+				}
+			}
+
+			$is_absolute = str_starts_with($path, $root . DIRECTORY_SEPARATOR);
+		}
+
+		// Build canonical path.
+		$canonical_path = '';
+
+		if ($is_absolute) {
+			$path = substr($path, \strlen($root . DIRECTORY_SEPARATOR));
+			$path_parts = [$root];
+		} elseif (\is_string($base_dir)) {
+			$path_parts = explode(DIRECTORY_SEPARATOR, $base_dir);
+		} else {
+			$path_parts = [];
+		}
+
+		foreach (explode(DIRECTORY_SEPARATOR, $path) as $key => $part) {
+			if (empty($part) || $part === '.') {
+				continue;
+			}
+
+			if ($part === '..') {
+				if ($is_absolute && $path_parts === [$root]) {
+					continue;
+				}
+
+				if (empty($path_parts) || $path_parts[0] === '..') {
+					$path_parts[] = $part;
+				} else {
+					array_pop($path_parts);
+				}
+			} else {
+				$path_parts[] = $part;
+			}
+
+			$canonical_path = implode(DIRECTORY_SEPARATOR, $path_parts);
+
+			if (empty($real) || \in_array($canonical_path, ['', '.', '..'])) {
+				continue;
+			}
+
+			// Check for intermediate symlinks.
+			$realpath = @realpath($canonical_path);
+
+			if ($realpath !== false && $realpath !== $canonical_path) {
+				$path_parts = explode(DIRECTORY_SEPARATOR, $realpath);
+			}
+		}
+
+		// Ambiguity is bad.
+		if ($canonical_path === '') {
+			$canonical_path = $is_absolute ? $root . DIRECTORY_SEPARATOR : '.';
+		}
+
+		return $canonical_path;
 	}
 
 	/*************************

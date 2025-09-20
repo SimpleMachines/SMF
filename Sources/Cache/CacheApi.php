@@ -17,6 +17,7 @@ namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Utils;
 
@@ -513,7 +514,7 @@ abstract class CacheApi
 			)
 		) {
 			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
-				require_once Config::$sourcedir . '/' . $file;
+				require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
 			}
 
 			$cache_block = \call_user_func_array($function, $params);
@@ -559,7 +560,7 @@ abstract class CacheApi
 
 		self::$count_hits++;
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : \strlen(serialize($value))];
 			$st = microtime(true);
 		}
@@ -572,7 +573,7 @@ abstract class CacheApi
 			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
 		}
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 		}
 	}
@@ -594,7 +595,7 @@ abstract class CacheApi
 
 		self::$count_hits++;
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'get'];
 			$st = microtime(true);
 			$original_key = $key;
@@ -603,7 +604,7 @@ abstract class CacheApi
 		// Ask the API to get the data.
 		$value = self::$loadedApi->getData($key, $ttl);
 
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 			self::$hits[self::$count_hits]['s'] = isset($value) ? \strlen((string) $value) : 0;
 

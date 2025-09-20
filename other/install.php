@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 define('SMF', 'INSTALL');
 define('SMF_INSTALLING', 1);
-define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
+define('SMF_SETTINGS_FILE', __DIR__ . DIRECTORY_SEPARATOR . 'Settings.php');
 
 // Ensure Settings.php exists. We can recover if it is blank, but it must exist.
 if (!file_exists(SMF_SETTINGS_FILE)) {
@@ -26,6 +26,6 @@ if (!file_exists(SMF_SETTINGS_FILE)) {
 }
 
 // Initialize.
-require_once __DIR__ . '/index.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
 
 (new SMF\Maintenance\Maintenance())->execute(SMF\Maintenance\Maintenance::INSTALL);

@@ -931,8 +931,25 @@ class ExportProfileData extends BackgroundTask
 			$this->_details['format_settings'] = $export_formats['XML_XSLT'];
 		}
 
+		// Load the specifed member. Abort on failure.
+		if (User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile') === []) {
+			// Delete any existing export files.
+			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret()) . '.' . $this->_details['format_settings']['extension'];
+
+			$tempfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.tmp';
+			$progressfile = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . $idhash_ext . '.progress.json';
+
+			foreach (array_merge([$tempfile, $progressfile], glob(Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . '*_' . $idhash_ext)) as $fpath) {
+				@unlink($fpath);
+			}
+
+			// Bail out.
+			ignore_user_abort(false);
+
+			return true;
+		}
+
 		// TaskRunner class doesn't create a User::$me, but this job needs one.
-		User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile');
 		User::setMe($this->_details['uid']);
 
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
@@ -1630,7 +1647,7 @@ class ExportProfileData extends BackgroundTask
 				$this->_details['format'] = 'XML_XSLT';
 			}
 
-			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
+			require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = Export::getFormats();
 
 			/* Notes:
@@ -1899,31 +1916,6 @@ class ExportProfileData extends BackgroundTask
 					}
 				} else {
 					Utils::$context[$var] = [];
-				}
-			}
-		}
-		// Autoloading is unavailable for background tasks, so we have to do things the hard way...
-		else {
-			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
-				// Include, not require, because minimization is nice to have but not vital here.
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exception.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Minify.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'path-converter', 'src', 'Converter.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'CSS.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'JS.php']);
-
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
-					Config::$modSettings['minimize_files'] = false;
 				}
 			}
 		}

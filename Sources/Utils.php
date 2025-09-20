@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Holds some widely used stuff, like $context and $smcFunc.
@@ -342,6 +343,10 @@ class Utils
 
 		if (!empty(Config::$modSettings['restricted_bbc'])) {
 			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
+
+		if (!empty(Config::$backward_compatibility) && DebugUtils::isDebugEnabled()) {
+			self::$context['debug'] = &DebugUtils::$logged;
 		}
 	}
 
@@ -1021,14 +1026,18 @@ class Utils
 	{
 		static $regexes = [];
 
-		// If it's not an array, there's not much to do. ;)
-		if (!\is_array($strings)) {
-			return preg_quote(@\strval($strings), $delim);
+		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+
+		$normalized_strings = [];
+
+		foreach ($strings as $str) {
+			if (\is_scalar($str)) {
+				$s = (string) $str;
+				$normalized_strings[$s] = mb_strlen($s, $encoding);
+			}
 		}
 
-		$strings = array_filter($strings, 'is_string');
-
-		if (empty($strings)) {
+		if (empty($normalized_strings)) {
 			return '';
 		}
 
@@ -1038,73 +1047,48 @@ class Utils
 			return $regexes[$regex_key];
 		}
 
-		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false) {
-			$current_encoding = mb_internal_encoding();
-			mb_internal_encoding($string_encoding);
-		}
-
 		// Optimizing is faster when we sort by length.
-		usort($strings, fn($a, $b) => mb_strlen($a) <=> mb_strlen($b));
+		asort($normalized_strings);
+		$strings = array_map('strval', array_keys($normalized_strings));
 
 		// Can we trim common characters from the end?
 		$trailing = '';
+		unset($normalized_strings);
 
-		while (mb_strlen(reset($strings)) > 1) {
-			$last_char = mb_substr(reset($strings), -1);
+		while (mb_strlen($strings[0], $encoding) > 1) {
+			$last_char = mb_substr($strings[0], -1, 1, $encoding);
 
-			foreach ($strings as $string_num => $string) {
+			foreach ($strings as $string) {
 				if (!str_ends_with($string, $last_char)) {
 					break 2;
 				}
 			}
 
-			$strings = array_map(fn($string) => mb_substr($string, 0, -1), $strings);
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
 			$trailing = $last_char . $trailing;
 		}
 
-		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
-			static $depth = 0;
-			$depth++;
+		// Create the trie from the strings.
+		$trie = [];
 
-			$first = (string) @mb_substr($string, 0, 1);
+		foreach ($strings as $string) {
+			$chars = mb_str_split($string, 1, $encoding);
 
-			// No first character? That's no good.
-			if ($first === '') {
-				// A nested array? Really? Ugh. Fine.
-				if (\is_array($string) && $depth < 20) {
-					foreach ($string as $str) {
-						$trie = $add_string_to_trie($str, $trie);
-					}
+			$node = &$trie;
+
+			foreach ($chars as $char) {
+				if (!isset($node[$char])) {
+					$node[$char] = [];
 				}
 
-				$depth--;
-
-				return $trie;
+				$node = &$node[$char];
 			}
 
-			if (empty($trie[$first])) {
-				$trie[$first] = [];
-			}
-
-			if (mb_strlen($string) > 1) {
-				// Sanity check on recursion
-				if ($depth > 99) {
-					$trie[$first][mb_substr($string, 1)] = '';
-				} else {
-					$trie[$first] = $add_string_to_trie(mb_substr($string, 1), $trie[$first]);
-				}
-			} else {
-				$trie[$first][''] = '';
-			}
-
-			$depth--;
-
-			return $trie;
-		};
+			$node[''] = '';
+		}
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex, $encoding) {
 			static $depth = 0;
 			$depth++;
 
@@ -1146,12 +1130,12 @@ class Utils
 			// Sort by key length and then alphabetically
 			uksort(
 				$regex,
-				function ($k1, $k2) {
-					$l1 = mb_strlen((string) $k1);
-					$l2 = mb_strlen((string) $k2);
+				function ($k1, $k2) use ($encoding) {
+					$l1 = mb_strlen((string) $k1, $encoding);
+					$l2 = mb_strlen((string) $k2, $encoding);
 
-					if ($l1 == $l2) {
-						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
+					if ($l1 === $l2) {
+						return strcmp((string) $k1, (string) $k2);
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -1163,14 +1147,7 @@ class Utils
 			return implode('|', $regex);
 		};
 
-		// Now that the closures are defined, let's do this thing.
-		$trie = [];
-		$regex = '';
-
-		foreach ($strings as $string) {
-			$trie = $add_string_to_trie((string) $string, $trie);
-		}
-
+		// Build regex (or regex array if requested)
 		if ($return_array === true) {
 			$regex = [];
 
@@ -1189,12 +1166,6 @@ class Utils
 			}
 		}
 
-		// Restore PHP's internal character encoding to whatever it was originally.
-		if (!empty($current_encoding)) {
-			mb_internal_encoding($current_encoding);
-		}
-
-		// Save for later.
 		$regexes[$regex_key] = $regex;
 
 		return $regex;
@@ -1840,82 +1811,48 @@ class Utils
 	/**
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
-	 * @param string $data The data to check, or the path or URL of a file to check.
+	 * @param string $data The data to check, or the path or URL of a file to
+	 *    check.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
 	{
-		$finfo_loaded = \extension_loaded('fileinfo');
-		$exif_loaded = \extension_loaded('exif') && \function_exists('image_type_to_mime_type');
+		// Fileinfo extension is required.
+		if (!\extension_loaded('fileinfo')) {
+			ErrorHandler::log(Lang::getTxt('required_extension_missing', ['ext' => 'fileinfo'], file: 'Errors'));
 
-		// Oh well. We tried.
-		if (!$finfo_loaded && !$exif_loaded) {
 			return false;
 		}
 
 		// Start with the 'empty' MIME type.
 		$mime_type = 'application/x-empty';
 
-		if ($finfo_loaded) {
-			// Just some nice, simple data to analyze.
-			if (empty($is_path)) {
-				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		// Just some nice, simple data to analyze.
+		if (!$is_path) {
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		}
+		// A file, or maybe a URL?
+		else {
+			$path = $data;
+
+			// Local file.
+			if (file_exists($path)) {
+				$mime_type = mime_content_type($path);
 			}
-			// A file, or maybe a URL?
-			else {
-				$path = $data;
+			// URL.
+			elseif ($data = WebFetch\WebFetchApi::fetch($path)) {
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
 
-				// Local file.
-				if (file_exists($path)) {
-					$mime_type = mime_content_type($path);
-				}
-				// URL.
-				elseif ($data = WebFetch\WebFetchApi::fetch($path)) {
-					$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+				// SVG sometimes needs a little extra help.
+				if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
+					// Detection sometimes fails if the <svg> element isn't first.
+					$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
 
-					// SVG sometimes needs a little extra help.
-					if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
-						// Detection sometimes fails if the <svg> element isn't first.
-						$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
-
-						if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml') {
-							$mime_type = 'image/svg+xml';
-						}
+					if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml') {
+						$mime_type = 'image/svg+xml';
 					}
 				}
-			}
-		}
-		// Workaround using Exif requires a local file.
-		else {
-			// If $data is a URL to fetch, do so.
-			if (!empty($is_path) && !file_exists($data)) {
-				$data = WebFetch\WebFetchApi::fetch($data);
-
-				if ($data === false) {
-					return false;
-				}
-
-				$is_path = false;
-			}
-
-			// If we don't have a local file, create one and use it.
-			if (empty($is_path)) {
-				$temp_file = tempnam(Config::$cachedir, md5($data));
-				file_put_contents($temp_file, $data);
-				$is_path = true;
-				$data = $temp_file;
-			}
-
-			$imagetype = @exif_imagetype($data);
-
-			if (isset($temp_file)) {
-				unlink($temp_file);
-			}
-
-			// Unfortunately, this workaround only works for image files.
-			if ($imagetype !== false) {
-				$mime_type = image_type_to_mime_type($imagetype);
 			}
 		}
 
@@ -1925,18 +1862,24 @@ class Utils
 	/**
 	 * Checks whether a file or data has the expected MIME type.
 	 *
-	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+	 * @param string $data The data to check, or the path or URL of a file to
+	 *    check.
+	 * @param string $type_pattern A regex pattern to match the acceptable MIME
+	 *    types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
-	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+	 * @param string &mime_type Will be set to the detected MIME type.
+	 * @return int 1 if the detected MIME type matches the pattern, 0 if it
+	 *    doesn't, or 2 if we can't check.
 	 */
-	public static function checkMimeType(string $data, string $type_pattern, bool $is_path = false): int
+	public static function checkMimeType(string $data, string $type_pattern, bool $is_path = false, ?string &$mime_type = ''): int
 	{
 		// Get the MIME type.
 		$mime_type = self::getMimeType($data, $is_path);
 
 		// Couldn't determine it.
 		if ($mime_type === false) {
+			$mime_type = '';
+
 			return 2;
 		}
 
@@ -2030,8 +1973,13 @@ class Utils
 			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
 		}
 
+		// Decode any entities in the name.
+		$file['filename'] = Utils::entityDecode($file['filename']);
+
 		// Provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename']));
+		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
+			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
+		}
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
@@ -2199,7 +2147,7 @@ class Utils
 		}
 
 		// Don't need extra stuff...
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// Kill anything else.
 		ob_end_clean();
@@ -2270,7 +2218,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (!empty(Config::$db_show_debug)) {
+		if (DebugUtils::isDebugEnabled()) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 
@@ -2493,8 +2441,12 @@ class Utils
 					Utils::$context['instances'][$class] = new $class();
 
 					// Optionally track instance creation for debugging.
-					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['instances'][$class] = $class;
+					if (DebugUtils::isDebugEnabled()) {
+						DebugUtils::addDebugSource(
+							lang_key: 'instances',
+							key: $class,
+							value: $class,
+						);
 					}
 				}
 
@@ -2568,14 +2520,14 @@ class Utils
 
 			// Load the file if it can be loaded.
 			if (is_file($path)) {
-				require_once $path;
+				require_once Config::canonicalPath($path);
 			}
 			// No? Try a fallback to Config::$sourcedir.
 			else {
 				$path = Config::$sourcedir . '/' . $file;
 
 				if (is_file($path)) {
-					require_once $path;
+					require_once Config::canonicalPath($path);
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {

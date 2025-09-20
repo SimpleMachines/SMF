@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
@@ -198,7 +199,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Get the file and line number this function was called.
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 
@@ -233,7 +234,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
 				$error_message = nl2br($query_error) . '<br>' . Lang::getTxt('file', file: 'General') . ': ' . $file . '<br>' . Lang::getTxt('line', file: 'General') . ': ' . $line;
 
-				if ($this->show_debug) {
+				if (DebugUtils::isDebugEnabled()) {
 					$error_message .= '<br><br>' . nl2br($db_string);
 				}
 			}
@@ -243,7 +244,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
@@ -739,14 +740,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function ping(?object $connection = null): bool
-	{
-		return mysqli_ping($connection ?? $this->connection);
-	}
-
-	/**
-	 *
-	 */
 	public function error_insert(array $error_array): void
 	{
 		// Without a database we can't do anything.
@@ -1220,10 +1213,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$request = $this->query(
 			'SHOW TABLES
-			FROM `{raw:db}`
+			FROM {identifier:db}
 			{raw:filter}',
 			[
-				'db' => $db[0] == '`' ? strtr($db, ['`' => '']) : $db,
+				'db' => strtr($db, ['`' => '']),
 				'filter' => $filter,
 			],
 		);
@@ -1332,7 +1325,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
-			) ENGINE=InnoDB',
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci',
 			[
 				'string_zero' => '0',
 				'size' => $size,
@@ -1409,8 +1402,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			$c = trim($c);
-			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
-			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
+			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? (int) $cols[$c]['size'] : null;
+			list($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
 
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
@@ -1508,8 +1501,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
-		// MySQL is actually the generic baseline.
-
 		$type_name = strtolower($type_name);
 
 		// Generic => Specific.
@@ -1546,14 +1537,38 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			} else {
 				$type_name = $types[$type_name];
 			}
-		} elseif ($type_name == 'boolean') {
-			$type_size = null;
 		} elseif ($type_name === 'jsonb') {
 			$type_name === 'json';
 		}
 
-		// We can't have a zero size, remove it.
-		if ($type_size === 0) {
+		if (
+			// We can't have a zero size.
+			$type_size === 0
+			// Always set size to null for types that don't use them.
+			|| \in_array(
+				$type_name,
+				[
+					'boolean',
+					'bool',
+					'integer',
+					'int',
+					'tinyint',
+					'smallint',
+					'mediumint',
+					'bigint',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'enum',
+					'set',
+					'json',
+					'geometry',
+				],
+			)
+		) {
 			$type_size = null;
 		}
 
@@ -1565,135 +1580,160 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function change_column(string $table_name, string $old_column, array $column_info): bool
 	{
+		// Sanitize input.
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$column_info = array_change_key_case($column_info);
 
-		// Check it does exist!
-		$columns = $this->list_columns($table_name, true);
-		$old_info = null;
+		if (
+			\array_key_exists('size', $column_info)
+			&& !\is_null($column_info['size'])
+			&& $column_info['size'] != (int) $column_info['size']
+		) {
+			unset($column_info['size']);
+		}
 
-		foreach ($columns as $column) {
+		if (isset($column_info['null']) && !isset($column_info['not_null'])) {
+			$column_info['not_null'] = !$column_info['null'];
+			unset($column_info['null']);
+		}
+
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
+
+		// Get the existing column info.
+		foreach ($this->list_columns($table_name, true) as $column) {
 			if ($column['name'] == $old_column) {
 				$old_info = $column;
+				break;
 			}
 		}
 
-		// Nothing?
-		if ($old_info == null) {
+		// Can't change a column that doesn't exist.
+		if (!isset($old_info)) {
 			return false;
 		}
 
-		// backward compatibility
-		if (isset($column_info['null']) && !isset($column_info['not_null'])) {
-			$column_info['not_null'] = !$column_info['null'];
-		}
-
-		// Get the right bits.
-		$column_info['drop_default'] = !empty($column_info['drop_default']);
-
-		if (!isset($column_info['name'])) {
-			$column_info['name'] = $old_column;
-		}
-
-		if (
-			!\array_key_exists('default', $column_info)
-			&& \array_key_exists('default', $old_info)
-			&& !$column_info['drop_default']
+		// Part 1: Fill in anything missing from $column_info
+		foreach (
+			[
+				'name',
+				'type',
+				'size',
+				'unsigned',
+				'generation_expression',
+				'stored',
+				'not_null',
+				'default',
+				'auto',
+			] as $key
 		) {
-			$column_info['default'] = $old_info['default'];
+			$column_info[$key] ??= $old_info[$key] ?? null;
 		}
 
-		if (!isset($column_info['not_null'])) {
-			$column_info['not_null'] = $old_info['not_null'];
-		}
+		// Part 2: Standardize and filter.
 
-		if (!isset($column_info['auto'])) {
-			$column_info['auto'] = $old_info['auto'];
-		}
+		// Standardize the type and size.
+		list($column_info['type'], $column_info['size']) = $this->calculate_type(
+			$column_info['type'],
+			isset($column_info['size']) ? (int) $column_info['size'] : null,
+		);
 
-		if (!isset($column_info['type'])) {
-			$column_info['type'] = $old_info['type'];
-		}
-
-		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
-			$column_info['size'] = $old_info['size'];
-		}
-
-		if (!isset($column_info['unsigned']) || !\in_array($column_info['type'], ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
-			$column_info['unsigned'] = '';
-		}
-
-		foreach (['generation_expression', 'stored'] as $key) {
-			if (!\array_key_exists($key, $column_info) && \array_key_exists($key, $old_info)) {
-				$column_info[$key] = $old_info[$key];
-			}
-		}
-
-		// Default values and such are inapplicable to generated columns.
-		if (isset($column_info['generation_expression'])) {
-			$column_info['drop_default'] = true;
-			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
-		}
-
-		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
-		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
+		// Unsigned is only applicable to integers.
 		if (
-			!empty($column_info['not_null'])
-			&& empty($column_info['drop_default'])
-			&& \array_key_exists('default', $column_info)
-			&& \is_null($column_info['default'])
+			!\in_array(
+				$column_info['type'],
+				[
+					'int',
+					'tinyint',
+					'smallint',
+					'mediumint',
+					'bigint',
+				],
+			)
 		) {
+			unset($column_info['unsigned']);
+		}
+
+		// Can't have a DEFAULT NULL on a NOT NULL column.
+		if (\is_null($column_info['default']) && $column_info['not_null']) {
 			unset($column_info['default']);
 		}
 
 		// These types cannot have a default value.
-		if (\in_array($column_info['type'], ['blob', 'text', 'json', 'geometry'])) {
-			$column_info['drop_default'] = true;
+		if (
+			\in_array(
+				$column_info['type'],
+				[
+					'text',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'blob',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'json',
+					'geometry',
+				],
+			)
+		) {
 			unset($column_info['default']);
 		}
 
-		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
-
-		if ($size !== null) {
-			$type .= '(' . $size . ')';
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
 		}
 
-		// Allow for unsigned integers (mysql only)
-		$type .= \in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? ' unsigned' : '';
+		// If $old_info had a default but $column_info doesn't, then drop the default.
+		if (!\array_key_exists('default', $column_info) && isset($old_info['default'])) {
+			$column_info['drop_default'] = true;
+		}
+
+		// Part 3: Build the query clauses.
+
+		// Set the type clause.
+		$type = $column_info['type'] . (!empty($column_info['size']) ? '(' . $column_info['size'] . ')' : '') . (!empty($column_info['unsigned']) ? ' unsigned' : '');
+
+		// Set the NOT NULL clause.
+		$not_null = !empty($column_info['not_null']) ? ' NOT NULL' : '';
+
+		// Set the default clause.
+		$default = '';
+
+		if (\array_key_exists('default', $column_info)) {
+			if (\is_null($column_info['default'])) {
+				$default = ' DEFAULT NULL';
+			} elseif (is_numeric($column_info['default'])) {
+				$default = ' DEFAULT ' . (strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']));
+			} elseif (\is_string($column_info['default'])) {
+				$default = ' DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
+			}
+		}
+
+		// Set the generated clause.
+		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
+
+		// Set the auto-increment clause.
+		$auto = empty($column_info['auto']) ? '' : ' auto_increment';
+
+		// Part 4: Make the changes.
 
 		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
-				'ALTER TABLE ' . $short_table_name . '
-				ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
+				'ALTER TABLE {identifier:table}
+				ALTER COLUMN {identifier:old_name} DROP DEFAULT',
 				[
-					'security_override' => true,
+					'table' => $short_table_name,
+					'old_name' => $old_column,
 				],
 			);
 		}
 
-		// Set the default clause.
-		$default_clause = '';
-
-		if (!$column_info['drop_default'] && \array_key_exists('default', $column_info)) {
-			if (\is_null($column_info['default'])) {
-				$default_clause = 'DEFAULT NULL';
-			} elseif (is_numeric($column_info['default'])) {
-				$default_clause = 'DEFAULT ' . (strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']));
-			} elseif (\is_string($column_info['default'])) {
-				$default_clause = 'DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
-			}
-		}
-
-		// Is this a generated column?
-		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
-
 		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . (!empty($column_info['not_null']) ? ' NOT NULL' : '') . ' ' .
-				$default_clause . ' ' .
-				(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
+			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . $not_null . $default . $auto,
 			[
 				'security_override' => true,
 			],
@@ -1790,8 +1830,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				// If a size was already specified, we won't be able to match it anyways.
 				$key = array_search($c, array_column($columns, 'name'));
-				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
-				list($type, $size) = $this->calculate_type($columns[$key]['type'], (int) $columns[$key]['size']);
+				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? (int) $columns[$key]['size'] : null;
+				list($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
 
 				if (
 					$key === false
@@ -2011,10 +2051,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Find the table engine and add that to the info as well
 		$table_status = $this->query(
 			'SHOW TABLE STATUS
-			IN {raw:db}
+			IN {identifier:db}
 			LIKE {string:table}',
 			[
-				'db' => $database,
+				'db' => strtr($database, ['`' => '']),
 				'table' => $real_table_name,
 			],
 		);
@@ -2114,10 +2154,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$result = $this->query(
 			'SHOW KEYS
-			FROM {raw:table_name}
-			IN {raw:db}',
+			FROM {identifier:table_name}
+			IN {identifier:db}',
 			[
-				'db' => $database,
+				'db' => strtr($database, ['`' => '']),
 				'table_name' => $real_table_name,
 			],
 		);
@@ -2537,7 +2577,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Ignore some errors and strict mode warnings when we are not debugging.
-		mysqli_report(Config::$db_show_debug ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
+		mysqli_report(DebugUtils::isDebugEnabled() ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
 
 		$success = false;
 
@@ -2854,6 +2894,27 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$column = array_change_key_case($column);
 
+		// These types cannot have a default value.
+		if (
+			\in_array(
+				$column['type'],
+				[
+					'text',
+					'tinytext',
+					'mediumtext',
+					'longtext',
+					'blob',
+					'tinyblob',
+					'mediumblob',
+					'longblob',
+					'json',
+					'geometry',
+				],
+			)
+		) {
+			unset($column['default']);
+		}
+
 		// Is this a generated column?
 		if (isset($column['generation_expression'])) {
 			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
@@ -2889,8 +2950,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Sort out the size... and stuff...
-		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? (int) $column['size'] : null;
+		list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 		if ($size > 0) {
 			$type .= '(' . $size . ')';

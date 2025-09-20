@@ -1043,7 +1043,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$string = mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 
 		// Separate emoji from regular words.
-		require_once Config::$sourcedir . '/Unicode/RegularExpressions.php';
+		require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/RegularExpressions.php');
 		$prop_classes = utf8_regex_properties();
 
 		$string = preg_replace_callback(

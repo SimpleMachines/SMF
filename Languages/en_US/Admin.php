@@ -536,7 +536,7 @@ $txt['attach_repair_avatar_no_member'] = '{0, plural,
 	one {# avatar no longer has a member associated with it}
 	other {# avatars no longer have a member associated with them}
 }';
-$txt['attach_repair_wrong_folder'] = '{0, plural,
+$txt['attach_repair_wrong_directory'] = '{0, plural,
 	one {# attachment is in the wrong directory}
 	other {# attachments are in the wrong directory}
 }';

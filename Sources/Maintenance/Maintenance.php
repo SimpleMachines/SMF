@@ -120,7 +120,7 @@ class Maintenance
 	public static string $query_string = '';
 
 	/**
-	 * @var \SMF\Maintenance\Tools\ToolsInterface
+	 * @var \SMF\Maintenance\Tools\ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
 	 *
 	 * Object containing the tool we are working with.
 	 */
@@ -547,9 +547,6 @@ class Maintenance
 		// Make the connection...
 		if (empty(Db::$db) || !(Db::$db instanceof Db)) {
 			Db::load(['non_fatal' => true]);
-		} else {
-			// If we've returned here, ping/reconnect to be safe
-			Db::$db->ping();
 		}
 
 		// Oh dear god!!

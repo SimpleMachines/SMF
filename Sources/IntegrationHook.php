@@ -17,6 +17,7 @@ namespace SMF;
 
 use Exception;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 
 /**
  * Handles adding, removing, and calling hooked integration functions.
@@ -110,8 +111,8 @@ class IntegrationHook
 
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['hooks'][] = $this->name;
+		if (DebugUtils::isDebugEnabled()) {
+			DebugUtils::addDebugSource('hooks', $this->name);
 		}
 
 		if (empty(self::$hooks) || empty(self::$hooks[$name])) {

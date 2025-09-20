@@ -1135,7 +1135,7 @@ class PackageManager
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
 						}
 
-						require Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
+						require Config::canonicalPath(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']);
 					}
 				} elseif ($action['type'] == 'credits') {
 					// Time to build the billboard
@@ -1188,7 +1188,7 @@ class PackageManager
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
 						}
 
-						require Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
+						require Config::canonicalPath(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']);
 					}
 				}
 				// Handle a redirect...

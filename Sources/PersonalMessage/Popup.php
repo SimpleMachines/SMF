@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -40,7 +41,7 @@ class Popup
 		}
 
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];

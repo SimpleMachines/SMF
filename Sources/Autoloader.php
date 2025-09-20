@@ -65,7 +65,7 @@ spl_autoload_register(function ($class) {
 	// Do any third-party scripts want in on the fun?
 	if (!\defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
 		if (!class_exists(IntegrationHook::class, false) && is_file($sourcedir . '/IntegrationHook.php')) {
-			require_once $sourcedir . '/IntegrationHook.php';
+			require_once $sourcedir . DIRECTORY_SEPARATOR . 'IntegrationHook.php';
 		}
 
 		if (class_exists(IntegrationHook::class, false)) {
@@ -99,7 +99,7 @@ spl_autoload_register(function ($class) {
 		// Replace the namespace prefix with the base directory, replace namespace
 		// separators with directory separators in the relative class name, append
 		// with .php
-		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
+		$filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $dirname . $relative_class) . '.php';
 
 		// Failsafe: Never load a file named index.php.
 		if (basename($filename) === 'index.php') {

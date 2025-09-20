@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\Tasks\BackgroundTask;
 use SMF\Tasks\ScheduledTask;
 
@@ -162,7 +163,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 
 			Db::load();
 
@@ -551,7 +552,7 @@ class TaskRunner
 			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
 			if (file_exists($include)) {
-				require_once $include;
+				require_once Config::canonicalPath($include);
 			}
 		}
 

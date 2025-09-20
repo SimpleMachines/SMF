@@ -22,85 +22,138 @@ var is_android = ua.indexOf('android') != -1;
 var ajax_indicator_ele = null;
 
 // Get a response from the server.
-function getServerResponse(sUrl, funcCallback, sType, sDataType)
-{
+function getServerResponse(sUrl, funcCallback, sType = 'GET', sDataType = 'json') {
 	var oCaller = this;
 
-	return oMyDoc = $.ajax({
-		type: sType,
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		cache: false,
-		dataType: sDataType,
-		success: function(response) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, response);
-			}
-		},
+	return smc_Request.fetch(sUrl, {
+		method: sType,
+		cache: 'no-cache'
+	})
+	.then(response => {
+		if (sDataType === 'json') return response.json();
+
+		if (sDataType === 'text') return response.text();
+
+		if (sDataType === 'blob') return response.blob();
+
+		if (sDataType === 'arrayBuffer') return response.arrayBuffer();
+
+		return response;
+	})
+	.then(data => {
+		if (typeof funcCallback !== 'undefined') {
+			funcCallback.call(oCaller, data);
+		}
+
+		return data;
+	})
+	.catch(error => {
+		if (typeof funcCallback !== 'undefined') {
+			funcCallback.call(oCaller, false);
+		}
+
+		return Promise.reject(error);
 	});
+}
+
+class smc_Request {
+	static fetch(sUrl, oOptions, iMilliseconds) {
+		let timeout;
+		let options = oOptions || {};
+
+		if (iMilliseconds) {
+			const controller = new AbortController();
+			options.signal = controller.signal;
+			timeout = setTimeout(() => controller.abort(), iMilliseconds);
+		}
+
+		if (typeof allow_xhjr_credentials !== "undefined" && allow_xhjr_credentials) {
+			options.credentials = 'include';
+		}
+
+		if (options.headers) {
+			if (options.headers instanceof Headers) {
+				options.headers.set("X-SMF-AJAX", 1);
+			} else {
+				options.headers["X-SMF-AJAX"] = 1;
+			}
+		} else {
+			options.headers = {
+				"X-SMF-AJAX": 1
+			};
+		}
+
+		const promise = fetch(sUrl, options)
+			.then(res => res.ok ? res : Promise.reject(res))
+			.catch(err => Promise.reject(new Error(`Network request failed: ${err.message}`)));
+
+		if (iMilliseconds) {
+			return promise.finally(() => timeout && clearTimeout(timeout));
+		}
+
+		return promise;
+	}
+
+	static fetchXML(sUrl, oOptions, iMilliseconds) {
+		return this.fetch(sUrl, oOptions, iMilliseconds)
+			.then(res => res.text())
+			.then(str => new DOMParser().parseFromString(str, "text/xml"));
+	}
 }
 
 // Load an XML document.
-function getXMLDocument(sUrl, funcCallback)
-{
+function getXMLDocument(sUrl, funcCallback, iMilliseconds) {
 	var oCaller = this;
+	const promise = smc_Request.fetchXML(sUrl, null, iMilliseconds);
 
-	return $.ajax({
-		type: 'GET',
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		cache: false,
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
-	});
+	if (funcCallback) {
+		return promise
+			.then(data => {
+				funcCallback.call(oCaller, data);
+				return data;
+			})
+			.catch(err => {
+				funcCallback.call(oCaller, false);
+				return Promise.reject(err);
+			});
+	}
+
+	return promise;
 }
 
 // Send a post form to the server.
-function sendXMLDocument(sUrl, sContent, funcCallback)
-{
+function sendXMLDocument(sUrl, sContent, funcCallback) {
 	var oCaller = this;
-	var oSendDoc = $.ajax({
-		type: 'POST',
-		url: sUrl,
-		headers: {
-			"X-SMF-AJAX": 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		data: sContent,
-		beforeSend: function(xhr) {
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		},
-		dataType: 'xml',
-		success: function(responseXML) {
-			if (typeof(funcCallback) != 'undefined')
-			{
-				funcCallback.call(oCaller, responseXML);
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.error(jqXHR.responseText);
-		}
+
+	const headers = {};
+	if (typeof sContent === 'string' || sContent instanceof URLSearchParams) {
+		headers['Content-Type'] = 'application/x-www-form-urlencoded';
+	} else if (sContent instanceof Blob) {
+		headers['Content-Type'] = sContent.type || 'application/octet-stream';
+	} else if (!(sContent instanceof FormData)) {
+		headers['Content-Type'] = 'application/json'; // Default to JSON
+		sContent = JSON.stringify(sContent); // Convert object to JSON string
+	}
+
+	const promise = smc_Request.fetchXML(sUrl, {
+		method: 'POST',
+		headers,
+		body: sContent
 	});
 
-	return true;
+	if (funcCallback) {
+		return promise
+			.then(data => {
+				funcCallback.call(oCaller, data);
+				return data;
+			})
+			.catch(err => {
+				funcCallback.call(oCaller, false);
+				return Promise.reject(err);
+			});
+	}
+
+	return promise;
 }
 
 // Convert a string to an 8 bit representation (like in PHP).
@@ -196,76 +249,65 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
-	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
-	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
+	const sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
+	sHeader = sHeader || help_popup_heading_text;
 
-	var containerOptions;
-	if (typeof(sIcon) == 'string' && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon};
-	else
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (typeof(sIcon) != 'string' ? 'help' : sIcon)};
+	let containerOptions;
+	if (sIcon && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null) {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon };
+	} else {
+		containerOptions = { heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help') };
+	}
 
 	// Create the div that we are going to load
-	var oContainer = new smc_Popup(containerOptions);
-	var oPopup_body = $('#' + oContainer.popup_id).find('.popup_content');
+	const oContainer = new smc_Popup(containerOptions);
+	const oPopup_body = oContainer.cover.querySelector('.popup_content');
 
 	// Load the help page content (we just want the text to show)
-	$.ajax({
-		url: desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax',
+	fetch(desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax', {
+		method: 'GET',
 		headers: {
-			'X-SMF-AJAX': 1
-		},
-		xhrFields: {
-			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-		},
-		type: "GET",
-		dataType: "html",
-		beforeSend: function () {
-		},
-		success: function (data, textStatus, xhr) {
-			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
-			oPopup_body.html(help_content);
+			'X-SMF-AJAX': '1',
 
-			if (oPopup_body.find('*:not(:has(*)):visible').text().length > 1200) {
-				$('#' + oContainer.popup_id).find('.popup_window').addClass('large');
-			}
+			// @fixme This is checked for in SMF\Actions\Login2::checkAjax().
+			"X-Requested-With": "XMLHttpRequest"
 		},
-		error: function (xhr, textStatus, errorThrown) {
-			oPopup_body.html(textStatus);
-		},
-		statusCode: {
-			403: function(res, status, xhr) {
-				let errorMsg = res.getResponseHeader('x-smf-errormsg');
-				oPopup_body.html(errorMsg ?? banned_text);
-			},
-			500: function() {
-				oPopup_body.html('500 Internal Server Error');
-			}
-		}
-	});
+		credentials: typeof allow_xhjr_credentials !== 'undefined' ? 'include' : 'omit'
+	})
+		.then((res, rej) => res.ok ? res.text() : rej(res))
+		.then(data => {
+			oPopup_body.innerHTML = data;
+		})
+		.catch(error => {
+			const errorMsg = error.headers.get('x-smf-errormsg');
+			oPopup_body.innerHTML = errorMsg || error.message || banned_text;
+		});
+
 	return false;
 }
 
 // Create the popup menus for the top level/user menu area.
 function smc_PopupMenu(oOptions)
 {
-	this.opt = (typeof oOptions == 'object') ? oOptions : {};
+	this.opt = oOptions || {};
 	this.opt.menus = {};
 }
 
 smc_PopupMenu.prototype.add = function (sItem, sUrl)
 {
-	var $menu = $('#' + sItem + '_menu'), $item = $('#' + sItem + '_menu_top');
-	if ($item.length == 0)
+	const menu = document.getElementById(sItem + '_menu');
+	const item = document.getElementById(sItem + '_menu_top');
+
+	if (!item) {
 		return;
+	}
 
-	this.opt.menus[sItem] = {open: false, loaded: false, sUrl: sUrl, itemObj: $item, menuObj: $menu };
+	this.opt.menus[sItem] = { open: false, loaded: false, sUrl: sUrl, itemObj: item, menuObj: menu };
 
-	$item.click({obj: this}, function (e) {
+	item.addEventListener('click', function(e) {
 		e.preventDefault();
-
-		e.data.obj.toggle(sItem);
-	});
+		this.toggle(sItem);
+	}.bind(this));
 }
 
 smc_PopupMenu.prototype.toggle = function (sItem)
@@ -280,57 +322,50 @@ smc_PopupMenu.prototype.open = function (sItem)
 {
 	this.closeAll();
 
-	if (!this.opt.menus[sItem].loaded)
-	{
-		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
+	if (!this.opt.menus[sItem].loaded) {
+		this.opt.menus[sItem].menuObj.innerHTML = '<div class="loading">' + (ajax_notification_text || '') + '</div>';
 
-		$.ajax({
-			url: this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax',
+		fetch(this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax', {
+			method: "GET",
 			headers: {
-				'X-SMF-AJAX': 1
+				'X-SMF-AJAX': 1,
 			},
-			xhrFields: {
-				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-			},
-			type: "GET",
-			dataType: "html",
-			beforeSend: function () {
-			},
-			context: this.opt.menus[sItem].menuObj,
-			success: function (data, textStatus, xhr) {
-				this.html(data);
-
-				if ($(this).hasClass('scrollable'))
-					$(this).customScrollbar({
-						skin: "default-skin",
-						hScroll: false,
-						updateOnWindowResize: true
-					});
+			credentials: typeof allow_xhjr_credentials !== "undefined" ? 'include' : 'same-origin',
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
 			}
+			return response.text();
+		})
+		.then(data => {
+			this.opt.menus[sItem].menuObj.innerHTML = data;
+			this.opt.menus[sItem].loaded = true;
 		});
-
-		this.opt.menus[sItem].loaded = true;
 	}
 
-	this.opt.menus[sItem].menuObj.addClass('visible');
-	this.opt.menus[sItem].itemObj.addClass('open');
+	this.opt.menus[sItem].menuObj.classList.add('visible');
+	this.opt.menus[sItem].itemObj.classList.add('open');
 	this.opt.menus[sItem].open = true;
 
 	// Now set up closing the menu if we click off.
-	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
+	this.opt.menus[sItem].handleClickOutside = function(e) {
+		if (e.target.closest('#' + this.opt.menus[sItem].itemObj.id) || e.target.closest('#' + this.opt.menus[sItem].menuObj.id)) {
 			return;
-		e.data.obj.closeAll();
-		$(document).off('click.menu');
-	});
+		}
+
+		this.closeAll();
+	}.bind(this);
+
+	document.addEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.close = function (sItem)
 {
-	this.opt.menus[sItem].menuObj.removeClass('visible');
-	this.opt.menus[sItem].itemObj.removeClass('open');
+	this.opt.menus[sItem].menuObj.classList.remove('visible');
+	this.opt.menus[sItem].itemObj.classList.remove('open');
 	this.opt.menus[sItem].open = false;
-	$(document).off('click.menu');
+	document.removeEventListener('click', this.opt.menus[sItem].handleClickOutside);
 }
 
 smc_PopupMenu.prototype.closeAll = function ()
@@ -930,283 +965,82 @@ function create_ajax_indicator_ele()
 	document.body.appendChild(ajax_indicator_ele);
 }
 
-// This function will retrieve the contents needed for the jump to boxes.
-function grabJumpToContent(elem)
-{
-	var oXMLDoc = getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml');
-	var aBoardsAndCategories = [];
+/**
+ * Parse an HTML template string into a DocumentFragment.
+ *
+ * @param {string} template - The HTML string to parse.
+ * @returns {DocumentFragment} - A fragment containing parsed nodes.
+ */
+function parseTemplateToFragment(template) {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(template, 'text/html');
+	const frag = document.createDocumentFragment();
 
-	ajax_indicator(true);
+	while (doc.body.firstChild) {
+		frag.appendChild(doc.body.firstChild);
+	}
 
-	oXMLDoc.done(function(data, textStatus, jqXHR){
+	return frag;
+}
 
-		var items = $(data).find('item');
-			items.each(function(i) {
-			aBoardsAndCategories[i] = {
-				id: parseInt($(this).attr('id')),
-				isCategory: $(this).attr('type') == 'category',
-				name: this.firstChild.nodeValue.removeEntities(),
-				is_current: false,
-				isRedirect: parseInt($(this).attr('is_redirect')),
-				childLevel: parseInt($(this).attr('childlevel'))
+/**
+ * Replace a single placeholder in all text nodes and attributes within a fragment or element.
+ *
+ * This function traverses all text nodes under the specified root node using a TreeWalker.
+ * When it finds a text node containing the placeholder, it checks the type of the replacement value.
+ * If the value is a string, it simply replaces all occurrences of the placeholder in the text node.
+ * If the value is a Node, the function splits the text node into "before" and "after" segments,
+ * inserts the replacement node between them, and removes the original text node.
+ *
+ * After processing all text nodes, the function iterates over all elements within the root node
+ * and examines their attributes. Only string replacements are supported in attributes, so if
+ * an attribute value contains the placeholder, it is replaced using standard string substitution.
+ *
+ * @param {Node} root The root node (fragment, element, etc.)
+ * @param {string} placeholder The placeholder to replace (e.g. "%select_id%").
+ * @param {string|Node} value Replacement string or DOM node.
+ */
+function replacePlaceholder(root, placeholder, value) {
+	const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+
+	let node;
+	while ((node = walker.nextNode())) {
+		const idx = node.nodeValue.indexOf(placeholder);
+
+		if (idx !== -1) {
+			if (value instanceof Node) {
+				// Split text into before/after parts
+				const before = node.nodeValue.slice(0, idx);
+				const after = node.nodeValue.slice(idx + placeholder.length);
+
+				const parent = node.parentNode;
+				if (before) {
+					parent.insertBefore(document.createTextNode(before), node);
+				}
+				parent.insertBefore(value, node);
+				if (after) {
+					parent.insertBefore(document.createTextNode(after), node);
+				}
+
+				parent.removeChild(node);
+			} else {
+				node.nodeValue = node.nodeValue.replace(placeholder, value);
 			}
-		});
-
-		ajax_indicator(false);
-
-		for (var i = 0, n = aJumpTo.length; i < n; i++)
-		{
-			aJumpTo[i].fillSelect(aBoardsAndCategories);
 		}
-	});
-}
-
-// This'll contain all JumpTo objects on the page.
-var aJumpTo = new Array();
-
-// *** JumpTo class.
-function JumpTo(oJumpToOptions)
-{
-	this.opt = oJumpToOptions;
-	this.dropdownList = null;
-	this.showSelect();
-
-	// Register a change event after the select has been created.
-	$('#' + this.opt.sContainerId).one('mouseenter', function() {
-		grabJumpToContent(this);
-	});
-}
-
-// Show the initial select box (onload). Method of the JumpTo class.
-JumpTo.prototype.showSelect = function ()
-{
-	var sChildLevelPrefix = '';
-	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
-		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
-	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
-}
-
-// Fill the jump to box with entries. Method of the JumpTo class.
-JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
-{
-	// Don't do this twice.
-	$('#' + this.opt.sContainerId).off('mouseenter');
-
-	// Create an option that'll be above and below the category.
-	var oDashOption = document.createElement('option');
-	oDashOption.appendChild(document.createTextNode(this.opt.sCatSeparator));
-	oDashOption.disabled = 'disabled';
-	oDashOption.value = '';
-
-	if ('onbeforeactivate' in document)
-		this.dropdownList.onbeforeactivate = null;
-	else
-		this.dropdownList.onfocus = null;
-
-	if (this.opt.bNoRedirect)
-		this.dropdownList.options[0].disabled = 'disabled';
-
-	// Create a document fragment that'll allowing inserting big parts at once.
-	var oListFragment = document.createDocumentFragment();
-
-	// Loop through all items to be added.
-	for (var i = 0, n = aBoardsAndCategories.length; i < n; i++)
-	{
-		var j, sChildLevelPrefix, oOption;
-
-		// If we've reached the currently selected board add all items so far.
-		if (!aBoardsAndCategories[i].isCategory && aBoardsAndCategories[i].id == this.opt.iCurBoardId)
-		{
-			this.dropdownList.insertBefore(oListFragment, this.dropdownList.options[0]);
-			oListFragment = document.createDocumentFragment();
-			continue;
-		}
-
-		if (aBoardsAndCategories[i].isCategory)
-			oListFragment.appendChild(oDashOption.cloneNode(true));
-		else
-			for (j = aBoardsAndCategories[i].childLevel, sChildLevelPrefix = ''; j > 0; j--)
-				sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-
-		oOption = document.createElement('option');
-		oOption.appendChild(document.createTextNode((aBoardsAndCategories[i].isCategory ? this.opt.sCatPrefix : sChildLevelPrefix + this.opt.sBoardPrefix) + aBoardsAndCategories[i].name));
-		if (!this.opt.bNoRedirect)
-			oOption.value = aBoardsAndCategories[i].isCategory ? '#c' + aBoardsAndCategories[i].id : '?board=' + aBoardsAndCategories[i].id + '.0';
-		else
-		{
-			if (aBoardsAndCategories[i].isCategory || aBoardsAndCategories[i].isRedirect)
-				oOption.disabled = 'disabled';
-			else
-				oOption.value = aBoardsAndCategories[i].id;
-		}
-		oListFragment.appendChild(oOption);
-
-		if (aBoardsAndCategories[i].isCategory)
-			oListFragment.appendChild(oDashOption.cloneNode(true));
 	}
 
-	// Add the remaining items after the currently selected item.
-	this.dropdownList.appendChild(oListFragment);
-
-	// Add an onchange action
-	if (!this.opt.bNoRedirect)
-		this.dropdownList.onchange = function() {
-			if (this.selectedIndex > 0 && this.options[this.selectedIndex].value)
-				window.location.href = smf_scripturl + this.options[this.selectedIndex].value.substr(smf_scripturl.indexOf('?') == -1 || this.options[this.selectedIndex].value.substr(0, 1) != '?' ? 0 : 1);
-		}
-}
-
-// A global array containing all IconList objects.
-var aIconLists = new Array();
-
-// *** IconList object.
-function IconList(oOptions)
-{
-	this.opt = oOptions;
-	this.bListLoaded = false;
-	this.oContainerDiv = null;
-	this.funcMousedownHandler = null;
-	this.funcParent = this;
-	this.iCurMessageId = 0;
-	this.iCurTimeout = 0;
-
-	// Add backwards compatibility with old themes.
-	if (!('sSessionVar' in this.opt))
-		this.opt.sSessionVar = 'sesc';
-
-	this.initIcons();
-}
-
-// Replace all message icons by icons with hoverable and clickable div's.
-IconList.prototype.initIcons = function ()
-{
-	for (var i = document.images.length - 1, iPrefixLength = this.opt.sIconIdPrefix.length; i >= 0; i--)
-		if (document.images[i].id.substr(0, iPrefixLength) == this.opt.sIconIdPrefix)
-			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '"></div>');
-}
-
-// Event for the mouse hovering over the original icon.
-IconList.prototype.onBoxHover = function (oDiv, bMouseOver)
-{
-	oDiv.style.border = bMouseOver ? this.opt.iBoxBorderWidthHover + 'px solid ' + this.opt.sBoxBorderColorHover : '';
-	oDiv.style.background = bMouseOver ? this.opt.sBoxBackgroundHover : this.opt.sBoxBackground;
-	oDiv.style.padding = bMouseOver ? (3 - this.opt.iBoxBorderWidthHover) + 'px' : '3px'
-}
-
-// Show the list of icons after the user clicked the original icon.
-IconList.prototype.openPopup = function (oDiv, iMessageId)
-{
-	this.iCurMessageId = iMessageId;
-
-	if (!this.bListLoaded && this.oContainerDiv == null)
-	{
-		// Create a container div.
-		this.oContainerDiv = document.createElement('div');
-		this.oContainerDiv.id = 'iconList';
-		this.oContainerDiv.style.display = 'none';
-		this.oContainerDiv.style.cursor = 'pointer';
-		this.oContainerDiv.style.position = 'absolute';
-		this.oContainerDiv.style.background = this.opt.sContainerBackground;
-		this.oContainerDiv.style.border = this.opt.sContainerBorder;
-		this.oContainerDiv.style.padding = '6px 0px';
-		document.body.appendChild(this.oContainerDiv);
-
-		// Start to fetch its contents.
-		ajax_indicator(true);
-		sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=messageicons;board=' + this.opt.iBoardId + ';xml', '', this.onIconsReceived);
-	}
-
-	// Set the position of the container.
-	var aPos = smf_itemPos(oDiv);
-
-	this.oContainerDiv.style.top = (aPos[1] + oDiv.offsetHeight) + 'px';
-	this.oContainerDiv.style.left = (aPos[0] - 1) + 'px';
-	this.oClickedIcon = oDiv;
-
-	if (this.bListLoaded)
-		this.oContainerDiv.style.display = 'block';
-
-	document.body.addEventListener('mousedown', this.onWindowMouseDown, false);
-}
-
-// Setup the list of icons once it is received through xmlHTTP.
-IconList.prototype.onIconsReceived = function (oXMLDoc)
-{
-	var icons = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('icon');
-	var sItems = '';
-
-	for (var i = 0, n = icons.length; i < n; i++)
-		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle"></span>';
-
-	setInnerHTML(this.oContainerDiv, sItems);
-	this.oContainerDiv.style.display = 'block';
-	this.bListLoaded = true;
-
-	if (is_ie)
-		this.oContainerDiv.style.width = this.oContainerDiv.clientWidth + 'px';
-
-	ajax_indicator(false);
-}
-
-// Event handler for hovering over the icons.
-IconList.prototype.onItemHover = function (oDiv, bMouseOver)
-{
-	oDiv.style.background = bMouseOver ? this.opt.sItemBackgroundHover : this.opt.sItemBackground;
-	oDiv.style.border = bMouseOver ? this.opt.sItemBorderHover : this.opt.sItemBorder;
-	if (this.iCurTimeout != 0)
-		window.clearTimeout(this.iCurTimeout);
-	if (bMouseOver)
-		this.onBoxHover(this.oClickedIcon, true);
-	else
-		this.iCurTimeout = window.setTimeout(this.opt.sBackReference + '.collapseList();', 500);
-}
-
-// Event handler for clicking on one of the icons.
-IconList.prototype.onItemMouseDown = function (oDiv, sNewIcon)
-{
-	if (this.iCurMessageId != 0)
-	{
-		ajax_indicator(true);
-		this.tmpMethod = getXMLDocument;
-		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + smf_session_var + '=' + smf_session_id + ';icon=' + sNewIcon + ';xml'),
-		oThis = this;
-		delete this.tmpMethod;
-		ajax_indicator(false);
-
-		oXMLDoc.done(function(data, textStatus, jqXHR){
-			oMessage = $(data).find('message')
-			curMessageId = oMessage.attr('id').replace( /^\D+/g, '');
-
-			if (oMessage.find('error').length == 0)
-			{
-				if (oThis.opt.bShowModify && oMessage.find('modified').length != 0)
-					$('#modified_' + curMessageId).html(oMessage.find('modified').text());
-
-				oThis.oClickedIcon.getElementsByTagName('img')[0].src = oDiv.getElementsByTagName('img')[0].src;
+	if (typeof value === 'string') {
+		const elements = root.querySelectorAll('*');
+		for (let i = 0; i < elements.length; i++) {
+			const el = elements[i];
+			for (let j = 0; j < el.attributes.length; j++) {
+				const attr = el.attributes[j];
+				if (attr.value.includes(placeholder)) {
+					attr.value = attr.value.replace(placeholder, value);
+				}
 			}
-		});
+		}
 	}
-}
-
-// Event handler for clicking outside the list (will make the list disappear).
-IconList.prototype.onWindowMouseDown = function ()
-{
-	for (var i = aIconLists.length - 1; i >= 0; i--)
-	{
-		aIconLists[i].funcParent.tmpMethod = aIconLists[i].collapseList;
-		aIconLists[i].funcParent.tmpMethod();
-		delete aIconLists[i].funcParent.tmpMethod;
-	}
-}
-
-// Collapse the list of icons.
-IconList.prototype.collapseList = function()
-{
-	this.onBoxHover(this.oClickedIcon, false);
-	this.oContainerDiv.style.display = 'none';
-	this.iCurMessageId = 0;
-	document.body.removeEventListener('mousedown', this.onWindowMouseDown, false);
 }
 
 // Handy shortcuts for getting the mouse position on the screen - only used for IE at the moment.
@@ -1696,20 +1530,20 @@ function expand_quote_parent(oElement)
 }
 
 function avatar_fallback(e) {
-    var e = window.e || e;
+	var e = window.e || e;
 	var default_url = smf_avatars_url + '/default.png';
 
-    if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
-        return;
+	if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
+		return;
 
 	e.target.src = default_url;
 	return true;
 }
 
 if (document.addEventListener)
-    document.addEventListener("error", avatar_fallback, true);
+	document.addEventListener("error", avatar_fallback, true);
 else
-    document.attachEvent("error", avatar_fallback);
+	document.attachEvent("error", avatar_fallback);
 
 // SMF Preview handler.
 function smc_preview_post(oOptions)

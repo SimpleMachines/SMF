@@ -17,6 +17,7 @@ namespace SMF\Search\APIs;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Sapi;
@@ -119,7 +120,7 @@ class Custom extends SearchApi implements SearchApiInterface
 			return 'partial';
 		}
 
-		return !empty(Config::$db_show_debug) ? 'none' : 'hidden';
+		return DebugUtils::isDebugEnabled() ? 'none' : 'hidden';
 	}
 
 	/**
@@ -641,10 +642,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 				if (!empty($tables)) {
 					Db::$db->search_query(
-						'
-						DROP TABLE {db_prefix}log_search_words',
-						[
-						],
+						'DROP TABLE {db_prefix}log_search_words',
 						identifier: 'drop_words_table',
 					);
 				}
@@ -851,10 +849,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (!empty($tables)) {
 			Db::$db->search_query(
-				'
-				DROP TABLE {db_prefix}log_search_words',
-				[
-				],
+				'DROP TABLE {db_prefix}log_search_words',
 				identifier: 'drop_words_table',
 			);
 		}

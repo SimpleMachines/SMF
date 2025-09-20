@@ -17,7 +17,7 @@ define('SMF', 'UPGRADE');
 define('SMF_INSTALLING', 1);
 
 // Initialize.
-require_once __DIR__ . '/index.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
 
 SMF\Maintenance\Maintenance::$disable_security = false;
 

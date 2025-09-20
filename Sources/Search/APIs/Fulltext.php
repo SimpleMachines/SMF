@@ -629,8 +629,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		// Try to determine the minimum number of letters for a fulltext search.
 		$request = Db::$db->search_query(
-			'
-			SHOW VARIABLES
+			'SHOW VARIABLES
 			LIKE {string:fulltext_minimum_word_length}',
 			[
 				'fulltext_minimum_word_length' => 'ft_min_word_len',

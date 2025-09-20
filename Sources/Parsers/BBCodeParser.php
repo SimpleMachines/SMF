@@ -1159,8 +1159,8 @@ class BBCodeParser extends Parser
 
 				// External URL?
 				if ($attrib == 'target' && $tag_type == 'url') {
-					if (trim($value) == '_blank') {
-						$tag_type == 'iurl';
+					if (trim($value) != '_blank') {
+						$tag_type = 'iurl';
 					}
 				}
 			}
@@ -2700,7 +2700,7 @@ class BBCodeParser extends Parser
 								}
 
 								// Still a block tag was open not equal to this tag.
-								$add_closing_tags[] = $element['type'];
+								$add_closing_tags[] = $element;
 							}
 
 							if (!empty($add_closing_tags)) {

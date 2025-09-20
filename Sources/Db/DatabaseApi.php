@@ -153,13 +153,6 @@ abstract class DatabaseApi
 	/**
 	 * @var bool
 	 *
-	 * Local copy of Config::$db_show_debug.
-	 */
-	public bool $show_debug;
-
-	/**
-	 * @var bool
-	 *
 	 * Local copy of Config::$modSettings['disableQueryCheck'].
 	 */
 	public bool $disableQueryCheck;
@@ -354,10 +347,6 @@ abstract class DatabaseApi
 			$this->persist = !empty(Config::$db_persist);
 		}
 
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
-		}
-
 		if (!isset($this->disableQueryCheck)) {
 			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
 		}
@@ -452,10 +441,10 @@ abstract class DatabaseApi
 				default:
 					$test = \is_array($value) ? reset($value) : $value;
 
-					if (IP::create((string) $test)->isValid()) {
-						$types[$column_name] = 'inet';
-					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString((string) $test)) !== Uuid::NIL_UUID) {
-						$types[$column_name] = 'uuid';
+					if ($test !== '' && (string) IP::create((string) $test) === $test) {
+						$type = 'inet';
+					} elseif ($test instanceof Uuid || (string) @Uuid::createFromString((string) $test) === $test) {
+						$type = 'uuid';
 					} else {
 						$type = 'string';
 					}

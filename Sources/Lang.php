@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Debug\DebugUtils;
 use SMF\Localization\MessageFormatter;
 
 /**
@@ -294,14 +295,18 @@ class Lang
 				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
 					// Include it!
 					// {DIR} / {locale} / {file} .php
-					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.php';
+					require Config::canonicalPath($file[0] . '/' . $file[2] . '/' . $file[1] . '.php');
 
 					// Note that we found it.
 					$found = true;
 
 					// Keep track of what we're up to, soldier.
-					if (!empty(Config::$db_show_debug)) {
-						Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php';
+					if (DebugUtils::isDebugEnabled()) {
+						DebugUtils::addDebugSource(
+							lang_key: 'language_files',
+							key: implode('|', $file),
+							value: Config::canonicalPath((Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php'),
+						);
 					}
 
 					// Load the strings into our properties.
@@ -392,7 +397,15 @@ class Lang
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
-			if (!$found && $fatal) {
+			if (
+				!$found
+				&& $fatal
+				// A missing ThemeStrings file isn't fatal unless it was explicitly requested.
+				&& (
+					$name !== 'ThemeStrings'
+					|| str_starts_with($filename, 'ThemeStrings')
+				)
+			) {
 				ErrorHandler::log(
 					// Don't call self::formatText() here in case the missing
 					// file is one that we would need in self::formatText()
@@ -569,7 +582,7 @@ class Lang
 						'name' => $langName ?? $entry,
 						'selected' => false,
 						'filename' => $entry,
-						'location' => $language_dir . '/' . $entry . '/General.php',
+						'location' => Config::canonicalPath($language_dir . '/' . $entry . '/General.php'),
 					];
 				}
 				$dir->close();
@@ -1040,7 +1053,7 @@ class Lang
 			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
 
 			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
-				require $file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php';
+				require Config::canonicalPath($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php');
 
 				// Note that we found it.
 				$found = true;
@@ -1067,8 +1080,12 @@ class Lang
 				}
 
 				// Keep track of what we're up to, soldier.
-				if (!empty(Config::$db_show_debug)) {
-					Utils::$context['debug']['language_files'][implode('|', $file)] = (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', Theme::$current->settings['template_dirs']), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php';
+				if (DebugUtils::isDebugEnabled()) {
+					DebugUtils::addDebugSource(
+						lang_key: 'language_files',
+						key: implode('|', $file),
+						value: (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php',
+					);
 				}
 			}
 		}

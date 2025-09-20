@@ -72,12 +72,12 @@ class Board implements \ArrayAccess, Routable
 	public int $id;
 
 	/**
-	 * @var object
+	 * @var Category
 	 *
 	 * This board's category.
 	 * An instance of SMF\Category.
 	 */
-	public object $cat;
+	public Category $cat;
 
 	/**
 	 * @var string
@@ -193,7 +193,7 @@ class Board implements \ArrayAccess, Routable
 	public int $prev_board = 0;
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * Boards that are children of this board.
 	 */
@@ -349,7 +349,7 @@ class Board implements \ArrayAccess, Routable
 	public static ?self $info;
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * All loaded instances of this class.
 	 */
@@ -2087,11 +2087,12 @@ class Board implements \ArrayAccess, Routable
 						'id' => $id,
 					],
 				);
-				$props = Db::$db->fetch_all($request);
+				$props = Db::$db->fetch_assoc($request);
 				Db::$db->free_result($request);
 			}
 
 			$this->id = $id;
+
 			$this->set($props);
 			self::$loaded[$this->id] = $this;
 		}
@@ -2102,6 +2103,10 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// Plug this board into its category.
+		if ($id > 0 && empty($this->cat) && !empty($props['id_cat'])) {
+			$this->cat = Category::init((int) $props['id_cat']);
+		}
+
 		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
 		}
