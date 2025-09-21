@@ -81,11 +81,11 @@
             "type": "library",
             "extra": {
                 "hooks": {
-                    "pre-commit": [
-                        "composer fix-style"
-                    ],
                     "pre-push": [
                         "composer check-style"
+                    ],
+                    "pre-commit": [
+                        "composer fix-style"
                     ]
                 }
             },
@@ -173,12 +173,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "572b50419eec2e3171252e79792b76c84494d3eb"
+                "reference": "4f35a315f73f05c065da435f3f852e7919824e7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/572b50419eec2e3171252e79792b76c84494d3eb",
-                "reference": "572b50419eec2e3171252e79792b76c84494d3eb",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/4f35a315f73f05c065da435f3f852e7919824e7a",
+                "reference": "4f35a315f73f05c065da435f3f852e7919824e7a",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "source": "https://github.com/SimpleMachines/BuildTools/tree/release-2.1",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2023-11-15T04:12:13+00:00"
+            "time": "2025-09-21T00:47:46+00:00"
         },
         {
             "name": "symfony/console",
@@ -397,12 +397,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
