@@ -149,7 +149,7 @@ abstract class ToolsBase
 			$this->log_file = $dir . DIRECTORY_SEPARATOR . $name . '.log';
 
 			// Try to make the file the writable.
-			if (!is_writable($this->log_file)) {
+			if (file_exists($this->log_file) && !is_writable($this->log_file)) {
 				chmod($this->log_file, 0664);
 			}
 		}
