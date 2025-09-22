@@ -907,10 +907,10 @@ function smf_db_create_query_column($column)
 	$column = array_change_key_case($column);
 
 	// These types cannot have a default value.
-	if (in_array($column_info['type'], ['text', 'tinytext', 'mediumtext', 'longtext', 'blob', 'tinyblob', 'mediumblob', 'longblob', 'json', 'geometry']))
+	if (in_array($column['type'], ['text', 'tinytext', 'mediumtext', 'longtext', 'blob', 'tinyblob', 'mediumblob', 'longblob', 'json', 'geometry']))
 	{
-		$column_info['drop_default'] = true;
-		unset($column_info['default']);
+		$column['drop_default'] = true;
+		unset($column['default']);
 	}
 
 	// Auto increment is easy here!
