@@ -1531,15 +1531,23 @@ sceditor.formats.bbcode.set(
 	}
 ).set(
 	'youtube', {
+		allowsEmpty: true,
 		tags: {
 			div: {
-				'data-youtube-id': null
+				class: 'videocontainer'
 			}
 		},
 		isInline: false,
 		skipLastLineBreak: true,
-		format: el => `[youtube]${el.getAttribute('data-youtube-id')}[/youtube]`,
-		html: '<div data-youtube-id="{0}"><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" allowfullscreen></iframe></div>'
+		format: function (element, content) {
+			youtube_id = $(element).find('iframe').data('youtube-id');
+
+			if (typeof youtube_id !== "undefined")
+				return '[youtube]' + youtube_id + '[/youtube]';
+			else
+				return content;
+		},
+		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
 	}
 );
 
