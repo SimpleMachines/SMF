@@ -985,7 +985,7 @@ function template_quickreply()
 						</dl>';
 	}
 
-	template_control_richedit('quickReply', 'smileyBox_message', 'bbcBox_message');
+	template_control_richedit('quickReply', true, true);
 
 	// Is visual verification enabled?
 	if (Utils::$context['require_verification'])

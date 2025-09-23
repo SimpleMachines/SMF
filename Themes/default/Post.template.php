@@ -225,7 +225,7 @@ function template_main()
 	}
 
 	// Show the actual posting area...
-	template_control_richedit('message', 'smileyBox_message', 'bbcBox_message');
+	template_control_richedit('message', true, true);
 
 	// Show attachments.
 	if (!empty(Utils::$context['current_attachments']) || Utils::$context['can_post_attachment'])
