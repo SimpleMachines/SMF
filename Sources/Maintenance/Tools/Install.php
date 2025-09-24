@@ -682,27 +682,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 		Config::$modSettings['disableQueryCheck'] = true;
 
-		$replaces = [
-			'{$db_prefix}' => Db::$db->prefix,
-			'{$attachdir}' => json_encode([1 => Db::$db->escape_string(Config::$boarddir . '/attachments')]),
-			'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
-			'{$boardurl}' => Config::$boardurl,
-			'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
-			'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
-			'{$smf_version}' => SMF_VERSION,
-			'{$current_time}' => time(),
-			'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
-			'{$registration_method}' => $_POST['reg_mode'] ?? 0,
-		];
-
-		foreach (Lang::$txt as $key => $value) {
-			if (substr($key, 0, 8) == 'default_') {
-				$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
-			}
-		}
-
-		$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
-
 		$existing_tables = Db::$db->list_tables();
 
 		$install_tables = Table::getAll($this->schema_version);
