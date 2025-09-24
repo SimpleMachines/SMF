@@ -182,7 +182,8 @@ class MessageFormatter
 								}
 								// Try to guess the currency based on country.
 								else {
-									require_once Config::$sourcedir . '/Unicode/Currencies.php';
+									require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
+
 									$country_currencies = \function_exists('country_currencies') ? country_currencies() : [];
 
 									// If the admin wants to prioritize a certain country, use that.
@@ -504,7 +505,7 @@ class MessageFormatter
 
 		// Ensure we have our pluralization rules.
 		if (empty(self::$plural_rules)) {
-			require_once Config::$sourcedir . '/Unicode/Plurals.php';
+			require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Plurals.php');
 			self::$plural_rules = \SMF\Unicode\plurals();
 		}
 
@@ -835,7 +836,7 @@ class MessageFormatter
 						break;
 
 					case 'currency':
-						require_once Config::$sourcedir . '/Unicode/Currencies.php';
+						require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
 
 						$currencies = currencies();
 

@@ -290,13 +290,7 @@ class ProxyServer
 		}
 
 		// What kind of file did they give us?
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mime_type = finfo_buffer($finfo, $image);
-
-		// SVG needs a little extra care
-		if ($ext == 'svg' && \in_array($mime_type, ['text/plain', 'text/xml']) && str_contains($image, '<svg') && str_contains($image, '</svg>')) {
-			$mime_type = 'image/svg+xml';
-		}
+		$mime_type = Utils::getMimeType($image);
 
 		// Make sure the url is returning an image
 		if (!str_starts_with($mime_type, 'image/')) {

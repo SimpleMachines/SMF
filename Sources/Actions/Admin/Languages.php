@@ -905,7 +905,7 @@ class Languages implements ActionInterface
 		// Quickly load General language entries.
 		$old_txt = Lang::$txt;
 
-		require $general_filename;
+		require Config::canonicalPath($general_filename);
 
 		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : Lang::getTxt('lang_file_not_writable', ['file' => $general_filename], file: 'ManageSettings');
 

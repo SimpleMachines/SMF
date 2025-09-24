@@ -110,7 +110,7 @@ class AdminInfoFiles extends Table
 			),
 			'data' => new Column(
 				name: 'data',
-				type: 'text',
+				type: 'mediumtext',
 				not_null: true,
 			),
 			'filetype' => new Column(

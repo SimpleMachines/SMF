@@ -1087,7 +1087,7 @@ class Display implements ActionInterface, Routable
 		}
 
 		// topic.js
-		Theme::loadJavaScriptFile('topic.js', ['defer' => false, 'minimize' => true], 'smf_topic');
+		Theme::loadJavaScriptFile('topic.js', ['defer' => true, 'minimize' => true], 'smf_topic');
 
 		// quotedText.js
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');

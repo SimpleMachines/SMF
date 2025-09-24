@@ -3857,7 +3857,7 @@ class PackageUtils
 	 */
 	private static function smf_crc32(string $number): string
 	{
-		require_once Config::$sourcedir . '/Subs-Compat.php';
+		require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 
 		return smf_crc32($number);
 	}

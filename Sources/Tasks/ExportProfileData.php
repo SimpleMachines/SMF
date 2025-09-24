@@ -1647,7 +1647,7 @@ class ExportProfileData extends BackgroundTask
 				$this->_details['format'] = 'XML_XSLT';
 			}
 
-			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
+			require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = Export::getFormats();
 
 			/* Notes:
@@ -1916,31 +1916,6 @@ class ExportProfileData extends BackgroundTask
 					}
 				} else {
 					Utils::$context[$var] = [];
-				}
-			}
-		}
-		// Autoloading is unavailable for background tasks, so we have to do things the hard way...
-		else {
-			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
-				// Include, not require, because minimization is nice to have but not vital here.
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exception.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'Minify.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'path-converter', 'src', 'Converter.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'CSS.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$sourcedir, 'minify', 'src', 'JS.php']);
-
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
-					Config::$modSettings['minimize_files'] = false;
 				}
 			}
 		}

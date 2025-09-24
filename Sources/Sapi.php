@@ -501,18 +501,18 @@ class Sapi
 			// Apple is special, check sysctl
 			elseif (self::isOS(self::OS_MAC)) {
 				if (($cpu_count = @shell_exec('sysctl -n hw.physicalcpu')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-					self::$cpu_count = min((int) $cpu_count, 1);
+					self::$cpu_count = max((int) $cpu_count, 1);
 				}
 			}
 			// On most Linux distros, we can runn nproc.
 			elseif (($cpu_count = @shell_exec('nproc --all')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-				self::$cpu_count = min((int) $cpu_count, 1);
+				self::$cpu_count = max((int) $cpu_count, 1);
 			}
 
 			// This works for both Mac and Linux, however it actually reports online cpus, not total CPUs.
 			// Could also use _NPROCESSORS_CONF which is processors configured.
 			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && ($cpu_count = @shell_exec('getconf _NPROCESSORS_ONLN')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-				self::$cpu_count = min((int) $cpu_count, 1);
+				self::$cpu_count = max((int) $cpu_count, 1);
 			}
 
 			// Borrowed from: https://www.php.net/manual/en/function.sys-getloadavg.php#129847
@@ -521,7 +521,7 @@ class Sapi
 				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
 
 				if (isset($matches[0])) {
-					self::$cpu_count = min(\count($matches[0]), 1);
+					self::$cpu_count = max(\count($matches[0]), 1);
 				}
 			}
 		} catch (\Exception $ex) {

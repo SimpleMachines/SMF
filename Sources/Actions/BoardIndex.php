@@ -401,7 +401,7 @@ class BoardIndex implements ActionInterface, Routable
 			$selects[] = 'am.filename AS member_filename';
 			$selects[] = 'am.attachment_type AS member_attach_type';
 
-			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)';
+			$joins[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mem.id_member)';
 		}
 
 		// Give mods access to the query.
@@ -458,7 +458,12 @@ class BoardIndex implements ActionInterface, Routable
 
 					$category->parseDescription();
 				} else {
-					$category = Category::$loaded[$row_board['id_cat']];
+					$category = Category::init((int) $row_board['id_cat'], [
+						'is_collapsed' => !empty($row_board['can_collapse']) && !empty(Theme::$current->options['collapse_category_' . $row_board['id_cat']]),
+						'new' => false,
+						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board, file: 'General') . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+					]);
 				}
 
 				// If this board has new posts in it (and isn't the recycle bin!) then the category is new.

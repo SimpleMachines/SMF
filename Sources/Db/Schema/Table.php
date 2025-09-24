@@ -513,6 +513,11 @@ class Table
 			'{$registration_method}' => \defined('SMF_INSTALLING') ? ((int) !empty($_POST['reg_mode'])) : (Config::$modSettings['registration_method'] ?? 0),
 		];
 
+		// Sometimes its a string, sometimes its an array, sometimes its json.
+		if (\is_array($replacements['{$attachdir}'])) {
+			$replacements['{$attachdir}'] = json_encode($replacements['{$attachdir}']);
+		}
+
 		foreach (Lang::$txt as $key => $value) {
 			if (substr($key, 0, 8) == 'default_') {
 				$replacements['{$' . $key . '}'] = Db::$db->escape_string($value);
@@ -522,11 +527,18 @@ class Table
 		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
 		// Replace any placeholders in the initial data.
-		foreach ($this->initial_data as $row_num => $row) {
-			$this->initial_data[$row_num] = array_map(
-				fn($v) => $replacements[$v] ?? $v,
-				$row,
-			);
+		foreach ($this->initial_data as &$row) {
+			foreach ($row as &$val) {
+				if ($val === null) {
+					continue;
+				}
+
+				if (\is_int($val)) {
+					$val = (int) strtr((string) $val, $replacements);
+				} else {
+					$val = strtr($val, $replacements);
+				}
+			}
 		}
 
 		// Insert the initial data.
@@ -560,6 +572,10 @@ class Table
 		$file_list = new \GlobIterator(__DIR__ . '/' . $schema_version . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 		foreach ($file_list as $file_path => $file_info) {
+			if ($file_info->getBasename() === 'index.php') {
+				continue;
+			}
+
 			$class_name = $file_info->getBasename('.php');
 			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\' . $class_name;
 

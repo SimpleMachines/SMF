@@ -156,7 +156,7 @@ class Logs implements ActionInterface
 		];
 
 		if (!empty(self::$subactions[$this->subaction][0])) {
-			require_once Config::$sourcedir . '/' . self::$subactions[$this->subaction][0];
+			require_once Config::canonicalPath(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 		}
 
 		$call = \is_string(self::$subactions[$this->subaction][1]) && method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);

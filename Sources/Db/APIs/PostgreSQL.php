@@ -671,8 +671,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return $return;
 			}
 
-				return is_a($return, 'PgSql\Result');
-
+			return ($return instanceof \PgSql\Result);
 		}
 
 		return false;
@@ -1151,12 +1150,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		$replacements = [
-			'create_tmp_log_search_topics' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
-			'create_tmp_log_search_messages' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
 			'insert_into_log_messages_fulltext' => [
 				'/NOT\sLIKE/' => 'NOT ILIKE',
 				'/\bLIKE\b/' => 'ILIKE',
@@ -1307,9 +1300,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the specifics...
-		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
@@ -1471,8 +1464,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$type_name = $types[$type_name];
 		}
 
-		// Only char fields got size
-		if (!str_contains($type_name, 'char')) {
+		if (
+			// We can't have a zero size.
+			$type_size === 0
+			// Only char fields have a size.
+			|| !str_contains($type_name, 'char')
+		) {
 			$type_size = null;
 		}
 
@@ -1534,7 +1531,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['type'] = $old_info['type'];
 		}
 
-		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
+		if (
+			!\array_key_exists('size', $column_info)
+			|| (
+				!is_numeric($column_info['size'])
+				&& !\is_null($column_info['size'])
+			)
+		) {
 			$column_info['size'] = $old_info['size'];
 		}
 
@@ -1600,11 +1603,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					)
 				)
 			)
-			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
+			|| ($column_info['generation_expression'] ?? '') !== ($old_info['generation_expression'] ?? '')
 		) {
-			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+			list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 			if ($size !== null) {
 				$type .= '(' . $size . ')';
@@ -1661,7 +1664,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (\is_null($column_info['default'])) {
 				$default = 'NULL';
 			} elseif (isset($column_info['default']) && is_numeric($column_info['default'])) {
-				$default = strpos($column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
+				$default = strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
 			} else {
 				$default = '\'' . $this->escape_string($column_info['default']) . '\'';
 			}
@@ -1813,8 +1816,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Sort out the size...
-			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-			list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? (int) $column['size'] : null;
+			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1833,12 +1836,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
-			if (\is_array($c)) {
-				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
-			}
-
-			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
+				if (\is_array($c)) {
+					$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+				}
+
+				// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 			}
 
