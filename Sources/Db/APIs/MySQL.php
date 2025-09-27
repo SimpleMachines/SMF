@@ -2370,11 +2370,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function validatePrefix(&$value): bool
+	public function validatePrefix(string $prefix): void
 	{
-		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
-
-		return true;
+		if ($prefix !== preg_replace('~[^A-Za-z0-9_\$]~', '', $prefix)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_invalid', ['prefix' => $prefix], file: 'Maintenance'));
+		}
 	}
 
 	/**

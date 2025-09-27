@@ -433,8 +433,11 @@ class Install extends ToolsBase implements ToolsInterface
 		// Validate the prefix.
 		$db = Maintenance::$context['databases'][$db_type];
 
-		if (!$db->validatePrefix($db_prefix)) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_prefix_invalid', ['prefix' => $db_prefix], file: 'Maintenance');
+		try {
+			$db->validatePrefix($db_prefix);
+		} catch (\Throwable $e) {
+			Maintenance::$fatal_error = $e->getMessage();
+
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Maintenance::$fatal_error], file: 'Maintenance'));
 
 			return false;
