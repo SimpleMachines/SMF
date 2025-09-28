@@ -59,6 +59,8 @@ $txt['error_unknown'] = 'Unknown Error!';
 $txt['query_unsuccessful'] = 'Unsuccessful!';
 $txt['query_failed'] = 'This query: {QUERY_STRING}
 Caused the error: {QUERY_ERROR}';
+$txt['error_missing_files'] = 'Unable to find some required files.<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
+$txt['error_missing_files_debug'] = 'Unable to find the following files: {missing_files}<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
 
 // Progress bars and steps.
 $txt['maintenance_progress'] = 'Progress';
@@ -126,7 +128,6 @@ $txt['error_already_installed'] = 'The installer has detected that you already h
 $txt['error_db_missing'] = 'The installer was unable to detect any database support in PHP. Please ask your host to ensure that PHP was compiled with the desired database, or that the proper extension is being loaded.';
 $txt['error_db_type_unknown'] = '“{db_type}” is not a database type this server supports. Supported types: {supported}.';
 $txt['error_session_missing'] = 'The installer was unable to detect sessions support in your server’s installation of PHP. Please ask your host to ensure that PHP was compiled with session support (which in fact is the PHP default, meaning your host currently has explicitly disabled it).';
-$txt['error_missing_files'] = 'Unable to find crucial installation files in the directory of this script!<br><br>Please make sure you uploaded the entire installation package, including the sql file, and then try again.';
 $txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong> and is <strong>writable</strong> by the user PHP is running under.<br>';
 $txt['error_mod_security'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that will not block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a>';
 $txt['error_mod_security_no_write'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that will not block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a><br><br>Alternatively, you may wish to use your ftp client to chmod .htaccess in the forum directory to be writable (777), and then refresh this page.';
@@ -447,7 +448,6 @@ $txt['upgrade_completed_time_s'] = 'Upgrade completed in {s, plural,
 
 // Upgrade error messages
 $txt['upgrade_unsuccessful'] = 'Unsuccessful!';
-$txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
 $txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its directory.';
