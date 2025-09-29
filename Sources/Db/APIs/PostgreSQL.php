@@ -2353,21 +2353,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function validatePrefix(&$value): bool
+	public function validatePrefix(string $prefix): void
 	{
-		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
+		if ($prefix !== preg_replace('~[^A-Za-z0-9_\$]~', '', $prefix)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_invalid', ['prefix' => $prefix], file: 'Maintenance'));
+		}
 
 		// Is it reserved?
-		if ($value == 'pg_') {
+		if ($prefix == 'pg_') {
 			throw new \Exception(Lang::getTxt('error_db_prefix_reserved', file: 'Maintenance'));
 		}
 
 		// Is the prefix numeric?
-		if (preg_match('~^\d~', $value)) {
+		if (preg_match('~^\d~', $prefix)) {
 			throw new \Exception(Lang::getTxt('error_db_prefix_numeric', file: 'Maintenance'));
 		}
-
-		return true;
 	}
 
 	/**
