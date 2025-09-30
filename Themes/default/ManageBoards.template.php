@@ -302,9 +302,9 @@ function template_modify_board()
 		echo '
 						<select id="order" name="placement" onchange="this.form.board_order.disabled = this.options[this.selectedIndex].value == \'\';">
 							', !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::getTxt('mboards_unchanged', file: 'ManageBoards') . ')</option>' : '', '
-							<option value="after">' . Lang::getTxt('mboards_order_after', file: 'ManageBoards') . '...</option>
-							<option value="child">' . Lang::getTxt('mboards_order_child_of', file: 'ManageBoards') . '...</option>
-							<option value="before">' . Lang::getTxt('mboards_order_before', file: 'ManageBoards') . '...</option>
+							<option value="after">' . Lang::getTxt('mboards_order_after', ['name' => '...'], file: 'ManageBoards') . '</option>
+							<option value="child">' . Lang::getTxt('mboards_order_child_of', ['name' => '...'], file: 'ManageBoards') . '</option>
+							<option value="before">' . Lang::getTxt('mboards_order_before', ['name' => '...'], file: 'ManageBoards') . '</option>
 						</select>';
 
 		// The second select box lists all the boards in the category.

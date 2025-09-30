@@ -607,7 +607,7 @@ class UpdateUnicode extends BackgroundTask
 
 		@ini_set('memory_limit', '256M');
 
-		$this->time_limit = (empty(\ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : \ini_get('max_execution_time');
+		$this->time_limit = (int) ((empty(\ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : \ini_get('max_execution_time'));
 
 		foreach ($this->funcs as $func_name => $func_info) {
 			$file_paths['final'] = implode(DIRECTORY_SEPARATOR, [$this->unicodedir, $func_info['file']]);

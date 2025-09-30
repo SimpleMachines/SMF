@@ -28,5 +28,4 @@ define('SMF', 'BACKGROUND');
 // Initialize.
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
 
-$task_runner = new SMF\TaskRunner();
-$task_runner->execute();
+(new SMF\TaskRunner())->execute();
