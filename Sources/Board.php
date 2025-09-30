@@ -914,6 +914,26 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
+	 * Removes an instance of this class, handling any necessary cleanups and
+	 * memory optimizations.
+	 *
+	 * @param int $id The ID number of the board to unload.
+	 */
+	public static function unload(int $id): void
+	{
+		if (!isset(self::$loaded[$id])) {
+			return;
+		}
+
+		// Can we unload the category too?
+		if (self::$loaded[$id]->cat?->id > 0 && array_filter(self::$loaded, fn($b) => $b->id !== $id && $b->cat?->id === self::$loaded[$id]->cat->id) === []) {
+			Category::unload(self::$loaded[$id]->cat->id);
+		}
+
+		unset(self::$loaded[$id]);
+	}
+
+	/**
 	 * Mark a board or multiple boards read.
 	 *
 	 * @param int|array $boards The ID of a single board or an array of boards
