@@ -1773,6 +1773,9 @@ class Post implements ActionInterface, Routable
 			// We do XML preview here.
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
+			'options' => [
+				'autofocus' => $this->intent !== self::INTENT_NEW_TOPIC,
+			],
 		]);
 	}
 
