@@ -10,9 +10,9 @@ html {
 }
 body {
 	flex: 1;
-	background: var(--input-bg);
-	color: var(--input-color);
-	font: 1em / var(--input-line-height) var(--body-font-family);
+	color: #111;
+	background: #fff;
+	font: 13px / 1.5 Verdana, Arial, Helvetica, sans-serif;
 }
 
 ul, ol {

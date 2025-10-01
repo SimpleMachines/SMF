@@ -157,6 +157,7 @@
 .sceditor-container textarea {
 	flex: 1 1 0%;
 	border: 0;
+	font: revert;
 	outline: none;
 	padding: 0;
 	margin: 0;
