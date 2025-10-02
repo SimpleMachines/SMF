@@ -28,6 +28,10 @@ table, td {
 	min-width: 0.5ch;
 }
 
+table td {
+	min-width: 5ex;
+}
+
 code::before {
 	position: absolute;
 	content: 'Code:';
