@@ -309,7 +309,9 @@
 			// delete tabs.  Supporting Markdown means we need to keep them.
 			const getSourceVal = editor.getSourceEditorValue;
 			const setSourceVal = editor.setSourceEditorValue;
-			const sourceEditor = editor.getContentAreaContainer().nextSibling;
+			const wysiwygEditor = editor.getContentAreaContainer();
+			const sourceEditor = wysiwygEditor.nextSibling;
+			const editorContainer = wysiwygEditor.parentNode;
 
 			editor.getSourceEditorValue = function (filter) {
 				if (filter !== false && sourceEditor.value.includes('\t')) {
@@ -321,6 +323,42 @@
 
 			editor.setSourceEditorValue = function (value) {
 				setSourceVal(value.replaceAll(/\[tab\]/, '\t'));
+			};
+
+			// Override maximize routine so that we can keep the toolbar visible.
+			let maximizeScrollPosition;
+			editor.maximize = function (maximize) {
+				const maximizeSize = 'sceditor-maximize';
+
+				if (maximize === undefined) {
+					return editorContainer.classList.contains(maximizeSize);
+				}
+
+				maximize = !!maximize;
+
+				if (maximize) {
+					maximizeScrollPosition = window.pageYOffset;
+				}
+
+				document.documentElement.classList.toggle(maximizeSize, maximize);
+				document.body.classList.toggle(maximizeSize, maximize);
+				editorContainer.classList.toggle(maximizeSize, maximize);
+
+				const toolbar = this.opts.toolbarContainer;
+				const picker = toolbar.nextSibling;
+
+				// Move them to the right places.
+				if (maximize) {
+					editorContainer.prepend(toolbar, picker);
+				} else {
+					editorContainer.before(toolbar, picker);
+				}
+
+				if (!maximize) {
+					window.scrollTo(0, maximizeScrollPosition);
+				}
+
+				return editor;
 			};
 		};
 	};
