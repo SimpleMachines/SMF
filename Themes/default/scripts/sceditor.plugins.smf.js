@@ -360,6 +360,21 @@
 
 				return editor;
 			};
+
+			// Custom insert function that applies advanced cursor/selection logic
+			const sourceEditorInsertText = editor.sourceEditorInsertText;
+			editor.sourceEditorInsertText = function (text, endText) {
+				const startPos  = sourceEditor.selectionStart;
+				const endPos    = sourceEditor.selectionEnd;
+
+				sourceEditorInsertText(text, endText);
+
+				if (endText) {
+					const cursor = startPos + text.length;
+					const length = endPos - startPos;
+					sourceEditor.setSelectionRange(cursor, cursor + length);
+				}
+			};
 		};
 	};
 
