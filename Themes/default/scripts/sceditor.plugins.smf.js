@@ -207,6 +207,8 @@
 				},
 			};
 
+			// Dropdown can get misplaced because of mismatched offsets
+			// https://stackoverflow.com/q/77738288/4710434
 			const fn = editor.createDropDown;
 			this.createDropDown = function (menuItem, name, content) {
 				fn(menuItem, name, content);
@@ -215,6 +217,12 @@
 					document.body.appendChild(dropdown);
 				}
 			};
+
+			// Submit shortcut
+			// https://stackoverflow.com/a/77738059
+			this.addShortcut('ctrl+enter', function () {
+				editor.opts.original.form.submit();
+			});
 
 			editor.insertQuoteFast = messageid => {
 				getXMLDocument(
