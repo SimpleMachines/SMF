@@ -118,6 +118,7 @@
 	background-position: 0px -464px;
 }
 .sceditor-insertemoticon img {
+	cursor: pointer;
 	margin: 4px;
 }
 .sceditor-button-email div {
