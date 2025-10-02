@@ -449,13 +449,12 @@ sceditor.command.set(
 	}
 ).set(
 	'unlink', {
-		state() {
+		state(parent) {
 			if (this.inSourceMode()) {
 				return 0;
 			}
 
-			const rangeHelper = this.getRangeHelper();
-			const container = rangeHelper.parentNode().parentNode;
+			const container = parent.parentNode;
 
 			if (container.nodeType === Node.ELEMENT_NODE && container.nodeName === 'SPAN' && container.classList.contains('nolink')) {
 				return 1;
