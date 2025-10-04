@@ -824,9 +824,9 @@ class Editor implements \ArrayAccess, \Stringable
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
 
-		if (empty(Config::$modSettings['disable_wysiwyg'])) {
+		if (!empty(Config::$modSettings['disable_wysiwyg'])) {
 			self::$disabled_tags['removeformat'] = true;
-			self::$disabled_tags['orderedlist'] = true;
+			self::$disabled_tags['source'] = true;
 		}
 
 		// Disable the buttons for any BBC that this user is not allowed to use.
