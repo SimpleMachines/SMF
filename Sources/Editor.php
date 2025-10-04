@@ -966,7 +966,6 @@ class Editor implements \ArrayAccess, \Stringable
 			'width' => $this->width ?? '100%',
 			'height' => $this->height ?? '250px',
 			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
-			'autoUpdate' => true,
 			'emoticonsCompat' => true,
 			'emoticons' => [],
 			'emoticonsEnabled' => !$this->disable_smiley_box,

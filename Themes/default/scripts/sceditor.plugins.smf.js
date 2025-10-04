@@ -383,6 +383,73 @@
 					sourceEditor.setSelectionRange(cursor, cursor + length);
 				}
 			};
+
+			const wysiwygBody = editor.getBody();
+			const autofocus = function (focusEnd) {
+				if (editor.sourceMode()) {
+					const txtPos = focusEnd ? sourceEditor.value.length : 0;
+					sourceEditor.setSelectionRange(txtPos, txtPos);
+					editor.focus();
+
+					return;
+				}
+
+				let node = wysiwygBody.firstChild;
+
+				if (focusEnd) {
+					while (node.lastChild) {
+						node = node.lastChild;
+
+						// Should place the cursor before the last <br>
+						if (node.nodeName === 'BR' && node.previousSibling) {
+							node = node.previousSibling;
+						}
+					}
+				}
+
+				const range = wysiwygBody.ownerDocument.createRange();
+
+				if (!sceditor.dom.canHaveChildren(node)) {
+					range.setStartBefore(node);
+
+					if (focusEnd) {
+						range.setStartAfter(node);
+					}
+				} else {
+					range.selectNodeContents(node);
+				}
+
+				range.collapse(!focusEnd);
+				const rangeHelper = editor.getRangeHelper();
+				rangeHelper.selectRange(range);
+
+				if (focusEnd) {
+					const doc = wysiwygEditor.contentDocument;
+					const scrollEl = doc.documentElement;
+					scrollEl.scrollTop = wysiwygBody.scrollHeight;
+				}
+
+				editor.focus();
+			};
+
+			// Intercept this when called from the pageshow event to rerun
+			// autofocus because all the nodes in the editor have been rewritten.
+			const valFn = editor.val;
+			editor.val = function (val, filter) {
+				if (typeof val !== 'string') {
+					return this.inSourceMode() ?
+						this.getSourceEditorValue(false) :
+						this.getWysiwygEditorValue(filter);
+				}
+
+				valFn(val, filter);
+
+				if (val === this.opts.original.value && this.opts.autofocusOverride) {
+					autofocus(!!this.opts.autofocusEnd);
+				}
+
+				return this;
+			};
 		};
 	};
 
@@ -405,11 +472,13 @@
 	const createFn = sceditor.create;
 	sceditor.create = (textarea, options, bbcContainer, smileyContainer) => {
 		setCustomTextualCommands(options.customTextualCommands);
+
+		// Store the original textarea so that the submit shortcut works.
 		options.original = textarea;
 
-		if (typeof oQuickModify !== "undefined") {
-			oQuickModify.opt.sceOptions = options;
-		}
+		// Override the default autofocus feature since it runs a little too early.
+		options.autofocusOverride = options.autofocus;
+		options.autofocus = false;
 
 		if (typeof bbcContainer === 'string')
 			options.toolbarContainer = document.getElementById(bbcContainer);
