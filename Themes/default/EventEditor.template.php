@@ -377,7 +377,7 @@ function template_rrule()
 		echo '
 						<dl id="special_rrule_options">
 							<dt class="clear">
-								<a id="special_rrule_modifier_help" href="https://stovell.noip.me/~jon/dev/index.php?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
+								<a id="special_rrule_modifier_help" href="' . Config::$scripturl . '?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
 								<label>', Lang::getTxt('calendar_repeat_special_rrule_modifier', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
