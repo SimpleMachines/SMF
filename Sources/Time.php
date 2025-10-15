@@ -1453,9 +1453,9 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
 			array_merge(
 				// Time zone abbreviations.
-				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a)),
+				array_map('strtolower', array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a))),
 				// Time zone identifiers.
-				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+				array_map('strtolower', \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)),
 				// Recognized key words.
 				[
 					'january', 'february', 'march', 'april', 'may', 'june',
