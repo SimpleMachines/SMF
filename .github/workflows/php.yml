@@ -79,6 +79,6 @@ jobs:
 
     - name: Check PHP syntax errors
       if: ${{ matrix.php != 8 }}
-      uses: overtrue/phplint@9.6.2
+      uses: overtrue/phplint@e2ebdbac93fa6ffe45d724e350f77df34c1f8fb4 #9.6.2
       with:
         options: --exclude .git --exclude vendor
