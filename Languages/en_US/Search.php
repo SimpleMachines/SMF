@@ -185,6 +185,9 @@ $txt['robots_txt'] = 'Add SMF rules to robots.txt';
 $txt['robots_txt_info'] = 'Enter the path to your robots.txt file so that SMF can append rules to it.';
 $txt['robots_txt_auto'] = 'Detect path';
 $txt['robots_txt_not_writable'] = 'The robots.txt file is not writable.';
+$txt['robots_txt_search'] = 'Allow search engines to link to the forum in their search results';
+$txt['robots_txt_ai_input'] = 'Allow search engines to generate AI summaries of forum content';
+$txt['robots_txt_ai_train'] = 'Allow forum content to be used for AI training';
 
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'In most situations, this should be left blank.';
