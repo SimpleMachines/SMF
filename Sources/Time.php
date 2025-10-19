@@ -175,14 +175,15 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 *  - The second parameter can be a \DateTimeZone object or a valid time
 	 *    zone identifier string. If a string is passed and that string is not a
-	 *    valid time zone identifier, it will be silently discarded in favour of
-	 *    the current user's time zone.
+	 *    valid time zone identifier, an exception will be thrown.
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
-	 *    as a \DateTimeZone object or as a time zone identifier string.
-	 *    Defaults to the current user's time zone.
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime,
+	 *    either as a \DateTimeZone object or as a time zone identifier string.
+	 *    If null, defaults to the current user's time zone.
+	 * @throws \DateInvalidTimeZoneException if $timezone is an invalid time
+	 *    zone identifier string.
 	 */
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
@@ -190,8 +191,8 @@ class Time extends \DateTime implements \ArrayAccess
 			self::$user_tz = new \DateTimeZone(User::getTimezone());
 		}
 
-		if (\is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
-			unset($timezone);
+		if (\is_string($timezone)) {
+			$timezone = new \DateTimeZone($timezone);
 		}
 
 		$datetime = self::sanitize($datetime);
@@ -1452,9 +1453,9 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
 			array_merge(
 				// Time zone abbreviations.
-				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a)),
+				array_map('strtolower', array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a))),
 				// Time zone identifiers.
-				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+				array_map('strtolower', \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)),
 				// Recognized key words.
 				[
 					'january', 'february', 'march', 'april', 'may', 'june',

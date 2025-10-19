@@ -303,7 +303,7 @@ class UserPermissionSet
 
 			// Unload any boards that weren't already loaded.
 			foreach ($boards_to_unload as $id) {
-				unset(Board::$loaded[$id]);
+				Board::unload($id);
 			}
 		}
 

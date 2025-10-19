@@ -338,6 +338,17 @@ class Category implements \ArrayAccess
 	}
 
 	/**
+	 * Removes an instance of this class, handling any necessary cleanups and
+	 * memory optimizations.
+	 *
+	 * @param int $id The ID number of the category.
+	 */
+	public static function unload(int $id): void
+	{
+		unset(self::$loaded[$id]);
+	}
+
+	/**
 	 * Edit the position and properties of a category.
 	 * general function to modify the settings and position of a category.
 	 * used by ManageBoards.php to change the settings of a category.
