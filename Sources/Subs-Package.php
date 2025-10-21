@@ -1392,7 +1392,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				$failure |= !mktree(dirname($action['destination']), 0777);
 
 			// Create an empty file.
-			package_put_contents($action['destination'], package_get_contents($action['source']), $testing_only);
+			package_put_contents($action['destination'], '', $testing_only);
 
 			if (!file_exists($action['destination']))
 				$failure = true;
