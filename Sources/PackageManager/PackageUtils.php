@@ -1454,7 +1454,7 @@ class PackageUtils
 				}
 
 				// Create an empty file.
-				self::packagePutContents($action['destination'], self::packageGetContents($action['source']), $testing_only);
+				self::packagePutContents($action['destination'], '', $testing_only);
 
 				if (!file_exists($action['destination'])) {
 					$failure = true;
