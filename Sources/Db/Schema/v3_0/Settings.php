@@ -631,6 +631,10 @@ class Settings extends Table
 			'value' => '0',
 		],
 		[
+			'variable' => 'robots_txt_search',
+			'value' => '1',
+		],
+		[
 			'variable' => 'samesiteCookies',
 			'value' => 'lax',
 		],

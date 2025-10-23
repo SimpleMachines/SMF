@@ -124,44 +124,44 @@ $txt['search_did_you_mean'] = 'You may have meant to search for {suggested_query
 $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
-$txt['spider_mode'] = 'Search Engine Tracking level';
-$txt['spider_mode_note'] = 'Note that logging of every spider action only occurs if tracking is set to either "moderate" or "aggressive". Detail of every spider’s action is only logged if tracking is set to "aggressive".';
+$txt['spider_mode'] = 'Search Engine and Robot Tracking level';
+$txt['spider_mode_note'] = 'Note that logging of every robot action only occurs if tracking is set to either "moderate" or "aggressive". Details about every robot action are only logged if tracking is set to "aggressive".';
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
 $txt['spider_mode_high'] = 'Moderate';
 $txt['spider_mode_vhigh'] = 'Aggressive';
-$txt['spider_settings_desc'] = 'You can change settings for spider tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
+$txt['spider_settings_desc'] = 'You can change settings for robot tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
 
 $txt['spider_group'] = 'Apply restrictive permissions from group';
-$txt['spider_group_note'] = 'To enable you to stop spiders indexing some pages.';
+$txt['spider_group_note'] = 'To enable you to stop robots indexing some pages.';
 $txt['spider_group_none'] = 'Disabled';
 
-$txt['show_spider_online'] = 'Show spiders in the online list';
+$txt['show_spider_online'] = 'Show robots in the online list';
 $txt['show_spider_online_no'] = 'Not at all';
-$txt['show_spider_online_summary'] = 'Show spider quantity';
-$txt['show_spider_online_detail'] = 'Show spider names';
-$txt['show_spider_online_detail_admin'] = 'Show spider names - admin only';
+$txt['show_spider_online_summary'] = 'Show robot quantity';
+$txt['show_spider_online_detail'] = 'Show robot names';
+$txt['show_spider_online_detail_admin'] = 'Show robot names - admin only';
 
-$txt['spider_name'] = 'Spider Name';
+$txt['spider_name'] = 'Robot Name';
 $txt['spider_last_seen'] = 'Last Seen';
 $txt['spider_last_never'] = 'Never';
 $txt['spider_agent'] = 'User Agent';
 $txt['spider_ip_info'] = 'IP Addresses';
-$txt['spiders_add'] = 'Add new Spider';
-$txt['spiders_edit'] = 'Edit Spider';
+$txt['spiders_add'] = 'Add new robot';
+$txt['spiders_edit'] = 'Edit robot';
 $txt['spiders_remove_selected'] = 'Remove selected';
-$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?-n-All associated statistics will also be deleted!';
-$txt['spiders_no_entries'] = 'There are currently no spiders configured.';
+$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these robots?-n-All associated statistics will also be deleted!';
+$txt['spiders_no_entries'] = 'There are currently no robots configured.';
 
-$txt['add_spider_desc'] = 'From this page you can edit the parameters against which a spider is categorized. If a guest’s user agent/IP address matches those entered below it will be detected as a search engine spider and tracked as per the forum preferences.';
-$txt['spider_name_desc'] = 'Name by which the spider will be referred.';
-$txt['spider_agent_desc'] = 'User agent associated with this spider.';
-$txt['spider_ip_info_desc'] = 'Comma separated list of IP addresses associated with this spider.';
+$txt['add_spider_desc'] = 'From this page you can edit the parameters against which a robot is categorized. If a guest’s user agent or IP address match those entered below, the guest will be detected as a robot and tracked as per the forum preferences.';
+$txt['spider_name_desc'] = 'Name by which the robot will be referred.';
+$txt['spider_agent_desc'] = 'User agent associated with this robot.';
+$txt['spider_ip_info_desc'] = 'Comma separated list of IP addresses associated with this robot.';
 
 $txt['spider_time'] = 'Time';
 $txt['spider_viewing'] = 'Viewing';
-$txt['spider_logs_empty'] = 'There are currently no spider log entries.';
-$txt['spider_logs_info'] = 'Note that logging of every spider action only occurs if tracking is set to either "moderate" or "aggressive". Detail of every spider’s action is only logged if tracking is set to "aggressive".';
+$txt['spider_logs_empty'] = 'There are currently no robot log entries.';
+$txt['spider_logs_info'] = 'Note that logging of every robot action only occurs if tracking is set to either "moderate" or "aggressive". Details about every robot action are only logged if tracking is set to "aggressive".';
 $txt['spider_disabled'] = 'Disabled';
 $txt['spider_log_empty_log'] = 'Clear Log';
 $txt['spider_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log';
@@ -172,19 +172,22 @@ $txt['spider_logs_delete_day'] = 'days.';
 $txt['spider_logs_delete_submit'] = 'Delete';
 
 // argument: an HTML <input> element.
-$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in {input} days.';
+$txt['spider_stats_delete_older'] = 'Delete all statistics from robots not seen in {input} days.';
 
 // Don't use entities in the below string.
 $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log entries?';
 
 $txt['spider_stats_select_month'] = 'Jump to Month';
 $txt['spider_stats_page_hits'] = 'Page Hits';
-$txt['spider_stats_no_entries'] = 'There are currently no spider statistics available.';
+$txt['spider_stats_no_entries'] = 'There are currently no robot statistics available.';
 
 $txt['robots_txt'] = 'Add SMF rules to robots.txt';
 $txt['robots_txt_info'] = 'Enter the path to your robots.txt file so that SMF can append rules to it.';
 $txt['robots_txt_auto'] = 'Detect path';
 $txt['robots_txt_not_writable'] = 'The robots.txt file is not writable.';
+$txt['robots_txt_search'] = 'Allow search engines to link to the forum in their search results';
+$txt['robots_txt_ai_input'] = 'Allow search engines to generate AI summaries of forum content';
+$txt['robots_txt_ai_train'] = 'Allow forum content to be used for AI training';
 
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'In most situations, this should be left blank.';
