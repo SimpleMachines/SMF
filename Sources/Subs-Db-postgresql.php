@@ -379,7 +379,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Comments that are allowed in a query are preg_removed.
 	static $allowed_comments_from = array(
-		'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
+		'~\'\X*?\'~s',
 		'~\s+~s',
 		'~/\*!40001 SQL_NO_CACHE \*/~',
 		'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
@@ -415,7 +415,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
-		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
+		// Clear out escaped single quotes first, to make it simpler to ID & remove string literals
+		$clean = str_replace('\'\'', '', $db_string);
+		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
 		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
