@@ -1810,7 +1810,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				}
 				$default = 'default nextval(\'' . $short_table_name . '_seq\')';
 			} elseif (isset($column['default']) && $column['default'] !== null) {
-				$default = 'default \'' . $this->escape_string($column['default']) . '\'';
+				// Numbers don't need quotes.
+				if (is_numeric($column['default']))
+					$default = 'default ' . $column['default'];
+				else
+					$default = 'default \'' . $this->escape_string($column['default']) . '\'';
 			} else {
 				$default = '';
 			}
