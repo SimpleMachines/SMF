@@ -216,18 +216,20 @@ class BuddyIgnoreLists implements ActionInterface
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
 
 		$request = Db::$db->query(
-			'SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
+			'SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
-				AND private < {int:private_level}',
+				AND private < {int:private_level}
+				AND show_blist = {int:show_blist}',
 			[
 				'active' => 1,
 				'private_level' => 2,
+				'show_blist' => 1,
 			],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!isset($disabled_fields[$row['col_name']]) && !empty($row['show_mlist'])) {
+			if (!isset($disabled_fields[$row['col_name']])) {
 				Utils::$context['custom_pf'][$row['col_name']] = [
 					'label' => Lang::tokenTxtReplace($row['field_name']),
 					'type' => $row['field_type'],
