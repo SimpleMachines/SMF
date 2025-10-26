@@ -1478,6 +1478,7 @@ class Themes implements ActionInterface
 
 		// Create subdirectory for language files
 		mkdir(Utils::$context['to_install']['theme_dir'] . '/languages', 0777);
+		mkdir(Utils::$context['to_install']['theme_dir'] . '/languages/en_US', 0777);
 
 		// Copy over the default non-theme files.
 		$to_copy = [
