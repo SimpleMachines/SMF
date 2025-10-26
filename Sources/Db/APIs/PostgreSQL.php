@@ -470,6 +470,16 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$insertRows = [];
 
 			foreach ($data as $dataRow) {
+				if (\count($indexed_columns) !== \count($dataRow)) {
+						$this->error_backtrace(
+							'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+							'',
+							E_USER_ERROR,
+							__FILE__,
+							__LINE__,
+						);
+				}
+
 				$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 			}
 
