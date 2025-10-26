@@ -330,7 +330,7 @@ class Boards implements ActionInterface
 			} elseif ($catid != $_REQUEST['cat']) {
 				Utils::$context['category_order'][$catid] = [
 					'id' => $catid,
-					'name' => Lang::getTxt('mboards_order_after', [$tree->name], file: 'ManageBoards'),
+					'name' => Lang::getTxt('mboards_order_after', ['name' => $tree->name], file: 'ManageBoards'),
 					'selected' => false,
 					'true_name' => $tree->name,
 				];

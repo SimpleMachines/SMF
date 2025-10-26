@@ -291,8 +291,19 @@ class UserPermissionSet
 		}
 
 		if (!empty($boards)) {
+			$boards = array_map('intval', $boards);
+
+			// We need to temporarily load the boards, but we don't want to keep
+			// any that weren't already loaded.
+			$boards_to_unload = array_diff($boards, array_keys(Board::$loaded));
+
 			foreach (Board::load($boards) as $board) {
 				$loaded[$board->profile] = self::$loaded[$user->id][$board->profile] ?? new self($user, $board);
+			}
+
+			// Unload any boards that weren't already loaded.
+			foreach ($boards_to_unload as $id) {
+				Board::unload($id);
 			}
 		}
 

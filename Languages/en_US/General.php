@@ -1103,15 +1103,15 @@ $txt['send_email'] = 'Send Email';
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';
 
-$txt['spider'] = 'Spider';
-$txt['spiders'] = 'Spiders';
+$txt['spider'] = 'Robot';
+$txt['spiders'] = 'Robots';
 $txt['spider_plural'] = '{0, plural,
-	one {spider}
-	other {spiders}
+	one {robot}
+	other {robots}
 }';
 $txt['number_of_spiders'] = '{0, plural,
-	one {# spider}
-	other {# spiders}
+	one {# robot}
+	other {# robots}
 }';
 
 $txt['downloads'] = 'Downloads';

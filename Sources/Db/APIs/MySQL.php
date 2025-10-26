@@ -1325,7 +1325,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci',
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
 			[
 				'string_zero' => '0',
 				'size' => $size,
@@ -1880,9 +1880,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		if (!empty($this->character_set) && str_starts_with($this->character_set, 'utf8')) {
 			if ($this->mb4) {
-				$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+				$table_query .= ' DEFAULT CHARSET=utf8mb4';
 			} else {
-				$table_query .= ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci';
+				$table_query .= ' DEFAULT CHARSET=utf8mb3';
 			}
 		}
 
@@ -2370,11 +2370,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function validatePrefix(&$value): bool
+	public function validatePrefix(string $prefix): void
 	{
-		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
-
-		return true;
+		if ($prefix !== preg_replace('~[^A-Za-z0-9_\$]~', '', $prefix)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_invalid', ['prefix' => $prefix], file: 'Maintenance'));
+		}
 	}
 
 	/**
