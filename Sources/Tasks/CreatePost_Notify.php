@@ -575,7 +575,7 @@ class CreatePost_Notify extends BackgroundTask
 				// Use the target member's localization settings.
 				Parser::$time_offset = (int) $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
-				Parser::$smiley_set = $member_data['smiley_set'];
+				Parser::$smiley_set = $member_data['smiley_set'] ?? '';
 				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
@@ -612,9 +612,9 @@ class CreatePost_Notify extends BackgroundTask
 				}
 
 				Parser::$time_offset = User::$me->time_offset;
-				Parser::$time_format = User::$me->$time_format;
+				Parser::$time_format = User::$me->time_format ?? '';
 				Parser::$smiley_set = (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
-				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
+				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
 			}
 
 			// Bitwise check: Receiving an alert?
