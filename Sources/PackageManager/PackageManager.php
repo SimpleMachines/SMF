@@ -1162,7 +1162,7 @@ class PackageManager
 					if ($action['reverse']) {
 						IntegrationHook::unregister($action['hook'], 0, $action['function'], true, $action['include_file'], $action['object']);
 					} else {
-						IntegrationHook::register($action['hook'], $action['function'], $action['include_file'], $action['class'], !empty($action['obect']), !empty($action['is_enabled']), $packageInfo['id']);
+						IntegrationHook::register($action['hook'], $action['function'], $action['include_file'], $action['class'], $action['object'], $action['is_enabled'], $packageInfo['id']);
 					}
 				}
 				// Only do the database changes on uninstall if requested.
