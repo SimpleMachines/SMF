@@ -1792,6 +1792,9 @@ function loadCacheAPIs()
 
 	foreach ($api_classes as $file_path => $file_info)
 	{
+		if ($file_path == 'index.php')
+			continue;
+
 		require_once($apis_dir . '/' . $file_path);
 
 		$class_name = $file_info->getBasename('.php');
