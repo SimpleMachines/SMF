@@ -20,7 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 
 /**
  * Creates the editor input box so that people can write messages to post.
- * 
+ *
  * Provides a configurable rich text editor with support for BBCodes, smileys,
  * and various toolbar customizations. Integrates with theme and language settings,
  * and supports plugin extensions via integration hooks.
@@ -205,22 +205,34 @@ class Editor implements \ArrayAccess, \Stringable
 	 * Public static properties
 	 **************************/
 
-	/** @var array All loaded Editor instances, keyed by ID. */
+	/**
+	 * @var array All loaded Editor instances, keyed by ID.
+	 */
 	public static array $loaded = [];
 
-	/** @var array BBC tags configuration for the toolbar. */
+	/**
+	 * @var array BBC tags configuration for the toolbar.
+	 */
 	public static array $bbc_tags = [];
 
-	/** @var array Disabled BBC tags for this context. */
+	/**
+	 * @var array Disabled BBC tags for this context.
+	 */
 	public static array $disabled_tags = [];
 
-	/** @var array BBC toolbar groups. */
+	/**
+	 * @var array BBC toolbar groups.
+	 */
 	public static array $bbc_toolbar = [];
 
-	/** @var array Handlers for custom BBC toolbar commands. */
+	/**
+	 * @var array Handlers for custom BBC toolbar commands.
+	 */
 	public static array $bbc_handlers = [];
 
-	/** @var array Smileys to show in the toolbar. */
+	/**
+	 * @var array Smileys to show in the toolbar.
+	 */
 	public static array $smileys_toolbar = [];
 
 	/*********************
@@ -498,6 +510,372 @@ class Editor implements \ArrayAccess, \Stringable
 		return array_values($icons);
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Initializes some required template stuff.
+	 *
+	 * Only acts the first time an instance of this class is created.
+	 */
+	protected function init(): void
+	{
+		// Don't do this twice.
+		if (!empty(self::$loaded)) {
+			return;
+		}
+
+		// Some general stuff.
+		Theme::$current->settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;
+
+		if (!empty(Utils::$context['drafts_autosave'])) {
+			Utils::$context['drafts_autosave_frequency'] = empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000;
+		}
+
+		// This really has some WYSIWYG stuff.
+		Theme::loadCSSFile('jquery.sceditor.css', ['default_theme' => true, 'validate' => true], 'smf_jquery_sceditor');
+
+		Theme::loadTemplate('GenericControls');
+
+		/*
+			THEME AUTHORS:
+			If you want to change or tweak the CSS for the editor,
+			include a file named 'jquery.sceditor.theme.css' in your theme.
+		 */
+		Theme::loadCSSFile('jquery.sceditor.theme.css', ['force_current' => true, 'validate' => true], 'smf_jquery_sceditor_theme');
+
+		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
+		Theme::loadJavaScriptFile('sceditor.plugins.smf.js', ['minimize' => true], 'smf_sceditor_smf');
+
+		$locale_key = Lang::getTxt('lang_dictionary', file: 'General');
+
+		$translation_map = [
+			'Width (optional):' => Lang::getTxt('width', var: 'editortxt'),
+			'Height (optional):' => Lang::getTxt('height', var: 'editortxt'),
+			'Insert' => Lang::getTxt('insert', var: 'editortxt'),
+			'Description (optional):' => Lang::getTxt('description', var: 'editortxt'),
+			'Rows:' => Lang::getTxt('rows', var: 'editortxt'),
+			'Cols:' => Lang::getTxt('cols', var: 'editortxt'),
+			'URL:' => Lang::getTxt('url', var: 'editortxt'),
+			'E-mail:' => Lang::getTxt('email', var: 'editortxt'),
+			'Video URL:' => Lang::getTxt('video_url', var: 'editortxt'),
+			'More' => Lang::getTxt('more', var: 'editortxt'),
+			'Close' => Lang::getTxt('close', var: 'editortxt'),
+			'dateFormat' => Lang::getTxt('dateformat', var: 'editortxt'),
+			'details' => Lang::getTxt('details', var: 'editortxt'),
+			'spoiler' => Lang::getTxt('spoiler', var: 'editortxt'),
+			'summaryPrompt' => Lang::getTxt('summary_prompt', var: 'editortxt'),
+		];
+		IntegrationHook::call('integrate_sceditor_locale', [&$translation_map]);
+
+		$sc_extra_langs = 'sceditor.locale["' . $locale_key . '"] = ' . json_encode($translation_map, JSON_UNESCAPED_UNICODE) . ';';
+
+		Theme::addInlineJavaScript($sc_extra_langs, true);
+
+		Theme::addInlineJavaScript('
+		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
+		var bbc_quote_from = \'' . addcslashes(Lang::getTxt('quote_from', file: 'General'), "'") . '\';
+		var bbc_quote = \'' . addcslashes(Lang::getTxt('quote', file: 'General'), "'") . '\';
+		var bbc_search_on = \'' . addcslashes(Lang::getTxt('search_on', file: 'General'), "'") . '\';');
+
+		Utils::$context['shortcuts_text'] = Lang::getTxt('shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : '')), file: 'Post');
+
+		if (Utils::$context['show_spellchecking']) {
+			Theme::loadJavaScriptFile('spellcheck.js', ['minimize' => true], 'smf_spellcheck');
+
+			// Some hidden information is needed in order to make the spell checking work.
+			if (!isset($_REQUEST['xml'])) {
+				Utils::$context['insert_after_template'] .= '
+				<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
+					<input type="hidden" name="spellstring" value="">
+				</form>';
+			}
+		}
+
+		// Backward compatibility.
+		Utils::$context['controls']['richedit'] = &self::$loaded;
+	}
+
+	/**
+	 * Builds the main editor form buttons (submit, preview, etc.)
+	 */
+	protected function buildButtons(): void
+	{
+		Utils::$context['richedit_buttons'] = [
+			'save_draft' => [
+				'type' => 'submit',
+				'value' => Lang::getTxt('draft_save', file: 'Drafts'),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ');' : '',
+				'accessKey' => 'd',
+				'show' => !empty(Utils::$context['drafts_save']),
+			],
+			'id_draft' => [
+				'type' => 'hidden',
+				'value' => Utils::$context['id_draft'] ?? 0,
+				'show' => !empty(Utils::$context['drafts_save']),
+			],
+			'spell_check' => [
+				'type' => 'submit',
+				'value' => Lang::getTxt('spell_check', file: 'General'),
+				'show' => !empty(Utils::$context['show_spellchecking']),
+			],
+			'preview' => [
+				'type' => 'submit',
+				'value' => Lang::getTxt('preview', file: 'General'),
+				'accessKey' => 'p',
+			],
+		];
+	}
+
+	/**
+	 * Initializes and constructs the BBC button toolbar for the editor.
+	 *
+	 * Sets up available BBC tags, disables tags as required, applies integration hooks,
+	 * and builds the toolbar structure for rendering.
+	 *
+	 */
+	protected function buildBbcToolbar(): void
+	{
+		if (self::$bbc_tags == []) {
+			self::initBbcTags();
+		}
+
+		Utils::$context['bbc_tags'] = &self::$bbc_tags;
+		Utils::$context['disabled_tags'] = &self::$disabled_tags;
+		Utils::$context['bbc_toolbar'] = &self::$bbc_toolbar;
+		Utils::$context['bbcodes_handlers'] = &self::$bbc_handlers;
+
+		$editor_tag_map = [
+			'b' => 'bold',
+			'i' => 'italic',
+			'u' => 'underline',
+			's' => 'strike',
+			'img' => 'image',
+			'url' => 'link',
+			'sup' => 'superscript',
+			'sub' => 'subscript',
+			'hr' => 'horizontalrule',
+		];
+
+		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
+		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
+
+		if (!empty(Config::$modSettings['disable_wysiwyg'])) {
+			self::$disabled_tags['removeformat'] = true;
+			self::$disabled_tags['source'] = true;
+		}
+
+		// Disable the buttons for any BBC that this user is not allowed to use.
+		foreach (Utils::$context['restricted_bbc'] as $tag) {
+			if (!User::$me->allowedTo('bbc_' . $tag)) {
+				$disabled_bbc[] = $tag;
+			}
+		}
+
+		foreach ($disabled_bbc as $tag) {
+			$tag = trim($tag);
+
+			if ($tag === 'list') {
+				self::$disabled_tags['bulletlist'] = true;
+				self::$disabled_tags['orderedlist'] = true;
+			}
+
+			if ($tag === 'float') {
+				self::$disabled_tags['floatleft'] = true;
+				self::$disabled_tags['floatright'] = true;
+			}
+
+			self::$disabled_tags[$editor_tag_map[$tag] ?? $tag] = true;
+		}
+
+		// Allow mods to modify BBC buttons.
+		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
+
+		$group = 0;
+
+		foreach (self::$bbc_tags as $row => $tag_row) {
+			if (!isset(self::$bbc_toolbar[$row])) {
+				self::$bbc_toolbar[$row] = [];
+			}
+
+			foreach ($tag_row as $tag) {
+				if (isset($tag['code']) && !isset(self::$disabled_tags[$tag['code']])) {
+					$this_tag = $editor_tag_map[$tag['code']] ?? $tag['code'];
+					self::$bbc_toolbar[$row][$group][] = $this_tag;
+
+					if (isset($tag['before']) || isset($tag['image'])) {
+						self::$bbc_handlers[$this_tag] = $tag;
+					}
+				} else {
+					$group++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Recursively implodes a multi-dimensional array with a list of glue values.
+	 *
+	 * @param string[] $glue List of glue strings for each depth.
+	 * @param array $pieces Multi-dimensional array to implode.
+	 * @param int $counter Internal recursion counter.
+	 *
+	 * @return string imploded array
+	 */
+	protected function implodeRecursive(array $glue, array $pieces, int $counter = 0): string
+	{
+		return implode(
+			$glue[$counter++],
+			array_map(
+				fn($v) => \is_array($v) ? $this->implodeRecursive($glue, $v, $counter) : $v,
+				$pieces,
+			),
+		);
+	}
+
+	/**
+	 * Initializes the smiley toolbar if enabled and not already loaded.
+	 *
+	 * Caches and fetches smileys from database if required.
+	 */
+	protected function buildSmileysToolbar(): void
+	{
+		if ($this->disable_smiley_box || self::$smileys_toolbar != []) {
+			return;
+		}
+
+		Utils::$context['smileys'] = &self::$smileys_toolbar;
+
+		if (User::$me->smiley_set != 'none') {
+			// Cache for longer when customized smiley codes aren't enabled
+			$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
+
+			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null) {
+				$request = Db::$db->query(
+					'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
+					FROM {db_prefix}smileys AS s
+						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+					WHERE s.hidden IN (0, 2)
+						AND f.smiley_set = {string:smiley_set}' . (empty(Config::$modSettings['smiley_enable']) ? '
+						AND s.code IN ({array_string:default_codes})' : '') . '
+					ORDER BY s.smiley_row, s.smiley_order',
+					[
+						'default_codes' => ['>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'],
+						'smiley_set' => User::$me->smiley_set,
+					],
+				);
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					self::$smileys_toolbar[] = $row;
+				}
+				Db::$db->free_result($request);
+				CacheApi::put('posting_smileys_' . User::$me->smiley_set, self::$smileys_toolbar, $cache_time);
+			} else {
+				self::$smileys_toolbar = $temp;
+			}
+		}
+	}
+
+	/**
+	 * Configures SCEditor options for this instance.
+	 *
+	 * Sets default dimensions, plugins, toolbar, emoticons, localization, and
+	 * applies integration hooks and user-supplied overrides.
+	 *
+	 * @param array $editorOptions SCEditor options/overrides.
+	 */
+	protected function setSCEditorOptions(array $editorOptions)
+	{
+		if (!isset($editorOptions['plugins'])) {
+			$editorOptions['plugins'] = [];
+		}
+
+		if (!empty(Config::$modSettings['autoLinkUrls']) && empty($editorOptions['disable_url_autolinking'])) {
+			$editorOptions['plugins'][] = 'autolinker';
+			Autolinker::createJavaScriptFile();
+			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
+			Theme::loadJavaScriptFile('sceditor.plugins.autolinker.js', ['minimize' => true], 'smf_autolinker_plugin');
+		}
+
+		$this->sce_options = [
+			'width' => $this->width ?? '100%',
+			'height' => $this->height ?? '250px',
+			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
+			'emoticonsCompat' => true,
+			'emoticons' => [],
+			'emoticonsEnabled' => !$this->disable_smiley_box,
+			'emoticonsRoot' => Theme::$current->settings['smileys_url'] . '/',
+			'colors' => [
+				['black', Lang::$editortxt['black']],
+				['red', Lang::$editortxt['red']],
+				['yellow', Lang::$editortxt['yellow']],
+				['pink', Lang::$editortxt['pink']],
+				['green', Lang::$editortxt['green']],
+				['orange', Lang::$editortxt['orange']],
+				['purple', Lang::$editortxt['purple']],
+				['blue', Lang::$editortxt['blue']],
+				['beige', Lang::$editortxt['beige']],
+				['brown', Lang::$editortxt['brown']],
+				['teal', Lang::$editortxt['teal']],
+				['navy', Lang::$editortxt['navy']],
+				['maroon', Lang::$editortxt['maroon']],
+				['limegreen', Lang::$editortxt['lime_green']],
+				['white', Lang::$editortxt['white']],
+			],
+			'fonts' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
+			'icons' => 'monocons',
+			'format' => 'bbcode',
+			'plugins' => 'smf,' . implode(',', $editorOptions['plugins'] ?? []),
+			'toolbar' => $this->implodeRecursive(['||', '|', ','], self::$bbc_toolbar),
+			'customTextualCommands' => self::$bbc_handlers,
+			'startInSourceMode' => !$this->rich_active,
+			'bbcodeTrim' => false,
+			'resizeWidth' => false,
+			'resizeMaxHeight' => -1,
+			'locale' => $this->locale ?? 'en',
+			'rtl' => !empty(Utils::$context['right_to_left']),
+			'commandsWithDropdown' => [
+				'color' => true,
+				'heading' => true,
+				'font' => true,
+				'size' => true,
+			],
+			'textOnlyCommands' => [],
+			'commandsWithText' => [],
+			'parserOptions' => [
+				'txtVars' => [
+					'code' => Lang::$txt['code'],
+				],
+			],
+		];
+
+		if (isset($editorOptions['options'])) {
+			$this->sce_options = array_merge_recursive($this->sce_options, $editorOptions['options']);
+		}
+
+		if ($this->sce_options['emoticonsEnabled']) {
+			$translations = [
+				0 => 'dropdown',
+				2 => 'more',
+			];
+			$prevRowIndex = 0;
+
+			foreach (self::$smileys_toolbar as $smiley) {
+				$this->sce_options['emoticons'][$translations[$smiley['hidden']]][$smiley['code']] = [
+					'newRow' => $smiley['smiley_row'] != $prevRowIndex,
+					'url' => $smiley['filename'],
+					'tooltip' => Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($smiley['description'])] ?? $smiley['description']),
+				];
+				$prevRowIndex = $smiley['smiley_row'];
+			}
+		}
+
+		// Allow mods to change $this->sce_options.
+		// Useful if, e.g., a mod wants to add an SCEditor plugin.
+		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -670,373 +1048,5 @@ class Editor implements \ArrayAccess, \Stringable
 				],
 			],
 		];
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Initializes some required template stuff.
-	 *
-	 * Only acts the first time an instance of this class is created.
-	 */
-	protected function init(): void
-	{
-		// Don't do this twice.
-		if (!empty(self::$loaded)) {
-			return;
-		}
-
-		// Some general stuff.
-		Theme::$current->settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;
-
-		if (!empty(Utils::$context['drafts_autosave'])) {
-			Utils::$context['drafts_autosave_frequency'] = empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000;
-		}
-
-		// This really has some WYSIWYG stuff.
-		Theme::loadCSSFile('jquery.sceditor.css', ['default_theme' => true, 'validate' => true], 'smf_jquery_sceditor');
-
-		Theme::loadTemplate('GenericControls');
-
-		/*
-			THEME AUTHORS:
-			If you want to change or tweak the CSS for the editor,
-			include a file named 'jquery.sceditor.theme.css' in your theme.
-		 */
-		Theme::loadCSSFile('jquery.sceditor.theme.css', ['force_current' => true, 'validate' => true], 'smf_jquery_sceditor_theme');
-
-		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
-		Theme::loadJavaScriptFile('sceditor.plugins.smf.js', ['minimize' => true], 'smf_sceditor_smf');
-
-		$locale_key = Lang::getTxt('lang_dictionary', file: 'General');
-
-		$translation_map = [
-			'Width (optional):' => Lang::getTxt('width', var: 'editortxt'),
-			'Height (optional):' => Lang::getTxt('height', var: 'editortxt'),
-			'Insert' => Lang::getTxt('insert', var: 'editortxt'),
-			'Description (optional):' => Lang::getTxt('description', var: 'editortxt'),
-			'Rows:' => Lang::getTxt('rows', var: 'editortxt'),
-			'Cols:' => Lang::getTxt('cols', var: 'editortxt'),
-			'URL:' => Lang::getTxt('url', var: 'editortxt'),
-			'E-mail:' => Lang::getTxt('email', var: 'editortxt'),
-			'Video URL:' => Lang::getTxt('video_url', var: 'editortxt'),
-			'More' => Lang::getTxt('more', var: 'editortxt'),
-			'Close' => Lang::getTxt('close', var: 'editortxt'),
-			'dateFormat' => Lang::getTxt('dateformat', var: 'editortxt'),
-			'details' => Lang::getTxt('details', var: 'editortxt'),
-			'spoiler' => Lang::getTxt('spoiler', var: 'editortxt'),
-			'summaryPrompt' => Lang::getTxt('summary_prompt', var: 'editortxt'),
-		];
-		IntegrationHook::call('integrate_sceditor_locale', [&$translation_map]);
-
-		$sc_extra_langs = 'sceditor.locale["' . $locale_key . '"] = ' . json_encode($translation_map, JSON_UNESCAPED_UNICODE) . ';';
-
-		Theme::addInlineJavaScript($sc_extra_langs, true);
-
-		Theme::addInlineJavaScript('
-		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
-		var bbc_quote_from = \'' . addcslashes(Lang::getTxt('quote_from', file: 'General'), "'") . '\';
-		var bbc_quote = \'' . addcslashes(Lang::getTxt('quote', file: 'General'), "'") . '\';
-		var bbc_search_on = \'' . addcslashes(Lang::getTxt('search_on', file: 'General'), "'") . '\';');
-
-		Utils::$context['shortcuts_text'] = Lang::getTxt('shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : '')), file: 'Post');
-
-		if (Utils::$context['show_spellchecking']) {
-			Theme::loadJavaScriptFile('spellcheck.js', ['minimize' => true], 'smf_spellcheck');
-
-			// Some hidden information is needed in order to make the spell checking work.
-			if (!isset($_REQUEST['xml'])) {
-				Utils::$context['insert_after_template'] .= '
-				<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
-					<input type="hidden" name="spellstring" value="">
-				</form>';
-			}
-		}
-
-		// Backward compatibility.
-		Utils::$context['controls']['richedit'] = &self::$loaded;
-	}
-
-	/**
-	 * Builds the main editor form buttons (submit, preview, etc.)
-	 */
-	protected function buildButtons(): void
-	{
-		Utils::$context['richedit_buttons'] = [
-			'save_draft' => [
-				'type' => 'submit',
-				'value' => Lang::getTxt('draft_save', file: 'Drafts'),
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ');' : '',
-				'accessKey' => 'd',
-				'show' => !empty(Utils::$context['drafts_save']),
-			],
-			'id_draft' => [
-				'type' => 'hidden',
-				'value' => Utils::$context['id_draft'] ?? 0,
-				'show' => !empty(Utils::$context['drafts_save']),
-			],
-			'spell_check' => [
-				'type' => 'submit',
-				'value' => Lang::getTxt('spell_check', file: 'General'),
-				'show' => !empty(Utils::$context['show_spellchecking']),
-			],
-			'preview' => [
-				'type' => 'submit',
-				'value' => Lang::getTxt('preview', file: 'General'),
-				'accessKey' => 'p',
-			],
-		];
-	}
-
-	/**
-	 * Initializes and constructs the BBC button toolbar for the editor.
-	 *
-	 * Sets up available BBC tags, disables tags as required, applies integration hooks,
-	 * and builds the toolbar structure for rendering.
-	 *
-	 * @return void
-	 */
-	protected function buildBbcToolbar(): void
-	{
-		if (self::$bbc_tags == []) {
-			self::initBbcTags();
-		}
-
-		Utils::$context['bbc_tags'] = &self::$bbc_tags;
-		Utils::$context['disabled_tags'] = &self::$disabled_tags;
-		Utils::$context['bbc_toolbar'] = &self::$bbc_toolbar;
-		Utils::$context['bbcodes_handlers'] = &self::$bbc_handlers;
-
-		$editor_tag_map = [
-			'b' => 'bold',
-			'i' => 'italic',
-			'u' => 'underline',
-			's' => 'strike',
-			'img' => 'image',
-			'url' => 'link',
-			'sup' => 'superscript',
-			'sub' => 'subscript',
-			'hr' => 'horizontalrule',
-		];
-
-		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
-		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
-
-		if (!empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$disabled_tags['removeformat'] = true;
-			self::$disabled_tags['source'] = true;
-		}
-
-		// Disable the buttons for any BBC that this user is not allowed to use.
-		foreach (Utils::$context['restricted_bbc'] as $tag) {
-			if (!User::$me->allowedTo('bbc_' . $tag)) {
-				$disabled_bbc[] = $tag;
-			}
-		}
-
-		foreach ($disabled_bbc as $tag) {
-			$tag = trim($tag);
-
-			if ($tag === 'list') {
-				self::$disabled_tags['bulletlist'] = true;
-				self::$disabled_tags['orderedlist'] = true;
-			}
-
-			if ($tag === 'float') {
-				self::$disabled_tags['floatleft'] = true;
-				self::$disabled_tags['floatright'] = true;
-			}
-
-			self::$disabled_tags[$editor_tag_map[$tag] ?? $tag] = true;
-		}
-
-		// Allow mods to modify BBC buttons.
-		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
-
-		$group = 0;
-
-		foreach (self::$bbc_tags as $row => $tag_row) {
-			if (!isset(self::$bbc_toolbar[$row])) {
-				self::$bbc_toolbar[$row] = [];
-			}
-
-			foreach ($tag_row as $tag) {
-				if (isset($tag['code']) && !isset(self::$disabled_tags[$tag['code']])) {
-					$this_tag = $editor_tag_map[$tag['code']] ?? $tag['code'];
-					self::$bbc_toolbar[$row][$group][] = $this_tag;
-
-					if (isset($tag['before']) || isset($tag['image'])) {
-						self::$bbc_handlers[$this_tag] = $tag;
-					}
-				} else {
-					$group++;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Recursively implodes a multi-dimensional array with a list of glue values.
-	 *
-	 * @param string[] $glue List of glue strings for each depth.
-	 * @param array $pieces Multi-dimensional array to implode.
-	 * @param int $counter Internal recursion counter.
-	 *
-	 * @return string imploded array
-	 */
-	protected function implodeRecursive(array $glue, array $pieces, int $counter = 0): string
-	{
-		return implode(
-			$glue[$counter++],
-			array_map(
-				fn($v) => is_array($v) ? $this->implodeRecursive($glue, $v, $counter) : $v,
-				$pieces,
-			),
-		);
-	}
-
-	/**
-	 * Initializes the smiley toolbar if enabled and not already loaded.
-	 *
-	 * Caches and fetches smileys from database if required.
-	 */
-	protected function buildSmileysToolbar(): void
-	{
-		if ($this->disable_smiley_box || self::$smileys_toolbar != []) {
-			return;
-		}
-
-		Utils::$context['smileys'] = &self::$smileys_toolbar;
-
-		if (User::$me->smiley_set != 'none') {
-			// Cache for longer when customized smiley codes aren't enabled
-			$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
-
-			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null) {
-				$request = Db::$db->query(
-					'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
-					FROM {db_prefix}smileys AS s
-						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
-					WHERE s.hidden IN (0, 2)
-						AND f.smiley_set = {string:smiley_set}' . (empty(Config::$modSettings['smiley_enable']) ? '
-						AND s.code IN ({array_string:default_codes})' : '') . '
-					ORDER BY s.smiley_row, s.smiley_order',
-					[
-						'default_codes' => ['>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'],
-						'smiley_set' => User::$me->smiley_set,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					self::$smileys_toolbar[] = $row;
-				}
-				Db::$db->free_result($request);
-				CacheApi::put('posting_smileys_' . User::$me->smiley_set, self::$smileys_toolbar, $cache_time);
-			} else {
-				self::$smileys_toolbar = $temp;
-			}
-		}
-	}
-
-	/**
-	 * Configures SCEditor options for this instance.
-	 *
-	 * Sets default dimensions, plugins, toolbar, emoticons, localization, and
-	 * applies integration hooks and user-supplied overrides.
-	 *
-	 * @param array $editorOptions SCEditor options/overrides.
-	 * @return void
-	 */
-	protected function setSCEditorOptions(array $editorOptions)
-	{
-		if (!isset($editorOptions['plugins'])) {
-			$editorOptions['plugins'] = [];
-		}
-
-		if (!empty(Config::$modSettings['autoLinkUrls']) && empty($editorOptions['disable_url_autolinking'])) {
-			$editorOptions['plugins'][] = 'autolinker';
-			Autolinker::createJavaScriptFile();
-			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
-			Theme::loadJavaScriptFile('sceditor.plugins.autolinker.js', ['minimize' => true], 'smf_autolinker_plugin');
-		}
-
-		$this->sce_options = [
-			'width' => $this->width ?? '100%',
-			'height' => $this->height ?? '250px',
-			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
-			'emoticonsCompat' => true,
-			'emoticons' => [],
-			'emoticonsEnabled' => !$this->disable_smiley_box,
-			'emoticonsRoot' => Theme::$current->settings['smileys_url'] . '/',
-			'colors' => [
-				['black', Lang::$editortxt['black']],
-				['red', Lang::$editortxt['red']],
-				['yellow', Lang::$editortxt['yellow']],
-				['pink', Lang::$editortxt['pink']],
-				['green', Lang::$editortxt['green']],
-				['orange', Lang::$editortxt['orange']],
-				['purple', Lang::$editortxt['purple']],
-				['blue', Lang::$editortxt['blue']],
-				['beige', Lang::$editortxt['beige']],
-				['brown', Lang::$editortxt['brown']],
-				['teal', Lang::$editortxt['teal']],
-				['navy', Lang::$editortxt['navy']],
-				['maroon', Lang::$editortxt['maroon']],
-				['limegreen', Lang::$editortxt['lime_green']],
-				['white', Lang::$editortxt['white']],
-			],
-			'fonts' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
-			'icons' => 'monocons',
-			'format' => 'bbcode',
-			'plugins' => 'smf,' . implode(',', $editorOptions['plugins'] ?? []),
-			'toolbar' => $this->implodeRecursive(['||', '|', ','], self::$bbc_toolbar),
-			'customTextualCommands' => self::$bbc_handlers,
-			'startInSourceMode' => !$this->rich_active,
-			'bbcodeTrim' => false,
-			'resizeWidth' => false,
-			'resizeMaxHeight' => -1,
-			'locale' => $this->locale ?? 'en',
-			'rtl' => !empty(Utils::$context['right_to_left']),
-			'commandsWithDropdown' => [
-				'color' => true,
-				'heading' => true,
-				'font' => true,
-				'size' => true,
-			],
-			'textOnlyCommands' => [],
-			'commandsWithText' => [],
-			'parserOptions' => [
-				'txtVars' => [
-					'code' => Lang::$txt['code'],
-				],
-			],
-		];
-
-		if (isset($editorOptions['options'])) {
-			$this->sce_options = array_merge_recursive($this->sce_options, $editorOptions['options']);
-		}
-
-		if ($this->sce_options['emoticonsEnabled']) {
-			$translations = [
-				0 => 'dropdown',
-				2 => 'more',
-			];
-			$prevRowIndex = 0;
-
-			foreach (self::$smileys_toolbar as $smiley) {
-				$this->sce_options['emoticons'][$translations[$smiley['hidden']]][$smiley['code']] = [
-					'newRow' => $smiley['smiley_row'] != $prevRowIndex,
-					'url' => $smiley['filename'],
-					'tooltip' => Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($smiley['description'])] ?? $smiley['description']),
-				];
-				$prevRowIndex = $smiley['smiley_row'];
-			}
-		}
-
-		// Allow mods to change $this->sce_options.
-		// Useful if, e.g., a mod wants to add an SCEditor plugin.
-		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }
