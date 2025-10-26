@@ -1182,7 +1182,7 @@ class Config
 			$integration_settings = Utils::jsonDecode(SMF_INTEGRATION_SETTINGS, true);
 
 			foreach ($integration_settings as $hook => $function) {
-				if (is_string($function)) {
+				if (\is_string($function)) {
 					IntegrationHook::add($hook, $function, false);
 				} else {
 					IntegrationHook::register(
