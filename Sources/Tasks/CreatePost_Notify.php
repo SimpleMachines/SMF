@@ -573,7 +573,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			if (empty($parsed_message[$localization])) {
 				// Use the target member's localization settings.
-				Parser::$time_offset = $member_data['time_offset'];
+				Parser::$time_offset = (int) $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
 				Parser::$smiley_set = $member_data['smiley_set'];
 				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
