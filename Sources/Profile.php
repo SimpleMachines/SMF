@@ -1161,7 +1161,7 @@ class Profile extends User implements \ArrayAccess
 		// Load up the default theme options for any missing.
 		parent::loadOptions(-1);
 
-		foreach (parent::$profiles[-1]['options'] as $k => $v) {
+		foreach (parent::$profiles[-1]['options'] ?? [] as $k => $v) {
 			if (!isset(Utils::$context['member']['options'][$k])) {
 				Utils::$context['member']['options'][$k] = $v;
 			}
