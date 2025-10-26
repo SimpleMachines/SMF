@@ -830,14 +830,21 @@ class SearchEngines implements ActionInterface
 			}
 			disableFields();';
 
-		// Now the setting for robots.txt.
+		// Now the settings for robots.txt.
 		$config_vars[] = '';
 
 		if (empty(Config::$modSettings['robots_txt'])) {
+			// Make it easy for the admin to populate the setting.
 			$post_input = '<button class="button floatnone" onclick="document.getElementById(\'robots_txt\').value = ' . Utils::escapeJavaScript(self::detectRobotsTxt()) . '; return false;">' . Lang::getTxt('robots_txt_auto', file: 'Search') . '</button>';
 		} elseif (!is_writable(Config::$modSettings['robots_txt'])) {
+			// Warn if robots.txt is not writable.
 			$invalid = true;
 			$post_input = '<br><span class="error">' . Lang::getTxt('robots_txt_not_writable', file: 'Search') . '</span>';
+		}
+
+		// If robots_txt_search is not set, assume true.
+		if (!isset(Config::$modSettings['robots_txt_search'])) {
+			Config::$modSettings['robots_txt_search'] = true;
 		}
 
 		$config_vars = array_merge($config_vars, [
@@ -848,6 +855,18 @@ class SearchEngines implements ActionInterface
 				'size' => 45,
 				'invalid' => $invalid ?? false,
 				'postinput' => $post_input ?? '',
+			],
+			[
+				'check',
+				'robots_txt_search',
+			],
+			[
+				'check',
+				'robots_txt_ai_input',
+			],
+			[
+				'check',
+				'robots_txt_ai_train',
 			],
 			[
 				'large_text',
@@ -1207,38 +1226,99 @@ class SearchEngines implements ActionInterface
 		$boardpath = Url::create(Config::$boardurl)->path;
 		$scriptpath = Url::create(Config::$scripturl)->path;
 
+		// Content Signals Policy text.
+		$content_signals_policy = <<<'END'
+			# As a condition of accessing this website, you agree
+			# to abide by the following content signals:
+
+			# (a)  If a content-signal = yes, you may collect
+			# content for the corresponding use.
+			# (b)  If a content-signal = no, you may not collect
+			# content for the corresponding use.
+			# (c)  If the website operator does not include a
+			# content signal for a corresponding use, the website
+			# operator neither grants nor restricts permission via
+			# content signal with respect to the corresponding use.
+
+			# The content signals and their meanings are:
+
+			# search: building a search index and providing search
+			# results (e.g., returning hyperlinks and short
+			# excerpts from your website's contents).  Search does
+			# not include providing AI-generated search summaries.
+			# ai-input: inputting content into one or more AI
+			# models (e.g., retrieval augmented generation,
+			# grounding, or other real-time taking of content for
+			# generative AI search answers).
+			# ai-train: training or fine-tuning AI models.
+
+			# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE
+			# EXPRESS RESERVATIONS OF RIGHTS UNDER ARTICLE 4 OF THE
+			# EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT AND
+			# RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.
+
+
+			END;
+
 		// Define the rules we want to include.
+		//
+		// Top level keys are user agent strings.
+		// For example, '*' means 'User-Agent: *', i.e. all robots.
+		// If a mod wants to add specific rules for certain robots, new keys
+		// can be added to the $rules array targeting those specific robots.
+		//
+		// Within each user agent's ruleset, keys are path patterns as described
+		// in RFC 9309. There are three possible values:
+		//
+		//  - false
+		//        The user agent is not allowed to crawl the indicated path.
+		//
+		//  - true
+		//        The user agent is allowed to crawl the indicated path with no
+		//        restrictions on how the content may be used.
+		//
+		//  - an array containing 'search', 'ai-train', and 'ai-input' elements,
+		//    each of which takes a boolean value.
+		//        The user agent is allowed to crawl the indicated path, but a
+		//        Content-Signal line will be inserted to indicate restrictions
+		//        on how the content may be used.
 		$rules = [
 			'*' => [
-				'allow' => [],
-				'disallow' => [
-					// Frequenty occurring non-canonical URLs (both normal and queryless)
-					$boardpath . '/*PHPSESSID=',
-					$boardpath . '/*;topicseen',
-					$boardpath . '/*.msg',
-					$boardpath . '/*.new',
-					$boardpath . '/*.from',
-					$boardpath . '/msgs/',
-					// Normal URLs of actions that always set Utils::$context['robot_no_index'] to true
-					$scriptpath . '?action=admin',
-					$scriptpath . '?action=credits',
-					$scriptpath . '?action=moderate',
-					$scriptpath . '?action=post',
-					$scriptpath . '?action=printpage',
-					$scriptpath . '?action=reminder',
-					$scriptpath . '?action=reporttm',
-					$scriptpath . '?action=search',
-					$scriptpath . '?action=who',
-					// Queryless URLs of actions that always set Utils::$context['robot_no_index'] to true
-					$boardpath . '/*/credits',
-					$boardpath . '/*/moderate',
-					$boardpath . '/*/post',
-					$boardpath . '/*/printpage',
-					$boardpath . '/*/reminder',
-					$boardpath . '/*/reporttm',
-					$boardpath . '/*/search',
-					$boardpath . '/*/who',
+				// Allow robots to crawl the forum, subject to the Content-Signal policy.
+				$boardpath . '/' => [
+					// If robots_txt_search is not set, assume true.
+					'search' => !empty(Config::$modSettings['robots_txt_search'] ?? true),
+					// If the AI settings are not set, assume false.
+					'ai-train' => !empty(Config::$modSettings['robots_txt_ai_train']),
+					'ai-input' => !empty(Config::$modSettings['robots_txt_ai_input']),
 				],
+
+				// Disallow frequently occurring non-canonical URLs.
+				$boardpath . '/*PHPSESSID=' => false,
+				$boardpath . '/*;topicseen' => false,
+				$boardpath . '/*.msg' => false,
+				$boardpath . '/*.new' => false,
+				$boardpath . '/*.from' => false,
+				$boardpath . '/msgs/' => false,
+
+				// Disallow actions that always set Utils::$context['robot_no_index'] to true.
+				$scriptpath . '?action=admin' => false,
+				$scriptpath . '?action=credits' => false,
+				$scriptpath . '?action=moderate' => false,
+				$scriptpath . '?action=post' => false,
+				$scriptpath . '?action=printpage' => false,
+				$scriptpath . '?action=reminder' => false,
+				$scriptpath . '?action=reporttm' => false,
+				$scriptpath . '?action=search' => false,
+				$scriptpath . '?action=who' => false,
+				$boardpath . '/*/credits' => false,
+				$boardpath . '/*/moderate' => false,
+				$boardpath . '/*/post' => false,
+				$boardpath . '/*/printpage' => false,
+				$boardpath . '/*/reminder' => false,
+				$boardpath . '/*/reporttm' => false,
+				$boardpath . '/*/search' => false,
+				$boardpath . '/*/who' => false,
 			],
 		];
 
@@ -1250,61 +1330,49 @@ class SearchEngines implements ActionInterface
 		if (is_file(Config::$modSettings['robots_txt'])) {
 			$hash = md5_file(Config::$modSettings['robots_txt']);
 
-			$user_agents_in_group = [];
-			$current_user_agent = '';
-			$insert = false;
+			$user_agents = [];
+			$in_user_agents = false;
 
 			// Keep all existing content and filter out anything in $rules that already exists.
 			foreach (file(Config::$modSettings['robots_txt']) as $line) {
 				// Found a new user agent line.
 				if (preg_match('/^\h*user-agent:\h*([^\n]+)/i', $line, $matches)) {
-					$user_agents_in_group[] = $matches[1];
-					$current_user_agent = $matches[1];
-
-					if ($insert === null) {
-						$insert = true;
-					}
-				} elseif (preg_match('/^\h*($|#)/i', $line)) {
-					$insert = true;
-				} else {
-					$insert = null;
-				}
-
-				// Insert our rules before comments, blank lines, or the start
-				// of a new user agent group, but only if user agent that these
-				// rules are for was the only one in its group.
-				if (!empty($insert) && \count($user_agents_in_group) === 1) {
-					foreach ($user_agents_in_group as $user_agent) {
-						if (!isset($rules[$user_agent])) {
-							continue;
-						}
-
-						foreach ($rules[$user_agent] as $type => $patterns) {
-							foreach ($patterns as $pattern) {
-								$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
-							}
-						}
-
-						// Don't do the same rules twice.
-						unset($rules[$user_agent]);
+					if (!$in_user_agents) {
+						$user_agents = [];
 					}
 
-					$insert = false;
+					$user_agents[] = $matches[1];
+					$in_user_agents = true;
 				}
 
 				// Append this line.
 				$new_content[] = $line;
 
 				// Filter out anything in $rules that already exists.
-				if (preg_match('/^\h*((?:dis)?allow)\h*:\h*([^\n]+)/i', $line, $matches)) {
-					$type = strtolower($matches[1]);
-					$pattern = $matches[2];
+				if (preg_match('/^\h*((?:dis)?allow|content-signal)\h*:\h*([^\n]+)/i', $line, $matches)) {
+					$in_user_agents = false;
+					$allowed = strtolower($matches[1]) !== 'disallow';
 
-					if (isset($rules[$current_user_agent][$type])) {
-						$rules[$current_user_agent][$type] = array_diff(
-							$rules[$current_user_agent][$type],
-							[$pattern],
-						);
+					if (strtolower($matches[1]) !== 'content-signal') {
+						$pattern = $matches[2];
+						$signal = null;
+					} else {
+						[$pattern, $signal] = preg_split('/\h+/', $matches[2], 2);
+						parse_str(preg_replace('/\h*,\h*/', '&', $signal), $signal);
+						$signal = array_map(fn($arg) => $arg === 'yes', $signal);
+					}
+
+					foreach ($user_agents as $user_agent) {
+						if (!isset($rules[$user_agent][$pattern])) {
+							continue;
+						}
+
+						if (
+							$rules[$user_agent][$pattern] === $allowed
+							|| $rules[$user_agent][$pattern] === $signal
+						) {
+							unset($rules[$user_agent][$pattern]);
+						}
 					}
 				}
 			}
@@ -1342,18 +1410,43 @@ class SearchEngines implements ActionInterface
 
 		// Append any new rules that haven't already been inserted.
 		foreach ($rules as $user_agent => $rule_parts) {
+			if (empty($rule_parts)) {
+				continue;
+			}
+
 			$new_content[] = "\n";
 			$new_content[] = 'User-agent: ' . $user_agent . "\n";
 
-			foreach ($rule_parts as $type => $patterns) {
-				foreach ($patterns as $pattern) {
-					$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
+			foreach ($rule_parts as $pattern => $rule) {
+				if (\is_array($rule)) {
+					switch (array_filter($rule)) {
+						// If all uses are allowed, then allow the whole thing.
+						case $rule:
+							$rule = true;
+							break;
+
+						// If all uses are disallowed, then disallow the whole thing.
+						case []:
+							$rule = false;
+							break;
+
+						// Indicate what types of use are allowed or disallowed.
+						default:
+							$new_content[] = 'Content-Signal: ' . $pattern . ' ' . implode(', ', array_map(fn($k, $v) => $k . '=' . ($v ? 'yes' : 'no'), array_keys($rule), $rule)) . "\n";
+							break;
+					}
 				}
+
+				$new_content[] = (empty($rule) ? 'Disallow: ' : 'Allow: ') . $pattern . "\n";
 			}
 		}
 
 		// Finalize the content.
 		$new_content = trim(implode('', $new_content)) . "\n";
+
+		if (!str_contains($new_content, $content_signals_policy)) {
+			$new_content = $content_signals_policy . $new_content;
+		}
 
 		// If nothing changed, bail out.
 		if (isset($hash) && md5($new_content) === $hash) {

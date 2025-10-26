@@ -470,6 +470,16 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$insertRows = [];
 
 			foreach ($data as $dataRow) {
+				if (\count($indexed_columns) !== \count($dataRow)) {
+						$this->error_backtrace(
+							'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+							'',
+							E_USER_ERROR,
+							__FILE__,
+							__LINE__,
+						);
+				}
+
 				$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 			}
 
@@ -680,7 +690,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function error(object $connection): string
+	public function error(?object $connection = null): string
 	{
 		if ($connection === null && $this->connection === null) {
 			return '';
@@ -1810,7 +1820,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				}
 				$default = 'default nextval(\'' . $short_table_name . '_seq\')';
 			} elseif (isset($column['default']) && $column['default'] !== null) {
-				$default = 'default \'' . $this->escape_string($column['default']) . '\'';
+				// Numbers don't need quotes.
+				if (is_numeric($column['default']))
+					$default = 'default ' . $column['default'];
+				else
+					$default = 'default \'' . $this->escape_string($column['default']) . '\'';
 			} else {
 				$default = '';
 			}

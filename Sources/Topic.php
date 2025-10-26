@@ -88,6 +88,14 @@ class Topic implements \ArrayAccess, Routable
 	public int $id_member_started;
 
 	/**
+	 * @var int
+	 *
+	 * ID number of the user who reply this topic.
+	 * This will be 0 for topics replied by guests.
+	 */
+	public int $id_member_updated;
+
+	/**
 	 * @var string
 	 *
 	 * Name of the user who started this topic.

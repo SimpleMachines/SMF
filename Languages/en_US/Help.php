@@ -264,7 +264,7 @@ $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to 
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members do not need to refresh the page to get new notifications.<br><strong>NOTE:</strong> This option might cause a severe load at your server with many users online.';
 $helptxt['alerts_auto_purge'] = 'Once an alert has been read, it is rarely needed again. For performance reasons, it is a good idea to automatically delete them after a while.';
-$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
+$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Cloudflare CDN (cdnjs), Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
 		&quot;5&quot; to display: 1 ... 3 4 [5] 6 7 ... 9';
@@ -565,28 +565,31 @@ $helptxt['posts_and_topics'] = '
 	</ul>';
 
 $helptxt['spider_mode'] = 'Sets the logging level.<br>
-Standard - Logs minimal spider activity.<br>
+Standard - Logs minimal robot activity.<br>
 Moderate - Provides more accurate statistics.<br>
 Aggressive - Same as &quot;Moderate&quot;, but logs data about each page visited.';
 
-$helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Spiders&quot; and select that here. You could then deny permission for that group to view profiles to stop spiders indexing your members profiles.<br>Note: Spider detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
-$helptxt['show_spider_online'] = 'This setting allows you to select whether spiders should be listed in the &quot;Who’s Online&quot; list on the board index and &quot;Who’s Online&quot; page. The options are:
+$helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Robots&quot; and select that here. You could then deny permission for that group to view profiles to stop robots indexing your members profiles.<br>Note: Robot detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
+$helptxt['show_spider_online'] = 'This setting allows you to select whether robots should be listed in the &quot;Who’s Online&quot; list on the board index and &quot;Who’s Online&quot; page. The options are:
 	<ul class="normallist">
 		<li>
 			<strong>Not at All</strong><br>
-			Spiders will simply appear as guests to all users.
+			Robots will simply appear as guests to all users.
 		</li><li>
-			<strong>Show Spider Quantity</strong><br>
-			The Board Index will display the number of spiders currently visiting the forum.
+			<strong>Show Robot Quantity</strong><br>
+			The Board Index will display the number of robots currently visiting the forum.
 		</li><li>
-			<strong>Show Spider Names</strong><br>
-			Each spider name will be revealed, so users can see how many of each spider is currently visiting the forum - this takes effect in both the Board Index and Who’s Online page.
+			<strong>Show Robot Names</strong><br>
+			Each robot name will be revealed, so users can see how many of each robot is currently visiting the forum - this takes effect in both the Board Index and Who’s Online page.
 		</li><li>
-			<strong>Show Spider Names - Admin Only</strong><br>
-			As above except only Administrators can see spider status - to all other users spiders appear as guests.
+			<strong>Show Robot Names - Admin Only</strong><br>
+			As above except only Administrators can see robot status - to all other users robots appear as guests.
 		</li>
 	</ul>';
-$helptxt['robots_txt'] = 'The robots.txt file is used to implement the <a href="https://www.rfc-editor.org/rfc/rfc9309.html" class="bbc_link">Robots Exclusion Protocol</a>, a standard used by websites to indicate to search engine spiders and other web robots which portions of the website they are allowed to visit. This file is typically located in your website’s root directory.<br><br>SMF adds some rules to this file in order to guide spiders away from URLs that they should not bother to crawl. This improves efficiency and reduces server load when a spider is crawling your forum.';
+$helptxt['robots_txt'] = 'The robots.txt file is used to implement the <a href="https://www.rfc-editor.org/rfc/rfc9309.html" class="bbc_link">Robots Exclusion Protocol</a>, a standard used by websites to indicate to search engine spiders and other web robots which portions of the website they are allowed to visit. This file is typically located in your website’s root directory.<br><br>SMF adds some rules to this file in order to guide robots away from URLs that they should not bother to visit. This improves efficiency and reduces server load when a robot is indexing your forum.';
+$helptxt['robots_txt_search'] = 'This setting tells search engines whether they are permitted to show links to your forum in their search results. Most forums will want this enabled, but if you want your forum not to appear in search results, you can disable it.';
+$helptxt['robots_txt_ai_input'] = 'This setting tells search engines and other web robots whether they are permitted to use the content of your forum to generate AI summaries, etc. Unfortunately, there is no way to force search engines that index your site to obey these rules, but well-behaved ones will respect them.';
+$helptxt['robots_txt_ai_train'] = 'This setting tells artificial intelligence companies whether they are permitted to use the content of your forum to train their AI bots. Unfortunately, there is no way to force AI companies to obey these rules, but well-behaved ones will respect them.';
 
 $helptxt['birthday_email'] = 'Choose the index of the birthday email message to use. A preview will be shown in the Email Subject and Email Body fields.<br><strong>Note:</strong> Selecting this setting does not automatically enable birthday emails. To enable birthday emails use the <a href="{scripturl}?action=admin;area=scheduledtasks;{session_var}={session_id}" target="_blank" rel="noopener">Scheduled Tasks</a> page and enable the birthday email task.';
 $helptxt['pm_bcc'] = 'When sending a personal message you can choose to add a recipient as BCC (Blind Carbon Copy). BCC recipients do not have their identities revealed to the other recipients of the message.';
