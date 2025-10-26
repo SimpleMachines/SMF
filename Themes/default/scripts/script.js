@@ -261,7 +261,6 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 
 	// Create the div that we are going to load
 	const oContainer = new smc_Popup(containerOptions);
-	const oPopup_body = oContainer.cover.querySelector('.popup_content');
 
 	// Load the help page content (we just want the text to show)
 	fetch(desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax', {
@@ -276,11 +275,14 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	})
 		.then((res, rej) => res.ok ? res.text() : rej(res))
 		.then(data => {
-			oPopup_body.innerHTML = data;
+			const parser = new DOMParser()
+			const doc = parser.parseFromString(data, "text/html")
+			const body = doc?.querySelector('body div')?.innerHTML ?? data;
+			oContainer.setBody(body);
 		})
 		.catch(error => {
-			const errorMsg = error.headers.get('x-smf-errormsg');
-			oPopup_body.innerHTML = errorMsg || error.message || banned_text;
+			const errorMsg = error?.headers?.get('x-smf-errormsg') ?? error;
+			oContainer.setBody(errorMsg || error.message || banned_text);
 		});
 
 	return false;
@@ -417,6 +419,11 @@ smc_Popup.prototype.hide = function ()
 	$('#' + this.popup_id).fadeOut(300, function(){ $(this).remove(); });
 
 	return false;
+}
+
+smc_Popup.prototype.setBody = function(data)
+{
+	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
 // Remember the current position.
