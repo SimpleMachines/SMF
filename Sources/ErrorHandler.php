@@ -219,7 +219,7 @@ class ErrorHandler
 		if ($error_call > 2) {
 			var_dump($backtrace);
 
-			die('Error loop.');
+			die('Error, loop detected. The database may have failed or crashed.');
 		}
 
 		// Check if error logging is actually on.
