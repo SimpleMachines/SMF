@@ -286,13 +286,14 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	{
 		for (var i = 0; i < this.opt.aKnownLanguages.length; i++)
 		{
-			if (!document.getElementById('current' + sFilename + this.opt.aKnownLanguages[i]))
+			if (!document.getElementById('currentLanguage_' + this.opt.aKnownLanguages[i] + '_' + sFilename))
 				continue;
 
-			setInnerHTML(document.getElementById('current' + sFilename + this.opt.aKnownLanguages[i]), smfLanguageVersions[sFilename]);
+			setInnerHTML(document.getElementById('currentLanguage_' + this.opt.aKnownLanguages[i] + '_' + sFilename), smfLanguageVersions[sFilename]);
 
-			sYourVersion = getInnerHTML(document.getElementById('your' + sFilename + this.opt.aKnownLanguages[i]));
-			setInnerHTML(document.getElementById('your' + sFilename + this.opt.aKnownLanguages[i]), sYourVersion);
+			console.log('yourLanguage_' + this.opt.aKnownLanguages[i] + '_' +sFilename);
+			sYourVersion = getInnerHTML(document.getElementById('yourLanguage_' + this.opt.aKnownLanguages[i] + '_' +sFilename));
+			setInnerHTML(document.getElementById('yourLanguage_' + this.opt.aKnownLanguages[i] + '_' + sFilename), sYourVersion);
 
 			if ((this.compareVersions(oHighYour.Languages, sYourVersion) || oHighYour.Languages == '??') && !oLowVersion.Languages)
 				oHighYour.Languages = sYourVersion;
@@ -302,7 +303,7 @@ smf_ViewVersions.prototype.determineVersions = function ()
 			if (this.compareVersions(sYourVersion, smfLanguageVersions[sFilename]))
 			{
 				oLowVersion.Languages = sYourVersion;
-				document.getElementById('your' + sFilename + this.opt.aKnownLanguages[i]).style.color = 'red';
+				document.getElementById('yourLanguage_' + this.opt.aKnownLanguages[i] + '_' + sFilename).style.color = 'red';
 			}
 		}
 	}

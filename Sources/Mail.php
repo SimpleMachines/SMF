@@ -23,6 +23,24 @@ use SMF\MailAgent\MailAgent;
  */
 class Mail
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Maximum number of tries to send a email.
+	 *
+	 * @var int
+	 */
+	private const MAX_TRIES = 15;
+
+	/**
+	 * Multiplier for delaying emails that fail to send.
+	 * See calculateNextTry() for implementation
+	 * @var int
+	 */
+	private const DELAY_MULTIPLIER = 15;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -409,11 +427,13 @@ class Mail
 		$emails = [];
 
 		$request = Db::$db->query(
-			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
+			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority, next_try, tries, extra
 			FROM {db_prefix}mail_queue
-			ORDER BY priority ASC, id_mail ASC
+			WHERE next_try <= {int:current_time}
+			ORDER BY priority ASC, next_try ASC, tries ASC, id_mail ASC
 			LIMIT {int:limit}',
 			[
+				'current_time' => time(),
 				'limit' => $number,
 			],
 		);
@@ -431,6 +451,9 @@ class Mail
 				'time_sent' => $row['time_sent'],
 				'private' => $row['private'],
 				'priority' => $row['priority'],
+				'next_try' => $row['next_try'],
+				'tries' => $row['tries'],
+				'extra' => $row['extra'],
 			];
 		}
 		Db::$db->free_result($request);
@@ -467,27 +490,8 @@ class Mail
 
 		// Send each email, yea!
 		$failed_emails = [];
-		$max_priority = 127;
-		$smtp_expire = 259200;
-		$priority_offset = 4;
 
 		foreach ($emails as $email) {
-			// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
-			if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != rand(0, $priority_offset)) {
-				$failed_emails[] = [
-					$email['to'],
-					$email['body'],
-					$email['subject'],
-					$email['headers'],
-					$email['send_html'],
-					$email['time_sent'],
-					$email['private'],
-					$email['priority'],
-				];
-
-				continue;
-			}
-
 			if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {
 				$email['subject'] = strtr($email['subject'], ["\r" => '', "\n" => '']);
 
@@ -507,16 +511,25 @@ class Mail
 			}
 
 			// Old emails should expire
-			if (!$result && $email['priority'] >= $max_priority) {
+			if (!$result && $email['tries'] >= self::MAX_TRIES) {
 				$result = true;
 			}
 
 			// Hopefully it sent?
 			if (!$result) {
-				// Determine the "priority" as a way to keep track of SMTP failures.
-				$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
-
-				$failed_emails[] = [$email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']];
+				$failed_emails[] = [
+					$email['to'],
+					$email['body'],
+					$email['subject'],
+					$email['headers'],
+					$email['send_html'],
+					$email['time_sent'],
+					$email['private'],
+					$email['priority'],
+					self::calculateNextTry($email['tries']),
+					++$email['tries'],
+					$email['extra'],
+				];
 			}
 		}
 
@@ -565,7 +578,10 @@ class Mail
 					'send_html' => 'string',
 					'time_sent' => 'string',
 					'private' => 'int',
-					'priority' => 'int',
+					'next_try' => 'int',
+					'tries' => 'int',
+					'extra' => 'string',
+
 				],
 				$failed_emails,
 				['id_mail'],
@@ -1119,5 +1135,22 @@ class Mail
 		}
 
 		return $use_ref ? $ref : $matches[0];
+	}
+
+	/**
+	 * Based on the number of tries, increase the time we delay the next sending.
+	 *
+	 * @param int $tries
+	 * @return int Next time we should try to send.
+	 */
+	private static function calculateNextTry(int $tries)
+	{
+		$next = time();
+
+		for ($i = 0; $i < ($tries + 1); $i++) {
+			$next_send_time += $i * self::DELAY_MULTIPLIER;
+		}
+
+		return $next;
 	}
 }

@@ -409,6 +409,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$insertRows = [];
 
 		foreach ($data as $dataRow) {
+			if (\count($indexed_columns) !== \count($dataRow)) {
+					$this->error_backtrace(
+						'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+						'',
+						E_USER_ERROR,
+						__FILE__,
+						__LINE__,
+					);
+			}
 			$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 		}
 
@@ -757,13 +766,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->connection,
 				'INSERT INTO ' . $this->prefix . 'log_errors
 					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)',
+				VALUES( ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?)',
 			);
 		}
 
-		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) !== false) {
-			$error_array['ip'] = bin2hex(inet_pton($error_array['ip']));
-		} else {
+		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) === false) {
 			$error_array['ip'] = null;
 		}
 
@@ -2799,8 +2806,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
-				// We don't use the native support of mysql > 5.6.2
-				return \sprintf('unhex(\'%1$s\')', $ip->toHex());
+				return \sprintf('INET6_ATON(\'%1$s\')', $ip);
 
 			case 'array_inet':
 				if (\is_array($replacement)) {
@@ -2819,7 +2825,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
-						$replacement[$key] = \sprintf('unhex(\'%1$s\')', $ip->toHex());
+						$replacement[$key] = \sprintf('INET6_ATON(\'%1$s\')', $ip);
 					}
 
 					return implode(', ', $replacement);

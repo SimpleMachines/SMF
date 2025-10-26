@@ -1770,12 +1770,12 @@ class Post implements ActionInterface, Routable
 			'labels' => [
 				'post_button' => Utils::$context['submit_label'],
 			],
-			// add height and width for the editor
-			'height' => '175px',
-			'width' => '100%',
 			// We do XML preview here.
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
+			'options' => [
+				'autofocus' => $this->intent !== self::INTENT_NEW_TOPIC,
+			],
 		]);
 	}
 
