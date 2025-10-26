@@ -85,7 +85,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 
 		try {
 			// Did we disable WAL?  That triggers a read only mode, dump the cache.
-			if (file_exists($this->cachedir . '/' . 'SQLite3Cache.db3-wal') && empty(Config::$modSettings['cache_sqlite_wal'])) {
+			if (file_exists($this->cachedir . '/' . 'SQLite3Cache.db3-wal') && empty(Config::$cache_sqlite_wal)) {
 				unlink($this->cachedir . '/' . 'SQLite3Cache.db3');
 			}
 
