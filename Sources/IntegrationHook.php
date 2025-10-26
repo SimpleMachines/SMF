@@ -670,7 +670,7 @@ class IntegrationHook
 		}
 		// No? Try a fallback to Config::$sourcedir.
 		else {
-			$path = Config::canonicalPath(Config::$sourcedir . '/' . $file;
+			$path = Config::canonicalPath(Config::$sourcedir . '/' . $file);
 
 			if (is_file($path)) {
 				require_once $path;
