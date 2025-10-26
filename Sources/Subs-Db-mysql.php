@@ -787,7 +787,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 				', $insertRows),
 			array(
 				'security_override' => true,
-				'db_error_skip' => $table === $db_prefix . 'log_errors',
+				'db_error_skip' => preg_match('/log_errors|sessions/', $table),
 			),
 			$connection
 		);
@@ -1002,6 +1002,9 @@ function smf_db_error_insert($error_array)
 				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
 			VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)'
 		);
+
+	if (empty($mysql_error_data_prep))
+		return;
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));

@@ -135,11 +135,18 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 			$query = $smcFunc['db_query']('', '
 				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
-				array()
+				array(
+					'db_error_skip' => true,
+				)
 			);
 
-			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-			$smcFunc['db_free_result']($query);
+			if ($query)
+			{
+				list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+				$smcFunc['db_free_result']($query);
+			}
+			else
+				$context['num_errors'] = 0;
 		}
 		else
 			$context['num_errors']++;
@@ -582,8 +589,13 @@ function log_error_online($error, $sprintf = array())
 		WHERE session = {string:session}',
 		array(
 			'session' => $session_id,
+			'db_error_skip' => true,
 		)
 	);
+
+	if (!$request)
+		return;
+
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		// If this happened very early on in SMF startup, $smcFunc may not fully be defined.
