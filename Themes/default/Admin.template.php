@@ -1218,7 +1218,7 @@ function template_edit_profile_field()
 											<input type="checkbox" name="mlist" id="show_mlist"', Utils::$context['field']['mlist'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="mlist">', Lang::getTxt('custom_edit_blist', file: 'ManageSettings'), '</label></strong>
+											<strong><label for="blist">', Lang::getTxt('custom_edit_blist', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="blist" id="show_blist"', Utils::$context['field']['blist'] ? ' checked' : '', '>
