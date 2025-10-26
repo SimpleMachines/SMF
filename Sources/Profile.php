@@ -1140,26 +1140,35 @@ class Profile extends User implements \ArrayAccess
 	}
 
 	/**
-	 * Loads the theme options for the member.
+	 * Populates Utils::$context['member']['options'] with this member's theme
+	 * options.
 	 *
-	 * @param bool $defaultSettings If true, we are loading default options.
+	 * @param ?bool $default_only If true, only load options for the default
+	 *    theme, where "default theme" means whichever theme is used for guests.
+	 *    Default: false.
 	 */
-	public function loadThemeOptions(bool $defaultSettings = false)
+	public function loadThemeOptions(bool $default_only = false)
 	{
-		if (isset($_POST['default_options'])) {
-			$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
+		// Get this member's current theme options.
+		if ($default_only && $this->theme != (Config::$modSettings['theme_guests'] ?? 1)) {
+			$temp = $this->data['options'] ?? [];
+			parent::loadOptions($this->id, $default_only);
+			Utils::$context['member']['options'] = $this->data['options'];
+			$this->data['options'] = $temp;
+		} else {
+			Utils::$context['member']['options'] = $this->data['options'] ?? [];
 		}
 
-		Utils::$context['member']['options'] = $this->data['options'] ?? [];
+		// Overwrite their current options with anything that is being set to a
+		// new value.
+		$_POST['options'] = ($_POST['options'] ?? []) + ($_POST['default_options'] ?? []);
 
-		if (isset($_POST['options']) && \is_array($_POST['options'])) {
-			foreach ($_POST['options'] as $k => $v) {
-				Utils::$context['member']['options'][$k] = $v;
-			}
+		foreach ($_POST['options'] as $k => $v) {
+			Utils::$context['member']['options'][$k] = $v;
 		}
 
-		// Load up the default theme options for any missing.
-		parent::loadOptions(-1);
+		// If any theme options are still missing, set them to default values.
+		parent::loadOptions(-1, $default_only);
 
 		foreach (parent::$profiles[-1]['options'] ?? [] as $k => $v) {
 			if (!isset(Utils::$context['member']['options'][$k])) {
