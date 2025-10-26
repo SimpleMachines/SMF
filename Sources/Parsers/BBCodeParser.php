@@ -318,8 +318,7 @@ class BBCodeParser extends Parser
 		['class' => \SMF\BBCode\Url1::class],
 		['class' => \SMF\BBCode\Url2::class],
 		['class' => \SMF\BBCode\White::class],
-		['class' => \SMF\BBCode\YouTube1::class],
-		['class' => \SMF\BBCode\YouTube2::class],
+		['class' => \SMF\BBCode\YouTube::class],
 	];
 
 	/**

@@ -18,7 +18,7 @@ namespace SMF\BBCode;
 /**
  * Represents the youtube BBCode.
  */
-class YouTube1 extends BBCode
+class YouTube extends BBCode
 {
 	/*******************
 	 * Public properties
@@ -37,12 +37,23 @@ class YouTube1 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $content = '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin={hosturl}&wmode=opaque" data-youtube-id="$1" allowfullscreen loading="lazy"></iframe></div></div>';
+	public ?array $parameters = [
+		'start' => [
+			'match' => '(\d+)',
+			'optional' => true,
+			'default' => '0',
+		],
+	];
 
 	/**
 	 *
 	 */
-	public ?string $disabled_content = '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>';
+	public ?string $content = '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin={hosturl}&wmode=opaque&start={start}" data-youtube-id="$1" allowfullscreen loading="lazy"></iframe></div></div>';
+
+	/**
+	 *
+	 */
+	public ?string $disabled_content = '<a href="https://www.youtube.com/watch?v=$1&t={start}s" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1&t={start}s</a>';
 
 	/**
 	 *
