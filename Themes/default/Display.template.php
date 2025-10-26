@@ -956,17 +956,7 @@ function template_quickreply()
 						</dl>';
 	}
 
-	echo '
-						', template_control_richedit(Utils::$context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
-						<script>
-							function insertQuoteFast(messageid)
-							{
-								var e = document.getElementById("', Utils::$context['post_box_name'], '");
-								sceditor.instance(e).insertQuoteFast(messageid);
-
-								return false;
-							}
-						</script>';
+	template_control_richedit('quickReply', true, true);
 
 	// Is visual verification enabled?
 	if (Utils::$context['require_verification'])
@@ -979,7 +969,7 @@ function template_quickreply()
 	// Finally, the submit buttons.
 	echo '
 						<span id="post_confirm_buttons">
-							', template_control_richedit_buttons(Utils::$context['post_box_name']), '
+							', template_control_richedit_buttons('quickReply'), '
 						</span>';
 	echo '
 					</form>
