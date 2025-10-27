@@ -246,6 +246,11 @@ class Config
 	public static string $sourcedir;
 
 	/**
+	 * Path to where our dependencies are located.
+	 */
+	public static string $vendordir;
+
+	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
@@ -957,6 +962,10 @@ class Config
 
 		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources')) {
 			self::$sourcedir = self::$boarddir . '/Sources';
+		}
+
+		if ((empty(self::$vendordir) || !is_dir(realpath(self::$vendordir))) && is_dir(self::$boarddir . '/vendor')) {
+			self::$vendordir = self::$boarddir . '/vendor';
 		}
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {

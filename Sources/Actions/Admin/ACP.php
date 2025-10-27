@@ -1524,10 +1524,8 @@ class ACP implements ActionInterface, Routable
 		);
 
 		$ignore_sources = [
-			Config::$sourcedir . '/minify/*',
-			Config::$sourcedir . '/ReCaptcha/*',
+			Config::$vendordir . '/*',
 			Config::$sourcedir . '/Tasks/*',
-			Config::$sourcedir . '/ZxcvbnPhp/*',
 			Config::$sourcedir . '/Unicode/*',
 		];
 

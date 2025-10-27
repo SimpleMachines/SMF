@@ -122,6 +122,14 @@ call_user_func(function () {
 	require_once $sourcedir . DIRECTORY_SEPARATOR . 'Config.php';
 	SMF\Config::set(get_defined_vars());
 
+	$loader = require SMF\Config::$vendordir . '/autoload.php';
+
+	if (isset(SMF\Config::$modSettings['integrate_autoload'])) {
+		foreach (explode(',', SMF\Config::$modSettings['integrate_autoload']) as $prefix => $dirname) {
+			$loader->addPsr4($prefix, $dirname);
+		}
+	}
+
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
 });
@@ -134,8 +142,6 @@ if (SMF === 1) {
 /*
  * 3. Load some other essential includes.
  */
-
-require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';
