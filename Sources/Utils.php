@@ -1979,11 +1979,13 @@ class Utils
 		// Provide a plain ASCII name for the sake of old browsers.
 		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
 			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
-		}
 
-		// Replace ASCII names like ??????.jpg with something more unique.
-		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
-			$file['asciiname'] = md5($file['filename']) . substr($file['asciiname'], strpos($file['asciiname'], '.'));
+			// Replace ASCII names like ??????.jpg with something more unique.
+			if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
+				$file['asciiname'] = md5($file['filename']) . substr($file['asciiname'], strpos($file['asciiname'], '.'));
+			}
+		} else {
+			$file['asciiname'] = $file['filename'];
 		}
 
 		// Clear any output that was made before now.
