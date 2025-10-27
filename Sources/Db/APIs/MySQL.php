@@ -169,7 +169,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = preg_split('/(?<![\'\\\\])\'(?![\'])/', $db_string);
+			$clean = preg_split('/(?:\\\\{2})*\K(?<![\'\\\\])\'(?![\'])/', $db_string);
 
 			for ($i = 0; $i < \count($clean); $i++) {
 				if ($i % 2 === 1) {
