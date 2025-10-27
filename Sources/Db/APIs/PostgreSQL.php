@@ -411,7 +411,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 		if ($method == 'replace' || $method == 'ignore') {
-			$key_str = '';
+			$key_str = implode(',', $keys);
 			$col_str = '';
 
 			$count = 0;
@@ -420,8 +420,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			foreach ($columns as $columnName => $type) {
 				// Check pk field.
 				if (\in_array($columnName, $keys)) {
-					$key_str .= ($count_pk > 0 ? ',' : '');
-					$key_str .= $columnName;
 					$count_pk++;
 				}
 				// Normal field.
