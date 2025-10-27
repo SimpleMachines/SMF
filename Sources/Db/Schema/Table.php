@@ -547,7 +547,7 @@ class Table
 			table: '{db_prefix}' . $this->name,
 			columns: Db::$db->getTypeIndicators('{db_prefix}' . $this->name, reset($this->initial_data)),
 			data: array_map(fn($row) => array_values($row), $this->initial_data),
-			keys: isset($auto_col) ? [$auto_col] : [],
+			keys: isset($auto_col) ? [$auto_col] : array_column($this->indexes['primary']->columns, 'name'),
 			returnmode: $returnmode,
 		);
 
