@@ -1760,23 +1760,16 @@ class Maintenance implements ActionInterface
 	{
 		$filter_url = '';
 		$current_filter = '';
-		$hooks = $this->getIntegrationHooks();
+		$defined_hooks = array_keys(array_filter(IntegrationHook::get(), fn($val) => \count($val) > 0));
+
 		$hooks_filters = [];
 
-		if (isset($_GET['filter'], $hooks[$_GET['filter']])) {
+		if (isset($_GET['filter'], $defined_hooks[$_GET['filter']])) {
 			$filter_url = ';filter=' . $_GET['filter'];
 			$current_filter = $_GET['filter'];
 		}
-		$filtered_hooks = array_filter(
-			$hooks,
-			function ($hook) use ($current_filter) {
-				return $current_filter == '' || $current_filter == $hook;
-			},
-			ARRAY_FILTER_USE_KEY,
-		);
-		ksort($hooks);
 
-		foreach ($hooks as $hook => $functions) {
+		foreach ($defined_hooks as $hook) {
 			$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 		}
 
@@ -1807,21 +1800,16 @@ class Maintenance implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=maintain;sa=hooks' . $filter_url . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'default_sort_col' => 'hook_name',
 			'get_items' => [
-				'function' => __CLASS__ . '::getIntegrationHooksData',
+				'function' => __CLASS__ . '::list_getHooks',
 				'params' => [
-					$filtered_hooks,
-					strtr(Config::$boarddir, '\\', '/'),
-					strtr(Config::$sourcedir, '\\', '/'),
+					$current_filter,
 				],
 			],
 			'get_count' => [
-				'value' => array_reduce(
-					$filtered_hooks,
-					function ($accumulator, $functions) {
-						return $accumulator + \count($functions);
-					},
-					0,
-				),
+				'function' => __CLASS__ . '::list_getNumHooks',
+				'params' => [
+					$current_filter,
+				],
 			],
 			'no_items_label' => Lang::getTxt('hooks_no_hooks', file: 'Admin'),
 			'columns' => [
@@ -1837,39 +1825,39 @@ class Maintenance implements ActionInterface
 						'reverse' => 'hook_name DESC',
 					],
 				],
-				'function_name' => [
+				'func' => [
 					'header' => [
 						'value' => Lang::getTxt('hooks_field_function_name', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($data) {
 							// Show a nice icon to indicate this is an instance.
-							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::getTxt('hooks_field_function_method', file: 'Admin') . '"></span> ' : '');
+							$instance = ($data['is_object'] ? '<span class="main_icons news" title="' . Lang::getTxt('hooks_field_function_method', file: 'Admin') . '"></span> ' : '');
 
-							if (!empty($data['included_file']) && !empty($data['real_function'])) {
+							if (!empty($data['file']) && !empty($data['function'])) {
 								return $instance . Lang::getTxt('hooks_field_function', $data, file: 'Admin') . '<br>' . Lang::getTxt('hooks_field_included_file', $data, file: 'Admin');
 							}
 
-							return $instance . $data['real_function'];
+							return $instance . $data['function'];
 						},
 						'class' => 'word_break',
 					],
 					'sort' => [
-						'default' => 'function_name',
-						'reverse' => 'function_name DESC',
+						'default' => 'func',
+						'reverse' => 'func DESC',
 					],
 				],
-				'file_name' => [
+				'file' => [
 					'header' => [
 						'value' => Lang::getTxt('hooks_field_file_name', file: 'Admin'),
 					],
 					'data' => [
-						'db' => 'file_name',
+						'db' => 'file',
 						'class' => 'word_break',
 					],
 					'sort' => [
-						'default' => 'file_name',
-						'reverse' => 'file_name DESC',
+						'default' => 'file',
+						'reverse' => 'file DESC',
 					],
 				],
 				'status' => [
@@ -1880,15 +1868,15 @@ class Maintenance implements ActionInterface
 					'data' => [
 						'function' => function ($data) use ($filter_url) {
 							// Cannot update temp hooks in any way, really.  Just show the appropriate icon.
-							if ($data['status'] == 'temp') {
-								return '<span class="main_icons ' . ($data['hook_exists'] ? 'posts' : 'error') . '" title="' . $data['img_text'] . '"></span>';
+							if ($data['is_temp']) {
+								return '<span class="main_icons ' . ($data['exists'] ? 'posts' : 'error') . '" title="' . $data['img_text'] . '"></span>';
 							}
 
 							$change_status = ['before' => '', 'after' => ''];
 
 							// Can only enable/disable if it exists...
-							if ($data['hook_exists']) {
-								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="you_sure">';
+							if ($data['exists']) {
+								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['is_enabled'] ? 'disable' : 'enable') . ';id=' . $data['id_hook'] . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="you_sure">';
 								$change_status['after'] = '</a>';
 							}
 
@@ -1897,8 +1885,8 @@ class Maintenance implements ActionInterface
 						'class' => 'centertext',
 					],
 					'sort' => [
-						'default' => 'status',
-						'reverse' => 'status DESC',
+						'default' => 'is_enabled',
+						'reverse' => 'is_enabled DESC',
 					],
 				],
 			],
@@ -1935,7 +1923,7 @@ class Maintenance implements ActionInterface
 			'data' => [
 				'function' => function ($data) use ($filter_url) {
 					// Note: Cannot remove temp hooks via the UI...
-					if (!$data['hook_exists'] && $data['status'] != 'temp') {
+					if (!$data['exists'] && $data['status'] != 'temp') {
 						return '
 						<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="you_sure">
 							<span class="main_icons delete" title="' . Lang::getTxt('hooks_button_remove', file: 'Admin') . '"></span>
@@ -1968,64 +1956,109 @@ class Maintenance implements ActionInterface
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $per_page How many items to display on each page
 	 * @param string $sort A string indicating how to sort things
-	 * @param object|array $filtered_hooks
+	 * @param string $filter hook name to filter by.
 	 * @param string $normalized_boarddir
 	 * @param string $normalized_sourcedir
 	 * @return array An array of information about the integration hooks
 	 */
-	public static function getIntegrationHooksData($start, $per_page, $sort, $filtered_hooks, $normalized_boarddir, $normalized_sourcedir): array
+	public static function list_getHooks(int $start, int $per_page, string $sort, string $filter = ''): array
 	{
-		$function_list = $sort_array = $temp_data = [];
-		$files = self::getFileRecursive($normalized_sourcedir);
+		$ret = [];
 
-		foreach ($files as $currentFile => $fileInfo) {
-			$function_list += self::getDefinedFunctionsInFile($currentFile);
-		}
+		$request = Db::$db->query(
+			'SELECT id_hook, is_enabled, hook_name, func, file, class, is_object, package_id
+			FROM {db_prefix}hooks' . (!empty($filter) ? '
+			WHERE hook_name = {string:filter}' : '') . '
+			ORDER BY {raw:sort}
+			LIMIT {int:start}, {int:per_page}',
+			[
+				'filter' => $filter,
+				'sort' => $sort,
+				'start' => $start,
+				'per_page' => $per_page,
+			],
+		);
 
-		$sort_types = [
-			'hook_name' => ['hook_name', SORT_ASC],
-			'hook_name DESC' => ['hook_name', SORT_DESC],
-			'function_name' => ['function_name', SORT_ASC],
-			'function_name DESC' => ['function_name', SORT_DESC],
-			'file_name' => ['file_name', SORT_ASC],
-			'file_name DESC' => ['file_name', SORT_DESC],
-			'status' => ['status', SORT_ASC],
-			'status DESC' => ['status', SORT_DESC],
-		];
+		foreach (Db::$db->fetch_all($request) as $row) {
+				$hooks[$row['hook_name']] ??= IntegrationHook::get($row['hook_name']);
+				$hook = array_find($hooks[$row['hook_name']], fn($val) => $val['id_hook'] == $row['id_hook']);
 
-		foreach ($filtered_hooks as $hook => $functions) {
-			foreach ($functions as $rawFunc) {
-				$hookParsedData = self::parseIntegrationHook($hook, $rawFunc);
+				$ret[(int) $row['id_hook']] = [
+					'id_hook' => (int) $row['id_hook'],
+					'is_enabled' => $row['is_enabled'] === '1' ? true : false,
+					'hook_name' => trim($row['hook_name'] ?? ''),
+					'function' => trim($row['func'] ?? ''),
+					'file' => trim($row['file'] ?? ''),
+					'class' => trim($row['class'] ?? ''),
+					'is_object' => $row['is_object'] == '1' ? true : false,
+					'is_temp' => $hook !== null && $hook['is_temp'],
+					'package_id' => $row['package_id'] ?? null,
+					'exists' => $hook !== null,
+					'status' => $hook !== null ? ($hook['is_enabled'] ? 'allow' : 'moderate') : 'deny',
+					'img_text' => Lang::getTxt('hooks_' . ($hook !== null ? ($row['is_enabled'] === '1' ? 'active' : 'disabled') : 'missing'), file: 'Admin'),
+				];
+			}
+		Db::$db->free_result($request);
 
-				// Handle hooks pointing outside the sources directory.
-				$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
-
-				if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean)) {
-					$function_list += self::getDefinedFunctionsInFile($absPath_clean);
+		// load up any temp hooks.
+		foreach (IntegrationHook::get() as $name => $hooks) {
+			foreach ($hooks as $id => $row) {
+				if (empty($row['is_temp'])) {
+					continue;
 				}
 
-				$hook_exists = isset($function_list[$hookParsedData['call']]) || (str_ends_with($hook, '_include') && isset($files[$absPath_clean]));
-				$hook_temp = !empty(Utils::$context['integration_hooks_temporary'][$hook][$hookParsedData['rawData']]);
-				$temp = [
-					'hook_name' => $hook,
-					'function_name' => $hookParsedData['rawData'],
-					'real_function' => $hookParsedData['call'],
-					'included_file' => $hookParsedData['hookFile'],
-					'file_name' => strtr($hookParsedData['absPath'] ?: ($function_list[$hookParsedData['call']] ?? ''), [$normalized_boarddir => '.']),
-					'instance' => $hookParsedData['object'],
-					'hook_exists' => $hook_exists,
-					'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
-					'img_text' => Lang::getTxt('hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing'), file: 'Admin'),
-					'enabled' => $hookParsedData['enabled'],
+				if (!empty($filter) && $row['hook_name'] !== $filter) {
+					continue;
+				}
+
+				$ret[(int) $row['id_hook']] = [
+					'id_hook' => (int) $row['id_hook'],
+					'is_enabled' => $row['is_enabled'] === '1' ? true : false,
+					'hook_name' => trim($row['hook_name'] ?? ''),
+					'function' => trim($row['function'] ?? ''),
+					'file' => trim($row['file'] ?? ''),
+					'class' => trim($row['class'] ?? ''),
+					'is_object' => $row['is_object'] == '1' ? true : false,
+					'is_temp' => $row['is_temp'],
+					'package_id' => $row['package_id'] ?? null,
+					'exists' => $hook !== null,
+					'status' => 'temp',
+					'img_text' => Lang::getTxt('hooks_temp', file: 'Admin'),
 				];
-				$sort_array[] = $temp[$sort_types[$sort][0]];
-				$temp_data[] = $temp;
+
 			}
 		}
 
-		array_multisort($sort_array, $sort_types[$sort][1], $temp_data);
+		return $ret;
+	}
 
-		return \array_slice($temp_data, $start, $per_page, true);
+	/**
+	 * Return the number of hooks of the specified type recorded in the database.
+	 * (the specified type being attachments or avatars).
+	 *
+	 * @param string $filter hook name to filter by.
+	 * @return int The number of hooks
+	 */
+	public static function list_getNumHooks(string $filter = ''): int
+	{
+		$request = Db::$db->query(
+			'SELECT COUNT(*)
+			FROM {db_prefix}hooks' . (!empty($filter) ? '
+			WHERE hook_name = {string:filter}' : ''),
+			[
+				'filter' => $filter,
+			],
+		);
+
+		list($num_hooks) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
+		$num_hooks = (int) $num_hooks;
+
+		if (!empty($filter)) {
+			return $num_hooks + \count(IntegrationHook::get($filter));
+		}
+
+		return (int) $num_hooks + array_sum(array_map('count', IntegrationHook::get()));
 	}
 
 	/**
@@ -2182,143 +2215,5 @@ class Maintenance implements ActionInterface
 		if (isset($_REQUEST['activity'], self::$subactions[$this->subaction]['activities'][$_REQUEST['activity']])) {
 			$this->activity = $_REQUEST['activity'];
 		}
-	}
-
-	/**
-	 * Parses modSettings to create integration hook array
-	 *
-	 * @return array An array of information about the integration hooks
-	 */
-	protected function getIntegrationHooks(): array
-	{
-		static $integration_hooks;
-
-		if (!isset($integration_hooks)) {
-			$integration_hooks = [];
-
-			foreach (Config::$modSettings as $key => $value) {
-				if (!empty($value) && substr($key, 0, 10) === 'integrate_') {
-					$integration_hooks[$key] = explode(',', $value);
-				}
-			}
-		}
-
-		return $integration_hooks;
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Gets all of the files in a directory and its children directories
-	 *
-	 * @param string $dirname The path to the directory
-	 * @return array An array containing information about the files found in the specified directory and its children
-	 */
-	protected static function getFileRecursive(string $dirname): array
-	{
-		return iterator_to_array(
-			new \RecursiveIteratorIterator(
-				new \RecursiveCallbackFilterIterator(
-					new \RecursiveDirectoryIterator($dirname, \FilesystemIterator::UNIX_PATHS),
-					function ($fileInfo, $currentFile, $iterator) {
-						// Allow recursion
-						if ($iterator->hasChildren()) {
-							return true;
-						}
-
-						return $fileInfo->getExtension() == 'php';
-					},
-				),
-			),
-		);
-	}
-
-	/**
-	 * Parses each hook data and returns an array.
-	 *
-	 * @param string $hook
-	 * @param string $rawData A string as it was saved to the DB.
-	 * @return array everything found in the string itself
-	 */
-	protected static function parseIntegrationHook(string $hook, string $rawData): array
-	{
-		// A single string can hold tons of info!
-		$hookData = [
-			'object' => false,
-			'enabled' => true,
-			'absPath' => '',
-			'hookFile' => '',
-			'pureFunc' => '',
-			'method' => '',
-			'class' => '',
-			'call' => '',
-			'rawData' => $rawData,
-		];
-
-		// Meh...
-		if (empty($rawData)) {
-			return $hookData;
-		}
-
-		$modFunc = $rawData;
-
-		// Any files?
-		if (str_ends_with($hook, '_include')) {
-			$modFunc = $modFunc . '|';
-		}
-
-		if (str_contains($modFunc, '|')) {
-			list($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
-			$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'] ?? '']), '\\', '/');
-		}
-
-		// Hook is an instance.
-		if (str_contains($modFunc, '#')) {
-			$modFunc = str_replace('#', '', $modFunc);
-			$hookData['object'] = true;
-		}
-
-		// Hook is "disabled"
-		// May need to inspect $rawData here for includes...
-		if ((str_contains($modFunc, '!')) || (empty($modFunc) && (str_contains($rawData, '!')))) {
-			$modFunc = str_replace('!', '', $modFunc);
-			$hookData['enabled'] = false;
-		}
-
-		// Handling methods?
-		if (str_contains($modFunc, '::')) {
-			list($hookData['class'], $hookData['method']) = explode('::', $modFunc);
-			$hookData['pureFunc'] = $hookData['method'];
-			$hookData['call'] = $modFunc;
-		} else {
-			$hookData['call'] = $hookData['pureFunc'] = $modFunc;
-		}
-
-		return $hookData;
-	}
-
-	protected static function getDefinedFunctionsInFile(string $file): array
-	{
-		$source = file_get_contents($file);
-		// token_get_all() is too slow so use a nice little regex instead.
-		preg_match_all('/\bnamespace\s++((?P>label)(?:\\\(?P>label))*+)\s*+;|\bclass\s++((?P>label))[\w\s]*+{|\bfunction\s++((?P>label))\s*+\(.*\)[:\|\w\s]*+{(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/i', $source, $matches, PREG_SET_ORDER);
-
-		$functions = [];
-		$namespace = '';
-		$class = '';
-
-		foreach ($matches as $match) {
-			if (!empty($match[1])) {
-				$namespace = $match[1] . '\\';
-			} elseif (!empty($match[2])) {
-				$class = $namespace . $match[2] . '::';
-			} elseif (!empty($match[3])) {
-				$functions[$class . $match[3]] = $file;
-			}
-		}
-
-		return $functions;
 	}
 }
