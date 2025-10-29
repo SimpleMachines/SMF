@@ -275,8 +275,8 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	})
 		.then((res, rej) => res.ok ? res.text() : rej(res))
 		.then(data => {
-			const parser = new DOMParser()
-			const doc = parser.parseFromString(data, "text/html")
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(data, "text/html");
 			const body = doc?.querySelector('body div')?.innerHTML ?? data;
 			oContainer.setBody(body);
 		})
