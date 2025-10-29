@@ -770,6 +770,18 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
+		'vendordir' => [
+			'text' => <<<'END'
+				/**
+				 * @var string
+				 *
+				 * Path to where our dependencies are located.
+				 */
+				END,
+			'default' => '__DIR__ . \'/vendor\'',
+			'raw_default' => true,
+			'type' => 'string',
+		],
 		'languagesdir' => [
 			'text' => <<<'END'
 				/**
