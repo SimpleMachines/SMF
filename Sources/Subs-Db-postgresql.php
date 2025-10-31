@@ -416,7 +416,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	if (empty($modSettings['disableQueryCheck']))
 	{
 		// Clear out escaped single quotes first, to make it simpler to ID & remove string literals
-		$clean = str_replace('\'\'', '', $db_string);
+		$clean = str_replace('\'\'', ' ', $db_string);
 		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
