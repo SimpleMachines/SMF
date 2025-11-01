@@ -807,7 +807,7 @@ class Forum
 
 		// Otherwise, it was set - so let's go to that action.
 		if (!empty(self::$actions[$action][0])) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . self::$actions[$action][0]);
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . self::$actions[$action][0]);
 		}
 
 		// Do the right thing.

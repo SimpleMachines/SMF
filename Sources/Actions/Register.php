@@ -26,6 +26,7 @@ use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -281,7 +282,7 @@ class Register implements ActionInterface, Routable
 
 		// Or any standard ones?
 		if (!empty(Config::$modSettings['registration_fields'])) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
 
 			// Setup some important context.
 			Theme::loadTemplate('Profile');
