@@ -26,6 +26,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Parser;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -2099,7 +2100,7 @@ class Subscriptions implements ActionInterface
 					fclose($fp);
 
 					if (str_contains($header, '// SMF Payment Gateway: ' . strtolower($matches[1]))) {
-						require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
+						require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $file);
 
 						$gateways[] = [
 							'filename' => $file,

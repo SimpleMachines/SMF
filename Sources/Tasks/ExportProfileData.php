@@ -1647,7 +1647,7 @@ class ExportProfileData extends BackgroundTask
 				$this->_details['format'] = 'XML_XSLT';
 			}
 
-			require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = Export::getFormats();
 
 			/* Notes:

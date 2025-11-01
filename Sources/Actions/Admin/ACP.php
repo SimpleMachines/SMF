@@ -30,6 +30,7 @@ use SMF\Mail;
 use SMF\Menu;
 use SMF\Parser;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -780,7 +781,7 @@ class ACP implements ActionInterface, Routable
 
 		// Now - finally - call the right place!
 		if (isset($menu->include_data['file'])) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
 		}
 
 		// Get the right callable.
@@ -1888,7 +1889,7 @@ class ACP implements ActionInterface, Routable
 				]);
 
 				if (file_exists($include)) {
-					require_once Config::canonicalPath($include);
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}

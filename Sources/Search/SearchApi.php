@@ -24,6 +24,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -902,7 +903,7 @@ abstract class SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			require_once Config::canonicalPath($file_info->getPathname());
+			require_once Sapi::canonicalPath($file_info->getPathname());
 
 			if (!class_exists($class_name, false)) {
 				continue;

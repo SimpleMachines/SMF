@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -156,7 +157,7 @@ class Logs implements ActionInterface
 		];
 
 		if (!empty(self::$subactions[$this->subaction][0])) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 		}
 
 		$call = \is_string(self::$subactions[$this->subaction][1]) && method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);

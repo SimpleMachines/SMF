@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -683,7 +684,7 @@ class VerificationCode implements ActionInterface, Routable
 		// Include it!
 		header('content-type: image/png');
 
-		include Config::canonicalPath(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
+		include Sapi::canonicalPath(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 		// Nothing more to come.
 		die();

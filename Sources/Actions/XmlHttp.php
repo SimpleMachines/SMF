@@ -32,6 +32,7 @@ use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -230,7 +231,7 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function sig_preview(): void
 	{
-		require_once Config::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Profile-Modify.php');
 
 		$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 		$is_owner = $user == User::$me->id;
