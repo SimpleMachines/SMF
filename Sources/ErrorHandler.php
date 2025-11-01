@@ -280,7 +280,6 @@ class ErrorHandler
 			time(),
 			User::$me->ip ?? IP::getUserIP(),
 			$request_url,
-			$query_string,
 			$error_message,
 			(string) (User::$sc ?? ''),
 			$error_type,
