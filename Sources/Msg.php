@@ -314,7 +314,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon' => 'string-16',
 				'smileys_enabled' => 'int',
 				'approved' => 'int',
-				'likes' => 'int',
+				'reactions' => 'int',
 				'version' => 'string-5',
 			];
 
@@ -332,7 +332,7 @@ class Msg implements \ArrayAccess, Routable
 				$this->icon,
 				(int) $this->smileys_enabled,
 				$this->approved,
-				$this->likes,
+				$this->reactions,
 				$this->version,
 			];
 
@@ -389,7 +389,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon = {string:icon}',
 				'smileys_enabled = {int:smileys_enabled}',
 				'approved = {int:approved}',
-				'likes = {int:likes}',
+				'reactions = {int:reactions}',
 				'version = {string:version}',
 			];
 
@@ -409,7 +409,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon' => (string) $this->icon,
 				'smileys_enabled' => (int) $this->smileys_enabled,
 				'approved' => (int) $this->approved,
-				'likes' => (int) $this->likes,
+				'reactions' => (int) $this->reactions,
 				'version' => (string) $this->version,
 			];
 
@@ -2854,7 +2854,7 @@ class Msg implements \ArrayAccess, Routable
 			Attachment::remove($attachmentQuery);
 		}
 
-		// Allow mods to remove message related data of their own (likes, maybe?)
+		// Allow mods to remove message related data of their own (reactions, maybe?)
 		IntegrationHook::call('integrate_remove_message', [$message, $row, $recycle]);
 
 		// Update the pesky statistics.
