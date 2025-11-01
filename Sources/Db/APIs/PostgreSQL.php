@@ -177,12 +177,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~\'\X*?\'~s',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -216,19 +218,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = preg_split('/(?<![\'\\\\])\'(?![\'])/', $db_string);
-
-			for ($i = 0; $i < \count($clean); $i++) {
-				if ($i % 2 === 1) {
-					$clean[$i] = ' %s ';
-				}
-			}
-
-			$clean = trim(strtolower(preg_replace(
-				$allowed_comments_from,
-				$allowed_comments_to,
-				implode('', $clean),
-			)));
+			// Clear out escaped single quotes first, to make it simpler to ID & remove string literals
+			$clean = str_replace('\'\'', ' ', $db_string);
+			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			if (
 				// Empty string?
@@ -1813,10 +1805,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$default = 'default nextval(\'' . $short_table_name . '_seq\')';
 			} elseif (isset($column['default']) && $column['default'] !== null) {
 				// Numbers don't need quotes.
-				if (is_numeric($column['default']))
+				if (is_numeric($column['default'])) {
 					$default = 'default ' . $column['default'];
-				else
+				} else {
 					$default = 'default \'' . $this->escape_string($column['default']) . '\'';
+				}
 			} else {
 				$default = '';
 			}
