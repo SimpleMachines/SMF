@@ -872,13 +872,7 @@ function template_show_settings()
 		// Hang about? Are you pulling my leg - a callback?!
 		if (is_array($config_var) && $config_var['type'] == 'callback')
 		{
-			$callbackName = $config_var['name'];
-			if (function_exists('template_callback_' . $callbackName)) {
-				$callbackName = 'template_callback_' . $callbackName;
-			}
-
-			$callable = Utils::getCallable($callbackName);
-			$callable && call_user_func($callable);
+			Utils::callTemplateCallback($config_var['name']);
 
 			continue;
 		}

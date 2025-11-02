@@ -536,7 +536,7 @@ class Theme
 			}
 		}
 
-		if (! $template_loaded) {
+		if (!$template_loaded) {
 			$theme_function = 'template_' . $template_name;
 
 			$callable = Utils::getCallable($theme_function);
@@ -548,7 +548,7 @@ class Theme
 			}
 		}
 
-		if (! $template_loaded) {
+		if (!$template_loaded) {
 			// Handle errors based on the $fatal parameter.
 			if ($fatal === false) {
 				ErrorHandler::fatalLang(

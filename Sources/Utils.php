@@ -2477,6 +2477,28 @@ class Utils
 		return $callable;
 	}
 
+	/**
+	 * Universal template callback invoker following the logic of the "first file".
+	 *
+	 * @param string $name   Callback name (without prefix)
+	 * @param string $prefix Function name prefix (e.g. 'template_callback_' or 'template_profile_')
+	 * @return mixed Result of the callback execution or null if not found
+	 */
+	public static function callTemplateCallback(string $name, string $prefix = 'template_callback_'): mixed
+	{
+		if (function_exists($prefix . $name)) {
+			$name = $prefix . $name;
+		}
+
+		$callable = Utils::getCallable($name);
+
+		if ($callable) {
+			return call_user_func($callable);
+		}
+
+		return null;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
