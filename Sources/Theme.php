@@ -517,6 +517,12 @@ class Theme
 		$template_loaded = false;
 
 		if (\is_string($template_name) && \str_contains($template_name, '::')) {
+			$template_name = preg_replace_callback(
+				'/(#?)_(above|below)$/i',
+				fn($m) => ucfirst($m[2]) . $m[1],
+				$template_name
+			);
+
 			$callable = Utils::getCallable($template_name);
 
 			if ($callable !== false) {
