@@ -207,6 +207,14 @@ class Config
 	 */
 	public static string $cachedir_sqlite;
 
+	/**
+	 * @var bool
+	 *
+	 * This is only used for the SQLite3 cache system.
+	 * Whether to enable Write-Ahead Logging.
+	 */
+	public static bool $cache_sqlite_wal;
+
 	########## Image proxy ##########
 	/**
 	 * @var bool
@@ -690,6 +698,18 @@ class Config
 			'default' => '',
 			'auto_delete' => 2,
 			'type' => 'string',
+		],
+		'cache_sqlite_wal' => [
+			'text' => <<<'END'
+				/**
+				 * @var bool
+				 *
+				 * This is only used for the SQLite3 cache system.
+				 * Whether to enable Write-Ahead Logging.
+				 */
+				END,
+			'default' => false,
+			'type' => 'boolean',
 		],
 		'image_proxy_enabled' => [
 			'text' => <<<'END'
