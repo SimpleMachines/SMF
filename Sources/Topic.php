@@ -1557,7 +1557,7 @@ class Topic implements \ArrayAccess, Routable
 				self::move($recycleTopics, (int) Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
-				require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Moderation/Main.php');
+				require_once Sapi::canonicalPath(Config::$sourcedir . '/Actions/Moderation/Main.php');
 
 				Db::$db->query(
 					'UPDATE {db_prefix}log_reported

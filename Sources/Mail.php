@@ -751,7 +751,7 @@ class Mail
 			}
 
 			if (!\function_exists('idn_to_ascii')) {
-				require_once Config::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
+				require_once Sapi::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
 
 			$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);

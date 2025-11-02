@@ -647,7 +647,7 @@ class Main implements ActionInterface, Routable
 
 		// File to include?
 		if (!empty($menu->include_data['file'])) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
 		}
 
 		// Build the link tree.
