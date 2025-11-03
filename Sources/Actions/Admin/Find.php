@@ -196,7 +196,7 @@ class Find implements ActionInterface
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 
 		foreach ($this->include_files as $file) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . $file . '.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $file . '.php');
 		}
 
 		/* This is the huge array that defines everything... it's a huge array of items formatted as follows:

@@ -19,6 +19,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
+use SMF\Sapi;
 use SMF\Utils;
 
 abstract class CacheApi
@@ -514,7 +515,7 @@ abstract class CacheApi
 			)
 		) {
 			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
-				require_once Config::canonicalPath(Config::$sourcedir . '/' . $file);
+				require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $file);
 			}
 
 			$cache_block = \call_user_func_array($function, $params);

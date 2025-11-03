@@ -15,9 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Localization;
 
-use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Unicode\Utf8String;
 use SMF\Utils;
 
@@ -291,7 +291,7 @@ class AsciiTransliterator
 			$ord = mb_ord($char);
 
 			if (file_exists(__DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php')) {
-				include_once Config::canonicalPath(__DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php');
+				include_once Sapi::canonicalPath(__DIR__ . '/data/AsciiTransliteration_' . \sprintf('%04d', $ord >> 8) . '.php');
 
 				$new_chars[$char_num] = $ascii_transliteration[$ord >> 8][$ord & 255] ?? $char;
 			}

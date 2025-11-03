@@ -540,7 +540,7 @@ class Punycode
 	 */
 	protected function preprocess(string $domain, array &$errors = []): string
 	{
-		require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
 
 		$regexes = idna_regex();
 		$maps = idna_maps();
@@ -617,7 +617,7 @@ class Punycode
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 
-		require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
 
 		$regexes = Unicode\idna_regex();
 
