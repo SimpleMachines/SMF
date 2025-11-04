@@ -183,9 +183,6 @@ class ACP implements ActionInterface, Routable
 						'profile' => [
 							'label' => 'custom_profile_shorttitle',
 						],
-						'likes' => [
-							'label' => 'likes',
-						],
 						'mentions' => [
 							'label' => 'mentions',
 						],
