@@ -61,7 +61,7 @@ class UserReactions extends MigrationBase
 			Db::$db->add_column('{db_prefix}user_reacts', $tbl->columns);
 
 			// Default reaction is like for now
-			Db::$db->query('', 'UPDATE {db_prefix}user_reacts SET id_react={int:one}', ['one' => 1]);
+			Db::$db->query('UPDATE {db_prefix}user_reacts SET id_react={int:one}', ['one' => 1]);
 
 			// Rename the like_time column
 			Db::$db->change_column('{db_prefix}user_reacts', 'like_time', ['name' => 'react_time']);
@@ -75,13 +75,13 @@ class UserReactions extends MigrationBase
 			Db::$db->add_index('{db_prefix}messages', ['name' => 'idx_reacts', 'columns' => ['reactions']]);
 
 			// Update user alert prefs
-			Db::$db->query('', 'UPDATE {db_prefix}user_alert_prefs SET alert_pref = {string:msg_react} WHERE alert_pref = {string:msg_like}', ['msg_react' => 'msg_react', 'msg_like' => 'msg_iike']);
+			Db::$db->query('UPDATE {db_prefix}user_alert_prefs SET alert_pref = {string:msg_react} WHERE alert_pref = {string:msg_like}', ['msg_react' => 'msg_react', 'msg_like' => 'msg_iike']);
 
 			// Update permissions
-			Db::$db->query('', 'UPDATE {db_prefix}permissions SET permission = {string:r_perm} WHERE permission = {string:l_perm}', ['r_perm' => 'reactions_react', 'l_perm' => 'likes_like']);
+			Db::$db->query('UPDATE {db_prefix}permissions SET permission = {string:r_perm} WHERE permission = {string:l_perm}', ['r_perm' => 'reactions_react', 'l_perm' => 'likes_like']);
 
 			// Finally, the settting
-			Db::$db->query('', 'UPDATE {db_prefix}settings SET variable = {string:r_set} WHERE variable = {string:l_set}', ['r_set' => 'enable_reacts', 'l_set' => 'enable_likes']);
+			Db::$db->query('UPDATE {db_prefix}settings SET variable = {string:r_set} WHERE variable = {string:l_set}', ['r_set' => 'enable_reacts', 'l_set' => 'enable_likes']);
 		}
 		
 		// Create the table

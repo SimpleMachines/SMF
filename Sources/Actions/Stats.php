@@ -654,7 +654,6 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['stats_blocks']['reacted_users'] = [];
 			$max_reacted_users = 1;
 			$reacted_users = Db::$db->query(
-				'',
 				'SELECT m.id_member AS reacted_user, COUNT(r.content_id) AS count, mem.real_name
 				FROM {db_prefix}user_reacts AS r
 					INNER JOIN {db_prefix}messages AS m ON (r.content_id = m.id_msg)
