@@ -612,7 +612,7 @@ class Stats implements ActionInterface, Routable
 				FROM (
 					SELECT n.id_msg, n.subject, n.reactions, n.id_board, n.id_topic
 					FROM {db_prefix}messages as n
-					ORDER BY n.reacts DESC
+					ORDER BY n.reactions DESC
 					LIMIT 1000
 				) AS m
 					INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
