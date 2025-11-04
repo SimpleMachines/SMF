@@ -517,35 +517,21 @@ class Theme
 		$template_loaded = false;
 
 		if (\is_string($template_name) && \str_contains($template_name, '::')) {
-			$template_name = preg_replace_callback(
+			$template_name = \preg_replace_callback(
 				'/(#?)_(above|below)$/i',
-				fn($m) => ucfirst($m[2]) . $m[1],
+				fn($m) => \ucfirst($m[2]) . $m[1],
 				$template_name
 			);
 
-			$callable = Utils::getCallable($template_name);
-
-			if ($callable !== false) {
-				if (empty($function_params)) {
-					\call_user_func($callable);
-				} else {
-					\call_user_func_array($callable, $function_params);
-				}
-
+			if ($callable = Utils::getCallable($template_name, true)) {
+				\call_user_func_array($callable, $function_params);
 				$template_loaded = true;
 			}
 		}
 
-		if (!$template_loaded) {
-			$theme_function = 'template_' . $template_name;
-
-			$callable = Utils::getCallable($theme_function);
-
-			if ($callable !== false) {
-				\call_user_func_array($theme_function, $function_params);
-
-				$template_loaded = true;
-			}
+		if (!$template_loaded && ($callable = Utils::getCallable('template_' . $template_name, true))) {
+			\call_user_func_array($callable, $function_params);
+			$template_loaded = true;
 		}
 
 		if (!$template_loaded) {
