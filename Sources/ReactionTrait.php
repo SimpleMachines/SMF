@@ -32,7 +32,6 @@ trait ReactionTrait
 	{
 		if (is_null($reactions = CacheApi::get('reactions', 480))) {
 			$request = Db::$db->query(
-				'',
 				'SELECT * FROM {db_prefix}reactions',
 			[]);
 
