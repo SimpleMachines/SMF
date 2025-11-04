@@ -608,7 +608,6 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['stats_blocks']['reacted_messages'] = [];
 			$max_reacted_message = 1;
 			$reacted_messages = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.subject, m.reacts, m.id_board, m.id_topic, t.approved
 				FROM (
 					SELECT n.id_msg, n.subject, n.reacts, n.id_board, n.id_topic
