@@ -608,9 +608,9 @@ class Stats implements ActionInterface, Routable
 			Utils::$context['stats_blocks']['reacted_messages'] = [];
 			$max_reacted_message = 1;
 			$reacted_messages = Db::$db->query(
-				'SELECT m.id_msg, m.subject, m.reacts, m.id_board, m.id_topic, t.approved
+				'SELECT m.id_msg, m.subject, m.reactions, m.id_board, m.id_topic, t.approved
 				FROM (
-					SELECT n.id_msg, n.subject, n.reacts, n.id_board, n.id_topic
+					SELECT n.id_msg, n.subject, n.reactions, n.id_board, n.id_topic
 					FROM {db_prefix}messages as n
 					ORDER BY n.reacts DESC
 					LIMIT 1000
@@ -618,9 +618,9 @@ class Stats implements ActionInterface, Routable
 					INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 						AND b.id_board != {int:recycle_board}' : '') . ')
-				WHERE m.reacts > 0 AND {query_see_board}' . (Config::$modSettings['postmod_active'] ? '
+				WHERE m.reactions > 0 AND {query_see_board}' . (Config::$modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . '
-				ORDER BY m.reacts DESC
+				ORDER BY m.reactions DESC
 				LIMIT 10',
 				[
 					'recycle_board' => Config::$modSettings['recycle_board'],
