@@ -254,6 +254,8 @@ class Config
 	public static string $sourcedir;
 
 	/**
+	 * @var string
+	 *
 	 * Path to where our dependencies are located.
 	 */
 	public static string $vendordir;
@@ -321,6 +323,14 @@ class Config
 	 * URL of SMF's main index.php.
 	 */
 	public static string $scripturl;
+
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 *
+	 * Autoloader instance.
+	 * This is used to support the integrate_autoload hook.
+	 */
+	public static \Composer\Autoload\ClassLoader $loader;
 
 	/****************************
 	 * Internal static properties
@@ -1136,6 +1146,18 @@ class Config
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
 
+		// Any autoloader integrations to add?
+		if (isset(self::$modSettings['integrate_autoload'])) {
+			$class_map = [];
+
+			IntegrationHook::call('integrate_autoload', [&$class_map]);
+
+			foreach ($class_map as $prefix => $dirname) {
+				self::$loader->addPsr4($prefix, $dirname);
+			}
+		}
+
+		// Ensure the cache_enable setting reflects reality.
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary

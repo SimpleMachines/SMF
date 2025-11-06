@@ -122,13 +122,11 @@ call_user_func(function () {
 	require_once $sourcedir . DIRECTORY_SEPARATOR . 'Config.php';
 	SMF\Config::set(get_defined_vars());
 
-	$loader = require SMF\Config::$vendordir . '/autoload.php';
+	// Start up the autoloader.
+	SMF\Config::$loader = require SMF\Config::$vendordir . '/autoload.php';
 
-	if (isset(SMF\Config::$modSettings['integrate_autoload'])) {
-		foreach (explode(',', SMF\Config::$modSettings['integrate_autoload']) as $prefix => $dirname) {
-			$loader->addPsr4($prefix, $dirname);
-		}
-	}
+	// Ensure the SMF namespace points to $sourcedir.
+	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();

@@ -211,6 +211,12 @@ $packagesdir = __DIR__ . '/Packages';
 /**
  * @var string
  *
+ * Path to where our dependencies are located.
+ */
+$vendordir = __DIR__ . '/vendor';
+/**
+ * @var string
+ *
  * Path to the language directory.
  */
 $languagesdir = __DIR__ . '/Languages';
