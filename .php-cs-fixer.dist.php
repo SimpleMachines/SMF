@@ -20,10 +20,8 @@ $finder = (new PhpCsFixer\Finder())
 		'other',
 		'Packages',
 		'Smileys',
-		'Sources/minify',
-		'Sources/ReCaptcha',
-		'Sources/ZxcvbnPhp',
 		'Themes',
+		'vendor',
 	])
 	// Skip ssi_example.php.
 	->notName(['ssi_examples.php'])
