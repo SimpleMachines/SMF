@@ -256,21 +256,21 @@ class Config
 	/**
 	 * @var string
 	 *
+	 * Path to the Packages directory.
+	 */
+	public static string $packagesdir;
+
+	/**
+	 * @var string
+	 *
 	 * Path to where our dependencies are located.
 	 */
 	public static string $vendordir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
-	 */
-	public static string $packagesdir;
-
-	/**
-	 * Path to the Packages directory.
 	 *
-	 * @var string
+	 * Path to the language directory.
 	 */
 	public static string $languagesdir;
 
