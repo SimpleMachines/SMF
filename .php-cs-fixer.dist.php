@@ -35,7 +35,7 @@ return (new PhpCsFixer\Config())
         new SMF\Fixer\ClassNotation\SectionComments(),
     ])
 	->setRules([
-		'@PER-CS2.0' => true,
+		'@PER-CS2x0' => true,
 
 		// PSR12 overrides.
 		'no_break_comment' => false,  // A bit buggy with comments.
