@@ -1053,10 +1053,11 @@ class Utils
 
 		// Can we trim common characters from the end?
 		$trailing = '';
+		$i = -1;
 		unset($normalized_strings);
 
-		while (mb_strlen($strings[0], $encoding) > 1) {
-			$last_char = mb_substr($strings[0], -1, 1, $encoding);
+		while (\strlen($strings[0]) > 1) {
+			$last_char = mb_substr($strings[0], $i, null, $encoding);
 
 			foreach ($strings as $string) {
 				if (!str_ends_with($string, $last_char)) {
@@ -1064,37 +1065,84 @@ class Utils
 				}
 			}
 
-			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
-			$trailing = $last_char . $trailing;
+			$i--;
+			$trailing = $last_char;
 		}
 
-		// Create the trie from the strings.
+		if ($trailing !== '') {
+			$strings = array_map(fn($string) => substr($string, 0, -\strlen($trailing)), $strings);
+		}
+
+		// Build a radix tree from the input strings
 		$trie = [];
 
 		foreach ($strings as $string) {
-			$chars = mb_str_split($string, 1, $encoding);
+			$current_node = &$trie;
 
-			$node = &$trie;
+			$remaining = $string;
 
-			foreach ($chars as $char) {
-				if (!isset($node[$char])) {
-					$node[$char] = [];
+			while ($remaining !== '') {
+				$matched = false;
+
+				// Check each existing branch at this level
+				foreach ($current_node as $key => &$subtree) {
+					// Find longest common prefix
+					$len = 0;
+					$max = min(mb_strlen($key, $encoding), mb_strlen($remaining, $encoding));
+					while (
+						$len < $max &&
+						mb_substr($key, $len, 1, $encoding) === mb_substr($remaining, $len, 1, $encoding)
+					) {
+						$len++;
+					}
+
+					if ($len === 0) {
+						continue; // no prefix match, try next branch
+					}
+
+					$prefix = mb_substr($key, 0, $len, $encoding);
+					$key_remainder = mb_substr($key, $len, null, $encoding);
+					$remaining_remainder = mb_substr($remaining, $len, null, $encoding);
+
+					// Split existing node if needed
+					if ($key_remainder !== '') {
+						unset($current_node[$key]);
+						$current_node[$prefix] = [$key_remainder => $subtree];
+						$subtree = &$current_node[$prefix];
+					}
+
+					// Add remainder of current string
+					if ($remaining_remainder === '') {
+						$subtree[''] = '';
+					} else {
+						$current_node = &$subtree;
+						$remaining = $remaining_remainder;
+						$matched = true;
+						break; // continue inner loop with updated current_node
+					}
+
+					$matched = true;
+					break;
 				}
 
-				$node = &$node[$char];
+				if (!$matched) {
+					// No matching branch: insert new
+					$current_node[$remaining] = ['' => ''];
+					break; // done with this string
+				}
 			}
 
-			$node[''] = '';
+			unset($current_node); // break reference
 		}
+
+//~ var_dump($trie	);
 
 		// This recursive closure turns the trie into a regular expression.
 		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex, $encoding) {
 			static $depth = 0;
 			$depth++;
 
-			// Absolute max length for a regex is 32768, but we might need wiggle room
 			$max_length = 30000;
-
 			$regex = [];
 			$length = 0;
 
@@ -1107,9 +1155,8 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (\count(array_keys($value)) == 1) {
-						$new_key_array = explode('(?' . '>', $sub_regex);
-						$new_key .= $new_key_array[0];
+					if (count($value) == 1) {
+						$new_key .= strtok($sub_regex, '(?>');
 					} else {
 						$sub_regex = '(?' . '>' . $sub_regex . ')';
 					}
