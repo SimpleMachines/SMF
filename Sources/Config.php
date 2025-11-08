@@ -254,16 +254,23 @@ class Config
 	public static string $sourcedir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to the Packages directory.
 	 */
 	public static string $packagesdir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to where our dependencies are located.
+	 */
+	public static string $vendordir;
+
+	/**
+	 * @var string
+	 *
+	 * Path to the language directory.
 	 */
 	public static string $languagesdir;
 
@@ -316,6 +323,14 @@ class Config
 	 * URL of SMF's main index.php.
 	 */
 	public static string $scripturl;
+
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 *
+	 * Autoloader instance.
+	 * This is used to support the integrate_autoload hook.
+	 */
+	public static \Composer\Autoload\ClassLoader $loader;
 
 	/****************************
 	 * Internal static properties
@@ -785,6 +800,18 @@ class Config
 			'raw_default' => true,
 			'type' => 'string',
 		],
+		'vendordir' => [
+			'text' => <<<'END'
+				/**
+				 * @var string
+				 *
+				 * Path to where our dependencies are located.
+				 */
+				END,
+			'default' => '__DIR__ . \'/vendor\'',
+			'raw_default' => true,
+			'type' => 'string',
+		],
 		'languagesdir' => [
 			'text' => <<<'END'
 				/**
@@ -979,6 +1006,10 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
+		if ((empty(self::$vendordir) || !is_dir(realpath(self::$vendordir))) && is_dir(self::$boarddir . '/vendor')) {
+			self::$vendordir = self::$boarddir . '/vendor';
+		}
+
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
 		}
@@ -1115,6 +1146,18 @@ class Config
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
 
+		// Any autoloader integrations to add?
+		if (isset(self::$modSettings['integrate_autoload'])) {
+			$class_map = [];
+
+			IntegrationHook::call('integrate_autoload', [&$class_map]);
+
+			foreach ($class_map as $prefix => $dirname) {
+				self::$loader->addPsr4($prefix, $dirname);
+			}
+		}
+
+		// Ensure the cache_enable setting reflects reality.
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary

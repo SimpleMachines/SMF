@@ -25,6 +25,8 @@ by signing off your contributions, you acknowledge that you can and do license y
   * It is enough to include in your commit comment "Signed-off by: " followed by your name and email address (for example: `Signed-off-by: Your Name <youremail@example.com>`)
   * an easy way to do so is to define an alias for the git commit command, which includes -s switch (reference: [How to create Git aliases](https://git.wiki.kernel.org/index.php/Aliases))
 * send a pull request to us.
+* SMF uses third party libraries via composer, if you want to run a local version, please [install composer first](https://getcomposer.org)
+  and run `composer install`
 
 ## How to submit a pull request:
 * If you want to send a bug fix for version 3.0, send it to the branch ***release-3.0***

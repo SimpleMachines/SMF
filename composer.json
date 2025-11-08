@@ -1,24 +1,38 @@
 {
-    "name": "simplemachines/smf",
-    "repositories": [
-        {
-            "url": "https://github.com/SimpleMachines/BuildTools.git",
-            "type": "vcs"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require-dev": {
-        "simplemachines/build-tools": "dev-release-3.0",
-        "friendsofphp/php-cs-fixer": "^3.40"
-    },
-    "scripts": {
-        "lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
-        "lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes"
-    },
-    "config": {
-        "platform": {
-            "php": "8.0.0"
-        }
-    }
+	"name": "simplemachines/smf",
+	"repositories": [
+		{
+			"url": "https://github.com/SimpleMachines/BuildTools.git",
+			"type": "vcs"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"SMF\\": "Sources/",
+			"SMF\\Themes\\": "Themes/"
+		}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require-dev": {
+		"simplemachines/build-tools": "dev-release-3.0",
+		"friendsofphp/php-cs-fixer": "^3.40"
+	},
+	"scripts": {
+		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
+		"lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
+		"post-install-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
+		"post-update-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php"
+	},
+	"config": {
+		"platform": {
+			"php": "8.0.0"
+		}
+	},
+	"require": {
+		"google/recaptcha": "^1.3",
+		"matthiasmullie/minify": "^1.3",
+		"bjeavons/zxcvbn-php": "^1.0",
+		"matthiasmullie/path-converter": "^1.1"
+	}
 }
