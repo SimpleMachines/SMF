@@ -1087,22 +1087,39 @@ class Utils
 				// Check each existing branch at this level
 				foreach ($current_node as $key => &$subtree) {
 					// Find longest common prefix
-					$len = 0;
-					$max = min(mb_strlen($key, $encoding), mb_strlen($remaining, $encoding));
-					while (
-						$len < $max &&
-						mb_substr($key, $len, 1, $encoding) === mb_substr($remaining, $len, 1, $encoding)
-					) {
-						$len++;
+					$len_key = \strlen($key);
+					$len_remaining = \strlen($remaining);
+					$byte_prefix_len = 0;
+
+					// Determine the length (in bytes) of the common UTF-8 prefix between
+					// $key and $remaining.
+					while ($byte_prefix_len < $len_key && $byte_prefix_len < $len_remaining) {
+						$byte_key = \ord($key[$byte_prefix_len]);
+						$byte_remaining = \ord($remaining[$byte_prefix_len]);
+
+						// Determine how many bytes the current UTF-8 character occupies
+						// (1-byte for ASCII, 2/3/4 bytes for multibyte UTF-8 chars)
+						$byte_len_key = ($byte_key < 0x80) ? 1 : (($byte_key >> 5) === 0x6 ? 2 : (($byte_key >> 4) === 0xE ? 3 : 4));
+						$byte_len_remaining = ($byte_remaining < 0x80) ? 1 : (($byte_remaining >> 5) === 0x6 ? 2 : (($byte_remaining >> 4) === 0xE ? 3 : 4));
+
+						// Safely compares multibyte characters to avoid splitting UTF-8 sequences.
+						if ($byte_len_key !== $byte_len_remaining || substr($key, $byte_prefix_len, $byte_len_key) !== substr($remaining, $byte_prefix_len, $byte_len_key)) {
+							break;
+						}
+
+						// Advance by the full length of the matching UTF-8 character
+						$byte_prefix_len += $byte_len_key;
 					}
 
-					if ($len === 0) {
-						continue; // no prefix match, try next branch
+					if ($byte_prefix_len === 0) {
+						continue;
 					}
 
-					$prefix = mb_substr($key, 0, $len, $encoding);
-					$key_remainder = mb_substr($key, $len, null, $encoding);
-					$remaining_remainder = mb_substr($remaining, $len, null, $encoding);
+					// Splitting these strings based on manually calculated byte offsets is
+					// faster than calling multibyte.  mb_substr() has to recalculate every time.
+					$prefix = substr($key, 0, $byte_prefix_len);
+					$key_remainder = substr($key, $byte_prefix_len);
+					$remaining_remainder = substr($remaining, $byte_prefix_len);
 
 					// Split existing node if needed
 					if ($key_remainder !== '') {
