@@ -177,7 +177,7 @@ class CreatePost_Notify extends BackgroundTask
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
 				mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.time_format, mem.time_offset, mem.timezone,
+				mem.smiley_set, mem.time_format, mem.time_offset, mem.timezone,
 				t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
@@ -578,7 +578,7 @@ class CreatePost_Notify extends BackgroundTask
 				// Use the target member's localization settings.
 				Parser::$time_offset = (int) $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
-				Parser::$smiley_set = $member_data['smiley_set'] ?? '';
+				Parser::$smiley_set = $member_data['smiley_set'];
 				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
