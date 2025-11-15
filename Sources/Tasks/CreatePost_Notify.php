@@ -567,6 +567,9 @@ class CreatePost_Notify extends BackgroundTask
 					$message_type .= '_body';
 				}
 			}
+			// No notification request for this user for this board/topic.
+			else
+				continue;
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
