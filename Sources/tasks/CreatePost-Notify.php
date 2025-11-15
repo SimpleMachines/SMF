@@ -554,6 +554,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 					$message_type .= '_body';
 			}
+			// No notification request for this user for this board/topic.
+			else
+				continue;
 
 			// We need to fake some of $user_info to make BBC parsing work correctly.
 			if (isset($user_info))
