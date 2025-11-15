@@ -62,7 +62,7 @@ class Mentions extends Table
 			),
 			'time' => new Column(
 				name: 'time',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 			),
 		];

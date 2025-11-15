@@ -45,7 +45,7 @@ class LogOnline extends Table
 			),
 			'log_time' => new Column(
 				name: 'log_time',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),

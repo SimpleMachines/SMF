@@ -64,7 +64,7 @@ class LogBanned extends Table
 			),
 			'log_time' => new Column(
 				name: 'log_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

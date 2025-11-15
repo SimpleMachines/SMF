@@ -73,7 +73,7 @@ class PersonalMessages extends Table
 			),
 			'msgtime' => new Column(
 				name: 'msgtime',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

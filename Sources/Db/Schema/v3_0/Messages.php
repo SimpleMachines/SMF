@@ -85,7 +85,7 @@ class Messages extends Table
 			),
 			'poster_time' => new Column(
 				name: 'poster_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
@@ -144,7 +144,7 @@ class Messages extends Table
 			),
 			'modified_time' => new GeneratedColumn(
 				name: 'modified_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				generation_expression: Db::$db->title === POSTGRE_TITLE ? 'COALESCE((edit_history #>> \'{0,0}\'::text[])::integer, 0)' : 'COALESCE(JSON_UNQUOTE(JSON_EXTRACT(edit_history, "$[0][0]")), 0)',
 				stored: true,

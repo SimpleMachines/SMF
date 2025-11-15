@@ -53,7 +53,7 @@ class Members extends Table
 			),
 			'date_registered' => new Column(
 				name: 'date_registered',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
@@ -81,7 +81,7 @@ class Members extends Table
 			),
 			'last_login' => new Column(
 				name: 'last_login',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

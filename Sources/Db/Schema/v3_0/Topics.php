@@ -145,7 +145,7 @@ class Topics extends Table
 			),
 			'redirect_expires' => new Column(
 				name: 'redirect_expires',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

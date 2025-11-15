@@ -51,7 +51,7 @@ class LogSpiderStats extends Table
 			),
 			'last_seen' => new Column(
 				name: 'last_seen',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

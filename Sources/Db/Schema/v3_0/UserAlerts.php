@@ -45,7 +45,7 @@ class UserAlerts extends Table
 			),
 			'alert_time' => new Column(
 				name: 'alert_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

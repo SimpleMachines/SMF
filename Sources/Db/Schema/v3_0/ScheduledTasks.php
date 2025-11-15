@@ -166,7 +166,7 @@ class ScheduledTasks extends Table
 			),
 			'next_time' => new Column(
 				name: 'next_time',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),

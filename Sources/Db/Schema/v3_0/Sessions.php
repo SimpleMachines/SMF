@@ -45,7 +45,7 @@ class Sessions extends Table
 			),
 			'last_update' => new Column(
 				name: 'last_update',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

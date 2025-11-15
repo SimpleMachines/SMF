@@ -52,14 +52,14 @@ class BanGroups extends Table
 			),
 			'ban_time' => new Column(
 				name: 'ban_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
 			'expire_time' => new Column(
 				name: 'expire_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: false,
 				default: null,

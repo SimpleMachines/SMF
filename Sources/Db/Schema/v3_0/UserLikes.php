@@ -59,7 +59,7 @@ class UserLikes extends Table
 			),
 			'like_time' => new Column(
 				name: 'like_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

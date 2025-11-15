@@ -59,7 +59,7 @@ class LogGroupRequests extends Table
 			),
 			'time_applied' => new Column(
 				name: 'time_applied',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
@@ -99,7 +99,7 @@ class LogGroupRequests extends Table
 			),
 			'time_acted' => new Column(
 				name: 'time_acted',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
