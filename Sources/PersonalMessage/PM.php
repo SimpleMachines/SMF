@@ -1295,7 +1295,15 @@ class PM implements \ArrayAccess
 		}
 
 		// Load the groups that are allowed to read PMs.
-		$pmReadGroups = Group::getAllowedTo('pm_read');
+		$allGroups = Group::getAllWithPermissions('pm_read', null);
+
+		foreach ($allGroups as $k => $g) {
+			if ($g['pm_read'] === 1) {
+				$pmReadGroups['allowed'][] = $k;
+			} else {
+				$pmReadGroups['denied'][] = $k;
+			}
+		}
 
 		if (empty(Config::$modSettings['permission_enable_deny'])) {
 			$pmReadGroups['denied'] = [];
