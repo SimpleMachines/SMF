@@ -724,7 +724,7 @@ class Settings extends Table
 		],
 		[
 			'variable' => 'smiley_sets_names',
-			'value' => '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}',
+			'value' => '{$default_fugue_smileyset_name}' . "\n" . '{$default_alienine_smileyset_name}',
 		],
 		[
 			'variable' => 'smileys_dir',
