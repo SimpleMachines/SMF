@@ -1473,7 +1473,7 @@ class Calendar implements ActionInterface, Routable
 				'callback' => self::class . '::cacheIsOutdated',
 				'args' => [
 					'date' => Time::strftime('%Y%m%d', time()),
-					'timestamp' => time(),
+					'time' => time(),
 				],
 			],
 			'update_callback' => self::class . '::cacheAdjustData',
