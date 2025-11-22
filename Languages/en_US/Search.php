@@ -83,7 +83,7 @@ $txt['search_index_size'] = 'Size:';
 $txt['search_index_remove'] = 'Remove';
 $txt['search_index_resume'] = 'Resume';
 // This string is used in a javascript confirmation popup; don't use entities.
-$txt['search_index_custom_warning'] = 'In order to be able to use a custom index search, you must first create a custom index.';
+$txt['search_index_custom_warning'] = 'In order to be able to use this search index, you must first create it.';
 
 $txt['search_force_index'] = 'Force the use of a search index';
 $txt['search_match_words'] = 'Match whole words only';
