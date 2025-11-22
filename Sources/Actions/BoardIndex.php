@@ -773,12 +773,11 @@ class BoardIndex implements ActionInterface, Routable
 
 		unset($msg, Msg::$loaded[$row_board['id_msg']]);
 
+		// Make sure they're loaded...
+		User::load($row_board['id_member']);
+
 		if (!empty(Theme::$current->settings['avatars_on_boardIndex'])) {
-			$last_post['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row_board['avatar'],
-				'email' => $row_board['email_address'],
-				'filename' => !empty($row_board['member_filename']) ? $row_board['member_filename'] : '',
-			]);
+			$last_post['member']['avatar'] = User::$loaded[$row_board['id_member']]['avatar'];
 		}
 
 		IntegrationHook::call('integrate_boardindex_last_post', [&$last_post, $row_board]);
