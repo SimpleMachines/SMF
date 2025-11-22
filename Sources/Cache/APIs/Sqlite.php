@@ -79,7 +79,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
 
-		if (!is_writable($database) || !is_writeable($this->cachedir)) {
+		if ((file_exists($database) && !is_writable($database)) || !is_writeable($this->cachedir)) {
 			return false;
 		}
 
