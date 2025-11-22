@@ -98,9 +98,9 @@ class Sqlite extends CacheApi implements CacheApiInterface
 				$this->cacheDB->exec('PRAGMA journal_mode = wal;');
 			}
 
-			if (filesize($database) == 0) {
-				$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
-				$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
+			if (filesize($database) <= 4096) {
+				$this->cacheDB->exec('CREATE TABLE IF NOT EXISTS cache (key text unique, value blob, ttl int);');
+				$this->cacheDB->exec('CREATE INDEX IF NOT EXISTS ttls ON cache(ttl);');
 			}
 
 			return true;
