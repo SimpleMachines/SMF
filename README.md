@@ -31,7 +31,7 @@ If you are attempting to download from the source code provided on our [github](
      ```bash
     composer install -dev
     ```
-* When updating (git pull), you should update the composer and may run into issues if not done so.  Developers should add `-dev` to the command
+* When updating (`git pull`), you should update the composer and may run into issues if not done so.  Developers should add `-dev` to the command
      ```bash
     composer update
     ```
