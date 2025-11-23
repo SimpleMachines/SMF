@@ -21,7 +21,7 @@ by signing off your contributions, you acknowledge that you can and do license y
 ## Setup
 Using official releases provided by our [downloads website](https://download.simplemachines.org/) requires no additional setup.  A helpful guide is provided on our [wiki](https://wiki.simplemachines.org/smf/Installing).
 
-If you are attemtping to download from the source code provided on our [github](https://github.com/SimpleMachines/SMF), you will need to run composer.
+If you are attempting to download from the source code provided on our [github](https://github.com/SimpleMachines/SMF), you will need to run composer.
 * Install Composer v2 or higher (https://getcomposer.org)
 * Install the dependencies with composer as below (Developers read on)
     ```bash
