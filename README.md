@@ -11,12 +11,30 @@ Contributions to documentation are licensed under [CC-by-SA 3](https://creativec
 
 Feel free to fork this repository and make your desired changes.
 
-Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF3.0/blob/master/DCO.txt) in the repository:
+Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF/blob/master/DCO.txt) in the repository:
 by signing off your contributions, you acknowledge that you can and do license your submissions under the license of the project.
 
 ## Branches organization:
 * ***release-3.0*** - is the branch where updates for version 3.0 are applied
 * ***release-2.1*** - is the branch where updates for version 2.1 are applied
+
+## Setup
+Using official releases provided by our [downloads website](https://download.simplemachines.org/) requires no additional setup.  A helpful guide is provided on our [wiki](https://wiki.simplemachines.org/smf/Installing).
+
+If you are attempting to download from the source code provided on our [github](https://github.com/SimpleMachines/SMF), you will need to run composer.
+* Install Composer v2 or higher (https://getcomposer.org)
+* Install the dependencies with composer as below (Developers read on)
+    ```bash
+    composer install
+    ```
+* If you are intending to do development, you will want to install the developer dependencies, you can append `-dev` to the command like so
+     ```bash
+    composer install -dev
+    ```
+* When updating (`git pull`), you should update the composer and may run into issues if not done so.  Developers should add `-dev` to the command
+     ```bash
+    composer update
+    ```
 
 ## How to contribute:
 * fork the repository. If you are not used to Github, please check out [fork a repository](https://help.github.com/fork-a-repo).
@@ -25,8 +43,7 @@ by signing off your contributions, you acknowledge that you can and do license y
   * It is enough to include in your commit comment "Signed-off by: " followed by your name and email address (for example: `Signed-off-by: Your Name <youremail@example.com>`)
   * an easy way to do so is to define an alias for the git commit command, which includes -s switch (reference: [How to create Git aliases](https://git.wiki.kernel.org/index.php/Aliases))
 * send a pull request to us.
-* SMF uses third party libraries via composer, if you want to run a local version, please [install composer first](https://getcomposer.org)
-  and run `composer install`
+* Do not modify the /vendor directory, rather update the appropriate dependency in composer.json, run `composer update`, then commit both composer.json and composer.lock files.
 
 ## How to submit a pull request:
 * If you want to send a bug fix for version 3.0, send it to the branch ***release-3.0***
