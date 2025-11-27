@@ -1026,37 +1026,35 @@ class Utils
 	{
 		static $regexes = [];
 
-		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+		// Only strings are allowed.
+		$strings = array_unique(array_map('strval', array_filter($strings, 'is_scalar')));
 
-		$normalized_strings = [];
-
-		foreach ($strings as $str) {
-			if (\is_scalar($str)) {
-				$s = (string) $str;
-				$normalized_strings[$s] = mb_strlen($s, $encoding);
-			}
+		// A regex to match nothing?
+		if ($strings === [] || $strings === ['']) {
+			return $return_array ? [''] : '';
 		}
 
-		if (empty($normalized_strings)) {
-			return '';
-		}
-
+		// Don't repeat unnecessarily.
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
 
 		if (isset($regexes[$regex_key])) {
 			return $regexes[$regex_key];
 		}
 
+		// Which character encoding is being used?
+		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+
 		// Optimizing is faster when we sort by length.
-		asort($normalized_strings);
-		$strings = array_map('strval', array_keys($normalized_strings));
+		$strings = array_combine($strings, array_map(fn($s) => mb_strlen($s, $encoding), $strings));
+		asort($strings);
+		$strings = array_map('strval', array_keys($strings));
 
 		// Can we trim common characters from the end?
 		$trailing = '';
-		unset($normalized_strings);
+		$i = -1;
 
-		while (mb_strlen($strings[0], $encoding) > 1) {
-			$last_char = mb_substr($strings[0], -1, 1, $encoding);
+		while ($strings[0] !== '') {
+			$last_char = mb_substr($strings[0], $i, null, $encoding);
 
 			foreach ($strings as $string) {
 				if (!str_ends_with($string, $last_char)) {
@@ -1064,8 +1062,8 @@ class Utils
 				}
 			}
 
-			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
-			$trailing = $last_char . $trailing;
+			$i--;
+			$trailing = $last_char;
 		}
 
 		// Create the trie from the strings.
@@ -1107,9 +1105,8 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (\count(array_keys($value)) == 1) {
-						$new_key_array = explode('(?' . '>', $sub_regex);
-						$new_key .= $new_key_array[0];
+					if (\count($value) == 1) {
+						$new_key .= strtok($sub_regex, '(?' . '>');
 					} else {
 						$sub_regex = '(?' . '>' . $sub_regex . ')';
 					}
