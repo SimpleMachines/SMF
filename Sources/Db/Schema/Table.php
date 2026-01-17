@@ -605,7 +605,7 @@ class Table
 			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . $title;
 
 			if (!class_exists($fully_qualified_class_name)) {
-				return ['class'];
+				return [];
 			}
 
 			/**
