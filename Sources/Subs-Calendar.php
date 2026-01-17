@@ -426,6 +426,9 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
+		'start_year' => date_format($selected_object, 'Y'),
+		'start_month' => date_format($selected_object, 'm'),
+		'start_day' => date_format($selected_object, 'd'),
 	);
 
 	// Get today's date.
@@ -594,6 +597,9 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
+		'start_year' => date_format($selected_object, 'Y'),
+		'start_month' => date_format($selected_object, 'm'),
+		'start_day' => date_format($selected_object, 'd'),
 		'show_events' => $calendarOptions['show_events'],
 		'show_holidays' => $calendarOptions['show_holidays'],
 		'show_birthdays' => $calendarOptions['show_birthdays'],
