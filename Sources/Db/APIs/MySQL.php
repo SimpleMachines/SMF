@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -129,12 +129,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~\'\X*?\'~s',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -169,18 +171,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = preg_split('/(?:\\\\{2})*\K(?<![\'\\\\])\'(?![\'])/', $db_string);
-
-			for ($i = 0; $i < \count($clean); $i++) {
-				if ($i % 2 === 1) {
-					$clean[$i] = ' %s ';
-				}
-			}
-
+			// Clear out escaped backslashes & single quotes first, to make it simpler to ID & remove string literals
+			$clean = str_replace(array('\\\\', '\\\'', '\'\''), array('', '', ''), $db_string);
 			$clean = trim(strtolower(preg_replace(
 				$allowed_comments_from,
 				$allowed_comments_to,
-				implode('', $clean),
+				$clean,
 			)));
 
 			if (
