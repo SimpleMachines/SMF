@@ -2441,7 +2441,7 @@ class Config
 		// Tests passed, so it's time to do the job.
 		if (!$failed) {
 			// Back up the backup, just in case.
-			if (!empty($backup_file) && file_exists($backup_file)) {
+			if (!empty($backup_file) && file_exists($backup_file) && is_readable($backup_file)) {
 				$temp_bfile_saved = @copy($backup_file, $temp_bfile);
 			}
 
@@ -2483,7 +2483,7 @@ class Config
 						}
 					}
 					// It worked, so make our temp backup the new permanent backup.
-					elseif (!empty($backup_file)) {
+					elseif (!empty($backup_file) && file_exists($temp_sfile) && is_readable($backup_file) && is_writable($backup_file)) {
 						@rename($temp_sfile, $backup_file);
 					}
 
