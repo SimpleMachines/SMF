@@ -186,7 +186,7 @@ class Theme
 		}
 
 		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['menu_separator'] = ' ';
 		Utils::$context['session_var'] = $_SESSION['session_var'];
 		Utils::$context['session_id'] = $_SESSION['session_value'];
 		Utils::$context['forum_name'] = Config::$mbname;

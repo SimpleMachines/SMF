@@ -81,11 +81,6 @@ class Themes extends Table
 		],
 		[
 			'id_theme' => 1,
-			'variable' => 'use_image_buttons',
-			'value' => '1',
-		],
-		[
-			'id_theme' => 1,
 			'variable' => 'enable_news',
 			'value' => '1',
 		],
