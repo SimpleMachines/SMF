@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -50,12 +49,12 @@ class PostgreSqlFunctions extends MigrationBase
 	{
 		$schema_version = substr(__NAMESPACE__, strrpos(__NAMESPACE__, '\\', -1) + 1);
 
-		$queries = Table::getInitializers( $schema_version, POSTGRE_TITLE);
+		$queries = Table::getInitializers($schema_version, POSTGRE_TITLE);
 
 		foreach ($queries as $query) {
 			// Use the upgrade query handler.
 			$this->query($query, [
-				'security_override' => true
+				'security_override' => true,
 			]);
 		}
 

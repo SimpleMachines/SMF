@@ -19,22 +19,35 @@ namespace SMF\Db\Schema\v3_0\Initialize;
  * Intiailization logic for any supported database in which we may need to add additional
  * functions, operators or other critical logic to the database.
  */
-class Base {
-    protected ?string $version = null;
+class Base
+{
+	/*********************
+	 * Internal properties
+	 *********************/
 
-    public function __construct(?string $version) {
-        $this->version = $version;
-    }
+	protected ?string $version = null;
 
-    public function getAll(): array {
-        return $this->functions() + $this->operators();
-    }
+	/****************
+	 * Public methods
+	 ****************/
 
-    public function functions(): array {
-        return [];
-    }
+	public function __construct(?string $version)
+	{
+		$this->version = $version;
+	}
 
-    public function operators(): array {
-        return [];
-    }
+	public function getAll(): array
+	{
+		return $this->functions() + $this->operators();
+	}
+
+	public function functions(): array
+	{
+		return [];
+	}
+
+	public function operators(): array
+	{
+		return [];
+	}
 }

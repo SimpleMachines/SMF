@@ -15,6 +15,4 @@ declare(strict_types=1);
 
 namespace SMF\Db\Schema\v3_0\Initialize;
 
-class MySQL extends Base {
-    
-}
+class MySQL extends Base {}
