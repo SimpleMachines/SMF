@@ -32,6 +32,7 @@ class PostgreSQL extends Base
 		$functions = [];
 
 		// PostgreSQL changed how we can do some aggregation functions in 14 and beyond
+		// Idea for the GROUP_CONCAT from: https://dba.stackexchange.com/questions/24984/is-it-possible-to-wrap-aggregate-functions-in-postgres
 		if (version_compare($this->version, '14', '>')) {
 			// This isn't even my final form.
 			$functions[] = '
@@ -42,10 +43,10 @@ class PostgreSQL extends Base
 			// PostgreSQL is in the technical right that we should use string_agg, but MySQL doesn't support it yet.
 			$functions[] = '
             CREATE OR REPLACE AGGREGATE GROUP_CONCAT (anycompatible) (
-                SFUNC     = array_append
-            ,STYPE     = anycompatiblearray
-            ,INITCOND  = \'{}\'
-            ,FINALFUNC = GROUP_CONCAT_FINAL
+				SFUNC = array_append,
+				STYPE = anycompatiblearray,
+				INITCOND = \'{}\',
+				FINALFUNC = GROUP_CONCAT_FINAL
             );';
 		} else {
 			// Only difference is anycompatiblearray > anyarray
@@ -57,10 +58,10 @@ class PostgreSQL extends Base
 			// Only difference is anycompatiblearray > anyelement and anycompatiblearray > anyarray
 			$functions[] = '
             CREATE OR REPLACE AGGREGATE GROUP_CONCAT (anyelement) (
-                SFUNC     = array_append
-            ,STYPE     = anyarray
-            ,INITCOND  = \'{}\'
-            ,FINALFUNC = GROUP_CONCAT_FINAL
+				SFUNC = array_append,
+				STYPE = anyarray,
+				INITCOND = \'{}\',
+				FINALFUNC = GROUP_CONCAT_FINAL
             );';
 		}
 
