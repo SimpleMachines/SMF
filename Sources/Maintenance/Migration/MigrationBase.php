@@ -83,9 +83,7 @@ class MigrationBase implements SubStepInterface
 	 */
 	protected function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
-		if (!empty(Config::$modSettings['disableQueryCheck'])) {
-			Config::$modSettings['disableQueryCheck'] = true;
-		}
+		Db::$db->disableQueryCheck = true;
 
 		if (!empty($db_values['unbuffered'])) {
 			Db::$unbuffered = true;
