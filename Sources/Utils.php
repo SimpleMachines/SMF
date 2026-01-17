@@ -1053,7 +1053,7 @@ class Utils
 		$trailing = '';
 		$i = -1;
 
-		while ($strings[0] !== '' && strlen($strings[0]) < $i * -1) {
+		while ($strings[0] !== '' && \strlen($strings[0]) < $i * -1) {
 			$last_char = mb_substr($strings[0], $i, null, $encoding);
 
 			foreach ($strings as $string) {
