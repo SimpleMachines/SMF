@@ -188,11 +188,11 @@ class Time extends \DateTime implements \ArrayAccess
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
 		if (!isset(self::$user_tz)) {
-			self::$user_tz = new \DateTimeZone(User::getTimezone());
+			self::$user_tz = TimeZone::create(User::getTimezone());
 		}
 
 		if (\is_string($timezone)) {
-			$timezone = new \DateTimeZone($timezone);
+			$timezone = TimeZone::create($timezone);
 		}
 
 		$datetime = self::sanitize($datetime);
@@ -731,7 +731,7 @@ class Time extends \DateTime implements \ArrayAccess
 		if ($timezone instanceof \DateTimeZone) {
 			date_timezone_set($this, $timezone);
 		} elseif (\in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
-			date_timezone_set($this, new \DateTimeZone($timezone));
+			date_timezone_set($this, TimeZone::create($timezone));
 		} else {
 			throw new \ValueError();
 		}
@@ -815,7 +815,7 @@ class Time extends \DateTime implements \ArrayAccess
 		}
 
 		$date = new self('@' . $timestamp);
-		$date->setTimezone(new \DateTimeZone($tzid));
+		$date->setTimezone(TimeZone::create($tzid));
 
 		return $date->format($format, false, true);
 	}

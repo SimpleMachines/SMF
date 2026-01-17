@@ -4321,8 +4321,8 @@ class User implements \ArrayAccess
 			// Figure out the new time offset.
 			if (!empty(self::$profiles[$this->id]['timezone'])) {
 				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
-				$tz_user = new \DateTimeZone(self::$profiles[$this->id]['timezone']);
+				$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
+				$tz_user = TimeZone::create(self::$profiles[$this->id]['timezone']);
 				$time_system = new \DateTime('now', $tz_system);
 				$time_user = new \DateTime('now', $tz_user);
 				self::$profiles[$this->id]['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
@@ -4330,7 +4330,7 @@ class User implements \ArrayAccess
 			// We need a time zone.
 			else {
 				if (!empty(self::$profiles[$this->id]['time_offset'])) {
-					$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
+					$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
 					$time_system = new \DateTime('now', $tz_system);
 
 					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
