@@ -17,6 +17,8 @@ namespace SMF;
 
 use League\Container\Container as LeagueContainer;
 use League\Container\ReflectionContainer;
+use SMF\Services\DatabaseService;
+use SMF\Services\DatabaseServiceInterface;
 
 /**
  * A wrapper for the dependency injection container.
@@ -26,7 +28,7 @@ class Container
 	/**
 	 * @var LeagueContainer
 	 */
-	private static $instance;
+	private static LeagueContainer $instance;
 
 	/**
 	 * Initializes the container.
@@ -41,6 +43,10 @@ class Container
 		$container->delegate(
 			new ReflectionContainer()
 		);
+
+		// Register core services, this can and should be moved to its own container service provider
+		// as more and more global variables are migrated to services
+		$container->add(DatabaseServiceInterface::class, DatabaseService::class)->setShared(true);
 
 		self::$instance = $container;
 

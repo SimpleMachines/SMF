@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Routable;
+use SMF\Services\DatabaseServiceInterface;
 use SMF\Theme;
 use SMF\Utils;
 
@@ -71,8 +72,9 @@ class Help implements ActionInterface, Routable
 	 *
 	 * Uses Help template and Manual language file.
 	 */
-	public function __construct()
-	{
+	public function __construct(
+		private DatabaseServiceInterface $db,
+	) {
 		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
