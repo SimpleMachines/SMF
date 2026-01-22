@@ -144,6 +144,8 @@ if (SMF === 1) {
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';
 
+// Initialize the DI Container
+SMF\Container::init();
 
 /*********************************************************************
  * From this point forward, do stuff specific to normal forum loading.

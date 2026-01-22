@@ -523,7 +523,19 @@ class Forum
 			$current_action = self::findAction($_REQUEST['action'] ?? null);
 
 			if (is_a($current_action, ActionInterface::class, true)) {
-				self::$current_action = \call_user_func([$current_action, 'load']);
+				$container = Container::getInstance();
+
+				try {
+					if ($container->has($current_action)) {
+						self::$current_action = $container->get($current_action);
+					} else {
+						// Fallback or auto-wire
+						self::$current_action = $container->get($current_action);
+					}
+				} catch (\League\Container\Exception\NotFoundException $e) {
+					// Fallback for classes with non-public constructors or other issues
+					self::$current_action = \call_user_func([$current_action, 'load']);
+				}
 			} elseif (\is_callable($current_action)) {
 				self::$current_action = Actions\GenericAction::load();
 				self::$current_action->setCallable($current_action);
