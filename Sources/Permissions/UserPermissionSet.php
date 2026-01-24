@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -291,8 +291,19 @@ class UserPermissionSet
 		}
 
 		if (!empty($boards)) {
+			$boards = array_map('intval', $boards);
+
+			// We need to temporarily load the boards, but we don't want to keep
+			// any that weren't already loaded.
+			$boards_to_unload = array_diff($boards, array_keys(Board::$loaded));
+
 			foreach (Board::load($boards) as $board) {
 				$loaded[$board->profile] = self::$loaded[$user->id][$board->profile] ?? new self($user, $board);
+			}
+
+			// Unload any boards that weren't already loaded.
+			foreach ($boards_to_unload as $id) {
+				Board::unload($id);
 			}
 		}
 

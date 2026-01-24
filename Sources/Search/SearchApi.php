@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -24,6 +24,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -902,7 +903,7 @@ abstract class SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			require_once Config::canonicalPath($file_info->getPathname());
+			require_once Sapi::canonicalPath($file_info->getPathname());
 
 			if (!class_exists($class_name, false)) {
 				continue;

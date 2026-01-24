@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -177,7 +177,7 @@ class CreatePost_Notify extends BackgroundTask
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
 				mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.time_format, mem.time_offset, mem.timezone,
+				mem.smiley_set, mem.time_format, mem.time_offset, mem.timezone,
 				t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
@@ -567,13 +567,17 @@ class CreatePost_Notify extends BackgroundTask
 					$message_type .= '_body';
 				}
 			}
+			// No notification request for this user for this board/topic.
+			else {
+				continue;
+			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {
 				// Use the target member's localization settings.
-				Parser::$time_offset = $member_data['time_offset'];
+				Parser::$time_offset = (int) $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
 				Parser::$smiley_set = $member_data['smiley_set'];
 				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
@@ -612,9 +616,9 @@ class CreatePost_Notify extends BackgroundTask
 				}
 
 				Parser::$time_offset = User::$me->time_offset;
-				Parser::$time_format = User::$me->$time_format;
+				Parser::$time_format = User::$me->time_format ?? '';
 				Parser::$smiley_set = (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
-				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
+				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
 			}
 
 			// Bitwise check: Receiving an alert?

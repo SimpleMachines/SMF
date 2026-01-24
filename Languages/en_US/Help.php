@@ -258,13 +258,13 @@ $helptxt['tfa_mode'] = 'You can add a second level of security to your forum by 
 $helptxt['cache_enable'] = 'SMF performs caching at a variety of levels. The higher the level of caching enabled the more CPU time will be spent retrieving cached information. If caching is available on your machine it is recommended that you try caching at level 1 first.';
 $helptxt['cache_memcached'] = 'If you are using memcached you need to provide the server details. This should be entered as a comma separated list as shown in the example below:<br><br>	&quot;server1,server2,server3:port,server4&quot;<br><br>Note that if no port is specified SMF will use port 11211 unless the host contains a slash, then it is assumed to be an alternative transport and the port will be set to 0. SMF will attempt to perform rough/random load balancing across the specified servers.';
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file-based cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
-$helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite database cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
+$helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite database cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory<br>';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members do not need to refresh the page to get new notifications.<br><strong>NOTE:</strong> This option might cause a severe load at your server with many users online.';
 $helptxt['alerts_auto_purge'] = 'Once an alert has been read, it is rarely needed again. For performance reasons, it is a good idea to automatically delete them after a while.';
-$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
+$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Cloudflare CDN (cdnjs), Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
 		&quot;5&quot; to display: 1 ... 3 4 [5] 6 7 ... 9';
@@ -305,7 +305,7 @@ $helptxt['attachment_image_paranoid'] = 'Selecting this setting will enable very
 $helptxt['attachment_image_reencode'] = 'Selecting this setting will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
 $helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br>Checking this setting, the system will estimate the required memory and will then request that amount. If successful, only then will it attempt to create the thumbnail.<br>This will result in fewer white page errors but may result in fewer thumbnails being created. Leaving this unchecked will always cause the system to try to create the thumbnail (with a fixed amount of memory). This may result in more white page errors.';
 $helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
-$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single directory. For most sites this is not a problem, but as a site grows it can be useful to have multiple direcotries to store attachments in.<br><br>This setting allows you to set whether you manage these directories yourself (e.g. creating a second directory and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down directories by years or even months on very busy sites.';
+$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single directory. For most sites this is not a problem, but as a site grows it can be useful to have multiple directories to store attachments in.<br><br>This setting allows you to set whether you manage these directories yourself (e.g. creating a second directory and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down directories by years or even months on very busy sites.';
 $helptxt['dont_show_attach_under_post'] = 'If enabled, the attachments embedded in the post will not appear under the post, but are still subject to be deleted.';
 $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'As with the maximum width, this setting indicates the maximum height a posted image can be.';
@@ -565,28 +565,31 @@ $helptxt['posts_and_topics'] = '
 	</ul>';
 
 $helptxt['spider_mode'] = 'Sets the logging level.<br>
-Standard - Logs minimal spider activity.<br>
+Standard - Logs minimal robot activity.<br>
 Moderate - Provides more accurate statistics.<br>
 Aggressive - Same as &quot;Moderate&quot;, but logs data about each page visited.';
 
-$helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Spiders&quot; and select that here. You could then deny permission for that group to view profiles to stop spiders indexing your members profiles.<br>Note: Spider detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
-$helptxt['show_spider_online'] = 'This setting allows you to select whether spiders should be listed in the &quot;Who’s Online&quot; list on the board index and &quot;Who’s Online&quot; page. The options are:
+$helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Robots&quot; and select that here. You could then deny permission for that group to view profiles to stop robots indexing your members profiles.<br>Note: Robot detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
+$helptxt['show_spider_online'] = 'This setting allows you to select whether robots should be listed in the &quot;Who’s Online&quot; list on the board index and &quot;Who’s Online&quot; page. The options are:
 	<ul class="normallist">
 		<li>
 			<strong>Not at All</strong><br>
-			Spiders will simply appear as guests to all users.
+			Robots will simply appear as guests to all users.
 		</li><li>
-			<strong>Show Spider Quantity</strong><br>
-			The Board Index will display the number of spiders currently visiting the forum.
+			<strong>Show Robot Quantity</strong><br>
+			The Board Index will display the number of robots currently visiting the forum.
 		</li><li>
-			<strong>Show Spider Names</strong><br>
-			Each spider name will be revealed, so users can see how many of each spider is currently visiting the forum - this takes effect in both the Board Index and Who’s Online page.
+			<strong>Show Robot Names</strong><br>
+			Each robot name will be revealed, so users can see how many of each robot is currently visiting the forum - this takes effect in both the Board Index and Who’s Online page.
 		</li><li>
-			<strong>Show Spider Names - Admin Only</strong><br>
-			As above except only Administrators can see spider status - to all other users spiders appear as guests.
+			<strong>Show Robot Names - Admin Only</strong><br>
+			As above except only Administrators can see robot status - to all other users robots appear as guests.
 		</li>
 	</ul>';
-$helptxt['robots_txt'] = 'The robots.txt file is used to implement the <a href="https://www.rfc-editor.org/rfc/rfc9309.html" class="bbc_link">Robots Exclusion Protocol</a>, a standard used by websites to indicate to search engine spiders and other web robots which portions of the website they are allowed to visit. This file is typically located in your website’s root directory.<br><br>SMF adds some rules to this file in order to guide spiders away from URLs that they should not bother to crawl. This improves efficiency and reduces server load when a spider is crawling your forum.';
+$helptxt['robots_txt'] = 'The robots.txt file is used to implement the <a href="https://www.rfc-editor.org/rfc/rfc9309.html" class="bbc_link">Robots Exclusion Protocol</a>, a standard used by websites to indicate to search engine spiders and other web robots which portions of the website they are allowed to visit. This file is typically located in your website’s root directory.<br><br>SMF adds some rules to this file in order to guide robots away from URLs that they should not bother to visit. This improves efficiency and reduces server load when a robot is indexing your forum.';
+$helptxt['robots_txt_search'] = 'This setting tells search engines whether they are permitted to show links to your forum in their search results. Most forums will want this enabled, but if you want your forum not to appear in search results, you can disable it.';
+$helptxt['robots_txt_ai_input'] = 'This setting tells search engines and other web robots whether they are permitted to use the content of your forum to generate AI summaries, etc. Unfortunately, there is no way to force search engines that index your site to obey these rules, but well-behaved ones will respect them.';
+$helptxt['robots_txt_ai_train'] = 'This setting tells artificial intelligence companies whether they are permitted to use the content of your forum to train their AI bots. Unfortunately, there is no way to force AI companies to obey these rules, but well-behaved ones will respect them.';
 
 $helptxt['birthday_email'] = 'Choose the index of the birthday email message to use. A preview will be shown in the Email Subject and Email Body fields.<br><strong>Note:</strong> Selecting this setting does not automatically enable birthday emails. To enable birthday emails use the <a href="{scripturl}?action=admin;area=scheduledtasks;{session_var}={session_id}" target="_blank" rel="noopener">Scheduled Tasks</a> page and enable the birthday email task.';
 $helptxt['pm_bcc'] = 'When sending a personal message you can choose to add a recipient as BCC (Blind Carbon Copy). BCC recipients do not have their identities revealed to the other recipients of the message.';

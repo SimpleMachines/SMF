@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -1647,7 +1647,7 @@ class ExportProfileData extends BackgroundTask
 				$this->_details['format'] = 'XML_XSLT';
 			}
 
-			require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = Export::getFormats();
 
 			/* Notes:

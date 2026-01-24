@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -72,12 +72,12 @@ class Board implements \ArrayAccess, Routable
 	public int $id;
 
 	/**
-	 * @var object
+	 * @var Category
 	 *
 	 * This board's category.
 	 * An instance of SMF\Category.
 	 */
-	public object $cat;
+	public Category $cat;
 
 	/**
 	 * @var string
@@ -193,7 +193,7 @@ class Board implements \ArrayAccess, Routable
 	public int $prev_board = 0;
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * Boards that are children of this board.
 	 */
@@ -349,7 +349,7 @@ class Board implements \ArrayAccess, Routable
 	public static ?self $info;
 
 	/**
-	 * @var array
+	 * @var Board[]
 	 *
 	 * All loaded instances of this class.
 	 */
@@ -824,7 +824,16 @@ class Board implements \ArrayAccess, Routable
 			return $loaded;
 		}
 
-		$selects = $query_customizations['selects'] ?? ['b.*'];
+		// Ensure we retrieve all required properties of the board, even if
+		// $query_customizations['selects'] only asked for some of them.
+		$selects = array_unique(array_merge(
+			['b.*'],
+			array_filter(
+				$query_customizations['selects'] ?? [],
+				fn($select) => !preg_match('/^b\.\w+$/', $select),
+			),
+		));
+
 		$joins = $query_customizations['joins'] ?? [];
 		$where = $query_customizations['where'] ?? [];
 		$order = $query_customizations['order'] ?? [];
@@ -911,6 +920,26 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		return self::$loaded[$id] ?? null;
+	}
+
+	/**
+	 * Removes an instance of this class, handling any necessary cleanups and
+	 * memory optimizations.
+	 *
+	 * @param int $id The ID number of the board to unload.
+	 */
+	public static function unload(int $id): void
+	{
+		if (!isset(self::$loaded[$id])) {
+			return;
+		}
+
+		// Can we unload the category too?
+		if ($id > 0 && self::$loaded[$id]->cat?->id > 0 && array_filter(self::$loaded, fn($b) => $b->id !== $id && $b->cat?->id === self::$loaded[$id]->cat->id) === []) {
+			Category::unload(self::$loaded[$id]->cat->id);
+		}
+
+		unset(self::$loaded[$id]);
 	}
 
 	/**
@@ -2087,11 +2116,12 @@ class Board implements \ArrayAccess, Routable
 						'id' => $id,
 					],
 				);
-				$props = Db::$db->fetch_all($request);
+				$props = Db::$db->fetch_assoc($request);
 				Db::$db->free_result($request);
 			}
 
 			$this->id = $id;
+
 			$this->set($props);
 			self::$loaded[$this->id] = $this;
 		}
@@ -2102,6 +2132,10 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// Plug this board into its category.
+		if ($id > 0 && empty($this->cat) && !empty($props['id_cat'])) {
+			$this->cat = Category::init((int) $props['id_cat']);
+		}
+
 		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
 		}
@@ -2144,26 +2178,7 @@ class Board implements \ArrayAccess, Routable
 		if (empty($this->id)) {
 			// Set up all the query components.
 			$selects = [
-				'b.id_board',
-				'b.id_cat',
-				'b.name',
-				'b.description',
-				'b.child_level',
-				'b.id_parent',
-				'b.board_order',
-				'b.redirect',
-				'b.member_groups',
-				'b.deny_member_groups',
-				'b.id_profile',
-				'b.num_topics',
-				'b.num_posts',
-				'b.count_posts',
-				'b.id_last_msg',
-				'b.id_msg_updated',
-				'b.id_theme',
-				'b.override_theme',
-				'b.unapproved_posts',
-				'b.unapproved_topics',
+				'b.*',
 				'c.name AS cat_name',
 				'COALESCE(mg.id_group, 0) AS id_moderator_group',
 				'mg.group_name',
@@ -2219,32 +2234,65 @@ class Board implements \ArrayAccess, Routable
 					}
 
 					$props = [
-						'id' => (int) $row['id_board'],
 						'moderators' => [],
 						'moderator_groups' => [],
-						'cat' => Category::init((int) $row['id_cat'], ['name' => $row['cat_name']]),
-						'name' => $row['name'],
-						'description' => $row['description'],
-						'num_topics' => (int) $row['num_topics'],
-						'unapproved_topics' => (int) $row['unapproved_topics'],
-						'unapproved_posts' => (int) $row['unapproved_posts'],
 						'unapproved_user_topics' => 0,
-						'parent_boards' => self::getParents((int) $row['id_parent']),
-						'parent' => (int) $row['id_parent'],
-						'child_level' => (int) $row['child_level'],
-						'theme' => (int) $row['id_theme'],
-						'override_theme' => !empty($row['override_theme']),
-						'profile' => (int) $row['id_profile'],
-						'redirect' => $row['redirect'],
-						'recycle' => !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == self::$board_id,
-						'count_posts' => empty($row['count_posts']),
-						'cur_topic_approved' => empty(Topic::$topic_id) || $row['approved'],
-						'cur_topic_starter' => empty(Topic::$topic_id) ? 0 : $row['id_member_started'],
-
-						// Load the membergroups allowed, and check permissions.
-						'member_groups' => $row['member_groups'] == '' ? [] : array_filter(explode(',', $row['member_groups']), 'strlen'),
-						'deny_groups' => $row['deny_member_groups'] == '' ? [] : array_filter(explode(',', $row['deny_member_groups']), 'strlen'),
+						'cur_topic_starter' => empty(Topic::$topic_id) ? 0 : (int) $row['id_member_started'],
+						'cur_topic_approved' => empty(Topic::$topic_id) || !empty($row['approved']),
 					];
+
+					foreach ($row as $key => $value) {
+						switch ($key) {
+							case 'cat_name':
+							case 'id_moderator':
+							case 'id_moderator_group':
+							case 'id_member_started':
+							case 'approved':
+								break;
+
+							case 'id_board':
+								$props['id'] = (int) $value;
+								$props['recycle'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == $value;
+								break;
+
+							case 'id_cat':
+								$props['cat'] = Category::init((int) $value, ['name' => $row['cat_name']]);
+								break;
+
+							case 'id_parent':
+								$props['parent_boards'] = self::getParents((int) $value);
+								// no break
+
+							case 'id_theme':
+							case 'id_profile':
+								$props[str_replace('id_', '', $key)] = (int) $value;
+								break;
+
+							case 'num_topics':
+							case 'unapproved_topics':
+							case 'unapproved_posts':
+							case 'child_level':
+								$props[$key] = (int) $value;
+								break;
+
+							case 'override_theme':
+							case 'count_posts':
+								$prop[$key] = !empty($value);
+								break;
+
+							case 'member_groups':
+								$prop[$key] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								break;
+
+							case 'deny_member_groups':
+								$prop['deny_groups'] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								break;
+
+							default:
+								$props[$key] = is_numeric($value) ? $value + 0 : $value;
+								break;
+						}
+					}
 
 					IntegrationHook::call('integrate_board_info', [&$props, $row]);
 				}

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -149,7 +149,7 @@ abstract class ToolsBase
 			$this->log_file = $dir . DIRECTORY_SEPARATOR . $name . '.log';
 
 			// Try to make the file the writable.
-			if (!is_writable($this->log_file)) {
+			if (file_exists($this->log_file) && !is_writable($this->log_file)) {
 				chmod($this->log_file, 0664);
 			}
 		}
@@ -252,7 +252,7 @@ abstract class ToolsBase
 	{
 		$db_class = '\\SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type);
 
-		require_once Config::canonicalPath(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
 
 		return new $db_class();
 	}

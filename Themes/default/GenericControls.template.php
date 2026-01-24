@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -18,69 +18,47 @@ use SMF\Utils;
 use SMF\Verifier;
 
 /**
- * This function displays all the stuff you get with a richedit box - BBC, smileys, etc.
+ * Renders a rich-text editor, including BBC buttons and smileys if enabled.
  *
- * @param string $editor_id The editor ID
- * @param null|bool $smileyContainer If null, hides the smiley section regardless of settings
- * @param null|bool $bbcContainer If null, hides the bbcode buttons regardless of settings
+ * This function sets up a textarea as a rich-text editor using SCEditor.
+ * The `$smiley_container` and `$bbc_container` parameters control the visibility
+ * and source of smiley and BBC containers, respectively.
+ *
+ * @param string $editor_id The unique ID of the editor.
+ * @param null|bool|string $smiley_container Controls the smiley container:
+ *   - `null`: Hides the smiley section.
+ *   - `true`: Generates the container dynamically using JavaScript.
+ *   - `string`: Specifies the HTML element ID for the smiley container.
+ * @param null|bool|string $bbc_container Controls the BBC container:
+ *   - `null`: Hides the BBC buttons.
+ *   - `true`: Generates the container dynamically using JavaScript.
+ *   - `string`: Specifies the HTML element ID for the BBC container.
  */
-function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
+function template_control_richedit(string $editor_id, null|bool|string $smiley_container = null, null|bool|string $bbc_container = null): void
 {
 	$editor_context = Editor::$loaded[$editor_id];
-
-	if ($smileyContainer === null)
-		$editor_context['sce_options']['emoticonsEnabled'] = false;
-
-	if ($bbcContainer === null)
-		$editor_context['sce_options']['toolbar'] = '';
 
 	echo '
 		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
 		<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
 		<script>
-			$(document).ready(function() {
-				', !empty(Utils::$context['bbcodes_handlers']) ? Utils::$context['bbcodes_handlers'] : '', '
-
-				var textarea = $("#', $editor_id, '").get(0);
-				sceditor.create(textarea, ', Utils::jsonEncode($editor_context['sce_options'], JSON_PRETTY_PRINT), ');';
-
-	if ($editor_context['sce_options']['emoticonsEnabled'])
-		echo '
-				sceditor.instance(textarea).createPermanentDropDown();';
-
-	if (empty($editor_context['rich_active']))
-		echo '
-				sceditor.instance(textarea).toggleSourceMode();';
-
-	if (isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']))
-		echo '
-				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
-				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});';
-
-	echo '
-			});';
-
-	// Now for backward compatibility let's collect few infos in the good ol' style
-	echo '
-			var oEditorHandle_', $editor_id, ' = new smc_Editor({
-				sUniqueId: ', Utils::escapeJavaScript($editor_id), ',
-				sEditWidth: ', Utils::escapeJavaScript($editor_context['width']), ',
-				sEditHeight: ', Utils::escapeJavaScript($editor_context['height']), ',
-				bRichEditOff: ', empty(Config::$modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
-				oSmileyBox: null,
-				oBBCBox: null
+			document.addEventListener("DOMContentLoaded", function () {
+				var textarea = document.getElementById("', $editor_id, '"), options = ', json_encode($editor_context['sce_options'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ';
+				sceditor.create(textarea, options, ' . Utils::escapeJavaScript($bbc_container) . ', ' . Utils::escapeJavaScript($smiley_container) . ');
 			});
-			smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
 		</script>';
 }
 
 /**
- * This template shows the form buttons at the bottom of the editor
+ * Renders the buttons section below a rich-text editor.
  *
- * @param string $editor_id The editor ID
+ * Displays form buttons such as "Post" or "Preview" and integrates
+ * functionality like auto-saving drafts if enabled.
+ *
+ * @param string $editor_id The unique ID of the editor for which buttons are displayed.
  */
-function template_control_richedit_buttons($editor_id)
+function template_control_richedit_buttons(string $editor_id): void
 {
 	$editor_context = Editor::$loaded[$editor_id];
 
@@ -92,8 +70,7 @@ function template_control_richedit_buttons($editor_id)
 
 	foreach (Utils::$context['richedit_buttons'] as $name => $button) {
 		if ($name == 'preview') {
-			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
-			$button['onclick'] = $editor_context['preview_type'] == Editor::PREVIEW_XML ? '' : 'return submitThisOnce(this);';
+			$button['value'] = $editor_context['labels']['preview_button'] ?? $button['value'];
 			$button['show'] = $editor_context['preview_type'];
 		}
 
@@ -104,15 +81,15 @@ function template_control_richedit_buttons($editor_id)
 	}
 
 	echo '
-		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : Lang::getTxt('post', file: 'General'), '" name="post" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+		<input type="submit" value="', $editor_context['labels']['post_button'] ?? Lang::getTxt('post', file: 'General'), '" name="post" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span>';
 
-	// Start an instance of the auto saver if it's enabled
+	// Include auto-save feature if drafts are enabled.
 	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="', Theme::$current->settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
-			<span id="draft_lastautosave" ></span>
+			<span id="draft_lastautosave"></span>
 		</span>
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
@@ -121,32 +98,37 @@ function template_control_richedit_buttons($editor_id)
 				sSceditorID: \'', $editor_id, '\',
 				sType: \'post\',
 				bPM: ', isset(Utils::$context['drafts_type']) && Utils::$context['drafts_type'] === 'pm' ? 'true' : 'false', ',
-				iBoard: ', (empty(Utils::$context['current_board']) ? 0 : Utils::$context['current_board']), ',
+				iBoard: ', (Utils::$context['current_board'] ?? 0), ',
 				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
 			});
 		</script>';
 }
 
 /**
- * This template displays a verification form
+ * Displays a verification form with CAPTCHA or question-based challenges.
  *
- * @param int|string $verify_id The verification control ID
- * @param string $display_type What type to display. Can be 'single' to only show one verification option or 'all' to show all of them
- * @param bool $reset Whether to reset the internal tracking counter
- * @return bool False if there's nothing else to show, true if $display_type is 'single', nothing otherwise
+ * Used to validate user input for forms, supporting various verification
+ * mechanisms such as CAPTCHA images, reCAPTCHA, and custom questions.
+ *
+ * @param int|string $verify_id The unique identifier for the verification control.
+ * @param string $display_type Determines how to display items:
+ *   - `'single'`: Displays one item at a time (e.g., in a loop).
+ *   - `'all'`: Displays all items together.
+ * @param bool $reset Whether to reset the internal tracking counter.
+ *
+ * @return bool Returns `false` if no items are left to display, `true` if displaying a single item, and `void` otherwise.
  */
-function template_control_verification($verify_id, $display_type = 'all', $reset = false)
+function template_control_verification(int|string $verify_id, string $display_type = 'all', bool $reset = false): bool
 {
 	$verify_context = Verifier::$loaded[$verify_id];
 
-	// Keep track of where we are.
+	// Reset tracking if necessary.
 	if (empty($verify_context->tracking) || $reset)
 		$verify_context->tracking = 0;
 
-	// How many items are there to display in total.
 	$total_items = count($verify_context->questions) + ($verify_context->show_visual || $verify_context->can_recaptcha ? 1 : 0);
 
-	// If we've gone too far, stop.
+	// Stop if all items are processed.
 	if ($verify_context->tracking > $total_items)
 		return false;
 

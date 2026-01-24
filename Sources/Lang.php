@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -295,7 +295,7 @@ class Lang
 				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
 					// Include it!
 					// {DIR} / {locale} / {file} .php
-					require Config::canonicalPath($file[0] . '/' . $file[2] . '/' . $file[1] . '.php');
+					require Sapi::canonicalPath($file[0] . '/' . $file[2] . '/' . $file[1] . '.php');
 
 					// Note that we found it.
 					$found = true;
@@ -305,7 +305,7 @@ class Lang
 						DebugUtils::addDebugSource(
 							lang_key: 'language_files',
 							key: implode('|', $file),
-							value: Config::canonicalPath((Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php'),
+							value: Sapi::canonicalPath((Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php'),
 						);
 					}
 
@@ -582,7 +582,7 @@ class Lang
 						'name' => $langName ?? $entry,
 						'selected' => false,
 						'filename' => $entry,
-						'location' => Config::canonicalPath($language_dir . '/' . $entry . '/General.php'),
+						'location' => Sapi::canonicalPath($language_dir . '/' . $entry . '/General.php'),
 					];
 				}
 				$dir->close();
@@ -1053,7 +1053,7 @@ class Lang
 			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
 
 			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
-				require Config::canonicalPath($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php');
+				require Sapi::canonicalPath($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php');
 
 				// Note that we found it.
 				$found = true;

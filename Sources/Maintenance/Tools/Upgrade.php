@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -162,6 +162,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
+			Migration\v3_0\PostgreSqlFunctions::class,
 			Migration\v3_0\ConvertToInnoDb::class,
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,

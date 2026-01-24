@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -1026,37 +1026,35 @@ class Utils
 	{
 		static $regexes = [];
 
-		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+		// Only strings are allowed.
+		$strings = array_unique(array_map('strval', array_filter($strings, 'is_scalar')));
 
-		$normalized_strings = [];
-
-		foreach ($strings as $str) {
-			if (\is_scalar($str)) {
-				$s = (string) $str;
-				$normalized_strings[$s] = mb_strlen($s, $encoding);
-			}
+		// A regex to match nothing?
+		if ($strings === [] || $strings === ['']) {
+			return $return_array ? [''] : '';
 		}
 
-		if (empty($normalized_strings)) {
-			return '';
-		}
-
+		// Don't repeat unnecessarily.
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
 
 		if (isset($regexes[$regex_key])) {
 			return $regexes[$regex_key];
 		}
 
+		// Which character encoding is being used?
+		$encoding = mb_detect_encoding(implode(' ', $strings)) ?: mb_internal_encoding();
+
 		// Optimizing is faster when we sort by length.
-		asort($normalized_strings);
-		$strings = array_map('strval', array_keys($normalized_strings));
+		$strings = array_combine($strings, array_map(fn($s) => mb_strlen($s, $encoding), $strings));
+		asort($strings);
+		$strings = array_map('strval', array_keys($strings));
 
 		// Can we trim common characters from the end?
 		$trailing = '';
-		unset($normalized_strings);
+		$i = -1;
 
-		while (mb_strlen($strings[0], $encoding) > 1) {
-			$last_char = mb_substr($strings[0], -1, 1, $encoding);
+		while ($strings[0] !== '' && \strlen($strings[0]) < $i * -1) {
+			$last_char = mb_substr($strings[0], $i, null, $encoding);
 
 			foreach ($strings as $string) {
 				if (!str_ends_with($string, $last_char)) {
@@ -1064,8 +1062,8 @@ class Utils
 				}
 			}
 
-			$strings = array_map(fn($string) => mb_substr($string, 0, -1, $encoding), $strings);
-			$trailing = $last_char . $trailing;
+			$i--;
+			$trailing = $last_char;
 		}
 
 		// Create the trie from the strings.
@@ -1107,9 +1105,8 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (\count(array_keys($value)) == 1) {
-						$new_key_array = explode('(?' . '>', $sub_regex);
-						$new_key .= $new_key_array[0];
+					if (\count($value) == 1) {
+						$new_key .= strtok($sub_regex, '(?' . '>');
 					} else {
 						$sub_regex = '(?' . '>' . $sub_regex . ')';
 					}
@@ -1979,11 +1976,13 @@ class Utils
 		// Provide a plain ASCII name for the sake of old browsers.
 		if (preg_match('/[\x{80}-\x{10FFFF}]/u', $file['filename'])) {
 			$file['asciiname'] = Localization\AsciiTransliterator::toAscii($file['filename'], '?');
-		}
 
-		// Replace ASCII names like ??????.jpg with something more unique.
-		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
-			$file['asciiname'] = md5($file['filename']) . substr($file['asciiname'], strpos($file['asciiname'], '.'));
+			// Replace ASCII names like ??????.jpg with something more unique.
+			if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
+				$file['asciiname'] = md5($file['filename']) . substr($file['asciiname'], strpos($file['asciiname'], '.'));
+			}
+		} else {
+			$file['asciiname'] = $file['filename'];
 		}
 
 		// Clear any output that was made before now.
@@ -2520,14 +2519,14 @@ class Utils
 
 			// Load the file if it can be loaded.
 			if (is_file($path)) {
-				require_once Config::canonicalPath($path);
+				require_once Sapi::canonicalPath($path);
 			}
 			// No? Try a fallback to Config::$sourcedir.
 			else {
 				$path = Config::$sourcedir . '/' . $file;
 
 				if (is_file($path)) {
-					require_once Config::canonicalPath($path);
+					require_once Sapi::canonicalPath($path);
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {

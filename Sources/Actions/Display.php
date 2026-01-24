@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -1307,9 +1307,6 @@ class Display implements ActionInterface, Routable
 			'labels' => [
 				'post_button' => Lang::getTxt('post', file: 'General'),
 			],
-			// add height and width for the editor
-			'height' => '150px',
-			'width' => '100%',
 			// We do HTML preview here.
 			'preview_type' => Editor::PREVIEW_HTML,
 			// This is required

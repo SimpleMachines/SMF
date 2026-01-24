@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -433,9 +433,20 @@ class Install extends ToolsBase implements ToolsInterface
 		// Validate the prefix.
 		$db = Maintenance::$context['databases'][$db_type];
 
-		if (!$db->validatePrefix($db_prefix)) {
-			Maintenance::$fatal_error = Lang::getTxt('error_db_prefix_invalid', ['prefix' => $db_prefix], file: 'Maintenance');
+		try {
+			$db->validatePrefix($db_prefix);
+		} catch (\Throwable $e) {
+			Maintenance::$fatal_error = $e->getMessage();
+
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Maintenance::$fatal_error], file: 'Maintenance'));
+
+			return false;
+		}
+
+		// Database names can not have periods, just complicates things.
+		if (strpos(Maintenance::$context['db']['name'], '.') !== false) {
+			Maintenance::$fatal_error = Lang::getTxt('db_settings_database_invalid', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -682,27 +693,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 		Config::$modSettings['disableQueryCheck'] = true;
 
-		$replaces = [
-			'{$db_prefix}' => Db::$db->prefix,
-			'{$attachdir}' => json_encode([1 => Db::$db->escape_string(Config::$boarddir . '/attachments')]),
-			'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
-			'{$boardurl}' => Config::$boardurl,
-			'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
-			'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
-			'{$smf_version}' => SMF_VERSION,
-			'{$current_time}' => time(),
-			'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
-			'{$registration_method}' => $_POST['reg_mode'] ?? 0,
-		];
-
-		foreach (Lang::$txt as $key => $value) {
-			if (substr($key, 0, 8) == 'default_') {
-				$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
-			}
-		}
-
-		$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
-
 		$existing_tables = Db::$db->list_tables();
 
 		$install_tables = Table::getAll($this->schema_version);
@@ -740,6 +730,16 @@ class Install extends ToolsBase implements ToolsInterface
 			'table_dups' => 0,
 			'insert_dups' => 0,
 		];
+
+		// Some initialization may exist.
+		Db::$db->disableQueryCheck = true;
+
+		foreach (Table::getInitializers($this->schema_version, Db::$db->Title) as $query) {
+			Db::$db->query($query, [
+				'security_override' => true,
+			]);
+		}
+		Db::$db->disableQueryCheck = false;
 
 		foreach ($install_tables as $table) {
 			$this->logProgress(Lang::getTxt('log_table_create', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);

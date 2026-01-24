@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -4321,8 +4321,8 @@ class User implements \ArrayAccess
 			// Figure out the new time offset.
 			if (!empty(self::$profiles[$this->id]['timezone'])) {
 				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
-				$tz_user = new \DateTimeZone(self::$profiles[$this->id]['timezone']);
+				$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
+				$tz_user = TimeZone::create(self::$profiles[$this->id]['timezone']);
 				$time_system = new \DateTime('now', $tz_system);
 				$time_user = new \DateTime('now', $tz_user);
 				self::$profiles[$this->id]['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
@@ -4330,7 +4330,7 @@ class User implements \ArrayAccess
 			// We need a time zone.
 			else {
 				if (!empty(self::$profiles[$this->id]['time_offset'])) {
-					$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
+					$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
 					$time_system = new \DateTime('now', $tz_system);
 
 					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
@@ -4774,23 +4774,52 @@ class User implements \ArrayAccess
 	 * Loads theme options for the given users.
 	 *
 	 * @param array|int $ids One or more user ID numbers.
+	 * @param ?bool $default_only If true, only load options for the default
+	 *    theme, where "default theme" means whichever theme is used for guests.
+	 *    Default: false.
 	 */
-	protected static function loadOptions(array|int $ids): void
+	protected static function loadOptions(array|int $ids, bool $default_only = false): void
 	{
 		$ids = (array) $ids;
 
 		$request = Db::$db->query(
 			'SELECT id_member, id_theme, variable, value
 			FROM {db_prefix}themes
-			WHERE id_member IN ({array_int:ids})',
+			WHERE id_member IN ({array_int:ids})
+			ORDER BY id_theme',
 			[
 				'ids' => $ids,
 			],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			self::$profiles[$row['id_member']]['options'][$row['variable']] = $row['value'];
+			// Which theme is used for guests?
+			$guest_theme = (int) (Config::$modSettings['theme_guests'] ?? 1);
+
+			// Which theme is this member using?
+			$user_theme = $default_only ? $guest_theme : (int) (self::$profiles[$row['id_member']]['id_theme'] ?? $guest_theme);
+
+			if (
+				// Rows are returned in ascending order by id_theme, so we start
+				// with theme 1's value and then overwrite as needed.
+				$row['id_theme'] == 1
+				// If the guest theme isn't theme 1, then overwrite the value
+				// from theme 1 with the value from the guest theme.
+				|| (
+					$row['id_theme'] == $guest_theme
+					// Special check needed here to ensure the guest theme does
+					// not overwrite the user's preferred theme. For example, if
+					// the guest theme is 5 but the user's theme is 2, then we
+					// want to keep the value from theme 2.
+					&& $guest_theme < $user_theme
+				)
+				// The value from the user's preferred theme takes precedence.
+				|| $row['id_theme'] == $user_theme
+			) {
+				self::$profiles[$row['id_member']]['options'][$row['variable']] = $row['value'];
+			}
 		}
+
 		Db::$db->free_result($request);
 	}
 

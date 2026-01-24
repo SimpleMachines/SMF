@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -194,7 +194,7 @@ class Find implements ActionInterface
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 
 		foreach ($this->include_files as $file) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/' . $file . '.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $file . '.php');
 		}
 
 		/* This is the huge array that defines everything... it's a huge array of items formatted as follows:

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -631,6 +631,10 @@ class Settings extends Table
 			'value' => '0',
 		],
 		[
+			'variable' => 'robots_txt_search',
+			'value' => '1',
+		],
+		[
 			'variable' => 'samesiteCookies',
 			'value' => 'lax',
 		],
@@ -720,7 +724,7 @@ class Settings extends Table
 		],
 		[
 			'variable' => 'smiley_sets_names',
-			'value' => '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}',
+			'value' => '{$default_fugue_smileyset_name}' . "\n" . '{$default_alienine_smileyset_name}',
 		],
 		[
 			'variable' => 'smileys_dir',

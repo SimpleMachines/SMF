@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -161,16 +161,16 @@ class InstallTemplate extends MaintenanceTemplate
 					<dd>
 						<div class="floatright">
 							<label for="ftp_port" class="textbox"><strong>', Lang::$txt['ftp_port'], ':&nbsp;</strong></label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Maintenance::$context['ftp']['port'], '">
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Maintenance::$context['chmod']['port'] ?? '', '">
 						</div>
-						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Maintenance::$context['ftp']['server'], '">
+						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Maintenance::$context['chmod']['server'] ?? '', '">
 						<div class="smalltext block">', Lang::$txt['ftp_server_info'], '</div>
 					</dd>
 					<dt>
 						<label for="ftp_username">', Lang::$txt['ftp_username'], ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Maintenance::$context['ftp']['username'], '">
+						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Maintenance::$context['chmod']['username'] ?? '', '">
 						<div class="smalltext block">', Lang::$txt['ftp_username_info'], '</div>
 					</dd>
 					<dt>
@@ -184,8 +184,8 @@ class InstallTemplate extends MaintenanceTemplate
 						<label for="ftp_path">', Lang::$txt['ftp_path'], ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Maintenance::$context['ftp']['path'], '">
-						<div class="smalltext block">', Maintenance::$context['ftp']['path_msg'], '</div>
+						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Maintenance::$context['chmod']['path'] ?? '', '">
+						<div class="smalltext block">', Maintenance::$context['chmod']['path_msg'] ?? '', '</div>
 					</dd>
 				</dl>
 				<div class="righttext buttons">
@@ -266,7 +266,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="db_name_input">', Lang::$txt['db_settings_database'], ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30">
+					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30" pattern="^\w$">
 					<div class="smalltext">
 						', Lang::$txt['db_settings_database_info'], '
 						<span id="db_name_info_warning">', Lang::$txt['db_settings_database_info_note'], '</span>

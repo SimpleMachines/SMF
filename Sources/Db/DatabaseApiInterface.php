@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -697,11 +697,10 @@ interface DatabaseApiInterface
 
 	/**
 	 * Validate a database prefix.
-	 * When an error occurs, use throw new exception, this will be captured.
 	 *
-	 * @return bool
+	 * @throws \Exception if invalid.
 	 */
-	public function validatePrefix(&$string): bool;
+	public function validatePrefix(string $prefix): void;
 
 	/**
 	 * Returns whether it is necessary to select the database by name or not.

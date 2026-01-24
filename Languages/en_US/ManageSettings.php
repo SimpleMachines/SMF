@@ -76,6 +76,7 @@ $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
+$txt['jquery_cloudflare_cdn'] = 'Cloudflare CDN (cdnjs)';
 $txt['jquery_google_cdn'] = 'Google CDN';
 $txt['jquery_jquery_cdn'] = 'jQuery CDN';
 $txt['jquery_microsoft_cdn'] = 'Microsoft CDN';
@@ -151,6 +152,8 @@ $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
 $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_sqlite_wal'] = 'Enable SQLite3 WAL';
+$txt['cache_sqlite_wal_subtext'] = 'Read <a href="https://www.sqlite.org/wal.html">Write-Ahead Logging</a> documentation prior to using. If you enable then disable this setting, the database will become readonly.';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>!';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';

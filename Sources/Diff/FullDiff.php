@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -1013,10 +1013,9 @@ class FullDiff extends Diff
 		$diff = new self();
 
 		// Set the diff labels and times.
-		[$diff->label1, $diff->time1] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
-		[$diff->label2, $diff->time2] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
-
 		foreach (['1', '2'] as $n) {
+			[$diff->{'label' . $n}, $diff->{'time' . $n}] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
+
 			$diff->{'label' . $n} = self::unescapePath($diff->{'label' . $n});
 
 			// Trim off the initial 'a/' and 'b/' that Git prepends to paths.
@@ -1025,10 +1024,9 @@ class FullDiff extends Diff
 			}
 
 			if ($diff->{'time' . $n} !== '') {
-				$t = new Time((is_numeric($diff->{'time' . $n}) ? '@' : '') . $diff->{'time' . $n}, 'UTC');
-
-				if ($t !== false) {
-					$diff->{'time' . $n} = $t->format('Y-m-d H:i:s.u O');
+				try {
+					$diff->{'time' . $n} = (new Time((is_numeric($diff->{'time' . $n}) ? '@' : '') . $diff->{'time' . $n}, 'UTC'))->format('Y-m-d H:i:s.u O');
+				} catch (\Throwable $e) {
 				}
 			}
 		}
@@ -1239,12 +1237,16 @@ class FullDiff extends Diff
 		$diff = new self();
 
 		// Set the diff labels and times.
-		[$diff->label1, $diff->time1] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
-		[$diff->label2, $diff->time2] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
+		foreach (['1', '2'] as $n) {
+			[$diff->{'label' . $n}, $diff->{'time' . $n}] = array_pad(explode("\t", rtrim(substr(array_shift($lines), 4), "\n")), 2, '');
 
-		$diff->time1 = $diff->time1 !== '' && ($d = date_create((is_numeric($diff->time1) ? '@' : '') . $diff->time1)) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : $diff->time1;
-
-		$diff->time2 = $diff->time2 !== '' && ($d = date_create((is_numeric($diff->time2) ? '@' : '') . $diff->time2)) !== false ? $d->setTimezone(timezone_open('UTC'))->format('Y-m-d H:i:s.u O') : $diff->time2;
+			if ($diff->{'time' . $n} !== '') {
+				try {
+					$diff->{'time' . $n} = (new Time((is_numeric($diff->{'time' . $n}) ? '@' : '') . $diff->{'time' . $n}, 'UTC'))->format('Y-m-d H:i:s.u O');
+				} catch (\Throwable $e) {
+				}
+			}
+		}
 
 		// Should this diff be marked as optional?
 		$diff->optional = $optional || !empty($path_changes['rename'][$diff->label1]['optional']) || !empty($path_changes['copy'][$diff->label1]['optional']);

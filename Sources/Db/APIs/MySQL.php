@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -129,12 +129,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~\'\X*?\'~s',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -169,18 +171,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = preg_split('/(?<![\'\\\\])\'(?![\'])/', $db_string);
-
-			for ($i = 0; $i < \count($clean); $i++) {
-				if ($i % 2 === 1) {
-					$clean[$i] = ' %s ';
-				}
-			}
-
+			// Clear out escaped backslashes & single quotes first, to make it simpler to ID & remove string literals
+			$clean = str_replace(['\\\\', '\\\'', '\'\''], ['', '', ''], $db_string);
 			$clean = trim(strtolower(preg_replace(
 				$allowed_comments_from,
 				$allowed_comments_to,
-				implode('', $clean),
+				$clean,
 			)));
 
 			if (
@@ -409,6 +405,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$insertRows = [];
 
 		foreach ($data as $dataRow) {
+			if (\count($indexed_columns) !== \count($dataRow)) {
+					$this->error_backtrace(
+						'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+						'',
+						E_USER_ERROR,
+						__FILE__,
+						__LINE__,
+					);
+			}
 			$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 		}
 
@@ -757,13 +762,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->connection,
 				'INSERT INTO ' . $this->prefix . 'log_errors
 					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)',
+				VALUES( ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?)',
 			);
 		}
 
-		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) !== false) {
-			$error_array['ip'] = bin2hex(inet_pton($error_array['ip']));
-		} else {
+		if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) === false) {
 			$error_array['ip'] = null;
 		}
 
@@ -1325,7 +1328,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_word, id_msg)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci',
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
 			[
 				'string_zero' => '0',
 				'size' => $size,
@@ -1880,9 +1883,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		if (!empty($this->character_set) && str_starts_with($this->character_set, 'utf8')) {
 			if ($this->mb4) {
-				$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+				$table_query .= ' DEFAULT CHARSET=utf8mb4';
 			} else {
-				$table_query .= ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci';
+				$table_query .= ' DEFAULT CHARSET=utf8mb3';
 			}
 		}
 
@@ -2370,11 +2373,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function validatePrefix(&$value): bool
+	public function validatePrefix(string $prefix): void
 	{
-		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
-
-		return true;
+		if ($prefix !== preg_replace('~[^A-Za-z0-9_\$]~', '', $prefix)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_invalid', ['prefix' => $prefix], file: 'Maintenance'));
+		}
 	}
 
 	/**
@@ -2799,8 +2802,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
-				// We don't use the native support of mysql > 5.6.2
-				return \sprintf('unhex(\'%1$s\')', $ip->toHex());
+				return \sprintf('INET6_ATON(\'%1$s\')', $ip);
 
 			case 'array_inet':
 				if (\is_array($replacement)) {
@@ -2819,7 +2821,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
-						$replacement[$key] = \sprintf('unhex(\'%1$s\')', $ip->toHex());
+						$replacement[$key] = \sprintf('INET6_ATON(\'%1$s\')', $ip);
 					}
 
 					return implode(', ', $replacement);
@@ -2897,7 +2899,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// These types cannot have a default value.
 		if (
 			\in_array(
-				$column_info['type'],
+				$column['type'],
 				[
 					'text',
 					'tinytext',

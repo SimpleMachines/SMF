@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -229,7 +229,7 @@ function template_summary()
 	// Don't show an icon if they haven't specified a website.
 	if (Utils::$context['member']['website']['url'] !== '' && !isset(Utils::$context['disabled_fields']['website']))
 		echo '
-				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
+				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span></a></li>';
 
 	// Are there any custom profile fields as icons?
 	if (!empty(Utils::$context['print_custom_fields']['icons']))
@@ -243,7 +243,7 @@ function template_summary()
 	echo '
 			</ul>
 			<span id="userstatus">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>' : Utils::$context['member']['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>' : '';
+				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>';
 
 	// Can they add this member as a buddy?
 	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner)
@@ -3110,13 +3110,18 @@ function template_profile_timeformat_modify()
 								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;">';
 
 	// Help the user by showing a list of common time formats.
-	foreach (Utils::$context['easy_timeformats'] as $time_format)
+	$found = false;
+	foreach (Utils::$context['easy_timeformats'] as $time_format) {
+		$found = $found || $time_format['format'] == Utils::$context['member']['time_format'];
+
 		echo '
 									<option value="', $time_format['format'], '"', $time_format['format'] == Utils::$context['member']['time_format'] ? ' selected' : '', '>', $time_format['title'], '</option>';
+	}
 
 	echo '
+									<option value="other"', !$found ? ' selected' : '', ' disabled>', Lang::getTxt('other', file: 'General'), '</option>
 								</select>
-								<input type="text" name="time_format" id="time_format" value="', Utils::$context['member']['time_format'], '" size="30">
+								<input type="text" name="time_format" id="time_format" value="', Utils::$context['member']['time_format'], '" onchange="document.forms.creator.easyformat.value = \'other\'" size="30">
 							</dd>';
 }
 

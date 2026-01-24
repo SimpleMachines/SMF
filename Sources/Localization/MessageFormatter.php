@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -17,6 +17,7 @@ namespace SMF\Localization;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -182,7 +183,7 @@ class MessageFormatter
 								}
 								// Try to guess the currency based on country.
 								else {
-									require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
+									require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
 
 									$country_currencies = \function_exists('country_currencies') ? country_currencies() : [];
 
@@ -505,7 +506,7 @@ class MessageFormatter
 
 		// Ensure we have our pluralization rules.
 		if (empty(self::$plural_rules)) {
-			require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Plurals.php');
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Plurals.php');
 			self::$plural_rules = \SMF\Unicode\plurals();
 		}
 
@@ -836,7 +837,7 @@ class MessageFormatter
 						break;
 
 					case 'currency':
-						require_once Config::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
+						require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
 
 						$currencies = currencies();
 

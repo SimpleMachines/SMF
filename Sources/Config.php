@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -207,6 +207,14 @@ class Config
 	 */
 	public static string $cachedir_sqlite;
 
+	/**
+	 * @var bool
+	 *
+	 * This is only used for the SQLite3 cache system.
+	 * Whether to enable Write-Ahead Logging.
+	 */
+	public static bool $cache_sqlite_wal;
+
 	########## Image proxy ##########
 	/**
 	 * @var bool
@@ -246,16 +254,23 @@ class Config
 	public static string $sourcedir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to the Packages directory.
 	 */
 	public static string $packagesdir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to where our dependencies are located.
+	 */
+	public static string $vendordir;
+
+	/**
+	 * @var string
+	 *
+	 * Path to the language directory.
 	 */
 	public static string $languagesdir;
 
@@ -308,6 +323,14 @@ class Config
 	 * URL of SMF's main index.php.
 	 */
 	public static string $scripturl;
+
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 *
+	 * Autoloader instance.
+	 * This is used to support the integrate_autoload hook.
+	 */
+	public static \Composer\Autoload\ClassLoader $loader;
 
 	/****************************
 	 * Internal static properties
@@ -691,6 +714,18 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'string',
 		],
+		'cache_sqlite_wal' => [
+			'text' => <<<'END'
+				/**
+				 * @var bool
+				 *
+				 * This is only used for the SQLite3 cache system.
+				 * Whether to enable Write-Ahead Logging.
+				 */
+				END,
+			'default' => false,
+			'type' => 'boolean',
+		],
 		'image_proxy_enabled' => [
 			'text' => <<<'END'
 
@@ -762,6 +797,18 @@ class Config
 				 */
 				END,
 			'default' => '__DIR__ . \'/Packages\'',
+			'raw_default' => true,
+			'type' => 'string',
+		],
+		'vendordir' => [
+			'text' => <<<'END'
+				/**
+				 * @var string
+				 *
+				 * Path to where our dependencies are located.
+				 */
+				END,
+			'default' => '__DIR__ . \'/vendor\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -959,6 +1006,10 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
+		if ((empty(self::$vendordir) || !is_dir(realpath(self::$vendordir))) && is_dir(self::$boarddir . '/vendor')) {
+			self::$vendordir = self::$boarddir . '/vendor';
+		}
+
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
 		}
@@ -1095,6 +1146,18 @@ class Config
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
 
+		// Any autoloader integrations to add?
+		if (isset(self::$modSettings['integrate_autoload'])) {
+			$class_map = [];
+
+			IntegrationHook::call('integrate_autoload', [&$class_map]);
+
+			foreach ($class_map as $prefix => $dirname) {
+				self::$loader->addPsr4($prefix, $dirname);
+			}
+		}
+
+		// Ensure the cache_enable setting reflects reality.
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary
@@ -1191,7 +1254,7 @@ class Config
 				$include = strtr(trim($include), ['$boarddir' => self::$boarddir, '$sourcedir' => self::$sourcedir]);
 
 				if (file_exists($include)) {
-					require_once self::canonicalPath($include);
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}
@@ -2378,7 +2441,7 @@ class Config
 		// Tests passed, so it's time to do the job.
 		if (!$failed) {
 			// Back up the backup, just in case.
-			if (!empty($backup_file) && file_exists($backup_file)) {
+			if (!empty($backup_file) && file_exists($backup_file) && is_readable($backup_file)) {
 				$temp_bfile_saved = @copy($backup_file, $temp_bfile);
 			}
 
@@ -2420,7 +2483,7 @@ class Config
 						}
 					}
 					// It worked, so make our temp backup the new permanent backup.
-					elseif (!empty($backup_file)) {
+					elseif (!empty($backup_file) && file_exists($temp_sfile) && is_readable($backup_file) && is_writable($backup_file)) {
 						@rename($temp_sfile, $backup_file);
 					}
 
@@ -2849,129 +2912,6 @@ class Config
 				self::updateModSettings(['cron_last_checked' => time()]);
 			}
 		}
-	}
-
-	/**
-	 * Normalizes directory separators and resolves '.' and '..' in a file path.
-	 *
-	 * The $path does not need to point to an existing file.
-	 *
-	 * If $path does point to an existing file, or if an ancestor directory of
-	 * $path exists, then \realpath() will be used to resolve that part of the
-	 * path, unless the $real parameter is set to false.
-	 *
-	 * @param string $path The file path.
-	 * @param string|bool $base_dir Base directory for relative paths.
-	 *    - If a string, relative paths are prepended with the string and a
-	 *      directory separator. Note that directory separators in this string
-	 *      will be normalized just like in $path.
-	 *    - If true, relative paths are prepended with the current working
-	 *      directory and a directory separator.
-	 *    - If false, relative paths are processed as given.
-	 *    Default: false.
-	 * @param bool $real Whether to get the real path for existing files. This
-	 *    can be set to false if the caller wants to canonicalize a hypothetical
-	 *    path without any possibility of the real file structure interfering
-	 *    with the result.
-	 *    Default: true.
-	 * @return string The canonical file path.
-	 */
-	public static function canonicalPath(string $path, string|bool $base_dir = false, bool $real = true): string
-	{
-		// If $path points to a real file, this is all we need to do.
-		if (!empty($real) && ($realpath = @realpath($path)) !== false) {
-			return $realpath;
-		}
-
-		$base_dir = \is_string($base_dir) ? rtrim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $base_dir), DIRECTORY_SEPARATOR) : (!empty($base_dir) ? getcwd() : false);
-
-		$path = trim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, (string) $path));
-
-		// We need to know the path of the root directory.
-		if (DIRECTORY_SEPARATOR === '/') {
-			$root = '';
-			$is_absolute = str_starts_with($path, DIRECTORY_SEPARATOR);
-		} else {
-			// Windows network shares and devices.
-			if (str_starts_with($path, DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR)) {
-				if (\in_array(substr($path, 2, 2), ['?' . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR])) {
-					$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, 3));
-				} else {
-					$root = '';
-
-					for ($i = 0; $i < 3; $i++) {
-						$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, \strlen($root) + 1));
-					}
-				}
-			}
-			// Windows absolute DOS-style path.
-			elseif (strpos($path, ':') !== false && strpos($path, DIRECTORY_SEPARATOR) === strpos($path, ':') + 1) {
-				$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR));
-			}
-			// Windows relative path.
-			else {
-				$root = substr(getcwd(), 0, strcspn(getcwd(), DIRECTORY_SEPARATOR));
-
-				// If relative to current drive's root, make it absolute.
-				if (strpos($path, DIRECTORY_SEPARATOR) === 0) {
-					$path = $root . $path;
-				}
-			}
-
-			$is_absolute = str_starts_with($path, $root . DIRECTORY_SEPARATOR);
-		}
-
-		// Build canonical path.
-		$canonical_path = '';
-
-		if ($is_absolute) {
-			$path = substr($path, \strlen($root . DIRECTORY_SEPARATOR));
-			$path_parts = [$root];
-		} elseif (\is_string($base_dir)) {
-			$path_parts = explode(DIRECTORY_SEPARATOR, $base_dir);
-		} else {
-			$path_parts = [];
-		}
-
-		foreach (explode(DIRECTORY_SEPARATOR, $path) as $key => $part) {
-			if (empty($part) || $part === '.') {
-				continue;
-			}
-
-			if ($part === '..') {
-				if ($is_absolute && $path_parts === [$root]) {
-					continue;
-				}
-
-				if (empty($path_parts) || $path_parts[0] === '..') {
-					$path_parts[] = $part;
-				} else {
-					array_pop($path_parts);
-				}
-			} else {
-				$path_parts[] = $part;
-			}
-
-			$canonical_path = implode(DIRECTORY_SEPARATOR, $path_parts);
-
-			if (empty($real) || \in_array($canonical_path, ['', '.', '..'])) {
-				continue;
-			}
-
-			// Check for intermediate symlinks.
-			$realpath = @realpath($canonical_path);
-
-			if ($realpath !== false && $realpath !== $canonical_path) {
-				$path_parts = explode(DIRECTORY_SEPARATOR, $realpath);
-			}
-		}
-
-		// Ambiguity is bad.
-		if ($canonical_path === '') {
-			$canonical_path = $is_absolute ? $root . DIRECTORY_SEPARATOR : '.';
-		}
-
-		return $canonical_path;
 	}
 
 	/*************************

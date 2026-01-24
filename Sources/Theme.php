@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -186,7 +186,7 @@ class Theme
 		}
 
 		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['menu_separator'] = ' ';
 		Utils::$context['session_var'] = $_SESSION['session_var'];
 		Utils::$context['session_id'] = $_SESSION['session_value'];
 		Utils::$context['forum_name'] = Config::$mbname;
@@ -236,7 +236,7 @@ class Theme
 				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
 
 				if (file_exists($include)) {
-					require_once Config::canonicalPath($include);
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}
@@ -2229,6 +2229,7 @@ class Theme
 		// Add the JQuery library to the list of files to load.
 		$jQueryUrls =  [
 			'cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js',
+			'cloudflare_cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/' . JQUERY_VERSION . '/jquery.min.js',
 			'jquery_cdn' => 'https://code.jquery.com/jquery-' . JQUERY_VERSION . '.min.js',
 			'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-' . JQUERY_VERSION . '.min.js',
 		];
@@ -2346,9 +2347,9 @@ class Theme
 		$file_found = file_exists($filename);
 
 		if ($once && $file_found) {
-			require_once Config::canonicalPath($filename);
+			require_once Sapi::canonicalPath($filename);
 		} elseif ($file_found) {
-			require Config::canonicalPath($filename);
+			require Sapi::canonicalPath($filename);
 		}
 
 		if ($file_found !== true) {

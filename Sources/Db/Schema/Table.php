@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -513,6 +513,11 @@ class Table
 			'{$registration_method}' => \defined('SMF_INSTALLING') ? ((int) !empty($_POST['reg_mode'])) : (Config::$modSettings['registration_method'] ?? 0),
 		];
 
+		// Sometimes its a string, sometimes its an array, sometimes its json.
+		if (\is_array($replacements['{$attachdir}'])) {
+			$replacements['{$attachdir}'] = json_encode($replacements['{$attachdir}']);
+		}
+
 		foreach (Lang::$txt as $key => $value) {
 			if (substr($key, 0, 8) == 'default_') {
 				$replacements['{$' . $key . '}'] = Db::$db->escape_string($value);
@@ -522,11 +527,18 @@ class Table
 		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
 		// Replace any placeholders in the initial data.
-		foreach ($this->initial_data as $row_num => $row) {
-			$this->initial_data[$row_num] = array_map(
-				fn($v) => $replacements[$v] ?? $v,
-				$row,
-			);
+		foreach ($this->initial_data as &$row) {
+			foreach ($row as &$val) {
+				if ($val === null) {
+					continue;
+				}
+
+				if (\is_int($val)) {
+					$val = (int) strtr((string) $val, $replacements);
+				} else {
+					$val = strtr($val, $replacements);
+				}
+			}
 		}
 
 		// Insert the initial data.
@@ -535,7 +547,7 @@ class Table
 			table: '{db_prefix}' . $this->name,
 			columns: Db::$db->getTypeIndicators('{db_prefix}' . $this->name, reset($this->initial_data)),
 			data: array_map(fn($row) => array_values($row), $this->initial_data),
-			keys: isset($auto_col) ? [$auto_col] : [],
+			keys: isset($auto_col) ? [$auto_col] : array_column($this->indexes['primary']->columns, 'name'),
 			returnmode: $returnmode,
 		);
 
@@ -579,5 +591,31 @@ class Table
 		}
 
 		return $tables;
+	}
+
+	/**
+	 * Gets all known table schemas.
+	 *
+	 * @return array All known table schemas.
+	 */
+	final public static function getInitializers(string $schema_version, string $title): array
+	{
+		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . $title . '.php')) {
+
+			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . $title;
+
+			if (!class_exists($fully_qualified_class_name)) {
+				return [];
+			}
+
+			/**
+			 * @var \SMF\Db\Schema\v3_0\Initialize\Base
+			 */
+			$intializer = new $fully_qualified_class_name(Db::$db->get_version());
+
+			return $intializer->getAll();
+		}
+
+		return [];
 	}
 }

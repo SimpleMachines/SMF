@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -458,7 +458,12 @@ class BoardIndex implements ActionInterface, Routable
 
 					$category->parseDescription();
 				} else {
-					$category = Category::$loaded[$row_board['id_cat']];
+					$category = Category::init((int) $row_board['id_cat'], [
+						'is_collapsed' => !empty($row_board['can_collapse']) && !empty(Theme::$current->options['collapse_category_' . $row_board['id_cat']]),
+						'new' => false,
+						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board, file: 'General') . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+					]);
 				}
 
 				// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
@@ -768,12 +773,11 @@ class BoardIndex implements ActionInterface, Routable
 
 		unset($msg, Msg::$loaded[$row_board['id_msg']]);
 
+		// Make sure they're loaded...
+		User::load($row_board['id_member']);
+
 		if (!empty(Theme::$current->settings['avatars_on_boardIndex'])) {
-			$last_post['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row_board['avatar'],
-				'email' => $row_board['email_address'],
-				'filename' => !empty($row_board['member_filename']) ? $row_board['member_filename'] : '',
-			]);
+			$last_post['member']['avatar'] = User::$loaded[$row_board['id_member']]['avatar'];
 		}
 
 		IntegrationHook::call('integrate_boardindex_last_post', [&$last_post, $row_board]);

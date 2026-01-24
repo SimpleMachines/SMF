@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
@@ -83,9 +82,7 @@ class MigrationBase implements SubStepInterface
 	 */
 	protected function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
-		if (!empty(Config::$modSettings['disableQueryCheck'])) {
-			Config::$modSettings['disableQueryCheck'] = true;
-		}
+		Db::$db->disableQueryCheck = true;
 
 		if (!empty($db_values['unbuffered'])) {
 			Db::$unbuffered = true;

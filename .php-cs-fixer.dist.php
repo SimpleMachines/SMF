@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 3
@@ -20,10 +20,8 @@ $finder = (new PhpCsFixer\Finder())
 		'other',
 		'Packages',
 		'Smileys',
-		'Sources/minify',
-		'Sources/ReCaptcha',
-		'Sources/ZxcvbnPhp',
 		'Themes',
+		'vendor',
 	])
 	// Skip ssi_example.php.
 	->notName(['ssi_examples.php'])
@@ -37,7 +35,7 @@ return (new PhpCsFixer\Config())
         new SMF\Fixer\ClassNotation\SectionComments(),
     ])
 	->setRules([
-		'@PER-CS2.0' => true,
+		'@PER-CS2x0' => true,
 
 		// PSR12 overrides.
 		'no_break_comment' => false,  // A bit buggy with comments.

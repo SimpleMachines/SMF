@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -86,6 +86,14 @@ class Topic implements \ArrayAccess, Routable
 	 * This will be 0 for topics started by guests.
 	 */
 	public int $id_member_started;
+
+	/**
+	 * @var int
+	 *
+	 * ID number of the user who reply this topic.
+	 * This will be 0 for topics replied by guests.
+	 */
+	public int $id_member_updated;
 
 	/**
 	 * @var string
@@ -1548,7 +1556,7 @@ class Topic implements \ArrayAccess, Routable
 				self::move($recycleTopics, (int) Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
-				require_once Config::canonicalPath(Config::$sourcedir . '/Actions/Moderation/Main.php');
+				require_once Sapi::canonicalPath(Config::$sourcedir . '/Actions/Moderation/Main.php');
 
 				Db::$db->query(
 					'UPDATE {db_prefix}log_reported

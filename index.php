@@ -14,7 +14,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -44,7 +44,7 @@ if (!defined('SMF_FULL_VERSION')) {
 }
 
 if (!defined('SMF_SOFTWARE_YEAR')) {
-	define('SMF_SOFTWARE_YEAR', '2025');
+	define('SMF_SOFTWARE_YEAR', '2026');
 }
 
 if (!defined('JQUERY_VERSION')) {
@@ -122,6 +122,12 @@ call_user_func(function () {
 	require_once $sourcedir . DIRECTORY_SEPARATOR . 'Config.php';
 	SMF\Config::set(get_defined_vars());
 
+	// Start up the autoloader.
+	SMF\Config::$loader = require SMF\Config::$vendordir . '/autoload.php';
+
+	// Ensure the SMF namespace points to $sourcedir.
+	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
+
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
 });
@@ -134,8 +140,6 @@ if (SMF === 1) {
 /*
  * 3. Load some other essential includes.
  */
-
-require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';

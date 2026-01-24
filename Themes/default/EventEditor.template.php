@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 4
@@ -377,7 +377,7 @@ function template_rrule()
 		echo '
 						<dl id="special_rrule_options">
 							<dt class="clear">
-								<a id="special_rrule_modifier_help" href="https://stovell.noip.me/~jon/dev/index.php?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
+								<a id="special_rrule_modifier_help" href="' . Config::$scripturl . '?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
 								<label>', Lang::getTxt('calendar_repeat_special_rrule_modifier', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
