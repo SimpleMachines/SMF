@@ -39,7 +39,9 @@ function template_control_richedit(string $editor_id, null|bool|string $smiley_c
 	$editor_context = Editor::$loaded[$editor_id];
 
 	echo '
-		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
+		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
+		<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
+		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
 		<script>
 			document.addEventListener("DOMContentLoaded", function () {
 				var textarea = document.getElementById("', $editor_id, '"), options = ', json_encode($editor_context['sce_options'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ';
@@ -66,23 +68,7 @@ function template_control_richedit_buttons(string $editor_id): void
 		</span>
 		<span class="post_button_container">';
 
-	$tempTab = Utils::$context['tabindex'];
-
-	if (!empty(Utils::$context['drafts_save']))
-		$tempTab++;
-	elseif ($editor_context['preview_type'])
-		$tempTab++;
-	elseif (Utils::$context['show_spellchecking'])
-		$tempTab++;
-
-	$tempTab++;
-	Utils::$context['tabindex'] = $tempTab;
-
 	foreach (Utils::$context['richedit_buttons'] as $name => $button) {
-		if ($name == 'spell_check') {
-			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
-		}
-
 		if ($name == 'preview') {
 			$button['value'] = $editor_context['labels']['preview_button'] ?? $button['value'];
 			$button['show'] = $editor_context['preview_type'];
@@ -95,7 +81,7 @@ function template_control_richedit_buttons(string $editor_id): void
 	}
 
 	echo '
-		<input type="submit" value="', $editor_context['labels']['post_button'] ?? Lang::getTxt('post', file: 'General'), '" name="post" accesskey="s" class="button">
+		<input type="submit" value="', $editor_context['labels']['post_button'] ?? Lang::getTxt('post', file: 'General'), '" name="post" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span>';
 
 	// Include auto-save feature if drafts are enabled.
@@ -186,7 +172,7 @@ function template_control_verification(int|string $verify_id, string $display_ty
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
 					<a href="', $verify_context->image_href, ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', Lang::getTxt('visual_verification_sound', file: 'General'), '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', Lang::getTxt('visual_verification_request_new', file: 'General'), '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
 					', Lang::getTxt('visual_verification_description', file: 'General'), $display_type != 'quick_reply' ? '<br>' : '', '
-					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', Utils::$context['tabindex']++, '" autocomplete="off" required>
+					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" autocomplete="off" required>
 				</div>';
 			}
 
@@ -208,7 +194,7 @@ function template_control_verification(int|string $verify_id, string $display_ty
 				echo '
 				<div class="smalltext">
 					', $verify_context->questions[$qIndex]['q'], ':<br>
-					<input type="text" name="', $verify_id, '_vv[q][', $verify_context->questions[$qIndex]['id'], ']" size="30" value="', $verify_context->questions[$qIndex]['a'], '" ', $verify_context->questions[$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' tabindex="', Utils::$context['tabindex']++, '" required>
+					<input type="text" name="', $verify_id, '_vv[q][', $verify_context->questions[$qIndex]['id'], ']" size="30" value="', $verify_context->questions[$qIndex]['a'], '" ', $verify_context->questions[$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' required>
 				</div>';
 		}
 

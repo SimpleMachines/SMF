@@ -38,7 +38,7 @@ function template_main()
 	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
 	if (Utils::$context['make_poll'])
 		echo '
-			var pollOptionNum = 0, pollTabIndex;
+			var pollOptionNum = 0;
 			var pollOptionId = ', Utils::$context['last_choice_id'], ';
 			function addPollOption()
 			{
@@ -48,7 +48,6 @@ function template_main()
 						if (document.forms.postmodify.elements[i].id.substr(0, 8) == \'options-\')
 						{
 							pollOptionNum++;
-							pollTabIndex = document.forms.postmodify.elements[i].tabIndex;
 						}
 				}
 				pollOptionNum++
@@ -160,7 +159,7 @@ function template_main()
 							<dl class="settings poll_options">
 								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
-									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" tabindex="', Utils::$context['tabindex']++, '" size="80">
+									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" size="80">
 								</dd>';
 
 		// Loop through all the choices and print them out.
@@ -170,7 +169,7 @@ function template_main()
 									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']], file: 'Post'), '</label>
 								</dt>
 								<dd>
-									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="255">
+									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" size="80" maxlength="255">
 								</dd>';
 
 		echo '
@@ -968,7 +967,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">';
+			echo '>';
 		}
 		// textarea
 		elseif ($pf['input']['type'] === 'textarea')
@@ -995,7 +994,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
+			echo '>', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
 		}
 		// Select menus are more complicated
 		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options']))
@@ -1021,7 +1020,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">';
+			echo '>';
 
 			// The options
 			foreach ($pf['input']['options'] as $optlabel => $option)
@@ -1128,7 +1127,7 @@ function template_post_header()
 						echo ' ', $attribute, '="', $value, '"';
 				}
 
-				echo ' tabindex="', Utils::$context['tabindex']++, '"> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
+				echo '> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
 			}
 
 			echo '

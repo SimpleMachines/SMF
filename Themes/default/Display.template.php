@@ -209,7 +209,7 @@ function template_main()
 	// Show the topic information - icon, subject, etc.
 	echo '
 		<div id="forumposts">
-			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\') : false">';
+			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm">';
 
 	Utils::$context['ignoredMsgs'] = array();
 	Utils::$context['removableMessageIDs'] = array();
@@ -327,30 +327,16 @@ function template_main()
 	}
 
 	echo '
-				var oQuickModify = new QuickModify({
+				new QuickModify({
 					sScriptUrl: smf_scripturl,
+					sFormName: \'quickModForm\',
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
-					sTemplateBodyEdit: ', Utils::escapeJavaScript('
-						<div id="quick_edit_body_container">
-							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" tabindex="' . Utils::$context['tabindex']++ . '">%body%</textarea><br>
-							<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-							<input type="hidden" name="topic" value="' . Utils::$context['current_topic'] . '">
-							<input type="hidden" name="msg" value="%msg_id%">
-							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . Lang::getTxt('save', file: 'General') . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::getTxt('spell_check', file: 'General') . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::getTxt('modify_cancel', file: 'General') . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
-							</div>
-						</div>'), ',
-					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
-					sTemplateBodyNormal: ', Utils::escapeJavaScript('%body%'), ',
-					sTemplateSubjectNormal: ', Utils::escapeJavaScript('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
-					sTemplateTopSubject: ', Utils::escapeJavaScript('%subject%'), ',
-					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General') . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
-					sTemplateReasonNormal: ', Utils::escapeJavaScript('%modify_text'), ',
-					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), (Utils::$context['can_reply']) ? ',
-					sFormRemoveAccessKeys: \'postmodify\'' : '', '
+					sSaveButtonText: ', Utils::escapeJavaScript(Lang::getTxt('save', file: 'General')), ',
+					sCancelButtonText: ', Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')), ',
+					sEditReasonText: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General')) . ',
+					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), '
 				});
 
 				new JumpTo({
@@ -938,7 +924,7 @@ function template_quickreply()
 								', Lang::getTxt('name', file: 'General'), '
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" required>
 							</dd>';
 
 		if (empty(Config::$modSettings['guest_post_no_email']))
@@ -948,7 +934,7 @@ function template_quickreply()
 								', Lang::getTxt('email', file: 'General'), '
 							</dt>
 							<dd>
-								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" required>
 							</dd>';
 		}
 
