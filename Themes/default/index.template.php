@@ -53,6 +53,29 @@ function template_init()
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	Theme::$current->settings['theme_version'] = '2.1';
 
+	/*
+	 * Whether this theme supports a dark mode.
+	 *
+	 * Set this to `false` to disable.
+	 * 
+	 * A not so trivial note:
+	 * A 'dark' theme with dark mode is exactly the same as a 'light'
+	 * theme with dark mode. This means the index.css file should
+	 * always contain the light colors.
+	 */
+	Theme::$current->settings['has_dark_mode'] = false;
+
+	/*
+	 * Define the theme variants. Each variant has its own CSS file.
+	 *
+	 * Example:
+	 * - index_red.css is loaded when the user selects the `red` variant.
+	 * 
+	 * Additionally, a variants.css file is always loaded as well, in
+	 * case you'd rather keep the styles in a single file or they're minimal.
+	 */
+	Theme::$current->settings['theme_variants'] = [];
+
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
 
@@ -76,7 +99,7 @@ function template_init()
 	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
 	if (!isset(Theme::$current->settings['disable_files']))
-		Theme::$current->settings['disable_files'] = array();
+		Theme::$current->settings['disable_files'] = [];
 }
 
 /**
@@ -86,7 +109,8 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?? 'light') . '' : '', '>
+
 <head>
 	<meta charset="UTF-8">';
 
