@@ -417,22 +417,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::getTxt('view_profile', file: 'General')), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '"><span class="main_icons members"></span></a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
+							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span></a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
+							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow"><span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span></a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span> ' : Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '</a></li>';
+							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '"><span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span></a></li>';
 
 			echo '
 						</ol>
@@ -1027,7 +1027,7 @@ function template_send()
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
 					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">';
+						<input type="text" name="to" id="to_control" value="', Utils::$context['to_value'], '" size="20">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
@@ -1046,7 +1046,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', trim(Lang::getTxt('pm_bcc', ['list' => ''], file: 'PersonalMessage')), '</span>
 					</dt>
 					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">
+						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" size="20">
 						<div id="bcc_item_list_container"></div>
 					</dd>';
 
@@ -1056,7 +1056,7 @@ function template_send()
 						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>';
 

@@ -443,6 +443,14 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		// Database names can not have periods, just complicates things.
+		if (strpos(Maintenance::$context['db']['name'], '.') !== false) {
+			Maintenance::$fatal_error = Lang::getTxt('db_settings_database_invalid', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
+
 		// Take care of these variables...
 		$vars = [
 			'db_type' => $db_type,
@@ -722,6 +730,16 @@ class Install extends ToolsBase implements ToolsInterface
 			'table_dups' => 0,
 			'insert_dups' => 0,
 		];
+
+		// Some initialization may exist.
+		Db::$db->disableQueryCheck = true;
+
+		foreach (Table::getInitializers($this->schema_version, Db::$db->Title) as $query) {
+			Db::$db->query($query, [
+				'security_override' => true,
+			]);
+		}
+		Db::$db->disableQueryCheck = false;
 
 		foreach ($install_tables as $table) {
 			$this->logProgress(Lang::getTxt('log_table_create', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);

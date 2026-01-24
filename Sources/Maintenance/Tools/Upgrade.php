@@ -162,6 +162,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
+			Migration\v3_0\PostgreSqlFunctions::class,
 			Migration\v3_0\ConvertToInnoDb::class,
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,

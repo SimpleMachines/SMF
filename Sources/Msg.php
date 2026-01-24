@@ -1742,7 +1742,7 @@ class Msg implements \ArrayAccess, Routable
 			$edit_history = (array) Utils::jsonDecode($edit_history ?? '[]', true);
 			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
 
-			if ($msgOptions['body'] != $msgOptions['old_body']) {
+			if ($msgOptions['body'] != $msgOptions['old_body'] || $edit_history === []) {
 				// Body changed, so make a new diff.
 				$msgOptions['modify_time'] = (string) ($msgOptions['modify_time'] ?? time());
 				$msgOptions['modify_id'] = (int) ($msgOptions['modify_id'] ?? 0);

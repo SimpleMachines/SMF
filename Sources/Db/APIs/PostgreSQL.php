@@ -1547,7 +1547,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Default values and such are inapplicable to generated columns.
 		if (isset($column_info['generation_expression'])) {
-			$column_info['drop_default'] = true;
+			$column_info['drop_default'] = !isset($old_info['generation_expression']);
 			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
 		}
 
@@ -1630,6 +1630,16 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				);
 			}
 
+			if (isset($old_info['generation_expression'])) {
+				$this->query(
+					'ALTER TABLE ' . $short_table_name . '
+					ALTER COLUMN ' . $column_info['name'] . ' DROP EXPRESSION',
+					[
+						'security_override' => true,
+					],
+				);
+			}
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
 				DROP COLUMN ' . $column_info['name'],
@@ -1675,7 +1685,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Is it null - or otherwise?
 		// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
-		if ($column_info['not_null']) {
+		if (isset($column_info['not_null'])) {
 			$action = 'SET NOT NULL';
 		} else {
 			$action = 'DROP NOT NULL';

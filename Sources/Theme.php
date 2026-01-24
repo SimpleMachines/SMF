@@ -186,7 +186,7 @@ class Theme
 		}
 
 		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['menu_separator'] = ' ';
 		Utils::$context['session_var'] = $_SESSION['session_var'];
 		Utils::$context['session_id'] = $_SESSION['session_value'];
 		Utils::$context['forum_name'] = Config::$mbname;
@@ -2140,6 +2140,30 @@ class Theme
 	 */
 	protected function loadCss(): void
 	{
+		// Load FontAwesome
+		$FontAwesomeUrls = [
+			'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/' . FONTAWESOME_VERSION . '/css/all.min.css',
+			'fontawesome_cdn' => 'https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css',
+		];
+
+		if (isset(Config::$modSettings['fontawesome_source']) && \array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
+			self::loadCSSFile($FontAwesomeUrls[Config::$modSettings['fontawesome_source']], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] == 'local') {
+			self::loadCSSFile('fontawesome.min.css', ['default_theme' => true, 'minimize' => true, 'order_pos' => -100], 'smf_fontawesome');
+		} elseif (isset(Config::$modSettings['fontawesome_source'], Config::$modSettings['fontawesome_custom']) && Config::$modSettings['fontawesome_source'] == 'custom') {
+			self::loadCSSFile(Config::$modSettings['fontawesome_custom'], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+		// Fall back to the fa forum default
+		else {
+			self::loadCSSFile('https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css', ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
+		}
+
+		// Icons
+		self::loadCSSFile('icons.css', ['minimize' => true, 'order_pos' => -200], 'smf_icons');
+
+		// Variables
+		self::loadCSSFile('variables.css', ['minimize' => true, 'order_pos' => -2], 'smf_variables');
+
 		// And of course, let's load the default CSS file.
 		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
 
@@ -2158,6 +2182,47 @@ class Theme
 	}
 
 	/**
+	 * Loads the theme mode, if applicable.
+	 */
+	protected function loadMode(): void
+	{
+		Utils::$context['theme_colormode'] = '';
+
+		if (!empty($this->settings['has_dark_mode'])) {
+			// Theme Modes
+			$this->settings['theme_colormodes'] = ['light', 'system', 'dark'];
+
+			// Overriding - for previews and that ilk.
+			if (!empty($_REQUEST['mode'])) {
+				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
+			}
+
+			// User selection?
+			if (empty($this->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum')) {
+				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && \in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
+			}
+
+			// If no color mode, set a default
+			if (empty(Utils::$context['theme_colormode']) || !\in_array(Utils::$context['theme_colormode'], $this->settings['theme_colormodes'])) {
+				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && \in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
+			}
+
+			self::loadCSSFile('dark.css', ['order_pos' => 2, 'attributes' => (Utils::$context['theme_colormode'] == 'system' ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
+		}
+	}
+
+	/**
 	 * Loads the correct theme variant, if applicable.
 	 */
 	protected function loadVariant(): void
@@ -2167,10 +2232,33 @@ class Theme
 		Utils::$context['theme_variant_url'] = '';
 
 		if (!empty($this->settings['theme_variants'])) {
+			// Add the default variant
+			$this->settings['theme_variants'] = array_unique(array_merge(['default'], $this->settings['theme_variants']));
+
 			// Overriding - for previews and that ilk.
 			if (!empty($_REQUEST['variant'])) {
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
 			}
+
+			/*
+			 * Attempt to load a variants file for variable overriding
+			 * using data attribute (:root[data-variant="variant"])
+			 *
+			 * This is useful when you only want a single file for
+			 * recoloring the variants.
+			 */
+			self::loadCSSFile('variants.css', ['order_pos' => 0], 'smf_variants');
 
 			// User selection?
 			if (empty($this->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum')) {
@@ -2180,18 +2268,6 @@ class Theme
 			// If not a user variant, select the default.
 			if (Utils::$context['theme_variant'] == '' || !\in_array(Utils::$context['theme_variant'], $this->settings['theme_variants'])) {
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && \in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
-			}
-
-			// Do this to keep things easier in the templates.
-			Utils::$context['theme_variant'] = '_' . Utils::$context['theme_variant'];
-			Utils::$context['theme_variant_url'] = Utils::$context['theme_variant'] . '/';
-
-			if (!empty(Utils::$context['theme_variant'])) {
-				self::loadCSSFile('index' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index' . Utils::$context['theme_variant']);
-
-				if (Utils::$context['right_to_left']) {
-					self::loadCSSFile('rtl' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl' . Utils::$context['theme_variant']);
-				}
 			}
 		}
 	}

@@ -860,7 +860,7 @@ class Calendar implements ActionInterface, Routable
 		$occurrences = [];
 
 		$one_day = new \DateInterval('P1D');
-		$tz = new \DateTimeZone(User::getTimezone());
+		$tz = TimeZone::create(User::getTimezone());
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
 		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {

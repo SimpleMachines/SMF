@@ -509,7 +509,7 @@ class Logging
 			];
 		}
 
-		$date = (new \DateTime('now', new \DateTimeZone(Config::$modSettings['default_timezone'])))->format('Y-m-d');
+		$date = (new \DateTime('now', TimeZone::create(Config::$modSettings['default_timezone'])))->format('Y-m-d');
 
 		// No entry exists for today yet?
 		if (!isset(Config::$modSettings['mostOnlineUpdated']) || Config::$modSettings['mostOnlineUpdated'] != $date) {

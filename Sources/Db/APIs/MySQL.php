@@ -172,7 +172,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
 			// Clear out escaped backslashes & single quotes first, to make it simpler to ID & remove string literals
-			$clean = str_replace(array('\\\\', '\\\'', '\'\''), array('', '', ''), $db_string);
+			$clean = str_replace(['\\\\', '\\\'', '\'\''], ['', '', ''], $db_string);
 			$clean = trim(strtolower(preg_replace(
 				$allowed_comments_from,
 				$allowed_comments_to,

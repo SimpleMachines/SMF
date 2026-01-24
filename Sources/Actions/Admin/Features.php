@@ -1545,11 +1545,11 @@ class Features implements ActionInterface
 				'select',
 				'jquery_source',
 				[
-					'cdn' => Lang::getTxt('jquery_google_cdn', file: 'ManageSettings'),
-					'cloudflare_cdn' => Lang::getTxt('jquery_cloudflare_cdn', file: 'ManageSettings'),
-					'jquery_cdn' => Lang::getTxt('jquery_jquery_cdn', file: 'ManageSettings'),
-					'microsoft_cdn' => Lang::getTxt('jquery_microsoft_cdn', file: 'ManageSettings'),
-					'local' => Lang::getTxt('jquery_local', file: 'ManageSettings'),
+					'cdn' => Lang::getTxt('google_cdn', file: 'ManageSettings'),
+					'cloudflare_cdn' => Lang::getTxt('cloudflare_cdn', file: 'ManageSettings'),
+					'jquery_cdn' => Lang::getTxt('jquery_cdn', file: 'ManageSettings'),
+					'microsoft_cdn' => Lang::getTxt('microsoft_cdn', file: 'ManageSettings'),
+					'local' => Lang::getTxt('local_cdn', file: 'ManageSettings'),
 					'custom' => Lang::getTxt('jquery_custom', file: 'ManageSettings'),
 				],
 				'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}',
@@ -1558,6 +1558,24 @@ class Features implements ActionInterface
 				'text',
 				'jquery_custom',
 				'disabled' => !isset(Config::$modSettings['jquery_source']) || (isset(Config::$modSettings['jquery_source']) && Config::$modSettings['jquery_source'] != 'custom'), 'size' => 75,
+			],
+
+			// FontAwesome source
+			[
+				'select',
+				'fontawesome_source',
+				[
+					'cdn' => Lang::getTxt('cloudflare_cdn', file: 'ManageSettings'),
+					'fontawesome_cdn' => Lang::getTxt('fontawesome_cdn', file: 'ManageSettings'),
+					'local' => Lang::getTxt('local_cdn', file: 'ManageSettings'),
+					'custom' => Lang::getTxt('fontawesome_custom', file: 'ManageSettings'),
+				],
+				'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'fontawesome_custom\').disabled = false; } else {document.getElementById(\'fontawesome_custom\').disabled = true;}',
+			],
+			[
+				'text',
+				'fontawesome_custom',
+				'disabled' => !isset(Config::$modSettings['fontawesome_source']) || (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] != 'custom'), 'size' => 75,
 			],
 			'',
 

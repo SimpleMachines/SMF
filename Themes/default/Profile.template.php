@@ -229,7 +229,7 @@ function template_summary()
 	// Don't show an icon if they haven't specified a website.
 	if (Utils::$context['member']['website']['url'] !== '' && !isset(Utils::$context['disabled_fields']['website']))
 		echo '
-				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
+				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span></a></li>';
 
 	// Are there any custom profile fields as icons?
 	if (!empty(Utils::$context['print_custom_fields']['icons']))
@@ -243,7 +243,7 @@ function template_summary()
 	echo '
 			</ul>
 			<span id="userstatus">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>' : Utils::$context['member']['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>' : '';
+				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>';
 
 	// Can they add this member as a buddy?
 	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner)

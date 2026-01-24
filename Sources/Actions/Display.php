@@ -225,7 +225,6 @@ class Display implements ActionInterface, Routable
 				'label' => Lang::getTxt('quick_edit', file: 'General'),
 				'class' => 'quick_edit',
 				'id' => 'modify_button_' . $output['id'],
-				'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
 				'icon' => 'quick_edit_button',
 				'show' => $output['can_modify'],
 			],
