@@ -75,6 +75,10 @@ if (!defined('SMF_SETTINGS_BACKUP_FILE')) {
 	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . DIRECTORY_SEPARATOR . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
 }
 
+if (!defined('FONTAWESOME_VERSION')) {
+	define('FONTAWESOME_VERSION', '7.1.0');
+}
+
 /*
  * 2. Load the Settings.php file.
  */
