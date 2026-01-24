@@ -266,7 +266,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="db_name_input">', Lang::$txt['db_settings_database'], ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30">
+					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30" pattern="^\w$">
 					<div class="smalltext">
 						', Lang::$txt['db_settings_database_info'], '
 						<span id="db_name_info_warning">', Lang::$txt['db_settings_database_info_note'], '</span>
