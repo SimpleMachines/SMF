@@ -407,21 +407,7 @@ function template_email_members_send()
 		</form>
 
 	<script>
-		var countdown = 2;
-		doAutoSubmit();
-
-		function doAutoSubmit()
-		{
-			if (countdown == 0)
-				document.forms.autoSubmit.submit();
-			else if (countdown == -1)
-				return;
-
-			document.forms.autoSubmit.b.value = "', Lang::getTxt('email_continue', file: 'Admin'), ' (" + countdown + ")";
-			countdown--;
-
-			setTimeout("doAutoSubmit();", 1000);
-		}
+		doAutoSubmit(2, "', Lang::getTxt('email_continue', file: 'Admin'), '");
 	</script>';
 }
 

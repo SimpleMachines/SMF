@@ -854,21 +854,7 @@ function template_announcement_send()
 	</div><!-- #announcement -->
 	<br>
 	<script>
-		var countdown = 2;
-		doAutoSubmit();
-
-		function doAutoSubmit()
-		{
-			if (countdown == 0)
-				document.forms.autoSubmit.submit();
-			else if (countdown == -1)
-				return;
-
-			document.forms.autoSubmit.b.value = "', Lang::getTxt('announce_continue', file: 'Post'), ' (" + countdown + ")";
-			countdown--;
-
-			setTimeout(doAutoSubmit, 1000);
-		}
+		doAutoSubmit(2, "', Lang::getTxt('announce_continue', file: 'Post'), '");
 	</script>';
 }
 
