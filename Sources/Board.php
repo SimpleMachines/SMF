@@ -935,7 +935,15 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// Can we unload the category too?
-		if ($id > 0 && self::$loaded[$id]->cat?->id > 0 && array_filter(self::$loaded, fn($b) => $b->id !== $id && $b->cat?->id === self::$loaded[$id]->cat->id) === []) {
+		if (
+			$id > 0
+			&& isset(self::$loaded[$id]->cat)
+			&& self::$loaded[$id]->cat->id > 0
+			&& [] === array_filter(
+				self::$loaded,
+				fn($b) => $b->id !== $id && $b->cat?->id === self::$loaded[$id]->cat->id,
+			)
+		) {
 			Category::unload(self::$loaded[$id]->cat->id);
 		}
 
