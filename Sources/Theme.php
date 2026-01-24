@@ -2158,6 +2158,47 @@ class Theme
 	}
 
 	/**
+	 * Loads the theme mode, if applicable.
+	 */
+	protected function loadMode(): void
+	{
+		Utils::$context['theme_colormode'] = '';
+
+		if (!empty($this->settings['has_dark_mode'])) {
+			// Theme Modes
+			$this->settings['theme_colormodes'] = ['light', 'system', 'dark'];
+
+			// Overriding - for previews and that ilk.
+			if (!empty($_REQUEST['mode'])) {
+				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
+			}
+
+			// User selection?
+			if (empty($this->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum')) {
+				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && \in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
+			}
+
+			// If no color mode, set a default
+			if (empty(Utils::$context['theme_colormode']) || !\in_array(Utils::$context['theme_colormode'], $this->settings['theme_colormodes'])) {
+				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && \in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
+			}
+
+			self::loadCSSFile('dark.css', ['order_pos' => 2, 'attributes' => (Utils::$context['theme_colormode'] == 'system' ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
+		}
+	}
+
+	/**
 	 * Loads the correct theme variant, if applicable.
 	 */
 	protected function loadVariant(): void
@@ -2167,10 +2208,33 @@ class Theme
 		Utils::$context['theme_variant_url'] = '';
 
 		if (!empty($this->settings['theme_variants'])) {
+			// Add the default variant
+			$this->settings['theme_variants'] = array_unique(array_merge(['default'], $this->settings['theme_variants']));
+
 			// Overriding - for previews and that ilk.
 			if (!empty($_REQUEST['variant'])) {
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
+
+				// If the user is logged, save this to their profile
+				if (User::$me->is_logged && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
+					Db::$db->insert(
+						'replace',
+						'{db_prefix}themes',
+						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
+						[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']],
+						['id_theme', 'id_member', 'variable'],
+					);
+				}
 			}
+
+			/*
+			 * Attempt to load a variants file for variable overriding
+			 * using data attribute (:root[data-variant="variant"])
+			 *
+			 * This is useful when you only want a single file for
+			 * recoloring the variants.
+			 */
+			self::loadCSSFile('variants.css', ['order_pos' => 0], 'smf_variants');
 
 			// User selection?
 			if (empty($this->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum')) {
@@ -2180,18 +2244,6 @@ class Theme
 			// If not a user variant, select the default.
 			if (Utils::$context['theme_variant'] == '' || !\in_array(Utils::$context['theme_variant'], $this->settings['theme_variants'])) {
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && \in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
-			}
-
-			// Do this to keep things easier in the templates.
-			Utils::$context['theme_variant'] = '_' . Utils::$context['theme_variant'];
-			Utils::$context['theme_variant_url'] = Utils::$context['theme_variant'] . '/';
-
-			if (!empty(Utils::$context['theme_variant'])) {
-				self::loadCSSFile('index' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 300], 'smf_index' . Utils::$context['theme_variant']);
-
-				if (Utils::$context['right_to_left']) {
-					self::loadCSSFile('rtl' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 4200], 'smf_rtl' . Utils::$context['theme_variant']);
-				}
 			}
 		}
 	}
