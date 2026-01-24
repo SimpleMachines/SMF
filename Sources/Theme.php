@@ -2146,7 +2146,7 @@ class Theme
 			'fontawesome_cdn' => 'https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css',
 		];
 
-		if (isset(Config::$modSettings['fontawesome_source']) && array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
+		if (isset(Config::$modSettings['fontawesome_source']) && \array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
 			self::loadCSSFile($FontAwesomeUrls[Config::$modSettings['fontawesome_source']], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
 		} elseif (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] == 'local') {
 			self::loadCSSFile('fontawesome.min.css', ['default_theme' => true, 'minimize' => true, 'order_pos' => -100], 'smf_fontawesome');
