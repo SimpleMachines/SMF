@@ -1841,11 +1841,11 @@ class TimeZone extends \DateTimeZone
 	 * @param string $timezone One of the supported timezone names , an offset value (+0200), or a timezone abbreviation (BST).
 	 * @return bool|\DateTimeZone Returns DateTimeZone on success. Procedural style returns `false` on failure.
 	 */
-	public static function create(string $timezone): bool|\DateTimeZone {
+	public static function create(string $timezone): bool|\DateTimeZone
+	{
 		try {
 			return new \DateTimeZone($timezone);
-		}
-		catch (\Exception $ex) {
+		} catch (\Exception $ex) {
 			return new \DateTimeZone(Config::$modSettings['default_timezone']);
 		}
 	}
