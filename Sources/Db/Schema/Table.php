@@ -592,4 +592,30 @@ class Table
 
 		return $tables;
 	}
+
+	/**
+	 * Gets all known table schemas.
+	 *
+	 * @return array All known table schemas.
+	 */
+	final public static function getInitializers(string $schema_version, string $title): array
+	{
+		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . $title . '.php')) {
+
+			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . $title;
+
+			if (!class_exists($fully_qualified_class_name)) {
+				return [];
+			}
+
+			/**
+			 * @var \SMF\Db\Schema\v3_0\Initialize\Base
+			 */
+			$intializer = new $fully_qualified_class_name(Db::$db->get_version());
+
+			return $intializer->getAll();
+		}
+
+		return [];
+	}
 }

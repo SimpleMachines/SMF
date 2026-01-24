@@ -731,6 +731,16 @@ class Install extends ToolsBase implements ToolsInterface
 			'insert_dups' => 0,
 		];
 
+		// Some initialization may exist.
+		Db::$db->disableQueryCheck = true;
+
+		foreach (Table::getInitializers($this->schema_version, Db::$db->Title) as $query) {
+			Db::$db->query($query, [
+				'security_override' => true,
+			]);
+		}
+		Db::$db->disableQueryCheck = false;
+
 		foreach ($install_tables as $table) {
 			$this->logProgress(Lang::getTxt('log_table_create', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);
 
