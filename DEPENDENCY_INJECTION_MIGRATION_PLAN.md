@@ -219,33 +219,33 @@ interface UrlServiceInterface {
 
 ## Implementation Roadmap
 
-### Stage 1: Foundation (Weeks 1-2)
+### Stage 1: Foundation
 - [ ] Create service interfaces in `Sources/Services/`
 - [ ] Implement `ConfigService`
 - [ ] Implement `ModSettingsService`
 - [ ] Update `Container::init()` to register new services
 - [ ] Create service provider pattern for cleaner registration
 
-### Stage 2: Context Breakdown (Weeks 3-5)
+### Stage 2: Context Breakdown
 - [ ] Implement `AssetService`
 - [ ] Implement `PageContextService`
 - [ ] Implement `TemplateContextService`
 - [ ] Create facade layer in `Utils::$context` to delegate to services
 - [ ] Update 2-3 high-traffic Actions to use DI
 
-### Stage 3: Path & URL Services (Weeks 6-7)
+### Stage 3: Path & URL Services
 - [ ] Implement `PathService`
 - [ ] Implement `UrlService`
 - [ ] Refactor file inclusion patterns
 - [ ] Refactor URL generation patterns
 
-### Stage 4: Gradual Migration (Weeks 8-16)
+### Stage 4: Gradual Migration
 - [ ] Migrate Admin actions (high value, contained scope)
 - [ ] Migrate Profile actions
 - [ ] Migrate Board/Topic actions
 - [ ] Update templates to use service-provided data
 
-### Stage 5: Testing & Refinement (Weeks 17-20)
+### Stage 5: Testing & Refinement
 - [ ] Comprehensive unit tests for all services
 - [ ] Integration tests for DI container
 - [ ] Performance benchmarking
@@ -521,7 +521,7 @@ class ModSettingsService implements ModSettingsServiceInterface
 
 ## Backward Compatibility Strategy
 
-### Phase 1: Dual Access (Months 1-6)
+### Phase 1: Dual Access
 Both old and new patterns work simultaneously:
 ```php
 // Old way - still works
@@ -531,7 +531,7 @@ $value = Config::$modSettings['setting'];
 $value = $this->modSettings->get('setting');
 ```
 
-### Phase 2: Deprecation Warnings (Months 7-12)
+### Phase 2: Deprecation Warnings
 Add deprecation notices to static access:
 ```php
 class Config
@@ -549,7 +549,7 @@ class Config
 }
 ```
 
-### Phase 3: Migration Complete (Month 13+)
+### Phase 3: Migration Complete
 Remove static properties, keep only service-based access.
 
 ---
@@ -642,14 +642,12 @@ class ContainerTest extends TestCase
 
 ## Performance Considerations
 
-### Benchmarking Results (Expected)
+### Expected Performance Impact
 
-| Access Pattern | Operations/sec | Memory | Notes |
-|---------------|----------------|--------|-------|
-| Direct static access | ~10M | Baseline | Current approach |
-| Service via DI | ~9.5M | +0.1KB | Negligible overhead |
-| Service via container | ~8M | +0.5KB | Acceptable for non-hot paths |
-| Helper function | ~7.5M | +1KB | Convenience vs performance |
+The overhead of dependency injection is minimal when properly implemented:
+- **Constructor injection**: Negligible overhead (services resolved once)
+- **Container resolution**: Small overhead (acceptable for non-hot paths)
+- **Helper functions**: Slight overhead (convenience vs performance trade-off)
 
 **Recommendation:** Use constructor injection for hot paths, helper functions for legacy code.
 
@@ -728,24 +726,24 @@ echo $context['services']['urls']->action('profile', ['u' => $user_id]);
 
 ---
 
-## Success Metrics
+## Success Criteria
 
-### Code Quality Metrics
-- [ ] Reduce static property access by 80%
-- [ ] Increase test coverage to 70%+
+### Code Quality Goals
+- [ ] Significantly reduce static property access
+- [ ] Increase test coverage
 - [ ] Zero new static property additions
 - [ ] All new Actions use DI
 
-### Performance Metrics
-- [ ] Page load time impact < 5%
-- [ ] Memory usage increase < 10%
+### Performance Goals
+- [ ] Minimal page load time impact
+- [ ] Minimal memory usage increase
 - [ ] No degradation in database query performance
 
-### Developer Experience
-- [ ] Onboarding documentation complete
+### Developer Experience Goals
+- [ ] Complete onboarding documentation
 - [ ] IDE autocomplete works for all services
 - [ ] Clear migration examples for each pattern
-- [ ] Positive team feedback on new patterns
+- [ ] Positive feedback on new patterns
 
 ---
 
@@ -759,10 +757,10 @@ This migration plan provides a structured, gradual approach to modernizing SMF3'
 4. **Providing clear examples** for each migration scenario
 5. **Ensuring testability** with comprehensive test coverage
 
-The migration will span approximately 20 weeks, with each phase building on the previous one. The end result will be a more maintainable, testable, and modern codebase that's easier to extend and debug.
+The migration can be executed incrementally, with each phase building on the previous one. The end result will be a more maintainable, testable, and modern codebase that's easier to extend and debug.
 
 **Next Steps:**
-1. Review and approve this plan
+1. Review this plan
 2. Create initial service interfaces
 3. Implement first service (ModSettingsService)
 4. Migrate one Action as proof of concept

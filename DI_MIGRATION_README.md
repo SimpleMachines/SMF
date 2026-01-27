@@ -9,8 +9,8 @@ This directory contains comprehensive documentation for migrating SMF3 from stat
 1. **[DI_MIGRATION_SUMMARY.md](DI_MIGRATION_SUMMARY.md)** - Start here!
    - Executive summary
    - Quick overview of the problem and solution
-   - High-level timeline and benefits
-   - Best for: Management, stakeholders, quick overview
+   - High-level overview and benefits
+   - Best for: Quick overview
 
 2. **[DEPENDENCY_INJECTION_MIGRATION_PLAN.md](DEPENDENCY_INJECTION_MIGRATION_PLAN.md)** - Complete technical plan
    - Detailed service interfaces and implementations
@@ -40,16 +40,11 @@ This directory contains comprehensive documentation for migrating SMF3 from stat
 
 Use the [Quick Reference](DI_MIGRATION_QUICK_REFERENCE.md) to verify migrations follow the correct patterns.
 
-### For Project Managers
-
-The [Summary](DI_MIGRATION_SUMMARY.md) provides timeline, resources, and success metrics.
-
 ## 📊 Key Statistics
 
 - **Total static/global usages**: ~8,300+
 - **Highest priority**: `Utils::$context` (5,733 usages)
 - **Second priority**: `Config::$modSettings` (2,270 usages)
-- **Estimated timeline**: 20 weeks
 - **Risk level**: Low (backward compatible approach)
 
 ## 🏗️ Architecture Overview
@@ -66,11 +61,11 @@ Static Variables (Current)          Services (Target)
 
 ## 🚀 Migration Phases
 
-1. **Foundation** (Weeks 1-2): Create service interfaces and core services
-2. **Context Breakdown** (Weeks 3-5): Split Utils::$context into focused services
-3. **Supporting Services** (Weeks 6-7): Path and URL services
-4. **Gradual Migration** (Weeks 8-16): Migrate Actions and components
-5. **Testing & Refinement** (Weeks 17-20): Comprehensive testing
+1. **Foundation**: Create service interfaces and core services
+2. **Context Breakdown**: Split Utils::$context into focused services
+3. **Supporting Services**: Path and URL services
+4. **Gradual Migration**: Migrate Actions and components
+5. **Testing & Refinement**: Comprehensive testing
 
 ## 💡 Example Migration
 
@@ -91,7 +86,7 @@ class ProfileAction {
         private ModSettingsServiceInterface $modSettings,
         private PageContextServiceInterface $pageContext
     ) {}
-    
+
     public function execute() {
         $username = $this->modSettings->getString('default_username');
         $this->pageContext->setPageTitle('Profile');
@@ -114,13 +109,6 @@ class ProfileAction {
 - **Injection**: Constructor injection (preferred)
 - **Backward Compatibility**: Helper functions during transition
 
-## 📈 Success Metrics
-
-- Reduce static property access by 80%
-- Increase test coverage to 70%+
-- Page load time impact < 5%
-- All new code uses DI
-
 ## 🤝 Contributing
 
 When migrating code:
@@ -142,12 +130,10 @@ When migrating code:
 - [x] Create comprehensive migration plan
 - [ ] Implement proof of concept (ModSettingsService)
 - [ ] Migrate first Action as example
-- [ ] Roll out to team
-- [ ] Execute full migration plan
+- [ ] Execute gradual migration
 
 ---
 
 **Last Updated**: 2026-01-27
 **Status**: Planning Phase
-**Next Milestone**: Proof of Concept
 
