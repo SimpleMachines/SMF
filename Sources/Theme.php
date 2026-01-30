@@ -507,25 +507,34 @@ class Theme
 	public static function loadSubTemplate(string|array $sub_template_name, bool|string $fatal = false): void
 	{
 		$template_name = \is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
+		$function_params = \is_array($sub_template_name) ? ($sub_template_name[1] ?? []) : [];
 
 		// Add the sub-template to the debug context if debugging is enabled.
 		if (DebugUtils::isDebugEnabled()) {
 			DebugUtils::addDebugSource('sub_templates', $template_name);
 		}
 
-		// Determine the template function name and any associated parameters.
-		if (\is_array($sub_template_name)) {
-			$theme_function = 'template_' . $sub_template_name[0];
-			$function_params = $sub_template_name[1] ?? [];
-		} else {
-			$theme_function = 'template_' . $sub_template_name;
-			$function_params = [];
+		$template_loaded = false;
+
+		if (\is_string($template_name) && \str_contains($template_name, '::')) {
+			$template_name = \preg_replace_callback(
+				'/(#?)_(above|below)$/i',
+				fn($m) => \ucfirst($m[2]) . $m[1],
+				$template_name
+			);
+
+			if ($callable = Utils::getCallable($template_name, true)) {
+				\call_user_func_array($callable, $function_params);
+				$template_loaded = true;
+			}
 		}
 
-		// Attempt to call the sub-template function.
-		if (\is_callable($theme_function)) {
-			\call_user_func_array($theme_function, $function_params);
-		} else {
+		if (!$template_loaded && ($callable = Utils::getCallable('template_' . $template_name, true))) {
+			\call_user_func_array($callable, $function_params);
+			$template_loaded = true;
+		}
+
+		if (!$template_loaded) {
 			// Handle errors based on the $fatal parameter.
 			if ($fatal === false) {
 				ErrorHandler::fatalLang(

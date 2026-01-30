@@ -1505,10 +1505,8 @@ function template_edit_options()
 
 		elseif ($field['type'] == 'callback')
 		{
-			if (isset($field['callback_func']) && function_exists('template_profile_' . $field['callback_func']))
-			{
-				$callback_func = 'template_profile_' . $field['callback_func'];
-				$callback_func();
+			if (!empty($field['callback_func'])) {
+				Utils::callTemplateCallback($field['callback_func'], 'template_profile_');
 			}
 		}
 		else
