@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ad84b2ae41aefc2e964d387bb0c63a4",
+    "content-hash": "5823b2a7cf19f1a61adb6cc87587aa01",
     "packages": [
         {
             "name": "bjeavons/zxcvbn-php",
@@ -113,6 +113,88 @@
                 "source": "https://github.com/google/recaptcha"
             },
             "time": "2025-06-26T22:21:57+00:00"
+        },
+        {
+            "name": "league/container",
+            "version": "4.2.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/container.git",
+                "reference": "d3cebb0ff4685ff61c749e54b27db49319e2ec00"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/container/zipball/d3cebb0ff4685ff61c749e54b27db49319e2ec00",
+                "reference": "d3cebb0ff4685ff61c749e54b27db49319e2ec00",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0",
+                "psr/container": "^1.1 || ^2.0"
+            },
+            "provide": {
+                "psr/container-implementation": "^1.0"
+            },
+            "replace": {
+                "orno/di": "~2.0"
+            },
+            "require-dev": {
+                "nette/php-generator": "^3.4",
+                "nikic/php-parser": "^4.10",
+                "phpstan/phpstan": "^0.12.47",
+                "phpunit/phpunit": "^8.5.17",
+                "roave/security-advisories": "dev-latest",
+                "scrutinizer/ocular": "^1.8",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev",
+                    "dev-2.x": "2.x-dev",
+                    "dev-3.x": "3.x-dev",
+                    "dev-4.x": "4.x-dev",
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Container\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Phil Bennett",
+                    "email": "mail@philbennett.co.uk",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A fast and intuitive dependency injection container.",
+            "homepage": "https://github.com/thephpleague/container",
+            "keywords": [
+                "container",
+                "dependency",
+                "di",
+                "injection",
+                "league",
+                "provider",
+                "service"
+            ],
+            "support": {
+                "issues": "https://github.com/thephpleague/container/issues",
+                "source": "https://github.com/thephpleague/container/tree/4.2.5"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/philipobenito",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-05-20T12:55:37+00:00"
         },
         {
             "name": "matthiasmullie/minify",
@@ -236,6 +318,54 @@
                 "source": "https://github.com/matthiasmullie/path-converter/tree/1.1.3"
             },
             "time": "2019-02-05T23:41:09+00:00"
+        },
+        {
+            "name": "psr/container",
+            "version": "1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common Container Interface (PHP FIG PSR-11)",
+            "homepage": "https://github.com/php-fig/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/container/issues",
+                "source": "https://github.com/php-fig/container/tree/1.1.2"
+            },
+            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -720,16 +850,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.92.5",
+            "version": "v3.93.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58"
+                "reference": "b3546ab487c0762c39f308dc1ec0ea2c461fc21a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58",
-                "reference": "260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/b3546ab487c0762c39f308dc1ec0ea2c461fc21a",
+                "reference": "b3546ab487c0762c39f308dc1ec0ea2c461fc21a",
                 "shasum": ""
             },
             "require": {
@@ -761,14 +891,14 @@
             },
             "require-dev": {
                 "facile-it/paraunit": "^1.3.1 || ^2.7",
-                "infection/infection": "^0.31",
+                "infection/infection": "^0.32",
                 "justinrainbow/json-schema": "^6.6",
                 "keradus/cli-executor": "^2.3",
                 "mikey179/vfsstream": "^1.6.12",
                 "php-coveralls/php-coveralls": "^2.9",
                 "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.6",
                 "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.6",
-                "phpunit/phpunit": "^9.6.31 || ^10.5.60 || ^11.5.46",
+                "phpunit/phpunit": "^9.6.31 || ^10.5.60 || ^11.5.48",
                 "symfony/polyfill-php85": "^1.33",
                 "symfony/var-dumper": "^5.4.48 || ^6.4.26 || ^7.4.0 || ^8.0",
                 "symfony/yaml": "^5.4.45 || ^6.4.30 || ^7.4.1 || ^8.0"
@@ -812,7 +942,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.92.5"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.93.1"
             },
             "funding": [
                 {
@@ -820,7 +950,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-08T21:57:37+00:00"
+            "time": "2026-01-28T23:50:50+00:00"
         },
         {
             "name": "overtrue/phplint",
@@ -953,54 +1083,6 @@
                 "source": "https://github.com/php-fig/cache/tree/2.0.0"
             },
             "time": "2021-02-03T23:23:37+00:00"
-        },
-        {
-            "name": "psr/container",
-            "version": "1.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Container\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common Container Interface (PHP FIG PSR-11)",
-            "homepage": "https://github.com/php-fig/container",
-            "keywords": [
-                "PSR-11",
-                "container",
-                "container-interface",
-                "container-interop",
-                "psr"
-            ],
-            "support": {
-                "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
-            },
-            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -3001,16 +3083,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v5.4.47",
+            "version": "v5.4.51",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "5d1662fb32ebc94f17ddb8d635454a776066733d"
+                "reference": "467bfc56f18f5ef6d5ccb09324d7e988c1c0a98f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/5d1662fb32ebc94f17ddb8d635454a776066733d",
-                "reference": "5d1662fb32ebc94f17ddb8d635454a776066733d",
+                "url": "https://api.github.com/repos/symfony/process/zipball/467bfc56f18f5ef6d5ccb09324d7e988c1c0a98f",
+                "reference": "467bfc56f18f5ef6d5ccb09324d7e988c1c0a98f",
                 "shasum": ""
             },
             "require": {
@@ -3043,7 +3125,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v5.4.47"
+                "source": "https://github.com/symfony/process/tree/v5.4.51"
             },
             "funding": [
                 {
@@ -3055,11 +3137,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-06T11:36:42+00:00"
+            "time": "2026-01-26T15:53:37+00:00"
         },
         {
             "name": "symfony/service-contracts",
