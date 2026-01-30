@@ -33,7 +33,7 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * Rename here and in the exportStatic call at the end of the file.
+ * Class Tracking
  */
 class Tracking implements ActionInterface
 {

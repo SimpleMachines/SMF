@@ -22,46 +22,62 @@ use SMF\Db\DatabaseApi as Db;
  * Creates the editor input box so that people can write messages to post.
  *
  * Provides a configurable rich text editor with support for BBCodes, smileys,
- * and various toolbar customizations. Integrates with theme and language settings,
- * and supports plugin extensions via integration hooks.
+ * and various toolbar customizations. Integrates with theme and language
+ * settings, and supports plugin extensions via integration hooks.
  *
  * Supported options:
- *    - `id` (string): The unique identifier for the editor instance. Defaults to 'message'.
- *    - `value` (string): The initial value of the editor, with certain replacements for compatibility.
- *    - `disable_smiley_box` (bool): Whether to disable the smiley selection box. Default is false.
- *    - `columns` (int): Number of columns for the editor text area. Default is 60.
- *    - `rows` (int): Number of rows for the editor text area. Default is 18.
- *    - `width` (string): Width of the editor. Default is '100%'.
- *    - `height` (string): Height of the editor. Default is '250px'.
- *    - `form` (string): The form name associated with the editor. Default is 'postmodify'.
- *    - `preview_type` (int): The type of preview for the editor. Default is `self::PREVIEW_HTML`.
- *    - `labels` (array): Additional labels for customization.
- *    - `required` (bool): Indicates whether the editor input is required. Default is false.
- *    - `force_rich` (bool): Force the editor to start in rich text mode. Default is false.
- *       This option directly influences `$this->rich_active`, which determines if WYSIWYG mode is enabled.
- *    - `plugins` (array): List of additional plugins to be loaded. Defaults to an empty array if not set.
- *    - `disable_url_autolinking` (bool): If set, disables the autolinker plugin for URLs.
- *    - `options` (array): Additional SCEditor configuration options to be merged with default settings.
+ *  - `id` (string): The unique identifier for the editor instance.
+ *       Default: 'message'.
+ *  - `value` (string): The initial value of the editor, with certain replace-
+ *       ments for compatibility.
+ *  - `disable_smiley_box` (bool): Whether to disable the smiley selection box.
+ *       Default: false.
+ *  - `columns` (int): Number of columns for the editor text area.
+ *       Default: 60.
+ *  - `rows` (int): Number of rows for the editor text area.
+ *       Default: 18.
+ *  - `width` (string): Width of the editor.
+ *       Default: '100%'.
+ *  - `height` (string): Height of the editor.
+ *       Default: '250px'.
+ *  - `form` (string): The form name associated with the editor.
+ *       Default: 'postmodify'.
+ *  - `preview_type` (int): The type of preview for the editor.
+ *       Default: `self::PREVIEW_HTML`.
+ *  - `labels` (array): Additional labels for customization.
+ *  - `required` (bool): Indicates whether the editor input is required.
+ *       Default: false.
+ *  - `force_rich` (bool): Force the editor to start in rich text mode.
+ *       Default: false.
+ *       This option directly influences `$this->rich_active`, which determines
+ *       if WYSIWYG mode is enabled.
+ *  - `plugins` (array): List of additional plugins to be loaded.
+ *       Default: [].
+ *  - `disable_url_autolinking` (bool): If set, disables the autolinker plugin
+ *       for URLs.
+ *  - `options` (array): Additional SCEditor configuration options to be merged
+ *       with default settings.
  *
  * Custom SCEditor options:
- *    - `commandsWithDropdown`: Identifies buttons that use dropdown menus.
- *    - `textOnlyCommands`: Configures buttons to display text without icons.
- *    - `commandsWithText`: Configures buttons to show text alongside icons.
+ *  - `commandsWithDropdown`: Identifies buttons that use dropdown menus.
+ *  - `textOnlyCommands`: Configures buttons to display text without icons.
+ *  - `commandsWithText`: Configures buttons to show text alongside icons.
  *
  * Hooks:
- * - Hook: `integrate_sceditor_locale`
- * - Parameters:
+ *  - Hook: `integrate_sceditor_locale`
+ *  - Parameters:
  *   - `array &$translation_map`: Reference to the array of localization strings.
  *
- * - Hook: `integrate_sceditor_options`
- * - Parameters:
+ *  - Hook: `integrate_sceditor_options`
+ *  - Parameters:
  *   - `array &$this->sce_options`: Reference to the array of SCEditor options.
  *
- * - Hook: `integrate_bbc_buttons`
- * - Parameters:
- *   - `array &$bbc_tags`: Reference to the array of BBC tags.
- *   - `array &$editor_tag_map`: Reference to the mapping of BBC tags to SCEditor commands.
- *   - `array &$disabled_tags`: Reference to the array of disabled BBC tags.
+ *  - Hook: `integrate_bbc_buttons`
+ *  - Parameters:
+ *    - `array &$bbc_tags`: Reference to the array of BBC tags.
+ *    - `array &$editor_tag_map`: Reference to the mapping of BBC tags to
+ *         SCEditor commands.
+ *    - `array &$disabled_tags`: Reference to the array of disabled BBC tags.
  *
  * Example bbc tag array:
  * ```php
@@ -82,8 +98,10 @@ use SMF\Db\DatabaseApi as Db;
  * ```
  *
  * Notes:
- * - A blank array (`[]`) in the `bbc_tags` represents a separator between groups of buttons in the toolbar.
- * - The `editor_tag_map` is only used when the BBC tag and the SCEditor command differ.
+ * - A blank array (`[]`) in the `bbc_tags` represents a separator between
+ *   groups of buttons in the toolbar.
+ * - The `editor_tag_map` is only used when the BBC tag and the SCEditor command
+ *   differ.
  */
 class Editor implements \ArrayAccess, \Stringable
 {
@@ -206,32 +224,44 @@ class Editor implements \ArrayAccess, \Stringable
 	 **************************/
 
 	/**
-	 * @var array All loaded Editor instances, keyed by ID.
+	 * @var array
+	 *
+	 * All loaded Editor instances, keyed by ID.
 	 */
 	public static array $loaded = [];
 
 	/**
-	 * @var array BBC tags configuration for the toolbar.
+	 * @var array
+	 *
+	 * BBC tags configuration for the toolbar.
 	 */
 	public static array $bbc_tags = [];
 
 	/**
-	 * @var array Disabled BBC tags for this context.
+	 * @var array
+	 *
+	 * Disabled BBC tags for this context.
 	 */
 	public static array $disabled_tags = [];
 
 	/**
-	 * @var array BBC toolbar groups.
+	 * @var array
+	 *
+	 * BBC toolbar groups.
 	 */
 	public static array $bbc_toolbar = [];
 
 	/**
-	 * @var array Handlers for custom BBC toolbar commands.
+	 * @var array
+	 *
+	 * Handlers for custom BBC toolbar commands.
 	 */
 	public static array $bbc_handlers = [];
 
 	/**
-	 * @var array Smileys to show in the toolbar.
+	 * @var array
+	 *
+	 * Smileys to show in the toolbar.
 	 */
 	public static array $smileys_toolbar = [];
 
@@ -267,11 +297,15 @@ class Editor implements \ArrayAccess, \Stringable
 	/**
 	 * Construct and configure a new Editor instance.
 	 *
-	 * Initializes editor properties, toolbars, smileys, WYSIWYG support, and SCEditor options.
+	 * Initializes editor properties, toolbars, smileys, WYSIWYG support, and
+	 * SCEditor options.
+	 *
 	 * Applies default values and merges user-supplied $options where provided.
+	 *
 	 * Sets up integration points for mods via hooks.
 	 *
-	 * @param array $options An associative array of configuration options for the editor.
+	 * @param array $options An associative array of configuration options for
+	 *    the editor.
 	 */
 	public function __construct(array $options)
 	{
@@ -311,6 +345,7 @@ class Editor implements \ArrayAccess, \Stringable
 
 	/**
 	 * Allows this object to be handled like a string.
+	 *
 	 * Returns a JSON representation of SCEditor options.
 	 *
 	 * @return string JSON string of SCEditor options
@@ -326,6 +361,7 @@ class Editor implements \ArrayAccess, \Stringable
 
 	/**
 	 * Static wrapper for constructor.
+	 *
 	 * Instantiates and returns an Editor object.
 	 *
 	 * @param array $options Various options for the editor.
@@ -341,7 +377,8 @@ class Editor implements \ArrayAccess, \Stringable
 	 *
 	 * @param array $new_tag The new tag to add.
 	 * @param string $reference_tag The tag code to reference.
-	 * @param bool $before True to add the new tag before the reference tag, false to add it after.
+	 * @param bool $before True to add the new tag before the reference tag,
+	 *    false to add it after.
 	 */
 	public static function addBbcTag(array $new_tag, string $reference_tag, bool $before = true): void
 	{
@@ -885,7 +922,8 @@ class Editor implements \ArrayAccess, \Stringable
 	 */
 	protected static function initBbcTags(): void
 	{
-		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
+		// The below array makes it dead easy to add images to this control.
+		// Add it to the array and everything else is done for you!
 		/*
 			array(
 				'code' => 'b', // Required
