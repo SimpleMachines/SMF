@@ -1051,19 +1051,27 @@ class Utils
 
 		// Can we trim common characters from the end?
 		$trailing = '';
-		$i = -1;
 
-		while ($strings[0] !== '' && \strlen($strings[0]) < $i * -1) {
-			$last_char = mb_substr($strings[0], $i, null, $encoding);
+		if (\count($strings) > 1) {
+			$len = mb_strlen($strings[0], $encoding);
+			$i = 1;
 
-			foreach ($strings as $string) {
-				if (!str_ends_with($string, $last_char)) {
-					break 2;
+			while ($i < $len) {
+				$last_chars = mb_substr($strings[0], -$i, null, $encoding);
+
+				foreach ($strings as $string) {
+					if (!str_ends_with($string, $last_chars)) {
+						break 2;
+					}
 				}
+
+				$i++;
+				$trailing = $last_chars;
 			}
 
-			$i--;
-			$trailing = $last_char;
+			if (($trailing_len = mb_strlen($trailing, $encoding)) > 0) {
+				$strings = array_map(fn($string) => mb_substr($string, 0, -$trailing_len, $encoding), $strings);
+			}
 		}
 
 		// Create the trie from the strings.
