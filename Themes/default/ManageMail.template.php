@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -48,12 +49,12 @@ function template_browse()
 function template_mailtest()
 {
 	// The results.
-	if (!empty(Utils::$context['result']))
-	{
-		if (Utils::$context['result'] == 'failure')
+	if (!empty(Utils::$context['result'])) {
+		if (Utils::$context['result'] == 'failure') {
 			$result_txt = Lang::getTxt('mailtest_result_failure', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'], file: 'ManageMail');
-		else
-			$result_txt = Lang::getTxt('mailtest_result_success', file: 'ManageMail');
+		} else {
+		$result_txt = Lang::getTxt('mailtest_result_success', file: 'ManageMail');
+		}
 
 		echo '
 					<div class="', Utils::$context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';

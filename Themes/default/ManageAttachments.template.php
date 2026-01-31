@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -18,9 +19,7 @@ use SMF\Utils;
 /**
  * This template wraps around the simple settings page to add javascript functionality.
  */
-function template_avatar_settings_above()
-{
-}
+function template_avatar_settings_above() {}
 
 /**
  * JavaScript to be output below the simple settings page
@@ -66,7 +65,7 @@ function template_maintenance()
 				<dt><strong>', Lang::getTxt('attachmentdir_files_current', file: 'Admin'), '</strong></dt>
 				<dd>', Utils::$context['attachment_current_files'], '</dd>
 				<dt><strong>', Lang::getTxt('attachment_files', file: 'Admin'), '</strong></dt>
-				<dd>', isset(Utils::$context['attachment_files']) ? Utils::$context['attachment_files'] : Lang::getTxt('attachmentdir_files_not_set', file: 'Admin'), '</dd>
+				<dd>', Utils::$context['attachment_files'] ?? Lang::getTxt('attachmentdir_files_not_set', file: 'Admin'), '</dd>
 			</dl>
 		</div>
 		<div class="cat_bar">
@@ -119,9 +118,10 @@ function template_maintenance()
 		</div><!-- .windowbg -->
 	</div><!-- #manage_attachments -->';
 
-	if (!empty(Utils::$context['results']))
+	if (!empty(Utils::$context['results'])) {
 		echo '
 	<div class="noticebox">', Utils::$context['results'], '</div>';
+	}
 
 	echo '
 	<div id="transfer" class="cat_bar">
@@ -136,9 +136,10 @@ function template_maintenance()
 					<select name="from">
 						<option value="0">', Lang::getTxt('attachment_transfer_select', file: 'Admin'), '</option>';
 
-	foreach (Utils::$context['attach_dirs'] as $id => $dir)
+	foreach (Utils::$context['attach_dirs'] as $id => $dir) {
 		echo '
 						<option value="', $id, '">', $dir, '</option>';
+	}
 
 	echo '
 					</select>
@@ -149,13 +150,15 @@ function template_maintenance()
 						<option value="0">', Lang::getTxt('attachment_transfer_auto_select', file: 'Admin'), '</option>
 						<option value="-1">', Lang::getTxt('attachment_transfer_forum_root', file: 'Admin'), '</option>';
 
-	if (!empty(Utils::$context['base_dirs']))
-		foreach (Utils::$context['base_dirs'] as $id => $dir)
+	if (!empty(Utils::$context['base_dirs'])) {
+		foreach (Utils::$context['base_dirs'] as $id => $dir) {
 			echo '
 						<option value="', $id, '">', $dir, '</option>';
-	else
-		echo '
+		}
+	} else {
+	echo '
 						<option value="0" disabled>', Lang::getTxt('attachment_transfer_no_base', file: 'Admin'), '</option>';
+	}
 
 	echo '
 					</select>
@@ -165,18 +168,20 @@ function template_maintenance()
 					<select name="to">
 						<option value="0">', Lang::getTxt('attachment_transfer_select', file: 'Admin'), '</option>';
 
-	foreach (Utils::$context['attach_dirs'] as $id => $dir)
+	foreach (Utils::$context['attach_dirs'] as $id => $dir) {
 		echo '
 						<option value="', $id, '">', $dir, '</option>';
+	}
 
 	echo '
 					</select>
 				</dd>';
 
-	if (!empty(Config::$modSettings['attachmentDirFileLimit']))
+	if (!empty(Config::$modSettings['attachmentDirFileLimit'])) {
 		echo '
 				<dt>', Lang::getTxt('attachment_transfer_empty', file: 'Admin'), '</dt>
 				<dd><input type="checkbox" name="empty_it"', Utils::$context['checked'] ? ' checked' : '', '></dd>';
+	}
 
 	echo '
 			</dl>
@@ -210,7 +215,7 @@ function template_maintenance()
 function template_attachment_repair()
 {
 	// If we've completed just let them know!
-	if (Utils::$context['completed'])
+	if (Utils::$context['completed']) {
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -220,9 +225,10 @@ function template_attachment_repair()
 			', Lang::getTxt('repair_attachments_complete_desc', file: 'Admin'), '
 		</div>
 	</div>';
+	}
 
 	// What about if no errors were even found?
-	elseif (!Utils::$context['errors_found'])
+	elseif (!Utils::$context['errors_found']) {
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -232,10 +238,10 @@ function template_attachment_repair()
 			', Lang::getTxt('repair_attachments_no_errors', file: 'Admin'), '
 		</div>
 	</div>';
+	}
 
 	// Otherwise, I'm sad to say, we have a problem!
-	else
-	{
+	else {
 		echo '
 	<div id="manage_attachments">
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
@@ -246,11 +252,13 @@ function template_attachment_repair()
 				<p>', Lang::getTxt('repair_attachments_error_desc', file: 'Admin'), '</p>';
 
 		// Loop through each error reporting the status
-		foreach (Utils::$context['repair_errors'] as $error => $number)
-			if (!empty($number))
+		foreach (Utils::$context['repair_errors'] as $error => $number) {
+			if (!empty($number)) {
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
 				<label for="', $error, '">', Lang::getTxt('attach_repair_' . $error, [$number], file: 'Admin'), '</label><br>';
+			}
+		}
 
 		echo '
 				<br>
@@ -267,8 +275,9 @@ function template_attachment_repair()
  */
 function template_attachment_paths()
 {
-	if (!empty(Config::$modSettings['attachment_basedirectories']))
+	if (!empty(Config::$modSettings['attachment_basedirectories'])) {
 		template_show_list('base_paths');
+	}
 
 	template_show_list('attach_paths');
 }

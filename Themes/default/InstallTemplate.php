@@ -34,7 +34,7 @@ class InstallTemplate extends MaintenanceTemplate
 	 */
 	public static function upper(): void
 	{
-		if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
+		if (\count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
 		echo '
 		<form action="', Maintenance::getSelf(), (Maintenance::$sub_template !== '' ? '?step=' . Maintenance::getCurrentStep() : ''), '" method="post">';
 		}
@@ -63,7 +63,7 @@ class InstallTemplate extends MaintenanceTemplate
 		}
 
 		// Show the closing form tag and other data only if not in the last step
-		if (count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
+		if (\count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
 			echo '
 		</form>';
 		}
@@ -84,7 +84,7 @@ class InstallTemplate extends MaintenanceTemplate
 			</div>';
 
 		// Oh no!
-		if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
+		if (!empty(Maintenance::$fatal_error) || \count(Maintenance::$errors) > 0 || \count(Maintenance::$warnings) > 0) {
 			MaintenanceTemplate::warningsAndErrors();
 		}
 
@@ -134,7 +134,7 @@ class InstallTemplate extends MaintenanceTemplate
 		}
 
 		// This is serious!
-		if (!empty(Maintenance::$fatal_error) || count(Maintenance::$errors) > 0 || count(Maintenance::$warnings) > 0) {
+		if (!empty(Maintenance::$fatal_error) || \count(Maintenance::$errors) > 0 || \count(Maintenance::$warnings) > 0) {
 			MaintenanceTemplate::warningsAndErrors();
 
 			return;
@@ -209,7 +209,7 @@ class InstallTemplate extends MaintenanceTemplate
 			<dl class="settings">';
 
 		// More than one database type?
-		if (count(Maintenance::$context['databases']) > 1) {
+		if (\count(Maintenance::$context['databases']) > 1) {
 			echo '
 				<dt>
 					<label for="db_type_input">', Lang::getText('db_settings_type', file: 'Maintenance'), ':</label>

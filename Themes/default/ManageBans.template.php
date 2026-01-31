@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -24,16 +25,16 @@ function template_ban_edit()
 		<form id="admin_form_wrapper" action="', Utils::$context['form_url'], '" method="post" accept-charset="UTF-8" onsubmit="return confirmBan(this);">';
 
 	// If there were errors creating the ban, show them.
-	if (!empty(Utils::$context['error_messages']))
-	{
+	if (!empty(Utils::$context['error_messages'])) {
 		echo '
 			<div class="errorbox">
 				<strong>', Lang::getTxt('ban_errors_detected', file: 'Admin'), '</strong>
 				<ul>';
 
-		foreach (Utils::$context['error_messages'] as $error)
+		foreach (Utils::$context['error_messages'] as $error) {
 			echo '
 					<li class="error">', $error, '</li>';
+		}
 
 		echo '
 				</ul>
@@ -47,9 +48,10 @@ function template_ban_edit()
 				</h3>
 			</div>';
 
-	if (Utils::$context['ban']['is_new'])
+	if (Utils::$context['ban']['is_new']) {
 		echo '
 			<div class="information noup">', Lang::getTxt('ban_add_notes', file: 'Admin'), '</div>';
+	}
 
 	echo '
 			<div class="windowbg noup">
@@ -61,7 +63,7 @@ function template_ban_edit()
 						<input type="text" id="ban_name" name="ban_name" value="', Utils::$context['ban']['name'], '" size="45" maxlength="60">
 					</dd>';
 
-	if (isset(Utils::$context['ban']['reason']))
+	if (isset(Utils::$context['ban']['reason'])) {
 		echo '
 					<dt>
 						<strong><label for="reason">', Lang::getTxt('ban_reason', file: 'General'), '</label></strong><br>
@@ -70,8 +72,9 @@ function template_ban_edit()
 					<dd>
 						<textarea name="reason" id="reason" cols="40" rows="3">', Utils::$context['ban']['reason'], '</textarea>
 					</dd>';
+	}
 
-	if (isset(Utils::$context['ban']['notes']))
+	if (isset(Utils::$context['ban']['notes'])) {
 		echo '
 					<dt>
 						<strong><label for="ban_notes">', Lang::getTxt('ban_notes', file: 'Admin'), '</label></strong><br>
@@ -80,6 +83,7 @@ function template_ban_edit()
 					<dd>
 						<textarea name="notes" id="ban_notes" cols="40" rows="3">', Utils::$context['ban']['notes'], '</textarea>
 					</dd>';
+	}
 
 	echo '
 				</dl>
@@ -103,8 +107,7 @@ function template_ban_edit()
 				</fieldset>
 				<br class="clear_right">';
 
-	if (!empty(Utils::$context['ban_suggestions']))
-	{
+	if (!empty(Utils::$context['ban_suggestions'])) {
 		echo '
 				<fieldset>
 					<legend>
@@ -119,7 +122,7 @@ function template_ban_edit()
 							<input type="text" name="main_ip" value="', Utils::$context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
 
-		if (empty(Config::$modSettings['disableHostnameLookup']))
+		if (empty(Config::$modSettings['disableHostnameLookup'])) {
 			echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', !empty(Utils::$context['ban_suggestions']['hostname']) ? ' checked' : '', '>
@@ -128,6 +131,7 @@ function template_ban_edit()
 						<dd>
 							<input type="text" name="hostname" value="', Utils::$context['ban_suggestions']['hostname'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
 						</dd>';
+		}
 
 		echo '
 						<dt>
@@ -146,18 +150,16 @@ function template_ban_edit()
 						</dd>
 					</dl>';
 
-		if (!empty(Utils::$context['ban_suggestions']['other_ips']))
-		{
-			foreach (Utils::$context['ban_suggestions']['other_ips'] as $key => $ban_ips)
-			{
-				if (!empty($ban_ips))
-				{
+		if (!empty(Utils::$context['ban_suggestions']['other_ips'])) {
+			foreach (Utils::$context['ban_suggestions']['other_ips'] as $key => $ban_ips) {
+				if (!empty($ban_ips)) {
 					echo '
 					<div>', Lang::getTxt($key, file: 'Profile'), '</div>
 					<dl class="settings">';
 
 					$count = 0;
-					foreach ($ban_ips as $ip)
+
+					foreach ($ban_ips as $ip) {
 						echo '
 						<dt>
 							<input type="checkbox" id="suggestions_', $key, '_', $count, '" name="ban_suggestions[', $key, '][]"', !empty(Utils::$context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, Utils::$context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '">
@@ -165,6 +167,7 @@ function template_ban_edit()
 						<dd>
 							<label for="suggestions_', $key, '_', $count++, '">', $ip, '</label>
 						</dd>';
+					}
 
 					echo '
 					</dl>';
@@ -186,8 +189,7 @@ function template_ban_edit()
 			</div><!-- .windowbg -->
 		</form>';
 
-	if (!Utils::$context['ban']['is_new'] && empty(Utils::$context['ban_suggestions']))
-	{
+	if (!Utils::$context['ban']['is_new'] && empty(Utils::$context['ban_suggestions'])) {
 		echo '
 		<br>';
 		template_show_list('ban_items');
@@ -206,7 +208,7 @@ function template_ban_edit()
 		addLoadEvent(fUpdateStatus);';
 
 	// Auto suggest only needed for adding new bans, not editing
-	if (Utils::$context['ban']['is_new'] && empty($_REQUEST['u']))
+	if (Utils::$context['ban']['is_new'] && empty($_REQUEST['u'])) {
 		echo '
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSessionId: smf_session_id,
@@ -232,6 +234,7 @@ function template_ban_edit()
 			}
 		}
 	</script>';
+	}
 }
 
 /**
@@ -249,14 +252,17 @@ function template_ban_edit_trigger()
 			</div>
 			<div class="windowbg">
 				<fieldset>';
-	if (Utils::$context['ban_trigger']['is_new'])
+
+	if (Utils::$context['ban_trigger']['is_new']) {
 		echo '
 					<legend>
 						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');"> ', Lang::getTxt('ban_triggers', file: 'Admin'), '
 					</legend>';
+	}
 	echo '
 					<dl class="settings">';
-	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['ip']['selected'])
+
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['ip']['selected']) {
 		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', Utils::$context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
@@ -265,8 +271,9 @@ function template_ban_edit_trigger()
 						<dd>
 							<input type="text" name="main_ip" value="', Utils::$context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
+	}
 
-	if (empty(Config::$modSettings['disableHostnameLookup']) && (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['hostname']['selected']))
+	if (empty(Config::$modSettings['disableHostnameLookup']) && (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['hostname']['selected'])) {
 		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', Utils::$context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
@@ -275,7 +282,9 @@ function template_ban_edit_trigger()
 						<dd>
 							<input type="text" name="hostname" value="', Utils::$context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
 						</dd>';
-	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['email']['selected'])
+	}
+
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['email']['selected']) {
 		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', Utils::$context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
@@ -284,7 +293,9 @@ function template_ban_edit_trigger()
 						<dd>
 							<input type="email" name="email" value="', Utils::$context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>';
-	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['banneduser']['selected'])
+	}
+
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['banneduser']['selected']) {
 		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', Utils::$context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
@@ -293,6 +304,7 @@ function template_ban_edit_trigger()
 						<dd>
 							<input type="text" value="' . Utils::$context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;">
 						</dd>';
+	}
 	echo '
 					</dl>
 				</fieldset>

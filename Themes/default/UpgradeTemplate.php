@@ -647,7 +647,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		$ago = time() - $timestamp;
 		$ago_hours = floor($ago / 3600);
 		$ago_minutes = (int) (((int) ($ago / 60)) % 60);
-		$ago_seconds = intval($ago % 60);
+		$ago_seconds = \intval($ago % 60);
 		$txt_suffix = $ago < 60 ? '_s' : ($ago < 3600 ? '_ms' : '_hms');
 
 		return Lang::getTxt($base_key . $txt_suffix, ['s' => $ago_seconds, 'm' => $ago_minutes, 'h' => $ago_hours]);

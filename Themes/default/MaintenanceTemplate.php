@@ -58,7 +58,7 @@ abstract class MaintenanceTemplate
 		<div id="wrapper">';
 
 		// Have we got a language drop down - if so do it on the first step only.
-		if (!empty(Maintenance::$languages) && count(Maintenance::$languages) > 1 && Maintenance::getCurrentStep() == 0) {
+		if (!empty(Maintenance::$languages) && \count(Maintenance::$languages) > 1 && Maintenance::getCurrentStep() == 0) {
 			echo '
 			<div id="upper_section">
 				<div id="inner_section">
@@ -253,7 +253,7 @@ abstract class MaintenanceTemplate
 
 		<p>This installer was unable to find this tools\'s language file or files. They should be found under:</p>
 
-		<div class="directory">', dirname(Maintenance::getSelf()) != '/' ? dirname(Maintenance::getSelf()) : '', '/Languages</div>
+		<div class="directory">', \dirname(Maintenance::getSelf()) != '/' ? \dirname(Maintenance::getSelf()) : '', '/Languages</div>
 
 		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
 		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>

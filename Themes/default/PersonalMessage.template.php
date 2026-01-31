@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -24,7 +25,7 @@ function template_pm_above()
 	<div id="personal_messages">';
 
 	// Show the capacity bar, if available.
-	if (!empty(Utils::$context['limit_bar']))
+	if (!empty(Utils::$context['limit_bar'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -35,13 +36,15 @@ function template_pm_above()
 				<span class="floatright', Utils::$context['limit_bar']['percent'] > 90 ? ' alert' : '', '">', Utils::$context['limit_bar']['text'], '</span>
 			</h3>
 		</div>';
+	}
 
 	// Message sent? Show a small indication.
-	if (isset(Utils::$context['pm_sent']))
+	if (isset(Utils::$context['pm_sent'])) {
 		echo '
 		<div class="infobox">
 			', Lang::getTxt('pm_sent', file: 'PersonalMessage'), '
 		</div>';
+	}
 }
 
 /**
@@ -73,12 +76,11 @@ function template_pm_popup()
 		</div>
 		<div class="pm_unread">';
 
-	if (empty(Utils::$context['unread_pms']))
+	if (empty(Utils::$context['unread_pms'])) {
 		echo '
 			<div class="no_unread">', Lang::getTxt('pm_no_unread', file: 'PersonalMessage'), '</div>';
-	else
-	{
-		foreach (Utils::$context['unread_pms'] as $id_pm => $pm_details)
+	} else {
+		foreach (Utils::$context['unread_pms'] as $id_pm => $pm_details) {
 			echo '
 			<div class="unread_notify">
 				<div class="unread_notify_image">
@@ -92,6 +94,7 @@ function template_pm_popup()
 					</div>
 				</div>
 			</div>';
+		}
 	}
 
 	echo '
@@ -186,8 +189,7 @@ function template_folder()
 		<form class="flow_hidden" action="', Config::$scripturl, '?action=pm;sa=pmactions;', Utils::$context['display_mode'] == 2 ? 'conversation;' : '', 'f=', Utils::$context['folder'], ';start=', Utils::$context['start'], Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '" method="post" accept-charset="UTF-8" name="pmFolder" id="pmFolder">';
 
 	// If we are not in single display mode show the subjects on the top!
-	if (Utils::$context['display_mode'] != 1)
-	{
+	if (Utils::$context['display_mode'] != 1) {
 		template_subject_list();
 
 		echo '
@@ -195,15 +197,12 @@ function template_folder()
 	}
 
 	// Got some messages to display?
-	if (Utils::$context['get_pmessage']('message', true))
-	{
+	if (Utils::$context['get_pmessage']('message', true)) {
 		// Show a few buttons if we are in conversation mode and outputting the first message.
-		if (Utils::$context['display_mode'] == 2)
-		{
+		if (Utils::$context['display_mode'] == 2) {
 			// This bit uses info set in template_subject_list, so it's wrapped
 			// in an if just in case a mod or custom theme breaks it.
-			if (!empty(Utils::$context['current_pm_subject']))
-			{
+			if (!empty(Utils::$context['current_pm_subject'])) {
 				echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -213,9 +212,7 @@ function template_folder()
 			<div class="roundframe">
 				<div class="display_title">', Utils::$context['current_pm_subject'], '</div>
 				<p>', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['current_pm_author'], 'time' => Utils::$context['current_pm_time']], file: 'General'), '</p>';
-			}
-			else
-			{
+			} else {
 				echo '
 			<div class="roundframe">';
 			}
@@ -227,10 +224,11 @@ function template_folder()
 			</div>';
 		}
 
-		while ($message = Utils::$context['get_pmessage']('message'))
+		while ($message = Utils::$context['get_pmessage']('message')) {
 			template_single_pm($message);
+		}
 
-		if (empty(Utils::$context['display_mode']))
+		if (empty(Utils::$context['display_mode'])) {
 			echo '
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>
@@ -238,10 +236,10 @@ function template_folder()
 					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">
 				</div>
 			</div>';
+		}
 
 		// Show a few buttons if we are in conversation mode and outputting the first message.
-		elseif (Utils::$context['display_mode'] == 2 && isset(Utils::$context['conversation_buttons']))
-		{
+		elseif (Utils::$context['display_mode'] == 2 && isset(Utils::$context['conversation_buttons'])) {
 			echo '
 			<div class="pagesection">';
 
@@ -256,8 +254,7 @@ function template_folder()
 	}
 
 	// Individual messages = button list!
-	if (Utils::$context['display_mode'] == 1)
-	{
+	if (Utils::$context['display_mode'] == 1) {
 		template_subject_list();
 		echo '<br>';
 	}
@@ -280,15 +277,15 @@ function template_single_pm($message)
 			<div class="poster">';
 
 	// Are there any custom fields above the member name?
-	if (!empty($message['custom_fields']['above_member']))
-	{
+	if (!empty($message['custom_fields']['above_member'])) {
 		echo '
 				<div class="custom_fields_above_member">
 					<ul class="nolist">';
 
-		foreach ($message['custom_fields']['above_member'] as $custom)
+		foreach ($message['custom_fields']['above_member'] as $custom) {
 			echo '
 						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+		}
 
 		echo '
 					</ul>
@@ -299,25 +296,30 @@ function template_single_pm($message)
 				<h4>';
 
 	// Show online and offline buttons?
-	if (!empty(Config::$modSettings['onlineEnable']) && !$message['member']['is_guest'])
+	if (!empty(Config::$modSettings['onlineEnable']) && !$message['member']['is_guest']) {
 		echo '
 					<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>';
+	}
 
 	// Custom fields BEFORE the username?
-	if (!empty($message['custom_fields']['before_member']))
-		foreach ($message['custom_fields']['before_member'] as $custom)
+	if (!empty($message['custom_fields']['before_member'])) {
+		foreach ($message['custom_fields']['before_member'] as $custom) {
 			echo '
 					<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+		}
+	}
 
 	// Show a link to the member's profile.
 	echo '
 		', $message['member']['link'];
 
 	// Custom fields AFTER the username?
-	if (!empty($message['custom_fields']['after_member']))
-		foreach ($message['custom_fields']['after_member'] as $custom)
+	if (!empty($message['custom_fields']['after_member'])) {
+		foreach ($message['custom_fields']['after_member'] as $custom) {
 			echo '
 					<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+		}
+	}
 
 	echo '
 				</h4>';
@@ -326,60 +328,67 @@ function template_single_pm($message)
 				<ul class="user_info">';
 
 	// Show the member's custom title, if they have one.
-	if (isset($message['member']['title']) && $message['member']['title'] != '')
+	if (isset($message['member']['title']) && $message['member']['title'] != '') {
 		echo '
 					<li class="title">', $message['member']['title'], '</li>';
+	}
 
 	// Show the member's primary group (like 'Administrator') if they have one.
-	if (isset($message['member']['group']) && $message['member']['group'] != '')
+	if (isset($message['member']['group']) && $message['member']['group'] != '') {
 		echo '
 					<li class="membergroup">', $message['member']['group'], '</li>';
+	}
 
 	// Show the user's avatar.
-	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image'])) {
 		echo '
 					<li class="avatar">
 						<a href="', Config::$scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 					</li>';
+	}
 
 	// Are there any custom fields below the avatar?
-	if (!empty($message['custom_fields']['below_avatar']))
-		foreach ($message['custom_fields']['below_avatar'] as $custom)
+	if (!empty($message['custom_fields']['below_avatar'])) {
+		foreach ($message['custom_fields']['below_avatar'] as $custom) {
 			echo '
 					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+		}
+	}
 
 	// Don't show these things for guests.
-	if (!$message['member']['is_guest'])
-	{
+	if (!$message['member']['is_guest']) {
 		// Show the post group icons
 		echo '
 					<li class="icons">', $message['member']['group_icons'], '</li>';
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-		if ((empty(Config::$modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+		if ((empty(Config::$modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '') {
 			echo '
 					<li class="postgroup">', $message['member']['post_group'], '</li>';
+		}
 
 		// Show how many posts they have made.
-		if (!isset(Utils::$context['disabled_fields']['posts']))
+		if (!isset(Utils::$context['disabled_fields']['posts'])) {
 			echo '
 					<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']], file: 'General'), '</li>';
+		}
 
 		// Show their personal text?
-		if (!empty(Config::$modSettings['show_blurb']) && $message['member']['blurb'] != '')
+		if (!empty(Config::$modSettings['show_blurb']) && $message['member']['blurb'] != '') {
 			echo '
 					<li class="blurb">', $message['member']['blurb'], '</li>';
+		}
 
 		// Any custom fields to show as icons?
-		if (!empty($message['custom_fields']['icons']))
-		{
+		if (!empty($message['custom_fields']['icons'])) {
 			echo '
 					<li class="im_icons">
 						<ol>';
 
-			foreach ($message['custom_fields']['icons'] as $custom)
+			foreach ($message['custom_fields']['icons'] as $custom) {
 				echo '
 							<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+			}
 
 			echo '
 						</ol>
@@ -387,52 +396,58 @@ function template_single_pm($message)
 		}
 
 		// Show the IP to this user for this post - because you can moderate?
-		if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip']))
+		if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip'])) {
 			echo '
 					<li class="poster_ip">
 						<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
 					</li>';
+		}
 
 		// Or, should we show it because this is you?
-		elseif ($message['can_see_ip'])
+		elseif ($message['can_see_ip']) {
 			echo '
 					<li class="poster_ip">
 						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
 					</li>';
+		}
 
 		// Okay, you are logged in, then we can show something about why IPs are logged...
-		else
-			echo '
+		else {
+		echo '
 					<li class="poster_ip">
 						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::getTxt('logged', file: 'General'), '</a>
 					</li>';
+		}
 
 		// Show the profile, website, email address, and personal message buttons.
-		if ($message['member']['show_profile_buttons'])
-		{
+		if ($message['member']['show_profile_buttons']) {
 			echo '
 					<li class="profile">
 						<ol class="profile_icons">';
 
 			// Show the profile button
-			if ($message['member']['can_view_profile'])
+			if ($message['member']['can_view_profile']) {
 				echo '
 							<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '"><span class="main_icons members"></span></a></li>';
+			}
 
 			// Don't show an icon if they haven't specified a website.
-			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
+			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website'])) {
 				echo '
 							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span></a></li>';
+			}
 
 			// Don't show the email address if they want it hidden.
-			if ($message['member']['show_email'])
+			if ($message['member']['show_email']) {
 				echo '
 							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow"><span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span></a></li>';
+			}
 
 			// Since we know this person isn't a guest, you *can* message them.
-			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
+			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0) {
 				echo '
 							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '"><span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span></a></li>';
+			}
 
 			echo '
 						</ol>
@@ -440,21 +455,26 @@ function template_single_pm($message)
 		}
 
 		// Any custom fields for standard placement?
-		if (!empty($message['custom_fields']['standard']))
-			foreach ($message['custom_fields']['standard'] as $custom)
+		if (!empty($message['custom_fields']['standard'])) {
+			foreach ($message['custom_fields']['standard'] as $custom) {
 				echo '
 					<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+			}
+		}
 
 		// Are we showing the warning status?
-		if ($message['member']['can_see_warning'])
+		if ($message['member']['can_see_warning']) {
 			echo '
 					<li class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::getTxt('warn_' . $message['member']['warning_status'], file: 'General'), '</span></li>';
+		}
 
 		// Are there any custom fields to show at the bottom of the poster info?
-		if (!empty($message['custom_fields']['bottom_poster']))
-			foreach ($message['custom_fields']['bottom_poster'] as $custom)
+		if (!empty($message['custom_fields']['bottom_poster'])) {
+			foreach ($message['custom_fields']['bottom_poster'] as $custom) {
 				echo '
 					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+			}
+		}
 	}
 
 	// Done with the information about the poster... on to the post itself.
@@ -483,13 +503,15 @@ function template_single_pm($message)
 						'</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
-	if (!empty($message['recipients']['bcc']))
+	if (!empty($message['recipients']['bcc'])) {
 		echo '
 						<span class="smalltext">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $message['recipients']['bcc'])]), ' </span>';
+	}
 
-	if (!empty($message['is_replied_to']))
+	if (!empty($message['is_replied_to'])) {
 		echo '
 						<span class="smalltext">', Lang::getTxt(Utils::$context['folder'] == 'sent' ? 'pm_sent_is_replied_to' : 'pm_is_replied_to', file: 'PersonalMessage'), ' </span>';
+	}
 
 	echo '
 					</div><!-- .postinfo -->
@@ -502,40 +524,39 @@ function template_single_pm($message)
 				<div class="under_message">';
 
 	// Add an extra line at the bottom if we have labels enabled.
-	if (Utils::$context['folder'] != 'sent' && !empty(Utils::$context['currently_using_labels']) && Utils::$context['display_mode'] != 2)
-	{
+	if (Utils::$context['folder'] != 'sent' && !empty(Utils::$context['currently_using_labels']) && Utils::$context['display_mode'] != 2) {
 		echo '
 				<div class="labels floatleft">';
 
 		// Add the label drop down box.
-		if (!empty(Utils::$context['currently_using_labels']))
-		{
+		if (!empty(Utils::$context['currently_using_labels'])) {
 			echo '
 					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
 						<option value="">', Lang::getTxt('pm_msg_label_title', file: 'PersonalMessage'), '</option>
 						<option value="" disabled>---------------</option>';
 
 			// Are there any labels which can be added to this?
-			if (!$message['fully_labeled'])
-			{
+			if (!$message['fully_labeled']) {
 				echo '
 						<option value="" disabled>', Lang::getTxt('pm_msg_label_apply', file: 'PersonalMessage'), '</option>';
 
-				foreach (Utils::$context['labels'] as $label)
-					if (!isset($message['labels'][$label['id']]))
+				foreach (Utils::$context['labels'] as $label) {
+					if (!isset($message['labels'][$label['id']])) {
 						echo '
 						<option value="', $label['id'], '">', $label['name'], '</option>';
+					}
+				}
 			}
 
 			// ... and are there any that can be removed?
-			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
-			{
+			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1]))) {
 				echo '
 						<option value="" disabled>', Lang::getTxt('pm_msg_label_remove', file: 'PersonalMessage'), '</option>';
 
-				foreach ($message['labels'] as $label)
+				foreach ($message['labels'] as $label) {
 					echo '
 						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+				}
 			}
 			echo '
 					</select>
@@ -556,15 +577,15 @@ function template_single_pm($message)
 			<div class="moderatorbar">';
 
 	// Are there any custom profile fields for above the signature?
-	if (!empty($message['custom_fields']['above_signature']))
-	{
+	if (!empty($message['custom_fields']['above_signature'])) {
 		echo '
 				<div class="custom_fields_above_signature">
 					<ul class="nolist">';
 
-		foreach ($message['custom_fields']['above_signature'] as $custom)
+		foreach ($message['custom_fields']['above_signature'] as $custom) {
 			echo '
 						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+		}
 
 		echo '
 					</ul>
@@ -572,22 +593,23 @@ function template_single_pm($message)
 	}
 
 	// Show the member's signature?
-	if (!empty($message['member']['signature']) && empty(Theme::$current->options['show_no_signatures']) && Utils::$context['signature_enabled'])
+	if (!empty($message['member']['signature']) && empty(Theme::$current->options['show_no_signatures']) && Utils::$context['signature_enabled']) {
 		echo '
 				<div class="signature">
 					', $message['member']['signature'], '
 				</div>';
+	}
 
 	// Are there any custom profile fields for below the signature?
-	if (!empty($message['custom_fields']['below_signature']))
-	{
+	if (!empty($message['custom_fields']['below_signature'])) {
 		echo '
 				<div class="custom_fields_below_signature">
 					<ul class="nolist">';
 
-		foreach ($message['custom_fields']['below_signature'] as $custom)
+		foreach ($message['custom_fields']['below_signature'] as $custom) {
 			echo '
 						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+		}
 
 		echo '
 					</ul>
@@ -633,25 +655,24 @@ function template_subject_list()
 		</thead>
 		<tbody>';
 
-	if (!Utils::$context['show_delete'])
+	if (!Utils::$context['show_delete']) {
 		echo '
 			<tr class="windowbg">
 				<td colspan="5">', Lang::getTxt('pm_alert_none', file: 'General'), '</td>
 			</tr>';
+	}
 
-	while ($message = Utils::$context['get_pmessage']('subject'))
-	{
+	while ($message = Utils::$context['get_pmessage']('subject')) {
 		echo '
 			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '', '">
 				<td class="table_icon pm_icon">
 					<script>
 						currentLabels[', $message['id'], '] = {';
 
-		if (!empty($message['labels']))
-		{
+		if (!empty($message['labels'])) {
 			$first = true;
-			foreach ($message['labels'] as $label)
-			{
+
+			foreach ($message['labels'] as $label) {
 				echo $first ? '' : ',', '
 				"', $label['id'], '": "', $label['name'], '"';
 				$first = false;
@@ -683,29 +704,28 @@ function template_subject_list()
 		<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		<div class="floatright">&nbsp;';
 
-	if (Utils::$context['show_delete'])
-	{
-		if (!empty(Utils::$context['currently_using_labels']) && Utils::$context['folder'] != 'sent')
-		{
+	if (Utils::$context['show_delete']) {
+		if (!empty(Utils::$context['currently_using_labels']) && Utils::$context['folder'] != 'sent') {
 			echo '
 			<select name="pm_action" onchange="if (this.options[this.selectedIndex].value) this.form.submit();" onfocus="loadLabelChoices();">
 				<option value="">', Lang::getTxt('pm_sel_label_title', file: 'PersonalMessage'), '</option>
 				<option value="" disabled>---------------</option>
 				<option value="" disabled>', Lang::getTxt('pm_msg_label_apply', file: 'PersonalMessage'), '</option>';
 
-			foreach (Utils::$context['labels'] as $label)
-			{
-				if ($label['id'] != Utils::$context['current_label_id'])
+			foreach (Utils::$context['labels'] as $label) {
+				if ($label['id'] != Utils::$context['current_label_id']) {
 					echo '
 				<option value="add_', $label['id'], '">&nbsp;', $label['name'], '</option>';
+				}
 			}
 
 			echo '
 				<option value="" disabled>', Lang::getTxt('pm_msg_label_remove', file: 'PersonalMessage'), '</option>';
 
-			foreach (Utils::$context['labels'] as $label)
+			foreach (Utils::$context['labels'] as $label) {
 				echo '
 				<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
+			}
 
 			echo '
 			</select>
@@ -728,11 +748,12 @@ function template_subject_list()
  */
 function template_search()
 {
-	if (!empty(Utils::$context['search_errors']))
+	if (!empty(Utils::$context['search_errors'])) {
 		echo '
 		<div class="errorbox">
 			', implode('<br>', Utils::$context['search_errors']['messages']), '
 		</div>';
+	}
 
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">
@@ -793,26 +814,26 @@ function template_search()
 				</dt>
 				<dd>
 					', Lang::getTxt(
-						'pm_search_age_range',
-						[
-							'min' => '<input type="number" name="minage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage']) . '">',
-							'max' => '<input type="number" name="maxage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage']) . '">',
-						],
-						file: 'PersonalMessage',
-					), '
+		'pm_search_age_range',
+		[
+			'min' => '<input type="number" name="minage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage']) . '">',
+			'max' => '<input type="number" name="maxage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage']) . '">',
+		],
+		file: 'PersonalMessage',
+	), '
 				</dd>
 			</dl>';
 
-	if (!Utils::$context['currently_using_labels'])
+	if (!Utils::$context['currently_using_labels']) {
 		echo '
 				<input type="submit" name="pm_search" value="', Lang::getTxt('pm_search_go', file: 'PersonalMessage'), '" class="button floatright">';
+	}
 
 	echo '
 		</div><!-- .roundframe -->';
 
 	// Do we have some labels setup? If so offer to search by them!
-	if (Utils::$context['currently_using_labels'])
-	{
+	if (Utils::$context['currently_using_labels']) {
 		echo '
 		<fieldset class="labels">
 			<div class="roundframe alt">
@@ -824,12 +845,13 @@ function template_search()
 				<div id="advanced_panel_div">
 					<ul id="search_labels">';
 
-		foreach (Utils::$context['search_labels'] as $label)
+		foreach (Utils::$context['search_labels'] as $label) {
 			echo '
 						<li>
 							<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '"', $label['checked'] ? ' checked' : '', '>
 							', $label['name'], '</label>
 						</li>';
+		}
 
 		echo '
 					</ul>
@@ -891,7 +913,7 @@ function template_search_results()
 		</div>';
 
 	// Complete results?
-	if (empty(Utils::$context['search_params']['show_complete']) && !empty(Utils::$context['personal_messages']))
+	if (empty(Utils::$context['search_params']['show_complete']) && !empty(Utils::$context['personal_messages'])) {
 		echo '
 		<table class="table_grid">
 			<thead>
@@ -902,36 +924,40 @@ function template_search_results()
 				</tr>
 			</thead>
 			<tbody>';
+	}
 
 	// Print each message out...
-	foreach (Utils::$context['personal_messages'] as $message)
-	{
+	foreach (Utils::$context['personal_messages'] as $message) {
 		// Are we showing it all?
-		if (!empty(Utils::$context['search_params']['show_complete']))
+		if (!empty(Utils::$context['search_params']['show_complete'])) {
 			template_single_pm($message);
+		}
 
 		// Otherwise just a simple list!
-		else
-			echo '
+		else {
+		echo '
 				<tr class="windowbg">
 					<td>', $message['time'], '</td>
 					<td>', $message['link'], '</td>
 					<td>', $message['member']['link'], '</td>
 				</tr>';
+		}
 	}
 
 	// Finish off the page...
-	if (empty(Utils::$context['search_params']['show_complete']) && !empty(Utils::$context['personal_messages']))
+	if (empty(Utils::$context['search_params']['show_complete']) && !empty(Utils::$context['personal_messages'])) {
 		echo '
 			</tbody>
 		</table>';
+	}
 
 	// No results?
-	if (empty(Utils::$context['personal_messages']))
+	if (empty(Utils::$context['personal_messages'])) {
 		echo '
 		<div class="windowbg">
 			<p class="centertext">', Lang::getTxt('pm_search_none_found', file: 'PersonalMessage'), '</p>
 		</div>';
+	}
 
 	echo '
 		<div class="pagesection">
@@ -946,23 +972,26 @@ function template_search_results()
 function template_send()
 {
 	// Show which messages were sent successfully and which failed.
-	if (!empty(Utils::$context['send_log']))
-	{
+	if (!empty(Utils::$context['send_log'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('pm_send_report', file: 'PersonalMessage'), '</h3>
 		</div>
 		<div class="windowbg noup">';
 
-		if (!empty(Utils::$context['send_log']['sent']))
-			foreach (Utils::$context['send_log']['sent'] as $log_entry)
+		if (!empty(Utils::$context['send_log']['sent'])) {
+			foreach (Utils::$context['send_log']['sent'] as $log_entry) {
 				echo '
 			<span class="error">', $log_entry, '</span><br>';
+			}
+		}
 
-		if (!empty(Utils::$context['send_log']['failed']))
-			foreach (Utils::$context['send_log']['failed'] as $log_entry)
+		if (!empty(Utils::$context['send_log']['failed'])) {
+			foreach (Utils::$context['send_log']['failed'] as $log_entry) {
 				echo '
 			<span class="error">', $log_entry, '</span><br>';
+			}
+		}
 
 		echo '
 		</div>
@@ -1008,12 +1037,13 @@ function template_send()
 					</dl>
 				</div>';
 
-	if (!empty(Config::$modSettings['drafts_pm_enabled']))
+	if (!empty(Config::$modSettings['drafts_pm_enabled'])) {
 		echo '
 				<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
 					Lang::getTxt('draft_pm_saved', ['url' => Config::$scripturl . '?action=pm;sa=showpmdrafts'], file: 'Drafts'), '
 					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']], file: 'Drafts') . '</strong>' : ''), '
 				</div>';
+	}
 
 	echo '
 				<dl id="post_header">';
@@ -1063,8 +1093,7 @@ function template_send()
 	template_control_richedit(Utils::$context['post_box_name'], true, true);
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
-	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
-	{
+	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled'])) {
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
@@ -1076,22 +1105,24 @@ function template_send()
 						<dt><strong>', Lang::getTxt('subject', file: 'General'), '</strong></dt>
 						<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
-		foreach (Utils::$context['drafts'] as $draft)
+		foreach (Utils::$context['drafts'] as $draft) {
 			echo '
 						<dt>', $draft['link'], '</dt>
 						<dd>', $draft['poster_time'], '</dd>';
+		}
 		echo '
 					</dl>
 				</div>';
 	}
 
 	// Require an image to be typed to save spamming?
-	if (Utils::$context['require_verification'])
+	if (Utils::$context['require_verification']) {
 		echo '
 				<div class="post_verification">
 					<strong>', Lang::getTxt('pm_visual_verification_label', file: 'PersonalMessage'), '</strong>
 					', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 				</div>';
+	}
 
 	// Send, Preview, spellcheck buttons.
 	echo '
@@ -1102,8 +1133,8 @@ function template_send()
 				<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">
 				<input type="hidden" name="replied_to" value="', !empty(Utils::$context['quoted_message']['id']) ? Utils::$context['quoted_message']['id'] : 0, '">
 				<input type="hidden" name="pm_head" value="', !empty(Utils::$context['quoted_message']['pm_head']) ? Utils::$context['quoted_message']['pm_head'] : 0, '">
-				<input type="hidden" name="f" value="', isset(Utils::$context['folder']) ? Utils::$context['folder'] : '', '">
-				<input type="hidden" name="l" value="', isset(Utils::$context['current_label_id']) ? Utils::$context['current_label_id'] : -1, '">
+				<input type="hidden" name="f" value="', Utils::$context['folder'] ?? '', '">
+				<input type="hidden" name="l" value="', Utils::$context['current_label_id'] ?? -1, '">
 				<br class="clear_right">
 			</div><!-- .roundframe -->
 		</form>';
@@ -1209,7 +1240,7 @@ function template_send()
 			}';
 
 	// Code for showing and hiding drafts
-	if (!empty(Utils::$context['drafts']))
+	if (!empty(Utils::$context['drafts'])) {
 		echo '
 			var oSwapDraftOptions = new smc_Toggle({
 				bToggleEnabled: true,
@@ -1232,12 +1263,13 @@ function template_send()
 					}
 				]
 			});';
+	}
 
 	echo '
 		</script>';
 
 	// Show the message you're replying to.
-	if (Utils::$context['reply'])
+	if (Utils::$context['reply']) {
 		echo '
 		<br><br>
 		<div class="cat_bar">
@@ -1252,6 +1284,7 @@ function template_send()
 			', Utils::adjustHeadingLevels(Utils::$context['quoted_message']['body'], 3), '
 		</div>
 		<br class="clear">';
+	}
 
 	echo '
 		<script>
@@ -1262,23 +1295,25 @@ function template_send()
 				sToControlId: \'to_control\',
 				aToRecipients: [';
 
-	foreach (Utils::$context['recipients']['to'] as $i => $member)
+	foreach (Utils::$context['recipients']['to'] as $i => $member) {
 		echo '
 					{
 						sItemId: ', Utils::escapeJavaScript($member['id']), ',
 						sItemName: ', Utils::escapeJavaScript($member['name']), '
 					}', $i == count(Utils::$context['recipients']['to']) - 1 ? '' : ',';
+	}
 
 	echo '
 				],
 				aBccRecipients: [';
 
-	foreach (Utils::$context['recipients']['bcc'] as $i => $member)
+	foreach (Utils::$context['recipients']['bcc'] as $i => $member) {
 		echo '
 					{
 						sItemId: ', Utils::escapeJavaScript($member['id']), ',
 						sItemName: ', Utils::escapeJavaScript($member['name']), '
 					}', $i == count(Utils::$context['recipients']['bcc']) - 1 ? '' : ',';
+	}
 
 	echo '
 				],
@@ -1288,9 +1323,10 @@ function template_send()
 				sBccLinkId: \'bcc_link\',
 				sBccLinkContainerId: \'bcc_link_container\',
 				bBccShowByDefault: ', empty(Utils::$context['recipients']['bcc']) && empty(Utils::$context['bcc_value']) ? 'false' : 'true', ',
-				sShowBccLinkTemplate: ', Utils::escapeJavaScript('
-					<a href="#" id="bcc_link">' . Lang::getTxt('make_bcc', file: 'PersonalMessage') . '</a> <a href="' . Config::$scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>'
-				), '
+				sShowBccLinkTemplate: ', Utils::escapeJavaScript(
+		'
+					<a href="#" id="bcc_link">' . Lang::getTxt('make_bcc', file: 'PersonalMessage') . '</a> <a href="' . Config::$scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>',
+	), '
 			});';
 
 	echo '
@@ -1361,26 +1397,27 @@ function template_labels()
 					</th>
 					<th class="centertext table_icon">';
 
-	if (count(Utils::$context['labels']) > 2)
+	if (count(Utils::$context['labels']) > 2) {
 		echo '
 						<input type="checkbox" onclick="invertAll(this, this.form);">';
+	}
 
 	echo '
 					</th>
 				</tr>
 			</thead>
 			<tbody>';
-	if (count(Utils::$context['labels']) < 2)
+
+	if (count(Utils::$context['labels']) < 2) {
 		echo '
 				<tr class="windowbg">
 					<td colspan="2">', Lang::getTxt('pm_labels_no_exist', file: 'PersonalMessage'), '</td>
 				</tr>';
-	else
-	{
-		foreach (Utils::$context['labels'] as $label)
-		{
-			if ($label['id'] == -1)
+	} else {
+		foreach (Utils::$context['labels'] as $label) {
+			if ($label['id'] == -1) {
 				continue;
+			}
 
 			echo '
 				<tr class="windowbg">
@@ -1395,12 +1432,13 @@ function template_labels()
 			</tbody>
 		</table>';
 
-	if (!count(Utils::$context['labels']) < 2)
+	if (!count(Utils::$context['labels']) < 2) {
 		echo '
 		<div class="block righttext">
 			<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 			<input type="submit" name="delete" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('pm_labels_delete', file: 'PersonalMessage'), '" class="button you_sure">
 		</div>';
+	}
 
 	echo '
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1444,8 +1482,7 @@ function template_report_message()
 
 	// If there is more than one admin on the forum, allow the user to choose the one they want to direct to.
 	// @todo Why?
-	if (Utils::$context['admin_count'] > 1)
-	{
+	if (Utils::$context['admin_count'] > 1) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('pm_report_admins', file: 'PersonalMessage'), '</strong>
@@ -1454,9 +1491,10 @@ function template_report_message()
 					<select name="id_admin">
 						<option value="0">', Lang::getTxt('pm_report_all_admins', file: 'PersonalMessage'), '</option>';
 
-		foreach (Utils::$context['admins'] as $id => $name)
+		foreach (Utils::$context['admins'] as $id => $name) {
 			echo '
 						<option value="', $id, '">', $name, '</option>';
+		}
 
 		echo '
 					</select>
@@ -1515,9 +1553,10 @@ function template_rules()
 					</th>
 					<th class="centertext table_icon">';
 
-	if (!empty(Utils::$context['rules']))
+	if (!empty(Utils::$context['rules'])) {
 		echo '
 						<input type="checkbox" onclick="invertAll(this, this.form);">';
+	}
 
 	echo '
 					</th>
@@ -1525,15 +1564,16 @@ function template_rules()
 			</thead>
 			<tbody>';
 
-	if (empty(Utils::$context['rules']))
+	if (empty(Utils::$context['rules'])) {
 		echo '
 				<tr class="windowbg">
 					<td colspan="2">
 						', Lang::getTxt('pm_rules_none', file: 'PersonalMessage'), '
 					</td>
 				</tr>';
+	}
 
-	foreach (Utils::$context['rules'] as $rule)
+	foreach (Utils::$context['rules'] as $rule) {
 		echo '
 				<tr class="windowbg">
 					<td>
@@ -1543,6 +1583,7 @@ function template_rules()
 						<input type="checkbox" name="delrule[', $rule['id'], ']">
 					</td>
 				</tr>';
+	}
 
 	echo '
 			</tbody>
@@ -1550,14 +1591,16 @@ function template_rules()
 		<div class="righttext">
 			<a class="button" href="', Config::$scripturl, '?action=pm;sa=manrules;add;rid=0">', Lang::getTxt('pm_add_rule', file: 'PersonalMessage'), '</a>';
 
-	if (!empty(Utils::$context['rules']))
+	if (!empty(Utils::$context['rules'])) {
 		echo '
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="submit" name="delselected" value="', Lang::getTxt('pm_delete_selected_rule', file: 'PersonalMessage'), '" data-confirm="', Lang::getTxt('pm_js_delete_rule_confirm', file: 'PersonalMessage'), '" class="button smalltext you_sure">';
+	}
 
-	if (!empty(Utils::$context['rules']))
+	if (!empty(Utils::$context['rules'])) {
 		echo '
 			<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return confirm(\'', Lang::getTxt('pm_js_apply_rules_confirm', file: 'PersonalMessage'), '\');" class="button">', Lang::getTxt('pm_apply_rules', file: 'PersonalMessage'), '</a>';
+	}
 
 	echo '
 		</div>
@@ -1577,14 +1620,17 @@ function template_add_rule()
 		var groups = new Array()
 		var labels = new Array()';
 
-	foreach (Utils::$context['groups'] as $id => $title)
+	foreach (Utils::$context['groups'] as $id => $title) {
 		echo '
 		groups[', $id, '] = "', addslashes($title), '";';
+	}
 
-	foreach (Utils::$context['labels'] as $label)
-		if ($label['id'] != -1)
+	foreach (Utils::$context['labels'] as $label) {
+		if ($label['id'] != -1) {
 			echo '
 		labels[', ($label['id']), '] = "', addslashes($label['name']), '";';
+		}
+	}
 
 	echo '
 		function addCriteriaOption()
@@ -1601,8 +1647,9 @@ function template_add_rule()
 
 			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value=""><\' + \'/option><option value="mid">', addslashes(Lang::getTxt('pm_rule_mid', file: 'PersonalMessage')), '<\' + \'/option><option value="gid">', addslashes(Lang::getTxt('pm_rule_gid', file: 'PersonalMessage')), '<\' + \'/option><option value="sub">', addslashes(Lang::getTxt('pm_rule_sub', file: 'PersonalMessage')), '<\' + \'/option><option value="msg">', addslashes(Lang::getTxt('pm_rule_msg', file: 'PersonalMessage')), '<\' + \'/option><option value="bud">', addslashes(Lang::getTxt('pm_rule_bud', file: 'PersonalMessage')), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes(Lang::getTxt('pm_rule_sel_group', file: 'PersonalMessage')), '<\' + \'/option>';
 
-	foreach (Utils::$context['groups'] as $id => $group)
-		echo '<option value="', $id, '">', strtr($group, array("'" => "\'")), '<\' + \'/option>';
+	foreach (Utils::$context['groups'] as $id => $group) {
+		echo '<option value="', $id, '">', strtr($group, ["'" => "\'"]), '<\' + \'/option>';
+	}
 
 	echo '<\' + \'/select><\' + \'/span><span id="criteriaAddHere"><\' + \'/span>\');
 
@@ -1623,9 +1670,11 @@ function template_add_rule()
 
 				setOuterHTML(document.getElementById("actionAddHere"), \'<br><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes(Lang::getTxt('pm_rule_do_nothing', file: 'PersonalMessage')), ':<\' + \'/option><option value="lab">', addslashes(Lang::getTxt('pm_rule_label', file: 'PersonalMessage')), '<\' + \'/option><option value="del">', addslashes(Lang::getTxt('pm_rule_delete', file: 'PersonalMessage')), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes(Lang::getTxt('pm_rule_sel_label', file: 'PersonalMessage')), '<\' + \'/option>';
 
-	foreach (Utils::$context['labels'] as $label)
-		if ($label['id'] != -1)
+	foreach (Utils::$context['labels'] as $label) {
+		if ($label['id'] != -1) {
 			echo '<option value="', ($label['id']), '">', addslashes($label['name']), '<\' + \'/option>';
+		}
+	}
 
 	echo '<\' + \'/select><\' + \'/span><span id="actionAddHere"><\' + \'/span>\');
 
@@ -1736,48 +1785,50 @@ function template_add_rule()
 				<legend>', Lang::getTxt('pm_rule_criteria', file: 'PersonalMessage'), '</legend>';
 
 	// Add a dummy criteria to allow expansion for none js users.
-	Utils::$context['rule']->criteria[] = array('t' => '', 'v' => '');
+	Utils::$context['rule']->criteria[] = ['t' => '', 'v' => ''];
 
 	// For each criteria print it out.
 	$isFirst = true;
-	foreach (Utils::$context['rule']->criteria as $k => $criteria)
-	{
-		if (!$isFirst && $criteria['t'] == '')
-			echo '<div id="removeonjs1">';
 
-		elseif (!$isFirst)
+	foreach (Utils::$context['rule']->criteria as $k => $criteria) {
+		if (!$isFirst && $criteria['t'] == '') {
+			echo '<div id="removeonjs1">';
+		} elseif (!$isFirst) {
 			echo '<br>';
+		}
 
 		echo '
 				<select name="ruletype[', $k, ']" id="ruletype', $k, '" onchange="updateRuleDef(', $k, '); rebuildRuleDesc();">
 					<option value="" selected></option>';
 
-		foreach (array('mid', 'gid', 'sub', 'msg', 'bud') as $cr)
+		foreach (['mid', 'gid', 'sub', 'msg', 'bud'] as $cr) {
 			echo '
 					<option value="', $cr, '"', $criteria['t'] == $cr ? ' selected' : '', '>', Lang::getTxt('pm_rule_' . $cr, file: 'PersonalMessage'), '</option>';
+		}
 
 		echo '
 				</select>
-				<span id="defdiv', $k, '" ', !in_array($criteria['t'], array('gid', 'bud')) ? '' : 'style="display: none;"', '>
-					<input type="text" name="ruledef[', $k, ']" id="ruledef', $k, '" onkeyup="rebuildRuleDesc();" value="', in_array($criteria['t'], array('mid', 'sub', 'msg')) ? $criteria['v'] : '', '">
+				<span id="defdiv', $k, '" ', !in_array($criteria['t'], ['gid', 'bud']) ? '' : 'style="display: none;"', '>
+					<input type="text" name="ruledef[', $k, ']" id="ruledef', $k, '" onkeyup="rebuildRuleDesc();" value="', in_array($criteria['t'], ['mid', 'sub', 'msg']) ? $criteria['v'] : '', '">
 				</span>
 				<span id="defseldiv', $k, '" ', $criteria['t'] == 'gid' ? '' : 'style="display: none;"', '>
 					<select name="ruledefgroup[', $k, ']" id="ruledefgroup', $k, '" onchange="rebuildRuleDesc();">
 						<option value="">', Lang::getTxt('pm_rule_sel_group', file: 'PersonalMessage'), '</option>';
 
-		foreach (Utils::$context['groups'] as $id => $group)
+		foreach (Utils::$context['groups'] as $id => $group) {
 			echo '
 						<option value="', $id, '"', $criteria['t'] == 'gid' && $criteria['v'] == $id ? ' selected' : '', '>', $group, '</option>';
+		}
 		echo '
 					</select>
 				</span>';
 
 		// If this is the dummy we add a means to hide for non js users.
-		if ($isFirst)
+		if ($isFirst) {
 			$isFirst = false;
-
-		elseif ($criteria['t'] == '')
+		} elseif ($criteria['t'] == '') {
 			echo '</div><!-- .removeonjs1 -->';
+		}
 	}
 
 	echo '
@@ -1794,16 +1845,17 @@ function template_add_rule()
 				<legend>', Lang::getTxt('pm_rule_actions', file: 'PersonalMessage'), '</legend>';
 
 	// As with criteria - add a dummy action for "expansion".
-	Utils::$context['rule']->actions[] = array('t' => '', 'v' => '');
+	Utils::$context['rule']->actions[] = ['t' => '', 'v' => ''];
 
 	// Print each action.
 	$isFirst = true;
-	foreach (Utils::$context['rule']->actions as $k => $action)
-	{
-		if (!$isFirst && $action['t'] == '')
+
+	foreach (Utils::$context['rule']->actions as $k => $action) {
+		if (!$isFirst && $action['t'] == '') {
 			echo '<div id="removeonjs2">';
-		elseif (!$isFirst)
+		} elseif (!$isFirst) {
 			echo '<br>';
+		}
 
 		echo '
 				<select name="acttype[', $k, ']" id="acttype', $k, '" onchange="updateActionDef(', $k, '); rebuildRuleDesc();">
@@ -1815,20 +1867,22 @@ function template_add_rule()
 					<select name="labdef[', $k, ']" id="labdef', $k, '" onchange="rebuildRuleDesc();">
 						<option value="">', Lang::getTxt('pm_rule_sel_label', file: 'PersonalMessage'), '</option>';
 
-		foreach (Utils::$context['labels'] as $label)
-			if ($label['id'] != -1)
+		foreach (Utils::$context['labels'] as $label) {
+			if ($label['id'] != -1) {
 				echo '
 						<option value="', ($label['id']), '"', $action['t'] == 'lab' && $action['v'] == $label['id'] ? ' selected' : '', '>', $label['name'], '</option>';
+			}
+		}
 
 		echo '
 					</select>
 				</span>';
 
-		if ($isFirst)
+		if ($isFirst) {
 			$isFirst = false;
-
-		elseif ($action['t'] == '')
+		} elseif ($action['t'] == '') {
 			echo '</div><!-- .removeonjs2 -->';
+		}
 	}
 
 	echo '
@@ -1852,30 +1906,35 @@ function template_add_rule()
 	echo '
 	<script>';
 
-	foreach (Utils::$context['rule']->criteria as $k => $c)
+	foreach (Utils::$context['rule']->criteria as $k => $c) {
 		echo '
 			updateRuleDef(', $k, ');';
+	}
 
-	foreach (Utils::$context['rule']->actions as $k => $c)
+	foreach (Utils::$context['rule']->actions as $k => $c) {
 		echo '
 			updateActionDef(', $k, ');';
+	}
 
 	echo '
 			rebuildRuleDesc();';
 
 	// If this isn't a new rule and we have JS enabled remove the JS compatibility stuff.
-	if (Utils::$context['rid'])
+	if (Utils::$context['rid']) {
 		echo '
 			document.getElementById("removeonjs1").style.display = "none";
 			document.getElementById("removeonjs2").style.display = "none";';
+	}
 
-	if (count(Utils::$context['rule']->criteria) <= Utils::$context['rule_limiters']['criteria'])
+	if (count(Utils::$context['rule']->criteria) <= Utils::$context['rule_limiters']['criteria']) {
 		echo '
 			document.getElementById("addonjs1").style.display = "";';
+	}
 
-	if (count(Utils::$context['rule']->actions) <= Utils::$context['rule_limiters']['actions'])
+	if (count(Utils::$context['rule']->actions) <= Utils::$context['rule_limiters']['actions']) {
 		echo '
 			document.getElementById("addonjs2").style.display = "";';
+	}
 
 	echo '
 		</script>';
@@ -1897,21 +1956,19 @@ function template_showPMDrafts()
 		</p>';
 
 	// No drafts? Just show an informative message.
-	if (empty(Utils::$context['drafts']))
+	if (empty(Utils::$context['drafts'])) {
 		echo '
 		<div class="windowbg centertext">
 			', Lang::getTxt('draft_none', file: 'Drafts'), '
 		</div>';
-	else
-	{
+	} else {
 		echo '
 		<div class="pagesection">
 			<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		</div>';
 
 		// For every draft to be displayed, give it its own div, and show the important details of the draft.
-		foreach (Utils::$context['drafts'] as $draft)
-		{
+		foreach (Utils::$context['drafts'] as $draft) {
 			echo '
 		<div class="windowbg">
 			<div class="page_number floatright"> #', $draft['counter'], '</div>
@@ -1922,9 +1979,10 @@ function template_showPMDrafts()
 				<div class="smalltext">
 					<div class="recipient_to">', Lang::getTxt('pm_to', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $draft['recipients']['to'])]), '</div>';
 
-			if(!empty($draft['recipients']['bcc']))
+			if (!empty($draft['recipients']['bcc'])) {
 				echo'
 					<div class="pm_bbc">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $draft['recipients']['bcc'])]), '</div>';
+			}
 
 			echo '
 				</div>

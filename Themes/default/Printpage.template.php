@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -123,17 +124,19 @@ function template_print_above()
 				}
 			}';
 
-	if (!empty(Config::$modSettings['max_image_width']))
+	if (!empty(Config::$modSettings['max_image_width'])) {
 		echo '
 			.bbc_img {
 				max-width: ' . Config::$modSettings['max_image_width'] . 'px;
 			}';
+	}
 
-	if (!empty(Config::$modSettings['max_image_height']))
+	if (!empty(Config::$modSettings['max_image_height'])) {
 		echo '
 			.bbc_img {
 				max-height: ' . Config::$modSettings['max_image_height'] . 'px;
 			}';
+	}
 
 	echo '
 		</style>
@@ -153,8 +156,7 @@ function template_print_above()
  */
 function template_main()
 {
-	if (!empty(Utils::$context['poll']))
-	{
+	if (!empty(Utils::$context['poll'])) {
 		echo '
 			<div id="poll_data">
 				<span>', Lang::getTxt('poll', file: 'General'), '</span>
@@ -163,19 +165,20 @@ function template_main()
 				</div>';
 
 		$options = 1;
-		foreach (Utils::$context['poll']['options'] as $option)
+
+		foreach (Utils::$context['poll']['options'] as $option) {
 			echo '
 					<div>
 						', Lang::getTxt('option_number', [$options++], file: 'Post'), ': <strong>', $option['option'], '</strong>
 						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']], file: 'Post') : '', '
 					</div>';
+		}
 
 		echo '
 			</div>';
 	}
 
-	foreach (Utils::$context['posts'] as $post)
-	{
+	foreach (Utils::$context['posts'] as $post) {
 		echo '
 			<div class="postheader">
 				<div><strong>', $post['subject'], '</strong></div>
@@ -185,14 +188,14 @@ function template_main()
 				', Utils::adjustHeadingLevels($post['body'], 2);
 
 		// Show attachment images
-		if (isset($_GET['images']) && !empty(Utils::$context['printattach'][$post['id_msg']]))
-		{
+		if (isset($_GET['images']) && !empty(Utils::$context['printattach'][$post['id_msg']])) {
 			echo '
 				<hr>';
 
-			foreach (Utils::$context['printattach'][$post['id_msg']] as $attach)
+			foreach (Utils::$context['printattach'][$post['id_msg']] as $attach) {
 				echo '
 					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', Config::$scripturl . '?action=dlattach;topic=' . Topic::$topic_id . '.0;attach=' . $attach['id_attach'] . '" alt="">';
+			}
 		}
 
 		echo '
@@ -228,12 +231,13 @@ function template_print_options()
 		<div class="print_options">';
 
 	// Which option is set, text or text&images
-	if (isset($_REQUEST['images']))
+	if (isset($_REQUEST['images'])) {
 		echo '
 			<a href="', $url_text, '">', Lang::getTxt('print_page_text', file: 'General'), '</a> | <strong><a href="', $url_images, '">', Lang::getTxt('print_page_images', file: 'General'), '</a></strong>';
-	else
-		echo '
+	} else {
+	echo '
 			<strong><a href="', $url_text, '">', Lang::getTxt('print_page_text', file: 'General'), '</a></strong> | <a href="', $url_images, '">', Lang::getTxt('print_page_images', file: 'General'), '</a>';
+	}
 
 	echo '
 		</div><!-- .print_options -->';
