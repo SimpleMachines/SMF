@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -346,16 +346,18 @@ function template_main()
 	echo '
 				var oQuickModify = new QuickModify({
 					sScriptUrl: smf_scripturl,
+					sFormName: \'quickModForm\',
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
 					sSaveButtonText: ', Utils::escapeJavaScript(Lang::getTxt('save', file: 'General')), ',
 					sCancelButtonText: ', Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')), ',
 					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General')) . ',
+					sEditReasonText: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General')) . ',
 					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), '
 				});
 
-				aJumpTo[aJumpTo.length] = new JumpTo({
+				new JumpTo({
 					sContainerId: "display_jump_to",
 					sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 					iCurBoardId: ', Utils::$context['current_board'], ',
@@ -368,8 +370,7 @@ function template_main()
 					sGoButtonLabel: "', Lang::getTxt('go', file: 'General'), '"
 				});
 
-				aIconLists[aIconLists.length] = new IconList({
-					sBackReference: "aIconLists[" + aIconLists.length + "]",
+				new IconList({
 					sIconIdPrefix: "msg_icon_",
 					sScriptUrl: smf_scripturl,
 					bShowModify: ', !empty(Config::$modSettings['show_modify']) ? 'true' : 'false', ',
@@ -388,6 +389,7 @@ function template_main()
 					sItemBorderHover: "1px dotted gray",
 					sItemBackground: "transparent",
 					sItemBackgroundHover: "#e0e0f0"
+					sLabelIconList: "', Lang::getTxt('message_icon', file: 'General'), '"
 				});';
 
 	if (!empty(Utils::$context['ignoredMsgs']))

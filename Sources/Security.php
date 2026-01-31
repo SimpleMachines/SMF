@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -530,8 +530,8 @@ class Security
 				<?php
 
 				// Try to handle it with the upper level index.php. (it should know what to do.)
-				if (file_exists(dirname(__DIR__) . '/index.php')) {
-					include dirname(__DIR__) . '/index.php';
+				if (file_exists(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php')) {
+					include dirname(__DIR__) . DIRECTORY_SEPARATOR . 'index.php';
 				} else {
 					exit;
 				}
@@ -542,7 +542,7 @@ class Security
 				if (@file_put_contents($path . '/index.php', $contents) !== \strlen($contents)) {
 					$errors[] = 'index-php_cannot_create_file';
 				}
-			} elseif (file_get_contents($path . '/index.php') !== $contents) {
+			} elseif (!\in_array(file_get_contents($path . '/index.php'), [$contents, str_replace('DIRECTORY_SEPARATOR . \'index.php\'', '\'/index.php\'', $contents)])) {
 				$errors[] = 'index-php_exists';
 				continue;
 			}

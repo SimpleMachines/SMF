@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -207,6 +207,14 @@ class Config
 	 */
 	public static string $cachedir_sqlite;
 
+	/**
+	 * @var bool
+	 *
+	 * This is only used for the SQLite3 cache system.
+	 * Whether to enable Write-Ahead Logging.
+	 */
+	public static bool $cache_sqlite_wal;
+
 	########## Image proxy ##########
 	/**
 	 * @var bool
@@ -246,16 +254,23 @@ class Config
 	public static string $sourcedir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to the Packages directory.
 	 */
 	public static string $packagesdir;
 
 	/**
-	 * Path to the Packages directory.
-	 *
 	 * @var string
+	 *
+	 * Path to where our dependencies are located.
+	 */
+	public static string $vendordir;
+
+	/**
+	 * @var string
+	 *
+	 * Path to the language directory.
 	 */
 	public static string $languagesdir;
 
@@ -308,6 +323,14 @@ class Config
 	 * URL of SMF's main index.php.
 	 */
 	public static string $scripturl;
+
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 *
+	 * Autoloader instance.
+	 * This is used to support the integrate_autoload hook.
+	 */
+	public static \Composer\Autoload\ClassLoader $loader;
 
 	/****************************
 	 * Internal static properties
@@ -691,6 +714,18 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'string',
 		],
+		'cache_sqlite_wal' => [
+			'text' => <<<'END'
+				/**
+				 * @var bool
+				 *
+				 * This is only used for the SQLite3 cache system.
+				 * Whether to enable Write-Ahead Logging.
+				 */
+				END,
+			'default' => false,
+			'type' => 'boolean',
+		],
 		'image_proxy_enabled' => [
 			'text' => <<<'END'
 
@@ -762,6 +797,18 @@ class Config
 				 */
 				END,
 			'default' => '__DIR__ . \'/Packages\'',
+			'raw_default' => true,
+			'type' => 'string',
+		],
+		'vendordir' => [
+			'text' => <<<'END'
+				/**
+				 * @var string
+				 *
+				 * Path to where our dependencies are located.
+				 */
+				END,
+			'default' => '__DIR__ . \'/vendor\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -959,6 +1006,10 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
+		if ((empty(self::$vendordir) || !is_dir(realpath(self::$vendordir))) && is_dir(self::$boarddir . '/vendor')) {
+			self::$vendordir = self::$boarddir . '/vendor';
+		}
+
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
 		}
@@ -1095,6 +1146,18 @@ class Config
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
 
+		// Any autoloader integrations to add?
+		if (isset(self::$modSettings['integrate_autoload'])) {
+			$class_map = [];
+
+			IntegrationHook::call('integrate_autoload', [&$class_map]);
+
+			foreach ($class_map as $prefix => $dirname) {
+				self::$loader->addPsr4($prefix, $dirname);
+			}
+		}
+
+		// Ensure the cache_enable setting reflects reality.
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary
@@ -1148,8 +1211,9 @@ class Config
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 		self::$modSettings['postmod_active'] = !empty(self::$modSettings['postmod_active']);
 
-		// Ensure the UUID for this forum has been set.
-		if (!isset(self::$modSettings['forum_uuid'])) {
+		// Ensure the UUID for this forum has been set and is valid.
+		if (Uuid::createFromString(self::$modSettings['forum_uuid'] ?? Uuid::NIL_UUID)->getVariant() !== 1) {
+			unset(self::$modSettings['forum_uuid']);
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
@@ -1190,7 +1254,7 @@ class Config
 				$include = strtr(trim($include), ['$boarddir' => self::$boarddir, '$sourcedir' => self::$sourcedir]);
 
 				if (file_exists($include)) {
-					require_once $include;
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}
@@ -2377,7 +2441,7 @@ class Config
 		// Tests passed, so it's time to do the job.
 		if (!$failed) {
 			// Back up the backup, just in case.
-			if (!empty($backup_file) && file_exists($backup_file)) {
+			if (!empty($backup_file) && file_exists($backup_file) && is_readable($backup_file)) {
 				$temp_bfile_saved = @copy($backup_file, $temp_bfile);
 			}
 
@@ -2419,7 +2483,7 @@ class Config
 						}
 					}
 					// It worked, so make our temp backup the new permanent backup.
-					elseif (!empty($backup_file)) {
+					elseif (!empty($backup_file) && file_exists($temp_sfile) && is_readable($backup_file) && is_writable($backup_file)) {
 						@rename($temp_sfile, $backup_file);
 					}
 
@@ -2756,12 +2820,17 @@ class Config
 	 */
 	public static function getDbLastError(): int
 	{
-		if (file_exists(self::$cachedir . '/db_last_error.php')) {
-			include self::$cachedir . '/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/cache/db_last_error.php')) {
-			include self::$boarddir . '/cache/db_last_error.php';
-		} elseif (file_exists(self::$boarddir . '/db_last_error.php')) {
-			include self::$boarddir . '/db_last_error.php';
+		foreach (
+			[
+				self::$cachedir,
+				self::$boarddir . DIRECTORY_SEPARATOR . 'cache',
+				self::$boarddir,
+			] as $dir
+		) {
+			if (file_exists($dir . DIRECTORY_SEPARATOR . 'db_last_error.php')) {
+				include $dir . DIRECTORY_SEPARATOR . 'db_last_error.php';
+				break;
+			}
 		}
 
 		if (!isset($db_last_error)) {

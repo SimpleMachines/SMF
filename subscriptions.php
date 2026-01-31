@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -31,14 +31,11 @@ $paid_debug = false;
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;
 
-if (!file_exists(__DIR__ . '/SSI.php')) {
+if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'SSI.php')) {
 	die('Cannot find SSI.php');
 }
 
-require_once __DIR__ . '/SSI.php';
-
-// Ensure we don't trip over disabled internal functions
-require_once Config::$sourcedir . '/Subs-Compat.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'SSI.php';
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST)) {

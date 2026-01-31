@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -1140,28 +1140,37 @@ class Profile extends User implements \ArrayAccess
 	}
 
 	/**
-	 * Loads the theme options for the member.
+	 * Populates Utils::$context['member']['options'] with this member's theme
+	 * options.
 	 *
-	 * @param bool $defaultSettings If true, we are loading default options.
+	 * @param ?bool $default_only If true, only load options for the default
+	 *    theme, where "default theme" means whichever theme is used for guests.
+	 *    Default: false.
 	 */
-	public function loadThemeOptions(bool $defaultSettings = false)
+	public function loadThemeOptions(bool $default_only = false)
 	{
-		if (isset($_POST['default_options'])) {
-			$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
+		// Get this member's current theme options.
+		if ($default_only && $this->theme != (Config::$modSettings['theme_guests'] ?? 1)) {
+			$temp = $this->data['options'] ?? [];
+			parent::loadOptions($this->id, $default_only);
+			Utils::$context['member']['options'] = $this->data['options'];
+			$this->data['options'] = $temp;
+		} else {
+			Utils::$context['member']['options'] = $this->data['options'] ?? [];
 		}
 
-		Utils::$context['member']['options'] = $this->data['options'] ?? [];
+		// Overwrite their current options with anything that is being set to a
+		// new value.
+		$_POST['options'] = ($_POST['options'] ?? []) + ($_POST['default_options'] ?? []);
 
-		if (isset($_POST['options']) && \is_array($_POST['options'])) {
-			foreach ($_POST['options'] as $k => $v) {
-				Utils::$context['member']['options'][$k] = $v;
-			}
+		foreach ($_POST['options'] as $k => $v) {
+			Utils::$context['member']['options'][$k] = $v;
 		}
 
-		// Load up the default theme options for any missing.
-		parent::loadOptions(-1);
+		// If any theme options are still missing, set them to default values.
+		parent::loadOptions(-1, $default_only);
 
-		foreach (parent::$profiles[-1]['options'] as $k => $v) {
+		foreach (parent::$profiles[-1]['options'] ?? [] as $k => $v) {
 			if (!isset(Utils::$context['member']['options'][$k])) {
 				Utils::$context['member']['options'][$k] = $v;
 			}
@@ -2322,8 +2331,12 @@ class Profile extends User implements \ArrayAccess
 
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
+					// Decode all entities, including double-encoded ones.
+					while ($value !== html_entity_decode($value)) {
+						$value = html_entity_decode($value);
+					}
+
 					$value = Utils::htmlTrim($value);
-					$valueReference = html_entity_decode($value);
 
 					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
@@ -2332,11 +2345,7 @@ class Profile extends User implements \ArrayAccess
 
 					if (
 						$cf_def['mask'] == 'nohtml'
-						&& (
-							$valueReference != strip_tags($valueReference)
-							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
-							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
-						)
+						&& preg_match('~' . Parsers\MarkdownParser::REGEX_HTML_TAG . '~u', $value)
 					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
@@ -2361,7 +2370,7 @@ class Profile extends User implements \ArrayAccess
 						$value = '';
 					}
 
-					unset($valueReference);
+					$value = Utils::htmlspecialchars($value, ENT_QUOTES);
 				}
 			}
 

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -28,6 +28,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\PackageUtils;
 use SMF\PackageManager\XmlArray;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -905,7 +906,7 @@ class Languages implements ActionInterface
 		// Quickly load General language entries.
 		$old_txt = Lang::$txt;
 
-		require $general_filename;
+		require Sapi::canonicalPath($general_filename);
 
 		Utils::$context['lang_file_not_writable_message'] = is_writable($general_filename) ? '' : Lang::getTxt('lang_file_not_writable', ['file' => $general_filename], file: 'ManageSettings');
 

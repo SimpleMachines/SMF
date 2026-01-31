@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\PackageManager;
@@ -746,7 +746,7 @@ class PackageManager
 			}
 
 			// Don't fail if a file/directory we're trying to create doesn't exist...
-			if (isset($action['filename']) && !file_exists($file) && !\in_array($action['type'], ['create-dir', 'create-file']) && $action['error'] != 'ignore') {
+			if (isset($action['filename']) && !file_exists($file) && !\in_array($action['type'], ['create-dir', 'create-file', 'move-dir', 'move-file']) && $action['error'] != 'ignore') {
 				Utils::$context['has_failure'] = true;
 
 				$thisAction += [
@@ -1135,7 +1135,7 @@ class PackageManager
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
 						}
 
-						require Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
+						require Sapi::canonicalPath(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']);
 					}
 				} elseif ($action['type'] == 'credits') {
 					// Time to build the billboard
@@ -1181,7 +1181,7 @@ class PackageManager
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
 						}
 
-						require Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
+						require Sapi::canonicalPath(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']);
 					}
 				}
 				// Handle a redirect...

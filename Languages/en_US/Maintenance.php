@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Maintenance
+// Version: 3.0 Alpha 4; Maintenance
 
 // This should be the same as the one in General.language.php.
 $txt['lang_rtl'] = '0';
@@ -91,7 +91,7 @@ $txt['ftp_password_info'] = 'The password to login with. <em>This will not be sa
 $txt['ftp_path'] = 'Install Path';
 $txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;, but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
+$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;. Your SMF install directory should be below your FTP path, such as &quot;/public_html/forum&quot;. Your FTP path is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
 $txt['ftp_path_help_close'] = 'Close';
 $txt['ftp_connect'] = 'Connect';
 $txt['ftp_checking_writable'] = 'Checking files are writable';
@@ -155,8 +155,9 @@ $txt['db_settings_username_info'] = 'Fill in the username you need to connect to
 $txt['db_settings_password'] = 'Password';
 $txt['db_settings_password_info'] = 'Put the password you need to connect to your database here.<br>If you do not know this, you should try the password to your ftp account.';
 $txt['db_settings_database'] = 'Database name';
-$txt['db_settings_database_info'] = 'Fill in the name of the database you want to use for SMF to store its data in.';
+$txt['db_settings_database_info'] = 'Fill in the name of the database you want to use for SMF to store its data in. Valid name should only contain Alphanumeric, underscores and dashes.';
 $txt['db_settings_database_info_note'] = 'If this database does not exist, this installer will try to create it.';
+$txt['db_settings_database_invalid'] = 'Database name should only contain Alphanumeric, underscores and dashes';
 $txt['db_settings_prefix'] = 'Table prefix';
 $txt['db_settings_prefix_info'] = 'The prefix for every table in the database. <strong>Do not install two forums with the same prefix!</strong><br>This key allows for multiple installations in one database.';
 
@@ -220,7 +221,7 @@ $txt['user_settings_username'] = 'Your username';
 $txt['user_settings_username_info'] = 'Choose the name you want to login with.<br>This can be changed later.';
 $txt['user_settings_password'] = 'Password';
 $txt['user_settings_password_info'] = 'Fill in your preferred password here and remember it well!';
-$txt['user_settings_again'] = 'Password';
+$txt['user_settings_again'] = 'Retype Password';
 $txt['user_settings_again_info'] = '(just for verification).';
 $txt['user_settings_admin_email'] = 'Administrator email address';
 $txt['user_settings_admin_email_info'] = 'Provide your email address. This must be a valid email address!';
@@ -452,7 +453,7 @@ $txt['upgrade_completed_time_s'] = 'Upgrade completed in {s, plural,
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
-$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
+$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod’d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its directory.';
 
 // Attachment & Avatar folder checks
 $txt['warning_av_missing'] = 'Warning! Avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';

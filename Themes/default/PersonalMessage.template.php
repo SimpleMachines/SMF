@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -1059,9 +1059,7 @@ function template_send()
 					</dd>
 				</dl>';
 
-	// Show BBC buttons, smileys and textbox.
-	echo '
-				', template_control_richedit(Utils::$context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
+	template_control_richedit(Utils::$context['post_box_name'], true, true);
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
 	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))

@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; ManageSmileys
+// Version: 3.0 Alpha 4; ManageSmileys
 
 $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';
@@ -58,7 +58,7 @@ $txt['smiley_set_new'] = 'Create new Smiley set';
 $txt['smiley_set_modify_existing'] = 'Modify existing Smiley set';
 $txt['smiley_set_modify'] = 'Modify';
 $txt['smiley_set_import_info'] = 'Smiley files whose names match with one of the existing smileys will be imported automatically.';
-$txt['smiley_set_unused'] = 'There are unused smiley images in the folder for this smiley set. To use these files, do one of the following:
+$txt['smiley_set_unused'] = 'There are unused smiley images in the directory for this smiley set. To use these files, do one of the following:
 	<ul class="bbc_list">
 		<li><a href="{edit_url}" class="bbc_link">Edit</a> your existing smileys to use them.</li>
 		<li><a href="{create_url}" class="bbc_link">Create</a> new smileys for them.</li>

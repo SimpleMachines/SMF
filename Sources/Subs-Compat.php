@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 if (!defined('SMF')) {
@@ -11667,11 +11667,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
+	 * @param string &mime_type Will be set to the detected MIME type.
 	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
 	 */
-	function check_mime_type(string $data, string $type_pattern, bool $is_path = false): int
+	function check_mime_type(string $data, string $type_pattern, bool $is_path = false, ?string &$mime_type = ''): int
 	{
-		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path);
+		return SMF\Utils::checkMimeType($data, $type_pattern, $is_path, $mime_type);
 	}
 
 	/**
@@ -12229,7 +12230,7 @@ if (!function_exists('grapheme_strstr')) {
 }
 
 if (!function_exists('grapheme_stristr')) {
-	function grapheme_strstr(string $haystack, string $needle, bool $before_needle = false): string|false
+	function grapheme_stristr(string $haystack, string $needle, bool $before_needle = false): string|false
 	{
 		return $before_needle ? grapheme_substr($haystack, 0, grapheme_stripos($haystack, $needle)) : grapheme_substr($haystack, grapheme_stripos($haystack, $needle));
 	}

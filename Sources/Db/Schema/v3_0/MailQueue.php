@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -91,6 +91,24 @@ class MailQueue extends Table
 				size: 1,
 				not_null: true,
 				default: 0,
+			),
+			'next_try' => new Column(
+				name: 'next_try',
+				type: 'int',
+				not_null: true,
+				default: 0,
+			),
+			'tries' => new Column(
+				name: 'tries',
+				type: 'tinyint',
+				not_null: true,
+				default: 0,
+			),
+			'extra' => new Column(
+				name: 'extra',
+				type: 'varchar',
+				size: 255,
+				not_null: false,
 			),
 		];
 

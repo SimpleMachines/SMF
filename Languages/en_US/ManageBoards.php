@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; ManageBoards
+// Version: 3.0 Alpha 4; ManageBoards
 
 $txt['boards_and_cats'] = 'Manage Boards and Categories';
 $txt['order'] = 'Order';
@@ -71,10 +71,9 @@ $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection
 $txt['mboards_current_redirects'] = 'Currently: {0, number, integer}';
 
 $txt['mboards_order_first'] = 'In first place';
-$txt['mboards_order_before'] = 'Before';
-$txt['mboards_order_after'] = 'After';
-$txt['mboards_order_child_of'] = 'Sub-board of';
-$txt['mboards_order_in_category'] = 'In category';
+$txt['mboards_order_before'] = 'Before {name}';
+$txt['mboards_order_after'] = 'After {name}';
+$txt['mboards_order_child_of'] = 'Sub-board of {name}';
 $txt['mboards_current_position'] = 'Current Position';
 $txt['no_valid_parent'] = 'Board {name} does not have a valid parent. Use the "find and repair errors" function to fix this.';
 

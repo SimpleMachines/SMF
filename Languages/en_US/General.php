@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; General
+// Version: 3.0 Alpha 4; General
 
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English (US)';
@@ -353,6 +353,7 @@ $txt['go'] = 'Go';
 $txt['are_sure_remove_topic'] = 'Are you sure you want to remove this topic?';
 $txt['yes'] = 'Yes';
 $txt['no'] = 'No';
+$txt['other'] = 'Other';
 
 $txt['search_end_results'] = 'End of results';
 $txt['search_on'] = 'on';
@@ -1105,15 +1106,15 @@ $txt['send_email'] = 'Send Email';
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';
 
-$txt['spider'] = 'Spider';
-$txt['spiders'] = 'Spiders';
+$txt['spider'] = 'Robot';
+$txt['spiders'] = 'Robots';
 $txt['spider_plural'] = '{0, plural,
-	one {spider}
-	other {spiders}
+	one {robot}
+	other {robots}
 }';
 $txt['number_of_spiders'] = '{0, plural,
-	one {# spider}
-	other {# spiders}
+	one {# robot}
+	other {# robots}
 }';
 
 $txt['downloads'] = 'Downloads';

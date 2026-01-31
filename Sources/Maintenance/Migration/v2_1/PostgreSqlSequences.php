@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -39,147 +39,183 @@ class PostgreSqlSequences extends MigrationBase
 	 *
 	 */
 	private array $sequences = [
-		'admin_info_files_seq' => [
+		[
+			'key' => 'admin_info_files_seq',
 			'table' => 'admin_info_files',
 			'field' => 'id_file',
 		],
-		'attachments_seq' => [
+		[
+			'key' => 'attachments_seq',
 			'table' => 'attachments',
 			'field' => 'id_attach',
 		],
-		'ban_groups_seq' => [
+		[
+			'key' => 'ban_groups_seq',
 			'table' => 'ban_groups',
 			'field' => 'id_ban_group',
 		],
-		'ban_items_seq' => [
+		[
+			'key' => 'ban_items_seq',
 			'table' => 'ban_items',
 			'field' => 'id_ban',
 		],
-		'boards_seq' => [
+		[
+			'key' => 'boards_seq',
 			'table' => 'boards',
 			'field' => 'id_board',
 		],
-		'calendar_seq' => [
+		[
+			'key' => 'calendar_seq',
 			'table' => 'calendar',
 			'field' => 'id_event',
 		],
-		'calendar_holidays_seq' => [
+		[
+			'key' => 'calendar_holidays_seq',
 			'table' => 'calendar_holidays',
 			'field' => 'id_holiday',
 		],
-		'categories_seq' => [
+		[
+			'key' => 'categories_seq',
 			'table' => 'categories',
 			'field' => 'id_cat',
 		],
-		'custom_fields_seq' => [
+		[
+			'key' => 'custom_fields_seq',
 			'table' => 'custom_fields',
 			'field' => 'id_field',
 		],
-		'log_actions_seq' => [
+		[
+			'key' => 'log_actions_seq',
 			'table' => 'log_actions',
 			'field' => 'id_action',
 		],
-		'log_banned_seq' => [
+		[
+			'key' => 'log_banned_seq',
 			'table' => 'log_banned',
 			'field' => 'id_ban_log',
 		],
-		'log_comments_seq' => [
+		[
+			'key' => 'log_comments_seq',
 			'table' => 'log_comments',
 			'field' => 'id_comment',
 		],
-		'log_errors_seq' => [
+		[
+			'key' => 'log_errors_seq',
 			'table' => 'log_errors',
 			'field' => 'id_error',
 		],
-		'log_group_requests_seq' => [
+		[
+			'key' => 'log_group_requests_seq',
 			'table' => 'log_group_requests',
 			'field' => 'id_request',
 		],
-		'log_member_notices_seq' => [
+		[
+			'key' => 'log_member_notices_seq',
 			'table' => 'log_member_notices',
 			'field' => 'id_notice',
 		],
-		'log_packages_seq' => [
+		[
+			'key' => 'log_packages_seq',
 			'table' => 'log_packages',
 			'field' => 'id_install',
 		],
-		'log_reported_seq' => [
+		[
+			'key' => 'log_reported_seq',
 			'table' => 'log_reported',
 			'field' => 'id_report',
 		],
-		'log_reported_comments_seq' => [
+		[
+			'key' => 'log_reported_comments_seq',
 			'table' => 'log_reported_comments',
 			'field' => 'id_comment',
 		],
-		'log_scheduled_tasks_seq' => [
+		[
+			'key' => 'log_scheduled_tasks_seq',
 			'table' => 'log_scheduled_tasks',
 			'field' => 'id_log',
 		],
-		'log_spider_hits_seq' => [
+		[
+			'key' => 'log_spider_hits_seq',
 			'table' => 'log_spider_hits',
 			'field' => 'id_hit',
 		],
-		'log_subscribed_seq' => [
+		[
+			'key' => 'log_subscribed_seq',
 			'table' => 'log_subscribed',
 			'field' => 'id_sublog',
 		],
-		'mail_queue_seq' => [
+		[
+			'key' => 'mail_queue_seq',
 			'table' => 'mail_queue',
 			'field' => 'id_mail',
 		],
-		'membergroups_seq' => [
+		[
+			'key' => 'membergroups_seq',
 			'table' => 'membergroups',
 			'field' => 'id_group',
 		],
-		'members_seq' => [
+		[
+			'key' => 'members_seq',
 			'table' => 'members',
 			'field' => 'id_member',
 		],
-		'message_icons_seq' => [
+		[
+			'key' => 'message_icons_seq',
 			'table' => 'message_icons',
 			'field' => 'id_icon',
 		],
-		'messages_seq' => [
+		[
+			'key' => 'messages_seq',
 			'table' => 'messages',
 			'field' => 'id_msg',
 		],
-		'package_servers_seq' => [
+		[
+			'key' => 'package_servers_seq',
 			'table' => 'package_servers',
 			'field' => 'id_server',
 		],
-		'permission_profiles_seq' => [
+		[
+			'key' => 'permission_profiles_seq',
 			'table' => 'permission_profiles',
 			'field' => 'id_profile',
 		],
-		'personal_messages_seq' => [
+		[
+			'key' => 'personal_messages_seq',
 			'table' => 'personal_messages',
 			'field' => 'id_pm',
 		],
-		'pm_rules_seq' => [
+		[
+			'key' => 'pm_rules_seq',
 			'table' => 'pm_rules',
 			'field' => 'id_rule',
 		],
-		'polls_seq' => [
+		[
+			'key' => 'polls_seq',
 			'table' => 'polls',
 			'field' => 'id_poll',
 		],
-		'scheduled_tasks_seq' => [
+		[
+			'key' => 'scheduled_tasks_seq',
 			'table' => 'scheduled_tasks',
 			'field' => 'id_task',
 		],
-		'smileys_seq' => [
+		[
+			'key' => 'smileys_seq',
 			'table' => 'smileys',
 			'field' => 'id_smiley',
 		],
-		'spiders_seq' => [
+		[
+			'key' => 'spiders_seq',
 			'table' => 'spiders',
 			'field' => 'id_spider',
 		],
-		'subscriptions_seq' => [
+		[
+			'key' => 'subscriptions_seq',
 			'table' => 'subscriptions',
 			'field' => 'id_subscribe',
 		],
-		'topics_seq' => [
+		[
+			'key' => 'topics_seq',
 			'table' => 'topics',
 			'field' => 'id_topic',
 		],
@@ -202,15 +238,15 @@ class PostgreSqlSequences extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		for ($key = Maintenance::getCurrentStart(); $key < \count($this->sequences); Maintenance::setCurrentStart()) {
+		for ($i = Maintenance::getCurrentStart(); $i < \count($this->sequences); Maintenance::setCurrentStart()) {
 			$this->handleTimeout();
 
-			$value = $this->sequences[$key];
+			$value = $this->sequences[$i];
 
 			$this->query(
 				"SELECT setval('{raw:key}', (SELECT COALESCE(MAX({raw:field}),1) FROM {raw:table}))",
 				[
-					'key' => Config::$db_prefix . $key,
+					'key' => Config::$db_prefix . $value['key'],
 					'field' => $value['field'],
 					'table' => $value['table'],
 				],

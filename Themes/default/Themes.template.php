@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\BrowserDetector;
@@ -721,7 +721,7 @@ function template_set_settings()
 function template_pick()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=themechooser" method="post" accept-charset="UTF-8">';
+	<form action="', Config::$scripturl, '?action=themechooser" method="post" accept-charset="UTF-8">';
 
 	for ($i = 0; $i < 2; $i++)
 	{

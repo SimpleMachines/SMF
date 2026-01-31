@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
@@ -176,12 +177,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~\'\X*?\'~s',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -215,19 +218,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = preg_split('/(?<![\'\\\\])\'(?![\'])/', $db_string);
-
-			for ($i = 0; $i < \count($clean); $i++) {
-				if ($i % 2 === 1) {
-					$clean[$i] = ' %s ';
-				}
-			}
-
-			$clean = trim(strtolower(preg_replace(
-				$allowed_comments_from,
-				$allowed_comments_to,
-				implode('', $clean),
-			)));
+			// Clear out escaped single quotes first, to make it simpler to ID & remove string literals
+			$clean = str_replace('\'\'', ' ', $db_string);
+			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			if (
 				// Empty string?
@@ -261,7 +254,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			// Get the file and line number this function was called.
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 
@@ -281,7 +274,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$this->last_result = @pg_query($connection, $db_string);
 
 		// Debugging.
-		if ($this->show_debug) {
+		if (DebugUtils::isDebugEnabled()) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
@@ -410,21 +403,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 		if ($method == 'replace' || $method == 'ignore') {
-			$key_str = '';
+			$key_str = implode(',', $keys);
 			$col_str = '';
-
 			$count = 0;
-			$count_pk = 0;
 
+			// Make a list of the non-pk fields.
 			foreach ($columns as $columnName => $type) {
-				// Check pk field.
-				if (\in_array($columnName, $keys)) {
-					$key_str .= ($count_pk > 0 ? ',' : '');
-					$key_str .= $columnName;
-					$count_pk++;
-				}
-				// Normal field.
-				elseif ($method == 'replace') {
+				if (!\in_array($columnName, $keys) && ($method == 'replace')) {
 					$col_str .= ($count > 0 ? ',' : '');
 					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
 					$count++;
@@ -469,6 +454,16 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$insertRows = [];
 
 			foreach ($data as $dataRow) {
+				if (\count($indexed_columns) !== \count($dataRow)) {
+						$this->error_backtrace(
+							'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+							'',
+							E_USER_ERROR,
+							__FILE__,
+							__LINE__,
+						);
+				}
+
 				$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 			}
 
@@ -670,8 +665,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return $return;
 			}
 
-				return is_a($return, 'PgSql\Result');
-
+			return ($return instanceof \PgSql\Result);
 		}
 
 		return false;
@@ -680,7 +674,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function error(object $connection): string
+	public function error(?object $connection = null): string
 	{
 		if ($connection === null && $this->connection === null) {
 			return '';
@@ -735,14 +729,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function is_resource(mixed $result): bool
 	{
 		return \is_resource($result);
-	}
-
-	/**
-	 *
-	 */
-	public function ping(?object $connection = null): bool
-	{
-		return pg_ping($connection ?? $this->connection);
 	}
 
 	/**
@@ -865,7 +851,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// PostgreSQL uses one character set per database. So sane and simple.
 		if (!isset($detected)) {
 			$request = $this->query(
-				'SHOW SERVER_ENCODING;',
+				'SHOW SERVER_ENCODING',
 				[],
 			);
 
@@ -1158,12 +1144,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		$replacements = [
-			'create_tmp_log_search_topics' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
-			'create_tmp_log_search_messages' => [
-				'~ENGINE=MEMORY~i' => '',
-			],
 			'insert_into_log_messages_fulltext' => [
 				'/NOT\sLIKE/' => 'NOT ILIKE',
 				'/\bLIKE\b/' => 'ILIKE',
@@ -1314,9 +1294,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the specifics...
-		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
@@ -1478,8 +1458,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$type_name = $types[$type_name];
 		}
 
-		// Only char fields got size
-		if (!str_contains($type_name, 'char')) {
+		if (
+			// We can't have a zero size.
+			$type_size === 0
+			// Only char fields have a size.
+			|| !str_contains($type_name, 'char')
+		) {
 			$type_size = null;
 		}
 
@@ -1541,7 +1525,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['type'] = $old_info['type'];
 		}
 
-		if (!isset($column_info['size']) || !is_numeric($column_info['size'])) {
+		if (
+			!\array_key_exists('size', $column_info)
+			|| (
+				!is_numeric($column_info['size'])
+				&& !\is_null($column_info['size'])
+			)
+		) {
 			$column_info['size'] = $old_info['size'];
 		}
 
@@ -1557,7 +1547,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Default values and such are inapplicable to generated columns.
 		if (isset($column_info['generation_expression'])) {
-			$column_info['drop_default'] = true;
+			$column_info['drop_default'] = !isset($old_info['generation_expression']);
 			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
 		}
 
@@ -1607,11 +1597,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					)
 				)
 			)
-			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
+			|| ($column_info['generation_expression'] ?? '') !== ($old_info['generation_expression'] ?? '')
 		) {
-			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? (int) $column_info['size'] : null;
 
-			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
+			list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
 
 			if ($size !== null) {
 				$type .= '(' . $size . ')';
@@ -1634,6 +1624,16 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$this->query(
 					'UPDATE ' . $short_table_name . '
 					SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
+					[
+						'security_override' => true,
+					],
+				);
+			}
+
+			if (isset($old_info['generation_expression'])) {
+				$this->query(
+					'ALTER TABLE ' . $short_table_name . '
+					ALTER COLUMN ' . $column_info['name'] . ' DROP EXPRESSION',
 					[
 						'security_override' => true,
 					],
@@ -1668,7 +1668,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (\is_null($column_info['default'])) {
 				$default = 'NULL';
 			} elseif (isset($column_info['default']) && is_numeric($column_info['default'])) {
-				$default = strpos($column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
+				$default = strpos((string) $column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
 			} else {
 				$default = '\'' . $this->escape_string($column_info['default']) . '\'';
 			}
@@ -1685,7 +1685,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Is it null - or otherwise?
 		// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
-		if ($column_info['not_null']) {
+		if (isset($column_info['not_null'])) {
 			$action = 'SET NOT NULL';
 		} else {
 			$action = 'DROP NOT NULL';
@@ -1814,14 +1814,19 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				}
 				$default = 'default nextval(\'' . $short_table_name . '_seq\')';
 			} elseif (isset($column['default']) && $column['default'] !== null) {
-				$default = 'default \'' . $this->escape_string($column['default']) . '\'';
+				// Numbers don't need quotes.
+				if (is_numeric($column['default'])) {
+					$default = 'default ' . $column['default'];
+				} else {
+					$default = 'default \'' . $this->escape_string($column['default']) . '\'';
+				}
 			} else {
 				$default = '';
 			}
 
 			// Sort out the size...
-			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-			list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? (int) $column['size'] : null;
+			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1840,12 +1845,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
-			if (\is_array($c)) {
-				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
-			}
-
-			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
+				if (\is_array($c)) {
+					$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+				}
+
+				// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 			}
 
@@ -2357,21 +2362,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function validatePrefix(&$value): bool
+	public function validatePrefix(string $prefix): void
 	{
-		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
+		if ($prefix !== preg_replace('~[^A-Za-z0-9_\$]~', '', $prefix)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_invalid', ['prefix' => $prefix], file: 'Maintenance'));
+		}
 
 		// Is it reserved?
-		if ($value == 'pg_') {
+		if ($prefix == 'pg_') {
 			throw new \Exception(Lang::getTxt('error_db_prefix_reserved', file: 'Maintenance'));
 		}
 
 		// Is the prefix numeric?
-		if (preg_match('~^\d~', $value)) {
+		if (preg_match('~^\d~', $prefix)) {
 			throw new \Exception(Lang::getTxt('error_db_prefix_numeric', file: 'Maintenance'));
 		}
-
-		return true;
 	}
 
 	/**

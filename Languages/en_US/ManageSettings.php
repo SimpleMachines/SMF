@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; ManageSettings
+// Version: 3.0 Alpha 4; ManageSettings
 
 // argument(s): theme_id, session_id, session_var, Config::$scripturl
 $txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="{scripturl}?action=admin;area=theme;sa=list;th={theme_id};{session_var}={session_id}">theme settings</a> for more options. Click the help icons for more information about a setting.';
@@ -155,6 +155,8 @@ $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
 $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_sqlite_wal'] = 'Enable SQLite3 WAL';
+$txt['cache_sqlite_wal_subtext'] = 'Read <a href="https://www.sqlite.org/wal.html">Write-Ahead Logging</a> documentation prior to using. If you enable then disable this setting, the database will become readonly.';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>!';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -370,6 +372,7 @@ $txt['edit_language_entries_primary'] = 'Below are the primary language settings
 $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, browse to the file you are looking for, and then edit it directly.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
+$txt['edit_language_entries_add'] = 'Add another item';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 

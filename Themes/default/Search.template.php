@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -375,18 +375,19 @@ function template_results()
 	echo '
 		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
 		<script>
-		if (typeof(window.XMLHttpRequest) != "undefined")
-			aJumpTo[aJumpTo.length] = new JumpTo({
-				sContainerId: "search_jump_to",
-				sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
-				iCurBoardId: 0,
-				iCurBoardChildLevel: 0,
-				sCurBoardName: "', Utils::$context['jump_to']['board_name'], '",
-				sBoardChildLevelIndicator: "==",
-				sBoardPrefix: "=> ",
-				sCatSeparator: "-----------------------------",
-				sCatPrefix: "",
-				sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
+			window.addEventListener("DOMContentLoaded", function() {
+				new JumpTo({
+					sContainerId: "search_jump_to",
+					sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
+					iCurBoardId: 0,
+					iCurBoardChildLevel: 0,
+					sCurBoardName: "', Utils::$context['jump_to']['board_name'], '",
+					sBoardChildLevelIndicator: "==",
+					sBoardPrefix: "=> ",
+					sCatSeparator: "-----------------------------",
+					sCatPrefix: "",
+					sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
+				});
 			});
 		</script>
 	</div>';

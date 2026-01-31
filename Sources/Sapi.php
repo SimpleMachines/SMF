@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -501,18 +501,18 @@ class Sapi
 			// Apple is special, check sysctl
 			elseif (self::isOS(self::OS_MAC)) {
 				if (($cpu_count = @shell_exec('sysctl -n hw.physicalcpu')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-					self::$cpu_count = min((int) $cpu_count, 1);
+					self::$cpu_count = max((int) $cpu_count, 1);
 				}
 			}
 			// On most Linux distros, we can runn nproc.
 			elseif (($cpu_count = @shell_exec('nproc --all')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-				self::$cpu_count = min((int) $cpu_count, 1);
+				self::$cpu_count = max((int) $cpu_count, 1);
 			}
 
 			// This works for both Mac and Linux, however it actually reports online cpus, not total CPUs.
 			// Could also use _NPROCESSORS_CONF which is processors configured.
 			if (empty(self::$cpu_count) && !self::isOS(self::OS_WINDOWS) && ($cpu_count = @shell_exec('getconf _NPROCESSORS_ONLN')) !== null && preg_match('~\d~i', $cpu_count, $matches) !== 0) {
-				self::$cpu_count = min((int) $cpu_count, 1);
+				self::$cpu_count = max((int) $cpu_count, 1);
 			}
 
 			// Borrowed from: https://www.php.net/manual/en/function.sys-getloadavg.php#129847
@@ -521,7 +521,7 @@ class Sapi
 				preg_match_all('/^processor/m', file_get_contents('/proc/cpuinfo'), $matches);
 
 				if (isset($matches[0])) {
-					self::$cpu_count = min(\count($matches[0]), 1);
+					self::$cpu_count = max(\count($matches[0]), 1);
 				}
 			}
 		} catch (\Exception $ex) {
@@ -535,5 +535,128 @@ class Sapi
 		Config::updateModSettings(['cpu_count' => self::$cpu_count]);
 
 		return self::$cpu_count;
+	}
+
+	/**
+	 * Normalizes directory separators and resolves '.' and '..' in a file path.
+	 *
+	 * The $path does not need to point to an existing file.
+	 *
+	 * If $path does point to an existing file, or if an ancestor directory of
+	 * $path exists, then \realpath() will be used to resolve that part of the
+	 * path, unless the $real parameter is set to false.
+	 *
+	 * @param string $path The file path.
+	 * @param string|bool $base_dir Base directory for relative paths.
+	 *    - If a string, relative paths are prepended with the string and a
+	 *      directory separator. Note that directory separators in this string
+	 *      will be normalized just like in $path.
+	 *    - If true, relative paths are prepended with the current working
+	 *      directory and a directory separator.
+	 *    - If false, relative paths are processed as given.
+	 *    Default: false.
+	 * @param bool $real Whether to get the real path for existing files. This
+	 *    can be set to false if the caller wants to canonicalize a hypothetical
+	 *    path without any possibility of the real file structure interfering
+	 *    with the result.
+	 *    Default: true.
+	 * @return string The canonical file path.
+	 */
+	public static function canonicalPath(string $path, string|bool $base_dir = false, bool $real = true): string
+	{
+		// If $path points to a real file, this is all we need to do.
+		if (!empty($real) && ($realpath = @realpath($path)) !== false) {
+			return $realpath;
+		}
+
+		$base_dir = \is_string($base_dir) ? rtrim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $base_dir), DIRECTORY_SEPARATOR) : (!empty($base_dir) ? getcwd() : false);
+
+		$path = trim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path));
+
+		// We need to know the path of the root directory.
+		if (DIRECTORY_SEPARATOR === '/') {
+			$root = '';
+			$is_absolute = str_starts_with($path, DIRECTORY_SEPARATOR);
+		} else {
+			// Windows network shares and devices.
+			if (str_starts_with($path, DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR)) {
+				if (\in_array(substr($path, 2, 2), ['?' . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR])) {
+					$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, 3));
+				} else {
+					$root = '';
+
+					for ($i = 0; $i < 3; $i++) {
+						$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR, \strlen($root) + 1));
+					}
+				}
+			}
+			// Windows absolute DOS-style path.
+			elseif (strpos($path, ':') !== false && strpos($path, DIRECTORY_SEPARATOR) === strpos($path, ':') + 1) {
+				$root = substr($path, 0, strpos($path, DIRECTORY_SEPARATOR));
+			}
+			// Windows relative path.
+			else {
+				$root = substr(getcwd(), 0, strcspn(getcwd(), DIRECTORY_SEPARATOR));
+
+				// If relative to current drive's root, make it absolute.
+				if (strpos($path, DIRECTORY_SEPARATOR) === 0) {
+					$path = $root . $path;
+				}
+			}
+
+			$is_absolute = str_starts_with($path, $root . DIRECTORY_SEPARATOR);
+		}
+
+		// Build canonical path.
+		$canonical_path = '';
+
+		if ($is_absolute) {
+			$path = substr($path, \strlen($root . DIRECTORY_SEPARATOR));
+			$path_parts = [$root];
+		} elseif (\is_string($base_dir)) {
+			$path_parts = explode(DIRECTORY_SEPARATOR, $base_dir);
+		} else {
+			$path_parts = [];
+		}
+
+		foreach (explode(DIRECTORY_SEPARATOR, $path) as $key => $part) {
+			if (empty($part) || $part === '.') {
+				continue;
+			}
+
+			if ($part === '..') {
+				if ($is_absolute && $path_parts === [$root]) {
+					continue;
+				}
+
+				if (empty($path_parts) || $path_parts[0] === '..') {
+					$path_parts[] = $part;
+				} else {
+					array_pop($path_parts);
+				}
+			} else {
+				$path_parts[] = $part;
+			}
+
+			$canonical_path = implode(DIRECTORY_SEPARATOR, $path_parts);
+
+			if (empty($real) || \in_array($canonical_path, ['', '.', '..'])) {
+				continue;
+			}
+
+			// Check for intermediate symlinks.
+			$realpath = @realpath($canonical_path);
+
+			if ($realpath !== false && $realpath !== $canonical_path) {
+				$path_parts = explode(DIRECTORY_SEPARATOR, $realpath);
+			}
+		}
+
+		// Ambiguity is bad.
+		if ($canonical_path === '') {
+			$canonical_path = $is_absolute ? $root . DIRECTORY_SEPARATOR : '.';
+		}
+
+		return $canonical_path;
 	}
 }

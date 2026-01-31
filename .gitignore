@@ -81,9 +81,9 @@ Thumbs.db
 /test.php
 Themes/default/scripts/minified.js
 Themes/default/css/minified.css
-upgrade-helper.php
 .vscode/
 .php-cs-fixer.cache
 vendor/
 .phplint-cache
 .phplint.cache
+composer.phar

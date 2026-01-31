@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -85,6 +85,9 @@ class Ipv6BanItem extends MigrationBase
 					WHERE ip_low1 > 0',
 				);
 			} else {
+				// Note, We now support MySQL 8+, which means we could use INET6_ATON.
+				// The upgrade logic was built this way and should remain the same.
+				// If changed, a full upgrade from 2.0 to 3.0 would need to be tested.
 				$this->quote(
 					'UPDATE IGNORE {db_prefix}ban_items
 					SET ip_low =

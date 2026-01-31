@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -827,7 +827,7 @@ function template_calendar_top($calendar_data)
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', Utils::strtolower(Lang::getTxt('to', file: 'General')), '</span>
-				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::getTxt('view', file: 'General'), '">

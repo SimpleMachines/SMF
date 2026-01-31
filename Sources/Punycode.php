@@ -13,10 +13,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -540,7 +540,7 @@ class Punycode
 	 */
 	protected function preprocess(string $domain, array &$errors = []): string
 	{
-		require_once Config::$sourcedir . '/Unicode/Idna.php';
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
 
 		$regexes = idna_regex();
 		$maps = idna_maps();
@@ -617,7 +617,7 @@ class Punycode
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 
-		require_once Config::$sourcedir . '/Unicode/Idna.php';
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Idna.php');
 
 		$regexes = Unicode\idna_regex();
 

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -24,6 +24,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -603,8 +604,7 @@ abstract class SearchApi implements SearchApiInterface
 
 			// Clear the previous cache of the final results cache.
 			Db::$db->search_query(
-				'
-				DELETE FROM {db_prefix}log_search_results
+				'DELETE FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}',
 				[
 					'search_id' => $_SESSION['search_cache']['id_search'],
@@ -637,8 +637,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		// *** Retrieve the results to be shown on the page
 		$request = Db::$db->search_query(
-			'
-			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
+			'SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
@@ -904,7 +903,7 @@ abstract class SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			require_once $file_info->getPathname();
+			require_once Sapi::canonicalPath($file_info->getPathname());
 
 			if (!class_exists($class_name, false)) {
 				continue;
@@ -1799,19 +1798,15 @@ abstract class SearchApi implements SearchApiInterface
 
 			// Create a temporary table to store some preliminary results in.
 			Db::$db->search_query(
-				'
-				DROP TABLE IF EXISTS {db_prefix}tmp_log_search_topics',
-				[
-				],
+				'DROP TABLE IF EXISTS {db_prefix}tmp_log_search_topics',
 				identifier: 'drop_tmp_log_search_topics',
 			);
 
 			$createTemporary = Db::$db->search_query(
-				'
-				CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
+				'CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 					id_topic int NOT NULL default {string:string_zero},
 					PRIMARY KEY (id_topic)
-				) ENGINE=MEMORY',
+				)' . (\in_array('MEMORY', Db::$db->get_engines()) ? ' ENGINE=MEMORY' : ''),
 				[
 					'string_zero' => '0',
 				],
@@ -1821,8 +1816,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Clean up some previous cache.
 			if (!$createTemporary) {
 				Db::$db->search_query(
-					'
-					DELETE FROM {db_prefix}log_search_topics
+					'DELETE FROM {db_prefix}log_search_topics
 					WHERE id_search = {int:search_id}',
 					[
 						'search_id' => $_SESSION['search_cache']['id_search'],
@@ -2012,19 +2006,15 @@ abstract class SearchApi implements SearchApiInterface
 			$inserts = [];
 
 			Db::$db->search_query(
-				'
-				DROP TABLE IF EXISTS {db_prefix}tmp_log_search_messages',
-				[
-				],
+				'DROP TABLE IF EXISTS {db_prefix}tmp_log_search_messages',
 				identifier: 'drop_tmp_log_search_messages',
 			);
 
 			$createTemporary = Db::$db->search_query(
-				'
-				CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
+				'CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 					id_msg int NOT NULL default {string:string_zero},
 					PRIMARY KEY (id_msg)
-				) ENGINE=MEMORY',
+				)' . (\in_array('MEMORY', Db::$db->get_engines()) ? ' ENGINE=MEMORY' : ''),
 				[
 					'string_zero' => '0',
 				],
@@ -2034,8 +2024,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Clear, all clear!
 			if (!$createTemporary) {
 				Db::$db->search_query(
-					'
-					DELETE FROM {db_prefix}log_search_messages
+					'DELETE FROM {db_prefix}log_search_messages
 					WHERE id_search = {int:id_search}',
 					[
 						'id_search' => $_SESSION['search_cache']['id_search'],

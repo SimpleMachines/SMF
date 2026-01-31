@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -147,9 +147,15 @@ abstract class ToolsBase
 			}
 
 			$this->log_file = $dir . DIRECTORY_SEPARATOR . $name . '.log';
+
+			// Try to make the file the writable.
+			if (file_exists($this->log_file) && !is_writable($this->log_file)) {
+				chmod($this->log_file, 0664);
+			}
 		}
 
-		file_put_contents($this->log_file, $message, $reset ? 0 : FILE_APPEND);
+		// If we fail to write, be quiet about it.
+		@file_put_contents($this->log_file, $message, $reset ? 0 : FILE_APPEND);
 	}
 
 	/**
@@ -217,7 +223,7 @@ abstract class ToolsBase
 			$db_class = '\\SMF\\Db\\APIs\\' . substr($entry, 0, -4);
 			$db = new $db_class();
 
-			if (!($db instanceof \SMF\Db\DatabaseApi) || !$db->isSupported()) {
+			if (!($db instanceof Db) || !$db->isSupported()) {
 				continue;
 			}
 
@@ -246,7 +252,7 @@ abstract class ToolsBase
 	{
 		$db_class = '\\SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type);
 
-		require_once Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php';
+		require_once Sapi::canonicalPath(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
 
 		return new $db_class();
 	}
@@ -570,6 +576,11 @@ abstract class ToolsBase
 	 */
 	public function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
 	{
+		// A whole lot of not saving anything going on.
+		if ($config_vars === []) {
+			return true;
+		}
+
 		if (array_keys($config_vars) !== ['maintenance_tool_progress']) {
 			$this->logProgress(Lang::getTxt('log_settings_file_save', ['setting_names' => Lang::sentenceList(array_keys($config_vars))], file: 'Maintenance'), true);
 		}
@@ -608,7 +619,7 @@ abstract class ToolsBase
 
 		try {
 			Config::updateModSettings($change_array, $update);
-		} catch (\Thowable $e) {
+		} catch (\Exception $e) {
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
 		}
 

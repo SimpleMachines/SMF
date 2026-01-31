@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\Tasks\BackgroundTask;
 use SMF\Tasks\ScheduledTask;
 
@@ -139,7 +140,11 @@ class TaskRunner
 			}
 
 			// Do nothing if we are in the middle of an install or upgrade.
-			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
+			if (
+				\defined('SMF_INSTALLING')
+				|| !empty(Config::$custom['package_installing'])
+				|| !empty(Config::$custom['maintenance_tool_progress'])
+			) {
 				$this->obExit();
 			}
 
@@ -162,7 +167,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 
 			Db::load();
 
@@ -551,7 +556,7 @@ class TaskRunner
 			$include = strtr(trim($task_details['task_file']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir]);
 
 			if (file_exists($include)) {
-				require_once $include;
+				require_once Sapi::canonicalPath($include);
 			}
 		}
 

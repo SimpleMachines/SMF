@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
+use SMF\Debug\DebugUtils;
 use SMF\User;
 use SMF\Utils;
 
@@ -39,7 +40,7 @@ class AlertsPopup implements ActionInterface
 	public function execute(): void
 	{
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];

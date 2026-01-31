@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -149,13 +149,6 @@ abstract class DatabaseApi
 	 * The default character set.
 	 */
 	public string $character_set;
-
-	/**
-	 * @var bool
-	 *
-	 * Local copy of Config::$db_show_debug.
-	 */
-	public bool $show_debug;
 
 	/**
 	 * @var bool
@@ -354,10 +347,6 @@ abstract class DatabaseApi
 			$this->persist = !empty(Config::$db_persist);
 		}
 
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
-		}
-
 		if (!isset($this->disableQueryCheck)) {
 			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
 		}
@@ -452,10 +441,10 @@ abstract class DatabaseApi
 				default:
 					$test = \is_array($value) ? reset($value) : $value;
 
-					if (IP::create((string) $test)->isValid()) {
-						$types[$column_name] = 'inet';
-					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString((string) $test)) !== Uuid::NIL_UUID) {
-						$types[$column_name] = 'uuid';
+					if ($test !== '' && (string) IP::create((string) $test) === $test) {
+						$type = 'inet';
+					} elseif ($test instanceof Uuid || (string) @Uuid::createFromString((string) $test) === $test) {
+						$type = 'uuid';
 					} else {
 						$type = 'string';
 					}

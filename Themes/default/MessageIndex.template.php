@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Config;
@@ -478,8 +478,8 @@ function template_topic_legend()
 	if (!empty(Utils::$context['jump_to']))
 		echo '
 			<script>
-				if (typeof(window.XMLHttpRequest) != "undefined")
-					aJumpTo[aJumpTo.length] = new JumpTo({
+				window.addEventListener("DOMContentLoaded", function() {
+					new JumpTo({
 						sContainerId: "message_index_jump_to",
 						sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 						iCurBoardId: ', Utils::$context['current_board'], ',
@@ -491,6 +491,7 @@ function template_topic_legend()
 						sCatPrefix: "",
 						sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
 					});
+				});
 			</script>';
 
 	echo '

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -34,6 +34,7 @@ use SMF\QueryString;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeZone;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
@@ -684,7 +685,7 @@ class Feed implements ActionInterface, Routable
 						[
 							'tag' => 'time',
 							'attributes' => ['label' => Lang::getTxt('date_registered', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['date_registered'])],
-							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'id',
@@ -1480,7 +1481,7 @@ class Feed implements ActionInterface, Routable
 						[
 							'tag' => 'time',
 							'attributes' => ['label' => Lang::getTxt('date', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
-							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'id',
@@ -1779,12 +1780,12 @@ class Feed implements ActionInterface, Routable
 				[
 					'tag' => 'last-login',
 					'attributes' => ['label' => Lang::getTxt('lastLoggedIn', file: 'Profile'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
-					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['last_login_timestamp'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
 					'attributes' => ['label' => Lang::getTxt('date_registered', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['registered_timestamp'])],
-					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'content' => Time::create('@' . $profile['registered_timestamp'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'avatar',

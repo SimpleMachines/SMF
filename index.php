@@ -14,10 +14,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ if (!defined('SMF')) {
 }
 
 if (!defined('SMF_VERSION')) {
-	define('SMF_VERSION', '3.0 Alpha 3');
+	define('SMF_VERSION', '3.0 Alpha 4');
 }
 
 if (!defined('SMF_FULL_VERSION')) {
@@ -44,7 +44,7 @@ if (!defined('SMF_FULL_VERSION')) {
 }
 
 if (!defined('SMF_SOFTWARE_YEAR')) {
-	define('SMF_SOFTWARE_YEAR', '2025');
+	define('SMF_SOFTWARE_YEAR', '2026');
 }
 
 if (!defined('JQUERY_VERSION')) {
@@ -68,11 +68,15 @@ if (!defined('TIME_START')) {
 }
 
 if (!defined('SMF_SETTINGS_FILE')) {
-	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
+	define('SMF_SETTINGS_FILE', __DIR__ . DIRECTORY_SEPARATOR . 'Settings.php');
 }
 
 if (!defined('SMF_SETTINGS_BACKUP_FILE')) {
-	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . '/' . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
+	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . DIRECTORY_SEPARATOR . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
+}
+
+if (!defined('FONTAWESOME_VERSION')) {
+	define('FONTAWESOME_VERSION', '7.1.0');
 }
 
 if (!defined('FONTAWESOME_VERSION')) {
@@ -112,19 +116,28 @@ call_user_func(function () {
 			$boarddir = __DIR__;
 		}
 
-		if (is_dir($boarddir . '/Sources')) {
-			$sourcedir = $boarddir . '/Sources';
+		if (is_dir($boarddir . DIRECTORY_SEPARATOR . 'Sources')) {
+			$sourcedir = $boarddir . DIRECTORY_SEPARATOR . 'Sources';
 		}
 	}
 
 	// We need this class, or nothing works.
-	if (!is_file($sourcedir . '/Config.php') || !is_readable($sourcedir . '/Config.php')) {
+	if (!is_file($sourcedir . DIRECTORY_SEPARATOR . 'Config.php') || !is_readable($sourcedir . DIRECTORY_SEPARATOR . 'Config.php')) {
 		die('File not readable: (Sources)/Config.php');
 	}
 
 	// Pass all the settings to SMF\Config.
-	require_once $sourcedir . '/Config.php';
+	require_once $sourcedir . DIRECTORY_SEPARATOR . 'Config.php';
 	SMF\Config::set(get_defined_vars());
+
+	// Start up the autoloader.
+	SMF\Config::$loader = require SMF\Config::$vendordir . '/autoload.php';
+
+	// Ensure the SMF namespace points to $sourcedir.
+	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
+
+	// Initialize the container.
+	SMF\Container::init();
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
@@ -139,10 +152,8 @@ if (SMF === 1) {
  * 3. Load some other essential includes.
  */
 
-require_once SMF\Config::$sourcedir . '/Autoloader.php';
-
 // Ensure we don't trip over disabled internal functions
-require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
+require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';
 
 
 /*********************************************************************

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -25,6 +25,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -240,7 +241,7 @@ class Main implements ActionInterface, Routable
 		$this->createMenu();
 
 		if (isset(Menu::$loaded['moderate']->include_data['file'])) {
-			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file']);
 		}
 
 		$call = \is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);

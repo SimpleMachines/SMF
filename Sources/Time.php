@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -175,23 +175,24 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 *  - The second parameter can be a \DateTimeZone object or a valid time
 	 *    zone identifier string. If a string is passed and that string is not a
-	 *    valid time zone identifier, it will be silently discarded in favour of
-	 *    the current user's time zone.
+	 *    valid time zone identifier, an exception will be thrown.
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
-	 *    as a \DateTimeZone object or as a time zone identifier string.
-	 *    Defaults to the current user's time zone.
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime,
+	 *    either as a \DateTimeZone object or as a time zone identifier string.
+	 *    If null, defaults to the current user's time zone.
+	 * @throws \DateInvalidTimeZoneException if $timezone is an invalid time
+	 *    zone identifier string.
 	 */
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
 		if (!isset(self::$user_tz)) {
-			self::$user_tz = new \DateTimeZone(User::getTimezone());
+			self::$user_tz = TimeZone::create(User::getTimezone());
 		}
 
-		if (\is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
-			unset($timezone);
+		if (\is_string($timezone)) {
+			$timezone = TimeZone::create($timezone);
 		}
 
 		$datetime = self::sanitize($datetime);
@@ -730,7 +731,7 @@ class Time extends \DateTime implements \ArrayAccess
 		if ($timezone instanceof \DateTimeZone) {
 			date_timezone_set($this, $timezone);
 		} elseif (\in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
-			date_timezone_set($this, new \DateTimeZone($timezone));
+			date_timezone_set($this, TimeZone::create($timezone));
 		} else {
 			throw new \ValueError();
 		}
@@ -814,7 +815,7 @@ class Time extends \DateTime implements \ArrayAccess
 		}
 
 		$date = new self('@' . $timestamp);
-		$date->setTimezone(new \DateTimeZone($tzid));
+		$date->setTimezone(TimeZone::create($tzid));
 
 		return $date->format($format, false, true);
 	}
@@ -1452,9 +1453,9 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
 			array_merge(
 				// Time zone abbreviations.
-				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a)),
+				array_map('strtolower', array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a))),
 				// Time zone identifiers.
-				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+				array_map('strtolower', \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)),
 				// Recognized key words.
 				[
 					'january', 'february', 'march', 'april', 'may', 'june',

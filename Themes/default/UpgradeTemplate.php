@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -93,25 +93,11 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		echo '
 			<script>
-				let countdown = ' . (Maintenance::$tool->isDebug() ? '-1' : '3') . ';
-				let dontSubmit = false;
-
-				function doAutoSubmit()
-				{
-					if (countdown == 0 && !dontSubmit) {
-						document.getElementById("upform").submit();
-					} else if (countdown == -1) {
-						return;
-					}
-
-					document.getElementById("contbutt").value = "', Lang::getTxt('action_continue', file: 'Maintenance'), ' (" + countdown + ")";
-					countdown--;
-
-					setTimeout("doAutoSubmit();", 1000);
-				}
+				setTimeout(\'doAutoSubmit(' . (Maintenance::$tool->isDebug() ? '-1' : '3') . ', "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "upform", "contbutt");\', 1000);
 			</script>';
 
 		// Are we on a pause?
+		// !!! TODO: Why?
 		if (!empty(Maintenance::$context['pause'])) {
 			echo '
 			<script defer>

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 use SMF\Actions\Admin\Permissions;
@@ -475,13 +475,13 @@ function template_view_versions()
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
-											', $filename, '.<em>', $language, '</em>.php
+											<em>', $language, '</em>/', $filename, '
 										</td>
 										<td class="quarter_table">
-											<em id="your', $filename, '.', $language, '">', $version, '</em>
+											<em id="yourLanguage_', $language, '_', $filename, '">', $version, '</em>
 										</td>
 										<td class="quarter_table">
-											<em id="current', $filename, '.', $language, '">??</em>
+											<em id="currentLanguage_', $language, '_', $filename, '">??</em>
 										</td>
 									</tr>';
 	}
@@ -586,8 +586,8 @@ function template_view_versions()
 					<script>
 						var oViewVersions = new smf_ViewVersions({
 							aKnownLanguages: [
-								\'.', implode('\',
-								\'.', Utils::$context['default_known_languages']), '\'
+								\'', implode('\',
+								\'', Utils::$context['default_known_languages']), '\'
 							],
 							oSectionContainerIds: {
 								Sources: \'Sources\',

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\WebFetch\WebFetchApi;
 
 /**
@@ -185,7 +186,7 @@ class Theme
 		}
 
 		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['menu_separator'] = ' ';
 		Utils::$context['session_var'] = $_SESSION['session_var'];
 		Utils::$context['session_id'] = $_SESSION['session_value'];
 		Utils::$context['forum_name'] = Config::$mbname;
@@ -235,7 +236,7 @@ class Theme
 				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
 
 				if (file_exists($include)) {
-					require_once $include;
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}
@@ -420,8 +421,8 @@ class Theme
 		}
 
 		if ($loaded) {
-			if (!empty(Config::$db_show_debug)) {
-				Utils::$context['debug']['templates'][] = basename($template_dir) . '/' . $template_name . '.template.php';
+			if (DebugUtils::isDebugEnabled()) {
+				DebugUtils::addDebugSource('templates', basename($template_dir) . '/' . $template_name . '.template.php');
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -508,8 +509,8 @@ class Theme
 		$template_name = \is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
 
 		// Add the sub-template to the debug context if debugging is enabled.
-		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['sub_templates'][] = $template_name;
+		if (DebugUtils::isDebugEnabled()) {
+			DebugUtils::addDebugSource('sub_templates', $template_name);
 		}
 
 		// Determine the template function name and any associated parameters.
@@ -1687,12 +1688,12 @@ class Theme
 				}
 			}
 
-			if (!empty(Config::$db_show_debug)) {
+			if (DebugUtils::isDebugEnabled()) {
 				// Try to keep only what's useful.
 				$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
 
 				foreach (Utils::$context[$css_group . '_files'] as $file) {
-					Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
+					DebugUtils::addDebugSource('sheets', strtr($file['fileUrl'], $repl));
 				}
 			}
 
@@ -2145,7 +2146,7 @@ class Theme
 			'fontawesome_cdn' => 'https://use.fontawesome.com/releases/v' . FONTAWESOME_VERSION . '/css/all.css',
 		];
 
-		if (isset(Config::$modSettings['fontawesome_source']) && array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
+		if (isset(Config::$modSettings['fontawesome_source']) && \array_key_exists(Config::$modSettings['fontawesome_source'], $FontAwesomeUrls)) {
 			self::loadCSSFile($FontAwesomeUrls[Config::$modSettings['fontawesome_source']], ['external' => true, 'order_pos' => -100], 'smf_fontawesome');
 		} elseif (isset(Config::$modSettings['fontawesome_source']) && Config::$modSettings['fontawesome_source'] == 'local') {
 			self::loadCSSFile('fontawesome.min.css', ['default_theme' => true, 'minimize' => true, 'order_pos' => -100], 'smf_fontawesome');
@@ -2196,7 +2197,7 @@ class Theme
 				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
 
 				// If the user is logged, save this to their profile
-				if (User::$me->is_logged && in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+				if (User::$me->is_logged && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}themes',
@@ -2209,12 +2210,12 @@ class Theme
 
 			// User selection?
 			if (empty($this->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum')) {
-				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
+				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && \in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
 			}
 
 			// If no color mode, set a default
-			if (empty(Utils::$context['theme_colormode']) || !in_array(Utils::$context['theme_colormode'], $this->settings['theme_colormodes'])) {
-				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
+			if (empty(Utils::$context['theme_colormode']) || !\in_array(Utils::$context['theme_colormode'], $this->settings['theme_colormodes'])) {
+				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && \in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
 			}
 
 			self::loadCSSFile('dark.css', ['order_pos' => 2, 'attributes' => (Utils::$context['theme_colormode'] == 'system' ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
@@ -2239,7 +2240,7 @@ class Theme
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
 
 				// If the user is logged, save this to their profile
-				if (User::$me->is_logged && in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
+				if (User::$me->is_logged && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}themes',
@@ -2253,7 +2254,7 @@ class Theme
 			/**
 			 * Attempt to load a variants file for variable overriding
 			 * using data attribute (:root[data-variant="variant"])
-			 * 
+			 *
 			 * This is useful when you only want a single file for
 			 * recoloring the variants.
 			 */
@@ -2309,6 +2310,7 @@ class Theme
 		// Add the JQuery library to the list of files to load.
 		$jQueryUrls =  [
 			'cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js',
+			'cloudflare_cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/' . JQUERY_VERSION . '/jquery.min.js',
 			'jquery_cdn' => 'https://code.jquery.com/jquery-' . JQUERY_VERSION . '.min.js',
 			'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-' . JQUERY_VERSION . '.min.js',
 		];
@@ -2421,9 +2423,9 @@ class Theme
 		$file_found = file_exists($filename);
 
 		if ($once && $file_found) {
-			require_once $filename;
+			require_once Sapi::canonicalPath($filename);
 		} elseif ($file_found) {
-			require $filename;
+			require Sapi::canonicalPath($filename);
 		}
 
 		if ($file_found !== true) {

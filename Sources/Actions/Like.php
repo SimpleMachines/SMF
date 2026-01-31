@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
@@ -291,7 +292,7 @@ class Like implements ActionInterface, Routable
 
 		// We do not want to output debug information here.
 		if ($this->js) {
-			Config::$db_show_debug = false;
+			DebugUtils::disable();
 		}
 	}
 

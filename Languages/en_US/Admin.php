@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Admin
+// Version: 3.0 Alpha 4; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';
 $txt['settings_not_saved'] = 'Your changes were not saved because: {reason}';
@@ -234,7 +234,7 @@ $txt['admin_log'] = 'Administration Log';
 $txt['admin_log_desc'] = 'Lists administrative tasks that have been performed by admins of your forum.';
 $txt['moderation_log'] = 'Moderation Log';
 $txt['moderation_log_desc'] = 'Lists moderation activities that have been performed by moderators on your forum.';
-$txt['spider_log_desc'] = 'Review the entries related to search engine spider activity on your forum.';
+$txt['spider_log_desc'] = 'Review the entries related to search engine and robot activity on your forum.';
 $txt['log_settings_desc'] = 'Use these options to configure how logging works on your forum.';
 $txt['modlog_enabled'] = 'Enable the moderation log';
 $txt['adminlog_enabled'] = 'Enable the administration log';
@@ -536,7 +536,7 @@ $txt['attach_repair_avatar_no_member'] = '{0, plural,
 	one {# avatar no longer has a member associated with it}
 	other {# avatars no longer have a member associated with them}
 }';
-$txt['attach_repair_wrong_folder'] = '{0, plural,
+$txt['attach_repair_wrong_directory'] = '{0, plural,
 	one {# attachment is in the wrong directory}
 	other {# attachments are in the wrong directory}
 }';
@@ -747,7 +747,7 @@ $txt['themeadmin_edit_title'] = 'Modify Themes';
 $txt['admin_browse_register_new'] = 'Register new member';
 
 $txt['search_engines'] = 'Search Engines';
-$txt['spider_logs'] = 'Spider Log';
+$txt['spider_logs'] = 'Robot Log';
 $txt['spider_stats'] = 'Stats';
 
 $txt['paid_subscriptions'] = 'Paid Subscriptions';

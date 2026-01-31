@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -146,21 +146,21 @@ class Messages extends Table
 				name: 'modified_time',
 				type: 'int',
 				unsigned: true,
-				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE((edit_history #>> '{0,0}'::text[])::integer, 0)" : "COALESCE(edit_history->>'$[0][0]', 0)",
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? 'COALESCE((edit_history #>> \'{0,0}\'::text[])::integer, 0)' : 'COALESCE(JSON_UNQUOTE(JSON_EXTRACT(edit_history, "$[0][0]")), 0)',
 				stored: true,
 			),
 			'modified_name' => new GeneratedColumn(
 				name: 'modified_name',
 				type: 'varchar',
 				size: 255,
-				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE(edit_history #>> '{0,6}'::text[], ''::text)" : "COALESCE(edit_history->>'$[0][6]', '')",
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? 'COALESCE(edit_history #>> \'{0,6}\'::text[], \'\'::text)' : 'COALESCE(JSON_UNQUOTE(JSON_EXTRACT(edit_history, "$[0][6]")), "")',
 				stored: true,
 			),
 			'modified_reason' => new GeneratedColumn(
 				name: 'modified_reason',
 				type: 'varchar',
 				size: 255,
-				generation_expression: Db::$db->title === POSTGRE_TITLE ? "COALESCE(edit_history #>> '{0,7}'::text[], ''::text)" : "COALESCE(edit_history->>'$[0][7]', '')",
+				generation_expression: Db::$db->title === POSTGRE_TITLE ? 'COALESCE(edit_history #>> \'{0,7}\'::text[], \'\'::text)' : 'COALESCE(JSON_UNQUOTE(JSON_EXTRACT(edit_history, "$[0][7]")), "")',
 				stored: true,
 			),
 			'body' => new Column(

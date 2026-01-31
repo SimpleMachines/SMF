@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -935,8 +935,8 @@ class Attachment implements \ArrayAccess
 		if (!empty(Utils::$context['dir_creation_error'])) {
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
-			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context, file: 'Post'), 'critical');
+			$initial_error = 'attach_directory_warning';
+			ErrorHandler::log(Lang::getTxt('attach_directory_admin_warning', Utils::$context, file: 'Post'), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {

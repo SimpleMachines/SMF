@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ use SMF\Mail;
 use SMF\Menu;
 use SMF\Parser;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -780,7 +781,7 @@ class ACP implements ActionInterface, Routable
 
 		// Now - finally - call the right place!
 		if (isset($menu->include_data['file'])) {
-			require_once Config::$sourcedir . '/' . $menu->include_data['file'];
+			require_once Sapi::canonicalPath(Config::$sourcedir . '/' . $menu->include_data['file']);
 		}
 
 		// Get the right callable.
@@ -1477,9 +1478,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function getFileVersions(array &$versionOptions): array
 	{
-		// Default place to find the languages would be the default theme dir.
-		$lang_dir = Theme::$current->settings['default_theme_dir'] . '/languages';
-
 		$version_info = [
 			'root_versions' => [],
 			'file_versions' => [],
@@ -1527,9 +1525,9 @@ class ACP implements ActionInterface, Routable
 		);
 
 		$ignore_sources = [
-			Config::$sourcedir . '/minify/*',
-			Config::$sourcedir . '/ReCaptcha/*',
+			Config::$vendordir . '/*',
 			Config::$sourcedir . '/Tasks/*',
+			Config::$sourcedir . '/Unicode/*',
 		];
 
 		foreach ($sources_dir as $filename => $file) {
@@ -1616,30 +1614,36 @@ class ACP implements ActionInterface, Routable
 		}
 
 		// Load up all the files in the default language directory and sort by language.
-		$this_dir = dir($lang_dir);
+		$langauges_dir = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator(
+				Config::$boarddir . '/Languages',
+				\RecursiveDirectoryIterator::SKIP_DOTS,
+			),
+		);
 
-		while ($entry = $this_dir->read()) {
-			if (str_ends_with($entry, '.php') && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry)) {
-				// Read the first 768 bytes from the file.... enough for the header.
-				$fp = fopen($lang_dir . '/' . $entry, 'rb');
-				$header = fread($fp, 768);
-				fclose($fp);
+		foreach ($langauges_dir as $filename => $file) {
+			if (!$file->isFile() || $file->getFilename() === 'index.php' || $file->getExtension() !== 'php') {
+				continue;
+			}
 
-				// Split the file name off into useful bits.
-				list($name, $language) = explode('.', $entry);
+			$language = basename(\dirname($filename));
+			$short_name = $file->getBasename('.' . $file->getExtension());
+			$name = $file->getBasename();
 
-				// Look for the version comment in the file header.
-				if (preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '(?:[\s]{2}|\*/)~i', $header, $match) == 1) {
-					$version_info['default_language_versions'][$language][$name] = $match[1];
-				}
-				// It wasn't found, but the file was... show a '??'.
-				else {
-					$version_info['default_language_versions'][$language][$name] = '??';
-				}
+			// Read the first 768 bytes from the file.... enough for the header.
+			$fp = $file->openFile('rb');
+			$header = $fp->fread(768);
+			$fp = null;
+
+			// Look for the version comment in the file header.
+			if (preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*' . preg_quote($short_name, '~') . '(?:[\s]{2}|\*/|$)~i', $header, $match) == 1) {
+				$version_info['default_language_versions'][$language][$name] = $match[1];
+			}
+			// It wasn't found, but the file was... show a '??'.
+			else {
+				$version_info['default_language_versions'][$language][$name] = '??';
 			}
 		}
-
-		$this_dir->close();
 
 		// Sort the file versions by filename.
 		if (!empty($versionOptions['sort_results'])) {
@@ -1883,7 +1887,7 @@ class ACP implements ActionInterface, Routable
 				]);
 
 				if (file_exists($include)) {
-					require_once $include;
+					require_once Sapi::canonicalPath($include);
 				}
 			}
 		}

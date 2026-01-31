@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 namespace SMF\Actions;
@@ -286,9 +286,9 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 		// The current attach folder has some issues...
 		elseif (!is_dir($this->attchDir)) {
-			$this->generalErrors[] = 'attach_folder_warning';
+			$this->generalErrors[] = 'attach_directory_warning';
 
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_directory_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.

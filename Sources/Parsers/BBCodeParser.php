@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -1159,8 +1159,8 @@ class BBCodeParser extends Parser
 
 				// External URL?
 				if ($attrib == 'target' && $tag_type == 'url') {
-					if (trim($value) == '_blank') {
-						$tag_type == 'iurl';
+					if (trim($value) != '_blank') {
+						$tag_type = 'iurl';
 					}
 				}
 			}
@@ -2700,7 +2700,7 @@ class BBCodeParser extends Parser
 								}
 
 								// Still a block tag was open not equal to this tag.
-								$add_closing_tags[] = $element['type'];
+								$add_closing_tags[] = $element;
 							}
 
 							if (!empty($add_closing_tags)) {

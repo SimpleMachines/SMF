@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -527,7 +528,7 @@ class Notification implements ActionInterface
 	public function markRead(): void
 	{
 		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
+		DebugUtils::disable();
 
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];

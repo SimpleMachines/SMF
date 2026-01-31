@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -50,7 +50,7 @@ class SpoofDetector
 		$chars = Utf8String::decompose($chars, false);
 
 		// 2. Replace confusable characters with their prototypes.
-		require_once __DIR__ . '/Confusables.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 		$substitutions = utf8_confusables();
 
 		foreach ($chars as &$char) {
@@ -79,7 +79,7 @@ class SpoofDetector
 			return [];
 		}
 
-		require_once __DIR__ . '/Confusables.php';
+		require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 
 		$scripts_data = utf8_character_scripts();
 
@@ -434,7 +434,7 @@ class SpoofDetector
 				return true;
 			}
 
-			require_once __DIR__ . '/Confusables.php';
+			require_once __DIR__ . DIRECTORY_SEPARATOR . 'Confusables.php';
 			$regexes = utf8_regex_identifier_status();
 
 			// If either string contains Identifier_Status=Restricted characters, reject.

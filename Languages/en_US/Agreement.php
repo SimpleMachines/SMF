@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 3; Agreement
+// Version: 3.0 Alpha 4; Agreement
 
 $txt['agreement_updated'] = 'Updated Registration Agreement';
 $txt['agreement_updated_desc'] = 'You must accept the terms of the registration agreement in order to continue using the forum.';

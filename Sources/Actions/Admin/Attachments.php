@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 3
+ * @version 3.0 Alpha 4
  */
 
 declare(strict_types=1);
@@ -758,7 +758,7 @@ class Attachments implements ActionInterface
 			'file_size_of_zero' => 0,
 			'attachment_no_msg' => 0,
 			'avatar_no_member' => 0,
-			'wrong_folder' => 0,
+			'wrong_directory' => 0,
 			'files_without_attachment' => 0,
 		];
 
@@ -942,11 +942,11 @@ class Attachments implements ActionInterface
 							// Loop through the other folders.
 							foreach (Config::$modSettings['attachmentUploadDir'] as $id => $dir) {
 								if (file_exists($dir . '/' . $attachment_name)) {
-									Utils::$context['repair_errors']['wrong_folder']++;
-									$errors_found[] = 'wrong_folder';
+									Utils::$context['repair_errors']['wrong_directory']++;
+									$errors_found[] = 'wrong_directory';
 
 									// Are we going to fix this now?
-									if ($fix_errors && \in_array('wrong_folder', $to_fix)) {
+									if ($fix_errors && \in_array('wrong_directory', $to_fix)) {
 										Db::$db->query(
 											'UPDATE {db_prefix}attachments
 											SET id_folder = {int:new_folder}
@@ -1006,8 +1006,8 @@ class Attachments implements ActionInterface
 					$to_fix[] = 'file_wrong_size';
 				}
 
-				if (\in_array('wrong_folder', $errors_found)) {
-					$to_fix[] = 'wrong_folder';
+				if (\in_array('wrong_directory', $errors_found)) {
+					$to_fix[] = 'wrong_directory';
 				}
 
 				Db::$db->free_result($result);
