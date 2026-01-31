@@ -622,7 +622,7 @@ function template_edit_agreement()
 							<input type="hidden" name="sa" value="agreement">
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 							<input type="hidden" name="', Utils::$context['admin-rega_token_var'], '" value="', Utils::$context['admin-rega_token'], '">
-							<input type="submit" name="change" value="', Lang::getTxt('admin_agreement_select_language_change', file: 'Admin'), '" class="button">
+							<input type="submit" name="change" value="', Lang::getTxt('admin_agreement_select_language', file: 'Admin'), '" class="button">
 						</div>
 					</form>
 				</div><!-- .information -->';

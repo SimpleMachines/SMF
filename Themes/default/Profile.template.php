@@ -976,8 +976,8 @@ function template_editIgnoreList()
 	</form>
 	<script>
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
-			sSessionId: \'', Utils::$context['session_id'], '\',
-			sSessionVar: \'', Utils::$context['session_var'], '\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
 			sSuggestId: \'new_ignore\',
 			sControlId: \'new_ignore\',
 			sSearchType: \'member\',
