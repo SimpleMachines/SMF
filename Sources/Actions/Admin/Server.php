@@ -61,7 +61,7 @@ use SMF\Utils;
  * - A check box.  Either one or zero. (boolean)
  * 		array('check', 'nameInModSettingsAndSQL'),
  * - A selection box.  Used for the selection of something from a list.
- * 		array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => Lang::$txt['displayedValue'])),
+ * 		array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => Lang::getTxt('displayedValue'))),
  * 		Note that just saying array('first', 'second') will put 0 in the SQL for 'first'.
  * - A password input box. Used for passwords, no less!
  * 		array('password', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),

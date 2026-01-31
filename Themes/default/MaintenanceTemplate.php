@@ -31,13 +31,13 @@ abstract class MaintenanceTemplate
 	public static function header(): void
 	{
 		echo '<!DOCTYPE html>
-	<html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
+	<html', Lang::getTxt('lang_rtl', file: 'General') == '1' ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
+		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?? 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
 		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css">', Lang::$txt['lang_rtl'] == '1' ? '
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
 		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css">' : '', '
 		<script src="', Maintenance::$theme_url, '/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
 		<script src="', Maintenance::$theme_url, '/scripts/script.js"></script>
@@ -65,7 +65,7 @@ abstract class MaintenanceTemplate
 					<div id="inner_wrap">
 						<div class="news">
 							<form action="', Maintenance::getSelf(), '" method="get">
-								<label for="maintenance_language">', Lang::$txt['maintenance_language'], ':</label>
+								<label for="maintenance_language">', Lang::getTxt('maintenance_language', file: 'Maintenance'), ':</label>
 								<select id="maintenance_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 			foreach (Maintenance::$languages as $lang => $name) {
@@ -75,7 +75,7 @@ abstract class MaintenanceTemplate
 
 			echo '
 								</select>
-								<noscript><input type="submit" value="', Lang::$txt['action_set'], '" class="button"></noscript>
+								<noscript><input type="submit" value="', Lang::getTxt('action_set', file: 'Maintenance'), '" class="button"></noscript>
 							</form>
 						</div><!-- .news -->
 						<hr class="clear">
@@ -88,13 +88,13 @@ abstract class MaintenanceTemplate
 			<div id="content_section">
 				<div id="main_content_section">
 					<div id="main_steps">
-						<h2>', Lang::$txt['maintenance_progress'], '</h2>
+						<h2>', Lang::getTxt('maintenance_progress', file: 'Maintenance'), '</h2>
 						<ul class="steps_list">';
 
 		if (Maintenance::$tool->hasSteps()) {
 			foreach (Maintenance::$tool->getSteps() as $num => $step) {
 				echo '
-							<li', $num == Maintenance::getCurrentStep() ? ' class="stepcurrent"' : '', '>', Lang::$txt['maintenance_step'], ' ', $step->getID(), ': ', $step->getName(), '</li>';
+							<li', $num == Maintenance::getCurrentStep() ? ' class="stepcurrent"' : '', '>', Lang::getTxt('maintenance_step', file: 'Maintenance'), ' ', $step->getID(), ': ', $step->getName(), '</li>';
 			}
 		}
 
@@ -103,7 +103,7 @@ abstract class MaintenanceTemplate
 					</div>
 					<div id="install_progress">
 						<div id="progress_bar" class="progress_bar progress_green">
-							<h3>' . Lang::$txt['maintenance_overall_progress'], '</h3>
+							<h3>' . Lang::getTxt('maintenance_overall_progress', file: 'Maintenance'), '</h3>
 							<span id="overall_text">', Maintenance::$overall_percent, '%</span>
 							<div id="overall_progress" class="bar" style="width: ', Maintenance::$overall_percent, '%;"></div>
 						</div>';
@@ -111,7 +111,7 @@ abstract class MaintenanceTemplate
 		if (Maintenance::$total_substeps !== null) {
 			echo '
 						<div id="progress_bar_step" class="progress_bar progress_yellow">
-							<h3>', Lang::$txt['maintenance_substep_progress'], '</h3>
+							<h3>', Lang::getTxt('maintenance_substep_progress', file: 'Maintenance'), '</h3>
 							<div id="step_progress" class="bar" style="width: ', Maintenance::getSubStepProgress(), '%;"></div>
 							<span id="step_text">', Maintenance::getSubStepProgress(), '%</span>
 						</div>';
@@ -198,13 +198,13 @@ abstract class MaintenanceTemplate
 		if (!empty(Maintenance::$fatal_error)) {
 			echo '
 			<div class="errorbox">
-				<h3>', Lang::$txt['critical_error'], '</h3>
+				<h3>', Lang::getTxt('critical_error', file: 'Maintenance'), '</h3>
 				', Maintenance::$fatal_error, '
 			</div>';
 		} elseif (!empty(Maintenance::$errors)) {
 			echo '
 			<div class="errorbox">
-				<h3>', Lang::$txt['critical_error'], '</h3>
+				<h3>', Lang::getTxt('critical_error', file: 'Maintenance'), '</h3>
 				', implode('
 				', Maintenance::$errors), '
 			</div>';
@@ -213,7 +213,7 @@ abstract class MaintenanceTemplate
 		elseif (!empty(Maintenance::$warnings)) {
 			echo '
 			<div class="errorbox">
-				<h3>', Lang::$txt['warning'], '</h3>
+				<h3>', Lang::getTxt('warning', file: 'Maintenance'), '</h3>
 				', implode('
 				', Maintenance::$warnings), '
 			</div>';

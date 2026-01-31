@@ -606,7 +606,7 @@ class Editor implements \ArrayAccess, \Stringable
 			'save_draft' => [
 				'type' => 'submit',
 				'value' => Lang::getTxt('draft_save', file: 'Drafts'),
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ');' : '',
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::getTxt('draft_save_note', file: 'Drafts')) . ');' : '',
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],
@@ -845,7 +845,7 @@ class Editor implements \ArrayAccess, \Stringable
 			'commandsWithText' => [],
 			'parserOptions' => [
 				'txtVars' => [
-					'code' => Lang::$txt['code'],
+					'code' => Lang::getTxt('code', file: 'General'),
 				],
 			],
 		];

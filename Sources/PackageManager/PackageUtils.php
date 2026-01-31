@@ -2012,7 +2012,7 @@ class PackageUtils
 			return [[
 				'type' => 'error',
 				'filename' => '-',
-				'debug' => Lang::$txt['package_modification_malformed'],
+				'debug' => Lang::getTxt('package_modification_malformed', file: 'Packages'),
 			]];
 		}
 

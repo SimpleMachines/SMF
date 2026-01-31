@@ -464,7 +464,7 @@ class DebugUtils
 		echo '
 		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
 		<br>
-		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>';
+		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::getTxt(empty($_SESSION['view_queries']) ? 'debug_show_queries' : 'debug_hide_queries'), '</a>';
 
 		self::outputQueryDebugInfo();
 
@@ -518,10 +518,10 @@ class DebugUtils
 					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
 				}
 
-				if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]) . '<br>';
+				if (isset($query_data['s'], $query_data['t']) && Lang::txtExists('debug_query_which_took_at', file: 'General')) {
+					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)], file: 'General') . '<br>';
 				} elseif (isset($query_data['t'])) {
-					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]) . '<br>';
+					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)], file: 'General') . '<br>';
 				}
 
 				echo '
