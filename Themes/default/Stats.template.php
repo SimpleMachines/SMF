@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -47,10 +48,11 @@ function template_main()
 				<dt>', Lang::getTxt('users_online_today', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['online_today'], '</dd>';
 
-	if (!empty(Config::$modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats'])) {
 		echo '
 				<dt>', Lang::getTxt('num_hits', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['num_hits'], '</dd>';
+	}
 
 	echo '
 			</dl>
@@ -68,29 +70,29 @@ function template_main()
 				<dt>', Lang::getTxt('average_online', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_online'], '</dd>';
 
-	if (!empty(Utils::$context['gender']))
-	{
+	if (!empty(Utils::$context['gender'])) {
 		echo '
 				<dt>', Lang::getTxt('gender_stats', file: 'Stats'), '</dt>
 				<dd>';
 
-		foreach (Utils::$context['gender'] as $g => $n)
+		foreach (Utils::$context['gender'] as $g => $n) {
 			echo Lang::getTxt('gender_stats_number', ['gender' => Lang::tokenTxtReplace($g), 'number' => $n], file: 'Stats'), '<br>';
+		}
 
 		echo '
 				</dd>';
 	}
 
-	if (!empty(Config::$modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats'])) {
 		echo '
 				<dt>', Lang::getTxt('average_hits', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_hits'], '</dd>';
+	}
 
 	echo '
 			</dl>';
 
-	foreach (Utils::$context['stats_blocks'] as $name => $block)
-	{
+	foreach (Utils::$context['stats_blocks'] as $name => $block) {
 		echo '
 			<div class="half_content">
 				<div class="title_bar">
@@ -100,20 +102,20 @@ function template_main()
 				</div>
 				<dl class="stats">';
 
-		foreach ($block as $item)
-		{
+		foreach ($block as $item) {
 			echo '
 					<dt>
 						', $item['link'], '
 					</dt>
 					<dd class="statsbar generic_bar righttext">';
 
-			if (!empty($item['percent']))
+			if (!empty($item['percent'])) {
 				echo '
 						<div class="bar" style="width: ', $item['percent'], '%;"></div>';
-			else
-				echo '
+			} else {
+			echo '
 						<div class="bar empty"></div>';
+			}
 
 			echo '
 						<span>', $item['num'], '</span>
@@ -134,8 +136,7 @@ function template_main()
 			</h3>
 		</div>';
 
-	if (!empty(Utils::$context['yearly']))
-	{
+	if (!empty(Utils::$context['yearly'])) {
 		echo '
 		<table id="stats" class="table_grid">
 			<thead>
@@ -146,17 +147,17 @@ function template_main()
 					<th>', Lang::getTxt('stats_new_members', file: 'Stats'), '</th>
 					<th>', Lang::getTxt('most_online', file: 'Stats'), '</th>';
 
-		if (!empty(Config::$modSettings['hitStats']))
+		if (!empty(Config::$modSettings['hitStats'])) {
 			echo '
 					<th>', Lang::getTxt('page_views', file: 'Stats'), '</th>';
+		}
 
 		echo '
 				</tr>
 			</thead>
 			<tbody>';
 
-		foreach (Utils::$context['yearly'] as $id => $year)
-		{
+		foreach (Utils::$context['yearly'] as $id => $year) {
 			echo '
 				<tr class="windowbg" id="year_', $id, '">
 					<th class="lefttext">
@@ -167,15 +168,15 @@ function template_main()
 					<th>', $year['new_members'], '</th>
 					<th>', $year['most_members_online'], '</th>';
 
-			if (!empty(Config::$modSettings['hitStats']))
+			if (!empty(Config::$modSettings['hitStats'])) {
 				echo '
 					<th>', $year['hits'], '</th>';
+			}
 
 			echo '
 				</tr>';
 
-			foreach ($year['months'] as $month)
-			{
+			foreach ($year['months'] as $month) {
 				echo '
 				<tr class="windowbg" id="tr_month_', $month['id'], '">
 					<th class="stats_month">
@@ -186,17 +187,16 @@ function template_main()
 					<th>', $month['new_members'], '</th>
 					<th>', $month['most_members_online'], '</th>';
 
-				if (!empty(Config::$modSettings['hitStats']))
+				if (!empty(Config::$modSettings['hitStats'])) {
 					echo '
 					<th>', $month['hits'], '</th>';
+				}
 
 				echo '
 				</tr>';
 
-				if ($month['expanded'])
-				{
-					foreach ($month['days'] as $day)
-					{
+				if ($month['expanded']) {
+					foreach ($month['days'] as $day) {
 						echo '
 				<tr class="windowbg" id="tr_day_', $day['year'], '-', $day['month'], '-', $day['day'], '">
 					<td class="stats_day">', $day['year'], '-', $day['month'], '-', $day['day'], '</td>
@@ -205,9 +205,10 @@ function template_main()
 					<td>', $day['new_members'], '</td>
 					<td>', $day['most_members_online'], '</td>';
 
-						if (!empty(Config::$modSettings['hitStats']))
+						if (!empty(Config::$modSettings['hitStats'])) {
 							echo '
 					<td>', $day['hits'], '</td>';
+						}
 
 						echo '
 				</tr>';
@@ -242,8 +243,7 @@ function template_main()
 
 			aCollapsedYears: [';
 
-		foreach (Utils::$context['collapsed_years'] as $id => $year)
-		{
+		foreach (Utils::$context['collapsed_years'] as $id => $year) {
 			echo '
 				\'', $year, '\'', $id != count(Utils::$context['collapsed_years']) - 1 ? ',' : '';
 		}

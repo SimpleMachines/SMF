@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -20,16 +21,13 @@ use SMF\Utils;
 function template_view_scheduled_tasks()
 {
 	// We completed some tasks?
-	if (!empty(Utils::$context['tasks_were_run']))
-	{
-		if (empty(Utils::$context['scheduled_errors']))
+	if (!empty(Utils::$context['tasks_were_run'])) {
+		if (empty(Utils::$context['scheduled_errors'])) {
 			echo '
 	<div class="infobox">
 		', Lang::getTxt('scheduled_tasks_were_run', file: 'ManageScheduledTasks'), '
 	</div>';
-
-		else
-		{
+		} else {
 			echo '
 	<div class="errorbox" id="errors">
 		<dl>
@@ -37,7 +35,7 @@ function template_view_scheduled_tasks()
 				<strong id="error_serious">', Lang::getTxt('scheduled_tasks_were_run_errors', file: 'ManageScheduledTasks'), '</strong>
 			</dt>';
 
-			foreach (Utils::$context['scheduled_errors'] as $task => $errors)
+			foreach (Utils::$context['scheduled_errors'] as $task => $errors) {
 				echo '
 			<dd class="error">
 				<strong>', Lang::txtExists('scheduled_task_' . $task, file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $task, file: 'ManageScheduledTasks') : $task, '</strong>
@@ -45,6 +43,7 @@ function template_view_scheduled_tasks()
 					<li>', implode('</li><li>', $errors), '</li>
 				</ul>
 			</dd>';
+			}
 
 			echo '
 		</dl>

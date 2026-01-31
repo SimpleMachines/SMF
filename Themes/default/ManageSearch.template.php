@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -124,7 +125,7 @@ function template_select_search_method()
 		<div class="windowbg">
 			<dl class="settings">';
 
-	if (!empty(Utils::$context['table_info']))
+	if (!empty(Utils::$context['table_info'])) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('search_method_messages_table_space', file: 'Search'), '</strong>
@@ -138,6 +139,7 @@ function template_select_search_method()
 				<dd>
 					', Utils::$context['table_info']['index_length'], '
 				</dd>';
+	}
 	echo '
 			</dl>
 			', Utils::$context['double_index'] ? '<div class="noticebox">
@@ -152,8 +154,7 @@ function template_select_search_method()
 						</label>
 					</dt>';
 
-	foreach (Utils::$context['search_apis'] as $api)
-	{
+	foreach (Utils::$context['search_apis'] as $api) {
 		if ($api['has_template'] || $api['instance']->getStatus() === 'hidden') {
 			continue;
 		}

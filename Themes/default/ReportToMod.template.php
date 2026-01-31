@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -57,22 +58,22 @@ function template_main()
 			</div>
 			<div class="windowbg">';
 
-	if (!empty(Utils::$context['post_errors']))
-	{
+	if (!empty(Utils::$context['post_errors'])) {
 		echo '
 				<div id="error_box" class="errorbox">
 					<ul id="error_list">';
 
-		foreach (Utils::$context['post_errors'] as $key => $error)
+		foreach (Utils::$context['post_errors'] as $key => $error) {
 			echo '
 						<li id="error_', $key, '" class="error">', $error, '</li>';
+		}
 
 		echo '
 					</ul>';
-	}
-	else
-		echo '
+	} else {
+	echo '
 				<div id="error_box" class="errorbox hidden">';
+	}
 
 	echo '
 				</div>';

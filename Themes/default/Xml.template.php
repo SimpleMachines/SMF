@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -58,8 +59,8 @@ function template_modifydone()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>
 	<message id="msg_', Utils::$context['message']['id'], '">';
-	if (empty(Utils::$context['message']['errors']))
-	{
+
+	if (empty(Utils::$context['message']['errors'])) {
 		// Build our string of info about when and why it was modified
 		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']], file: 'General');
 		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']], file: 'General');
@@ -69,10 +70,10 @@ function template_modifydone()
 		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>
 		<body><![CDATA[', Utils::$context['message']['body'], ']]></body>
 		<success><![CDATA[', Lang::getTxt('quick_modify_message', file: 'General'), ']]></success>';
-	}
-	else
-		echo '
+	} else {
+	echo '
 		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '" in_body="', Utils::cleanXml(Utils::$context['message']['error_in_body']) ? '1' : '0', '"><![CDATA[', implode('<br />', Utils::$context['message']['errors']), ']]></error>';
+	}
 	echo '
 	</message>
 </smf>';
@@ -86,8 +87,8 @@ function template_modifytopicdone()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>
 	<message id="msg_', Utils::$context['message']['id'], '">';
-	if (empty(Utils::$context['message']['errors']))
-	{
+
+	if (empty(Utils::$context['message']['errors'])) {
 		// Build our string of info about when and why it was modified
 		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']], file: 'General');
 		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']], file: 'General');
@@ -95,13 +96,14 @@ function template_modifytopicdone()
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
 
-		if (!empty(Utils::$context['message']['subject']))
+		if (!empty(Utils::$context['message']['subject'])) {
 			echo '
 		<subject><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>';
-	}
-	else
-		echo '
+		}
+	} else {
+	echo '
 		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '"><![CDATA[', Utils::cleanXml(implode('<br />', Utils::$context['message']['errors'])), ']]></error>';
+	}
 	echo '
 	</message>
 </smf>';
@@ -120,10 +122,12 @@ function template_post()
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '" topic_locked="', Utils::$context['locked'] ? '1' : '0', '">';
 
-	if (!empty(Utils::$context['post_error']))
-		foreach (Utils::$context['post_error'] as $message)
+	if (!empty(Utils::$context['post_error'])) {
+		foreach (Utils::$context['post_error'] as $message) {
 			echo '
 		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
+		}
+	}
 
 	echo '
 		<caption name="guestname" class="', isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '', '" />
@@ -133,14 +137,13 @@ function template_post()
 		<caption name="question" class="', isset(Utils::$context['post_error']['no_question']) ? 'error' : '', '" />', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? '
 		<post_error />' : '', '
 	</errors>
-	<last_msg>', isset(Utils::$context['topic_last_message']) ? Utils::$context['topic_last_message'] : '0', '</last_msg>';
+	<last_msg>', Utils::$context['topic_last_message'] ?? '0', '</last_msg>';
 
-	if (!empty(Utils::$context['previous_posts']))
-	{
+	if (!empty(Utils::$context['previous_posts'])) {
 		echo '
 	<new_posts>';
 
-		foreach (Utils::$context['previous_posts'] as $post)
+		foreach (Utils::$context['previous_posts'] as $post) {
 			echo '
 		<post id="', $post['id'], '">
 			<time><![CDATA[', $post['time'], ']]></time>
@@ -148,6 +151,7 @@ function template_post()
 			<message><![CDATA[', Utils::cleanXml($post['message']), ']]></message>
 			<is_ignored>', $post['is_ignored'] ? '1' : '0', '</is_ignored>
 		</post>';
+		}
 
 		echo '
 	</new_posts>';
@@ -171,10 +175,12 @@ function template_pm()
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
 
-	if (!empty(Utils::$context['post_error']['messages']))
-		foreach (Utils::$context['post_error']['messages'] as $message)
+	if (!empty(Utils::$context['post_error']['messages'])) {
+		foreach (Utils::$context['post_error']['messages'] as $message) {
 			echo '
 		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
+		}
+	}
 
 	echo '
 		<caption name="to" class="', isset(Utils::$context['post_error']['no_to']) ? 'error' : '', '" />
@@ -202,10 +208,12 @@ function template_warning()
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
 
-	if (!empty(Utils::$context['post_error']['messages']))
-		foreach (Utils::$context['post_error']['messages'] as $message)
+	if (!empty(Utils::$context['post_error']['messages'])) {
+		foreach (Utils::$context['post_error']['messages'] as $message) {
 			echo '
 		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
+		}
+	}
 
 	echo '
 	</errors>';
@@ -219,24 +227,27 @@ function template_warning()
  */
 function template_stats()
 {
-	if (empty(Utils::$context['yearly']))
+	if (empty(Utils::$context['yearly'])) {
 		return;
+	}
 
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>';
-	foreach (Utils::$context['yearly'] as $year)
-		foreach ($year['months'] as $month)
-		{
+
+	foreach (Utils::$context['yearly'] as $year) {
+		foreach ($year['months'] as $month) {
 			echo '
 	<month id="', $month['date']['year'], $month['date']['month'], '">';
 
-			foreach ($month['days'] as $day)
+			foreach ($month['days'] as $day) {
 				echo '
 		<day date="', $day['year'], '-', $day['month'], '-', $day['day'], '" new_topics="', $day['new_topics'], '" new_posts="', $day['new_posts'], '" new_members="', $day['new_members'], '" most_members_online="', $day['most_members_online'], '"', empty(Config::$modSettings['hitStats']) ? '' : ' hits="' . $day['hits'] . '"', ' />';
+			}
 
 			echo '
 	</month>';
 		}
+	}
 
 	echo '
 </smf>';
@@ -251,40 +262,34 @@ function template_split()
 <smf>
 	<pageIndex section="not_selected" startFrom="', Utils::$context['not_selected']['start'], '"><![CDATA[', Utils::$context['not_selected']['page_index'], ']]></pageIndex>
 	<pageIndex section="selected" startFrom="', Utils::$context['selected']['start'], '"><![CDATA[', Utils::$context['selected']['page_index'], ']]></pageIndex>';
-	foreach (Utils::$context['changes'] as $change)
-	{
-		if ($change['type'] == 'remove')
+
+	foreach (Utils::$context['changes'] as $change) {
+		if ($change['type'] == 'remove') {
 			echo '
 	<change id="', $change['id'], '" curAction="remove" section="', $change['section'], '" />';
-		else
-			echo '
+		} else {
+		echo '
 	<change id="', $change['id'], '" curAction="insert" section="', $change['section'], '">
 		<subject><![CDATA[', Utils::cleanXml($change['insert_value']['subject']), ']]></subject>
 		<time><![CDATA[', Utils::cleanXml($change['insert_value']['time']), ']]></time>
 		<body><![CDATA[', Utils::cleanXml($change['insert_value']['body']), ']]></body>
 		<poster><![CDATA[', Utils::cleanXml($change['insert_value']['poster']), ']]></poster>
 	</change>';
+		}
 	}
 	echo '
 </smf>';
 }
 
-/**
+/*
  * This is just to hold off some errors if people are stupid.
  */
-if (!function_exists('template_button_strip'))
-{
-	function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
-	{
-	}
+if (!function_exists('template_button_strip')) {
+	function template_button_strip($button_strip, $direction = 'top', $strip_options = []) {}
 
-	function template_menu()
-	{
-	}
+	function template_menu() {}
 
-	function theme_linktree()
-	{
-	}
+	function theme_linktree() {}
 }
 
 /**
@@ -295,16 +300,14 @@ function template_results()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>';
 
-	if (empty(Utils::$context['topics']))
+	if (empty(Utils::$context['topics'])) {
 		echo '
 		<noresults>', Lang::getTxt('search_no_results', file: 'General'), '</noresults>';
-	else
-	{
+	} else {
 		echo '
 		<results>';
 
-		while ($topic = Utils::$context['get_topics']())
-		{
+		while ($topic = Utils::$context['get_topics']()) {
 			echo '
 			<result>
 				<id>', $topic['id'], '</id>
@@ -321,8 +324,7 @@ function template_results()
 				</category>
 				<messages>';
 
-			foreach ($topic['matches'] as $message)
-			{
+			foreach ($topic['matches'] as $message) {
 				echo '
 					<message>
 						<id>', $message['id'], '</id>
@@ -360,14 +362,14 @@ function template_jump_to()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>';
 
-	foreach (Utils::$context['jump_to'] as $category)
-	{
+	foreach (Utils::$context['jump_to'] as $category) {
 		echo '
 	<item type="category" id="', $category['id'], '"><![CDATA[', Utils::cleanXml($category['name']), ']]></item>';
 
-		foreach ($category['boards'] as $board)
+		foreach ($category['boards'] as $board) {
 			echo '
 	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '" is_redirect="', (int) !empty($board['redirect']), '"><![CDATA[', Utils::cleanXml($board['name']), ']]></item>';
+		}
 	}
 	echo '
 </smf>';
@@ -381,9 +383,10 @@ function template_message_icons()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>';
 
-	foreach (Utils::$context['icons'] as $icon)
+	foreach (Utils::$context['icons'] as $icon) {
 		echo '
 	<icon value="', $icon['value'], '" url="', $icon['url'], '"><![CDATA[', Utils::cleanXml($icon['name']), ']]></icon>';
+	}
 
 	echo '
 </smf>';
@@ -442,7 +445,7 @@ function template_generic_xml_recursive(array $xml_data, string $parent_tag, str
 				$key,
 				$data['identifier'] ?? null,
 				$level + 1,
-				$node_attributes
+				$node_attributes,
 			);
 		} // Handle individual elements
 		elseif (is_array($data) && isset($data['value'])) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -40,7 +41,7 @@ function template_main()
 		}
 	</script>';
 
-	if (!empty(Utils::$context['poll_error']['messages']))
+	if (!empty(Utils::$context['poll_error']['messages'])) {
 		echo '
 			<div class="errorbox">
 				<dl class="poll_error">
@@ -52,6 +53,7 @@ function template_main()
 					</dt>
 				</dl>
 			</div>';
+	}
 
 	// Start the main poll form.
 	echo '
@@ -71,8 +73,7 @@ function template_main()
 							<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 							<dd><input type="text" name="question" size="80" value="', Utils::$context['poll']['question'], '"></dd>';
 
-	foreach (Utils::$context['choices'] as $choice)
-	{
+	foreach (Utils::$context['choices'] as $choice) {
 		echo '
 							<dt>
 								<label for="options-', $choice['id'], '" ', (isset(Utils::$context['poll_error']['poll_few']) ? ' class="error"' : ''), '>', Lang::getTxt('option_number', [$choice['number']], file: 'Post'), '</label>
@@ -81,8 +82,9 @@ function template_main()
 								<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" size="80" maxlength="255">';
 
 		// Does this option have a vote count yet, or is it new?
-		if ($choice['votes'] != -1)
+		if ($choice['votes'] != -1) {
 			echo ' (', Lang::getTxt('number_of_votes', [$choice['votes']], file: 'Post'), ')';
+		}
 
 		echo '
 							</dd>';
@@ -97,8 +99,7 @@ function template_main()
 						<legend>', Lang::getTxt('poll_options', file: 'Post'), '</legend>
 						<dl class="settings poll_options">';
 
-	if (Utils::$context['can_moderate_poll'])
-	{
+	if (Utils::$context['can_moderate_poll']) {
 		echo '
 							<dt>
 								<label for="poll_max_votes">', Lang::getTxt('poll_max_votes', file: 'Post'), '</label>
@@ -120,7 +121,7 @@ function template_main()
 								<input type="checkbox" id="poll_change_vote" name="poll_change_vote"', !empty(Utils::$context['poll']['change_vote']) ? ' checked' : '', '>
 							</dd>';
 
-		if (Utils::$context['poll']['guest_vote_allowed'])
+		if (Utils::$context['poll']['guest_vote_allowed']) {
 			echo '
 							<dt>
 								<label for="poll_guest_vote">', Lang::getTxt('poll_guest_vote', file: 'Post'), '</label>
@@ -128,6 +129,7 @@ function template_main()
 							<dd>
 								<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll']['guest_vote']) ? ' checked' : '', '>
 							</dd>';
+		}
 	}
 
 	echo '
@@ -143,12 +145,13 @@ function template_main()
 					</fieldset>';
 
 	// If this is an edit, we can allow them to reset the vote counts.
-	if (Utils::$context['is_edit'])
+	if (Utils::$context['is_edit']) {
 		echo '
 					<fieldset id="poll_reset">
 						<legend>', Lang::getTxt('reset_votes', file: 'Post'), '</legend>
 						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::getTxt('reset_votes_check', file: 'Post') . '
 					</fieldset>';
+	}
 	echo '
 					<input type="submit" name="post" value="', Lang::getTxt('save', file: 'General'), '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 				</div><!-- .roundframe -->

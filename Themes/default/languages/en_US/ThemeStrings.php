@@ -1,4 +1,5 @@
 <?php
+
 // Version: 3.0 Alpha 4; Settings
 
 // argument(s): images_url as saved in settings
