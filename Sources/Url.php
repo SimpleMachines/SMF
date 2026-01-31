@@ -29,8 +29,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Url implements \Stringable
 {
-	use BackwardCompatibility;
-
 	/*****************
 	 * Class constants
 	 *****************/

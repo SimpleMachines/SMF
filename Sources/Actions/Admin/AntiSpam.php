@@ -17,7 +17,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -34,7 +33,6 @@ use SMF\Utils;
 class AntiSpam implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/****************
 	 * Public methods

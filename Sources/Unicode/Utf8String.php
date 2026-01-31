@@ -13,7 +13,6 @@
 
 namespace SMF\Unicode;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -28,8 +27,6 @@ use SMF\Utils;
  */
 class Utf8String implements \Stringable
 {
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/
