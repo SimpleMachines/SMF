@@ -518,23 +518,23 @@ class PackageManager
 							];
 						} elseif ($mod_action['type'] == 'create-file') {
 							Utils::$context['actions'][$actual_filename] = [
-								'type' => Lang::$txt['package_create_file'],
+								'type' => Lang::getTxt('package_create_file', file: 'Packages'),
 								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
-								'description' => $failed ? Lang::$txt['package_action_failure'] : '',
+								'description' => $failed ? Lang::getTxt('package_action_failure', file: 'Packages') : '',
 								'failed' => $failed,
 							];
 						} elseif ($mod_action['type'] == 'move-file') {
 							Utils::$context['actions'][$actual_filename] = [
-								'type' => Lang::$txt['package_move_file'],
+								'type' => Lang::getTxt('package_move_file', file: 'Packages'),
 								'action' => Utils::htmlspecialchars(strtr($mod_action['source'], [Config::$boarddir => '.'])) . ' => ' . Utils::htmlspecialchars(strtr($mod_action['destination'], [Config::$boarddir => '.'])),
-								'description' => $failed ? Lang::$txt['package_action_missing'] : '',
+								'description' => $failed ? Lang::getTxt('package_action_missing', file: 'Packages') : '',
 								'failed' => $failed,
 							];
 						} elseif ($mod_action['type'] == 'remove-file') {
 							Utils::$context['actions'][$actual_filename] = [
-								'type' => Lang::$txt['package_delete_file'],
+								'type' => Lang::getTxt('package_delete_file', file: 'Packages'),
 								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
-								'description' => $failed ? Lang::$txt['package_action_missing'] : '',
+								'description' => $failed ? Lang::getTxt('package_action_missing', file: 'Packages') : '',
 								'failed' => $failed,
 							];
 						}
@@ -555,9 +555,9 @@ class PackageManager
 						if (!\in_array($mod_action['type'], ['error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod', 'create-file', 'move-file', 'remove-file'])) {
 							if (!isset(Utils::$context['actions'][$actual_filename])) {
 								Utils::$context['actions'][$actual_filename] = [
-									'type' => Lang::$txt['execute_modification'],
+									'type' => Lang::getTxt('execute_modification', file: 'Packages'),
 									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
-									'description' => $failed ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
+									'description' => $failed ? Lang::getTxt('package_action_failure', file: 'Packages') : Lang::getTxt('package_action_success', file: 'Packages'),
 									'failed' => $failed,
 								];
 							}

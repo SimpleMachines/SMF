@@ -560,7 +560,7 @@ function template_set_settings()
 
 		foreach (Theme::$current->settings['theme_colormodes'] as $mode)
 			echo '
-							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::$txt['colormode_' . $mode], '</option>';
+							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::getTxt('colormode_' . $mode, file: 'Themes')], '</option>';
 
 		echo '
 						</select>
