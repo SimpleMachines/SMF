@@ -71,7 +71,7 @@ function template_main()
 			echo '
 					<tr class="windowbg">
 						<td class="is_online centertext">
-							', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
+							', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '
 						</td>
 						<td class="real_name lefttext">', $member['link'], '</td>';
 

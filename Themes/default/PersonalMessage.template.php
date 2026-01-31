@@ -417,22 +417,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-					<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::getTxt('view_profile', file: 'General')), '</a></li>';
+					<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '"><span class="main_icons members"></span></a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-					<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
+					<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span></a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-					<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
+					<li><a href="mailto:', $message['member']['email'], '" rel="nofollow"><span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span></a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-					<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span> ' : (Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General')), '</a></li>';
+					<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '"><span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span></a></li>';
 
 			echo '
 				</ol>';

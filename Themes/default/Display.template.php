@@ -598,17 +598,17 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
+								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span></a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), . '"></span> ' : Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '</a></li>';
+								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '"><span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), . '"></span></a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
+								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow"><span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span></a></li>';
 
 			echo '
 							</ol><!-- .profile_icons -->';
@@ -624,7 +624,7 @@ function template_single_post($message)
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
 							<div class="email">
-								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a>
+								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow"><span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span></a>
 							</div>';
 
 	// Show the IP to this user for this post - because you can moderate?
