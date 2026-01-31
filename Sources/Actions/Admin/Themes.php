@@ -609,6 +609,7 @@ class Themes implements ActionInterface
 			// Theme Variants
 			if (!empty(Theme::$current->settings['theme_variants'])) {
 				$available_variants = [];
+
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
 					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
 				}
@@ -626,6 +627,7 @@ class Themes implements ActionInterface
 			// Theme Color Mode
 			if (!empty(Theme::$current->settings['has_dark_mode'])) {
 				$available_modes = [];
+
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
 					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
 				}

@@ -454,56 +454,6 @@ class Editor implements \ArrayAccess, \Stringable
 	}
 
 	/**
-	 * Retrieves a list of message icons.
-	 *
-	 * @param array $new_tag The new tag to add.
-	 * @param string $reference_tag The tag code to reference.
-	 * @param bool $before True to add the new tag before the reference tag, false to add it after.
-	 */
-	public static function addBbcTag(array $new_tag, string $reference_tag, bool $before = true): void
-	{
-		if (self::$bbc_tags == []) {
-			self::initBbcTags();
-		}
-
-		foreach (self::$bbc_tags as &$row) {
-			foreach ($row as $index => $tag) {
-				if (isset($tag['code']) && $tag['code'] === $reference_tag) {
-					if ($before) {
-						array_splice($row, $index, 0, [$new_tag]);
-					} else {
-						array_splice($row, $index + 1, 0, [$new_tag]);
-					}
-
-					return;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Removes a BBC tag from the toolbar.
-	 *
-	 * @param string $tag_code The tag code to remove.
-	 */
-	public static function removeBbcTag(string $tag_code): void
-	{
-		if (self::$bbc_tags == []) {
-			self::initBbcTags();
-		}
-
-		foreach (self::$bbc_tags as &$row) {
-			foreach ($row as $index => $tag) {
-				if (isset($tag['code']) && $tag['code'] === $tag_code) {
-					array_splice($row, $index, 1);
-
-					return;
-				}
-			}
-		}
-	}
-
-	/**
 	 * Retrieves available message icons, either default or board-specific.
 	 *
 	 * If custom icons are enabled, fetches from database and caches results.
@@ -625,170 +575,6 @@ class Editor implements \ArrayAccess, \Stringable
 		IntegrationHook::call('integrate_load_message_icons', [&$icons]);
 
 		return array_values($icons);
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Initializes BBC tags for the toolbar.
-	 */
-	protected static function initBbcTags(): void
-	{
-		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
-		/*
-			array(
-				'code' => 'b', // Required
-				'description' => Lang::getTxt('bold', var: 'editortxt'), // Required
-				'image' => 'bold', // Optional
-				'before' => '[b]', // Optional
-				'after' => '[/b]', // Optional
-			),
-		*/
-		self::$bbc_tags = [
-			[
-				[
-					'code' => 'bold',
-					'description' => Lang::getTxt('bold', var: 'editortxt'),
-				],
-				[
-					'code' => 'italic',
-					'description' => Lang::getTxt('italic', var: 'editortxt'),
-				],
-				[
-					'code' => 'underline',
-					'description' => Lang::getTxt('underline', var: 'editortxt'),
-				],
-				[
-					'code' => 'strike',
-					'description' => Lang::getTxt('strikethrough', var: 'editortxt'),
-				],
-				[
-					'code' => 'superscript',
-					'description' => Lang::getTxt('superscript', var: 'editortxt'),
-				],
-				[
-					'code' => 'subscript',
-					'description' => Lang::getTxt('subscript', var: 'editortxt'),
-				],
-				[
-					'image' => 'tt',
-					'code' => 'tt',
-					'description' => Lang::getTxt('tt', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'pre',
-					'description' => Lang::getTxt('preformatted_text', var: 'editortxt'),
-				],
-				[
-					'code' => 'left',
-					'description' => Lang::getTxt('align_left', var: 'editortxt'),
-				],
-				[
-					'code' => 'center',
-					'description' => Lang::getTxt('center', var: 'editortxt'),
-				],
-				[
-					'code' => 'right',
-					'description' => Lang::getTxt('align_right', var: 'editortxt'),
-				],
-				[
-					'code' => 'justify',
-					'description' => Lang::getTxt('justify', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'font',
-					'description' => Lang::getTxt('font_name', var: 'editortxt'),
-				],
-				[
-					'code' => 'size',
-					'description' => Lang::getTxt('font_size', var: 'editortxt'),
-				],
-				[
-					'code' => 'color',
-					'description' => Lang::getTxt('font_color', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'removeformat',
-					'description' => Lang::getTxt('remove_formatting', var: 'editortxt'),
-				],
-			],
-			[
-				[
-					'code' => 'floatleft',
-					'description' => Lang::getTxt('float_left', var: 'editortxt'),
-				],
-				[
-					'code' => 'floatright',
-					'description' => Lang::getTxt('float_right', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'youtube',
-					'description' => Lang::getTxt('insert_youtube_video', var: 'editortxt'),
-				],
-				[
-					'code' => 'image',
-					'description' => Lang::getTxt('insert_image', var: 'editortxt'),
-				],
-				[
-					'code' => 'email',
-					'description' => Lang::getTxt('insert_email', var: 'editortxt'),
-				],
-				[
-					'code' => 'link',
-					'description' => Lang::getTxt('insert_link', var: 'editortxt'),
-				],
-				[
-					'code' => 'unlink',
-					'description' => Lang::getTxt('unlink', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'table',
-					'description' => Lang::getTxt('insert_table', var: 'editortxt'),
-				],
-				[
-					'code' => 'code',
-					'description' => Lang::getTxt('code', var: 'editortxt'),
-				],
-				[
-					'code' => 'quote',
-					'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
-				],
-				[
-					'image' => 'heading',
-					'code' => 'heading',
-					'description' => Lang::getTxt('heading', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'bulletlist',
-					'description' => Lang::getTxt('bullet_list', var: 'editortxt'),
-				],
-				[
-					'code' => 'orderedlist',
-					'description' => Lang::getTxt('numbered_list', var: 'editortxt'),
-				],
-				[
-					'code' => 'horizontalrule',
-					'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
-				],
-				[],
-				[
-					'code' => 'maximize',
-					'description' => Lang::getTxt('maximize', var: 'editortxt'),
-				],
-				[
-					'code' => 'source',
-					'description' => Lang::getTxt('view_source', var: 'editortxt'),
-				],
-			],
-		];
 	}
 
 	/******************
@@ -1015,26 +801,6 @@ class Editor implements \ArrayAccess, \Stringable
 	}
 
 	/**
-	 * Recursively implodes an array
-	 *
-	 * @param string[] $glue    list of values that glue elements together
-	 * @param array    $pieces  multi-dimensional array to recursively implode
-	 * @param int      $counter internal
-	 *
-	 * @return string imploded array
-	 */
-	protected function implodeRecursive(array $glue, array $pieces, int $counter = 0): string
-	{
-		return implode(
-			$glue[$counter++],
-			array_map(
-				fn($v) => is_array($v) ? $this->implodeRecursive($glue, $v, $counter) : $v,
-				$pieces,
-			),
-		);
-	}
-
-	/**
 	 * Recursively implodes a multi-dimensional array with a list of glue values.
 	 *
 	 * @param string[] $glue List of glue strings for each depth.
@@ -1215,7 +981,7 @@ class Editor implements \ArrayAccess, \Stringable
 	 *************************/
 
 	/**
-	 * Initializes default BBC tags for the toolbar.
+	 * Initializes BBC tags for the toolbar.
 	 */
 	protected static function initBbcTags(): void
 	{
@@ -1223,7 +989,7 @@ class Editor implements \ArrayAccess, \Stringable
 		/*
 			array(
 				'code' => 'b', // Required
-				'description' => Lang::$editortxt['bold'], // Required
+				'description' => Lang::getTxt('bold', var: 'editortxt'), // Required
 				'image' => 'bold', // Optional
 				'before' => '[b]', // Optional
 				'after' => '[/b]', // Optional
@@ -1259,11 +1025,6 @@ class Editor implements \ArrayAccess, \Stringable
 					'image' => 'tt',
 					'code' => 'tt',
 					'description' => Lang::getTxt('tt', var: 'editortxt'),
-				],
-				[
-					'image' => 'hidden',
-					'code' => 'spoiler',
-					'description' => Lang::getTxt('spoiler', var: 'editortxt'),
 				],
 				[],
 				[
@@ -1349,16 +1110,11 @@ class Editor implements \ArrayAccess, \Stringable
 					'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 				],
 				[
-					'image' => 'details',
-					'code' => 'details',
-					'description' => Lang::getTxt('details', var: 'editortxt'),
-				],
-				[],
-				[
 					'image' => 'heading',
 					'code' => 'heading',
 					'description' => Lang::getTxt('heading', var: 'editortxt'),
 				],
+				[],
 				[
 					'code' => 'bulletlist',
 					'description' => Lang::getTxt('bullet_list', var: 'editortxt'),

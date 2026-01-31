@@ -52,6 +52,7 @@ class ThemeOptions implements ActionInterface
 			// Theme Variants
 			if (!empty(Theme::$current->settings['theme_variants']) && (empty(Theme::$current->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
 				$available_variants = [];
+
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
 					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
 				}
@@ -69,6 +70,7 @@ class ThemeOptions implements ActionInterface
 			// Theme Color Mode
 			if (!empty(Theme::$current->settings['has_dark_mode']) && (empty(Theme::$current->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum'))) {
 				$available_modes = [];
+
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
 					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
 				}

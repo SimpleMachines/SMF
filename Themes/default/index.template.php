@@ -704,7 +704,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 							<li>
 								<a href="' . $element['url'] . '">
 									<span>' . Lang::getTxt($element['text']) . '</span>';
-					if (isset(Lang::getTxt($element['text'] . '_desc')))
+					if (Lang::txtExists($element['text'] . '_desc'))
 						$button .= '
 									<span>' . Lang::getTxt($element['text'] . '_desc') . '</span>';
 					$button .= '

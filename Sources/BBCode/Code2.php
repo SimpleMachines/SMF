@@ -65,7 +65,7 @@ class Code2 extends BBCode
 
 			$parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				// Do PHP code coloring?
 				if ($parts[$i] != '&lt;?php') {
 					continue;
@@ -80,7 +80,7 @@ class Code2 extends BBCode
 				$parts[$i] = Parser::highlightPhpCode($string . $parts[$i]);
 			}
 
-			if (is_array($data)) {
+			if (\is_array($data)) {
 				$data[0] = implode('', $parts);
 			} else {
 				$data = implode('', $parts);

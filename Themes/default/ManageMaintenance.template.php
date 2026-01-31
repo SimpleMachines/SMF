@@ -114,7 +114,7 @@ function template_maintain_options()
 			</label><br>';
 
 	echo '
-			<input type="submit" value="', Lang::getTxtr('maintain_run_now'], file: 'ManageMaintenance'), '" class="button">
+			<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 		</form>

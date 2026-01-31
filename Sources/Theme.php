@@ -2251,7 +2251,7 @@ class Theme
 				}
 			}
 
-			/**
+			/*
 			 * Attempt to load a variants file for variable overriding
 			 * using data attribute (:root[data-variant="variant"])
 			 *

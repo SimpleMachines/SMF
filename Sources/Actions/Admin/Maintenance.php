@@ -185,7 +185,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['template_layers'][] = 'maintain';
 		Utils::$context['options'] = array_combine(
 			array_keys(self::$subactions[$this->subaction]['activities']),
-			array_fill(0, count(self::$subactions[$this->subaction]['activities']), []),
+			array_fill(0, \count(self::$subactions[$this->subaction]['activities']), []),
 		);
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=maintain';
 	}
@@ -198,7 +198,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['template_layers'][] = 'maintain';
 		Utils::$context['options'] = array_combine(
 			array_keys(self::$subactions[$this->subaction]['activities']),
-			array_fill(0, count(self::$subactions[$this->subaction]['activities']), []),
+			array_fill(0, \count(self::$subactions[$this->subaction]['activities']), []),
 		);
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=maintain;sa=database';
 

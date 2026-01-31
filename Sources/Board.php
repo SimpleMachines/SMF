@@ -1152,7 +1152,7 @@ class Board implements \ArrayAccess, Routable
 				'id' => (int) $row['id_board'],
 				'name' => $row['name'],
 				'child_level' => (int) $row['child_level'],
-				'selected' => in_array($row['id_board'], $boards),
+				'selected' => \in_array($row['id_board'], $boards),
 			];
 		}
 
