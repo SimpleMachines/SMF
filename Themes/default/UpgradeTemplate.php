@@ -93,10 +93,11 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		echo '
 			<script>
-				setTimeout(\'doAutoSubmit(' . (Maintenance::$tool->isDebug() ? '-1' : '3') . ', "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "upform");\', 1000);
+				setTimeout(\'doAutoSubmit(' . (Maintenance::$tool->isDebug() ? '-1' : '3') . ', "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "upform", "contbutt");\', 1000);
 			</script>';
 
 		// Are we on a pause?
+		// !!! TODO: Why?
 		if (!empty(Maintenance::$context['pause'])) {
 			echo '
 			<script defer>
