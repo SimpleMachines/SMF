@@ -76,7 +76,7 @@ if (!defined('SMF_SETTINGS_BACKUP_FILE')) {
 }
 
 if (!defined('FONTAWESOME_VERSION')) {
-	define('FONTAWESOME_VERSION', '6.3.0');
+	define('FONTAWESOME_VERSION', '7.1.0');
 }
 
 /*
