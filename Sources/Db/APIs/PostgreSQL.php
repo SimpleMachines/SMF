@@ -2343,7 +2343,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$row = $this->fetch_assoc($result);
 
 			if ($row['standard_conforming_strings'] !== 'on') {
-				throw new \Exception(Lang::$txt['error_pg_scs']);
+				throw new \Exception(Lang::getTxt('error_pg_scs', file: 'Maintenance'));
 			}
 			$this->free_result($result);
 		}

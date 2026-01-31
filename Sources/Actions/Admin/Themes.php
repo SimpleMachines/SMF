@@ -614,10 +614,10 @@ class Themes implements ActionInterface
 					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
 				}
 
-				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Themes');
 				Utils::$context['options'][] = [
 					'id' => 'theme_variant',
-					'label' => Lang::getTxt('theme_pick_variant'),
+					'label' => Lang::getTxt('theme_pick_variant', file: 'Themes'),
 					'options' => $available_variants,
 					'default' => isset(Theme::$current->settings['default_variant']) && !empty(Theme::$current->settings['default_variant']) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0],
 					'enabled' => !empty(Theme::$current->settings['theme_variants']),
