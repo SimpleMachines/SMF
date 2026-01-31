@@ -303,17 +303,17 @@ function template_main()
 					sButtonStripDisplay: \'moderationbuttons_strip\',
 					bUseImageButton: false,
 					bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-					sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
+					sRemoveButtonLabel: \'', Lang::getTxt('quickmod_delete_selected', file: 'General'), '\',
 					sRemoveButtonImage: \'delete_selected.png\',
-					sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sRemoveButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-					sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
+					sRestoreButtonLabel: \'', Lang::getTxt('quick_mod_restore', file: 'General'), '\',
 					sRestoreButtonImage: \'restore_selected.png\',
-					sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sRestoreButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-					sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
+					sSplitButtonLabel: \'', Lang::getTxt('quickmod_split_selected', file: 'General'), '\',
 					sSplitButtonImage: \'split_selected.png\',
-					sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sSplitButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					sFormId: \'quickModForm\'
 				});';
 
@@ -328,17 +328,17 @@ function template_main()
 					sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
 					bUseImageButton: false,
 					bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-					sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
+					sRemoveButtonLabel: \'', Lang::getTxt('quickmod_delete_selected', file: 'General'), '\',
 					sRemoveButtonImage: \'delete_selected.png\',
-					sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sRemoveButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-					sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
+					sRestoreButtonLabel: \'', Lang::getTxt('quick_mod_restore', file: 'General'), '\',
 					sRestoreButtonImage: \'restore_selected.png\',
-					sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sRestoreButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-					sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
+					sSplitButtonLabel: \'', Lang::getTxt('quickmod_split_selected', file: 'General'), '\',
 					sSplitButtonImage: \'split_selected.png\',
-					sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sSplitButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
 					sFormId: \'quickModForm\'
 				});';
 	}
@@ -349,9 +349,9 @@ function template_main()
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
-					sSaveButtonText: ', Utils::escapeJavaScript(Lang::$txt['save']), ',
-					sCancelButtonText: ', Utils::escapeJavaScript(Lang::$txt['modify_cancel']), ',
-					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit']) . ',
+					sSaveButtonText: ', Utils::escapeJavaScript(Lang::getTxt('save', file: 'General')), ',
+					sCancelButtonText: ', Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')), ',
+					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General')) . ',
 					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), '
 				});
 
@@ -392,7 +392,7 @@ function template_main()
 
 	if (!empty(Utils::$context['ignoredMsgs']))
 		echo '
-				ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::escapeJavaScript(Lang::$txt['show_ignore_user_post']), ');';
+				ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::escapeJavaScript(Lang::getTxt('show_ignore_user_post', file: 'General')), ');';
 
 	echo '
 			});
@@ -443,7 +443,7 @@ function template_single_post($message)
 						<hgroup>';
 
 	echo '
-							<', $show_subject ? 'p' : 'h3', ' class="page_number" id="msg_num_', $message['id'], '">', $is_first_post ? Lang::$txt['first_post'] : (!empty($message['counter']) ? Lang::getTxt('reply_number_sr', [$message['counter']]) : ''), '</', $show_subject ? 'p' : 'h3', '>';
+							<', $show_subject ? 'p' : 'h3', ' class="page_number" id="msg_num_', $message['id'], '">', $is_first_post ? Lang::getTxt('first_post', file: 'General') : (!empty($message['counter']) ? Lang::getTxt('reply_number_sr', [$message['counter']]) : ''), '</', $show_subject ? 'p' : 'h3', '>';
 
 	// Some people don't want subject... The div is still required or quick edit breaks.
 	echo '
@@ -457,7 +457,7 @@ function template_single_post($message)
 							<span class="messageicon" aria-hidden="true"', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 								<img src="', $message['icon_url'], '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 							</span>
-							<span class="visually_hidden">', Lang::$txt['posted_on'], '</span>
+							<span class="visually_hidden">', Lang::getTxt('posted_on', file: 'Post'), '</span>
 							<a href="', $message['href'], '" rel="bookmark nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', ' - ', $message['subject'], '"><time datetime="', date('Y-m-d\TH:i:s\Z', $message['timestamp']), '">', $message['time'], '</time></a>
 						</p>';
 
@@ -477,7 +477,7 @@ function template_single_post($message)
 	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == User::$me->id)
 		echo '
 						<p class="noticebox">
-							', Lang::$txt['post_awaiting_approval'], '
+							', Lang::getTxt('post_awaiting_approval', file: 'General'), '
 						</p>';
 
 	echo '
@@ -598,17 +598,17 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), . '"></span> ' : Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '</a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
 
 			echo '
 							</ol><!-- .profile_icons -->';
@@ -624,41 +624,41 @@ function template_single_post($message)
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
 							<div class="email">
-								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
+								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a>
 							</div>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
 							<div class="poster_ip">
-								<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+								<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::getTxt('show_ip', file: 'General'), '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
 							</div>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
 							<div class="poster_ip">
-								<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
+								<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::getTxt('show_ip', file: 'General'), '</span></a>
 							</div>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!User::$me->is_guest)
 		echo '
 							<div class="poster_ip">
-									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
+									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::getTxt('logged', file: 'General'), '</a>
 							</div>';
 
 	// Otherwise, you see NOTHING!
 	else
 		echo '
-							<div class="poster_ip">', Lang::$txt['logged'], '</div>';
+							<div class="poster_ip">', Lang::getTxt('logged', file: 'General'), '</div>';
 
 	// Are we showing the warning status?
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
 							<div class="warning">
-								', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
+								', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::getTxt('warn_' . $message['member']['warning_status'], file: 'General'), '</span>
 							</div>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
@@ -677,8 +677,8 @@ function template_single_post($message)
 	if ($ignoring)
 		echo '
 							<aside id="msg_', $message['id'], '_ignored_prompt" class="noticebox">
-								', Lang::$txt['ignoring_user'], '
-								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;" role="button">', Lang::$txt['show_ignore_user_post'], '</a>
+								', Lang::getTxt('ignoring_user', file: 'General'), '
+								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;" role="button">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
 							</aside>';
 
 	// Show the post itself, finally!
@@ -708,7 +708,7 @@ function template_single_post($message)
 				$div_output = true;
 
 				echo '
-							<section id="msg_', $message['id'], '_attachments" class="attachments"', $ignoring ? ' style="display:none;"' : '', ' aria-label="', Lang::$txt['attachments'], '">';
+							<section id="msg_', $message['id'], '_attachments" class="attachments"', $ignoring ? ' style="display:none;"' : '', ' aria-label="', Lang::getTxt('attachments', file: 'General'), '">';
 			}
 
 			// Show a special box for unapproved attachments...
@@ -788,7 +788,7 @@ function template_single_post($message)
 		{
 			echo '
 								<li class="smflikebutton" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '>
-									<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>
+									<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', Lang::getTxt($message['likes']['you'] ? 'unlike' : 'like', file: 'General'), '</a>
 								</li>';
 		}
 

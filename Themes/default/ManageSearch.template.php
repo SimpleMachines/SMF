@@ -322,7 +322,7 @@ function template_create_index_progress()
 				</div>
 			</div>
 			<hr>
-			<input type="submit" name="cont" value="', Lang::$txt['search_create_index_continue'], '" class="button">
+			<input type="submit" name="cont" value="', Lang::getTxt('search_create_index_continue', file: 'Search'), '" class="button">
 		</div>
 		<input type="hidden" name="step" value="', Utils::$context['step'], '">
 		<input type="hidden" name="start" value="', Utils::$context['start'], '">
@@ -330,7 +330,7 @@ function template_create_index_progress()
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 	</form>
 	<script>
-		doAutoSubmit(10, ', Utils::escapeJavaScript(Lang::$txt['search_create_index_continue']), ');
+		doAutoSubmit(10, ', Utils::escapeJavaScript(Lang::getTxt('search_create_index_continue', file: 'Search')), ');
 	</script>';
 }
 

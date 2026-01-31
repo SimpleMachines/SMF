@@ -364,7 +364,7 @@ function template_view_package()
 	if (!Utils::$context['ftp_needed'] && (!empty(Utils::$context['actions']) || !empty(Utils::$context['database_changes'])))
 		echo '
 			<div class="righttext padding">
-				<input type="submit" value="', Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_now'] : Lang::$txt['package_install_now'], '" class="button', !empty(Utils::$context['has_failure']) ? ' you_sure" data-confirm="' . (Utils::$context['uninstalling'] ? Lang::$txt['package_will_fail_popup_uninstall'] : Lang::$txt['package_will_fail_popup']) : '', '">
+				<input type="submit" value="', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_now' : 'package_install_now', file: 'Packages'), '" class="button', !empty(Utils::$context['has_failure']) ? ' you_sure" data-confirm="' . Lang::getTxt(Utils::$context['uninstalling'] ? 'package_will_fail_popup_uninstall' : 'package_will_fail_popup', file: 'Packages') : '', '">
 			</div>';
 
 	// If we need ftp information then demand it!
@@ -1855,6 +1855,6 @@ function template_action_permissions()
 	// Just the countdown stuff
 	echo '
 	<script>
-		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::$txt['not_done_continue']), '"perm_submit", "go");
+		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::getTxt('not_done_continue', file: 'Admin')), '"perm_submit", "go");
 	</script>';
 }

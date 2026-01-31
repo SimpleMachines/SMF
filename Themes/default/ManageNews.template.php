@@ -384,7 +384,7 @@ function template_email_members_send()
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
-				<input type="submit" name="cont" value="', Lang::$txt['email_continue'], '" class="button">
+				<input type="submit" name="cont" value="', Lang::getTxt('email_continue', file: 'Admin'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="subject" value="', Utils::$context['subject'], '">
 				<input type="hidden" name="message" value="', Utils::$context['message'], '">
@@ -405,7 +405,7 @@ function template_email_members_send()
 		</form>
 
 		<script>
-			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::$txt['email_continue']), ');
+			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('email_continue', file: 'Admin')), ');
 		</script>';
 }
 

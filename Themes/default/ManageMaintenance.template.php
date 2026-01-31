@@ -61,12 +61,12 @@ function template_maintain_database()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('entity_convert_title', file: 'ManageMaintenance'), '</h3>
-			<h3 class="catbg">', Lang::$txt['maintain_convertentities_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('maintain_convertentities_title', file: 'ManageMaintenance'), '</h3>
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="UTF-8">
 				<p>', Lang::getTxt('entity_convert_introduction', file: 'ManageMaintenance'), '</p>
-				<p>', Lang::$txt['maintain_convertentities_introduction'], '</p>
+				<p>', Lang::getTxt('maintain_convertentities_introduction', file: 'ManageMaintenance'), '</p>
 				<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
@@ -109,12 +109,12 @@ function template_maintain_options()
 		echo '
 			<label>
 				<input type="radio" name="activity" value="', $option, '">
-				<b>', $val['title'] ?? Lang::$txt['maintain_' . $option], '</b>
-				<p>', $val['info'] ?? Lang::$txt['maintain_' . $option . '_info'], $val['after'] ?? '', '</p>
+				<b>', $val['title'] ?? Lang::getTxt('maintain_' . $option, file: 'ManageMaintenance'), '</b>
+				<p>', $val['info'] ?? Lang::getTxt('maintain_' . $option . '_info', file: 'ManageMaintenance'), $val['after'] ?? '', '</p>
 			</label><br>';
 
 	echo '
-			<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
+			<input type="submit" value="', Lang::getTxtr('maintain_run_now'], file: 'ManageMaintenance'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 		</form>
@@ -334,13 +334,13 @@ function template_maintain_topics()
 						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" checked> ', Lang::getTxt('maintain_old_are_not_stickied', file: 'ManageMaintenance'), '</label><br>
 					</p>
 					<details class="boardslist">
-						<summary>', Lang::$txt['maintain_old_choose'], '</summary>';
+						<summary>', Lang::getTxt('maintain_old_choose', file: 'ManageMaintenance'), '</summary>';
 
 		template_choose_boards(Utils::$context['categories']);
 
 		echo '
 					</details>
-					<input type="submit" value="', Lang::$txt['maintain_old_remove'], '" data-confirm="', Lang::$txt['maintain_old_confirm'], '" class="button you_sure">
+					<input type="submit" value="', Lang::getTxt('maintain_old_remove', file: 'ManageMaintenance'), '" data-confirm="', Lang::getTxt('maintain_old_confirm', file: 'ManageMaintenance'), '" class="button you_sure">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 				</form>
@@ -455,12 +455,12 @@ function template_convert_entities()
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['maintain_convertentities_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('maintain_convertentities_title', file: 'ManageMaintenance'), '</h3>
 		</div>
 		<div class="windowbg">
-			<p>', Lang::$txt['maintain_convertentities_introduction'], '</p>
+			<p>', Lang::getTxt('maintain_convertentities_introduction', file: 'ManageMaintenance'), '</p>
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities;start=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
-			<input type="submit" value="', Lang::$txt['maintain_convertentities_proceed'], '" class="button">
+			<input type="submit" value="', Lang::getTxt('maintain_convertentities_proceed', file: 'ManageMaintenance'), '" class="button">
 			</form>
 		</div>
 	</div>';

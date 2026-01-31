@@ -62,19 +62,19 @@ function template_pm_popup()
 	echo '
 		<div class="header">
 			<a href="', Config::$scripturl, '?action=pm" class="button">
-				', Lang::$txt['inbox'], '
+				', Lang::getTxt('inbox', file: 'PersonalMessage'), '
 			</a>
 			<div class="options">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send" title="' . Lang::$txt['pm_new_short'] . '">
+				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send" title="' . Lang::getTxt('pm_new_short', file: 'PersonalMessage') . '">
 					<span class="main_icons newpm"></span>
 				</a>' : '', '
-				', Utils::$context['can_draft'] ? ' <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts" title="' . Lang::$txt['pm_drafts_short'] . '">
+				', Utils::$context['can_draft'] ? ' <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts" title="' . Lang::getTxt('pm_drafts_short', file: 'PersonalMessage') . '">
 					<span class="main_icons drafts"></span>
 				</a>' : '', '
-				<a href="', Config::$scripturl, '?action=pm;f=sent" title="', Lang::$txt['sent_items'], '">
+				<a href="', Config::$scripturl, '?action=pm;f=sent" title="', Lang::getTxt('sent_items', file: 'PersonalMessage'), '">
 					<span class="main_icons sent"></span>
 				</a>
-				<a href="', Config::$scripturl, '?action=pm;sa=settings" title="', Lang::$txt['pm_settings_short'], '">
+				<a href="', Config::$scripturl, '?action=pm;sa=settings" title="', Lang::getTxt('pm_settings_short', file: 'PersonalMessage'), '">
 					<span class="main_icons settings"></span>
 				</a>
 			</div>
@@ -91,7 +91,7 @@ function template_pm_popup()
 			<div class="generic_notification">
 				<div class="avatar">
 					', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
-					<span class="main_icons ', $pm_details['replied_to_you'] ? 'replied" title="' . Lang::$txt['pm_you_were_replied_to'] . '"' : 'im_off" title="' . Lang::$txt['pm_was_sent_to_you'] . '"', '></span>
+					<span class="main_icons ', $pm_details['replied_to_you'] ? 'replied" title="' . Lang::getTxt('pm_you_were_replied_to', file: 'PersonalMessage') . '"' : 'im_off" title="' . Lang::getTxt('pm_was_sent_to_you', file: 'PersonalMessage') . '"', '></span>
 				</div>
 				<div class="details">
 					', $pm_details['pm_link'], '
@@ -405,7 +405,7 @@ function template_single_pm($message)
 		else
 			echo '
 				<div class="poster_ip">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::getTxt('logged', file: 'General'), '</a>
 				</div>';
 
 		// Show the profile, website, email address, and personal message buttons.
@@ -417,22 +417,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-					<li><a href="', $message['member']['href'], '" title="' . Lang::$txt['view_profile'] . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::$txt['view_profile']), '</a></li>';
+					<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::getTxt('view_profile', file: 'General')), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-					<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+					<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-					<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+					<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-					<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+					<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span> ' : (Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General')), '</a></li>';
 
 			echo '
 				</ol>';
@@ -447,7 +447,7 @@ function template_single_pm($message)
 		// Are we showing the warning status?
 		if ($message['member']['can_see_warning'])
 			echo '
-				<div class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span></div>';
+				<div class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::getTxt('warn_' . $message['member']['warning_status'], file: 'General'), '</span></div>';
 
 		// Are there any custom fields to show at the bottom of the poster info?
 		if (!empty($message['custom_fields']['bottom_poster']))
@@ -816,7 +816,7 @@ function template_search()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<a href="#" id="advanced_panel_link">', Lang::$txt['pm_search_choose_label'], '</a>
+						<a href="#" id="advanced_panel_link">', Lang::getTxt('pm_search_choose_label', file: 'PersonalMessage'), '</a>
 					</h3>
 					<span id="advanced_panel_toggle" class="toggle_up" style="display: none;"></span>
 				</div>
@@ -1069,7 +1069,7 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a>
+						<a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>
 					</h4>
 					<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 				</div>

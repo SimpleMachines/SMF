@@ -68,7 +68,7 @@ function template_move()
 	template_redirect_options('move');
 
 	echo '
-					<input type="submit" value="', Lang::$txt['move_topic'], '" accesskey="s" class="button">
+					<input type="submit" value="', Lang::getTxt('move_topic', file: 'General'), '" accesskey="s" class="button">
 				</div><!-- .move_topic -->
 			</div><!-- .windowbg -->';
 

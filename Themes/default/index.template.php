@@ -72,7 +72,7 @@ function template_init()
 	 * Whether this theme supports a dark mode.
 	 *
 	 * Set this to `false` to disable.
-	 * 
+	 *
 	 * A not so trivial note:
 	 * A 'dark' theme with dark mode is exactly the same as a 'light'
 	 * theme with dark mode. This means the index.css file should
@@ -85,7 +85,7 @@ function template_init()
 	 *
 	 * Example:
 	 * - index_red.css is loaded when the user selects the `red` variant.
-	 * 
+	 *
 	 * Additionally, a variants.css file is always loaded as well, in
 	 * case you'd rather keep the styles in a single file or they're minimal.
 	 */
@@ -124,7 +124,7 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
 <head>
 	<meta charset="UTF-8">';
 
@@ -281,7 +281,7 @@ function template_body_above()
 		echo '
 					</select>
 					<noscript>
-						<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
+						<input type="submit" value="', Lang::getTxt('quick_mod_go', file: 'General'), '">
 					</noscript>
 				</form>';
 	}
@@ -294,9 +294,9 @@ function template_body_above()
 		if (Utils::$context['allow_pm'])
 			echo '
 					<li>
-						<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top" title="', Lang::$txt['pm_short'], '">
+						<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top" title="', Lang::getTxt('pm_short', file: 'General'), '">
 							<span class="main_icons inbox"></span>
-							<span class="text-label">', Lang::$txt['pm_short'], '</span>
+							<span class="text-label">', Lang::getTxt('pm_short', file: 'General'), '</span>
 							', !empty(User::$me->unread_messages) ? '
 							<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
 						</a>
@@ -306,9 +306,9 @@ function template_body_above()
 		// Alerts
 		echo '
 					<li>
-						<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top" title="', Lang::$txt['alerts'], '">
+						<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top" title="', Lang::getTxt('alerts', file: 'General'), '">
 							<span class="main_icons alerts"></span>
-							<span class="text-label">', Lang::$txt['alerts'], '</span>
+							<span class="text-label">', Lang::getTxt('alerts', file: 'General'), '</span>
 						', !empty(User::$me->alerts) ? '
 							<span class="amt">' . User::$me->alerts . '</span>' : '', '
 						</a>
@@ -318,7 +318,7 @@ function template_body_above()
 		// The user's menu
 		echo '
 					<li>
-						<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" title="', Lang::$txt['profile'], '">
+						<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" title="', Lang::getTxt('profile', file: 'General'), '">
 							', User::$me->avatar['image'], '
 							<span class="text-label">', User::$me->name, '</span>
 						</a>
@@ -329,9 +329,9 @@ function template_body_above()
 		if (empty(Theme::$current->settings['login_main_menu']))
 			echo '
 					<li class="button_logout" id="nojs_logout">
-						<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::$txt['logout'], '">
+						<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('logout', file: 'General'), '">
 							<span class="main_icons logout"></span>
-							<span class="text-label">', Lang::$txt['logout'], '</span>
+							<span class="text-label">', Lang::getTxt('logout', file: 'General'), '</span>
 						</a>
 						<script>document.getElementById("nojs_logout").style.display = "none";</script>
 					</li>';
@@ -347,7 +347,7 @@ function template_body_above()
 							[
 								'forum_name' => Utils::$context['forum_name_html_safe'],
 								'login_url' => Config::$scripturl . '?action=login',
-								'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+								'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
 								'register_url' => Config::$scripturl . '?action=signup',
 							],
 						), '
@@ -360,18 +360,18 @@ function template_body_above()
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
 					</li>
 					<li class="button_login">
-						<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
+						<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');">
 							<span class="main_icons login"></span>
-							<span class="textmenu">', Lang::$txt['login'], '</span>
+							<span class="textmenu">', Lang::getTxt('login', file: 'General'), '</span>
 						</a>
 					</li>';
 
 			if (Utils::$context['can_register'])
 				echo '
 					<li class="button_signup">
-						<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','" title="', Lang::$txt['register'], '">
+						<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','" title="', Lang::getTxt('register', file: 'General'), '">
 							<span class="main_icons signup"></span>
-							<span class="text-label">', Lang::$txt['register'], '</span>
+							<span class="text-label">', Lang::getTxt('register', file: 'General'), '</span>
 						</a>
 					</li>';
 		}
@@ -397,7 +397,7 @@ function template_body_above()
 	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
 		echo '
 				<div class="random_news">
-					<h2>', Lang::$txt['news'], ': </h2>
+					<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
 					<p>', Utils::$context['random_news_line'], '</p>
 				</div>';
 
@@ -441,9 +441,9 @@ function template_body_below()
 		</ul>
 		<ul>
 			<li class="helplinks">
-				<a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], ' <i class="fa-solid fa-circle-question"></i></a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
-				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . ' <i class="fa-solid fa-list-ul"></i></a>' : '', '
-				<a href="#header">', Lang::$txt['go_up'], ' &#9650;</a>
+				<a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), ' <i class="fa-solid fa-circle-question"></i></a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
+				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . ' <i class="fa-solid fa-list-ul"></i></a>' : '', '
+				<a href="#header">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a>
 			</li>
 		</ul>';
 
@@ -492,7 +492,7 @@ function theme_linktree($force_show = false)
 		return;
 
 	echo '
-		<nav aria-label="', Lang::$txt['breadcrumb'], '" class="navigate_section">
+		<nav aria-label="', Lang::getTxt('breadcrumb', file: 'General'), '" class="navigate_section">
 			<ul itemscope itemtype="https://schema.org/BreadcrumbList">';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
@@ -548,15 +548,15 @@ function theme_linktree($force_show = false)
 function template_menu()
 {
 	echo '
-	<nav id="main_menu" aria-label="', Lang::$txt['mobile_user_menu'], '">
+	<nav id="main_menu" aria-label="', Lang::getTxt('mobile_user_menu', file: 'General'), '">
 		<div class="content-wrapper">
 			<a class="mobile_user_menu">
 				<span class="main_icons navigation"></span>
-				<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
+				<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
 			</a>
 			<div id="mobile_user_menu" class="popup_container">
 				<div class="popup_window description">
-					<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
+					<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
 						<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 					</div>
 					<ul class="dropmenu">';
@@ -623,10 +623,10 @@ function template_menu()
 		echo '
 					<ul class="dropmenu">
 						<li>
-							<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
+							<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
 						</li>
 						<li>
-							<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
+							<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
 						</li>
 					</ul>';
 	}
@@ -663,7 +663,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 			<li>
 				<a class="button_strip_' . $key . (!empty($value['sub_buttons']) ? ' sub_buttons' : '') . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" href="' . (!empty($value['url']) ? $value['url'] : 'javascript:void(0)') . '" ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>
 					' . (!empty($value['icon']) ? '<span class="main_icons ' . $value['icon'] . '"></span>' : '') . '
-					<span class="text-label">' . Lang::$txt[$value['text']] . '</span>
+					<span class="text-label">' . Lang::getTxt($value['text']) . '</span>
 				</a>';
 
 			if (!empty($value['sub_buttons']))
@@ -680,10 +680,10 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 					$button .= '
 							<li>
 								<a href="' . $element['url'] . '">
-									<span>' . Lang::$txt[$element['text']] . '</span>';
-					if (isset(Lang::$txt[$element['text'] . '_desc']))
+									<span>' . Lang::getTxt($element['text']) . '</span>';
+					if (isset(Lang::getTxt($element['text'] . '_desc')))
 						$button .= '
-									<span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
+									<span>' . Lang::getTxt($element['text'] . '_desc') . '</span>';
 					$button .= '
 								</a>
 							</li>';
@@ -780,7 +780,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 			<li class="quickoptions">
 				<a href="javascript:void(0);">
 					<span class="main_icons more"></span>
-					<span class="text-label">' . Lang::$txt['post_options'] . '</span>
+					<span class="text-label">' . Lang::getTxt('post_options', file: 'General') . '</span>
 				</a>
 				<ul>';
 

@@ -93,13 +93,13 @@ function template_alerts_popup()
 	echo '
 		<div class="header">
 			<a href="', Config::$scripturl, '?action=profile;area=showalerts" class="button">
-				', Lang::$txt['all_alerts'], '
+				', Lang::getTxt('all_alerts', file: 'Alerts'), '
 			</a>
 			<div class="options">
-				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)" title="', Lang::$txt['mark_alerts_read'], '">
+				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)" title="', Lang::getTxt('mark_alerts_read', file: 'Alerts'), '">
 					<span class="main_icons markread"></span>
 				</a>
-				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" title="', Lang::$txt['alert_settings'], '">
+				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" title="', Lang::getTxt('alert_settings', file: 'Alerts'), '">
 					<span class="main_icons settings"></span>
 				</a>
 			</div>
@@ -1342,7 +1342,7 @@ function template_statPanel()
 	// If they haven't post at all, don't draw the graph.
 	if (empty(Utils::$context['posts_by_time']))
 		echo '
-			<p class="centertext">', Lang::$txt['statPanel_noPosts'], '</p>';
+			<p class="centertext">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
 
 	// Otherwise do!
 	else
@@ -1377,7 +1377,7 @@ function template_statPanel()
 
 	if (empty(Utils::$context['popular_boards']))
 		echo '
-				<p class="centertext ">', Lang::$txt['statPanel_noPosts'], '</p>';
+				<p class="centertext ">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
 
 	else
 	{
@@ -2128,7 +2128,7 @@ function template_groupMembership()
 		if (Utils::$context['can_edit_primary'])
 			echo '
 				<div class="windowbg righttext">
-					<input type="submit" value="', Lang::$txt['make_primary'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('make_primary', file: 'Profile'), '" class="button">
 				</div>';
 
 		// Any groups they can join?
@@ -2323,7 +2323,7 @@ function template_issueWarning()
 				<dd>
 					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::$txt['profile_warning_impact'], ': <output name="cur_level" for="warning_level">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</output>
+						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <output name="cur_level" for="warning_level">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</output>
 					</div>
 				</dd>';
 
@@ -2367,8 +2367,8 @@ function template_issueWarning()
 					<strong><label for="warn_temp">', Lang::getTxt('profile_warning_notify_body', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<select name="warn_temp" disabled data-text="', Lang::$txt['profile_warning_new_template'], '">
-						<option value="-1">', Lang::$txt['profile_warning_notify_template'], '</option>
+					<select name="warn_temp" disabled data-text="', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '">
+						<option value="-1">', Lang::getTxt('profile_warning_notify_template', file: 'Profile'), '</option>
 						<option value="-1" disabled>------------------------------</option>';
 
 		foreach (Utils::$context['notification_templates'] as $id_template => $template)
@@ -2390,8 +2390,8 @@ function template_issueWarning()
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				<input type="button" name="preview" value="', Lang::$txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', User::$me->is_owner ? Lang::$txt['change_profile'] : Lang::$txt['profile_warning_issue'], '" class="button">
+				<input type="button" name="preview" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt(User::$me->is_owner ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
 			</div><!-- .righttext -->
 		</div><!-- .windowbg -->
 	</form>';
@@ -2633,7 +2633,7 @@ function template_profile_group_manage()
 								<strong>', Lang::getTxt('additional_membergroups', file: 'Profile'), '</strong>
 							</dt>
 							<dd>
-								<fieldset data-text="', Lang::$txt['additional_membergroups_show'], '">
+								<fieldset data-text="', Lang::getTxt('additional_membergroups_show', file: 'Profile'), '">
 									<input type="hidden" name="additional_groups[]" value="0">';
 
 	// For each membergroup show a checkbox so members can be assigned to more than one group.
@@ -2689,7 +2689,7 @@ function template_profile_signature_modify()
 
 	if (!empty(Utils::$context['show_preview_button']))
 		echo '
-								<input type="button" name="preview_signature" value="', Lang::$txt['preview_signature'], '" class="button floatright">';
+								<input type="button" name="preview_signature" value="', Lang::getTxt('preview_signature', file: 'Profile'), '" class="button floatright">';
 
 	if (Utils::$context['signature_warning'])
 		echo '
@@ -2708,7 +2708,7 @@ function template_profile_avatar_select()
 	echo '
 							<dt>
 								<fieldset>
-									<legend>', Lang::$txt['personal_picture'], '</legend>';
+									<legend>', Lang::getTxt('personal_picture', file: 'Profile'), '</legend>';
 
 	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride']))
 		echo '
@@ -2741,7 +2741,7 @@ function template_profile_avatar_select()
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar']))
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked' : '') . '>
-								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::$txt['use_gravatar'] . '</label>
+								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::getTxt('use_gravatar', file: 'Profile') . '</label>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 
 	echo '
@@ -2783,7 +2783,7 @@ function template_profile_avatar_select()
 	if (!empty(Utils::$context['member']['avatar']['allow_external']))
 		echo '
 								<fieldset id="avatar_external">
-									<div class="smalltext">', Lang::$txt['avatar_by_url'], '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
+									<div class="smalltext">', Lang::getTxt('avatar_by_url', file: 'Profile'), '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '"><br>
 								</fieldset>';
 
@@ -2813,7 +2813,7 @@ function template_profile_avatar_select()
 				$textbox_value = Utils::$context['member']['avatar']['external'];
 
 			echo '
-									<div class="smalltext padding">', Lang::$txt['gravatar_alternateEmail'], '</div>
+									<div class="smalltext padding">', Lang::getTxt('gravatar_alternateEmail', file: 'Profile'), '</div>
 									<input type="text" name="gravatarEmail" size="45" value="', $textbox_value, '">';
 		}
 		echo '
@@ -3153,7 +3153,7 @@ function template_export_profile_data()
 					<input type="submit" name="delete" value="', Lang::getTxt('delete', file: 'General'), '" class="button you_sure">
 					<input type="hidden" name="format" value="', $parts[1]['format'], '">
 					<input type="hidden" name="t" value="', $dltoken, '">
-					<button type="button" class="button export_download_all" hidden data-format="', $parts[1]['format'], '">', Lang::$txt['export_download_all'], '</button>
+					<button type="button" class="button export_download_all" hidden data-format="', $parts[1]['format'], '">', Lang::getTxt('export_download_all', file: 'Profile'), '</button>
 				</div>
 			</form>';
 		}
@@ -3236,13 +3236,13 @@ function template_export_profile_data()
 					</dd>
 				</dl>
 				<div class="righttext">
-					<input type="submit" name="export_begin" value="', Lang::$txt['export_begin'], '" class="button">';
+					<input type="submit" name="export_begin" value="', Lang::getTxt('export_begin', file: 'Profile'), '" class="button">';
 
 	// At least one active or completed export exists.
 	if (!empty($dltoken))
 	{
 		echo '
-					<input type="submit" name="export_restart" value="', Lang::$txt['export_restart'], '" class="button you_sure" data-confirm="', Lang::$txt['export_restart_confirm'], '">
+					<input type="submit" name="export_restart" value="', Lang::getTxt('export_restart', file: 'Profile'), '" class="button you_sure" data-confirm="', Lang::getTxt('export_restart_confirm', file: 'Profile'), '">
 					<input type="hidden" name="delete">
 					<input type="hidden" name="t" value="', $dltoken, '">';
 	}

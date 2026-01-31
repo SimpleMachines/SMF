@@ -20,7 +20,7 @@ use SMF\Utils;
 function template_options()
 {
 	Utils::$context['theme_options'] = [
-		Lang::$txt['theme_opt_display'],
+		Lang::getTxt('theme_opt_display', file: 'Profile'),
 		[
 			'id' => 'show_children',
 			'label' => Lang::getTxt('show_children', file: 'Profile'),
@@ -28,9 +28,9 @@ function template_options()
 		],
 		[
 			'id' => 'topics_per_page',
-			'label' => Lang::$txt['topics_per_page'],
+			'label' => Lang::getTxt('topics_per_page', file: 'Profile'),
 			'options' => [
-				0 => Lang::$txt['per_page_default'],
+				0 => Lang::getTxt('per_page_default', file: 'Profile'),
 				5 => 5,
 				10 => 10,
 				25 => 25,
@@ -41,9 +41,9 @@ function template_options()
 		],
 		[
 			'id' => 'messages_per_page',
-			'label' => Lang::$txt['messages_per_page'],
+			'label' => Lang::getTxt('messages_per_page', file: 'Profile'),
 			'options' => [
-				0 => Lang::$txt['per_page_default'],
+				0 => Lang::getTxt('per_page_default', file: 'Profile'),
 				5 => 5,
 				10 => 10,
 				25 => 25,
@@ -79,7 +79,7 @@ function template_options()
 			'default' => false,
 			'enabled' => !empty(Config::$modSettings['enable_buddylist'])
 		],
-		Lang::$txt['theme_opt_posting'],
+		Lang::getTxt('theme_opt_posting', file: 'Profile'),
 		[
 			'id' => 'return_to_post',
 			'label' => Lang::getTxt('return_to_post', file: 'Profile'),
@@ -108,18 +108,18 @@ function template_options()
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['drafts_show_saved_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		],
-		Lang::$txt['theme_opt_moderation'],
+		Lang::getTxt('theme_opt_moderation', file: 'Profile'),
 		[
 			'id' => 'display_quick_mod',
-			'label' => Lang::$txt['display_quick_mod'],
+			'label' => Lang::getTxt('display_quick_mod', file: 'Profile'),
 			'options' => [
-				0 => Lang::$txt['display_quick_mod_none'],
-				1 => Lang::$txt['display_quick_mod_check'],
-				2 => Lang::$txt['display_quick_mod_image'],
+				0 => Lang::getTxt('display_quick_mod_none', file: 'Profile'),
+				1 => Lang::getTxt('display_quick_mod_check', file: 'Profile'),
+				2 => Lang::getTxt('display_quick_mod_image', file: 'Profile'),
 			],
 			'default' => true,
 		],
-		Lang::$txt['theme_opt_personal_messages'],
+		Lang::getTxt('theme_opt_personal_messages', file: 'Profile'),
 		[
 			'id' => 'popup_messages',
 			'label' => Lang::getTxt('popup_messages', file: 'Profile'),
@@ -135,26 +135,26 @@ function template_options()
 			'label' => Lang::getTxt('pm_remove_inbox_label', file: 'Profile'),
 			'default' => true,
 		],
-		!empty(Config::$modSettings['cal_enabled']) ? Lang::$txt['theme_opt_calendar'] : '',
+		!empty(Config::$modSettings['cal_enabled']) ? Lang::getTxt('theme_opt_calendar', file: 'Profile') : '',
 		[
 			'id' => 'calendar_default_view',
-			'label' => Lang::$txt['calendar_default_view'],
+			'label' => Lang::getTxt('calendar_default_view', file: 'Profile'),
 			'options' => [
-				'viewlist' => Lang::$txt['calendar_viewlist'],
-				'viewmonth' => Lang::$txt['calendar_viewmonth'],
-				'viewweek' => Lang::$txt['calendar_viewweek']
+				'viewlist' => Lang::getTxt('calendar_viewlist', file: 'Profile'),
+				'viewmonth' => Lang::getTxt('calendar_viewmonth', file: 'Profile'),
+				'viewweek' => Lang::getTxt('calendar_viewweek', file: 'Profile')
 			],
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['cal_enabled']),
 		],
 		[
 			'id' => 'calendar_start_day',
-			'label' => Lang::$txt['calendar_start_day'],
-			'options' => [
-				0 => Lang::$txt['days'][0],
-				1 => Lang::$txt['days'][1],
-				6 => Lang::$txt['days'][6],
-			],
+			'label' => Lang::getTxt('calendar_start_day', file: 'Profile'),
+			'options' => array_filter(
+				Lang::getTxt('days', file: 'General'),
+				fn($key) => in_array($key, [0, 1, 5, 6]),
+				ARRAY_FILTER_USE_KEY,
+			),
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['cal_enabled']),
 		],
@@ -195,11 +195,11 @@ function template_settings()
 		'',
 		[
 			'id' => 'enable_news',
-			'label' => Lang::$txt['enable_random_news'],
+			'label' => Lang::getTxt('enable_random_news', file: 'Themes'),
 		],
 		[
 			'id' => 'show_newsfader',
-			'label' => Lang::$txt['news_fader'],
+			'label' => Lang::getTxt('news_fader', file: 'Themes'),
 		],
 		[
 			'id' => 'newsfader_time',
@@ -215,23 +215,23 @@ function template_settings()
 		],
 		[
 			'id' => 'show_stats_index',
-			'label' => Lang::$txt['show_stats_index'],
+			'label' => Lang::getTxt('show_stats_index', file: 'Themes'),
 		],
 		[
 			'id' => 'show_latest_member',
-			'label' => Lang::$txt['latest_members'],
+			'label' => Lang::getTxt('latest_members', file: 'Themes'),
 		],
 		[
 			'id' => 'show_group_key',
-			'label' => Lang::$txt['show_group_key'],
+			'label' => Lang::getTxt('show_group_key', file: 'Themes'),
 		],
 		[
 			'id' => 'display_who_viewing',
-			'label' => Lang::$txt['who_display_viewing'],
+			'label' => Lang::getTxt('who_display_viewing', file: 'Themes'),
 			'options' => [
-				0 => Lang::$txt['who_display_viewing_off'],
-				1 => Lang::$txt['who_display_viewing_numbers'],
-				2 => Lang::$txt['who_display_viewing_names'],
+				0 => Lang::getTxt('who_display_viewing_off', file: 'Themes'),
+				1 => Lang::getTxt('who_display_viewing_numbers', file: 'Themes'),
+				2 => Lang::getTxt('who_display_viewing_names', file: 'Themes'),
 			],
 			'type' => 'list',
 		],

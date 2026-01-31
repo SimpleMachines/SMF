@@ -81,7 +81,7 @@ function template_control_richedit_buttons(string $editor_id): void
 	}
 
 	echo '
-		<input type="submit" value="', $editor_context['labels']['post_button'] ?? Lang::$txt['post'], '" name="post" accesskey="s" class="button">
+		<input type="submit" value="', $editor_context['labels']['post_button'] ?? Lang::getTxt('post', file: 'General'), '" name="post" accesskey="s" class="button">
 		</span>';
 
 	// Include auto-save feature if drafts are enabled.
@@ -207,9 +207,9 @@ function template_control_verification(int|string $verify_id, string $display_ty
 /**
  * Renders a UI for choosing boards within categories.
  *
- * This function outputs a set of fieldsets representing categories, 
- * each containing a nested list of boards. Boards can be selected using checkboxes. 
- * The function also handles the display of child boards in a hierarchical structure 
+ * This function outputs a set of fieldsets representing categories,
+ * each containing a nested list of boards. Boards can be selected using checkboxes.
+ * The function also handles the display of child boards in a hierarchical structure
  * and adds JavaScript functionality to enable selecting or deselecting all boards within a category.
  *
  * @param array $categories An array of categories, each containing:

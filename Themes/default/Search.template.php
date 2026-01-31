@@ -147,7 +147,7 @@ function template_main()
 	{
 		echo '
 			<details class="boardslist">
-				<summary>', Lang::$txt['choose_board'], '</summary>';
+				<summary>', Lang::getTxt('choose_board', file: 'Search'), '</summary>';
 
 		template_choose_boards(Utils::$context['categories']);
 
@@ -156,7 +156,7 @@ function template_main()
 	}
 
 	echo '
-			<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button floatright">
+			<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button floatright">
 		</div>
 	</form>
 	<script>
@@ -179,19 +179,19 @@ function template_results()
 		<h2 class="display_title">
 			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 		</h2>
-		<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>';
+		<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::getTxt('search_adjust_query', file: 'Search'), '</a>';
 
 		// Was anything even found?
 		if (!empty(Utils::$context['topics'])) {
 			echo '
 		<div class="floatright">
-			<span class="padding">', Lang::$txt['search_order'], '</span>
+			<span class="padding">', Lang::getTxt('search_order', file: 'Search'), '</span>
 			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
-				<option value="relevance|desc">', Lang::$txt['search_orderby_relevant_first'], '</option>
-				<option value="num_replies|desc"', Utils::$context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', Lang::$txt['search_orderby_large_first'], '</option>
-				<option value="num_replies|asc"', Utils::$context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', Lang::$txt['search_orderby_small_first'], '</option>
-				<option value="id_msg|desc"', Utils::$context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', Lang::$txt['search_orderby_recent_first'], '</option>
-				<option value="id_msg|asc"', Utils::$context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', Lang::$txt['search_orderby_old_first'], '</option>
+				<option value="relevance|desc">', Lang::getTxt('search_orderby_relevant_first', file: 'Search'), '</option>
+				<option value="num_replies|desc"', Utils::$context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', Lang::getTxt('search_orderby_large_first', file: 'Search'), '</option>
+				<option value="num_replies|asc"', Utils::$context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', Lang::getTxt('search_orderby_small_first', file: 'Search'), '</option>
+				<option value="id_msg|desc"', Utils::$context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', Lang::getTxt('search_orderby_recent_first', file: 'Search'), '</option>
+				<option value="id_msg|asc"', Utils::$context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', Lang::getTxt('search_orderby_old_first', file: 'Search'), '</option>
 			</select>
 		</div>
 	</div>
@@ -283,7 +283,7 @@ function template_results()
 		else
 		{
 			echo '
-		<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
+		<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
 		// While we have results to show ...
@@ -339,7 +339,7 @@ function template_results()
 		else
 		{
 			echo '
-	<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
+	<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
 		while ($topic = Utils::$context['get_topics']())

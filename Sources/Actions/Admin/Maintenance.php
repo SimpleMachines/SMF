@@ -207,11 +207,11 @@ class Maintenance implements ActionInterface
 
 		if (Config::$db_type == 'mysql') {
 			$body_type = array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'];
-			Utils::$context['options']['convertmsgbody']['title'] = Lang::$txt[($body_type == 'text' ? 'mediumtext' : 'text') . '_title'];
-			Utils::$context['options']['convertmsgbody']['info'] = Lang::$txt['mediumtext_info'];
+			Utils::$context['options']['convertmsgbody']['title'] = Lang::getTxt(($body_type == 'text' ? 'mediumtext' : 'text') . '_title', file: 'ManageMaintenance');
+			Utils::$context['options']['convertmsgbody']['info'] = Lang::getTxt('mediumtext_info', file: 'ManageMaintenance');
 
 			if ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536) {
-				Utils::$context['options']['convertmsgbody']['after'] = '<p class="infobox">' . Lang::$txt['convert_to_suggest_text'] . '</p>';
+				Utils::$context['options']['convertmsgbody']['after'] = '<p class="infobox">' . Lang::getTxt('convert_to_suggest_text', file: 'ManageMaintenance') . '</p>';
 			}
 		} else {
 			unset(Utils::$context['options']['convertmsgbody']);

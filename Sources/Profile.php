@@ -304,7 +304,7 @@ class Profile extends User implements \ArrayAccess
 		 *   - text:            A string of some description.
 		 *
 		 * string $label:       The label for this item. Default will be
-		 *                      Lang::$txt[$key] if this isn't set.
+		 *                      Lang::getTxt($key) if this isn't set.
 		 *
 		 * string $subtext:     The subtext (Small label) for this item.
 		 *
@@ -1475,8 +1475,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		Theme::addJavaScriptVar('require_password', !empty(Utils::$context['require_password']), true);
-		Theme::addJavaScriptVar('required_security_reasons', Lang::$txt['required_security_reasons'], true);
-		Theme::addJavaScriptVar('autodetect', Lang::$txt['timeoffset_autodetect'], true);
+		Theme::addJavaScriptVar('required_security_reasons', Lang::getTxt('required_security_reasons', file: 'Profile'), true);
+		Theme::addJavaScriptVar('autodetect', Lang::getTxt('timeoffset_autodetect', file: 'Profile'), true);
 
 		// Backwards compatibility.
 		Theme::addInlineJavaScript('

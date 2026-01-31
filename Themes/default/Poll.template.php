@@ -45,9 +45,9 @@ function template_main()
 				<div class="roundframe noup">
 					<input type="hidden" name="poll" value="', Utils::$context['poll']['id'], '">
 					<fieldset id="poll_main">
-						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
-							<dt>', Lang::$txt['poll_question'], '</dt>
-						<dl class="settings poll_options" data-more-txt="', Lang::$txt['poll_add_option'], '" data-option-txt="', Lang::$txt['option'], '">
+						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
+							<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
+						<dl class="settings poll_options" data-more-txt="', Lang::getTxt('poll_add_option', file: 'Post'), '" data-option-txt="', Lang::getTxt('option', file: 'Post'), '">
 							<dd><input type="text" name="question" size="80" value="', Utils::$context['poll']['question'], '"></dd>';
 
 	foreach (Utils::$context['choices'] as $choice)
@@ -84,8 +84,8 @@ function template_main()
 								<input type="number" name="poll_max_votes" id="poll_max_votes" min="1" value="', Utils::$context['poll']['max_votes'], '">
 							</dd>
 							<dt>
-								<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-								<small><i>', Lang::$txt['poll_run_limit'], '</i></small>
+								<label for="poll_expire">', Lang::getTxt('poll_run', file: 'Post'), '</label><br>
+								<small><i>', Lang::getTxt('poll_run_limit', file: 'Post'), '</i></small>
 							</dt>
 							<dd>
 								<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll']['expiration']), '" onchange="this.form.poll_hide[2].disabled = isEmptyText(this) || this.value == 0; if (this.form.poll_hide[2].checked) this.form.poll_hide[1].checked = true;">
@@ -100,7 +100,7 @@ function template_main()
 		if (Utils::$context['poll']['guest_vote_allowed'])
 			echo '
 							<dt>
-								<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], ':</label>
+								<label for="poll_guest_vote">', Lang::getTxt('poll_guest_vote', file: 'Post'), ':</label>
 							</dt>
 							<dd>
 								<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll']['guest_vote']) ? ' checked' : '', '>
@@ -109,7 +109,7 @@ function template_main()
 
 	echo '
 							<dt>
-								', Lang::$txt['poll_results_visibility'], ':
+								', Lang::getTxt('poll_results_visibility', file: 'Post'), ':
 							</dt>
 							<dd>
 								<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll']['hide_results'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::getTxt('poll_results_anyone', file: 'Post'), '</label><br>
@@ -127,7 +127,7 @@ function template_main()
 						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::getTxt('reset_votes_check', file: 'Post') . '
 					</fieldset>';
 	echo '
-					<input type="submit" name="post" value="', Lang::$txt['save'], '" accesskey="s" class="button">
+					<input type="submit" name="post" value="', Lang::getTxt('save', file: 'General'), '" accesskey="s" class="button">
 				</div><!-- .roundframe -->
 			</div>
 			<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">

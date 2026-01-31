@@ -49,34 +49,32 @@ function template_login()
 
 	// Now just get the basic information - username, password, etc.
 	echo '
-				<label>', Lang::$txt['username'], ':</label>
+				<label>', Lang::getTxt('username', file: 'General'), ':</label>
 				<div>
 					<input type="text" name="user" size="20" value="', Utils::$context['default_username'], '" required>
 				</div>
-				<label>', Lang::$txt['password'], ':</label>
+				<label>', Lang::getTxt('password', file: 'General'), ':</label>
 				<div>
 					<input type="password" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
 				</div>
-				<label>', Lang::$txt['time_logged_in'], ':</label>
-				<div>
-							<label>
-								<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
-								', Lang::getTxt('remember_me', file: 'General'), '
-							</label>
-				</div>';
+				<label>', Lang::getTxt('time_logged_in', file: 'General'), ':</label>
+				<label>
+					<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+					', Lang::getTxt('remember_me', file: 'General'), '
+				</label>';
 
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
 				<div class="checkbox">
 					<input type="checkbox" name="undelete">
-					<label class="alert">', Lang::$txt['undelete_account'], ':</label>
+					<label class="alert">', Lang::getTxt('undelete_account', file: 'Login'), ':</label>
 				</div>';
 
 	echo '
-				<input type="submit" value="', Lang::$txt['login'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 				<p class="smalltext centertext">
-					<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+					<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
 				</p>';
 
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
@@ -148,7 +146,7 @@ function template_login_tfa()
 					<div id="tfaCode">
 						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_login_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_code'], ':</strong>
+							<strong>', Lang::getTxt('tfa_code', file: 'Profile'), ':</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
@@ -160,7 +158,7 @@ function template_login_tfa()
 					<div id="tfaBackup" style="display: none;">
 						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_backup_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_backup_code'], ': </strong>
+							<strong>', Lang::getTxt('tfa_backup_code', file: 'Profile'), ': </strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
@@ -210,7 +208,7 @@ function template_kick_guest()
 	echo '
 	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8" class="login">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['warning'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('warning', file: 'Login'), '</h3>
 		</div>';
 
 	// Show the message or default message.
@@ -230,28 +228,22 @@ function template_kick_guest()
 		</p>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons login"></span> ', Lang::$txt['login'], '
+				<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 			</h3>
 		</div>
 		<div class="windowbg form_grid">
-			<label>', Lang::$txt['username'], ':</label>
+			<label>', Lang::getTxt('username', file: 'General'), ':</label>
 			<div><input type="text" name="user" autofocus size="20"></div>
-			<label>', Lang::$txt['password'], ':</label>
+			<label>', Lang::getTxt('password', file: 'General'), ':</label>
 			<div><input type="password" name="passwrd" size="20"></div>
-			<label>', Lang::$txt['time_logged_in'], ':</label>
-			<div>
-				<select name="cookielength" id="cookielength">';
-
-	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-					<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
-
-	echo '
-				</select>
-			</div>
-			<input type="submit" value="', Lang::$txt['login'], '" class="button">
+			<label>', Lang::getTxt('time_logged_in', file: 'General'), ':</label>
+			<label>
+				<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+				', Lang::getTxt('remember_me', file: 'General'), '
+			</label>
+			<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 			<p class="centertext smalltext">
-				<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+				<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
 			</p>
 		</div>
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -271,29 +263,23 @@ function template_maintenance()
 			<h3 class="catbg">', Utils::$context['title'], '</h3>
 		</div>
 		<p class="descbox">
-			<img src="', Theme::$current->settings['images_url'], '/construction.png" wilabelh="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
+			<img src="', Theme::$current->settings['images_url'], '/construction.png" wilabelh="40" height="40" alt="', Lang::getTxt('in_maintain_mode', file: 'Login'), '">
 			', Utils::$context['description'], '<br class="clear">
 		</p>
 		<div class="title_bar">
-			<h4 class="titlebg">', Lang::$txt['admin_login'], '</h4>
+			<h4 class="titlebg">', Lang::getTxt('admin_login', file: 'General'), '</h4>
 		</div>
 		<div class="windowbg form_grid">
-			<label>', Lang::$txt['username'], ':</label>
+			<label>', Lang::getTxt('username', file: 'General'), ':</label>
 			<div><input type="text" name="user" autofocus size="20"></div>
-			<label>', Lang::$txt['password'], ':</label>
+			<label>', Lang::getTxt('password', file: 'General'), ':</label>
 			<div><input type="password" name="passwrd" size="20"></div>
-			<label>', Lang::$txt['time_logged_in'], ':</label>
-			<div>
-				<select name="cookielength" id="cookielength">';
-
-	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-					<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
-
-	echo '
-				</select>
-			</div>
-			<input type="submit" value="', Lang::$txt['login'], '" class="button">
+			<label>', Lang::getTxt('time_logged_in', file: 'Generla'), ':</label>
+			<label>
+				<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+				', Lang::getTxt('remember_me', file: 'General'), '
+			</label>
+			<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 		</div>
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
@@ -321,9 +307,9 @@ function template_admin_login()
 				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
 
 	echo '
-				<strong>', Lang::$txt['password'], ':</strong>
+				<strong>', Lang::getTxt('password', file: 'General'), ':</strong>
 				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" autofocus size="24">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><br>
+				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">
 				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">';
@@ -350,13 +336,13 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty(Utils::$context['member_id']))
 		echo '
-			<label>', Lang::$txt['invalid_activation_username'], ':</label>
+			<label>', Lang::getTxt('invalid_activation_username', file: 'Login'), ':</label>
 			<div><input type="text" name="user" size="30"></div>';
 
 	echo '
-			<label>', Lang::$txt['invalid_activation_retry'], ':</label>
+			<label>', Lang::getTxt('invalid_activation_retry', file: 'Login'), ':</label>
 			<div><input type="text" name="code" size="30"></div>
-			<input type="submit" value="', Lang::$txt['invalid_activation_submit'], '" class="button">
+			<input type="submit" value="', Lang::getTxt('invalid_activation_submit', file: 'Login'), '" class="button">
 		</form>';
 }
 
@@ -371,22 +357,22 @@ function template_resend()
 			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
 		<form action="', Config::$scripturl, '?action=activate;sa=resend" method="post" accept-charset="UTF-8" class="windowbg form_grid">
-			<label>', Lang::$txt['invalid_activation_username'], ':</label>
+			<label>', Lang::getTxt('invalid_activation_username', file: 'Login'), ':</label>
 			<div><input type="text" name="user" autofocus size="40" value="', Utils::$context['default_username'], '"></div>
-			<p>', Lang::$txt['invalid_activation_new'], '</p>
-			<label>', Lang::$txt['invalid_activation_new_email'], ':</label>
+			<p>', Lang::getTxt('invalid_activation_new', file: 'Login'), '</p>
+			<label>', Lang::getTxt('invalid_activation_new_email', file: 'Login'), ':</label>
 			<div><input type="text" name="new_email" size="40"></div>
-			<label>', Lang::$txt['invalid_activation_password'], ':</label>
+			<label>', Lang::getTxt('invalid_activation_password', file: 'Login'), ':</label>
 			<div><input type="password" name="passwd" size="30"></div>';
 
 	if (Utils::$context['can_activate'])
 		echo '
-			<p>', Lang::$txt['invalid_activation_known'], '</p>
-			<label>', Lang::$txt['invalid_activation_retry'], ':</label>
+			<p>', Lang::getTxt('invalid_activation_known', file: 'Login'), '</p>
+			<label>', Lang::getTxt('invalid_activation_retry', file: 'Login'), ':</label>
 			<div><input type="text" name="code" size="30"></div>';
 
 	echo '
-			<input type="submit" value="', Lang::$txt['invalid_activation_resend'], '" class="button">
+			<input type="submit" value="', Lang::getTxt('invalid_activation_resend', file: 'Login'), '" class="button">
 		</form>';
 }
 
@@ -398,16 +384,16 @@ function template_logout()
 	echo '
 	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['logout_confirm'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('logout_confirm', file: 'Login'), '</h3>
 		</div>
 		<div class="windowbg">
 			<p class="information centertext">
-				', Lang::$txt['logout_notice'], '
+				', Lang::getTxt('logout_notice', file: 'Login'), '
 			</p>
 
 			<p class="centertext">
-				<input type="submit" value="', Lang::$txt['logout'], '" class="button">
-				<input type="submit" name="cancel" value="', Lang::$txt['logout_return'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('logout', file: 'General'), '" class="button">
+				<input type="submit" name="cancel" value="', Lang::getTxt('logout_return', file: 'Login'), '" class="button">
 			</p>
 		</div>
 	</form>';

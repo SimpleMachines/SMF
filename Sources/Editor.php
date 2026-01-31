@@ -755,8 +755,8 @@ class Editor implements \ArrayAccess, \Stringable
 		Utils::$context['richedit_buttons'] = [
 			'save_draft' => [
 				'type' => 'submit',
-				'value' => Lang::$txt['draft_save'],
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ');' : '',
+				'value' => Lang::getTxt('draft_save', file: 'Drafts'),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::getTxt('draft_save_note', file: 'Drafts')) . ');' : '',
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],
@@ -1029,7 +1029,7 @@ class Editor implements \ArrayAccess, \Stringable
 			'commandsWithText' => [],
 			'parserOptions' => [
 				'txtVars' => [
-					'code' => Lang::$txt['code'],
+					'code' => Lang::getTxt('code', file: 'General'),
 				],
 			],
 		];
@@ -1049,7 +1049,7 @@ class Editor implements \ArrayAccess, \Stringable
 				$this->sce_options['emoticons'][$translations[$smiley['hidden']]][$smiley['code']] = [
 					'newRow' => $smiley['smiley_row'] != $prevRowIndex,
 					'url' => $smiley['filename'],
-					'tooltip' => Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($smiley['description'])] ?? $smiley['description']),
+					'tooltip' => Utils::htmlspecialchars(Lang::getTxt('icon_' . strtolower($smiley['description']), file: 'General') ?? $smiley['description']),
 				];
 				$prevRowIndex = $smiley['smiley_row'];
 			}

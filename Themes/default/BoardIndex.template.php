@@ -75,7 +75,7 @@ function template_boardindex()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-			<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
+			<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
 
 		echo '
 			', !empty($category['description']) ? '
@@ -234,7 +234,7 @@ function template_bi_board_lastpost($board)
 		', ($board['last_post']['member']['id'] ? '<a href="' . $board['last_post']['member']['href'] . '">' : ''), '
 			<img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt="">
 		', ($board['last_post']['member']['id'] ? '</a>' : ''), '
-		
+
 		<p>
 			<span>',  $board['last_post']['link'], ', ', Lang::getTxt('last_post_updated', ['time' => $board['last_post']['time'], 'member_link' => $board['last_post']['member']['link']]), '</span>
 		</p>';
@@ -300,7 +300,7 @@ function template_info_center()
 			<h3 class="titlebg">
 				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</a>
 			</h3>
-			<span class="toggle_up" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
+			<span class="toggle_up" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 
@@ -478,13 +478,13 @@ function template_ic_block_stats()
 	// Show statistical style information...
 	echo '
 		<div class="info_block_icon">
-			', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Utils::$context['show_stats'] ? '</a>' : '', '
+			', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::getTxt('more_stats', file: 'General') . '">' : '', '<span class="main_icons stats"></span> ', Utils::$context['show_stats'] ? '</a>' : '', '
 		</div>
 		<div class="info_block_information">
 			<p class="inline">
-				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
-				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
-				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
+				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::getTxt('latest_member', file: 'General') . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', (!empty(Utils::$context['latest_post']) ? Lang::getTxt('latest_post', file: 'General') . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
+				<a href="', Config::$scripturl, '?action=recent">', Lang::getTxt('recent_view', file: 'General'), '</a>
 			</p>
 		</div>';
 }

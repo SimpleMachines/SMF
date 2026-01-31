@@ -109,7 +109,7 @@ function template_error_log()
 				</div>
 				<ul class="buttonlist floatright">
 					<li class="inline_mod_check">
-						<label for="check_all"><strong>', Lang::$txt['check_all'], '</strong></label>
+						<label for="check_all"><strong>', Lang::getTxt('check_all', file: 'General'), '</strong></label>
 						<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
 					</li>
 				</ul>
@@ -123,7 +123,7 @@ function template_error_log()
 				<div class="topic_details">
 					<h5>
 						<span>
-							<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::$txt['reverse_direction'], '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a>
+							<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::getTxt('reverse_direction', file: 'ManageMaintenance'), '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a>
 							<span>', $error['time'], '</span>
 						</span>
 					</h5>
@@ -134,10 +134,10 @@ function template_error_log()
 				</div>
 				<div class="list_item">
 					<h6 class="righttext">
-						<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::$txt['backtrace_title'], '</a>
+						<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::getTxt('backtrace_title', file: 'ManageMaintenance'), '</a>
 					</h6>
 					<div class="post">
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_member']]), '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_member', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
 
 		if (!empty($error['member']['ip']))
@@ -166,9 +166,9 @@ function template_error_log()
 
 					<div class="post">
 						<br class="clear">
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_type']]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_message']]), '"><span class="main_icons filter floatleft"></span></a>
-						<div class="codeheader"><span class="code floatleft">' . Lang::$txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_type', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_message', file: 'ManageMaintenance')]), '"><span class="main_icons filter floatleft"></span></a>
+						<div class="codeheader"><span class="code floatleft">' . Lang::getTxt('error_message', file: 'ManageMaintenance') . '</span> <a class="codeoperation smf_select_text">' . Lang::getTxt('code_select', file: 'General') . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::getTxt('code_shrink', file: 'General') . '" data-expand-txt="' . Lang::getTxt('code_expand', file: 'General') . '">' . Lang::getTxt('code_expand', file: 'General') . '</a>
 						</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 					</div>
 				</div>

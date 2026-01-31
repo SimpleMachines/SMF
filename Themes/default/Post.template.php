@@ -129,9 +129,9 @@ function template_main()
 					<hr class="clear">
 					<div id="edit_poll">
 						<fieldset id="poll_main">
-							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
-							<dl class="settings poll_options" data-more-txt="', Lang::$txt['poll_add_option'], '" data-option-txt="', Lang::$txt['option'], '">
-								<dt>', Lang::$txt['poll_question'], '</dt>
+							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
+							<dl class="settings poll_options" data-more-txt="', Lang::getTxt('poll_add_option', file: 'Post'), '" data-option-txt="', Lang::getTxt('option', file: 'General'), '">
+								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
 									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" size="80">
 								</dd>';
@@ -159,8 +159,8 @@ function template_main()
 									<input type="number" name="poll_max_votes" id="poll_max_votes" min="1" value="', Utils::$context['poll_options']['max_votes'], '">
 								</dd>
 								<dt>
-									<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-									<small><i>', Lang::$txt['poll_run_limit'], '</i></small>
+									<label for="poll_expire">', Lang::getTxt('poll_run', file: 'Post'), '</label><br>
+									<small><i>', Lang::getTxt('poll_run_limit', file: 'Post'), '</i></small>
 								</dt>
 								<dd>
 									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
@@ -214,7 +214,7 @@ function template_main()
 		if (Utils::$context['can_post_attachment'])
 			echo '
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
-										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::$txt['clean_attach'], ')</a>';
+										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::getTxt('clean_attach', file: 'Post'), ')</a>';
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']))
 			echo '
@@ -342,7 +342,7 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty(Config::$modSettings['additional_options_collapsable']))
 		echo '
-					<details id="additional_options_toggle" ', Utils::$context['show_additional_options'] ? 'open' : '', ',><summary>', Lang::$txt['post_additionalopt'], '</summary>';
+					<details id="additional_options_toggle" ', Utils::$context['show_additional_options'] ? 'open' : '', ',><summary>', Lang::getTxt('post_additionalopt', file: 'Post'), '</summary>';
 
 	template_additional_options(Utils::$context['Additional_options']);
 
@@ -355,7 +355,7 @@ function template_main()
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
-							 <a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a>
+							 <a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>
 						</h4>
 						<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 					</div>
@@ -422,7 +422,7 @@ function template_main()
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
 				<li>
-					<a href="#" class="quote_button"><span class="main_icons quote"></span>' . Lang::$txt['quote'] . '</a>
+					<a href="#" class="quote_button"><span class="main_icons quote"></span>' . Lang::getTxt('quote', file: 'General') . '</a>
 				</li>
 			</ul>';
 
@@ -526,8 +526,8 @@ function template_main()
 			if ($ignoring)
 				echo '
 				<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
-					', Lang::$txt['ignoring_user'], '
-					<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::$txt['show_ignore_user_post'], '</a>
+					', Lang::getTxt('ignoring_user', file: 'General'), '
+					<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
 				</div>';
 
 			echo '
@@ -536,8 +536,8 @@ function template_main()
 			if (Utils::$context['can_quote'])
 				echo '
 				<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-					<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::$txt['quote_selected_action'], '</a></li>
-					<li><a href="#"><span class="main_icons quote"></span>', Lang::$txt['quote'], '</a></li>
+					<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::getTxt('quote_selected_action', file: 'General'), '</a></li>
+					<li><a href="#"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
 				</ul>';
 
 			echo '
@@ -811,7 +811,7 @@ function template_announcement_send()
 				</div>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" name="cont" value="', Lang::$txt['announce_continue'], '" class="button">
+					<input type="submit" name="cont" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 					<input type="hidden" name="move" value="', Utils::$context['move'], '">
@@ -825,7 +825,7 @@ function template_announcement_send()
 	</div><!-- #announcement -->
 	<br>
 	<script>
-		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::$txt['announce_continue']), ');
+		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ');
 	</script>';
 }
 

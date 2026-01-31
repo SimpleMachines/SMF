@@ -548,25 +548,25 @@ function template_set_settings()
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg config_hd">
-						', Lang::$txt['theme_colormodes'], '
+						', Lang::getTxt('theme_colormodes', file: 'Themes'), '
 					</h3>
 				</div>
 				<dl class="settings">
 					<dt>
-						<label for="colormode">', Lang::$txt['theme_colormode_default'], '</label>
+						<label for="colormode">', Lang::getTxt('theme_colormode_default', file: 'Themes'), '</label>
 					</dt>
 					<dd>
 						<select id="colormode" name="options[default_colormode]">';
 
 		foreach (Theme::$current->settings['theme_colormodes'] as $mode)
 			echo '
-							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::$txt['colormode_' . $mode], '</option>';
+							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::getTxt('colormode_' . $mode, file: 'Themes'), '</option>';
 
 		echo '
 						</select>
 					</dd>
 					<dt>
-						<label for="disable_user_mode">', Lang::$txt['theme_colormode_user_disable'], '</label>
+						<label for="disable_user_mode">', Lang::getTxt('theme_colormode_user_disable', file: 'Themes'), '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="options[disable_user_mode]" value="0">
@@ -727,7 +727,7 @@ function template_pick()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt[$i == 0 ? 'current_theme' : 'theme_pick'], '</h3>
+			<h3 class="catbg">', Lang::getTxt($i == 0 ? 'current_theme' : 'theme_pick', file: 'Themes'), '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -762,12 +762,12 @@ function template_pick()
 
 				echo '
 				<div>
-					<input type="submit" name="save[', $theme['id'], ']" value="', Lang::$txt['theme_set'], '" class="button">
-					<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::$txt['theme_preview'], '</a>
+					<input type="submit" name="save[', $theme['id'], ']" value="', Lang::getTxt('theme_set', file: 'Themes'), '" class="button">
+					<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::getTxt('theme_preview', file: 'Themes'), '</a>
 				</div>
 			</div>
 			<div>
-				<a href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::$txt['theme_preview'], '">
+				<a href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::getTxt('theme_preview', file: 'Themes'), '">
 					<img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding theme_thumbnail">
 				</a>
 			</div>';

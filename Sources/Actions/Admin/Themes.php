@@ -610,13 +610,13 @@ class Themes implements ActionInterface
 			if (!empty(Theme::$current->settings['theme_variants'])) {
 				$available_variants = [];
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
-					$available_variants[$variant] = Lang::$txt['variant_' . $variant] ?? $variant;
+					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
 				}
 
-				Utils::$context['options'][] = Lang::$txt['theme_opt_variant'];
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_variant',
-					'label' => Lang::$txt['theme_pick_variant'],
+					'label' => Lang::getTxt('theme_pick_variant'),
 					'options' => $available_variants,
 					'default' => isset(Theme::$current->settings['default_variant']) && !empty(Theme::$current->settings['default_variant']) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0],
 					'enabled' => !empty(Theme::$current->settings['theme_variants']),
@@ -627,13 +627,13 @@ class Themes implements ActionInterface
 			if (!empty(Theme::$current->settings['has_dark_mode'])) {
 				$available_modes = [];
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
-					$available_modes[$mode] = Lang::$txt['colormode_' . $mode] ?? $mode;
+					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
 				}
 
-				Utils::$context['options'][] = Lang::$txt['theme_opt_colormode'];
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_colormode', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_colormode',
-					'label' => Lang::$txt['theme_pick_colormode'],
+					'label' => Lang::getTxt('theme_pick_colormode', file: 'Themes'),
 					'options' => $available_modes,
 					'default' => isset(Theme::$current->settings['default_colormode']) && !empty(Theme::$current->settings['default_colormode']) ? Theme::$current->settings['default_colormode'] : Theme::$current->settings['theme_colormodes'][0],
 					'enabled' => !empty(Theme::$current->settings['has_dark_mode']),

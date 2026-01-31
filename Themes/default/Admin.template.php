@@ -735,7 +735,7 @@ function template_not_done()
 							</form>
 						</div><!-- .windowbg -->
 					<script>
-						doAutoSubmit(', Utils::$context['continue_countdown'], ', ', Lang::$txt['not_done_continue'], ');
+						doAutoSubmit(', Utils::$context['continue_countdown'], ', "', Lang::getTxt('not_done_continue', file: 'Admin'), '");
 					</script>';
 }
 
@@ -1521,7 +1521,7 @@ function template_repair_boards()
 	{
 		echo '
 					<script>
-						doAutoSubmit(5, ', Utils::escapeJavaScript(Lang::$txt['errors_recount_now']), ', "recount_form", "recount_now");
+						doAutoSubmit(5, "', Utils::escapeJavaScript(Lang::getTxt('errors_recount_now', file: 'Admin')), '", "recount_form", "recount_now");
 					</script>';
 	}
 }
