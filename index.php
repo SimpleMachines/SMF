@@ -79,10 +79,6 @@ if (!defined('FONTAWESOME_VERSION')) {
 	define('FONTAWESOME_VERSION', '7.1.0');
 }
 
-if (!defined('FONTAWESOME_VERSION')) {
-	define('FONTAWESOME_VERSION', '7.1.0');
-}
-
 /*
  * 2. Load the Settings.php file.
  */
