@@ -1856,6 +1856,6 @@ function template_action_permissions()
 	// Just the countdown stuff
 	echo '
 	<script>
-		doAutoSubmit(', $countDown, ', "', Lang::getTxt('not_done_continue', file: 'Admin'), '", "perm_submit", "go");
+		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::getTxt('not_done_continue', file: 'Admin')), '"perm_submit", "go");
 	</script>';
 }
