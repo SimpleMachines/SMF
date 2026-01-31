@@ -1573,6 +1573,7 @@ class Features implements ActionInterface
 				'jquery_source',
 				[
 					'cdn' => Lang::getTxt('google_cdn', file: 'ManageSettings'),
+					'cloudflare_cdn' => Lang::getTxt('cloudflare_cdn', file: 'ManageSettings'),
 					'jquery_cdn' => Lang::getTxt('jquery_cdn', file: 'ManageSettings'),
 					'microsoft_cdn' => Lang::getTxt('microsoft_cdn', file: 'ManageSettings'),
 					'local' => Lang::getTxt('local_cdn', file: 'ManageSettings'),

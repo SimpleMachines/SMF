@@ -185,7 +185,7 @@ function template_modify_category()
 
 	if (isset(Utils::$context['category']['is_new']))
 		echo '
-				<input type="submit" name="add" value="', Lang::getTxt('mboards_add_cat_button', file: 'General'), '" onclick="return !isEmptyText(this.form.cat_name);" class="button">';
+				<input type="submit" name="add" value="', Lang::getTxt('mboards_add_cat_button', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.cat_name);" class="button">';
 	else
 		echo '
 				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.cat_name);" class="button">
