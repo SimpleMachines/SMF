@@ -1764,3 +1764,32 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 
 	location.hash = '#' + this.opts.sPreviewSectionContainerID;
 }
+
+function doAutoSubmit(countdown, txtMessage, formName = 'autoSubmit', fieldName = 'cont') {
+	const form = document.forms[formName];
+
+	// Ensure the form exists
+	if (!form) {
+		console.error('Form with name "' + formName + '" not found.');
+		return;
+	}
+
+	// Handle the countdown completion
+	if (countdown <= 0) {
+		form.submit();
+		return;
+	}
+
+	// Update the field if it exists
+	const contField = form.elements[fieldName];
+	if (contField) {
+		contField.value = txtMessage + ' (' + countdown + ')';
+	} else {
+		console.warn('Field "' + fieldName + '" not found in form "' + formName + '".');
+	}
+
+	// Schedule the next countdown tick
+	setTimeout(() => {
+		doAutoSubmit(countdown - 1, txtMessage, formName, fieldName);
+	}, 1000);
+}

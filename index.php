@@ -132,6 +132,9 @@ call_user_func(function () {
 	// Ensure the SMF namespace points to $sourcedir.
 	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
 
+	// Initialize the container.
+	SMF\Container::init();
+
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
 });

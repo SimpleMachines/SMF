@@ -865,7 +865,7 @@ class Editor implements \ArrayAccess, \Stringable
 				$this->sce_options['emoticons'][$translations[$smiley['hidden']]][$smiley['code']] = [
 					'newRow' => $smiley['smiley_row'] != $prevRowIndex,
 					'url' => $smiley['filename'],
-					'tooltip' => Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($smiley['description'])] ?? $smiley['description']),
+					'tooltip' => Utils::htmlspecialchars(Lang::getTxt('icon_' . strtolower($smiley['description']), file: 'General') ?? $smiley['description']),
 				];
 				$prevRowIndex = $smiley['smiley_row'];
 			}

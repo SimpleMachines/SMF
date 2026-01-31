@@ -548,12 +548,12 @@ function template_set_settings()
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg config_hd">
-						', Lang::$txt['theme_colormodes'], '
+						', Lang::getTxt('theme_colormodes', file: 'Themes'), '
 					</h3>
 				</div>
 				<dl class="settings">
 					<dt>
-						<label for="colormode">', Lang::$txt['theme_colormode_default'], '</label>
+						<label for="colormode">', Lang::getTxt('theme_colormode_default', file: 'Themes'), '</label>
 					</dt>
 					<dd>
 						<select id="colormode" name="options[default_colormode]">';
@@ -566,7 +566,7 @@ function template_set_settings()
 						</select>
 					</dd>
 					<dt>
-						<label for="disable_user_mode">', Lang::$txt['theme_colormode_user_disable'], '</label>
+						<label for="disable_user_mode">', Lang::getTxt('theme_colormode_user_disable', file: 'Themes'), '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="options[disable_user_mode]" value="0">
@@ -764,7 +764,7 @@ function template_pick()
 				echo '
 				<div>
 					<input type="submit" name="save[', $theme['id'], ']" value="', Lang::getTxt('theme_set', file:'Themes'), '" class="button">
-					<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::getTxt('theme_preview', file:'Themes'), '</a>
+					<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::getTxt('theme_preview', file: 'Themes'), '</a>
 				</div>
 			</div>
 			<div>
