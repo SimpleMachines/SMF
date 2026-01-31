@@ -729,21 +729,7 @@ function template_not_done()
 							</form>
 						</div><!-- .windowbg -->
 					<script>
-						var countdown = ', Utils::$context['continue_countdown'], ';
-						doAutoSubmit();
-
-						function doAutoSubmit()
-						{
-							if (countdown == 0)
-								document.forms.autoSubmit.submit();
-							else if (countdown == -1)
-								return;
-
-							document.forms.autoSubmit.cont.value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
-							countdown--;
-
-							setTimeout(doAutoSubmit, 1000);
-						}
+						doAutoSubmit(', Utils::$context['continue_countdown'], ', "', Lang::getTxt('not_done_continue', file: 'Admin'), '");
 					</script>';
 }
 
@@ -1560,21 +1546,7 @@ function template_repair_boards()
 	{
 		echo '
 					<script>
-						var countdown = 5;
-						doAutoSubmit();
-
-						function doAutoSubmit()
-						{
-							if (countdown == 0)
-								document.forms.recount_form.submit();
-							else if (countdown == -1)
-								return;
-
-							document.forms.recount_form.recount_now.value = "', Lang::getTxt('errors_recount_now', file: 'Admin'), ' (" + countdown + ")";
-							countdown--;
-
-							setTimeout(doAutoSubmit, 1000);
-						}
+						doAutoSubmit(5, "', Lang::getTxt('errors_recount_now', file: 'Admin'), '", "recount_form", "recount_now");
 					</script>';
 	}
 }

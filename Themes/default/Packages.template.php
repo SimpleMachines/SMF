@@ -1856,20 +1856,6 @@ function template_action_permissions()
 	// Just the countdown stuff
 	echo '
 	<script>
-		var countdown = ', $countDown, ';
-		doAutoSubmit();
-
-		function doAutoSubmit()
-		{
-			if (countdown == 0)
-				document.forms.perm_submit.submit();
-			else if (countdown == -1)
-				return;
-
-			document.getElementById(\'cont\').value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
-			countdown--;
-
-			setTimeout(doAutoSubmit, 1000);
-		}
+		doAutoSubmit(', $countDown, ', "', Lang::getTxt('not_done_continue', file: 'Admin'), '", "perm_submit", "go");
 	</script>';
 }
