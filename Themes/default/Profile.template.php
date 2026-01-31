@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -15,8 +16,8 @@ use SMF\Lang;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * Minor stuff shown above the main profile - mostly used for error messages and showing that the profile update was successful.
@@ -28,19 +29,18 @@ function template_profile_above()
 			', template_error_message();
 
 	// If the profile was update successfully, let the user know this.
-	if (!empty(Utils::$context['profile_updated']))
+	if (!empty(Utils::$context['profile_updated'])) {
 		echo '
 			<div class="infobox">
 				', Utils::$context['profile_updated'], '
 			</div>';
+	}
 }
 
 /**
  * Template for any HTML needed below the profile (closing off divs/tables, etc.)
  */
-function template_profile_below()
-{
-}
+function template_profile_below() {}
 
 /**
  * Template for showing off the spiffy popup of the menu
@@ -66,10 +66,10 @@ function template_profile_popup()
 			<ol class="profile_user_links">';
 
 	$menu_context = &Utils::$context[Utils::$context['profile_menu_name']];
-	foreach (Utils::$context['profile_items'] as $item)
-	{
+
+	foreach (Utils::$context['profile_items'] as $item) {
 		$area = $menu_context['sections'][$item['menu']]['areas'][$item['area']];
-		$item_url = (isset($item['url']) ? $item['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $item['area'])) . $menu_context['extra_parameters'];
+		$item_url = ($item['url'] ?? ($area['url'] ?? $menu_context['base_url'] . ';area=' . $item['area'])) . $menu_context['extra_parameters'];
 		echo '
 				<li>
 					<a href="', $item_url, '">
@@ -106,13 +106,10 @@ function template_alerts_popup()
 		</div>
 		<div class="body">';
 
-	if (empty(Utils::$context['unread_alerts']))
+	if (empty(Utils::$context['unread_alerts'])) {
 		template_alerts_all_read();
-
-	else
-	{
-		foreach (Utils::$context['unread_alerts'] as $id_alert => $details)
-		{
+	} else {
+		foreach (Utils::$context['unread_alerts'] as $id_alert => $details) {
 			echo '
 			<', !$details['show_links'] ? 'a href="' . Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="generic_notification">
 				<div class="avatar">
@@ -168,40 +165,49 @@ function template_summary()
 		<div id="basicinfo">';
 
 	// Are there any custom profile fields for above the name?
-	if (!empty(Utils::$context['print_custom_fields']['above_member']))
-	{
+	if (!empty(Utils::$context['print_custom_fields']['above_member'])) {
 		$fields = '';
-		foreach (Utils::$context['print_custom_fields']['above_member'] as $field)
-			if (!empty($field['output_html']))
+
+		foreach (Utils::$context['print_custom_fields']['above_member'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
+			}
+		}
 
-		if (!empty($fields))
+		if (!empty($fields)) {
 			echo '
 			<div class="custom_fields_above_name">
 				<ul>', $fields, '
 				</ul>
 			</div>';
+		}
 	}
 
 	echo '
 			<div class="username clear">
 				<h4>';
 
-	if (!empty(Utils::$context['print_custom_fields']['before_member']))
-		foreach (Utils::$context['print_custom_fields']['before_member'] as $field)
-			if (!empty($field['output_html']))
+	if (!empty(Utils::$context['print_custom_fields']['before_member'])) {
+		foreach (Utils::$context['print_custom_fields']['before_member'] as $field) {
+			if (!empty($field['output_html'])) {
 				echo '
 					<span>', $field['output_html'], '</span>';
+			}
+		}
+	}
 
 	echo '
 					', Utils::$context['member']['name'];
 
-	if (!empty(Utils::$context['print_custom_fields']['after_member']))
-		foreach (Utils::$context['print_custom_fields']['after_member'] as $field)
-			if (!empty($field['output_html']))
+	if (!empty(Utils::$context['print_custom_fields']['after_member'])) {
+		foreach (Utils::$context['print_custom_fields']['after_member'] as $field) {
+			if (!empty($field['output_html'])) {
 				echo '
 					<span>', $field['output_html'], '</span>';
+			}
+		}
+	}
 
 	echo '
 					<span class="position">', (!empty(Utils::$context['member']['group']) ? Utils::$context['member']['group'] : Utils::$context['member']['post_group']), '</span>
@@ -210,42 +216,48 @@ function template_summary()
 			', Utils::$context['member']['avatar']['image'];
 
 	// Are there any custom profile fields for below the avatar?
-	if (!empty(Utils::$context['print_custom_fields']['below_avatar']))
-	{
+	if (!empty(Utils::$context['print_custom_fields']['below_avatar'])) {
 		$fields = '';
-		foreach (Utils::$context['print_custom_fields']['below_avatar'] as $field)
-			if (!empty($field['output_html']))
+
+		foreach (Utils::$context['print_custom_fields']['below_avatar'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
+			}
+		}
 
-		if (!empty($fields))
+		if (!empty($fields)) {
 			echo '
 			<div class="custom_fields_below_avatar">
 				<ul>', $fields, '
 				</ul>
 			</div>';
+		}
 	}
 
 	echo '
 			<ul class="icon_fields clear">';
 
 	// Email is only visible if it's your profile or you have the moderate_forum permission
-	if (Utils::$context['member']['show_email'])
+	if (Utils::$context['member']['show_email']) {
 		echo '
 				<li><a href="mailto:', Utils::$context['member']['email'], '" title="', Utils::$context['member']['email'], '" rel="nofollow"><span class="main_icons mail" title="' . Lang::getTxt('email', file: 'General') . '"></span></a></li>';
+	}
 
 	// Don't show an icon if they haven't specified a website.
-	if (Utils::$context['member']['website']['url'] !== '' && !isset(Utils::$context['disabled_fields']['website']))
+	if (Utils::$context['member']['website']['url'] !== '' && !isset(Utils::$context['disabled_fields']['website'])) {
 		echo '
 				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener"><span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span></a></li>';
+	}
 
 	// Are there any custom profile fields as icons?
-	if (!empty(Utils::$context['print_custom_fields']['icons']))
-	{
-		foreach (Utils::$context['print_custom_fields']['icons'] as $field)
-			if (!empty($field['output_html']))
+	if (!empty(Utils::$context['print_custom_fields']['icons'])) {
+		foreach (Utils::$context['print_custom_fields']['icons'] as $field) {
+			if (!empty($field['output_html'])) {
 				echo '
 				<li class="custom_field">', $field['output_html'], '</li>';
+			}
+		}
 	}
 
 	echo '
@@ -254,43 +266,49 @@ function template_summary()
 				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>';
 
 	// Can they add this member as a buddy?
-	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner)
+	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner) {
 		echo '
 				<br>
 				<a href="', Config::$scripturl, '?action=buddy;u=', Utils::$context['id_member'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('buddy_' . (Utils::$context['member']['is_buddy'] ? 'remove' : 'add'), file: 'Profile'), '</a>';
+	}
 
 	echo '
 			</span>';
 
-	if (!User::$me->is_owner && Utils::$context['can_send_pm'])
+	if (!User::$me->is_owner && Utils::$context['can_send_pm']) {
 		echo '
 			<a href="', Config::$scripturl, '?action=pm;sa=send;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('profile_sendpm_short', file: 'Profile'), '</a>';
+	}
 
 	echo '
 			<a href="', Config::$scripturl, '?action=profile;area=showposts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('showPosts', file: 'Profile'), '</a>';
 
-	if (User::$me->is_owner && !empty(Config::$modSettings['drafts_post_enabled']))
+	if (User::$me->is_owner && !empty(Config::$modSettings['drafts_post_enabled'])) {
 		echo '
 			<a href="', Config::$scripturl, '?action=profile;area=showdrafts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>';
+	}
 
 	echo '
 			<a href="', Config::$scripturl, '?action=profile;area=statistics;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('statPanel', file: 'Profile'), '</a>';
 
 	// Are there any custom profile fields for bottom?
-	if (!empty(Utils::$context['print_custom_fields']['bottom_poster']))
-	{
+	if (!empty(Utils::$context['print_custom_fields']['bottom_poster'])) {
 		$fields = '';
-		foreach (Utils::$context['print_custom_fields']['bottom_poster'] as $field)
-			if (!empty($field['output_html']))
+
+		foreach (Utils::$context['print_custom_fields']['bottom_poster'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
+			}
+		}
 
-		if (!empty($fields))
+		if (!empty($fields)) {
 			echo '
 			<div class="custom_fields_bottom">
 				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
+		}
 	}
 
 	echo '
@@ -299,30 +317,35 @@ function template_summary()
 		<div id="detailedinfo">
 			<dl class="settings">';
 
-	if (User::$me->is_owner || User::$me->is_admin)
+	if (User::$me->is_owner || User::$me->is_admin) {
 		echo '
 				<dt>', Lang::getTxt('username', file: 'General'), '</dt>
 				<dd>', Utils::$context['member']['username'], '</dd>';
+	}
 
-	if (!isset(Utils::$context['disabled_fields']['posts']))
+	if (!isset(Utils::$context['disabled_fields']['posts'])) {
 		echo '
 				<dt>', Lang::getTxt('profile_posts', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['posts'], ' (', is_numeric(Utils::$context['member']['posts_per_day']) ? Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']], file: 'Profile') : Utils::$context['member']['posts_per_day'], ')</dd>';
+	}
 
-	if (Utils::$context['member']['show_email'])
+	if (Utils::$context['member']['show_email']) {
 		echo '
 				<dt>', Lang::getTxt('email', file: 'General'), '</dt>
 				<dd><a href="mailto:', Utils::$context['member']['email'], '">', Utils::$context['member']['email'], '</a></dd>';
+	}
 
-	if (!empty(Config::$modSettings['titlesEnable']) && !empty(Utils::$context['member']['title']))
+	if (!empty(Config::$modSettings['titlesEnable']) && !empty(Utils::$context['member']['title'])) {
 		echo '
 				<dt>', Lang::getTxt('custom_title', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['title'], '</dd>';
+	}
 
-	if (!empty(Utils::$context['member']['blurb']))
+	if (!empty(Utils::$context['member']['blurb'])) {
 		echo '
 				<dt>', Lang::getTxt('personal_text', file: 'General'), '</dt>
 				<dd>', Utils::$context['member']['blurb'], '</dd>';
+	}
 
 	echo '
 				<dt>', Lang::getTxt('age', file: 'Profile'), '</dt>
@@ -332,23 +355,24 @@ function template_summary()
 			</dl>';
 
 	// Any custom fields for standard placement?
-	if (!empty(Utils::$context['print_custom_fields']['standard']))
-	{
-		$fields = array();
+	if (!empty(Utils::$context['print_custom_fields']['standard'])) {
+		$fields = [];
 
-		foreach (Utils::$context['print_custom_fields']['standard'] as $field)
-			if (!empty($field['output_html']))
+		foreach (Utils::$context['print_custom_fields']['standard'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields[] = $field;
+			}
+		}
 
-		if (count($fields) > 0)
-		{
+		if (count($fields) > 0) {
 			echo '
 			<dl class="settings">';
 
-			foreach ($fields as $field)
+			foreach ($fields as $field) {
 				echo '
 				<dt>', $field['name'], ':</dt>
 				<dd>', $field['output_html'], '</dd>';
+			}
 
 			echo '
 			</dl>';
@@ -361,76 +385,86 @@ function template_summary()
 				<dd>', Utils::$context['member']['registered'], '</dd>';
 
 	// If the person looking is allowed, they can check the members IP address and hostname.
-	if (Utils::$context['can_see_ip'])
-	{
-		if (!empty(Utils::$context['member']['ip']))
+	if (Utils::$context['can_see_ip']) {
+		if (!empty(Utils::$context['member']['ip'])) {
 			echo '
 				<dt>', Lang::getTxt('ip', file: 'General'), '</dt>
 				<dd><a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['member']['ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['member']['ip'], '</a></dd>';
+		}
 
-		if (!empty(Utils::$context['member']['hostname']))
+		if (!empty(Utils::$context['member']['hostname'])) {
 			echo '
 				<dt>', Lang::getTxt('hostname', file: 'General'), '</dt>
 				<dd>', Utils::$context['member']['hostname'], '</dd>';
+		}
 	}
 
 	echo '
 				<dt>', Lang::getTxt('local_time', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['local_time'], '</dd>';
 
-	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['member']['language']))
+	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['member']['language'])) {
 		echo '
 				<dt>', Lang::getTxt('language', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['language'], '</dd>';
+	}
 
-	if (Utils::$context['member']['show_last_login'])
+	if (Utils::$context['member']['show_last_login']) {
 		echo '
 				<dt>', Lang::getTxt('lastLoggedIn', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['last_login'], (!empty(Utils::$context['member']['is_hidden']) ? ' (' . Lang::getTxt('hidden', file: 'Profile') . ')' : ''), '</dd>';
+	}
 
 	echo '
 			</dl>';
 
 	// Are there any custom profile fields for above the signature?
-	if (!empty(Utils::$context['print_custom_fields']['above_signature']))
-	{
+	if (!empty(Utils::$context['print_custom_fields']['above_signature'])) {
 		$fields = '';
-		foreach (Utils::$context['print_custom_fields']['above_signature'] as $field)
-			if (!empty($field['output_html']))
+
+		foreach (Utils::$context['print_custom_fields']['above_signature'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
+			}
+		}
 
-		if (!empty($fields))
+		if (!empty($fields)) {
 			echo '
 			<div class="custom_fields_above_signature">
 				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
+		}
 	}
 
 	// Show the users signature.
-	if (Utils::$context['signature_enabled'] && !empty(Utils::$context['member']['signature']))
+	if (Utils::$context['signature_enabled'] && !empty(Utils::$context['member']['signature'])) {
 		echo '
 			<div class="signature">
 				<h5>', Lang::getTxt('signature', file: 'Profile'), '</h5>
 				', Utils::$context['member']['signature'], '
 			</div>';
+	}
 
 	// Are there any custom profile fields for below the signature?
-	if (!empty(Utils::$context['print_custom_fields']['below_signature']))
-	{
+	if (!empty(Utils::$context['print_custom_fields']['below_signature'])) {
 		$fields = '';
-		foreach (Utils::$context['print_custom_fields']['below_signature'] as $field)
-			if (!empty($field['output_html']))
+
+		foreach (Utils::$context['print_custom_fields']['below_signature'] as $field) {
+			if (!empty($field['output_html'])) {
 				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
+			}
+		}
 
-		if (!empty($fields))
+		if (!empty($fields)) {
 			echo '
 			<div class="custom_fields_below_signature">
 				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
+		}
 	}
 
 	if (
@@ -442,27 +476,26 @@ function template_summary()
 			<dl class="settings">';
 
 		// Can they view/issue a warning?
-		if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
-		{
+		if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning']) {
 			echo '
 					<dt>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</dt>
 					<dd>
 						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
 
 			// Can we provide information on what this means?
-			if (!empty(Utils::$context['warning_status']))
+			if (!empty(Utils::$context['warning_status'])) {
 				echo '
 						<span class="smalltext">(', Utils::$context['warning_status'], ')</span>';
+			}
 
 			echo '
 					</dd>';
 		}
 
 		// Is this member requiring activation and/or banned?
-		if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans']))
-		{
+		if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans'])) {
 			// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
-			if (!empty(Utils::$context['activate_message']))
+			if (!empty(Utils::$context['activate_message'])) {
 				echo '
 					<dt>
 						<span class="alert">', Utils::$context['activate_message'], '</span>
@@ -470,6 +503,7 @@ function template_summary()
 					<dd>
 						<a href="', Utils::$context['activate_link'], '" class="button">', Utils::$context['activate_link_text'], '</a>
 					</dd>';
+			}
 
 				if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
 					echo '
@@ -488,8 +522,7 @@ function template_summary()
 				}
 
 			// If the current member is banned, show a message and possibly a link to the ban.
-			if (!empty(Utils::$context['member']['bans']))
-			{
+			if (!empty(Utils::$context['member']['bans'])) {
 				echo '
 					<dt class="clear">
 						<span class="alert">', Lang::getTxt('user_is_banned', file: 'Profile'), '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::getTxt('view_ban', file: 'Profile') . '</a>
@@ -497,10 +530,11 @@ function template_summary()
 					<dt class="clear hidden" id="ban_info">
 						<strong>', Lang::getTxt('user_banned_by_following', file: 'Profile'), '</strong>';
 
-				foreach (Utils::$context['member']['bans'] as $ban)
+				foreach (Utils::$context['member']['bans'] as $ban) {
 					echo '
 						<br>
 						<span class="smalltext">', $ban['explanation'], '</span>';
+				}
 
 				echo '
 					</dt>';
@@ -525,15 +559,15 @@ function template_showPosts()
 		<div class="cat_bar', !isset(Utils::$context['attachments']) ? ' cat_bar_round' : '', '">
 			<h3 class="catbg">
 				', Lang::getTxt(
-					!isset(Utils::$context['attachments']) && empty(Utils::$context['is_topics'])
+		!isset(Utils::$context['attachments']) && empty(Utils::$context['is_topics'])
 					? 'showMessages'
 					: (
 						!empty(Utils::$context['is_topics'])
 						? 'showTopics'
 						: 'showAttachments'
 					),
-					file: 'Profile',
-				),
+		file: 'Profile',
+	),
 				!User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
@@ -542,11 +576,9 @@ function template_showPosts()
 		</div>' : '';
 
 	// Are we displaying posts or attachments?
-	if (!isset(Utils::$context['attachments']))
-	{
+	if (!isset(Utils::$context['attachments'])) {
 		// For every post to be displayed, give it its own div, and show the important details of the post.
-		foreach (Utils::$context['posts'] as $post)
-		{
+		foreach (Utils::$context['posts'] as $post) {
 			echo '
 		<div class="', $post['css_class'], '">
 			<div class="topic_details">
@@ -557,11 +589,12 @@ function template_showPosts()
 				<div class="counter">#', $post['counter'], '</div>
 			</div>';
 
-			if (!$post['approved'])
+			if (!$post['approved']) {
 				echo '
 			<div class="noticebox">
 				', Lang::getTxt('post_awaiting_approval', file: 'General'), '
 			</div>';
+			}
 
 			echo '
 			<div class="list_item">
@@ -574,32 +607,34 @@ function template_showPosts()
 			echo '
 		</div><!-- .', $post['css_class'], ' -->';
 		}
+	} else {
+	template_show_list('attachments');
 	}
-	else
-		template_show_list('attachments');
 
 	// No posts? Just end with an informative message.
-	if ((isset(Utils::$context['attachments']) && empty(Utils::$context['attachments'])) || (!isset(Utils::$context['attachments']) && empty(Utils::$context['posts'])))
+	if ((isset(Utils::$context['attachments']) && empty(Utils::$context['attachments'])) || (!isset(Utils::$context['attachments']) && empty(Utils::$context['posts']))) {
 		echo '
 		<div class="windowbg">
 			', Lang::getTxt(
-				isset(Utils::$context['attachments'])
+			isset(Utils::$context['attachments'])
 				? 'show_attachments_none'
 				: (
 					Utils::$context['is_topics']
 					? 'show_topics_none'
 					: 'show_posts_none'
 				),
-				file: 'Profile',
-			), '
+			file: 'Profile',
+		), '
 		</div>';
+	}
 
 	// Show more page numbers.
-	if (!empty(Utils::$context['page_index']))
+	if (!empty(Utils::$context['page_index'])) {
 		echo '
 		<div class="pagesection">
 			<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		</div>';
+	}
 }
 
 /**
@@ -608,11 +643,12 @@ function template_showPosts()
 function template_showAlerts()
 {
 	// Do we have an update message?
-	if (!empty(Utils::$context['update_message']))
+	if (!empty(Utils::$context['update_message'])) {
 		echo '
 		<div class="infobox">
 			', Utils::$context['update_message'], '
 		</div>';
+	}
 
 	echo '
 		<div class="cat_bar">
@@ -621,24 +657,22 @@ function template_showAlerts()
 			</h3>
 		</div>';
 
-	if (empty(Utils::$context['alerts']))
+	if (empty(Utils::$context['alerts'])) {
 		echo '
 		<div class="information">
 			', Lang::getTxt('alerts_none', file: 'Alerts'), '
 		</div>';
-
-	else
-	{
+	} else {
 		// Start the form if checkboxes are in use
-		if (Utils::$context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes']) {
 			echo '
 		<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=showalerts;save" method="post" accept-charset="UTF-8" id="mark_all">';
+		}
 
 		echo '
 			<table id="alerts" class="table_grid">';
 
-		foreach (Utils::$context['alerts'] as $id => $alert)
-		{
+		foreach (Utils::$context['alerts'] as $id => $alert) {
 			echo '
 				<tr class="windowbg">
 					<td class="alert_image">
@@ -670,7 +704,7 @@ function template_showAlerts()
 				<div class="pagelinks">', Utils::$context['pagination'], '</div>
 				<div class="floatright">';
 
-		if (Utils::$context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes']) {
 			echo '
 					', Lang::getTxt('check_all', file: 'General'), ' <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
@@ -681,15 +715,17 @@ function template_showAlerts()
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="start" value="', Utils::$context['start'], '">
 					<input type="submit" name="req" value="', Lang::getTxt('quick_mod_go', file: 'General'), '" class="button you_sure">';
+		}
 
 		echo '
 					<a href="', Utils::$context['alert_purge_link'], '" class="button you_sure">', Lang::getTxt('alert_purge', file: 'Profile'), '</a>
 				</div>
 			</div>';
 
-		if (Utils::$context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes']) {
 			echo '
 		</form>';
+		}
 	}
 }
 
@@ -709,29 +745,29 @@ function template_showDrafts()
 		</div>' : '';
 
 	// No drafts? Just show an informative message.
-	if (empty(Utils::$context['drafts']))
+	if (empty(Utils::$context['drafts'])) {
 		echo '
 		<div class="windowbg centertext">
 			', Lang::getTxt('draft_none', file: 'Drafts'), '
 		</div>';
-	else
-	{
+	} else {
 		// For every draft to be displayed, give it its own div, and show the important details of the draft.
-		foreach (Utils::$context['drafts'] as $draft)
-		{
+		foreach (Utils::$context['drafts'] as $draft) {
 			echo '
 		<div class="windowbg">
 			<div class="topic_details">
 				<h4>
 					<strong><a href="', Config::$scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
-			if (!empty($draft['sticky']))
+			if (!empty($draft['sticky'])) {
 				echo '
 					<span class="main_icons sticky" title="', Lang::getTxt('sticky_topic', file: 'General'), '"></span>';
+			}
 
-			if (!empty($draft['locked']))
+			if (!empty($draft['locked'])) {
 				echo '
 					<span class="main_icons lock" title="', Lang::getTxt('locked_topic', file: 'General'), '"></span>';
+			}
 
 			echo '
 				</h4>
@@ -762,13 +798,13 @@ function template_showDrafts()
  */
 function template_editBuddies()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
-
-	elseif (!empty(Utils::$context['saved_failed']))
+	} elseif (!empty(Utils::$context['saved_failed'])) {
 		echo '
 	<div class="errorbox">', Utils::$context['saved_failed'], '</div>';
+	}
 
 	echo '
 	<div id="edit_buddies">
@@ -783,14 +819,17 @@ function template_editBuddies()
 					<th scope="col" class="quarter_table buddy_link">', Lang::getTxt('name', file: 'General'), '</th>
 					<th scope="col" class="buddy_status">', Lang::getTxt('status', file: 'General'), '</th>';
 
-	if (Utils::$context['can_moderate_forum'])
+	if (Utils::$context['can_moderate_forum']) {
 		echo '
 					<th scope="col" class="buddy_email">', Lang::getTxt('email', file: 'General'), '</th>';
+	}
 
-	if (!empty(Utils::$context['custom_pf']))
-		foreach (Utils::$context['custom_pf'] as $column)
+	if (!empty(Utils::$context['custom_pf'])) {
+		foreach (Utils::$context['custom_pf'] as $column) {
 			echo '
 					<th scope="col" class="buddy_custom_fields">', $column['label'], '</th>';
+		}
+	}
 
 	echo '
 					<th scope="col" class="buddy_remove">', Lang::getTxt('remove', file: 'General'), '</th>
@@ -799,19 +838,18 @@ function template_editBuddies()
 			<tbody>';
 
 	// If they don't have any buddies don't list them!
-	if (empty(Utils::$context['buddies']))
+	if (empty(Utils::$context['buddies'])) {
 		echo '
 				<tr class="windowbg">
 					<td colspan="', Utils::$context['can_moderate_forum'] ? '10' : '9', '">
 						<strong>', Lang::getTxt('no_buddies', file: 'Profile'), '</strong>
 					</td>
 				</tr>';
+	}
 
 	// Now loop through each buddy showing info on each.
-	else
-	{
-		foreach (Utils::$context['buddies'] as $buddy)
-		{
+	else {
+		foreach (Utils::$context['buddies'] as $buddy) {
 			echo '
 				<tr class="windowbg">
 					<td class="buddy_link">', $buddy['link'], '</td>
@@ -819,17 +857,20 @@ function template_editBuddies()
 						<a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a>
 					</td>';
 
-			if ($buddy['show_email'])
+			if ($buddy['show_email']) {
 				echo '
 					<td class="buddy_email centertext">
 						<a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="main_icons mail icon" title="' . Lang::getTxt('email', file: 'General') . ' ' . $buddy['name'] . '"></span></a>
 					</td>';
+			}
 
 			// Show the custom profile fields for this user.
-			if (!empty(Utils::$context['custom_pf']))
-				foreach (Utils::$context['custom_pf'] as $key => $column)
+			if (!empty(Utils::$context['custom_pf'])) {
+				foreach (Utils::$context['custom_pf'] as $key => $column) {
 					echo '
 					<td class="centertext buddy_custom_fields">', $buddy['options'][$key], '</td>';
+				}
+			}
 
 			echo '
 					<td class="centertext buddy_remove">
@@ -862,9 +903,10 @@ function template_editBuddies()
 			</dl>
 		</div>';
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 		<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -886,13 +928,13 @@ function template_editBuddies()
  */
 function template_editIgnoreList()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
-
-	elseif (!empty(Utils::$context['saved_failed']))
+	} elseif (!empty(Utils::$context['saved_failed'])) {
 		echo '
 	<div class="errorbox">', Utils::$context['saved_failed'], '</div>';
+	}
 
 	echo '
 	<div id="edit_buddies">
@@ -907,9 +949,10 @@ function template_editIgnoreList()
 					<th scope="col" class="quarter_table buddy_link">', Lang::getTxt('name', file: 'General'), '</th>
 					<th scope="col" class="buddy_status">', Lang::getTxt('status', file: 'General'), '</th>';
 
-	if (Utils::$context['can_moderate_forum'])
+	if (Utils::$context['can_moderate_forum']) {
 		echo '
 					<th scope="col" class="buddy_email">', Lang::getTxt('email', file: 'General'), '</th>';
+	}
 
 	echo '
 					<th scope="col" class="buddy_remove">', Lang::getTxt('ignore_remove', file: 'Profile'), '</th>
@@ -918,17 +961,17 @@ function template_editIgnoreList()
 			<tbody>';
 
 	// If they don't have anyone on their ignore list, don't list it!
-	if (empty(Utils::$context['ignore_list']))
+	if (empty(Utils::$context['ignore_list'])) {
 		echo '
 				<tr class="windowbg">
 					<td colspan="', Utils::$context['can_moderate_forum'] ? '4' : '3', '">
 						<strong>', Lang::getTxt('no_ignore', file: 'Profile'), '</strong>
 					</td>
 				</tr>';
+	}
 
 	// Now loop through each buddy showing info on each.
-	foreach (Utils::$context['ignore_list'] as $member)
-	{
+	foreach (Utils::$context['ignore_list'] as $member) {
 		echo '
 				<tr class="windowbg">
 					<td class="buddy_link">', $member['link'], '</td>
@@ -936,11 +979,12 @@ function template_editIgnoreList()
 						<a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a>
 					</td>';
 
-		if (Utils::$context['can_moderate_forum'])
+		if (Utils::$context['can_moderate_forum']) {
 			echo '
 					<td class="centertext buddy_email">
 						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="main_icons mail icon" title="' . Lang::getTxt('email', file: 'General') . ' ' . $member['name'] . '"></span></a>
 					</td>';
+		}
 		echo '
 					<td class="centertext buddy_remove">
 						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons delete" title="', Lang::getTxt('ignore_remove', file: 'Profile'), '"></span></a>
@@ -971,9 +1015,10 @@ function template_editIgnoreList()
 			</dl>
 		</div>';
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 		<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1014,9 +1059,10 @@ function template_trackActivity()
 					<a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['last_ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['last_ip'], '</a>';
 
 	// Second address detected?
-	if (!empty(Utils::$context['last_ip2']))
+	if (!empty(Utils::$context['last_ip2'])) {
 		echo '
 					, <a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['last_ip2'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['last_ip2'], '</a>';
+	}
 
 	echo '
 				</dd>';
@@ -1072,17 +1118,17 @@ function template_trackIP()
 		<br>';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
-	if (Utils::$context['single_ip'])
-	{
+	if (Utils::$context['single_ip']) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('whois_title', Utils::$context, file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg">';
 
-		foreach (Utils::$context['whois_servers'] as $server)
+		foreach (Utils::$context['whois_servers'] as $server) {
 			echo '
 			<a href="', $server['url'], '" target="_blank" rel="noopener"', '>', $server['name'], '</a><br>';
+		}
 		echo '
 		</div>
 		<br>';
@@ -1094,14 +1140,12 @@ function template_trackIP()
 			<h3 class="catbg">', Lang::getTxt('members_from_ip', Utils::$context, file: 'Profile'), '</h3>
 		</div>';
 
-	if (empty(Utils::$context['ips']))
+	if (empty(Utils::$context['ips'])) {
 		echo '
 		<p class="windowbg description">
 			<em>', Lang::getTxt('no_members_from_ip', file: 'Profile'), '</em>
 		</p>';
-
-	else
-	{
+	} else {
 		echo '
 		<table class="table_grid">
 			<thead>
@@ -1113,12 +1157,13 @@ function template_trackIP()
 			<tbody>';
 
 		// Loop through each of the members and display them.
-		foreach (Utils::$context['ips'] as $ip => $memberlist)
+		foreach (Utils::$context['ips'] as $ip => $memberlist) {
 			echo '
 				<tr class="windowbg">
 					<td><a href="', Utils::$context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
 					<td>', implode(', ', $memberlist), '</td>
 				</tr>';
+		}
 
 		echo '
 			</tbody>
@@ -1135,10 +1180,8 @@ function template_trackIP()
 	template_show_list('track_user_list');
 
 	// 3rd party integrations may have added additional tracking.
-	if (!empty(Utils::$context['additional_track_lists']))
-	{
-		foreach (Utils::$context['additional_track_lists'] as $list)
-		{
+	if (!empty(Utils::$context['additional_track_lists'])) {
+		foreach (Utils::$context['additional_track_lists'] as $list) {
 			echo '<br>';
 
 			template_show_list($list);
@@ -1158,18 +1201,15 @@ function template_showPermissions()
 			</h3>
 		</div>';
 
-	if (Utils::$context['member']['has_all_permissions'])
+	if (Utils::$context['member']['has_all_permissions']) {
 		echo '
 		<div class="information">', Lang::getTxt('showPermissions_all', file: 'Profile'), '</div>';
-
-	else
-	{
+	} else {
 		echo '
 		<div class="information">', Lang::getTxt('showPermissions_help', file: 'Profile'), '</div>
 		<div id="permissions" class="flow_hidden">';
 
-		if (!empty(Utils::$context['no_access_boards']))
-		{
+		if (!empty(Utils::$context['no_access_boards'])) {
 			echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::getTxt('showPermissions_restricted_boards', file: 'Profile'), '</h3>
@@ -1179,7 +1219,7 @@ function template_showPermissions()
 				'showPermissions_restricted_boards_desc',
 				[
 					'list' => Lang::sentenceList(array_map(
-						fn ($brd) => '<a href="' . Config::$scripturl . '?board=' . $brd['id'] . '.0" class="bbc_link">' . $brd['name'] . '</a>',
+						fn($brd) => '<a href="' . Config::$scripturl . '?board=' . $brd['id'] . '.0" class="bbc_link">' . $brd['name'] . '</a>',
 						Utils::$context['no_access_boards'],
 					)),
 				],
@@ -1194,8 +1234,8 @@ function template_showPermissions()
 				<div class="cat_bar">
 					<h3 class="catbg">', Lang::getTxt('showPermissions_general', file: 'Profile'), '</h3>
 				</div>';
-		if (!empty(Utils::$context['member']['permissions']['general']))
-		{
+
+		if (!empty(Utils::$context['member']['permissions']['general'])) {
 			echo '
 				<table class="table_grid">
 					<thead>
@@ -1206,8 +1246,7 @@ function template_showPermissions()
 					</thead>
 					<tbody>';
 
-			foreach (Utils::$context['member']['permissions']['general'] as $permission)
-			{
+			foreach (Utils::$context['member']['permissions']['general'] as $permission) {
 				echo '
 						<tr class="windowbg">
 							<td title="', $permission['id'], '">
@@ -1215,12 +1254,13 @@ function template_showPermissions()
 							</td>
 							<td class="smalltext">';
 
-				if ($permission['is_denied'])
+				if ($permission['is_denied']) {
 					echo '
 								<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])], file: 'Profile'), '</span>';
-				else
-					echo '
+				} else {
+				echo '
 								', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])], file: 'Profile');
+				}
 
 				echo '
 							</td>
@@ -1231,10 +1271,10 @@ function template_showPermissions()
 				</table>
 			</div><!-- .tborder -->
 			<br>';
-		}
-		else
-			echo '
+		} else {
+		echo '
 			<p class="windowbg">', Lang::getTxt('showPermissions_none_general', file: 'Profile'), '</p>';
+		}
 
 		// Board permission section.
 		echo '
@@ -1245,14 +1285,16 @@ function template_showPermissions()
 						<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
 							<option value="0"', Utils::$context['board'] == 0 ? ' selected' : '', '>', Lang::getTxt('showPermissions_global', file: 'Profile'), '</option>';
 
-		if (!empty(Utils::$context['boards']))
+		if (!empty(Utils::$context['boards'])) {
 			echo '
 							<option value="" disabled>---------------------------</option>';
+		}
 
 		// Fill the box with any local permission boards.
-		foreach (Utils::$context['boards'] as $board)
+		foreach (Utils::$context['boards'] as $board) {
 			echo '
 							<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
+		}
 
 		echo '
 						</select>
@@ -1260,8 +1302,7 @@ function template_showPermissions()
 				</div><!-- .cat_bar -->
 			</form>';
 
-		if (!empty(Utils::$context['member']['permissions']['board']))
-		{
+		if (!empty(Utils::$context['member']['permissions']['board'])) {
 			echo '
 			<table class="table_grid">
 				<thead>
@@ -1272,8 +1313,7 @@ function template_showPermissions()
 				</thead>
 				<tbody>';
 
-			foreach (Utils::$context['member']['permissions']['board'] as $permission)
-			{
+			foreach (Utils::$context['member']['permissions']['board'] as $permission) {
 				echo '
 					<tr class="windowbg">
 						<td title="', $permission['id'], '">
@@ -1281,13 +1321,13 @@ function template_showPermissions()
 						</td>
 						<td class="smalltext">';
 
-				if ($permission['is_denied'])
+				if ($permission['is_denied']) {
 					echo '
 							<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])], file: 'Profile'), '</span>';
-
-				else
-					echo '
+				} else {
+				echo '
 							', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])], file: 'Profile');
+				}
 
 				echo '
 						</td>
@@ -1296,10 +1336,10 @@ function template_showPermissions()
 			echo '
 				</tbody>
 			</table>';
-		}
-		else
-			echo '
+		} else {
+		echo '
 			<p class="windowbg">', Lang::getTxt('showPermissions_none_board', file: 'Profile'), '</p>';
+		}
 		echo '
 		</div><!-- #permissions -->';
 	}
@@ -1315,17 +1355,17 @@ function template_statPanel()
 		<div id="statspanel" class="windowbg">
 			<dl class="stats">';
 
-	foreach (Utils::$context['text_stats'] as $key => $stat)
-	{
+	foreach (Utils::$context['text_stats'] as $key => $stat) {
 		echo '
 				<dt>', Lang::getTxt('statPanel_' . $key, file: 'Profile'), '</dt>';
 
-		if (!empty($stat['url']))
+		if (!empty($stat['url'])) {
 			echo '
 				<dd><a href="', $stat['url'], '">', $stat['text'], '</a></dd>';
-		else
-			echo '
+		} else {
+		echo '
 				<dd>', $stat['text'], '</dd>';
+		}
 	}
 
 	echo '
@@ -1340,18 +1380,18 @@ function template_statPanel()
 			</div>';
 
 	// If they haven't post at all, don't draw the graph.
-	if (empty(Utils::$context['posts_by_time']))
+	if (empty(Utils::$context['posts_by_time'])) {
 		echo '
 			<p class="centertext">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
+	}
 
 	// Otherwise do!
-	else
-	{
+	else {
 		echo '
 			<ul class="activity_stats flow_hidden">';
 
 		// The labels.
-		foreach (Utils::$context['posts_by_time'] as $time_of_day)
+		foreach (Utils::$context['posts_by_time'] as $time_of_day) {
 			echo '
 				<li>
 					<div class="generic_bar vertical">
@@ -1361,6 +1401,7 @@ function template_statPanel()
 					</div>
 					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
 				</li>';
+		}
 
 		echo '
 			</ul>';
@@ -1375,18 +1416,15 @@ function template_statPanel()
 					</h3>
 				</div>';
 
-	if (empty(Utils::$context['popular_boards']))
+	if (empty(Utils::$context['popular_boards'])) {
 		echo '
 				<p class="centertext ">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
-
-	else
-	{
+	} else {
 		echo '
 				<dl class="stats">';
 
 		// Draw a bar for every board.
-		foreach (Utils::$context['popular_boards'] as $board)
-		{
+		foreach (Utils::$context['popular_boards'] as $board) {
 			echo '
 					<dt>', $board['link'], '</dt>
 					<dd>
@@ -1407,17 +1445,15 @@ function template_statPanel()
 					</h3>
 				</div>';
 
-	if (empty(Utils::$context['board_activity']))
+	if (empty(Utils::$context['board_activity'])) {
 		echo '
 				<p class="centertext padding">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
-	else
-	{
+	} else {
 		echo '
 				<dl class="stats">';
 
 		// Draw a bar for every board.
-		foreach (Utils::$context['board_activity'] as $activity)
-		{
+		foreach (Utils::$context['board_activity'] as $activity) {
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
@@ -1446,7 +1482,7 @@ function template_edit_options()
 	// The main header!
 	// because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
 	$url = !empty(Utils::$context['profile_custom_submit_url']) ? Utils::$context['profile_custom_submit_url'] : Config::$scripturl . '?action=profile;area=' . Utils::$context['menu_item_selected'] . ';u=' . Utils::$context['id_member'];
-	$url = Utils::$context['require_password'] && !empty(Config::$modSettings['force_ssl']) ? strtr($url, array('http://' => 'https://')) : $url;
+	$url = Utils::$context['require_password'] && !empty(Config::$modSettings['force_ssl']) ? strtr($url, ['http://' => 'https://']) : $url;
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="UTF-8" name="creator" id="creator" enctype="multipart/form-data"', (Utils::$context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
@@ -1454,118 +1490,124 @@ function template_edit_options()
 				<h3 class="catbg profile_hd">';
 
 	// Don't say "Profile" if this isn't the profile...
-	if (!empty(Utils::$context['profile_header_text']))
+	if (!empty(Utils::$context['profile_header_text'])) {
 		echo '
 					', Utils::$context['profile_header_text'];
-	else
-		echo '
+	} else {
+	echo '
 					', Lang::getTxt('profile', file: 'General');
+	}
 
 	echo '
 				</h3>
 			</div>';
 
 	// Have we some description?
-	if (Utils::$context['page_desc'])
+	if (Utils::$context['page_desc']) {
 		echo '
 			<p class="information">', Utils::$context['page_desc'], '</p>';
+	}
 
 	echo '
 			<div class="roundframe">';
 
 	// Any bits at the start?
-	if (!empty(Utils::$context['profile_prehtml']))
+	if (!empty(Utils::$context['profile_prehtml'])) {
 		echo '
 				<div>', Utils::$context['profile_prehtml'], '</div>';
+	}
 
-	if (!empty(Utils::$context['profile_fields']))
+	if (!empty(Utils::$context['profile_fields'])) {
 		echo '
 				<dl class="settings">';
+	}
 
 	// Start the big old loop 'of love.
 	$lastItem = 'hr';
-	foreach (Utils::$context['profile_fields'] as $key => $field)
-	{
+
+	foreach (Utils::$context['profile_fields'] as $key => $field) {
 		// We add a little hack to be sure we never get more than one hr in a row!
-		if ($lastItem == 'hr' && $field['type'] == 'hr')
+		if ($lastItem == 'hr' && $field['type'] == 'hr') {
 			continue;
+		}
 
 		$lastItem = $field['type'];
-		if ($field['type'] == 'hr')
+
+		if ($field['type'] == 'hr') {
 			echo '
 				</dl>
 				<hr>
 				<dl class="settings">';
-
-		elseif ($field['type'] == 'callback')
-		{
-			if (isset($field['callback_func']) && function_exists('template_profile_' . $field['callback_func']))
-			{
+		} elseif ($field['type'] == 'callback') {
+			if (isset($field['callback_func']) && function_exists('template_profile_' . $field['callback_func'])) {
 				$callback_func = 'template_profile_' . $field['callback_func'];
 				$callback_func();
 			}
-		}
-		else
-		{
+		} else {
 			echo '
 					<dt>
 						<strong', !empty($field['is_error']) ? ' class="error"' : '', '>', $field['type'] !== 'label' ? '<label for="' . $key . '">' : '', $field['label'], $field['type'] !== 'label' ? '</label>' : '', '</strong>';
 
 			// Does it have any subtext to show?
-			if (!empty($field['subtext']))
+			if (!empty($field['subtext'])) {
 				echo '
 						<br>
 						<span class="smalltext">', $field['subtext'], '</span>';
+			}
 
 			echo '
 					</dt>
 					<dd>';
 
 			// Want to put something infront of the box?
-			if (!empty($field['preinput']))
+			if (!empty($field['preinput'])) {
 				echo '
 						', $field['preinput'];
+			}
 
 			// What type of data are we showing?
-			if ($field['type'] == 'label')
+			if ($field['type'] == 'label') {
 				echo '
 						', $field['value'];
+			}
 
 			// Maybe it's a text box - very likely!
-			elseif (in_array($field['type'], array('int', 'float', 'text', 'password', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'number', 'time', 'url')))
-			{
-				if ($field['type'] == 'int' || $field['type'] == 'float')
+			elseif (in_array($field['type'], ['int', 'float', 'text', 'password', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'number', 'time', 'url'])) {
+				if ($field['type'] == 'int' || $field['type'] == 'float') {
 					$type = 'number';
-				else
-					$type = $field['type'];
+				} else {
+				$type = $field['type'];
+				}
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
 
 				echo '
 						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '"', isset($field['min']) ? ' min="' . $field['min'] . '"' : '', isset($field['max']) ? ' max="' . $field['max'] . '"' : '', ' value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
 			}
 			// You "checking" me out? ;)
-			elseif ($field['type'] == 'check')
+			elseif ($field['type'] == 'check') {
 				echo '
 						<input type="hidden" name="', $key, '" value="0">
 						<input type="checkbox" name="', $key, '" id="', $key, '"', !empty($field['value']) ? ' checked' : '', ' value="1" ', $field['input_attr'], '>';
+			}
 
 			// Always fun - select boxes!
-			elseif ($field['type'] == 'select')
-			{
+			elseif ($field['type'] == 'select') {
 				echo '
 						<select name="', $key, '" id="', $key, '">';
 
-				if (isset($field['options']))
-				{
+				if (isset($field['options'])) {
 					// Is this some code to generate the options?
-					if (!is_array($field['options']))
+					if (!is_array($field['options'])) {
 						$field['options'] = $field['options']();
+					}
 
 					// Assuming we now have some!
-					if (is_array($field['options']))
-						foreach ($field['options'] as $value => $name)
+					if (is_array($field['options'])) {
+						foreach ($field['options'] as $value => $name) {
 							echo '
 							<option value="' . $value . '"', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ($value == $field['value'] ? ' selected' : '')), '>', $name, '</option>';
+						}
+					}
 				}
 
 				echo '
@@ -1573,30 +1615,32 @@ function template_edit_options()
 			}
 
 			// Something to end with?
-			if (!empty($field['postinput']))
+			if (!empty($field['postinput'])) {
 				echo '
 						', $field['postinput'];
+			}
 
 			echo '
 					</dd>';
 		}
 	}
 
-	if (!empty(Utils::$context['profile_fields']))
+	if (!empty(Utils::$context['profile_fields'])) {
 		echo '
 				</dl>';
+	}
 
 	// Are there any custom profile fields - if so print them!
-	if (!empty(Utils::$context['custom_fields']))
-	{
-		if ($lastItem != 'hr')
+	if (!empty(Utils::$context['custom_fields'])) {
+		if ($lastItem != 'hr') {
 			echo '
 				<hr>';
+		}
 
 		echo '
 				<dl class="settings">';
 
-		foreach (Utils::$context['custom_fields'] as $field)
+		foreach (Utils::$context['custom_fields'] as $field) {
 			echo '
 					<dt>
 						<strong>', $field['name'], '</strong><br>
@@ -1605,18 +1649,20 @@ function template_edit_options()
 					<dd>
 						', $field['input_html'], '
 					</dd>';
+		}
 
 		echo '
 				</dl>';
 	}
 
 	// Any closing HTML?
-	if (!empty(Utils::$context['profile_posthtml']))
+	if (!empty(Utils::$context['profile_posthtml'])) {
 		echo '
 				<div>', Utils::$context['profile_posthtml'], '</div>';
+	}
 
 	// Only show the password box if it's actually needed.
-	if (Utils::$context['require_password'])
+	if (Utils::$context['require_password']) {
 		echo '
 				<dl class="settings">
 					<dt>
@@ -1627,18 +1673,21 @@ function template_edit_options()
 						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20">
 					</dd>
 				</dl>';
+	}
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
-	if (!empty(Utils::$context['submit_button_text']))
+	if (!empty(Utils::$context['submit_button_text'])) {
 		echo '
 				<input type="submit" name="save" value="', Utils::$context['submit_button_text'], '" class="button floatright">';
-	else
-		echo '
+	} else {
+	echo '
 				<input type="submit" name="save" value="', Lang::getTxt('change_profile', file: 'Profile'), '" class="button floatright">';
+	}
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1648,9 +1697,10 @@ function template_edit_options()
 		</form>';
 
 	// Any final spellchecking stuff?
-	if (!empty(Utils::$context['show_spellchecking']))
+	if (!empty(Utils::$context['show_spellchecking'])) {
 		echo '
 		<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="', Config::$scripturl, '?action=spellcheck"><input type="hidden" name="spellstring" value=""></form>';
+	}
 }
 
 /**
@@ -1686,10 +1736,11 @@ function template_profile_pm_settings()
 						<select name="pm_receive_from" id="pm_receive_from">
 							<option value="0"', empty(Utils::$context['receive_from']) || (empty(Config::$modSettings['enable_buddylist']) && Utils::$context['receive_from'] < 3) ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_everyone', file: 'Profile'), '</option>';
 
-	if (!empty(Config::$modSettings['enable_buddylist']))
+	if (!empty(Config::$modSettings['enable_buddylist'])) {
 		echo '
 							<option value="1"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 1 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_ignore', file: 'Profile'), '</option>
 							<option value="2"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 2 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_buddies', file: 'Profile'), '</option>';
+	}
 
 	echo '
 							<option value="3"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] > 2 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_admins', file: 'Profile'), '</option>
@@ -1724,133 +1775,133 @@ function template_profile_theme_settings()
 	$first_option_key = array_shift($skeys);
 	$titled_section = false;
 
-	foreach (Utils::$context['theme_options'] as $i => $setting)
-	{
+	foreach (Utils::$context['theme_options'] as $i => $setting) {
 		// Just spit out separators and move on
-		if (empty($setting) || !is_array($setting))
-		{
+		if (empty($setting) || !is_array($setting)) {
 			// Avoid double separators and empty titled sections
 			$empty_section = true;
-			for ($j=$i+1; $j < count(Utils::$context['theme_options']); $j++)
-			{
+
+			for ($j = $i + 1; $j < count(Utils::$context['theme_options']); $j++) {
 				// Found another separator, so we're done
-				if (!is_array(Utils::$context['theme_options'][$j]))
+				if (!is_array(Utils::$context['theme_options'][$j])) {
 					break;
+				}
 
 				// Once we know there's something to show in this section, we can stop
-				if (!isset(Utils::$context['theme_options'][$j]['enabled']) || !empty(Utils::$context['theme_options'][$j]['enabled']))
-				{
+				if (!isset(Utils::$context['theme_options'][$j]['enabled']) || !empty(Utils::$context['theme_options'][$j]['enabled'])) {
 					$empty_section = false;
 					break;
 				}
 			}
-			if ($empty_section)
-			{
-				if ($i === $first_option_key)
+
+			if ($empty_section) {
+				if ($i === $first_option_key) {
 					$first_option_key = array_shift($skeys);
+				}
 
 				continue;
 			}
 
 			// Insert a separator (unless this is the first item in the list)
-			if ($i !== $first_option_key)
+			if ($i !== $first_option_key) {
 				echo '
 				</dl>
 				<hr>
 				<dl class="settings">';
+			}
 
 			// Should we give a name to this section?
-			if (is_string($setting) && !empty($setting))
-			{
+			if (is_string($setting) && !empty($setting)) {
 				$titled_section = true;
 				echo '
 					<dt><strong>' . $setting . '</strong></dt>
 					<dd></dd>';
+			} else {
+			$titled_section = false;
 			}
-			else
-				$titled_section = false;
 
 			continue;
 		}
 
 		// Is this disabled?
-		if (isset($setting['enabled']) && $setting['enabled'] === false)
-		{
-			if ($i === $first_option_key)
+		if (isset($setting['enabled']) && $setting['enabled'] === false) {
+			if ($i === $first_option_key) {
 				$first_option_key = array_shift($skeys);
+			}
 
 			continue;
 		}
 
 		// Some of these may not be set...  Set to defaults here
-		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
-		if (in_array($setting['id'], $opts) && !isset(Utils::$context['member']['options'][$setting['id']]))
+		$opts = ['calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod'];
+
+		if (in_array($setting['id'], $opts) && !isset(Utils::$context['member']['options'][$setting['id']])) {
 			Utils::$context['member']['options'][$setting['id']] = 0;
+		}
 
-		if (!isset($setting['type']) || $setting['type'] == 'bool')
+		if (!isset($setting['type']) || $setting['type'] == 'bool') {
 			$setting['type'] = 'checkbox';
-
-		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
+		} elseif ($setting['type'] == 'int' || $setting['type'] == 'integer') {
 			$setting['type'] = 'number';
-
-		elseif ($setting['type'] == 'string')
+		} elseif ($setting['type'] == 'string') {
 			$setting['type'] = 'text';
+		}
 
-		if (isset($setting['options']))
+		if (isset($setting['options'])) {
 			$setting['type'] = 'list';
+		}
 
 		echo '
 					<dt>
 						<label for="', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>';
 
-		if (isset($setting['description']))
+		if (isset($setting['description'])) {
 			echo '
 						<br>
 						<span class="smalltext">', $setting['description'], '</span>';
+		}
 		echo '
 					</dt>
 					<dd>';
 
 		// Display checkbox options
-		if ($setting['type'] == 'checkbox')
+		if ($setting['type'] == 'checkbox') {
 			echo '
 						<input type="hidden" name="default_options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', !empty(Utils::$context['member']['options'][$setting['id']]) ? ' checked' : '', ' value="1">';
+		}
 
 		// How about selection lists, we all love them
-		elseif ($setting['type'] == 'list')
-		{
+		elseif ($setting['type'] == 'list') {
 			echo '
 						<select name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', '>';
 
-			foreach ($setting['options'] as $value => $label)
+			foreach ($setting['options'] as $value => $label) {
 				echo '
 							<option value="', $value, '"', isset(Utils::$context['member']['options'][$setting['id']]) && $value == Utils::$context['member']['options'][$setting['id']] ? ' selected' : '', '>', $label, '</option>';
+			}
 
 			echo '
 						</select>';
 		}
 		// A textbox it is then
-		else
-		{
-			if (isset($setting['type']) && $setting['type'] == 'number')
-			{
+		else {
+			if (isset($setting['type']) && $setting['type'] == 'number') {
 				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
 				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
 				$step = isset($setting['step']) ? ' step="' . $setting['step'] . '"' : '';
 
 				echo '
 						<input type="number"', $min . $max . $step;
-			}
-			elseif (isset($setting['type']) && $setting['type'] == 'url')
+			} elseif (isset($setting['type']) && $setting['type'] == 'url') {
 				echo '
 						<input type="url"';
-
-			else
-				echo '
+			} else {
+			echo '
 						<input type="text"';
+			}
 
-			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', isset(Utils::$context['member']['options'][$setting['id']]) ? Utils::$context['member']['options'][$setting['id']] : $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', '>';
+			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', Utils::$context['member']['options'][$setting['id']] ?? $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', '>';
 		}
 
 		// end of this definition
@@ -1891,7 +1942,7 @@ function template_alert_configuration()
 						<input type="checkbox" id="notify_announcements" name="notify_announcements" value="1"', !empty(Utils::$context['member']['notify_announcements']) ? ' checked' : '', '>
 					</dd>';
 
-	if (!empty(Config::$modSettings['enable_ajax_alerts']))
+	if (!empty(Config::$modSettings['enable_ajax_alerts'])) {
 		echo '
 					<dt>
 						<label for="notify_send_body">', Lang::getTxt('notify_alert_timeout', file: 'Profile'), '</label>
@@ -1899,6 +1950,7 @@ function template_alert_configuration()
 					<dd>
 						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" max="127" value="', Utils::$context['member']['alert_timeout'], '">
 					</dd>';
+	}
 
 	echo '
 				</dl>
@@ -1910,8 +1962,7 @@ function template_alert_configuration()
 			</div>
 			<table class="table_grid">';
 
-	foreach (Utils::$context['alert_types'] as $alert_group => $alerts)
-	{
+	foreach (Utils::$context['alert_types'] as $alert_group => $alerts) {
 		echo '
 				<tr class="title_bar">
 					<th>', Lang::getTxt('alert_group_' . $alert_group, file: 'Profile'), '</th>
@@ -1920,26 +1971,27 @@ function template_alert_configuration()
 				</tr>
 				<tr class="windowbg">';
 
-		if (isset(Utils::$context['alert_group_options'][$alert_group]))
-		{
-			foreach (Utils::$context['alert_group_options'][$alert_group] as $opts)
-			{
-				if ($opts[0] == 'hide')
+		if (isset(Utils::$context['alert_group_options'][$alert_group])) {
+			foreach (Utils::$context['alert_group_options'][$alert_group] as $opts) {
+				if ($opts[0] == 'hide') {
 					continue;
+				}
 
 				echo '
 				<tr class="windowbg">
 					<td colspan="3">';
 
 				$label = Lang::getTxt('alert_opt_' . $opts[1], file: 'Profile');
-				$label_pos = isset($opts['label']) ? $opts['label'] : '';
-				if ($label_pos == 'before')
+				$label_pos = $opts['label'] ?? '';
+
+				if ($label_pos == 'before') {
 					echo '
 						<label for="opt_', $opts[1], '">', $label, '</label>';
+				}
 
-				$this_value = isset(Utils::$context['alert_prefs'][$opts[1]]) ? Utils::$context['alert_prefs'][$opts[1]] : 0;
-				switch ($opts[0])
-				{
+				$this_value = Utils::$context['alert_prefs'][$opts[1]] ?? 0;
+
+				switch ($opts[0]) {
 					case 'check':
 						echo '
 						<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '"', $this_value ? ' checked' : '', '>';
@@ -1949,17 +2001,19 @@ function template_alert_configuration()
 						echo '
 						<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
 
-						foreach ($opts['opts'] as $k => $v)
+						foreach ($opts['opts'] as $k => $v) {
 							echo '
 							<option value="', $k, '"', $this_value == $k ? ' selected' : '', '>', $v, '</option>';
+						}
 						echo '
 						</select>';
 						break;
 				}
 
-				if ($label_pos == 'after')
+				if ($label_pos == 'after') {
 					echo '
 						<label for="opt_', $opts[1], '">', $label, '</label>';
+				}
 
 				echo '
 					</td>
@@ -1967,30 +2021,30 @@ function template_alert_configuration()
 			}
 		}
 
-		foreach ($alerts as $alert_id => $alert_details)
-		{
+		foreach ($alerts as $alert_id => $alert_details) {
 			echo '
 				<tr class="windowbg">
 					<td>
 						', Lang::getTxt('alert_' . $alert_id, file: 'Profile'), isset($alert_details['help']) ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a>' : '', '
 					</td>';
 
-			foreach (Utils::$context['alert_bits'] as $type => $bitmask)
-			{
+			foreach (Utils::$context['alert_bits'] as $type => $bitmask) {
 				echo '
 					<td class="centercol">';
 
-				$this_value = isset(Utils::$context['alert_prefs'][$alert_id]) ? Utils::$context['alert_prefs'][$alert_id] : 0;
-				switch ($alert_details[$type])
-				{
+				$this_value = Utils::$context['alert_prefs'][$alert_id] ?? 0;
+
+				switch ($alert_details[$type]) {
 					case 'always':
 						echo '
 						<input type="checkbox" checked disabled>';
 						break;
+
 					case 'yes':
 						echo '
 						<input type="checkbox" name="', $type, '_', $alert_id, '"', ($this_value & $bitmask) ? ' checked' : '', '>';
 						break;
+
 					case 'never':
 						echo '
 						<input type="checkbox" disabled>';
@@ -2070,18 +2124,18 @@ function template_groupMembership()
 			<p class="information">', Lang::getTxt('groupMembership_info', file: 'Profile'), '</p>';
 
 	// Do we have an update message?
-	if (!empty(Utils::$context['update_message']))
+	if (!empty(Utils::$context['update_message'])) {
 		echo '
 			<div class="infobox">
 				', Utils::$context['update_message'], '
 			</div>';
+	}
 
 	echo '
 			<div id="groups">';
 
 	// Requesting membership to a group?
-	if (!empty(Utils::$context['group_request']))
-	{
+	if (!empty(Utils::$context['group_request'])) {
 		echo '
 			<div class="groupmembership">
 				<div class="cat_bar">
@@ -2096,66 +2150,63 @@ function template_groupMembership()
 						</div>
 					</div>
 				</div><!-- .groupmembership -->';
-	}
-	else
-	{
+	} else {
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg">', Lang::getTxt('current_membergroups', file: 'Profile'), '</h3>
 				</div>';
 
-		foreach (Utils::$context['groups']['member'] as $group)
-		{
+		foreach (Utils::$context['groups']['member'] as $group) {
 			echo '
 				<div class="windowbg" id="primdiv_', $group['id'], '">';
 
-			if (Utils::$context['can_edit_primary'])
+			if (Utils::$context['can_edit_primary']) {
 				echo '
 					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', $group['can_be_primary'] ? '' : ' disabled', '>';
+			}
 
 			echo '
 					<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>';
 
 			// Can they leave their group?
-			if ($group['can_leave'])
+			if ($group['can_leave']) {
 				echo '
 					<a href="' . Config::$scripturl . '?action=profile;save;u=' . Utils::$context['id_member'] . ';area=groupmembership;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';gid=' . $group['id'] . ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '">' . Lang::getTxt('leave_group', file: 'Profile') . '</a>';
+			}
 
 			echo '
 				</div><!-- .windowbg -->';
 		}
 
-		if (Utils::$context['can_edit_primary'])
+		if (Utils::$context['can_edit_primary']) {
 			echo '
 				<div class="windowbg righttext">
 					<input type="submit" value="', Lang::getTxt('make_primary', file: 'Profile'), '" class="button">
 				</div>';
+		}
 
 		// Any groups they can join?
-		if (!empty(Utils::$context['groups']['available']))
-		{
+		if (!empty(Utils::$context['groups']['available'])) {
 			echo '
 				<div class="title_bar">
 					<h3 class="titlebg">', Lang::getTxt('available_groups', file: 'Profile'), '</h3>
 				</div>';
 
-			foreach (Utils::$context['groups']['available'] as $group)
-			{
+			foreach (Utils::$context['groups']['available'] as $group) {
 				echo '
 				<div class="windowbg">
 					<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
-				if ($group['type'] == 3)
+				if ($group['type'] == 3) {
 					echo '
 					<a href="', Config::$scripturl, '?action=profile;save;u=', Utils::$context['id_member'], ';area=groupmembership;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';gid=', $group['id'], ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '" class="button floatright">', Lang::getTxt('join_group', file: 'Profile'), '</a>';
-
-				elseif ($group['type'] == 2 && $group['pending'])
+				} elseif ($group['type'] == 2 && $group['pending']) {
 					echo '
 					<span class="floatright">', Lang::getTxt('approval_pending', file: 'Profile'), '</span>';
-
-				elseif ($group['type'] == 2)
+				} elseif ($group['type'] == 2) {
 					echo '
 					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=groupmembership;request=', $group['id'], '" class="button floatright">', Lang::getTxt('request_group', file: 'Profile'), '</a>';
+				}
 
 				echo '
 				</div><!-- .windowbg -->';
@@ -2166,9 +2217,10 @@ function template_groupMembership()
 	echo '
 			</div><!-- #groups -->';
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 			<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -2209,18 +2261,21 @@ function template_ignoreboards()
 function template_load_warning_variables()
 {
 	// Setup the warning mode
-	Utils::$context['warning_mode'] = array(
+	Utils::$context['warning_mode'] = [
 		0 => 'none',
 		Config::$modSettings['warning_watch'] => 'watched',
 		Config::$modSettings['warning_moderate'] => 'moderated',
 		Config::$modSettings['warning_mute'] => 'muted',
-	);
+	];
 
 	// Work out the starting warning.
 	Utils::$context['current_warning_mode'] = Utils::$context['warning_mode'][0];
-	foreach (Utils::$context['warning_mode'] as $limit => $warning)
-		if (Utils::$context['member']['warning'] >= $limit)
+
+	foreach (Utils::$context['warning_mode'] as $limit => $warning) {
+		if (Utils::$context['member']['warning'] >= $limit) {
 			Utils::$context['current_warning_mode'] = $warning;
+		}
+	}
 }
 
 /**
@@ -2256,7 +2311,7 @@ function template_viewWarning()
 				</dd>';
 
 	// There's some impact of this?
-	if (!empty(Utils::$context['level_effects'][Utils::$context['current_level']]))
+	if (!empty(Utils::$context['level_effects'][Utils::$context['current_level']])) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_viewwarning_impact', file: 'Profile'), '</strong>
@@ -2264,6 +2319,7 @@ function template_viewWarning()
 				<dd>
 					', Utils::$context['level_effects'][Utils::$context['current_level']], '
 				</dd>';
+	}
 
 	echo '
 			</dl>
@@ -2291,15 +2347,16 @@ function template_issueWarning()
 			</h3>
 		</div>';
 
-	if (!User::$me->is_owner)
+	if (!User::$me->is_owner) {
 		echo '
 		<p class="information">', Lang::getTxt('profile_warning_desc', file: 'Profile'), '</p>';
+	}
 
 	echo '
 		<div class="windowbg">
 			<dl class="settings">';
 
-	if (!User::$me->is_owner)
+	if (!User::$me->is_owner) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_warning_name', file: 'Profile'), '</strong>
@@ -2307,16 +2364,18 @@ function template_issueWarning()
 				<dd>
 					<strong>', Utils::$context['member']['name'], '</strong>
 				</dd>';
+	}
 
 	echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</strong>';
 
 	// Is there only so much they can apply?
-	if (Utils::$context['warning_limit'])
+	if (Utils::$context['warning_limit']) {
 		echo '
 					<br>
 					<span class="smalltext">', Lang::getTxt('profile_warning_limit_attribute', [Utils::$context['warning_limit'] / 100], file: 'Profile'), '</span>';
+	}
 
 	echo '
 				</dt>
@@ -2327,8 +2386,7 @@ function template_issueWarning()
 					</div>
 				</dd>';
 
-	if (!User::$me->is_owner)
-	{
+	if (!User::$me->is_owner) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_warning_reason', file: 'Profile'), '</strong><br>
@@ -2371,9 +2429,10 @@ function template_issueWarning()
 						<option value="-1">', Lang::getTxt('profile_warning_notify_template', file: 'Profile'), '</option>
 						<option value="-1" disabled>------------------------------</option>';
 
-		foreach (Utils::$context['notification_templates'] as $id_template => $template)
+		foreach (Utils::$context['notification_templates'] as $id_template => $template) {
 			echo '
 						<option value="', $id_template, '">', $template['title'], '</option>';
+		}
 
 		echo '
 					</select>
@@ -2384,9 +2443,10 @@ function template_issueWarning()
 			</dl>
 			<div class="righttext">';
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -2415,21 +2475,22 @@ function template_deleteAccount()
 			</div>';
 
 	// If deleting another account give them a lovely info box.
-	if (!User::$me->is_owner)
+	if (!User::$me->is_owner) {
 		echo '
 			<p class="information">', Lang::getTxt('deleteAccount_desc', file: 'Profile'), '</p>';
+	}
 
 	echo '
 			<div class="windowbg">';
 
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
-	if (Utils::$context['needs_approval'])
+	if (Utils::$context['needs_approval']) {
 		echo '
 				<div class="noticebox">', Lang::getTxt('deleteAccount_approval', file: 'Profile'), '</div>';
+	}
 
 	// If the user is deleting their own account warn them first - and require a password!
-	if (User::$me->is_owner)
-	{
+	if (User::$me->is_owner) {
 		echo '
 				<div class="errorbox">', Lang::getTxt('own_profile_confirm', file: 'Profile'), '</div>
 				<fieldset>';
@@ -2453,9 +2514,10 @@ function template_deleteAccount()
 				</fieldset>
 				<input type="submit" value="', Lang::getTxt('delete', file: 'General'), '" class="button floatright">';
 
-		if (!empty(Utils::$context['token_check']))
+		if (!empty(Utils::$context['token_check'])) {
 			echo '
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+		}
 
 		echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -2463,14 +2525,12 @@ function template_deleteAccount()
 				<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">';
 	}
 	// Otherwise an admin doesn't need to enter a password - but they still get a warning - plus the option to delete lovely posts!
-	else
-	{
+	else {
 		echo '
 				<div class="errorbox">', Lang::getTxt('deleteAccount_warning', file: 'Profile'), '</div>';
 
 		// Only actually give these options if they are kind of important.
-		if (Utils::$context['can_delete_posts'])
-		{
+		if (Utils::$context['can_delete_posts']) {
 			echo '
 				<fieldset>
 					<label for="deleteVotes">
@@ -2486,10 +2546,11 @@ function template_deleteAccount()
 						<option value="topics">', Lang::getTxt('deleteAccount_topics', file: 'Profile'), '</option>
 					</select>';
 
-			if (Utils::$context['show_perma_delete'])
+			if (Utils::$context['show_perma_delete']) {
 				echo '
 					<br>
 					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1"> ', Lang::getTxt('deleteAccount_permanent', file: 'Profile'), '</label>';
+			}
 
 			echo '
 				</fieldset>';
@@ -2517,9 +2578,10 @@ function template_deleteAccount()
 				<div>
 					<input type="submit" value="', Lang::getTxt('delete', file: 'General'), '" class="button floatright">';
 
-		if (!empty(Utils::$context['token_check']))
+		if (!empty(Utils::$context['token_check'])) {
 			echo '
 				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+		}
 
 		echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -2543,7 +2605,7 @@ function template_profile_save()
 					<hr>';
 
 	// Only show the password box if it's actually needed.
-	if (Utils::$context['require_password'])
+	if (Utils::$context['require_password']) {
 		echo '
 					<dl class="settings">
 						<dt>
@@ -2554,13 +2616,15 @@ function template_profile_save()
 							<input type="password" name="oldpasswrd" size="20">
 						</dd>
 					</dl>';
+	}
 
 	echo '
 					<div class="righttext">';
 
-	if (!empty(Utils::$context['token_check']))
+	if (!empty(Utils::$context['token_check'])) {
 		echo '
 						<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+	}
 
 	echo '
 						<input type="submit" value="', Lang::getTxt('change_profile', file: 'Profile'), '" class="button">
@@ -2578,15 +2642,13 @@ function template_error_message()
 	echo '
 		<div class="errorbox" ', empty(Utils::$context['post_errors']) ? 'style="display:none" ' : '', 'id="profile_error">';
 
-	if (!empty(Utils::$context['post_errors']))
-	{
+	if (!empty(Utils::$context['post_errors'])) {
 		echo '
 			<span>', !empty(Utils::$context['custom_error_title']) ? Utils::$context['custom_error_title'] : Lang::getTxt('profile_errors_occurred', file: 'Errors'), '</span>
 			<ul id="list_errors">';
 
 		// Cycle through each error and display an error message.
-		foreach (Utils::$context['post_errors'] as $error)
-		{
+		foreach (Utils::$context['post_errors'] as $error) {
 			if ($error == 'password_short') {
 				$error_message = Lang::getTxt('profile_error_' . $error, [Security::minimumPasswordLength()], file: 'Profile');
 			} else {
@@ -2619,12 +2681,14 @@ function template_profile_group_manage()
 								<select name="id_group" ', (User::$me->is_owner && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
 
 	// Fill the select box with all primary member groups that can be assigned to a member.
-	foreach (Utils::$context['member_groups'] as $member_group)
-		if (!empty($member_group['can_be_primary']))
+	foreach (Utils::$context['member_groups'] as $member_group) {
+		if (!empty($member_group['can_be_primary'])) {
 			echo '
 									<option value="', $member_group['id'], '"', $member_group['is_primary'] ? ' selected' : '', '>
 										', $member_group['name'], '
 									</option>';
+		}
+	}
 
 	echo '
 								</select>
@@ -2637,10 +2701,12 @@ function template_profile_group_manage()
 									<input type="hidden" name="additional_groups[]" value="0">';
 
 	// For each membergroup show a checkbox so members can be assigned to more than one group.
-	foreach (Utils::$context['member_groups'] as $member_group)
-		if ($member_group['can_be_additional'])
+	foreach (Utils::$context['member_groups'] as $member_group) {
+		if ($member_group['can_be_additional']) {
 			echo '
 									<label for="additional_groups-', $member_group['id'], '"><input type="checkbox" name="additional_groups[]" value="', $member_group['id'], '" id="additional_groups-', $member_group['id'], '"', $member_group['is_additional'] ? ' checked' : '', '> ', $member_group['name'], '</label><br>';
+		}
+	}
 
 	echo '
 								</fieldset>
@@ -2673,9 +2739,10 @@ function template_profile_signature_modify()
 								<span class="smalltext">', Lang::getTxt('sig_info', file: 'Profile'), '</span><br>
 								<br>';
 
-	if (Utils::$context['show_spellchecking'])
+	if (Utils::$context['show_spellchecking']) {
 		echo '
 								<input type="button" value="', Lang::getTxt('spell_check', file: 'General'), '" onclick="spellCheck(\'creator\', \'signature\');" class="button">';
+	}
 
 	echo '
 							</dt>
@@ -2683,17 +2750,20 @@ function template_profile_signature_modify()
 								<textarea class="editor" name="signature" maxlength="', Utils::$context['signature_limits']['max_length'], '" rows="5" cols="50">', Utils::$context['member']['signature'], '</textarea><br>';
 
 	// If there is a limit at all!
-	if (!empty(Utils::$context['signature_limits']['max_length']))
+	if (!empty(Utils::$context['signature_limits']['max_length'])) {
 		echo '
 								<span class="smalltext">', Lang::getTxt('max_sig_characters', Utils::$context['signature_limits'], file: 'Profile'), '</span><br>';
+	}
 
-	if (!empty(Utils::$context['show_preview_button']))
+	if (!empty(Utils::$context['show_preview_button'])) {
 		echo '
 								<input type="button" name="preview_signature" value="', Lang::getTxt('preview_signature', file: 'Profile'), '" class="button floatright">';
+	}
 
-	if (Utils::$context['signature_warning'])
+	if (Utils::$context['signature_warning']) {
 		echo '
 								<span class="smalltext">', Utils::$context['signature_warning'], '</span>';
+	}
 
 	echo '
 							</dd>';
@@ -2710,39 +2780,44 @@ function template_profile_avatar_select()
 								<fieldset>
 									<legend>', Lang::getTxt('personal_picture', file: 'Profile'), '</legend>';
 
-	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride']))
+	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) {
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked' : '') . '>
 								<label for="avatar_choice_none"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									' . Lang::getTxt('no_avatar', file: 'Profile') . '
 								</label><br>';
+	}
 
-	if (!empty(Utils::$context['member']['avatar']['allow_server_stored']))
+	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked' : '') . '>
 								<label for="avatar_choice_server_stored"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('choose_avatar_gallery', file: 'Profile'), '
 								</label><br>';
+	}
 
-	if (!empty(Utils::$context['member']['avatar']['allow_external']))
+	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked' : '') . '>
 								<label for="avatar_choice_external"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('my_own_pic', file: 'Profile'), '
 								</label><br>';
+	}
 
-	if (!empty(Utils::$context['member']['avatar']['allow_upload']))
+	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked' : '') . '>
 								<label for="avatar_choice_upload"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('avatar_will_upload', file: 'Profile'), '
 								</label><br>';
+	}
 
-	if (!empty(Utils::$context['member']['avatar']['allow_gravatar']))
+	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
 								<input type="radio" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked' : '') . '>
 								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::getTxt('use_gravatar', file: 'Profile') . '</label>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
+	}
 
 	echo '
 								</fieldset>
@@ -2750,29 +2825,29 @@ function template_profile_avatar_select()
 							<dd>';
 
 	// If users are allowed to choose avatars stored on the server show selection boxes to choice them from.
-	if (!empty(Utils::$context['member']['avatar']['allow_server_stored']))
-	{
+	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
 								<fieldset id="avatar_server_stored">
 									<select name="cat" data-avatardir="' . Config::$modSettings['avatar_url'] . '/" size="10">';
 
 		// This lists all the file categories.
-		foreach (Utils::$context['avatars'] as $avatar)
-			if ($avatar['is_dir'])
-			{
+		foreach (Utils::$context['avatars'] as $avatar) {
+			if ($avatar['is_dir']) {
 				echo '
 										<optgroup data-dir="', $avatar['filename'], '" label="', $avatar['name'], '">';
 
-				foreach ($avatar['files'] as $a)
+				foreach ($avatar['files'] as $a) {
 					echo '
 											<option value="', $avatar['filename'], '/', $a['filename'], '"', $a['checked'] ? ' selected' : '', '>', $a['name'], '</option>';
+				}
 
 				echo '
 										</optgroup>';
-			}
-			else
-				echo '
+			} else {
+			echo '
 										<option value="', $avatar['filename'], '"', $avatar['checked'] ? ' selected' : '', '>', $avatar['name'], '</option>';
+			}
+		}
 
 		echo '
 									</select>
@@ -2780,37 +2855,38 @@ function template_profile_avatar_select()
 	}
 
 	// If the user can link to an off server avatar, show them a box to input the address.
-	if (!empty(Utils::$context['member']['avatar']['allow_external']))
+	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
 								<fieldset id="avatar_external">
 									<div class="smalltext">', Lang::getTxt('avatar_by_url', file: 'Profile'), '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '"><br>
 								</fieldset>';
+	}
 
 	// If the user is able to upload avatars to the server show them an upload box.
-	if (!empty(Utils::$context['member']['avatar']['allow_upload']))
+	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
 								<fieldset id="avatar_upload">
 									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
 									', (!empty(Utils::$context['member']['avatar']['id_attach']) ? '<br><input type="hidden" name="id_attach" value="' . Utils::$context['member']['avatar']['id_attach'] . '">' : ''), '
 								</fieldset>';
+	}
 
 	// if the user is able to use Gravatar avatars show then the image preview
-	if (!empty(Utils::$context['member']['avatar']['allow_gravatar']))
-	{
+	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
 								<fieldset id="avatar_gravatar" data-email="', Utils::$context['member']['email'], '">';
 
-		if (empty(Config::$modSettings['gravatarAllowExtraEmail']))
+		if (empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
 			echo '
 									<div class="smalltext">', Lang::getTxt('gravatar_noAlternateEmail', file: 'Profile'), '</div>';
-		else
-		{
+		} else {
 			// Depending on other stuff, the stored value here might have some odd things in it from other areas.
-			if (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email'])
+			if (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email']) {
 				$textbox_value = '';
-			else
-				$textbox_value = Utils::$context['member']['avatar']['external'];
+			} else {
+			$textbox_value = Utils::$context['member']['avatar']['external'];
+			}
 
 			echo '
 									<div class="smalltext padding">', Lang::getTxt('gravatar_alternateEmail', file: 'Profile'), '</div>
@@ -2836,9 +2912,11 @@ function template_max_size($type)
 	$h = !empty(Config::$modSettings['avatar_max_height_' . $type]) ? Lang::numberFormat(Config::$modSettings['avatar_max_height_' . $type]) : 0;
 
 	$suffix = ($w != 0 ? 'w' : '') . ($h != 0 ? 'h' : '');
-	if ($suffix != '')
+
+	if ($suffix != '') {
 		echo '
 								<div class="smalltext">', Lang::getTxt('avatar_max_size_' . $suffix, ['w' => $w, 'h' => $h]), '</div>';
+	}
 }
 
 /**
@@ -2859,6 +2937,7 @@ function template_profile_timeformat_modify()
 
 	// Help the user by showing a list of common time formats.
 	$found = false;
+
 	foreach (Utils::$context['easy_timeformats'] as $time_format) {
 		$found = $found || $time_format['format'] == Utils::$context['member']['time_format'];
 
@@ -2899,9 +2978,10 @@ function template_profile_smiley_pick()
 							<dd>
 								<select name="smiley_set" id="smiley_set">';
 
-	foreach (Utils::$context['smiley_sets'] as $set)
+	foreach (Utils::$context['smiley_sets'] as $set) {
 		echo '
 									<option data-preview="', $set['preview'], '" value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
+	}
 
 	echo '
 								</select>
@@ -2921,17 +3001,17 @@ function template_tfasetup()
 			<div class="roundframe">
 				<div>';
 
-	if (!empty(Utils::$context['tfa_backup']))
+	if (!empty(Utils::$context['tfa_backup'])) {
 		echo '
 					<div class="smalltext error">
 						', Lang::getTxt('tfa_backup_used_desc', file: 'Profile'), '
 					</div>';
-
-	elseif (Config::$modSettings['tfa_mode'] == 2)
+	} elseif (Config::$modSettings['tfa_mode'] == 2) {
 		echo '
 					<div class="smalltext">
 						<strong>', Lang::getTxt('tfa_forced_desc', file: 'Profile'), '</strong>
 					</div>';
+	}
 
 	echo '
 					<div class="smalltext">
@@ -2942,11 +3022,12 @@ function template_tfasetup()
 							<div class="block">
 								<strong>', Lang::getTxt('tfa_step1', file: 'Profile'), '</strong><br>';
 
-	if (!empty(Utils::$context['tfa_pass_error']))
+	if (!empty(Utils::$context['tfa_pass_error'])) {
 		echo '
 								<div class="error smalltext">
 									', Lang::getTxt('tfa_pass_invalid', file: 'Profile'), '
 								</div>';
+	}
 
 	echo '
 								<input type="password" name="oldpasswrd" size="25"', !empty(Utils::$context['password_auth_failed']) ? ' class="error"' : '', !empty(Utils::$context['tfa_pass_value']) ? ' value="' . Utils::$context['tfa_pass_value'] . '"' : '', '>
@@ -2959,11 +3040,12 @@ function template_tfasetup()
 							<div class="block">
 								<strong>', Lang::getTxt('tfa_step3', file: 'Profile'), '</strong><br>';
 
-	if (!empty(Utils::$context['tfa_error']))
+	if (!empty(Utils::$context['tfa_error'])) {
 		echo '
 								<div class="error smalltext">
 									', Lang::getTxt('tfa_code_invalid', file: 'Profile'), '
 								</div>';
+	}
 
 	echo '
 								<input type="text" name="tfa_code" size="25"', !empty(Utils::$context['tfa_error']) ? ' class="error"' : '', !empty(Utils::$context['tfa_value']) ? ' value="' . Utils::$context['tfa_value'] . '"' : '', '>
@@ -2980,10 +3062,11 @@ function template_tfasetup()
 						</script>
 					</div>';
 
-	if (!empty(Utils::$context['from_ajax']))
+	if (!empty(Utils::$context['from_ajax'])) {
 		echo '
 					<br>
 					<a href="javascript:self.close();"></a>';
+	}
 
 	echo '
 				</div>
@@ -3002,17 +3085,18 @@ function template_tfadisable()
 			<div class="roundframe">
 				<form action="', Config::$scripturl, '?action=profile;area=tfadisable" method="post">';
 
-	if (User::$me->is_owner)
+	if (User::$me->is_owner) {
 		echo '
 					<div class="block">
 						<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::getTxt('current_password', file: 'Profile'), '</strong><br>
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
-	else
-		echo '
+	} else {
+	echo '
 					<div class="smalltext">
 						', Lang::getTxt('tfa_disable_for_user', ['name' => User::$me->name], file: 'Profile'), '
 					</div>';
+	}
 
 	echo '
 					<input type="submit" name="save" value="', Lang::getTxt('tfa_disable', file: 'Profile'), '" class="button floatright">
@@ -3052,17 +3136,16 @@ function template_profile_tfa()
 							</dt>
 							<dd>';
 
-	if (!Utils::$context['tfa_enabled'] && User::$me->is_owner)
+	if (!Utils::$context['tfa_enabled'] && User::$me->is_owner) {
 		echo '
-								<a href="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', Lang::getTxt('tfa_profile_enable', file: 'Profile'), '</a>';
-
-	elseif (!Utils::$context['tfa_enabled'])
+								<a href="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, ['http://' => 'https://']) : Config::$scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', Lang::getTxt('tfa_profile_enable', file: 'Profile'), '</a>';
+	} elseif (!Utils::$context['tfa_enabled']) {
 		echo '
 								', Lang::getTxt('tfa_profile_disabled', file: 'Profile');
-
-	else
-		echo '
-								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable'], file: 'Profile');
+	} else {
+	echo '
+								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, ['http://' => 'https://']) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable'], file: 'Profile');
+	}
 
 	echo '
 							</dd>';
@@ -3073,7 +3156,7 @@ function template_profile_tfa()
  */
 function template_export_profile_data()
 {
-	$default_settings = array('included' => array(), 'format' => '');
+	$default_settings = ['included' => [], 'format' => ''];
 	$dltoken = '';
 
 	// The main containing header.
@@ -3085,29 +3168,27 @@ function template_export_profile_data()
 		</div>
 		<div class="information">', Utils::$context['export_profile_data_desc'], '</div>';
 
-	if (!empty(Utils::$context['completed_exports']))
-	{
+	if (!empty(Utils::$context['completed_exports'])) {
 		echo '
 		<div class="title_bar">
 			<h3 class="titlebg">', Lang::getTxt('completed_exports', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg noup">';
 
-		foreach (Utils::$context['completed_exports'] as $basehash_ext => $parts)
-		{
+		foreach (Utils::$context['completed_exports'] as $basehash_ext => $parts) {
 			echo '
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8" class="', count(Utils::$context['completed_exports']) > 1 ? 'descbox' : 'padding', '">';
 
-			if (!empty(Utils::$context['outdated_exports'][$basehash_ext]))
-			{
+			if (!empty(Utils::$context['outdated_exports'][$basehash_ext])) {
 				echo '
 				<div class="noticebox">
 					<p>', Lang::getTxt('export_outdated_warning', file: 'Profile'), '</p>
 					<ul class="bbc_list">';
 
-				foreach (Utils::$context['outdated_exports'][$basehash_ext] as $datatype)
+				foreach (Utils::$context['outdated_exports'][$basehash_ext] as $datatype) {
 					echo '
 						<li>', Lang::getTxt($datatype, file: 'General+Profile'), '</li>';
+				}
 
 				echo '
 					</ul>
@@ -3116,29 +3197,33 @@ function template_export_profile_data()
 
 			echo '
 				<p>', Lang::getTxt(
-					'export_file_desc',
-					[
-						'list' => $parts[1]['included_desc'],
-						'format' => Utils::$context['export_formats'][$parts[1]['format']]['description'],
-					],
-					file: 'Profile',
-				), '</p>';
+				'export_file_desc',
+				[
+					'list' => $parts[1]['included_desc'],
+					'format' => Utils::$context['export_formats'][$parts[1]['format']]['description'],
+				],
+				file: 'Profile',
+			), '</p>';
 
-			if (count($parts) > 10)
+			if (count($parts) > 10) {
 				echo '
 				<details>
 					<summary>', Lang::getTxt('export_file_count', [count($parts)], file: 'Profile'), '</summary>';
+			}
 
 			echo '
 				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
 
-			foreach ($parts as $part => $file)
-			{
+			foreach ($parts as $part => $file) {
 				$dltoken = $file['dltoken'];
-				if (empty($default_settings['included']))
+
+				if (empty($default_settings['included'])) {
 					$default_settings['included'] = $file['included'];
-				if (empty($default_settings['format']))
+				}
+
+				if (empty($default_settings['format'])) {
 					$default_settings['format'] = $file['format'];
+				}
 
 				echo '
 					<li>
@@ -3149,9 +3234,10 @@ function template_export_profile_data()
 			echo '
 				</ul>';
 
-			if (count($parts) > 10)
+			if (count($parts) > 10) {
 				echo '
 				</details>';
+			}
 
 			echo '
 				<div class="righttext">
@@ -3167,32 +3253,34 @@ function template_export_profile_data()
 		</div>';
 	}
 
-	if (!empty(Utils::$context['active_exports']))
-	{
+	if (!empty(Utils::$context['active_exports'])) {
 		echo '
 		<div class="title_bar">
 			<h3 class="titlebg">', Lang::getTxt('active_exports', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg noup">';
 
-		foreach (Utils::$context['active_exports'] as $file)
-		{
+		foreach (Utils::$context['active_exports'] as $file) {
 			$dltoken = $file['dltoken'];
-			if (empty($default_settings['included']))
+
+			if (empty($default_settings['included'])) {
 				$default_settings['included'] = $file['included'];
-			if (empty($default_settings['format']))
+			}
+
+			if (empty($default_settings['format'])) {
 				$default_settings['format'] = $file['format'];
+			}
 
 			echo '
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8"', count(Utils::$context['active_exports']) > 1 ? ' class="descbox"' : '', '>
 				<p class="padding">', Lang::getTxt(
-					'export_file_desc',
-					[
-						'list' => $file['included_desc'],
-						'format' => Utils::$context['export_formats'][$file['format']]['description'],
-					],
-					file: 'Profile',
-				), '</p>
+				'export_file_desc',
+				[
+					'list' => $file['included_desc'],
+					'format' => Utils::$context['export_formats'][$file['format']]['description'],
+				],
+				file: 'Profile',
+			), '</p>
 				<div class="righttext">
 					<input type="submit" name="delete" value="', Lang::getTxt('export_cancel', file: 'Profile'), '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">
@@ -3213,9 +3301,8 @@ function template_export_profile_data()
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8">
 				<dl class="settings">';
 
-	foreach (Utils::$context['export_datatypes'] as $datatype => $datatype_settings)
-	{
-		if (!empty($datatype_settings['label']))
+	foreach (Utils::$context['export_datatypes'] as $datatype => $datatype_settings) {
+		if (!empty($datatype_settings['label'])) {
 			echo '
 					<dt>
 						<strong><label for="', $datatype, '">', $datatype_settings['label'], '</label></strong>
@@ -3223,6 +3310,7 @@ function template_export_profile_data()
 					<dd>
 						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', in_array($datatype, $default_settings['included']) ? ' checked' : '', '>
 					</dd>';
+		}
 	}
 
 	echo '
@@ -3232,9 +3320,10 @@ function template_export_profile_data()
 					<dd>
 						<select id="export_format_select" name="format">';
 
-	foreach (Utils::$context['export_formats'] as $format => $format_settings)
+	foreach (Utils::$context['export_formats'] as $format => $format_settings) {
 		echo '
 							<option value="', $format, '"', $format == $default_settings['format'] ? ' selected' : '', '>', $format_settings['description'], '</option>';
+	}
 
 	echo '
 						</select>
@@ -3244,8 +3333,7 @@ function template_export_profile_data()
 					<input type="submit" name="export_begin" value="', Lang::getTxt('export_begin', file: 'Profile'), '" class="button">';
 
 	// At least one active or completed export exists.
-	if (!empty($dltoken))
-	{
+	if (!empty($dltoken)) {
 		echo '
 					<input type="submit" name="export_restart" value="', Lang::getTxt('export_restart', file: 'Profile'), '" class="button you_sure" data-confirm="', Lang::getTxt('export_restart_confirm', file: 'Profile'), '">
 					<input type="hidden" name="delete">

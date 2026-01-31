@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -21,11 +22,12 @@ use SMF\Utils;
 function template_maintain_database()
 {
 	// If maintenance has finished tell the user.
-	if (!empty(Utils::$context['maintenance_finished']))
+	if (!empty(Utils::$context['maintenance_finished'])) {
 		echo '
 	<div class="infobox">
 		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 	</div>';
+	}
 
 	echo '
 	<div id="manage_maintenance">
@@ -42,7 +44,7 @@ function template_maintain_database()
 		</div>';
 
 	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
-	if (isset(Utils::$context['convert_to']))
+	if (isset(Utils::$context['convert_to'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance'), '</h3>
@@ -55,9 +57,10 @@ function template_maintain_database()
 				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 			</form>
 		</div>';
+	}
 
 	// We might want to convert entities if we're on UTF-8.
-	if (Utils::$context['convert_entities'])
+	if (Utils::$context['convert_entities']) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('entity_convert_title', file: 'ManageMaintenance'), '</h3>
@@ -72,6 +75,7 @@ function template_maintain_database()
 				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 			</form>
 		</div>';
+	}
 
 	echo '
 	</div><!-- #manage_maintenance -->';
@@ -84,11 +88,12 @@ function template_maintain_above()
 	<div id="manage_maintenance">';
 
 	// If maintenance has finished tell the user.
-	if (!empty(Utils::$context['maintenance_finished']))
+	if (!empty(Utils::$context['maintenance_finished'])) {
 		echo '
 		<div class="infobox">
 			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 		</div>';
+	}
 }
 
 function template_maintain_below()
@@ -105,13 +110,14 @@ function template_maintain_options()
 	echo '
 		<form action="', Utils::$context['post_url'], '" method="post" accept-charset="UTF-8" class="windowbg option_form">';
 
-	foreach (Utils::$context['options'] as $option => $val)
+	foreach (Utils::$context['options'] as $option => $val) {
 		echo '
 			<label>
 				<input type="radio" name="activity" value="', $option, '">
 				<b>', $val['title'] ?? Lang::getTxt('maintain_' . $option, file: 'ManageMaintenance'), '</b>
 				<p>', $val['info'] ?? Lang::getTxt('maintain_' . $option . '_info', file: 'ManageMaintenance'), $val['after'] ?? '', '</p>
 			</label><br>';
+	}
 
 	echo '
 			<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
@@ -181,11 +187,12 @@ function template_maintain_members()
 	<div id="manage_maintenance">';
 
 	// If maintenance has finished, tell the user.
-	if (!empty(Utils::$context['maintenance_finished']))
+	if (!empty(Utils::$context['maintenance_finished'])) {
 		echo '
 		<div class="infobox">
 			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 		</div>';
+	}
 
 	echo '
 		<div class="cat_bar">
@@ -263,9 +270,10 @@ function template_maintain_members()
 				</div>
 				<div style="display: none;" id="membersPanel">';
 
-	foreach (Utils::$context['membergroups'] as $group)
+	foreach (Utils::$context['membergroups'] as $group) {
 		echo '
 					<label for="groups', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups', $group['id'], '" checked> ', $group['name'], '</label><br>';
+	}
 
 	echo '
 				</div>
@@ -305,11 +313,12 @@ function template_maintain_members()
 function template_maintain_topics()
 {
 	// If maintenance has finished tell the user.
-	if (!empty(Utils::$context['maintenance_finished']))
+	if (!empty(Utils::$context['maintenance_finished'])) {
 		echo '
 	<div class="infobox">
 		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 	</div>';
+	}
 
 	echo '
 	<div id="manage_maintenance">
@@ -372,7 +381,7 @@ function template_maintain_topics()
 		'<option disabled selected>(' . Lang::getTxt('move_topics_select_board', file: 'ManageMaintenance') . ')</option>',
 	];
 
-	foreach (Utils::$context['categories'] as $category){
+	foreach (Utils::$context['categories'] as $category) {
 		$board_select[] = '<optgroup label="' . $category['name'] . '">';
 
 		foreach ($category['boards'] as $board) {
@@ -431,9 +440,10 @@ function template_optimize()
 				', Lang::getTxt('database_optimize_attempt', file: 'ManageMaintenance'), '<br>';
 
 	// List each table being optimized...
-	foreach (Utils::$context['optimized_tables'] as $table)
+	foreach (Utils::$context['optimized_tables'] as $table) {
 		echo '
 				', Lang::getTxt('database_optimizing', [$table['name'], round($table['data_freed'], 2)], file: 'ManageMaintenance'), '<br>';
+	}
 
 	// How did we go?
 	echo '
@@ -465,4 +475,3 @@ function template_convert_entities()
 		</div>
 	</div>';
 }
-

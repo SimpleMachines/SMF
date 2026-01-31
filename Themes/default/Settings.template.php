@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -67,17 +68,17 @@ function template_options()
 			'label' => Lang::getTxt('show_no_signatures', file: 'Profile'),
 			'default' => true,
 		],
-		array(
+		[
 			'id' => 'show_no_censored',
 			'label' => Lang::getTxt('show_no_censored'),
 			'default' => false,
 			'enabled' => !empty(Config::$modSettings['allow_no_censored']),
-		),
+		],
 		[
 			'id' => 'posts_apply_ignore_list',
 			'label' => Lang::getTxt('posts_apply_ignore_list', file: 'Profile'),
 			'default' => false,
-			'enabled' => !empty(Config::$modSettings['enable_buddylist'])
+			'enabled' => !empty(Config::$modSettings['enable_buddylist']),
 		],
 		Lang::getTxt('theme_opt_posting', file: 'Profile'),
 		[
@@ -142,7 +143,7 @@ function template_options()
 			'options' => [
 				'viewlist' => Lang::getTxt('calendar_viewlist', file: 'Profile'),
 				'viewmonth' => Lang::getTxt('calendar_viewmonth', file: 'Profile'),
-				'viewweek' => Lang::getTxt('calendar_viewweek', file: 'Profile')
+				'viewweek' => Lang::getTxt('calendar_viewweek', file: 'Profile'),
 			],
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['cal_enabled']),

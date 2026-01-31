@@ -22,8 +22,7 @@ use SMF\Utils;
 function template_download_language()
 {
 	// Actually finished?
-	if (!empty(Utils::$context['install_complete']))
-	{
+	if (!empty(Utils::$context['install_complete'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -33,15 +32,17 @@ function template_download_language()
 		<div class="windowbg">
 			', Utils::$context['install_complete'], '
 		</div>';
+
 		return;
 	}
 
 	// An error?
-	if (!empty(Utils::$context['error_message']))
+	if (!empty(Utils::$context['error_message'])) {
 		echo '
 	<div class="errorbox">
 		', Utils::$context['error_message'], '
 	</div>';
+	}
 
 	// Provide something of an introduction...
 	echo '
@@ -65,13 +66,13 @@ function template_download_language()
 
 	// Do we want some FTP baby?
 	// If the files are not writable, we might!
-	if (!empty(Utils::$context['still_not_writable']))
-	{
-		if (!empty(Utils::$context['package_ftp']['error']))
+	if (!empty(Utils::$context['still_not_writable'])) {
+		if (!empty(Utils::$context['package_ftp']['error'])) {
 			echo '
 			<div class="errorbox">
 				', Utils::$context['package_ftp']['error'], '
 			</div>';
+		}
 
 		echo '
 			<div class="cat_bar">
@@ -90,16 +91,16 @@ function template_download_language()
 							<label for="ftp_port">
 								', Lang::getTxt('package_ftp_port', file: 'Packages'), '
 							</label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset(Utils::$context['package_ftp']['port']) ? Utils::$context['package_ftp']['port'] : (isset(Config::$modSettings['package_port']) ? Config::$modSettings['package_port'] : '21'), '">
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['package_ftp']['port'] ?? (Config::$modSettings['package_port'] ?? '21'), '">
 						</div>
-						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset(Utils::$context['package_ftp']['server']) ? Utils::$context['package_ftp']['server'] : (isset(Config::$modSettings['package_server']) ? Config::$modSettings['package_server'] : 'localhost'), '" style="width: 70%;">
+						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['package_ftp']['server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'), '" style="width: 70%;">
 					</dd>
 
 					<dt>
 						<label for="ftp_username">', Lang::getTxt('package_ftp_username', file: 'Packages'), '</label>
 					</dt>
 					<dd>
-						<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset(Utils::$context['package_ftp']['username']) ? Utils::$context['package_ftp']['username'] : (isset(Config::$modSettings['package_username']) ? Config::$modSettings['package_username'] : ''), '">
+						<input type="text" size="50" name="ftp_username" id="ftp_username" value="', Utils::$context['package_ftp']['username'] ?? (Config::$modSettings['package_username'] ?? ''), '">
 					</dd>
 
 					<dt>
@@ -146,11 +147,12 @@ function template_modify_language_entries()
 			</div>';
 
 	// Not writable? Oops, show an error for ya.
-	if (!empty(Utils::$context['lang_file_not_writable_message']))
+	if (!empty(Utils::$context['lang_file_not_writable_message'])) {
 		echo '
 			<div class="errorbox">
 				', Utils::$context['lang_file_not_writable_message'], '
 			</div>';
+	}
 
 	// Show the language entries
 	echo '
@@ -159,9 +161,8 @@ function template_modify_language_entries()
 					<legend>', Utils::$context['primary_settings']['native_name']['value'], '</legend>
 					<dl class="settings">';
 
-	foreach (Utils::$context['primary_settings'] as $setting => $setting_info)
-	{
-		if ($setting != 'name')
+	foreach (Utils::$context['primary_settings'] as $setting => $setting_info) {
+		if ($setting != 'name') {
 			echo '
 						<dt>
 							<a id="settings_', $setting, '_help" href="', Config::$scripturl, '?action=helpadmin;help=languages_', $setting_info['label'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
@@ -170,6 +171,7 @@ function template_modify_language_entries()
 						<dd>
 							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (!empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : ''), ' data-orig="' . (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? 'true' : 'false') : $setting_info['value']) . '">
 						</dd>';
+		}
 	}
 
 	echo '
@@ -181,9 +183,10 @@ function template_modify_language_entries()
 				<input type="reset" id="reset_main" value="', Lang::getTxt('reset', file: 'General'), '" class="button">';
 
 	// Allow deleting entries. English can't be deleted though.
-	if (Utils::$context['lang_id'] != 'english')
+	if (Utils::$context['lang_id'] != 'english') {
 		echo '
 				<input type="submit" name="delete_main" value="', Lang::getTxt('delete', file: 'General'), '"', !empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="return confirm(\'', Lang::getTxt('languages_delete_confirm', file: 'ManageSettings'), '\');" class="button">';
+	}
 
 	echo '
 			</div><!-- .windowbg -->
@@ -205,14 +208,14 @@ function template_modify_language_entries()
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
 						<option value="-1">&nbsp;</option>';
 
-	foreach (Utils::$context['possible_files'] as $id_theme => $theme)
-	{
+	foreach (Utils::$context['possible_files'] as $id_theme => $theme) {
 		echo '
 						<optgroup label="', $theme['name'], '">';
 
-		foreach ($theme['files'] as $file)
+		foreach ($theme['files'] as $file) {
 			echo '
 							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '>', $file['name'], '</option>';
+		}
 
 		echo '
 						</optgroup>';
@@ -227,21 +230,21 @@ function template_modify_language_entries()
 			</div><!-- .information -->';
 
 	// Is it not writable? Show an error.
-	if (!empty(Utils::$context['entries_not_writable_message']))
+	if (!empty(Utils::$context['entries_not_writable_message'])) {
 		echo '
 			<div class="errorbox">
 				', Utils::$context['entries_not_writable_message'], '
 			</div>';
+	}
 
 	// Already have some file entries?
-	if (!empty(Utils::$context['file_entries']))
-	{
+	if (!empty(Utils::$context['file_entries'])) {
 		echo '
 			<div id="entry_fields" class="windowbg">';
 
 		$entry_num = 0;
-		foreach (Utils::$context['file_entries'] as $group => $entries)
-		{
+
+		foreach (Utils::$context['file_entries'] as $group => $entries) {
 			echo '
 				<fieldset>
 					<legend>
@@ -250,8 +253,7 @@ function template_modify_language_entries()
 					</legend>
 					<dl class="settings" id="language_', $group, '">';
 
-			foreach ($entries as $entry)
-			{
+			foreach ($entries as $entry) {
 				++$entry_num;
 
 				echo '
@@ -260,7 +262,7 @@ function template_modify_language_entries()
 						</dt>
 						<dd id="entry_', $entry_num, '">';
 
-				if ($entry['can_remove'])
+				if ($entry['can_remove']) {
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="" data-target="#entry_', $entry_num, '" checked>
@@ -274,10 +276,11 @@ function template_modify_language_entries()
 								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="remove" data-target="#entry_', $entry_num, '">
 								<label for="entry_', $entry_num, '_remove">', Lang::getTxt('remove', file: 'General'), '</label>
 							</span>';
-				else
-					echo '
+				} else {
+				echo '
 							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
 							<label for="entry_', $entry_num, '_edit">', Lang::getTxt('edit', file: 'General'), '</label>';
+				}
 
 				echo '
 							</span>
@@ -289,8 +292,7 @@ function template_modify_language_entries()
 			echo '
 					</dl>';
 
-			if (!empty(Utils::$context['can_add_lang_entry'][$group]))
-			{
+			if (!empty(Utils::$context['can_add_lang_entry'][$group])) {
 				echo '
 				<span class="add_lang_entry_button" style="display: none;">
 					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . Lang::getTxt('edit_language_entries_add', file: 'Admin') . '</a>
@@ -333,12 +335,13 @@ function template_add_language()
 					<input type="text" name="smf_add" size="40" value="', !empty(Utils::$context['smf_search_term']) ? Utils::$context['smf_search_term'] : '', '">';
 
 	// Do we have some errors? Too bad. Display a little error box.
-	if (!empty(Utils::$context['smf_error']))
+	if (!empty(Utils::$context['smf_error'])) {
 		echo '
 					<div>
 						<br>
 						<p class="errorbox">', Lang::getTxt('add_language_error_' . Utils::$context['smf_error'], file: 'ManageSettings'), '</p>
 					</div>';
+	}
 
 	echo '
 				</fieldset>
@@ -348,8 +351,7 @@ function template_add_language()
 			</div><!-- .windowbg -->';
 
 	// Had some results?
-	if (!empty(Utils::$context['smf_languages']['rows']))
-	{
+	if (!empty(Utils::$context['smf_languages']['rows'])) {
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::getTxt('add_language_found_title', file: 'ManageSettings'), '</h3>

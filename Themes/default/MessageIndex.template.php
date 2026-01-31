@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -13,8 +14,8 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * The main messageindex.
@@ -24,16 +25,17 @@ function template_main()
 	echo '<div id="display_head">
 			<h2 class="display_title">', Utils::$context['name'], '</h2>';
 
-	if (isset(Utils::$context['description']) && Utils::$context['description'] != '')
+	if (isset(Utils::$context['description']) && Utils::$context['description'] != '') {
 		echo '
 			<p>', Utils::$context['description'], '</p>';
+	}
 
-	if (!empty(Utils::$context['moderators']))
+	if (!empty(Utils::$context['moderators'])) {
 		echo '
 			<p>', Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators']), 'list' => Lang::sentenceList(Utils::$context['link_moderators'])], file: 'General'), '.</p>';
+	}
 
-	if (!empty(Theme::$current->settings['display_who_viewing']))
-	{
+	if (!empty(Theme::$current->settings['display_who_viewing'])) {
 		// Show just numbers...?
 		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
 			$list_of_viewers = [
@@ -57,21 +59,20 @@ function template_main()
 		echo '
 			<p>
 				', Lang::getTxt(
-					'who_viewing_board',
-					[
-						'list_of_viewers' => Lang::sentenceList(array_values($list_of_viewers)),
-						'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
-					],
-					file: 'General',
-				), '
+			'who_viewing_board',
+			[
+				'list_of_viewers' => Lang::sentenceList(array_values($list_of_viewers)),
+				'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
+			],
+			file: 'General',
+		), '
 			</p>';
 	}
 
 	echo '
 		</div>';
 
-	if (!empty(Utils::$context['boards']) && (!empty(Theme::$current->options['show_children']) || Utils::$context['start'] == 0))
-	{
+	if (!empty(Utils::$context['boards']) && (!empty(Theme::$current->options['show_children']) || Utils::$context['start'] == 0)) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('sub_boards', file: 'General'), '</h3>
@@ -85,21 +86,22 @@ function template_main()
 	}
 
 	// Let them know why their message became unapproved.
-	if (Utils::$context['becomesUnapproved'])
+	if (Utils::$context['becomesUnapproved']) {
 		echo '
 	<div class="noticebox">
 		', Lang::getTxt('post_becomes_unapproved', file: 'General'), '
 	</div>';
+	}
 
 	// If this person can approve items and we have some awaiting approval tell them.
-	if (!empty(Utils::$context['unapproved_posts_message']))
+	if (!empty(Utils::$context['unapproved_posts_message'])) {
 		echo '
 	<div class="noticebox">
 		', Utils::$context['unapproved_posts_message'], '
 	</div>';
+	}
 
-	if (!Utils::$context['no_topic_listing'])
-	{
+	if (!Utils::$context['no_topic_listing']) {
 		echo '
 	<div class="pagesection">
 		', Utils::$context['menu_separator'], '
@@ -110,51 +112,56 @@ function template_main()
 		', template_button_strip(Utils::$context['normal_buttons'], 'right');
 
 		// Mobile action buttons (top)
-		if (!empty(Utils::$context['normal_buttons']))
+		if (!empty(Utils::$context['normal_buttons'])) {
 			echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 		</div>';
+		}
 
 		echo '
 	</div>';
 
 		// If Quick Moderation is enabled start the form.
-		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics'])) {
 			echo '
 	<form action="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" class="clear" name="quickModForm" id="quickModForm">';
+		}
 
 		template_list_topics(Utils::$context['topics_headers'], Utils::$context['topics']);
 
-		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']))
-		{
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics'])) {
 			echo '
 			<div class="righttext" id="quick_actions">
 				<select class="qaction" name="qaction"', Utils::$context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 					<option value="">--------</option>';
 
-			foreach (Utils::$context['qmod_actions'] as $qmod_action)
-				if (Utils::$context['can_' . $qmod_action])
+			foreach (Utils::$context['qmod_actions'] as $qmod_action) {
+				if (Utils::$context['can_' . $qmod_action]) {
 					echo '
 					<option value="' . $qmod_action . '">' . Lang::getTxt('quick_mod_' . $qmod_action, file: 'General') . '</option>';
+				}
+			}
 
 			echo '
 				</select>';
 
 			// Show a list of boards they can move the topic to.
-			if (Utils::$context['can_move'])
+			if (Utils::$context['can_move']) {
 				echo '
 				<span id="quick_mod_jump_to"></span>';
+			}
 
 			echo '
 				<input type="submit" value="', Lang::getTxt('quick_mod_go', file: 'General'), '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', Lang::getTxt('quickmod_confirm', file: 'General'), '\');" class="button qaction">
 			</div><!-- #quick_actions -->';
 		}
 
-		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics'])) {
 			echo '
 		<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
 	</form>';
+		}
 
 		echo '
 	<div class="pagesection">
@@ -166,11 +173,12 @@ function template_main()
 		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 		// Mobile action buttons (bottom)
-		if (!empty(Utils::$context['normal_buttons']))
+		if (!empty(Utils::$context['normal_buttons'])) {
 			echo '
 			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 			</div>';
+		}
 
 		echo '
 	</div>';
@@ -183,7 +191,7 @@ function template_main()
 	<script>
 		window.addEventListener("DOMContentLoaded", function() {';
 
-	if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move'])
+	if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move']) {
 		echo '
 			aJumpTo[aJumpTo.length] = new JumpTo({
 				sContainerId: "quick_mod_jump_to",
@@ -200,6 +208,7 @@ function template_main()
 				bDisabled: true,
 				sCustomName: "move_to"
 			});';
+	}
 
 	// Javascript for inline editing.
 	echo '
@@ -234,29 +243,29 @@ function template_main()
  *
  * @return mixed|null The found value if exists, otherwise null.
  */
-function get_adjacent_value(array $array, $current_key, string $direction = "before")
+function get_adjacent_value(array $array, $current_key, string $direction = 'before')
 {
-    reset($array);
-    $previous_value = null;
+	reset($array);
+	$previous_value = null;
 
-    while (key($array) !== null) {
-        $key_in_loop = key($array);
-        $value = current($array);
+	while (key($array) !== null) {
+		$key_in_loop = key($array);
+		$value = current($array);
 
-        if ($direction === "before" && $key_in_loop === $current_key) {
-            return $previous_value;
-        }
+		if ($direction === 'before' && $key_in_loop === $current_key) {
+			return $previous_value;
+		}
 
-        next($array);
+		next($array);
 
-        if ($direction === "after" && $key_in_loop === $current_key) {
-            return current($array) !== false ? current($array) : null;
-        }
+		if ($direction === 'after' && $key_in_loop === $current_key) {
+			return current($array) !== false ? current($array) : null;
+		}
 
-        $previous_value = $value;
-    }
+		$previous_value = $value;
+	}
 
-    return null;
+
 }
 
 /**
@@ -320,7 +329,7 @@ function template_list_topics(array $headers, array $topics): void
 		'moderation' => [
 			'class'      => 'moderation',
 			'content'    => [
-				'header' => '<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">'
+				'header' => '<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">',
 			],
 			'size'       => 'auto',
 			'rowspan'    => 2,
@@ -404,16 +413,13 @@ function template_list_topics(array $headers, array $topics): void
 		}
 	</style>';
 
-	if ($topics == [])
-	{
+	if ($topics == []) {
 		// No topics... just say, "sorry bub".
 		echo '
 		<div class="title_bar">
 			<h3 class="titlebg">', Lang::getTxt('topic_alert_none', file: 'General'), '</h3>
 		</div>';
-	}
-	else
-	{
+	} else {
 		echo '
 		<div id="topic_container">
 			<div class="title_bar" id="topic_header">';
@@ -426,8 +432,7 @@ function template_list_topics(array $headers, array $topics): void
 		echo '
 			</div><!-- #topic_header -->';
 
-		foreach ($topics as $topic)
-		{
+		foreach ($topics as $topic) {
 			echo '
 			<div class="topic_container', $topic['css_class'], '">';
 
@@ -462,7 +467,7 @@ function template_topic_legend()
 		<div class="information">
 			<p id="message_index_jump_to"></p>';
 
-	if (empty(Utils::$context['no_topic_listing']))
+	if (empty(Utils::$context['no_topic_listing'])) {
 		echo '
 			<p class="floatleft">', !empty(Config::$modSettings['enableParticipation']) && User::$me->is_logged ? '
 				<span class="main_icons profile_sm"></span> ' . Lang::getTxt('participation_caption', file: 'General') . '<br>' : '', '
@@ -474,8 +479,9 @@ function template_topic_legend()
 				<span class="main_icons sticky"></span> ' . Lang::getTxt('sticky_topic', file: 'General') . '<br>
 				<span class="main_icons watch"></span> ' . Lang::getTxt('watching_topic', file: 'General') . '<br>
 			</p>';
+	}
 
-	if (!empty(Utils::$context['jump_to']))
+	if (!empty(Utils::$context['jump_to'])) {
 		echo '
 			<script>
 				window.addEventListener("DOMContentLoaded", function() {
@@ -493,6 +499,7 @@ function template_topic_legend()
 					});
 				});
 			</script>';
+	}
 
 	echo '
 		</div><!-- .information -->
@@ -522,25 +529,30 @@ function template_topic_info($topic)
 		echo '
 					<div id="icons', $topic['first_post']['id'], '" class="icons floatright">';
 
-		if ($topic['is_watched'])
+		if ($topic['is_watched']) {
 			echo '
 						<span class="main_icons watch" title="', Lang::getTxt('watching_this_topic', file: 'General'), '"></span>';
+		}
 
-		if ($topic['is_locked'])
+		if ($topic['is_locked']) {
 			echo '
 						<span class="main_icons lock"></span>';
+		}
 
-		if ($topic['is_sticky'])
+		if ($topic['is_sticky']) {
 			echo '
 						<span class="main_icons sticky"></span>';
+		}
 
-		if ($topic['is_redirect'])
+		if ($topic['is_redirect']) {
 			echo '
 						<span class="main_icons move"></span>';
+		}
 
-		if ($topic['is_poll'])
+		if ($topic['is_poll']) {
 			echo '
 						<span class="main_icons poll"></span>';
+		}
 
 		echo '
 					</div>';
@@ -577,12 +589,12 @@ function template_topic_stats($topic)
 {
 	echo '
 					' . Lang::formatText(
-							'{0}<br>{1}',
-							[
-								Lang::getTxt('number_of_replies', [$topic['replies']]),
-								Lang::getTxt('number_of_views', [$topic['views']]),
-							],
-						);
+		'{0}<br>{1}',
+		[
+			Lang::getTxt('number_of_replies', [$topic['replies']]),
+			Lang::getTxt('number_of_views', [$topic['views']]),
+		],
+	);
 }
 
 /**
@@ -594,12 +606,12 @@ function template_topic_lastpost($topic)
 {
 	echo '
 					' . Lang::getTxt(
-							'last_post_topic',
-							[
-								'post_link'   => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>',
-								'member_link' => $topic['last_post']['member']['link'],
-							],
-						);
+		'last_post_topic',
+		[
+			'post_link'   => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>',
+			'member_link' => $topic['last_post']['member']['link'],
+		],
+	);
 }
 
 /**
@@ -609,30 +621,34 @@ function template_topic_lastpost($topic)
  */
 function template_topic_moderation($topic)
 {
-				if (Theme::$current->options['display_quick_mod'] == 1)
+				if (Theme::$current->options['display_quick_mod'] == 1) {
 					echo '
 					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-				else
-				{
+				} else {
 					// Check permissions on each and show only the ones they are allowed to use.
-					if ($topic['quick_mod']['remove'])
+					if ($topic['quick_mod']['remove']) {
 						echo '
 						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::getTxt('remove_topic', file: 'General'), '"></span></a>';
+					}
 
-					if ($topic['quick_mod']['lock'])
+					if ($topic['quick_mod']['lock']) {
 						echo '
 						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', Lang::getTxt($topic['is_locked'] ? 'set_unlock' : 'set_lock', file: 'General'), '"></span></a>';
+					}
 
-					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
+					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove']) {
 						echo '
 						<br>';
+					}
 
-					if ($topic['quick_mod']['sticky'])
+					if ($topic['quick_mod']['sticky']) {
 						echo '
 						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', Lang::getTxt($topic['is_sticky'] ? 'set_nonsticky' : 'set_sticky', file: 'General'), '"></span></a>';
+					}
 
-					if ($topic['quick_mod']['move'])
+					if ($topic['quick_mod']['move']) {
 						echo '
 						<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::getTxt('move_topic', file: 'General'), '"></span></a>';
+					}
 				}
 }

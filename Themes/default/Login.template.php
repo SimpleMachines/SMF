@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -20,7 +21,7 @@ use SMF\Utils;
  */
 function template_login()
 {
-	if (empty(Utils::$context['from_ajax']))
+	if (empty(Utils::$context['from_ajax'])) {
 		echo '
 		<div class="login">
 			<div class="cat_bar">
@@ -28,24 +29,28 @@ function template_login()
 					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>';
+	}
 
 	echo '
 			<form action="', Utils::$context['login_url'], '" name="frmLogin" method="post" accept-charset="UTF-8" class="form_grid';
 
-	if (empty(Utils::$context['from_ajax']))
+	if (empty(Utils::$context['from_ajax'])) {
 		echo ' windowbg';
+	}
 
 	echo '">';
 
 	// Did they make a mistake last time?
-	if (!empty(Utils::$context['login_errors']))
+	if (!empty(Utils::$context['login_errors'])) {
 		echo '
 				<p class="errorbox">', implode('<br>', Utils::$context['login_errors']), '</p>';
+	}
 
 	// Or perhaps there's some special description for this time?
-	if (isset(Utils::$context['description']))
+	if (isset(Utils::$context['description'])) {
 		echo '
 				<p class="descbox">', Utils::$context['description'], '</p>';
+	}
 
 	// Now just get the basic information - username, password, etc.
 	echo '
@@ -64,12 +69,13 @@ function template_login()
 				</label>';
 
 	// If they have deleted their account, give them a chance to change their mind.
-	if (isset(Utils::$context['login_show_undelete']))
+	if (isset(Utils::$context['login_show_undelete'])) {
 		echo '
 				<div class="checkbox">
 					<input type="checkbox" name="undelete">
 					<label class="alert">', Lang::getTxt('undelete_account', file: 'Login'), ':</label>
 				</div>';
+	}
 
 	echo '
 				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
@@ -77,11 +83,12 @@ function template_login()
 					<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
 				</p>';
 
-	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
+	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) {
 		echo '
 					<p class="smalltext">
 						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl], file: 'General'), '
 					</p>';
+	}
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -96,26 +103,29 @@ function template_login()
 						document.forms.frmLogin.elements.', Utils::$context['default_username'] != '' ? 'passwrd' : 'user', '.focus();
 					}, 150);';
 
-	if (!empty(Utils::$context['from_ajax']) && (empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('same', 'subsite'))))
+	if (!empty(Utils::$context['from_ajax']) && (empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], ['same', 'subsite']))) {
 		echo '
 					oLogin.login()';
+	}
 
 	echo '
 				</script>';
 
-	if (!empty(Utils::$context['can_register']))
+	if (!empty(Utils::$context['can_register'])) {
 		echo '
 				<hr>
 				<p class="centertext">
 					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl], file: 'General'), '
 				</p>';
+	}
 
 	echo '
 			</form>';
 
-	if (empty(Utils::$context['from_ajax']))
+	if (empty(Utils::$context['from_ajax'])) {
 		echo '
 		</div><!-- .login -->';
+	}
 }
 
 /**
@@ -123,7 +133,7 @@ function template_login()
  */
 function template_login_tfa()
 {
-	if (empty(Utils::$context['from_ajax']))
+	if (empty(Utils::$context['from_ajax'])) {
 		echo '
 		<div class="login">
 			<div class="cat_bar">
@@ -131,15 +141,17 @@ function template_login_tfa()
 					', Lang::getTxt('tfa_profile_label', file: 'Profile'), '
 				</h3>
 			</div>';
+	}
 
 	echo '
 			<div class="windowbg">';
 
-	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error']))
+	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error'])) {
 		echo '
 				<div class="error">
 					', Lang::getTxt('tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid', file: 'Profile'), '
 				</div>';
+	}
 
 	echo '
 				<form action="', Utils::$context['tfa_url'], '" method="post" name="frmTfa">
@@ -167,7 +179,7 @@ function template_login_tfa()
 				<script>
 					var form = document.forms.frmTfa;';
 
-	if (!empty(Utils::$context['from_ajax']))
+	if (!empty(Utils::$context['from_ajax'])) {
 		echo '
 					form.addEventListener("submit", e => {
 						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
@@ -185,6 +197,7 @@ function template_login_tfa()
 							}
 						});
 					});';
+	}
 
 	echo '
 					form.elements.backup.addEventListener("click", () => {
@@ -194,9 +207,10 @@ function template_login_tfa()
 				</script>
 			</div><!-- .windowbg -->';
 
-	if (empty(Utils::$context['from_ajax']))
+	if (empty(Utils::$context['from_ajax'])) {
 		echo '
 		</div><!-- .login -->';
+	}
 }
 
 /**
@@ -218,10 +232,11 @@ function template_kick_guest()
 			<br>
 			';
 
-	if (Utils::$context['can_register'])
+	if (Utils::$context['can_register']) {
 		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login');
-	else
-		echo Lang::getTxt('login_below', file: 'Login');
+	} else {
+	echo Lang::getTxt('login_below', file: 'Login');
+	}
 
 	// And now the login information.
 	echo '
@@ -293,7 +308,7 @@ function template_admin_login()
 {
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-	<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, Utils::$context['get_data'], '" method="post" accept-charset="UTF-8">
+	<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, ['http://' => 'https://']) : Config::$scripturl, Utils::$context['get_data'], '" method="post" accept-charset="UTF-8">
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -302,9 +317,10 @@ function template_admin_login()
 			</div>
 			<div class="windowbg centertext">';
 
-	if (!empty(Utils::$context['incorrect_password']))
+	if (!empty(Utils::$context['incorrect_password'])) {
 		echo '
 				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
+	}
 
 	echo '
 				<strong>', Lang::getTxt('password', file: 'General'), ':</strong>
@@ -334,10 +350,11 @@ function template_retry_activate()
 		<form action="', Config::$scripturl, '?action=activate;u=', Utils::$context['member_id'], '" method="post" accept-charset="UTF-8" class="windowbg form_grid">';
 
 	// You didn't even have an ID?
-	if (empty(Utils::$context['member_id']))
+	if (empty(Utils::$context['member_id'])) {
 		echo '
 			<label>', Lang::getTxt('invalid_activation_username', file: 'Login'), ':</label>
 			<div><input type="text" name="user" size="30"></div>';
+	}
 
 	echo '
 			<label>', Lang::getTxt('invalid_activation_retry', file: 'Login'), ':</label>
@@ -365,11 +382,12 @@ function template_resend()
 			<label>', Lang::getTxt('invalid_activation_password', file: 'Login'), ':</label>
 			<div><input type="password" name="passwd" size="30"></div>';
 
-	if (Utils::$context['can_activate'])
+	if (Utils::$context['can_activate']) {
 		echo '
 			<p>', Lang::getTxt('invalid_activation_known', file: 'Login'), '</p>
 			<label>', Lang::getTxt('invalid_activation_retry', file: 'Login'), ':</label>
 			<div><input type="text" name="code" size="30"></div>';
+	}
 
 	echo '
 			<input type="submit" value="', Lang::getTxt('invalid_activation_resend', file: 'Login'), '" class="button">

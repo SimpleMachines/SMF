@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -28,8 +29,7 @@ function template_moderation_center()
 	<div id="modcenter">';
 
 	// Show all the blocks they want to see.
-	foreach (Utils::$context['mod_blocks'] as $block)
-	{
+	foreach (Utils::$context['mod_blocks'] as $block) {
 		$block_function = 'template_' . $block;
 
 		echo '
@@ -55,18 +55,20 @@ function template_group_requests_block()
 		<div class="windowbg" id="group_requests_panel">
 			<ul>';
 
-	foreach (Utils::$context['group_requests'] as $request)
+	foreach (Utils::$context['group_requests'] as $request) {
 		echo '
 				<li class="smalltext">
 					', Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']], file: 'ModerationCenter') ,'
 				</li>';
+	}
 
 	// Don't have any watched users right now?
-	if (empty(Utils::$context['group_requests']))
+	if (empty(Utils::$context['group_requests'])) {
 		echo '
 				<li>
 					<strong class="smalltext">', Lang::getTxt('mc_group_requests_none', file: 'ModerationCenter'), '</strong>
 				</li>';
+	}
 
 	echo '
 			</ul>
@@ -120,18 +122,20 @@ function template_watched_users()
 		<div class="windowbg" id="watched_users_panel">
 			<ul>';
 
-	foreach (Utils::$context['watched_users'] as $user)
+	foreach (Utils::$context['watched_users'] as $user) {
 		echo '
 				<li>
 					<span class="smalltext">', Lang::getTxt(!empty($user['last_login']) ? 'mc_seen' : 'mc_seen_never', $user, file: 'ModerationCenter'), '</span>
 				</li>';
+	}
 
 	// Don't have any watched users right now?
-	if (empty(Utils::$context['watched_users']))
+	if (empty(Utils::$context['watched_users'])) {
 		echo '
 				<li>
 					<strong class="smalltext">', Lang::getTxt('mc_watched_users_none', file: 'ModerationCenter'), '</strong>
 				</li>';
+	}
 
 	echo '
 			</ul>
@@ -185,18 +189,20 @@ function template_reported_posts_block()
 		<div class="windowbg" id="reported_posts_panel">
 			<ul>';
 
-	foreach (Utils::$context['reported_posts'] as $post)
+	foreach (Utils::$context['reported_posts'] as $post) {
 		echo '
 				<li>
 					<span class="smalltext">', Lang::getTxt('mc_post_report', ['report_link' => $post['report_link'], 'author_link' => $post['author']['link']], file: 'ModerationCenter'), '</span>
 				</li>';
+	}
 
 	// Don't have any watched users right now?
-	if (empty(Utils::$context['reported_posts']))
+	if (empty(Utils::$context['reported_posts'])) {
 		echo '
 				<li>
 					<strong class="smalltext">', Lang::getTxt('mc_recent_reports_none', file: 'ModerationCenter'), '</strong>
 				</li>';
+	}
 
 	echo '
 			</ul>
@@ -250,18 +256,20 @@ function template_reported_users_block()
 		<div class="windowbg" id="reported_users_panel">
 			<ul>';
 
-	foreach (Utils::$context['reported_users'] as $user)
+	foreach (Utils::$context['reported_users'] as $user) {
 		echo '
 				<li>
 					<span class="smalltext">', $user['user']['link'], '</span>
 				</li>';
+	}
 
 	// Don't have any watched users right now?
-	if (empty(Utils::$context['reported_users']))
+	if (empty(Utils::$context['reported_users'])) {
 		echo '
 				<li>
 					<strong class="smalltext">', Lang::getTxt('mc_reported_users_none', file: 'ModerationCenter'), '</strong>
 				</li>';
+	}
 
 	echo '
 			</ul>
@@ -306,11 +314,12 @@ function template_reported_users_block()
 function template_notes()
 {
 	// Let them know the action was a success.
-	if (!empty(Utils::$context['report_post_action']))
+	if (!empty(Utils::$context['report_post_action'])) {
 		echo '
 		<div class="infobox">
 			', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 		</div>';
+	}
 
 	echo '
 		<div id="modnotes">
@@ -320,17 +329,17 @@ function template_notes()
 				</div>
 				<div class="windowbg">';
 
-	if (!empty(Utils::$context['notes']))
-	{
+	if (!empty(Utils::$context['notes'])) {
 		echo '
 					<ul class="moderation_notes">';
 
 		// Cycle through the notes.
-		foreach (Utils::$context['notes'] as $note)
+		foreach (Utils::$context['notes'] as $note) {
 			echo '
 						<li class="smalltext">
 							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::getTxt('mc_reportedp_delete_confirm', file: 'ModerationCenter') . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', Utils::adjustHeadingLevels($note['text'], 4), '
 						</li>';
+		}
 
 		echo '
 					</ul>
@@ -365,55 +374,52 @@ function template_unapproved_posts()
 			</div>';
 
 	// No posts?
-	if (empty(Utils::$context['unapproved_items']))
-	{
+	if (empty(Utils::$context['unapproved_items'])) {
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
 					', Lang::getTxt('mc_unapproved_' . Utils::$context['current_view'] . '_none_found', file: 'ModerationCenter'), '
 				</p>
 			</div>';
-	}
-	else
-	{
+	} else {
 		echo '
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
-		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
+		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1) {
 			echo '
 				<ul class="buttonlist floatright">
 					<li class="inline_mod_check">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'item[]\');" checked>
 					</li>
 				</ul>';
+		}
 
 		echo '
 			</div>';
 
 	}
 
-	foreach (Utils::$context['unapproved_items'] as $item)
-	{
+	foreach (Utils::$context['unapproved_items'] as $item) {
 		// The buttons
-		$quickbuttons = array(
-			'approve' => array(
+		$quickbuttons = [
+			'approve' => [
 				'label' => Lang::getTxt('approve', file: 'General'),
-				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';approve='.$item['id'],
+				'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';approve=' . $item['id'],
 				'icon' => 'approve',
-			),
-			'delete' => array(
+			],
+			'delete' => [
 				'label' => Lang::getTxt('remove', file: 'General'),
-				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';delete='.$item['id'],
+				'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';delete=' . $item['id'],
 				'icon' => 'remove_button',
-				'show' => $item['can_delete']
-			),
-			'quickmod' => array(
+				'show' => $item['can_delete'],
+			],
+			'quickmod' => [
 				'class' => 'inline_mod_check',
-				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
-				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1
-			),
-		);
+				'content' => '<input type="checkbox" name="item[]" value="' . $item['id'] . '" checked>',
+				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1,
+			],
+		];
 		echo '
 			<div class="windowbg clear">
 				<div class="page_number floatright"> #', $item['counter'], '</div>
@@ -433,11 +439,12 @@ function template_unapproved_posts()
 	echo '
 			<div class="pagesection">';
 
-	if (!empty(Utils::$context['unapproved_items']))
+	if (!empty(Utils::$context['unapproved_items'])) {
 		echo '
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
+	}
 
-	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
+	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1) {
 		echo '
 				<div class="floatright">
 					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter'), '\')) submit();">
@@ -450,6 +457,7 @@ function template_unapproved_posts()
 						<input type="submit" name="mc_go" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 					</noscript>
 				</div>';
+	}
 
 	echo '
 			</div><!-- .pagesection -->
@@ -468,21 +476,21 @@ function template_user_watch_post_callback($post)
 {
 	// We'll have a delete and a checkbox please bob.
 	// @todo Discuss this with the team and rewrite if required.
-	$quickbuttons = array(
-		'delete' => array(
+	$quickbuttons = [
+		'delete' => [
 			'label' => Lang::getTxt('remove_message', file: 'General'),
-			'href' => Config::$scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
+			'href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'javascript' => 'data-confirm="' . Lang::getTxt('mc_watched_users_delete_post', file: 'ModerationCenter') . '"',
 			'class' => 'you_sure',
 			'icon' => 'remove_button',
-			'show' => $post['can_delete']
-		),
-		'quickmod' => array(
+			'show' => $post['can_delete'],
+		],
+		'quickmod' => [
 			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="delete[]" value="' . $post['id'] . '">',
-			'show' => $post['can_delete']
-		)
-	);
+			'show' => $post['can_delete'],
+		],
+	];
 
 	$output_html = '
 					<div>
@@ -606,13 +614,14 @@ function template_warn_template()
 					</dd>
 				</dl>';
 
-	if (Utils::$context['template_data']['can_edit_personal'])
+	if (Utils::$context['template_data']['can_edit_personal']) {
 		echo '
 				<input type="checkbox" name="make_personal" id="make_personal"', Utils::$context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
 						<strong>', Lang::getTxt('mc_warning_template_personal', file: 'ModerationCenter'), '</strong>
 					</label>
 					<p class="smalltext">', Lang::getTxt('mc_warning_template_personal_desc', file: 'ModerationCenter'), '</p>';
+	}
 
 	echo '
 				<input type="submit" name="preview" id="preview_button" value="', Lang::getTxt('preview', file: 'General'), '" class="button">

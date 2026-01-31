@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -20,9 +21,10 @@ use SMF\Utils;
 function template_email_members()
 {
 	// Are we done sending the newsletter?
-	if (!empty(Utils::$context['newsletter_sent']))
+	if (!empty(Utils::$context['newsletter_sent'])) {
 		echo '
 	<div class="infobox">', Lang::getTxt('admin_news_newsletter_' . Utils::$context['newsletter_sent'], file: 'Admin'), '</div>';
+	}
 
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="UTF-8">
@@ -40,9 +42,10 @@ function template_email_members()
 					</dt>
 					<dd>';
 
-	foreach (Utils::$context['groups'] as $group)
+	foreach (Utils::$context['groups'] as $group) {
 		echo '
 						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::getTxt('not_applicable', file: 'General'), ')</em><br>';
+	}
 
 	echo '
 						<br>
@@ -81,9 +84,10 @@ function template_email_members()
 						</dt>
 						<dd>';
 
-	foreach (Utils::$context['groups'] as $group)
+	foreach (Utils::$context['groups'] as $group) {
 		echo '
 							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
+	}
 
 	echo '
 							<br>
@@ -222,9 +226,10 @@ function template_email_members_compose()
 				<div id="bbcBox_message"></div>';
 
 	// What about smileys?
-	if (!empty(Utils::$context['smileys']['postform']) || !empty(Utils::$context['smileys']['popup']))
+	if (!empty(Utils::$context['smileys']['postform']) || !empty(Utils::$context['smileys']['popup'])) {
 		echo '
 				<div id="smileyBox_message"></div>';
+	}
 
 	// Show BBC buttons, smileys and textbox.
 	echo '
@@ -244,9 +249,10 @@ function template_email_members_compose()
 			<input type="hidden" name="email_force" value="', Utils::$context['email_force'], '">
 			<input type="hidden" name="total_emails" value="', Utils::$context['total_emails'], '">';
 
-	foreach (Utils::$context['recipients'] as $key => $values)
+	foreach (Utils::$context['recipients'] as $key => $values) {
 		echo '
 			<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
+	}
 
 	echo '
 			<script>';
@@ -396,9 +402,10 @@ function template_email_members_send()
 				<input type="hidden" name="parse_html" value="', Utils::$context['parse_html'], '">';
 
 	// All the things we must remember!
-	foreach (Utils::$context['recipients'] as $key => $values)
+	foreach (Utils::$context['recipients'] as $key => $values) {
 		echo '
 				<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
+	}
 
 	echo '
 			</div><!-- .windowbg -->
@@ -414,9 +421,10 @@ function template_email_members_send()
  */
 function template_news_lists()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 			<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
+	}
 
 	template_show_list('news_lists');
 }

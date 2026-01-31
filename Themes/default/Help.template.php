@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -21,7 +22,7 @@ use SMF\Utils;
 function template_popup()
 {
 	// Since this is a popup of its own we need to start the html, etc.
-	if (!isset($_REQUEST['ajax']))
+	if (!isset($_REQUEST['ajax'])) {
 		echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
@@ -34,14 +35,16 @@ function template_popup()
 	<body id="help_popup">
 		<div class="windowbg description">
 			';
+	}
 
 	echo Utils::$context['help_text'];
 
-	if (!isset($_REQUEST['ajax']))
+	if (!isset($_REQUEST['ajax'])) {
 		echo '
 		</div>
 	</body>
 </html>';
+	}
 }
 
 /**
@@ -59,9 +62,10 @@ function template_manual()
 					<p>', Lang::getTxt('manual_introduction', file: 'Manual'), '</p>
 					<ul>';
 
-	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id)
+	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id) {
 		echo '
 						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::getTxt('lang_dictionary', file: 'General') != 'en' ? '/' . Lang::getTxt('lang_dictionary', file: 'General') : ''), '" target="_blank" rel="noopener">', Lang::getTxt('manual_section_' . $section_id . '_title', file: 'Manual'), '</a> - ', Lang::getTxt('manual_section_' . $section_id . '_desc', file: 'Manual'), '</li>';
+	}
 
 	echo '
 					</ul>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -28,24 +29,25 @@ function template_recent()
 			</h2>
 		</div>';
 
-	if (!empty(Utils::$context['page_index']))
+	if (!empty(Utils::$context['page_index'])) {
 		echo '
 		<div class="pagesection">
 			<div class="pagelinks">' . Utils::$context['page_index'] . '</div>
 		</div>';
+	}
 
-	if (empty(Utils::$context['posts']))
+	if (empty(Utils::$context['posts'])) {
 		echo '
 		<div class="windowbg">', Lang::getTxt('no_messages', file: 'General'), '</div>';
+	}
 
-	foreach (Utils::$context['posts'] as $post)
-	{
+	foreach (Utils::$context['posts'] as $post) {
 		echo '
 		<div class="', $post['css_class'], '">
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], 'relative' => str_contains($post['time'], Lang::getTxt('today', file: 'General')) ? 'today' : (str_contains($post['time'], Lang::getTxt('yesterday', file: 'General')) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
+				<span class="smalltext">', Lang::getTxt('last_post_member_date', ['member' => $post['poster']['link'], 'relative' => str_contains($post['time'], Lang::getTxt('today', file: 'General')) ? 'today' : (str_contains($post['time'], Lang::getTxt('yesterday', file: 'General')) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
 			</div>
 			<div class="list_posts">', $post['body'], '</div>';
 
@@ -69,7 +71,7 @@ function template_recent()
 function template_unread()
 {
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
-	if (!empty(Utils::$context['recent_buttons']))
+	if (!empty(Utils::$context['recent_buttons'])) {
 		echo '
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
@@ -80,6 +82,7 @@ function template_unread()
 			', template_button_strip(Utils::$context['recent_buttons']), '
 		</div>
 	</div>';
+	}
 
 	echo '
 	<div id="recent" class="main_content">
@@ -89,15 +92,15 @@ function template_unread()
 			</h2>
 		</div>';
 
-	if (Utils::$context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes']) {
 		echo '
 		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
 			<input type="hidden" name="redirect_url" value="action=unread', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';
+	}
 
-	if (!empty(Utils::$context['topics']))
-	{
+	if (!empty(Utils::$context['topics'])) {
 		echo '
 			<div class="pagesection">
 				', Utils::$context['menu_separator'], '
@@ -108,11 +111,12 @@ function template_unread()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
 
 		// Mobile action (top)
-		if (!empty(Utils::$context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons'])) {
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
+		}
 
 		echo '
 			</div>';
@@ -126,18 +130,18 @@ function template_unread()
 					<div class="lastpost">', Utils::$context['topics_headers']['last_post'],'</div>';
 
 		// Show a "select all" box for quick moderation?
-		if (Utils::$context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes']) {
 			echo '
 					<div class="moderation">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
+		}
 
 		echo '
 				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
-		foreach (Utils::$context['topics'] as $topic)
-		{
+		foreach (Utils::$context['topics'] as $topic) {
 			echo '
 					<div class="', $topic['css_class'], '">
 						<div class="board_icon">
@@ -150,17 +154,20 @@ function template_unread()
 			echo '
 							<div class="icons floatright">';
 
-			if ($topic['is_locked'])
+			if ($topic['is_locked']) {
 				echo '
 								<span class="main_icons lock"></span>';
+			}
 
-			if ($topic['is_sticky'])
+			if ($topic['is_sticky']) {
 				echo '
 								<span class="main_icons sticky"></span>';
+			}
 
-			if ($topic['is_poll'])
+			if ($topic['is_poll']) {
 				echo '
 								<span class="main_icons poll"></span>';
+			}
 
 			echo '
 							</div>';
@@ -186,19 +193,21 @@ function template_unread()
 							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']], file: 'General'), '
 						</div>';
 
-			if (Utils::$context['showCheckboxes'])
+			if (Utils::$context['showCheckboxes']) {
 				echo '
 						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
+			}
 
 			echo '
 					</div><!-- $topic[css_class] -->';
 		}
 
-		if (empty(Utils::$context['topics']))
+		if (empty(Utils::$context['topics'])) {
 			echo '
 					<div style="display: none;"></div>';
+		}
 
 		echo '
 				</div><!-- #topic_container -->
@@ -214,32 +223,35 @@ function template_unread()
 				</div>';
 
 		// Mobile action (bottom)
-		if (!empty(Utils::$context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons'])) {
 		echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
+		}
 
 		echo '
 			</div>';
-	}
-	else
-		echo '
+	} else {
+	echo '
 			<div class="infobox">
 				<p class="centertext">
 					', Lang::getTxt(Utils::$context['showing_all_topics'] ? 'topic_alert_none' : 'unread_topics_visit_none', ['scripturl' => Config::$scripturl], file: 'General'), '
 				</p>
 			</div>';
+	}
 
-	if (Utils::$context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes']) {
 		echo '
 		</form>';
+	}
 
 	echo '
 	</div><!-- #recent -->';
 
-	if (empty(Utils::$context['no_topic_listing']))
+	if (empty(Utils::$context['no_topic_listing'])) {
 		template_topic_legend();
+	}
 }
 
 /**
@@ -248,7 +260,7 @@ function template_unread()
 function template_replies()
 {
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
-	if (!empty(Utils::$context['recent_buttons']))
+	if (!empty(Utils::$context['recent_buttons'])) {
 		echo '
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
@@ -259,6 +271,7 @@ function template_replies()
 			', template_button_strip(Utils::$context['recent_buttons']), '
 		</div>
 	</div>';
+	}
 
 	echo '
 	<div id="recent">
@@ -268,15 +281,15 @@ function template_replies()
 			</h2>
 		</div>';
 
-	if (Utils::$context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes']) {
 		echo '
 		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
 			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';
+	}
 
-	if (!empty(Utils::$context['topics']))
-	{
+	if (!empty(Utils::$context['topics'])) {
 		echo '
 			<div class="pagesection">
 				', Utils::$context['menu_separator'], '
@@ -287,11 +300,12 @@ function template_replies()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
 
 		// Mobile action (top)
-		if (!empty(Utils::$context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons'])) {
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
+		}
 
 		echo '
 			</div>';
@@ -305,18 +319,18 @@ function template_replies()
 					<div class="lastpost">', Utils::$context['topics_headers']['last_post'],'</div>';
 
 		// Show a "select all" box for quick moderation?
-		if (Utils::$context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes']) {
 			echo '
 					<div class="moderation">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
+		}
 
 		echo '
 				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
-		foreach (Utils::$context['topics'] as $topic)
-		{
+		foreach (Utils::$context['topics'] as $topic) {
 			echo '
 					<div class="', $topic['css_class'], '">
 						<div class="board_icon">
@@ -329,17 +343,20 @@ function template_replies()
 			echo '
 							<div class="icons floatright">';
 
-			if ($topic['is_locked'])
+			if ($topic['is_locked']) {
 				echo '
 								<span class="main_icons lock"></span>';
+			}
 
-			if ($topic['is_sticky'])
+			if ($topic['is_sticky']) {
 				echo '
 								<span class="main_icons sticky"></span>';
+			}
 
-			if ($topic['is_poll'])
+			if ($topic['is_poll']) {
 				echo '
 								<span class="main_icons poll"></span>';
+			}
 
 			echo '
 							</div>';
@@ -365,11 +382,12 @@ function template_replies()
 							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']], file: 'General'), '
 						</div>';
 
-			if (Utils::$context['showCheckboxes'])
+			if (Utils::$context['showCheckboxes']) {
 				echo '
 						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
+			}
 
 			echo '
 					</div><!-- $topic[css_class] -->';
@@ -387,30 +405,33 @@ function template_replies()
 				</div>';
 
 		// Mobile action (bottom)
-		if (!empty(Utils::$context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons'])) {
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
+		}
 
 		echo '
 			</div>';
-	}
-	else
-		echo '
+	} else {
+	echo '
 			<div class="infobox">
 				<p class="centertext">
 					', Lang::getTxt(Utils::$context['showing_all_topics'] ? 'topic_alert_none' : 'updated_topics_visit_none', file: 'General'), '
 				</p>
 			</div>';
+	}
 
-	if (Utils::$context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes']) {
 		echo '
 		</form>';
+	}
 
 	echo '
 	</div><!-- #recent -->';
 
-	if (empty(Utils::$context['no_topic_listing']))
+	if (empty(Utils::$context['no_topic_listing'])) {
 		template_topic_legend();
+	}
 }

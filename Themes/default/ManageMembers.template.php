@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -149,7 +150,7 @@ function template_search_members()
 				</thead>
 				<tbody>';
 
-	foreach (Utils::$context['membergroups'] as $membergroup)
+	foreach (Utils::$context['membergroups'] as $membergroup) {
 		echo '
 					<tr class="windowbg">
 						<td>', $membergroup['name'], '</td>
@@ -160,6 +161,7 @@ function template_search_members()
 							', $membergroup['can_be_additional'] ? '<input type="checkbox" name="membergroups[2][]" value="' . $membergroup['id'] . '" checked>' : '', '
 						</td>
 					</tr>';
+	}
 
 	echo '
 					<tr class="windowbg">
@@ -186,7 +188,7 @@ function template_search_members()
 				</thead>
 				<tbody>';
 
-	foreach (Utils::$context['postgroups'] as $postgroup)
+	foreach (Utils::$context['postgroups'] as $postgroup) {
 		echo '
 					<tr class="windowbg">
 						<td>
@@ -196,6 +198,7 @@ function template_search_members()
 							<input type="checkbox" name="postgroups[]" value="', $postgroup['id'], '" checked>
 						</td>
 					</tr>';
+	}
 
 	echo '
 					<tr class="windowbg">
@@ -221,8 +224,7 @@ function template_admin_browse()
 	template_show_list('approve_list');
 
 	// If we have lots of outstanding members try to make the admin's life easier.
-	if (Utils::$context['approve_list']['total_num_items'] > -1)
-	{
+	if (Utils::$context['approve_list']['total_num_items'] > -1) {
 		Utils::$context['browse_type'] = 'activate';
 		echo '
 		<br>

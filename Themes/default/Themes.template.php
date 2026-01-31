@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -55,9 +56,10 @@ function template_main()
 					<dd>
 						<div id="known_themes_list">';
 
-	foreach (Utils::$context['themes'] as $theme)
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 							<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked' : '', '> ', $theme['name'], '</label><br>';
+	}
 
 	echo '
 						</div>
@@ -74,9 +76,10 @@ function template_main()
 						<select name="options[theme_guests]" id="theme_guests">';
 
 	// Put an option for each theme in the select box.
-	foreach (Utils::$context['themes'] as $theme)
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 							<option value="', $theme['id'], '"', Config::$modSettings['theme_guests'] == $theme['id'] ? ' selected' : '', '>', $theme['name'], '</option>';
+	}
 
 	echo '
 						</select>
@@ -91,9 +94,10 @@ function template_main()
 							<option value="0">', Lang::getTxt('theme_forum_default', file: 'Themes'), '</option>';
 
 	// Same thing, this time for changing the theme of everyone.
-	foreach (Utils::$context['themes'] as $theme)
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 							<option value="', $theme['id'], '">', $theme['name'], '</option>';
+	}
 
 	echo '
 						</select>
@@ -127,8 +131,7 @@ function template_main()
 			</div>
 			<div class="windowbg">';
 
-	if (Utils::$context['can_create_new'])
-	{
+	if (Utils::$context['can_create_new']) {
 		// From a file.
 		echo '
 				<fieldset>
@@ -185,11 +188,12 @@ function template_main()
 function template_list_themes()
 {
 	// Show a nice confirmation message.
-	if (isset($_GET['done']))
+	if (isset($_GET['done'])) {
 		echo '
 	<div class="infobox">
 		', Lang::getTxt('theme_confirmed_' . $_GET['done'], file: 'Themes'), '
 	</div>';
+	}
 
 	echo '
 		<div class="cat_bar">
@@ -205,8 +209,7 @@ function template_list_themes()
 			<br>';
 
 	// Show each theme.... with X for delete, an enable/disable link and a link to their own settings page.
-	foreach (Utils::$context['themes'] as $theme)
-	{
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -217,8 +220,7 @@ function template_list_themes()
 						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . Config::$scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=list"><span class="main_icons settings"></span></a>' : ''), '';
 
 		// You *cannot* disable/enable/delete the default theme. It's important!
-		if ($theme['id'] != 1)
-		{
+		if ($theme['id'] != 1) {
 			// Enable/Disable.
 			echo '
 						<a href="', Config::$scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-tre_token_var'], '=', Utils::$context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', Lang::getTxt('theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm', file: 'Themes'), '" class="you_sure"><span class="main_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', Lang::getTxt('theme_' . (!empty($theme['enable']) ? 'disable' : 'enable'), file: 'Themes'), '"></span></a>';
@@ -285,8 +287,7 @@ function template_reset_list()
 		<div id="admin_form_wrapper">';
 
 	// Show each theme.... with X for delete and a link to settings.
-	foreach (Utils::$context['themes'] as $theme)
-	{
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $theme['name'], '</h3>
@@ -333,28 +334,26 @@ function template_set_options()
 	$first_option_key = array_shift($skeys);
 	$titled_section = false;
 
-	foreach (Utils::$context['options'] as $i => $setting)
-	{
+	foreach (Utils::$context['options'] as $i => $setting) {
 		// Just spit out separators and move on
-		if (empty($setting) || !is_array($setting))
-		{
+		if (empty($setting) || !is_array($setting)) {
 			// Insert a separator (unless this is the first item in the list)
-			if ($i !== $first_option_key)
+			if ($i !== $first_option_key) {
 				echo '
 				</dl>
 				<hr>
 				<dl class="settings">';
+			}
 
 			// Should we give a name to this section?
-			if (is_string($setting) && !empty($setting))
-			{
+			if (is_string($setting) && !empty($setting)) {
 				$titled_section = true;
 				echo '
 					<dt><strong>' . $setting . '</strong></dt>
 					<dd></dd>';
+			} else {
+			$titled_section = false;
 			}
-			else
-				$titled_section = false;
 
 			continue;
 		}
@@ -363,67 +362,67 @@ function template_set_options()
 					<dt>';
 
 		// Show the change option box?
-		if (Utils::$context['theme_options_reset'])
+		if (Utils::$context['theme_options_reset']) {
 			echo '
 						<select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
 							<option value="0" selected>', Lang::getTxt('themeadmin_reset_options_none', file: 'Themes'), '</option>
 							<option value="1">', Lang::getTxt('themeadmin_reset_options_change', file: 'Themes'), '</option>
 							<option value="2">', Lang::getTxt('themeadmin_reset_options_default', file: 'Themes'), '</option>
 						</select>';
+		}
 
 		echo '
 						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>';
 
-		if (isset($setting['description']))
+		if (isset($setting['description'])) {
 			echo '
 						<br>
 						<span class="smalltext">', $setting['description'], '</span>';
+		}
 		echo '
 					</dt>';
 
 		// Display checkbox options
-		if ($setting['type'] == 'checkbox')
+		if ($setting['type'] == 'checkbox') {
 			echo '
 					<dd>
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', Utils::$context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="floatleft">';
+		}
 
 		// How about selection lists, we all love them
-		elseif ($setting['type'] == 'list')
-		{
+		elseif ($setting['type'] == 'list') {
 			echo '
 					<dd>
 						<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', Utils::$context['theme_options_reset'] ? ' disabled' : '', '>';
 
-			foreach ($setting['options'] as $value => $label)
+			foreach ($setting['options'] as $value => $label) {
 				echo '
 							<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
+			}
 
 			echo '
 						</select>';
 		}
 		// A textbox it is then
-		else
-		{
+		else {
 			echo '
 					<dd>';
 
-			if (isset($setting['type']) && $setting['type'] == 'number')
-			{
+			if (isset($setting['type']) && $setting['type'] == 'number') {
 				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
 				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
 				$step = isset($setting['step']) ? ' step="' . $setting['step'] . '"' : '';
 
 				echo '
 						<input type="number"', $min . $max . $step;
-			}
-			elseif (isset($setting['type']) && $setting['type'] == 'url')
+			} elseif (isset($setting['type']) && $setting['type'] == 'url') {
 				echo '
 						<input type="url"';
-
-			else
-				echo '
+			} else {
+			echo '
 						<input type="text"';
+			}
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', Utils::$context['theme_options_reset'] ? ' disabled' : '', '>';
 		}
@@ -459,7 +458,7 @@ function template_set_settings()
 			<div class="windowbg">';
 
 	// @todo Why can't I edit the default theme popup.
-	if (Utils::$context['theme_settings']['theme_id'] != 1)
+	if (Utils::$context['theme_settings']['theme_id'] != 1) {
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg config_hd">
@@ -476,6 +475,7 @@ function template_set_settings()
 						</li>
 					</ul>
 				</div>';
+	}
 
 	echo '
 				<div class="title_bar">
@@ -525,9 +525,10 @@ function template_set_settings()
 					<dd>
 						<select id="variant" name="options[default_variant]" onchange="changeVariant(this.value)">';
 
-		foreach (Utils::$context['theme_variants'] as $key => $variant)
+		foreach (Utils::$context['theme_variants'] as $key => $variant) {
 			echo '
 							<option value="', $key, '"', Utils::$context['default_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
+		}
 
 		echo '
 						</select>
@@ -558,9 +559,10 @@ function template_set_settings()
 					<dd>
 						<select id="colormode" name="options[default_colormode]">';
 
-		foreach (Theme::$current->settings['theme_colormodes'] as $mode)
+		foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
 			echo '
 							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::getTxt('colormode_' . $mode, file: 'Themes'), '</option>';
+		}
 
 		echo '
 						</select>
@@ -587,28 +589,26 @@ function template_set_settings()
 	$first_setting_key = array_shift($skeys);
 	$titled_section = false;
 
-	foreach (Utils::$context['settings'] as $i => $setting)
-	{
+	foreach (Utils::$context['settings'] as $i => $setting) {
 		// Is this a separator?
-		if (empty($setting) || !is_array($setting))
-		{
+		if (empty($setting) || !is_array($setting)) {
 			// We don't need a separator before the first list element
-			if ($i !== $first_setting_key)
+			if ($i !== $first_setting_key) {
 				echo '
 				</dl>
 				<hr>
 				<dl class="settings">';
+			}
 
 			// Add a fake heading?
-			if (is_string($setting) && !empty($setting))
-			{
+			if (is_string($setting) && !empty($setting)) {
 				$titled_section = true;
 				echo '
 					<dt><strong>' . $setting . '</strong></dt>
 					<dd></dd>';
+			} else {
+			$titled_section = false;
 			}
-			else
-				$titled_section = false;
 
 			continue;
 		}
@@ -617,68 +617,67 @@ function template_set_settings()
 					<dt>
 						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>:';
 
-		if (isset($setting['description']))
+		if (isset($setting['description'])) {
 			echo '<br>
 						<span class="smalltext">', $setting['description'], '</span>';
+		}
 
 		echo '
 					</dt>';
 
 		// A checkbox?
-		if ($setting['type'] == 'checkbox')
+		if ($setting['type'] == 'checkbox') {
 			echo '
 					<dd>
 						<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
 					</dd>';
+		}
 
 		// A list with options?
-		elseif ($setting['type'] == 'list')
-		{
+		elseif ($setting['type'] == 'list') {
 			echo '
 					<dd>
 						<select name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '">';
 
-			foreach ($setting['options'] as $value => $label)
+			foreach ($setting['options'] as $value => $label) {
 				echo '
 							<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
+			}
 
 			echo '
 						</select>
 					</dd>';
 		}
 		// A Textarea?
-		elseif ($setting['type'] == 'textarea')
-		{
+		elseif ($setting['type'] == 'textarea') {
 			echo '
 					<dd>
 						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '">', $setting['value'], '</textarea>
 					</dd>';
 		}
 		// A regular input box, then?
-		else
-		{
+		else {
 			echo '
 					<dd>';
 
-			if (isset($setting['type']) && $setting['type'] == 'number')
-			{
+			if (isset($setting['type']) && $setting['type'] == 'number') {
 				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
 				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
 				$step = isset($setting['step']) ? ' step="' . $setting['step'] . '"' : '';
 
 				echo '
 						<input type="number"', $min . $max . $step;
-			}
-			elseif (isset($setting['type']) && $setting['type'] == 'url')
+			} elseif (isset($setting['type']) && $setting['type'] == 'url') {
 				echo '
 						<input type="url"';
-			elseif (isset($setting['type']) && $setting['type'] == 'color')
+			} elseif (isset($setting['type']) && $setting['type'] == 'color') {
 				echo '
 						<input type="color"';
-			else
-				echo '
+			} else {
+			echo '
 						<input type="text"';
+			}
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? '' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
@@ -694,16 +693,15 @@ function template_set_settings()
 		</form>
 	</div><!-- #admin_form_wrapper -->';
 
-	if (!empty(Utils::$context['theme_variants']))
-	{
+	if (!empty(Utils::$context['theme_variants'])) {
 		echo '
 		<script>
 		var oThumbnails = {';
 
 		// All the variant thumbnails.
 		$count = 1;
-		foreach (Utils::$context['theme_variants'] as $key => $variant)
-		{
+
+		foreach (Utils::$context['theme_variants'] as $key => $variant) {
 			echo '
 			\'', $key, '\': \'', $variant['thumbnail'], '\'', (count(Utils::$context['theme_variants']) == $count ? '' : ',');
 			$count++;
@@ -723,8 +721,7 @@ function template_pick()
 	echo '
 	<form action="', Config::$scripturl, '?action=themechooser" method="post" accept-charset="UTF-8">';
 
-	for ($i = 0; $i < 2; $i++)
-	{
+	for ($i = 0; $i < 2; $i++) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt($i == 0 ? 'current_theme' : 'theme_pick', file: 'Themes'), '</h3>
@@ -732,10 +729,8 @@ function template_pick()
 		<div class="windowbg">';
 
 		// Just go through each theme and show its information - thumbnail, etc.
-		foreach (Utils::$context['available_themes'] as $theme)
-		{
-			if (($theme['selected'] && $i == 0) || (!$theme['selected'] && $i == 1))
-			{
+		foreach (Utils::$context['available_themes'] as $theme) {
+			if (($theme['selected'] && $i == 0) || (!$theme['selected'] && $i == 1)) {
 				echo '
 			<div class="title_bar">
 				<h3 class="titlebg">
@@ -745,15 +740,15 @@ function template_pick()
 			<div>
 				<small><i>', $theme['description'], '</i></small>';
 
-				if (!empty($theme['variants']))
-				{
+				if (!empty($theme['variants'])) {
 					echo '
 				<label><strong>', $theme['pick_label'], '</strong>
 					<select data-theme-id="', $theme['id'], '" name="vrt[', $theme['id'], ']">';
 
-					foreach ($theme['variants'] as $key => $variant)
+					foreach ($theme['variants'] as $key => $variant) {
 						echo '
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', ' data-url="', $variant['thumbnail'], '">', $variant['label'], '</option>';
+					}
 
 					echo '
 					</select>
@@ -798,21 +793,23 @@ function template_installed()
 		<div class="windowbg">';
 
 	// Oops! there was an error :(
-	if (!empty(Utils::$context['error_message']))
+	if (!empty(Utils::$context['error_message'])) {
 		echo '
 			<p>
 				', Utils::$context['error_message'], '
 			</p>';
+	}
 
 	// Not much to show except a link back...
-	else
-		echo '
+	else {
+	echo '
 			<p>
 				<a href="', Config::$scripturl, '?action=admin;area=theme;sa=list;th=', Utils::$context['installed_theme']['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Utils::$context['installed_theme']['name'], '</a> ', Lang::getTxt('theme_' . (isset(Utils::$context['installed_theme']['updated']) ? 'updated' : 'installed') . '_message', file: 'Themes'), '
 			</p>
 			<p>
 				<a href="', Config::$scripturl, '?action=admin;area=theme;sa=admin;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('back', file: 'General'), '</a>
 			</p>';
+	}
 
 	echo '
 		</div><!-- .windowbg -->';
@@ -830,8 +827,7 @@ function template_edit_list()
 		</div>
 		<div class="windowbg">';
 
-	foreach (Utils::$context['themes'] as $theme)
-	{
+	foreach (Utils::$context['themes'] as $theme) {
 		echo '
 			<fieldset>
 				<legend>
@@ -866,18 +862,18 @@ function template_copy_template()
 		<div class="windowbg">
 			<ul class="theme_options">';
 
-	foreach (Utils::$context['available_templates'] as $template)
-	{
+	foreach (Utils::$context['available_templates'] as $template) {
 		echo '
 				<li class="flow_hidden windowbg">
 					<span class="floatleft">', $template['filename'], $template['already_exists'] ? ' <span class="error">(' . Lang::getTxt('themeadmin_edit_exists', file: 'Themes') . ')</span>' : '', '</span>
 					<span class="floatright">';
 
-		if ($template['can_copy'])
+		if ($template['can_copy']) {
 			echo '
 						<a href="', Config::$scripturl, '?action=admin;area=theme;th=', Utils::$context['theme_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=copy;template=', $template['value'], '" data-confirm="', Lang::getTxt($template['already_exists'] ? 'themeadmin_edit_overwrite_confirm' : 'themeadmin_edit_copy_confirm', file: 'Themes'), '" class="you_sure">', Lang::getTxt('themeadmin_edit_do_copy', file: 'Themes'), '</a>';
-		else
-			echo Lang::getTxt('themeadmin_edit_no_copy', file: 'Themes');
+		} else {
+		echo Lang::getTxt('themeadmin_edit_no_copy', file: 'Themes');
+		}
 
 		echo '
 					</span>
@@ -894,11 +890,12 @@ function template_copy_template()
  */
 function template_edit_browse()
 {
-	if (!empty(Utils::$context['browse_title']))
+	if (!empty(Utils::$context['browse_title'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Utils::$context['browse_title'], '</h3>
 		</div>';
+	}
 
 	echo '
 		<table class="table_grid tborder">
@@ -911,22 +908,20 @@ function template_edit_browse()
 			</thead>
 			<tbody>';
 
-	foreach (Utils::$context['theme_files'] as $file)
-	{
+	foreach (Utils::$context['theme_files'] as $file) {
 		echo '
 				<tr class="windowbg">
 					<td>';
 
-		if ($file['is_editable'])
+		if ($file['is_editable']) {
 			echo '
 						<a href="', $file['href'], '"', $file['is_template'] ? ' style="font-weight: bold;"' : '', '>', $file['filename'], '</a>';
-
-		elseif ($file['is_directory'])
+		} elseif ($file['is_directory']) {
 			echo '
 						<a href="', $file['href'], '" class="is_directory"><span class="main_icons folder"></span>', $file['filename'], '</a>';
-
-		else
-			echo $file['filename'];
+		} else {
+		echo $file['filename'];
+		}
 
 		echo '
 					</td>
@@ -945,11 +940,12 @@ function template_edit_browse()
  */
 function template_edit_style()
 {
-	if (Utils::$context['session_error'])
+	if (Utils::$context['session_error']) {
 		echo '
 	<div class="errorbox">
 		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
+	}
 
 	// From now on no one can complain that editing css is difficult. If you disagree, go to www.w3schools.com.
 	echo '
@@ -1012,7 +1008,7 @@ function template_edit_style()
 					{
 					';
 
-	if (BrowserDetector::isBrowser('is_ie'))
+	if (BrowserDetector::isBrowser('is_ie')) {
 		echo '
 						var sheets = frames["css_preview_box"].document.styleSheets;
 						for (var j = 0; j < sheets.length; j++)
@@ -1020,9 +1016,10 @@ function template_edit_style()
 							if (sheets[j].id == "css_preview_box")
 								sheets[j].cssText = document.forms.stylesheetForm.entire_file.value;
 						}';
-	else
-		echo '
+	} else {
+	echo '
 						setInnerHTML(frames["css_preview_box"].document.getElementById("css_preview_sheet"), document.forms.stylesheetForm.entire_file.value);';
+	}
 	echo '
 					}
 					catch (e)
@@ -1074,9 +1071,10 @@ function template_edit_style()
 			</div>
 			<div class="windowbg">';
 
-	if (!Utils::$context['allow_save'])
+	if (!Utils::$context['allow_save']) {
 		echo '
 				', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']], file: 'Themes'), '<br>';
+	}
 
 	echo '
 				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', Utils::$context['entire_file'], '</textarea>
@@ -1090,9 +1088,10 @@ function template_edit_style()
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">';
 
 	// Hopefully it exists.
-	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token']))
+	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'])) {
 		echo '
 			<input type="hidden" name="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token_var'], '" value="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'], '">';
+	}
 
 	echo '
 		</form>';
@@ -1103,18 +1102,20 @@ function template_edit_style()
  */
 function template_edit_template()
 {
-	if (Utils::$context['session_error'])
+	if (Utils::$context['session_error']) {
 		echo '
 	<div class="errorbox">
 		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
+	}
 
-	if (isset(Utils::$context['parse_error']))
+	if (isset(Utils::$context['parse_error'])) {
 		echo '
 	<div class="errorbox">
 		', Lang::getTxt('themeadmin_edit_error', file: 'Themes'), '
 		<div><pre>', Utils::$context['parse_error'], '</pre></div>
 	</div>';
+	}
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
@@ -1124,16 +1125,18 @@ function template_edit_template()
 			</div>
 			<div class="windowbg">';
 
-	if (!Utils::$context['allow_save'])
+	if (!Utils::$context['allow_save']) {
 		echo '
 				', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']], file: 'Themes'), '<br>';
+	}
 
-	foreach (Utils::$context['file_parts'] as $part)
+	foreach (Utils::$context['file_parts'] as $part) {
 		echo '
 				<label for="on_line', $part['line'], '">', Lang::getTxt('themeadmin_edit_on_line', $part, file: 'Themes'), '</label><br>
 				<div class="centertext">
 					<textarea id="on_line', $part['line'], '" name="entire_file[]" cols="80" rows="', $part['lines'] > 14 ? '14' : $part['lines'], '" class="edit_file">', $part['data'], '</textarea>
 				</div>';
+	}
 
 	echo '
 				<div class="padding righttext">
@@ -1142,9 +1145,10 @@ function template_edit_template()
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">';
 
 	// Hopefully it exists.
-	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token']))
+	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'])) {
 		echo '
 					<input type="hidden" name="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token_var'], '" value="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'], '">';
+	}
 
 	echo '
 				</div><!-- .righttext -->
@@ -1157,18 +1161,20 @@ function template_edit_template()
  */
 function template_edit_file()
 {
-	if (Utils::$context['session_error'])
+	if (Utils::$context['session_error']) {
 		echo '
 	<div class="errorbox">
 		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
+	}
 
 	// Is this file writeable?
-	if (!Utils::$context['allow_save'])
+	if (!Utils::$context['allow_save']) {
 		echo '
 	<div class="errorbox">
 		', Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']], file: 'Themes'), '
 	</div>';
+	}
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
@@ -1183,9 +1189,10 @@ function template_edit_file()
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">';
 
 	// Hopefully it exists.
-	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token']))
+	if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'])) {
 		echo '
 				<input type="hidden" name="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token_var'], '" value="', Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'], '">';
+	}
 
 	echo '
 			</div><!-- .windowbg -->

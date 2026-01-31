@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -12,8 +13,8 @@
 
 use SMF\Config;
 use SMF\Lang;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * The template for adding or editing a subscription.
@@ -23,9 +24,10 @@ function template_modify_subscription()
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', Utils::$context['sub_id'], '" method="post">';
 
-	if (!empty(Utils::$context['disable_groups']))
+	if (!empty(Utils::$context['disable_groups'])) {
 		echo '
 		<div class="noticebox">', Lang::getTxt('paid_mod_edit_note', file: 'ManagePaid'), '</div>';
+	}
 
 	echo '
 		<div class="cat_bar">
@@ -69,9 +71,10 @@ function template_modify_subscription()
 						<option value="0"', Utils::$context['sub']['prim_group'] == 0 ? ' selected' : '', '>', Lang::getTxt('paid_mod_no_group', file: 'ManagePaid'), '</option>';
 
 	// Put each group into the box.
-	foreach (Utils::$context['groups'] as $id => $name)
+	foreach (Utils::$context['groups'] as $id => $name) {
 		echo '
 						<option value="', $id, '"', Utils::$context['sub']['prim_group'] == $id ? ' selected' : '', '>', $name, '</option>';
+	}
 
 	echo '
 					</select>
@@ -83,12 +86,13 @@ function template_modify_subscription()
 				<dd>';
 
 	// Put a checkbox in for each group
-	foreach (Utils::$context['groups'] as $id => $name)
+	foreach (Utils::$context['groups'] as $id => $name) {
 		echo '
 					<label for="addgroup_', $id, '">
 						<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, Utils::$context['sub']['add_groups']) ? ' checked' : '', !empty(Utils::$context['disable_groups']) ? ' disabled' : '', '>
 						<span class="smalltext">', $name, '</span>
 					</label><br>';
+	}
 
 	echo '
 				</dd>
@@ -229,7 +233,7 @@ function template_modify_user_subscription()
 			<dl class="settings">';
 
 	// Do we need a username?
-	if (Utils::$context['action_type'] == 'add')
+	if (Utils::$context['action_type'] == 'add') {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('paid_username', file: 'ManagePaid'), '</strong><br>
@@ -238,6 +242,7 @@ function template_modify_user_subscription()
 				<dd>
 					<input type="text" name="name" id="name_control" value="', Utils::$context['sub']['username'], '" size="30">
 				</dd>';
+	}
 
 	echo '
 				<dt>
@@ -255,27 +260,30 @@ function template_modify_user_subscription()
 				<select name="year" id="year">';
 
 	// Show a list of all the years we allow...
-	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['start']['year']); $year <= $cur_year + 10; $year++)
+	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['start']['year']); $year <= $cur_year + 10; $year++) {
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['start']['year'] ? ' selected' : '', '>', $year, '</option>';
+	}
 
 	echo '
 				</select>
 				<select name="month" id="month">';
 
 	// There are 12 months per year - ensure that they all get listed.
-	for ($month = 1; $month <= 12; $month++)
+	for ($month = 1; $month <= 12; $month++) {
 		echo '
 					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
+	}
 
 	echo '
 				</select>
 				<select name="day" id="day">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
-	for ($day = 1; $day <= Utils::$context['sub']['start']['last_day']; $day++)
+	for ($day = 1; $day <= Utils::$context['sub']['start']['last_day']; $day++) {
 		echo '
 					<option value="', $day, '"', $day == Utils::$context['sub']['start']['day'] ? ' selected' : '', '>', $day, '</option>';
+	}
 
 	echo '
 				</select>
@@ -289,27 +297,30 @@ function template_modify_user_subscription()
 				<select name="yearend" id="yearend">';
 
 	// Show a list of all the years we allow...
-	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['end']['year']); $year <= $cur_year + 10; $year++)
+	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['end']['year']); $year <= $cur_year + 10; $year++) {
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['end']['year'] ? ' selected' : '', '>', $year, '</option>';
+	}
 
 	echo '
 				</select>
 				<select name="monthend" id="monthend">';
 
 	// There are 12 months per year - ensure that they all get listed.
-	for ($month = 1; $month <= 12; $month++)
+	for ($month = 1; $month <= 12; $month++) {
 		echo '
 					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
+	}
 
 	echo '
 				</select>
 				<select name="dayend" id="dayend">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
-	for ($day = 1; $day <= Utils::$context['sub']['end']['last_day']; $day++)
+	for ($day = 1; $day <= Utils::$context['sub']['end']['last_day']; $day++) {
 		echo '
 					<option value="', $day, '"', $day == Utils::$context['sub']['end']['day'] ? ' selected' : '', '>', $day, '</option>';
+	}
 
 	echo '
 				</select>
@@ -337,8 +348,7 @@ function template_modify_user_subscription()
 		document.getElementById("monthend").addEventListener("change", generateDays.bind(null, "end"));
 	</script>';
 
-	if (!empty(Utils::$context['pending_payments']))
-	{
+	if (!empty(Utils::$context['pending_payments'])) {
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">', Lang::getTxt('pending_payments', file: 'ManagePaid'), '</h3>
@@ -352,7 +362,7 @@ function template_modify_user_subscription()
 	<div class="windowbg">
 		<ul>';
 
-		foreach (Utils::$context['pending_payments'] as $id => $payment)
+		foreach (Utils::$context['pending_payments'] as $id => $payment) {
 			echo '
 			<li>
 				', $payment['desc'], '
@@ -363,6 +373,7 @@ function template_modify_user_subscription()
 					<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', Utils::$context['log_id'], ';pending=', $id, ';remove">', Lang::getTxt('pending_payments_remove', file: 'ManagePaid'), '</a>
 				</span>
 			</li>';
+		}
 
 		echo '
 		</ul>';
@@ -384,24 +395,23 @@ function template_user_subscription()
 				<h3 class="catbg">', Lang::getTxt('subscriptions', file: 'ManagePaid'), '</h3>
 			</div>';
 
-	if (empty(Utils::$context['subscriptions']))
+	if (empty(Utils::$context['subscriptions'])) {
 		echo '
 			<div class="information">
 				', Lang::getTxt('paid_subs_none', file: 'ManagePaid'), '
 			</div>';
-	else
-	{
+	} else {
 		echo '
 			<div class="information">
 				', Lang::getTxt('paid_subs_desc', file: 'ManagePaid'), '
 			</div>';
 
 		// Print out all the subscriptions.
-		foreach (Utils::$context['subscriptions'] as $id => $subscription)
-		{
+		foreach (Utils::$context['subscriptions'] as $id => $subscription) {
 			// Ignore the inactive ones...
-			if (empty($subscription['active']))
+			if (empty($subscription['active'])) {
 				continue;
+			}
 
 			echo '
 			<div class="cat_bar">
@@ -411,39 +421,39 @@ function template_user_subscription()
 				<p><strong>', $subscription['name'], '</strong></p>
 				<p class="smalltext">', $subscription['desc'], '</p>';
 
-			if (!$subscription['flexible'])
+			if (!$subscription['flexible']) {
 				echo '
 				<div><strong>', Lang::getTxt('paid_duration', file: 'ManagePaid'), '</strong> ', $subscription['length'], '</div>';
+			}
 
-			if (User::$me->is_owner)
-			{
+			if (User::$me->is_owner) {
 				echo '
 				<strong>', Lang::getTxt('paid_cost', file: 'ManagePaid'), '</strong>';
 
-				if ($subscription['flexible'])
-				{
+				if ($subscription['flexible']) {
 					echo '
 				<select name="cur[', $subscription['id'], ']">';
 
 					// Print out the costs for this one.
-					foreach ($subscription['costs'] as $duration => $value)
+					foreach ($subscription['costs'] as $duration => $value) {
 						echo '
 					<option value="', $duration, '">', sprintf(Config::$modSettings['paid_currency_symbol'], $value), '/', Lang::getTxt($duration, file: 'ManagePaid'), '</option>';
+					}
 
 					echo '
 				</select>';
-				}
-				else
-					echo '
+				} else {
+				echo '
 				', sprintf(Config::$modSettings['paid_currency_symbol'], $subscription['costs']['fixed']);
+				}
 
 				echo '
 				<hr>
 				<input type="submit" name="sub_id[', $subscription['id'], ']" value="', Lang::getTxt('paid_order', file: 'ManagePaid'), '" class="button">';
-			}
-			else
-				echo '
+			} else {
+			echo '
 				<a href="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', $subscription['id'], ';uid=', Utils::$context['member']['id'], (empty(Utils::$context['current'][$subscription['id']]) ? '' : ';lid=' . Utils::$context['current'][$subscription['id']]['id']), '">', Lang::getTxt(empty(Utils::$context['current'][$subscription['id']]) ? 'paid_admin_add' : 'paid_edit_subscription', file: 'ManagePaid'), '</a>';
+			}
 
 			echo '
 			</div><!-- .windowbg -->';
@@ -470,17 +480,17 @@ function template_user_subscription()
 			</thead>
 			<tbody>';
 
-	if (empty(Utils::$context['current']))
+	if (empty(Utils::$context['current'])) {
 		echo '
 				<tr class="windowbg">
 					<td colspan="4">
 						', Lang::getTxt('paid_none_yet', file: 'ManagePaid'), '
 					</td>
 				</tr>';
+	}
 
-	foreach (Utils::$context['current'] as $sub)
-	{
-		if (!$sub['hide'])
+	foreach (Utils::$context['current'] as $sub) {
+		if (!$sub['hide']) {
 			echo '
 				<tr class="windowbg">
 					<td>
@@ -492,6 +502,7 @@ function template_user_subscription()
 					<td>', $sub['start'], '</td>
 					<td>', $sub['end'], '</td>
 				</tr>';
+		}
 	}
 
 	echo '
@@ -531,8 +542,7 @@ function template_choose_payment()
 		</div>';
 
 	// Do all the gateway options.
-	foreach (Utils::$context['gateways'] as $gateway)
-	{
+	foreach (Utils::$context['gateways'] as $gateway) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $gateway['title'], '</h3>
@@ -541,15 +551,17 @@ function template_choose_payment()
 			', $gateway['desc'], '<br>
 			<form action="', $gateway['form'], '" method="post">';
 
-		if (!empty($gateway['javascript']))
+		if (!empty($gateway['javascript'])) {
 			echo '
 				<script>
 					', $gateway['javascript'], '
 				</script>';
+		}
 
-		foreach ($gateway['hidden'] as $name => $value)
+		foreach ($gateway['hidden'] as $name => $value) {
 			echo '
 				<input type="hidden" id="', $gateway['id'], '_', $name, '" name="', $name, '" value="', $value, '">';
+		}
 
 		echo '
 				<br>

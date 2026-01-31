@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -22,24 +23,26 @@ function template_main()
 	echo '
 	<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">';
 
-	if (!empty(Utils::$context['search_errors']))
+	if (!empty(Utils::$context['search_errors'])) {
 		echo '
 		<div class="errorbox">
 			', implode('<br>', Utils::$context['search_errors']['messages']), '
 		</div>';
+	}
 
-	if (!empty(Utils::$context['search_ignored']))
+	if (!empty(Utils::$context['search_ignored'])) {
 		echo '
 		<div class="noticebox">
 			', Lang::getTxt(
-				'search_warning_ignored',
-				[
-					'number_of_terms' => count(Utils::$context['search_ignored']),
-					'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
-				],
-				file: 'Search',
-			), '
+			'search_warning_ignored',
+			[
+				'number_of_terms' => count(Utils::$context['search_ignored']),
+				'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
+			],
+			file: 'Search',
+		), '
 		</div>';
+	}
 
 	echo '
 		<div class="cat_bar">
@@ -55,9 +58,10 @@ function template_main()
 				<dd>
 					<input autofocus type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
 
-	if (empty(Config::$modSettings['search_simple_fulltext']))
+	if (empty(Config::$modSettings['search_simple_fulltext'])) {
 		echo '
 					<br><em class="smalltext">', Lang::getTxt('search_example', file: 'Search'), '</em>';
+	}
 
 	echo '
 				</dd>
@@ -128,23 +132,24 @@ function template_main()
 			<input type="hidden" name="advanced" value="1">';
 
 	// Require an image to be typed to save spamming?
-	if (Utils::$context['require_verification'])
+	if (Utils::$context['require_verification']) {
 		echo '
 			<p>
 				<strong>', Lang::getTxt('verification', file: 'General'), '</strong>
 				', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 			</p>';
+	}
 
 	// If Utils::$context['search_params']['topic'] is set, that means we're searching just one topic.
-	if (!empty(Utils::$context['search_params']['topic']))
+	if (!empty(Utils::$context['search_params']['topic'])) {
 		echo '
 			<p>
 				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']], file: 'Search'), '
 			</p>
 			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">';
+	}
 
-	if (empty(Utils::$context['search_params']['topic']))
-	{
+	if (empty(Utils::$context['search_params']['topic'])) {
 		echo '
 			<details class="boardslist">
 				<summary>', Lang::getTxt('choose_board', file: 'Search'), '</summary>';
@@ -213,24 +218,26 @@ function template_results()
 		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
-		if (isset(Utils::$context['did_you_mean']))
+		if (isset(Utils::$context['did_you_mean'])) {
 			echo '
 			<p>
 				', Lang::getTxt('search_did_you_mean', ['suggested_query' => '<a href="' . Config::$scripturl . '?action=search2;params=' . Utils::$context['did_you_mean_params'] . '">' . Utils::$context['did_you_mean'] . '</a>'], file: 'Search'), '
 			</p>';
+		}
 
-		if (!empty(Utils::$context['search_ignored']))
+		if (!empty(Utils::$context['search_ignored'])) {
 			echo '
 			<p>
 				', Lang::getTxt(
-					'search_warning_ignored',
-					[
-						'number_of_terms' => count(Utils::$context['search_ignored']),
-						'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
-					],
-					file: 'Search',
-				), '
+				'search_warning_ignored',
+				[
+					'number_of_terms' => count(Utils::$context['search_ignored']),
+					'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
+				],
+				file: 'Search',
+			), '
 			</p>';
+		}
 
 		echo '
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
@@ -279,21 +286,17 @@ function template_results()
 		<div class="pagesection">
 			<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		</div>';
-		}
-		else
-		{
+		} else {
 			echo '
 		<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
 		// While we have results to show ...
-		while ($topic = Utils::$context['get_topics']())
-		{
+		while ($topic = Utils::$context['get_topics']()) {
 			echo '
 		<div class="', $topic['css_class'], '">';
 
-			foreach ($topic['matches'] as $message)
-			{
+			foreach ($topic['matches'] as $message) {
 				echo '
 			<div class="block">
 				<div class="page_number floatright"> #', $message['counter'], '</div>
@@ -305,17 +308,16 @@ function template_results()
 				</div>
 			</div><!-- .block -->';
 
-				if ($message['body_highlighted'] != '')
+				if ($message['body_highlighted'] != '') {
 					echo '
 			<div class="list_posts word_break">', $message['body_highlighted'], '</div>';
+				}
 			}
 
 			echo '
 		</div><!-- $topic[css_class] -->';
 		}
-	}
-	else
-	{
+	} else {
 		// Was anything even found?
 		if (!empty(Utils::$context['topics'])) {
 			echo '
@@ -335,17 +337,13 @@ function template_results()
 	<div class="pagesection">
 		<div class="pagelinks">', Utils::$context['page_index'], '</div>
 	</div>';
-		}
-		else
-		{
+		} else {
 			echo '
 	<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
-		while ($topic = Utils::$context['get_topics']())
-		{
-			foreach ($topic['matches'] as $message)
-			{
+		while ($topic = Utils::$context['get_topics']()) {
+			foreach ($topic['matches'] as $message) {
 				echo '
 	<div class="', $topic['css_class'], '">
 		<div class="page_number floatright"> #', $message['counter'], '</div>
@@ -367,9 +365,10 @@ function template_results()
 	echo '
 	<div class="pagesection">';
 
-	if (!empty(Utils::$context['topics']))
+	if (!empty(Utils::$context['topics'])) {
 		echo '
 		<div class="pagelinks">', Utils::$context['page_index'], '</div>';
+	}
 
 	// Show a jump to box for easy navigation.
 	echo '

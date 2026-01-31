@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -34,14 +35,14 @@ function template_move()
 						<dd>
 							<select name="toboard">';
 
-	foreach (Utils::$context['categories'] as $category)
-	{
+	foreach (Utils::$context['categories'] as $category) {
 		echo '
 								<optgroup label="', $category['name'], '">';
 
-		foreach ($category['boards'] as $board)
+		foreach ($category['boards'] as $board) {
 			echo '
 									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', $board['id'] == Utils::$context['current_board'] ? ' disabled' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt; ' : '', $board['name'], '</option>';
+		}
 		echo '
 								</optgroup>';
 	}
@@ -72,9 +73,10 @@ function template_move()
 				</div><!-- .move_topic -->
 			</div><!-- .windowbg -->';
 
-	if (Utils::$context['back_to_topic'])
+	if (Utils::$context['back_to_topic']) {
 		echo '
 			<input type="hidden" name="goback" value="1">';
+	}
 
 	echo '
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -109,8 +111,7 @@ function template_redirect_options($type)
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
 							</dd>';
 
-	if (!empty(Config::$modSettings['allow_expire_redirect']))
-	{
+	if (!empty(Config::$modSettings['allow_expire_redirect'])) {
 		echo '
 							<dt>
 								', Lang::getTxt('redirect_topic_expires', file: 'General'), '
@@ -125,10 +126,10 @@ function template_redirect_options($type)
 									<option value="86400">', Lang::getTxt('two_months', file: 'General'), '</option>
 								</select>
 							</dd>';
-	}
-	else
-		echo '
+	} else {
+	echo '
 							<input type="hidden" name="redirect_expires" value="0">';
+	}
 
 	echo '
 						</dl>
@@ -191,21 +192,20 @@ function template_merge()
 			<div class="title_bar">
 				<h4 class="titlebg">';
 
-	if (isset(Utils::$context['merge_categories']))
-	{
+	if (isset(Utils::$context['merge_categories'])) {
 		echo '
 					<form action="' . Config::$scripturl . '?action=mergetopics;from=' . Utils::$context['origin_topic'] . ';targetboard=' . Utils::$context['target_board'] . ';board=' . Utils::$context['current_board'] . '.0" method="post" accept-charset="UTF-8" id="mergeSelectBoard">
 						', Lang::getTxt('target_below', file: 'General'), ' (', Lang::getTxt('board', file: 'General'), ':
 						<select name="targetboard" onchange="this.form.submit();">';
 
-		foreach (Utils::$context['merge_categories'] as $cat)
-		{
+		foreach (Utils::$context['merge_categories'] as $cat) {
 			echo '
 							<optgroup label="', $cat['name'], '">';
 
-			foreach ($cat['boards'] as $board)
+			foreach ($cat['boards'] as $board) {
 				echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
+			}
 
 			echo '
 							</optgroup>';
@@ -215,17 +215,16 @@ function template_merge()
 						<input type="hidden" name="from" value="' . Utils::$context['origin_topic'] . '">
 						<input type="submit" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 					</form>';
+	} else {
+	echo Lang::getTxt('target_below', file: 'General');
 	}
-	else
-		echo Lang::getTxt('target_below', file: 'General');
 
 	echo '		</h4>
 			</div><!-- .title_bar -->
 			<form action="', Config::$scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="UTF-8">';
 
 	// Don't show this if there aren't any topics...
-	if (!empty(Utils::$context['topics']))
-	{
+	if (!empty(Utils::$context['topics'])) {
 		echo '
 				<div class="pagesection">
 					<div class="pagelinks">', Utils::$context['page_index'], '</div>
@@ -233,12 +232,13 @@ function template_merge()
 				<div class="windowbg">
 					<ul class="merge_topics">';
 
-		foreach (Utils::$context['topics'] as $topic)
+		foreach (Utils::$context['topics'] as $topic) {
 			echo '
 						<li>
 							<a href="', Config::$scripturl, '?action=mergetopics;sa=options;board=', Utils::$context['current_board'], '.0;from=', Utils::$context['origin_topic'], ';to=', $topic['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons merge"></span></a>
 							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', Lang::getTxt('started_by_member', ['member' => $topic['poster']['link']], file: 'General'), '
 						</li>';
+		}
 
 		echo '
 					</ul>
@@ -248,9 +248,10 @@ function template_merge()
 				</div>';
 	}
 	// Just a nice "There aren't any topics" message
-	else
-		echo '
+	else {
+	echo '
 				<div class="windowbg">', Lang::getTxt('topic_alert_none', file: 'General'), '</div>';
+	}
 
 	echo '
 				<br>
@@ -298,7 +299,7 @@ function template_merge_extra_options()
 				</thead>
 				<tbody>';
 
-	foreach (Utils::$context['topics'] as $topic)
+	foreach (Utils::$context['topics'] as $topic) {
 		echo '
 					<tr class="windowbg">
 						<td>
@@ -319,6 +320,7 @@ function template_merge_extra_options()
 							<input type="checkbox" name="notifications[]" value="' . $topic['id'] . '" checked>
 						</td>
 					</tr>';
+	}
 	echo '
 				</tbody>
 			</table>
@@ -328,9 +330,10 @@ function template_merge_extra_options()
 					<legend>', Lang::getTxt('merge_select_subject', file: 'General'), '</legend>
 					<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
 
-	foreach (Utils::$context['topics'] as $topic)
+	foreach (Utils::$context['topics'] as $topic) {
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
+	}
 	echo '
 						<option value="0">', Lang::getTxt('merge_custom_subject', file: 'General'), '</option>
 					</select>
@@ -342,34 +345,35 @@ function template_merge_extra_options()
 	// Show an option to create a redirection topic as well...
 	template_redirect_options('merge');
 
-	if (!empty(Utils::$context['boards']) && count(Utils::$context['boards']) > 1)
-	{
+	if (!empty(Utils::$context['boards']) && count(Utils::$context['boards']) > 1) {
 		echo '
 				<fieldset id="merge_board" class="merge_options">
 					<legend>', Lang::getTxt('merge_select_target_board', file: 'General'), '</legend>
 					<ul>';
 
-		foreach (Utils::$context['boards'] as $board)
+		foreach (Utils::$context['boards'] as $board) {
 			echo '
 						<li>
 							<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . '> ' . $board['name'] . '
 						</li>';
+		}
 		echo '
 					</ul>
 				</fieldset>';
 	}
-	if (!empty(Utils::$context['polls']))
-	{
+
+	if (!empty(Utils::$context['polls'])) {
 		echo '
 				<fieldset id="merge_poll" class="merge_options">
 					<legend>' . Lang::getTxt('merge_select_poll', file: 'General') . '</legend>
 					<ul>';
 
-		foreach (Utils::$context['polls'] as $poll)
+		foreach (Utils::$context['polls'] as $poll) {
 			echo '
 						<li>
 							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . Lang::getTxt('topic', file: 'General') . ': <a href="' . Config::$scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
+		}
 		echo '
 						<li>
 							<input type="radio" name="poll" value="-1"> (' . Lang::getTxt('merge_no_poll', file: 'General') . ')

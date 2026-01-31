@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -80,35 +81,33 @@ function template_generic_menu($menu_context, $menu_label)
 				<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
 
 	// Main areas first.
-	foreach ($menu_context['sections'] as $section)
-	{
+	foreach ($menu_context['sections'] as $section) {
 		echo '
 					<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], !empty($section['amt']) ? ' <span class="amt">' . $section['amt'] . '</span>' : '', '</a>
 						<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
 		// @todo Code for additional_items class was deprecated and has been removed. Suggest following up in Sources if required.
-		foreach ($section['areas'] as $i => $area)
-		{
+		foreach ($section['areas'] as $i => $area) {
 			// Not supposed to be printed?
-			if (empty($area['label']))
+			if (empty($area['label'])) {
 				continue;
+			}
 
 			echo '
 							<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
-								<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
+								<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', ($area['url'] ?? $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
-			if (!empty($area['subsections']) && empty($area['hide_subsections']))
-			{
+			if (!empty($area['subsections']) && empty($area['hide_subsections'])) {
 				echo '
 								<ul>';
 
-				foreach ($area['subsections'] as $sa => $sub)
-				{
-					if (!empty($sub['disabled']))
+				foreach ($area['subsections'] as $sa => $sub) {
+					if (!empty($sub['disabled'])) {
 						continue;
+					}
 
-					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
+					$url = $sub['url'] ?? ($area['url'] ?? $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
 									<li>
@@ -145,72 +144,71 @@ function template_generic_menu_tabs($menu_context)
 	$tabs = Utils::$context['tabs'] ?? $menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'] ?? [];
 	$tab_context = $menu_context['tab_data'];
 
-	if (!empty($tab_context['title']))
-	{
+	if (!empty($tab_context['title'])) {
 		echo '
 					<div class="cat_bar">
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
-		if (!empty($tabs))
-		{
-			foreach ($tabs as $id => $tab)
-			{
+		if (!empty($tabs)) {
+			foreach ($tabs as $id => $tab) {
 				// Can this not be accessed?
-				if (!empty($tab['disabled']))
-				{
+				if (!empty($tab['disabled'])) {
 					$tab_context['tabs'][$id]['disabled'] = true;
 					continue;
 				}
 
 				// Ensure that this tab exists.
-				if (!isset($tab_context['tabs'][$id]))
-					$tab_context['tabs'][$id] = array('label' => $tab['label']);
+				if (!isset($tab_context['tabs'][$id])) {
+					$tab_context['tabs'][$id] = ['label' => $tab['label']];
+				}
 
 				$tab_context['tabs'][$id] = array_replace($tab_context['tabs'][$id], $tab);
 
 				// Has it been deemed selected?
-				if (!empty($tab['is_selected']) || (!empty($tab_context['tabs'][$id]['selected']) && empty($selected_tab)))
-				{
+				if (!empty($tab['is_selected']) || (!empty($tab_context['tabs'][$id]['selected']) && empty($selected_tab))) {
 					$tab_context['tabs'][$id]['is_selected'] = true;
 					$selected_tab = $tab_context['tabs'][$id];
 				}
 			}
 		}
 
-			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']))
+			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class'])) {
 				echo '
 								<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
-			elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
+			} elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon'])) {
 				echo '
 								<img src="', Theme::$current->settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
+			}
 
-			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
+			if (!empty($selected_tab['help']) || !empty($tab_context['help'])) {
 				echo '
 								<a href="', Config::$scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>';
+			}
 
 			echo '
 								', $tab_context['title'], '
 						</h3>';
 
 		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
-		if (function_exists('template_admin_quick_search'))
+		if (function_exists('template_admin_quick_search')) {
 			template_admin_quick_search();
+		}
 
 		echo '
 					</div><!-- .cat_bar -->';
 	}
 
 	// Shall we use the tabs? Yes, it's the only known way!
-	if (!empty($selected_tab['description']) || !empty($tab_context['description']))
+	if (!empty($selected_tab['description']) || !empty($tab_context['description'])) {
 		echo '
 					<p class="information">
 						', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 					</p>';
+	}
 
 	// Print out all the items in this tab (if any).
-	if (!empty($tabs))
-	{
+	if (!empty($tabs)) {
 		// The admin tabs.
 		echo '
 					<nav id="adm_submenus" aria-label="', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '">
@@ -226,14 +224,14 @@ function template_generic_menu_tabs($menu_context)
 								</div>
 								<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
 
-		foreach ($tab_context['tabs'] as $sa => $tab)
-		{
-			if (!empty($tab['disabled']))
+		foreach ($tab_context['tabs'] as $sa => $tab) {
+			if (!empty($tab['disabled'])) {
 				continue;
+			}
 
 				echo '
 									<li>
-										<a', !empty($tab['is_selected']) ? ' class="active"' : '', ' href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+										<a', !empty($tab['is_selected']) ? ' class="active"' : '', ' href="', $tab['url'] ?? $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], $tab['add_params'] ?? '', '">', $tab['label'], '</a>
 									</li>';
 		}
 

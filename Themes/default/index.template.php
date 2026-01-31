@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -11,11 +12,11 @@
  */
 
 use SMF\Config;
-use SMF\Lang;
 use SMF\IntegrationHook;
+use SMF\Lang;
 use SMF\Theme;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /*	This template is, perhaps, the most important template in the theme. It
 	contains the main template layer that displays the header and footer of
@@ -66,7 +67,7 @@ function template_init()
 	 * dependant and does not live in `/Languages`, but rather, a
 	 * dedicated `/languages` folder with the theme files.
 	 */
-    Theme::$current->settings['require_theme_strings'] = false;
+	Theme::$current->settings['require_theme_strings'] = false;
 
 	/*
 	 * Whether this theme supports a dark mode.
@@ -136,8 +137,9 @@ function template_init()
 
 	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
-	if (!isset(Theme::$current->settings['disable_files']))
+	if (!isset(Theme::$current->settings['disable_files'])) {
 		Theme::$current->settings['disable_files'] = [];
+	}
 }
 
 /**
@@ -147,7 +149,7 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace("_", "-", substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::getTxt('lang_locale', file: 'General')) ? ' lang="' . str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
 <head>
 	<meta charset="UTF-8">';
 
@@ -191,13 +193,13 @@ function template_html_above()
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
 	// Content related meta tags, like description, keywords, Open Graph stuff, etc...
-	foreach (Utils::$context['meta_tags'] as $meta_tag)
-	{
+	foreach (Utils::$context['meta_tags'] as $meta_tag) {
 		echo '
 	<meta';
 
-		foreach ($meta_tag as $meta_key => $meta_value)
+		foreach ($meta_tag as $meta_key => $meta_value) {
 			echo ' ', $meta_key, '="', $meta_value, '"';
+		}
 
 		echo '>';
 	}
@@ -208,14 +210,16 @@ function template_html_above()
 	<meta name="theme-color" content="#557EA0">';
 
 	// Please don't index these Mr Robot.
-	if (!empty(Utils::$context['robot_no_index']))
+	if (!empty(Utils::$context['robot_no_index'])) {
 		echo '
 	<meta name="robots" content="noindex">';
+	}
 
 	// Present a canonical url for search engines to prevent duplicate content in their indices.
-	if (!empty(Utils::$context['canonical_url']))
+	if (!empty(Utils::$context['canonical_url'])) {
 		echo '
 	<link rel="canonical" href="', Utils::$context['canonical_url'], '">';
+	}
 
 	// Show all the relative links, such as help, search, contents, and the like.
 	echo '
@@ -224,24 +228,28 @@ function template_html_above()
 	<link rel="search" href="' . Config::$scripturl . '?action=search">' : '');
 
 	// If RSS feeds are enabled, advertise the presence of one.
-	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
+	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged)) {
 		echo '
 	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('rss', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
 	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::getTxt('atom', file: 'General'), '" href="', Config::$scripturl, '?action=feed;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
+	}
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
-	if (!empty(Utils::$context['links']['next']))
+	if (!empty(Utils::$context['links']['next'])) {
 		echo '
 	<link rel="next" href="', Utils::$context['links']['next'], '">';
+	}
 
-	if (!empty(Utils::$context['links']['prev']))
+	if (!empty(Utils::$context['links']['prev'])) {
 		echo '
 	<link rel="prev" href="', Utils::$context['links']['prev'], '">';
+	}
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
-	if (!empty(Utils::$context['current_board']))
+	if (!empty(Utils::$context['current_board'])) {
 		echo '
 	<link rel="index" href="', Config::$scripturl, '?board=', Utils::$context['current_board'], '.0">';
+	}
 
 	// Output any remaining HTML headers. (from mods, maybe?)
 	echo Utils::$context['html_headers'];
@@ -261,6 +269,7 @@ function template_html_above()
 	}
 
 	$boardClass = '';
+
 	if (!empty(Utils::$context['current_board'])) {
 		$boardClass = ' board_' . Utils::$context['current_board'];
 	}
@@ -285,7 +294,7 @@ function template_body_above()
 				', empty(Theme::$current->settings['site_slogan']) ? '' : '<span id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</span>', '
 			</h1>';
 
-    //User Panel
+	//User Panel
 	// If the user is logged in, display some things that might be useful.
 	echo '
 			<div class="user_panel">';
@@ -295,11 +304,12 @@ function template_body_above()
 				<form id="languages_form" method="get">
 					<select id="language_select" name="language" onchange="this.form.submit()">';
 
-		foreach (Utils::$context['languages'] as $language)
+		foreach (Utils::$context['languages'] as $language) {
 			echo '
 						<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>
 							', str_replace('-utf8', '', $language['name']), '
 						</option>';
+		}
 
 		echo '
 					</select>
@@ -314,7 +324,7 @@ function template_body_above()
 
 	if (User::$me->is_logged) {
 		// PMs if we're doing them
-		if (Utils::$context['allow_pm'])
+		if (Utils::$context['allow_pm']) {
 			echo '
 					<li>
 						<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top" title="', Lang::getTxt('pm_short', file: 'General'), '">
@@ -325,6 +335,7 @@ function template_body_above()
 						</a>
 						<div id="pm_menu" class="top_menu scrollable"></div>
 					</li>';
+		}
 
 		// Alerts
 		echo '
@@ -349,7 +360,7 @@ function template_body_above()
 					</li>';
 
 		// A logout button for people without JavaScript.
-		if (empty(Theme::$current->settings['login_main_menu']))
+		if (empty(Theme::$current->settings['login_main_menu'])) {
 			echo '
 					<li class="button_logout" id="nojs_logout">
 						<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('logout', file: 'General'), '">
@@ -358,6 +369,7 @@ function template_body_above()
 						</a>
 						<script>document.getElementById("nojs_logout").style.display = "none";</script>
 					</li>';
+		}
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	elseif (empty(Config::$maintenance)) {
@@ -366,18 +378,16 @@ function template_body_above()
 			echo '
 					<li class="welcome">
 						', Lang::getTxt(
-							Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
-							[
-								'forum_name' => Utils::$context['forum_name_html_safe'],
-								'login_url' => Config::$scripturl . '?action=login',
-								'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
-								'register_url' => Config::$scripturl . '?action=signup',
-							],
-						), '
+				Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+				[
+					'forum_name' => Utils::$context['forum_name_html_safe'],
+					'login_url' => Config::$scripturl . '?action=login',
+					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
+					'register_url' => Config::$scripturl . '?action=signup',
+				],
+			), '
 					</li>';
-		}
-		else
-		{
+		} else {
 			echo '
 					<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
@@ -389,7 +399,7 @@ function template_body_above()
 						</a>
 					</li>';
 
-			if (Utils::$context['can_register'])
+			if (Utils::$context['can_register']) {
 				echo '
 					<li class="button_signup">
 						<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','" title="', Lang::getTxt('register', file: 'General'), '">
@@ -397,32 +407,33 @@ function template_body_above()
 							<span class="text-label">', Lang::getTxt('register', file: 'General'), '</span>
 						</a>
 					</li>';
+			}
 		}
-	}
-	else
-		// In maintenance mode, only login is allowed and don't show OverlayDiv
+	} else { // In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
 					<li>
 						', Lang::getTxt(
-							'welcome_guest',
-							[
-								'forum_name' => Utils::$context['forum_name_html_safe'],
-								'login_url' => Config::$scripturl . '?action=login',
-								'onclick' => 'return true;',
-							],
-						), '
+			'welcome_guest',
+			[
+				'forum_name' => Utils::$context['forum_name_html_safe'],
+				'login_url' => Config::$scripturl . '?action=login',
+				'onclick' => 'return true;',
+			],
+		), '
 					</li>';
+	}
 
 	echo '
 				</ul>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
-	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
+	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line'])) {
 		echo '
 				<div class="random_news">
 					<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
 					<p>', Utils::$context['random_news_line'], '</p>
 				</div>';
+	}
 
 		echo '
 			</div>
@@ -471,16 +482,17 @@ function template_body_below()
 		</ul>';
 
 	// Show the load time?
-	if (Utils::$context['show_load_time'])
+	if (Utils::$context['show_load_time']) {
 		echo '
 		<p>', Lang::getTxt(
 			'page_created_full',
 			[
 				Utils::$context['load_time'],
-				Utils::$context['load_queries']
+				Utils::$context['load_queries'],
 			],
 			file: 'General',
 		), '</p>';
+	}
 
 	echo '
 		</div>
@@ -511,8 +523,9 @@ function theme_linktree($force_show = false)
 	global $shown_linktree;
 
 	// If linktree is empty, just return - also allow an override.
-	if (empty(Utils::$context['linktree']) || (!empty(Utils::$context['dont_default_linktree']) && !$force_show))
+	if (empty(Utils::$context['linktree']) || (!empty(Utils::$context['dont_default_linktree']) && !$force_show)) {
 		return;
+	}
 
 	echo '
 		<nav aria-label="', Lang::getTxt('breadcrumb', file: 'General'), '" class="navigate_section">
@@ -585,8 +598,7 @@ function template_menu()
 					<ul class="dropmenu">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
-	foreach (Utils::$context['menu_buttons'] as $act => $button)
-	{
+	foreach (Utils::$context['menu_buttons'] as $act => $button) {
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', '>
@@ -598,31 +610,30 @@ function template_menu()
 							</a>';
 
 		// 2nd level menus
-		if (!empty($button['sub_buttons']))
-		{
+		if (!empty($button['sub_buttons'])) {
 			echo '
 							<ul>';
 
-			foreach ($button['sub_buttons'] as $childbutton)
-			{
+			foreach ($button['sub_buttons'] as $childbutton) {
 				echo '
 								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '', '>
 									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', isset($childbutton['onclick']) ? ' onclick="' . $childbutton['onclick'] . '"' : '', '>
 										', $childbutton['title'], !empty($childbutton['amt']) ? ' <span class="amt">' . $childbutton['amt'] . '</span>' : '', '
 									</a>';
+
 				// 3rd level menus :)
-				if (!empty($childbutton['sub_buttons']))
-				{
+				if (!empty($childbutton['sub_buttons'])) {
 					echo '
 									<ul>';
 
-					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
+					foreach ($childbutton['sub_buttons'] as $grandchildbutton) {
 						echo '
 										<li>
 											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', isset($grandchildbutton['onclick']) ? ' onclick="' . $grandchildbutton['onclick'] . '"' : '', '>
 												', $grandchildbutton['title'], !empty($grandchildbutton['amt']) ? ' <span class="amt">' . $grandchildbutton['amt'] . '</span>' : '', '
 											</a>
 										</li>';
+					}
 
 					echo '
 									</ul>';
@@ -653,7 +664,7 @@ function template_menu()
 						</li>
 					</ul>';
 	}
-        echo '
+		echo '
 				</div>
 			</div>
  		</div>
@@ -667,20 +678,21 @@ function template_menu()
  * @param string $direction The direction
  * @param array $strip_options Options for the button strip
  */
-function template_button_strip($button_strip, $direction = '', $strip_options = array())
+function template_button_strip($button_strip, $direction = '', $strip_options = [])
 {
-	if (!is_array($strip_options))
-		$strip_options = array();
+	if (!is_array($strip_options)) {
+		$strip_options = [];
+	}
 
 	// Create the buttons...
-	$buttons = array();
-	foreach ($button_strip as $key => $value)
-	{
+	$buttons = [];
+
+	foreach ($button_strip as $key => $value) {
 		// As of 2.1, the 'test' for each button happens while the array is being generated. The extra 'test' check here is deprecated but kept for backward compatibility (update your mods, folks!)
-		if (!isset($value['test']) || !empty(Utils::$context[$value['test']]))
-		{
-			if (!isset($value['id']))
+		if (!isset($value['test']) || !empty(Utils::$context[$value['test']])) {
+			if (!isset($value['id'])) {
 				$value['id'] = $key;
+			}
 
 			$button = '
 			<li>
@@ -689,24 +701,26 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 					<span class="text-label">' . Lang::getTxt($value['text']) . '</span>
 				</a>';
 
-			if (!empty($value['sub_buttons']))
-			{
+			if (!empty($value['sub_buttons'])) {
 				$button .= '
 				<div class="top_menu ' . $key . '_dropdown">
 					<div class="viewport dropmenu">
 						<ul class="overview">';
-				foreach ($value['sub_buttons'] as $element)
-				{
-					if (isset($element['test']) && empty(Utils::$context[$element['test']]))
+
+				foreach ($value['sub_buttons'] as $element) {
+					if (isset($element['test']) && empty(Utils::$context[$element['test']])) {
 						continue;
+					}
 
 					$button .= '
 							<li>
 								<a href="' . $element['url'] . '">
 									<span>' . Lang::getTxt($element['text']) . '</span>';
-					if (Lang::txtExists($element['text'] . '_desc'))
+
+					if (Lang::txtExists($element['text'] . '_desc')) {
 						$button .= '
 									<span>' . Lang::getTxt($element['text'] . '_desc') . '</span>';
+					}
 					$button .= '
 								</a>
 							</li>';
@@ -725,8 +739,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	}
 
 	// No buttons? No button strip either.
-	if (empty($buttons))
+	if (empty($buttons)) {
 		return;
+	}
 
 	echo '
 		<ul class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
@@ -745,48 +760,52 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 function template_quickbuttons($list_items, $list_class = null, $output_method = 'echo')
 {
 	// Enable manipulation with hooks
-	if (!empty($list_class))
-		IntegrationHook::call('integrate_' . $list_class . '_quickbuttons', array(&$list_items));
+	if (!empty($list_class)) {
+		IntegrationHook::call('integrate_' . $list_class . '_quickbuttons', [&$list_items]);
+	}
 
 	// Make sure the list has at least one shown item
-	foreach ($list_items as $key => $li)
-	{
+	foreach ($list_items as $key => $li) {
 		// Is there a sublist, and does it have any shown items
-		if ($key == 'more')
-		{
-			foreach ($li as $subkey => $subli)
-				if (isset($subli['show']) && !$subli['show'])
+		if ($key == 'more') {
+			foreach ($li as $subkey => $subli) {
+				if (isset($subli['show']) && !$subli['show']) {
 					unset($list_items[$key][$subkey]);
+				}
+			}
 
-			if (empty($list_items[$key]))
+			if (empty($list_items[$key])) {
 				unset($list_items[$key]);
+			}
 		}
 		// A normal list item
-		elseif (isset($li['show']) && !$li['show'])
+		elseif (isset($li['show']) && !$li['show']) {
 			unset($list_items[$key]);
+		}
 	}
 
 	// Now check if there are any items left
-	if (empty($list_items))
+	if (empty($list_items)) {
 		return;
+	}
 
 	// Print the quickbuttons
 	$output = '
 		<ul class="quickbuttons' . (!empty($list_class) ? ' quickbuttons_' . $list_class : '') . '">';
 
 	// This is used for a list item or a sublist item
-	$list_item_format = function($li)
-	{
+	$list_item_format = function ($li) {
 		$html = '
 			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? ' ' . $li['custom'] : '') . '>';
 
-		if (isset($li['content']))
+		if (isset($li['content'])) {
 			$html .= $li['content'];
-		else
-			$html .= '
+		} else {
+		$html .= '
 				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? ' ' . $li['javascript'] : '') . '>
 					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? '<span class="text-label">' . $li['label'] . '</span>' : '') . '
 				</a>';
+		}
 
 		$html .= '
 			</li>';
@@ -794,11 +813,9 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		return $html;
 	};
 
-	foreach ($list_items as $key => $li)
-	{
+	foreach ($list_items as $key => $li) {
 		// Handle the sublist
-		if ($key == 'more')
-		{
+		if ($key == 'more') {
 			$output .= '
 			<li class="quickoptions">
 				<a href="javascript:void(0);">
@@ -807,26 +824,29 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 				</a>
 				<ul>';
 
-			foreach ($li as $subli)
+			foreach ($li as $subli) {
 				$output .= $list_item_format($subli);
+			}
 
 			$output .= '
 				</ul>
 			</li>';
 		}
 		// Ordinary list item
-		else
-			$output .= $list_item_format($li);
+		else {
+		$output .= $list_item_format($li);
+		}
 	}
 
 	$output .= '
 		</ul><!-- .quickbuttons -->';
 
 	// There are a few spots where the result needs to be returned
-	if ($output_method == 'echo')
+	if ($output_method == 'echo') {
 		echo $output;
-	else
-		return $output;
+	} else {
+	return $output;
+	}
 }
 
 /**
@@ -850,10 +870,7 @@ function template_maint_warning_above()
 /**
  * The lower part of the maintenance warning box.
  */
-function template_maint_warning_below()
-{
-
-}
+function template_maint_warning_below() {}
 
 /**
  * The upper part of the security warning box
@@ -887,10 +904,7 @@ function template_security_warning_above()
 /**
  * The lower part of the security warning box.
  */
-function template_security_warning_below()
-{
-
-}
+function template_security_warning_below() {}
 
 /**
  * The upper part of the ban warning box
@@ -923,7 +937,4 @@ function template_banned_warning_above()
 /**
  * The lower part of the ban warning box.
  */
-function template_banned_warning_below()
-{
-
-}
+function template_banned_warning_below() {}

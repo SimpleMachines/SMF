@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -10,12 +11,11 @@
  * @version 3.0 Alpha 4
  */
 
-use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * The main template for the post page.
@@ -31,9 +31,10 @@ function template_main()
 			var icon_urls = ', json_encode(array_column(Utils::$context['icons'], 'url', 'value'), JSON_UNESCAPED_SLASHES), ';';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
-	if (Utils::$context['make_event'])
+	if (Utils::$context['make_event']) {
 		echo '
 			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];';
+	}
 
 	// End of the javascript, start the form and display the link tree.
 	echo '
@@ -54,10 +55,11 @@ function template_main()
 			</div>
 			<br>';
 
-	if (Utils::$context['make_event'] && (!Utils::$context['event']->new || !empty(Utils::$context['current_board'])))
+	if (Utils::$context['make_event'] && (!Utils::$context['event']->new || !empty(Utils::$context['current_board']))) {
 		echo '
 			<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
 			<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
+	}
 
 	// Start the main table.
 	echo '
@@ -82,33 +84,35 @@ function template_main()
 					</div>';
 
 	// If this won't be approved let them know!
-	if (!Utils::$context['becomes_approved'])
+	if (!Utils::$context['becomes_approved']) {
 		echo '
 					<div class="noticebox">
 						<em>', Lang::getTxt('wait_for_approval', file: 'General'), '</em>
 						<input type="hidden" name="not_approved" value="1">
 					</div>';
+	}
 
 	// If it's locked, show a message to warn the replier.
-	if (!empty(Utils::$context['locked']))
+	if (!empty(Utils::$context['locked'])) {
 		echo '
 					<div class="errorbox">
 						', Lang::getTxt('topic_locked_no_reply', file: 'Post'), '
 					</div>';
+	}
 
-	if (!empty(Config::$modSettings['drafts_post_enabled']))
+	if (!empty(Config::$modSettings['drafts_post_enabled'])) {
 		echo '
 					<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
 						Lang::getTxt('draft_saved', ['url' => Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts'], file: 'Drafts'), '
 						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']], file: 'Drafts') . '</strong>' : ''), '
 					</div>';
+	}
 
 	// The post header... important stuff
 	template_post_header();
 
 	// Are you posting a calendar event?
-	if (Utils::$context['make_event'])
-	{
+	if (Utils::$context['make_event']) {
 		echo '
 					<div id="post_event">';
 
@@ -123,8 +127,7 @@ function template_main()
 	}
 
 	// If this is a poll then display all the poll options!
-	if (Utils::$context['make_poll'])
-	{
+	if (Utils::$context['make_poll']) {
 		echo '
 					<hr class="clear">
 					<div id="edit_poll">
@@ -133,11 +136,11 @@ function template_main()
 							<dl class="settings poll_options" data-more-txt="', Lang::getTxt('poll_add_option', file: 'Post'), '" data-option-txt="', Lang::getTxt('option', file: 'General'), '">
 								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
-									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" size="80">
+									<input type="text" name="question" value="', Utils::$context['question'] ?? '', '" size="80">
 								</dd>';
 
 		// Loop through all the choices and print them out.
-		foreach (Utils::$context['choices'] as $choice)
+		foreach (Utils::$context['choices'] as $choice) {
 			echo '
 								<dt>
 									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']], file: 'Post'), '</label>
@@ -145,6 +148,7 @@ function template_main()
 								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" size="80" maxlength="255">
 								</dd>';
+		}
 
 		echo '
 							</dl>
@@ -172,7 +176,7 @@ function template_main()
 									<input type="checkbox" id="poll_change_vote" name="poll_change_vote"', !empty(Utils::$context['poll']['change_vote']) ? ' checked' : '', '>
 								</dd>';
 
-		if (Utils::$context['poll_options']['guest_vote_enabled'])
+		if (Utils::$context['poll_options']['guest_vote_enabled']) {
 			echo '
 								<dt>
 									<label for="poll_guest_vote">', Lang::getTxt('poll_guest_vote', file: 'Post'), '</label>
@@ -180,6 +184,7 @@ function template_main()
 								<dd>
 									<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll_options']['guest_vote']) ? ' checked' : '', '>
 								</dd>';
+		}
 
 		echo '
 								<dt>
@@ -199,8 +204,7 @@ function template_main()
 	template_control_richedit('message', 'smileyBox_message', 'bbcBox_message');
 
 	// Show attachments.
-	if (!empty(Utils::$context['current_attachments']) || Utils::$context['can_post_attachment'])
-	{
+	if (!empty(Utils::$context['current_attachments']) || Utils::$context['can_post_attachment']) {
 		echo '
 					<div id="post_attachments_area" class="roundframe noup">';
 
@@ -211,21 +215,24 @@ function template_main()
 									<div>
 										<strong>', Lang::getTxt('attachments', file: 'Post'), '</strong>:';
 
-		if (Utils::$context['can_post_attachment'])
+		if (Utils::$context['can_post_attachment']) {
 			echo '
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
 										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::getTxt('clean_attach', file: 'Post'), ')</a>';
+		}
 
-		if (!empty(Config::$modSettings['attachmentSizeLimit']))
+		if (!empty(Config::$modSettings['attachmentSizeLimit'])) {
 			echo '
 										<input type="hidden" name="MAX_FILE_SIZE" value="' . Config::$modSettings['attachmentSizeLimit'] * 1024 . '">';
+		}
 
 		echo '
 									</div>';
 
-		if (!empty(Utils::$context['attachment_restrictions']))
+		if (!empty(Utils::$context['attachment_restrictions'])) {
 			echo '
 									<div class="smalltext">', Lang::getTxt('attach_restrictions', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['attachment_restrictions'])]), '</div>';
+		}
 
 		echo '
 									<div class="smalltext">
@@ -236,20 +243,18 @@ function template_main()
 								<div class="attachments">';
 
 		// If this post already has attachments on it - give information about them.
-		if (!empty(Utils::$context['current_attachments']))
-		{
-			foreach (Utils::$context['current_attachments'] as $attachment)
-			{
+		if (!empty(Utils::$context['current_attachments'])) {
+			foreach (Utils::$context['current_attachments'] as $attachment) {
 				echo '
 									<div class="attached">
 										<input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', '>';
 
-				if (!empty(Config::$modSettings['attachmentShowImages']))
-				{
-					if (str_starts_with($attachment['mime_type'], 'image'))
+				if (!empty(Config::$modSettings['attachmentShowImages'])) {
+					if (str_starts_with($attachment['mime_type'], 'image')) {
 						$src = Config::$scripturl . '?action=dlattach;attach=' . (!empty($attachment['thumb']) ? $attachment['thumb'] : $attachment['attachID']) . ';preview;image';
-					else
-						$src = Theme::$current->settings['images_url'] . '/generic_attach.png';
+					} else {
+					$src = Theme::$current->settings['images_url'] . '/generic_attach.png';
+					}
 
 					echo '
 										<div class="attachments_top">
@@ -271,13 +276,13 @@ function template_main()
 								</div>
 							</div>';
 
-		if (!empty(Utils::$context['files_in_session_warning']))
+		if (!empty(Utils::$context['files_in_session_warning'])) {
 			echo '
 							<div class="smalltext"><em>', Utils::$context['files_in_session_warning'], '</em></div>';
+		}
 
 		// Is the user allowed to post any additional ones? If so give them the boxes to do it!
-		if (Utils::$context['can_post_attachment'])
-		{
+		if (Utils::$context['can_post_attachment']) {
 			// Print dropzone UI.
 			echo '
 						<div id="attachment_upload">
@@ -320,9 +325,10 @@ function template_main()
 									<div class="fallback">
 											<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', Lang::getTxt('clean_attach', file: 'Post'), '</a>)';
 
-			if (!empty(Config::$modSettings['attachmentSizeLimit']))
+			if (!empty(Config::$modSettings['attachmentSizeLimit'])) {
 				echo '
 											<input type="hidden" name="MAX_FILE_SIZE" value="' . Config::$modSettings['attachmentSizeLimit'] * 1024 . '">';
+			}
 
 			echo '
 									</div><!-- .fallback -->
@@ -340,18 +346,19 @@ function template_main()
 	}
 
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
-	if (!empty(Config::$modSettings['additional_options_collapsable']))
+	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
 		echo '
 					<details id="additional_options_toggle" ', Utils::$context['show_additional_options'] ? 'open' : '', ',><summary>', Lang::getTxt('post_additionalopt', file: 'Post'), '</summary>';
+	}
 
 	template_additional_options(Utils::$context['Additional_options']);
 
-	if (!empty(Config::$modSettings['additional_options_collapsable']))
+	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
 		echo '</details>';
+	}
 
 	// If the admin enabled the drafts feature, show a draft selection box
-	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
-	{
+	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty(Theme::$current->options['drafts_show_saved_enabled'])) {
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
@@ -364,17 +371,18 @@ function template_main()
 							<dt><strong>', Lang::getTxt('subject', file: 'General'), '</strong></dt>
 							<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
-		foreach (Utils::$context['drafts'] as $draft)
+		foreach (Utils::$context['drafts'] as $draft) {
 			echo '
 							<dt>', $draft['link'], '</dt>
 							<dd>', $draft['poster_time'], '</dd>';
+		}
 		echo '
 						</dl>
 					</div>';
 	}
 
 	// Is visual verification enabled?
-	if (Utils::$context['require_verification'])
+	if (Utils::$context['require_verification']) {
 		echo '
 					<div class="post_verification">
 						<span', !empty(Utils::$context['post_error']['need_qr_verification']) ? ' class="error"' : '', '>
@@ -382,6 +390,7 @@ function template_main()
 						</span>
 						', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 					</div>';
+	}
 
 	// Finally, the submit buttons.
 	echo '
@@ -395,9 +404,10 @@ function template_main()
 			<br class="clear">';
 
 	// Assuming this isn't a new topic pass across the last message id.
-	if (isset(Utils::$context['topic_last_message']))
+	if (isset(Utils::$context['topic_last_message'])) {
 		echo '
 			<input type="hidden" name="last_msg" value="', Utils::$context['topic_last_message'], '">';
+	}
 
 	echo '
 			<input type="hidden" name="additional_options" id="additional_options" value="', Utils::$context['show_additional_options'] ? '1' : '0', '">
@@ -418,13 +428,14 @@ function template_main()
 			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . Lang::getTxt('ignoring_user', file: 'General') . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . Lang::getTxt('show_ignore_user_post', file: 'General') . '</a></div>
 			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>';
 
-	if (Utils::$context['can_quote'])
+	if (Utils::$context['can_quote']) {
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
 				<li>
 					<a href="#" class="quote_button"><span class="main_icons quote"></span>' . Lang::getTxt('quote', file: 'General') . '</a>
 				</li>
 			</ul>';
+	}
 
 	$newPostsHTML .= '
 		</div>';
@@ -447,15 +458,16 @@ function template_main()
 				sSessionVar: ', Utils::escapeJavaScript(Utils::$context['session_var']), ',
 				newPostsTemplate:', Utils::escapeJavaScript($newPostsHTML);
 
-	if (!empty(Utils::$context['current_board']))
+	if (!empty(Utils::$context['current_board'])) {
 		echo ',
 				iCurrentBoard: ', Utils::$context['current_board'], '';
+	}
 
 	echo '
 			});';
 
 	// Code for showing and hiding additional options.
-	if (!empty(Config::$modSettings['additional_options_collapsable']))
+	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
 		echo '
 			// Get the details element and the hidden input field
 			const detailsElement = document.getElementById("additional_options_toggle");
@@ -469,9 +481,10 @@ function template_main()
 					valueField.value = "0"; // Set value to 0 when details are closed
 				}
 			});';
+	}
 
 	// Code for showing and hiding drafts
-	if (!empty(Utils::$context['drafts']))
+	if (!empty(Utils::$context['drafts'])) {
 		echo '
 			var oSwapDraftOptions = new smc_Toggle({
 				bToggleEnabled: true,
@@ -494,13 +507,13 @@ function template_main()
 					}
 				]
 			});';
+	}
 
 	echo '
 		</script>';
 
 	// If the user is replying to a topic show the previous posts.
-	if (isset(Utils::$context['previous_posts']) && count(Utils::$context['previous_posts']) > 0)
-	{
+	if (isset(Utils::$context['previous_posts']) && count(Utils::$context['previous_posts']) > 0) {
 		echo '
 		<div id="recent" class="flow_hidden main_section">
 			<div class="cat_bar cat_bar_round">
@@ -508,12 +521,14 @@ function template_main()
 			</div>
 			<span id="new_replies"></span>';
 
-		$ignored_posts = array();
-		foreach (Utils::$context['previous_posts'] as $post)
-		{
+		$ignored_posts = [];
+
+		foreach (Utils::$context['previous_posts'] as $post) {
 			$ignoring = false;
-			if (!empty($post['is_ignored']))
+
+			if (!empty($post['is_ignored'])) {
 				$ignored_posts[] = $ignoring = $post['id'];
+			}
 
 			echo '
 			<div class="windowbg" id="msg', $post['id'], '">
@@ -523,22 +538,24 @@ function template_main()
 					</h5>
 				</div>';
 
-			if ($ignoring)
+			if ($ignoring) {
 				echo '
 				<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
 					', Lang::getTxt('ignoring_user', file: 'General'), '
 					<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
 				</div>';
+			}
 
 			echo '
 				<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', Utils::adjustHeadingLevels($post['message'], 5), '</div>';
 
-			if (Utils::$context['can_quote'])
+			if (Utils::$context['can_quote']) {
 				echo '
 				<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
 					<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::getTxt('quote_selected_action', file: 'General'), '</a></li>
 					<li><a href="#"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
 				</ul>';
+			}
 
 			echo '
 			</div><!-- #msg[id] -->';
@@ -549,8 +566,7 @@ function template_main()
 		<script>
 			var aIgnoreToggles = new Array();';
 
-		foreach ($ignored_posts as $post_id)
-		{
+		foreach ($ignored_posts as $post_id) {
 			echo '
 			aIgnoreToggles[', $post_id, '] = new smc_Toggle({
 				bToggleEnabled: true,
@@ -712,11 +728,10 @@ function template_quotefast()
 		<div id="temporary_posting_area" style="display: none;"></div>
 		<script>';
 
-	if (Utils::$context['close_window'])
+	if (Utils::$context['close_window']) {
 		echo '
 			window.close();';
-	else
-	{
+	} else {
 		// Lucky for us, Internet Explorer has an "innerText" feature which basically converts entities <--> text. Use it if possible ;)
 		echo '
 			var quote = \'', Utils::$context['quote']['text'], '\';
@@ -767,11 +782,12 @@ function template_announce()
 				</p>
 				<ul>';
 
-	foreach (Utils::$context['groups'] as $group)
+	foreach (Utils::$context['groups'] as $group) {
 		echo '
 					<li>
 						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::getTxt('not_applicable', file: 'General'), ')</em>
 					</li>';
+	}
 
 	echo '
 					<li>
@@ -844,12 +860,11 @@ function template_announcement_send()
 function template_post_header()
 {
 	// Sanity check: submitting the form won't work without at least a subject field
-	if (empty(Utils::$context['posting_fields']['subject']) || !is_array(Utils::$context['posting_fields']['subject']))
-	{
-		Utils::$context['posting_fields']['subject'] = array(
-			'label' => array('html' => '<label for="subject" id="caption_subject">' . Lang::getTxt('subject', file: 'General') . '</label>'),
-			'input' => array('html' => '<input type="text" id="subject" name="subject" value="' . Utils::$context['subject'] . '" size="80" maxlength="80" required>')
-		);
+	if (empty(Utils::$context['posting_fields']['subject']) || !is_array(Utils::$context['posting_fields']['subject'])) {
+		Utils::$context['posting_fields']['subject'] = [
+			'label' => ['html' => '<label for="subject" id="caption_subject">' . Lang::getTxt('subject', file: 'General') . '</label>'],
+			'input' => ['html' => '<input type="text" id="subject" name="subject" value="' . Utils::$context['subject'] . '" size="80" maxlength="80" required>'],
+		];
 	}
 
 	// THEME AUTHORS: Above this line is a great place to make customizations to the posting_fields array
@@ -858,31 +873,34 @@ function template_post_header()
 	echo '
 					<dl id="post_header">';
 
-	foreach (Utils::$context['posting_fields'] as $pfid => $pf)
-	{
+	foreach (Utils::$context['posting_fields'] as $pfid => $pf) {
 		// We need both a label and an input
-		if (empty($pf['label']) || empty($pf['input']))
+		if (empty($pf['label']) || empty($pf['input'])) {
 			continue;
+		}
 
 		// The labels are pretty simple...
 		echo '
 						<dt class="clear pf_', $pfid, '">';
 
 		// Any leading HTML before the label
-		if (!empty($pf['label']['before']))
+		if (!empty($pf['label']['before'])) {
 			echo '
 							', $pf['label']['before'];
+		}
 
-		if (!empty($pf['label']['html']))
+		if (!empty($pf['label']['html'])) {
 			echo $pf['label']['html'];
-		else
-			echo '
+		} else {
+		echo '
 							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['id']) ? $pf['input']['attributes']['id'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+		}
 
 		// Any trailing HTML after the label
-		if (!empty($pf['label']['after']))
+		if (!empty($pf['label']['after'])) {
 			echo '
 							', $pf['label']['after'];
+		}
 
 		echo '
 						</dt>';
@@ -892,131 +910,132 @@ function template_post_header()
 						<dd class="pf_', $pfid, '">';
 
 		// Any leading HTML before the main input
-		if (!empty($pf['input']['before']))
+		if (!empty($pf['input']['before'])) {
 			echo '
 							', $pf['input']['before'];
+		}
 
 		// If there is a literal HTML string already defined, just print it.
-		if (!empty($pf['input']['html']))
-		{
+		if (!empty($pf['input']['html'])) {
 			echo $pf['input']['html'];
 		}
 		// Simple text inputs and checkboxes
-		elseif (in_array($pf['input']['type'], array('text', 'password', 'color', 'date', 'datetime-local', 'email', 'month', 'number', 'range', 'tel', 'time', 'url', 'week', 'checkbox')))
-		{
+		elseif (in_array($pf['input']['type'], ['text', 'password', 'color', 'date', 'datetime-local', 'email', 'month', 'number', 'range', 'tel', 'time', 'url', 'week', 'checkbox'])) {
 			echo '
 							<input type="', $pf['input']['type'], '"';
 
-			if (empty($pf['input']['attributes']['id']))
+			if (empty($pf['input']['attributes']['id'])) {
 				echo ' id="', $pfid, '"';
+			}
 
-			if (empty($pf['input']['attributes']['name']))
+			if (empty($pf['input']['attributes']['name'])) {
 				echo ' name="', $pfid, '"';
+			}
 
-			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
-			{
-				foreach ($pf['input']['attributes'] as $attribute => $value)
-				{
-					if (is_bool($value))
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes'])) {
+				foreach ($pf['input']['attributes'] as $attribute => $value) {
+					if (is_bool($value)) {
 						echo $value ? ' ' . $attribute : '';
-					else
-						echo ' ', $attribute, '="', $value, '"';
+					} else {
+					echo ' ', $attribute, '="', $value, '"';
+					}
 				}
 			}
 
 			echo '>';
 		}
 		// textarea
-		elseif ($pf['input']['type'] === 'textarea')
-		{
+		elseif ($pf['input']['type'] === 'textarea') {
 			echo '
 							<textarea';
 
-			if (empty($pf['input']['attributes']['id']))
+			if (empty($pf['input']['attributes']['id'])) {
 				echo ' id="', $pfid, '"';
+			}
 
-			if (empty($pf['input']['attributes']['name']))
+			if (empty($pf['input']['attributes']['name'])) {
 				echo ' name="', $pfid, '"';
+			}
 
-			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
-			{
-				foreach ($pf['input']['attributes'] as $attribute => $value)
-				{
-					if ($attribute === 'value')
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes'])) {
+				foreach ($pf['input']['attributes'] as $attribute => $value) {
+					if ($attribute === 'value') {
 						continue;
-					elseif (is_bool($value))
+					}
+
+					if (is_bool($value)) {
 						echo $value ? ' ' . $attribute : '';
-					else
-						echo ' ', $attribute, '="', $value, '"';
+					} else {
+					echo ' ', $attribute, '="', $value, '"';
+					}
 				}
 			}
 
 			echo '>', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
 		}
 		// Select menus are more complicated
-		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options']))
-		{
+		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options'])) {
 			// The select element itself
 			echo '
 							<select';
 
-			if (empty($pf['input']['attributes']['id']))
+			if (empty($pf['input']['attributes']['id'])) {
 				echo ' id="', $pfid, '"';
+			}
 
-			if (empty($pf['input']['attributes']['name']))
+			if (empty($pf['input']['attributes']['name'])) {
 				echo ' name="', $pfid, !empty($pf['input']['attributes']['multiple']) ? '[]' : '', '"';
+			}
 
-			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
-			{
-				foreach ($pf['input']['attributes'] as $attribute => $value)
-				{
-					if (is_bool($value))
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes'])) {
+				foreach ($pf['input']['attributes'] as $attribute => $value) {
+					if (is_bool($value)) {
 						echo $value ? ' ' . $attribute : '';
-					else
-						echo ' ', $attribute, '="', $value, '"';
+					} else {
+					echo ' ', $attribute, '="', $value, '"';
+					}
 				}
 			}
 
 			echo '>';
 
 			// The options
-			foreach ($pf['input']['options'] as $optlabel => $option)
-			{
+			foreach ($pf['input']['options'] as $optlabel => $option) {
 				// An option containing options is an optgroup
-				if (!empty($option['options']) && is_array($option['options']))
-				{
+				if (!empty($option['options']) && is_array($option['options'])) {
 					echo '
 								<optgroup';
 
-					if (empty($option['label']))
+					if (empty($option['label'])) {
 						echo ' label="', $optlabel, '"';
+					}
 
-					if (!empty($option) && is_array($option))
-					{
-						foreach ($option as $attribute => $value)
-						{
-							if ($attribute === 'options')
+					if (!empty($option) && is_array($option)) {
+						foreach ($option as $attribute => $value) {
+							if ($attribute === 'options') {
 								continue;
-							elseif (is_bool($value))
+							}
+
+							if (is_bool($value)) {
 								echo $value ? ' ' . $attribute : '';
-							else
-								echo ' ', $attribute, '="', $value, '"';
+							} else {
+							echo ' ', $attribute, '="', $value, '"';
+							}
 						}
 					}
 
 					echo '>';
 
-					foreach ($option['options'] as $grouped_optlabel => $grouped_option)
-					{
+					foreach ($option['options'] as $grouped_optlabel => $grouped_option) {
 						echo '
 									<option';
 
-						foreach ($grouped_option as $attribute => $value)
-						{
-							if (is_bool($value))
+						foreach ($grouped_option as $attribute => $value) {
+							if (is_bool($value)) {
 								echo $value ? ' ' . $attribute : '';
-							else
-								echo ' ', $attribute, '="', $value, '"';
+							} else {
+							echo ' ', $attribute, '="', $value, '"';
+							}
 						}
 
 						echo '>', $grouped_option['label'], '</option>';
@@ -1027,17 +1046,16 @@ function template_post_header()
 								</optgroup>';
 				}
 				// Simple option
-				else
-				{
+				else {
 					echo '
 								<option';
 
-					foreach ($option as $attribute => $value)
-					{
-						if (is_bool($value))
+					foreach ($option as $attribute => $value) {
+						if (is_bool($value)) {
 							echo $value ? ' ' . $attribute : '';
-						else
-							echo ' ', $attribute, '="', $value, '"';
+						} else {
+						echo ' ', $attribute, '="', $value, '"';
+						}
 					}
 
 					echo '>', $optlabel, '</option>';
@@ -1049,42 +1067,43 @@ function template_post_header()
 							</select>';
 		}
 		// Radio_select makes a div with some radio buttons in it
-		elseif ($pf['input']['type'] === 'radio_select' && is_array($pf['input']['options']))
-		{
+		elseif ($pf['input']['type'] === 'radio_select' && is_array($pf['input']['options'])) {
 			echo '
 							<div';
 
-			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
-			{
-				foreach ($pf['input']['attributes'] as $attribute => $value)
-				{
-					if ($attribute === 'name')
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes'])) {
+				foreach ($pf['input']['attributes'] as $attribute => $value) {
+					if ($attribute === 'name') {
 						continue;
-					elseif (is_bool($value))
+					}
+
+					if (is_bool($value)) {
 						echo $value ? ' ' . $attribute : '';
-					else
-						echo ' ', $attribute, '="', $value, '"';
+					} else {
+					echo ' ', $attribute, '="', $value, '"';
+					}
 				}
 			}
 
 			echo '>';
 
-			foreach ($pf['input']['options'] as $optlabel => $option)
-			{
+			foreach ($pf['input']['options'] as $optlabel => $option) {
 				echo '
 							<label style="margin-right:2ch"><input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
 
-				foreach ($option as $attribute => $value)
-				{
-					if ($attribute === 'label')
+				foreach ($option as $attribute => $value) {
+					if ($attribute === 'label') {
 						continue;
-					elseif (is_bool($value))
+					}
+
+					if (is_bool($value)) {
 						echo $value ? ' ' . ($attribute === 'selected' ? 'checked' : $attribute) : '';
-					else
-						echo ' ', $attribute, '="', $value, '"';
+					} else {
+					echo ' ', $attribute, '="', $value, '"';
+					}
 				}
 
-				echo '> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
+				echo '> ', $option['label'] ?? $optlabel, '</label>';
 			}
 
 			echo '
@@ -1092,9 +1111,10 @@ function template_post_header()
 		}
 
 		// Any trailing HTML after the main input
-		if (!empty($pf['input']['after']))
+		if (!empty($pf['input']['after'])) {
 			echo '
 							', $pf['input']['after'];
+		}
 
 		echo '
 						</dd>';

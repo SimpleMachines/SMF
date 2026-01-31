@@ -266,7 +266,7 @@ function template_event_new()
 	// Setting max-width on selects inside floating elements can be flaky,
 	// so we need to calculate the width value manually.
 	echo '
-								<select name="tz" id="tz"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', ' style="width:min(', max(array_map(fn ($tzname) => Utils::entityStrlen($tzname), Utils::$context['all_timezones'])) * 0.9, 'ch, 100%)">';
+								<select name="tz" id="tz"', !empty(Utils::$context['event']->allday) || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', ' style="width:min(', max(array_map(fn($tzname) => Utils::entityStrlen($tzname), Utils::$context['all_timezones'])) * 0.9, 'ch, 100%)">';
 
 	foreach (Utils::$context['all_timezones'] as $tz => $tzname) {
 		echo '
