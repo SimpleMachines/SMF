@@ -408,40 +408,67 @@ function template_generic_xml()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>';
 
 	// Show the data.
-	template_generic_xml_recursive(Utils::$context['xml_data'], 'smf', '', -1);
+	template_generic_xml_recursive(Utils::$context['xml_data'], 'smf');
 }
 
 /**
- * Recursive function for displaying generic XML data.
+ * Recursive function for displaying well-formed XML data.
  *
  * @param array $xml_data An array of XML data
- * @param string $parent_ident The parent tag
- * @param string $child_ident The child tag
+ * @param string $parent_tag The parent tag
+ * @param string $child_tag The child tag
  * @param int $level How many levels to indent the code
+ * @param array $parent_attributes Attributes for the parent node
  */
-function template_generic_xml_recursive($xml_data, $parent_ident, $child_ident, $level)
+function template_generic_xml_recursive(array $xml_data, string $parent_tag, string $child_tag = '', int $level = 0, array $parent_attributes = [])
 {
-	// This is simply for neat indentation.
-	$level++;
+	$level = max(0, $level);
+	$indent = str_repeat("\t", $level);
 
-	echo "\n" . str_repeat("\t", $level), '<', $parent_ident, '>';
+	echo "\n" . $indent . '<' . $parent_tag;
 
-	foreach ($xml_data as $key => $data)
-	{
-		// A group?
-		if (is_array($data) && isset($data['identifier']))
-			template_generic_xml_recursive($data['children'], $key, $data['identifier'], $level);
-		// An item...
-		elseif (is_array($data) && isset($data['value']))
-		{
-			echo "\n", str_repeat("\t", $level), '<', $child_ident;
+	foreach ($parent_attributes as $attr_key => $attr_value) {
+		echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key, ENT_XML1, 'UTF-8')) . '="' . htmlspecialchars(Utils::cleanXml($attr_value, ENT_XML1, 'UTF-8')) . '"';
+	}
 
-			if (!empty($data['attributes']))
-				foreach ($data['attributes'] as $k => $v)
-					echo ' ' . $k . '="' . $v . '"';
-			echo '><![CDATA[', Utils::cleanXml($data['value']), ']]></', $child_ident, '>';
+	echo '>';
+
+	foreach ($xml_data as $key => $data) {
+		// Handle nested groups
+		if (is_array($data) && isset($data['identifier'], $data['children'])) {
+			$node_attributes = $data['attributes'] ?? [];
+			template_generic_xml_recursive(
+				$data['children'],
+				$key,
+				$data['identifier'] ?? null,
+				$level + 1,
+				$node_attributes
+			);
+		} // Handle individual elements
+		elseif (is_array($data) && isset($data['value'])) {
+			echo "\n" . $indent . "\t<" . ($data['identifier'] ?? $child_tag ?? $key);
+
+			if (isset($data['attributes'])) {
+				foreach ($data['attributes'] as $attr_key => $attr_value) {
+					echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key, ENT_XML1, 'UTF-8')) . '="' . htmlspecialchars(Utils::cleanXml($attr_value, ENT_XML1, 'UTF-8')) . '"';
+				}
+			}
+
+			$escaped_value = Utils::cleanXml($data['value']);
+
+			// Self-closing tag for empty value
+			if ($escaped_value === '') {
+				echo ' />';
+			} else {
+				if (preg_match('/[<&>]/', $escaped_value)) {
+					echo '><![CDATA[' . $escaped_value . ']]>';
+				} else {
+					echo '>' . htmlspecialchars($escaped_value, ENT_XML1, 'UTF-8');
+				}
+				echo '</' . ($data['identifier'] ?? $child_tag ?? $key) . '>';
+			}
 		}
 	}
 
-	echo "\n", str_repeat("\t", $level), '</', $parent_ident, '>';
+	echo "\n" . $indent . '</' . $parent_tag . '>';
 }
