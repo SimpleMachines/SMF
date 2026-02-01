@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -26,7 +27,7 @@ use SMF\Utils;
  */
 function template_fatal_error()
 {
-	if (!empty(Utils::$context['simple_action']))
+	if (!empty(Utils::$context['simple_action'])) {
 		echo '
 	<strong>
 		', Utils::$context['error_title'], '
@@ -34,8 +35,7 @@ function template_fatal_error()
 	<div ', Utils::$context['error_code'], 'class="padding">
 		', Utils::$context['error_message'], '
 	</div>';
-	else
-	{
+	} else {
 		echo '
 	<div id="fatal_error">
 		<div class="cat_bar">
@@ -74,21 +74,22 @@ function template_error_log()
 				<div class="additional_row">';
 
 	// No errors, so just show a message and be done with it.
-	if (empty(Utils::$context['errors']))
-	{
+	if (empty(Utils::$context['errors'])) {
 		echo '
 					', Lang::getTxt('errorlog_no_entries', file: 'Admin'), '
 				</div>
 			</div>
 		</form>';
+
 		return;
 	}
 
-	if (Utils::$context['has_filter'])
+	if (Utils::$context['has_filter']) {
 		echo '
 				<div class="infobox">
 					', Lang::getTxt('applying_filter', ['type' => Utils::$context['filter']['entity'], 'value' => Utils::$context['filter']['value']['html']], file: 'ManageMaintenance'), '
 				</div>';
+	}
 
 	echo '
 				<div class="floatright">
@@ -97,10 +98,11 @@ function template_error_log()
 					', (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::getTxt('clear_filter', file: 'ManageMaintenance') . '</a>' : ''), '
 				</div>';
 
-	$error_types = array();
+	$error_types = [];
 
-	foreach (Utils::$context['error_types'] as $type => $details)
+	foreach (Utils::$context['error_types'] as $type => $details) {
 		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : 'style="font-weight: normal;"') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
+	}
 
 	echo '
 				', Lang::getTxt('apply_filter_of_type', ['list' => implode(' | ', $error_types)], file: 'ManageMaintenance'), '
@@ -117,8 +119,7 @@ function template_error_log()
 			</div>';
 
 	// We have some errors, must be some mods installed :P
-	foreach (Utils::$context['errors'] as $error)
-	{
+	foreach (Utils::$context['errors'] as $error) {
 		echo '
 			<div class="windowbg word_break">
 				<div class="counter" style="padding: 0 10px 10px 0">', $error['id'], '</div>
@@ -136,26 +137,29 @@ function template_error_log()
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_member', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
 
-		if (!empty($error['member']['ip']))
+		if (!empty($error['member']['ip'])) {
 			echo '
 						<br>
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_ip', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<strong><a href="', Config::$scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
+		}
 
-		if (!empty($error['member']['session']))
+		if (!empty($error['member']['session'])) {
 			echo '
 						<br>
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]), '">', $error['member']['session'], '</a>';
+		}
 
 		echo '
 						<br>
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_url', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<a href="', $error['url']['html'], '" class="bbc_link word_break">', $error['url']['html'], '</a>';
 
-		if (!empty($error['file']))
+		if (!empty($error['file'])) {
 			echo '
 						<br>
 						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_file', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a> ', Lang::getTxt('error_file_and_line', ['file' => '<a class="bbc_link" href="' . $error['file']['href'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $error['file']['file'] . '</a>', 'line' => $error['file']['line']], file: 'ManageMaintenance');
+		}
 
 		echo '
 					</div>
@@ -186,9 +190,10 @@ function template_error_log()
 				</div>
 			</div>';
 
-	if (Utils::$context['sort_direction'] == 'down')
+	if (Utils::$context['sort_direction'] == 'down') {
 		echo '
 			<input type="hidden" name="desc" value="1">';
+	}
 
 	echo '
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -210,8 +215,8 @@ function template_show_file()
 	</head>
 	<body>
 		<table class="errorfile_table">';
-	foreach (Utils::$context['file_data']['contents'] as $index => $line)
-	{
+
+	foreach (Utils::$context['file_data']['contents'] as $index => $line) {
 		$line_num = $index + Utils::$context['file_data']['min'];
 		$is_target = $line_num == Utils::$context['file_data']['target'];
 
@@ -245,9 +250,10 @@ function template_attachment_errors()
 					Utils::$context['error_message'], '
 				</div>';
 
-	if (!empty(Utils::$context['back_link']))
+	if (!empty(Utils::$context['back_link'])) {
 		echo '
 				<a class="button" href="', Config::$scripturl, Utils::$context['back_link'], '">', Lang::getTxt('back', file: 'General'), '</a>';
+	}
 
 	echo '
 				<span style="float: right; margin:.5em;"></span>
@@ -274,8 +280,7 @@ function template_show_backtrace()
 	</head>
 	<body class="padding">';
 
-	if (!empty(Utils::$context['error_info']))
-	{
+	if (!empty(Utils::$context['error_info'])) {
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -286,7 +291,7 @@ function template_show_backtrace()
 				<table class="table_grid">
 					<tbody>';
 
-		if (!empty(Utils::$context['error_info']['error_type']))
+		if (!empty(Utils::$context['error_info']['error_type'])) {
 			echo '
 						<tr class="title_bar">
 							<td><strong>', Lang::getTxt('error_type', file: 'ManageMaintenance'), '</strong></td>
@@ -294,8 +299,9 @@ function template_show_backtrace()
 						<tr class="windowbg">
 							<td>', ucfirst(Utils::$context['error_info']['error_type']), '</td>
 						</tr>';
+		}
 
-		if (!empty(Utils::$context['error_info']['message']))
+		if (!empty(Utils::$context['error_info']['message'])) {
 			echo '
 						<tr class="title_bar">
 							<td><strong>', Lang::getTxt('error_message', file: 'ManageMaintenance'), '</strong></td>
@@ -303,8 +309,9 @@ function template_show_backtrace()
 						<tr class="windowbg lefttext">
 							<td><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', Utils::$context['error_info']['message'], '</code></td>
 						</tr>';
+		}
 
-		if (!empty(Utils::$context['error_info']['file']))
+		if (!empty(Utils::$context['error_info']['file'])) {
 			echo '
 						<tr class="title_bar">
 							<td><strong>', Lang::getTxt('file', file: 'General'), '</strong></td>
@@ -312,8 +319,9 @@ function template_show_backtrace()
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['file'], '</td>
 						</tr>';
+		}
 
-		if (!empty(Utils::$context['error_info']['line']))
+		if (!empty(Utils::$context['error_info']['line'])) {
 			echo '
 						<tr class="title_bar">
 							<td><strong>', Lang::getTxt('line', file: 'General'), '</strong></td>
@@ -321,8 +329,9 @@ function template_show_backtrace()
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['line'], '</td>
 						</tr>';
+		}
 
-		if (!empty(Utils::$context['error_info']['url']))
+		if (!empty(Utils::$context['error_info']['url'])) {
 			echo '
 						<tr class="title_bar">
 							<td><strong>', Lang::getTxt('error_url', file: 'ManageMaintenance'), '</strong></td>
@@ -330,6 +339,7 @@ function template_show_backtrace()
 						<tr class="windowbg word_break">
 							<td>', Utils::$context['error_info']['url'], '</td>
 						</tr>';
+		}
 
 		echo '
 					</tbody>
@@ -337,8 +347,7 @@ function template_show_backtrace()
 			</div>';
 	}
 
-	if (!empty(Utils::$context['error_info']['backtrace']))
-	{
+	if (!empty(Utils::$context['error_info']['backtrace'])) {
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -348,14 +357,15 @@ function template_show_backtrace()
 			<div class="windowbg">
 				<ul class="padding">';
 
-		foreach (Utils::$context['error_info']['backtrace'] as $key => $value)
-		{
+		foreach (Utils::$context['error_info']['backtrace'] as $key => $value) {
 			//Check for existing
-			if (!property_exists($value, 'file') || empty($value->file))
+			if (!property_exists($value, 'file') || empty($value->file)) {
 				$value->file = Lang::getTxt('unknown', file: 'General');
+			}
 
-			if (!property_exists($value, 'line') || empty($value->line))
+			if (!property_exists($value, 'line') || empty($value->line)) {
 				$value->line = -1;
+			}
 
 			echo '
 					<li class="backtrace">',

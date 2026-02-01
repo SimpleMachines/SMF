@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -34,7 +35,7 @@ function template_popup()
 		<div class="windowbg">
 			<ul id="likes">';
 
-	foreach (Utils::$context['likers'] as $liker => $like_details)
+	foreach (Utils::$context['likers'] as $liker => $like_details) {
 		echo '
 				<li>
 					', $like_details['profile']['avatar']['image'], '
@@ -44,6 +45,7 @@ function template_popup()
 					</span>
 					<span class="floatright like_time">', $like_details['time'], '</span>
 				</li>';
+	}
 
 	echo '
 			</ul>
@@ -67,15 +69,14 @@ function template_react()
 		<li class="smflikebutton" id="', Utils::$context['data']['type'], '_', Utils::$context['data']['id_content'], '_likes"', '>
 			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Lang::getTxt(Utils::$context['data']['already_liked'] ? 'unlike' : 'like', file: 'General'), '</a>
 		</li>';
+	}
 
-	if (!empty(Utils::$context['data']['count']))
-	{
+	if (!empty(Utils::$context['data']['count'])) {
 		Utils::$context['some_likes'] = true;
 		$count = Utils::$context['data']['count'];
 		$base = 'likes_count';
 
-		if (Utils::$context['data']['already_liked'])
-		{
+		if (Utils::$context['data']['already_liked']) {
 			$base = 'you_' . $base;
 			$count--;
 		}

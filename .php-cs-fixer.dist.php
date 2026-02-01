@@ -20,7 +20,6 @@ $finder = (new PhpCsFixer\Finder())
 		'other',
 		'Packages',
 		'Smileys',
-		'Themes',
 		'vendor',
 	])
 	// Skip ssi_example.php.

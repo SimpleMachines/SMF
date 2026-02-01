@@ -450,6 +450,7 @@ $txt['upgrade_completed_time_s'] = 'Upgrade completed in {s, plural,
 }';
 
 // Upgrade error messages
+$txt['upgrade_unsuccessful'] = 'Unsuccessful!';
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';

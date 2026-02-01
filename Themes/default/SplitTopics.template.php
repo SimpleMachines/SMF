@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -100,7 +101,7 @@ function template_select()
 				</div>
 				<ul id="messages_not_selected" class="split_messages smalltext">';
 
-	foreach (Utils::$context['not_selected']['messages'] as $message)
+	foreach (Utils::$context['not_selected']['messages'] as $message) {
 		echo '
 					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
@@ -110,6 +111,7 @@ function template_select()
 						</div>
 						<div class="post">', Utils::adjustHeadingLevels($message['body'], 3), '</div>
 					</li>';
+	}
 
 	echo '
 				</ul>
@@ -128,8 +130,8 @@ function template_select()
 				</div>
 				<ul id="messages_selected" class="split_messages smalltext">';
 
-	if (!empty(Utils::$context['selected']['messages']))
-		foreach (Utils::$context['selected']['messages'] as $message)
+	if (!empty(Utils::$context['selected']['messages'])) {
+		foreach (Utils::$context['selected']['messages'] as $message) {
 			echo '
 					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
@@ -139,6 +141,8 @@ function template_select()
 						</div>
 						<div class="post">', Utils::adjustHeadingLevels($message['body'], 3), '</div>
 					</li>';
+		}
+	}
 
 	echo '
 				</ul>

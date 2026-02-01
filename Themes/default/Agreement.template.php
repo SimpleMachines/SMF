@@ -19,26 +19,23 @@ use SMF\Utils;
 // The main sub template - show the agreement and/or privacy policy
 function template_main()
 {
-	if (!empty(Utils::$context['accept_doc']))
+	if (!empty(Utils::$context['accept_doc'])) {
 		echo '
 	<form action="', Config::$scripturl, '?action=acceptagreement;doc=', Utils::$context['accept_doc'], '" method="post">';
+	}
 
-	if (!empty(Utils::$context['agreement']))
-	{
+	if (!empty(Utils::$context['agreement'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('agreement' . (!empty(Utils::$context['can_accept_agreement']) ? '_updated' : ''), file: 'General+Agreement'), '</h3>
 		</div>';
 
-		if (!empty(Utils::$context['can_accept_agreement']))
-		{
+		if (!empty(Utils::$context['can_accept_agreement'])) {
 			echo '
 		<div class="information noup">
 			', Lang::getTxt('agreement_updated_desc', file: 'Agreement'), '
 		</div>';
-		}
-		elseif (!empty(Utils::$context['agreement_accepted_date']))
-		{
+		} elseif (!empty(Utils::$context['agreement_accepted_date'])) {
 			echo '
 		<div class="information noup">
 			', Lang::getTxt('agreement_accepted', ['date' => Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)], file: 'Agreement'), '
@@ -51,22 +48,18 @@ function template_main()
 		</div>';
 	}
 
-	if (!empty(Utils::$context['privacy_policy']))
-	{
+	if (!empty(Utils::$context['privacy_policy'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('privacy_policy' . (!empty(Utils::$context['can_accept_privacy_policy']) ? '_updated' : ''), file: 'General+Agreement'), '</h3>
 		</div>';
 
-		if (!empty(Utils::$context['can_accept_privacy_policy']))
-		{
+		if (!empty(Utils::$context['can_accept_privacy_policy'])) {
 			echo '
 		<div class="information noup">
 			', Lang::getTxt('privacy_policy_updated_desc', file: 'Agreement'), '
 		</div>';
-		}
-		elseif (!empty(Utils::$context['privacy_policy_accepted_date']))
-		{
+		} elseif (!empty(Utils::$context['privacy_policy_accepted_date'])) {
 			echo '
 		<div class="information noup">
 			', Lang::getTxt('privacy_policy_accepted', ['date' => Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)], file: 'Agreement'), '

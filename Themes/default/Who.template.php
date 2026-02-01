@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -12,7 +13,6 @@
 
 use SMF\Config;
 use SMF\Lang;
-use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -34,9 +34,10 @@ function template_main()
 						', Lang::getTxt('who_show', file: 'Who'), '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
-	foreach (Utils::$context['show_methods'] as $value => $label)
+	foreach (Utils::$context['show_methods'] as $value => $label) {
 		echo '
 							<option value="', $value, '" ', $value == Utils::$context['show_by'] ? ' selected' : '', '>', $label, '</option>';
+	}
 	echo '
 						</select>
 						<noscript>
@@ -54,44 +55,44 @@ function template_main()
 					</thead>
 					<tbody>';
 
-	foreach (Utils::$context['members'] as $member)
-	{
+	foreach (Utils::$context['members'] as $member) {
 		echo '
 						<tr class="windowbg">
 							<td>';
 
 		// Guests can't be messaged.
-		if (!$member['is_guest'])
+		if (!$member['is_guest']) {
 			echo '
 								<span class="contact_info floatright">
 									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::getTxt('pm_online', file: 'General') . '">' : '', '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::getTxt('pm_online', file: 'General') . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '
 								</span>';
+		}
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
 									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $member['name']], file: 'General') . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
 								</span>';
 
-		if (!empty($member['ip']))
+		if (!empty($member['ip'])) {
 			echo '
 								(<a href="' . Config::$scripturl . '?action=', ($member['is_guest'] ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $member['id']), ';searchip=' . $member['ip'] . '">' . str_replace(':', ':&ZeroWidthSpace;', $member['ip']) . '</a>)';
+		}
 
 		echo '
 							</td>
 							<td class="time">', $member['time'], '</td>
 							<td>';
 
-		if (is_array($member['action']))
-		{
+		if (is_array($member['action'])) {
 			$tag = !empty($member['action']['tag']) ? $member['action']['tag'] : 'span';
 
 			echo '
 								<', $tag, !empty($member['action']['class']) ? ' class="' . $member['action']['class'] . '"' : '', '>
 									', Lang::getTxt($member['action']['label'], file: 'Who'), (!empty($member['action']['error_message']) ? $member['action']['error_message'] : ''), '
 								</', $tag, '>';
+		} else {
+		echo $member['action'];
 		}
-		else
-			echo $member['action'];
 
 		echo '
 							</td>
@@ -99,13 +100,14 @@ function template_main()
 	}
 
 	// No members?
-	if (empty(Utils::$context['members']))
+	if (empty(Utils::$context['members'])) {
 		echo '
 						<tr class="windowbg">
 							<td colspan="3">
 							', Lang::getTxt('who_no_online_' . (Utils::$context['show_by'] == 'guests' || Utils::$context['show_by'] == 'spiders' ? Utils::$context['show_by'] : 'members'), file: 'Who'), '
 							</td>
 						</tr>';
+	}
 
 	echo '
 					</tbody>
@@ -116,9 +118,10 @@ function template_main()
 						', Lang::getTxt('who_show', file: 'Who'), '
 						<select name="show" onchange="document.forms.whoFilter.submit();">';
 
-	foreach (Utils::$context['show_methods'] as $value => $label)
+	foreach (Utils::$context['show_methods'] as $value => $label) {
 		echo '
 							<option value="', $value, '" ', $value == Utils::$context['show_by'] ? ' selected' : '', '>', $label, '</option>';
+	}
 	echo '
 						</select>
 						<noscript>
@@ -143,26 +146,26 @@ function template_credits()
 			<h3 class="catbg">', Lang::getTxt('credits', file: 'Who'), '</h3>
 		</div>';
 
-	foreach (Utils::$context['credits'] as $section)
-	{
-		if (isset($section['pretext']))
+	foreach (Utils::$context['credits'] as $section) {
+		if (isset($section['pretext'])) {
 			echo '
 		<div class="windowbg">
 			<p>', $section['pretext'], '</p>
 		</div>';
+		}
 
-		if (isset($section['title']))
+		if (isset($section['title'])) {
 			echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $section['title'], '</h3>
 		</div>';
+		}
 
 		echo '
 		<div class="windowbg">
 			<dl>';
 
-		foreach ($section['groups'] as $group)
-		{
+		foreach ($section['groups'] as $group) {
 			echo '
 				<dt>
 					', isset($group['title']) ? '<strong>' . $group['title'] . '</strong>' : '', '
@@ -178,50 +181,52 @@ function template_credits()
 		echo '
 			</dl>';
 
-		if (isset($section['posttext']))
+		if (isset($section['posttext'])) {
 			echo '
 				<p class="posttext">', $section['posttext'], '</p>';
+		}
 
 		echo '
 		</div>';
 	}
 
 	// Other software and graphics
-	if (!empty(Utils::$context['credits_software_graphics']))
-	{
+	if (!empty(Utils::$context['credits_software_graphics'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('credits_software_graphics', file: 'Who'), '</h3>
 		</div>
 		<div class="windowbg">';
 
-		if (!empty(Utils::$context['credits_software_graphics']['graphics']))
+		if (!empty(Utils::$context['credits_software_graphics']['graphics'])) {
 			echo '
 			<dl>
 				<dt><strong>', Lang::getTxt('credits_graphics', file: 'Who'), '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['graphics']), '</dd>
 			</dl>';
+		}
 
-		if (!empty(Utils::$context['credits_software_graphics']['software']))
+		if (!empty(Utils::$context['credits_software_graphics']['software'])) {
 			echo '
 			<dl>
 				<dt><strong>', Lang::getTxt('credits_software', file: 'Who'), '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['software']), '</dd>
 			</dl>';
+		}
 
-		if (!empty(Utils::$context['credits_software_graphics']['fonts']))
+		if (!empty(Utils::$context['credits_software_graphics']['fonts'])) {
 			echo '
 			<dl>
 				<dt><strong>', Lang::getTxt('credits_fonts', file: 'Who'), '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['fonts']), '</dd>
 			</dl>';
+		}
 		echo '
 		</div>';
 	}
 
 	// How about Modifications, we all love em
-	if (!empty(Utils::$context['credits_modifications']) || !empty(Utils::$context['copyrights']['mods']))
-	{
+	if (!empty(Utils::$context['credits_modifications']) || !empty(Utils::$context['copyrights']['mods'])) {
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::getTxt('credits_modifications', file: 'Who'), '</h3>
@@ -230,14 +235,16 @@ function template_credits()
 			<ul>';
 
 		// Display the credits.
-		if (!empty(Utils::$context['credits_modifications']))
+		if (!empty(Utils::$context['credits_modifications'])) {
 			echo '
 				<li>', implode('</li><li>', Utils::$context['credits_modifications']), '</li>';
+		}
 
 		// Legacy.
-		if (!empty(Utils::$context['copyrights']['mods']))
+		if (!empty(Utils::$context['copyrights']['mods'])) {
 			echo '
 				<li>', implode('</li><li>', Utils::$context['copyrights']['mods']), '</li>';
+		}
 
 		echo '
 			</ul>

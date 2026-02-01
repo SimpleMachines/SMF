@@ -22,10 +22,18 @@ use League\Container\Container as LeagueContainer;
  */
 class Container
 {
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var LeagueContainer
 	 */
 	private static LeagueContainer $instance;
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Initialize the container.

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -14,8 +15,8 @@ use SMF\Actions\Admin\Permissions;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
-use SMF\Utils;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * This is the administration center home.
@@ -65,9 +66,10 @@ function template_admin()
 										', Lang::getTxt('administrators', ['list' => Lang::sentenceList(Utils::$context['administrators'])], file: 'Admin');
 
 	// If we have lots of admins... don't show them all.
-	if (!empty(Utils::$context['more_admins_link']))
+	if (!empty(Utils::$context['more_admins_link'])) {
 		echo '
 										(', Utils::$context['more_admins_link'], ')';
+	}
 
 	echo '
 									</div><!-- #version_details -->
@@ -75,26 +77,26 @@ function template_admin()
 							</div><!-- #support_info -->
 						</div><!-- #admin_main_section -->';
 
-	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $area_id => $area)
-	{
+	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $area_id => $area) {
 		echo '
 						<fieldset id="group_', $area_id, '" class="windowbg admin_group">
 							<legend>', $area['title'], '</legend>';
 
-		foreach ($area['areas'] as $item_id => $item)
-		{
+		foreach ($area['areas'] as $item_id => $item) {
 			// No point showing the 'home' page here, we're already on it!
-			if ($area_id == 'forum' && $item_id == 'index')
+			if ($area_id == 'forum' && $item_id == 'index') {
 				continue;
+			}
 
-			$url = isset($item['url']) ? $item['url'] : Config::$scripturl . '?action=admin;area=' . $item_id . (!empty(Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters']) ? Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters'] : '');
+			$url = $item['url'] ?? Config::$scripturl . '?action=admin;area=' . $item_id . (!empty(Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters']) ? Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters'] : '');
 
-			if (!empty($item['icon_file']))
+			if (!empty($item['icon_file'])) {
 				echo '
 							<a href="', $url, '" class="admin_group', !empty($item['inactive']) ? ' inactive' : '', '"><img class="large_admin_menu_icon_file" src="', $item['icon_file'], '" alt="">', $item['label'], '</a>';
-			else
-				echo '
+			} else {
+			echo '
 							<a href="', $url, '"><span class="large_', $item['icon_class'], !empty($item['inactive']) ? ' inactive' : '', '"></span>', $item['label'], '</a>';
+			}
 		}
 
 		echo '
@@ -102,10 +104,11 @@ function template_admin()
 	}
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
-	if (empty(Config::$modSettings['disable_smf_js']))
+	if (empty(Config::$modSettings['disable_smf_js'])) {
 		echo '
 					<script src="', Config::$scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 					<script src="', Config::$scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
+	}
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
@@ -172,16 +175,16 @@ function template_credits()
 							</ul>';
 
 	// Display all the variables we have server information for.
-	foreach (Utils::$context['current_versions'] as $version)
-	{
+	foreach (Utils::$context['current_versions'] as $version) {
 		echo '
 								', $version['title'], ':
 							<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
-		if (Utils::$context['can_admin'] && isset($version['more']))
+		if (Utils::$context['can_admin'] && isset($version['more'])) {
 			echo
 							' <a href="', Config::$scripturl, $version['more'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('version_check_more', file: 'Admin'), '</a>';
+		}
 		echo '
 							<br>';
 	}
@@ -210,23 +213,23 @@ function template_credits()
 						</div>
 						<div id="support_credits_list" class="padding">';
 
-	foreach (Utils::$context['credits'] as $section)
-	{
-		if (isset($section['pretext']))
+	foreach (Utils::$context['credits'] as $section) {
+		if (isset($section['pretext'])) {
 			echo '
 							<p>', $section['pretext'], '</p>
 							<hr>';
+		}
 
 		echo '
 							<dl>';
 
-		foreach ($section['groups'] as $group)
-		{
-			if (isset($group['title']))
+		foreach ($section['groups'] as $group) {
+			if (isset($group['title'])) {
 				echo '
 								<dt>
 									<strong>', $group['title'], '</strong>
 								</dt>';
+			}
 
 			echo '
 								<dd>', implode(', ', $group['members']), '</dd>';
@@ -235,10 +238,11 @@ function template_credits()
 		echo '
 							</dl>';
 
-		if (isset($section['posttext']))
+		if (isset($section['posttext'])) {
 			echo '
 							<hr>
 							<p>', $section['posttext'], '</p>';
+		}
 	}
 
 	echo '
@@ -253,9 +257,10 @@ function template_credits()
 						smfSupportVersions.forum = "', Utils::$context['forum_version'], '";';
 
 	// Don't worry, none of this is logged, it's just used to give information that might be of use.
-	foreach (Utils::$context['current_versions'] as $variable => $version)
+	foreach (Utils::$context['current_versions'] as $variable => $version) {
 		echo '
 						smfSupportVersions.', $variable, ' = "', $version['version'], '";';
+	}
 
 	// Now we just have to include the script and wait ;).
 	echo '
@@ -349,7 +354,7 @@ function template_view_versions()
 								<tbody>';
 
 	// Loop through every source file displaying its version - using javascript.
-	foreach (Utils::$context['root_versions'] as $filename => $version)
+	foreach (Utils::$context['root_versions'] as $filename => $version) {
 		echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -362,6 +367,7 @@ function template_view_versions()
 											<em id="currentRoot', $filename, '">??</em>
 										</td>
 									</tr>';
+	}
 
 	// Now list all the source file versions, starting with the overall version (if all match!).
 	echo '
@@ -387,7 +393,7 @@ function template_view_versions()
 								<tbody>';
 
 	// Loop through every source file displaying its version - using javascript.
-	foreach (Utils::$context['file_versions'] as $filename => $version)
+	foreach (Utils::$context['file_versions'] as $filename => $version) {
 		echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -400,6 +406,7 @@ function template_view_versions()
 											<em id="currentSources', $filename, '">??</em>
 										</td>
 									</tr>';
+	}
 
 	// Default template files.
 	echo '
@@ -425,7 +432,7 @@ function template_view_versions()
 							<table id="Default" class="table_grid">
 								<tbody>';
 
-	foreach (Utils::$context['default_template_versions'] as $filename => $version)
+	foreach (Utils::$context['default_template_versions'] as $filename => $version) {
 		echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -438,6 +445,7 @@ function template_view_versions()
 											<em id="currentDefault', $filename, '">??</em>
 										</td>
 									</tr>';
+	}
 
 	// Now the language files...
 	echo '
@@ -463,9 +471,8 @@ function template_view_versions()
 							<table id="Languages" class="table_grid">
 								<tbody>';
 
-	foreach (Utils::$context['default_language_versions'] as $language => $files)
-	{
-		foreach ($files as $filename => $version)
+	foreach (Utils::$context['default_language_versions'] as $language => $files) {
+		foreach ($files as $filename => $version) {
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -478,6 +485,7 @@ function template_view_versions()
 											<em id="currentLanguage_', $language, '_', $filename, '">??</em>
 										</td>
 									</tr>';
+		}
 	}
 
 	echo '
@@ -485,8 +493,7 @@ function template_view_versions()
 							</table>';
 
 	// Display the version information for the currently selected theme - if it is not the default one.
-	if (!empty(Utils::$context['template_versions']))
-	{
+	if (!empty(Utils::$context['template_versions'])) {
 		echo '
 							<table class="table_grid">
 								<tbody>
@@ -507,7 +514,7 @@ function template_view_versions()
 							<table id="Templates" class="table_grid">
 								<tbody>';
 
-		foreach (Utils::$context['template_versions'] as $filename => $version)
+		foreach (Utils::$context['template_versions'] as $filename => $version) {
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -520,6 +527,7 @@ function template_view_versions()
 											<em id="currentTemplates', $filename, '">??</em>
 										</td>
 									</tr>';
+		}
 
 		echo '
 								</tbody>
@@ -527,8 +535,7 @@ function template_view_versions()
 	}
 
 	// Display the tasks files version.
-	if (!empty(Utils::$context['tasks_versions']))
-	{
+	if (!empty(Utils::$context['tasks_versions'])) {
 		echo '
 							<table class="table_grid">
 								<tbody>
@@ -549,7 +556,7 @@ function template_view_versions()
 							<table id="Tasks" class="table_grid">
 								<tbody>';
 
-		foreach (Utils::$context['tasks_versions'] as $filename => $version)
+		foreach (Utils::$context['tasks_versions'] as $filename => $version) {
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -562,6 +569,7 @@ function template_view_versions()
 											<em id="currentTasks', $filename, '">??</em>
 										</td>
 									</tr>';
+		}
 
 		echo '
 								</tbody>
@@ -600,9 +608,10 @@ function template_view_versions()
  */
 function template_edit_censored()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
+	}
 
 	// First section is for adding/removing words from the censored list.
 	echo '
@@ -616,11 +625,12 @@ function template_edit_censored()
 								<p>', Lang::getTxt('admin_censored_where', file: 'Admin'), '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
-	foreach (Utils::$context['censored_words'] as $vulgar => $proper)
+	foreach (Utils::$context['censored_words'] as $vulgar => $proper) {
 		echo '
 								<div class="block">
 									<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30"> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30">
 								</div>';
+	}
 
 	// Now provide a way to censor more words.
 	echo '
@@ -701,27 +711,30 @@ function template_not_done()
 						<div class="windowbg">
 							', Lang::getTxt('not_done_reason', file: 'Admin');
 
-	if (!empty(Utils::$context['continue_percent']))
+	if (!empty(Utils::$context['continue_percent'])) {
 		echo '
 							<div class="progress_bar">
 								<span>', Utils::$context['continue_percent'], '%</span>
 								<div class="bar" style="width: ', Utils::$context['continue_percent'], '%;"></div>
 							</div>';
+	}
 
-	if (!empty(Utils::$context['substep_enabled']))
+	if (!empty(Utils::$context['substep_enabled'])) {
 		echo '
 							<div class="progress_bar progress_blue">
 								<span>', Utils::$context['substep_title'], ' (', Utils::$context['substep_continue_percent'], '%)</span>
 								<div class="bar" style="width: ', Utils::$context['substep_continue_percent'], '%;"></div>
 							</div>';
+	}
 
 	echo '
 							<form action="', Config::$scripturl, Utils::$context['continue_get_data'], '" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">';
 
 	// Do we have a token?
-	if (isset(Utils::$context['not_done_token']) && isset(Utils::$context[Utils::$context['not_done_token'] . '_token'], Utils::$context[Utils::$context['not_done_token'] . '_token_var']))
+	if (isset(Utils::$context['not_done_token'], Utils::$context[Utils::$context['not_done_token'] . '_token'],Utils::$context[Utils::$context['not_done_token'] . '_token_var'])) {
 		echo '
 							<input type="hidden" name="', Utils::$context[Utils::$context['not_done_token'] . '_token_var'], '" value="', Utils::$context[Utils::$context['not_done_token'] . '_token'], '">';
+	}
 
 	echo '
 								<input type="submit" name="cont" value="', Lang::getTxt('not_done_continue', file: 'Admin'), '" class="button">
@@ -738,45 +751,49 @@ function template_not_done()
  */
 function template_show_settings()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
-	elseif (!empty(Utils::$context['saved_failed']))
+	} elseif (!empty(Utils::$context['saved_failed'])) {
 		echo '
 					<div class="errorbox">', Lang::getTxt('settings_not_saved', ['reason' => Utils::$context['saved_failed']], file: 'Admin'), '</div>';
+	}
 
-	if (!empty(Utils::$context['settings_pre_javascript']))
+	if (!empty(Utils::$context['settings_pre_javascript'])) {
 		echo '
 					<script>', Utils::$context['settings_pre_javascript'], '</script>';
+	}
 
-	if (!empty(Utils::$context['settings_insert_above']))
+	if (!empty(Utils::$context['settings_insert_above'])) {
 		echo Utils::$context['settings_insert_above'];
+	}
 
 	echo '
 						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="UTF-8"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
-	if (isset(Utils::$context['settings_title']))
+	if (isset(Utils::$context['settings_title'])) {
 		echo '
 							<div class="cat_bar">
 								<h3 class="catbg">', Utils::$context['settings_title'], '</h3>
 							</div>';
+	}
 
 	// Have we got a message to display?
-	if (!empty(Utils::$context['settings_message']))
-	{
+	if (!empty(Utils::$context['settings_message'])) {
 		$tag = !empty(Utils::$context['settings_message']['tag']) ? Utils::$context['settings_message']['tag'] : 'span';
 
 		echo '
 							<div class="information noup">';
 
-		if (is_array(Utils::$context['settings_message']))
+		if (is_array(Utils::$context['settings_message'])) {
 			echo '
 								<', $tag, !empty(Utils::$context['settings_message']['class']) ? ' class="' . Utils::$context['settings_message']['class'] . '"' : '', '>
 									', Utils::$context['settings_message']['label'], '
 								</', $tag, '>';
-		else
-			echo Utils::$context['settings_message'];
+		} else {
+		echo Utils::$context['settings_message'];
+		}
 
 		echo '
 							</div>';
@@ -785,8 +802,7 @@ function template_show_settings()
 	// Filter out any redundant separators before we start the loop
 	Utils::$context['config_vars'] = array_filter(
 		Utils::$context['config_vars'],
-		function ($v)
-		{
+		function ($v) {
 			static $config_vars, $prev;
 
 			$at_start = is_null($config_vars);
@@ -795,28 +811,26 @@ function template_show_settings()
 			$next = next($config_vars);
 			$at_end = key($config_vars) === null;
 
-			if (!$at_start && !$at_end)
-			{
-				$div_types = array('title', 'desc');
+			if (!$at_start && !$at_end) {
+				$div_types = ['title', 'desc'];
 				$at_start = isset($prev['type']) && in_array($prev['type'], $div_types);
 				$at_end = isset($next['type']) && in_array($next['type'], $div_types);
 			}
 
 			$prev = $v;
+
 			return ($v === '' && ($at_start || $at_end || $v === $next)) ? false : true;
-		}
+		},
 	);
 
 	// Now actually loop through all the variables.
 	$is_open = false;
-	foreach (Utils::$context['config_vars'] as $config_var)
-	{
+
+	foreach (Utils::$context['config_vars'] as $config_var) {
 		// Is it a title or a description?
-		if (is_array($config_var) && ($config_var['type'] == 'title' || $config_var['type'] == 'desc'))
-		{
+		if (is_array($config_var) && ($config_var['type'] == 'title' || $config_var['type'] == 'desc')) {
 			// Not a list yet?
-			if ($is_open)
-			{
+			if ($is_open) {
 				$is_open = false;
 				echo '
 									</dl>
@@ -824,8 +838,7 @@ function template_show_settings()
 			}
 
 			// A title?
-			if ($config_var['type'] == 'title')
-			{
+			if ($config_var['type'] == 'title') {
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
@@ -835,8 +848,7 @@ function template_show_settings()
 							</div>';
 			}
 			// A description?
-			else
-			{
+			else {
 				echo '
 							<div class="information noup">
 								', $config_var['label'], '
@@ -847,8 +859,7 @@ function template_show_settings()
 		}
 
 		// Not a list yet?
-		if (!$is_open)
-		{
+		if (!$is_open) {
 			$is_open = true;
 			echo '
 							<div class="windowbg noup">
@@ -856,27 +867,24 @@ function template_show_settings()
 		}
 
 		// Hang about? Are you pulling my leg - a callback?!
-		if (is_array($config_var) && $config_var['type'] == 'callback')
-		{
-			if (function_exists('template_callback_' . $config_var['name']))
+		if (is_array($config_var) && $config_var['type'] == 'callback') {
+			if (function_exists('template_callback_' . $config_var['name'])) {
 				call_user_func('template_callback_' . $config_var['name']);
+			}
 
 			continue;
 		}
 
-		if (is_array($config_var))
-		{
+		if (is_array($config_var)) {
 			// First off, is this a span like a message?
-			if (in_array($config_var['type'], array('message', 'warning')))
-			{
+			if (in_array($config_var['type'], ['message', 'warning'])) {
 				echo '
 									<dd', $config_var['type'] == 'warning' ? ' class="alert"' : '', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>
 										', $config_var['label'], '
 									</dd>';
 			}
 			// Otherwise it's an input box of some kind.
-			else
-			{
+			else {
 				echo '
 									<dt', is_array($config_var) && !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>';
 
@@ -887,12 +895,13 @@ function template_show_settings()
 				$placeholder = !empty($config_var['placeholder']) ? ' placeholder="' . $config_var['placeholder'] . '"' : '';
 
 				// Various HTML5 input types that are basically enhanced textboxes
-				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
+				$text_types = ['color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time'];
 
 				// Show the [?] button.
-				if ($config_var['help'])
+				if ($config_var['help']) {
 					echo '
 										<a id="setting_', $config_var['name'], '_help" href="', Config::$scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ';
+				}
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . Lang::getTxt('admin_confirm_password', file: 'Admin') . '</em>' : ''), '</span>
@@ -901,37 +910,37 @@ function template_show_settings()
 										$config_var['preinput'];
 
 				// Show a check box.
-				if ($config_var['type'] == 'check')
+				if ($config_var['type'] == 'check') {
 					echo '
 										<input type="checkbox"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '"', ($config_var['value'] ? ' checked' : ''), ' value="1">';
+				}
 				// Escape (via htmlspecialchars.) the text box.
-				elseif ($config_var['type'] == 'password')
+				elseif ($config_var['type'] == 'password') {
 					echo '
 										<input type="password"', $disabled, $javascript, ' name="', $config_var['name'], '[0]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' value="*#fakepass#*" onfocus="this.value = \'\'; this.form.', $config_var['name'], '.disabled = false;"><br>
 										<input type="password" disabled id="', $config_var['name'], '" name="', $config_var['name'], '[1]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '>';
+				}
 				// Show a selection box.
-				elseif ($config_var['type'] == 'select')
-				{
+				elseif ($config_var['type'] == 'select') {
 					echo '
 										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple' : ''), ' size="', $config_var['size'], '">';
 
-					foreach ($config_var['data'] as $option)
+					foreach ($config_var['data'] as $option) {
 						echo '
 											<option value="', $option[0], '"', (!empty($config_var['value']) && ($option[0] == $config_var['value'] || (!empty($config_var['multiple']) && in_array($option[0], $config_var['value']))) ? ' selected' : ''), '>', $option[1], '</option>';
+					}
 					echo '
 										</select>';
 				}
 
 				// Show a color box
-				elseif ($config_var['type'] == 'color')
-				{
+				elseif ($config_var['type'] == 'color') {
 					echo '
 										<input name="', $config_var['name'], '" id="', $config_var['name'], '" data-coloris value="', $config_var['value'], '">';
 				}
 
 				// List of boards? This requires getBoardList() having been run and the results in Utils::$context['board_list'].
-				elseif ($config_var['type'] == 'boards')
-				{
+				elseif ($config_var['type'] == 'boards') {
 					$first = true;
 					echo '
 										<a href="#" class="board_selector">[ ', Lang::getTxt('select_boards_from_list', file: 'ManageSettings'), ' ]</a>
@@ -940,18 +949,19 @@ function template_show_settings()
 												<a href="#">', Lang::getTxt('select_boards_from_list', file: 'ManageSettings'), '</a>
 											</legend>';
 
-					foreach (Utils::$context['board_list'] as $id_cat => $cat)
-					{
-						if (!$first)
+					foreach (Utils::$context['board_list'] as $id_cat => $cat) {
+						if (!$first) {
 							echo '
 											<hr>';
+						}
 						echo '
 											<strong>', $cat['name'], '</strong>
 											<ul>';
 
-						foreach ($cat['boards'] as $id_board => $brd)
+						foreach ($cat['boards'] as $id_board => $brd) {
 							echo '
 												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
+						}
 
 						echo '
 											</ul>';
@@ -964,42 +974,43 @@ function template_show_settings()
 										</fieldset>';
 				}
 				// Text area?
-				elseif ($config_var['type'] == 'large_text')
+				elseif ($config_var['type'] == 'large_text') {
 					echo '
 										<textarea rows="', (!empty($config_var['size']) ? $config_var['size'] : (!empty($config_var['rows']) ? $config_var['rows'] : 4)), '" cols="', (!empty($config_var['cols']) ? $config_var['cols'] : 30), '" ', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '">', $config_var['value'], '</textarea>';
+				}
 				// Permission group?
-				elseif ($config_var['type'] == 'permissions')
+				elseif ($config_var['type'] == 'permissions') {
 					Permissions::theme_inline_permissions($config_var['name']);
+				}
 
 				// BBC selection?
-				elseif ($config_var['type'] == 'bbc')
-				{
+				elseif ($config_var['type'] == 'bbc') {
 					echo '
 										<fieldset id="', $config_var['name'], '">
 											<legend>', Utils::$context['bbc_sections'][$config_var['name']]['title'], '</legend>
 											<ul>';
 
-					foreach (Utils::$context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
-					{
-						foreach ($bbcColumn as $bbcTag)
+					foreach (Utils::$context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn) {
+						foreach ($bbcColumn as $bbcTag) {
 							echo '
 												<li class="list_bbc floatleft">
 													<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], Utils::$context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked' : '', in_array($bbcTag['tag'], Utils::$context['bbc_sections'][$config_var['name']]['forced']) ? ' disabled' : '', '> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' <a href="' . Config::$scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);" class="main_icons help"></a>' : '', '
 												</li>';
+						}
 					}
 					echo '					</ul>
 											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', Utils::$context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', Lang::getTxt('enabled_bbc_select_all', file: 'Admin'), '</em></label>
 										</fieldset>';
 				}
 				// A simple message?
-				elseif ($config_var['type'] == 'var_message')
+				elseif ($config_var['type'] == 'var_message') {
 					echo '
 										<div', !empty($config_var['name']) ? ' id="' . $config_var['name'] . '"' : '', '>
 											', $config_var['var_message'], '
 										</div>';
+				}
 				// Assume it must be a text box
-				else
-				{
+				else {
 					// Figure out the exact type - use "number" for "float" and "int".
 					$type = in_array($config_var['type'], $text_types) ? $config_var['type'] : ($config_var['type'] == 'int' || $config_var['type'] == 'float' ? 'number' : 'text');
 
@@ -1024,61 +1035,68 @@ function template_show_settings()
 											' . $config_var['postinput'] : '', '
 									</dd>';
 			}
-		}
-		else
-		{
+		} else {
 			// Just show a separator.
-			if ($config_var == '')
+			if ($config_var == '') {
 				echo '
 								</dl>
 								<hr>
 								<dl class="settings">';
-			else
-				echo '
+			} else {
+			echo '
 									<dt>
 										<strong>' . $config_var . '</strong>
 									</dt>
 									<dd></dd>';
+			}
 		}
 	}
 
-	if ($is_open)
+	if ($is_open) {
 		echo '
 								</dl>';
+	}
 
-	if (empty(Utils::$context['settings_save_dont_show']))
+	if (empty(Utils::$context['settings_save_dont_show'])) {
 		echo '
 								<input type="submit" value="', Lang::getTxt('save', file: 'General'), '"', (!empty(Utils::$context['save_disabled']) ? ' disabled' : ''), (!empty(Utils::$context['settings_save_onclick']) ? ' onclick="' . Utils::$context['settings_save_onclick'] . '"' : ''), ' class="button">';
+	}
 
-	if ($is_open)
+	if ($is_open) {
 		echo '
 							</div><!-- .windowbg -->';
+	}
 
 	// At least one token has to be used!
-	if (isset(Utils::$context['admin-ssc_token']))
+	if (isset(Utils::$context['admin-ssc_token'])) {
 		echo '
 							<input type="hidden" name="', Utils::$context['admin-ssc_token_var'], '" value="', Utils::$context['admin-ssc_token'], '">';
+	}
 
-	if (isset(Utils::$context['admin-dbsc_token']))
+	if (isset(Utils::$context['admin-dbsc_token'])) {
 		echo '
 							<input type="hidden" name="', Utils::$context['admin-dbsc_token_var'], '" value="', Utils::$context['admin-dbsc_token'], '">';
+	}
 
-	if (isset(Utils::$context['admin-mp_token']))
+	if (isset(Utils::$context['admin-mp_token'])) {
 		echo '
 							<input type="hidden" name="', Utils::$context['admin-mp_token_var'], '" value="', Utils::$context['admin-mp_token'], '">';
+	}
 
 	echo '
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						</form>';
 
-	if (!empty(Utils::$context['settings_post_javascript']))
+	if (!empty(Utils::$context['settings_post_javascript'])) {
 		echo '
 					<script>
 						', Utils::$context['settings_post_javascript'], '
 					</script>';
+	}
 
-	if (!empty(Utils::$context['settings_insert_below']))
+	if (!empty(Utils::$context['settings_insert_below'])) {
 		echo Utils::$context['settings_insert_below'];
+	}
 
 	// We may have added a board listing. If we did, we need to make it work.
 	Theme::addInlineJavascript('
@@ -1099,9 +1117,10 @@ function template_show_settings()
  */
 function template_show_custom_profile()
 {
-	if (!empty(Utils::$context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
 					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
+	}
 
 	// Standard fields.
 	template_show_list('standard_profile_fields');
@@ -1131,13 +1150,13 @@ function template_edit_profile_field()
 					</script>';
 
 	// any errors messages to show?
-	if (isset($_GET['msg']))
-	{
-		if (Lang::txtExists('custom_option_' . $_GET['msg'], file: 'Errors'))
+	if (isset($_GET['msg'])) {
+		if (Lang::txtExists('custom_option_' . $_GET['msg'], file: 'Errors')) {
 			echo '
 					<div class="errorbox">',
 						Lang::getTxt('custom_option_' . $_GET['msg'], file: 'Errors'), '
 					</div>';
+		}
 	}
 
 	echo '
@@ -1209,9 +1228,10 @@ function template_edit_profile_field()
 										<dd>
 											<select name="placement" id="placement">';
 
-	foreach (Utils::$context['cust_profile_fields_placement'] as $order => $name)
+	foreach (Utils::$context['cust_profile_fields_placement'] as $order => $name) {
 		echo '
 												<option value="', $order, '"', Utils::$context['field']['placement'] == $order ? ' selected' : '', '>', Lang::getTxt('custom_profile_placement_' . $name, file: 'ManageSettings'), '</option>';
+	}
 
 	echo '
 											</select>
@@ -1235,9 +1255,10 @@ function template_edit_profile_field()
 										<dd>
 											<select name="field_type" id="field_type" onchange="updateInputBoxes();">';
 
-	foreach (array('text', 'textarea', 'select', 'radio', 'check') as $field_type)
+	foreach (['text', 'textarea', 'select', 'radio', 'check'] as $field_type) {
 		echo '
 												<option value="', $field_type, '"', Utils::$context['field']['type'] == $field_type ? ' selected' : '', '>', Lang::getTxt('custom_profile_type_' . $field_type, file: 'ManageSettings'), '</option>';
+	}
 
 	echo '
 											</select>
@@ -1271,9 +1292,10 @@ function template_edit_profile_field()
 										</dt>
 										<dd id="options_dd">';
 
-	foreach (Utils::$context['field']['options'] as $k => $option)
+	foreach (Utils::$context['field']['options'] as $k => $option) {
 		echo '
 											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', Utils::$context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
+	}
 
 	echo '
 											<span id="addopt"></span>
@@ -1337,9 +1359,10 @@ function template_edit_profile_field()
 								</fieldset>
 								<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">';
 
-	if (Utils::$context['fid'])
+	if (Utils::$context['fid']) {
 		echo '
 								<input type="submit" name="delete" value="', Lang::getTxt('delete', file: 'General'), '" data-confirm="', Lang::getTxt('custom_edit_delete_sure', file: 'ManageSettings'), '" class="button you_sure">';
+	}
 
 	echo '
 							</div><!-- .windowbg -->
@@ -1370,23 +1393,18 @@ function template_admin_search_results()
 						</div><!-- #section_header -->
 						<div class="windowbg generic_list_wrapper">';
 
-	if (empty(Utils::$context['search_results']))
-	{
+	if (empty(Utils::$context['search_results'])) {
 		echo '
 							<p class="centertext">
 								<strong>', Lang::getTxt('admin_search_results_none', file: 'Admin'), '</strong>
 							</p>';
-	}
-	else
-	{
+	} else {
 		echo '
 							<ol class="search_results">';
 
-		foreach (Utils::$context['search_results'] as $result)
-		{
+		foreach (Utils::$context['search_results'] as $result) {
 			// Is it a result from the online manual?
-			if (Utils::$context['search_type'] == 'online')
-			{
+			if (Utils::$context['search_type'] == 'online') {
 				echo '
 								<li>
 									<p>
@@ -1398,15 +1416,15 @@ function template_admin_search_results()
 								</li>';
 			}
 			// Otherwise it's... not!
-			else
-			{
+			else {
 				echo '
 								<li>
 									<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', Lang::txtExists('admin_search_section_' . $result['type'], file: 'Admin') ? Lang::getTxt('admin_search_section_' . $result['type'], file: 'Admin') : $result['type'], ']';
 
-				if ($result['help'])
+				if ($result['help']) {
 					echo '
 									<p class="double_height">', $result['help'], '</p>';
+				}
 
 				echo '
 								</li>';
@@ -1425,10 +1443,9 @@ function template_admin_search_results()
  */
 function template_callback_question_answer_list()
 {
-	foreach (Utils::$context['languages'] as $lang_id => $lang)
-	{
-		$lang_id = strtr($lang_id, array('-utf8' => ''));
-		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
+	foreach (Utils::$context['languages'] as $lang_id => $lang) {
+		$lang_id = strtr($lang_id, ['-utf8' => '']);
+		$lang['name'] = strtr($lang['name'], ['-utf8' => '']);
 
 		echo '
 						<dt id="qa_dt_', $lang_id, '" class="qa_link">
@@ -1444,9 +1461,8 @@ function template_callback_question_answer_list()
 									<strong>', Lang::getTxt('setup_verification_answer', file: 'ManageSettings'), '</strong>
 								</dd>';
 
-		if (!empty(Utils::$context['qa_by_lang'][$lang_id]))
-			foreach (Utils::$context['qa_by_lang'][$lang_id] as $q_id)
-			{
+		if (!empty(Utils::$context['qa_by_lang'][$lang_id])) {
+			foreach (Utils::$context['qa_by_lang'][$lang_id] as $q_id) {
 				$question = Utils::$context['question_answers'][$q_id];
 
 				echo '
@@ -1455,14 +1471,16 @@ function template_callback_question_answer_list()
 								</dt>
 								<dd>';
 
-				foreach ($question['answers'] as $answer)
+				foreach ($question['answers'] as $answer) {
 					echo '
 									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="verification_answer">';
+				}
 
 				echo '
 									<div class="qa_add_answer"><a href="javascript:void(0);">[ ', Lang::getTxt('setup_verification_add_answer', file: 'ManageSettings'), ' ]</a></div>
 								</dd>';
 			}
+		}
 
 		echo '
 								<dt class="qa_add_question"><a href="javascript:void(0);">[ ', Lang::getTxt('setup_verification_add_more', file: 'ManageSettings'), ' ]</a></dt>
@@ -1485,19 +1503,18 @@ function template_repair_boards()
 						<div class="windowbg">';
 
 	// Are we actually fixing them, or is this just a prompt?
-	if (Utils::$context['error_search'])
-	{
-		if (!empty(Utils::$context['to_fix']))
-		{
+	if (Utils::$context['error_search']) {
+		if (!empty(Utils::$context['to_fix'])) {
 			echo '
 							', Lang::getTxt('errors_found', file: 'Admin'), '
 							<ul>';
 
-			foreach (Utils::$context['repair_errors'] as $error)
+			foreach (Utils::$context['repair_errors'] as $error) {
 				echo '
 								<li>
 									', $error, '
 								</li>';
+			}
 
 			echo '
 							</ul>
@@ -1507,18 +1524,15 @@ function template_repair_boards()
 							<p class="padding">
 								<strong><a href="', Config::$scripturl, '?action=admin;area=repairboards;fixErrors;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-repairboards_token_var'], '=', Utils::$context['admin-repairboards_token'], '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="', Config::$scripturl, '?action=admin;area=maintain">', Lang::getTxt('no', file: 'General'), '</a></strong>
 							</p>';
-		}
-		else
-			echo '
+		} else {
+		echo '
 							<p>', Lang::getTxt('maintain_no_errors', file: 'Admin'), '</p>
 							<p class="padding">
 								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::getTxt('maintain_return', file: 'ManageMaintenance'), '</a>
 							</p>';
-	}
-	else
-	{
-		if (!empty(Utils::$context['redirect_to_recount']))
-		{
+		}
+	} else {
+		if (!empty(Utils::$context['redirect_to_recount'])) {
 			echo '
 							<p>
 								', Lang::getTxt('errors_do_recount', file: 'Admin'), '
@@ -1528,9 +1542,7 @@ function template_repair_boards()
 								<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 								<input type="submit" name="recount" id="recount_now" value="', Lang::getTxt('errors_recount_now', file: 'Admin'), '">
 							</form>';
-		}
-		else
-		{
+		} else {
 			echo '
 							<p>', Lang::getTxt('errors_fixed', file: 'Admin'), '</p>
 							<p class="padding">
@@ -1542,8 +1554,7 @@ function template_repair_boards()
 	echo '
 						</div><!-- .windowbg -->';
 
-	if (!empty(Utils::$context['redirect_to_recount']))
-	{
+	if (!empty(Utils::$context['redirect_to_recount'])) {
 		echo '
 					<script>
 						doAutoSubmit(5, "', Utils::escapeJavaScript(Lang::getTxt('errors_recount_now', file: 'Admin')), '", "recount_form", "recount_now");
@@ -1565,8 +1576,7 @@ function template_php_info()
 						</div>';
 
 	// for each php info area
-	foreach (Utils::$context['pinfo'] as $area => $php_area)
-	{
+	foreach (Utils::$context['pinfo'] as $area => $php_area) {
 		echo '
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
@@ -1581,13 +1591,10 @@ function template_php_info()
 		$localmaster = true;
 
 		// and for each setting in this category
-		foreach ($php_area as $key => $setting)
-		{
+		foreach ($php_area as $key => $setting) {
 			// start of a local / master setting (3 col)
-			if (is_array($setting))
-			{
-				if ($localmaster)
-				{
+			if (is_array($setting)) {
+				if ($localmaster) {
 					// heading row for the settings section of this category's settings
 					echo '
 								<tr class="title_bar">
@@ -1603,16 +1610,16 @@ function template_php_info()
 								<tr class="windowbg">
 									<td class="equal_table">', $key, '</td>';
 
-				foreach ($setting as $key_lm => $value)
+				foreach ($setting as $key_lm => $value) {
 					echo '
 									<td class="equal_table">', $value, '</td>';
+				}
 
 				echo '
 								</tr>';
 			}
 			// just a single setting (2 col)
-			else
-			{
+			else {
 				echo '
 								<tr class="windowbg">
 									<td class="equal_table">', $key, '</td>
@@ -1633,9 +1640,7 @@ function template_php_info()
 /**
  * Content shown above the clean cache button
  */
-function template_clean_cache_button_above()
-{
-}
+function template_clean_cache_button_above() {}
 
 /**
  * Content shown below the clean cache button?
@@ -1661,7 +1666,7 @@ function template_clean_cache_button_below()
  */
 function template_admin_quick_search()
 {
-	if (User::$me->is_admin)
+	if (User::$me->is_admin) {
 		echo '
 								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="UTF-8" class="admin_search">
 									<span class="main_icons filter centericon"></span>
@@ -1673,4 +1678,5 @@ function template_admin_quick_search()
 									</select>
 									<input type="submit" name="search_go" id="search_go" value="', Lang::getTxt('admin_search_go', file: 'Admin'), '" class="button">
 								</form>';
+	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
@@ -55,9 +56,10 @@ function template_manual()
 					<p>', Lang::getTxt('manual_introduction', file: 'Manual'), '</p>
 					<ul>';
 
-	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id)
+	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id) {
 		echo '
 						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::getTxt('lang_dictionary', file: 'General') != 'en' ? '/' . Lang::getTxt('lang_dictionary', file: 'General') : ''), '" target="_blank" rel="noopener">', Lang::getTxt('manual_section_' . $section_id . '_title', file: 'Manual'), '</a> - ', Lang::getTxt('manual_section_' . $section_id . '_desc', file: 'Manual'), '</li>';
+	}
 
 	echo '
 					</ul>
