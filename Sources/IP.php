@@ -22,8 +22,6 @@ use SMF\Cache\CacheApi;
  */
 class IP implements \Stringable
 {
-	use BackwardCompatibility;
-
 	/*****************
 	 * Class constants
 	 *****************/

@@ -18,7 +18,6 @@ namespace SMF\Actions\Moderation;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -43,7 +42,6 @@ use SMF\Utils;
 class Posts implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

@@ -17,7 +17,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Cookie;
@@ -85,7 +84,6 @@ use SMF\Utils;
 class Server implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
