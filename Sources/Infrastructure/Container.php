@@ -43,6 +43,7 @@ class Container
 	{
 		if (!isset(self::$instance)) {
 			self::$instance = new LeagueContainer();
+			self::$instance->addServiceProvider(new ServiceProvider());
 		}
 	}
 

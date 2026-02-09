@@ -9,7 +9,7 @@ class ServiceProvider extends AbstractServiceProvider
 
 	public function __construct(array $services = [])
 	{
-		$coreServices = require 'ServicesList.php';
+		$coreServices = require __DIR__ . '/ServicesList.php';
 		$this->services = array_filter(array_merge($coreServices, $services));
 	}
 	public function provides(string $id): bool
