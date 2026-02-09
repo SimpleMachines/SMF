@@ -131,7 +131,7 @@ class Logs implements ActionInterface
 			'tabs' => [
 				'errorlog' => [
 					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-					'description' => Lang::getTxt('errorlog_desc', Lang::getTxt('remove', file: 'General'), file: 'Admin'),
+					'description' => Lang::getTxt('errorlog_desc', [Lang::getTxt('remove', file: 'General')], file: 'Admin'),
 				],
 				'adminlog' => [
 					'description' => Lang::getTxt('admin_log_desc', file: 'Admin'),
