@@ -132,7 +132,7 @@ class MigrationBase implements SubStepInterface
 
 		Maintenance::$context['try_again'] = true;
 		Maintenance::$fatal_error = '
-		<strong>' . Lang::getTxt('upgrade_unsuccessful') . '</strong><br>
+		<strong>' . Lang::getTxt('upgrade_unsuccessful', file: 'Maintenance') . '</strong><br>
 		<div style="margin: 2ex;">
 			' . Lang::getTxt(
 			'query_failed',
