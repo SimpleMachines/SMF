@@ -2079,11 +2079,11 @@ class Theme
 			(Forum::getCurrentAction())?->isSimpleAction() === true
 			|| \in_array(Utils::$context['current_action'], $this->simpleActions)
 			|| (
-				isset($this->simpleAreas[Utils::$context['current_action']], $_REQUEST['area'])
+				isset(Utils::$context['current_action'], $this->simpleAreas[Utils::$context['current_action']], $_REQUEST['area'])
 				&& \in_array($_REQUEST['area'], $this->simpleAreas[Utils::$context['current_action']])
 			)
 			|| (
-				isset($this->simpleSubActions[Utils::$context['current_action']])
+				isset(Utils::$context['current_action'], $this->simpleSubActions[Utils::$context['current_action']])
 				&& \in_array(Utils::$context['current_subaction'], $this->simpleSubActions[Utils::$context['current_action']])
 			)
 		);
