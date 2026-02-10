@@ -464,7 +464,7 @@ class DebugUtils
 		echo '
 		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
 		<br>
-		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::getTxt(empty($_SESSION['view_queries']) ? 'debug_show_queries' : 'debug_hide_queries'), '</a>';
+		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::getTxt(empty($_SESSION['view_queries']) ? 'debug_show_queries' : 'debug_hide_queries', file: 'General'), '</a>';
 
 		self::outputQueryDebugInfo();
 

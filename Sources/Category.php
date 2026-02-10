@@ -87,7 +87,7 @@ class Category implements \ArrayAccess
 	public int $last_board_order;
 
 	/**
-	 * @var Board[]
+	 * @var array
 	 *
 	 * Boards that are children of this category.
 	 */
@@ -141,14 +141,14 @@ class Category implements \ArrayAccess
 	 **************************/
 
 	/**
-	 * @var Category[]
+	 * @var array
 	 *
 	 * All loaded instances of this class.
 	 */
 	public static array $loaded = [];
 
 	/**
-	 * @var Board[]
+	 * @var array
 	 *
 	 * A list of boards grouped by category ID.
 	 */
@@ -354,7 +354,8 @@ class Category implements \ArrayAccess
 	 * used by ManageBoards.php to change the settings of a category.
 	 *
 	 * @param int $category_id The ID of the category
-	 * @param array $catOptions An array containing data and options related to the category
+	 * @param array $catOptions An array containing data and options related to
+	 *    the category.
 	 */
 	public static function modify(int $category_id, array $catOptions): void
 	{
@@ -524,14 +525,17 @@ class Category implements \ArrayAccess
 
 	/**
 	 * Remove one or more categories.
-	 * general function to delete one or more categories.
-	 * allows to move all boards in the categories to a different category before deleting them.
-	 * if moveChildrenTo is set to null, all boards inside the given categories will be deleted.
-	 * deletes all information that's associated with the given categories.
-	 * updates the statistics to reflect the new situation.
 	 *
-	 * @param array $categories The IDs of the categories to delete
-	 * @param null|int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
+	 *  - Allows to move all boards in the categories to a different category
+	 *    before deleting them.
+	 *  - If moveChildrenTo is set to null, all boards inside the given
+	 *    categories will be deleted.
+	 *  - Deletes all information that's associated with the given categories.
+	 *  - Updates the statistics to reflect the new situation.
+	 *
+	 * @param array $categories The IDs of the categories to delete.
+	 * @param ?int $moveBoardsTo The ID of the category to move any boards to or
+	 *    null to delete the boards.
 	 */
 	public static function delete(array $categories, ?int $moveBoardsTo = null): void
 	{
@@ -597,7 +601,7 @@ class Category implements \ArrayAccess
 	}
 
 	/**
-	 * Takes a category array and sorts it
+	 * Takes a category array and sorts it.
 	 *
 	 * @param array &$categories The categories
 	 */
@@ -623,8 +627,7 @@ class Category implements \ArrayAccess
 	}
 
 	/**
-	 * Tries to load up the entire board order and category very very quickly
-	 * Returns an array with two elements, cats and boards
+	 * Tries to load up the entire board order and category very very quickly.
 	 *
 	 * @return array An array of categories and boards
 	 */
@@ -663,6 +666,7 @@ class Category implements \ArrayAccess
 
 	/**
 	 * Load a lot of useful information regarding the boards and categories.
+	 *
 	 * The information retrieved is stored in static properties:
 	 *  Board::$loaded        Instances of SMF\Board for each board.
 	 *  Category::$boardList  A list of board IDs grouped by category ID.

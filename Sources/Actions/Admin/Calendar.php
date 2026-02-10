@@ -19,7 +19,6 @@ namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
@@ -46,7 +45,6 @@ use SMF\WebFetch\WebFetchApi;
 class Calendar implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
