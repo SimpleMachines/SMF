@@ -202,16 +202,8 @@ class ErrorHandler
 
         // Try to get the service from the container
         try {
-            // Check if container is initialized
-            if (class_exists(Container::class)) {
-                $container = Container::getInstance();
-
-                // Check if the service is registered in the container
-                if ($container->has(ErrorHandlerService::class)) {
-                    self::$service = $container->get(ErrorHandlerService::class);
-                    return self::$service;
-                }
-            }
+            self::$service = Container::get(ErrorHandlerService::class);
+            return self::$service;
         } catch (\Throwable $e) {
             // Container not available or service not registered
             // Fall through to manual instantiation
