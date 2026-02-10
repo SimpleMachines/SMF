@@ -95,14 +95,10 @@ class SearchEngines implements ActionInterface
 
 		Utils::$context['page_title'] = Lang::getTxt('search_engines', file: 'Admin');
 
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::getTxt('search_engines', file: 'Admin'),
-				'description' => Lang::getTxt('search_engines_description', file: 'Search'),
-			];
-		}
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('search_engines', file: 'Admin'),
+			'description' => Lang::getTxt('search_engines_description', file: 'Search'),
+		];
 
 		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
