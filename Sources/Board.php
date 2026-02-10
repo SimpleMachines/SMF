@@ -913,13 +913,13 @@ class Board implements \ArrayAccess, Routable
 			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
 		}
 
-		if (!isset(self::$loaded[$id])) {
+		if (!isset($id, self::$loaded[$id])) {
 			new self($id, $props);
 		} else {
 			self::$loaded[$id]->set($props);
 		}
 
-		return self::$loaded[$id] ?? null;
+		return self::$loaded[$id ?? self::$board_id] ?? null;
 	}
 
 	/**
