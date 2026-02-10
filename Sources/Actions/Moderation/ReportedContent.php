@@ -18,7 +18,6 @@ namespace SMF\Actions\Moderation;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -42,7 +41,6 @@ use SMF\Utils;
 class ReportedContent implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

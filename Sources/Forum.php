@@ -25,7 +25,7 @@ use SMF\Db\DatabaseApi as Db;
  * The most interesting part of this file for modification authors is the action
  * array. It is formatted as so:
  *
- *    'action-in-url' => array('Source-File.php', 'FunctionToCall'),
+ *    'action-in-url' => ['Source-File.php', 'FunctionToCall'],
  *
  * Then, you can access the FunctionToCall() function from Source-File.php with
  * the URL index.php?action=action-in-url. Relatively simple, no?
@@ -36,17 +36,19 @@ use SMF\Db\DatabaseApi as Db;
  *
  *  1. Create a class that implements SMF\ActionInterface and uses SMF\ActionTrait.
  *     Put your code in its execute() method.
- *  2. Either use the integrate_actions hook or call SMF\Forum:::addAction() from
- *     the integrate_pre_load hook to add information about your
- *     action to SMF\Forum::$actions.
+ *  2. Either use the integrate_actions hook or call SMF\Forum:::addAction()
+ *     from the integrate_pre_load hook to add information about your action to
+ *     SMF\Forum::$actions.
  *
  * Deprecations:
  *
  *  1. integrate_pre_log_stats (modifying SMF\Forum::$unlogged_actions)
- *     Implement SMF\ActionInterface::canBeLogged() to manage logging at the action level.
+ *     Implement SMF\ActionInterface::canBeLogged() to manage logging at the
+ *     action level.
  *
  *  2. integrate_guest_actions (modifying SMF\Forum::$guest_access_actions)
- *     Implement SMF\ActionInterface::isRestrictedGuestAccessAllowed() for guest access control.
+ *     Implement SMF\ActionInterface::isRestrictedGuestAccessAllowed() for guest
+ *     access control.
  */
 class Forum
 {
@@ -343,9 +345,9 @@ class Forum
 	 *  - a multidimensional array indicating specific sub-actions or areas that
 	 *    should not be logged.
 	 *
-	 *    For example, 'pm' => array('sa' => array('popup')) means that we won't
-	 *    log visits to index.php?action=pm;sa=popup, but other sub-actions
-	 *    like index.php?action=pm;sa=send will be logged.
+	 *    For example, `'pm' => ['sa' => ['popup']]` means that we won't log
+	 *    visits to `index.php?action=pm;sa=popup`, but other sub-actions like
+	 *    `index.php?action=pm;sa=send` will be logged.
 	 */
 	public static array $unlogged_actions = [
 		'calendar' => ['sa' => ['clock']],

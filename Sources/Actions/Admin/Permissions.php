@@ -18,7 +18,6 @@ namespace SMF\Actions\Admin;
 use SMF\ActionInterface;
 use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -42,7 +41,6 @@ use SMF\Utils;
 class Permissions implements ActionInterface
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
