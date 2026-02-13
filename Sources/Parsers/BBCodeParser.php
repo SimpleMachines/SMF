@@ -1692,7 +1692,7 @@ class BBCodeParser extends Parser
 		$look_for = strtolower(substr($this->message, $this->pos + 2, $pos2 - $this->pos - 2));
 
 		// A closing tag that doesn't match any open tags? Skip it.
-		if (!\in_array($look_for, array_map(function ($bbc) { return $bbc->tag; }, $this->open_bbc))) {
+		if (!\in_array($look_for, array_map(fn($bbc) => $bbc->tag, $this->open_bbc))) {
 			return;
 		}
 
