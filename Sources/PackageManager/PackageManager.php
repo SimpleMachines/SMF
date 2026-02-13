@@ -3456,7 +3456,7 @@ class PackageManager
 				$_REQUEST['sa'] = 'servers';
 			}
 
-			$temp = array_map(function ($sa) {return $this->subactions[$sa];}, $this->packageget_subactions);
+			$temp = array_map(fn($sa) => $this->subactions[$sa], $this->packageget_subactions);
 
 			// MOD AUTHORS: integrate_package_get is deprecated. Use integrate_manage_packages instead.
 			if (!empty(Config::$backward_compatibility)) {
