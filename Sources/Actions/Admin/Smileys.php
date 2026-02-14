@@ -2453,7 +2453,7 @@ class Smileys implements ActionInterface
 
 		// Remove anything that isn't actually new from our list of files
 		foreach ($to_unset as $key => $ids) {
-			if (array_reduce($ids, function ($carry, $item) { return $carry * $item; }, true) == true) {
+			if (array_reduce($ids, fn($carry, $item) => $carry * $item, true) == true) {
 				unset($smiley_files[$key]);
 			}
 		}
