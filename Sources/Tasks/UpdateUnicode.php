@@ -125,10 +125,10 @@ class UpdateUnicode extends BackgroundTask
 	private array $funcs = [
 		[
 			'file' => 'Metadata.php',
-			'regex' => '/if \(!defined\(\'SMF_UNICODE_VERSION\'\)\)(?:\s*{)?\n\tdefine\(\'SMF_UNICODE_VERSION\', \'\d+(\.\d+)*\'\);(?:\n})?/',
+			'regex' => '/if \(!\\\\?defined\(\'SMF_UNICODE_VERSION\'\)\)(?:\s*{)?\n\t\\\\?define\(\'SMF_UNICODE_VERSION\', \'\d+(\.\d+)*\'\);(?:\n})?/',
 			'data' => [
 				// 0.0.0.0 will be replaced with correct value at runtime.
-				"if (!defined('SMF_UNICODE_VERSION')) {\n\tdefine('SMF_UNICODE_VERSION', '0.0.0.0');\n}",
+				"if (!\\defined('SMF_UNICODE_VERSION')) {\n\t\\define('SMF_UNICODE_VERSION', '0.0.0.0');\n}",
 			],
 		],
 		'utf8_normalize_d_maps' => [
@@ -983,7 +983,7 @@ class UpdateUnicode extends BackgroundTask
 			trim($license_block),
 			'declare(strict_types=1);',
 			'namespace SMF\\Unicode;',
-			"if (!defined('SMF')) {\n\tdie('No direct access...');\n}",
+			"if (!\\defined('SMF')) {\n\tdie('No direct access...');\n}",
 			'',
 		]);
 
@@ -1480,10 +1480,10 @@ class UpdateUnicode extends BackgroundTask
 				if (!isset($current_range['end']) || $ord == $current_range['end'] + 1) {
 					$current_range['end'] = $ord;
 				} else {
-					$range_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$range_string .= '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$range_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$range_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
@@ -1493,10 +1493,10 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (isset($current_range['start'])) {
-				$range_string = '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$range_string = '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$range_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$range_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
@@ -1536,7 +1536,7 @@ class UpdateUnicode extends BackgroundTask
 						$this->funcs['utf8_regex_properties']['data'][$fields[1]] = [];
 					}
 
-					$this->funcs['utf8_regex_properties']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+					$this->funcs['utf8_regex_properties']['data'][$fields[1]][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 
 					$this->funcs['utf8_regex_properties']['data'][$fields[1]] = array_unique($this->funcs['utf8_regex_properties']['data'][$fields[1]]);
 				}
@@ -1595,7 +1595,7 @@ class UpdateUnicode extends BackgroundTask
 
 				list($base_char, $variation_selector) = explode(' ', $fields[0]);
 
-				$this->funcs['utf8_regex_variation_selectors']['data']['\\x{' . $variation_selector . '}'][] = hexdec($base_char);
+				$this->funcs['utf8_regex_variation_selectors']['data']['\\\\x{' . $variation_selector . '}'][] = hexdec($base_char);
 			}
 		}
 
@@ -1615,20 +1615,20 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$class_string .= '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$class_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 
 				$current_range = ['start' => $ord, 'end' => $ord];
 			}
 
 			if (isset($current_range['start'])) {
-				$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+				$class_string .= '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 				if ($current_range['start'] != $current_range['end']) {
-					$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+					$class_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 				}
 			}
 
@@ -1649,7 +1649,7 @@ class UpdateUnicode extends BackgroundTask
 		}
 
 		foreach ($this->funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $class_string) {
-			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
+			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = array_unique(preg_split('/(?<=})(?=\\\\{1,2}x\{)/', $class_string));
 		}
 
 		krsort($this->funcs['utf8_regex_variation_selectors']['data']);
@@ -1912,7 +1912,7 @@ class UpdateUnicode extends BackgroundTask
 					$this->funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type] = [];
 				}
 
-				$this->funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+				$this->funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 			}
 		}
 		// This sort works decently well to ensure widely used scripts are ranked before rare scripts.
@@ -1988,7 +1988,7 @@ class UpdateUnicode extends BackgroundTask
 					$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = [];
 				}
 
-				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 			}
 		}
 		// Again, sort commonly used scripts before rare scripts.
@@ -2065,24 +2065,24 @@ class UpdateUnicode extends BackgroundTask
 						continue;
 					}
 
-					$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$class_string .= '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$class_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 
 					$current_range = ['start' => $ord, 'end' => $ord];
 				}
 
 				if (isset($current_range['start'])) {
-					$class_string .= '\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
+					$class_string .= '\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['start']))) . '}';
 
 					if ($current_range['start'] != $current_range['end']) {
-						$class_string .= '-\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
+						$class_string .= '-\\\\x{' . strtoupper(\sprintf('%04s', dechex((int) $current_range['end']))) . '}';
 					}
 				}
 
-				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
+				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = array_unique(preg_split('/(?<=})(?=\\\\{1,2}x\{)/', $class_string));
 			}
 
 			ksort($this->funcs['utf8_regex_indic']['data'][$char_script]);
@@ -2141,15 +2141,15 @@ class UpdateUnicode extends BackgroundTask
 					$this->funcs['idna_maps_deviation']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
 				}
 
-				$this->funcs['idna_regex']['data']['deviation'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+				$this->funcs['idna_regex']['data']['deviation'][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'ignored') {
-				$this->funcs['idna_regex']['data']['ignored'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+				$this->funcs['idna_regex']['data']['ignored'][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'disallowed') {
 				if (\in_array('&#xD800;', $entities)) {
 					continue;
 				}
 
-				$this->funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+				$this->funcs['idna_regex']['data']['disallowed'][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 			}
 		}
 
@@ -2211,7 +2211,7 @@ class UpdateUnicode extends BackgroundTask
 
 					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
 
-					$rule = preg_replace_callback('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', fn($matches) => ($matches[2] === '=' ? '' : $matches[2]) . 'in_array(' . $matches[1] . ', [' . preg_replace('/,\s*/', ', ', $matches[3]) . '])', $rule);
+					$rule = preg_replace_callback('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', fn($matches) => ($matches[2] === '=' ? '' : $matches[2]) . '\\in_array(' . $matches[1] . ', [' . preg_replace('/,\s*/', ', ', $matches[3]) . '])', $rule);
 
 					if ($key === 'other' && $rule === '') {
 						$rule = 'true';
@@ -2492,7 +2492,7 @@ class UpdateUnicode extends BackgroundTask
 				$fields[$key] = trim($value);
 			}
 
-			$this->funcs['utf8_regex_identifier_status']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+			$this->funcs['utf8_regex_identifier_status']['data'][$fields[1]][] = '\\\\x{' . str_replace('..', '}-\\\\x{', $fields[0]) . '}';
 		}
 
 		return true;
