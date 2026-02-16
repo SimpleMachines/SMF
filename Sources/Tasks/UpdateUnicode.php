@@ -821,7 +821,7 @@ class UpdateUnicode extends BackgroundTask
 			if (preg_match($func_regex, $file_contents)) {
 				file_put_contents($temp_file_path, preg_replace($func_regex, $func_code, $file_contents));
 			} else {
-				file_put_contents($temp_file_path, $func_code . "\n\n", FILE_APPEND);
+				file_put_contents($temp_file_path, $func_code . "\n", FILE_APPEND);
 			}
 
 			// Free up some memory.

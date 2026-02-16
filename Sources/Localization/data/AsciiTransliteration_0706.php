@@ -13,7 +13,7 @@
 
 // Transliteration maps to replace non-ASCII characters with ASCII approximations.
 $ascii_transliteration[706] = [
-	1 => 'shan',
+	1 => 'tan',
 	21 => 'fei',
 	28 => 'ying',
 	39 => 'se',

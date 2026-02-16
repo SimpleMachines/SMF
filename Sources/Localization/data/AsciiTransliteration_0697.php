@@ -16,6 +16,7 @@ $ascii_transliteration[697] = [
 	56 => 'mao',
 	61 => 'gan',
 	77 => 'yan',
+	78 => 'chan',
 	115 => 'li',
 	117 => 'li',
 	122 => 'ye',
