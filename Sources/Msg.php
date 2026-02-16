@@ -504,7 +504,7 @@ class Msg implements \ArrayAccess, Routable
 			'body' => $this->body ?? '',
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($this->id_member, User::$me->ignoreusers),
 			'num_reactions' => (int) $this->reactions,
 		];
 
@@ -668,8 +668,8 @@ class Msg implements \ArrayAccess, Routable
 		if (!empty(Config::$modSettings['enable_reacts'])) {
 			$this->formatted['reacts'] = [
 				'count' => $this->reactions,
-				'you' => in_array($this->id, Utils::$context['my_reactions'] ?? []),
-			];;
+				'you' => \in_array($this->id, Utils::$context['my_reactions'] ?? []),
+			];
 
 			if ($this->reactions != 0) {
 				// Load up the number of each type of reactions
@@ -684,7 +684,7 @@ class Msg implements \ArrayAccess, Routable
 					[
 						'content_type' => 'msg',
 						'content_id' => $this->id,
-					]
+					],
 				);
 
 				// Loop through the results

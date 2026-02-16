@@ -50,7 +50,7 @@ class Reactions extends Table
                 size: 255,
                 not_null: true,
                 default: '',
-            )
+            ),
         ];
 
         $this->indexes = [

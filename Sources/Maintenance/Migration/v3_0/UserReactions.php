@@ -16,9 +16,8 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Migration\MigrationBase;
-use SMF\Db\Schema\v3_0;
 use SMF\Db\Schema\v3_0\UserReacts;
+use SMF\Maintenance\Migration\MigrationBase;
 
 class UserReactions extends MigrationBase
 {
@@ -41,9 +40,9 @@ class UserReactions extends MigrationBase
 		$cols = Db::$db->list_columns('messages');
 
 		// If the reactions column exists in the messages table, there's nothing to do
-		return !in_array('reactions', $cols);
+		return !\in_array('reactions', $cols);
 	}
-	
+
 	/**
 	 *
 	 */
@@ -51,6 +50,7 @@ class UserReactions extends MigrationBase
 	{
 		// Does the user_likes table exist?
 		$table_exists = Db::$db->list_tables(false, '%user_likes');
+
 		if (!empty($table_exists))
 		{
 			// Rename the table
@@ -83,10 +83,9 @@ class UserReactions extends MigrationBase
 			// Finally, the settting
 			Db::$db->query('UPDATE {db_prefix}settings SET variable = {string:r_set} WHERE variable = {string:l_set}', ['r_set' => 'enable_reacts', 'l_set' => 'enable_likes']);
 		}
-		
+	
 		// Create the table
-		else
-		{
+		else {
 			// Shortcuts are fun...
 			$table = new UserReacts;
 			$table->create();
@@ -104,4 +103,5 @@ class UserReactions extends MigrationBase
 
 		return true;
 	}
+
 }

@@ -48,7 +48,7 @@ class UserReacts extends Table
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
-				default: 0
+				default: 0,
 			),
 			'content_type' => new Column(
 				name: 'content_type',

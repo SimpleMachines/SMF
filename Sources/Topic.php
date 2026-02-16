@@ -1721,7 +1721,7 @@ class Topic implements \ArrayAccess, Routable
 			[
 				'msg' => 'msg',
 				'topics' => $topics,
-			]
+			],
 		);
 		Db::$db->query(
 			'DELETE FROM {db_prefix}messages

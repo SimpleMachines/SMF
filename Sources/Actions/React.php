@@ -201,14 +201,14 @@ class React implements ActionInterface, Routable
 	 */
 	protected int $id_react = 0;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/** @var array
 	 *
 	 * An array of available reactions
 	 */
-
-	/****************
-	 * Public methods
-	 ****************/
 
 	public function canBeLogged(): bool
 	{
@@ -338,7 +338,7 @@ class React implements ActionInterface, Routable
 		}
 
 		// Is this a valid reaction ID?
-		if ($this->id_react != 0 && in_array($this->id_react, $this->getReactions()))	{
+		if ($this->id_react != 0 && in_array($this->id_react, $this->getReactions())) {
 			$this->error = 'invalid_reaction';
 
 			return;
@@ -436,7 +436,7 @@ class React implements ActionInterface, Routable
 
 		// Is the user able to react to this?
 		// Viewing a list of reactions doesn't require this permission.
-		if ($this->subaction != 'view' && isset($this->valid_reacts['can_react']) && is_string($this->valid_reacts['can_react'])) {
+		if ($this->subaction != 'view' && isset($this->valid_reacts['can_react']) && \is_string($this->valid_reacts['can_react'])) {
 			$this->error = $this->valid_reacts['can_react'];
 
 			return;
@@ -728,7 +728,7 @@ class React implements ActionInterface, Routable
 			Utils::$context['reactors'][$reactor]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		Utils::$context['page_title'] = strip_tags(Lang::getTxt('reacts_count', ['num' => count(Utils::$context['reactors'])]));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('reacts_count', ['num' => \count(Utils::$context['reactors'])]));
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Reacts');

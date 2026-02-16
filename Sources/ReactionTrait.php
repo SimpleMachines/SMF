@@ -8,21 +8,25 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 4
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace SMF;
 
-Use SMF\Cache\CacheApi;
-Use SMF\Db\DatabaseApi as Db;
+use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * This trait only has one purpose - define a method to load reactions so we don't have to duplicate code
  */
 trait ReactionTrait
 {
+	/****************
+	 * Public methods
+	****************/
+
 	/**
 	 * @return array
 	 *
@@ -30,10 +34,11 @@ trait ReactionTrait
 	 */
 	public function getReactions(): array
 	{
-		if (is_null($reactions = CacheApi::get('reactions', 480))) {
+		if (\is_null($reactions = CacheApi::get('reactions', 480))) {
 			$request = Db::$db->query(
 				'SELECT * FROM {db_prefix}reactions',
-			[]);
+			[],
+		);
 
 			while ($result = Db::$db->fetch_assoc($request)) {
 				$reactions[$result['id_reaction']] = $result['name'];
@@ -44,6 +49,8 @@ trait ReactionTrait
 			// Cache the results
 			CacheApi::put('reactions', $reactions, 480);
 		}
+
 		return $reactions;
 	}
+
 }
