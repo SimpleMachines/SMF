@@ -4,17 +4,14 @@
  * This is an internal development file. It should NOT be included in
  * any SMF distribution packages.
  *
- * This file updates version numbers and copyright years in any SMF
- * files that need it in order to prepare for a new release.
+ * To automatically increment the version number for the new release,
+ * run the following command on the CLI:
  *
- * To automatically increment the version number, run the following
- * command on the CLI:
- *
- *     php -f other/update_version_numbers.php
+ *     php -f other/prepare_release.php
  *
  * To manually specify a version string, do this:
  *
- *     php -f other/update_version_numbers.php 'version_string_here'
+ *     php -f other/prepare_release.php 'version_string_here'
  *
  * Note: manually specifying a version string should only be needed
  * when changing from alpha to beta, from beta to release candidate, or
@@ -37,7 +34,25 @@ namespace SMF\other;
 
 require_once 'Updaters/UpdaterBase.php';
 
-require_once 'Updaters/VersionNumberUpdater.php';
+foreach (
+	[
+		'UnicodeDataUpdater',
+		'AsciiTransliteratorDataUpdater',
+		'TimezoneDataUpdater',
+		'VersionNumberUpdater',
+	]
+	as $class_name
+) {
+	$file_name = 'Updaters/' . $class_name . '.php';
+	$fully_qualified_class_name = __NAMESPACE__ . '\\Updaters\\' . $class_name;
 
-$updater = new Updaters\VersionNumberUpdater('update_version_numbers');
-$updater->execute($argv[1] ?? null);
+	require_once $file_name;
+
+	$updater = new $fully_qualified_class_name('prepare_release');
+
+	if ($class_name === 'VersionNumberUpdater') {
+		$updater->execute($argv[1] ?? null);
+	} else {
+		$updater->execute();
+	}
+}
