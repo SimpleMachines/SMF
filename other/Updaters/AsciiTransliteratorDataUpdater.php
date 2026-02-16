@@ -65,7 +65,7 @@ class AsciiTransliteratorDataUpdater extends UpdaterBase
 			echo 'Updating AsciiTransliterator data...', PHP_EOL;
 		}
 
-		$this->createBranch();
+		$this->checkoutNewBranch();
 
 		// Do the job.
 		$output_dir = Config::$sourcedir . '/Localization/data';

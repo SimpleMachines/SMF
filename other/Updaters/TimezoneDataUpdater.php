@@ -200,7 +200,7 @@ class TimezoneDataUpdater extends UpdaterBase
 			echo 'Updating time zone data...', PHP_EOL;
 		}
 
-		$this->createBranch();
+		$this->checkoutNewBranch();
 
 		$this->fetchTzdbUpdates();
 		$this->updateTimezoneClass();

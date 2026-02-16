@@ -38,12 +38,38 @@ abstract class UpdaterBase
 	 */
 	public const MAIN_BRANCH = 'release-3.0';
 
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var string
 	 *
 	 * The name of a new Git branch to hold the changes.
 	 */
 	public string $new_branch;
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var object
+	 *
+	 * Autoloader instance.
+	 */
+	public static object $loader;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether we've already checked for a dirty working tree.
+	 */
+	private static bool $checked_working_tree = false;
 
 	/****************
 	 * Public methods
@@ -75,81 +101,109 @@ abstract class UpdaterBase
 		}
 
 		// Do nothing if working tree is dirty.
-		if (shell_exec('git status --porcelain') !== null) {
+		if (!self::$checked_working_tree && shell_exec('git status --porcelain') !== null) {
 			throw new \Exception('Could not continue. Dirty working tree.');
 		}
 
-		// Set a few variables that we'll need.
-		$boarddir = trim((string) shell_exec('git rev-parse --show-toplevel'));
-		$sourcedir = $boarddir . '/Sources';
-		$vendordir = $boarddir . '/vendor';
-
-		// Make sure we are working in the right directory.
-		chdir($boarddir);
+		self::$checked_working_tree = true;
 
 		// Impersonate cron.php
-		\define('SMF', 'BACKGROUND');
-		\define('SMF_USER_AGENT', 'SMF');
-		\define('TIME_START', microtime(true));
-
-		// Borrow a bit of stuff from index.php.
-		$index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
-
-		foreach (['SMF_VERSION', 'SMF_SOFTWARE_YEAR'] as $const) {
-			preg_match("/define\('{$const}', '([^)]+)'\);/", $index_php_start, $matches);
-
-			if (empty($matches[1])) {
-				throw new \Exception("Could not find value for {$const} in index.php");
-			}
-
-			\define($const, $matches[1]);
+		if (!\defined('SMF')) {
+			\define('SMF', 'BACKGROUND');
 		}
 
-		// Fire up the autoloader.
-		$loader = require_once $vendordir . '/autoload.php';
-		$loader->setPsr4('SMF\\', $sourcedir);
-		$loader->setPsr4('SMF\\other\\', $boarddir . '/other');
+		if (!\defined('SMF_USER_AGENT')) {
+			\define('SMF_USER_AGENT', 'SMF');
+		}
 
-		// Set some more stuff we need.
-		Config::$boarddir = $boarddir;
-		Config::$sourcedir = $sourcedir;
-		Config::$vendordir = $vendordir;
-		Config::$languagesdir = Config::$boarddir . '/Languages';
-		Config::$language = 'en_US';
-		Config::$backward_compatibility = 0;
-		Config::$scripturl = 'file:///foo/bar/index.php';
-		Config::$modSettings = [
-			'default_timezone' => 'UTC',
-			'forum_uuid' => (string) Uuid::getNamespace(),
-		];
+		if (!\defined('TIME_START')) {
+			\define('TIME_START', microtime(true));
+		}
 
-		Lang::$default = Config::$language;
-		Lang::addDirs(Config::$languagesdir);
+		// Set variables, load classes, etc.
+		if (!isset(self::$loader)) {
+			// Set a few variables that we'll need.
+			$boarddir = trim((string) shell_exec('git rev-parse --show-toplevel'));
+			$sourcedir = $boarddir . '/Sources';
+			$vendordir = $boarddir . '/vendor';
+
+			// Borrow a bit of stuff from index.php.
+			$index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
+
+			foreach (['SMF_VERSION', 'SMF_SOFTWARE_YEAR'] as $const) {
+				if (\defined($const)) {
+					continue;
+				}
+
+				preg_match("/define\('{$const}', '([^)]+)'\);/", $index_php_start, $matches);
+
+				if (empty($matches[1])) {
+					throw new \Exception("Could not find value for {$const} in index.php");
+				}
+
+				\define($const, $matches[1]);
+			}
+
+			// Fire up the autoloader.
+			self::$loader = require_once $vendordir . '/autoload.php';
+			self::$loader->setPsr4('SMF\\', $sourcedir);
+			self::$loader->setPsr4('SMF\\other\\', $boarddir . '/other');
+
+			// Set some more stuff we need.
+			Config::$boarddir = $boarddir;
+			Config::$sourcedir = $sourcedir;
+			Config::$vendordir = $vendordir;
+			Config::$languagesdir = Config::$boarddir . '/Languages';
+			Config::$language = 'en_US';
+			Config::$backward_compatibility = 0;
+			Config::$scripturl = 'file:///foo/bar/index.php';
+			Config::$modSettings = [
+				'default_timezone' => 'UTC',
+				'forum_uuid' => (string) Uuid::getNamespace(),
+			];
+
+			Lang::$default = Config::$language;
+			Lang::addDirs(Config::$languagesdir);
+		}
+
+		// Make sure we are working in the right directory.
+		chdir(Config::$boarddir);
 	}
 
 	/**
-	 * Creates a new Git branch to hold our changes.
+	 * Checks out a new Git branch to hold our changes.
 	 *
 	 * This should always be called from within a concrete class's execute
 	 * method.
 	 */
-	public function createBranch(): void
+	public function checkoutNewBranch(): void
 	{
-		$current_branch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
-
-		if ($current_branch === $this->new_branch) {
+		// Are we already on the new branch?
+		if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) === $this->new_branch) {
 			return;
 		}
 
-		if ($current_branch !== self::MAIN_BRANCH) {
+		// Does the new branch already exist?
+		exec('git for-each-ref --format "%(refname:short)" refs/heads/', $branches);
+
+		if (\in_array($this->new_branch, $branches)) {
+			@shell_exec('git checkout "' . $this->new_branch . '"');
+
+			if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) === $this->new_branch) {
+				return;
+			}
+		}
+
+		// Need to create the new branch at this point, so first switch to the main branch.
+		if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== self::MAIN_BRANCH) {
 			@shell_exec('git checkout "' . self::MAIN_BRANCH . '"');
-			$current_branch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
+
+			if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== self::MAIN_BRANCH) {
+				throw new \Exception('Could not continue. Wrong branch is checked out.');
+			}
 		}
 
-		if ($current_branch !== self::MAIN_BRANCH) {
-			throw new \Exception('Could not continue. Wrong branch is checked out.');
-		}
-
+		// Now create the new branch.
 		shell_exec('git checkout -b "' . $this->new_branch . '"');
 
 		if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== $this->new_branch) {
@@ -178,11 +232,7 @@ abstract class UpdaterBase
 		}
 
 		// Are there any uncommitted changes?
-		if (shell_exec('git status --porcelain') !== null) {
-			return true;
-		}
-
-		return false;
+		return (bool) (shell_exec('git status --porcelain') !== null);
 	}
 
 	/**

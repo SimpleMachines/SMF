@@ -136,7 +136,7 @@ class VersionNumberUpdater extends UpdaterBase
 			echo 'Updating version numbers...', PHP_EOL;
 		}
 
-		$this->createBranch();
+		$this->checkoutNewBranch();
 
 		$this->updateVersionAndYear();
 		$this->updateLicenseBlocks();
