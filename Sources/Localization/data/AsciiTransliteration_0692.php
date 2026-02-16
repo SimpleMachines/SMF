@@ -53,7 +53,7 @@ $ascii_transliteration[692] = [
 	240 => 'xu',
 	241 => 'qiao',
 	242 => 'jun',
-	244 => 'mou',
+	244 => 'mao',
 	245 => 'shen',
 	246 => 'xuan',
 	248 => 'wan',
@@ -61,6 +61,6 @@ $ascii_transliteration[692] = [
 	250 => 'lu',
 	251 => 'nie',
 	252 => 'he',
-	253 => 'zong',
+	253 => 'cong',
 	254 => 'yu',
 ];

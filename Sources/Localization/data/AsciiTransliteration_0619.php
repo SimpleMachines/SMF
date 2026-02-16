@@ -40,6 +40,7 @@ $ascii_transliteration[619] = [
 	95 => 'ta',
 	97 => 'si',
 	101 => 'yi',
+	108 => 'ying',
 	109 => 'qiong',
 	110 => 'zhi',
 	111 => 'lu',

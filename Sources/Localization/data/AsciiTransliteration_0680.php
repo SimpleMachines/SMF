@@ -35,7 +35,7 @@ $ascii_transliteration[680] = [
 	160 => 'lan',
 	174 => 'luan',
 	198 => 'dong',
-	210 => 'hun',
+	210 => 'huan',
 	221 => 'zao',
 	251 => 'lou',
 ];

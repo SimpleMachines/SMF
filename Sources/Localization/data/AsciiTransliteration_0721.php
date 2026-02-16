@@ -13,7 +13,7 @@
 
 // Transliteration maps to replace non-ASCII characters with ASCII approximations.
 $ascii_transliteration[721] = [
-	27 => 'jian',
+	27 => 'zuan',
 	220 => 'po',
 	239 => 'liu',
 ];
