@@ -209,7 +209,6 @@ class React implements ActionInterface, Routable
 	 *
 	 * An array of available reactions
 	 */
-
 	public function canBeLogged(): bool
 	{
 		return false;

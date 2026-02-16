@@ -64,7 +64,7 @@ class Reactions implements ActionInterface
 
 	/****************
 	 * Public methods
-	 ****************/	
+	 ****************/
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -136,7 +136,7 @@ class Reactions implements ActionInterface
 				if (Db::$db->num_rows($get_reacted_posts) > 0) {
 					while ($reacted_post = $get_reacted_posts->fetchAssoc()) {
 						Db::$db->query(
-								'
+							'
 						UPDATE {db_prefix}messages
 						SET reactions = reactions-{int:deleted}
 						WHERE id_msg = {int:msg}',

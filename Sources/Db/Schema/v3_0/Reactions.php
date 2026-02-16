@@ -62,6 +62,6 @@ class Reactions extends Table
 					],
 				],
 			),
-        ];
-    }
+		];
+	}
 }

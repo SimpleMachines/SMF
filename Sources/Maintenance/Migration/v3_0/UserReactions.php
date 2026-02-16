@@ -86,7 +86,7 @@ class UserReactions extends MigrationBase
 		// Create the table
 		else {
 			// Shortcuts are fun...
-			$table = new UserReacts;
+			$table = new UserReacts();
 			$table->create();
 
 			// Add the reactions column and related index to the messages table
