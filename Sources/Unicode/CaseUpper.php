@@ -3132,4 +3132,3 @@ function utf8_strtoupper_maps(): array
 		"\xEF\xBD\x9A" => "\xEF\xBC\xBA",
 	];
 }
-

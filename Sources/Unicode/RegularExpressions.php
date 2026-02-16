@@ -6152,4 +6152,3 @@ function utf8_regex_indic(): array
 		],
 	];
 }
-

@@ -7262,4 +7262,3 @@ function idna_regex(): array
 			'\\x{200C}-\\x{200D}',
 	];
 }
-

@@ -9328,4 +9328,3 @@ function utf8_regex_identifier_status(): array
 			'\\x{29D98}',
 	];
 }
-

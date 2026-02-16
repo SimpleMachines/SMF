@@ -22,4 +22,3 @@ if (!\defined('SMF')) {
 if (!\defined('SMF_UNICODE_VERSION')) {
 	\define('SMF_UNICODE_VERSION', '17.0.0.0');
 }
-
