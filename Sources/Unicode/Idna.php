@@ -2475,11 +2475,15 @@ function idna_maps(): array
 		"\xEA\x9F\x89" => "\xEA\x9F\x8A",
 		"\xEA\x9F\x8B" => "\xC9\xA4",
 		"\xEA\x9F\x8C" => "\xEA\x9F\x8D",
+		"\xEA\x9F\x8E" => "\xEA\x9F\x8F",
 		"\xEA\x9F\x90" => "\xEA\x9F\x91",
+		"\xEA\x9F\x92" => "\xEA\x9F\x93",
+		"\xEA\x9F\x94" => "\xEA\x9F\x95",
 		"\xEA\x9F\x96" => "\xEA\x9F\x97",
 		"\xEA\x9F\x98" => "\xEA\x9F\x99",
 		"\xEA\x9F\x9A" => "\xEA\x9F\x9B",
 		"\xEA\x9F\x9C" => "\xC6\x9B",
+		"\xEA\x9F\xB1" => "\x73",
 		"\xEA\x9F\xB2" => "\x63",
 		"\xEA\x9F\xB3" => "\x66",
 		"\xEA\x9F\xB4" => "\x71",
@@ -4409,6 +4413,31 @@ function idna_maps(): array
 		"\xF0\x96\xB9\x9D" => "\xF0\x96\xB9\xBD",
 		"\xF0\x96\xB9\x9E" => "\xF0\x96\xB9\xBE",
 		"\xF0\x96\xB9\x9F" => "\xF0\x96\xB9\xBF",
+		"\xF0\x96\xBA\xA0" => "\xF0\x96\xBA\xBB",
+		"\xF0\x96\xBA\xA1" => "\xF0\x96\xBA\xBC",
+		"\xF0\x96\xBA\xA2" => "\xF0\x96\xBA\xBD",
+		"\xF0\x96\xBA\xA3" => "\xF0\x96\xBA\xBE",
+		"\xF0\x96\xBA\xA4" => "\xF0\x96\xBA\xBF",
+		"\xF0\x96\xBA\xA5" => "\xF0\x96\xBB\x80",
+		"\xF0\x96\xBA\xA6" => "\xF0\x96\xBB\x81",
+		"\xF0\x96\xBA\xA7" => "\xF0\x96\xBB\x82",
+		"\xF0\x96\xBA\xA8" => "\xF0\x96\xBB\x83",
+		"\xF0\x96\xBA\xA9" => "\xF0\x96\xBB\x84",
+		"\xF0\x96\xBA\xAA" => "\xF0\x96\xBB\x85",
+		"\xF0\x96\xBA\xAB" => "\xF0\x96\xBB\x86",
+		"\xF0\x96\xBA\xAC" => "\xF0\x96\xBB\x87",
+		"\xF0\x96\xBA\xAD" => "\xF0\x96\xBB\x88",
+		"\xF0\x96\xBA\xAE" => "\xF0\x96\xBB\x89",
+		"\xF0\x96\xBA\xAF" => "\xF0\x96\xBB\x8A",
+		"\xF0\x96\xBA\xB0" => "\xF0\x96\xBB\x8B",
+		"\xF0\x96\xBA\xB1" => "\xF0\x96\xBB\x8C",
+		"\xF0\x96\xBA\xB2" => "\xF0\x96\xBB\x8D",
+		"\xF0\x96\xBA\xB3" => "\xF0\x96\xBB\x8E",
+		"\xF0\x96\xBA\xB4" => "\xF0\x96\xBB\x8F",
+		"\xF0\x96\xBA\xB5" => "\xF0\x96\xBB\x90",
+		"\xF0\x96\xBA\xB6" => "\xF0\x96\xBB\x91",
+		"\xF0\x96\xBA\xB7" => "\xF0\x96\xBB\x92",
+		"\xF0\x96\xBA\xB8" => "\xF0\x96\xBB\x93",
 		"\xF0\x9C\xB3\x96" => "\x61",
 		"\xF0\x9C\xB3\x97" => "\x62",
 		"\xF0\x9C\xB3\x98" => "\x63",
@@ -6439,7 +6468,6 @@ function idna_regex(): array
 			'\\x{85C}-\\x{85D}' .
 			'\\x{85F}' .
 			'\\x{86B}-\\x{86F}' .
-			'\\x{88F}' .
 			'\\x{890}-\\x{891}' .
 			'\\x{892}-\\x{896}' .
 			'\\x{8E2}' .
@@ -6525,7 +6553,7 @@ function idna_regex(): array
 			'\\x{C49}' .
 			'\\x{C4E}-\\x{C54}' .
 			'\\x{C57}' .
-			'\\x{C5B}-\\x{C5C}' .
+			'\\x{C5B}' .
 			'\\x{C5E}-\\x{C5F}' .
 			'\\x{C64}-\\x{C65}' .
 			'\\x{C70}-\\x{C76}' .
@@ -6537,7 +6565,7 @@ function idna_regex(): array
 			'\\x{CC5}' .
 			'\\x{CC9}' .
 			'\\x{CCE}-\\x{CD4}' .
-			'\\x{CD7}-\\x{CDC}' .
+			'\\x{CD7}-\\x{CDB}' .
 			'\\x{CDF}' .
 			'\\x{CE4}-\\x{CE5}' .
 			'\\x{CF0}' .
@@ -6634,7 +6662,8 @@ function idna_regex(): array
 			'\\x{1A8A}-\\x{1A8F}' .
 			'\\x{1A9A}-\\x{1A9F}' .
 			'\\x{1AAE}-\\x{1AAF}' .
-			'\\x{1ACF}-\\x{1AFF}' .
+			'\\x{1ADE}-\\x{1ADF}' .
+			'\\x{1AEC}-\\x{1AFF}' .
 			'\\x{1B4D}' .
 			'\\x{1BF4}-\\x{1BFB}' .
 			'\\x{1C38}-\\x{1C3A}' .
@@ -6667,14 +6696,13 @@ function idna_regex(): array
 			'\\x{2072}-\\x{2073}' .
 			'\\x{208F}' .
 			'\\x{209D}-\\x{209F}' .
-			'\\x{20C1}-\\x{20CF}' .
+			'\\x{20C2}-\\x{20CF}' .
 			'\\x{20F1}-\\x{20FF}' .
 			'\\x{218C}-\\x{218F}' .
 			'\\x{242A}-\\x{243F}' .
 			'\\x{244B}-\\x{245F}' .
 			'\\x{2488}-\\x{249B}' .
 			'\\x{2B74}-\\x{2B75}' .
-			'\\x{2B96}' .
 			'\\x{2CF4}-\\x{2CF8}' .
 			'\\x{2D26}' .
 			'\\x{2D28}-\\x{2D2C}' .
@@ -6711,10 +6739,7 @@ function idna_regex(): array
 			'\\x{A4C7}-\\x{A4CF}' .
 			'\\x{A62C}-\\x{A63F}' .
 			'\\x{A6F8}-\\x{A6FF}' .
-			'\\x{A7CE}-\\x{A7CF}' .
-			'\\x{A7D2}' .
-			'\\x{A7D4}' .
-			'\\x{A7DD}-\\x{A7F1}' .
+			'\\x{A7DD}-\\x{A7F0}' .
 			'\\x{A82D}-\\x{A82F}' .
 			'\\x{A83A}-\\x{A83F}' .
 			'\\x{A878}-\\x{A87F}' .
@@ -6751,9 +6776,6 @@ function idna_regex(): array
 			'\\x{FB3F}' .
 			'\\x{FB42}' .
 			'\\x{FB45}' .
-			'\\x{FBC3}-\\x{FBD2}' .
-			'\\x{FD90}-\\x{FD91}' .
-			'\\x{FDC8}-\\x{FDCE}' .
 			'\\x{FDD0}-\\x{FDEF}' .
 			'\\x{FE12}' .
 			'\\x{FE19}' .
@@ -6832,7 +6854,7 @@ function idna_regex(): array
 			'\\x{108F6}-\\x{108FA}' .
 			'\\x{1091C}-\\x{1091E}' .
 			'\\x{1093A}-\\x{1093E}' .
-			'\\x{10940}-\\x{1097F}' .
+			'\\x{1095A}-\\x{1097F}' .
 			'\\x{109B8}-\\x{109BB}' .
 			'\\x{109D0}-\\x{109D1}' .
 			'\\x{10A04}' .
@@ -6864,7 +6886,8 @@ function idna_regex(): array
 			'\\x{10EAA}' .
 			'\\x{10EAE}-\\x{10EAF}' .
 			'\\x{10EB2}-\\x{10EC1}' .
-			'\\x{10EC5}-\\x{10EFB}' .
+			'\\x{10EC8}-\\x{10ECF}' .
+			'\\x{10ED9}-\\x{10EF9}' .
 			'\\x{10F28}-\\x{10F2F}' .
 			'\\x{10F5A}-\\x{10F6F}' .
 			'\\x{10F8A}-\\x{10FAF}' .
@@ -6949,7 +6972,8 @@ function idna_regex(): array
 			'\\x{11A48}-\\x{11A4F}' .
 			'\\x{11AA3}-\\x{11AAF}' .
 			'\\x{11AF9}-\\x{11AFF}' .
-			'\\x{11B0A}-\\x{11BBF}' .
+			'\\x{11B0A}-\\x{11B5F}' .
+			'\\x{11B68}-\\x{11BBF}' .
 			'\\x{11BE2}-\\x{11BEF}' .
 			'\\x{11BFA}-\\x{11BFF}' .
 			'\\x{11C09}' .
@@ -6971,7 +6995,9 @@ function idna_regex(): array
 			'\\x{11D8F}' .
 			'\\x{11D92}' .
 			'\\x{11D99}-\\x{11D9F}' .
-			'\\x{11DAA}-\\x{11EDF}' .
+			'\\x{11DAA}-\\x{11DAF}' .
+			'\\x{11DDC}-\\x{11DDF}' .
+			'\\x{11DEA}-\\x{11EDF}' .
 			'\\x{11EF9}-\\x{11EFF}' .
 			'\\x{11F11}' .
 			'\\x{11F3B}-\\x{11F3D}' .
@@ -7002,15 +7028,17 @@ function idna_regex(): array
 			'\\x{16B78}-\\x{16B7C}' .
 			'\\x{16B90}-\\x{16D3F}' .
 			'\\x{16D7A}-\\x{16E3F}' .
-			'\\x{16E9B}-\\x{16EFF}' .
+			'\\x{16E9B}-\\x{16E9F}' .
+			'\\x{16EB9}-\\x{16EBA}' .
+			'\\x{16ED4}-\\x{16EFF}' .
 			'\\x{16F4B}-\\x{16F4E}' .
 			'\\x{16F88}-\\x{16F8E}' .
 			'\\x{16FA0}-\\x{16FDF}' .
 			'\\x{16FE5}-\\x{16FEF}' .
-			'\\x{16FF2}-\\x{16FFF}' .
-			'\\x{187F8}-\\x{187FF}' .
+			'\\x{16FF7}-\\x{16FFF}' .
 			'\\x{18CD6}-\\x{18CFE}' .
-			'\\x{18D09}-\\x{1AFEF}' .
+			'\\x{18D1F}-\\x{18D7F}' .
+			'\\x{18DF3}-\\x{1AFEF}' .
 			'\\x{1AFF4}' .
 			'\\x{1AFFC}' .
 			'\\x{1AFFF}' .
@@ -7025,8 +7053,10 @@ function idna_regex(): array
 			'\\x{1BC89}-\\x{1BC8F}' .
 			'\\x{1BC9A}-\\x{1BC9B}' .
 			'\\x{1BCA4}-\\x{1CBFF}' .
-			'\\x{1CCFA}-\\x{1CCFF}' .
-			'\\x{1CEB4}-\\x{1CEFF}' .
+			'\\x{1CCFD}-\\x{1CCFF}' .
+			'\\x{1CEB4}-\\x{1CEB9}' .
+			'\\x{1CED1}-\\x{1CEDF}' .
+			'\\x{1CEF1}-\\x{1CEFF}' .
 			'\\x{1CF2E}-\\x{1CF2F}' .
 			'\\x{1CF47}-\\x{1CF4F}' .
 			'\\x{1CFC4}-\\x{1CFFF}' .
@@ -7079,7 +7109,10 @@ function idna_regex(): array
 			'\\x{1E300}-\\x{1E4CF}' .
 			'\\x{1E4FA}-\\x{1E5CF}' .
 			'\\x{1E5FB}-\\x{1E5FE}' .
-			'\\x{1E600}-\\x{1E7DF}' .
+			'\\x{1E600}-\\x{1E6BF}' .
+			'\\x{1E6DF}' .
+			'\\x{1E6F6}-\\x{1E6FD}' .
+			'\\x{1E700}-\\x{1E7DF}' .
 			'\\x{1E7E7}' .
 			'\\x{1E7EC}' .
 			'\\x{1E7EF}' .
@@ -7138,10 +7171,9 @@ function idna_regex(): array
 			'\\x{1F249}-\\x{1F24F}' .
 			'\\x{1F252}-\\x{1F25F}' .
 			'\\x{1F266}-\\x{1F2FF}' .
-			'\\x{1F6D8}-\\x{1F6DB}' .
+			'\\x{1F6D9}-\\x{1F6DB}' .
 			'\\x{1F6ED}-\\x{1F6EF}' .
 			'\\x{1F6FD}-\\x{1F6FF}' .
-			'\\x{1F777}-\\x{1F77A}' .
 			'\\x{1F7DA}-\\x{1F7DF}' .
 			'\\x{1F7EC}-\\x{1F7EF}' .
 			'\\x{1F7F1}-\\x{1F7FF}' .
@@ -7151,28 +7183,29 @@ function idna_regex(): array
 			'\\x{1F888}-\\x{1F88F}' .
 			'\\x{1F8AE}-\\x{1F8AF}' .
 			'\\x{1F8BC}-\\x{1F8BF}' .
-			'\\x{1F8C2}-\\x{1F8FF}' .
-			'\\x{1FA54}-\\x{1FA5F}' .
+			'\\x{1F8C2}-\\x{1F8CF}' .
+			'\\x{1F8D9}-\\x{1F8FF}' .
+			'\\x{1FA58}-\\x{1FA5F}' .
 			'\\x{1FA6E}-\\x{1FA6F}' .
 			'\\x{1FA7D}-\\x{1FA7F}' .
-			'\\x{1FA8A}-\\x{1FA8E}' .
-			'\\x{1FAC7}-\\x{1FACD}' .
+			'\\x{1FA8B}-\\x{1FA8D}' .
+			'\\x{1FAC7}' .
+			'\\x{1FAC9}-\\x{1FACC}' .
 			'\\x{1FADD}-\\x{1FADE}' .
-			'\\x{1FAEA}-\\x{1FAEF}' .
+			'\\x{1FAEB}-\\x{1FAEE}' .
 			'\\x{1FAF9}-\\x{1FAFF}' .
 			'\\x{1FB93}' .
-			'\\x{1FBFA}-\\x{1FFFD}' .
+			'\\x{1FBFB}-\\x{1FFFD}' .
 			'\\x{1FFFE}-\\x{1FFFF}' .
 			'\\x{2A6E0}-\\x{2A6FF}' .
-			'\\x{2B73A}-\\x{2B73F}' .
 			'\\x{2B81E}-\\x{2B81F}' .
-			'\\x{2CEA2}-\\x{2CEAF}' .
+			'\\x{2CEAE}-\\x{2CEAF}' .
 			'\\x{2EBE1}-\\x{2EBEF}' .
 			'\\x{2EE5E}-\\x{2F7FF}' .
 			'\\x{2FA1E}-\\x{2FFFD}' .
 			'\\x{2FFFE}-\\x{2FFFF}' .
 			'\\x{3134B}-\\x{3134F}' .
-			'\\x{323B0}-\\x{3FFFD}' .
+			'\\x{3347A}-\\x{3FFFD}' .
 			'\\x{3FFFE}-\\x{3FFFF}' .
 			'\\x{40000}-\\x{4FFFD}' .
 			'\\x{4FFFE}-\\x{4FFFF}' .
@@ -7229,3 +7262,4 @@ function idna_regex(): array
 			'\\x{200C}-\\x{200D}',
 	];
 }
+

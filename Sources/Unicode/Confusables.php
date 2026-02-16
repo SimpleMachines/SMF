@@ -61,6 +61,7 @@ function utf8_confusables(): array
 		"\xC3\xB0" => "\xE2\x88\x82\xCC\xB5",
 		"\xC3\xB6" => "\xD8\xA9",
 		"\xC3\xB8" => "\x6F\xCC\xB8",
+		"\xC3\xBE" => "\x70",
 		"\xC4\x90" => "\x44\xCC\xB5",
 		"\xC4\x91" => "\x64\xCC\xB5",
 		"\xC4\x9A" => "\xC4\x94",
@@ -76,6 +77,7 @@ function utf8_confusables(): array
 		"\xC5\x82" => "\x6C\xCC\xB8",
 		"\xC5\x86" => "\xC9\xB2",
 		"\xC5\x89" => "\x27\x6E",
+		"\xC5\x8B" => "\x6E\xCC\xA9",
 		"\xC5\x90" => "\xC3\x96",
 		"\xC5\x92" => "\x4F\x45",
 		"\xC5\x93" => "\x6F\x65",
@@ -94,7 +96,7 @@ function utf8_confusables(): array
 		"\xC6\x8C" => "\x64\xCC\x84",
 		"\xC6\x8D" => "\x67",
 		"\xC6\x91" => "\x46\xCC\xA6",
-		"\xC6\x92" => "\x66\xCC\xA6",
+		"\xC6\x92" => "\x66",
 		"\xC6\x93" => "\x47\x27",
 		"\xC6\x96" => "\x6C",
 		"\xC6\x97" => "\x6C\xCC\xB5",
@@ -122,7 +124,7 @@ function utf8_confusables(): array
 		"\xC6\xBB" => "\x32\xCC\xB5",
 		"\xC6\xBC" => "\x35",
 		"\xC6\xBD" => "\x73",
-		"\xC6\xBF" => "\xC3\xBE",
+		"\xC6\xBF" => "\x70",
 		"\xC7\x80" => "\x6C",
 		"\xC7\x81" => "\x6C\x6C",
 		"\xC7\x83" => "\x21",
@@ -202,6 +204,7 @@ function utf8_confusables(): array
 		"\xCA\x90" => "\x7A\xCC\xA8",
 		"\xCA\x92" => "\xC8\x9D",
 		"\xCA\x94" => "\x3F",
+		"\xCA\x95" => "\xEA\x9F\x8E",
 		"\xCA\xA0" => "\x71\xCC\x94",
 		"\xCA\xA3" => "\x64\x7A",
 		"\xCA\xA4" => "\x64\xC8\x9D",
@@ -209,7 +212,7 @@ function utf8_confusables(): array
 		"\xCA\xA6" => "\x74\x73",
 		"\xCA\xA7" => "\x74\xCA\x83",
 		"\xCA\xA8" => "\x74\xC9\x95",
-		"\xCA\xA9" => "\x66\xC5\x8B",
+		"\xCA\xA9" => "\x66\x6E\xCC\xA9",
 		"\xCA\xAA" => "\x6C\x73",
 		"\xCA\xAB" => "\x6C\x7A",
 		"\xCA\xB3" => "\xE1\xA3\xB4",
@@ -251,6 +254,7 @@ function utf8_confusables(): array
 		"\xCC\x91" => "\xCC\x82",
 		"\xCC\x95" => "\xCC\x93",
 		"\xCC\x97" => "\xD9\x90",
+		"\xCC\x9A" => "\xE1\xAB\xA9",
 		"\xCC\xA0" => "\xCC\xB1",
 		"\xCC\xA1" => "\xCC\xA6",
 		"\xCC\xA2" => "\xCC\xA8",
@@ -264,6 +268,7 @@ function utf8_confusables(): array
 		"\xCD\x83" => "\xCC\x93",
 		"\xCD\x85" => "\xCC\xA8",
 		"\xCD\x87" => "\xCC\xB3",
+		"\xCD\x88" => "\xF0\x90\xBB\xBA",
 		"\xCD\x97" => "\xCD\x90",
 		"\xCD\x98" => "\xCC\x87",
 		"\xCD\xA6" => "\xCC\x8A",
@@ -320,8 +325,12 @@ function utf8_confusables(): array
 		"\xCF\x96" => "\xCF\x80",
 		"\xCF\x9B" => "\xCF\x82",
 		"\xCF\x9C" => "\x46",
+		"\xCF\xA4" => "\xD0\xA7",
+		"\xCF\xA5" => "\xD1\x87",
 		"\xCF\xA8" => "\x32",
 		"\xCF\xA9" => "\xC6\xA8",
+		"\xCF\xAC" => "\x36",
+		"\xCF\xAD" => "\x6F",
 		"\xCF\xB0" => "\xC4\xB8",
 		"\xCF\xB1" => "\x70",
 		"\xCF\xB2" => "\x63",
@@ -329,7 +338,7 @@ function utf8_confusables(): array
 		"\xCF\xB4" => "\x4F\xCC\xB5",
 		"\xCF\xB5" => "\xEA\x9E\x93",
 		"\xCF\xB7" => "\xC3\x9E",
-		"\xCF\xB8" => "\xC3\xBE",
+		"\xCF\xB8" => "\x70",
 		"\xCF\xB9" => "\x43",
 		"\xCF\xBA" => "\x4D",
 		"\xCF\xBD" => "\xC6\x86",
@@ -378,6 +387,7 @@ function utf8_confusables(): array
 		"\xD1\x83" => "\x79",
 		"\xD1\x84" => "\xC9\xB8",
 		"\xD1\x85" => "\x78",
+		"\xD1\x88" => "\x77",
 		"\xD1\x8A" => "\xCB\x89\x62",
 		"\xD1\x8B" => "\xC6\x85\x69",
 		"\xD1\x8C" => "\xC6\x85",
@@ -388,6 +398,7 @@ function utf8_confusables(): array
 		"\xD1\x98" => "\x6A",
 		"\xD1\x9B" => "\x68\xCC\xB5",
 		"\xD1\x9D" => "\xD0\xB9",
+		"\xD1\x9F" => "\x75\xCC\xA9",
 		"\xD1\xA1" => "\x77",
 		"\xD1\xA2" => "\x62\xCC\xB5",
 		"\xD1\xA3" => "\x62\xCC\xB5",
@@ -441,7 +452,7 @@ function utf8_confusables(): array
 		"\xD3\x8C" => "\xD2\xB7",
 		"\xD3\x8D" => "\x4D\xCC\xA6",
 		"\xD3\x8E" => "\xCA\x8D\xCC\xA6",
-		"\xD3\x8F" => "\x69",
+		"\xD3\x8F" => "\x6C",
 		"\xD3\x94" => "\x41\x45",
 		"\xD3\x95" => "\x61\x65",
 		"\xD3\x98" => "\xC6\x8F",
@@ -474,15 +485,17 @@ function utf8_confusables(): array
 		"\xD5\xA6" => "\x71",
 		"\xD5\xAE" => "\xE1\xBA\x9F",
 		"\xD5\xB0" => "\x68",
+		"\xD5\xB2" => "\x6E\xCC\xA9",
 		"\xD5\xB5" => "\xC8\xB7",
 		"\xD5\xB8" => "\x6E",
 		"\xD5\xBA" => "\xC9\xB0",
 		"\xD5\xBC" => "\x6E",
 		"\xD5\xBD" => "\x75",
 		"\xD6\x81" => "\x67",
+		"\xD6\x82" => "\x69",
 		"\xD6\x84" => "\x66",
 		"\xD6\x85" => "\x6F",
-		"\xD6\x87" => "\xD5\xA5\xD6\x82",
+		"\xD6\x87" => "\xD5\xA5\x69",
 		"\xD6\x89" => "\x3A",
 		"\xD6\x9C" => "\xCC\x81",
 		"\xD6\x9D" => "\xCC\x81",
@@ -560,12 +573,14 @@ function utf8_confusables(): array
 		"\xD9\xB7" => "\xD9\x88\xCC\x93\xD9\xB4",
 		"\xD9\xB8" => "\xD9\x89\xD9\xB4",
 		"\xD9\xB9" => "\xD9\x89\xD8\x95",
+		"\xD9\xBA" => "\xD8\xAA",
 		"\xD9\xBE" => "\xD9\x89\xDB\x9B",
 		"\xDA\x81" => "\xD8\xAD\xD9\x94",
 		"\xDA\x85" => "\xD8\xAD\xDB\x9B",
 		"\xDA\x88" => "\xD8\xAF\xD8\x95",
 		"\xDA\x8B" => "\xDA\x8A\xD8\x95",
 		"\xDA\x8E" => "\xD8\xAF\xDB\x9B",
+		"\xDA\x8F" => "\xD8\xAF\xDB\x9B",
 		"\xDA\x91" => "\xD8\xB1\xD8\x95",
 		"\xDA\x92" => "\xD8\xB1\xCC\x86",
 		"\xDA\x98" => "\xD8\xB1\xDB\x9B",
@@ -614,8 +629,8 @@ function utf8_confusables(): array
 		"\xDB\xB7" => "\x56",
 		"\xDB\xB8" => "\xC9\x85",
 		"\xDB\xB9" => "\xD9\xA9",
-		"\xDB\xBD" => "\xD8\xA1\xCD\x88",
-		"\xDB\xBE" => "\xD9\x85\xCD\x88",
+		"\xDB\xBD" => "\xD8\xA1\xF0\x90\xBB\xBA",
+		"\xDB\xBE" => "\xD9\x85\xF0\x90\xBB\xBA",
 		"\xDB\xBF" => "\x6F\xCC\x82",
 		"\xDC\x81" => "\x2E",
 		"\xDC\x82" => "\x2E",
@@ -626,6 +641,7 @@ function utf8_confusables(): array
 		"\xDD\x82" => "\xDC\xBC",
 		"\xDD\x87" => "\xCC\x81",
 		"\xDD\x91" => "\xD8\xA8\xDB\x9B",
+		"\xDD\x92" => "\xD9\x89\xDB\x9B",
 		"\xDD\x96" => "\xD9\x89\xCC\x86",
 		"\xDD\xA2" => "\xDA\xAC",
 		"\xDD\xA3" => "\xD9\x83\xDB\x9B",
@@ -645,6 +661,7 @@ function utf8_confusables(): array
 		"\xDF\xB4" => "\x27",
 		"\xDF\xB5" => "\x27",
 		"\xDF\xBA" => "\x5F",
+		"\xE0\xA2\x8F" => "\xD9\x89\xCC\x8A",
 		"\xE0\xA2\xA1" => "\xD8\xA8\xD9\x94",
 		"\xE0\xA2\xA4" => "\xDA\xA2\xDB\x9B",
 		"\xE0\xA2\xA7" => "\xD9\x85\xDB\x9B",
@@ -662,6 +679,11 @@ function utf8_confusables(): array
 		"\xE0\xA2\xBB" => "\xDA\xA1",
 		"\xE0\xA2\xBC" => "\xDA\xA1",
 		"\xE0\xA2\xBD" => "\xD9\x89",
+		"\xE0\xA2\xBE" => "\xD9\x89\xDB\x9B\xCC\x86",
+		"\xE0\xA2\xBF" => "\xD8\xAA\xCC\x86",
+		"\xE0\xA3\x80" => "\xD9\x89\xD8\x95\xCC\x86",
+		"\xE0\xA3\x81" => "\xDA\x86\xCC\x86",
+		"\xE0\xA3\x82" => "\xD9\x83\xCC\x86",
 		"\xE0\xA3\xA5" => "\xD9\x8C",
 		"\xE0\xA3\xA8" => "\xD9\x8C",
 		"\xE0\xA3\xAA" => "\xCC\x87",
@@ -683,45 +705,74 @@ function utf8_confusables(): array
 		"\xE0\xA4\x84" => "\xE0\xA4\x85\xE0\xA5\x86",
 		"\xE0\xA4\x86" => "\xE0\xA4\x85\xE0\xA4\xBE",
 		"\xE0\xA4\x88" => "\xE0\xA4\xB0\xE0\xA5\x8D\xE0\xA4\x87",
-		"\xE0\xA4\x8D" => "\xE0\xA4\x8F\xE0\xA5\x85",
+		"\xE0\xA4\x8D" => "\xE0\xA4\x8F\xCC\x86",
 		"\xE0\xA4\x8E" => "\xE0\xA4\x8F\xE0\xA5\x86",
-		"\xE0\xA4\x90" => "\xE0\xA4\x8F\xE0\xA5\x87",
-		"\xE0\xA4\x91" => "\xE0\xA4\x85\xE0\xA5\x89",
+		"\xE0\xA4\x90" => "\xE0\xA4\x8F\xF0\x91\xAD\xA4",
+		"\xE0\xA4\x91" => "\xE0\xA4\x85\xE0\xA4\xBE\xCC\x86",
 		"\xE0\xA4\x92" => "\xE0\xA4\x85\xE0\xA4\xBE\xE0\xA5\x86",
-		"\xE0\xA4\x93" => "\xE0\xA4\x85\xE0\xA4\xBE\xE0\xA5\x87",
+		"\xE0\xA4\x93" => "\xE0\xA4\x85\xE0\xA4\xBE\xF0\x91\xAD\xA4",
 		"\xE0\xA4\x94" => "\xE0\xA4\x85\xE0\xA4\xBE\xE0\xA5\x88",
+		"\xE0\xA4\xBB" => "\xE0\xA4\xBE\xE0\xA4\xBA",
 		"\xE0\xA4\xBC" => "\xCC\xA3",
+		"\xE0\xA4\xBF" => "\xE0\xA6\xBF",
+		"\xE0\xA5\x85" => "\xCC\x86",
+		"\xE0\xA5\x87" => "\xF0\x91\xAD\xA4",
+		"\xE0\xA5\x89" => "\xE0\xA4\xBE\xCC\x86",
 		"\xE0\xA5\x92" => "\xCC\xB1",
 		"\xE0\xA5\x93" => "\xCC\x80",
 		"\xE0\xA5\x94" => "\xCC\x81",
+		"\xE0\xA5\x96" => "\xF0\x91\xAD\xA2",
+		"\xE0\xA5\x97" => "\xF0\x91\xAD\xA3",
 		"\xE0\xA5\xA5" => "\xE0\xA5\xA4\xE0\xA5\xA4",
 		"\xE0\xA5\xA6" => "\x6F",
 		"\xE0\xA5\xA7" => "\xD9\xA9",
+		"\xE0\xA5\xA9" => "\x33",
+		"\xE0\xA5\xB2" => "\xE0\xA4\x85\xCC\x86",
+		"\xE0\xA5\xB3" => "\xE0\xA4\x85\xE0\xA4\xBA",
+		"\xE0\xA5\xB4" => "\xE0\xA4\x85\xE0\xA4\xBE\xE0\xA4\xBA",
+		"\xE0\xA5\xB5" => "\xE0\xA4\x85\xE0\xA5\x8F",
 		"\xE0\xA5\xBD" => "\x3F",
 		"\xE0\xA6\x81" => "\xCC\x86\xCC\x87",
 		"\xE0\xA6\x86" => "\xE0\xA6\x85\xE0\xA6\xBE",
 		"\xE0\xA6\xBC" => "\xCC\xA3",
 		"\xE0\xA7\xA0" => "\xE0\xA6\x8B\xE0\xA7\x83",
 		"\xE0\xA7\xA1" => "\xE0\xA6\x8B\xE0\xA7\x83",
-		"\xE0\xA7\xA6" => "\x4F",
+		"\xE0\xA7\xA6" => "\x6F",
 		"\xE0\xA7\xAA" => "\x38",
 		"\xE0\xA7\xAD" => "\x39",
+		"\xE0\xA7\xB0" => "\xE0\xA6\xB0",
 		"\xE0\xA8\x82" => "\xCC\x87",
 		"\xE0\xA8\x83" => "\xE0\xA6\x83",
 		"\xE0\xA8\x86" => "\xE0\xA8\x85\xE0\xA8\xBE",
-		"\xE0\xA8\x87" => "\xE0\xA9\xB2\xE0\xA8\xBF",
-		"\xE0\xA8\x88" => "\xE0\xA9\xB2\xE0\xA9\x80",
-		"\xE0\xA8\x89" => "\xE0\xA9\xB3\xE0\xA9\x81",
-		"\xE0\xA8\x8A" => "\xE0\xA9\xB3\xE0\xA9\x82",
-		"\xE0\xA8\x8F" => "\xE0\xA9\xB2\xE0\xA9\x87",
-		"\xE0\xA8\x90" => "\xE0\xA8\x85\xE0\xA9\x88",
+		"\xE0\xA8\x87" => "\xE0\xA4\xAA\xE0\xA5\x8D\xE0\xA4\x9F\xE0\xA6\xBF",
+		"\xE0\xA8\x88" => "\xE0\xA4\xAA\xE0\xA5\x8D\xE0\xA4\x9F\xE0\xA9\x80",
+		"\xE0\xA8\x89" => "\xE0\xA9\xB3\xF0\x91\xAD\xA2",
+		"\xE0\xA8\x8A" => "\xE0\xA9\xB3\xF0\x91\xAD\xA3",
+		"\xE0\xA8\x8F" => "\xE0\xA4\xAA\xE0\xA5\x8D\xE0\xA4\x9F\xF0\x91\xAD\xA4",
+		"\xE0\xA8\x90" => "\xE0\xA8\x85\xE0\xA5\x88",
 		"\xE0\xA8\x94" => "\xE0\xA8\x85\xE0\xA9\x8C",
+		"\xE0\xA8\x95" => "\xE0\xA4\xB5",
+		"\xE0\xA8\x9C" => "\xE0\xA4\xA4\xE0\xA5\x8D\xE0\xA4\xA4",
+		"\xE0\xA8\x9F" => "\xE0\xA4\x9F",
+		"\xE0\xA8\xA0" => "\xE0\xA4\xA0",
+		"\xE0\xA8\xA4" => "\xE0\xA4\x89",
+		"\xE0\xA8\xA7" => "\xE0\xA4\xAA",
+		"\xE0\xA8\xAB" => "\xE0\xA4\xA2",
+		"\xE0\xA8\xAE" => "\xE0\xA4\xAD",
+		"\xE0\xA8\xB5" => "\xE0\xA4\xB9",
+		"\xE0\xA8\xB8" => "\xE0\xA4\xAE",
 		"\xE0\xA8\xBC" => "\xCC\xA3",
+		"\xE0\xA8\xBF" => "\xE0\xA6\xBF",
+		"\xE0\xA9\x81" => "\xF0\x91\xAD\xA2",
+		"\xE0\xA9\x82" => "\xF0\x91\xAD\xA3",
+		"\xE0\xA9\x87" => "\xF0\x91\xAD\xA4",
+		"\xE0\xA9\x88" => "\xE0\xA5\x88",
 		"\xE0\xA9\x8B" => "\xE0\xA5\x86",
 		"\xE0\xA9\x8D" => "\xE0\xA5\x8D",
 		"\xE0\xA9\xA6" => "\x6F",
 		"\xE0\xA9\xA7" => "\x39",
 		"\xE0\xA9\xAA" => "\x38",
+		"\xE0\xA9\xB2" => "\xE0\xA4\xAA\xE0\xA5\x8D\xE0\xA4\x9F",
 		"\xE0\xAA\x81" => "\xCC\x86\xCC\x87",
 		"\xE0\xAA\x82" => "\xCC\x87",
 		"\xE0\xAA\x83" => "\x3A",
@@ -732,6 +783,8 @@ function utf8_confusables(): array
 		"\xE0\xAA\x91" => "\xE0\xAA\x85\xE0\xAA\xBE\xE0\xAB\x85",
 		"\xE0\xAA\x93" => "\xE0\xAA\x85\xE0\xAA\xBE\xE0\xAB\x87",
 		"\xE0\xAA\x94" => "\xE0\xAA\x85\xE0\xAA\xBE\xE0\xAB\x88",
+		"\xE0\xAA\xAA" => "\xD1\x87",
+		"\xE0\xAA\xB0" => "\xE0\xA5\xA8",
 		"\xE0\xAA\xBC" => "\xCC\xA3",
 		"\xE0\xAA\xBD" => "\xE0\xA4\xBD",
 		"\xE0\xAB\x81" => "\xE0\xA5\x81",
@@ -739,8 +792,9 @@ function utf8_confusables(): array
 		"\xE0\xAB\x8D" => "\xE0\xA5\x8D",
 		"\xE0\xAB\xA6" => "\x6F",
 		"\xE0\xAB\xA8" => "\xE0\xA5\xA8",
-		"\xE0\xAB\xA9" => "\xE0\xA5\xA9",
+		"\xE0\xAB\xA9" => "\x33",
 		"\xE0\xAB\xAA" => "\xE0\xA5\xAA",
+		"\xE0\xAB\xAB" => "\xD1\x87",
 		"\xE0\xAB\xAE" => "\xE0\xA5\xAE",
 		"\xE0\xAB\xB0" => "\xE0\xA5\xB0",
 		"\xE0\xAC\x81" => "\xCC\x86\xCC\x87",
@@ -748,12 +802,14 @@ function utf8_confusables(): array
 		"\xE0\xAC\x86" => "\xE0\xAC\x85\xE0\xAC\xBE",
 		"\xE0\xAC\xA0" => "\x4F",
 		"\xE0\xAC\xBC" => "\xCC\xA3",
-		"\xE0\xAD\xA6" => "\x4F",
+		"\xE0\xAD\xA6" => "\x6F",
 		"\xE0\xAD\xA8" => "\x39",
 		"\xE0\xAE\x82" => "\xCC\x8A",
 		"\xE0\xAE\x8A" => "\xE0\xAE\x89\xE0\xAE\xB3",
+		"\xE0\xAE\x94" => "\xE0\xAE\x92\xE0\xAE\xB3",
 		"\xE0\xAE\x9C" => "\xE0\xAE\x90",
 		"\xE0\xAE\xB0" => "\xE0\xAE\x88",
+		"\xE0\xAE\xB8" => "\xE0\xAE\xB6",
 		"\xE0\xAE\xBE" => "\xE0\xAE\x88",
 		"\xE0\xAF\x88" => "\xE0\xAE\xA9",
 		"\xE0\xAF\x8A" => "\xE0\xAF\x86\xE0\xAE\x88",
@@ -781,6 +837,7 @@ function utf8_confusables(): array
 		"\xE0\xB0\x83" => "\xE0\xA6\x83",
 		"\xE0\xB0\x93" => "\xE0\xB0\x92\xE0\xB1\x95",
 		"\xE0\xB0\x94" => "\xE0\xB0\x92\xE0\xB1\x8C",
+		"\xE0\xB0\x96" => "\xE0\xB2\x96\xCC\xA3",
 		"\xE0\xB0\xA0" => "\xE0\xB0\xB0\xD6\xBC",
 		"\xE0\xB0\xA2" => "\xE0\xB0\xA1\xCC\xA3",
 		"\xE0\xB0\xA5" => "\xE0\xB0\xA7\xD6\xBC",
@@ -799,17 +856,29 @@ function utf8_confusables(): array
 		"\xE0\xB2\x85" => "\xE0\xB0\x85",
 		"\xE0\xB2\x86" => "\xE0\xB0\x86",
 		"\xE0\xB2\x87" => "\xE0\xB0\x87",
+		"\xE0\xB2\x90" => "\xE0\xB0\x90",
 		"\xE0\xB2\x92" => "\xE0\xB0\x92",
 		"\xE0\xB2\x93" => "\xE0\xB0\x92\xE0\xB1\x95",
 		"\xE0\xB2\x94" => "\xE0\xB0\x92\xE0\xB1\x8C",
+		"\xE0\xB2\x97" => "\xE0\xB0\x97",
 		"\xE0\xB2\x9C" => "\xE0\xB0\x9C",
+		"\xE0\xB2\x9D" => "\xE0\xB0\x9D",
 		"\xE0\xB2\x9E" => "\xE0\xB0\x9E",
+		"\xE0\xB2\x9F" => "\xE0\xB0\x9F",
 		"\xE0\xB2\xA3" => "\xE0\xB0\xA3",
+		"\xE0\xB2\xA6" => "\xE0\xB0\xA6",
+		"\xE0\xB2\xA8" => "\xE0\xB0\xA8",
 		"\xE0\xB2\xAF" => "\xE0\xB0\xAF",
+		"\xE0\xB2\xB0" => "\xE0\xB0\xB0",
 		"\xE0\xB2\xB1" => "\xE0\xB0\xB1",
 		"\xE0\xB2\xB2" => "\xE0\xB0\xB2",
+		"\xE0\xB2\xB3" => "\xE0\xB0\xB3",
+		"\xE0\xB2\xBF" => "\xE0\xB0\xBF",
+		"\xE0\xB3\x81" => "\xE0\xB1\x81",
+		"\xE0\xB3\x83" => "\xE0\xB1\x83",
+		"\xE0\xB3\x9C" => "\xE0\xB1\x9C",
 		"\xE0\xB3\xA1" => "\xE0\xB2\x8C\xE0\xB2\xBE",
-		"\xE0\xB3\xA6" => "\x6F",
+		"\xE0\xB3\xA6" => "\x4F",
 		"\xE0\xB3\xA7" => "\xE0\xB1\xA7",
 		"\xE0\xB3\xA8" => "\xE0\xB1\xA8",
 		"\xE0\xB3\xAF" => "\xE0\xB1\xAF",
@@ -820,13 +889,16 @@ function utf8_confusables(): array
 		"\xE0\xB4\x89" => "\xE0\xAE\x89",
 		"\xE0\xB4\x8A" => "\xE0\xAE\x89\xE0\xB5\x97",
 		"\xE0\xB4\x8C" => "\xE0\xB4\xA8\xE0\xB5\x81",
-		"\xE0\xB4\x90" => "\xE0\xB4\x8E\xE0\xB5\x86",
+		"\xE0\xB4\x90" => "\xE0\xAF\x86\xE0\xB4\x8E",
 		"\xE0\xB4\x93" => "\xE0\xB4\x92\xE0\xB4\xBE",
 		"\xE0\xB4\x94" => "\xE0\xB4\x92\xE0\xB5\x97",
+		"\xE0\xB4\x96" => "\xE0\xAE\xB5",
 		"\xE0\xB4\x99" => "\xE0\xB4\xA8\xE0\xB5\x81",
 		"\xE0\xB4\x9C" => "\xE0\xAE\x90",
+		"\xE0\xB4\x9F" => "\x73",
 		"\xE0\xB4\xA0" => "\x6F",
 		"\xE0\xB4\xA3" => "\xE0\xAE\xA3",
+		"\xE0\xB4\xA5" => "\xE0\xAE\xAE",
 		"\xE0\xB4\xB1" => "\xE0\xB4\xB0",
 		"\xE0\xB4\xB4" => "\xE0\xAE\xB4",
 		"\xE0\xB4\xB6" => "\xE0\xAE\xB6",
@@ -835,7 +907,9 @@ function utf8_confusables(): array
 		"\xE0\xB5\x80" => "\xE0\xAE\xBF",
 		"\xE0\xB5\x82" => "\xE0\xB5\x81",
 		"\xE0\xB5\x83" => "\xE0\xB5\x81",
-		"\xE0\xB5\x88" => "\xE0\xB5\x86\xE0\xB5\x86",
+		"\xE0\xB5\x86" => "\xE0\xAF\x86",
+		"\xE0\xB5\x87" => "\xE0\xAF\x87",
+		"\xE0\xB5\x88" => "\xE0\xAF\x86\xE0\xAF\x86",
 		"\xE0\xB5\x8E" => "\xE0\xA5\xB1",
 		"\xE0\xB5\x9A" => "\xE0\xB4\xA8\xE0\xB5\x8D\xE0\xB4\xAE",
 		"\xE0\xB5\x9F" => "\x6F\xE0\xB4\xB0\x6F",
@@ -849,10 +923,21 @@ function utf8_confusables(): array
 		"\xE0\xB5\xAF" => "\xE0\xB4\xA8\xE0\xB5\x8D",
 		"\xE0\xB5\xB6" => "\xE0\xB4\xB9\xE0\xB5\x8D\xE0\xB4\xAE",
 		"\xE0\xB5\xB9" => "\xE0\xB4\xA8\xE0\xB5\x81",
+		"\xE0\xB5\xBA" => "\xE0\xAE\xA3\xE0\xB5\x8D",
 		"\xE0\xB5\xBB" => "\xE0\xB4\xA8\xE0\xB5\x8D",
 		"\xE0\xB5\xBC" => "\xE0\xB4\xB0\xE0\xB5\x8D",
+		"\xE0\xB5\xBD" => "\xE0\xB4\xB2\xE0\xB5\x8D",
+		"\xE0\xB5\xBE" => "\xE0\xB4\xB3\xE0\xB5\x8D",
 		"\xE0\xB6\x82" => "\x6F",
 		"\xE0\xB6\x83" => "\xE0\xA6\x83",
+		"\xE0\xB6\x8D" => "\xE0\xB7\x83\xE0\xB7\x98",
+		"\xE0\xB6\x92" => "\xE0\xB6\x91\xE0\xB7\x8A",
+		"\xE0\xB6\x93" => "\xE0\xB6\x91\xE0\xB7\x99",
+		"\xE0\xB6\xB5" => "\xE0\xB6\x91",
+		"\xE0\xB6\xB6" => "\xE0\xB6\x9B",
+		"\xE0\xB6\xB9" => "\xE0\xB6\x94",
+		"\xE0\xB7\x80" => "\xE0\xB6\xA0",
+		"\xE0\xB7\x84" => "\xE0\xB6\xB7",
 		"\xE0\xB7\xA9" => "\xE0\xB7\xA8\xE0\xB7\x8F",
 		"\xE0\xB7\xAA" => "\xE0\xB6\xA2",
 		"\xE0\xB7\xAB" => "\xE0\xB6\xAF",
@@ -900,27 +985,37 @@ function utf8_confusables(): array
 		"\xE0\xBD\xAA" => "\xE0\xBD\xA2",
 		"\xE0\xBD\xB7" => "\xE0\xBE\xB2\xE0\xBD\xB1\xE0\xBE\x80",
 		"\xE0\xBD\xB9" => "\xE0\xBE\xB3\xE0\xBD\xB1\xE0\xBE\x80",
+		"\xE0\xBD\xBB" => "\xE0\xBD\xBA\xE0\xBD\xBA",
+		"\xE0\xBD\xBD" => "\xE0\xBD\xBC\xE0\xBD\xBC",
 		"\xE0\xBF\x8E" => "\xE0\xBC\x9D\xE0\xBC\x9A",
 		"\xE0\xBF\x95" => "\xE5\x8D\x90",
 		"\xE0\xBF\x96" => "\xE5\x8D\x8D",
-		"\xE1\x80\x80" => "\xE1\x80\x82\xE1\x80\xAC",
+		"\xE1\x80\x80" => "\xE0\xB4\xB0\xE1\x80\xAC",
+		"\xE1\x80\x82" => "\xE0\xB4\xB0",
+		"\xE1\x80\x84" => "\x63",
 		"\xE1\x80\x90" => "\x6F\xE1\x80\xAC",
 		"\xE1\x80\x9D" => "\x6F",
 		"\xE1\x80\x9F" => "\xE1\x80\x95\xE1\x80\xAC",
+		"\xE1\x80\xA3" => "\xE0\xB4\xB0\xE1\x80\xAC\xE1\x80\xB9\xE0\xB4\xB0\xE1\x80\xAC",
 		"\xE1\x80\xA9" => "\xE1\x80\x9E\xE1\x80\xBC",
-		"\xE1\x80\xAA" => "\xE1\x80\x9E\xE1\x80\xBC\xE1\x80\xB1\xE1\x80\xAC\xE1\x80\xBA",
+		"\xE1\x80\xAA" => "\xE1\x80\x9E\xE1\x80\xBC\xE0\xAD\x87\xE1\x80\xAC\xE1\x80\xBA",
+		"\xE1\x80\xB1" => "\xE0\xAD\x87",
 		"\xE1\x80\xB6" => "\xCC\x8A",
 		"\xE1\x80\xB8" => "\xE0\xA6\x83",
 		"\xE1\x81\x80" => "\x6F",
 		"\xE1\x81\x8B" => "\xE1\x81\x8A\xE1\x81\x8A",
+		"\xE1\x81\x9A" => "\x63",
+		"\xE1\x81\xA1" => "\xE1\x80\x9B\xE1\x80\xBE",
 		"\xE1\x81\xA5" => "\xE1\x81\x81",
 		"\xE1\x81\xA6" => "\xE1\x80\x95\xE1\x80\xBE",
 		"\xE1\x81\xAF" => "\xE1\x80\x95\xE1\x80\xAC\xE1\x80\xBE",
 		"\xE1\x81\xB0" => "\xE1\x80\x83\xE1\x80\xBE",
 		"\xE1\x81\xBE" => "\xE1\x81\xBD\xE1\x80\xBE",
-		"\xE1\x82\x81" => "\xE1\x80\x82\xE1\x80\xBE",
+		"\xE1\x82\x81" => "\xE0\xB4\xB0\xE1\x80\xBE",
 		"\xE1\x82\x9E" => "\xE1\x82\x83\xCC\x8A",
 		"\xE1\x82\xA0" => "\xEA\x9E\x86",
+		"\xE1\x83\x97" => "\x6F\xE1\x80\xAC",
+		"\xE1\x83\x98" => "\xE0\xB4\xB0",
 		"\xE1\x83\xA7" => "\x79",
 		"\xE1\x83\xB3" => "\xC8\x9D",
 		"\xE1\x83\xBF" => "\x6F",
@@ -1462,6 +1557,7 @@ function utf8_confusables(): array
 		"\xE1\x9B\xB0" => "\xCE\xA6",
 		"\xE1\x9C\xB4" => "\xE1\x9C\x95",
 		"\xE1\x9C\xB5" => "\x2F",
+		"\xE1\x9E\x8F" => "\xE1\x9E\x8A",
 		"\xE1\x9E\xA3" => "\xE1\x9E\xA2",
 		"\xE1\x9E\xB7" => "\xE0\xB8\xB4",
 		"\xE1\x9E\xB8" => "\xE0\xB8\xB5",
@@ -1474,6 +1570,7 @@ function utf8_confusables(): array
 		"\xE1\x9F\x95" => "\xE0\xB9\x9A",
 		"\xE1\x9F\x99" => "\xE0\xB9\x8F",
 		"\xE1\x9F\x9A" => "\xE0\xB9\x9B",
+		"\xE1\x9F\xA0" => "\x6F",
 		"\xE1\xA0\x83" => "\x3A",
 		"\xE1\xA0\x89" => "\x3A",
 		"\xE1\xA1\x95" => "\xE1\xA0\xB5",
@@ -1516,6 +1613,10 @@ function utf8_confusables(): array
 		"\xE1\xAA\xAB" => "\xE1\xAA\xAA\xE1\xAA\xA8",
 		"\xE1\xAA\xB4" => "\xDB\x9B",
 		"\xE1\xAA\xB7" => "\xCC\xA8",
+		"\xE1\xAB\x99" => "\xE1\xAB\x86",
+		"\xE1\xAB\xA2" => "\xCC\x84",
+		"\xE1\xAB\xA7" => "\xE1\xAB\xA5",
+		"\xE1\xAB\xA8" => "\xCC\x84\xCC\x84",
 		"\xE1\xAD\x92" => "\xE1\xAC\x8D",
 		"\xE1\xAD\x93" => "\xE1\xAC\x91",
 		"\xE1\xAD\x98" => "\xE1\xAC\xA8",
@@ -1576,6 +1677,7 @@ function utf8_confusables(): array
 		"\xE1\xB6\xA2" => "\xE1\xB5\x8D",
 		"\xE1\xB6\xBA" => "\xE1\xA3\x94",
 		"\xE1\xB6\xBB" => "\xE1\x99\x86",
+		"\xE1\xB7\xA8" => "\xE1\xAB\x9A",
 		"\xE1\xB7\xAE" => "\xE2\xB7\xAC",
 		"\xE1\xB9\x83" => "\xEA\xAD\x91",
 		"\xE1\xBA\x9A" => "\xE1\xBA\xA3",
@@ -1663,6 +1765,7 @@ function utf8_confusables(): array
 		"\xE2\x82\xAE" => "\x54\xE2\x83\xAB",
 		"\xE2\x82\xB6" => "\x6C\x74",
 		"\xE2\x82\xBD" => "\xD5\x94",
+		"\xE2\x83\x81" => "\xD8\xB1\xD9\x89\x6C\xD9\x84",
 		"\xE2\x83\x9B" => "\xDB\x9B",
 		"\xE2\x84\x80" => "\x61\x2F\x63",
 		"\xE2\x84\x81" => "\x61\x2F\x73",
@@ -1764,6 +1867,8 @@ function utf8_confusables(): array
 		"\xE2\x86\xBA" => "\xF0\x9F\x84\x8E",
 		"\xE2\x86\xBE" => "\xE1\x9B\x9A",
 		"\xE2\x86\xBF" => "\xE1\x9B\x90",
+		"\xE2\x87\x84" => "\xF0\x9F\xA3\x90",
+		"\xE2\x87\x8C" => "\xF0\x9F\xA3\x91",
 		"\xE2\x88\x80" => "\xE2\xB1\xAF",
 		"\xE2\x88\x83" => "\xC6\x8E",
 		"\xE2\x88\x86" => "\xCE\x94",
@@ -1950,6 +2055,7 @@ function utf8_confusables(): array
 		"\xE2\x94\x83" => "\xE2\x94\x82",
 		"\xE2\x94\x8F" => "\xE2\x94\x8C",
 		"\xE2\x94\xA3" => "\xE2\x94\x9C",
+		"\xE2\x95\xAA" => "\xC7\x82",
 		"\xE2\x95\xB1" => "\x2F",
 		"\xE2\x95\xB3" => "\x58",
 		"\xE2\x96\x88" => "\xE2\x88\x8E",
@@ -1974,9 +2080,11 @@ function utf8_confusables(): array
 		"\xE2\x98\x89" => "\xCA\x98",
 		"\xE2\x98\x90" => "\xE2\x96\xA1",
 		"\xE2\x98\xA5" => "\xF0\x90\xA6\x9E",
-		"\xE2\x98\xB0" => "\xE2\xB2\xB6",
+		"\xE2\x98\xB0" => "\xCE\x9E",
 		"\xE2\x98\xB8" => "\xE2\x8E\x88",
 		"\xE2\x99\x8E" => "\xE2\x89\x8F",
+		"\xE2\x99\x97" => "\xF0\x9F\xA9\x95",
+		"\xE2\x99\x9D" => "\xF0\x9F\xA9\x97",
 		"\xE2\x99\xA2" => "\xE1\x9B\x9C",
 		"\xE2\x99\xA9" => "\xF0\x9D\x85\x98\xF0\x9D\x85\xA5",
 		"\xE2\x99\xAA" => "\xF0\x9D\x85\x98\xF0\x9D\x85\xA5\xF0\x9D\x85\xAE",
@@ -2000,6 +2108,7 @@ function utf8_confusables(): array
 		"\xE2\x9F\x99" => "\x54",
 		"\xE2\x9F\xA8" => "\xE2\x9D\xAC",
 		"\xE2\x9F\xA9" => "\xE2\x9D\xAD",
+		"\xE2\xA3\xBF" => "\xF0\x9C\xBB\xA0",
 		"\xE2\xA4\xAB" => "\x78",
 		"\xE2\xA4\xAC" => "\x78",
 		"\xE2\xA5\xA3" => "\xE1\x9B\x90\xE1\x9B\x9A",
@@ -2008,6 +2117,7 @@ function utf8_confusables(): array
 		"\xE2\xA5\xAF" => "\xE2\x87\x83\xE1\x9B\x9A",
 		"\xE2\xA6\x99" => "\xE2\xB5\x82",
 		"\xE2\xA6\xB0" => "\xE2\x8D\x89",
+		"\xE2\xA6\xB5" => "\xF0\x9C\xBB\xB0",
 		"\xE2\xA6\xBE" => "\xE2\x8C\xBE",
 		"\xE2\xA7\x84" => "\xE3\x80\xBC",
 		"\xE2\xA7\x85" => "\xE2\x8D\x82",
@@ -2054,52 +2164,91 @@ function utf8_confusables(): array
 		"\xE2\xAB\x97" => "\xE1\x91\x90\xE1\x91\x95",
 		"\xE2\xAB\xBB" => "\x2F\x2F\x2F",
 		"\xE2\xAB\xBD" => "\x2F\x2F",
+		"\xE2\xAE\x96" => "\x3D\xE1\xAA\xB2",
 		"\xE2\xAF\xAC" => "\xE2\x86\x9E",
 		"\xE2\xAF\xAD" => "\xE2\x86\x9F",
 		"\xE2\xAF\xAE" => "\xE2\x86\xA0",
 		"\xE2\xAF\xAF" => "\xE2\x86\xA1",
 		"\xE2\xB1\xA7" => "\x48\xCC\xA9",
 		"\xE2\xB1\xA9" => "\x4B\xCC\xA9",
+		"\xE2\xB2\x82" => "\x42",
+		"\xE2\xB2\x83" => "\xCA\x99",
 		"\xE2\xB2\x84" => "\xCE\x93",
 		"\xE2\xB2\x85" => "\x72",
 		"\xE2\xB2\x86" => "\xCE\x94",
 		"\xE2\xB2\x88" => "\xEA\x9E\x92",
 		"\xE2\xB2\x89" => "\xEA\x9E\x93",
+		"\xE2\xB2\x8B" => "\xCF\x82",
+		"\xE2\xB2\x8C" => "\xE2\xB1\xAB",
+		"\xE2\xB2\x8D" => "\xE2\xB1\xAC",
 		"\xE2\xB2\x8E" => "\x48",
+		"\xE2\xB2\x8F" => "\xCA\x9C",
+		"\xE2\xB2\x90" => "\x4F\xCC\xB5",
+		"\xE2\xB2\x91" => "\x6F\xCC\xB5",
 		"\xE2\xB2\x92" => "\x6C",
+		"\xE2\xB2\x93" => "\x69",
 		"\xE2\xB2\x94" => "\x4B",
 		"\xE2\xB2\x95" => "\xC4\xB8",
 		"\xE2\xB2\x96" => "\xCE\xBB",
+		"\xE2\xB2\x97" => "\xCA\x8C",
 		"\xE2\xB2\x98" => "\x4D",
+		"\xE2\xB2\x99" => "\xCA\x8D",
 		"\xE2\xB2\x9A" => "\x4E",
+		"\xE2\xB2\x9B" => "\xC9\xB4",
+		"\xE2\xB2\x9C" => "\x33",
+		"\xE2\xB2\x9D" => "\xCA\x93",
 		"\xE2\xB2\x9E" => "\x4F",
 		"\xE2\xB2\x9F" => "\x6F",
 		"\xE2\xB2\xA0" => "\xCE\xA0",
+		"\xE2\xB2\xA1" => "\xCF\x80",
 		"\xE2\xB2\xA2" => "\x50",
 		"\xE2\xB2\xA3" => "\x70",
 		"\xE2\xB2\xA4" => "\x43",
 		"\xE2\xB2\xA5" => "\x63",
 		"\xE2\xB2\xA6" => "\x54",
+		"\xE2\xB2\xA7" => "\xE1\xB4\x9B",
 		"\xE2\xB2\xA8" => "\x59",
+		"\xE2\xB2\xA9" => "\x79",
 		"\xE2\xB2\xAA" => "\xCE\xA6",
 		"\xE2\xB2\xAB" => "\xC9\xB8",
 		"\xE2\xB2\xAC" => "\x58",
 		"\xE2\xB2\xAD" => "\xCF\x87",
 		"\xE2\xB2\xAE" => "\xCE\xA8",
+		"\xE2\xB2\xAF" => "\xCF\x88",
+		"\xE2\xB2\xB0" => "\xEA\x99\x8C",
 		"\xE2\xB2\xB1" => "\xCF\x89",
+		"\xE2\xB2\xB2" => "\x2D\xCC\x87",
+		"\xE2\xB2\xB3" => "\x2D\xCC\x87",
 		"\xE2\xB2\xB4" => "\x3C\xC2\xB7",
+		"\xE2\xB2\xB5" => "\x3C\xC2\xB7",
+		"\xE2\xB2\xB6" => "\xCE\x9E",
+		"\xE2\xB2\xB7" => "\xE2\x89\xA1",
 		"\xE2\xB2\xBA" => "\x2D",
+		"\xE2\xB2\xBB" => "\x2D",
 		"\xE2\xB2\xBC" => "\xD0\xA8",
-		"\xE2\xB2\xBD" => "\xD1\x88",
+		"\xE2\xB2\xBD" => "\x77",
+		"\xE2\xB3\x80" => "\xD5\x94",
+		"\xE2\xB3\x81" => "\xCF\xBC",
+		"\xE2\xB3\x84" => "\x33",
+		"\xE2\xB3\x85" => "\xC8\x9D",
 		"\xE2\xB3\x86" => "\x2F",
+		"\xE2\xB3\x87" => "\x2F",
 		"\xE2\xB3\x8A" => "\x39",
+		"\xE2\xB3\x8B" => "\x39",
 		"\xE2\xB3\x8C" => "\x33",
 		"\xE2\xB3\x8D" => "\xC8\x9D",
+		"\xE2\xB3\x8E" => "\x50",
+		"\xE2\xB3\x8F" => "\x70",
 		"\xE2\xB3\x90" => "\x4C",
 		"\xE2\xB3\x91" => "\xCA\x9F",
 		"\xE2\xB3\x92" => "\x36",
-		"\xE2\xB3\x9C" => "\xCF\xAC",
+		"\xE2\xB3\x93" => "\x36",
+		"\xE2\xB3\x9C" => "\x36",
+		"\xE2\xB3\x9D" => "\xE1\xBA\x9F",
+		"\xE2\xB3\xA0" => "\xC9\xB8",
+		"\xE2\xB3\xA1" => "\xC9\xB8",
 		"\xE2\xB3\xA4" => "\xCF\x97",
+		"\xE2\xB3\xA8" => "\xD5\x94",
 		"\xE2\xB3\xA9" => "\xE2\x98\xA7",
 		"\xE2\xB3\xB9" => "\x5C\x5C",
 		"\xE2\xB4\xB1" => "\x4F\xCC\xB5",
@@ -2121,6 +2270,7 @@ function utf8_confusables(): array
 		"\xE2\xB7\xA8" => "\xE1\xB7\x9F",
 		"\xE2\xB7\xAA" => "\xCC\x8A",
 		"\xE2\xB7\xAD" => "\xCD\xA8",
+		"\xE2\xB7\xAE" => "\xE1\xAB\x9B",
 		"\xE2\xB7\xAF" => "\xCD\xAF",
 		"\xE2\xB7\xB6" => "\xCD\xA3",
 		"\xE2\xB7\xB7" => "\xCD\xA4",
@@ -2190,7 +2340,7 @@ function utf8_confusables(): array
 		"\xE2\xBB\x8D" => "\xE8\xBE\xB6",
 		"\xE2\xBB\x8F" => "\xE9\x98\x9D",
 		"\xE2\xBB\x90" => "\xE9\x92\x85",
-		"\xE2\xBB\x91" => "\xE9\x95\xB7",
+		"\xE2\xBB\x91" => "\xE1\x84\x90\xE3\x83\xBC\xE1\x84\x82\xE1\x84\x8C",
 		"\xE2\xBB\x92" => "\xE9\x95\xB8",
 		"\xE2\xBB\x93" => "\xE9\x95\xBF",
 		"\xE2\xBB\x94" => "\xE9\x97\xA8",
@@ -2305,7 +2455,7 @@ function utf8_confusables(): array
 		"\xE2\xBD\x96" => "\xE7\x88\xAA",
 		"\xE2\xBD\x97" => "\xE7\x88\xB6",
 		"\xE2\xBD\x98" => "\xE7\x88\xBB",
-		"\xE2\xBD\x99" => "\xE7\x88\xBF",
+		"\xE2\xBD\x99" => "\xE1\x84\x82\xE1\x85\xAE\xE4\xB8\xA8",
 		"\xE2\xBD\x9A" => "\xE7\x89\x87",
 		"\xE2\xBD\x9B" => "\xE7\x89\x99",
 		"\xE2\xBD\x9C" => "\xE7\x89\x9B",
@@ -2383,7 +2533,7 @@ function utf8_confusables(): array
 		"\xE2\xBE\xA4" => "\xE9\x87\x86",
 		"\xE2\xBE\xA5" => "\xE9\x87\x8C",
 		"\xE2\xBE\xA6" => "\xE9\x87\x91",
-		"\xE2\xBE\xA7" => "\xE9\x95\xB7",
+		"\xE2\xBE\xA7" => "\xE1\x84\x90\xE3\x83\xBC\xE1\x84\x82\xE1\x84\x8C",
 		"\xE2\xBE\xA8" => "\xE9\x96\x80",
 		"\xE2\xBE\xA9" => "\xE9\x98\x9C",
 		"\xE2\xBE\xAA" => "\xE9\x9A\xB6",
@@ -2705,11 +2855,19 @@ function utf8_confusables(): array
 		"\xE3\xA6\xB3" => "\xE3\x98\xBD",
 		"\xE4\x8E\x9B" => "\xE3\x96\x88",
 		"\xE4\x90\xA0" => "\xE3\xAC\xBB",
+		"\xE4\x9A\x95" => "\xF0\xA7\xA2\xAE",
 		"\xE4\xB8\x80" => "\xE3\x83\xBC",
+		"\xE4\xB8\x95" => "\xE1\x84\x8C\xE1\x85\xA9",
+		"\xE4\xB8\x9B" => "\xE1\x84\x89\xE1\x84\x89\xE3\x83\xBC",
 		"\xE4\xB8\xB6" => "\x5C",
 		"\xE4\xB8\xBF" => "\x2F",
+		"\xE4\xBA\x8E" => "\xF0\x9B\x84\xA2",
+		"\xE4\xBB\x8A" => "\xE1\x84\x89\xE3\x83\xBC\xE1\x84\x80",
 		"\xE5\x80\x82" => "\xE4\xBD\xB5",
 		"\xE5\x80\xBC" => "\xE5\x80\xA4",
+		"\xE5\x85\x92" => "\xF0\x96\xBF\xB3",
+		"\xE5\x8D\x9F" => "\xE1\x84\x86\xE1\x85\xA1",
+		"\xE5\x90\x88" => "\xE1\x84\x89\xE3\x83\xBC\xE1\x84\x86",
 		"\xE5\x95\x9F" => "\xE5\x95\x93",
 		"\xE5\x9B\x97" => "\xE5\x8F\xA3",
 		"\xE5\xA1\xAB" => "\xE5\xA1\xA1",
@@ -2718,6 +2876,7 @@ function utf8_confusables(): array
 		"\xE5\xAC\x80" => "\xE5\xAA\xAF",
 		"\xE5\xB8\xB2" => "\xE5\xB8\xA1",
 		"\xE5\xB9\x90" => "\xE3\xAC\xBA",
+		"\xE6\x84\xB8" => "\xF0\xAB\x9C\xBF",
 		"\xE6\x88\xB8" => "\xE6\x88\xB6",
 		"\xE6\x90\x89" => "\xE3\xA9\x81",
 		"\xE6\x99\xA3" => "\xE4\x80\xBF",
@@ -2728,6 +2887,7 @@ function utf8_confusables(): array
 		"\xE6\xA7\xA9" => "\xE3\xAE\xA3",
 		"\xE6\xA8\xA7" => "\xE6\xA6\x9D",
 		"\xE6\xBD\x99" => "\xE6\xBA\x88",
+		"\xE7\x88\xBF" => "\xE1\x84\x82\xE1\x85\xAE\xE4\xB8\xA8",
 		"\xE7\xA1\x8F" => "\xE7\xA0\x94",
 		"\xE7\xB5\xB6" => "\xE7\xB5\x95",
 		"\xE8\x82\xA6" => "\xE6\x9C\x8C",
@@ -2750,6 +2910,7 @@ function utf8_confusables(): array
 		"\xE8\xBC\xA7" => "\xE8\xBB\xBF",
 		"\xE9\x83\x9E" => "\xE9\x83\x8E",
 		"\xE9\x8E\xAE" => "\xE9\x8E\xAD",
+		"\xE9\x95\xB7" => "\xE1\x84\x90\xE3\x83\xBC\xE1\x84\x82\xE1\x84\x8C",
 		"\xE9\x9A\xB8" => "\xE9\x9A\xB7",
 		"\xE9\xB9\x83" => "\xE9\xB9\x82",
 		"\xE9\xBB\x92" => "\xE9\xBB\x91",
@@ -2883,10 +3044,14 @@ function utf8_confusables(): array
 		"\xEA\x9E\xB5" => "\xC3\x9F",
 		"\xEA\x9E\xB6" => "\xEA\x99\x8C",
 		"\xEA\x9E\xB7" => "\xCF\x89",
+		"\xEA\x9F\x8F" => "\xEA\x9F\x8E",
+		"\xEA\x9F\x92" => "\xEA\x9F\x93",
+		"\xEA\x9F\x94" => "\xEA\x9F\x95",
 		"\xEA\x9F\x96" => "\xC3\x9F",
 		"\xEA\x9F\x9A" => "\xC9\x85",
 		"\xEA\x9F\x9B" => "\xCE\xBB",
 		"\xEA\x9F\x9C" => "\xC9\x85\xCC\xB8",
+		"\xEA\x9F\xB1" => "\xE1\xA3\xB5",
 		"\xEA\x9F\xB7" => "\xE3\x83\xBC",
 		"\xEA\xA0\xB0" => "\xE0\xA5\xA4",
 		"\xEA\xA5\xA0" => "\xE1\x84\x83\xE1\x84\x86",
@@ -3544,10 +3709,10 @@ function utf8_confusables(): array
 		"\xEF\xAD\x9B" => "\xDA\x80",
 		"\xEF\xAD\x9C" => "\xDA\x80",
 		"\xEF\xAD\x9D" => "\xDA\x80",
-		"\xEF\xAD\x9E" => "\xD9\xBA",
-		"\xEF\xAD\x9F" => "\xD9\xBA",
-		"\xEF\xAD\xA0" => "\xD9\xBA",
-		"\xEF\xAD\xA1" => "\xD9\xBA",
+		"\xEF\xAD\x9E" => "\xD8\xAA",
+		"\xEF\xAD\x9F" => "\xD8\xAA",
+		"\xEF\xAD\xA0" => "\xD8\xAA",
+		"\xEF\xAD\xA1" => "\xD8\xAA",
 		"\xEF\xAD\xA2" => "\xD9\xBF",
 		"\xEF\xAD\xA3" => "\xD9\xBF",
 		"\xEF\xAD\xA4" => "\xD9\xBF",
@@ -4321,7 +4486,7 @@ function utf8_confusables(): array
 		"\xF0\x90\x86\x97" => "\x56\xCC\xB5",
 		"\xF0\x90\x86\x98" => "\x6C\xCC\xB5\x6C\xCC\xB5\x53\xCC\xB5",
 		"\xF0\x90\x86\x99" => "\x6C\xCC\xB5\x6C\xCC\xB5",
-		"\xF0\x90\x86\xA0" => "\xE2\xB3\xA8",
+		"\xF0\x90\x86\xA0" => "\xD5\x94",
 		"\xF0\x90\x8A\x82" => "\x42",
 		"\xF0\x90\x8A\x85" => "\xCE\x94",
 		"\xF0\x90\x8A\x86" => "\x45",
@@ -4419,6 +4584,9 @@ function utf8_confusables(): array
 		"\xF0\x90\xA9\x97" => "\xF0\x90\xA9\x96\xF0\x90\xA9\x96",
 		"\xF0\x90\xB3\xBA" => "\xF0\x90\xB2\xA5",
 		"\xF0\x90\xB3\xBC" => "\xF0\x90\xB2\x82",
+		"\xF0\x90\xBB\x86" => "\xD9\x86",
+		"\xF0\x90\xBB\x87" => "\xDA\x80",
+		"\xF0\x90\xBB\x90" => "\xC2\xB0\xCC\xB2",
 		"\xF0\x91\x82\xBB" => "\xE0\xA5\xB0",
 		"\xF0\x91\x87\x87" => "\xE0\xA5\xB0",
 		"\xF0\x91\x87\x8A" => "\xCC\xA3",
@@ -4466,7 +4634,7 @@ function utf8_confusables(): array
 		"\xF0\x91\x93\x83" => "\xCC\xA3",
 		"\xF0\x91\x93\x84" => "\xE0\xA6\xBD",
 		"\xF0\x91\x93\x85" => "\x77\xCC\x87",
-		"\xF0\x91\x93\x90" => "\x4F",
+		"\xF0\x91\x93\x90" => "\x6F",
 		"\xF0\x91\x93\x91" => "\xE0\xA7\xA7",
 		"\xF0\x91\x93\x92" => "\xE0\xA7\xA8",
 		"\xF0\x91\x93\x96" => "\xE0\xA7\xAC",
@@ -4535,10 +4703,21 @@ function utf8_confusables(): array
 		"\xF0\x91\xAB\xB6" => "\xF0\x91\xAB\xB3\xF0\x91\xAB\xB3",
 		"\xF0\x91\xAB\xB7" => "\xF0\x91\xAB\xB3\xF0\x91\xAB\xB3\xF0\x91\xAB\xAF",
 		"\xF0\x91\xAB\xB8" => "\xF0\x91\xAB\xB3\xF0\x91\xAB\xB3\xF0\x91\xAB\xB0",
+		"\xF0\x91\xAD\xA0" => "\xE0\xA4\xBA",
+		"\xF0\x91\xAD\xA6" => "\xCC\x86",
 		"\xF0\x91\xB1\x82" => "\xF0\x91\xB1\x81\xF0\x91\xB1\x81",
 		"\xF0\x91\xB2\xB2" => "\xF0\x91\xB2\xAA",
+		"\xF0\x91\xB7\x99" => "\x3A",
+		"\xF0\x91\xB7\x9A" => "\x6C",
+		"\xF0\x91\xB7\xA0" => "\x4F",
+		"\xF0\x91\xB7\xA1" => "\x6C",
 		"\xF0\x92\x80\xB8" => "\xF0\x90\x8E\x9A",
 		"\xF0\x93\x8B\xB9" => "\xF0\x90\xA6\x9E",
+		"\xF0\x96\xBA\xA6" => "\xCE\xA0",
+		"\xF0\x96\xBA\xAA" => "\x6C",
+		"\xF0\x96\xBA\xB6" => "\x62",
+		"\xF0\x96\xBB\x81" => "\xCF\x80",
+		"\xF0\x96\xBB\x91" => "\xC6\x85",
 		"\xF0\x96\xBC\x87" => "\xCE\x93",
 		"\xF0\x96\xBC\x88" => "\x56",
 		"\xF0\x96\xBC\x8A" => "\x54",
@@ -4558,6 +4737,7 @@ function utf8_confusables(): array
 		"\xF0\x96\xBD\x83" => "\x59",
 		"\xF0\x96\xBD\x91" => "\x27",
 		"\xF0\x96\xBD\x92" => "\x27",
+		"\xF0\x96\xBF\xB2" => "\xE5\x84\xBF",
 		"\xF0\x9C\xB3\x96" => "\x41",
 		"\xF0\x9C\xB3\x97" => "\x42",
 		"\xF0\x9C\xB3\x98" => "\x43",
@@ -4594,6 +4774,8 @@ function utf8_confusables(): array
 		"\xF0\x9C\xB3\xB7" => "\x37",
 		"\xF0\x9C\xB3\xB8" => "\x38",
 		"\xF0\x9C\xB3\xB9" => "\x39",
+		"\xF0\x9C\xB3\xBB" => "\xF0\x9F\x9B\xB8",
+		"\xF0\x9C\xBB\xAF" => "\xE2\xB5\x82",
 		"\xF0\x9D\x84\x94" => "\x7B",
 		"\xF0\x9D\x85\xAD" => "\x2E",
 		"\xF0\x9D\x88\x82" => "\xD3\xBE",
@@ -5619,6 +5801,8 @@ function utf8_confusables(): array
 		"\xF0\x9D\x9F\xBD" => "\x37",
 		"\xF0\x9D\x9F\xBE" => "\x38",
 		"\xF0\x9D\x9F\xBF" => "\x39",
+		"\xF0\x9E\x9B\xA9" => "\x2B",
+		"\xF0\x9E\x9B\xAE" => "\xE1\xAB\x88",
 		"\xF0\x9E\xA3\x87" => "\x6C",
 		"\xF0\x9E\xA3\x88" => "\xE2\x88\xA0",
 		"\xF0\x9E\xA3\x89" => "\xD9\xA3",
@@ -5819,6 +6003,16 @@ function utf8_confusables(): array
 		"\xF0\x9F\x8C\x92" => "\xE2\x98\xBD",
 		"\xF0\x9F\x8C\x98" => "\xE2\x98\xBE",
 		"\xF0\x9F\x8C\x99" => "\xE2\x98\xBD",
+		"\xF0\x9F\x8C\xB3" => "\xF0\x9C\xBA\xBC",
+		"\xF0\x9F\x8D\x8E" => "\xF0\x9C\xBA\xBD",
+		"\xF0\x9F\x8D\x8F" => "\xF0\x9C\xBA\xBD",
+		"\xF0\x9F\x8D\x92" => "\xF0\x9C\xBA\xBE",
+		"\xF0\x9F\x8D\x93" => "\xF0\x9C\xBA\xBF",
+		"\xF0\x9F\x8D\xB7" => "\xF0\x9C\xBA\xBA",
+		"\xF0\x9F\x8F\xA2" => "\xF0\x9C\xBA\xBB",
+		"\xF0\x9F\x90\x8D" => "\xF0\x9C\xB3\xBA",
+		"\xF0\x9F\x91\x83" => "\xF0\x9C\xB3\xBC",
+		"\xF0\x9F\x94\x94" => "\xF0\x9F\xAF\xBA",
 		"\xF0\x9F\x9C\x80" => "\x51\x45",
 		"\xF0\x9F\x9C\x81" => "\xEA\x99\x98",
 		"\xF0\x9F\x9C\x82" => "\xCE\x94",
@@ -5848,7 +6042,22 @@ function utf8_confusables(): array
 		"\xF0\x9F\xAF\xB7" => "\x37",
 		"\xF0\x9F\xAF\xB8" => "\x38",
 		"\xF0\x9F\xAF\xB9" => "\x39",
+		"\xF0\xA0\x99\xB4" => "\xE5\x87\xB5",
+		"\xF0\xA1\x94\xB3" => "\xE5\xA3\xB7",
+		"\xF0\xA1\x96\x87" => "\xE5\xA4\x9A",
+		"\xF0\xA1\x9A\xA7" => "\xF0\xA1\x9A\xA8",
 		"\xF0\xA1\xBF\xA8" => "\xE2\x9D\xAC",
+		"\xF0\xA2\x94\x85" => "\xE5\xBE\x9A",
+		"\xF0\xA3\xB5\x80" => "\xE6\xB6\x85",
+		"\xF0\xA4\xA3\xBD" => "\xE7\x8E\xA5",
+		"\xF0\xA5\x84\x9A" => "\xF0\xA5\x84\x99",
+		"\xF0\xA5\xAB\x94" => "\xE8\xB4\x9B",
+		"\xF0\xA6\x96\x9D" => "\xF0\xA6\x96\xA8",
+		"\xF0\xA6\xB4\x86" => "\xF0\xA6\xB0\xB6",
+		"\xF0\xAA\xBB\x85" => "\xF0\xA4\xA0\x94",
+		"\xF0\xAB\x9C\xBA" => "\xE5\xB3\x80",
+		"\xF0\xAB\x9C\xBE" => "\xF0\xA3\x8D\x9F",
+		"\xF0\xAD\x85\xA1" => "\xE5\x8D\x91",
 		"\xF0\xAF\xA0\x80" => "\xE4\xB8\xBD",
 		"\xF0\xAF\xA0\x81" => "\xE4\xB8\xB8",
 		"\xF0\xAF\xA0\x82" => "\xE4\xB9\x81",
@@ -6391,6 +6600,7 @@ function utf8_confusables(): array
 		"\xF0\xAF\xA8\x9B" => "\xE9\xBC\x96",
 		"\xF0\xAF\xA8\x9C" => "\xE9\xBC\xBB",
 		"\xF0\xAF\xA8\x9D" => "\xF0\xAA\x98\x80",
+		"\xF0\xB1\xB9\xBC" => "\xE7\xB7\x87",
 	];
 }
 
@@ -6478,14 +6688,14 @@ function utf8_character_scripts(): array
 			'Inherited', 'Coptic', 'Elbasan', 'Glagolitic', 'Gothic', 'Katakana',
 			'Latin',
 		],
-		"\xCC\x86" => ['Inherited', 'Cyrillic', 'Greek', 'Latin', 'Old_Permic'],
+		"\xCC\x86" => ['Inherited', 'Cyrillic', 'Greek', 'Latin', 'Old_Permic', 'Tifinagh'],
 		"\xCC\x87" => [
 			'Inherited', 'Coptic', 'Duployan', 'Hebrew', 'Latin', 'Old_Permic',
 			'Syriac', 'Tai_Le', 'Tifinagh', 'Todhri',
 		],
 		"\xCC\x88" => [
 			'Inherited', 'Armenian', 'Cyrillic', 'Duployan', 'Gothic', 'Greek',
-			'Hebrew', 'Latin', 'Old_Permic', 'Syriac', 'Tai_Le',
+			'Hebrew', 'Latin', 'Old_Permic', 'Syriac', 'Tai_Le', 'Tifinagh',
 		],
 		"\xCC\x89" => ['Inherited', 'Latin', 'Tifinagh'],
 		"\xCC\x8A" => ['Inherited', 'Duployan', 'Latin', 'Syriac'],
@@ -6498,10 +6708,11 @@ function utf8_character_scripts(): array
 		"\xCC\x91" => ['Inherited', 'Cyrillic', 'Latin', 'Todhri'],
 		"\xCC\x92" => ['Inherited'],
 		"\xCC\x93" => ['Inherited', 'Greek', 'Latin', 'Old_Permic', 'Todhri'],
-		"\xCC\x9F" => ['Inherited'],
-		"\xCC\xA0" => ['Inherited', 'Latin', 'Syriac'],
 		"\xCC\xA2" => ['Inherited'],
-		"\xCC\xA3" => ['Inherited', 'Cherokee', 'Duployan', 'Katakana', 'Latin', 'Syriac'],
+		"\xCC\xA3" => [
+			'Inherited', 'Cherokee', 'Duployan', 'Katakana', 'Latin', 'Syriac',
+			'Tifinagh',
+		],
 		"\xCC\xA4" => ['Inherited', 'Cherokee', 'Duployan', 'Latin', 'Syriac'],
 		"\xCC\xA5" => ['Inherited', 'Latin', 'Syriac'],
 		"\xCC\xAC" => ['Inherited'],
@@ -6511,7 +6722,7 @@ function utf8_character_scripts(): array
 		"\xCC\xB0" => ['Inherited', 'Cherokee', 'Latin', 'Syriac'],
 		"\xCC\xB1" => [
 			'Inherited', 'Caucasian_Albanian', 'Cherokee', 'Gothic', 'Latin',
-			'Sunuwar', 'Thai',
+			'Sunuwar', 'Syriac', 'Thai',
 		],
 		"\xCD\x81" => ['Inherited'],
 		"\xCD\x82" => ['Inherited', 'Greek'],
@@ -6634,12 +6845,13 @@ function utf8_character_scripts(): array
 		"\xE0\xA5\x90" => ['Devanagari'],
 		"\xE0\xA5\x91" => [
 			'Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Gujarati', 'Gurmukhi',
-			'Kannada', 'Latin', 'Malayalam', 'Oriya', 'Sharada', 'Tamil', 'Telugu',
-			'Tirhuta',
+			'Kannada', 'Latin', 'Malayalam', 'Nandinagari', 'Newa', 'Oriya', 'Sharada',
+			'Tamil', 'Telugu', 'Tirhuta',
 		],
 		"\xE0\xA5\x92" => [
 			'Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Gujarati', 'Gurmukhi',
-			'Kannada', 'Latin', 'Malayalam', 'Oriya', 'Tamil', 'Telugu', 'Tirhuta',
+			'Kannada', 'Latin', 'Malayalam', 'Newa', 'Oriya', 'Tamil', 'Telugu',
+			'Tirhuta',
 		],
 		"\xE0\xA5\x94" => ['Inherited'],
 		"\xE0\xA5\xA3" => ['Devanagari'],
@@ -6794,7 +7006,7 @@ function utf8_character_scripts(): array
 		"\xE1\xA7\xBF" => ['Khmer'],
 		"\xE1\xA8\x9F" => ['Buginese'],
 		"\xE1\xAA\xAD" => ['Tai_Tham'],
-		"\xE1\xAB\x8E" => ['Inherited'],
+		"\xE1\xAB\xAB" => ['Inherited'],
 		"\xE1\xAD\xBF" => ['Balinese'],
 		"\xE1\xAE\xBF" => ['Sundanese'],
 		"\xE1\xAF\xBF" => ['Batak'],
@@ -6808,10 +7020,10 @@ function utf8_character_scripts(): array
 		"\xE1\xB3\x92" => ['Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Kannada'],
 		"\xE1\xB3\x93" => ['Common', 'Devanagari', 'Grantha', 'Kannada'],
 		"\xE1\xB3\x94" => ['Inherited', 'Devanagari'],
-		"\xE1\xB3\x95" => ['Inherited', 'Bengali'],
-		"\xE1\xB3\x96" => ['Inherited', 'Devanagari'],
-		"\xE1\xB3\x97" => ['Inherited', 'Devanagari', 'Sharada'],
-		"\xE1\xB3\x98" => ['Inherited', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\x95" => ['Inherited', 'Bengali', 'Devanagari', 'Newa', 'Telugu', 'Tirhuta'],
+		"\xE1\xB3\x96" => ['Inherited', 'Bengali', 'Devanagari', 'Telugu'],
+		"\xE1\xB3\x97" => ['Inherited', 'Devanagari', 'Newa', 'Sharada'],
+		"\xE1\xB3\x98" => ['Inherited', 'Bengali', 'Devanagari', 'Newa', 'Telugu'],
 		"\xE1\xB3\x99" => ['Inherited', 'Devanagari', 'Sharada'],
 		"\xE1\xB3\x9A" => [
 			'Inherited', 'Devanagari', 'Kannada', 'Malayalam', 'Oriya', 'Tamil',
@@ -6822,11 +7034,13 @@ function utf8_character_scripts(): array
 		"\xE1\xB3\x9F" => ['Inherited', 'Devanagari'],
 		"\xE1\xB3\xA0" => ['Inherited', 'Devanagari', 'Sharada'],
 		"\xE1\xB3\xA1" => ['Common', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xA2" => ['Inherited', 'Devanagari', 'Newa', 'Tirhuta'],
 		"\xE1\xB3\xA8" => ['Inherited', 'Devanagari'],
-		"\xE1\xB3\xA9" => ['Common', 'Devanagari', 'Nandinagari'],
-		"\xE1\xB3\xAA" => ['Common', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xA9" => ['Common', 'Devanagari', 'Nandinagari', 'Newa'],
+		"\xE1\xB3\xAA" => ['Common', 'Bengali', 'Devanagari', 'Sharada'],
+		"\xE1\xB3\xAB" => ['Common', 'Devanagari', 'Newa'],
 		"\xE1\xB3\xAC" => ['Common', 'Devanagari'],
-		"\xE1\xB3\xAD" => ['Inherited', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xAD" => ['Inherited', 'Bengali', 'Devanagari', 'Newa', 'Sharada'],
 		"\xE1\xB3\xB1" => ['Common', 'Devanagari'],
 		"\xE1\xB3\xB2" => [
 			'Common', 'Bengali', 'Devanagari', 'Grantha', 'Kannada', 'Malayalam',
@@ -6878,7 +7092,7 @@ function utf8_character_scripts(): array
 		"\xE2\x81\xBF" => ['Latin'],
 		"\xE2\x82\x8E" => ['Common'],
 		"\xE2\x82\x9C" => ['Latin'],
-		"\xE2\x83\x80" => ['Common'],
+		"\xE2\x83\x81" => ['Common'],
 		"\xE2\x83\xAF" => ['Inherited'],
 		"\xE2\x83\xB0" => ['Inherited', 'Devanagari', 'Grantha', 'Latin'],
 		"\xE2\x84\xA5" => ['Common'],
@@ -7293,6 +7507,7 @@ function utf8_character_scripts(): array
 		"\xF0\x90\xA3\xBF" => ['Hatran'],
 		"\xF0\x90\xA4\x9F" => ['Phoenician'],
 		"\xF0\x90\xA4\xBF" => ['Lydian'],
+		"\xF0\x90\xA5\x99" => ['Sidetic'],
 		"\xF0\x90\xA6\x9F" => ['Meroitic_Hieroglyphs'],
 		"\xF0\x90\xA7\xBF" => ['Meroitic_Cursive'],
 		"\xF0\x90\xA9\x98" => ['Kharoshthi'],
@@ -7362,11 +7577,13 @@ function utf8_character_scripts(): array
 		"\xF0\x91\xAA\xBF" => ['Canadian_Aboriginal'],
 		"\xF0\x91\xAB\xB8" => ['Pau_Cin_Hau'],
 		"\xF0\x91\xAC\x89" => ['Devanagari'],
+		"\xF0\x91\xAD\xA7" => ['Sharada'],
 		"\xF0\x91\xAF\xB9" => ['Sunuwar'],
 		"\xF0\x91\xB1\xAC" => ['Bhaiksuki'],
 		"\xF0\x91\xB2\xB6" => ['Marchen'],
 		"\xF0\x91\xB5\x99" => ['Masaram_Gondi'],
 		"\xF0\x91\xB6\xA9" => ['Gunjala_Gondi'],
+		"\xF0\x91\xB7\xA9" => ['Tolong_Siki'],
 		"\xF0\x91\xBB\xB8" => ['Makasar'],
 		"\xF0\x91\xBD\x9A" => ['Kawi'],
 		"\xF0\x91\xBE\xB0" => ['Lisu'],
@@ -7387,15 +7604,16 @@ function utf8_character_scripts(): array
 		"\xF0\x96\xAE\x8F" => ['Pahawh_Hmong'],
 		"\xF0\x96\xB5\xB9" => ['Kirat_Rai'],
 		"\xF0\x96\xBA\x9A" => ['Medefaidrin'],
+		"\xF0\x96\xBB\x93" => ['Beria_Erfe'],
 		"\xF0\x96\xBE\x9F" => ['Miao'],
 		"\xF0\x96\xBF\xA0" => ['Tangut'],
 		"\xF0\x96\xBF\xA1" => ['Nushu'],
 		"\xF0\x96\xBF\xA3" => ['Han'],
 		"\xF0\x96\xBF\xA4" => ['Khitan_Small_Script'],
-		"\xF0\x96\xBF\xB1" => ['Han'],
+		"\xF0\x96\xBF\xB6" => ['Han'],
 		"\xF0\x98\xAB\xBF" => ['Tangut'],
 		"\xF0\x98\xB3\xBF" => ['Khitan_Small_Script'],
-		"\xF0\x98\xB4\x88" => ['Tangut'],
+		"\xF0\x98\xB7\xB2" => ['Tangut'],
 		"\xF0\x9B\x80\x80" => ['Katakana'],
 		"\xF0\x9B\x84\x9F" => ['Hiragana'],
 		"\xF0\x9B\x84\xA2" => ['Katakana'],
@@ -7404,7 +7622,7 @@ function utf8_character_scripts(): array
 		"\xF0\x9B\x8B\xBB" => ['Nushu'],
 		"\xF0\x9B\xB2\x9F" => ['Duployan'],
 		"\xF0\x9B\xB2\xA3" => ['Common', 'Duployan'],
-		"\xF0\x9C\xBA\xB3" => ['Common'],
+		"\xF0\x9C\xBB\xB0" => ['Common'],
 		"\xF0\x9C\xBD\x86" => ['Inherited'],
 		"\xF0\x9D\x85\xA6" => ['Common'],
 		"\xF0\x9D\x85\xA9" => ['Inherited'],
@@ -7428,6 +7646,7 @@ function utf8_character_scripts(): array
 		"\xF0\x9E\x8B\xBF" => ['Wancho'],
 		"\xF0\x9E\x93\xB9" => ['Nag_Mundari'],
 		"\xF0\x9E\x97\xBF" => ['Ol_Onal'],
+		"\xF0\x9E\x9B\xBF" => ['Tai_Yo'],
 		"\xF0\x9E\x9F\xBE" => ['Ethiopic'],
 		"\xF0\x9E\xA3\x96" => ['Mende_Kikakui'],
 		"\xF0\x9E\xA5\x9F" => ['Adlam'],
@@ -7437,8 +7656,8 @@ function utf8_character_scripts(): array
 		"\xF0\x9F\x88\x80" => ['Hiragana'],
 		"\xF0\x9F\x89\x88" => ['Common'],
 		"\xF0\x9F\x89\x91" => ['Common', 'Han'],
-		"\xF0\x9F\xAF\xB9" => ['Common'],
-		"\xF0\xB2\x8E\xAF" => ['Han'],
+		"\xF0\x9F\xAF\xBA" => ['Common'],
+		"\xF0\xB3\x91\xB9" => ['Han'],
 		"\xF3\xA0\x81\xBF" => ['Common'],
 	];
 }
@@ -7467,155 +7686,147 @@ function utf8_regex_identifier_status(): array
 			'\\x{00B7}' .
 			'\\x{00C0}-\\x{00D6}' .
 			'\\x{00D8}-\\x{00F6}' .
-			'\\x{00F8}-\\x{0131}' .
-			'\\x{0134}-\\x{013E}' .
+			'\\x{00F8}-\\x{0113}' .
+			'\\x{0116}-\\x{012B}' .
+			'\\x{012E}-\\x{0131}' .
+			'\\x{0134}-\\x{0137}' .
+			'\\x{0139}-\\x{013E}' .
 			'\\x{0141}-\\x{0148}' .
-			'\\x{014A}-\\x{017E}' .
-			'\\x{018F}' .
+			'\\x{014A}-\\x{014D}' .
+			'\\x{0150}-\\x{0155}' .
+			'\\x{0158}-\\x{0161}' .
+			'\\x{0164}-\\x{017E}' .
+			'\\x{0181}' .
+			'\\x{0186}' .
+			'\\x{0189}-\\x{018A}' .
+			'\\x{018E}-\\x{0192}' .
+			'\\x{0194}' .
+			'\\x{0196}-\\x{0199}' .
+			'\\x{019D}' .
 			'\\x{01A0}-\\x{01A1}' .
 			'\\x{01AF}-\\x{01B0}' .
-			'\\x{01CD}-\\x{01DC}' .
-			'\\x{01DE}-\\x{01E3}' .
-			'\\x{01E6}-\\x{01F0}' .
-			'\\x{01F4}-\\x{01F5}' .
+			'\\x{01B2}-\\x{01B4}' .
+			'\\x{01B7}' .
+			'\\x{01CD}-\\x{01D4}' .
+			'\\x{01DD}' .
+			'\\x{01E6}-\\x{01E9}' .
+			'\\x{01EE}-\\x{01EF}' .
 			'\\x{01F8}-\\x{01F9}' .
-			'\\x{01FA}-\\x{0217}' .
 			'\\x{0218}-\\x{021B}' .
-			'\\x{021E}-\\x{021F}' .
-			'\\x{0226}-\\x{0233}' .
+			'\\x{0244}' .
+			'\\x{024C}-\\x{024D}' .
+			'\\x{0253}-\\x{0254}' .
+			'\\x{0256}-\\x{0257}' .
 			'\\x{0259}' .
+			'\\x{025B}' .
+			'\\x{0263}' .
+			'\\x{0268}-\\x{0269}' .
+			'\\x{0272}' .
+			'\\x{0289}' .
+			'\\x{028B}' .
+			'\\x{0292}' .
 			'\\x{02BB}-\\x{02BC}' .
-			'\\x{02EC}' .
 			'\\x{0300}-\\x{0304}' .
 			'\\x{0306}-\\x{030C}' .
-			'\\x{030F}-\\x{0311}' .
-			'\\x{0313}-\\x{0314}' .
 			'\\x{031B}' .
-			'\\x{0323}-\\x{0328}' .
-			'\\x{032D}-\\x{032E}' .
-			'\\x{0330}-\\x{0331}' .
-			'\\x{0335}' .
-			'\\x{0338}-\\x{0339}' .
-			'\\x{0342}' .
-			'\\x{0345}' .
-			'\\x{0375}' .
-			'\\x{037B}-\\x{037D}' .
+			'\\x{0323}' .
+			'\\x{0326}-\\x{0328}' .
+			'\\x{0331}' .
 			'\\x{0386}' .
 			'\\x{0388}-\\x{038A}' .
 			'\\x{038C}' .
 			'\\x{038E}-\\x{03A1}' .
 			'\\x{03A3}-\\x{03CE}' .
-			'\\x{03FC}-\\x{03FF}' .
-			'\\x{0400}' .
 			'\\x{0401}-\\x{040C}' .
-			'\\x{040D}' .
 			'\\x{040E}-\\x{044F}' .
-			'\\x{0450}' .
 			'\\x{0451}-\\x{045C}' .
-			'\\x{045D}' .
 			'\\x{045E}-\\x{045F}' .
-			'\\x{048A}-\\x{048B}' .
-			'\\x{048C}-\\x{048F}' .
-			'\\x{0490}-\\x{04C4}' .
-			'\\x{04C5}-\\x{04C6}' .
-			'\\x{04C7}-\\x{04C8}' .
-			'\\x{04C9}-\\x{04CA}' .
-			'\\x{04CB}-\\x{04CC}' .
-			'\\x{04CD}-\\x{04CE}' .
+			'\\x{0490}-\\x{049B}' .
+			'\\x{049E}-\\x{04A5}' .
+			'\\x{04A8}-\\x{04B7}' .
+			'\\x{04BA}-\\x{04C0}' .
 			'\\x{04CF}' .
-			'\\x{04D0}-\\x{04EB}' .
-			'\\x{04EC}-\\x{04ED}' .
+			'\\x{04D0}-\\x{04D9}' .
+			'\\x{04DC}-\\x{04E9}' .
 			'\\x{04EE}-\\x{04F5}' .
-			'\\x{04F6}-\\x{04F7}' .
 			'\\x{04F8}-\\x{04F9}' .
-			'\\x{04FA}-\\x{04FF}' .
-			'\\x{0510}-\\x{0513}' .
-			'\\x{0514}-\\x{0523}' .
 			'\\x{0524}-\\x{0525}' .
-			'\\x{0526}-\\x{0527}' .
-			'\\x{0528}-\\x{0529}' .
-			'\\x{052E}-\\x{052F}' .
 			'\\x{0531}-\\x{0556}' .
-			'\\x{0559}' .
 			'\\x{0561}-\\x{0586}' .
 			'\\x{058A}' .
-			'\\x{05B4}' .
 			'\\x{05D0}-\\x{05EA}' .
-			'\\x{05EF}' .
-			'\\x{05F0}-\\x{05F4}' .
+			'\\x{05F3}-\\x{05F4}' .
 			'\\x{0620}' .
 			'\\x{0621}-\\x{063A}' .
-			'\\x{063B}-\\x{063F}' .
+			'\\x{063D}' .
 			'\\x{0641}-\\x{0652}' .
-			'\\x{0653}-\\x{0655}' .
+			'\\x{0654}-\\x{0655}' .
 			'\\x{0660}-\\x{0669}' .
-			'\\x{0670}-\\x{0672}' .
+			'\\x{0670}' .
+			'\\x{0672}' .
 			'\\x{0674}' .
-			'\\x{0679}-\\x{068D}' .
-			'\\x{068F}-\\x{06A0}' .
-			'\\x{06A2}-\\x{06B7}' .
-			'\\x{06B8}-\\x{06B9}' .
+			'\\x{0679}-\\x{068F}' .
+			'\\x{0691}-\\x{069A}' .
+			'\\x{069F}-\\x{06A0}' .
+			'\\x{06A2}' .
+			'\\x{06A4}-\\x{06AB}' .
+			'\\x{06AD}-\\x{06B1}' .
+			'\\x{06B3}' .
+			'\\x{06B5}-\\x{06B7}' .
 			'\\x{06BA}-\\x{06BE}' .
-			'\\x{06BF}' .
 			'\\x{06C0}-\\x{06CE}' .
 			'\\x{06CF}' .
 			'\\x{06D0}-\\x{06D3}' .
 			'\\x{06D5}' .
-			'\\x{06E5}-\\x{06E6}' .
 			'\\x{06EE}-\\x{06EF}' .
 			'\\x{06F0}-\\x{06F9}' .
-			'\\x{06FA}-\\x{06FE}' .
+			'\\x{06FD}-\\x{06FE}' .
 			'\\x{06FF}' .
-			'\\x{0750}-\\x{076D}' .
-			'\\x{076E}-\\x{077F}' .
+			'\\x{0751}-\\x{0752}' .
+			'\\x{0756}' .
+			'\\x{0760}' .
+			'\\x{0762}-\\x{0763}' .
+			'\\x{0766}-\\x{0768}' .
+			'\\x{076A}' .
+			'\\x{076E}-\\x{0771}' .
 			'\\x{0780}-\\x{07B0}' .
 			'\\x{07B1}' .
-			'\\x{0870}-\\x{0887}' .
-			'\\x{0889}-\\x{088E}' .
+			'\\x{088F}' .
 			'\\x{08A0}' .
-			'\\x{08A1}' .
-			'\\x{08A2}-\\x{08AC}' .
-			'\\x{08B2}' .
-			'\\x{08B5}' .
-			'\\x{08B6}-\\x{08BD}' .
-			'\\x{08BE}-\\x{08C7}' .
-			'\\x{08C8}-\\x{08C9}' .
+			'\\x{08A2}-\\x{08A9}' .
+			'\\x{08BB}-\\x{08BD}' .
+			'\\x{08BE}-\\x{08C2}' .
+			'\\x{08C7}' .
 			'\\x{0901}-\\x{0903}' .
-			'\\x{0904}' .
-			'\\x{0905}-\\x{0939}' .
+			'\\x{0905}-\\x{090B}' .
+			'\\x{090D}-\\x{0928}' .
+			'\\x{092A}-\\x{0933}' .
+			'\\x{0935}-\\x{0939}' .
 			'\\x{093A}-\\x{093B}' .
-			'\\x{093C}-\\x{094D}' .
+			'\\x{093C}' .
+			'\\x{093E}-\\x{0943}' .
+			'\\x{0945}-\\x{094D}' .
 			'\\x{094F}' .
-			'\\x{0950}' .
 			'\\x{0956}-\\x{0957}' .
-			'\\x{0960}-\\x{0963}' .
 			'\\x{0966}-\\x{096F}' .
-			'\\x{0971}-\\x{0972}' .
+			'\\x{0972}' .
 			'\\x{0973}-\\x{0977}' .
-			'\\x{0979}-\\x{097A}' .
 			'\\x{097B}-\\x{097C}' .
-			'\\x{097D}' .
 			'\\x{097E}-\\x{097F}' .
 			'\\x{0981}-\\x{0983}' .
-			'\\x{0985}-\\x{098C}' .
+			'\\x{0985}-\\x{098B}' .
 			'\\x{098F}-\\x{0990}' .
 			'\\x{0993}-\\x{09A8}' .
 			'\\x{09AA}-\\x{09B0}' .
 			'\\x{09B2}' .
 			'\\x{09B6}-\\x{09B9}' .
 			'\\x{09BC}' .
-			'\\x{09BD}' .
 			'\\x{09BE}-\\x{09C4}' .
 			'\\x{09C7}-\\x{09C8}' .
 			'\\x{09CB}-\\x{09CD}' .
 			'\\x{09CE}' .
-			'\\x{09D7}' .
-			'\\x{09E0}-\\x{09E3}' .
 			'\\x{09E6}-\\x{09F1}' .
-			'\\x{09FE}' .
-			'\\x{0A01}' .
 			'\\x{0A02}' .
-			'\\x{0A03}' .
 			'\\x{0A05}-\\x{0A0A}' .
 			'\\x{0A0F}-\\x{0A10}' .
 			'\\x{0A13}-\\x{0A28}' .
@@ -7628,8 +7839,8 @@ function utf8_regex_identifier_status(): array
 			'\\x{0A47}-\\x{0A48}' .
 			'\\x{0A4B}-\\x{0A4D}' .
 			'\\x{0A5C}' .
-			'\\x{0A66}-\\x{0A74}' .
-			'\\x{0A81}-\\x{0A83}' .
+			'\\x{0A70}-\\x{0A71}' .
+			'\\x{0A82}-\\x{0A83}' .
 			'\\x{0A85}-\\x{0A8B}' .
 			'\\x{0A8C}' .
 			'\\x{0A8D}' .
@@ -7638,31 +7849,26 @@ function utf8_regex_identifier_status(): array
 			'\\x{0AAA}-\\x{0AB0}' .
 			'\\x{0AB2}-\\x{0AB3}' .
 			'\\x{0AB5}-\\x{0AB9}' .
-			'\\x{0ABC}-\\x{0AC5}' .
+			'\\x{0ABC}' .
+			'\\x{0ABE}-\\x{0AC5}' .
 			'\\x{0AC7}-\\x{0AC9}' .
 			'\\x{0ACB}-\\x{0ACD}' .
-			'\\x{0AD0}' .
-			'\\x{0AE0}' .
-			'\\x{0AE1}-\\x{0AE3}' .
 			'\\x{0AE6}-\\x{0AEF}' .
-			'\\x{0AFA}-\\x{0AFF}' .
 			'\\x{0B01}-\\x{0B03}' .
-			'\\x{0B05}-\\x{0B0C}' .
+			'\\x{0B05}-\\x{0B0B}' .
 			'\\x{0B0F}-\\x{0B10}' .
 			'\\x{0B13}-\\x{0B28}' .
 			'\\x{0B2A}-\\x{0B30}' .
 			'\\x{0B32}-\\x{0B33}' .
-			'\\x{0B35}' .
 			'\\x{0B36}-\\x{0B39}' .
-			'\\x{0B3C}-\\x{0B43}' .
+			'\\x{0B3C}' .
+			'\\x{0B3E}-\\x{0B43}' .
 			'\\x{0B47}-\\x{0B48}' .
 			'\\x{0B4B}-\\x{0B4D}' .
-			'\\x{0B55}' .
-			'\\x{0B56}-\\x{0B57}' .
-			'\\x{0B5F}-\\x{0B61}' .
-			'\\x{0B66}-\\x{0B6F}' .
+			'\\x{0B56}' .
+			'\\x{0B5F}' .
 			'\\x{0B71}' .
-			'\\x{0B82}-\\x{0B83}' .
+			'\\x{0B83}' .
 			'\\x{0B85}-\\x{0B8A}' .
 			'\\x{0B8E}-\\x{0B90}' .
 			'\\x{0B92}-\\x{0B95}' .
@@ -7677,67 +7883,43 @@ function utf8_regex_identifier_status(): array
 			'\\x{0BBE}-\\x{0BC2}' .
 			'\\x{0BC6}-\\x{0BC8}' .
 			'\\x{0BCA}-\\x{0BCD}' .
-			'\\x{0BD0}' .
-			'\\x{0BD7}' .
-			'\\x{0BE6}' .
-			'\\x{0BE7}-\\x{0BEF}' .
-			'\\x{0C01}-\\x{0C03}' .
-			'\\x{0C04}' .
-			'\\x{0C05}-\\x{0C0C}' .
+			'\\x{0C02}-\\x{0C03}' .
+			'\\x{0C05}-\\x{0C0B}' .
 			'\\x{0C0E}-\\x{0C10}' .
 			'\\x{0C12}-\\x{0C28}' .
-			'\\x{0C2A}-\\x{0C33}' .
+			'\\x{0C2A}-\\x{0C30}' .
+			'\\x{0C32}-\\x{0C33}' .
 			'\\x{0C35}-\\x{0C39}' .
-			'\\x{0C3C}' .
-			'\\x{0C3D}' .
 			'\\x{0C3E}-\\x{0C44}' .
 			'\\x{0C46}-\\x{0C48}' .
 			'\\x{0C4A}-\\x{0C4D}' .
-			'\\x{0C55}-\\x{0C56}' .
-			'\\x{0C5D}' .
-			'\\x{0C60}-\\x{0C61}' .
-			'\\x{0C66}-\\x{0C6F}' .
-			'\\x{0C80}' .
 			'\\x{0C82}-\\x{0C83}' .
-			'\\x{0C85}-\\x{0C8C}' .
+			'\\x{0C85}-\\x{0C8B}' .
 			'\\x{0C8E}-\\x{0C90}' .
 			'\\x{0C92}-\\x{0CA8}' .
-			'\\x{0CAA}-\\x{0CB3}' .
+			'\\x{0CAA}-\\x{0CB0}' .
+			'\\x{0CB2}-\\x{0CB3}' .
 			'\\x{0CB5}-\\x{0CB9}' .
-			'\\x{0CBC}-\\x{0CBD}' .
-			'\\x{0CBE}-\\x{0CC4}' .
+			'\\x{0CBE}-\\x{0CC3}' .
 			'\\x{0CC6}-\\x{0CC8}' .
 			'\\x{0CCA}-\\x{0CCD}' .
-			'\\x{0CD5}-\\x{0CD6}' .
-			'\\x{0CDD}' .
-			'\\x{0CE0}-\\x{0CE1}' .
-			'\\x{0CE2}-\\x{0CE3}' .
 			'\\x{0CE6}-\\x{0CEF}' .
-			'\\x{0CF1}-\\x{0CF2}' .
-			'\\x{0CF3}' .
-			'\\x{0D00}' .
 			'\\x{0D02}-\\x{0D03}' .
-			'\\x{0D05}-\\x{0D0C}' .
+			'\\x{0D05}-\\x{0D0B}' .
 			'\\x{0D0E}-\\x{0D10}' .
 			'\\x{0D12}-\\x{0D28}' .
-			'\\x{0D29}' .
 			'\\x{0D2A}-\\x{0D39}' .
-			'\\x{0D3A}' .
-			'\\x{0D3D}' .
 			'\\x{0D3E}-\\x{0D43}' .
 			'\\x{0D46}-\\x{0D48}' .
-			'\\x{0D4A}-\\x{0D4D}' .
-			'\\x{0D4E}' .
-			'\\x{0D54}-\\x{0D56}' .
+			'\\x{0D4A}-\\x{0D4B}' .
+			'\\x{0D4D}' .
 			'\\x{0D57}' .
-			'\\x{0D60}-\\x{0D61}' .
-			'\\x{0D66}-\\x{0D6F}' .
 			'\\x{0D7A}-\\x{0D7F}' .
 			'\\x{0D82}-\\x{0D83}' .
-			'\\x{0D85}-\\x{0D8E}' .
+			'\\x{0D85}-\\x{0D8D}' .
 			'\\x{0D91}-\\x{0D96}' .
-			'\\x{0D9A}-\\x{0DA5}' .
-			'\\x{0DA7}-\\x{0DB1}' .
+			'\\x{0D9A}-\\x{0D9D}' .
+			'\\x{0D9F}-\\x{0DB1}' .
 			'\\x{0DB3}-\\x{0DBB}' .
 			'\\x{0DBD}' .
 			'\\x{0DC0}-\\x{0DC6}' .
@@ -7748,57 +7930,40 @@ function utf8_regex_identifier_status(): array
 			'\\x{0DF2}' .
 			'\\x{0E01}-\\x{0E32}' .
 			'\\x{0E34}-\\x{0E3A}' .
-			'\\x{0E40}-\\x{0E4E}' .
+			'\\x{0E40}-\\x{0E4D}' .
 			'\\x{0E50}-\\x{0E59}' .
 			'\\x{0E81}-\\x{0E82}' .
 			'\\x{0E84}' .
-			'\\x{0E86}' .
 			'\\x{0E87}-\\x{0E88}' .
-			'\\x{0E89}' .
 			'\\x{0E8A}' .
-			'\\x{0E8C}' .
 			'\\x{0E8D}' .
-			'\\x{0E8E}-\\x{0E93}' .
 			'\\x{0E94}-\\x{0E97}' .
-			'\\x{0E98}' .
 			'\\x{0E99}-\\x{0E9F}' .
-			'\\x{0EA0}' .
 			'\\x{0EA1}-\\x{0EA3}' .
 			'\\x{0EA5}' .
 			'\\x{0EA7}' .
-			'\\x{0EA8}-\\x{0EA9}' .
 			'\\x{0EAA}-\\x{0EAB}' .
-			'\\x{0EAC}' .
-			'\\x{0EAD}-\\x{0EB2}' .
+			'\\x{0EAD}-\\x{0EAE}' .
+			'\\x{0EB0}-\\x{0EB2}' .
 			'\\x{0EB4}-\\x{0EB9}' .
-			'\\x{0EBA}' .
 			'\\x{0EBB}-\\x{0EBD}' .
 			'\\x{0EC0}-\\x{0EC4}' .
 			'\\x{0EC6}' .
 			'\\x{0EC8}-\\x{0ECD}' .
-			'\\x{0ECE}' .
 			'\\x{0ED0}-\\x{0ED9}' .
-			'\\x{0EDE}-\\x{0EDF}' .
-			'\\x{0F00}' .
 			'\\x{0F0B}' .
 			'\\x{0F20}-\\x{0F29}' .
-			'\\x{0F35}' .
-			'\\x{0F37}' .
-			'\\x{0F3E}-\\x{0F42}' .
+			'\\x{0F40}-\\x{0F42}' .
 			'\\x{0F44}-\\x{0F47}' .
 			'\\x{0F49}-\\x{0F4C}' .
 			'\\x{0F4E}-\\x{0F51}' .
 			'\\x{0F53}-\\x{0F56}' .
 			'\\x{0F58}-\\x{0F5B}' .
 			'\\x{0F5D}-\\x{0F68}' .
-			'\\x{0F6A}' .
-			'\\x{0F6B}-\\x{0F6C}' .
 			'\\x{0F71}-\\x{0F72}' .
 			'\\x{0F74}' .
 			'\\x{0F7A}-\\x{0F80}' .
-			'\\x{0F82}-\\x{0F84}' .
-			'\\x{0F86}-\\x{0F8B}' .
-			'\\x{0F8C}-\\x{0F8F}' .
+			'\\x{0F84}' .
 			'\\x{0F90}-\\x{0F92}' .
 			'\\x{0F94}-\\x{0F95}' .
 			'\\x{0F96}' .
@@ -7808,11 +7973,9 @@ function utf8_regex_identifier_status(): array
 			'\\x{0FA3}-\\x{0FA6}' .
 			'\\x{0FA8}-\\x{0FAB}' .
 			'\\x{0FAD}' .
-			'\\x{0FAE}-\\x{0FB0}' .
 			'\\x{0FB1}-\\x{0FB7}' .
 			'\\x{0FB8}' .
 			'\\x{0FBA}-\\x{0FBC}' .
-			'\\x{0FC6}' .
 			'\\x{1000}-\\x{1021}' .
 			'\\x{1022}' .
 			'\\x{1023}-\\x{1027}' .
@@ -7824,17 +7987,13 @@ function utf8_regex_identifier_status(): array
 			'\\x{1036}-\\x{1039}' .
 			'\\x{103A}-\\x{103F}' .
 			'\\x{1040}-\\x{1049}' .
-			'\\x{1050}-\\x{1059}' .
-			'\\x{105A}-\\x{1099}' .
-			'\\x{109A}-\\x{109D}' .
+			'\\x{105A}-\\x{1064}' .
+			'\\x{1075}-\\x{108A}' .
+			'\\x{108F}' .
 			'\\x{10C7}' .
 			'\\x{10CD}' .
 			'\\x{10D0}-\\x{10F0}' .
-			'\\x{10F7}-\\x{10F8}' .
-			'\\x{10F9}-\\x{10FA}' .
-			'\\x{10FD}-\\x{10FF}' .
 			'\\x{1200}-\\x{1206}' .
-			'\\x{1207}' .
 			'\\x{1208}-\\x{1246}' .
 			'\\x{1247}' .
 			'\\x{1248}' .
@@ -7843,11 +8002,9 @@ function utf8_regex_identifier_status(): array
 			'\\x{1258}' .
 			'\\x{125A}-\\x{125D}' .
 			'\\x{1260}-\\x{1286}' .
-			'\\x{1287}' .
 			'\\x{1288}' .
 			'\\x{128A}-\\x{128D}' .
 			'\\x{1290}-\\x{12AE}' .
-			'\\x{12AF}' .
 			'\\x{12B0}' .
 			'\\x{12B2}-\\x{12B5}' .
 			'\\x{12B8}-\\x{12BE}' .
@@ -7858,161 +8015,1317 @@ function utf8_regex_identifier_status(): array
 			'\\x{12D0}-\\x{12D6}' .
 			'\\x{12D8}-\\x{12EE}' .
 			'\\x{12EF}' .
-			'\\x{12F0}-\\x{130E}' .
-			'\\x{130F}' .
+			'\\x{12F0}-\\x{12F7}' .
+			'\\x{1300}-\\x{130E}' .
 			'\\x{1310}' .
 			'\\x{1312}-\\x{1315}' .
 			'\\x{1318}-\\x{131E}' .
-			'\\x{131F}' .
 			'\\x{1320}-\\x{1346}' .
-			'\\x{1347}' .
-			'\\x{1348}-\\x{135A}' .
-			'\\x{135D}-\\x{135E}' .
-			'\\x{135F}' .
-			'\\x{1380}-\\x{138F}' .
-			'\\x{1780}-\\x{17A2}' .
+			'\\x{1348}-\\x{1359}' .
+			'\\x{1780}-\\x{179C}' .
+			'\\x{179F}-\\x{17A2}' .
 			'\\x{17A5}-\\x{17A7}' .
-			'\\x{17A9}-\\x{17B3}' .
+			'\\x{17AA}-\\x{17B3}' .
 			'\\x{17B6}-\\x{17CD}' .
 			'\\x{17D0}' .
 			'\\x{17D2}' .
-			'\\x{17D7}' .
-			'\\x{17DC}' .
 			'\\x{17E0}-\\x{17E9}' .
 			'\\x{1C90}-\\x{1CBA}' .
 			'\\x{1CBD}-\\x{1CBF}' .
-			'\\x{1E00}-\\x{1E99}' .
+			'\\x{1E0C}-\\x{1E0D}' .
+			'\\x{1E12}-\\x{1E13}' .
+			'\\x{1E20}-\\x{1E21}' .
+			'\\x{1E24}-\\x{1E25}' .
+			'\\x{1E36}-\\x{1E37}' .
+			'\\x{1E3C}-\\x{1E3F}' .
+			'\\x{1E42}-\\x{1E4B}' .
+			'\\x{1E5A}-\\x{1E5B}' .
+			'\\x{1E62}-\\x{1E63}' .
+			'\\x{1E6C}-\\x{1E6D}' .
+			'\\x{1E70}-\\x{1E71}' .
+			'\\x{1E8C}-\\x{1E8D}' .
+			'\\x{1E92}-\\x{1E93}' .
 			'\\x{1E9E}' .
 			'\\x{1EA0}-\\x{1EF9}' .
-			'\\x{1F00}-\\x{1F15}' .
-			'\\x{1F18}-\\x{1F1D}' .
-			'\\x{1F20}-\\x{1F45}' .
-			'\\x{1F48}-\\x{1F4D}' .
-			'\\x{1F50}-\\x{1F57}' .
-			'\\x{1F59}' .
-			'\\x{1F5B}' .
-			'\\x{1F5D}' .
-			'\\x{1F5F}-\\x{1F70}' .
-			'\\x{1F72}' .
-			'\\x{1F74}' .
-			'\\x{1F76}' .
-			'\\x{1F78}' .
-			'\\x{1F7A}' .
-			'\\x{1F7C}' .
-			'\\x{1F80}-\\x{1FB4}' .
-			'\\x{1FB6}-\\x{1FBA}' .
-			'\\x{1FBC}' .
-			'\\x{1FC2}-\\x{1FC4}' .
-			'\\x{1FC6}-\\x{1FC8}' .
-			'\\x{1FCA}' .
-			'\\x{1FCC}' .
-			'\\x{1FD0}-\\x{1FD2}' .
-			'\\x{1FD6}-\\x{1FDA}' .
-			'\\x{1FE0}-\\x{1FE2}' .
-			'\\x{1FE4}-\\x{1FEA}' .
+			'\\x{1FA0}-\\x{1FAF}' .
+			'\\x{1FB2}-\\x{1FB4}' .
 			'\\x{1FEC}' .
-			'\\x{1FF2}-\\x{1FF4}' .
-			'\\x{1FF6}-\\x{1FF8}' .
-			'\\x{1FFA}' .
-			'\\x{1FFC}' .
 			'\\x{2010}' .
 			'\\x{2019}' .
 			'\\x{2027}' .
-			'\\x{2D27}' .
-			'\\x{2D2D}' .
-			'\\x{2D80}-\\x{2D96}' .
-			'\\x{2DA0}-\\x{2DA6}' .
-			'\\x{2DA8}-\\x{2DAE}' .
-			'\\x{2DB0}-\\x{2DB6}' .
-			'\\x{2DB8}-\\x{2DBE}' .
-			'\\x{2DC0}-\\x{2DC6}' .
-			'\\x{2DC8}-\\x{2DCE}' .
-			'\\x{2DD0}-\\x{2DD6}' .
-			'\\x{2DD8}-\\x{2DDE}' .
 			'\\x{3005}-\\x{3007}' .
 			'\\x{3041}-\\x{3094}' .
 			'\\x{3095}-\\x{3096}' .
-			'\\x{3099}-\\x{309A}' .
 			'\\x{309D}-\\x{309E}' .
 			'\\x{30A0}' .
 			'\\x{30A1}-\\x{30FE}' .
-			'\\x{3105}-\\x{312C}' .
-			'\\x{312D}' .
-			'\\x{312F}' .
-			'\\x{31A0}-\\x{31B7}' .
-			'\\x{31B8}-\\x{31BA}' .
-			'\\x{31BB}-\\x{31BF}' .
-			'\\x{3400}-\\x{4DB5}' .
-			'\\x{4DB6}-\\x{4DBF}' .
-			'\\x{4E00}-\\x{9FA5}' .
-			'\\x{9FA6}-\\x{9FBB}' .
-			'\\x{9FBC}-\\x{9FC3}' .
-			'\\x{9FC4}-\\x{9FCB}' .
-			'\\x{9FCC}' .
-			'\\x{9FCD}-\\x{9FD5}' .
-			'\\x{9FD6}-\\x{9FEA}' .
-			'\\x{9FEB}-\\x{9FEF}' .
-			'\\x{9FF0}-\\x{9FFC}' .
-			'\\x{9FFD}-\\x{9FFF}' .
-			'\\x{A67F}' .
-			'\\x{A717}-\\x{A71A}' .
-			'\\x{A71B}-\\x{A71F}' .
-			'\\x{A788}' .
+			'\\x{3447}' .
+			'\\x{3473}' .
+			'\\x{34E4}' .
+			'\\x{3577}' .
+			'\\x{359E}' .
+			'\\x{35A1}' .
+			'\\x{35AD}' .
+			'\\x{35BF}' .
+			'\\x{35CE}' .
+			'\\x{35F3}' .
+			'\\x{35FE}' .
+			'\\x{360E}' .
+			'\\x{361A}' .
+			'\\x{3918}' .
+			'\\x{3960}' .
+			'\\x{396E}' .
+			'\\x{39CF}-\\x{39D0}' .
+			'\\x{39DB}' .
+			'\\x{39DF}' .
+			'\\x{39F8}' .
+			'\\x{39FE}' .
+			'\\x{3A18}' .
+			'\\x{3A52}' .
+			'\\x{3A5C}' .
+			'\\x{3A67}' .
+			'\\x{3A73}' .
+			'\\x{3B39}' .
+			'\\x{3B4E}' .
+			'\\x{3BA3}' .
+			'\\x{3C6E}' .
+			'\\x{3CE0}' .
+			'\\x{3DE7}' .
+			'\\x{3DEB}' .
+			'\\x{3E74}' .
+			'\\x{3ED0}' .
+			'\\x{4056}' .
+			'\\x{4065}' .
+			'\\x{406A}' .
+			'\\x{40BB}' .
+			'\\x{40DF}' .
+			'\\x{4137}' .
+			'\\x{415F}' .
+			'\\x{4337}' .
+			'\\x{43AC}' .
+			'\\x{43B1}' .
+			'\\x{43D3}' .
+			'\\x{43DD}' .
+			'\\x{4443}' .
+			'\\x{44D6}' .
+			'\\x{44EA}' .
+			'\\x{4606}' .
+			'\\x{464C}' .
+			'\\x{4661}' .
+			'\\x{4723}' .
+			'\\x{4729}' .
+			'\\x{477C}' .
+			'\\x{478D}' .
+			'\\x{47F4}' .
+			'\\x{4882}' .
+			'\\x{4947}' .
+			'\\x{497A}' .
+			'\\x{497D}' .
+			'\\x{4982}-\\x{4983}' .
+			'\\x{4985}-\\x{4986}' .
+			'\\x{499B}' .
+			'\\x{499F}' .
+			'\\x{49B6}-\\x{49B7}' .
+			'\\x{4A12}' .
+			'\\x{4AB8}' .
+			'\\x{4C77}' .
+			'\\x{4C7D}' .
+			'\\x{4C81}' .
+			'\\x{4C85}' .
+			'\\x{4C9D}-\\x{4CA3}' .
+			'\\x{4D13}-\\x{4D19}' .
+			'\\x{4DAE}' .
+			'\\x{4E00}-\\x{4E11}' .
+			'\\x{4E13}-\\x{4E28}' .
+			'\\x{4E2A}-\\x{4E67}' .
+			'\\x{4E69}-\\x{4E78}' .
+			'\\x{4E7A}-\\x{4E95}' .
+			'\\x{4E97}-\\x{4EA2}' .
+			'\\x{4EA4}-\\x{4EBB}' .
+			'\\x{4EBD}-\\x{4ECB}' .
+			'\\x{4ECD}-\\x{4EE6}' .
+			'\\x{4EE8}-\\x{4EF7}' .
+			'\\x{4EFB}' .
+			'\\x{4EFD}' .
+			'\\x{4EFF}-\\x{4F06}' .
+			'\\x{4F08}-\\x{4F15}' .
+			'\\x{4F17}-\\x{4F27}' .
+			'\\x{4F29}-\\x{4F30}' .
+			'\\x{4F32}-\\x{4F34}' .
+			'\\x{4F36}' .
+			'\\x{4F38}-\\x{4F3F}' .
+			'\\x{4F41}-\\x{4F43}' .
+			'\\x{4F45}-\\x{4F70}' .
+			'\\x{4F72}-\\x{4F8B}' .
+			'\\x{4F8D}' .
+			'\\x{4F8F}-\\x{4FA1}' .
+			'\\x{4FA3}-\\x{4FBC}' .
+			'\\x{4FBE}-\\x{4FC5}' .
+			'\\x{4FC7}' .
+			'\\x{4FC9}-\\x{4FCB}' .
+			'\\x{4FCD}-\\x{4FE1}' .
+			'\\x{4FE3}-\\x{4FFB}' .
+			'\\x{4FFE}-\\x{500F}' .
+			'\\x{5011}-\\x{5033}' .
+			'\\x{5035}-\\x{5037}' .
+			'\\x{5039}-\\x{503C}' .
+			'\\x{503E}-\\x{5041}' .
+			'\\x{5043}-\\x{5051}' .
+			'\\x{5053}-\\x{5057}' .
+			'\\x{5059}-\\x{507B}' .
+			'\\x{507D}-\\x{5080}' .
+			'\\x{5082}-\\x{5092}' .
+			'\\x{5094}-\\x{5096}' .
+			'\\x{5098}-\\x{509E}' .
+			'\\x{50A2}-\\x{50B8}' .
+			'\\x{50BA}-\\x{50C2}' .
+			'\\x{50C4}-\\x{50D7}' .
+			'\\x{50D9}-\\x{50DE}' .
+			'\\x{50E0}' .
+			'\\x{50E3}-\\x{50EA}' .
+			'\\x{50EC}-\\x{50F3}' .
+			'\\x{50F5}-\\x{50F6}' .
+			'\\x{50F8}-\\x{511A}' .
+			'\\x{511C}-\\x{5127}' .
+			'\\x{5129}-\\x{512A}' .
+			'\\x{512C}-\\x{5141}' .
+			'\\x{5143}-\\x{5149}' .
+			'\\x{514B}-\\x{514E}' .
+			'\\x{5150}-\\x{5152}' .
+			'\\x{5154}-\\x{5157}' .
+			'\\x{5159}-\\x{515F}' .
+			'\\x{5161}-\\x{5163}' .
+			'\\x{5165}-\\x{5171}' .
+			'\\x{5173}-\\x{517D}' .
+			'\\x{517F}-\\x{5182}' .
+			'\\x{5185}-\\x{518D}' .
+			'\\x{518F}-\\x{51A0}' .
+			'\\x{51A2}' .
+			'\\x{51A4}-\\x{51AC}' .
+			'\\x{51AE}-\\x{51B7}' .
+			'\\x{51B9}' .
+			'\\x{51BB}-\\x{51C1}' .
+			'\\x{51C3}-\\x{51D1}' .
+			'\\x{51D4}-\\x{51DE}' .
+			'\\x{51E0}-\\x{51EB}' .
+			'\\x{51ED}' .
+			'\\x{51EF}-\\x{51F1}' .
+			'\\x{51F3}-\\x{5252}' .
+			'\\x{5254}-\\x{5265}' .
+			'\\x{5267}-\\x{5278}' .
+			'\\x{527A}-\\x{5284}' .
+			'\\x{5286}-\\x{528D}' .
+			'\\x{528F}-\\x{52C3}' .
+			'\\x{52C5}-\\x{52C7}' .
+			'\\x{52C9}-\\x{52CB}' .
+			'\\x{52CD}' .
+			'\\x{52CF}-\\x{52D0}' .
+			'\\x{52D2}-\\x{52D3}' .
+			'\\x{52D5}-\\x{52E0}' .
+			'\\x{52E2}-\\x{52E4}' .
+			'\\x{52E6}-\\x{52ED}' .
+			'\\x{52EF}-\\x{5302}' .
+			'\\x{5305}-\\x{5317}' .
+			'\\x{5319}-\\x{531A}' .
+			'\\x{531C}-\\x{531D}' .
+			'\\x{531F}-\\x{5326}' .
+			'\\x{5328}' .
+			'\\x{532A}-\\x{5331}' .
+			'\\x{5333}-\\x{5334}' .
+			'\\x{5337}-\\x{5341}' .
+			'\\x{5343}-\\x{535A}' .
+			'\\x{535C}' .
+			'\\x{535E}-\\x{5369}' .
+			'\\x{536B}-\\x{536C}' .
+			'\\x{536E}-\\x{537F}' .
+			'\\x{5381}-\\x{53A0}' .
+			'\\x{53A2}-\\x{53A9}' .
+			'\\x{53AC}-\\x{53AE}' .
+			'\\x{53B0}-\\x{53B9}' .
+			'\\x{53BB}-\\x{53C4}' .
+			'\\x{53C6}-\\x{53CE}' .
+			'\\x{53D0}-\\x{53DC}' .
+			'\\x{53DF}-\\x{53E6}' .
+			'\\x{53E8}-\\x{53FE}' .
+			'\\x{5401}-\\x{5419}' .
+			'\\x{541B}-\\x{5421}' .
+			'\\x{5423}-\\x{544B}' .
+			'\\x{544D}-\\x{545C}' .
+			'\\x{545E}-\\x{5468}' .
+			'\\x{546A}-\\x{5489}' .
+			'\\x{548B}-\\x{54B4}' .
+			'\\x{54B6}-\\x{54F5}' .
+			'\\x{54F7}-\\x{5514}' .
+			'\\x{5516}-\\x{5517}' .
+			'\\x{551A}-\\x{5546}' .
+			'\\x{5548}-\\x{555F}' .
+			'\\x{5561}-\\x{5579}' .
+			'\\x{557B}-\\x{55DF}' .
+			'\\x{55E1}-\\x{55F7}' .
+			'\\x{55F9}-\\x{5609}' .
+			'\\x{560C}-\\x{561F}' .
+			'\\x{5621}-\\x{562A}' .
+			'\\x{562C}-\\x{5636}' .
+			'\\x{5638}-\\x{563B}' .
+			'\\x{563D}-\\x{5643}' .
+			'\\x{5645}-\\x{564A}' .
+			'\\x{564C}-\\x{5650}' .
+			'\\x{5652}-\\x{5655}' .
+			'\\x{5657}-\\x{565E}' .
+			'\\x{5660}' .
+			'\\x{5662}-\\x{5674}' .
+			'\\x{5676}-\\x{567C}' .
+			'\\x{567E}-\\x{5687}' .
+			'\\x{5689}-\\x{568A}' .
+			'\\x{568C}-\\x{5695}' .
+			'\\x{5697}-\\x{569D}' .
+			'\\x{569F}-\\x{56B9}' .
+			'\\x{56BB}-\\x{56CE}' .
+			'\\x{56D0}-\\x{56D8}' .
+			'\\x{56DA}-\\x{56E5}' .
+			'\\x{56E7}-\\x{56F5}' .
+			'\\x{56F7}' .
+			'\\x{56F9}-\\x{56FA}' .
+			'\\x{56FD}-\\x{5704}' .
+			'\\x{5706}-\\x{5710}' .
+			'\\x{5712}-\\x{5716}' .
+			'\\x{5718}-\\x{5720}' .
+			'\\x{5722}-\\x{5723}' .
+			'\\x{5725}-\\x{573C}' .
+			'\\x{573E}-\\x{5742}' .
+			'\\x{5744}-\\x{5747}' .
+			'\\x{5749}-\\x{5754}' .
+			'\\x{5757}' .
+			'\\x{5759}-\\x{5762}' .
+			'\\x{5764}-\\x{5777}' .
+			'\\x{5779}-\\x{5780}' .
+			'\\x{5782}-\\x{5786}' .
+			'\\x{5788}-\\x{5795}' .
+			'\\x{5797}-\\x{57A7}' .
+			'\\x{57A9}-\\x{57C9}' .
+			'\\x{57CB}-\\x{57D0}' .
+			'\\x{57D2}-\\x{57DA}' .
+			'\\x{57DC}-\\x{5816}' .
+			'\\x{5819}-\\x{584F}' .
+			'\\x{5851}-\\x{5855}' .
+			'\\x{5857}-\\x{585F}' .
+			'\\x{5861}-\\x{5865}' .
+			'\\x{5868}-\\x{5876}' .
+			'\\x{5878}-\\x{5894}' .
+			'\\x{5896}-\\x{58A9}' .
+			'\\x{58AB}-\\x{58B5}' .
+			'\\x{58B7}-\\x{58BF}' .
+			'\\x{58C1}-\\x{58C2}' .
+			'\\x{58C5}-\\x{58CC}' .
+			'\\x{58CE}-\\x{58CF}' .
+			'\\x{58D1}-\\x{58E0}' .
+			'\\x{58E2}-\\x{58E5}' .
+			'\\x{58E7}-\\x{58F4}' .
+			'\\x{58F6}-\\x{5900}' .
+			'\\x{5902}-\\x{5904}' .
+			'\\x{5906}-\\x{5907}' .
+			'\\x{5909}-\\x{5910}' .
+			'\\x{5912}' .
+			'\\x{5914}-\\x{5922}' .
+			'\\x{5924}-\\x{5932}' .
+			'\\x{5934}-\\x{5935}' .
+			'\\x{5937}-\\x{5958}' .
+			'\\x{595A}' .
+			'\\x{595C}-\\x{59B6}' .
+			'\\x{59B8}-\\x{59E6}' .
+			'\\x{59E8}-\\x{5A23}' .
+			'\\x{5A25}' .
+			'\\x{5A27}-\\x{5A2B}' .
+			'\\x{5A2D}-\\x{5A2F}' .
+			'\\x{5A31}-\\x{5A53}' .
+			'\\x{5A55}-\\x{5A58}' .
+			'\\x{5A5A}-\\x{5A6E}' .
+			'\\x{5A70}' .
+			'\\x{5A72}-\\x{5A86}' .
+			'\\x{5A88}-\\x{5A8C}' .
+			'\\x{5A8E}-\\x{5AAA}' .
+			'\\x{5AAC}-\\x{5AD2}' .
+			'\\x{5AD4}-\\x{5AEE}' .
+			'\\x{5AF1}-\\x{5B09}' .
+			'\\x{5B0B}-\\x{5B0C}' .
+			'\\x{5B0E}-\\x{5B38}' .
+			'\\x{5B3A}-\\x{5B45}' .
+			'\\x{5B47}-\\x{5B4E}' .
+			'\\x{5B50}-\\x{5B51}' .
+			'\\x{5B53}-\\x{5B5F}' .
+			'\\x{5B62}-\\x{5B6E}' .
+			'\\x{5B70}-\\x{5B78}' .
+			'\\x{5B7A}-\\x{5B7D}' .
+			'\\x{5B7F}-\\x{5B85}' .
+			'\\x{5B87}-\\x{5B8F}' .
+			'\\x{5B91}-\\x{5BA8}' .
+			'\\x{5BAA}-\\x{5BB1}' .
+			'\\x{5BB3}-\\x{5BB6}' .
+			'\\x{5BB8}-\\x{5BBB}' .
+			'\\x{5BBD}-\\x{5BC7}' .
+			'\\x{5BC9}-\\x{5BD9}' .
+			'\\x{5BDB}-\\x{5BFF}' .
+			'\\x{5C01}-\\x{5C1A}' .
+			'\\x{5C1C}-\\x{5C22}' .
+			'\\x{5C24}-\\x{5C25}' .
+			'\\x{5C27}-\\x{5C28}' .
+			'\\x{5C2A}-\\x{5C35}' .
+			'\\x{5C37}-\\x{5C59}' .
+			'\\x{5C5B}-\\x{5C84}' .
+			'\\x{5C86}-\\x{5CB3}' .
+			'\\x{5CB5}-\\x{5CB8}' .
+			'\\x{5CBA}-\\x{5CD4}' .
+			'\\x{5CD6}-\\x{5CDC}' .
+			'\\x{5CDE}-\\x{5CF4}' .
+			'\\x{5CF6}-\\x{5D2A}' .
+			'\\x{5D2C}-\\x{5D2E}' .
+			'\\x{5D30}-\\x{5D3A}' .
+			'\\x{5D3C}-\\x{5D52}' .
+			'\\x{5D54}-\\x{5D56}' .
+			'\\x{5D58}-\\x{5D5F}' .
+			'\\x{5D61}-\\x{5D82}' .
+			'\\x{5D84}-\\x{5D95}' .
+			'\\x{5D97}-\\x{5DA2}' .
+			'\\x{5DA5}-\\x{5DAA}' .
+			'\\x{5DAC}-\\x{5DB2}' .
+			'\\x{5DB4}-\\x{5DB8}' .
+			'\\x{5DBA}-\\x{5DC3}' .
+			'\\x{5DC5}-\\x{5DD6}' .
+			'\\x{5DD8}-\\x{5DD9}' .
+			'\\x{5DDB}' .
+			'\\x{5DDD}-\\x{5DF5}' .
+			'\\x{5DF7}-\\x{5E11}' .
+			'\\x{5E13}-\\x{5E47}' .
+			'\\x{5E49}-\\x{5E50}' .
+			'\\x{5E52}-\\x{5E91}' .
+			'\\x{5E93}-\\x{5EB9}' .
+			'\\x{5EBB}-\\x{5EBF}' .
+			'\\x{5EC1}-\\x{5EEA}' .
+			'\\x{5EEC}-\\x{5EF8}' .
+			'\\x{5EFA}-\\x{5F0D}' .
+			'\\x{5F0F}-\\x{5F3A}' .
+			'\\x{5F3C}' .
+			'\\x{5F3E}-\\x{5F8E}' .
+			'\\x{5F90}-\\x{5F99}' .
+			'\\x{5F9B}-\\x{5FA2}' .
+			'\\x{5FA5}-\\x{5FAF}' .
+			'\\x{5FB1}-\\x{5FC1}' .
+			'\\x{5FC3}-\\x{5FCD}' .
+			'\\x{5FCF}-\\x{5FDA}' .
+			'\\x{5FDC}-\\x{5FE1}' .
+			'\\x{5FE3}-\\x{5FEB}' .
+			'\\x{5FED}-\\x{5FFB}' .
+			'\\x{5FFD}-\\x{6022}' .
+			'\\x{6024}-\\x{6055}' .
+			'\\x{6057}-\\x{6060}' .
+			'\\x{6062}-\\x{6070}' .
+			'\\x{6072}-\\x{6073}' .
+			'\\x{6075}-\\x{6090}' .
+			'\\x{6092}' .
+			'\\x{6094}-\\x{60A4}' .
+			'\\x{60A6}-\\x{60D1}' .
+			'\\x{60D3}-\\x{60D5}' .
+			'\\x{60D7}-\\x{60DD}' .
+			'\\x{60DF}-\\x{60E4}' .
+			'\\x{60E6}-\\x{60FC}' .
+			'\\x{60FE}-\\x{6101}' .
+			'\\x{6103}-\\x{6106}' .
+			'\\x{6108}-\\x{6110}' .
+			'\\x{6112}-\\x{611D}' .
+			'\\x{611F}-\\x{6130}' .
+			'\\x{6132}' .
+			'\\x{6134}' .
+			'\\x{6136}-\\x{6137}' .
+			'\\x{613A}-\\x{615F}' .
+			'\\x{6161}-\\x{617A}' .
+			'\\x{617C}-\\x{617E}' .
+			'\\x{6180}-\\x{6185}' .
+			'\\x{6187}-\\x{6196}' .
+			'\\x{6198}-\\x{619B}' .
+			'\\x{619D}-\\x{61B8}' .
+			'\\x{61BA}' .
+			'\\x{61BC}-\\x{61D2}' .
+			'\\x{61D4}' .
+			'\\x{61D6}-\\x{61EB}' .
+			'\\x{61ED}-\\x{61EE}' .
+			'\\x{61F0}-\\x{6204}' .
+			'\\x{6206}-\\x{6234}' .
+			'\\x{6236}-\\x{6238}' .
+			'\\x{623A}-\\x{6256}' .
+			'\\x{6258}-\\x{628C}' .
+			'\\x{628E}-\\x{629C}' .
+			'\\x{629E}-\\x{62DD}' .
+			'\\x{62DF}-\\x{62E9}' .
+			'\\x{62EB}-\\x{6309}' .
+			'\\x{630B}-\\x{6316}' .
+			'\\x{6318}-\\x{6330}' .
+			'\\x{6332}-\\x{6336}' .
+			'\\x{6338}-\\x{635A}' .
+			'\\x{635C}-\\x{638A}' .
+			'\\x{638C}-\\x{6392}' .
+			'\\x{6394}-\\x{63D0}' .
+			'\\x{63D2}-\\x{643A}' .
+			'\\x{643D}-\\x{6448}' .
+			'\\x{644A}-\\x{6459}' .
+			'\\x{645B}-\\x{647D}' .
+			'\\x{647F}-\\x{6485}' .
+			'\\x{6487}-\\x{64A0}' .
+			'\\x{64A2}-\\x{64AE}' .
+			'\\x{64B0}-\\x{64B5}' .
+			'\\x{64B7}-\\x{64C7}' .
+			'\\x{64C9}-\\x{64D4}' .
+			'\\x{64D6}-\\x{64ED}' .
+			'\\x{64EF}-\\x{64F4}' .
+			'\\x{64F6}-\\x{64F8}' .
+			'\\x{64FA}-\\x{6501}' .
+			'\\x{6503}-\\x{6509}' .
+			'\\x{650B}-\\x{651E}' .
+			'\\x{6520}-\\x{6527}' .
+			'\\x{6529}-\\x{653F}' .
+			'\\x{6541}' .
+			'\\x{6543}-\\x{6559}' .
+			'\\x{655B}-\\x{655E}' .
+			'\\x{6560}-\\x{657C}' .
+			'\\x{657E}-\\x{6589}' .
+			'\\x{658B}-\\x{6599}' .
+			'\\x{659B}-\\x{65B4}' .
+			'\\x{65B6}-\\x{65BD}' .
+			'\\x{65BF}-\\x{65C7}' .
+			'\\x{65CA}-\\x{65D0}' .
+			'\\x{65D2}-\\x{65D7}' .
+			'\\x{65D9}-\\x{65DB}' .
+			'\\x{65DD}-\\x{65E3}' .
+			'\\x{65E5}-\\x{65E9}' .
+			'\\x{65EB}-\\x{65F8}' .
+			'\\x{65FA}-\\x{65FD}' .
+			'\\x{65FF}-\\x{6616}' .
+			'\\x{6618}-\\x{662B}' .
+			'\\x{662D}-\\x{6636}' .
+			'\\x{6639}-\\x{6647}' .
+			'\\x{6649}-\\x{664C}' .
+			'\\x{664E}-\\x{665F}' .
+			'\\x{6661}-\\x{6662}' .
+			'\\x{6664}-\\x{6691}' .
+			'\\x{6693}-\\x{669B}' .
+			'\\x{669D}' .
+			'\\x{669F}-\\x{66AB}' .
+			'\\x{66AE}-\\x{66CF}' .
+			'\\x{66D1}-\\x{66D2}' .
+			'\\x{66D4}-\\x{66D6}' .
+			'\\x{66D8}-\\x{66DE}' .
+			'\\x{66E0}-\\x{66EE}' .
+			'\\x{66F0}-\\x{6701}' .
+			'\\x{6703}-\\x{6706}' .
+			'\\x{6708}-\\x{6718}' .
+			'\\x{671A}-\\x{6723}' .
+			'\\x{6725}-\\x{6728}' .
+			'\\x{672A}-\\x{6766}' .
+			'\\x{6768}-\\x{6787}' .
+			'\\x{6789}-\\x{6795}' .
+			'\\x{6797}-\\x{67BC}' .
+			'\\x{67BE}' .
+			'\\x{67C0}-\\x{67D4}' .
+			'\\x{67D6}' .
+			'\\x{67D8}-\\x{67F8}' .
+			'\\x{67FA}-\\x{6800}' .
+			'\\x{6802}-\\x{6814}' .
+			'\\x{6816}-\\x{6826}' .
+			'\\x{6828}-\\x{682F}' .
+			'\\x{6831}-\\x{6857}' .
+			'\\x{6859}' .
+			'\\x{685B}-\\x{685D}' .
+			'\\x{685F}-\\x{6879}' .
+			'\\x{687B}-\\x{6894}' .
+			'\\x{6896}-\\x{6898}' .
+			'\\x{689A}-\\x{68A4}' .
+			'\\x{68A6}-\\x{68B7}' .
+			'\\x{68B9}-\\x{68C2}' .
+			'\\x{68C4}-\\x{68D8}' .
+			'\\x{68DA}-\\x{68E1}' .
+			'\\x{68E3}-\\x{68E4}' .
+			'\\x{68E6}-\\x{6908}' .
+			'\\x{690A}-\\x{693D}' .
+			'\\x{693F}-\\x{694C}' .
+			'\\x{694E}-\\x{699E}' .
+			'\\x{69A0}-\\x{69A1}' .
+			'\\x{69A3}-\\x{69BF}' .
+			'\\x{69C1}-\\x{69D0}' .
+			'\\x{69D3}-\\x{69D4}' .
+			'\\x{69D8}-\\x{6A02}' .
+			'\\x{6A04}-\\x{6A1B}' .
+			'\\x{6A1D}-\\x{6A23}' .
+			'\\x{6A25}-\\x{6A36}' .
+			'\\x{6A38}-\\x{6A49}' .
+			'\\x{6A4B}-\\x{6A5B}' .
+			'\\x{6A5D}-\\x{6A6D}' .
+			'\\x{6A6F}' .
+			'\\x{6A71}-\\x{6A85}' .
+			'\\x{6A87}-\\x{6A89}' .
+			'\\x{6A8B}-\\x{6A8E}' .
+			'\\x{6A90}-\\x{6A98}' .
+			'\\x{6A9A}-\\x{6A9C}' .
+			'\\x{6A9E}-\\x{6AB0}' .
+			'\\x{6AB2}-\\x{6ABD}' .
+			'\\x{6ABF}' .
+			'\\x{6AC1}-\\x{6AC3}' .
+			'\\x{6AC5}-\\x{6AC8}' .
+			'\\x{6ACA}-\\x{6AD7}' .
+			'\\x{6AD9}-\\x{6AE8}' .
+			'\\x{6AEA}-\\x{6B0D}' .
+			'\\x{6B0F}-\\x{6B1A}' .
+			'\\x{6B1C}-\\x{6B2D}' .
+			'\\x{6B2F}-\\x{6B34}' .
+			'\\x{6B36}-\\x{6B3F}' .
+			'\\x{6B41}-\\x{6B56}' .
+			'\\x{6B59}-\\x{6B5C}' .
+			'\\x{6B5E}-\\x{6B67}' .
+			'\\x{6B69}-\\x{6B6B}' .
+			'\\x{6B6D}' .
+			'\\x{6B6F}-\\x{6B70}' .
+			'\\x{6B72}-\\x{6B74}' .
+			'\\x{6B76}-\\x{6B7C}' .
+			'\\x{6B7E}-\\x{6BB7}' .
+			'\\x{6BB9}-\\x{6BE8}' .
+			'\\x{6BEA}-\\x{6BF0}' .
+			'\\x{6BF2}-\\x{6BF3}' .
+			'\\x{6BF5}-\\x{6BF9}' .
+			'\\x{6BFB}-\\x{6C09}' .
+			'\\x{6C0B}-\\x{6C1B}' .
+			'\\x{6C1D}-\\x{6C2C}' .
+			'\\x{6C2E}-\\x{6C3B}' .
+			'\\x{6C3D}-\\x{6C44}' .
+			'\\x{6C46}-\\x{6C6B}' .
+			'\\x{6C6D}' .
+			'\\x{6C6F}-\\x{6C9F}' .
+			'\\x{6CA1}-\\x{6CD7}' .
+			'\\x{6CD9}-\\x{6CF3}' .
+			'\\x{6CF5}-\\x{6D01}' .
+			'\\x{6D03}-\\x{6D1B}' .
+			'\\x{6D1D}-\\x{6D23}' .
+			'\\x{6D25}-\\x{6D70}' .
+			'\\x{6D72}-\\x{6D80}' .
+			'\\x{6D82}-\\x{6D95}' .
+			'\\x{6D97}-\\x{6DAF}' .
+			'\\x{6DB2}-\\x{6DB5}' .
+			'\\x{6DB7}-\\x{6DFD}' .
+			'\\x{6E00}' .
+			'\\x{6E03}-\\x{6E05}' .
+			'\\x{6E07}-\\x{6E11}' .
+			'\\x{6E13}-\\x{6E17}' .
+			'\\x{6E19}-\\x{6E29}' .
+			'\\x{6E2B}-\\x{6E4B}' .
+			'\\x{6E4D}-\\x{6E6B}' .
+			'\\x{6E6D}-\\x{6E7A}' .
+			'\\x{6E7E}-\\x{6E8A}' .
+			'\\x{6E8C}-\\x{6E94}' .
+			'\\x{6E96}-\\x{6EDA}' .
+			'\\x{6EDC}-\\x{6EE2}' .
+			'\\x{6EE4}-\\x{6F03}' .
+			'\\x{6F05}-\\x{6F0A}' .
+			'\\x{6F0C}-\\x{6F41}' .
+			'\\x{6F43}-\\x{6F47}' .
+			'\\x{6F49}' .
+			'\\x{6F4B}-\\x{6F78}' .
+			'\\x{6F7A}-\\x{6F97}' .
+			'\\x{6F99}' .
+			'\\x{6F9B}-\\x{6F9E}' .
+			'\\x{6FA0}-\\x{6FB6}' .
+			'\\x{6FB8}-\\x{6FC4}' .
+			'\\x{6FC6}-\\x{6FCF}' .
+			'\\x{6FD1}-\\x{6FD2}' .
+			'\\x{6FD4}-\\x{6FF4}' .
+			'\\x{6FF6}-\\x{6FFC}' .
+			'\\x{6FFE}-\\x{700F}' .
+			'\\x{7011}-\\x{7012}' .
+			'\\x{7014}-\\x{7046}' .
+			'\\x{7048}-\\x{704A}' .
+			'\\x{704C}-\\x{704D}' .
+			'\\x{704F}-\\x{7071}' .
+			'\\x{7074}-\\x{707A}' .
+			'\\x{707C}-\\x{7080}' .
+			'\\x{7082}-\\x{708C}' .
+			'\\x{708E}-\\x{7096}' .
+			'\\x{7098}-\\x{709A}' .
+			'\\x{709C}-\\x{70A9}' .
+			'\\x{70AB}-\\x{70B1}' .
+			'\\x{70B3}-\\x{70B5}' .
+			'\\x{70B7}-\\x{70D4}' .
+			'\\x{70D6}-\\x{70FD}' .
+			'\\x{70FF}-\\x{7107}' .
+			'\\x{7109}-\\x{7123}' .
+			'\\x{7125}-\\x{7132}' .
+			'\\x{7135}-\\x{7156}' .
+			'\\x{7158}-\\x{716A}' .
+			'\\x{716C}' .
+			'\\x{716E}-\\x{718C}' .
+			'\\x{718E}-\\x{7195}' .
+			'\\x{7197}-\\x{71A5}' .
+			'\\x{71A7}-\\x{71AA}' .
+			'\\x{71AC}-\\x{71B5}' .
+			'\\x{71B7}-\\x{71CB}' .
+			'\\x{71CD}-\\x{71D2}' .
+			'\\x{71D4}-\\x{71F2}' .
+			'\\x{71F4}-\\x{71F9}' .
+			'\\x{71FB}-\\x{720A}' .
+			'\\x{720C}-\\x{7210}' .
+			'\\x{7212}-\\x{7214}' .
+			'\\x{7216}' .
+			'\\x{7218}-\\x{721F}' .
+			'\\x{7221}-\\x{7223}' .
+			'\\x{7226}-\\x{722E}' .
+			'\\x{7230}-\\x{7233}' .
+			'\\x{7235}-\\x{7244}' .
+			'\\x{7246}-\\x{724D}' .
+			'\\x{724F}' .
+			'\\x{7251}-\\x{7254}' .
+			'\\x{7256}-\\x{72AA}' .
+			'\\x{72AC}-\\x{72BD}' .
+			'\\x{72BF}-\\x{7301}' .
+			'\\x{7303}-\\x{730F}' .
+			'\\x{7311}-\\x{7327}' .
+			'\\x{7329}-\\x{7352}' .
+			'\\x{7354}-\\x{739B}' .
+			'\\x{739D}-\\x{73C0}' .
+			'\\x{73C2}-\\x{73F2}' .
+			'\\x{73F4}-\\x{73FA}' .
+			'\\x{73FC}-\\x{7417}' .
+			'\\x{7419}-\\x{7438}' .
+			'\\x{743A}-\\x{743D}' .
+			'\\x{743F}-\\x{7446}' .
+			'\\x{7448}' .
+			'\\x{744A}-\\x{7457}' .
+			'\\x{7459}-\\x{747A}' .
+			'\\x{747C}-\\x{7483}' .
+			'\\x{7485}-\\x{7495}' .
+			'\\x{7497}-\\x{749C}' .
+			'\\x{749E}-\\x{74C6}' .
+			'\\x{74C8}' .
+			'\\x{74CA}-\\x{74CB}' .
+			'\\x{74CD}-\\x{74EA}' .
+			'\\x{74EC}-\\x{751F}' .
+			'\\x{7521}-\\x{7540}' .
+			'\\x{7542}-\\x{7551}' .
+			'\\x{7553}-\\x{7554}' .
+			'\\x{7556}-\\x{755D}' .
+			'\\x{755F}-\\x{7560}' .
+			'\\x{7562}-\\x{7570}' .
+			'\\x{7572}-\\x{757A}' .
+			'\\x{757C}-\\x{7584}' .
+			'\\x{7586}-\\x{75A8}' .
+			'\\x{75AA}-\\x{75B6}' .
+			'\\x{75B8}-\\x{75DB}' .
+			'\\x{75DD}-\\x{75ED}' .
+			'\\x{75EF}-\\x{762B}' .
+			'\\x{762D}-\\x{7643}' .
+			'\\x{7646}-\\x{7650}' .
+			'\\x{7652}-\\x{7654}' .
+			'\\x{7656}-\\x{7672}' .
+			'\\x{7674}-\\x{768C}' .
+			'\\x{768E}-\\x{76A0}' .
+			'\\x{76A3}-\\x{76A4}' .
+			'\\x{76A6}-\\x{76A7}' .
+			'\\x{76A9}-\\x{76B2}' .
+			'\\x{76B4}-\\x{76B5}' .
+			'\\x{76B7}-\\x{76C0}' .
+			'\\x{76C2}-\\x{76CA}' .
+			'\\x{76CC}-\\x{76D8}' .
+			'\\x{76DA}-\\x{76EA}' .
+			'\\x{76EC}-\\x{76FF}' .
+			'\\x{7701}' .
+			'\\x{7703}-\\x{770D}' .
+			'\\x{770F}-\\x{7720}' .
+			'\\x{7722}-\\x{772A}' .
+			'\\x{772C}-\\x{773E}' .
+			'\\x{7740}-\\x{7741}' .
+			'\\x{7743}-\\x{7763}' .
+			'\\x{7765}-\\x{7795}' .
+			'\\x{7797}-\\x{77A3}' .
+			'\\x{77A5}-\\x{77BD}' .
+			'\\x{77BF}-\\x{77C0}' .
+			'\\x{77C2}-\\x{77D1}' .
+			'\\x{77D3}-\\x{77DC}' .
+			'\\x{77DE}-\\x{77E3}' .
+			'\\x{77E5}' .
+			'\\x{77E7}-\\x{77F3}' .
+			'\\x{77F6}-\\x{7823}' .
+			'\\x{7825}-\\x{7835}' .
+			'\\x{7837}-\\x{7841}' .
+			'\\x{7843}-\\x{7845}' .
+			'\\x{7847}-\\x{784A}' .
+			'\\x{784C}-\\x{7875}' .
+			'\\x{7877}-\\x{7887}' .
+			'\\x{7889}-\\x{78C1}' .
+			'\\x{78C3}-\\x{78C6}' .
+			'\\x{78C8}-\\x{78D1}' .
+			'\\x{78D3}-\\x{78EF}' .
+			'\\x{78F1}-\\x{78F7}' .
+			'\\x{78F9}-\\x{78FF}' .
+			'\\x{7901}-\\x{7907}' .
+			'\\x{7909}-\\x{790C}' .
+			'\\x{790E}-\\x{7914}' .
+			'\\x{7916}-\\x{791E}' .
+			'\\x{7921}-\\x{7931}' .
+			'\\x{7933}-\\x{7935}' .
+			'\\x{7937}-\\x{7958}' .
+			'\\x{795A}-\\x{796B}' .
+			'\\x{796D}' .
+			'\\x{796F}-\\x{7974}' .
+			'\\x{7977}-\\x{7985}' .
+			'\\x{7988}-\\x{799D}' .
+			'\\x{799F}-\\x{79A8}' .
+			'\\x{79AA}-\\x{79BB}' .
+			'\\x{79BD}-\\x{79C3}' .
+			'\\x{79C5}-\\x{79C6}' .
+			'\\x{79C8}-\\x{79CB}' .
+			'\\x{79CD}-\\x{79D3}' .
+			'\\x{79D5}-\\x{79D6}' .
+			'\\x{79D8}-\\x{7A00}' .
+			'\\x{7A02}-\\x{7A06}' .
+			'\\x{7A08}' .
+			'\\x{7A0A}-\\x{7A2B}' .
+			'\\x{7A2D}-\\x{7A37}' .
+			'\\x{7A39}' .
+			'\\x{7A3B}-\\x{7A63}' .
+			'\\x{7A65}-\\x{7A69}' .
+			'\\x{7A6B}-\\x{7A6E}' .
+			'\\x{7A70}-\\x{7A81}' .
+			'\\x{7A83}-\\x{7A99}' .
+			'\\x{7A9C}-\\x{7AB8}' .
+			'\\x{7ABA}' .
+			'\\x{7ABE}-\\x{7AC1}' .
+			'\\x{7AC3}-\\x{7AC5}' .
+			'\\x{7AC7}-\\x{7AE8}' .
+			'\\x{7AEA}-\\x{7AF4}' .
+			'\\x{7AF6}-\\x{7AFB}' .
+			'\\x{7AFD}-\\x{7B06}' .
+			'\\x{7B08}-\\x{7B1E}' .
+			'\\x{7B20}-\\x{7B26}' .
+			'\\x{7B28}' .
+			'\\x{7B2A}-\\x{7B41}' .
+			'\\x{7B43}-\\x{7B52}' .
+			'\\x{7B54}-\\x{7BA2}' .
+			'\\x{7BA4}' .
+			'\\x{7BA6}-\\x{7BAF}' .
+			'\\x{7BB1}' .
+			'\\x{7BB3}-\\x{7BF9}' .
+			'\\x{7BFB}-\\x{7C1A}' .
+			'\\x{7C1C}-\\x{7C2D}' .
+			'\\x{7C30}-\\x{7C51}' .
+			'\\x{7C53}-\\x{7C54}' .
+			'\\x{7C56}-\\x{7C5C}' .
+			'\\x{7C5E}-\\x{7C75}' .
+			'\\x{7C77}-\\x{7C86}' .
+			'\\x{7C88}-\\x{7C92}' .
+			'\\x{7C94}-\\x{7C99}' .
+			'\\x{7C9B}-\\x{7CAB}' .
+			'\\x{7CAD}-\\x{7CD2}' .
+			'\\x{7CD4}-\\x{7CD9}' .
+			'\\x{7CDC}-\\x{7CE0}' .
+			'\\x{7CE2}' .
+			'\\x{7CE4}' .
+			'\\x{7CE7}-\\x{7CFB}' .
+			'\\x{7CFD}-\\x{7CFE}' .
+			'\\x{7D00}-\\x{7D22}' .
+			'\\x{7D24}-\\x{7D29}' .
+			'\\x{7D2B}-\\x{7D2C}' .
+			'\\x{7D2E}-\\x{7D47}' .
+			'\\x{7D49}-\\x{7D4C}' .
+			'\\x{7D4E}-\\x{7D59}' .
+			'\\x{7D5B}-\\x{7D63}' .
+			'\\x{7D65}-\\x{7D77}' .
+			'\\x{7D79}-\\x{7D81}' .
+			'\\x{7D83}-\\x{7D94}' .
+			'\\x{7D96}-\\x{7D97}' .
+			'\\x{7D99}-\\x{7DA3}' .
+			'\\x{7DA5}-\\x{7DA7}' .
+			'\\x{7DA9}-\\x{7DCC}' .
+			'\\x{7DCE}-\\x{7DD2}' .
+			'\\x{7DD4}-\\x{7DE4}' .
+			'\\x{7DE6}-\\x{7DEA}' .
+			'\\x{7DEC}-\\x{7DFC}' .
+			'\\x{7E00}-\\x{7E17}' .
+			'\\x{7E19}-\\x{7E5A}' .
+			'\\x{7E5C}-\\x{7E63}' .
+			'\\x{7E65}-\\x{7E9C}' .
+			'\\x{7E9E}-\\x{7F3A}' .
+			'\\x{7F3D}-\\x{7F40}' .
+			'\\x{7F42}-\\x{7F45}' .
+			'\\x{7F47}-\\x{7F58}' .
+			'\\x{7F5A}-\\x{7F83}' .
+			'\\x{7F85}-\\x{7F8F}' .
+			'\\x{7F91}-\\x{7F96}' .
+			'\\x{7F98}' .
+			'\\x{7F9A}-\\x{7FB3}' .
+			'\\x{7FB5}-\\x{7FD5}' .
+			'\\x{7FD7}-\\x{7FDC}' .
+			'\\x{7FDE}-\\x{7FE3}' .
+			'\\x{7FE5}-\\x{8009}' .
+			'\\x{800B}-\\x{802E}' .
+			'\\x{8030}-\\x{803B}' .
+			'\\x{803D}-\\x{803F}' .
+			'\\x{8041}-\\x{8065}' .
+			'\\x{8067}-\\x{8087}' .
+			'\\x{8089}-\\x{808D}' .
+			'\\x{808F}-\\x{8093}' .
+			'\\x{8095}-\\x{80A5}' .
+			'\\x{80A9}-\\x{80B2}' .
+			'\\x{80B4}-\\x{80B8}' .
+			'\\x{80BA}-\\x{80DE}' .
+			'\\x{80E0}-\\x{8102}' .
+			'\\x{8105}-\\x{8133}' .
+			'\\x{8136}-\\x{8183}' .
+			'\\x{8185}-\\x{818F}' .
+			'\\x{8191}-\\x{8195}' .
+			'\\x{8197}-\\x{81CA}' .
+			'\\x{81CC}-\\x{81E3}' .
+			'\\x{81E5}-\\x{81EE}' .
+			'\\x{81F1}-\\x{8212}' .
+			'\\x{8214}-\\x{8223}' .
+			'\\x{8225}-\\x{8240}' .
+			'\\x{8242}-\\x{8264}' .
+			'\\x{8266}-\\x{828B}' .
+			'\\x{828D}-\\x{82B1}' .
+			'\\x{82B3}-\\x{82E1}' .
+			'\\x{82E3}-\\x{82FB}' .
+			'\\x{82FD}-\\x{8309}' .
+			'\\x{830B}-\\x{830F}' .
+			'\\x{8311}-\\x{832F}' .
+			'\\x{8331}-\\x{8354}' .
+			'\\x{8356}-\\x{83BD}' .
+			'\\x{83BF}-\\x{83E5}' .
+			'\\x{83E7}-\\x{83EC}' .
+			'\\x{83EE}-\\x{8413}' .
+			'\\x{8415}' .
+			'\\x{8418}-\\x{841E}' .
+			'\\x{8420}-\\x{8457}' .
+			'\\x{8459}-\\x{8482}' .
+			'\\x{8484}-\\x{8494}' .
+			'\\x{8496}-\\x{84B6}' .
+			'\\x{84B8}-\\x{84C2}' .
+			'\\x{84C4}-\\x{84EC}' .
+			'\\x{84EE}-\\x{8504}' .
+			'\\x{8506}-\\x{850F}' .
+			'\\x{8511}-\\x{8531}' .
+			'\\x{8534}-\\x{854B}' .
+			'\\x{854D}-\\x{854F}' .
+			'\\x{8551}-\\x{857E}' .
+			'\\x{8580}-\\x{8592}' .
+			'\\x{8594}-\\x{85B1}' .
+			'\\x{85B3}-\\x{85BA}' .
+			'\\x{85BC}-\\x{85CB}' .
+			'\\x{85CD}-\\x{85ED}' .
+			'\\x{85EF}-\\x{85F2}' .
+			'\\x{85F4}-\\x{85FB}' .
+			'\\x{85FD}-\\x{8602}' .
+			'\\x{8604}-\\x{860C}' .
+			'\\x{860F}' .
+			'\\x{8611}-\\x{8614}' .
+			'\\x{8616}-\\x{861C}' .
+			'\\x{861E}-\\x{8636}' .
+			'\\x{8638}-\\x{8656}' .
+			'\\x{8658}-\\x{8674}' .
+			'\\x{8676}-\\x{8688}' .
+			'\\x{868A}-\\x{8691}' .
+			'\\x{8693}-\\x{869F}' .
+			'\\x{86A1}-\\x{86A5}' .
+			'\\x{86A7}-\\x{86D4}' .
+			'\\x{86D6}-\\x{86DF}' .
+			'\\x{86E1}-\\x{86E6}' .
+			'\\x{86E8}-\\x{86FC}' .
+			'\\x{86FE}-\\x{871C}' .
+			'\\x{871E}-\\x{872E}' .
+			'\\x{8730}-\\x{873C}' .
+			'\\x{873E}-\\x{8744}' .
+			'\\x{8746}-\\x{8770}' .
+			'\\x{8772}-\\x{878D}' .
+			'\\x{878F}-\\x{8798}' .
+			'\\x{879A}-\\x{87D9}' .
+			'\\x{87DB}-\\x{87EF}' .
+			'\\x{87F1}-\\x{8806}' .
+			'\\x{8808}-\\x{8811}' .
+			'\\x{8813}-\\x{882C}' .
+			'\\x{882E}-\\x{8839}' .
+			'\\x{883B}-\\x{8846}' .
+			'\\x{8848}-\\x{8857}' .
+			'\\x{8859}-\\x{885B}' .
+			'\\x{885D}-\\x{885E}' .
+			'\\x{8860}-\\x{8879}' .
+			'\\x{887B}-\\x{88E5}' .
+			'\\x{88E7}-\\x{88E8}' .
+			'\\x{88EA}-\\x{88EC}' .
+			'\\x{88EE}-\\x{8902}' .
+			'\\x{8904}-\\x{890E}' .
+			'\\x{8910}-\\x{8923}' .
+			'\\x{8925}-\\x{8964}' .
+			'\\x{8966}-\\x{8974}' .
+			'\\x{8976}-\\x{897C}' .
+			'\\x{897E}-\\x{898C}' .
+			'\\x{898E}-\\x{898F}' .
+			'\\x{8991}-\\x{8993}' .
+			'\\x{8995}-\\x{8998}' .
+			'\\x{899A}-\\x{89AF}' .
+			'\\x{89B1}-\\x{89B3}' .
+			'\\x{89B5}-\\x{89BA}' .
+			'\\x{89BD}-\\x{89ED}' .
+			'\\x{89EF}-\\x{89F4}' .
+			'\\x{89F6}-\\x{89F8}' .
+			'\\x{89FA}-\\x{89FC}' .
+			'\\x{89FE}-\\x{8A04}' .
+			'\\x{8A07}-\\x{8A13}' .
+			'\\x{8A15}-\\x{8A18}' .
+			'\\x{8A1A}-\\x{8A1F}' .
+			'\\x{8A22}-\\x{8A2A}' .
+			'\\x{8A2C}-\\x{8A3C}' .
+			'\\x{8A3E}-\\x{8A4A}' .
+			'\\x{8A4C}-\\x{8A63}' .
+			'\\x{8A65}-\\x{8A77}' .
+			'\\x{8A79}-\\x{8A7C}' .
+			'\\x{8A7E}-\\x{8A87}' .
+			'\\x{8A89}-\\x{8A9E}' .
+			'\\x{8AA0}-\\x{8AAE}' .
+			'\\x{8AB0}-\\x{8AB6}' .
+			'\\x{8AB8}-\\x{8ACF}' .
+			'\\x{8AD1}-\\x{8AEB}' .
+			'\\x{8AED}-\\x{8B28}' .
+			'\\x{8B2A}-\\x{8B31}' .
+			'\\x{8B33}-\\x{8B37}' .
+			'\\x{8B39}-\\x{8B3E}' .
+			'\\x{8B40}-\\x{8B60}' .
+			'\\x{8B63}-\\x{8B68}' .
+			'\\x{8B6A}-\\x{8B74}' .
+			'\\x{8B76}-\\x{8B7B}' .
+			'\\x{8B7D}-\\x{8B80}' .
+			'\\x{8B82}-\\x{8B86}' .
+			'\\x{8B88}-\\x{8B8C}' .
+			'\\x{8B8E}' .
+			'\\x{8B90}-\\x{8B9A}' .
+			'\\x{8B9C}-\\x{8C37}' .
+			'\\x{8C39}-\\x{8C3F}' .
+			'\\x{8C41}-\\x{8C43}' .
+			'\\x{8C45}-\\x{8C50}' .
+			'\\x{8C54}-\\x{8C57}' .
+			'\\x{8C59}-\\x{8C73}' .
+			'\\x{8C75}-\\x{8C7E}' .
+			'\\x{8C80}-\\x{8C82}' .
+			'\\x{8C84}-\\x{8C86}' .
+			'\\x{8C88}-\\x{8C8A}' .
+			'\\x{8C8C}-\\x{8C9A}' .
+			'\\x{8C9C}-\\x{8CA5}' .
+			'\\x{8CA7}-\\x{8CCA}' .
+			'\\x{8CCC}-\\x{8CD5}' .
+			'\\x{8CD7}' .
+			'\\x{8CD9}-\\x{8CE8}' .
+			'\\x{8CEA}-\\x{8CF6}' .
+			'\\x{8CF8}-\\x{8D00}' .
+			'\\x{8D02}-\\x{8D10}' .
+			'\\x{8D13}-\\x{8D7B}' .
+			'\\x{8D7D}-\\x{8DA5}' .
+			'\\x{8DA7}-\\x{8DBF}' .
+			'\\x{8DC1}-\\x{8DE4}' .
+			'\\x{8DE6}-\\x{8E00}' .
+			'\\x{8E02}-\\x{8E0A}' .
+			'\\x{8E0C}-\\x{8E31}' .
+			'\\x{8E33}-\\x{8E45}' .
+			'\\x{8E47}-\\x{8E4E}' .
+			'\\x{8E50}-\\x{8E6D}' .
+			'\\x{8E6F}-\\x{8E74}' .
+			'\\x{8E76}' .
+			'\\x{8E78}' .
+			'\\x{8E7A}-\\x{8E9A}' .
+			'\\x{8E9C}-\\x{8EA1}' .
+			'\\x{8EA3}-\\x{8EB2}' .
+			'\\x{8EB4}-\\x{8EB5}' .
+			'\\x{8EB8}-\\x{8EC0}' .
+			'\\x{8EC2}-\\x{8EC3}' .
+			'\\x{8EC5}-\\x{8ED8}' .
+			'\\x{8EDA}-\\x{8EEF}' .
+			'\\x{8EF1}-\\x{8F0E}' .
+			'\\x{8F10}-\\x{8F2C}' .
+			'\\x{8F2E}-\\x{8F39}' .
+			'\\x{8F3B}-\\x{8F40}' .
+			'\\x{8F42}-\\x{8F9C}' .
+			'\\x{8F9E}-\\x{8FA3}' .
+			'\\x{8FA5}-\\x{8FB2}' .
+			'\\x{8FB4}-\\x{8FC2}' .
+			'\\x{8FC4}-\\x{8FC9}' .
+			'\\x{8FCB}-\\x{8FE6}' .
+			'\\x{8FE8}-\\x{9029}' .
+			'\\x{902B}' .
+			'\\x{902D}-\\x{9036}' .
+			'\\x{9038}-\\x{903F}' .
+			'\\x{9041}-\\x{9045}' .
+			'\\x{9047}-\\x{90AA}' .
+			'\\x{90AC}-\\x{90CB}' .
+			'\\x{90CE}-\\x{90D1}' .
+			'\\x{90D3}-\\x{90F5}' .
+			'\\x{90F7}-\\x{9109}' .
+			'\\x{910B}-\\x{913B}' .
+			'\\x{913E}-\\x{9158}' .
+			'\\x{915A}-\\x{917A}' .
+			'\\x{917C}-\\x{9194}' .
+			'\\x{9196}-\\x{9197}' .
+			'\\x{9199}-\\x{91A8}' .
+			'\\x{91AA}-\\x{91BE}' .
+			'\\x{91C0}-\\x{91C3}' .
+			'\\x{91C5}-\\x{91DF}' .
+			'\\x{91E1}-\\x{91EE}' .
+			'\\x{91F0}-\\x{9212}' .
+			'\\x{9214}-\\x{921E}' .
+			'\\x{9220}-\\x{9221}' .
+			'\\x{9223}-\\x{9242}' .
+			'\\x{9244}-\\x{9268}' .
+			'\\x{926B}-\\x{9280}' .
+			'\\x{9282}-\\x{9283}' .
+			'\\x{9285}-\\x{929D}' .
+			'\\x{929F}-\\x{92BC}' .
+			'\\x{92BE}-\\x{92D3}' .
+			'\\x{92D5}-\\x{92DA}' .
+			'\\x{92DC}-\\x{92E1}' .
+			'\\x{92E3}-\\x{931B}' .
+			'\\x{931D}-\\x{932F}' .
+			'\\x{9332}-\\x{9361}' .
+			'\\x{9363}-\\x{9367}' .
+			'\\x{9369}-\\x{936A}' .
+			'\\x{936C}-\\x{936E}' .
+			'\\x{9370}-\\x{9372}' .
+			'\\x{9374}-\\x{9377}' .
+			'\\x{9379}-\\x{937E}' .
+			'\\x{9380}' .
+			'\\x{9382}-\\x{938A}' .
+			'\\x{938C}-\\x{939B}' .
+			'\\x{939D}-\\x{939F}' .
+			'\\x{93A1}-\\x{93AA}' .
+			'\\x{93AC}-\\x{93BA}' .
+			'\\x{93BC}-\\x{93DF}' .
+			'\\x{93E1}-\\x{93F2}' .
+			'\\x{93F4}-\\x{9401}' .
+			'\\x{9403}-\\x{9416}' .
+			'\\x{9418}-\\x{941B}' .
+			'\\x{941D}' .
+			'\\x{9420}-\\x{9423}' .
+			'\\x{9425}-\\x{9442}' .
+			'\\x{9444}-\\x{944D}' .
+			'\\x{944F}-\\x{946B}' .
+			'\\x{946D}-\\x{947A}' .
+			'\\x{947C}-\\x{9577}' .
+			'\\x{957A}-\\x{957D}' .
+			'\\x{957F}-\\x{9584}' .
+			'\\x{9586}-\\x{9596}' .
+			'\\x{9598}-\\x{95B2}' .
+			'\\x{95B5}-\\x{95B7}' .
+			'\\x{95B9}-\\x{95C0}' .
+			'\\x{95C2}-\\x{95D8}' .
+			'\\x{95DA}-\\x{95DC}' .
+			'\\x{95DE}-\\x{9624}' .
+			'\\x{9627}-\\x{9628}' .
+			'\\x{962A}-\\x{963D}' .
+			'\\x{963F}-\\x{9655}' .
+			'\\x{9658}-\\x{9678}' .
+			'\\x{967A}' .
+			'\\x{967C}-\\x{967E}' .
+			'\\x{9680}' .
+			'\\x{9683}-\\x{968B}' .
+			'\\x{968D}-\\x{9695}' .
+			'\\x{9697}-\\x{9699}' .
+			'\\x{969B}-\\x{969C}' .
+			'\\x{969E}' .
+			'\\x{96A0}-\\x{96AA}' .
+			'\\x{96AC}-\\x{96AE}' .
+			'\\x{96B0}-\\x{96B4}' .
+			'\\x{96B6}-\\x{96E3}' .
+			'\\x{96E5}' .
+			'\\x{96E8}-\\x{96FB}' .
+			'\\x{96FD}-\\x{9713}' .
+			'\\x{9715}-\\x{9716}' .
+			'\\x{9718}-\\x{9719}' .
+			'\\x{971C}-\\x{9732}' .
+			'\\x{9735}-\\x{9736}' .
+			'\\x{9738}-\\x{973F}' .
+			'\\x{9742}-\\x{974C}' .
+			'\\x{974E}-\\x{9756}' .
+			'\\x{9758}-\\x{9762}' .
+			'\\x{9764}-\\x{9774}' .
+			'\\x{9776}-\\x{9786}' .
+			'\\x{9788}' .
+			'\\x{978A}-\\x{979A}' .
+			'\\x{979C}-\\x{97A8}' .
+			'\\x{97AA}-\\x{97AF}' .
+			'\\x{97B2}-\\x{97B4}' .
+			'\\x{97B6}-\\x{97BD}' .
+			'\\x{97BF}' .
+			'\\x{97C1}-\\x{97D1}' .
+			'\\x{97D3}-\\x{97FB}' .
+			'\\x{97FD}-\\x{981E}' .
+			'\\x{9820}-\\x{9824}' .
+			'\\x{9826}-\\x{9829}' .
+			'\\x{982B}-\\x{9832}' .
+			'\\x{9834}-\\x{9839}' .
+			'\\x{983B}-\\x{983D}' .
+			'\\x{983F}-\\x{9841}' .
+			'\\x{9843}-\\x{9846}' .
+			'\\x{9848}-\\x{9855}' .
+			'\\x{9857}-\\x{9865}' .
+			'\\x{9867}' .
+			'\\x{9869}-\\x{98B6}' .
+			'\\x{98B8}-\\x{98C9}' .
+			'\\x{98CB}-\\x{98E3}' .
+			'\\x{98E5}-\\x{98EB}' .
+			'\\x{98ED}-\\x{98F0}' .
+			'\\x{98F2}-\\x{98F7}' .
+			'\\x{98F9}-\\x{98FA}' .
+			'\\x{98FC}-\\x{9918}' .
+			'\\x{991A}-\\x{993A}' .
+			'\\x{993C}-\\x{9943}' .
+			'\\x{9945}-\\x{9959}' .
+			'\\x{995B}-\\x{995C}' .
+			'\\x{995E}-\\x{99BE}' .
+			'\\x{99C0}-\\x{99DF}' .
+			'\\x{99E1}-\\x{99E5}' .
+			'\\x{99E7}-\\x{99EA}' .
+			'\\x{99EC}-\\x{99F4}' .
+			'\\x{99F6}-\\x{9A0F}' .
+			'\\x{9A11}-\\x{9A16}' .
+			'\\x{9A19}-\\x{9A3A}' .
+			'\\x{9A3C}-\\x{9A50}' .
+			'\\x{9A52}-\\x{9A57}' .
+			'\\x{9A59}-\\x{9A5C}' .
+			'\\x{9A5E}-\\x{9A62}' .
+			'\\x{9A64}-\\x{9AA8}' .
+			'\\x{9AAA}-\\x{9ABC}' .
+			'\\x{9ABE}-\\x{9AC7}' .
+			'\\x{9AC9}-\\x{9AD6}' .
+			'\\x{9AD8}-\\x{9ADF}' .
+			'\\x{9AE1}-\\x{9AE3}' .
+			'\\x{9AE5}-\\x{9AE7}' .
+			'\\x{9AEA}-\\x{9AEF}' .
+			'\\x{9AF1}-\\x{9AFF}' .
+			'\\x{9B01}' .
+			'\\x{9B03}-\\x{9B08}' .
+			'\\x{9B0A}-\\x{9B13}' .
+			'\\x{9B15}-\\x{9B1A}' .
+			'\\x{9B1C}-\\x{9B33}' .
+			'\\x{9B35}-\\x{9B3C}' .
+			'\\x{9B3E}-\\x{9B3F}' .
+			'\\x{9B41}-\\x{9B4F}' .
+			'\\x{9B51}-\\x{9B56}' .
+			'\\x{9B58}-\\x{9B61}' .
+			'\\x{9B63}-\\x{9B71}' .
+			'\\x{9B73}-\\x{9B88}' .
+			'\\x{9B8A}-\\x{9B8B}' .
+			'\\x{9B8D}-\\x{9B98}' .
+			'\\x{9B9A}-\\x{9BC1}' .
+			'\\x{9BC3}-\\x{9BF5}' .
+			'\\x{9BF7}-\\x{9BFF}' .
+			'\\x{9C02}' .
+			'\\x{9C04}-\\x{9C41}' .
+			'\\x{9C43}-\\x{9C4E}' .
+			'\\x{9C50}' .
+			'\\x{9C52}-\\x{9C60}' .
+			'\\x{9C62}-\\x{9C63}' .
+			'\\x{9C65}-\\x{9C7A}' .
+			'\\x{9C7C}-\\x{9D0B}' .
+			'\\x{9D0E}-\\x{9D10}' .
+			'\\x{9D12}-\\x{9D26}' .
+			'\\x{9D28}-\\x{9D34}' .
+			'\\x{9D36}-\\x{9D3B}' .
+			'\\x{9D3D}-\\x{9D6C}' .
+			'\\x{9D6E}-\\x{9D94}' .
+			'\\x{9D96}-\\x{9DAD}' .
+			'\\x{9DAF}-\\x{9DBC}' .
+			'\\x{9DBE}-\\x{9DBF}' .
+			'\\x{9DC1}-\\x{9DE9}' .
+			'\\x{9DEB}-\\x{9DFB}' .
+			'\\x{9DFD}-\\x{9E0D}' .
+			'\\x{9E0F}-\\x{9E15}' .
+			'\\x{9E17}-\\x{9E1B}' .
+			'\\x{9E1D}-\\x{9E7A}' .
+			'\\x{9E7C}-\\x{9E8E}' .
+			'\\x{9E91}-\\x{9E97}' .
+			'\\x{9E99}-\\x{9E9D}' .
+			'\\x{9E9F}-\\x{9EA1}' .
+			'\\x{9EA3}-\\x{9EAA}' .
+			'\\x{9EAD}-\\x{9EB0}' .
+			'\\x{9EB2}-\\x{9EEB}' .
+			'\\x{9EED}-\\x{9EF0}' .
+			'\\x{9EF2}-\\x{9F02}' .
+			'\\x{9F04}-\\x{9F10}' .
+			'\\x{9F12}-\\x{9F13}' .
+			'\\x{9F15}-\\x{9F25}' .
+			'\\x{9F27}-\\x{9F44}' .
+			'\\x{9F46}-\\x{9F52}' .
+			'\\x{9F54}-\\x{9F6C}' .
+			'\\x{9F6E}-\\x{9FA0}' .
+			'\\x{9FA2}' .
+			'\\x{9FA4}-\\x{9FA5}' .
 			'\\x{A78D}' .
-			'\\x{A792}-\\x{A793}' .
 			'\\x{A7AA}' .
-			'\\x{A7C0}-\\x{A7C1}' .
-			'\\x{A7C2}-\\x{A7C6}' .
-			'\\x{A7C7}-\\x{A7CA}' .
-			'\\x{A7D0}-\\x{A7D1}' .
-			'\\x{A7D3}' .
-			'\\x{A7D5}-\\x{A7D9}' .
-			'\\x{A9E7}-\\x{A9FE}' .
-			'\\x{AA60}-\\x{AA76}' .
-			'\\x{AA7A}-\\x{AA7B}' .
-			'\\x{AA7C}-\\x{AA7F}' .
-			'\\x{AB01}-\\x{AB06}' .
-			'\\x{AB09}-\\x{AB0E}' .
-			'\\x{AB11}-\\x{AB16}' .
-			'\\x{AB20}-\\x{AB26}' .
-			'\\x{AB28}-\\x{AB2E}' .
-			'\\x{AB66}-\\x{AB67}' .
+			'\\x{AA7B}' .
 			'\\x{AC00}-\\x{D7A3}' .
-			'\\x{FA0E}-\\x{FA0F}' .
-			'\\x{FA11}' .
-			'\\x{FA13}-\\x{FA14}' .
-			'\\x{FA1F}' .
-			'\\x{FA21}' .
-			'\\x{FA23}-\\x{FA24}' .
-			'\\x{FA27}-\\x{FA29}' .
 			'\\x{11301}' .
 			'\\x{11303}' .
-			'\\x{1133B}' .
 			'\\x{1133C}' .
-			'\\x{16FF0}-\\x{16FF1}' .
-			'\\x{1B11F}-\\x{1B122}' .
-			'\\x{1B132}' .
-			'\\x{1B150}-\\x{1B152}' .
-			'\\x{1B155}' .
-			'\\x{1B164}-\\x{1B167}' .
-			'\\x{1DF00}-\\x{1DF1E}' .
-			'\\x{1DF25}-\\x{1DF2A}' .
-			'\\x{1E08F}' .
 			'\\x{1E7E0}-\\x{1E7E6}' .
 			'\\x{1E7E8}-\\x{1E7EB}' .
 			'\\x{1E7ED}-\\x{1E7EE}' .
 			'\\x{1E7F0}-\\x{1E7FE}' .
-			'\\x{20000}-\\x{2A6D6}' .
-			'\\x{2A6D7}-\\x{2A6DD}' .
-			'\\x{2A6DE}-\\x{2A6DF}' .
-			'\\x{2A700}-\\x{2B734}' .
-			'\\x{2B735}-\\x{2B738}' .
-			'\\x{2B739}' .
-			'\\x{2B740}-\\x{2B81D}' .
-			'\\x{2B820}-\\x{2CEA1}' .
-			'\\x{2CEB0}-\\x{2EBE0}' .
-			'\\x{2EBF0}-\\x{2EE5D}' .
-			'\\x{30000}-\\x{3134A}' .
-			'\\x{31350}-\\x{323AF}',
+			'\\x{2070E}' .
+			'\\x{20731}' .
+			'\\x{20779}' .
+			'\\x{20C53}' .
+			'\\x{20C78}' .
+			'\\x{20C96}' .
+			'\\x{20CCF}' .
+			'\\x{20CD5}' .
+			'\\x{20D15}' .
+			'\\x{20D7C}' .
+			'\\x{20D7F}' .
+			'\\x{20E0E}-\\x{20E0F}' .
+			'\\x{20E77}' .
+			'\\x{20E9D}' .
+			'\\x{20EA2}' .
+			'\\x{20ED7}' .
+			'\\x{20EF9}-\\x{20EFA}' .
+			'\\x{20F2D}-\\x{20F2E}' .
+			'\\x{20F4C}' .
+			'\\x{20FB4}' .
+			'\\x{20FBC}' .
+			'\\x{20FEA}' .
+			'\\x{2105C}' .
+			'\\x{2106F}' .
+			'\\x{21075}-\\x{21076}' .
+			'\\x{2107B}' .
+			'\\x{210C1}' .
+			'\\x{210C9}' .
+			'\\x{211D9}' .
+			'\\x{220C7}' .
+			'\\x{227B5}' .
+			'\\x{22AD5}' .
+			'\\x{22B43}' .
+			'\\x{22BCA}' .
+			'\\x{22C51}' .
+			'\\x{22C55}' .
+			'\\x{22CC2}' .
+			'\\x{22D08}' .
+			'\\x{22D4C}' .
+			'\\x{22D67}' .
+			'\\x{22EB3}' .
+			'\\x{23CB7}' .
+			'\\x{244D3}' .
+			'\\x{24DB8}' .
+			'\\x{24DEA}' .
+			'\\x{2512B}' .
+			'\\x{26258}' .
+			'\\x{267CC}' .
+			'\\x{269F2}' .
+			'\\x{269FA}' .
+			'\\x{27A3E}' .
+			'\\x{2815D}' .
+			'\\x{28207}' .
+			'\\x{282E2}' .
+			'\\x{28CCA}' .
+			'\\x{28CCD}' .
+			'\\x{28CD2}' .
+			'\\x{29D98}',
 	];
 }
+

@@ -1386,6 +1386,7 @@ function utf8_normalize_kd_maps(): array
 		"\xEA\x9A\x9C" => "\xD1\x8A",
 		"\xEA\x9A\x9D" => "\xD1\x8C",
 		"\xEA\x9D\xB0" => "\xEA\x9D\xAF",
+		"\xEA\x9F\xB1" => "\x53",
 		"\xEA\x9F\xB2" => "\x43",
 		"\xEA\x9F\xB3" => "\x46",
 		"\xEA\x9F\xB4" => "\x51",
@@ -3880,3 +3881,4 @@ function utf8_normalize_kd_maps(): array
 		"\xF0\x9F\xAF\xB9" => "\x39",
 	];
 }
+

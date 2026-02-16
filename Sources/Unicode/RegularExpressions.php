@@ -42,6 +42,7 @@ function utf8_regex_properties(): array
 			'\\x{0061}-\\x{007A}' .
 			'\\x{00AA}' .
 			'\\x{00B5}' .
+			'\\x{00B8}' .
 			'\\x{00BA}' .
 			'\\x{00C0}-\\x{00D6}' .
 			'\\x{00D8}-\\x{00F6}' .
@@ -50,8 +51,8 @@ function utf8_regex_properties(): array
 			'\\x{01BC}-\\x{01BF}' .
 			'\\x{01C0}-\\x{01C3}' .
 			'\\x{01C4}-\\x{0293}' .
-			'\\x{0294}' .
-			'\\x{0295}-\\x{02AF}' .
+			'\\x{0294}-\\x{0295}' .
+			'\\x{0296}-\\x{02AF}' .
 			'\\x{02B0}-\\x{02C1}' .
 			'\\x{02C2}-\\x{02C5}' .
 			'\\x{02C6}-\\x{02D1}' .
@@ -108,7 +109,7 @@ function utf8_regex_properties(): array
 			'\\x{0840}-\\x{0858}' .
 			'\\x{0860}-\\x{086A}' .
 			'\\x{0870}-\\x{0887}' .
-			'\\x{0889}-\\x{088E}' .
+			'\\x{0889}-\\x{088F}' .
 			'\\x{08A0}-\\x{08C8}' .
 			'\\x{08C9}' .
 			'\\x{0904}-\\x{0939}' .
@@ -176,7 +177,7 @@ function utf8_regex_properties(): array
 			'\\x{0C2A}-\\x{0C39}' .
 			'\\x{0C3D}' .
 			'\\x{0C58}-\\x{0C5A}' .
-			'\\x{0C5D}' .
+			'\\x{0C5C}-\\x{0C5D}' .
 			'\\x{0C60}-\\x{0C61}' .
 			'\\x{0C80}' .
 			'\\x{0C85}-\\x{0C8C}' .
@@ -185,7 +186,7 @@ function utf8_regex_properties(): array
 			'\\x{0CAA}-\\x{0CB3}' .
 			'\\x{0CB5}-\\x{0CB9}' .
 			'\\x{0CBD}' .
-			'\\x{0CDD}-\\x{0CDE}' .
+			'\\x{0CDC}-\\x{0CDE}' .
 			'\\x{0CE0}-\\x{0CE1}' .
 			'\\x{0CF1}-\\x{0CF2}' .
 			'\\x{0D04}-\\x{0D0C}' .
@@ -365,11 +366,8 @@ function utf8_regex_properties(): array
 			'\\x{A789}-\\x{A78A}' .
 			'\\x{A78B}-\\x{A78E}' .
 			'\\x{A78F}' .
-			'\\x{A790}-\\x{A7CD}' .
-			'\\x{A7D0}-\\x{A7D1}' .
-			'\\x{A7D3}' .
-			'\\x{A7D5}-\\x{A7DC}' .
-			'\\x{A7F2}-\\x{A7F4}' .
+			'\\x{A790}-\\x{A7DC}' .
+			'\\x{A7F1}-\\x{A7F4}' .
 			'\\x{A7F5}-\\x{A7F6}' .
 			'\\x{A7F7}' .
 			'\\x{A7F8}-\\x{A7F9}' .
@@ -478,6 +476,7 @@ function utf8_regex_properties(): array
 			'\\x{108F4}-\\x{108F5}' .
 			'\\x{10900}-\\x{10915}' .
 			'\\x{10920}-\\x{10939}' .
+			'\\x{10940}-\\x{10959}' .
 			'\\x{10980}-\\x{109B7}' .
 			'\\x{109BE}-\\x{109BF}' .
 			'\\x{10A00}' .
@@ -505,6 +504,8 @@ function utf8_regex_properties(): array
 			'\\x{10E80}-\\x{10EA9}' .
 			'\\x{10EB0}-\\x{10EB1}' .
 			'\\x{10EC2}-\\x{10EC4}' .
+			'\\x{10EC5}' .
+			'\\x{10EC6}-\\x{10EC7}' .
 			'\\x{10F00}-\\x{10F1C}' .
 			'\\x{10F27}' .
 			'\\x{10F30}-\\x{10F45}' .
@@ -595,6 +596,9 @@ function utf8_regex_properties(): array
 			'\\x{11D67}-\\x{11D68}' .
 			'\\x{11D6A}-\\x{11D89}' .
 			'\\x{11D98}' .
+			'\\x{11DB0}-\\x{11DD8}' .
+			'\\x{11DD9}' .
+			'\\x{11DDA}-\\x{11DDB}' .
 			'\\x{11EE0}-\\x{11EF2}' .
 			'\\x{11F02}' .
 			'\\x{11F04}-\\x{11F10}' .
@@ -621,6 +625,8 @@ function utf8_regex_properties(): array
 			'\\x{16D43}-\\x{16D6A}' .
 			'\\x{16D6B}-\\x{16D6C}' .
 			'\\x{16E40}-\\x{16E7F}' .
+			'\\x{16EA0}-\\x{16EB8}' .
+			'\\x{16EBB}-\\x{16ED3}' .
 			'\\x{16F00}-\\x{16F4A}' .
 			'\\x{16F50}' .
 			'\\x{16F93}-\\x{16F9F}' .
@@ -674,6 +680,13 @@ function utf8_regex_properties(): array
 			'\\x{1E4EB}' .
 			'\\x{1E5D0}-\\x{1E5ED}' .
 			'\\x{1E5F0}' .
+			'\\x{1E6C0}-\\x{1E6DE}' .
+			'\\x{1E6E0}-\\x{1E6E2}' .
+			'\\x{1E6E4}-\\x{1E6E5}' .
+			'\\x{1E6E7}-\\x{1E6ED}' .
+			'\\x{1E6F0}-\\x{1E6F4}' .
+			'\\x{1E6FE}' .
+			'\\x{1E6FF}' .
 			'\\x{1E7E0}-\\x{1E7E6}' .
 			'\\x{1E7E8}-\\x{1E7EB}' .
 			'\\x{1E7ED}-\\x{1E7EE}' .
@@ -919,7 +932,8 @@ function utf8_regex_properties(): array
 			'\\x{1AA7}' .
 			'\\x{1AB0}-\\x{1ABD}' .
 			'\\x{1ABE}' .
-			'\\x{1ABF}-\\x{1ACE}' .
+			'\\x{1ABF}-\\x{1ADD}' .
+			'\\x{1AE0}-\\x{1AEB}' .
 			'\\x{1B00}-\\x{1B03}' .
 			'\\x{1B34}' .
 			'\\x{1B36}-\\x{1B3A}' .
@@ -999,7 +1013,7 @@ function utf8_regex_properties(): array
 			'\\x{A770}' .
 			'\\x{A788}' .
 			'\\x{A789}-\\x{A78A}' .
-			'\\x{A7F2}-\\x{A7F4}' .
+			'\\x{A7F1}-\\x{A7F4}' .
 			'\\x{A7F8}-\\x{A7F9}' .
 			'\\x{A802}' .
 			'\\x{A806}' .
@@ -1075,7 +1089,8 @@ function utf8_regex_properties(): array
 			'\\x{10D69}-\\x{10D6D}' .
 			'\\x{10D6F}' .
 			'\\x{10EAB}-\\x{10EAC}' .
-			'\\x{10EFC}-\\x{10EFF}' .
+			'\\x{10EC5}' .
+			'\\x{10EFA}-\\x{10EFF}' .
 			'\\x{10F46}-\\x{10F50}' .
 			'\\x{10F82}-\\x{10F85}' .
 			'\\x{11001}' .
@@ -1152,6 +1167,9 @@ function utf8_regex_properties(): array
 			'\\x{11A59}-\\x{11A5B}' .
 			'\\x{11A8A}-\\x{11A96}' .
 			'\\x{11A98}-\\x{11A99}' .
+			'\\x{11B60}' .
+			'\\x{11B62}-\\x{11B64}' .
+			'\\x{11B66}' .
 			'\\x{11C30}-\\x{11C36}' .
 			'\\x{11C38}-\\x{11C3D}' .
 			'\\x{11C3F}' .
@@ -1167,6 +1185,7 @@ function utf8_regex_properties(): array
 			'\\x{11D90}-\\x{11D91}' .
 			'\\x{11D95}' .
 			'\\x{11D97}' .
+			'\\x{11DD9}' .
 			'\\x{11EF3}-\\x{11EF4}' .
 			'\\x{11F00}-\\x{11F01}' .
 			'\\x{11F36}-\\x{11F3A}' .
@@ -1189,6 +1208,7 @@ function utf8_regex_properties(): array
 			'\\x{16FE0}-\\x{16FE1}' .
 			'\\x{16FE3}' .
 			'\\x{16FE4}' .
+			'\\x{16FF2}-\\x{16FF3}' .
 			'\\x{1AFF0}-\\x{1AFF3}' .
 			'\\x{1AFF5}-\\x{1AFFB}' .
 			'\\x{1AFFD}-\\x{1AFFE}' .
@@ -1222,6 +1242,11 @@ function utf8_regex_properties(): array
 			'\\x{1E4EB}' .
 			'\\x{1E4EC}-\\x{1E4EF}' .
 			'\\x{1E5EE}-\\x{1E5EF}' .
+			'\\x{1E6E3}' .
+			'\\x{1E6E6}' .
+			'\\x{1E6EE}-\\x{1E6EF}' .
+			'\\x{1E6F5}' .
+			'\\x{1E6FF}' .
 			'\\x{1E8D0}-\\x{1E8D6}' .
 			'\\x{1E944}-\\x{1E94A}' .
 			'\\x{1E94B}' .
@@ -1251,7 +1276,6 @@ function utf8_regex_properties(): array
 			'\\x{085C}-\\x{085D}' .
 			'\\x{085F}' .
 			'\\x{086B}-\\x{086F}' .
-			'\\x{088F}' .
 			'\\x{0892}-\\x{0896}' .
 			'\\x{0984}' .
 			'\\x{098D}-\\x{098E}' .
@@ -1335,7 +1359,7 @@ function utf8_regex_properties(): array
 			'\\x{0C49}' .
 			'\\x{0C4E}-\\x{0C54}' .
 			'\\x{0C57}' .
-			'\\x{0C5B}-\\x{0C5C}' .
+			'\\x{0C5B}' .
 			'\\x{0C5E}-\\x{0C5F}' .
 			'\\x{0C64}-\\x{0C65}' .
 			'\\x{0C70}-\\x{0C76}' .
@@ -1347,7 +1371,7 @@ function utf8_regex_properties(): array
 			'\\x{0CC5}' .
 			'\\x{0CC9}' .
 			'\\x{0CCE}-\\x{0CD4}' .
-			'\\x{0CD7}-\\x{0CDC}' .
+			'\\x{0CD7}-\\x{0CDB}' .
 			'\\x{0CDF}' .
 			'\\x{0CE4}-\\x{0CE5}' .
 			'\\x{0CF0}' .
@@ -1443,7 +1467,8 @@ function utf8_regex_properties(): array
 			'\\x{1A8A}-\\x{1A8F}' .
 			'\\x{1A9A}-\\x{1A9F}' .
 			'\\x{1AAE}-\\x{1AAF}' .
-			'\\x{1ACF}-\\x{1AFF}' .
+			'\\x{1ADE}-\\x{1ADF}' .
+			'\\x{1AEC}-\\x{1AFF}' .
 			'\\x{1B4D}' .
 			'\\x{1BF4}-\\x{1BFB}' .
 			'\\x{1C38}-\\x{1C3A}' .
@@ -1472,13 +1497,12 @@ function utf8_regex_properties(): array
 			'\\x{2072}-\\x{2073}' .
 			'\\x{208F}' .
 			'\\x{209D}-\\x{209F}' .
-			'\\x{20C1}-\\x{20CF}' .
+			'\\x{20C2}-\\x{20CF}' .
 			'\\x{20F1}-\\x{20FF}' .
 			'\\x{218C}-\\x{218F}' .
 			'\\x{242A}-\\x{243F}' .
 			'\\x{244B}-\\x{245F}' .
 			'\\x{2B74}-\\x{2B75}' .
-			'\\x{2B96}' .
 			'\\x{2CF4}-\\x{2CF8}' .
 			'\\x{2D26}' .
 			'\\x{2D28}-\\x{2D2C}' .
@@ -1509,10 +1533,7 @@ function utf8_regex_properties(): array
 			'\\x{A4C7}-\\x{A4CF}' .
 			'\\x{A62C}-\\x{A63F}' .
 			'\\x{A6F8}-\\x{A6FF}' .
-			'\\x{A7CE}-\\x{A7CF}' .
-			'\\x{A7D2}' .
-			'\\x{A7D4}' .
-			'\\x{A7DD}-\\x{A7F1}' .
+			'\\x{A7DD}-\\x{A7F0}' .
 			'\\x{A82D}-\\x{A82F}' .
 			'\\x{A83A}-\\x{A83F}' .
 			'\\x{A878}-\\x{A87F}' .
@@ -1548,9 +1569,6 @@ function utf8_regex_properties(): array
 			'\\x{FB3F}' .
 			'\\x{FB42}' .
 			'\\x{FB45}' .
-			'\\x{FBC3}-\\x{FBD2}' .
-			'\\x{FD90}-\\x{FD91}' .
-			'\\x{FDC8}-\\x{FDCE}' .
 			'\\x{FDD0}-\\x{FDEF}' .
 			'\\x{FE1A}-\\x{FE1F}' .
 			'\\x{FE53}' .
@@ -1622,7 +1640,7 @@ function utf8_regex_properties(): array
 			'\\x{108F6}-\\x{108FA}' .
 			'\\x{1091C}-\\x{1091E}' .
 			'\\x{1093A}-\\x{1093E}' .
-			'\\x{10940}-\\x{1097F}' .
+			'\\x{1095A}-\\x{1097F}' .
 			'\\x{109B8}-\\x{109BB}' .
 			'\\x{109D0}-\\x{109D1}' .
 			'\\x{10A04}' .
@@ -1654,7 +1672,8 @@ function utf8_regex_properties(): array
 			'\\x{10EAA}' .
 			'\\x{10EAE}-\\x{10EAF}' .
 			'\\x{10EB2}-\\x{10EC1}' .
-			'\\x{10EC5}-\\x{10EFB}' .
+			'\\x{10EC8}-\\x{10ECF}' .
+			'\\x{10ED9}-\\x{10EF9}' .
 			'\\x{10F28}-\\x{10F2F}' .
 			'\\x{10F5A}-\\x{10F6F}' .
 			'\\x{10F8A}-\\x{10FAF}' .
@@ -1737,7 +1756,8 @@ function utf8_regex_properties(): array
 			'\\x{11A48}-\\x{11A4F}' .
 			'\\x{11AA3}-\\x{11AAF}' .
 			'\\x{11AF9}-\\x{11AFF}' .
-			'\\x{11B0A}-\\x{11BBF}' .
+			'\\x{11B0A}-\\x{11B5F}' .
+			'\\x{11B68}-\\x{11BBF}' .
 			'\\x{11BE2}-\\x{11BEF}' .
 			'\\x{11BFA}-\\x{11BFF}' .
 			'\\x{11C09}' .
@@ -1759,7 +1779,9 @@ function utf8_regex_properties(): array
 			'\\x{11D8F}' .
 			'\\x{11D92}' .
 			'\\x{11D99}-\\x{11D9F}' .
-			'\\x{11DAA}-\\x{11EDF}' .
+			'\\x{11DAA}-\\x{11DAF}' .
+			'\\x{11DDC}-\\x{11DDF}' .
+			'\\x{11DEA}-\\x{11EDF}' .
 			'\\x{11EF9}-\\x{11EFF}' .
 			'\\x{11F11}' .
 			'\\x{11F3B}-\\x{11F3D}' .
@@ -1788,15 +1810,17 @@ function utf8_regex_properties(): array
 			'\\x{16B78}-\\x{16B7C}' .
 			'\\x{16B90}-\\x{16D3F}' .
 			'\\x{16D7A}-\\x{16E3F}' .
-			'\\x{16E9B}-\\x{16EFF}' .
+			'\\x{16E9B}-\\x{16E9F}' .
+			'\\x{16EB9}-\\x{16EBA}' .
+			'\\x{16ED4}-\\x{16EFF}' .
 			'\\x{16F4B}-\\x{16F4E}' .
 			'\\x{16F88}-\\x{16F8E}' .
 			'\\x{16FA0}-\\x{16FDF}' .
 			'\\x{16FE5}-\\x{16FEF}' .
-			'\\x{16FF2}-\\x{16FFF}' .
-			'\\x{187F8}-\\x{187FF}' .
+			'\\x{16FF7}-\\x{16FFF}' .
 			'\\x{18CD6}-\\x{18CFE}' .
-			'\\x{18D09}-\\x{1AFEF}' .
+			'\\x{18D1F}-\\x{18D7F}' .
+			'\\x{18DF3}-\\x{1AFEF}' .
 			'\\x{1AFF4}' .
 			'\\x{1AFFC}' .
 			'\\x{1AFFF}' .
@@ -1811,8 +1835,10 @@ function utf8_regex_properties(): array
 			'\\x{1BC89}-\\x{1BC8F}' .
 			'\\x{1BC9A}-\\x{1BC9B}' .
 			'\\x{1BCA4}-\\x{1CBFF}' .
-			'\\x{1CCFA}-\\x{1CCFF}' .
-			'\\x{1CEB4}-\\x{1CEFF}' .
+			'\\x{1CCFD}-\\x{1CCFF}' .
+			'\\x{1CEB4}-\\x{1CEB9}' .
+			'\\x{1CED1}-\\x{1CEDF}' .
+			'\\x{1CEF1}-\\x{1CEFF}' .
 			'\\x{1CF2E}-\\x{1CF2F}' .
 			'\\x{1CF47}-\\x{1CF4F}' .
 			'\\x{1CFC4}-\\x{1CFFF}' .
@@ -1865,7 +1891,10 @@ function utf8_regex_properties(): array
 			'\\x{1E300}-\\x{1E4CF}' .
 			'\\x{1E4FA}-\\x{1E5CF}' .
 			'\\x{1E5FB}-\\x{1E5FE}' .
-			'\\x{1E600}-\\x{1E7DF}' .
+			'\\x{1E600}-\\x{1E6BF}' .
+			'\\x{1E6DF}' .
+			'\\x{1E6F6}-\\x{1E6FD}' .
+			'\\x{1E700}-\\x{1E7DF}' .
 			'\\x{1E7E7}' .
 			'\\x{1E7EC}' .
 			'\\x{1E7EF}' .
@@ -1923,10 +1952,9 @@ function utf8_regex_properties(): array
 			'\\x{1F249}-\\x{1F24F}' .
 			'\\x{1F252}-\\x{1F25F}' .
 			'\\x{1F266}-\\x{1F2FF}' .
-			'\\x{1F6D8}-\\x{1F6DB}' .
+			'\\x{1F6D9}-\\x{1F6DB}' .
 			'\\x{1F6ED}-\\x{1F6EF}' .
 			'\\x{1F6FD}-\\x{1F6FF}' .
-			'\\x{1F777}-\\x{1F77A}' .
 			'\\x{1F7DA}-\\x{1F7DF}' .
 			'\\x{1F7EC}-\\x{1F7EF}' .
 			'\\x{1F7F1}-\\x{1F7FF}' .
@@ -1936,26 +1964,27 @@ function utf8_regex_properties(): array
 			'\\x{1F888}-\\x{1F88F}' .
 			'\\x{1F8AE}-\\x{1F8AF}' .
 			'\\x{1F8BC}-\\x{1F8BF}' .
-			'\\x{1F8C2}-\\x{1F8FF}' .
-			'\\x{1FA54}-\\x{1FA5F}' .
+			'\\x{1F8C2}-\\x{1F8CF}' .
+			'\\x{1F8D9}-\\x{1F8FF}' .
+			'\\x{1FA58}-\\x{1FA5F}' .
 			'\\x{1FA6E}-\\x{1FA6F}' .
 			'\\x{1FA7D}-\\x{1FA7F}' .
-			'\\x{1FA8A}-\\x{1FA8E}' .
-			'\\x{1FAC7}-\\x{1FACD}' .
+			'\\x{1FA8B}-\\x{1FA8D}' .
+			'\\x{1FAC7}' .
+			'\\x{1FAC9}-\\x{1FACC}' .
 			'\\x{1FADD}-\\x{1FADE}' .
-			'\\x{1FAEA}-\\x{1FAEF}' .
+			'\\x{1FAEB}-\\x{1FAEE}' .
 			'\\x{1FAF9}-\\x{1FAFF}' .
 			'\\x{1FB93}' .
-			'\\x{1FBFA}-\\x{1FFFF}' .
+			'\\x{1FBFB}-\\x{1FFFF}' .
 			'\\x{2A6E0}-\\x{2A6FF}' .
-			'\\x{2B73A}-\\x{2B73F}' .
 			'\\x{2B81E}-\\x{2B81F}' .
-			'\\x{2CEA2}-\\x{2CEAF}' .
+			'\\x{2CEAE}-\\x{2CEAF}' .
 			'\\x{2EBE1}-\\x{2EBEF}' .
 			'\\x{2EE5E}-\\x{2F7FF}' .
 			'\\x{2FA1E}-\\x{2FFFF}' .
 			'\\x{3134B}-\\x{3134F}' .
-			'\\x{323B0}-\\x{E0000}' .
+			'\\x{3347A}-\\x{E0000}' .
 			'\\x{E0002}-\\x{E001F}' .
 			'\\x{E0080}-\\x{E00FF}' .
 			'\\x{E01F0}-\\x{EFFFF}' .
@@ -2309,6 +2338,7 @@ function utf8_regex_properties(): array
 			'\\x{1F6D1}-\\x{1F6D2}' .
 			'\\x{1F6D5}' .
 			'\\x{1F6D6}-\\x{1F6D7}' .
+			'\\x{1F6D8}' .
 			'\\x{1F6DC}' .
 			'\\x{1F6DD}-\\x{1F6DF}' .
 			'\\x{1F6E0}-\\x{1F6E5}' .
@@ -2377,6 +2407,8 @@ function utf8_regex_properties(): array
 			'\\x{1FA83}-\\x{1FA86}' .
 			'\\x{1FA87}-\\x{1FA88}' .
 			'\\x{1FA89}' .
+			'\\x{1FA8A}' .
+			'\\x{1FA8E}' .
 			'\\x{1FA8F}' .
 			'\\x{1FA90}-\\x{1FA95}' .
 			'\\x{1FA96}-\\x{1FAA8}' .
@@ -2390,6 +2422,8 @@ function utf8_regex_properties(): array
 			'\\x{1FAC0}-\\x{1FAC2}' .
 			'\\x{1FAC3}-\\x{1FAC5}' .
 			'\\x{1FAC6}' .
+			'\\x{1FAC8}' .
+			'\\x{1FACD}' .
 			'\\x{1FACE}-\\x{1FACF}' .
 			'\\x{1FAD0}-\\x{1FAD6}' .
 			'\\x{1FAD7}-\\x{1FAD9}' .
@@ -2399,6 +2433,8 @@ function utf8_regex_properties(): array
 			'\\x{1FAE0}-\\x{1FAE7}' .
 			'\\x{1FAE8}' .
 			'\\x{1FAE9}' .
+			'\\x{1FAEA}' .
+			'\\x{1FAEF}' .
 			'\\x{1FAF0}-\\x{1FAF6}' .
 			'\\x{1FAF7}-\\x{1FAF8}',
 		'Emoji_Modifier' =>
@@ -2621,7 +2657,8 @@ function utf8_regex_properties(): array
 			'\\x{1A7F}' .
 			'\\x{1AB0}-\\x{1ABD}' .
 			'\\x{1ABE}' .
-			'\\x{1ABF}-\\x{1ACE}' .
+			'\\x{1ABF}-\\x{1ADD}' .
+			'\\x{1AE0}-\\x{1AEB}' .
 			'\\x{1B00}-\\x{1B03}' .
 			'\\x{1B04}' .
 			'\\x{1B34}' .
@@ -2747,7 +2784,7 @@ function utf8_regex_properties(): array
 			'\\x{10D24}-\\x{10D27}' .
 			'\\x{10D69}-\\x{10D6D}' .
 			'\\x{10EAB}-\\x{10EAC}' .
-			'\\x{10EFC}-\\x{10EFF}' .
+			'\\x{10EFA}-\\x{10EFF}' .
 			'\\x{10F46}-\\x{10F50}' .
 			'\\x{10F82}-\\x{10F85}' .
 			'\\x{11000}' .
@@ -2882,6 +2919,12 @@ function utf8_regex_properties(): array
 			'\\x{11A8A}-\\x{11A96}' .
 			'\\x{11A97}' .
 			'\\x{11A98}-\\x{11A99}' .
+			'\\x{11B60}' .
+			'\\x{11B61}' .
+			'\\x{11B62}-\\x{11B64}' .
+			'\\x{11B65}' .
+			'\\x{11B66}' .
+			'\\x{11B67}' .
 			'\\x{11C2F}' .
 			'\\x{11C30}-\\x{11C36}' .
 			'\\x{11C38}-\\x{11C3D}' .
@@ -2955,6 +2998,10 @@ function utf8_regex_properties(): array
 			'\\x{1E2EC}-\\x{1E2EF}' .
 			'\\x{1E4EC}-\\x{1E4EF}' .
 			'\\x{1E5EE}-\\x{1E5EF}' .
+			'\\x{1E6E3}' .
+			'\\x{1E6E6}' .
+			'\\x{1E6EE}-\\x{1E6EF}' .
+			'\\x{1E6F5}' .
 			'\\x{1E8D0}-\\x{1E8D6}' .
 			'\\x{1E944}-\\x{1E94A}' .
 			'\\x{1F3FB}-\\x{1F3FF}' .
@@ -3003,19 +3050,20 @@ function utf8_regex_properties(): array
 			'\\x{F900}-\\x{FA6D}' .
 			'\\x{FA70}-\\x{FAD9}' .
 			'\\x{16FE4}' .
-			'\\x{17000}-\\x{187F7}' .
-			'\\x{18800}-\\x{18CD5}' .
-			'\\x{18CFF}-\\x{18D08}' .
+			'\\x{16FF2}-\\x{16FF3}' .
+			'\\x{16FF4}-\\x{16FF6}' .
+			'\\x{17000}-\\x{18CD5}' .
+			'\\x{18CFF}-\\x{18D1E}' .
+			'\\x{18D80}-\\x{18DF2}' .
 			'\\x{1B170}-\\x{1B2FB}' .
 			'\\x{20000}-\\x{2A6DF}' .
-			'\\x{2A700}-\\x{2B739}' .
-			'\\x{2B740}-\\x{2B81D}' .
-			'\\x{2B820}-\\x{2CEA1}' .
+			'\\x{2A700}-\\x{2B81D}' .
+			'\\x{2B820}-\\x{2CEAD}' .
 			'\\x{2CEB0}-\\x{2EBE0}' .
 			'\\x{2EBF0}-\\x{2EE5D}' .
 			'\\x{2F800}-\\x{2FA1D}' .
 			'\\x{30000}-\\x{3134A}' .
-			'\\x{31350}-\\x{323AF}',
+			'\\x{31350}-\\x{33479}',
 		'Join_Control' =>
 			'\\x{200C}-\\x{200D}',
 		'Katakana' =>
@@ -3135,6 +3183,7 @@ function utf8_regex_properties(): array
 			'\\x{11C50}-\\x{11C59}' .
 			'\\x{11D50}-\\x{11D59}' .
 			'\\x{11DA0}-\\x{11DA9}' .
+			'\\x{11DE0}-\\x{11DE9}' .
 			'\\x{11F50}-\\x{11F59}' .
 			'\\x{16130}-\\x{16139}' .
 			'\\x{16A60}-\\x{16A69}' .
@@ -3365,9 +3414,45 @@ function utf8_regex_variation_selectors(): array
 			'\\x{1F6E9}' .
 			'\\x{1F6F0}' .
 			'\\x{1F6F3}',
-		'\\x{FE03}\\x{FE06}' =>
-			'\\x{13338}',
+		'\\x{FE06}' =>
+			'\\x{1312F}' .
+			'\\x{13139}' .
+			'\\x{13184}' .
+			'\\x{131DB}' .
+			'\\x{131EE}' .
+			'\\x{13205}' .
+			'\\x{132A4}' .
+			'\\x{132E9}' .
+			'\\x{1332B}' .
+			'\\x{13338}' .
+			'\\x{13370}-\\x{13371}' .
+			'\\x{13419}' .
+			'\\x{14274}',
+		'\\x{FE05}' =>
+			'\\x{13139}' .
+			'\\x{14274}',
+		'\\x{FE04}' =>
+			'\\x{13139}' .
+			'\\x{1340D}',
+		'\\x{FE03}' =>
+			'\\x{13012}' .
+			'\\x{130B8}' .
+			'\\x{130BA}' .
+			'\\x{1310F}' .
+			'\\x{1312F}' .
+			'\\x{13139}' .
+			'\\x{13184}' .
+			'\\x{1319C}-\\x{1319D}' .
+			'\\x{1319F}' .
+			'\\x{131B1}' .
+			'\\x{131DB}' .
+			'\\x{13205}' .
+			'\\x{13296}' .
+			'\\x{13338}' .
+			'\\x{13419}',
 		'\\x{FE02}' =>
+			'\\x{2018}-\\x{2019}' .
+			'\\x{201C}-\\x{201D}' .
 			'\\x{13117}' .
 			'\\x{13139}' .
 			'\\x{13183}' .
@@ -3398,6 +3483,7 @@ function utf8_regex_variation_selectors(): array
 			'\\x{13419}' .
 			'\\x{1342C}' .
 			'\\x{1342E}' .
+			'\\x{14274}' .
 			'\\x{537F}' .
 			'\\x{5BE7}' .
 			'\\x{618E}' .
@@ -3441,6 +3527,7 @@ function utf8_regex_variation_selectors(): array
 			'\\x{131F8}-\\x{131FA}' .
 			'\\x{13257}' .
 			'\\x{1327F}' .
+			'\\x{1328B}' .
 			'\\x{132A4}' .
 			'\\x{13308}' .
 			'\\x{13312}-\\x{13314}' .
@@ -3449,6 +3536,8 @@ function utf8_regex_variation_selectors(): array
 			'\\x{13331}' .
 			'\\x{133E8}' .
 			'\\x{13419}' .
+			'\\x{13F1F}' .
+			'\\x{14274}' .
 			'\\x{3B9D}' .
 			'\\x{3EB8}' .
 			'\\x{4039}' .
@@ -3548,6 +3637,7 @@ function utf8_regex_variation_selectors(): array
 			'\\x{2297}' .
 			'\\x{229C}' .
 			'\\x{22DA}-\\x{22DB}' .
+			'\\x{29B7}' .
 			'\\x{2A3C}-\\x{2A3D}' .
 			'\\x{2A9D}-\\x{2A9E}' .
 			'\\x{2AAC}-\\x{2AAD}' .
@@ -3625,14 +3715,17 @@ function utf8_regex_variation_selectors(): array
 			'\\x{13377}-\\x{13378}' .
 			'\\x{13399}-\\x{1339A}' .
 			'\\x{133D3}' .
-			'\\x{133E5}' .
+			'\\x{133E4}-\\x{133E5}' .
 			'\\x{133E7}' .
+			'\\x{133EE}' .
 			'\\x{133F2}' .
 			'\\x{133F5}-\\x{133F6}' .
 			'\\x{13416}' .
 			'\\x{13419}-\\x{1341A}' .
 			'\\x{13423}' .
 			'\\x{13443}-\\x{13446}' .
+			'\\x{13BE8}-\\x{13BEA}' .
+			'\\x{13F72}' .
 			'\\x{349E}' .
 			'\\x{34B9}' .
 			'\\x{34BB}' .
@@ -4579,11 +4672,13 @@ function utf8_regex_joining_type(): array
 				'\\x{077A}-\\x{077F}' .
 				'\\x{0886}' .
 				'\\x{0889}-\\x{088D}' .
+				'\\x{088F}' .
 				'\\x{08A0}-\\x{08A9}' .
 				'\\x{08AF}-\\x{08B0}' .
 				'\\x{08B3}-\\x{08B8}' .
 				'\\x{08BA}-\\x{08C8}' .
-				'\\x{10EC3}-\\x{10EC4}',
+				'\\x{10EC3}-\\x{10EC4}' .
+				'\\x{10EC6}-\\x{10EC7}',
 			'Right_Joining' =>
 				'\\x{0622}-\\x{0625}' .
 				'\\x{0627}' .
@@ -4626,7 +4721,7 @@ function utf8_regex_joining_type(): array
 				'\\x{08CA}-\\x{08E1}' .
 				'\\x{08E3}-\\x{0902}' .
 				'\\x{102E0}' .
-				'\\x{10EFC}-\\x{10EFF}',
+				'\\x{10EFA}-\\x{10EFF}',
 		],
 		'Mongolian' => [
 			'Join_Causing' =>
@@ -4676,15 +4771,6 @@ function utf8_regex_joining_type(): array
 				'\\x{0711}' .
 				'\\x{0730}-\\x{074A}',
 		],
-		'Adlam' => [
-			'Join_Causing' =>
-				'\\x{0640}',
-			'Dual_Joining' =>
-				'\\x{1E900}-\\x{1E943}',
-			'Transparent' =>
-				'\\x{1E944}-\\x{1E94A}' .
-				'\\x{1E94B}',
-		],
 		'Tirhuta' => [
 			'Dual_Joining' =>
 				'\\x{A840}-\\x{A871}' .
@@ -4694,7 +4780,17 @@ function utf8_regex_joining_type(): array
 				'\\x{114B3}-\\x{114B8}' .
 				'\\x{114BA}' .
 				'\\x{114BF}-\\x{114C0}' .
-				'\\x{114C2}-\\x{114C3}',
+				'\\x{114C2}-\\x{114C3}' .
+				'\\x{1CE2}-\\x{1CE8}',
+		],
+		'Adlam' => [
+			'Join_Causing' =>
+				'\\x{0640}',
+			'Dual_Joining' =>
+				'\\x{1E900}-\\x{1E943}',
+			'Transparent' =>
+				'\\x{1E944}-\\x{1E94A}' .
+				'\\x{1E94B}',
 		],
 		'Nko' => [
 			'Join_Causing' =>
@@ -4854,8 +4950,7 @@ function utf8_regex_indic(): array
 				'\\x{0966}-\\x{096A}' .
 				'\\x{096A}-\\x{096E}' .
 				'\\x{096E}-\\x{097F}' .
-				'\\x{1CD0}-\\x{1CD4}' .
-				'\\x{1CD6}-\\x{1CDC}' .
+				'\\x{1CD0}-\\x{1CDC}' .
 				'\\x{1CDE}-\\x{1CF4}' .
 				'\\x{1CF6}' .
 				'\\x{1CF8}' .
@@ -4887,8 +4982,7 @@ function utf8_regex_indic(): array
 				'\\x{094D}' .
 				'\\x{0951}-\\x{0952}' .
 				'\\x{1CD0}-\\x{1CD2}' .
-				'\\x{1CD4}' .
-				'\\x{1CD6}-\\x{1CDC}' .
+				'\\x{1CD4}-\\x{1CDC}' .
 				'\\x{1CDE}-\\x{1CE0}' .
 				'\\x{1CE2}-\\x{1CE8}' .
 				'\\x{1CED}' .
@@ -4907,8 +5001,7 @@ function utf8_regex_indic(): array
 				'\\x{0955}-\\x{0957}' .
 				'\\x{0962}-\\x{0963}' .
 				'\\x{1CD0}-\\x{1CD2}' .
-				'\\x{1CD4}' .
-				'\\x{1CD6}-\\x{1CDC}' .
+				'\\x{1CD4}-\\x{1CDC}' .
 				'\\x{1CDE}-\\x{1CE0}' .
 				'\\x{1CE2}-\\x{1CE8}' .
 				'\\x{1CED}' .
@@ -5076,7 +5169,7 @@ function utf8_regex_indic(): array
 				'\\x{09EF}-\\x{09FE}' .
 				'\\x{1CD0}' .
 				'\\x{1CD2}' .
-				'\\x{1CD5}' .
+				'\\x{1CD5}-\\x{1CD6}' .
 				'\\x{1CD8}' .
 				'\\x{1CE1}' .
 				'\\x{1CEA}' .
@@ -5110,7 +5203,7 @@ function utf8_regex_indic(): array
 				'\\x{09FE}' .
 				'\\x{1CD0}' .
 				'\\x{1CD2}' .
-				'\\x{1CD5}' .
+				'\\x{1CD5}-\\x{1CD6}' .
 				'\\x{1CD8}' .
 				'\\x{1CED}' .
 				'\\x{A8F1}',
@@ -5124,7 +5217,7 @@ function utf8_regex_indic(): array
 				'\\x{09FE}' .
 				'\\x{1CD0}' .
 				'\\x{1CD2}' .
-				'\\x{1CD5}' .
+				'\\x{1CD5}-\\x{1CD6}' .
 				'\\x{1CD8}' .
 				'\\x{1CED}' .
 				'\\x{A8F1}',
@@ -5177,6 +5270,125 @@ function utf8_regex_indic(): array
 				'\\x{0DD6}' .
 				'\\x{0DD8}-\\x{0DDF}' .
 				'\\x{0DF2}-\\x{0DF3}',
+		],
+		'Sharada' => [
+			'All' =>
+				'\\x{0951}' .
+				'\\x{1CD7}' .
+				'\\x{1CD9}' .
+				'\\x{1CDD}' .
+				'\\x{1CE0}' .
+				'\\x{1CEA}' .
+				'\\x{1CED}' .
+				'\\x{A838}' .
+				'\\x{A83B}' .
+				'\\x{A83D}' .
+				'\\x{11180}-\\x{111DF}' .
+				'\\x{11B60}-\\x{11B67}',
+			'Letter' =>
+				'\\x{1CEA}' .
+				'\\x{11183}-\\x{111B2}' .
+				'\\x{111C1}-\\x{111C4}' .
+				'\\x{111DA}' .
+				'\\x{111DC}',
+			'Nonspacing_Combining_Mark' =>
+				'\\x{0951}' .
+				'\\x{1CD7}' .
+				'\\x{1CD9}' .
+				'\\x{1CDD}' .
+				'\\x{1CE0}' .
+				'\\x{1CED}' .
+				'\\x{111CA}',
+			'Nonspacing_Mark' =>
+				'\\x{0951}' .
+				'\\x{1CD7}' .
+				'\\x{1CD9}' .
+				'\\x{1CDD}' .
+				'\\x{1CE0}' .
+				'\\x{1CED}' .
+				'\\x{11180}-\\x{11181}' .
+				'\\x{111B6}-\\x{111BE}' .
+				'\\x{111C9}-\\x{111CC}' .
+				'\\x{111CF}' .
+				'\\x{11B60}' .
+				'\\x{11B62}-\\x{11B64}' .
+				'\\x{11B66}',
+			'Virama' =>
+				'\\x{111C0}',
+			'Vowel_Dependent' =>
+				'\\x{111B3}-\\x{111B5}' .
+				'\\x{111B6}-\\x{111BE}' .
+				'\\x{111BF}' .
+				'\\x{111CB}-\\x{111CC}' .
+				'\\x{111CE}' .
+				'\\x{11B60}' .
+				'\\x{11B61}' .
+				'\\x{11B62}-\\x{11B64}' .
+				'\\x{11B65}' .
+				'\\x{11B66}' .
+				'\\x{11B67}',
+		],
+		'Telugu' => [
+			'All' =>
+				'\\x{0951}-\\x{0952}' .
+				'\\x{0964}-\\x{0965}' .
+				'\\x{0C00}-\\x{0C0C}' .
+				'\\x{0C0E}-\\x{0C10}' .
+				'\\x{0C12}-\\x{0C28}' .
+				'\\x{0C2A}-\\x{0C39}' .
+				'\\x{0C3C}-\\x{0C44}' .
+				'\\x{0C46}-\\x{0C48}' .
+				'\\x{0C4A}-\\x{0C4D}' .
+				'\\x{0C55}-\\x{0C56}' .
+				'\\x{0C58}-\\x{0C5A}' .
+				'\\x{0C5C}-\\x{0C5D}' .
+				'\\x{0C60}-\\x{0C63}' .
+				'\\x{0C66}-\\x{0C6F}' .
+				'\\x{0C77}-\\x{0C7F}' .
+				'\\x{1CD5}-\\x{1CD6}' .
+				'\\x{1CD8}' .
+				'\\x{1CDA}' .
+				'\\x{1CF2}',
+			'Letter' =>
+				'\\x{0C05}-\\x{0C0C}' .
+				'\\x{0C0E}-\\x{0C10}' .
+				'\\x{0C12}-\\x{0C28}' .
+				'\\x{0C2A}-\\x{0C39}' .
+				'\\x{0C3D}' .
+				'\\x{0C58}-\\x{0C5A}' .
+				'\\x{0C5C}-\\x{0C5D}' .
+				'\\x{0C60}-\\x{0C61}' .
+				'\\x{1CF2}',
+			'Nonspacing_Combining_Mark' =>
+				'\\x{0951}-\\x{0952}' .
+				'\\x{0C3C}' .
+				'\\x{0C4D}' .
+				'\\x{0C55}-\\x{0C56}' .
+				'\\x{1CD5}-\\x{1CD6}' .
+				'\\x{1CD8}' .
+				'\\x{1CDA}',
+			'Nonspacing_Mark' =>
+				'\\x{0951}-\\x{0952}' .
+				'\\x{0C00}' .
+				'\\x{0C04}' .
+				'\\x{0C3C}' .
+				'\\x{0C3E}-\\x{0C40}' .
+				'\\x{0C46}-\\x{0C48}' .
+				'\\x{0C4A}-\\x{0C4D}' .
+				'\\x{0C55}-\\x{0C56}' .
+				'\\x{0C62}-\\x{0C63}' .
+				'\\x{1CD5}-\\x{1CD6}' .
+				'\\x{1CD8}' .
+				'\\x{1CDA}',
+			'Virama' =>
+				'\\x{0C4D}',
+			'Vowel_Dependent' =>
+				'\\x{0C3E}-\\x{0C40}' .
+				'\\x{0C41}-\\x{0C44}' .
+				'\\x{0C46}-\\x{0C48}' .
+				'\\x{0C4A}-\\x{0C4C}' .
+				'\\x{0C55}-\\x{0C56}' .
+				'\\x{0C62}-\\x{0C63}',
 		],
 		'Grantha' => [
 			'All' =>
@@ -5271,7 +5483,7 @@ function utf8_regex_indic(): array
 				'\\x{0CC6}-\\x{0CC8}' .
 				'\\x{0CCA}-\\x{0CCD}' .
 				'\\x{0CD5}-\\x{0CD6}' .
-				'\\x{0CDD}-\\x{0CDE}' .
+				'\\x{0CDC}-\\x{0CDE}' .
 				'\\x{0CE0}-\\x{0CE3}' .
 				'\\x{0CE6}' .
 				'\\x{0CE6}-\\x{0CE9}' .
@@ -5294,7 +5506,7 @@ function utf8_regex_indic(): array
 				'\\x{0CAA}-\\x{0CB3}' .
 				'\\x{0CB5}-\\x{0CB9}' .
 				'\\x{0CBD}' .
-				'\\x{0CDD}-\\x{0CDE}' .
+				'\\x{0CDC}-\\x{0CDE}' .
 				'\\x{0CE0}-\\x{0CE1}' .
 				'\\x{0CF1}-\\x{0CF2}' .
 				'\\x{1CF2}',
@@ -5331,61 +5543,48 @@ function utf8_regex_indic(): array
 				'\\x{0CD5}-\\x{0CD6}' .
 				'\\x{0CE2}-\\x{0CE3}',
 		],
-		'Telugu' => [
+		'Newa' => [
 			'All' =>
 				'\\x{0951}-\\x{0952}' .
-				'\\x{0964}-\\x{0965}' .
-				'\\x{0C00}-\\x{0C0C}' .
-				'\\x{0C0E}-\\x{0C10}' .
-				'\\x{0C12}-\\x{0C28}' .
-				'\\x{0C2A}-\\x{0C39}' .
-				'\\x{0C3C}-\\x{0C44}' .
-				'\\x{0C46}-\\x{0C48}' .
-				'\\x{0C4A}-\\x{0C4D}' .
-				'\\x{0C55}-\\x{0C56}' .
-				'\\x{0C58}-\\x{0C5A}' .
-				'\\x{0C5D}' .
-				'\\x{0C60}-\\x{0C63}' .
-				'\\x{0C66}-\\x{0C6F}' .
-				'\\x{0C77}-\\x{0C7F}' .
-				'\\x{1CDA}' .
-				'\\x{1CF2}',
+				'\\x{1CD5}' .
+				'\\x{1CD7}-\\x{1CD8}' .
+				'\\x{1CE2}' .
+				'\\x{1CE9}' .
+				'\\x{1CEB}' .
+				'\\x{1CED}' .
+				'\\x{11400}-\\x{1145B}' .
+				'\\x{1145D}-\\x{11461}',
 			'Letter' =>
-				'\\x{0C05}-\\x{0C0C}' .
-				'\\x{0C0E}-\\x{0C10}' .
-				'\\x{0C12}-\\x{0C28}' .
-				'\\x{0C2A}-\\x{0C39}' .
-				'\\x{0C3D}' .
-				'\\x{0C58}-\\x{0C5A}' .
-				'\\x{0C5D}' .
-				'\\x{0C60}-\\x{0C61}' .
-				'\\x{1CF2}',
+				'\\x{1CE9}' .
+				'\\x{1CEB}' .
+				'\\x{11400}-\\x{11434}' .
+				'\\x{11447}-\\x{1144A}' .
+				'\\x{1145F}-\\x{11461}',
 			'Nonspacing_Combining_Mark' =>
 				'\\x{0951}-\\x{0952}' .
-				'\\x{0C3C}' .
-				'\\x{0C4D}' .
-				'\\x{0C55}-\\x{0C56}' .
-				'\\x{1CDA}',
+				'\\x{1CD5}' .
+				'\\x{1CD7}-\\x{1CD8}' .
+				'\\x{1CE2}' .
+				'\\x{1CED}' .
+				'\\x{11442}' .
+				'\\x{11446}' .
+				'\\x{1145E}',
 			'Nonspacing_Mark' =>
 				'\\x{0951}-\\x{0952}' .
-				'\\x{0C00}' .
-				'\\x{0C04}' .
-				'\\x{0C3C}' .
-				'\\x{0C3E}-\\x{0C40}' .
-				'\\x{0C46}-\\x{0C48}' .
-				'\\x{0C4A}-\\x{0C4D}' .
-				'\\x{0C55}-\\x{0C56}' .
-				'\\x{0C62}-\\x{0C63}' .
-				'\\x{1CDA}',
+				'\\x{1CD5}' .
+				'\\x{1CD7}-\\x{1CD8}' .
+				'\\x{1CE2}' .
+				'\\x{1CED}' .
+				'\\x{11438}-\\x{1143F}' .
+				'\\x{11442}-\\x{11444}' .
+				'\\x{11446}' .
+				'\\x{1145E}',
 			'Virama' =>
-				'\\x{0C4D}',
+				'\\x{11442}',
 			'Vowel_Dependent' =>
-				'\\x{0C3E}-\\x{0C40}' .
-				'\\x{0C41}-\\x{0C44}' .
-				'\\x{0C46}-\\x{0C48}' .
-				'\\x{0C4A}-\\x{0C4C}' .
-				'\\x{0C55}-\\x{0C56}' .
-				'\\x{0C62}-\\x{0C63}',
+				'\\x{11435}-\\x{11437}' .
+				'\\x{11438}-\\x{1143F}' .
+				'\\x{11440}-\\x{11441}',
 		],
 		'Gujarati' => [
 			'All' =>
@@ -5447,48 +5646,6 @@ function utf8_regex_indic(): array
 				'\\x{0AC9}' .
 				'\\x{0ACB}-\\x{0ACC}' .
 				'\\x{0AE2}-\\x{0AE3}',
-		],
-		'Sharada' => [
-			'All' =>
-				'\\x{0951}' .
-				'\\x{1CD7}' .
-				'\\x{1CD9}' .
-				'\\x{1CDD}' .
-				'\\x{1CE0}' .
-				'\\x{A838}' .
-				'\\x{A83B}' .
-				'\\x{A83D}' .
-				'\\x{11180}-\\x{111DF}',
-			'Letter' =>
-				'\\x{11183}-\\x{111B2}' .
-				'\\x{111C1}-\\x{111C4}' .
-				'\\x{111DA}' .
-				'\\x{111DC}',
-			'Nonspacing_Combining_Mark' =>
-				'\\x{0951}' .
-				'\\x{1CD7}' .
-				'\\x{1CD9}' .
-				'\\x{1CDD}' .
-				'\\x{1CE0}' .
-				'\\x{111CA}',
-			'Nonspacing_Mark' =>
-				'\\x{0951}' .
-				'\\x{1CD7}' .
-				'\\x{1CD9}' .
-				'\\x{1CDD}' .
-				'\\x{1CE0}' .
-				'\\x{11180}-\\x{11181}' .
-				'\\x{111B6}-\\x{111BE}' .
-				'\\x{111C9}-\\x{111CC}' .
-				'\\x{111CF}',
-			'Virama' =>
-				'\\x{111C0}',
-			'Vowel_Dependent' =>
-				'\\x{111B3}-\\x{111B5}' .
-				'\\x{111B6}-\\x{111BE}' .
-				'\\x{111BF}' .
-				'\\x{111CB}-\\x{111CC}' .
-				'\\x{111CE}',
 		],
 		'Oriya' => [
 			'All' =>
@@ -5616,6 +5773,8 @@ function utf8_regex_indic(): array
 			'All' =>
 				'\\x{0951}-\\x{0952}' .
 				'\\x{0964}-\\x{0965}' .
+				'\\x{1CD5}' .
+				'\\x{1CE2}' .
 				'\\x{1CF2}' .
 				'\\x{A838}-\\x{A839}' .
 				'\\x{A83E}' .
@@ -5630,9 +5789,13 @@ function utf8_regex_indic(): array
 				'\\x{114C7}',
 			'Nonspacing_Combining_Mark' =>
 				'\\x{0951}-\\x{0952}' .
+				'\\x{1CD5}' .
+				'\\x{1CE2}' .
 				'\\x{114C2}-\\x{114C3}',
 			'Nonspacing_Mark' =>
 				'\\x{0951}-\\x{0952}' .
+				'\\x{1CD5}' .
+				'\\x{1CE2}' .
 				'\\x{114B3}-\\x{114B8}' .
 				'\\x{114BA}' .
 				'\\x{114BF}-\\x{114C0}' .
@@ -5708,6 +5871,7 @@ function utf8_regex_indic(): array
 		],
 		'Nandinagari' => [
 			'All' =>
+				'\\x{0951}' .
 				'\\x{0964}-\\x{0965}' .
 				'\\x{0CE7}' .
 				'\\x{0CEA}' .
@@ -5730,8 +5894,10 @@ function utf8_regex_indic(): array
 				'\\x{119E1}' .
 				'\\x{119E3}',
 			'Nonspacing_Combining_Mark' =>
+				'\\x{0951}' .
 				'\\x{119E0}',
 			'Nonspacing_Mark' =>
+				'\\x{0951}' .
 				'\\x{119D4}-\\x{119D7}' .
 				'\\x{119DA}-\\x{119DB}' .
 				'\\x{119E0}',
@@ -5866,29 +6032,6 @@ function utf8_regex_indic(): array
 			'Vowel_Dependent' =>
 				'\\x{A8B5}-\\x{A8C3}',
 		],
-		'Javanese' => [
-			'All' =>
-				'\\x{A980}-\\x{A9CD}' .
-				'\\x{A9CF}-\\x{A9D9}' .
-				'\\x{A9DE}-\\x{A9DF}',
-			'Letter' =>
-				'\\x{A984}-\\x{A9B2}' .
-				'\\x{A9CF}',
-			'Nonspacing_Combining_Mark' =>
-				'\\x{A9B3}',
-			'Nonspacing_Mark' =>
-				'\\x{A980}-\\x{A982}' .
-				'\\x{A9B3}' .
-				'\\x{A9B6}-\\x{A9B9}' .
-				'\\x{A9BC}-\\x{A9BD}',
-			'Virama' =>
-				'\\x{A9C0}',
-			'Vowel_Dependent' =>
-				'\\x{A9B4}-\\x{A9B5}' .
-				'\\x{A9B6}-\\x{A9B9}' .
-				'\\x{A9BA}-\\x{A9BB}' .
-				'\\x{A9BC}',
-		],
 		'Brahmi' => [
 			'All' =>
 				'\\x{11000}-\\x{1104D}' .
@@ -5913,6 +6056,29 @@ function utf8_regex_indic(): array
 			'Vowel_Dependent' =>
 				'\\x{11038}-\\x{11045}' .
 				'\\x{11073}-\\x{11074}',
+		],
+		'Javanese' => [
+			'All' =>
+				'\\x{A980}-\\x{A9CD}' .
+				'\\x{A9CF}-\\x{A9D9}' .
+				'\\x{A9DE}-\\x{A9DF}',
+			'Letter' =>
+				'\\x{A984}-\\x{A9B2}' .
+				'\\x{A9CF}',
+			'Nonspacing_Combining_Mark' =>
+				'\\x{A9B3}',
+			'Nonspacing_Mark' =>
+				'\\x{A980}-\\x{A982}' .
+				'\\x{A9B3}' .
+				'\\x{A9B6}-\\x{A9B9}' .
+				'\\x{A9BC}-\\x{A9BD}',
+			'Virama' =>
+				'\\x{A9C0}',
+			'Vowel_Dependent' =>
+				'\\x{A9B4}-\\x{A9B5}' .
+				'\\x{A9B6}-\\x{A9B9}' .
+				'\\x{A9BA}-\\x{A9BB}' .
+				'\\x{A9BC}',
 		],
 		'Modi' => [
 			'All' =>
@@ -5961,30 +6127,6 @@ function utf8_regex_indic(): array
 				'\\x{115B8}-\\x{115BB}' .
 				'\\x{115DC}-\\x{115DD}',
 		],
-		'Newa' => [
-			'All' =>
-				'\\x{11400}-\\x{1145B}' .
-				'\\x{1145D}-\\x{11461}',
-			'Letter' =>
-				'\\x{11400}-\\x{11434}' .
-				'\\x{11447}-\\x{1144A}' .
-				'\\x{1145F}-\\x{11461}',
-			'Nonspacing_Combining_Mark' =>
-				'\\x{11442}' .
-				'\\x{11446}' .
-				'\\x{1145E}',
-			'Nonspacing_Mark' =>
-				'\\x{11438}-\\x{1143F}' .
-				'\\x{11442}-\\x{11444}' .
-				'\\x{11446}' .
-				'\\x{1145E}',
-			'Virama' =>
-				'\\x{11442}',
-			'Vowel_Dependent' =>
-				'\\x{11435}-\\x{11437}' .
-				'\\x{11438}-\\x{1143F}' .
-				'\\x{11440}-\\x{11441}',
-		],
 		'Bhaiksuki' => [
 			'All' =>
 				'\\x{11C00}-\\x{11C08}' .
@@ -6010,3 +6152,4 @@ function utf8_regex_indic(): array
 		],
 	];
 }
+

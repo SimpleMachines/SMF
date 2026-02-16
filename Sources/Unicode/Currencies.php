@@ -83,10 +83,6 @@ function currencies(): array
 			'digits' => 2,
 			'rounding' => 0,
 		],
-		'BGN' => [
-			'digits' => 2,
-			'rounding' => 0,
-		],
 		'BHD' => [
 			'digits' => 3,
 			'rounding' => 0,
@@ -154,10 +150,8 @@ function currencies(): array
 			'rounding' => 0,
 		],
 		'COP' => [
-			'digits' => 2,
+			'digits' => 0,
 			'rounding' => 0,
-			'cashDigits' => 0,
-			'cashRounding' => 0,
 		],
 		'CRC' => [
 			'digits' => 2,
@@ -271,16 +265,13 @@ function currencies(): array
 			'rounding' => 0,
 		],
 		'HUF' => [
-			'digits' => 2,
+			'digits' => 0,
 			'rounding' => 0,
-			'cashDigits' => 0,
-			'cashRounding' => 0,
+			'cashRounding' => 5,
 		],
 		'IDR' => [
-			'digits' => 2,
+			'digits' => 0,
 			'rounding' => 0,
-			'cashDigits' => 0,
-			'cashRounding' => 0,
 		],
 		'ILS' => [
 			'digits' => 2,
@@ -481,10 +472,8 @@ function currencies(): array
 			'rounding' => 0,
 		],
 		'PKR' => [
-			'digits' => 2,
+			'digits' => 0,
 			'rounding' => 0,
-			'cashDigits' => 0,
-			'cashRounding' => 0,
 		],
 		'PLN' => [
 			'digits' => 2,
@@ -503,8 +492,10 @@ function currencies(): array
 			'rounding' => 0,
 		],
 		'RSD' => [
-			'digits' => 0,
+			'digits' => 2,
 			'rounding' => 0,
+			'cashDigits' => 0,
+			'cashRounding' => 0,
 		],
 		'RUB' => [
 			'digits' => 2,
@@ -767,7 +758,7 @@ function country_currencies(): array
 			'XOF',
 		],
 		'BG' => [
-			'BGN',
+			'EUR',
 		],
 		'BH' => [
 			'BHD',
@@ -1477,3 +1468,4 @@ function country_currencies(): array
 		],
 	];
 }
+
