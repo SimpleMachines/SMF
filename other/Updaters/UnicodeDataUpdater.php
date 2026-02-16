@@ -53,7 +53,7 @@ class UnicodeDataUpdater extends UpdaterBase
 			echo 'Updating Unicode data...', PHP_EOL;
 		}
 
-		$this->createBranch();
+		$this->checkoutNewBranch();
 
 		$updater = new UpdateUnicode(['files_only' => true]);
 		$updater->execute();
