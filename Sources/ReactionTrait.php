@@ -25,7 +25,7 @@ trait ReactionTrait
 {
 	/****************
 	 * Public methods
-	****************/
+	 ****************/
 
 	/**
 	 * @return array
@@ -37,8 +37,8 @@ trait ReactionTrait
 		if (\is_null($reactions = CacheApi::get('reactions', 480))) {
 			$request = Db::$db->query(
 				'SELECT * FROM {db_prefix}reactions',
-			[],
-		);
+				[],
+			);
 
 			while ($result = Db::$db->fetch_assoc($request)) {
 				$reactions[$result['id_reaction']] = $result['name'];
@@ -52,5 +52,4 @@ trait ReactionTrait
 
 		return $reactions;
 	}
-
 }

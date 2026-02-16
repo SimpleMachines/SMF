@@ -338,7 +338,7 @@ class React implements ActionInterface, Routable
 		}
 
 		// Is this a valid reaction ID?
-		if ($this->id_react != 0 && in_array($this->id_react, $this->getReactions())) {
+		if ($this->id_react != 0 && \in_array($this->id_react, $this->getReactions())) {
 			$this->error = 'invalid_reaction';
 
 			return;

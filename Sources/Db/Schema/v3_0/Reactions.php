@@ -35,25 +35,25 @@ class Reactions extends Table
 	{
 		$this->name = 'reactions';
 
-        $this->columns = [
-            'id_reaction' => new Column(
-                name: 'id_reaction',
-                type: 'smallint',
-                unsigned: true,
-                not_null: true,
-                default: 0,
-                auto: true,
-            ),
-            'name' => new Column(
-                name: 'name',
-                type: 'varchar',
-                size: 255,
-                not_null: true,
-                default: '',
-            ),
-        ];
+		$this->columns = [
+			'id_reaction' => new Column(
+				name: 'id_reaction',
+				type: 'smallint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+				auto: true,
+			),
+			'name' => new Column(
+				name: 'name',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+		];
 
-        $this->indexes = [
+		$this->indexes = [
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [

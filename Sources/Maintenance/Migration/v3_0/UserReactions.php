@@ -51,8 +51,7 @@ class UserReactions extends MigrationBase
 		// Does the user_likes table exist?
 		$table_exists = Db::$db->list_tables(false, '%user_likes');
 
-		if (!empty($table_exists))
-		{
+		if (!empty($table_exists)) {
 			// Rename the table
 			Db::$db->rename_table('{db_prefix}user_likes', '{db_prefix}user_reacts', true);
 
@@ -83,7 +82,7 @@ class UserReactions extends MigrationBase
 			// Finally, the settting
 			Db::$db->query('UPDATE {db_prefix}settings SET variable = {string:r_set} WHERE variable = {string:l_set}', ['r_set' => 'enable_reacts', 'l_set' => 'enable_likes']);
 		}
-	
+
 		// Create the table
 		else {
 			// Shortcuts are fun...
@@ -103,5 +102,4 @@ class UserReactions extends MigrationBase
 
 		return true;
 	}
-
 }

@@ -62,6 +62,10 @@ class Reactions implements ActionInterface
 		'settings' => 'settings',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/	
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
@@ -112,7 +116,7 @@ class Reactions implements ActionInterface
 					WHERE id_reaction IN ({array_int:deleted})',
 					[
 						'deleted' => $deleted,
-					]
+					],
 				);
 
 				// Are there any posts that used these reactions?
@@ -132,7 +136,7 @@ class Reactions implements ActionInterface
 				if (Db::$db->num_rows($get_reacted_posts) > 0) {
 					while ($reacted_post = $get_reacted_posts->fetchAssoc()) {
 						Db::$db->query(
-						'
+								'
 						UPDATE {db_prefix}messages
 						SET reactions = reactions-{int:deleted}
 						WHERE id_msg = {int:msg}',
@@ -208,6 +212,7 @@ class Reactions implements ActionInterface
 			'get_items' => [
 				'function' => function (int $start, int $items_per_page, string $sort_by) use ($reactions): array {
 					$items = [];
+
 					foreach ($reactions as $id => $name) {
 						$items[] = [
 							'id' => $id,
@@ -230,7 +235,7 @@ class Reactions implements ActionInterface
 							],
 							'data' => [
 								'function' => function ($rowData) {
-									return '<input type="text" name="reacts[' . $rowData['id'] . ']" value="' . $rowData['name']. '">';
+									return '<input type="text" name="reacts[' . $rowData['id'] . ']" value="' . $rowData['name'] . '">';
 								},
 							],
 						],
@@ -291,7 +296,7 @@ class Reactions implements ActionInterface
 		Utils::$context['default_list'] = 'reactions_list';
 	}
 
-	/************************
+	/***********************
 	 * Public static methods
 	 ***********************/
 
@@ -331,10 +336,6 @@ class Reactions implements ActionInterface
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
 
 	/**
 	 * Gets the configuration variables for the settings sub-action.
