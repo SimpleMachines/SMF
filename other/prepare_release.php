@@ -55,8 +55,4 @@ foreach (
 	} else {
 		$updater->execute();
 	}
-
-	if (shell_exec('git status --porcelain') !== null) {
-		die('Commit current changes, then run this script again to continue.');
-	}
 }

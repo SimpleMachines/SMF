@@ -60,6 +60,17 @@ abstract class UpdaterBase
 	 */
 	public static object $loader;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether we've already checked for a dirty working tree.
+	 */
+	private static bool $checked_working_tree = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -90,9 +101,11 @@ abstract class UpdaterBase
 		}
 
 		// Do nothing if working tree is dirty.
-		if (shell_exec('git status --porcelain') !== null) {
+		if (!self::$checked_working_tree && shell_exec('git status --porcelain') !== null) {
 			throw new \Exception('Could not continue. Dirty working tree.');
 		}
+
+		self::$checked_working_tree = true;
 
 		// Impersonate cron.php
 		if (!\defined('SMF')) {
