@@ -19,6 +19,7 @@ $ascii_transliteration[800] = [
 	47 => 'xie',
 	73 => 'zhen',
 	83 => 'biang',
+	86 => 'ying',
 	134 => 'xia',
 	147 => 'zao',
 	148 => 'zhuo',

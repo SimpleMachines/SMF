@@ -31,11 +31,37 @@
 
 declare(strict_types=1);
 
-namespace SMF\other;
+namespace SMF\other\Updaters;
 
-require_once 'Updaters/UpdaterBase.php';
+use SMF\Tasks\UpdateUnicode;
 
-require_once 'Updaters/UnicodeDataUpdater.php';
+/**
+ * Class UnicodeDataUpdater
+ */
+class UnicodeDataUpdater extends UpdaterBase
+{
+	/****************
+	 * Public methods
+	 ****************/
 
-$updater = new Updaters\UnicodeDataUpdater('update_unicode_data');
-$updater->execute();
+	/**
+	 * Does the job.
+	 */
+	public function execute(): void
+	{
+		if (php_sapi_name() === 'cli') {
+			echo 'Updating Unicode data...', PHP_EOL;
+		}
+
+		$this->checkoutNewBranch();
+
+		$updater = new UpdateUnicode(['files_only' => true]);
+		$updater->execute();
+
+		if (php_sapi_name() === 'cli') {
+			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
+		}
+
+		$this->removeUselessBranch();
+	}
+}

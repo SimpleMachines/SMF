@@ -13,5 +13,5 @@
 
 // Transliteration maps to replace non-ASCII characters with ASCII approximations.
 $ascii_transliteration[733] = [
-	10 => 'wu',
+	10 => 'mo',
 ];

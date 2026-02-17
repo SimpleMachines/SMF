@@ -154,7 +154,8 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 		],
 		16 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19520928T020000',
+			'DTSTART' => '19500924T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19610924T020000',
 			'TZNAME' => 'PST',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
@@ -169,16 +170,16 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 		],
 		18 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19500924T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19610924T020000',
+			'DTSTART' => '19621028T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=19661030T020000',
 			'TZNAME' => 'PST',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
 		19 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19760425T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T020000',
+			'DTSTART' => '19670430T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T020000',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
@@ -193,13 +194,35 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 		],
 		21 => [
 			'type' => 'DAYLIGHT',
+			'DTSTART' => '19740106T020000',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
+		],
+		22 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19750223T020000',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
+		],
+		23 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19760425T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T020000',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
+		],
+		24 => [
+			'type' => 'DAYLIGHT',
 			'DTSTART' => '19870405T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T020000',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		22 => [
+		25 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19960407T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20000402T020000',
@@ -207,7 +230,7 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		23 => [
+		26 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19961027T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20001029T020000',
@@ -215,7 +238,7 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		24 => [
+		27 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20020407T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20220403T020000',
@@ -223,7 +246,7 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		25 => [
+		28 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20021027T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20221030T020000',
@@ -231,7 +254,7 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		26 => [
+		29 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
@@ -239,7 +262,7 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		27 => [
+		30 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',

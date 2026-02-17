@@ -15,7 +15,7 @@
 $ascii_transliteration[709] = [
 	47 => 'ou',
 	66 => 'long',
-	68 => 'si',
+	68 => 'shi',
 	74 => 'jian',
 	91 => 'ku',
 	102 => 'ou',
