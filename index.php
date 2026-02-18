@@ -133,7 +133,7 @@ call_user_func(function () {
 	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
 
 	// Initialize the container.
-	\SMF\Infrastructure\Container::init();
+	SMF\Infrastructure\Container::init();
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
