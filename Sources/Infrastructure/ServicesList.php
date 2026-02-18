@@ -8,7 +8,7 @@ use SMF\Services\ErrorHandlerService;
 //	'shared' => true  // false will create a new instance everytime
 //],
 return [
-    ErrorHandlerService::class => [
-        'shared' => true,
-    ],
+	ErrorHandlerService::class => [
+		'shared' => true,
+	],
 ];

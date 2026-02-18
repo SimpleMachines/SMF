@@ -23,9 +23,9 @@ use SMF\Utils;
  */
 class ErrorHandlerService
 {
-	/**************************
-	 * Public static properties
-	 **************************/
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var array
@@ -54,9 +54,7 @@ class ErrorHandlerService
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
-	}
+	public function __construct() {}
 
 	/**
 	 * Error handler.
@@ -148,9 +146,7 @@ class ErrorHandlerService
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
+	
 
 	/**
 	 * Convenience method to create an instance of this class.
@@ -518,9 +514,9 @@ class ErrorHandlerService
 		die();
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Small utility function for fatal error pages.
@@ -731,7 +727,7 @@ class ErrorHandlerService
 	 */
 	protected function sendHttpStatus(int $code, string $message = ''): void
 	{
-		if (function_exists('http_response_code')) {
+		if (\function_exists('http_response_code')) {
 			http_response_code($code);
 		} else {
 			header('HTTP/1.1 ' . $code . ' ' . $message);
