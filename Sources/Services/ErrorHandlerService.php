@@ -146,8 +146,6 @@ class ErrorHandlerService
 		}
 	}
 
-	
-
 	/**
 	 * Convenience method to create an instance of this class.
 	 *
