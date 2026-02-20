@@ -58,7 +58,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Meta-zone labels are the user friendly strings shown to the end
 	 * user, e.g. "Mountain Standard Time". The values of this array
-	 * are keys of strings defined in Timezones.{language}.php, which
+	 * are keys of strings defined in the Timezones language file, which
 	 * in turn are sprintf format strings used to generate the final
 	 * label text.
 	 *
@@ -72,7 +72,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * If you are adding a new meta-zone to this list because the TZDB
 	 * added a new time zone that doesn't fit any existing meta-zone,
-	 * please also add a fallback in the get_tzid_fallbacks() function.
+	 * please also add a fallback in the TimeZone::$fallbacks array.
 	 * This helps support SMF installs on servers using outdated
 	 * versions of the TZDB.
 	 */
@@ -583,14 +583,14 @@ class TimeZone extends \DateTimeZone
 	 * sorted by population (as reported in statistics available on
 	 * Wikipedia in November 2020). Sorting this way enables us to
 	 * consistently select the most appropriate individual time zone to
-	 * represent all others that share its DST transition rules and values.
-	 * For example, this ensures that New York will be preferred over
-	 * random small towns in Indiana.
+	 * represent all others that share its DST transition rules and
+	 * values. For example, this ensures that New York will be preferred
+	 * over random small towns in Indiana.
 	 *
-	 * If future versions of the time zone database add new time zone
-	 * identifiers beyond those included here, they should be added to this
-	 * list as appropriate. However, SMF will gracefully handle unexpected
-	 * new time zones, so nothing will break in the meantime.
+	 * When future versions of the time zone database add new time zone
+	 * identifiers beyond those included here, they should be added to
+	 * this list as appropriate. However, SMF will gracefully handle
+	 * unexpected new time zones, so nothing will break in the meantime.
 	 */
 	public static array $sorted_tzids = [
 		// '??' means international.
@@ -1874,7 +1874,8 @@ class TimeZone extends \DateTimeZone
 		// Should we put time zones from certain countries at the top of the list?
 		self::prioritizeTzids();
 
-		// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+		// Idea here is to get exactly one representative identifier for each
+		// and every unique set of time zone rules.
 		$zones = [];
 		$dst_types = [];
 		$labels = [];
@@ -2057,10 +2058,9 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns an array of all the time zones in a country, ranked according
-	 * to population and/or political significance.
+	 * Gets an array of all the time zones in a country, ranked by population.
 	 *
-	 * @param string $country_code The two-character ISO-3166 code for a country.
+	 * @param string $country_code A country's two-character ISO-3166 code.
 	 * @param int|string $when The date/time used to determine fallback values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
@@ -2098,17 +2098,18 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Checks a list of time zone identifiers to make sure they are all defined in
-	 * the installed version of the time zone database, and returns an array of
-	 * key-value substitution pairs.
+	 * Checks a list of time zone identifiers to make sure they are all defined
+	 * in the installed version of the time zone database, and returns an array
+	 * of key-value substitution pairs.
 	 *
-	 * For defined time zone identifiers, the substitution value will be identical
-	 * to the original value. For undefined ones, the substitute will be a time zone
-	 * identifier that was equivalent to the missing one at the specified time, or
-	 * an empty string if there was no equivalent at that time.
+	 * For defined time zone identifiers, the substitution value will be
+	 * identical to the original value. For undefined ones, the substitute will
+	 * be a time zone identifier that was equivalent to the missing one at the
+	 * specified time, or an empty string if there was no equivalent at that
+	 * time.
 	 *
-	 * Note: These fallbacks do not need to include every new time zone ever. They
-	 * only need to cover any that are used in self::$metazones.
+	 * Note: These fallbacks do not need to include every new time zone ever.
+	 * They only need to cover any that are used in self::$metazones.
 	 *
 	 * To find the date & time when a new time zone comes into effect, check
 	 * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
