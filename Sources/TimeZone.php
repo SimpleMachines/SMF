@@ -1836,17 +1836,19 @@ class TimeZone extends \DateTimeZone
 	 ***********************/
 
 	/**
-	 * Creates a new DateTimeZone object.
+	 * Creates a new instance of this class.
 	 *
-	 * @param string $timezone One of the supported timezone names , an offset value (+0200), or a timezone abbreviation (BST).
-	 * @return bool|\DateTimeZone Returns DateTimeZone on success. Procedural style returns `false` on failure.
+	 * @param string $timezone One of the supported time zone names, an offset
+	 *    value (+0200), or a time zone abbreviation (BST).
+	 * @return self Returns an instance of this class for the requested time
+	 *    zone, or for the default time zone if the requested one is invalid.
 	 */
-	public static function create(string $timezone): bool|\DateTimeZone
+	public static function create(string $timezone): self
 	{
 		try {
-			return new \DateTimeZone($timezone);
-		} catch (\Exception $ex) {
-			return new \DateTimeZone(Config::$modSettings['default_timezone']);
+			return new self($timezone);
+		} catch (\Throwable $e) {
+			return new self(Config::$modSettings['default_timezone'] ?? date_default_timezone_get());
 		}
 	}
 
