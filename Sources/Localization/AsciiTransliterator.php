@@ -35,7 +35,7 @@ class AsciiTransliterator
 	 *
 	 * The version of the ICU library that was used to build the data files.
 	 */
-	public const BUILT_FROM_ICU_VERSION = '77.1';
+	public const BUILT_FROM_ICU_VERSION = '78.2';
 
 	/**
 	 * @var string

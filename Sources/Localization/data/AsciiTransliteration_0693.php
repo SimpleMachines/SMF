@@ -18,7 +18,7 @@ $ascii_transliteration[693] = [
 	2 => 'di',
 	4 => 'rou',
 	5 => 'suo',
-	6 => 'bei',
+	6 => 'ba',
 	7 => 'bi',
 	8 => 'shuo',
 	10 => 'xiu',
@@ -88,7 +88,7 @@ $ascii_transliteration[693] = [
 	239 => 'hou',
 	240 => 'dui',
 	241 => 'lian',
-	243 => 'jiang',
+	243 => 'qiang',
 	244 => 'zhan',
 	245 => 'xiang',
 ];

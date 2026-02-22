@@ -33,6 +33,7 @@ $ascii_transliteration[747] = [
 	112 => 'gang',
 	135 => 'mou',
 	217 => 'ke',
+	244 => 'ni',
 	245 => 'ou',
 	248 => 'li',
 ];
