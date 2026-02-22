@@ -13,12 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF;
+namespace SMF\Infrastructure;
 
 use League\Container\Container as LeagueContainer;
 
 /**
  * A wrapper for the League\Container dependency injection container.
+ * Its meant to be a temporary wrapper until all global vars are moved to dependencies.
  */
 class Container
 {
@@ -42,6 +43,7 @@ class Container
 	{
 		if (!isset(self::$instance)) {
 			self::$instance = new LeagueContainer();
+			self::$instance->addServiceProvider(new ServiceProvider());
 		}
 	}
 
