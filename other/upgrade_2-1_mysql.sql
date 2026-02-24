@@ -371,6 +371,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250')
 ---}
 ---#
 
+---# Option to disable counting guest/bot views on board lists
+---{
+	if (!isset($modSettings['no_guest_views']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('no_guest_views', '0'),
+			array('variable')
+		);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
