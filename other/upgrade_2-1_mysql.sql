@@ -371,6 +371,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250')
 ---}
 ---#
 
+---# Add new setting to prevent guest/bot logging
+---{
+	if (!isset($modSettings['no_guest_logging']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('no_guest_logging', '0'),
+			array('variable')
+		);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/

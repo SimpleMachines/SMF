@@ -421,6 +421,8 @@ $helptxt['deny_boards_access'] = 'Checking this setting will allow you to deny a
 // argument(s): scripturl
 $helptxt['who_enabled'] = 'This setting allows you to turn on or off the <a href="%1$s?action=who" target="_blank" rel="noopener">Who\'s Online</a> page, which shows who is browsing the forum and what they are doing.';
 
+$helptxt['no_guest_logging'] = 'This setting prevents guests from being included in the Users Online counts. Guest and bot activity can cause excessive IO, so this may help during a bot attack.';
+
 $helptxt['recycle_enable'] = '&quot;Recycles&quot; deleted topics and posts to the specified board.';
 
 $helptxt['enableReportPM'] = 'This setting allows your users to report personal messages they receive to the administration team. This may be useful in helping to track down any abuse of the personal messaging system.';
