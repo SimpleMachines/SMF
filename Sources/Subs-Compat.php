@@ -11874,6 +11874,65 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 		return $string;
 	}
+
+	/**
+	 * Gets the crc32 checksum of the passed string and then, if this is running
+	 * on a 64-bit system, adjusts the binary value of the checksum so that its
+	 * integer interpretion on a 64-bit system will be the same as the integer
+	 * interpretation of the true checksum would have been on a 32-bit system.
+	 *
+	 * This function was created as an attempt to give consistent cross-platform
+	 * results when trying to get a crc32 checksum. However, it is a flawed
+	 * solution and should be avoided.
+	 *
+	 * The flaw here is that when this function is called on a 64-bit system,
+	 * the integer it returns IS NOT the correct checksum value when interpreted
+	 * as binary. The integer returned by this function will be the same on all
+	 * platfroms, sure, but the underlying binary value -- which is what really
+	 * matters for a checksum -- will be different. As a result, if you run the
+	 * following on a 64-bit system:
+	 *
+	 *    `dechex(smf_crc32('derp'));`
+	 *
+	 * ... the returned hexadecimal string will be incorrect!
+	 *
+	 * In light of this, smf_crc32() should never be used except in cases where
+	 * it is necessary for backward compatibility with old mods. Instead, any
+	 * new code that needs to get a crc32 checksum for a value should always
+	 * get that checksum as a binary or hexadecimal string from the outset and
+	 * then continue to handle it as a binary or hexadecimal string and avoid
+	 * ever casting it to an integer. The safe and reliable way to obtain the
+	 * true hexadecimal representation of a crc32 checksum on all platforms is
+	 * this:
+	 *
+	 *    `hash('crc32b', $var)`
+	 *
+	 * By using hash() to get the checksum's hexadecimal representation, we can
+	 * avoid ever casting the checksum as an integer, which is what causes the
+	 * discrepancy to appear on 32-bit vs. 64-bit systems.
+	 *
+	 * @see https://php.net/crc32 for more info on the problems with crc32().
+	 * @see https://php.net/crc32#79567 for the origin of this function's code.
+	 *
+	 * @deprecated 3.0
+	 *
+	 * @param string $str
+	 * @return int The crc32 polynomial of $str
+	 */
+	function smf_crc32($str): int
+	{
+		$crc = crc32($str);
+
+		// On a 32-bit system, PHP_INT_SIZE === 4.
+		// On a 64-bit system, PHP_INT_SIZE === 8.
+		if (PHP_INT_SIZE === 8 && $crc & 0x80000000) {
+			$crc ^= 0xffffffff;
+			$crc += 1;
+			$crc = -$crc;
+		}
+
+		return $crc;
+	}
 }
 
 /***************************
@@ -11913,29 +11972,6 @@ if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
 			}
 		}
 	});
-}
-
-if (!function_exists('smf_crc32')) {
-	/**
-	 * Compatibility function.
-	 * crc32 doesn't work as expected on 64-bit functions - make our own.
-	 * https://php.net/crc32#79567
-	 *
-	 * @param string $number
-	 * @return int The crc32 polynomial of $number
-	 */
-	function smf_crc32($number): int
-	{
-		$crc = crc32($number);
-
-		if ($crc & 0x80000000) {
-			$crc ^= 0xffffffff;
-			$crc += 1;
-			$crc = -$crc;
-		}
-
-		return $crc;
-	}
 }
 
 /*****************
