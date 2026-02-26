@@ -1557,7 +1557,7 @@ function template_repair_boards()
 	if (!empty(Utils::$context['redirect_to_recount'])) {
 		echo '
 					<script>
-						doAutoSubmit(5, "', Utils::escapeJavaScript(Lang::getTxt('errors_recount_now', file: 'Admin')), '", "recount_form", "recount_now");
+						doAutoSubmit(5, "', Utils::escapeJavaScript(Lang::getTxt('errors_recount_now', file: 'Admin')), '", "recount_form", "recount");
 					</script>';
 	}
 }
