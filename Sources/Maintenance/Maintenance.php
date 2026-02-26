@@ -228,7 +228,7 @@ class Maintenance
 	public function __construct()
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
-		self::$theme_dir = \dirname(SMF_SETTINGS_FILE) . '/Themes/default';
+		self::$theme_dir = self::getBaseDir() . '/Themes/default';
 
 		// This might be overwritten by the tool, but we need a default value.
 		self::$context['started'] = (int) TIME_START;
