@@ -12092,6 +12092,20 @@ if (!function_exists('array_find_key')) {
 	}
 }
 
+if (!function_exists('array_first')) {
+	function array_first(array $array): mixed
+	{
+		return $array === [] ? null : $array[array_key_first($array)];
+	}
+}
+
+if (!function_exists('array_last')) {
+	function array_last(array $array): mixed
+	{
+		return $array === [] ? null : $array[array_key_last($array)];
+	}
+}
+
 if (!function_exists('grapheme_str_split')) {
 	function grapheme_str_split(string $string, int $length = 1): array|false
 	{
