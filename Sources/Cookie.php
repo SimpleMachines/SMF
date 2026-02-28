@@ -543,17 +543,25 @@ class Cookie
 
 		$host = $url->host;
 
-		// Manually specified the global domain.
-		// @todo Why doesn't this check whether $global is true?
-		if (!empty(Config::$modSettings['globalCookiesDomain']) && str_contains(Config::$boardurl, Config::$modSettings['globalCookiesDomain'])) {
-			$host = Config::$modSettings['globalCookiesDomain'];
-		}
-		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($use_global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
-			$host = '.' . $parts[1];
+		// Globalize cookies across domains?
+		if ($use_global) {
+			// Manually specified the global domain.
+			if (
+				!empty(Config::$modSettings['globalCookiesDomain'])
+				&& str_ends_with(Config::$boardurl, Config::$modSettings['globalCookiesDomain'])
+			) {
+				$host = '.' . ltrim(Config::$modSettings['globalCookiesDomain'], '.');
+			}
+			// Globalize cookies across domains? (filter out IP-addresses)
+			elseif (
+				!IP::create($host)->isValid()
+				&& preg_match('/(?:[^\.]+\.)?([^\.]{2,}\..+)\z/i', $host, $parts)
+			) {
+				$host = '.' . $parts[1];
+			}
 		}
 		// We shouldn't use a host at all if both options are off.
-		elseif (!$use_local && !$use_global) {
+		elseif (!$use_local) {
 			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
@@ -592,5 +600,29 @@ class Cookie
 		}
 
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
+	}
+
+	/**
+	 * Gets (and if necessary, sets) the value of self::$default_domain.
+	 */
+	public static function getDefaultDomain(): string
+	{
+		if (!isset(self::$default_domain)) {
+			self::setDefaults();
+		}
+
+		return self::$default_domain;
+	}
+
+	/**
+	 * Gets (and if necessary, sets) the value of self::$default_path.
+	 */
+	public static function getDefaultPath(): string
+	{
+		if (!isset(self::$default_path)) {
+			self::setDefaults();
+		}
+
+		return self::$default_path;
 	}
 }

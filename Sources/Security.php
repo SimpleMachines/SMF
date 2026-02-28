@@ -612,9 +612,9 @@ class Security
 			$allowed_origins = [];
 
 			// If subdomain-independent cookies are on, allow CORS requests from subdomains.
-			if (!empty(Config::$modSettings['globalCookies']) && !empty(Config::$modSettings['globalCookiesDomain'])) {
+			if (!empty(Config::$modSettings['globalCookies'])) {
 				$allowed_origins[++$i] = array_merge(
-					Url::create('//*.' . trim(Config::$modSettings['globalCookiesDomain']))->parse(),
+					Url::create('//*.' . ltrim(Cookie::getDefaultDomain(), '.'))->parse(),
 					['type' => 'subdomain'],
 				);
 			}
