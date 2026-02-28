@@ -767,12 +767,15 @@ class Editor implements \ArrayAccess, \Stringable
 			'hr' => 'horizontalrule',
 		];
 
+		// Allow mods to modify BBC buttons.
+		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
+
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
 
 		if (!empty(Config::$modSettings['disable_wysiwyg'])) {
 			self::$disabled_tags['removeformat'] = true;
-			self::$disabled_tags['source'] = true;
+			self::$disabled_tags['orderedlist'] = true;
 		}
 
 		// Disable the buttons for any BBC that this user is not allowed to use.
@@ -780,17 +783,6 @@ class Editor implements \ArrayAccess, \Stringable
 			if (!User::$me->allowedTo('bbc_' . $tag)) {
 				$disabled_bbc[] = $tag;
 			}
-		}
-
-		// Allow mods to modify BBC buttons.
-		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
-
-		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
-		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
-
-		if (empty(Config::$modSettings['disable_wysiwyg'])) {
-			self::$disabled_tags['removeformat'] = true;
-			self::$disabled_tags['orderedlist'] = true;
 		}
 
 		foreach ($disabled_bbc as $tag) {
@@ -808,9 +800,6 @@ class Editor implements \ArrayAccess, \Stringable
 
 			self::$disabled_tags[$editor_tag_map[$tag] ?? $tag] = true;
 		}
-
-		// Allow mods to modify BBC buttons.
-		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
 
 		$group = 0;
 
@@ -1144,6 +1133,7 @@ class Editor implements \ArrayAccess, \Stringable
 					'code' => 'quote',
 					'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 				],
+				[],
 				[
 					'image' => 'heading',
 					'code' => 'heading',
