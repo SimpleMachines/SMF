@@ -1,31 +1,26 @@
+name: PHP-CS-Fixer
+
 on:
   push:
     branches:
       - release-3.0
   pull_request:
 
-name: PHP Check
 jobs:
   php-cs-fixer:
-    name: PHP-CS-Fixer
+    name: Code standard compliance check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
 
       - name: Get changed files
         id: changed-files
-        run: |
-          if ${{ github.event_name == 'pull_request' }}; then
-            echo "all_changed_files_count=$(git diff HEAD --name-only | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
-          else
-            echo "all_changed_files_count=$(git diff ${{ github.event.before }}...${{ github.event.after }} --name-only | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
-          fi
+        uses: tj-actions/changed-files@8cba46e29c11878d930bca7870bb54394d3e8b21
 
       - name: Get extra arguments for PHP-CS-Fixer
         id: phpcs-intersection
         run: |
-          CHANGED_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files_count }}" | tr ' ' '\n')
-          if echo "${CHANGED_FILES}" eq "1"; then CHANGED_FILES=""; fi
+          CHANGED_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n')
           if ! echo "${CHANGED_FILES}" | grep -qE "^(\\.php-cs-fixer(\\.dist)?\\.php|composer\\.lock)$"; then EXTRA_ARGS=$(printf -- '--path-mode=intersection\n--\n%s' "${CHANGED_FILES}"); else EXTRA_ARGS=''; fi
           echo "PHPCS_EXTRA_ARGS<<EOF" >> $GITHUB_ENV
           echo "$EXTRA_ARGS" >> $GITHUB_ENV
@@ -34,4 +29,4 @@ jobs:
       - name: PHP-CS-Fixer
         uses: docker://oskarstark/php-cs-fixer-ga
         with:
-          args: --config=.php-cs-fixer.dist.php -v --dry-run --stop-on-violation --using-cache=no --allow-risky=yes ${{ env.PHPCS_EXTRA_ARGS }}
+          args: --config=.php-cs-fixer.dist.php -v --dry-run --diff --no-ansi --show-progress=none --using-cache=no --allow-risky=yes ${{ env.PHPCS_EXTRA_ARGS }}

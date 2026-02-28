@@ -13,7 +13,7 @@
 
 // Transliteration maps to replace non-ASCII characters with ASCII approximations.
 $ascii_transliteration[566] = [
-	16 => 'li',
+	16 => 'ji',
 	22 => 'jian',
 	23 => 'ni',
 	24 => 'shen',

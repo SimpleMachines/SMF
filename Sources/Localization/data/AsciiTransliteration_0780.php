@@ -19,6 +19,7 @@ $ascii_transliteration[780] = [
 	15 => 'dai',
 	17 => 'lou',
 	32 => 'xu',
+	33 => 'meng',
 	34 => 'tang',
 	36 => 'qiu',
 	40 => 'lun',

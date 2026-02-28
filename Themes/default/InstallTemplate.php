@@ -212,7 +212,7 @@ class InstallTemplate extends MaintenanceTemplate
 		if (\count(Maintenance::$context['databases']) > 1) {
 			echo '
 				<dt>
-					<label for="db_type_input">', Lang::getText('db_settings_type', file: 'Maintenance'), ':</label>
+					<label for="db_type_input">', Lang::getTxt('db_settings_type', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
 					<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
@@ -266,7 +266,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="db_name_input">', Lang::getTxt('db_settings_database', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30" pattern="^\w$">
+					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30" pattern="^\w+$">
 					<div class="smalltext">
 						', Lang::getTxt('db_settings_database_info', file: 'Maintenance'), '
 						<span id="db_name_info_warning">', Lang::getTxt('db_settings_database_info_note', file: 'Maintenance'), '</span>
@@ -301,7 +301,7 @@ class InstallTemplate extends MaintenanceTemplate
 	public static function forumSettings(): void
 	{
 		echo '
-			<h3>', Lang::getText('install_settings_info', file: 'Maintenance'), '</h3>';
+			<h3>', Lang::getTxt('install_settings_info', file: 'Maintenance'), '</h3>';
 
 		MaintenanceTemplate::warningsAndErrors();
 

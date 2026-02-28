@@ -14,7 +14,7 @@
 // Transliteration maps to replace non-ASCII characters with ASCII approximations.
 $ascii_transliteration[718] = [
 	0 => 'wen',
-	1 => 'wa',
+	1 => 'ou',
 	2 => 'ge',
 	5 => 'chu',
 	6 => 'sheng',

@@ -1,33 +1,21 @@
 <?php
 
-/**
- * The purpose of this file is... errors. (hard to guess, I guess?)  It takes
- * care of logging, error messages, error handling, database errors, and
- * error log administration.
- *
- * Simple Machines Forum (SMF)
- *
- * @package SMF
- * @author Simple Machines https://www.simplemachines.org
- * @copyright 2026 Simple Machines and individual contributors
- * @license https://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 3.0 Alpha 4
- */
-
 declare(strict_types=1);
 
 namespace SMF;
 
-use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
-use SMF\Debug\DebugUtils;
-use SMF\ServerSideIncludes as SSI;
+use SMF\Infrastructure\Container;
+use SMF\Services\ErrorHandlerService;
 
 /**
  * SMF's error handler.
  *
  * Also provides methods for logging and/or dying when errors occur.
+ *
+ * This class acts as a facade/proxy to the ErrorHandlerService, providing
+ * backward compatibility with the old static API while leveraging the
+ * dependency injection container for proper service management.
+ * @deprecated Use SMF\Services\ErrorHandlerService via Container
  */
 class ErrorHandler
 {
@@ -39,6 +27,9 @@ class ErrorHandler
 	 * @var array
 	 *
 	 * What types of categories do we have for logging errors?
+	 *
+	 * @deprecated Use ErrorHandlerService::$known_error_types instead.
+	 *             Kept for backward compatibility.
 	 */
 	public static array $known_error_types = [
 		'general',
@@ -55,6 +46,17 @@ class ErrorHandler
 		'login',
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var ErrorHandlerService|null
+	 *
+	 * Cached service instance.
+	 */
+	protected static ?ErrorHandlerService $service = null;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -69,84 +71,7 @@ class ErrorHandler
 	 */
 	public function __construct(int $error_level, string $error_string, string $file, int $line)
 	{
-		// Error was suppressed with the @-operator.
-		if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
-			return;
-		}
-
-		// Ignore errors that should not be logged.
-		$error_match = error_reporting() & $error_level;
-
-		if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging'])) {
-			return;
-		}
-
-		if (str_contains($file, 'eval()') && !empty(Theme::$current->settings['current_include_filename'])) {
-			$array = debug_backtrace();
-			$count = \count($array);
-
-			for ($i = 0; $i < $count; $i++) {
-				if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate') {
-					continue;
-				}
-
-				// This is a bug in PHP, with eval, it seems!
-				if (empty($array[$i]['args'])) {
-					$i++;
-				}
-
-				break;
-			}
-
-			if (isset($array[$i]) && !empty($array[$i]['args'])) {
-				$file = realpath(Theme::$current->settings['current_include_filename']) . ' (' . $array[$i]['args'][0] . ' sub template - eval?)';
-			} else {
-				$file = realpath(Theme::$current->settings['current_include_filename']) . ' (eval?)';
-			}
-		}
-
-		if (DebugUtils::isDebugEnabled()) {
-			// Commonly, undefined indexes will occur inside attributes; try to show them anyway!
-			if ($error_level % 255 != E_ERROR) {
-				$temporary = ob_get_contents();
-
-				if (str_ends_with($temporary, '="')) {
-					echo '"';
-				}
-			}
-
-			// Debugging!  This should look like a PHP error message.
-			echo "<br>\n<strong>", $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br>';
-		}
-
-		$error_type = stripos($error_string, 'undefined') !== false ? 'undefined_vars' : 'general';
-
-		$message = self::log($error_level . ': ' . $error_string, $error_type, $file, $line);
-
-		// Let's give integrations a chance to output a bit differently
-		IntegrationHook::call('integrate_output_error', [$message, $error_type, $error_level, $file, $line]);
-
-		// Dying on these errors only causes MORE problems (blank pages!)
-		if ($file == 'Unknown') {
-			return;
-		}
-
-		// If this is an E_ERROR or E_USER_ERROR.... die. Violently so.
-		if ($error_level % 255 == E_ERROR) {
-			Utils::obExit(false);
-		} else {
-			return;
-		}
-
-		// If this is an E_ERROR, E_USER_ERROR, E_WARNING, or E_USER_WARNING.... die. Violently so.
-		if ($error_level % 255 == E_ERROR || $error_level % 255 == E_WARNING) {
-			self::fatal(isset(User::$me) && User::$me->allowedTo('admin_forum') ? $message : $error_string, false);
-		}
-
-		// We should NEVER get to this point.  Any fatal error MUST quit, or very bad things can happen.
-		if ($error_level % 255 == E_ERROR) {
-			die('No direct access...');
-		}
+		self::getService()->handleError($error_level, $error_string, $file, $line);
 	}
 
 	/***********************
@@ -164,7 +89,7 @@ class ErrorHandler
 	 */
 	public static function call(int $error_level, string $error_string, string $file, int $line): void
 	{
-		new self($error_level, $error_string, $file, $line);
+		self::getService()->call($error_level, $error_string, $file, $line);
 	}
 
 	/**
@@ -176,13 +101,7 @@ class ErrorHandler
 	 */
 	public static function catch(\Throwable $e): void
 	{
-		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
-
-		if (!empty(Config::$modSettings['enableErrorLogging'])) {
-			self::log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
-		}
-
-		self::fatal($message, false);
+		self::getService()->catch($e);
 	}
 
 	/**
@@ -201,117 +120,7 @@ class ErrorHandler
 	 */
 	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0, ?array $backtrace = null): string
 	{
-		static $last_error;
-		static $tried_hook = false;
-		static $error_call = 0;
-
-		$error_call++;
-
-		// Collect a backtrace
-		if (!DebugUtils::isDebugEnabled()) {
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			// This is how to keep the args but skip the objects.
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
-		}
-
-		// Are we in a loop?
-		if ($error_call > 2) {
-			var_dump($backtrace);
-
-			die('Error: loop detected. The database may have failed or crashed.');
-		}
-
-		// Check if error logging is actually on.
-		if (empty(Config::$modSettings['enableErrorLogging'])) {
-			return $error_message;
-		}
-
-		// Basically, htmlspecialchars it minus &. (for entities!)
-		$error_message = strtr($error_message, ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;']);
-
-		$error_message = strtr($error_message, ['&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>']);
-
-		// Add a file and line to the error message?
-		// Don't use the actual txt entries for file and line.
-		// Instead use %1$s for file and %2$s for line.
-		// Windows style slashes don't play well, lets convert them to the UNIX style.
-		$file = str_replace('\\', '/', $file);
-
-		// Find the best path and query string we can...
-		if (SMF === 'SSI') {
-			$request_url = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ltrim($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME']	?? 'unknown.php') . !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''), '/');
-		} elseif (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
-			$request_url = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
-		} else {
-			$request_url = ($_SERVER['REQUEST_URL'] ?? '');
-		}
-
-		// Don't log the session hash in the url twice, it's a waste.
-		$request_url = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $request_url));
-
-		// Just so we know what board error messages are from.
-		if (isset($_POST['board']) && !isset($_GET['board']) && SMF !== 'SSI') {
-			$request_url .= ($request_url == '' ? 'board=' : ';board=') . $_POST['board'];
-		}
-
-		// This prevents us from infinite looping if the hook or call produces an error.
-		$other_error_types = [];
-
-		if (empty($tried_hook)) {
-			$tried_hook = true;
-
-			// Allow the hook to change the error_type and know about the error.
-			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
-
-			self::$known_error_types = array_merge(self::$known_error_types, $other_error_types);
-		}
-
-		// Make sure the category that was specified is a valid one
-		$error_type = \in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
-
-		// Leave out the call to this method.
-		array_splice($backtrace, 0, 1);
-		$backtrace = Utils::jsonEncode($backtrace);
-
-		// Don't log the same error countless times, as we can get in a cycle of depression...
-		$error_info = [
-			User::$me->id ?? User::$my_id ?? 0,
-			time(),
-			User::$me->ip ?? IP::getUserIP(),
-			$request_url,
-			$error_message,
-			(string) (User::$sc ?? ''),
-			$error_type,
-			$file,
-			$line,
-			$backtrace,
-		];
-
-		if (empty($last_error) || $last_error != $error_info) {
-			// Insert the error into the database.
-			Db::$db->error_insert($error_info);
-			$last_error = $error_info;
-
-			// Get an error count, if necessary
-			if (!isset(Utils::$context['num_errors'])) {
-				$query = Db::$db->query(
-					'SELECT COUNT(*)
-					FROM {db_prefix}log_errors',
-					[],
-				);
-				list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
-				Db::$db->free_result($query);
-			} else {
-				Utils::$context['num_errors']++;
-			}
-		}
-
-		// Reset error call
-		$error_call = 0;
-
-		// Return the message to make things simpler.
-		return $error_message;
+		return self::getService()->log($error_message, $error_type, $file, $line, $backtrace);
 	}
 
 	/**
@@ -328,18 +137,7 @@ class ErrorHandler
 	 */
 	public static function fatal(string $error, string|bool $log = 'general', int $status = 500): void
 	{
-		// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
-		if (!empty($status)) {
-			Utils::sendHttpStatus($status);
-		}
-
-		// We don't have Lang::$txt yet, but that's okay...
-		if (empty(Lang::$txt)) {
-			die($error);
-		}
-
-		self::logOnline($error);
-		self::setupFatalContext($log ? self::log($error, $log) : $error);
+		self::getService()->fatal($error, $log, $status);
 	}
 
 	/**
@@ -362,45 +160,7 @@ class ErrorHandler
 	 */
 	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403, string $file = 'Errors'): void
 	{
-		static $fatal_error_called = false;
-
-		// Send the status header - set this to 0 or false if you don't want to send one at all.
-		if (!empty($status)) {
-			Utils::sendHttpStatus($status);
-		}
-
-		// Try to load a theme if we don't have one.
-		if (empty(Utils::$context['theme_loaded']) && empty($fatal_error_called)) {
-			$fatal_error_called = true;
-			Theme::load();
-		}
-
-		// Attempt to load the text string.
-		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
-
-		// Send a custom header if we have a custom message.
-		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
-			header('X-SMF-errormsg: ' . $error_message);
-		}
-
-		// If we have no theme stuff we can't have the language file...
-		if (empty(Utils::$context['theme_loaded'])) {
-			die($error);
-		}
-
-		// Log the error in the forum's language, but don't waste the time if we aren't logging
-		if ($log) {
-			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
-			self::log($error_message, $log);
-		}
-
-		// Load the language file, only if it needs to be reloaded
-		if (!$log || Lang::$default != User::$me->language) {
-			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
-		}
-
-		self::logOnline($error, $sprintf);
-		self::setupFatalContext($error_message, $error);
+		self::getService()->fatalLang($error, $log, $sprintf, $status, $file);
 	}
 
 	/**
@@ -409,32 +169,10 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if $maintenance = 2 in Settings.php.
 	 * It stops further execution of the script.
-	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayMaintenanceMessage(): void
 	{
-		self::setFatalHeaders();
-
-		if (!empty(Config::$maintenance)) {
-			$mtitle = Config::$mtitle;
-			$mmessage = Config::$mmessage;
-
-			echo <<<END
-				<!DOCTYPE html>
-				<html>
-					<head>
-						<meta name="robots" content="noindex">
-						<title>{$mtitle}</title>
-					</head>
-					<body>
-						<h3>{$mtitle}</h3>
-						{$mmessage}
-					</body>
-				</html>
-				END;
-		}
-
-		die();
+		self::getService()->displayMaintenanceMessage();
 	}
 
 	/**
@@ -443,49 +181,10 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if there's no way to connect to the database.
 	 * It stops further execution of the script.
-	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayDbError(): void
 	{
-		self::setFatalHeaders();
-
-		// For our purposes, we're gonna want this on if at all possible.
-		CacheApi::$enable = 1;
-
-		if (($temp = CacheApi::get('db_last_error', 600)) !== null) {
-			Config::$db_last_error = max(Config::$db_last_error, $temp);
-		}
-
-		if (Config::$db_last_error < time() - 3600 * 24 * 3 && empty(Config::$maintenance) && !empty(Config::$db_error_send)) {
-			// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
-			CacheApi::put('db_last_error', time(), 600);
-
-			if (($temp = CacheApi::get('db_last_error', 600)) === null) {
-				self::logLastDatabaseError();
-			}
-
-			$db_error = isset(Db::$db) ? @Db::$db->error() : '';
-
-			// Language files aren't loaded yet :(.
-			@mail(Config::$webmaster_email, Config::$mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . Db::$db->title . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
-		}
-
-		// What to do?  Language files haven't and can't be loaded yet...
-		echo <<<END
-			<!DOCTYPE html>
-			<html>
-				<head>
-					<meta name="robots" content="noindex">
-					<title>Connection Problems</title>
-				</head>
-				<body>
-					<h3>Connection Problems</h3>
-					Sorry, SMF was unable to connect to the database. This may be caused by the server being busy. Please try again later.
-				</body>
-			</html>
-			END;
-
-		die();
+		self::getService()->displayDbError();
 	}
 
 	/**
@@ -494,29 +193,10 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if the load averages are too high to continue execution.
 	 * It stops further execution of the script.
-	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayLoadAvgError(): void
 	{
-		// If this is a load average problem, display an appropriate message (but we still don't have language files!)
-
-		self::setFatalHeaders();
-
-		echo <<<END
-			<!DOCTYPE html>
-			<html>
-				<head>
-					<meta name="robots" content="noindex">
-					<title>Temporarily Unavailable</title>
-				</head>
-				<body>
-					<h3>Temporarily Unavailable</h3>
-					Due to high stress on the server the forum is temporarily unavailable.  Please try again later.
-				</body>
-			</html>
-			END;
-
-		die();
+		self::getService()->displayLoadAvgError();
 	}
 
 	/*************************
@@ -524,203 +204,37 @@ class ErrorHandler
 	 *************************/
 
 	/**
-	 * Small utility function for fatal error pages.
-	 * Used by self::fatal() and self::fatalLang().
+	 * Get the ErrorHandlerService instance from the container.
 	 *
-	 * @param string $error The error
+	 * This method provides lazy initialization and caching of the service instance.
+	 * It first attempts to retrieve the service from the DI container, falling back
+	 * to direct instantiation if the container is not available (e.g., during early
+	 * bootstrap or error conditions).
+	 *
+	 * @return ErrorHandlerService The error handler service instance.
 	 */
-	protected static function logOnline(string $error, array $sprintf = []): void
+	protected static function getService(): ErrorHandlerService
 	{
-		// Don't bother if Who's Online is disabled.
-		if (empty(Config::$modSettings['who_enabled'])) {
-			return;
+		// Return cached instance if available
+		if (self::$service !== null) {
+			return self::$service;
 		}
 
-		// Maybe they came from SSI or similar where sessions are not recorded?
-		if (SMF == 'SSI' || SMF == 'BACKGROUND') {
-			return;
+		// Try to get the service from the container
+		try {
+			self::$service = Container::get(ErrorHandlerService::class);
+
+			return self::$service;
+		} catch (\Throwable $e) {
+			// Container not available or service not registered
+			// Fall through to manual instantiation
 		}
 
-		$session_id = !empty(User::$me->is_guest) ? 'ip' . User::$me->ip : session_id();
+		// Fallback: create instance directly
+		// This ensures the error handler works even during early bootstrap
+		// or when the container is not available
+		self::$service = new ErrorHandlerService();
 
-		// First, we have to get the online log, because we need to break apart the serialized string.
-		$request = Db::$db->query(
-			'SELECT url
-			FROM {db_prefix}log_online
-			WHERE session = {string:session}',
-			[
-				'session' => $session_id,
-			],
-		);
-
-		if (Db::$db->num_rows($request) != 0) {
-			list($url) = Db::$db->fetch_row($request);
-
-			$url = Utils::jsonDecode($url, true);
-			$url['error'] = $error;
-
-			// Url field got a max length of 1024 in db
-			if (\strlen($url['error']) > 500) {
-				$url['error'] = substr($url['error'], 0, 500);
-			}
-
-			if (!empty($sprintf)) {
-				$url['error_params'] = $sprintf;
-			}
-
-			Db::$db->query(
-				'UPDATE {db_prefix}log_online
-				SET url = {string:url}
-				WHERE session = {string:session}',
-				[
-					'url' => Utils::jsonEncode($url),
-					'session' => $session_id,
-				],
-			);
-		}
-		Db::$db->free_result($request);
-	}
-
-	/**
-	 * Small utility function for fatal error pages.
-	 *
-	 * Used by self::displayMaintenanceMessage(), self::displayDbError(), and
-	 * self::displayLoadAvgError().
-	 */
-	protected static function setFatalHeaders(): void
-	{
-		if (headers_sent()) {
-			return;
-		}
-
-		// Don't cache this page!
-		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('cache-control: no-cache');
-
-		// Send the right error codes.
-		Utils::sendHttpStatus(503, 'Service Temporarily Unavailable');
-		header('status: 503 Service Temporarily Unavailable');
-		header('retry-after: 3600');
-	}
-
-	/**
-	 * It is called by self::fatal() and self::fatalLang().
-	 *
-	 * @uses template_fatal_error()
-	 *
-	 * @param string $error_message The error message
-	 * @param null|string $error_code An error code
-	 */
-	protected static function setupFatalContext(string $error_message, ?string $error_code = null): void
-	{
-		static $level = 0;
-
-		if (
-			// Don't get caught in a recursive loop.
-			++$level > 1
-			// If we hit a fatal error during install, don't try to load the theme.
-			|| \defined('SMF_INSTALLING')
-		) {
-			die($error_message);
-		}
-
-		// Maybe they came from dlattach or similar?
-		if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty(Utils::$context['theme_loaded'])) {
-			Theme::load();
-		}
-
-		// Don't bother indexing errors mate...
-		Utils::$context['robot_no_index'] = true;
-
-		if (!isset(Utils::$context['error_title'])) {
-			Utils::$context['error_title'] = Lang::getTxt('error_occured', file: 'General');
-		}
-
-		Utils::$context['error_message'] = Utils::$context['error_message'] ?? $error_message;
-
-		Utils::$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
-
-		Utils::$context['error_link'] = Utils::$context['error_link'] ?? 'javascript:document.location=document.referrer';
-
-		if (empty(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Utils::$context['error_title'];
-		}
-
-		Theme::loadTemplate('Errors');
-		Utils::$context['sub_template'] = 'fatal_error';
-
-		// If this is SSI, what do they want us to do?
-		if (SMF == 'SSI') {
-			if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && \is_callable(SSI::$on_error_method)) {
-				\call_user_func(SSI::$on_error_method);
-			} elseif (empty(SSI::$on_error_method) || SSI::$on_error_method !== true) {
-				Theme::loadSubTemplate('fatal_error');
-			}
-
-			// No layers?
-			if (empty(SSI::$on_error_method) || SSI::$on_error_method !== true) {
-				exit;
-			}
-		}
-		// Alternatively from the cron call?
-		elseif (SMF == 'BACKGROUND') {
-			// We can't rely on even having language files available.
-			if (\defined('FROM_CLI') && FROM_CLI) {
-				echo 'cron error: ', Utils::$context['error_message'];
-			} else {
-				echo 'An error occurred. More information may be available in your logs.';
-			}
-
-			exit;
-		}
-
-		// We want whatever for the header, and a footer. (footer includes sub template!)
-		Utils::obExit(null, true, false, true);
-
-		/* DO NOT IGNORE:
-			If you are creating a bridge to SMF or modifying this function, you MUST
-			make ABSOLUTELY SURE that this function quits and DOES NOT RETURN TO NORMAL
-			PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
-			your forum will be in a very easily hackable state.
-		*/
-		die('No direct access...');
-	}
-
-	/**
-	 * Logs the last database error into a file.
-	 * Attempts to use the backup file first, to store the last database error
-	 * and only update db_last_error.php if the first was successful.
-	 *
-	 * @return bool true if successfully able to write the last database error.
-	 */
-	protected static function logLastDatabaseError(): bool
-	{
-		// Make a note of the last modified time in case someone does this before us
-		$last_db_error_change = @filemtime(Config::$cachedir . '/db_last_error.php');
-
-		// save the old file before we do anything
-		$file = Config::$cachedir . '/db_last_error.php';
-		$dberror_backup_fail = !@is_writable(Config::$cachedir . '/db_last_error_bak.php') || !@copy($file, Config::$cachedir . '/db_last_error_bak.php');
-		$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists(Config::$cachedir . '/db_last_error_bak.php') || filesize(Config::$cachedir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
-
-		clearstatcache();
-
-		if (filemtime(Config::$cachedir . '/db_last_error.php') === $last_db_error_change) {
-			// Write the change
-			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n";
-			$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
-
-			// survey says ...
-			if ($written_bytes !== \strlen($write_db_change) && !$dberror_backup_fail) {
-				// Oops. maybe we have no more disk space left, or some other troubles, troubles...
-				// Copy the file back and run for your life!
-				@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');
-			} else {
-				return true;
-			}
-		}
-
-		return false;
+		return self::$service;
 	}
 }

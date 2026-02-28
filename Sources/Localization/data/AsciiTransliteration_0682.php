@@ -30,10 +30,10 @@ $ascii_transliteration[682] = [
 	145 => 'qiao',
 	157 => 'yong',
 	158 => 'qiang',
-	180 => 'yi',
+	180 => 'ze',
 	204 => 'long',
 	225 => 'li',
 	247 => 'chou',
-	248 => 'ji',
+	248 => 'que',
 	250 => 'xian',
 ];

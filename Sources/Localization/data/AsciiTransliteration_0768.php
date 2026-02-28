@@ -28,7 +28,7 @@ $ascii_transliteration[768] = [
 	173 => 'si',
 	198 => 'zan',
 	238 => 'xue',
-	247 => 'chuang',
+	247 => 'cang',
 	251 => 'bi',
 	255 => 'du',
 ];
