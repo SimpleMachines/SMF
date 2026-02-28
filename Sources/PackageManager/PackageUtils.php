@@ -165,8 +165,9 @@ class PackageUtils
 		$crc = unpack('Vcrc32/Visize', substr($data, \strlen($data) - 8, 8));
 		$data = @gzinflate(substr($data, $offset, \strlen($data) - 8 - $offset));
 
-		// smf_crc32 and crc32 may not return the same results, so we accept either.
-		if ($crc['crc32'] != self::smf_crc32($data) && $crc['crc32'] != crc32($data)) {
+		// Compare as hex strings rather than integers in order to avoid
+		// inconsistencies between 32-bit and 64-bit systems.
+		if (hash('crc32b', $data) !== dechex($crc['crc32'])) {
 			return false;
 		}
 
@@ -3846,19 +3847,5 @@ class PackageUtils
 				}
 			}
 		}
-	}
-
-	/**
-	 * crc32 doesn't work as expected on 64-bit functions - make our own.
-	 * https://php.net/crc32#79567
-	 *
-	 * @param string $number
-	 * @return string The crc32
-	 */
-	private static function smf_crc32(string $number): string
-	{
-		require_once Sapi::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
-
-		return smf_crc32($number);
 	}
 }
