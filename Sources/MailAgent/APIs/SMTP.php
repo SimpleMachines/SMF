@@ -112,7 +112,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			return false;
 		}
 
-		$helo = getHostname();
+		$helo = $this->getHostname();
 
 		if (Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
 			// EHLO could be understood to mean encrypted hello...
