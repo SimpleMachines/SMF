@@ -585,6 +585,15 @@ abstract class ToolsBase
 			$this->logProgress(Lang::getTxt('log_settings_file_save', ['setting_names' => Lang::sentenceList(array_keys($config_vars))], file: 'Maintenance'), true);
 		}
 
+		if ($rebuild) {
+			// Remove all the existing comments to make the rebuild nice and clean.
+			Config::safeFileWrite(
+				file: SMF_SETTINGS_FILE,
+				data: Config::stripPhpComments(file_get_contents(SMF_SETTINGS_FILE)),
+				mtime: time(),
+			);
+		}
+
 		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Lang::getTxt('settings_error', file: 'Maintenance')], file: 'Maintenance'));
 
