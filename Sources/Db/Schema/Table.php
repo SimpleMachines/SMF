@@ -636,23 +636,21 @@ class Table
 	}
 
 	/**
-	 * Gets all known table schemas.
+	 * Gets database initializer queries for the indicated SMF version.
 	 *
+	 * @param string $schema_version E.g. 'v3_0'.
 	 * @return array All known table schemas.
 	 */
-	final public static function getInitializers(string $schema_version, string $title): array
+	final public static function getInitializers(string $schema_version): array
 	{
-		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . $title . '.php')) {
+		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . Db::$db->title . '.php')) {
 
-			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . $title;
+			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . Db::$db->title;
 
 			if (!class_exists($fully_qualified_class_name)) {
 				return [];
 			}
 
-			/**
-			 * @var \SMF\Db\Schema\v3_0\Initialize\Base
-			 */
 			$intializer = new $fully_qualified_class_name(Db::$db->get_version());
 
 			return $intializer->getAll();

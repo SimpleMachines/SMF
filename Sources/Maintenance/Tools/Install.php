@@ -742,7 +742,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Some initialization may exist.
 		Db::$db->disableQueryCheck = true;
 
-		foreach (Table::getInitializers($this->schema_version, Db::$db->title) as $query) {
+		foreach (Table::getInitializers($this->schema_version) as $query) {
 			Db::$db->query($query, [
 				'security_override' => true,
 			]);

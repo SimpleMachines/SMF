@@ -31,21 +31,41 @@ class Base
 	 * Public methods
 	 ****************/
 
-	public function __construct(?string $version)
+	/**
+	 * Constructor.
+	 *
+	 * @param string $version Version of the database engine.
+	 */
+	public function __construct(string $version)
 	{
 		$this->version = $version;
 	}
 
+	/**
+	 * Gets queries that create custom SQL functions and operators.
+	 *
+	 * @return array SQL queries.
+	 */
 	public function getAll(): array
 	{
 		return $this->functions() + $this->operators();
 	}
 
+	/**
+	 * Gets queries that create custom SQL functions.
+	 *
+	 * @return array SQL queries.
+	 */
 	public function functions(): array
 	{
 		return [];
 	}
 
+	/**
+	 * Gets queries that create custom SQL operators.
+	 *
+	 * @return array SQL queries.
+	 */
 	public function operators(): array
 	{
 		return [];
