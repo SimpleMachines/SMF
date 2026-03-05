@@ -979,18 +979,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// If they have a "host:port" setup for the host, split that into separate values
 		// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
 		if (strpos(Config::$db_server, ':') !== false) {
-			list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
+			list(Config::$db_server, $db_port) = explode(':', Config::$db_server);
+			Config::$db_port = (int) $db_port;
 
 			$file_settings['db_server'] = Config::$db_server;
-
-			// Only set this if we're not using the default port
-			if (Config::$db_port != Db::$db->getDefaultPort()) {
-				$file_settings['db_port'] = (int) Config::$db_port;
-			}
+			$file_settings['db_port'] = Config::$db_port;
 		}
 
 		// If db_port is set and is the same as the default, set it to 0.
-		if (!empty(Config::$db_port) && Config::$db_port != Db::$db->getDefaultPort()) {
+		if (!empty(Config::$db_port) && Config::$db_port == Db::$db->getDefaultPort()) {
 			$file_settings['db_port'] = 0;
 		}
 
