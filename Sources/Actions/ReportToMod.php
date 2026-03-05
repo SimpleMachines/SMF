@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
@@ -324,8 +325,7 @@ class ReportToMod implements ActionInterface, Routable
 	protected function setPreview(): void
 	{
 		// Set up the preview message.
-		Utils::$context['preview_message'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
-		Msg::preparsecode(Utils::$context['preview_message']);
+		Utils::$context['preview_message'] = Parser::sanitize(Utils::htmlspecialchars($this->comment, ENT_QUOTES));
 
 		// We censor for your protection...
 		Lang::censorText(Utils::$context['preview_message']);

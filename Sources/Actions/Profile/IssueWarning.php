@@ -22,7 +22,6 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
-use SMF\Msg;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Parser;
@@ -546,8 +545,7 @@ class IssueWarning implements ActionInterface
 		}
 
 		if (!empty($_POST['warn_body'])) {
-			Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
-			$warning_body = Parser::transform($warning_body);
+			$warning_body = Parser::transform(Parser::sanitize($warning_body, autolink: !empty(Config::$modSettings['autoLinkUrls'])));
 		}
 
 		// Try to remember some bits.

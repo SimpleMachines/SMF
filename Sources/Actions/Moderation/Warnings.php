@@ -24,7 +24,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
-use SMF\Msg;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -470,7 +470,7 @@ class Warnings implements ActionInterface
 				$_POST['template_body'] = Utils::htmlspecialchars($_POST['template_body']);
 
 				// Clean up BBC.
-				Msg::preparsecode($_POST['template_body'], false, !empty(Config::$modSettings['autoLinkUrls']));
+				$_POST['template_body'] = Parser::sanitize($_POST['template_body'], autolink: !empty(Config::$modSettings['autoLinkUrls']));
 
 				// But put line breaks back!
 				$_POST['template_body'] = strtr($_POST['template_body'], ['<br>' => "\n"]);
