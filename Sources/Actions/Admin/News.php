@@ -1119,7 +1119,7 @@ class News implements ActionInterface
 		foreach (explode("\n", Config::$modSettings['news']) as $id => $line) {
 			$admin_current_news[$id] = [
 				'id' => $id,
-				'unparsed' => Msg::un_preparsecode($line),
+				'unparsed' => Parser::getEditableString($line),
 				'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', Parser::transform($line)),
 			];
 		}

@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
+use SMF\Parser;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
@@ -111,7 +112,7 @@ class QuoteFast implements ActionInterface, Routable
 		if ($can_view_post) {
 			Theme::loadTemplate('Xml');
 			// Remove special formatting we don't want anymore.
-			$body = Msg::un_preparsecode($row['body']);
+			$body = Parser::getEditableString($row['body']);
 			$subject = $row['subject'];
 
 			// Censor the message!

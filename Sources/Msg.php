@@ -1107,63 +1107,6 @@ class Msg implements \ArrayAccess, Routable
 	}
 
 	/**
-	 * This is very simple, and just removes things done by preparsecode.
-	 *
-	 * @param string $message The message
-	 * @return string The message with preparsecode changes reverted.
-	 */
-	public static function un_preparsecode(string $message): string
-	{
-		// Any hooks want to work here?
-		IntegrationHook::call('integrate_unpreparsecode', [&$message]);
-
-		// We're going to unparse only the stuff outside [code]...
-		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
-			if ($i % 2 == 1) {
-				$substitute = md5($parts[$i]);
-				$code_tags[$substitute] = $parts[$i];
-				$parts[$i] = $substitute;
-			}
-		}
-
-		$message = implode('', $parts);
-
-		$message = preg_replace_callback(
-			'~\[html\](.+?)\[/html\]~i',
-			function ($matches) {
-				return '[html]' . strtr(Utils::htmlspecialchars($matches[1], ENT_QUOTES), ['\\&quot;' => '&quot;', '&amp;#13;' => '<br>', '&amp;#32;' => ' ', '&amp;#91;' => '[', '&amp;#93;' => ']']) . '[/html]';
-			},
-			$message,
-		);
-
-		if (str_contains($message, '[cowsay') && !User::$me->allowedTo('bbc_cowsay')) {
-			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
-		}
-
-		// Attempt to un-parse the time to something less awful.
-		// This form will never be created by Msg::preparsecode() in SMF 3.0+
-		// but it might be present in old data.
-		$message = preg_replace_callback(
-			'~\[time\](\d{0,10})\[/time\]~i',
-			function ($matches) {
-				$time = Time::create('@' . $matches[1]);
-
-				return '[time=' . $time->format('Y-m-d\TH:i:sP') . ']' . $time->format(null, false) . '[/time]';
-			},
-			$message,
-		);
-
-		if (!empty($code_tags)) {
-			$message = strtr($message, $code_tags);
-		}
-
-		// Change breaks back to \n's and &nsbp; back to spaces.
-		return preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
-	}
-
-	/**
 	 * Fix any URLs posted - ie. remove 'javascript:'.
 	 * Used by preparsecode, fixes links in message and returns nothing.
 	 *

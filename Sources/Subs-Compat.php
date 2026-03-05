@@ -7459,9 +7459,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Attachment::getFilePath($attachment_id);
 	}
 
-	/********************************
-	 * Begin SMF\Parsers\BBCodeParser
-	 ********************************/
+	/******************
+	 * Begin SMF\Parser
+	 ******************/
 
 	/**
 	 * Return an array with allowed bbc tags for signatures, that can be passed to parse_bbc().
@@ -7563,6 +7563,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			input_types: SMF\Parser::INPUT_BBC | SMF\Parser::INPUT_SMILEYS,
 			output_type: SMF\Parser::OUTPUT_BBC,
 		);
+	}
+
+	/**
+	 * This is very simple, and just removes things done by preparsecode.
+	 *
+	 * @param string $message The message
+	 */
+	function un_preparsecode(string $message): string
+	{
+		return SMF\Parser::getEditableString($message);
 	}
 
 	/*****************
@@ -8872,16 +8882,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function preparsecode(string &$message, bool $previewing = false): void
 	{
 		SMF\Msg::preparsecode($message, $previewing);
-	}
-
-	/**
-	 * This is very simple, and just removes things done by preparsecode.
-	 *
-	 * @param string $message The message
-	 */
-	function un_preparsecode(string $message): string
-	{
-		return SMF\Msg::un_preparsecode($message);
 	}
 
 	/**

@@ -1204,7 +1204,7 @@ class Post implements ActionInterface, Routable
 
 		// Get the stuff ready for the form.
 		$this->form_subject = $row['subject'];
-		$this->form_message = Msg::un_preparsecode($row['body']);
+		$this->form_message = Parser::getEditableString($row['body']);
 		Lang::censorText($this->form_message);
 		Lang::censorText($this->form_subject);
 
