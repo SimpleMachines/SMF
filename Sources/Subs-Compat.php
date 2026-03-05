@@ -7566,6 +7566,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
+	 * Takes a message and parses it, returning nothing.
+	 * Cleans up links (javascript, etc.) and code/quote sections.
+	 * Won't convert \n's and a few other things if previewing is true.
+	 *
+	 * @param string $message The mesasge
+	 * @param bool $previewing Whether we're previewing
+	 */
+	function preparsecode(string &$message, bool $previewing = false): void
+	{
+		$message = SMF\Parser::sanitize($message, $previewing);
+	}
+
+	/**
 	 * This is very simple, and just removes things done by preparsecode.
 	 *
 	 * @param string $message The message
@@ -7573,6 +7586,49 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function un_preparsecode(string $message): string
 	{
 		return SMF\Parser::getEditableString($message);
+	}
+
+	/**
+	 * Fix any URLs posted - ie. remove 'javascript:'.
+	 * Used by preparsecode, fixes links in message and returns nothing.
+	 *
+	 * @param string $message The message
+	 */
+	function fixTags(string &$message): void
+	{
+		// SMF\Parser::fixTags() is protected, so we can't call it directly.
+		$message = (new ReflectionMethod(SMF\Parser::class, 'fixTags'))->invoke(null, $message);
+	}
+
+	/**
+	 * Fix a specific class of tag - ie. url with =.
+	 * Used by fixTags, fixes a specific tag's links.
+	 *
+	 * @param string $message The message
+	 * @param string $myTag The tag
+	 * @param array $protocols The protocols
+	 * @param bool $embeddedUrl Whether it *can* be set to something
+	 * @param bool $hasEqualSign Whether it *is* set to something
+	 * @param bool $hasExtra Whether it can have extra cruft after the begin tag.
+	 */
+	function fixTag(
+		string &$message,
+		string $myTag,
+		array $protocols,
+		bool $embeddedUrl = false,
+		bool $hasEqualSign = false,
+		bool $hasExtra = false,
+	): void {
+		// SMF\Parser::fixTag() is protected, so we can't call it directly.
+		$message = (new ReflectionMethod(SMF\Parser::class, 'fixTag'))->invoke(
+			null,
+			$message,
+			$myTag,
+			$protocols,
+			$embeddedUrl,
+			$hasEqualSign,
+			$hasExtra,
+		);
 	}
 
 	/*****************
@@ -8870,59 +8926,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/***************
 	 * Begin SMF\Msg
 	 ***************/
-
-	/**
-	 * Takes a message and parses it, returning nothing.
-	 * Cleans up links (javascript, etc.) and code/quote sections.
-	 * Won't convert \n's and a few other things if previewing is true.
-	 *
-	 * @param string $message The mesasge
-	 * @param bool $previewing Whether we're previewing
-	 */
-	function preparsecode(string &$message, bool $previewing = false): void
-	{
-		SMF\Msg::preparsecode($message, $previewing);
-	}
-
-	/**
-	 * Fix any URLs posted - ie. remove 'javascript:'.
-	 * Used by preparsecode, fixes links in message and returns nothing.
-	 *
-	 * @param string $message The message
-	 */
-	function fixTags(string &$message): void
-	{
-		SMF\Msg::fixTags($message);
-	}
-
-	/**
-	 * Fix a specific class of tag - ie. url with =.
-	 * Used by fixTags, fixes a specific tag's links.
-	 *
-	 * @param string $message The message
-	 * @param string $myTag The tag
-	 * @param array $protocols The protocols
-	 * @param bool $embeddedUrl Whether it *can* be set to something
-	 * @param bool $hasEqualSign Whether it *is* set to something
-	 * @param bool $hasExtra Whether it can have extra cruft after the begin tag.
-	 */
-	function fixTag(
-		string &$message,
-		string $myTag,
-		array $protocols,
-		bool $embeddedUrl = false,
-		bool $hasEqualSign = false,
-		bool $hasExtra = false,
-	): void {
-		SMF\Msg::fixTag(
-			$message,
-			$myTag,
-			$protocols,
-			$embeddedUrl,
-			$hasEqualSign,
-			$hasExtra,
-		);
-	}
 
 	/**
 	 * Create a post, either as new topic (id_topic = 0) or in an existing one.

@@ -1021,9 +1021,8 @@ class Post implements ActionInterface, Routable
 		// Only show the preview stuff if they hit Preview.
 		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_REQUEST['save_draft'])) {
 			// Set up the preview message and subject and censor them...
-			Utils::$context['preview_message'] = $this->form_message;
-			Msg::preparsecode($this->form_message, true);
-			Msg::preparsecode(Utils::$context['preview_message']);
+			Utils::$context['preview_message'] = Parser::sanitize($this->form_message);
+			$this->form_message = Parser::sanitize($this->form_message, true);
 
 			// Do all bulletin board code tags, with or without smileys.
 			Utils::$context['preview_message'] = Parser::transform(

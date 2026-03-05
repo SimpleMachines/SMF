@@ -640,12 +640,7 @@ class Draft
 		}
 
 		if (isset($_POST['message'])) {
-			$body = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
-			Msg::preparsecode($body);
-		}
-
-		if (isset($body)) {
-			$this->body = $body;
+			$this->body = Parser::sanitize(Utils::htmlspecialchars($_POST['message'], ENT_QUOTES));
 		}
 
 		if (isset($_POST['subject'])) {
