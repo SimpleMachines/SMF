@@ -29,7 +29,6 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
-use SMF\Msg;
 use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
 use SMF\SecurityToken;
@@ -1650,8 +1649,7 @@ class Smileys implements ActionInterface
 				}
 
 				if (!empty($action['parse_bbc'])) {
-					Msg::preparsecode(Utils::$context[$type]);
-					Utils::$context[$type] = Parser::transform(Utils::$context[$type]);
+					Utils::$context[$type] = Parser::transform(Parser::sanitize(Utils::$context[$type]));
 				} else {
 					Utils::$context[$type] = nl2br(Utils::$context[$type]);
 				}

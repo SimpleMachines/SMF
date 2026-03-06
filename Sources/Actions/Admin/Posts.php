@@ -23,7 +23,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\Msg;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\User;
@@ -165,9 +165,7 @@ class Posts implements ActionInterface
 		}
 
 		if (isset($_POST['censortest'])) {
-			$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
-			Msg::preparsecode($censorText);
-			Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), ['"' => '&quot;']);
+			Utils::$context['censor_test'] = strtr(Lang::censorText(Parser::sanitize(Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES))), ['"' => '&quot;']);
 		}
 
 		// Set everything up for the template to do its thang.
