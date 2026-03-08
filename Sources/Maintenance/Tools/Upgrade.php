@@ -1220,10 +1220,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Log what we've done.
 		if (!isset(User::$me)) {
-			User::load();
+			User::load(dataset: 'minimal');
 		}
 
 		if (empty(User::$me->id) && !empty($this->user['id'])) {
+			User::load($this->user['id'], dataset: 'minimal');
 			User::setMe($this->user['id']);
 		}
 
@@ -1608,6 +1609,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Load up the current user safely.
 		if (!isset(User::$me)) {
+			User::load($this->user['id'], dataset: 'minimal');
 			User::setMe($this->user['id']);
 
 			if ($this->user['id'] === 0 && $this->user['name'] === 'Database Admin') {
