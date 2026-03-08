@@ -121,6 +121,7 @@
 	--button-border-radius_focus:                     var(--button-border-radius);
 	--button-border-radius_hover:                     var(--button-border-radius);
 	--button-border-style:                            solid;
+	--button-border-style_hidden:                     none;
 	--button-border-width:                            1px;
 	--button-border-width_active:                     var(--button-border-width_hover);
 	--button-border-width_focus:                      var(--button-border-width_hover);

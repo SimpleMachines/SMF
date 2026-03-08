@@ -3244,6 +3244,7 @@ dl.addrules dt.floatleft {
 	float: inline-end;
 	margin-inline-start: auto;
 	text-decoration: none;
+	border: var(--button-border-style_hidden);
 }
 .popup_heading button.hide_popup:hover {
 	text-decoration: none;

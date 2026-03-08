@@ -62,11 +62,10 @@ function template_login()
 				<div>
 					<input type="password" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
 				</div>
-				<label>', Lang::getTxt('time_logged_in', file: 'General'), ':</label>
-				<label>
-					<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+				<p class="centertext">
+					<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', ' class="button">
 					', Lang::getTxt('remember_me', file: 'General'), '
-				</label>';
+				</p>';
 
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete'])) {

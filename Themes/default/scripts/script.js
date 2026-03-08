@@ -264,10 +264,6 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		containerOptions = { heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (sIcon || 'help') };
 	}
 
-	// Create the div that we are going to load
-	const oContainer = new smc_Popup(containerOptions);
-	const oPopup_body = oContainer.cover.querySelector('.popup_content');
-
 	// Load the help page content (we just want the text to show)
 	fetch(desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax', {
 		method: 'GET',
@@ -281,11 +277,13 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	})
 		.then((res, rej) => res.ok ? res.text() : rej(res))
 		.then(data => {
-			oPopup_body.innerHTML = data;
+			containerOptions.content = data;
+			new smc_Popup(containerOptions);
 		})
 		.catch(error => {
-			const errorMsg = error.headers.get('x-smf-errormsg');
-			oPopup_body.innerHTML = errorMsg || error.message || banned_text;
+			const errorMsg = error?.headers?.get('x-smf-errormsg');
+			containerOptions.content = errorMsg ?? error.message ?? banned_text;
+			new smc_Popup(containerOptions);
 		});
 
 	return false;
@@ -413,7 +411,7 @@ smc_Popup.prototype.show = function ()
 	content.className = 'popup_content';
 	content.innerHTML = this.opt.content;
 	heading.className = 'popup_heading';
-	button.className = 'main_icons hide_popup link reset';
+	button.className = 'main_icons hide_popup link';
 	button.addEventListener("click", this.hide.bind(this));
 	document.body.appendChild(this.cover);
 
@@ -422,7 +420,7 @@ smc_Popup.prototype.show = function ()
 
 	const onAnimationEnd = function()
 	{
-		const focusableEls = Array.from(root.querySelectorAll('a[href]:not([href="javascript:self.close();"]), area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"])'));
+		const focusableEls = Array.from(this.cover.querySelectorAll('a[href]:not([href="javascript:self.close();"]), area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"])'));
 		this.focusableEls = focusableEls;
 		this.firstFocusableEl = focusableEls[0];
 		this.lastFocusableEl = focusableEls[focusableEls.length - 1];
@@ -443,6 +441,7 @@ smc_Popup.prototype.show = function ()
 	{
 		switch (e.keyCode)
 		{
+			/* Tab key */
 			case 9:
 				if (this.focusableEls.length == 1)
 				{
@@ -462,6 +461,7 @@ smc_Popup.prototype.show = function ()
 				}
 				break;
 
+			/* Escape key */
 			case 27:
 				this.hide();
 				break;
