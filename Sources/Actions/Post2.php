@@ -275,7 +275,7 @@ class Post2 extends Post
 				$this->errors[] = 'links_malformed_review';
 			}
 
-			Msg::preparsecode($_POST['message']);
+			$_POST['message'] = Parser::sanitize($_POST['message']);
 
 			// Let's see if there's still some content left without the tags.
 			$temp = Parser::transform(

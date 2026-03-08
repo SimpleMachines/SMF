@@ -22,7 +22,6 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
-use SMF\Msg;
 use SMF\Parser;
 use SMF\Sapi;
 use SMF\Security;
@@ -403,9 +402,7 @@ class PackageManager
 				}
 
 				if (!empty($action['parse_bbc'])) {
-					Utils::$context[$type] = preg_replace('~\[[/]?html\]~i', '', Utils::$context[$type]);
-					Msg::preparsecode(Utils::$context[$type]);
-					Utils::$context[$type] = Parser::transform(Utils::$context[$type]);
+					Utils::$context[$type] = Parser::transform(Parser::sanitize(preg_replace('~\[/?html\]~i', '', Utils::$context[$type])));
 				} else {
 					Utils::$context[$type] = nl2br(Utils::$context[$type]);
 				}
@@ -1191,9 +1188,7 @@ class PackageManager
 					Utils::$context['redirect_timeout'] = empty($action['redirect_timeout']) ? 5 : (int) ceil($action['redirect_timeout'] / 1000);
 
 					if (!empty($action['parse_bbc'])) {
-						Utils::$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', Utils::$context['redirect_text']);
-						Msg::preparsecode(Utils::$context['redirect_text']);
-						Utils::$context['redirect_text'] = Parser::transform(Utils::$context['redirect_text']);
+						Utils::$context['redirect_text'] = Parser::transform(Parser::sanitize(preg_replace('~\[/?html\]~i', '', Utils::$context['redirect_text'])));
 					}
 
 					// Parse out a couple of common urls.

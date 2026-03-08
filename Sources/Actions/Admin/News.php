@@ -28,7 +28,6 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
-use SMF\Msg;
 use SMF\Parser;
 use SMF\PersonalMessage\PM;
 use SMF\SecurityToken;
@@ -303,12 +302,15 @@ class News implements ActionInterface
 			User::$me->checkSession();
 
 			foreach ($_POST['news'] as $i => $news) {
-				if (trim($news) == '') {
+				$news = Utils::htmlTrim($news);
+
+				if ($news == '') {
 					unset($_POST['news'][$i]);
 				} else {
-					$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
-
-					Msg::preparsecode($_POST['news'][$i], false, !empty(Config::$modSettings['autoLinkUrls']));
+					$_POST['news'][$i] = Parser::sanitize(
+						Utils::htmlspecialchars($news, ENT_QUOTES),
+						autolink: !empty(Config::$modSettings['autoLinkUrls']),
+					);
 				}
 			}
 
@@ -1119,7 +1121,7 @@ class News implements ActionInterface
 		foreach (explode("\n", Config::$modSettings['news']) as $id => $line) {
 			$admin_current_news[$id] = [
 				'id' => $id,
-				'unparsed' => Msg::un_preparsecode($line),
+				'unparsed' => Parser::getEditableString($line),
 				'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', Parser::transform($line)),
 			];
 		}
@@ -1200,7 +1202,7 @@ class News implements ActionInterface
 				continue;
 			}
 
-			Msg::preparsecode(Utils::$context[$key], false, !empty(Config::$modSettings['autoLinkUrls']));
+			Utils::$context[$key] = Parser::sanitize(Utils::$context[$key], autolink: !empty(Config::$modSettings['autoLinkUrls']));
 
 			if (!empty(Utils::$context['send_html'])) {
 				$enablePostHTML = Config::$modSettings['enablePostHTML'];

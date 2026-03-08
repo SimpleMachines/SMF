@@ -30,6 +30,7 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
@@ -597,8 +598,7 @@ class TopicMerge implements ActionInterface, Routable
 				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
 			}
 
-			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
+			$_POST['reason'] = Parser::sanitize(Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES), autolink: !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Add a URL onto the message.
 			$reason = strtr($_POST['reason'], $reason_replacements);

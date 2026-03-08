@@ -28,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Topic;
@@ -191,8 +192,7 @@ class TopicMove2 implements ActionInterface, Routable
 				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]';
 			}
 
-			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
+			$_POST['reason'] = Parser::sanitize(Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES), autolink: !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Insert real links into the reason.
 			$_POST['reason'] = strtr($_POST['reason'], $reason_replacements);

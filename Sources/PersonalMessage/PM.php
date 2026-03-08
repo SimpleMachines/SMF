@@ -29,7 +29,6 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
-use SMF\Msg;
 use SMF\Parser;
 use SMF\Security;
 use SMF\Theme;
@@ -1023,7 +1022,7 @@ class PM implements \ArrayAccess
 			}
 
 			// Preparse the message.
-			Msg::preparsecode($message);
+			$message = Parser::sanitize($message);
 
 			// Make sure there's still some content left without the tags.
 			$temp = Parser::transform(
@@ -1056,10 +1055,8 @@ class PM implements \ArrayAccess
 
 			Utils::$context['preview_message'] = Utils::htmlspecialchars($_REQUEST['message'], ENT_QUOTES);
 
-			Msg::preparsecode(Utils::$context['preview_message'], true);
-
 			// Parse out the BBC if it is enabled.
-			Utils::$context['preview_message'] = Parser::transform(Utils::$context['preview_message']);
+			Utils::$context['preview_message'] = Parser::transform(Parser::sanitize(Utils::$context['preview_message'], true));
 
 			// Censor, as always.
 			Lang::censorText(Utils::$context['preview_subject']);
@@ -1189,9 +1186,7 @@ class PM implements \ArrayAccess
 		}
 
 		// This is the one that will go in their inbox.
-		$htmlmessage = Utils::htmlspecialchars($message, ENT_QUOTES);
-
-		Msg::preparsecode($htmlmessage);
+		$htmlmessage = Parser::sanitize(Utils::htmlspecialchars($message, ENT_QUOTES));
 
 		$htmlsubject = strtr(Utils::htmlspecialchars($subject), ["\r" => '', "\n" => '', "\t" => '']);
 

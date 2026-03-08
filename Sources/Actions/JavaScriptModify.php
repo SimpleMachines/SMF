@@ -150,7 +150,7 @@ class JavaScriptModify implements ActionInterface, Routable
 					$post_errors[] = 'links_malformed';
 				}
 
-				Msg::preparsecode($_POST['message']);
+				$_POST['message'] = Parser::sanitize($_POST['message']);
 
 				$temp = Parser::transform(
 					string: $row['body'],
