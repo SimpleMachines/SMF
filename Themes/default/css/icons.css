@@ -1,7 +1,7 @@
 /* SMF Icons */
 .main_icons {
 	display: inline-flex;
-	font-family: "Font Awesome 6 Free";
+	font-family: var(--font-awesome-family);
 	font-size: 1em;
 	-webkit-font-smoothing: antialiased;
 	font-style: normal;

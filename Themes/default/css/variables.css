@@ -34,6 +34,7 @@
 	--body-color:                                     #292929;
 	--body-font-family:                               "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	--body-font-size:                                 94%;
+	--font-awesome-family:                            "Font Awesome 7 Free";
 
 	/** Body Links **/
 	--body-link-color:                                hsl(var(--primary-color-hue), 75%, 33%);
