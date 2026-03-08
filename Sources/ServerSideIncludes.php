@@ -377,8 +377,10 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_version()
 	 *
-	 * @param string $output_method If 'echo', displays the version, otherwise returns it
-	 * @return ?string Returns nothing if output_method is 'echo', otherwise returns the version
+	 * @param string $output_method If 'echo', displays the version, otherwise
+	 *    returns it. Default: 'echo'.
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the version.
 	 */
 	public static function version(string $output_method = 'echo'): ?string
 	{
@@ -400,8 +402,10 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_full_version()
 	 *
-	 * @param string $output_method If 'echo', displays the full version string, otherwise returns it
-	 * @return ?string Returns nothing if output_method is 'echo', otherwise returns the version string
+	 * @param string $output_method If 'echo', displays the full version string,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the version string.
 	 */
 	public static function fullVersion(string $output_method = 'echo'): ?string
 	{
@@ -423,8 +427,10 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_software_year()
 	 *
-	 * @param string $output_method If 'echo', displays the software year, otherwise returns it
-	 * @return ?string Returns nothing if output_method is 'echo', otherwise returns the software year
+	 * @param string $output_method If 'echo', displays the software year,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the software year.
 	 */
 	public static function softwareYear(string $output_method = 'echo'): ?string
 	{
@@ -446,8 +452,10 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_copyright()
 	 *
-	 * @param string $output_method If 'echo', displays the forum copyright, otherwise returns it
-	 * @return ?string Returns nothing if output_method is 'echo', otherwise returns the copyright string
+	 * @param string $output_method If 'echo', displays the forum copyright,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the copyright string.
 	 */
 	public static function copyright(string $output_method = 'echo'): ?string
 	{
@@ -469,8 +477,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_welcome()
 	 *
-	 * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
-	 * @return ?\SMF\User Displays a welcome message or returns an array of user data depending on output_method.
+	 * @param string $output_method The output method. If 'echo', will display
+	 *    everything. Otherwise returns an array of user info.
+	 *    Default: 'echo'.
+	 * @return ?\SMF\User Displays a welcome message or returns a User object
+	 *    depending on output_method.
 	 */
 	public static function welcome(string $output_method = 'echo'): ?\SMF\User
 	{
@@ -510,8 +521,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_menubar()
 	 *
-	 * @param string $output_method The output method. If 'echo', will display the menu, otherwise returns an array of menu data.
-	 * @return ?array Displays the menu or returns an array of menu data depending on output_method.
+	 * @param string $output_method The output method. If 'echo', will display
+	 *    the menu, otherwise returns an array of menu data.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the menu or returns an array of menu data
+	 *    depending on output_method.
 	 */
 	public static function menubar(string $output_method = 'echo'): ?array
 	{
@@ -534,9 +548,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_logout()
 	 *
-	 * @param string $redirect_to A URL to redirect the user to after they log out.
-	 * @param string $output_method The output method. If 'echo', shows a logout link, otherwise returns the HTML for it.
-	 * @return string|bool|null Displays a logout link or returns its HTML depending on output_method.
+	 * @param string $redirect_to URL to redirect the user to after logout.
+	 * @param string $output_method The output method. If 'echo', shows a logout
+	 *    link, otherwise returns the HTML for it.
+	 *    Default: 'echo'.
+	 * @return string|bool|null Displays a logout link or returns its HTML
+	 *    depending on output_method.
 	 */
 	public static function logout($redirect_to = '', string $output_method = 'echo'): string|bool|null
 	{
@@ -569,12 +586,18 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_recentPosts()
 	 *
-	 * @param int $num_recent How many recent posts to display
-	 * @param null|array $exclude_boards If set, doesn't show posts from the specified boards
-	 * @param null|array $include_boards If set, only includes posts from the specified boards
-	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of information about them.
-	 * @param bool $limit_body Whether or not to only show the first 384 characters of each post
-	 * @return ?array Displays a list of recent posts or returns an array of information about them depending on output_method.
+	 * @param int $num_recent How many recent posts to display.
+	 * @param null|array $exclude_boards If set, doesn't show posts from the
+	 *    specified boards.
+	 * @param null|array $include_boards If set, only includes posts from the
+	 *    specified boards.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of information about them.
+	 *    Default: 'echo'.
+	 * @param bool $limit_body Whether or not to only show the first 384
+	 *    characters of each post.
+	 * @return ?array Displays a list of recent posts or returns an array of
+	 *    information about them depending on output_method.
 	 */
 	public static function recentPosts(int $num_recent = 8, ?array $exclude_boards = null, ?array $include_boards = null, string $output_method = 'echo', bool $limit_body = true): ?array
 	{
@@ -622,10 +645,14 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_fetchPosts()
 	 *
-	 * @param int[] $post_ids An array containing the IDs of the posts to show
-	 * @param bool $override_permissions Whether to ignore permissions. If true, will show posts even if the user doesn't have permission to see them.
-	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them
-	 * @return ?array Displays the specified posts or returns an array of info about them, depending on output_method.
+	 * @param int[] $post_ids An array containing the IDs of the posts to show.
+	 * @param bool $override_permissions Whether to ignore permissions. If true,
+	 *    will show posts even if the user doesn't have permission to see them.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the specified posts or returns an array of info
+	 *    about them, depending on output_method.
 	 */
 	public static function fetchPosts(array $post_ids = [], bool $override_permissions = false, string $output_method = 'echo'): ?array
 	{
@@ -655,18 +682,25 @@ class ServerSideIncludes
 	}
 
 	/**
-	 * This handles actually pulling post info. Called from other functions to eliminate duplication.
+	 * This handles actually pulling post info. Called from other functions to
+	 * eliminate duplication.
 	 *
 	 * Alias: ssi_queryPosts()
 	 *
-	 * @param string $query_where The WHERE clause for the query
-	 * @param array $query_where_params An array of parameters for the WHERE clause
-	 * @param int|string $query_limit The maximum number of rows to return
-	 * @param string $query_order The ORDER BY clause for the query
-	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them.
-	 * @param bool $limit_body If true, will only show the first 384 characters of the post rather than all of it
-	 * @param bool $override_permissions Whether or not to ignore permissions. If true, will show all posts regardless of whether the user can actually see them
-	 * @return ?array Displays the posts or returns an array of info about them, depending on output_method
+	 * @param string $query_where The WHERE clause for the query.
+	 * @param array $query_where_params Array of parameters for the WHERE clause.
+	 * @param int|string $query_limit The maximum number of rows to return.
+	 * @param string $query_order The ORDER BY clause for the query.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @param bool $limit_body If true, will only show the first 384 characters
+	 *    of the post rather than all of it.
+	 * @param bool $override_permissions Whether or not to ignore permissions.
+	 *    If true, will show all posts regardless of whether the user can
+	 *    normally see them.
+	 * @return ?array Displays the posts or returns an array of info about them,
+	 *    depending on output_method.
 	 */
 	public static function queryPosts(
 		string $query_where = '',
@@ -815,11 +849,16 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_recentTopics()
 	 *
-	 * @param int $num_recent How many recent topics to show
-	 * @param null|array $exclude_boards If set, exclude topics from the specified board(s)
-	 * @param null|array $include_boards If set, only include topics from the specified board(s)
-	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
-	 * @return void|array Either displays a list of topics or returns an array of info about them, depending on output_method.
+	 * @param int $num_recent How many recent topics to show.
+	 * @param null|array $exclude_boards If set, exclude topics from the
+	 *    specified board(s).
+	 * @param null|array $include_boards If set, only include topics from the
+	 *    specified board(s).
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return void|array Either displays a list of topics or returns an array
+	 *    of info about them, depending on output_method.
 	 */
 	public static function recentTopics(int $num_recent = 8, ?array $exclude_boards = null, ?array $include_boards = null, string $output_method = 'echo'): ?array
 	{
@@ -1010,9 +1049,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_topPoster()
 	 *
-	 * @param int $topNumber How many top posters to list
-	 * @param string $output_method The output method. If 'echo', will display a list of users, otherwise returns an array of info about them.
-	 * @return ?array Either displays a list of users or returns an array of info about them, depending on output_method.
+	 * @param int $topNumber How many top posters to list.
+	 * @param string $output_method The output method. If 'echo', will display a
+	 *    list of users, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of users or returns an array of
+	 *    info about them, depending on output_method.
 	 */
 	public static function topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
 	{
@@ -1067,9 +1109,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_topBoards()
 	 *
-	 * @param int $num_top How many boards to display
-	 * @param string $output_method The output method. If 'echo', displays a list of boards, otherwise returns an array of info about them.
-	 * @return ?array Displays a list of the top boards or returns an array of info about them, depending on output_method.
+	 * @param int $num_top How many boards to display.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of boards, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of the top boards or returns an array of
+	 *    info about them, depending on output_method.
 	 */
 	public static function topBoards(int $num_top = 10, string $output_method = 'echo'): ?array
 	{
@@ -1139,14 +1184,17 @@ class ServerSideIncludes
 	}
 
 	/**
-	 * Shows a list of top topics based on views or replies
+	 * Shows a list of top topics based on views or replies.
 	 *
 	 * Alias: ssi_topTopics()
 	 *
-	 * @param string $type Can be either replies or views
-	 * @param int $num_topics How many topics to display
-	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them.
-	 * @return ?array Either displays a list of topics or returns an array of info about them, depending on output_method.
+	 * @param string $type Can be either 'replies' or 'views'.
+	 * @param int $num_topics How many topics to display.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of topics or returns an array of
+	 *    info about them, depending on output_method.
 	 */
 	public static function topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
@@ -1248,9 +1296,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_topTopicsReplies()
 	 *
-	 * @param int $num_topics How many topics to show
-	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
-	 * @return ?array Either displays a list of top topics or returns an array of info about them, depending on output_method.
+	 * @param int $num_topics How many topics to show.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of top topics or returns an array
+	 *    of info about them, depending on output_method.
 	 */
 	public static function topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
@@ -1262,13 +1313,16 @@ class ServerSideIncludes
 	}
 
 	/**
-	 * Top topics based on views
+	 * Top topics based on views.
 	 *
 	 * Alias: ssi_topTopicsViews()
 	 *
-	 * @param int $num_topics How many topics to show
-	 * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
-	 * @return ?array Either displays a list of top topics or returns an array of info about them, depending on output_method.
+	 * @param int $num_topics How many topics to show.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of top topics or returns an array
+	 *    of info about them, depending on output_method.
 	 */
 	public static function topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
 	{
@@ -1284,8 +1338,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_latestMember()
 	 *
-	 * @param string $output_method The output method. If 'echo', returns a string with a link to the latest member's profile, otherwise returns an array of info about them.
-	 * @return ?array Displays a "welcome" message for the latest member or returns an array of info about them, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', returns a
+	 *    string with a link to the latest member's profile, otherwise returns
+	 *    an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a "welcome" message for the latest member or
+	 *    returns an array of info about them, depending on output_method.
 	 */
 	public static function latestMember(string $output_method = 'echo'): ?array
 	{
@@ -1308,9 +1366,14 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_randomMember()
 	 *
-	 * @param string $random_type If 'day', only fetches a new random member once a day.
-	 * @param string $output_method The output method. If 'echo', displays a link to the member's profile, otherwise returns an array of info about them.
-	 * @return ?array Displays a link to a random member's profile or returns an array of info about them depending on output_method.
+	 * @param string $random_type If 'day', only fetches a new random member
+	 *    once a day.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    link to the member's profile, otherwise returns an array of info about
+	 *    them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a link to a random member's profile or returns an
+	 *    array of info about them depending on output_method.
 	 */
 	public static function randomMember(string $random_type = '', string $output_method = 'echo'): ?array
 	{
@@ -1365,9 +1428,13 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_fetchMember()
 	 *
-	 * @param array $member_ids The IDs of the members to fetch
-	 * @param string $output_method The output method. If 'echo', displays a list of links to the members' profiles, otherwise returns an array of info about them.
-	 * @return ?array Displays links to the specified members' profiles or returns an array of info about them, depending on output_method.
+	 * @param array $member_ids The IDs of the members to fetch.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of links to the members' profiles, otherwise returns an array of
+	 *    info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays links to the specified members' profiles or
+	 *    returns an array of info about them, depending on output_method.
 	 */
 	public static function fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
 	{
@@ -1395,13 +1462,16 @@ class ServerSideIncludes
 	}
 
 	/**
-	 * Get all members in the specified group
+	 * Get all members in the specified group.
 	 *
 	 * Alias: ssi_fetchGroupMembers()
 	 *
-	 * @param int|null $group_id The ID of the group to get members from
-	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
-	 * @return ?array Displays a list of group members or returns an array of info about them, depending on output_method.
+	 * @param int|null $group_id The ID of the group to get members from.
+	 * @param string $output_method The output method. If 'echo', returns a list
+	 *    of group members, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of group members or returns an array of
+	 *    info about them, depending on output_method.
 	 */
 	public static function fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
 	{
@@ -1431,12 +1501,16 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_queryMembers()
 	 *
-	 * @param string|null $query_where The info for the WHERE clause of the query
-	 * @param array $query_where_params The parameters for the WHERE clause
-	 * @param string|int $query_limit The number of rows to return or an empty string to return all
-	 * @param string $query_order The info for the ORDER BY clause of the query
-	 * @param string $output_method The output method. If 'echo', displays a list of members, otherwise returns an array of info about them
-	 * @return ?array Displays a list of members or returns an array of info about them, depending on output_method.
+	 * @param string|null $query_where The WHERE clause of the query.
+	 * @param array $query_where_params The parameters for the WHERE clause.
+	 * @param string|int $query_limit The number of rows to return or an empty
+	 *    string to return all.
+	 * @param string $query_order The ORDER BY clause of the query.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of members, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of members or returns an array of info
+	 *    about them, depending on output_method.
 	 */
 	public static function queryMembers(?string $query_where = null, array $query_where_params = [], int|string $query_limit = '', string $query_order = 'id_member DESC', string $output_method = 'echo'): ?array
 	{
@@ -1520,8 +1594,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_boardStats()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays the stats, otherwise returns an array of info about them
-	 * @return ?array Doesn't return anything if the user can't view stats. Otherwise either displays the stats or returns an array of info about them, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    stats, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Returns null if the user can't view stats. Otherwise
+	 *    either displays the stats or returns an array of info about them,
+	 *    depending on output_method.
 	 */
 	public static function boardStats(string $output_method = 'echo'): ?array
 	{
@@ -1579,8 +1657,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_whosOnline()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
-	 * @return ?array Either displays a list of online users or returns an array of info about them, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list, otherwise returns an array of info about the online users.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of online users or returns an array
+	 *    of info about them, depending on output_method.
 	 */
 	public static function whosOnline(string $output_method = 'echo'): ?array
 	{
@@ -1656,8 +1737,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_logOnline()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
-	 * @return ?array Either displays a list of online users or returns an array of info about them, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list, otherwise returns an array of info about the online users.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of online users or returns an array
+	 *    of info about them, depending on output_method.
 	 */
 	public static function logOnline(string $output_method = 'echo'): ?array
 	{
@@ -1679,9 +1763,13 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_login()
 	 *
-	 * @param string $redirect_to The URL to redirect the user to after they login
-	 * @param string $output_method The output method. If 'echo' and the user is a guest, displays a login box, otherwise returns whether the user is a guest
-	 * @return ?bool Either displays a login box or returns whether the user is a guest, depending on whether the user is logged in and output_method.
+	 * @param string $redirect_to URL to redirect the user to after they login.
+	 * @param string $output_method The output method. If 'echo' and the user is
+	 *    a guest, displays a login box, otherwise returns whether the user is a
+	 *    guest.
+	 *    Default: 'echo'.
+	 * @return ?bool Either displays a login box or returns whether the user is
+	 *    a guest, depending on whether the user is logged in and output_method.
 	 */
 	public static function login(string $redirect_to = '', string $output_method = 'echo'): ?bool
 	{
@@ -1729,8 +1817,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_topPoll()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it
-	 * @return ?array Either shows the top poll or returns an array of info about it, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either shows the top poll or returns an array of info
+	 *    about it, depending on output_method.
 	 */
 	public static function topPoll(string $output_method = 'echo'): ?array
 	{
@@ -1747,9 +1838,13 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_recentPoll()
 	 *
-	 * @param bool $topPollInstead Whether to show the top poll (based on votes) instead of the most recent one
-	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
-	 * @return ?array Either shows the poll or returns an array of info about it, depending on output_method.
+	 * @param bool $topPollInstead Whether to show the top poll (based on votes)
+	 *    instead of the most recent one.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either shows the poll or returns an array of info about it,
+	 *    depending on output_method.
 	 */
 	public static function recentPoll(bool $topPollInstead = false, string $output_method = 'echo'): ?array
 	{
@@ -1828,9 +1923,13 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_showPoll()
 	 *
-	 * @param null|int $topic The topic to show the poll from. If null, $_REQUEST['ssi_topic'] will be used instead.
-	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
-	 * @return ?array Either displays the poll or returns an array of info about it, depending on output_method.
+	 * @param null|int $topic The topic to show the poll from.
+	 *    If null, $_REQUEST['ssi_topic'] will be used instead.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays the poll or returns an array of info about
+	 *    it, depending on output_method.
 	 */
 	public static function showPoll(?int $topic = null, string $output_method = 'echo'): ?array
 	{
@@ -2033,8 +2132,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_quickSearch()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a search box, otherwise returns the URL of the search page.
-	 * @return ?string Displays a search box or returns the URL to the search page depending on output_method. If you don't have permission to search, the function won't return anything.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    search box, otherwise returns the URL of the search page.
+	 *    Default: 'echo'.
+	 * @return ?string Displays a search box or returns the URL to the search
+	 *    page depending on output_method. If you don't have permission to
+	 *    search, the function won't return anything.
 	 */
 	public static function quickSearch(string $output_method = 'echo'): ?string
 	{
@@ -2063,8 +2166,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_news()
 	 *
-	 * @param string $output_method The output method. If 'echo', shows the news item, otherwise returns it.
-	 * @return ?string Shows or returns a random forum news item, depending on output_method.
+	 * @param string $output_method The output method. If 'echo', shows the news
+	 *    item, otherwise returns it.
+	 *    Default: 'echo'.
+	 * @return ?string Shows or returns a random forum news item, depending on
+	 *    output_method.
 	 */
 	public static function news(string $output_method = 'echo'): ?string
 	{
@@ -2091,8 +2197,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_todaysBirthdays()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list of users, otherwise returns an array of info about them.
-	 * @return ?array Displays a list of users or returns an array of info about them depending on output_method.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of users, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of users or returns an array of info about
+	 *    them depending on output_method.
 	 */
 	public static function todaysBirthdays(string $output_method = 'echo'): ?array
 	{
@@ -2130,8 +2239,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_todaysHolidays()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list of holidays, otherwise returns an array of info about them.
-	 * @return ?array Displays a list of holidays or returns an array of info about them depending on output_method
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of holidays, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of holidays or returns an array of info
+	 *    about them depending on output_method.
 	 */
 	public static function todaysHolidays(string $output_method = 'echo'): ?array
 	{
@@ -2169,8 +2281,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_todaysEvents()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list of events, otherwise returns an array of info about them.
-	 * @return ?array Displays a list of events or returns an array of info about them depending on output_method
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of events, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of events or returns an array of info
+	 *    about them depending on output_method.
 	 */
 	public static function todaysEvents(string $output_method = 'echo'): ?array
 	{
@@ -2215,8 +2330,11 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_todaysCalendar()
 	 *
-	 * @param string $output_method The output method. If 'echo', displays a list of calendar items, otherwise returns an array of info about them.
-	 * @return array|string|null Displays a list of calendar items or returns an array of info about them depending on output_method
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of calendar items, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return array|string|null Displays a list of calendar items or returns an
+	 *    array of info about them depending on output_method.
 	 */
 	public static function todaysCalendar(string $output_method = 'echo'): array|string|null
 	{
@@ -2284,12 +2402,19 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_boardNews()
 	 *
-	 * @param null|int $board The ID of the board to get the info from. Defaults to $board or $_GET['board'] if not set.
-	 * @param null|int $limit How many items to show. Defaults to $_GET['limit'] or 5 if not set.
-	 * @param null|int $start Start with the specified item. Defaults to $_GET['start'] or 0 if not set.
-	 * @param null|int $length How many characters to show from each post. Defaults to $_GET['length'] or 0 (no limit) if not set.
-	 * @param string $output_method The output method. If 'echo', displays the news items, otherwise returns an array of info about them.
-	 * @return ?array Displays the news items or returns an array of info about them, depending on output_method.
+	 * @param ?int $board The ID of the board to get the info from.
+	 *    Defaults to $board or $_GET['board'] if not set.
+	 * @param ?int $limit How many items to show.
+	 *    Defaults to $_GET['limit'] or 5 if not set.
+	 * @param ?int $start Start with the specified item.
+	 *    Defaults to $_GET['start'] or 0 if not set.
+	 * @param ?int $length How many characters to show from each post.
+	 *    Defaults to $_GET['length'] or 0 (no limit) if not set.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    news items, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the news items or returns an array of info about
+	 *    them, depending on output_method.
 	 */
 	public static function boardNews(?int $board = null, ?int $limit = null, ?int $start = null, ?int $length = null, string $output_method = 'echo'): ?array
 	{
@@ -2562,9 +2687,12 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_recentEvents()
 	 *
-	 * @param int $max_events The maximum number of events to show
-	 * @param string $output_method The output method. If 'echo', displays the events, otherwise returns an array of info about them.
-	 * @return ?array Displays the events or returns an array of info about them, depending on output_method.
+	 * @param int $max_events The maximum number of events to show.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    events, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the events or returns an array of info about them,
+	 *    depending on output_method.
 	 */
 	public static function recentEvents(int $max_events = 7, string $output_method = 'echo'): ?array
 	{
@@ -2660,9 +2788,10 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_checkPassword()
 	 *
-	 * @param int|string|null $id The ID or username of a user
-	 * @param string|null $password The password to check
-	 * @param bool $is_username If true, treats $id as a username rather than a user ID
+	 * @param int|string|null $id The ID or username of a user.
+	 * @param string|null $password The password to check.
+	 * @param bool $is_username If true, treats $id as a username rather than a
+	 *    user ID.
 	 * @return bool Whether or not the password is correct.
 	 */
 	public static function checkPassword(
@@ -2700,10 +2829,15 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_recentAttachments()
 	 *
-	 * @param int $num_attachments How many to show
-	 * @param array $attachment_ext Only shows attachments with the specified extensions ('jpg', 'gif', etc.) if set
-	 * @param string $output_method The output method. If 'echo', displays a table with links/info, otherwise returns an array with information about the attachments
-	 * @return ?array Displays a table of attachment info or returns an array containing info about the attachments, depending on output_method.
+	 * @param int $num_attachments How many to show.
+	 * @param array $attachment_ext If set, only shows attachments with the
+	 *    specified extensions ('jpg', 'gif', etc.)
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    table with links/info, otherwise returns an array with information
+	 *    about the attachments.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a table of attachment info or returns an array
+	 *    containing info about the attachments, depending on output_method.
 	 */
 	public static function recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
 	{
