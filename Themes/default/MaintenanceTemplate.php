@@ -311,7 +311,7 @@ abstract class MaintenanceTemplate
 			<h3>', Lang::getTxt('upgrade_performing_substeps', ['type' => $type], file: 'Maintenance'), '</h3>
 			<h4><em>', Lang::getTxt('upgrade_please_be_patient', file: 'Maintenance'), '</em></h4>
 			<input type="hidden" name="', $done_param, '" id="', $done_param, '" value="0">
-			<div id="debug_section" class="bbc_code"><span id="debuginfo"></span></div>';
+			<div id="debug_section" class="bbc_code', !Maintenance::$tool->isDebug() ? ' hidden' : '', '"><span id="debuginfo"></span></div>';
 
 		echo '
 			<h3 id="current_tab">',
