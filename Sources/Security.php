@@ -680,7 +680,6 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		if (isset($parsed_url['host']) && strtolower($referrer['host']) != strtolower($parsed_url['host']) && strtolower($referrer['host']) != strtolower($real_host))
 		{
 			$error = 'verify_url_fail';
-			$log_error = true;
 		}
 	}
 
