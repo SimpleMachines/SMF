@@ -462,7 +462,7 @@ function template_main()
  */
 function template_single_post($message)
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings, $user_info;
 
 	$ignoring = false;
 
@@ -847,7 +847,8 @@ function template_single_post($message)
 			$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 			// Remove link if no cookies; session reference won't work
-			if (empty($_COOKIE))
+			// Also, don't show link to guests
+			if (empty($_COOKIE) || !empty($user_info['is_guest']))
 				$txt[$base] = preg_replace('~</?a\b[^>]*>~', '', $txt[$base]);
 
 			echo '
