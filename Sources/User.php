@@ -2106,7 +2106,6 @@ class User implements \ArrayAccess
 				&& strtolower($referrer['host']) != strtolower($real_host)
 			) {
 				$error = 'verify_url_fail';
-				$log_error = true;
 			}
 		}
 
