@@ -755,7 +755,7 @@ function rebuildModCache()
 	global $user_info, $smcFunc;
 
 	// What groups can they moderate?
-	if(!$user_info['is_guest'])
+	if (!$user_info['is_guest'])
 		$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
 	else
 		$group_query = '0=1';
@@ -782,7 +782,7 @@ function rebuildModCache()
 	}
 
 	// Then, same again, just the boards this time!
-	if(!$user_info['is_guest'])
+	if (!$user_info['is_guest'])
 		$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
 	else
 		$board_query = '0=1';
