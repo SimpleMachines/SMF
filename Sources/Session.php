@@ -173,6 +173,8 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	public function write(/*PHP 8.0 string*/$id,/*PHP 8.0 string */ $data): bool
 	{
 		global $smcFunc, $scripturl, $context;
+		// Any action that is not dependent on data within the session may be added to this array
+		static $no_writes = array('dlattach');
 
 		// Don't bother writing the session if cookies are disabled; no way to retrieve it later
 		if (empty($_COOKIE))
@@ -180,8 +182,6 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 
 		// Don't bother writing the session for users just browsing
 		// If verification is required, always write the session
-		// Any action that is not dependent on data within the session may be added to this array
-		static $no_writes = array('dlattach');
 		if ((empty($_REQUEST['action']) || in_array($_REQUEST['action'], $no_writes, true)) && !empty($scripturl) && empty($context['require_verification']))
 			return true;
 
