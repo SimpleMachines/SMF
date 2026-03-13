@@ -559,7 +559,7 @@ abstract class ToolsBase
 			Maintenance::setQueryString();
 		}
 
-		Maintenance::exit();
+		Maintenance::exit(Maintenance::isJson());
 
 		throw new \Exception('Zombies!');
 	}
