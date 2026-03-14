@@ -836,7 +836,8 @@ function template_single_post($message)
 			$like_text = Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General');
 
 			// Remove link if no cookies; session reference won't work
-			if (empty($_COOKIE)) {
+			// Also, don't show link to guests
+			if (empty($_COOKIE) || User::$me->is_guest) {
 				$like_text = preg_replace('~</?a\b[^>]*>~', '', $like_text);
 			}
 
