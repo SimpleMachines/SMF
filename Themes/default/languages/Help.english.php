@@ -422,6 +422,7 @@ $helptxt['deny_boards_access'] = 'Checking this setting will allow you to deny a
 $helptxt['who_enabled'] = 'This setting allows you to turn on or off the <a href="%1$s?action=who" target="_blank" rel="noopener">Who\'s Online</a> page, which shows who is browsing the forum and what they are doing.';
 
 $helptxt['no_guest_logging'] = 'This setting prevents guests from being included in the Users Online counts. Guest and bot activity can cause excessive IO, so this may help during a bot attack.';
+$helptxt['no_guest_views'] = 'This setting disables incrementing views for guests as well as bots.  Bot activity can cause excessive IO, and is often disguised as guest activity, so this may help during a bot attack.';
 
 $helptxt['recycle_enable'] = '&quot;Recycles&quot; deleted topics and posts to the specified board.';
 
