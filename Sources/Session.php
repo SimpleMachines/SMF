@@ -100,6 +100,12 @@ class Session implements \SessionHandlerInterface
 			return true;
 		}
 
+		// Don't bother writing the session for users just browsing
+		// If verification is required, always write the session
+		if ((empty($_REQUEST['action']) || in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification'])) {
+			return true;
+		}
+
 		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
 		}
