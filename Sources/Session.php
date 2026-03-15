@@ -96,7 +96,7 @@ class Session implements \SessionHandlerInterface
 	public function write(string $session_id, string $data): bool
 	{
 		// Any action that is not dependent on data within the session may be added to this array
-		static $no_writes = array('dlattach');
+		static $no_writes = ['dlattach'];
 
 		// Don't bother writing the session if cookies are disabled
 		if (empty($_COOKIE)) {
@@ -105,7 +105,7 @@ class Session implements \SessionHandlerInterface
 
 		// Don't bother writing the session for users just browsing
 		// If verification is required, always write the session
-		if ((empty($_REQUEST['action']) || in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification'])) {
+		if ((empty($_REQUEST['action']) || \in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification'])) {
 			return true;
 		}
 
