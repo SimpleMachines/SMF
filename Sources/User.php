@@ -1205,8 +1205,9 @@ class User implements \ArrayAccess
 		}
 
 		// Don't log guests anymore - helps during bot attacks.
-		if (!empty(Config::$modSettings['no_guest_logging']) && !empty(User::$me->is_guest))
+		if (!empty(Config::$modSettings['no_guest_logging']) && !empty(User::$me->is_guest)) {
 			return;
+		}
 
 		// Don't mark them as online more than every so often.
 		if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force) {
