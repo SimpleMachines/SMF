@@ -499,7 +499,7 @@ function template_ic_block_online()
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::getTxt('online', file: 'General'), ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']], file: 'General'), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']], file: 'General');
+				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::getTxt('online', file: 'General'), ': </strong>', empty(Config::$modSettings['no_guest_logging']) ? Lang::getTxt('number_of_guests', [Utils::$context['num_guests']], file: 'General') . ', ' : '', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']], file: 'General');
 
 	// Handle hidden users and buddies.
 	$bracketList = [];

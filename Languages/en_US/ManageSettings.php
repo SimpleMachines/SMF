@@ -109,6 +109,7 @@ $txt['defaultMaxMembers'] = 'Members per page in member list';
 $txt['timeLoadPageEnable'] = 'Display time taken to create every page';
 $txt['disableHostnameLookup'] = 'Disable hostname lookups';
 $txt['who_enabled'] = 'Enable who’s online list';
+$txt['no_guest_logging'] = 'Do not include guests or bots in Users Online stats';
 $txt['no_guest_views'] = 'Disable counting views for guests and bots';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
 $txt['image_proxy_enabled'] = 'Enable Image Proxy';
