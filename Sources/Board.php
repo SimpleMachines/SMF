@@ -1121,7 +1121,6 @@ class Board implements \ArrayAccess, Routable
 	{
 		// Query to fetch boards visible to the user.
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT id_board, b.name, child_level, c.name AS cat_name, id_cat
 			FROM {db_prefix}boards AS b
 				JOIN {db_prefix}categories AS c USING (id_cat)
