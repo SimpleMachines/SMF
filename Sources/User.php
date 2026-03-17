@@ -1411,7 +1411,7 @@ class User implements \ArrayAccess
 		}
 
 		// What groups can they moderate?
-		if ($this->is_guest) {
+		if (!$this->is_guest) {
 			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
 		} else {
 			$group_query = '0=1';
@@ -1442,7 +1442,7 @@ class User implements \ArrayAccess
 		}
 
 		// Then, same again, just the boards this time!
-		if ($this->is_guest) {
+		if (!$this->is_guest) {
 			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
 		} else {
 			$board_query = '0=1';
