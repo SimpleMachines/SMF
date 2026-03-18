@@ -544,6 +544,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		// Only 64-bit builds are supported.
+		if (PHP_INT_SIZE < 8) {
+			Maintenance::$fatal_error = Lang::getTxt('error_php_32_bit', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
+
 		// Form submitted, but no javascript support.
 		if (isset($_POST['contbutt']) && !isset($_POST['js_support'])) {
 			Maintenance::$fatal_error = Lang::getTxt('error_no_javascript', file: 'Maintenance');

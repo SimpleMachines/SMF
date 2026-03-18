@@ -263,6 +263,14 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		// Only 64-bit builds are supported.
+		if (PHP_INT_SIZE < 8) {
+			Maintenance::$fatal_error = Lang::getTxt('error_php_32_bit', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
+
 		// Make sure we have a supported database
 		if (empty(Maintenance::$context['supported_databases'])) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_missing', file: 'Maintenance');
