@@ -50,7 +50,7 @@ class LogScheduledTasks extends Table
 			),
 			'time_run' => new Column(
 				name: 'time_run',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),

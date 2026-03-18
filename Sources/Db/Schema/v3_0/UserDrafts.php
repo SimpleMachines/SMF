@@ -72,7 +72,7 @@ class UserDrafts extends Table
 			),
 			'poster_time' => new Column(
 				name: 'poster_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

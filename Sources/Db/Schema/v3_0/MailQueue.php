@@ -45,7 +45,7 @@ class MailQueue extends Table
 			),
 			'time_sent' => new Column(
 				name: 'time_sent',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
@@ -94,7 +94,7 @@ class MailQueue extends Table
 			),
 			'next_try' => new Column(
 				name: 'next_try',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
