@@ -92,13 +92,13 @@ class LogReported extends Table
 			),
 			'time_started' => new Column(
 				name: 'time_started',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
 			'time_updated' => new Column(
 				name: 'time_updated',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),

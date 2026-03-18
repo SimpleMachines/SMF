@@ -46,6 +46,7 @@ $txt['log_upgrade_complete'] = 'Upgrade complete!';
 $txt['critical_error'] = 'Critical Error!';
 $txt['warning'] = 'Warning!';
 $txt['error_php_too_low'] = 'You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installation requirement.<br><br>Please ask your host to upgrade to at least PHP {min_version}.';
+$txt['error_php_32_bit'] = 'Warning! The installed build of PHP does not support 64-bit numbers.<br><br>Please ask your host to upgrade.';
 $txt['error_db_too_low'] = 'Your {name} version does not meet SMF’s minimum installation requirement.<br><br>Please ask your host to upgrade to at least {name} {min_version}.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
 $txt['error_db_privileges'] = 'The {name} user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';

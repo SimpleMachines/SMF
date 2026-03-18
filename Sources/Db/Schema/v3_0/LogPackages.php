@@ -86,7 +86,7 @@ class LogPackages extends Table
 			),
 			'time_installed' => new Column(
 				name: 'time_installed',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
@@ -105,7 +105,7 @@ class LogPackages extends Table
 			),
 			'time_removed' => new Column(
 				name: 'time_removed',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
