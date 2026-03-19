@@ -213,7 +213,7 @@ function template_main()
 				</div><!-- #advanced_panel_div -->
 				<br class="clear">
 				<div class="padding">
-					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
+					<input type="checkbox" name="all" id="check_all" value=""', !empty(Utils::$context['boards_check_all']) ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
 					<label for="check_all"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 					<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button floatright">
 				</div>
@@ -224,7 +224,7 @@ function template_main()
 		<script>
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', Utils::$context['boards_check_all'] ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['boards_check_all']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'advanced_panel_div\'
 				],
