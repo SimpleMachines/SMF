@@ -1130,6 +1130,7 @@ class Board implements \ArrayAccess, Routable
 			[
 				'empty_string' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		$categories = [];
