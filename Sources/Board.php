@@ -2338,15 +2338,15 @@ class Board implements \ArrayAccess, Routable
 
 							case 'override_theme':
 							case 'count_posts':
-								$prop[$key] = !empty($value);
+								$props[$key] = !empty($value);
 								break;
 
 							case 'member_groups':
-								$prop[$key] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								$props[$key] = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 								break;
 
 							case 'deny_member_groups':
-								$prop['deny_groups'] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								$props['deny_groups'] = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 								break;
 
 							default:
