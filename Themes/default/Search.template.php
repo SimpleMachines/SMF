@@ -163,13 +163,13 @@ function template_main()
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
 					</h4>
 				</div>
-				<div class="flow_auto boardslist" id="advanced_panel_div"', Utils::$context['boards_check_all'] ? ' style="display: none;"' : '', '>
+				<div class="flow_auto boardslist" id="advanced_panel_div"', !empty(Utils::$context['boards_check_all']) ? ' style="display: none;"' : '', '>
 					<ul>';
 
 		foreach (Utils::$context['categories'] as $category) {
 			echo '
 						<li>
-							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
+							<a href="javascript:void(0);" onclick="selectBoards([', !empty($category['child_ids']) ? implode(', ', $category['child_ids']) : '', '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
 			$cat_boards = array_values($category['boards']);
