@@ -64,7 +64,7 @@ class BackgroundTasks extends Table
 			),
 			'claimed_time' => new Column(
 				name: 'claimed_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

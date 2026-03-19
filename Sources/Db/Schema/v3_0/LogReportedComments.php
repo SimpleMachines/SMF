@@ -75,7 +75,7 @@ class LogReportedComments extends Table
 			),
 			'time_sent' => new Column(
 				name: 'time_sent',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 			),
 		];
