@@ -938,19 +938,29 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
-		// If this failed, we go old school.
 		if ($result) {
+			$columns = [];
+
+			// Do we have any generated columns to deal with?
+			foreach ($this->list_columns($table, true) as $column) {
+				// Skip generated columns in the insert statement.
+				if (empty($column['generation_expression'])) {
+					$columns[] = $column['name'];
+				}
+			}
+
 			$request = $this->query(
 				'INSERT INTO {raw:backup_table}
-				SELECT *
+				({raw:columns})
+				SELECT {raw:columns}
 				FROM {raw:table}',
 				[
 					'backup_table' => $backup_table,
 					'table' => $table,
+					'columns' => implode(', ', $columns),
 				],
 			);
 
-			// Old school or no school?
 			if ($request) {
 				return $request;
 			}
@@ -1045,6 +1055,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					'auto_inc' => $auto_inc,
 				],
 			);
+		}
+
+		// Restore the generation expressions on any generated columns.
+		foreach ($this->list_columns($table, true) as $column) {
+			if (!empty($column['generation_expression'])) {
+				$this->change_column($backup_table, $column['name'], $column);
+			}
 		}
 
 		return $request;
@@ -2136,7 +2153,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 
 				if (str_contains($row['Extra'], 'GENERATED')) {
-					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
+					$columns[$row['Field']]['generation_expression'] = $this->unescape_string($row['generation_expression']);
 					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
