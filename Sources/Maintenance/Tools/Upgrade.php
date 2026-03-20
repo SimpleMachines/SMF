@@ -193,7 +193,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Cleanup steps for 2.1 -> 3.0
 		'v3_0' => [
 			Cleanup\v3_0\TasksDirCase::class,
-			Cleanup\v3_0\OldFiles::class,
 		],
 	];
 
