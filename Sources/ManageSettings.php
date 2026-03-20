@@ -219,7 +219,8 @@ function ModifyBasicSettings($return_config = false)
 		array('check', 'hitStats'),
 		'',
 
-		// Guest stats.
+		// Guest stats
+		array('check', 'no_guest_logging'),
 		array('check', 'no_guest_views'),
 		'',
 
