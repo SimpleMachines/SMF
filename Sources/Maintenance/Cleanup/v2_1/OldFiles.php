@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Cleanup\v2_1;
 
-use SMF\Maintenance\Cleanup\v3_0\OldFiles as OldFilesBase;
+use SMF\Maintenance\Cleanup\OldFilesBase;
 
 /**
- * Just like the v3_0 version of OldFiles, but with a different list of files.
+ * Deletes files that were present in SMF 2.0 but not in SMF 2.1.
  */
 class OldFiles extends OldFilesBase
 {
