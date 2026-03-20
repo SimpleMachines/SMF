@@ -163,13 +163,13 @@ function template_main()
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
 					</h4>
 				</div>
-				<div class="flow_auto boardslist" id="advanced_panel_div"', Utils::$context['boards_check_all'] ? ' style="display: none;"' : '', '>
+				<div class="flow_auto boardslist" id="advanced_panel_div"', !empty(Utils::$context['boards_check_all']) ? ' style="display: none;"' : '', '>
 					<ul>';
 
 		foreach (Utils::$context['categories'] as $category) {
 			echo '
 						<li>
-							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
+							<a href="javascript:void(0);" onclick="selectBoards([', !empty($category['child_ids']) ? implode(', ', $category['child_ids']) : '', '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
 			$cat_boards = array_values($category['boards']);
@@ -213,7 +213,7 @@ function template_main()
 				</div><!-- #advanced_panel_div -->
 				<br class="clear">
 				<div class="padding">
-					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
+					<input type="checkbox" name="all" id="check_all" value=""', !empty(Utils::$context['boards_check_all']) ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
 					<label for="check_all"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 					<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button floatright">
 				</div>
@@ -224,7 +224,7 @@ function template_main()
 		<script>
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', Utils::$context['boards_check_all'] ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['boards_check_all']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'advanced_panel_div\'
 				],
