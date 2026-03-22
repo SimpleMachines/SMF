@@ -239,6 +239,9 @@ function InMaintenance()
 
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
