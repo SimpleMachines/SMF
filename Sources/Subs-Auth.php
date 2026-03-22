@@ -235,7 +235,7 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context, $smcFunc;
+	global $txt, $mtitle, $mmessage, $context, $smcFunc, $modSettings;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
