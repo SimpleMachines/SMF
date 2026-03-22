@@ -215,13 +215,19 @@ function KickGuest()
 	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
-	createToken('login');
 
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
 
-	$context['sub_template'] = 'kick_guest' . (empty($_COOKIE) ? '_cookieless' : '');
+	// If you don't have any cookies to ofer us, we wont waste resources creating a login page.
+	if (empty($_COOKIE)) {
+		$context['sub_template'] = 'kick_guest_cookieless';
+	} else {
+		createToken('login');
+		$context['sub_template'] = 'kick_guest';
+	}
+
 	$context['page_title'] = $txt['login'];
 }
 
@@ -236,13 +242,19 @@ function InMaintenance()
 
 	loadLanguage('Login');
 	loadTemplate('Login');
-	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	send_http_status(503, 'Service Temporarily Unavailable');
 
+	// Admins need cookies.
+	if (empty($_COOKIE)) {
+		$context['sub_template'] = 'maintenance_cookieless';
+	} else {
+		createToken('login');
+		$context['sub_template'] = 'maintenance';
+	}
+
 	// Basic template stuff..
-	$context['sub_template'] = 'maintenance' . (empty($_COOKIE) ? '_cookieless' : '');
 	$context['title'] = $smcFunc['htmlspecialchars']($mtitle);
 	$context['description'] = &$mmessage;
 	$context['page_title'] = $txt['maintain_mode'];
