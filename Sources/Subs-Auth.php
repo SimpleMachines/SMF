@@ -210,11 +210,14 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	global $txt, $context;
+	global $txt, $context, $modSettings;
 
 	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Never redirect to an attachment
