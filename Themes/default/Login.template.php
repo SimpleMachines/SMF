@@ -351,6 +351,32 @@ function template_kick_guest()
 }
 
 /**
+ * Tell a guest to get lost or login, Now without cookies!
+ */
+function template_kick_guest_cookieless()
+{
+	global $txt, $context, $scripturl;
+
+	// This isn't that much... just like normal login but with a message at the top.
+	echo '
+	<div class="login">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['warning'], '</h3>
+		</div>';
+
+	// Show the message or default message.
+	echo '
+		<p class="information centertext">
+			', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br>';
+
+	echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', '', $scripturl . '?action=signup');
+
+	echo '
+		</p>
+	</div>';
+}
+
+/**
  * This is for maintenance mode.
  */
 function template_maintenance()
@@ -396,6 +422,33 @@ function template_maintenance()
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 		</div><!-- #maintenance_mode -->
 	</form>';
+}
+
+/**
+ * This is for maintenance mode, but you don't have a cookie.
+ */
+function template_maintenance_cookieless()
+{
+	global $context, $settings, $txt, $scripturl;
+
+	// Display the administrator's message at the top.
+	echo '
+		<div class="login" id="maintenance_mode">
+			<div class="cat_bar">
+				<h3 class="catbg">', $context['title'], '</h3>
+			</div>
+			<div class="information">
+				<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
+				', $context['description'], '<br class="clear">
+			</div>
+			<div class="title_bar">
+				<h4 class="titlebg">', $txt['admin_login'], '</h4>
+			</div>
+			<div class="roundframe">
+				<p>
+					<a href="', $scripturl . '?action=login">', $txt['login'], '</a>
+			</div>
+		</div><!-- #maintenance_mode -->';
 }
 
 /**
