@@ -268,6 +268,7 @@ function Login2()
 	// Cookies are required...
 	if (empty($_COOKIE))
 	{
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
 		$context['login_errors'] = array($txt['login_cookie_error']);
 		return;
 	}
