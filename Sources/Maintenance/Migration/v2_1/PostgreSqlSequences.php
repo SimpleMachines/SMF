@@ -248,7 +248,7 @@ class PostgreSqlSequences extends MigrationBase
 				[
 					'key' => Config::$db_prefix . $value['key'],
 					'field' => $value['field'],
-					'table' => $value['table'],
+					'table' => Config::$db_prefix . $value['table'],
 				],
 			);
 		}
