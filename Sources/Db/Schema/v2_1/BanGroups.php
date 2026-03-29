@@ -61,6 +61,8 @@ class BanGroups extends Table
 				name: 'expire_time',
 				type: 'int',
 				unsigned: true,
+				not_null: false,
+				default: null,
 			),
 			'cannot_access' => new Column(
 				name: 'cannot_access',
