@@ -206,7 +206,7 @@ class ShowAlerts implements ActionInterface
 		}
 
 		// Users may only view their own alerts.
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id);
 		}
 	}

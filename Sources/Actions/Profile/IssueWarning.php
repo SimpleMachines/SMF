@@ -70,7 +70,7 @@ class IssueWarning implements ActionInterface
 	public function execute(): void
 	{
 		// Doesn't hurt to be overly cautious.
-		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !User::$me->allowedTo('issue_warning')) {
+		if (empty(Config::$modSettings['warning_enable']) || (Profile::$member->is_me && !Profile::$member->warning) || !User::$me->allowedTo('issue_warning')) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -416,7 +416,7 @@ class IssueWarning implements ActionInterface
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
 
-		if ($_POST['warn_reason'] == '' && !User::$me->is_owner) {
+		if ($_POST['warn_reason'] == '' && !Profile::$member->is_me) {
 			$this->issueErrors[] = 'warning_no_reason';
 		}
 
@@ -479,7 +479,7 @@ class IssueWarning implements ActionInterface
 		// No errors? Proceed! Only log if you're not the owner.
 		if (empty($this->issueErrors)) {
 			// Log what we've done!
-			if (!User::$me->is_owner) {
+			if (!Profile::$member->is_me) {
 				Db::$db->insert(
 					'',
 					'{db_prefix}log_comments',
@@ -515,7 +515,7 @@ class IssueWarning implements ActionInterface
 			User::updateMemberData(Profile::$member->id, ['warning' => $_POST['warning_level']]);
 
 			// Leave a lovely message.
-			Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_warning_success', file: 'Profile');
+			Utils::$context['profile_updated'] = Lang::getTxt(Profile::$member->is_me ? 'profile_updated_own' : 'profile_warning_success', file: 'Profile');
 		} else {
 			// Try to remember some bits.
 			Utils::$context['warning_data'] = [

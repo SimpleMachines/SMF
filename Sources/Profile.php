@@ -412,10 +412,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'email_address' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
 				'label' => Lang::getTxt('user_email_address', file: 'General'),
 				'subtext' => Lang::getTxt('valid_email', file: 'General'),
-				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
+				'postinput' => !$this->is_me && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -508,7 +508,7 @@ class Profile extends User implements \ArrayAccess
 					Lang::get();
 
 					if (isset(Utils::$context['languages'][$value])) {
-						if (User::$me->is_owner && empty(Utils::$context['password_auth_failed'])) {
+						if ($this->is_me && empty(Utils::$context['password_auth_failed'])) {
 							$_SESSION['language'] = $value;
 						}
 
@@ -560,10 +560,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd1' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
 				'label' => Lang::getTxt('choose_pass', file: 'General'),
 				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
-				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
+				'postinput' => !$this->is_me && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -595,7 +595,7 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd2' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
 				'label' => Lang::getTxt('verify_pass', file: 'General'),
 				'size' => 20,
 				'value' => '',
@@ -819,7 +819,7 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['allow_no_censored'] = false;
 
-					if (User::$me->is_admin || User::$me->is_owner) {
+					if (User::$me->is_admin || $this->is_me) {
 						Utils::$context['allow_no_censored'] = !empty(Config::$modSettings['allow_no_censored']);
 					}
 
@@ -963,7 +963,7 @@ class Profile extends User implements \ArrayAccess
 					fn($p) => $p->name,
 					array_filter(
 						Permission::getByGenericName($field['permission']),
-						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+						fn($p) => $p->own_any !== 'own' || $this->is_me,
 					),
 				);
 
@@ -1013,7 +1013,7 @@ class Profile extends User implements \ArrayAccess
 
 			// Check the privacy level for this field.
 			if ($area !== 'register' && !User::$me->allowedTo('admin_forum')) {
-				if ($cf_def['private'] >= (User::$me->is_owner ? 3 : 2)) {
+				if ($cf_def['private'] >= ($this->is_me ? 3 : 2)) {
 					continue;
 				}
 
@@ -1458,7 +1458,7 @@ class Profile extends User implements \ArrayAccess
 	public function save(): void
 	{
 		// General-purpose permission for anything that doesn't have its own.
-		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
+		$this->can_change_extra = User::$me->allowedTo($this->is_me ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
 
 		// The applicator is the same as the member affected if we are registering a new member.
 		$this->applicator = empty(User::$me->id) && ($_REQUEST['sa'] ?? null) === 'register' ? $this->id : User::$me->id;
@@ -1473,8 +1473,8 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
-			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
+		if ($this->is_me && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
+			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', $this->id];
 		}
 
 		$this->prepareToSaveStandardFields();
@@ -1577,7 +1577,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
+		Utils::$context['profile_updated'] = Lang::getTxt($this->is_me ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
@@ -1685,7 +1685,7 @@ class Profile extends User implements \ArrayAccess
 
 		// If we are changing group status, update permission cache as necessary.
 		if ($value != $this->data['id_group'] || isset($this->new_data['additional_groups'])) {
-			if (User::$me->is_owner) {
+			if ($this->is_me) {
 				$_SESSION['mc']['time'] = 0;
 			} else {
 				Config::updateModSettings(['settings_updated' => time()]);
@@ -2088,9 +2088,6 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['member'] = &$this->formatted;
 		Utils::$context['id_member'] = $id;
 
-		// Is this the profile of the user himself or herself?
-		parent::$me->is_owner = $this->id === parent::$me->id;
-
 		// Create the slug for this member.
 		Slug::create($this->name, 'member', $this->id);
 
@@ -2249,7 +2246,7 @@ class Profile extends User implements \ArrayAccess
 			// Check the privacy level for this field.
 			if ($area !== 'register' && !User::$me->allowedTo('admin_forum')) {
 				// If not the admin or the owner, cannot modify.
-				if (!User::$me->is_owner) {
+				if (!$this->is_me) {
 					continue;
 				}
 
@@ -2449,7 +2446,7 @@ class Profile extends User implements \ArrayAccess
 				}
 
 				// Only let admins and owners change the censor.
-				if ($opt == 'allow_no_censored' && !User::$me->is_admin && !User::$me->is_owner) {
+				if ($opt == 'allow_no_censored' && !User::$me->is_admin && !$this->is_me) {
 					continue;
 				}
 

@@ -1499,7 +1499,6 @@ class Features implements ActionInterface
 	public function alerts(): void
 	{
 		// Dummy settings for the template...
-		User::$me->is_owner = false;
 		Utils::$context['member'] = [];
 		Utils::$context['id_member'] = 0;
 		Utils::$context['menu_item_selected'] = 'alerts';

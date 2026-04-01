@@ -63,7 +63,7 @@ class Summary implements ActionInterface
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 			'can_issue_warning' => User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
-			'can_view_warning' => (User::$me->allowedTo('moderate_forum') || User::$me->allowedTo('issue_warning') || User::$me->allowedTo('view_warning_any') || (User::$me->is_owner && User::$me->allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1',
+			'can_view_warning' => (User::$me->allowedTo('moderate_forum') || User::$me->allowedTo('issue_warning') || User::$me->allowedTo('view_warning_any') || (Profile::$member->is_me && User::$me->allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1',
 		];
 
 		// Set a canonical URL for this page.

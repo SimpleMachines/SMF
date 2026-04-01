@@ -750,7 +750,6 @@ class PersonalMessage implements ActionInterface, Routable
 		// Since this is internally handled with the profile code because that's how
 		// it was done ages ago, we have to set everything up for handling this...
 		Utils::$context['page_title'] = Lang::getTxt('pm_settings', file: 'PersonalMessage');
-		User::$me->is_owner = true;
 		Utils::$context['id_member'] = User::$me->id;
 		Utils::$context['require_password'] = false;
 		Utils::$context['menu_item_selected'] = 'settings';

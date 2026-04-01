@@ -157,7 +157,7 @@ class Avatar implements \ArrayAccess
 				&& (
 					User::$me->allowedTo('profile_server_avatar')
 					|| (
-						!User::$me->is_owner
+						!Profile::$member->is_me
 						&& User::$me->allowedTo('profile_extra_any')
 					)
 				)
@@ -183,7 +183,7 @@ class Avatar implements \ArrayAccess
 				&& (
 					User::$me->allowedTo('profile_upload_avatar')
 					|| (
-						!User::$me->is_owner
+						!Profile::$member->is_me
 						&& User::$me->allowedTo('profile_extra_any')
 					)
 				)
@@ -209,7 +209,7 @@ class Avatar implements \ArrayAccess
 				&& (
 					User::$me->allowedTo('profile_remote_avatar')
 					|| (
-						!User::$me->is_owner
+						!Profile::$member->is_me
 						&& User::$me->allowedTo('profile_extra_any')
 					)
 				)

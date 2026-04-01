@@ -56,7 +56,7 @@ class TFASetup implements ActionInterface
 	public function execute(): void
 	{
 		// Users have to do this for themselves, and can't do it again if they already did.
-		if (!User::$me->is_owner || !empty(User::$me->tfa_secret)) {
+		if (!Profile::$member->is_me || !empty(Profile::$member->tfa_secret)) {
 			Utils::redirectexit('action=profile;area=account;u=' . Profile::$member->id);
 		}
 
@@ -82,7 +82,7 @@ class TFASetup implements ActionInterface
 			$this->generate();
 		}
 
-		Utils::$context['tfa_qr_url'] = $this->totp->getQrCodeUrl(Utils::$context['forum_name'] . ':' . User::$me->name, Utils::$context['tfa_secret']);
+		Utils::$context['tfa_qr_url'] = $this->totp->getQrCodeUrl(Utils::$context['forum_name'] . ':' . Profile::$member->name, Utils::$context['tfa_secret']);
 	}
 
 	/******************
@@ -119,7 +119,7 @@ class TFASetup implements ActionInterface
 				'tfa_backup' => $backup_encrypted,
 			]);
 
-			Cookie::setTFACookie(Cookie::LENGTH_TFA, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
+			Cookie::setTFACookie(Cookie::LENGTH_TFA, Profile::$member->id, Cookie::encrypt($backup_encrypted, Profile::$member->password_salt));
 
 			unset($_SESSION['tfa_secret']);
 

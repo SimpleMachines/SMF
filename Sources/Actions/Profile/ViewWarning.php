@@ -43,7 +43,7 @@ class ViewWarning implements ActionInterface
 	{
 		// Firstly, can we actually even be here?
 		if (
-			!(User::$me->is_owner && User::$me->allowedTo('view_warning_own'))
+			!(Profile::$member->is_me && User::$me->allowedTo('view_warning_own'))
 			&& !User::$me->allowedTo('view_warning_any')
 			&& !User::$me->allowedTo('issue_warning')
 			&& !User::$me->allowedTo('moderate_forum')

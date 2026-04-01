@@ -82,7 +82,7 @@ class BuddyIgnoreLists implements ActionInterface
 	public function execute(): void
 	{
 		// Do a quick check to ensure people aren't getting here illegally!
-		if (!User::$me->is_owner || empty(Config::$modSettings['enable_buddylist'])) {
+		if (!Profile::$member->is_me || empty(Config::$modSettings['enable_buddylist'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 

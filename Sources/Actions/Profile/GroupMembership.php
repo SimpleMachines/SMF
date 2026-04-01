@@ -76,7 +76,7 @@ class GroupMembership implements ActionInterface
 	 */
 	public function show(): void
 	{
-		if (!User::$me->allowedTo('manage_membergroups') && !User::$me->is_owner) {
+		if (!User::$me->allowedTo('manage_membergroups') && !Profile::$member->is_me) {
 			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
 		}
 
@@ -165,7 +165,7 @@ class GroupMembership implements ActionInterface
 		}
 
 		// Let's be extra cautious...
-		if (!User::$me->is_owner || empty(Config::$modSettings['show_group_membership'])) {
+		if (!Profile::$member->is_me || empty(Config::$modSettings['show_group_membership'])) {
 			User::$me->isAllowedTo('manage_membergroups');
 		}
 

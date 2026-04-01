@@ -287,8 +287,6 @@ class Register implements ActionInterface, Routable
 			// Setup some important context.
 			Theme::loadTemplate('Profile');
 
-			User::$me->is_owner = true;
-
 			// Here, and here only, emulate the permissions the user would have to do this.
 			User::$me->permission_sets[0]->grant(['profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb']);
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);

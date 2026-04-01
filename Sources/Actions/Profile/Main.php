@@ -652,20 +652,20 @@ class Main implements ActionInterface, Routable
 
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
+			'url' => Config::$scripturl . '?action=profile' . (!Profile::$member->is_me ? ';u=' . Profile::$member->id : ''),
 			'name' => Lang::getTxt('profile_of_username', ['name' => Profile::$member->name]),
 		];
 
 		if (!empty($menu->include_data['label'])) {
 			Utils::$context['linktree'][] = [
-				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area,
+				'url' => Config::$scripturl . '?action=profile' . (!Profile::$member->is_me ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area,
 				'name' => Lang::txtExists($menu->include_data['label']) ? Lang::getTxt($menu->include_data['label']) : $menu->include_data['label'],
 			];
 		}
 
 		if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label']) {
 			Utils::$context['linktree'][] = [
-				'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
+				'url' => Config::$scripturl . '?action=profile' . (!Profile::$member->is_me ? ';u=' . Profile::$member->id : '') . ';area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
 				'name' => Lang::txtExists($menu->include_data['subsections'][$menu->current_subsection]['label']) ? Lang::getTxt($menu->include_data['subsections'][$menu->current_subsection]['label']) : $menu->include_data['subsections'][$menu->current_subsection]['label'],
 			];
 		}
@@ -715,7 +715,7 @@ class Main implements ActionInterface, Routable
 			}
 
 			// Change the IP address in the database.
-			if (User::$me->is_owner && ($_REQUEST['area'] ?? null) != 'tfasetup') {
+			if (Profile::$member->is_me && ($_REQUEST['area'] ?? null) != 'tfasetup') {
 				Profile::$member->new_data['member_ip'] = User::$me->ip;
 			}
 
@@ -759,8 +759,8 @@ class Main implements ActionInterface, Routable
 			}
 		}
 		// If it's you or it's forced then we should redirect upon save.
-		elseif ((!empty(Profile::$member->new_data) && User::$me->is_owner && !Utils::$context['do_preview']) || !empty($force_redirect)) {
-			Utils::redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . Profile::$member->id) . ';area=' . $menu->current_area . (!empty($msg) ? ';msg=' . $msg : ';updated'));
+		elseif ((!empty(Profile::$member->new_data) && Profile::$member->is_me && !Utils::$context['do_preview']) || !empty($force_redirect)) {
+			Utils::redirectexit('action=profile' . (Profile::$member->is_me ? '' : ';u=' . Profile::$member->id) . ';area=' . $menu->current_area . (!empty($msg) ? ';msg=' . $msg : ';updated'));
 		}
 
 		// Get the right callable.
@@ -898,9 +898,9 @@ class Main implements ActionInterface, Routable
 			},
 		);
 
-		$this->profile_areas['info']['areas']['showposts']['subsections']['unwatchedtopics']['enabled'] = User::$me->is_owner;
+		$this->profile_areas['info']['areas']['showposts']['subsections']['unwatchedtopics']['enabled'] = Profile::$member->is_me;
 
-		$this->profile_areas['info']['areas']['showdrafts']['enabled'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->is_owner;
+		$this->profile_areas['info']['areas']['showdrafts']['enabled'] = !empty(Config::$modSettings['drafts_post_enabled']) && Profile::$member->is_me;
 
 		$this->profile_areas['info']['areas']['tracking']['subsections']['edits']['enabled'] = !empty(Config::$modSettings['userlog_enabled']);
 
@@ -918,9 +918,9 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['edit_profile']['areas']['ignoreboards']['enabled'] = !empty(Config::$modSettings['allow_ignore_boards']);
 
-		$this->profile_areas['edit_profile']['areas']['lists']['enabled'] = !empty(Config::$modSettings['enable_buddylist']) && User::$me->is_owner;
+		$this->profile_areas['edit_profile']['areas']['lists']['enabled'] = !empty(Config::$modSettings['enable_buddylist']) && Profile::$member->is_me;
 
-		$this->profile_areas['edit_profile']['areas']['groupmembership']['enabled'] = !empty(Config::$modSettings['show_group_membership']) && User::$me->is_owner;
+		$this->profile_areas['edit_profile']['areas']['groupmembership']['enabled'] = !empty(Config::$modSettings['show_group_membership']) && Profile::$member->is_me;
 
 		$this->profile_areas['profile_action']['areas']['sendpm']['enabled'] = User::$me->allowedTo('profile_view');
 
@@ -944,12 +944,12 @@ class Main implements ActionInterface, Routable
 			// Do a bit of spring cleaning so to speak.
 			foreach ($section['areas'] as $area_id => $area) {
 				// If it said no permissions that meant it wasn't valid!
-				if (empty($area['permission'][User::$me->is_owner ? 'own' : 'any'])) {
+				if (empty($area['permission'][Profile::$member->is_me ? 'own' : 'any'])) {
 					$this->profile_areas[$section_id]['areas'][$area_id]['enabled'] = false;
 				}
 				// Otherwise pick the right set.
 				else {
-					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner && isset($area['permission']['own']) ? 'own' : 'any'];
+					$this->profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][Profile::$member->is_me && isset($area['permission']['own']) ? 'own' : 'any'];
 				}
 
 				// Next, choose the correct permission sets for the subsections.
@@ -961,7 +961,7 @@ class Main implements ActionInterface, Routable
 							&& isset($subsection['permission']['any'])
 
 						) {
-							$this->profile_areas[$section_id]['areas'][$area_id]['subsections'][$subsection_id]['permission'] = $subsection['permission'][User::$me->is_owner && isset($subsection['permission']['own']) ? 'own' : 'any'];
+							$this->profile_areas[$section_id]['areas'][$area_id]['subsections'][$subsection_id]['permission'] = $subsection['permission'][Profile::$member->is_me && isset($subsection['permission']['own']) ? 'own' : 'any'];
 						}
 					}
 				}
@@ -1049,7 +1049,7 @@ class Main implements ActionInterface, Routable
 					}
 
 					// Does this require session validating?
-					if (!empty($area['validate']) || (isset($_REQUEST['save']) && !User::$me->is_owner && ($area_id != 'issuewarning' || empty(Config::$modSettings['securityDisable_moderate'])))) {
+					if (!empty($area['validate']) || (isset($_REQUEST['save']) && !Profile::$member->is_me && ($area_id != 'issuewarning' || empty(Config::$modSettings['securityDisable_moderate'])))) {
 						$security_checks['validate'] = true;
 					}
 
@@ -1093,7 +1093,7 @@ class Main implements ActionInterface, Routable
 		}
 
 		// All the subactions that require a user password in order to validate.
-		$this->check_password = User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
+		$this->check_password = Profile::$member->is_me && \in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
 
 		Utils::$context['require_password'] = $this->check_password;
 	}

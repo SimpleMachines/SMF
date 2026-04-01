@@ -257,6 +257,25 @@ class User implements \ArrayAccess
 	/**
 	 * @var bool
 	 *
+	 * Whether this is the current user.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 */
+	public bool $is_me {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
+		&get {
+			$this->is_me = $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);
+
+			return $this->is_me;
+		}
+	}
+
+	/**
+	 * @var bool
+	 *
 	 * Whether this user is currently browsing the forum.
 	 */
 	public bool $is_online;
@@ -627,6 +646,25 @@ class User implements \ArrayAccess
 	 */
 	public array $formatted = [];
 
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of Profile::$member->is_me.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $is_owner {
+		&get {
+			$this->is_owner = Profile::$member->is_me ?? false;
+
+			return $this->is_owner;
+		}
+	}
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -982,7 +1020,7 @@ class User implements \ArrayAccess
 			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
 			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>',
 			'email' => $this->email,
-			'show_email' => !self::$me->is_guest && (self::$me->id == $this->id || self::$me->allowedTo('moderate_forum')),
+			'show_email' => !self::$me->is_guest && ($this->is_me || self::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $this->date_registered)->format(),
 			'registered_timestamp' => $this->date_registered,
 		];
@@ -1161,7 +1199,7 @@ class User implements \ArrayAccess
 	public function logOnline(bool $force = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1348,7 +1386,7 @@ class User implements \ArrayAccess
 	public function loadModCache(): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1392,7 +1430,7 @@ class User implements \ArrayAccess
 	public function rebuildModCache(): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1517,7 +1555,7 @@ class User implements \ArrayAccess
 	public function kickIfGuest(?string $message = null, bool $log = true): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1586,7 +1624,7 @@ class User implements \ArrayAccess
 	public function kickIfBanned(bool $force_check = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1920,7 +1958,7 @@ class User implements \ArrayAccess
 	public function validateSession(string $type = 'admin', bool $force = false): ?string
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -2016,7 +2054,7 @@ class User implements \ArrayAccess
 	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -2260,7 +2298,7 @@ class User implements \ArrayAccess
 	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -3787,7 +3825,6 @@ class User implements \ArrayAccess
 	{
 		// For developer convenience.
 		$profile = &self::$profiles[$this->id];
-		$is_me = $this->id === (self::$my_id ?? NAN);
 
 		// Vital info.
 		$this->username = $profile['member_name'] ?? '';
@@ -3810,7 +3847,7 @@ class User implements \ArrayAccess
 		$this->is_mod = \in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= self::BANNED;
-		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
+		$this->is_online = (bool) ($profile['is_online'] ?? $this->is_me);
 
 		// User activity and history.
 		$this->show_online = (bool) ($profile['show_online'] ?? false);
@@ -3819,8 +3856,8 @@ class User implements \ArrayAccess
 		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
 		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
 		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
-		$this->ip = (string) ($is_me ? IP::getUserIP() : $profile['member_ip'] ?? '');
-		$this->ip2 = (string) ($is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
+		$this->ip = (string) ($this->is_me ? IP::getUserIP() : $profile['member_ip'] ?? '');
+		$this->ip2 = (string) ($this->is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
 		$this->posts = (int) ($profile['posts'] ?? 0);

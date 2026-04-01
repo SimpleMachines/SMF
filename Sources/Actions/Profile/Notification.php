@@ -343,7 +343,7 @@ class Notification implements ActionInterface
 
 		User::$me->kickIfGuest();
 
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			User::$me->isAllowedTo('profile_extra_any');
 		}
 
@@ -537,7 +537,7 @@ class Notification implements ActionInterface
 		// Now we're all set up.
 		User::$me->kickIfGuest();
 
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			ErrorHandler::fatal('no_access');
 		}
 

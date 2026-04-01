@@ -1331,7 +1331,7 @@ class Theme
 		}
 
 		// There are certain exceptions to the above where we don't want anything on the menu highlighted.
-		if (Utils::$context['current_action'] == 'profile' && !empty(User::$me->is_owner)) {
+		if (Utils::$context['current_action'] == 'profile' && !empty(Profile::$member->is_me)) {
 			$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
 
 			Utils::$context[$current_action] = true;
