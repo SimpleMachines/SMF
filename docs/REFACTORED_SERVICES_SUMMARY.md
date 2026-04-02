@@ -428,27 +428,6 @@ protected function loadSettings(): void
 - ✅ Fast when Config is loaded (typical case)
 - ✅ Works independently when needed (testing, special cases)
 
-### Caching
-
-ModSettingsService uses CacheApi for performance:
-
-```php
-protected function loadFromDatabase(): void
-{
-    // Try cache first
-    if (\is_array($temp = CacheApi::get('modSettings', 90))) {
-        $this->settings = $temp;
-        return;
-    }
-
-    // Load from database
-    // ...
-
-    // Cache the result
-    CacheApi::put('modSettings', $this->settings, 90);
-}
-```
-
 ---
 
 ## Troubleshooting
@@ -473,9 +452,6 @@ protected function loadFromDatabase(): void
 ## Additional Documentation
 
 - **[Dependency Injection Guide](DEPENDENCY_INJECTION_GUIDE.md)** - Complete DI usage guide with examples
-- **[Config Services Migration Guide](../CONFIG_SERVICES_MIGRATION_GUIDE.md)** - Detailed config services documentation
-- **[Config Services Independence Summary](../CONFIG_SERVICES_INDEPENDENCE_SUMMARY.md)** - Architecture and independence analysis
-- **[Migration Plan](https://github.com/MissAllSunday/SMF2.1/blob/Dependency-injection-proposal/DEPENDENCY_INJECTION_MIGRATION_PLAN.md)** - Overall migration strategy
 
 ---
 
