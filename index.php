@@ -98,18 +98,22 @@ loadDatabase();
  *
  * @param string $class The fully-qualified class name.
  */
-$class_map = null;
-spl_autoload_register(function($class) use ($sourcedir, &$class_map) {
-	if ($class_map === null) {
-		$class_map = [
-			'ReCaptcha\\' => 'ReCaptcha/',
-			'MatthiasMullie\\Minify\\' => 'minify/src/',
-			'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-			'SMF\\Cache\\' => 'Cache/',
-		];
+spl_autoload_register(function($class) use ($sourcedir) {
+	global $modSettings;
 
-		// Call hook only ONCE, not on every autoload
+	static $hook_value = '';
+	static $class_map = array(
+		'ReCaptcha\\' => 'ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => 'minify/src/',
+		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
+	);
+
+	// Do any third-party scripts want in on the fun?
+	if ($hook_value !== (isset($modSettings['integrate_autoload']) ? $modSettings['integrate_autoload'] : ''))
+	{
 		call_integration_hook('integrate_autoload', array(&$class_map));
+		$hook_value = $modSettings['integrate_autoload'];
 	}
 
 	foreach ($class_map as $prefix => $dirname)
@@ -142,10 +146,6 @@ spl_autoload_register(function($class) use ($sourcedir, &$class_map) {
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
-
-// Force the autoload to refresh its class map now that enough data has
-// been loaded for the integration hook to work as expected.
-$class_map = null;
 
 // Clean the request variables, add slashes, etc.
 cleanRequest();
