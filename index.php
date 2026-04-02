@@ -136,7 +136,7 @@ spl_autoload_register(function($class) use ($sourcedir) {
 		// if the file exists, require it
 		if (file_exists($filename = $sourcedir . '/' . $filename))
 		{
-			require_once $fileName;
+			require_once $filename;
 
 			return;
 		}
