@@ -2,7 +2,7 @@
 
 Welcome to the SMF Dependency Injection documentation! This directory contains comprehensive guides for understanding and using the new service-based architecture.
 
-## 📚 Documentation Index
+## Documentation Index
 
 ### 1. [Dependency Injection Guide](DEPENDENCY_INJECTION_GUIDE.md)
 **Complete guide for using DI in SMF**
@@ -27,7 +27,7 @@ Welcome to the SMF Dependency Injection documentation! This directory contains c
 
 **Best for**: Developers who need a quick reference for using existing services.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### For New Features
 
@@ -85,14 +85,14 @@ $action = Container::get(MyNewAction::class);
 $action->execute();
 ```
 
-### ⚠️ For Legacy Code Only
+### WARNING: For Legacy Code Only
 
 **Facades are deprecated for new code. Use constructor injection or Container instead.**
 
 For existing code that hasn't been refactored yet:
 
 ```php
-// ⛔ DEPRECATED - Only use in existing code
+// DEPRECATED - Only use in existing code
 $settings = \SMF\Config::getSettingsService();
 $modSettings = \SMF\Config::getModSettingsService();
 
@@ -105,15 +105,15 @@ $enabled = $modSettings->get('feature_enabled', false);
 - Constructor injection (preferred)
 - Container direct access (if injection not possible)
 
-## 📊 Refactoring Status
+## Refactoring Status
 
 | Service | Status | Documentation |
 |---------|--------|---------------|
-| **ErrorHandlerService** | ✅ Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#1-errorhandlerservice) |
-| **SettingsService** | ✅ Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#2-settingsservice) |
-| **ModSettingsService** | ✅ Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#3-modsettingsservice) |
+| **ErrorHandlerService** | Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#1-errorhandlerservice) |
+| **SettingsService** | Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#2-settingsservice) |
+| **ModSettingsService** | Complete | [View Details](REFACTORED_SERVICES_SUMMARY.md#3-modsettingsservice) |
 
-## 📖 Additional Resources
+## Additional Resources
 
 ### In This Repository
 
@@ -124,7 +124,7 @@ $enabled = $modSettings->get('feature_enabled', false);
 
 - **[SMF DI Migration Plan](https://github.com/MissAllSunday/SMF2.1/blob/Dependency-injection-proposal/DEPENDENCY_INJECTION_MIGRATION_PLAN.md)** - Overall migration strategy and roadmap
 
-## 🔧 Common Tasks
+## Common Tasks
 
 ### Creating a New Service
 
@@ -162,7 +162,7 @@ $service = new MyService($mock);
 
 [Full guide →](DEPENDENCY_INJECTION_GUIDE.md#testing-with-dependency-injection)
 
-## ❓ FAQ
+## FAQ
 
 **Q: Do I need to refactor existing code to use services?**
 A: No! Existing code continues to work. Only new code should use DI. Refactor existing code gradually when you touch it.
@@ -179,18 +179,18 @@ A: Yes! Use `'shared' => false` in ServicesList.php. Most services use `'shared'
 **Q: What if I need a service that doesn't exist yet?**
 A: Create it! Follow the guide in [DEPENDENCY_INJECTION_GUIDE.md](DEPENDENCY_INJECTION_GUIDE.md#complete-example-building-a-new-feature)
 
-## 🤝 Contributing
+## Contributing
 
 When adding or modifying services:
 
-1. ✅ Follow existing patterns
-2. ✅ Write comprehensive tests
-3. ✅ Update this documentation
-4. ✅ Maintain backward compatibility
-5. ✅ Use interfaces, not concrete classes
-6. ✅ Keep constructors simple
+1. Follow existing patterns
+2. Write comprehensive tests
+3. Update this documentation
+4. Maintain backward compatibility
+5. Use interfaces, not concrete classes
+6. Keep constructors simple
 
-## 📝 Documentation Standards
+## Documentation Standards
 
 When documenting new services:
 

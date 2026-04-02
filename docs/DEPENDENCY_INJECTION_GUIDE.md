@@ -179,10 +179,10 @@ return [
 ```
 
 **Why this is best:**
-- ✅ Testable (inject mocks)
-- ✅ Clear dependencies
-- ✅ Type-safe
-- ✅ IDE autocomplete support
+- Testable (inject mocks)
+- Clear dependencies
+- Type-safe
+- IDE autocomplete support
 
 #### Option 2: Container Direct Access (For Actions/Controllers)
 
@@ -202,25 +202,25 @@ $result = $myService->performTask();
 - One-off service access in procedural code
 - Bootstrapping/initialization code
 
-#### ⚠️ Facade Pattern (Deprecated - Existing Code Only)
+#### WARNING: Facade Pattern (Deprecated - Existing Code Only)
 
 **Do NOT use facades in new code. Only for backward compatibility with existing code.**
 
 ```php
-// ⛔ DEPRECATED - Do not use in new code
+// DEPRECATED - Do not use in new code
 $settings = \SMF\Config::getSettingsService();
 $modSettings = \SMF\Config::getModSettingsService();
 
-// ⛔ LEGACY - Still works but avoid in new code
+// LEGACY - Still works but avoid in new code
 $boardUrl = \SMF\Config::$boardurl;
 $setting = \SMF\Config::$modSettings['some_setting'];
 ```
 
 **Why facades are deprecated:**
-- ❌ Tight coupling to static classes
-- ❌ Harder to test
-- ❌ Hidden dependencies
-- ❌ Not following DI principles
+- Tight coupling to static classes
+- Harder to test
+- Hidden dependencies
+- Not following DI principles
 
 **Facades are only maintained for:**
 - Backward compatibility with existing code
@@ -398,10 +398,10 @@ class UserProfileServiceTest extends TestCase
 ```
 
 **Benefits:**
-- ✅ No database needed for tests
-- ✅ Complete control over dependencies
-- ✅ Fast test execution
-- ✅ Test edge cases easily
+- No database needed for tests
+- Complete control over dependencies
+- Fast test execution
+- Test edge cases easily
 
 ## Best Practices
 
@@ -423,7 +423,7 @@ class MyService
 {
     public function doWork()
     {
-        // ⛔ Don't do this in new code
+        // Don't do this in new code
         $settings = Config::getModSettingsService();
         $value = Config::$modSettings['key'];
     }
@@ -514,7 +514,7 @@ return [
 
 ### Phase 1: Backward Compatible Services (Current)
 
-**Status**: ✅ Complete
+**Status**: Complete
 
 - Create service classes that work alongside static classes
 - Services can use facades for backward compatibility
@@ -522,7 +522,7 @@ return [
 
 ### Phase 2: New Code Uses DI (In Progress)
 
-**Status**: 🔄 Ongoing
+**Status**: Ongoing
 
 - All new features use dependency injection
 - Gradually refactor existing code when touched
@@ -530,7 +530,7 @@ return [
 
 ### Phase 3: Full Migration (Future)
 
-**Status**: ⏳ Planned
+**Status**: Planned
 
 - Static facades become thin wrappers around services
 - All business logic in services
@@ -560,17 +560,17 @@ if (Container::has(MyService::class)) {
 }
 ```
 
-### ⚠️ Facade Access (Deprecated - Existing Code Only)
+### WARNING: Facade Access (Deprecated - Existing Code Only)
 
 **Do NOT use in new code. Only for backward compatibility.**
 
 ```php
-// ⛔ DEPRECATED - Existing code only
+// DEPRECATED - Existing code only
 $settings = \SMF\Config::getSettingsService();
 $modSettings = \SMF\Config::getModSettingsService();
 \SMF\ErrorHandler::log('message', 'error');
 
-// ✅ NEW CODE - Use constructor injection instead
+// NEW CODE - Use constructor injection instead
 public function __construct(
     private SettingsServiceInterface $settings,
     private ModSettingsServiceInterface $modSettings,
@@ -677,12 +677,12 @@ return [
 
 When adding a new service:
 
-1. ✅ Create interface in `Sources/Services/Contracts/`
-2. ✅ Create implementation in `Sources/Services/`
-3. ✅ Register in `Sources/Infrastructure/ServicesList.php`
-4. ✅ Write unit tests
-5. ✅ Update this documentation
-6. ✅ Add facade method if needed for backward compatibility
+1. Create interface in `Sources/Services/Contracts/`
+2. Create implementation in `Sources/Services/`
+3. Register in `Sources/Infrastructure/ServicesList.php`
+4. Write unit tests
+5. Update this documentation
+6. Add facade method if needed for backward compatibility
 
 **Template:**
 
@@ -718,6 +718,6 @@ return [
 
 ---
 
-**Remember**: The goal is gradual, non-breaking migration to improve testability and maintainability! 🚀
+**Remember**: The goal is gradual, non-breaking migration to improve testability and maintainability!
 
 
