@@ -2201,6 +2201,15 @@ class User implements \ArrayAccess
 			),
 		);
 
+		// Shortcut for a special case.
+		if (
+			$permissions === ['approve_posts']
+			&& \count($boards) === 1
+			&& !empty($this->mod_cache['ap'])
+		) {
+			return $this->mod_cache['ap'] == [0] || array_intersect($boards, $this->mod_cache['ap']) === $boards;
+		}
+
 		// If a permission doesn't exist, it can't be done.
 		foreach ($permissions as $key => $permission) {
 			if (!Permission::exists($permission)) {
