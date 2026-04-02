@@ -98,19 +98,21 @@ loadDatabase();
  *
  * @param string $class The fully-qualified class name.
  */
-spl_autoload_register(function ($class) use ($sourcedir)
-{
-	$classMap = array(
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache\\' => 'Cache/',
-	);
+$class_map = null;
+spl_autoload_register(function($class) use ($sourcedir, &$class_map) {
+	if ($class_map === null) {
+		$class_map = [
+			'ReCaptcha\\' => 'ReCaptcha/',
+			'MatthiasMullie\\Minify\\' => 'minify/src/',
+			'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+			'SMF\\Cache\\' => 'Cache/',
+		];
 
-	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', array(&$classMap));
+		// Call hook only ONCE, not on every autoload
+		call_integration_hook('integrate_autoload', array(&$class_map));
+	}
 
-	foreach ($classMap as $prefix => $dirName)
+	foreach ($class_map as $prefix => $dirname)
 	{
 		// does the class use the namespace prefix?
 		$len = strlen($prefix);
@@ -120,15 +122,15 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		}
 
 		// get the relative class name
-		$relativeClass = substr($class, $len);
+		$relative_class = substr($class, $len);
 
 		// replace the namespace prefix with the base directory, replace namespace
 		// separators with directory separators in the relative class name, append
 		// with .php
-		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
+		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
 
 		// if the file exists, require it
-		if (file_exists($fileName = $sourcedir . '/' . $fileName))
+		if (file_exists($filename = $sourcedir . '/' . $filename))
 		{
 			require_once $fileName;
 
@@ -140,6 +142,10 @@ spl_autoload_register(function ($class) use ($sourcedir)
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
+
+// Force the autoload to refresh its class map now that enough data has
+// been loaded for the integration hook to work as expected.
+$class_map = null;
 
 // Clean the request variables, add slashes, etc.
 cleanRequest();
