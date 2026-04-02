@@ -24,6 +24,10 @@ namespace SMF\Services\Contracts;
  */
 interface ModSettingsServiceInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Get a mod setting value.
 	 *
@@ -55,7 +59,6 @@ interface ModSettingsServiceInterface
 	 *
 	 * @param string $key The setting key
 	 * @param mixed $value The value to set
-	 * @return void
 	 */
 	public function set(string $key, mixed $value): void;
 
@@ -67,7 +70,6 @@ interface ModSettingsServiceInterface
 	 * @param bool $update Whether to use UPDATE instead of REPLACE
 	 *                     True: Use UPDATE (allows incrementing with true/false values)
 	 *                     False: Use REPLACE (default, faster for bulk updates)
-	 * @return void
 	 */
 	public function update(array $settings, bool $update = false): void;
 
@@ -75,7 +77,6 @@ interface ModSettingsServiceInterface
 	 * Delete one or more mod settings from the database.
 	 *
 	 * @param string|array $keys Setting key(s) to delete
-	 * @return void
 	 */
 	public function delete(string|array $keys): void;
 
@@ -84,14 +85,12 @@ interface ModSettingsServiceInterface
 	 *
 	 * This clears the cache and reloads all settings from the database.
 	 *
-	 * @return void
 	 */
 	public function reload(): void;
 
 	/**
 	 * Clear the mod settings cache.
 	 *
-	 * @return void
 	 */
 	public function clearCache(): void;
 
@@ -120,4 +119,3 @@ interface ModSettingsServiceInterface
 	 */
 	public function hasAll(array $keys): bool;
 }
-

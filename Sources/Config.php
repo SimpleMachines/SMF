@@ -2914,26 +2914,6 @@ class Config
 		}
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Wrapper for SMF\Sapi::getTempDir().
-	 *
-	 * Loads the Sapi class if necessary, and then calls Sapi::getTempDir().
-	 */
-	protected static function getTempDir(): string
-	{
-		// Can't rely on autoloading because this method may be
-		// called before the autoloader exists.
-		if (!class_exists('\\SMF\\Sapi', false)) {
-			require_once self::$sourcedir . DIRECTORY_SEPARATOR . 'Sapi.php';
-		}
-
-		return Sapi::getTempDir();
-	}
-
 	/**
 	 * Get the SettingsService instance from the container.
 	 *
@@ -2954,6 +2934,7 @@ class Config
 		// Try to get the service from the container
 		try {
 			$service = Infrastructure\Container::get(Services\SettingsService::class);
+
 			return $service;
 		} catch (\Throwable $e) {
 			// Container not available or service not registered
@@ -2987,6 +2968,7 @@ class Config
 		// Try to get the service from the container
 		try {
 			$service = Infrastructure\Container::get(Services\ModSettingsService::class);
+
 			return $service;
 		} catch (\Throwable $e) {
 			// Container not available or service not registered
@@ -2997,5 +2979,25 @@ class Config
 		$service = new Services\ModSettingsService();
 
 		return $service;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Wrapper for SMF\Sapi::getTempDir().
+	 *
+	 * Loads the Sapi class if necessary, and then calls Sapi::getTempDir().
+	 */
+	protected static function getTempDir(): string
+	{
+		// Can't rely on autoloading because this method may be
+		// called before the autoloader exists.
+		if (!class_exists('\\SMF\\Sapi', false)) {
+			require_once self::$sourcedir . DIRECTORY_SEPARATOR . 'Sapi.php';
+		}
+
+		return Sapi::getTempDir();
 	}
 }

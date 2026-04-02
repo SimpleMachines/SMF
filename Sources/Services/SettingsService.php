@@ -26,6 +26,10 @@ use SMF\Services\Contracts\SettingsServiceInterface;
  */
 class SettingsService implements SettingsServiceInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array
 	 *
@@ -46,6 +50,10 @@ class SettingsService implements SettingsServiceInterface
 	 * Path to Settings.php file.
 	 */
 	protected string $settingsFile;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -224,10 +232,13 @@ class SettingsService implements SettingsServiceInterface
 		return $this->settings['db_prefix'] ?? '';
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Ensure settings are loaded from Settings.php.
 	 *
-	 * @return void
 	 */
 	protected function ensureLoaded(): void
 	{
@@ -242,7 +253,6 @@ class SettingsService implements SettingsServiceInterface
 	 * This method loads settings independently from Config class.
 	 * If Config has already loaded settings, we use those for efficiency.
 	 *
-	 * @return void
 	 */
 	protected function loadSettings(): void
 	{
@@ -308,7 +318,6 @@ class SettingsService implements SettingsServiceInterface
 	 *
 	 * This is used when Config has already loaded settings for efficiency.
 	 *
-	 * @return void
 	 */
 	protected function syncFromConfig(): void
 	{

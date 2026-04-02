@@ -24,6 +24,10 @@ namespace SMF\Services\Contracts;
  */
 interface SettingsServiceInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Get a configuration value from Settings.php.
 	 *
@@ -40,7 +44,6 @@ interface SettingsServiceInterface
 	 *
 	 * @param string $key The configuration key
 	 * @param mixed $value The value to set
-	 * @return void
 	 */
 	public function set(string $key, mixed $value): void;
 
@@ -145,4 +148,3 @@ interface SettingsServiceInterface
 	 */
 	public function getDatabasePrefix(): string;
 }
-

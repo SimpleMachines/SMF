@@ -30,6 +30,10 @@ use SMF\Services\Contracts\ModSettingsServiceInterface;
  */
 class ModSettingsService implements ModSettingsServiceInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array
 	 *
@@ -44,12 +48,14 @@ class ModSettingsService implements ModSettingsServiceInterface
 	 */
 	protected bool $loaded = false;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
-	}
+	public function __construct() {}
 
 	public function get(string $key, mixed $default = null): mixed
 	{
@@ -283,10 +289,13 @@ class ModSettingsService implements ModSettingsServiceInterface
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Ensure settings are loaded from database.
 	 *
-	 * @return void
 	 */
 	protected function ensureLoaded(): void
 	{
@@ -298,7 +307,6 @@ class ModSettingsService implements ModSettingsServiceInterface
 	/**
 	 * Load settings from database.
 	 *
-	 * @return void
 	 */
 	protected function loadFromDatabase(): void
 	{
@@ -360,7 +368,6 @@ class ModSettingsService implements ModSettingsServiceInterface
 	 *
 	 * This ensures critical settings have valid values.
 	 *
-	 * @return void
 	 */
 	protected function applyDefaults(): void
 	{
@@ -391,4 +398,3 @@ class ModSettingsService implements ModSettingsServiceInterface
 		}
 	}
 }
-
