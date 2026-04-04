@@ -728,6 +728,7 @@ class Forum
 	protected static function inMaintenance(): void
 	{
 		Theme::loadTemplate('Login');
+
 		if (empty($_COOKIE)) {
 			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, 0, '');
 		}
