@@ -27,13 +27,13 @@ If you are attempting to download from the source code provided on our [github](
     ```bash
     composer install
     ```
-* If you are intending to do development, you will want to install the developer dependencies, you can append `-dev` to the command like so
+* If you are intending to do development, you will want to install the developer dependencies, you can prepend `COMPOSER_NO_DEV=0` to the command like so
      ```bash
-    composer install -dev
+    COMPOSER_NO_DEV=0 composer install
     ```
-* When updating (`git pull`), you should update the composer and may run into issues if not done so.  Developers should add `-dev` to the command
+* When updating (`git pull`), you should update the composer and may run into issues if not done so.  Developers should add `COMPOSER_NO_DEV=0` to the command
      ```bash
-    composer update
+    COMPOSER_NO_DEV=0 composer update
     ```
 
 ## How to contribute:
