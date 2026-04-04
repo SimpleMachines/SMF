@@ -1578,6 +1578,10 @@ class User implements \ArrayAccess
 		// Load the Login template and language file.
 		Theme::loadTemplate('Login');
 
+		if (empty($_COOKIE)) {
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, 0, '');
+		}
+
 		// Create a login token.
 		SecurityToken::create('login');
 

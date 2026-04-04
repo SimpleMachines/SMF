@@ -71,6 +71,11 @@ class Login extends Login2
 			'name' => Lang::getTxt('login', file: 'General'),
 		];
 
+		// Ensure the session data persists.
+		if (empty($_COOKIE)) {
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, 0, '');
+		}
+
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
 		if (isset($_SESSION['old_url']) && !str_contains($_SESSION['old_url'], 'dlattach') && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) {
 			$_SESSION['login_url'] = $_SESSION['old_url'];

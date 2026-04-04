@@ -728,6 +728,9 @@ class Forum
 	protected static function inMaintenance(): void
 	{
 		Theme::loadTemplate('Login');
+		if (empty($_COOKIE)) {
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, 0, '');
+		}
 		SecurityToken::create('login');
 
 		// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
