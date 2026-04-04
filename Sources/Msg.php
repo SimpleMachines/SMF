@@ -548,15 +548,15 @@ class Msg implements \ArrayAccess, Routable
 
 			// If the topic is locked, you might not be able to delete the post...
 			if ($topic->is_locked) {
-				$topic->permissions['can_remove_post'] &= (User::$me->started && $topic->is_locked == 1) || User::$me->allowedTo('lock_any');
+				$topic->permissions['can_remove_post'] &= ($topic->started_by_me && $topic->is_locked == 1) || User::$me->allowedTo('lock_any');
 			}
 
 			$this->formatted += [
 				'approved' => $this->approved,
 				'can_approve' => !$this->approved && $topic->permissions['can_approve'],
 				'can_unapprove' => !empty(Config::$modSettings['postmod_active']) && $topic->permissions['can_approve'] && $this->approved,
-				'can_modify' => (!$topic->is_locked || User::$me->allowedTo('moderate_board')) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_replies') && User::$me->started) || (User::$me->allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
-				'can_remove' => User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && User::$me->started) || (User::$me->allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
+				'can_modify' => (!$topic->is_locked || User::$me->allowedTo('moderate_board')) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_replies') && $topic->started_by_me) || (User::$me->allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
+				'can_remove' => User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && $topic->started_by_me) || (User::$me->allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
 				'can_see_ip' => User::$me->allowedTo('moderate_forum') || ($this->id_member == User::$me->id && !empty(User::$me->id)),
 				'css_class' => $this->approved ? 'windowbg' : 'approvebg',
 			];

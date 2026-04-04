@@ -979,7 +979,7 @@ class Calendar implements ActionInterface, Routable
 		// Linking an event counts as modifying the first post.
 		Topic::load();
 
-		$perm = User::$me->started ? ['modify_own', 'modify_any'] : 'modify_any';
+		$perm = Topic::$info->started_by_me ? ['modify_own', 'modify_any'] : 'modify_any';
 
 		if (!User::$me->allowedTo($perm, Topic::$info->id_board, true)) {
 			if ($trigger_error) {

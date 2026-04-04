@@ -665,6 +665,25 @@ class User implements \ArrayAccess
 		}
 	}
 
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of Topic::$info->started_by_me.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $started {
+		&get {
+			$this->started = Topic::$info->started_by_me ?? false;
+
+			return $this->started;
+		}
+	}
+
 	/**************************
 	 * Public static properties
 	 **************************/
