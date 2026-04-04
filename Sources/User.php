@@ -2883,7 +2883,7 @@ class User implements \ArrayAccess
 					$val = max(0, $val);
 				}
 
-				User::$loaded[$member]->set([$var, $val]);
+				User::$loaded[$member]->set([$var => $val]);
 			}
 		}
 
