@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl, $user_info;
+	global $txt, $context, $scripturl, $user_info, $modSettings;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
