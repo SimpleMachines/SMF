@@ -354,9 +354,6 @@ class CurlFetcher extends WebFetchApi
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
-		// Close this request.
-		curl_close($cr);
-
 		// Store this loop's data, someone may want all of these. :O
 		$this->response[] = [
 			'url' => $url,

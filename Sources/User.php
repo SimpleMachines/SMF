@@ -1204,6 +1204,11 @@ class User implements \ArrayAccess
 			self::logSpider();
 		}
 
+		// Don't log guests anymore - helps during bot attacks.
+		if (!empty(Config::$modSettings['no_guest_logging']) && !empty(User::$me->is_guest)) {
+			return;
+		}
+
 		// Don't mark them as online more than every so often.
 		if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force) {
 			return;
@@ -1411,7 +1416,11 @@ class User implements \ArrayAccess
 		}
 
 		// What groups can they moderate?
-		$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
+		if (!$this->is_guest) {
+			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
+		} else {
+			$group_query = '0=1';
+		}
 
 		if ($group_query == '0=1' && !$this->is_guest) {
 			$groups = [];
@@ -1438,7 +1447,11 @@ class User implements \ArrayAccess
 		}
 
 		// Then, same again, just the boards this time!
-		$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
+		if (!$this->is_guest) {
+			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
+		} else {
+			$board_query = '0=1';
+		}
 
 		if ($board_query == '0=1' && !$this->is_guest) {
 			$boards = $this->boardsAllowedTo('moderate_board', true);
@@ -1496,7 +1509,7 @@ class User implements \ArrayAccess
 			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
 			'gq' => $group_query,
 			'bq' => $board_query,
-			'ap' => $this->boardsAllowedTo('approve_posts'),
+			'ap' => !$this->is_guest ? $this->boardsAllowedTo('approve_posts') : [],
 			'mb' => $boards_mod,
 			'mq' => $mod_query,
 		];
@@ -2106,7 +2119,6 @@ class User implements \ArrayAccess
 				&& strtolower($referrer['host']) != strtolower($real_host)
 			) {
 				$error = 'verify_url_fail';
-				$log_error = true;
 			}
 		}
 

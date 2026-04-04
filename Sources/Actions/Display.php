@@ -523,7 +523,14 @@ class Display implements ActionInterface, Routable
 	 */
 	protected function incrementNumViews(): void
 	{
-		if (!User::$me->possibly_robot && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != Topic::$info->id)) {
+		// No_guest_views is stricter, & won't log bots or guests.
+		if (empty(Config::$modSettings['no_guest_views'])) {
+			$check = !User::$me->possibly_robot;
+		} else {
+			$check = !User::$me->is_guest;
+		}
+
+		if ($check && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != Topic::$info->id)) {
 			Db::$db->query(
 				'UPDATE {db_prefix}topics
 				SET num_views = num_views + 1

@@ -1121,7 +1121,6 @@ class Board implements \ArrayAccess, Routable
 	{
 		// Query to fetch boards visible to the user.
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT id_board, b.name, child_level, c.name AS cat_name, id_cat
 			FROM {db_prefix}boards AS b
 				JOIN {db_prefix}categories AS c USING (id_cat)
@@ -1131,6 +1130,7 @@ class Board implements \ArrayAccess, Routable
 			[
 				'empty_string' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		$categories = [];
@@ -2338,15 +2338,15 @@ class Board implements \ArrayAccess, Routable
 
 							case 'override_theme':
 							case 'count_posts':
-								$prop[$key] = !empty($value);
+								$props[$key] = !empty($value);
 								break;
 
 							case 'member_groups':
-								$prop[$key] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								$props[$key] = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 								break;
 
 							case 'deny_member_groups':
-								$prop['deny_groups'] = $value == '' ? [] : array_filter(explode(',', $value), 'strlen');
+								$props['deny_groups'] = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 								break;
 
 							default:

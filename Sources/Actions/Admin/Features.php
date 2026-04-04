@@ -1650,6 +1650,11 @@ class Features implements ActionInterface
 			['check', 'hitStats'],
 			'',
 
+			// Guest stats.
+			['check', 'no_guest_logging'],
+			['check', 'no_guest_views'],
+			'',
+
 			// Option-ish things... miscellaneous sorta.
 			['check', 'disallow_sendBody'],
 			'',

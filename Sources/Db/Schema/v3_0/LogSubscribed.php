@@ -64,13 +64,13 @@ class LogSubscribed extends Table
 			),
 			'start_time' => new Column(
 				name: 'start_time',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),
 			'end_time' => new Column(
 				name: 'end_time',
-				type: 'int',
+				type: 'bigint',
 				not_null: true,
 				default: 0,
 			),

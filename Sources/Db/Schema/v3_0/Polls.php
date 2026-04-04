@@ -66,7 +66,7 @@ class Polls extends Table
 			),
 			'expire_time' => new Column(
 				name: 'expire_time',
-				type: 'int',
+				type: 'bigint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
