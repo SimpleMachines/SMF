@@ -418,6 +418,34 @@ class User implements \ArrayAccess
 	];
 
 	/**
+	 * @var string
+	 *
+	 * URL of this user's profile page. Will be an empty string for guests.
+	 */
+	public string $href {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->href ??= empty($this->id) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id;
+
+			return $this->href;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * HTML link to this user's profile page. Will be an empty string for guests.
+	 */
+	public string $link {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->link ??= empty($this->id) || empty($this->name) ? '' : '<a href="' . $this->href . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>';
+
+			return $this->link;
+		}
+	}
+
+	/**
 	 * @var int
 	 *
 	 * The user's preferred theme.
@@ -1036,8 +1064,8 @@ class User implements \ArrayAccess
 			'id' => $this->id,
 			'username' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->username,
 			'name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->name,
-			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
-			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>',
+			'href' => $this->href,
+			'link' => $this->link,
 			'email' => $this->email,
 			'show_email' => !self::$me->is_guest && ($this->is_me || self::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $this->date_registered)->format(),
@@ -1076,7 +1104,7 @@ class User implements \ArrayAccess
 			$this->formatted += [
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
-				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
+				'link_color' => strstr($this->link, '>', true) . ' style="color:' . $this->group_color . ';"' . strstr($this->link, '>'),
 				'is_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array($this->id, self::$me->buddies),
 				'is_reverse_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
