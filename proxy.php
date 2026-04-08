@@ -115,6 +115,8 @@ class ProxyServer
 	 */
 	public function checkRequest()
 	{
+		global $boardurl;
+
 		if (!$this->enabled)
 			return false;
 
@@ -132,6 +134,15 @@ class ProxyServer
 
 		$hash = $_GET['hash'];
 		$request = $_GET['request'];
+
+		// Just in case...
+		if (
+			filter_var(parse_url($request, PHP_URL_HOST), FILTER_VALIDATE_IP) !== false
+			|| parse_url($request, PHP_URL_HOST) === 'localhost'
+			|| parse_url($request, PHP_URL_HOST) === parse_url($boardurl, PHP_URL_HOST)
+		) {
+			return false;
+		}
 
 		if (hash_hmac('sha1', $request, $this->secret) != $hash)
 			return false;
