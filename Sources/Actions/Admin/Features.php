@@ -1624,6 +1624,7 @@ class Features implements ActionInterface
 			'',
 
 			// Guest stats.
+			['check', 'no_guest_logging'],
 			['check', 'no_guest_views'],
 			'',
 
