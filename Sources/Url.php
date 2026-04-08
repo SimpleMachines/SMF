@@ -488,8 +488,16 @@ class Url implements \Stringable
 			return $proxied;
 		}
 
-		// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs.
-		if (empty($proxied->scheme) || empty($proxied->host) || empty($proxied->path) || $proxied->scheme === 'https') {
+		if (
+			// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs.
+			empty($proxied->scheme)
+			|| $proxied->scheme === 'https'
+			|| empty($proxied->host)
+			|| empty($proxied->path)
+			// Don't proxy localhost or IP addresses.
+			|| $proxied->host === 'localhost'
+			|| filter_var($proxied->host, FILTER_VALIDATE_IP) !== false
+		) {
 			return $proxied;
 		}
 

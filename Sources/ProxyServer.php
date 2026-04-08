@@ -139,6 +139,15 @@ class ProxyServer
 			return false;
 		}
 
+		// Just in case...
+		if (
+			filter_var($request->host, FILTER_VALIDATE_IP) !== false
+			|| $request->host === 'localhost'
+			|| $request->host === Url::create(Config::$boardurl)->host
+		) {
+			return false;
+		}
+
 		// Ensure any non-ASCII characters in the URL are encoded correctly
 		$request = \strval($request->toAscii());
 
