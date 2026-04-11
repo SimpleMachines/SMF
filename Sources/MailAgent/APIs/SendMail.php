@@ -85,8 +85,8 @@ class SendMail extends MailAgent implements MailAgentInterface
 				ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
 				$mail_result = false;
 			}
-		} catch (\ErrorException $e) {
-			ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
+		} catch (\ErrorException $ex) {
+			ErrorHandler::logException($ex);
 			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
 			$mail_result = false;
 		}

@@ -36,6 +36,7 @@ class ErrorHandlerService
 		'general',
 		'critical',
 		'database',
+		'cache',
 		'undefined_vars',
 		'user',
 		'ban',
@@ -45,6 +46,15 @@ class ErrorHandlerService
 		'paidsubs',
 		'backup',
 		'login',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Map of exceptions to the categories we have.
+	 */
+	public array $known_exception_types = [
+		\SQLite3Exception::class => 'cache',
 	];
 
 	/****************
@@ -250,6 +260,12 @@ class ErrorHandlerService
 
 		// This prevents us from infinite looping if the hook or call produces an error.
 		$other_error_types = [];
+
+		// Exceptions may get mapped back into our common error types.
+		if (isset($this->known_exception_types[$error_type])) {
+			$error_type = $this->known_exception_types[$error_type];
+
+		}
 
 		if (empty($tried_hook)) {
 			$tried_hook = true;
