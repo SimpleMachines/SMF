@@ -32,7 +32,7 @@ function loadSession()
 	@ini_set('url_rewriter.tags', '');
 	@ini_set('arg_separator.output', '&amp;');
 	@ini_set('session.lazy_write', true);
-	@ini_set('session.cookie.secure', empty($modSettings['secureCookies'] ? false : true));
+	@ini_set('session.cookie_secure', empty($modSettings['secureCookies'] ? false : true));
 
 	// Allows mods to change/add PHP settings
 	call_integration_hook('integrate_load_session');
