@@ -46,6 +46,10 @@ function writeLog($force = false)
 		logSpider();
 	}
 
+	// Don't log guests anymore - helps during bot attacks.
+	if (!empty($modSettings['no_guest_logging']) && !empty($user_info['is_guest']))
+		return;
+
 	// Don't mark them as online more than every so often.
 	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force)
 		return;

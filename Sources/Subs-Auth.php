@@ -210,11 +210,14 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	global $txt, $context;
+	global $txt, $context, $modSettings;
 
 	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Never redirect to an attachment
@@ -232,10 +235,13 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context, $smcFunc;
+	global $txt, $mtitle, $mmessage, $context, $smcFunc, $modSettings;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
@@ -755,7 +761,10 @@ function rebuildModCache()
 	global $user_info, $smcFunc;
 
 	// What groups can they moderate?
-	$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
+	if (!$user_info['is_guest'])
+		$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
+	else
+		$group_query = '0=1';
 
 	if ($group_query == '0=1' && !$user_info['is_guest'])
 	{
@@ -779,7 +788,10 @@ function rebuildModCache()
 	}
 
 	// Then, same again, just the boards this time!
-	$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
+	if (!$user_info['is_guest'])
+		$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
+	else
+		$board_query = '0=1';
 
 	if ($board_query == '0=1' && !$user_info['is_guest'])
 	{
@@ -833,7 +845,7 @@ function rebuildModCache()
 		// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in Load.php.
 		'gq' => $group_query,
 		'bq' => $board_query,
-		'ap' => boardsAllowedTo('approve_posts'),
+		'ap' => !$user_info['is_guest'] ? boardsAllowedTo('approve_posts') : array(),
 		'mb' => $boards_mod,
 		'mq' => $mod_query,
 	);

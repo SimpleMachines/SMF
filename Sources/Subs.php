@@ -4030,7 +4030,8 @@ function get_proxied_url($url)
 	$parsedurl = parse_iri($url);
 
 	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
-	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
+	// Don't proxy localhost or IP addresses, either
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https' || $parsedurl['host'] === 'localhost' || filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false)
 		return $url;
 
 	// We don't need to proxy our own resources

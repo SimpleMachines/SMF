@@ -219,6 +219,11 @@ function ModifyBasicSettings($return_config = false)
 		array('check', 'hitStats'),
 		'',
 
+		// Guest stats
+		array('check', 'no_guest_logging'),
+		array('check', 'no_guest_views'),
+		'',
+
 		// Option-ish things... miscellaneous sorta.
 		array('check', 'disallow_sendBody'),
 		'',

@@ -98,9 +98,11 @@ loadDatabase();
  *
  * @param string $class The fully-qualified class name.
  */
-spl_autoload_register(function ($class) use ($sourcedir)
-{
-	$classMap = array(
+spl_autoload_register(function($class) use ($sourcedir) {
+	global $modSettings;
+
+	static $hook_value = '';
+	static $class_map = array(
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
@@ -108,9 +110,13 @@ spl_autoload_register(function ($class) use ($sourcedir)
 	);
 
 	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', array(&$classMap));
+	if ($hook_value !== (isset($modSettings['integrate_autoload']) ? $modSettings['integrate_autoload'] : ''))
+	{
+		call_integration_hook('integrate_autoload', array(&$class_map));
+		$hook_value = $modSettings['integrate_autoload'];
+	}
 
-	foreach ($classMap as $prefix => $dirName)
+	foreach ($class_map as $prefix => $dirname)
 	{
 		// does the class use the namespace prefix?
 		$len = strlen($prefix);
@@ -120,17 +126,17 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		}
 
 		// get the relative class name
-		$relativeClass = substr($class, $len);
+		$relative_class = substr($class, $len);
 
 		// replace the namespace prefix with the base directory, replace namespace
 		// separators with directory separators in the relative class name, append
 		// with .php
-		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
+		$filename = $dirname . strtr($relative_class, '\\', '/') . '.php';
 
 		// if the file exists, require it
-		if (file_exists($fileName = $sourcedir . '/' . $fileName))
+		if (file_exists($filename = $sourcedir . '/' . $filename))
 		{
-			require_once $fileName;
+			require_once $filename;
 
 			return;
 		}
