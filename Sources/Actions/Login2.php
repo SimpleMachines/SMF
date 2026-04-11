@@ -258,6 +258,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Cookies are required...
 		if (empty($_COOKIE)) {
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, 0, '');
 			Utils::$context['login_errors'] = [Lang::getTxt('login_cookie_error', file: 'Errors')];
 
 			return;
