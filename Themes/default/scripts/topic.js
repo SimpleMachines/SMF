@@ -12,7 +12,13 @@ function QuickModifyTopic(oOptions)
 	this.aTextFields = ['subject'];
 	this.oSourceElments = {};
 
-	const oElement = document.getElementById(oOptions.sTopicContainer);
+	const oElement = document.getElementById(oOptions.sTopicContainer) ?? null;
+
+	// No topics.
+	if (!oElement) {
+		return;
+	}
+
 	for (const el of oElement.children)
 	{
 		if (el.children[1].dataset.msgId)

@@ -395,7 +395,7 @@ function template_main()
 					sItemBorder: "1px solid #ffffff",
 					sItemBorderHover: "1px dotted gray",
 					sItemBackground: "transparent",
-					sItemBackgroundHover: "#e0e0f0"
+					sItemBackgroundHover: "#e0e0f0",
 					sLabelIconList: "', Lang::getTxt('message_icon', file: 'General'), '"
 				});';
 

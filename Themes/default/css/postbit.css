@@ -155,9 +155,10 @@
 .keyinfo .postinfo .messageicon img {
 	vertical-align: middle;
 }
-.keyinfo .postinfo .modified {
+.keyinfo .modified {
 	font-size: 0.75em;
 	padding-inline: 1em;
+	font-style: italic;
 }
 #reason::before {
 	content: " - ";

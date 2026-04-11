@@ -1089,8 +1089,6 @@ class Editor implements \ArrayAccess, \Stringable
 					'code' => 'removeformat',
 					'description' => Lang::getTxt('remove_formatting', var: 'editortxt'),
 				],
-			],
-			[
 				[
 					'code' => 'floatleft',
 					'description' => Lang::getTxt('float_left', var: 'editortxt'),

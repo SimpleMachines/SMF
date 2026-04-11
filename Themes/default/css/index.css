@@ -2195,7 +2195,7 @@ h1.forumtitle span#siteslogan {
 }
 .navigate_section li {
 	align-items: center;
-	display: flex;
+	display: inline-flex;
 	flex-wrap: wrap;
 	gap: .25em .15em;
 }

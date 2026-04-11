@@ -983,34 +983,6 @@ function create_ajax_indicator_ele()
 	document.body.appendChild(ajax_indicator_ele);
 }
 
-// This function will retrieve the contents needed for the jump to boxes.
-function grabJumpToContent(elem)
-{
-	ajax_indicator(true);
-
-	getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', function(oXMLDoc)
-	{
-		let aBoardsAndCategories = [];
-		const items = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('item');
-
-		for (const item of items)
-		{
-			aBoardsAndCategories.push({
-				id: parseInt(item.getAttribute('id')),
-				isCategory: item.getAttribute('type') === 'category',
-				name: item.firstChild.nodeValue.removeEntities(),
-				is_current: false,
-				isRedirect: parseInt(item.getAttribute('is_redirect')),
-				childLevel: parseInt(item.getAttribute('childlevel'))
-			});
-		}
-
-		ajax_indicator(false);
-
-		this.fillSelect(aBoardsAndCategories);
-	});
-}
-
 // This'll contain all JumpTo objects on the page.
 var aJumpTo = new Array();
 
@@ -1019,23 +991,23 @@ function JumpTo(oJumpToOptions)
 {
 	this.opt = oJumpToOptions;
 	this.dropdownList = null;
-	this.showSelect();
-
 	const el = document.getElementById(this.opt.sContainerId);
 	this.oContainer = el;
 	let timeout = null;
 
+	this.showSelect();
+
 	// Detect if a "coarse pointer" (usually a touch screen) is the primary input device.
 	if (window.matchMedia("(pointer: coarse)").matches) {
 		el.onfocus = () => {
-			(this.opt.funcFetchData || grabJumpToContent).call(this);
+			(this.opt.funcFetchData || this.grabJumpToContent).call(this);
 
 			el.onfocus = null;
 		};
 	} else {
 		el.onmouseover = () => {
 			timeout = setTimeout(() => {
-				(this.opt.funcFetchData || grabJumpToContent).call(this);
+				(this.opt.funcFetchData || this.grabJumpToContent).call(this);
 
 				el.onmouseover = null;
 				el.onmouseout = null;
@@ -1065,7 +1037,8 @@ JumpTo.prototype.showSelect = function ()
 		});
 		el.append(' ', btn);
 	}
-	this.dropdownList = el.getElementById(this.opt.sContainerId + '_select');
+
+	this.dropdownList = el.querySelector('#' + this.opt.sContainerId + '_select');
 
 	// Add an onchange action
 	if (!this.opt.bNoRedirect) {
@@ -1075,6 +1048,41 @@ JumpTo.prototype.showSelect = function ()
 				window.location.href = smf_scripturl + (val.startsWith('?') ? val.substring(1) : val);
 		};
 	}
+}
+
+// This function will retrieve the contents needed for the jump to boxes.
+JumpTo.prototype.grabJumpToContent = function (elem)
+{
+	ajax_indicator(true);
+
+	getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml', this.onXmlReceived.bind(this));
+}
+
+JumpTo.prototype.onXmlReceived = function(oXMLDoc)
+{
+	// We received an error.
+	if (oXMLDoc == false) {
+		return;
+	}
+	
+	let aBoardsAndCategories = [];
+	const items = oXMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('item');
+
+	for (const item of items)
+	{
+		aBoardsAndCategories.push({
+			id: parseInt(item.getAttribute('id')),
+			isCategory: item.getAttribute('type') === 'category',
+			name: item.firstChild.nodeValue.removeEntities(),
+			is_current: false,
+			isRedirect: parseInt(item.getAttribute('is_redirect')),
+			childLevel: parseInt(item.getAttribute('childlevel'))
+		});
+	}
+
+	ajax_indicator(false);
+
+	this.fillSelect(aBoardsAndCategories);
 }
 
 // Fill the jump to box with entries. Method of the JumpTo class.
@@ -1088,7 +1096,7 @@ JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 		this.dropdownList.options[0].disabled = 'disabled';
 
 	// Create a document fragment that'll allowing inserting big parts at once.
-	const oListFragment = document.createDocumentFragment();
+	let oListFragment = document.createDocumentFragment();
 
 	// Loop through all items to be added.
 	for (const item of aBoardsAndCategories) {
@@ -1640,7 +1648,7 @@ function attachBbCodeEvents(parent)
 			if (el.offsetHeight < smf_quote_expand)
 				return;
 
-			const fn = (p, idx, l) =>
+			const fn = (p, idx) =>
 			{
 				for (const a of p.getElementsByTagName('a'))
 					if (a.href || idx === '0')
@@ -1648,7 +1656,7 @@ function attachBbCodeEvents(parent)
 			};
 
 			// Disable tabbing for all hidden anchor links.
-			fn(el, '-1', a);
+			fn(el, '-1');
 
 			const a = document.createElement('a');
 			a.textContent = smf_txt_expand;
