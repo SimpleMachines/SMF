@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl, $user_info;
+	global $txt, $context, $scripturl, $user_info, $modSettings;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
@@ -81,6 +81,11 @@ function Login()
 		'url' => $scripturl . '?action=login',
 		'name' => $txt['login'],
 	);
+
+	// Ensure the session data persists.
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 
 	// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
@@ -263,6 +268,7 @@ function Login2()
 	// Cookies are required...
 	if (empty($_COOKIE))
 	{
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
 		$context['login_errors'] = array($txt['login_cookie_error']);
 		return;
 	}

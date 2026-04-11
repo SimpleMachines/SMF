@@ -210,11 +210,14 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	global $txt, $context;
+	global $txt, $context, $modSettings;
 
 	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Never redirect to an attachment
@@ -232,10 +235,13 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context, $smcFunc;
+	global $txt, $mtitle, $mmessage, $context, $smcFunc, $modSettings;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
+	if (empty($_COOKIE)) {
+		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
+	}
 	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
