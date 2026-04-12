@@ -1188,7 +1188,7 @@ class Board implements \ArrayAccess, Routable
 
 				// Find all the id_member's for the member_name's in the list.
 				if (!empty($moderators)) {
-					foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator) {
+					foreach (User::load($moderators, User::LOAD_BY_NAME, UserDataset::Minimal) as $moderator) {
 						$boardOptions['moderators'][] = $moderator->id;
 					}
 				}

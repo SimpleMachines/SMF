@@ -737,6 +737,16 @@ class User implements \ArrayAccess
 	public string $query_wanna_see_message_board;
 
 	/**
+	 * @var UserDataset
+	 *
+	 * The dataset that was loaded for this user.
+	 *
+	 * Initially set to UserDataset::None. Will change once this user's
+	 * data has been loaded.
+	 */
+	public protected(set) UserDataset $dataset = UserDataset::None;
+
+	/**
 	 * @var array
 	 *
 	 * Formatted versions of this user's properties, suitable for display.
@@ -1286,13 +1296,6 @@ class User implements \ArrayAccess
 	private bool $already_verified = false;
 
 	/**
-	 * @var string
-	 *
-	 * The dataset that was loaded for this user.
-	 */
-	private string $dataset;
-
-	/**
 	 * @var bool
 	 *
 	 * Whether custom profile fields are in the formatted data for this user.
@@ -1323,18 +1326,6 @@ class User implements \ArrayAccess
 	/****************************
 	 * Internal static properties
 	 ****************************/
-
-	/**
-	 * @var array
-	 *
-	 * Maps names of dataset levels to numeric values.
-	 */
-	protected static array $dataset_levels = [
-		'minimal' => 0,
-		'basic' => 1,
-		'normal' => 2,
-		'profile' => 3,
-	];
 
 	/**
 	 * @var array
@@ -1455,12 +1446,12 @@ class User implements \ArrayAccess
 		];
 
 		// Basic, normal, and profile want the avatar.
-		if (\in_array($this->dataset, ['basic', 'normal', 'profile'])) {
+		if ($this->dataset->exceeds(UserDataset::Minimal)) {
 			$this->formatted['avatar'] = $this->avatar;
 		}
 
 		// Normal and profile want lots more data.
-		if (\in_array($this->dataset, ['normal', 'profile'])) {
+		if ($this->dataset->exceeds(UserDataset::Basic)) {
 			// Go the extra mile and load the user's native language name.
 			if (empty($loadedLanguages)) {
 				$loadedLanguages = Lang::get(true);
@@ -2936,11 +2927,11 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
+	 * @param ?UserDataset $dataset What kind of data to load. Leave null for a
+	 *    dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
-	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2952,7 +2943,7 @@ class User implements \ArrayAccess
 				$loaded[] = new self(null, $dataset);
 			}
 		} else {
-			$dataset = $dataset ?? 'normal';
+			$dataset ??= UserDataset::Normal;
 
 			// Load members.
 			foreach (($loaded_ids = self::loadUserData((array) $users, $type, $dataset)) as $id) {
@@ -2961,7 +2952,7 @@ class User implements \ArrayAccess
 					new self($id, $dataset);
 				}
 				// Already loaded, so just update the properties.
-				elseif (self::$dataset_levels[self::$loaded[$id]->dataset] < self::$dataset_levels[$dataset]) {
+				elseif (!self::$loaded[$id]->dataset->includes($dataset)) {
 					self::$loaded[$id]->setProperties();
 				}
 
@@ -2976,19 +2967,33 @@ class User implements \ArrayAccess
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
-	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
+	 * @param ?UserDataset $dataset What kind of data to load. Leave null to use
+	 *    the same dataset as the old instances.
 	 * @return array The ids of the loaded members.
 	 */
-	public static function reload(int|array $users = [], ?string $dataset = null): array
+	public static function reload(int|array $users = [], ?UserDataset $dataset = null): array
 	{
 		$users = (array) $users;
 
+		$grouped_by_dataset = [];
+
 		foreach ($users as $id) {
+			if ($dataset === null) {
+				$grouped_by_dataset[(self::$loaded[$id]->dataset ?? UserDataset::Normal)->value][] = $id;
+			} else {
+				$grouped_by_dataset[$dataset->value][] = $id;
+			}
+
 			unset(self::$loaded[$id], self::$profiles[$id]);
 		}
 
-		return self::load($users, self::LOAD_BY_ID, $dataset);
+		$loaded = [];
+
+		foreach ($grouped_by_dataset as $new_dataset => $ids) {
+			$loaded += self::load($ids, self::LOAD_BY_ID, UserDataset::from($new_dataset));
+		}
+
+		return $loaded;
 	}
 
 	/**
@@ -4077,15 +4082,14 @@ class User implements \ArrayAccess
 	 * Constructor. Protected in order to force instantiation via User::load().
 	 *
 	 * @param int|null $id The ID number of the user, or null for current user.
-	 * @param string|null $dataset What kind of data to load.
-	 *    Can be one of 'profile', 'normal', 'basic', or 'minimal'.
+	 * @param ?UserDataset $dataset What kind of data to load.
 	 *    If left null, the default depends on the value of $id:
-	 *     - If $id is an integer, then $dataset will default to 'normal'.
+	 *     - If $id is an integer, $dataset will default to UserDataset::Normal.
 	 *     - If $id is also null (i.e. we are loading the current user), then
 	 *       $dataset will be determined automatically based on what the user is
 	 *       doing on the forum.
 	 */
-	protected function __construct(?int $id = null, ?string $dataset = null)
+	protected function __construct(?int $id = null, ?UserDataset $dataset = null)
 	{
 		// No ID given, so load current user.
 		if (!isset($id)) {
@@ -4145,9 +4149,9 @@ class User implements \ArrayAccess
 			// Copy over the existing data.
 			$this->set(get_object_vars(self::$me));
 
-			$dataset = $dataset ?? $this->chooseMyDataset();
+			$dataset ??= $this->chooseMyDataset();
 
-			if (self::$dataset_levels[self::$me->dataset] < self::$dataset_levels[$dataset]) {
+			if (!self::$me->dataset->includes($dataset)) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
 			}
 
@@ -4163,8 +4167,13 @@ class User implements \ArrayAccess
 
 			self::$loaded[$id] = $this;
 
-			if (empty(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
-				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset ?? 'normal');
+			$dataset ??= UserDataset::Normal;
+
+			if (
+				empty(self::$profiles[$id])
+				|| !self::$profiles[$id]['dataset']->includes($dataset)
+			) {
+				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
 			}
 
 			$this->fixTimezoneSetting();
@@ -4356,32 +4365,35 @@ class User implements \ArrayAccess
 	/**
 	 * Figures out which dataset we want to load for the current user.
 	 *
-	 * @return string The name of a dataset to load.
+	 * @return UserDataset The name of a dataset to load.
 	 */
-	protected function chooseMyDataset(): string
+	protected function chooseMyDataset(): UserDataset
 	{
 		// Board index, message index, or topic.
-		if (!isset($_REQUEST['action'])) {
-			$dataset = 'normal';
-		}
-		// Popups, AJAX, etc.
-		elseif (QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')) {
-			$dataset = 'basic';
-		}
-		// Profile and personal messages (except the popups)
-		elseif (\in_array($_REQUEST['action'], ['profile', 'pm'])) {
-			$dataset = 'profile';
-		}
-		// Who's Online
-		elseif (\in_array($_REQUEST['action'], ['who'])) {
-			$dataset = 'normal';
-		}
-		// Everything else.
-		else {
-			$dataset = 'basic';
+		if (
+			!isset($_REQUEST['action'])
+			|| \in_array($_REQUEST['action'], ['boardindex', 'messageindex', 'display'])
+		) {
+			return UserDataset::Normal;
 		}
 
-		return $dataset;
+		// Profile.
+		if ($_REQUEST['action'] === 'profile') {
+			return \in_array($_GET['area'] ?? null, ['popup', 'alerts_popup', 'download', 'dlattach']) ? UserDataset::Basic : UserDataset::Profile;
+		}
+
+		// Personal messages.
+		if ($_REQUEST['action'] === 'pm') {
+			return ($_GET['sa'] ?? null) === 'popup' ? UserDataset::Basic : UserDataset::Profile;
+		}
+
+		// Who's Online.
+		if ($_REQUEST['action'] === 'who') {
+			return UserDataset::Normal;
+		}
+
+		// Everything else.
+		return UserDataset::Basic;
 	}
 
 	/**
@@ -4612,7 +4624,7 @@ class User implements \ArrayAccess
 	{
 		// This is what a guest's variables should be.
 		self::$profiles[0] = [
-			'dataset' => 'basic',
+			'dataset' => UserDataset::Basic,
 		];
 
 		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member_id'])) {
@@ -4934,13 +4946,14 @@ class User implements \ArrayAccess
 	 * @param array $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset The set of data to load.
+	 * @param UserDataset $dataset The set of data to load.
 	 * @return array The IDs of the loaded members.
 	 */
-	protected static function loadUserData(array $users, int $type = self::LOAD_BY_ID, string $dataset = 'normal'): array
+	protected static function loadUserData(array $users, int $type = self::LOAD_BY_ID, UserDataset $dataset = UserDataset::Normal): array
 	{
-		if (!isset(self::$dataset_levels[$dataset])) {
-			$dataset = 'normal';
+		if (!$dataset->includes(UserDataset::Minimal)) {
+			// Complain loudly about this programmer error.
+			throw new \ValueError('Must load at least the minimal dataset for a user');
 		}
 
 		// Keep track of which IDs we load during this run.
@@ -4977,7 +4990,7 @@ class User implements \ArrayAccess
 					continue;
 				}
 
-				if (self::$dataset_levels[self::$profiles[$id]['dataset']] >= self::$dataset_levels[$dataset]) {
+				if (self::$profiles[$id]['dataset']->includes($dataset)) {
 					$loaded_ids[] = $id;
 					unset($users[$key]);
 				}
@@ -4987,6 +5000,8 @@ class User implements \ArrayAccess
 		// Is the member data cached?
 		if ($type === self::LOAD_BY_ID && !empty(CacheApi::$enable)) {
 			foreach ($users as $key => $id) {
+				unset($data);
+
 				if ($id === (self::$my_id ?? NAN)) {
 					if (CacheApi::$enable < 2) {
 						continue;
@@ -5000,13 +5015,19 @@ class User implements \ArrayAccess
 						continue;
 					}
 
-					if (($data = CacheApi::get('member_data-' . $dataset . '-' . $id, 240)) == null) {
+					if (($data = CacheApi::get('member_data-' . $dataset->value . '-' . $id, 240)) == null) {
 						continue;
 					}
 				}
 
+				if (!\is_array($data)) {
+					continue;
+				}
+
+				$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+
 				// Does the cached data have everything we need?
-				if (\is_array($data) && self::$dataset_levels[$data['dataset'] ?? 'minimal'] >= self::$dataset_levels[$dataset]) {
+				if ($data['dataset']->includes($dataset)) {
 					self::$profiles[$id] = $data;
 					$loaded_ids[] = $id;
 					unset($users[$key]);
@@ -5020,11 +5041,11 @@ class User implements \ArrayAccess
 			$select_tables = ['{db_prefix}members AS mem'];
 
 			switch ($dataset) {
-				case 'profile':
+				case UserDataset::Profile:
 					$select_columns[] = 'lo.url';
 					// no break
 
-				case 'normal':
+				case UserDataset::Normal:
 					$select_columns[] = 'COALESCE(lo.log_time, 0) AS is_online';
 					$select_columns[] = 'mg.online_color AS member_group_color';
 					$select_columns[] = 'COALESCE(mg.group_name, {string:blank_string}) AS member_group';
@@ -5037,17 +5058,13 @@ class User implements \ArrayAccess
 					$select_tables[] = 'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
 					// no break
 
-				case 'basic':
+				case UserDataset::Basic:
 					$select_columns[] = 'COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS attachment_width, a.height AS attachment_height';
 
 					$select_tables[] = 'LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)';
 					// no break
 
-				case 'minimal':
-					break;
-
-				default:
-					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset], file: 'Errors'), E_USER_WARNING);
+				case UserDataset::Minimal:
 					break;
 			}
 
@@ -5140,7 +5157,7 @@ class User implements \ArrayAccess
 			}
 			Db::$db->free_result($request);
 
-			if (!empty($loaded_ids) && $dataset !== 'minimal') {
+			if (!empty($loaded_ids) && $dataset->exceeds(UserDataset::Minimal)) {
 				self::loadOptions($loaded_ids);
 			}
 
@@ -5154,7 +5171,7 @@ class User implements \ArrayAccess
 							CacheApi::put('user_settings-' . $id, self::$profiles[$id], 60);
 						}
 					} elseif (CacheApi::$enable >= 3) {
-						CacheApi::put('member_data-' . $dataset . '-' . $id, self::$profiles[$id], 240);
+						CacheApi::put('member_data-' . $dataset->value . '-' . $id, self::$profiles[$id], 240);
 					}
 				}
 			}

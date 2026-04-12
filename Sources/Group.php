@@ -1010,9 +1010,10 @@ class Group implements \ArrayAccess
 		}
 
 		// Load the user info for the new members.
-		$members = array_map(function ($mem) {
-			return $mem->id;
-		}, User::load($members, User::LOAD_BY_ID, 'minimal'));
+		$members = array_map(
+			fn($mem) => $mem->id,
+			User::load($members, User::LOAD_BY_ID, UserDataset::Minimal),
+		);
 
 		if (empty($members)) {
 			return false;
@@ -1198,10 +1199,10 @@ class Group implements \ArrayAccess
 		}
 
 		// Load the user info for the members being removed.
-		$members = User::load($members, User::LOAD_BY_ID, 'minimal');
-		$members = array_map(function (\SMF\User $mem) {
-			return $mem->id;
-		}, $members);
+		$members = array_map(
+			fn($mem) => $mem->id,
+			User::load($members, User::LOAD_BY_ID, UserDataset::Minimal),
+		);
 
 		// Figure out which members should have their primary group changed and
 		// which should have their additional groups changed.
@@ -1946,7 +1947,7 @@ class Group implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 
-		User::load($mod_ids, User::LOAD_BY_ID, 'minimal');
+		User::load($mod_ids, User::LOAD_BY_ID, UserDataset::Minimal);
 	}
 
 	/**

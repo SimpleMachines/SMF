@@ -26,6 +26,7 @@ use SMF\Mentions;
 use SMF\Parser;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -482,7 +483,7 @@ class CreatePost_Notify extends BackgroundTask
 		if (!\in_array($posterOptions['id'], $user_ids)) {
 			$user_ids[] = $posterOptions['id'];
 		}
-		User::load($user_ids, User::LOAD_BY_ID, 'minimal');
+		User::load($user_ids, User::LOAD_BY_ID, UserDataset::Minimal);
 
 		$parsed_message = [];
 
@@ -676,7 +677,7 @@ class CreatePost_Notify extends BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 
-		User::load($posterOptions['id'], User::LOAD_BY_ID, 'minimal');
+		User::load($posterOptions['id'], User::LOAD_BY_ID, UserDataset::Minimal);
 
 		foreach ($this->members['quoted'] as $member_id => $member_data) {
 			if (\in_array($member_id, $this->members['done'])) {

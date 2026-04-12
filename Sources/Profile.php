@@ -1770,10 +1770,11 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string|null $dataset Ignored.
+	 * @param UserDataset $dataset Ignored. Any value passed to this parameter
+	 *    will be overwritten with UserDataset::Profile.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -1795,7 +1796,7 @@ class Profile extends User implements \ArrayAccess
 			}
 		}
 
-		$loaded_ids = parent::loadUserData($users, $type, 'profile');
+		$loaded_ids = parent::loadUserData($users, $type, UserDataset::Profile);
 
 		foreach (array_diff($loaded_ids, array_keys(self::$loaded)) as $id) {
 			new self($id);
@@ -2074,7 +2075,7 @@ class Profile extends User implements \ArrayAccess
 	 */
 	protected function __construct(int $id)
 	{
-		parent::__construct($id, 'profile');
+		parent::__construct($id, UserDataset::Profile);
 
 		self::$loaded[$this->id] = $this;
 
@@ -2941,7 +2942,7 @@ class Profile extends User implements \ArrayAccess
 			Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
 		}
 
-		User::reload($memID, 'profile');
+		User::reload($memID, UserDataset::Profile);
 
 		User::$me->logOnline();
 	}

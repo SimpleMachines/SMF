@@ -4573,8 +4573,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		}
 
 		// If the user's data is not already loaded, load it now.
-		if (!isset(SMF\User::$loaded[$id])) {
-			SMF\User::load((array) $id, SMF\User::LOAD_BY_ID, 'profile');
+		if (!isset(SMF\User::$loaded[$id]) || SMF\UserDataset::Profile->exceeds(SMF\User::$loaded[$id]->dataset)) {
+			SMF\User::load((array) $id, SMF\User::LOAD_BY_ID, SMF\UserDataset::Profile);
 		}
 
 		return SMF\User::$loaded[$id]->format($display_custom_fields);
@@ -4590,6 +4590,10 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function loadMemberData(array|string $users, bool $is_name = false, ?string $dataset = null)
 	{
+		if (!is_null($dataset)) {
+			$dataset = SMF\UserDataset::tryFrom($dataset);
+		}
+
 		$loaded = SMF\User::load($users, $is_name ? SMF\User::LOAD_BY_NAME : SMF\User::LOAD_BY_ID, $dataset);
 
 		return array_map(fn($user) => $user->id, $loaded);

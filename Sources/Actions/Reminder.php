@@ -28,6 +28,7 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -432,14 +433,14 @@ class Reminder implements ActionInterface, Routable
 		// Load by ID.
 		if (!empty($uid)) {
 			$err_msg = 'invalid_userid';
-			$loaded = User::load($uid, User::LOAD_BY_ID, 'minimal');
+			$loaded = User::load($uid, User::LOAD_BY_ID, UserDataset::Minimal);
 		}
 		// Load by name or email.
 		elseif (isset($_POST['user']) && $_POST['user'] != '') {
-			$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, 'minimal');
+			$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, UserDataset::Minimal);
 
 			if (empty($loaded)) {
-				$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, 'minimal');
+				$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, UserDataset::Minimal);
 			}
 		}
 

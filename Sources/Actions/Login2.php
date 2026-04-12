@@ -31,6 +31,7 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -294,11 +295,11 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Load the data up!
-		$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, 'minimal');
+		$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, User::$me->dataset);
 
 		// Probably mistyped or their email, try it as an email address. (member_name first, though!)
 		if (empty($loaded)) {
-			$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, 'minimal');
+			$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, User::$me->dataset);
 		}
 
 		// Let them try again, it didn't match anything...

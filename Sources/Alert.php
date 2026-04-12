@@ -302,7 +302,7 @@ class Alert implements \ArrayAccess
 				$this->content_type === 'profile' ? $this->content_id : null,
 			]),
 			User::LOAD_BY_ID,
-			$with_avatar ? 'basic' : 'minimal',
+			$with_avatar ? UserDataset::Basic : UserDataset::Minimal,
 		);
 
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.

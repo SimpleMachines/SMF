@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\User;
+use SMF\UserDataset;
 
 /**
  * Base class for all background tasks.
@@ -133,7 +134,7 @@ abstract class BackgroundTask
 	 */
 	public function getMinUserInfo(array $user_ids = []): array
 	{
-		return User::load($user_ids, User::LOAD_BY_ID, 'minimal');
+		return User::load($user_ids, User::LOAD_BY_ID, UserDataset::Minimal);
 	}
 
 	/******************

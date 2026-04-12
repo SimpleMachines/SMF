@@ -34,6 +34,7 @@ use SMF\Session;
 use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -1227,11 +1228,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Log what we've done.
 		if (!isset(User::$me)) {
-			User::load(dataset: 'minimal');
+			User::load(dataset: UserDataset::Minimal);
 		}
 
 		if (empty(User::$me->id) && !empty($this->user['id'])) {
-			User::load($this->user['id'], dataset: 'minimal');
+			User::load($this->user['id'], dataset: UserDataset::Minimal);
 			User::setMe($this->user['id']);
 		}
 
@@ -1616,7 +1617,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Load up the current user safely.
 		if (!isset(User::$me)) {
-			User::load($this->user['id'], dataset: 'minimal');
+			User::load($this->user['id'], dataset: UserDataset::Minimal);
 			User::setMe($this->user['id']);
 
 			if ($this->user['id'] === 0 && $this->user['name'] === 'Database Admin') {

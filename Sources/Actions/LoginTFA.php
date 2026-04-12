@@ -24,6 +24,7 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -45,7 +46,7 @@ class LoginTFA extends Login2
 		}
 
 		// Load the data up!
-		$loaded = User::load(Utils::$context['tfa_member_id'], dataset: 'minimal');
+		$loaded = User::load(Utils::$context['tfa_member_id'], dataset: User::$me->dataset);
 
 		if (empty($loaded)) {
 			ErrorHandler::fatalLang('no_access', false);

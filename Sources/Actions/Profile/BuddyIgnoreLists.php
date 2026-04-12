@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -245,7 +246,7 @@ class BuddyIgnoreLists implements ActionInterface
 		Utils::$context['buddy_count'] = \count($buddies);
 
 		// Load all the members up.
-		User::load($buddies, User::LOAD_BY_ID, 'profile');
+		User::load($buddies, User::LOAD_BY_ID, UserDataset::Profile);
 
 		// Setup the context for each buddy.
 		Utils::$context['buddies'] = [];
@@ -410,7 +411,7 @@ class BuddyIgnoreLists implements ActionInterface
 		Utils::$context['ignore_count'] = \count($ignored);
 
 		// Load all the members up.
-		User::load($ignored, User::LOAD_BY_ID, 'profile');
+		User::load($ignored, User::LOAD_BY_ID, UserDataset::Profile);
 
 		// Setup the context for each buddy.
 		Utils::$context['ignore_list'] = [];
