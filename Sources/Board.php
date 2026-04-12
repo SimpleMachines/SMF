@@ -1729,7 +1729,7 @@ class Board implements \ArrayAccess, Routable
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
 				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $row['real_name'] . '</a>',
 			];
 		}
 		Db::$db->free_result($request);
@@ -1788,7 +1788,7 @@ class Board implements \ArrayAccess, Routable
 				'id' => $row['id_group'],
 				'name' => $row['group_name'],
 				'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-				'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '">' . $row['group_name'] . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $row['group_name'] . '</a>',
 			];
 		}
 
