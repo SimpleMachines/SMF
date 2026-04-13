@@ -990,7 +990,7 @@ class Display implements ActionInterface, Routable
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators']), 'list' => Lang::sentenceList(Utils::$context['link_moderators'])], file: 'General') . ')</span>';
 		}
 	}
 
