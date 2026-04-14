@@ -576,14 +576,6 @@ class User implements \ArrayAccess
 	public array $mod_cache = [];
 
 	/**
-	 * @var string
-	 *
-	 * Moderator preferences.
-	 * @todo This doesn't appear to be used anywhere.
-	 */
-	public string $mod_prefs = '';
-
-	/**
 	 * @var bool
 	 *
 	 * Whether this user can access the moderation center.

@@ -134,13 +134,6 @@ class Members extends Table
 				not_null: true,
 				default: 0,
 			),
-			'mod_prefs' => new Column(
-				name: 'mod_prefs',
-				type: 'varchar',
-				size: 20,
-				not_null: true,
-				default: '',
-			),
 			'passwd' => new Column(
 				name: 'passwd',
 				type: 'varchar',

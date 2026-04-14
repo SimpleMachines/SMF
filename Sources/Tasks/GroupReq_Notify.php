@@ -105,7 +105,7 @@ class GroupReq_Notify extends BackgroundTask
 				Theme::loadEssential();
 
 				$request = Db::$db->query(
-					'SELECT id_member, email_address, lngfile, member_name, mod_prefs
+					'SELECT id_member, email_address, lngfile, member_name
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:moderator_list})
 					ORDER BY lngfile',

@@ -172,6 +172,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\RecurringEvents::class,
 			Migration\v3_0\HolidaysToEvents::class,
 			Migration\v3_0\EventUids::class,
+			Migration\v3_0\DropModPrefs::class,
 			Migration\v3_0\SpoofDetector::class,
 			Migration\v3_0\SearchResultsPrimaryKey::class,
 			Migration\v3_0\MailType::class,
