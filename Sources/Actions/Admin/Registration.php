@@ -398,7 +398,7 @@ class Registration implements ActionInterface
 				Utils::$context['agreement_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
 					],
 				);
@@ -580,7 +580,7 @@ class Registration implements ActionInterface
 				Utils::$context['privacy_policy_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown', file: 'General') . ')' : $diff->name,
 					],
 					file: 'General',

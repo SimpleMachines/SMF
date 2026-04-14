@@ -3544,7 +3544,15 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function getUserTimezone(?int $id_member = null): string
 	{
-		return SMF\User::getTimezone($id_member);
+		if (!isset($id_member)) {
+			return SMF\User::loadMe()->timezone;
+		}
+
+		if (!isset(SMF\User::$loaded[$id_member])) {
+			SMF\User::load($id_member, dataset: SMF\UserDataset::Minimal);
+		}
+
+		return SMF\User::$loaded[$id_member]->timezone;
 	}
 
 	/**
@@ -9571,7 +9579,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	{
 		// For backward compatibility, replace empty values with the user's time
 		// zone and replace anything invalid with the forum's default time zone.
-		$tzid = empty($tzid) ? SMF\User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? SMF\Config::$modSettings['default_timezone'] : $tzid);
+		$tzid = empty($tzid) ? SMF\User::$me->timezone : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? SMF\Config::$modSettings['default_timezone'] : $tzid);
 
 		$date = new SMF\Time('@' . $log_time, $tzid);
 

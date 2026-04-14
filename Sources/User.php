@@ -3223,57 +3223,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Gets a member's selected time zone identifier
-	 *
-	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
-	 * @return string The time zone identifier string for the user's time zone.
-	 */
-	public static function getTimezone(?int $id_member = null): string
-	{
-		static $member_cache = [];
-
-		if (\is_null($id_member)) {
-			$id_member = empty(self::$me->id) ? 0 : self::$me->id;
-		} else {
-			$id_member = (int) $id_member;
-		}
-
-		// Check if we already have this in self::$loaded.
-		if (isset(self::$loaded[$id_member]) && !empty(self::$loaded[$id_member]->timezone)) {
-			return self::$loaded[$id_member]->timezone;
-		}
-
-		// Did we already look this up?
-		if (isset($member_cache[$id_member])) {
-			return $member_cache[$id_member];
-		}
-
-		if (!empty($id_member)) {
-			// Look it up in the database.
-			$request = Db::$db->query(
-				'SELECT timezone
-				FROM {db_prefix}members
-				WHERE id_member = {int:id_member}',
-				[
-					'id_member' => $id_member,
-				],
-			);
-			list($timezone) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
-		}
-
-		// If it is invalid, fall back to the default.
-		if (empty($timezone) || !\in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-			$timezone = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-		}
-
-		// Save for later.
-		$member_cache[$id_member] = $timezone;
-
-		return $timezone;
-	}
-
-	/**
 	 * Delete one or more members.
 	 *
 	 * Requires profile_remove_own or profile_remove_any permission for
@@ -4536,6 +4485,11 @@ class User implements \ArrayAccess
 	protected function fixTimezoneSetting(): void
 	{
 		if (!empty($this->id)) {
+			// Ensure we don't use an invalid time zone.
+			if (!\in_array(self::$profiles[$this->id]['timezone'] ?? null, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+				unset(self::$profiles[$this->id]['timezone']);
+			}
+
 			// Figure out the new time offset.
 			if (!empty(self::$profiles[$this->id]['timezone'])) {
 				// Get the offsets from UTC for the server, then for the user.

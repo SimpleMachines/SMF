@@ -300,7 +300,7 @@ class Calendar implements ActionInterface
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->tz = User::$me->timezone;
 			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
 			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT1H');
 		}

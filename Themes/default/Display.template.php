@@ -677,7 +677,7 @@ function template_single_post($message)
 			$last_edit_text = Lang::getTxt(
 				'edit_history_linktext' . ($diff->reason !== '' ? '_reason' : ''),
 				[
-					'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+					'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 					'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
 					'reason' => $diff->reason,
 				],

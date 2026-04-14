@@ -188,7 +188,7 @@ class Time extends \DateTime implements \ArrayAccess
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
 		if (!isset(self::$user_tz)) {
-			self::$user_tz = TimeZone::create(User::getTimezone());
+			self::$user_tz = TimeZone::create(User::$me->timezone);
 		}
 
 		if (\is_string($timezone)) {
