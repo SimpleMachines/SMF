@@ -22,7 +22,7 @@ use SMF\Sapi;
  * Class XmlArray
  * Represents an XML array
  */
-class XmlArray
+final class XmlArray
 {
 	/*******************
 	 * Public properties
