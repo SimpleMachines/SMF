@@ -16,7 +16,6 @@
 namespace SMF\PackageManager;
 
 use SMF\Lang;
-use SMF\Sapi;
 
 /**
  * Class XmlArray
@@ -61,9 +60,6 @@ final class XmlArray
 	 */
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
-		// If we're using this try to get some more memory.
-		Sapi::setMemoryLimit('32M');
-
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();
 		$this->trim = $auto_trim;
