@@ -16,6 +16,7 @@
 namespace SMF\PackageManager;
 
 use SMF\Lang;
+use SMF\Sapi;
 
 /**
  * Class XmlArray
@@ -623,7 +624,7 @@ final class XmlArray
 		if ($inside_elements) {
 			$output .= '>' . $output_el . $indentation . '</' . $array['name'] . '>';
 		} else {
-			$output .= ' />'; 
+			$output .= ' />';
 		}
 
 		return $output;
@@ -732,8 +733,8 @@ final class XmlArray
 		$paths = explode('|', $path);
 
 		// A * means all elements of any name.
-		$pathMap = array_flip($paths);
-		$show_all = isset($pathMap['*']);
+		$path_map = array_flip($paths);
+		$show_all = isset($path_map['*']);
 
 		$results = [];
 
@@ -743,7 +744,7 @@ final class XmlArray
 				continue;
 			}
 
-			if ($show_all || isset($pathMap[$value['name']])) { 
+			if ($show_all || isset($path_map[$value['name']])) {
 				// Skip elements before "the one".
 				if ($level !== null && $level > 0) {
 					$level--;
