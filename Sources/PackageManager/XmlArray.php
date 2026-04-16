@@ -171,16 +171,16 @@ final class XmlArray
 					return $array[$el];
 				}
 
-				$trace = debug_backtrace();
-				$i = 0;
-
-				while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
-					$i++;
-				}
-				$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
-
-				// Cause an error.
 				if ($this->debug_level & E_NOTICE) {
+					$trace = debug_backtrace();
+					$i = 0;
+
+					while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == self::class) {
+						$i++;
+					}
+					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
+
+					// Cause an error.
 					trigger_error(Lang::getTxt('undefined_xml_attribute', [substr($el, 1) . $debug], file: 'Errors'), E_USER_NOTICE);
 				}
 
@@ -622,7 +622,7 @@ final class XmlArray
 		if ($inside_elements) {
 			$output .= '>' . $output_el . $indentation . '</' . $array['name'] . '>';
 		} else {
-			$output .= ' />';
+			$output .= ' />'; 
 		}
 
 		return $output;
@@ -753,19 +753,17 @@ final class XmlArray
 		}
 
 		// No results found...
-		if (empty($results)) {
+		if (empty($results) && $this->debug_level & E_NOTICE && !$no_error) {
 			$trace = debug_backtrace();
 			$i = 0;
 
-			while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
+			while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == self::class) {
 				$i++;
 			}
 			$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
 
 			// Cause an error.
-			if ($this->debug_level & E_NOTICE && !$no_error) {
-				trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug], file: 'Errors'), E_USER_NOTICE);
-			}
+			trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug], file: 'Errors'), E_USER_NOTICE);
 
 			return false;
 		}
