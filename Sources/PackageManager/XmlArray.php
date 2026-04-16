@@ -157,13 +157,15 @@ final class XmlArray
 
 		// For each element in the path.
 		foreach ($path as $el) {
+			$pos = strpos($el, '[');
+
 			// Deal with sets....
-			if (str_contains($el, '[')) {
-				$lvl = (int) substr($el, strpos($el, '[') + 1);
-				$el = substr($el, 0, strpos($el, '['));
+			if ($pos !== false) {
+				$lvl = (int) substr($el, $pos + 1);
+				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif (str_starts_with($el, '@')) {
+			elseif ($el[0] === '@') {
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el])) {
 					return $array[$el];
@@ -221,13 +223,15 @@ final class XmlArray
 
 		// For each element in the path.
 		foreach ($path as $el) {
+			$pos = strpos($el, '[');
+
 			// Deal with sets....
-			if (str_contains($el, '[')) {
-				$lvl = (int) substr($el, strpos($el, '[') + 1);
-				$el = substr($el, 0, strpos($el, '['));
+			if ($pos !== false) {
+				$lvl = (int) substr($el, $pos + 1);
+				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif (str_starts_with($el, '@')) {
+			elseif ($el[0] === '@') {
 				return isset($array[$el]);
 			} else {
 				$lvl = null;
@@ -431,8 +435,10 @@ final class XmlArray
 
 			// Didn't find a tag?  Keep looping....
 			if (!isset($match[1]) || $match[1] == '') {
+				$pos = strpos($data, '<');
+
 				// If there's no <, the rest is data.
-				if (!str_contains($data, '<')) {
+				if ($pos === false) {
 					$text_value = $this->_from_cdata($data);
 					$data = '';
 
@@ -444,9 +450,9 @@ final class XmlArray
 					}
 				}
 				// If the < isn't immediately next to the current position... more data.
-				elseif (strpos($data, '<') > 0) {
-					$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<')));
-					$data = substr($data, strpos($data, '<'));
+				elseif ($pos > 0) {
+					$text_value = $this->_from_cdata(substr($data, 0, $pos));
+					$data = substr($data, $pos);
 
 					if ($text_value != '') {
 						$current[] = [
@@ -456,10 +462,12 @@ final class XmlArray
 					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif (str_contains($data, '<') && strpos($data, '<') == 0) {
-					if (strpos($data, '<', 1) !== false) {
-						$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<', 1)));
-						$data = substr($data, strpos($data, '<', 1));
+				elseif ($pos === 0) {
+					$pos1 = strpos($data, '<', 1);
+
+					if ($pos1 !== false) {
+						$text_value = $this->_from_cdata(substr($data, 0, $pos1));
+						$data = substr($data, $pos1);
 
 						if ($text_value != '') {
 							$current[] = [
@@ -490,8 +498,11 @@ final class XmlArray
 
 			// If this ISN'T empty, remove the close tag and parse the inner data.
 			if ((!isset($match[3]) || trim($match[3]) != '/') && (!isset($match[2]) || trim($match[2]) != '/')) {
+				$tag_start = '<' . $match[1];
+				$tag_end = '</' . $match[1] . '>';
+
 				// Because PHP 5.2.0+ seems to croak using regex, we'll have to do this the less fun way.
-				$last_tag_end = strpos($data, '</' . $match[1] . '>');
+				$last_tag_end = strpos($data, $tag_end);
 
 				if ($last_tag_end === false) {
 					continue;
@@ -501,7 +512,7 @@ final class XmlArray
 
 				while (1 == 1) {
 					// Where is the next start tag?
-					$next_tag_start = strpos($data, '<' . $match[1], $offset);
+					$next_tag_start = strpos($data, $tag_start, $offset);
 
 					// If the next start tag is after the last end tag then we've found the right close.
 					if ($next_tag_start === false || $next_tag_start > $last_tag_end) {
@@ -509,7 +520,7 @@ final class XmlArray
 					}
 
 					// If not then find the next ending tag.
-					$next_tag_end = strpos($data, '</' . $match[1] . '>', $offset);
+					$next_tag_end = strpos($data, $tag_end, $offset);
 
 					// Didn't find one? Then just use the last and sod it.
 					if ($next_tag_end === false) {
@@ -522,7 +533,7 @@ final class XmlArray
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
 				// Data now starts from where this section ends.
-				$data = substr($data, $last_tag_end + \strlen('</' . $match[1] . '>'));
+				$data = substr($data, $last_tag_end + \strlen($tag_end));
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
