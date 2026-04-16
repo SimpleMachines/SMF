@@ -575,8 +575,12 @@ final class XmlArray
 	 */
 	protected function _xml(array $array, ?int $indent): string
 	{
-		$indentation = $indent !== null ? '
-' . str_repeat('	', $indent) : '';
+		static $indentation_cache;
+
+		$indentation_cache ??= $indent !== null
+			? "\n" . str_repeat("\t", $indent)
+			: '';
+		$indentation = $indentation_cache;
 
 		// This is a set of elements, with no name...
 		if (\is_array($array) && !isset($array['name'])) {
