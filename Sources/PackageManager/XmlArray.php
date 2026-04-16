@@ -392,29 +392,34 @@ final class XmlArray
 	 */
 	public function _to_cdata(string $data): string
 	{
-		$inCdata = $inComment = false;
+		// Quickly check for either comments or CDATA tags.
+		if (strpos($data, '<!') === false) {
+			return $data;
+		}
+
+		$in_cdata = $in_comment = false;
 		$output = '';
 
 		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		foreach ($parts as $part) {
 			// Handle XML comments.
-			if (!$inCdata && $part === '<!--') {
-				$inComment = true;
+			if (!$in_cdata && $part === '<!--') {
+				$in_comment = true;
 			}
 
-			if ($inComment && $part === '-->') {
-				$inComment = false;
-			} elseif ($inComment) {
+			if ($in_comment && $part === '-->') {
+				$in_comment = false;
+			} elseif ($in_comment) {
 				continue;
 			}
 
-			// Handle Cdata blocks.
-			elseif (!$inComment && $part === '<![CDATA[') {
-				$inCdata = true;
-			} elseif ($inCdata && $part === ']]>') {
-				$inCdata = false;
-			} elseif ($inCdata) {
+			// Handle CDATA blocks.
+			elseif (!$in_comment && $part === '<![CDATA[') {
+				$in_cdata = true;
+			} elseif ($in_cdata && $part === ']]>') {
+				$in_cdata = false;
+			} elseif ($in_cdata) {
 				$output .= htmlentities($part, ENT_QUOTES);
 			}
 
@@ -440,8 +445,7 @@ final class XmlArray
 	protected function _parse(string $data): array
 	{
 		// Start with an 'empty' array with no data.
-		$current = [
-		];
+		$current = [];
 
 		// Loop until we're out of data.
 		while ($data !== '') {
@@ -529,7 +533,7 @@ final class XmlArray
 
 				$offset = 0;
 
-				while (1 == 1) {
+				while (true) {
 					// Where is the next start tag?
 					$next_tag_start = strpos($data, $tag_start, $offset);
 
@@ -611,7 +615,7 @@ final class XmlArray
 		}
 
 		// This is just text!
-		if ($array['name'] == '!') {
+		if ($array['name'] === '!') {
 			return $indentation . '<![CDATA[' . $array['value'] . ']]>';
 		}
 
@@ -661,7 +665,7 @@ final class XmlArray
 				continue;
 			}
 
-			if ($value['name'] == '!') {
+			if ($value['name'] === '!') {
 				$text .= $value['value'];
 			} else {
 				$return[$value['name']] = $this->_array($value);
