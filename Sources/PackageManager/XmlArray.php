@@ -16,7 +16,6 @@
 namespace SMF\PackageManager;
 
 use SMF\Lang;
-use SMF\Sapi;
 
 /**
  * Class XmlArray
