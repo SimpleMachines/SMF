@@ -198,11 +198,8 @@ final class XmlArray
 			$array = ['name' => $el . '[]', $array];
 		}
 
-		// Create the right type of class...
-		$newClass = \get_class($this);
-
 		// Return a new XmlArray for the result.
-		return $array === false ? false : new $newClass($array, $this->trim, $this->debug_level, true);
+		return $array === false ? false : new self($array, $this->trim, $this->debug_level, true);
 	}
 
 	/**
@@ -296,11 +293,8 @@ final class XmlArray
 				continue;
 			}
 
-			// Create the right type of class...
-			$newClass = \get_class($this);
-
 			// Create a new XmlArray and stick it in the array.
-			$array[] = new $newClass($val, $this->trim, $this->debug_level, true);
+			$array[] = new self($val, $this->trim, $this->debug_level, true);
 		}
 
 		return $array;
@@ -664,20 +658,9 @@ final class XmlArray
 	 */
 	protected function _from_cdata(string $data): string
 	{
-		// Get the HTML translation table and reverse it.
-		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
-
-		// Translate all the entities out.
-		$data = strtr(
-			preg_replace_callback(
-				'~&#(\d{1,4});~',
-				function ($m) {
-					return \chr("{$m[1]}");
-				},
-				$data,
-			),
-			$trans_tbl,
-		);
+		if (str_contains($data, '&')) {
+			$data = html_entity_decode($data, ENT_QUOTES | ENT_XML1, 'UTF-8');
+		}
 
 		return $this->trim ? trim($data) : $data;
 	}
