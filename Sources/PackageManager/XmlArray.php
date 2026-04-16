@@ -428,7 +428,7 @@ final class XmlArray
 			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
 
 			if (isset($match[0])) {
-				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
+				$data = substr($data, \strlen($match[0]));
 			}
 
 			// Didn't find a tag?  Keep looping....
