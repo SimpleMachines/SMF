@@ -752,7 +752,8 @@ final class XmlArray
 		$paths = explode('|', $path);
 
 		// A * means all elements of any name.
-		$show_all = \in_array('*', $paths);
+		$path_map = array_flip($paths);
+		$show_all = isset($path_map['*']);
 
 		$results = [];
 
@@ -762,7 +763,7 @@ final class XmlArray
 				continue;
 			}
 
-			if ($show_all || \in_array($value['name'], $paths)) {
+			if ($show_all || isset($path_map[$value['name']])) {
 				// Skip elements before "the one".
 				if ($level !== null && $level > 0) {
 					$level--;
