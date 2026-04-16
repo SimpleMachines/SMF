@@ -422,23 +422,24 @@ final class XmlArray
 		// Start with an 'empty' array with no data.
 		$current = [];
 
-		// Loop until we're out of data.
-		while ($data !== '') {
-			// Find and remove the next tag.
-			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
+		$len = \strlen($data);
+		$offset = 0;
+
+		while ($offset < $len) {
+			preg_match('/\G<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?>/', $data, $match, 0, $offset);
 
 			if (isset($match[0])) {
-				$data = substr($data, \strlen($match[0]));
+				$offset += \strlen($match[0]);
 			}
 
 			// Didn't find a tag?  Keep looping....
 			if (!isset($match[1]) || $match[1] == '') {
-				$pos = strpos($data, '<');
+				$pos = strpos($data, '<', $offset);
 
 				// If there's no <, the rest is data.
 				if ($pos === false) {
-					$text_value = $this->_from_cdata($data);
-					$data = '';
+					$text_value = $this->_from_cdata(substr($data, $offset));
+					$offset = $len;
 
 					if ($text_value != '') {
 						$current[] = [
@@ -448,9 +449,9 @@ final class XmlArray
 					}
 				}
 				// If the < isn't immediately next to the current position... more data.
-				elseif ($pos > 0) {
-					$text_value = $this->_from_cdata(substr($data, 0, $pos));
-					$data = substr($data, $pos);
+				elseif ($pos > $offset) {
+					$text_value = $this->_from_cdata(substr($data, $offset, $pos - $offset));
+					$offset = $pos;
 
 					if ($text_value != '') {
 						$current[] = [
@@ -460,12 +461,12 @@ final class XmlArray
 					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif ($pos === 0) {
-					$pos1 = strpos($data, '<', 1);
+				elseif ($pos === $offset) {
+					$pos1 = strpos($data, '<', $offset + 1);
 
 					if ($pos1 !== false) {
-						$text_value = $this->_from_cdata(substr($data, 0, $pos1));
-						$data = substr($data, $pos1);
+						$text_value = $this->_from_cdata(substr($data, $offset, $pos1 - $offset));
+						$offset = $pos1;
 
 						if ($text_value != '') {
 							$current[] = [
@@ -474,8 +475,8 @@ final class XmlArray
 							];
 						}
 					} else {
-						$text_value = $this->_from_cdata($data);
-						$data = '';
+						$text_value = $this->_from_cdata(substr($data, $offset));
+						$offset = $len;
 
 						if ($text_value != '') {
 							$current[] = [
@@ -499,18 +500,17 @@ final class XmlArray
 				$tag_start = '<' . $match[1];
 				$tag_end = '</' . $match[1] . '>';
 
-				// Because PHP 5.2.0+ seems to croak using regex, we'll have to do this the less fun way.
-				$last_tag_end = strpos($data, $tag_end);
+				$last_tag_end = strpos($data, $tag_end, $offset);
 
 				if ($last_tag_end === false) {
 					continue;
 				}
 
-				$offset = 0;
+				$inner_offset = $offset;
 
 				while (true) {
 					// Where is the next start tag?
-					$next_tag_start = strpos($data, $tag_start, $offset);
+					$next_tag_start = strpos($data, $tag_start, $inner_offset);
 
 					// If the next start tag is after the last end tag then we've found the right close.
 					if ($next_tag_start === false || $next_tag_start > $last_tag_end) {
@@ -518,7 +518,7 @@ final class XmlArray
 					}
 
 					// If not then find the next ending tag.
-					$next_tag_end = strpos($data, $tag_end, $offset);
+					$next_tag_end = strpos($data, $tag_end, $inner_offset);
 
 					// Didn't find one? Then just use the last and sod it.
 					if ($next_tag_end === false) {
@@ -526,12 +526,14 @@ final class XmlArray
 					}
 
 					$last_tag_end = $next_tag_end;
-					$offset = $next_tag_start + 1;
+					$inner_offset = $next_tag_start + 1;
 				}
+
 				// Parse the insides.
-				$inner_match = substr($data, 0, $last_tag_end);
+				$inner_match = substr($data, $offset, $last_tag_end - $offset);
+
 				// Data now starts from where this section ends.
-				$data = substr($data, $last_tag_end + \strlen($tag_end));
+				$offset = $last_tag_end + \strlen($tag_end);
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
