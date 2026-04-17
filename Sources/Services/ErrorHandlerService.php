@@ -264,7 +264,6 @@ class ErrorHandlerService
 		// Exceptions may get mapped back into our common error types.
 		if (isset($this->known_exception_types[$error_type])) {
 			$error_type = $this->known_exception_types[$error_type];
-
 		}
 
 		if (empty($tried_hook)) {
