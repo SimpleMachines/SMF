@@ -659,7 +659,7 @@ class PersonalMessage implements ActionInterface, Routable
 			// Loop through each admin, and add them to the right language pile...
 			while ($row = Db::$db->fetch_assoc($request)) {
 				// Need to send in the correct language!
-				$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
+				$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
 
 				if (!isset($messagesToSend[$cur_language])) {
 					// Make the body.

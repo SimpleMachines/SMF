@@ -54,7 +54,7 @@ class FetchSMFiles extends ScheduledTask
 			$js_files[$row['id_file']] = [
 				'filename' => $row['filename'],
 				'path' => $row['path'],
-				'parameters' => \sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+				'parameters' => \sprintf($row['parameters'], Config::$language, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 			];
 		}
 		Db::$db->free_result($request);
@@ -73,9 +73,9 @@ class FetchSMFiles extends ScheduledTask
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false) {
-				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default);
+				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Config::$language);
 
-				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default));
+				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Config::$language));
 
 				return true;
 			}

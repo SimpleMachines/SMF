@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Localization;
 
+use SMF\Config;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Sapi;
 use SMF\Unicode\Utf8String;
 use SMF\Utils;
@@ -193,7 +193,7 @@ class AsciiTransliterator
 
 		if (!isset(self::$transliterator)) {
 			// Maybe there is a specific transliterator for the default language?
-			switch (substr(Lang::$default, 0, 2)) {
+			switch (substr(Config::$language, 0, 2)) {
 				// There's a specific transliterator for German to ASCII.
 				case 'de':
 					$locale_id = 'de-ASCII;' . self::DEFAULT_ID;
@@ -240,7 +240,7 @@ class AsciiTransliterator
 				// For anything else, guess at a specific transliterator.
 				// It might or might not work, but we'll handle that below.
 				default:
-					$locale_id = substr(Lang::$default, 0, 2) . '-Latin;' . self::DEFAULT_ID;
+					$locale_id = substr(Config::$language, 0, 2) . '-Latin;' . self::DEFAULT_ID;
 					break;
 			}
 

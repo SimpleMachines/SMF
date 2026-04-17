@@ -1202,7 +1202,7 @@ class RepairBoards implements ActionInterface
 			WHERE name = {string:cat_name}
 			LIMIT 1',
 			[
-				'cat_name' => Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
+				'cat_name' => Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Config::$language),
 			],
 		);
 
@@ -1222,9 +1222,9 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
+						Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Config::$language),
 						-1,
-						Lang::getTxt('salvaged_category_description', file: 'ManageMaintenance', lang: Lang::$default),
+						Lang::getTxt('salvaged_category_description', file: 'ManageMaintenance', lang: Config::$language),
 					],
 				],
 				['id_cat'],
@@ -1245,7 +1245,7 @@ class RepairBoards implements ActionInterface
 			LIMIT 1',
 			[
 				'id_cat' => $this->salvage_category,
-				'board_name' => Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
+				'board_name' => Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Config::$language),
 			],
 		);
 
@@ -1268,8 +1268,8 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
-						Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance', lang: Lang::$default),
+						Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Config::$language),
+						Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance', lang: Config::$language),
 						$this->salvage_category,
 						'1',
 						-1,

@@ -474,9 +474,9 @@ class Languages implements ActionInterface
 				}
 			}
 
-			if ($_POST['def_language'] != Lang::$default && $lang_exists) {
+			if ($_POST['def_language'] != Config::$language && $lang_exists) {
 				Config::updateSettingsFile(['language' => $_POST['def_language']]);
-				Lang::$default = $_POST['def_language'];
+				Config::$language = $_POST['def_language'];
 			}
 		}
 
@@ -578,7 +578,7 @@ class Languages implements ActionInterface
 			$("tr.highlight2").removeClass("highlight2");
 			$("#" + box).addClass("highlight2");
 		}
-		highlightSelected("list_language_list_' . (Lang::$default == '' ? 'english' : Lang::$default) . '");', true);
+		highlightSelected("list_language_list_' . (Config::$language == '' ? 'english' : Config::$language) . '");', true);
 
 		// Display a warning if we cannot edit the default setting.
 		if (!is_writable(SMF_SETTINGS_FILE)) {
@@ -852,9 +852,9 @@ class Languages implements ActionInterface
 			}
 
 			// Sixth, if we deleted the default language, set us back to english?
-			if ($lang_id == Lang::$default) {
-				Lang::$default = 'en_US';
-				Config::updateSettingsFile(['language' => Lang::$default]);
+			if ($lang_id == Config::$language) {
+				Config::$language = 'en_US';
+				Config::updateSettingsFile(['language' => Config::$language]);
 			}
 
 			// Seventh, get out of here.
@@ -1574,7 +1574,7 @@ class Languages implements ActionInterface
 				'id' => $lang['filename'],
 				'count' => 0,
 				'char_set' => 'UTF-8',
-				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
+				'default' => Config::$language == $lang['filename'] || (Config::$language == '' && $lang['filename'] == 'en_US'),
 				'locale' => $txt['lang_locale'],
 				'name' => $lang['name'],
 			];
@@ -1592,7 +1592,7 @@ class Languages implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Default?
 			if (empty($row['lngfile']) || !isset($languages[$row['lngfile']])) {
-				$row['lngfile'] = Lang::$default;
+				$row['lngfile'] = Config::$language;
 			}
 
 			if (!isset($languages[$row['lngfile']]) && isset($languages['english'])) {

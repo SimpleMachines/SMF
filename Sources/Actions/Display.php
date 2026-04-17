@@ -1060,10 +1060,10 @@ class Display implements ActionInterface, Routable
 
 		// For quick reply we need a response prefix in the default forum language.
 		if (!isset(Utils::$context['response_prefix'])) {
-			if (Lang::$default === User::$me->language) {
+			if (Config::$language === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
-				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Config::$language);
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
 		}

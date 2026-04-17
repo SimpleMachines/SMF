@@ -154,7 +154,7 @@ class Reminder implements ActionInterface, Routable
 				'MEMBERNAME' => $this->member->username,
 			];
 
-			$emaildata = Mail::loadEmailTemplate('forgot_password', $replacements, empty($this->member->lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $this->member->lngfile);
+			$emaildata = Mail::loadEmailTemplate('forgot_password', $replacements, empty($this->member->lngfile) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $this->member->lngfile);
 
 			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
