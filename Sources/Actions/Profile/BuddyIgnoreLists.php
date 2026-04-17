@@ -192,9 +192,6 @@ class BuddyIgnoreLists implements ActionInterface
 			Utils::redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
 		}
 
-		// Get all the users "buddies"...
-		$buddies = [];
-
 		// Gotta load the custom profile fields names.
 		Utils::$context['custom_pf'] = [];
 
@@ -224,42 +221,33 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		if (!empty(Profile::$member->buddies)) {
-			$result = Db::$db->query(
-				'SELECT id_member
-				FROM {db_prefix}members
-				WHERE id_member IN ({array_int:buddy_list})
-				ORDER BY real_name
-				LIMIT {int:buddy_list_count}',
-				[
+		// Get all the user's "buddies"...
+		$buddies = User::loadCustom(
+			[
+				'where' => ['mem.id_member IN ({array_int:buddy_list})'],
+				'order' => ['mem.real_name'],
+				'limit' => \count(Profile::$member->buddies),
+				'params' => [
 					'buddy_list' => Profile::$member->buddies,
-					'buddy_list_count' => \count(Profile::$member->buddies),
 				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($result)) {
-				$buddies[] = $row['id_member'];
-			}
-			Db::$db->free_result($result);
-		}
+			],
+			UserDataset::Profile,
+		);
 
 		Utils::$context['buddy_count'] = \count($buddies);
-
-		// Load all the members up.
-		User::load($buddies, User::LOAD_BY_ID, UserDataset::Profile);
 
 		// Setup the context for each buddy.
 		Utils::$context['buddies'] = [];
 
 		foreach ($buddies as $buddy) {
-			Utils::$context['buddies'][$buddy] = User::$loaded[$buddy]->format();
+			Utils::$context['buddies'][$buddy->id] = $buddy->format();
 
 			// Make sure to load the appropriate fields for each user
 			if (!empty(Utils::$context['custom_pf'])) {
 				foreach (Utils::$context['custom_pf'] as $key => $column) {
 					// Don't show anything if there isn't anything to show.
-					if (!isset(Utils::$context['buddies'][$buddy]['options'][$key])) {
-						Utils::$context['buddies'][$buddy]['options'][$key] = '';
+					if (!isset(Utils::$context['buddies'][$buddy->id]['options'][$key])) {
+						Utils::$context['buddies'][$buddy->id]['options'][$key] = '';
 
 						continue;
 					}
@@ -269,29 +257,29 @@ class BuddyIgnoreLists implements ActionInterface
 					if (!empty($column['options'])) {
 						foreach ($column['options'] as $k => $v) {
 							if (empty($currentKey)) {
-								$currentKey = $v == Utils::$context['buddies'][$buddy]['options'][$key] ? $k : 0;
+								$currentKey = $v == Utils::$context['buddies'][$buddy->id]['options'][$key] ? $k : 0;
 							}
 						}
 					}
 
-					if ($column['bbc'] && !empty(Utils::$context['buddies'][$buddy]['options'][$key])) {
-						Utils::$context['buddies'][$buddy]['options'][$key] = Parser::transform(
-							string: Utils::$context['buddies'][$buddy]['options'][$key],
+					if ($column['bbc'] && !empty(Utils::$context['buddies'][$buddy->id]['options'][$key])) {
+						Utils::$context['buddies'][$buddy->id]['options'][$key] = Parser::transform(
+							string: Utils::$context['buddies'][$buddy->id]['options'][$key],
 							output_type: Parser::OUTPUT_TEXT,
 							options: ['hard_breaks' => 0],
 						);
 					} elseif ($column['type'] == 'check') {
-						Utils::$context['buddies'][$buddy]['options'][$key] = Lang::getTxt(Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
+						Utils::$context['buddies'][$buddy->id]['options'][$key] = Lang::getTxt(Utils::$context['buddies'][$buddy->id]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
 					}
 
 					// Enclosing the user input within some other text?
-					if (!empty($column['enclose']) && !empty(Utils::$context['buddies'][$buddy]['options'][$key])) {
-						Utils::$context['buddies'][$buddy]['options'][$key] = strtr($column['enclose'], [
+					if (!empty($column['enclose']) && !empty(Utils::$context['buddies'][$buddy->id]['options'][$key])) {
+						Utils::$context['buddies'][$buddy->id]['options'][$key] = strtr($column['enclose'], [
 							'{SCRIPTURL}' => Config::$scripturl,
 							'{IMAGES_URL}' => Theme::$current->settings['images_url'],
 							'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
 							'{KEY}' => $currentKey,
-							'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['buddies'][$buddy]['options'][$key]),
+							'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['buddies'][$buddy->id]['options'][$key]),
 						]);
 					}
 				}
@@ -387,37 +375,23 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 
 		// Initialise the list of members we're ignoring.
-		$ignored = [];
-
-		if (!empty(Profile::$member->ignoreusers)) {
-			$result = Db::$db->query(
-				'SELECT id_member
-				FROM {db_prefix}members
-				WHERE id_member IN ({array_int:ignore_list})
-				ORDER BY real_name
-				LIMIT {int:ignore_list_count}',
-				[
+		$ignored = User::loadCustom(
+			[
+				'where' => ['mem.id_member IN ({array_int:ignore_list})'],
+				'order' => ['mem.real_name'],
+				'limit' => \count(Profile::$member->ignoreusers),
+				'params' => [
 					'ignore_list' => Profile::$member->ignoreusers,
-					'ignore_list_count' => \count(Profile::$member->ignoreusers),
 				],
-			);
+			],
+			UserDataset::Profile,
+		);
 
-			while ($row = Db::$db->fetch_assoc($result)) {
-				$ignored[] = $row['id_member'];
-			}
-			Db::$db->free_result($result);
-		}
-
-		Utils::$context['ignore_count'] = \count($ignored);
-
-		// Load all the members up.
-		User::load($ignored, User::LOAD_BY_ID, UserDataset::Profile);
-
-		// Setup the context for each buddy.
+		// Setup the context for each ignored member.
 		Utils::$context['ignore_list'] = [];
 
 		foreach ($ignored as $ignore_member) {
-			Utils::$context['ignore_list'][$ignore_member] = User::$loaded[$ignore_member]->format();
+			Utils::$context['ignore_list'][$ignore_member->id] = $ignore_member->format();
 		}
 
 		if (isset($_SESSION['prf-save'])) {

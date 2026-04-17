@@ -31,6 +31,7 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -485,25 +486,28 @@ class Subscriptions implements ActionInterface
 			SecurityToken::validate('admin-pmsd');
 
 			// Before we delete the subscription we need to find out if anyone currently has said subscription.
-			$members = [];
-
-			$request = Db::$db->query(
-				'SELECT ls.id_member, ls.old_id_group, mem.id_group, mem.additional_groups
-				FROM {db_prefix}log_subscribed AS ls
-					INNER JOIN {db_prefix}members AS mem ON (ls.id_member = mem.id_member)
-				WHERE id_subscribe = {int:current_subscription}
-					AND status = {int:is_active}',
-				[
-					'current_subscription' => Utils::$context['sub_id'],
-					'is_active' => 1,
+			$members = User::loadCustom(
+				query_customizations: [
+					'select' => [
+						'mem.id_member',
+						'ls.old_id_group',
+						'mem.id_group',
+						'mem.additional_groups',
+					],
+					'joins' => [
+						'{db_prefix}log_subscribed AS ls ON (ls.id_member = mem.id_member)',
+					],
+					'where' => [
+						'ls.id_subscribe = {int:current_subscription}',
+						'ls.status = {int:is_active}',
+					],
+					'params' => [
+						'current_subscription' => Utils::$context['sub_id'],
+						'is_active' => 1,
+					],
 				],
+				dataset: UserDataset::None,
 			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$id_member = array_shift($row);
-				$members[$id_member] = $row;
-			}
-			Db::$db->free_result($request);
 
 			// If there are any members with this subscription, we have to do some more work before we go any further.
 			if (!empty($members)) {
@@ -528,27 +532,26 @@ class Subscriptions implements ActionInterface
 
 				// Is their group changing? This subscription may not have changed primary group.
 				if (!empty($id_group)) {
-					foreach ($members as $id_member => $member_data) {
+					foreach ($members as $member) {
 						// If their current primary group isn't what they had before the
 						// subscription, and their current group was granted by the sub,
 						// then remove it.
-						if ($member_data['old_id_group'] != $member_data['id_group'] && $member_data['id_group'] == $id_group) {
-							$changes[$id_member]['id_group'] = $member_data['old_id_group'];
+						if ($member->old_id_group != $member->group_id && $member->group_id == $id_group) {
+							$changes[$member->id]['id_group'] = $member->old_id_group;
 						}
 					}
 				}
 
 				// Did this subscription add secondary groups?
 				if (!empty($add_groups)) {
-					$add_groups = explode(',', $add_groups);
+					$add_groups = array_map('intval', explode(',', $add_groups));
 
-					foreach ($members as $id_member => $member_data) {
+					foreach ($members as $member) {
 						// First let's get their groups sorted.
-						$current_groups = explode(',', $member_data['additional_groups']);
-						$new_groups = implode(',', array_diff($current_groups, $add_groups));
+						$new_groups = array_diff($member->additional_groups, $add_groups);
 
-						if ($new_groups != $member_data['additional_groups']) {
-							$changes[$id_member]['additional_groups'] = $new_groups;
+						if ($new_groups != $member->additional_groups) {
+							$changes[$member->id]['additional_groups'] = implode(',', $new_groups);
 						}
 					}
 				}

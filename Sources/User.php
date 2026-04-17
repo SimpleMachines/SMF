@@ -2862,6 +2862,41 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Loads users according to arbitrary query criteria.
+	 *
+	 * @param array $query_customizations
+	 * @param ?UserDataset $dataset What kind of data to load.
+	 *    Default: UserDataset::Normal.
+	 * @return array Instances of this class for the loaded users.
+	 */
+	public static function loadCustom(array $query_customizations, UserDataset $dataset = UserDataset::Normal): array
+	{
+		$loaded = [];
+
+		$query_customizations['selects'] ??= ['mem.*'];
+		$query_customizations['joins'] ??= [];
+		$query_customizations['where'] ??= [];
+		$query_customizations['order'] ??= [];
+		$query_customizations['group'] ??= [];
+		$query_customizations['limit'] ??= 0;
+		$query_customizations['params'] ??= [];
+
+		self::addQueryCustomizationsForDataset($query_customizations, $dataset);
+
+		foreach (self::retrieveUserData($query_customizations, $dataset) as $id) {
+			if (!isset(self::$loaded[$id])) {
+				new self($id, $dataset);
+			} else {
+				self::$loaded[$id]->setProperties();
+			}
+
+			$loaded[] = self::$loaded[$id];
+		}
+
+		return $loaded;
+	}
+
+	/**
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
