@@ -20,7 +20,6 @@ use SMF\Actions\Notify;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
 use SMF\Time;
@@ -105,7 +104,7 @@ class PaidSubs extends ScheduledTask
 				'END_DATE' => strip_tags(Time::create('@' . $row['end_time'])->format()),
 			];
 
-			$emaildata = Mail::loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+			$emaildata = Mail::loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
 
 			// Check notification prefs.
 			$subs_notify = $notifyPrefs[$row['id_member']]['paidsubs_expiring'] ?? 0;

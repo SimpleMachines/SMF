@@ -100,13 +100,6 @@ class Lang
 	/**
 	 * @var string
 	 *
-	 * Local copy of SMF\Config::$language
-	 */
-	public static string $default;
-
-	/**
-	 * @var string
-	 *
 	 * MessageFormat string to show the SMF copyright.
 	 * The default value will be overwritten when a language is loaded.
 	 */
@@ -241,13 +234,9 @@ class Lang
 	 */
 	public static function load(string $filename, string $lang = '', bool $fatal = true, bool $force_reload = false): string
 	{
-		if (!isset(self::$default)) {
-			self::$default = &Config::$language;
-		}
-
 		// Default to the user's language.
 		if ($lang == '') {
-			$lang = User::$me->language ?? self::$default;
+			$lang = User::$me->language ?? Config::$language;
 		}
 
 		if (empty(self::$dirs)) {
@@ -271,14 +260,14 @@ class Lang
 			foreach (self::$dirs as $dir) {
 				$attempts[] = [$dir, $name, $lang];
 
-				if ($lang !== self::$default) {
-					$attempts[] = [$dir, $name, self::$default];
+				if ($lang !== Config::$language) {
+					$attempts[] = [$dir, $name, Config::$language];
 				}
 
 				// Fall back to English if none of the preferred languages can be found.
 				if (
 					empty(Config::$modSettings['disable_language_fallback'])
-					&& 'en_US' !== self::$default
+					&& 'en_US' !== Config::$language
 					&& 'en_US' !== $lang
 				) {
 					$attempts[] = [$dir, $name, 'en_US'];
@@ -357,7 +346,7 @@ class Lang
 					if (!empty($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
-						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en_US'] ?? ''));
+						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[Config::$language] ?? (self::$localized_copyright['en_US'] ?? ''));
 
 						unset($forum_copyright);
 					}
@@ -722,7 +711,7 @@ class Lang
 		$txt_key = array_values((array) $txt_key);
 
 		if ($lang == '') {
-			$lang = User::$me->language ?? self::$default;
+			$lang = User::$me->language ?? Config::$language;
 		}
 
 		self::loadFileForGetTxt($file, $var, $txt_key, $lang);

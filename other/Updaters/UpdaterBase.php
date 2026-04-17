@@ -162,7 +162,6 @@ abstract class UpdaterBase
 				'forum_uuid' => (string) Uuid::getNamespace(),
 			];
 
-			Lang::$default = Config::$language;
 			Lang::addDirs(Config::$languagesdir);
 		}
 

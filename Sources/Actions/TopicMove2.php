@@ -143,10 +143,10 @@ class TopicMove2 implements ActionInterface, Routable
 				if (isset($_POST['enforce_subject'])) {
 					// Get a response prefix, but in the forum's default language.
 					if (!isset(Utils::$context['response_prefix'])) {
-						if (Lang::$default === User::$me->language) {
+						if (Config::$language === User::$me->language) {
 							Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 						} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
-							Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+							Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Config::$language);
 							CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 						}
 					}
@@ -187,9 +187,9 @@ class TopicMove2 implements ActionInterface, Routable
 			];
 
 			// Make sure we catch both languages in the reason.
-			if (User::$me->language != Lang::$default) {
-				$reason_replacements[Lang::getTxt('movetopic_auto_board', file: 'General', lang: Lang::$default)] = '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]';
-				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]';
+			if (User::$me->language != Config::$language) {
+				$reason_replacements[Lang::getTxt('movetopic_auto_board', file: 'General', lang: Config::$language)] = '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]';
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Config::$language)] = '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]';
 			}
 
 			$_POST['reason'] = Parser::sanitize(Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES), autolink: !empty(Config::$modSettings['autoLinkUrls']));
@@ -204,7 +204,7 @@ class TopicMove2 implements ActionInterface, Routable
 			$redirect_topic = isset($_POST['redirect_topic']) ? Topic::$topic_id : 0;
 
 			$msgOptions = [
-				'subject' => Lang::getTxt('moved', ['subject' => $subject], file: 'General', lang: Lang::$default),
+				'subject' => Lang::getTxt('moved', ['subject' => $subject], file: 'General', lang: Config::$language),
 				'body' => $_POST['reason'],
 				'icon' => 'moved',
 				'smileys_enabled' => 1,

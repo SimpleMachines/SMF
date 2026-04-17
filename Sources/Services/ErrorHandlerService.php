@@ -383,12 +383,12 @@ class ErrorHandlerService
 
 		// Log the error in the forum's language, but don't waste the time if we aren't logging
 		if ($log) {
-			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Config::$language);
 			$this->log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if (!$log || Lang::$default != User::$me->language) {
+		if (!$log || Config::$language != User::$me->language) {
 			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
 		}
 
