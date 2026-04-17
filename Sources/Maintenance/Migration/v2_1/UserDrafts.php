@@ -75,7 +75,7 @@ class UserDrafts extends MigrationBase
 		) {
 			// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 			$request = Db::$db->query(
-				'SELECT id_group, id_board, add_deny, permission
+				'SELECT id_group, id_profile, add_deny, permission
 				FROM {db_prefix}board_permissions
 				WHERE permission = {literal:post_unapproved_topics}',
 				[],
@@ -86,7 +86,7 @@ class UserDrafts extends MigrationBase
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$inserts[] = [
 					(int) $row['id_group'],
-					(int) $row['id_board'],
+					(int) $row['id_profile'],
 					'post_draft',
 					(int) $row['add_deny'],
 				];
@@ -99,7 +99,7 @@ class UserDrafts extends MigrationBase
 					'{db_prefix}board_permissions',
 					[
 						'id_group' => 'int',
-						'id_board' => 'int',
+						'id_profile' => 'int',
 						'permission' => 'string',
 						'add_deny' => 'int',
 					],
