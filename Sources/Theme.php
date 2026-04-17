@@ -912,16 +912,16 @@ class Theme
 			Utils::$context['news_lines'][$i] = Utils::adjustHeadingLevels(Utils::$context['news_lines'][$i], null);
 		}
 
-		if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged)) {
+		if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
 			Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, \count(Utils::$context['news_lines']) - 1)];
 		}
 
 		if (!User::$me->is_guest) {
 			// Personal message popup...
 			if (User::$me->unread_messages > ($_SESSION['unread_messages'] ?? 0)) {
-				User::$me->popup_messages = true;
+				$popup_messages = true;
 			} else {
-				User::$me->popup_messages = false;
+				$popup_messages = false;
 			}
 
 			$_SESSION['unread_messages'] = User::$me->unread_messages;
@@ -930,7 +930,7 @@ class Theme
 				Utils::$context['unapproved_members'] = !empty(Config::$modSettings['unapprovedMembers']) ? Config::$modSettings['unapprovedMembers'] : 0;
 			}
 		} else {
-			User::$me->popup_messages = false;
+			$popup_messages = false;
 
 			// If we've upgraded recently, go easy on the passwords.
 			if (!empty(Config::$modSettings['disableHashTime']) && (Config::$modSettings['disableHashTime'] == 1 || time() < Config::$modSettings['disableHashTime'])) {
@@ -945,7 +945,7 @@ class Theme
 		Utils::$context['show_news'] = !empty(self::$current->settings['enable_news']);
 
 		// This is done to allow theme authors to customize it as they want.
-		Utils::$context['show_pm_popup'] = User::$me->popup_messages && !empty(self::$current->options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
+		Utils::$context['show_pm_popup'] = $popup_messages && !empty(self::$current->options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
 
 		// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 		if (Utils::$context['show_pm_popup']) {
@@ -2197,7 +2197,7 @@ class Theme
 				$_SESSION['theme_colormode'] = $_REQUEST['mode'];
 
 				// If the user is logged, save this to their profile
-				if (User::$me->is_logged && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+				if (!User::$me->is_guest && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}themes',
@@ -2240,7 +2240,7 @@ class Theme
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
 
 				// If the user is logged, save this to their profile
-				if (User::$me->is_logged && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
+				if (!User::$me->is_guest && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}themes',

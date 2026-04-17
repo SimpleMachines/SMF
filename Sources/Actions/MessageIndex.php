@@ -1033,7 +1033,7 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		// Is Quick Moderation active/needed?
 		if (!empty(Theme::$current->options['display_quick_mod']) && !empty(Utils::$context['topics'])) {
-			Utils::$context['can_markread'] = User::$me->is_logged;
+			Utils::$context['can_markread'] = !User::$me->is_guest;
 			Utils::$context['can_lock'] = User::$me->allowedTo('lock_any');
 			Utils::$context['can_sticky'] = User::$me->allowedTo('make_sticky');
 			Utils::$context['can_move'] = User::$me->allowedTo('move_any');
@@ -1072,7 +1072,7 @@ class MessageIndex implements ActionInterface, Routable
 
 			// Can we use quick moderation checkboxes?
 			if (Theme::$current->options['display_quick_mod'] == 1) {
-				Utils::$context['can_quick_mod'] = User::$me->is_logged || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
+				Utils::$context['can_quick_mod'] = !User::$me->is_guest || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
 			}
 			// Or the icons?
 			else {
@@ -1102,7 +1102,7 @@ class MessageIndex implements ActionInterface, Routable
 			Utils::$context['normal_buttons']['post_poll'] = ['text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => Config::$scripturl . '?action=post;board=' . Utils::$context['current_board'] . '.0;poll'];
 		}
 
-		if (User::$me->is_logged) {
+		if (!User::$me->is_guest) {
 			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 

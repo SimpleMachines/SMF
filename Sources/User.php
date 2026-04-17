@@ -220,6 +220,15 @@ class User implements \ArrayAccess
 	public bool $possibly_robot;
 
 	/**
+	 * @var string
+	 *
+	 * Info about how many times they recently entered the wrong password.
+	 *
+	 * This is used to prevent brute force attempts to find someone's password.
+	 */
+	public string $passwd_flood;
+
+	/**
 	 * @var bool
 	 *
 	 * Whether this user is a guest.
@@ -733,6 +742,363 @@ class User implements \ArrayAccess
 	public array $formatted = [];
 
 	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_member {
+		&get => $this->id;
+		set {
+			$this->id = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->username.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_name {
+		&get => $this->username;
+		set {
+			$this->username = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $real_name {
+		&get => $this->name;
+		set {
+			$this->name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $display_name {
+		&get => $this->name;
+		set {
+			$this->name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->email.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $email_address {
+		&get => $this->email;
+		set {
+			$this->email = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->language.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $lngfile {
+		&get => $this->language;
+		set {
+			$this->language = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->ip.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_ip {
+		&get => $this->ip;
+		set {
+			$this->ip = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->ip2.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_ip2 {
+		&get => $this->ip2;
+		set {
+			$this->ip2 = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->title.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $usertitle {
+		&get => $this->title;
+		set {
+			$this->title = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->title.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $blurb {
+		&get => $this->title;
+		set {
+			$this->title = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->theme.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_theme {
+		&get => $this->theme;
+		set {
+			$this->theme = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->post_group_id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_post_group {
+		&get => $this->post_group_id;
+		set {
+			$this->post_group_id = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->group_id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_group {
+		&get => $this->group_id;
+		set {
+			$this->group_id = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->ignoreusers.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $pm_ignore_list {
+		&get => $this->ignoreusers;
+		set {
+			$this->ignoreusers = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->buddies.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $buddy_list {
+		&get => $this->buddies;
+		set {
+			$this->buddies = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->messages.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $instant_messages {
+		&get => $this->messages;
+		set {
+			$this->messages = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->website['url'].
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $website_url {
+		&get => $this->website['url'];
+		set {
+			$this->website['url'] = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->website['title'].
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $website_title {
+		&get => $this->website['title'];
+		set {
+			$this->website['title'] = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->ignoreboards.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $ignore_boards {
+		&get => $this->ignoreboards;
+		set {
+			$this->ignoreboards = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->group_name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_group {
+		&get => $this->group_name;
+		set {
+			$this->group_name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->primary_group_name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $primary_group {
+		&get => $this->primary_group_name;
+		set {
+			$this->primary_group_name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->group_color.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_group_color {
+		&get => $this->group_color;
+		set {
+			$this->group_color = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->birthdate.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $birth_date {
+		&get => $this->birthdate;
+		set {
+			$this->birthdate = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->last_login.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $last_login_timestamp {
+		&get => $this->last_login;
+		set {
+			$this->last_login = $value;
+		}
+	}
+
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of !$this->is_guest.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $is_logged {
+		&get {
+			// Intentionally does not use $this->is_logged in order to keep this
+			// property virtual rather than backed, because backed properties
+			// cannot have both &get and set hooks.
+			$is_logged = !($this->is_guest ?? true);
+
+			return $is_logged;
+		}
+		set {
+			$this->is_guest = !$value;
+		}
+	}
+
+	/**
 	 * @var bool
 	 *
 	 * Backward compatibility alias of Profile::$member->is_me.
@@ -904,41 +1270,6 @@ class User implements \ArrayAccess
 	 *********************/
 
 	/**
-	 * @var array
-	 *
-	 * Alternate names for some object properties.
-	 */
-	protected array $prop_aliases = [
-		'id_member' => 'id',
-		'member_name' => 'username',
-		'real_name' => 'name',
-		'display_name' => 'name',
-		'email_address' => 'email',
-		'lngfile' => 'language',
-		'member_group' => 'group_name',
-		'primary_group' => 'primary_group_name',
-		'member_group_color' => 'group_color',
-		'member_ip' => 'ip',
-		'member_ip2' => 'ip2',
-		'usertitle' => 'title',
-		'blurb' => 'title',
-		'id_theme' => 'theme',
-		'ignore_boards' => 'ignoreboards',
-		'pm_ignore_list' => 'ignoreusers',
-		'buddy_list' => 'buddies',
-		'instant_messages' => 'messages',
-		'birth_date' => 'birthdate',
-		'last_login_timestamp' => 'last_login',
-
-		// Square brackets are parsed to find array elements.
-		'website_url' => 'website[url]',
-		'website_title' => 'website[title]',
-
-		// Initial exclamation mark means inverse of the property.
-		'is_logged' => '!is_guest',
-	];
-
-	/**
 	 * @var bool
 	 *
 	 * Whether the integrate_verify_user hook verified this user for us.
@@ -1014,22 +1345,6 @@ class User implements \ArrayAccess
 	/****************
 	 * Public methods
 	 ****************/
-
-	/**
-	 * Sets custom properties.
-	 *
-	 * @param string $prop The property name.
-	 * @param mixed $value The value to set.
-	 */
-	public function __set(string $prop, mixed $value): void
-	{
-		if (\in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && \is_string($value)) {
-			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
-			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
-		}
-
-		$this->customPropertySet($prop, $value);
-	}
 
 	/**
 	 * Load this user's permissions.
