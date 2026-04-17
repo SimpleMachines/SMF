@@ -347,11 +347,11 @@ class User implements \ArrayAccess
 	public string $timezone;
 
 	/**
-	 * @var int
+	 * @var float
 	 *
 	 * The UTC offset of the user's time zone.
 	 */
-	public int $time_offset;
+	public float $time_offset;
 
 	/**
 	 * @var int
