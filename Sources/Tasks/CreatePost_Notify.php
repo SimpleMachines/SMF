@@ -724,7 +724,7 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				];
 
-				$emaildata = Mail::loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
+				$emaildata = Mail::loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
 				$mail_result = Mail::send($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false) {
@@ -793,7 +793,7 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				];
 
-				$emaildata = Mail::loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
+				$emaildata = Mail::loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
 				$mail_result = Mail::send($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false) {

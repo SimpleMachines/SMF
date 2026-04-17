@@ -238,7 +238,7 @@ class Register implements ActionInterface, Routable
 		Utils::$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 
 		if (!empty(Config::$modSettings['userLanguage'])) {
-			$selectedLanguage = empty($_SESSION['language']) ? Lang::$default : $_SESSION['language'];
+			$selectedLanguage = empty($_SESSION['language']) ? Config::$language : $_SESSION['language'];
 
 			// Do we have any languages?
 			if (empty(Utils::$context['languages'])) {
@@ -264,9 +264,9 @@ class Register implements ActionInterface, Routable
 					string: Config::$modSettings['policy_' . User::$me->language],
 					options: ['hard_breaks' => 0],
 				);
-			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
+			} elseif (!empty(Config::$modSettings['policy_' . Config::$language])) {
 				Utils::$context['privacy_policy'] = Parser::transform(
-					string: Config::$modSettings['policy_' . Lang::$default],
+					string: Config::$modSettings['policy_' . Config::$language],
 					options: ['hard_breaks' => 0],
 				);
 			} else {

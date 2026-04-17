@@ -594,8 +594,8 @@ class TopicMerge implements ActionInterface, Routable
 			];
 
 			// Make sure we catch both languages in the reason.
-			if (User::$me->language != Lang::$default) {
-				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
+			if (User::$me->language != Config::$language) {
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Config::$language)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
 			}
 
 			$_POST['reason'] = Parser::sanitize(Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES), autolink: !empty(Config::$modSettings['autoLinkUrls']));
@@ -610,7 +610,7 @@ class TopicMerge implements ActionInterface, Routable
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']], file: 'General', lang: Lang::$default);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']], file: 'General', lang: Config::$language);
 
 				$msgOptions = [
 					'icon' => 'moved',
@@ -640,10 +640,10 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Grab the response prefix (like 'Re: ') in the default forum language.
 		if (!isset(Utils::$context['response_prefix'])) {
-			if (Lang::$default === User::$me->language) {
+			if (Config::$language === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
-				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Config::$language);
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
 		}

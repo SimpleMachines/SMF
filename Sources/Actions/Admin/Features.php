@@ -1925,7 +1925,7 @@ class Features implements ActionInterface
 	protected function init()
 	{
 		Utils::$context['page_title'] = Lang::getTxt('modSettings_title', file: 'General');
-		Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Lang::$default]);
+		Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Config::$language]);
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [

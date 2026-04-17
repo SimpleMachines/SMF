@@ -582,7 +582,7 @@ class Verifier implements \ArrayAccess
 				$possible_langs[] = User::$me->language;
 			}
 
-			$possible_langs[] = Lang::$default;
+			$possible_langs[] = Config::$language;
 
 			$this->question_ids = [];
 

@@ -129,10 +129,10 @@ class TopicMove implements ActionInterface, Routable
 
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
-		if (User::$me->language != Lang::$default) {
+		if (User::$me->language != Config::$language) {
 			Lang::setTxt(
 				'movetopic_default',
-				Lang::getTxt('movetopic_default', file: 'General', lang: Lang::$default),
+				Lang::getTxt('movetopic_default', file: 'General', lang: Config::$language),
 			);
 		}
 

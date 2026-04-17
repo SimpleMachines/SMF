@@ -229,7 +229,7 @@ class Agreement implements ActionInterface, Routable
 			return false;
 		}
 
-		$policy_lang = !empty(Config::$modSettings['policy_' . User::$me->language]) ? User::$me->language : Lang::$default;
+		$policy_lang = !empty(Config::$modSettings['policy_' . User::$me->language]) ? User::$me->language : Config::$language;
 
 		if (empty(Config::$modSettings['policy_updated_' . $policy_lang])) {
 			return false;
@@ -329,9 +329,9 @@ class Agreement implements ActionInterface, Routable
 					string: Config::$modSettings['policy_' . User::$me->language],
 					options: ['hard_breaks' => 0],
 				);
-			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
+			} elseif (!empty(Config::$modSettings['policy_' . Config::$language])) {
 				Utils::$context['privacy_policy'] = Parser::transform(
-					string: Config::$modSettings['policy_' . Lang::$default],
+					string: Config::$modSettings['policy_' . Config::$language],
 					options: ['hard_breaks' => 0],
 				);
 			}
@@ -350,9 +350,9 @@ class Agreement implements ActionInterface, Routable
 			if (!empty(Config::$modSettings[$short . '_history_' . User::$me->language])) {
 				$text = Config::$modSettings[$short . '_' . User::$me->language] ?? '';
 				$edit_history = (array) Utils::jsonDecode(Config::$modSettings[$short . '_history_' . User::$me->language] ?? '[]', true);
-			} elseif (!empty(Config::$modSettings[$short . '_history_' . Lang::$default])) {
-				$text = Config::$modSettings[$short . '_' . Lang::$default] ?? '';
-				$edit_history = (array) Utils::jsonDecode(Config::$modSettings[$short . '_history_' . Lang::$default] ?? '[]', true);
+			} elseif (!empty(Config::$modSettings[$short . '_history_' . Config::$language])) {
+				$text = Config::$modSettings[$short . '_' . Config::$language] ?? '';
+				$edit_history = (array) Utils::jsonDecode(Config::$modSettings[$short . '_history_' . Config::$language] ?? '[]', true);
 			} else {
 				$text = '';
 				$edit_history = [];

@@ -597,7 +597,7 @@ class Attachments implements ActionInterface
 						WHERE id_msg IN ({array_int:messages_affected})',
 						[
 							'messages_affected' => $messages,
-							'deleted_message' => '<br><br>' . Lang::getTxt('attachment_delete_admin', file: 'Admin', lang: Lang::$default),
+							'deleted_message' => '<br><br>' . Lang::getTxt('attachment_delete_admin', file: 'Admin', lang: Config::$language),
 						],
 					);
 				}

@@ -138,7 +138,7 @@ class Activate implements ActionInterface, Routable
 			'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 		];
 
-		$emaildata = Mail::loadEmailTemplate('resend_activate_message', $replacements, empty($this->member->language) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $this->member->language);
+		$emaildata = Mail::loadEmailTemplate('resend_activate_message', $replacements, empty($this->member->language) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $this->member->language);
 
 		Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
