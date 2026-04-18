@@ -40,18 +40,25 @@ class LoginTFA extends Login2
 	 */
 	public function execute(): void
 	{
-		if (!User::$me->is_guest || empty(Utils::$context['tfa_member']) || empty(Config::$modSettings['tfa_mode'])) {
+		if (!User::$me->is_guest || empty(Utils::$context['tfa_member_id']) || empty(Config::$modSettings['tfa_mode'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		$member = Utils::$context['tfa_member'];
+		// Load the data up!
+		$loaded = User::load(Utils::$context['tfa_member_id'], dataset: 'minimal');
+
+		if (empty($loaded)) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		$member = reset($loaded);
 
 		// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
-		if (time() - $member['last_login'] < 120) {
+		if (time() - $member->last_login < 120) {
 			ErrorHandler::fatalLang('tfa_wait', false);
 		}
 
-		$totp = new Tfa($member['tfa_secret']);
+		$totp = new Tfa($member->tfa_secret);
 		$totp->setRange(1);
 
 		parent::checkAjax();
@@ -65,13 +72,13 @@ class LoginTFA extends Login2
 			$code = $_POST['tfa_code'];
 
 			if (\strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
-				User::updateMemberData($member['id_member'], ['last_login' => time()]);
+				User::updateMemberData($member->id, ['last_login' => time()]);
 
-				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member->id, Cookie::encrypt($member->tfa_backup, $member->password_salt));
 
 				Utils::redirectexit();
 			} else {
-				parent::validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
+				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];
@@ -86,22 +93,22 @@ class LoginTFA extends Login2
 
 			if (
 				// 3.0
-				Security::hashVerifyPassword($backup, $member['tfa_backup'])
+				Security::hashVerifyPassword($backup, $member->tfa_backup)
 				// 2.1
-				|| Security::hashVerifyPassword(Utils::strtolower($member['member_name']) . $backup, $member['tfa_backup'])
+				|| Security::hashVerifyPassword(Utils::strtolower($member->username) . $backup, $member->tfa_backup)
 			) {
 				// Get rid of their current TFA settings
-				User::updateMemberData($member['id_member'], [
+				User::updateMemberData($member->id, [
 					'tfa_secret' => '',
 					'tfa_backup' => '',
 					'last_login' => time(),
 				]);
 
-				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member->id, Cookie::encrypt($member->tfa_backup, $member->password_salt));
 
 				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			} else {
-				parent::validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
+				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_backup_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];

@@ -117,34 +117,19 @@ class BuddyIgnoreLists implements ActionInterface
 	 */
 	public function buddies(): void
 	{
-		// For making changes!
-		$buddiesArray = explode(',', Profile::$member->data['buddy_list']);
-
-		foreach ($buddiesArray as $k => $dummy) {
-			if ($dummy == '') {
-				unset($buddiesArray[$k]);
-			}
-		}
-
 		// Removing a buddy?
 		if (isset($_GET['remove'])) {
 			User::$me->checkSession('get');
 
 			IntegrationHook::call('integrate_remove_buddy', [Profile::$member->id]);
 
-			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
+			$_SESSION['prf-save'] = !\in_array(Profile::$member->buddies, (int) $_GET['remove']) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
 
 			// Heh, I'm lazy, do it the easy way...
-			foreach ($buddiesArray as $key => $buddy) {
-				if ($buddy == (int) $_GET['remove']) {
-					unset($buddiesArray[$key]);
-					$_SESSION['prf-save'] = true;
-				}
-			}
+			Profile::$member->buddies = array_diff(Profile::$member->buddies, [(int) $_GET['remove']]);
 
 			// Make the changes.
-			Profile::$member->data['buddy_list'] = implode(',', $buddiesArray);
-			User::updateMemberData(Profile::$member->id, ['buddy_list' => Profile::$member->data['buddy_list']]);
+			User::updateMemberData(Profile::$member->id, ['buddy_list' => implode(',', Profile::$member->buddies)]);
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
 			Utils::redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
@@ -164,7 +149,7 @@ class BuddyIgnoreLists implements ActionInterface
 			foreach ($new_buddies as $k => $dummy) {
 				$new_buddies[$k] = strtr(trim($new_buddies[$k]), ['\'' => '&#039;']);
 
-				if (\strlen($new_buddies[$k]) == 0 || \in_array($new_buddies[$k], [Profile::$member->data['member_name'], Profile::$member->data['real_name']])) {
+				if (\strlen($new_buddies[$k]) == 0 || \in_array($new_buddies[$k], [Profile::$member->username, Profile::$member->name])) {
 					unset($new_buddies[$k]);
 				}
 			}
@@ -190,17 +175,16 @@ class BuddyIgnoreLists implements ActionInterface
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$_SESSION['prf-save'] = true;
 
-					if (\in_array($row['id_member'], $buddiesArray)) {
+					if (\in_array($row['id_member'], Profile::$member->buddies)) {
 						continue;
 					}
 
-					$buddiesArray[] = (int) $row['id_member'];
+					Profile::$member->buddies[] = (int) $row['id_member'];
 				}
 				Db::$db->free_result($request);
 
 				// Now update the current user's buddy list.
-				Profile::$member->data['buddy_list'] = implode(',', $buddiesArray);
-				User::updateMemberData(Profile::$member->id, ['buddy_list' => Profile::$member->data['buddy_list']]);
+				User::updateMemberData(Profile::$member->id, ['buddy_list' => implode(',', Profile::$member->buddies)]);
 			}
 
 			// Back to the buddy list!
@@ -239,7 +223,7 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		if (!empty($buddiesArray)) {
+		if (!empty(Profile::$member->buddies)) {
 			$result = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
@@ -247,8 +231,8 @@ class BuddyIgnoreLists implements ActionInterface
 				ORDER BY real_name
 				LIMIT {int:buddy_list_count}',
 				[
-					'buddy_list' => $buddiesArray,
-					'buddy_list_count' => \count(explode(',', Profile::$member->data['buddy_list'])),
+					'buddy_list' => Profile::$member->buddies,
+					'buddy_list_count' => \count(Profile::$member->buddies),
 				],
 			);
 
@@ -331,32 +315,17 @@ class BuddyIgnoreLists implements ActionInterface
 	 */
 	public function ignore(): void
 	{
-		// For making changes!
-		$ignoreArray = explode(',', Profile::$member->data['pm_ignore_list']);
-
-		foreach ($ignoreArray as $k => $dummy) {
-			if ($dummy == '') {
-				unset($ignoreArray[$k]);
-			}
-		}
-
 		// Removing a member from the ignore list?
 		if (isset($_GET['remove'])) {
 			User::$me->checkSession('get');
 
-			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
+			$_SESSION['prf-save'] = !\in_array(Profile::$member->ignoreusers, (int) $_GET['remove']) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
 
 			// Heh, I'm lazy, do it the easy way...
-			foreach ($ignoreArray as $key => $id_remove) {
-				if ($id_remove == (int) $_GET['remove']) {
-					unset($ignoreArray[$key]);
-					$_SESSION['prf-save'] = true;
-				}
-			}
+			Profile::$member->ignoreusers = array_diff(Profile::$member->ignoreusers, [(int) $_GET['remove']]);
 
 			// Make the changes.
-			Profile::$member->data['pm_ignore_list'] = implode(',', $ignoreArray);
-			User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => Profile::$member->data['pm_ignore_list']]);
+			User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => implode(',', Profile::$member->ignoreusers)]);
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
 			Utils::redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
@@ -400,17 +369,16 @@ class BuddyIgnoreLists implements ActionInterface
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$_SESSION['prf-save'] = true;
 
-					if (\in_array($row['id_member'], $ignoreArray)) {
+					if (\in_array($row['id_member'], Profile::$member->ignoreusers)) {
 						continue;
 					}
 
-					$ignoreArray[] = (int) $row['id_member'];
+					Profile::$member->ignoreusers[] = (int) $row['id_member'];
 				}
 				Db::$db->free_result($request);
 
 				// Now update the current user's ignored list.
-				Profile::$member->data['pm_ignore_list'] = implode(',', $ignoreArray);
-				User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => Profile::$member->data['pm_ignore_list']]);
+				User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => implode(',', Profile::$member->ignoreusers)]);
 			}
 
 			// Back to the list of pitiful people!
@@ -420,7 +388,7 @@ class BuddyIgnoreLists implements ActionInterface
 		// Initialise the list of members we're ignoring.
 		$ignored = [];
 
-		if (!empty($ignoreArray)) {
+		if (!empty(Profile::$member->ignoreusers)) {
 			$result = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
@@ -428,8 +396,8 @@ class BuddyIgnoreLists implements ActionInterface
 				ORDER BY real_name
 				LIMIT {int:ignore_list_count}',
 				[
-					'ignore_list' => $ignoreArray,
-					'ignore_list_count' => \count(explode(',', Profile::$member->data['pm_ignore_list'])),
+					'ignore_list' => Profile::$member->ignoreusers,
+					'ignore_list_count' => \count(Profile::$member->ignoreusers),
 				],
 			);
 

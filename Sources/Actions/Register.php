@@ -289,6 +289,7 @@ class Register implements ActionInterface, Routable
 
 			// Here, and here only, emulate the permissions the user would have to do this.
 			User::$me->permission_sets[0]->grant(['profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb']);
+
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
@@ -296,18 +297,18 @@ class Register implements ActionInterface, Routable
 				unset($reg_fields['website']);
 
 				if (isset($_POST['website_title'])) {
-					User::$profiles[User::$me->id]['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
+					Profile::$member->data['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
 				}
 
 				if (isset($_POST['website_url'])) {
-					User::$profiles[User::$me->id]['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
+					Profile::$member->data['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
 				}
 			}
 
 			// We might have had some submissions on this front - go check.
 			foreach ($reg_fields as $field) {
 				if (isset($_POST[$field])) {
-					User::$profiles[User::$me->id][$field] = Utils::htmlspecialchars($_POST[$field]);
+					Profile::$member->data[$field] = Utils::htmlspecialchars($_POST[$field]);
 				}
 			}
 

@@ -90,9 +90,11 @@ class Profile extends User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Profile data about the user whose profile is being viewed.
+	 * Raw profile data about the user whose profile is being viewed.
 	 *
-	 * This is a reference to User::$profiles[$this->id].
+	 * In SMF 3.0, this is a reference to User::$profiles[$this->id], but that
+	 * should be regarded as an implementation detail and may change in future
+	 * versions of SMF.
 	 */
 	public array $data = [];
 
@@ -2858,7 +2860,7 @@ class Profile extends User implements \ArrayAccess
 		];
 
 		// Send off the email.
-		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$this->id]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : User::$profiles[$this->id]['lngfile']);
+		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, $this->language ?? Config::$language);
 
 		Mail::send($this->new_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 

@@ -36,38 +36,40 @@ use SMF\PersonalMessage\PM;
  * The current user is available as User::$me. For example, if you need to know
  * the current user's ID number, use User::$me->id.
  *
- * For the convenience of theme creators, User::$me is also available as
- * Utils::$context['user'], and its properties can be accessed as if they were
- * array elements. This means that Utils::$context['user']['id'] is
- * interchangeable with User::$me->id.
+ * For the sake of backward compatibility, user data can be accessed in a number
+ * of alternative formats:
  *
- * The data previously available in the deprecated global $user_profile array
- * is now available as User::$profiles. For example, where old code might have
- * used $user_profile[$id_member]['last_login'], the same information is now
- * available as User::profiles[$id_member]['last_login'].
+ * - The deprecated global $user_info is now simply a reference to User::$me.
+ *   The properties of User::$me can be accessed as if they were array elements,
+ *   so $user_info['id'] is interchangeable with User::$me->id.
  *
- * The data previously available in the deprecated $memberContext array is now
- * available via the $formatted property of a User object. For example, where
- * old code might have used $memberContext[$id_member], the same information is
- * now available via User::$loaded[$id_member]->formatted. Also note that, in
- * the same way that loadMemberContext($id_member) had to be called in order to
- * populate $memberContext[$id_member], User::$loaded[$id_member]->format() must
- * be called in order to populate User::$loaded[$id_member]->formatted.
+ * - Similarly, the deprecated global $context['user'] is now simply a reference
+ *   to User::$me.
  *
- * To facilitate backward compatibility, the deprecated global $user_info array
- * is still available, but it is simply a reference to User::$me.
+ * - The deprecated global $user_profile is now a reference to User::$profiles.
+ *   Note that accessing User::$profiles from outside this class is also
+ *   deprecated; new code should work with User objects via User::$loaded rather
+ *   than working with the User::profiles array.
  *
- * Similarly, the deprecated global $user_settings array is still available, but
- * it is simply a reference to User::$profiles[User::$me->id].
+ * - Similarly, the deprecated global $user_settings array is now a reference to
+ *   User::$profiles[User::$me->id].
  *
- * Similarly, the deprecated global $cur_profile array is still available, but
- * it is simply a reference to User::$profiles[$id], where $id is the ID of the
- * user whose profile is being viewed.
+ * - Similarly, the deprecated global $cur_profile array is now a reference to
+ *   User::$profiles[$id], where $id is the ID of the user whose profile is
+ *   being viewed.
  *
- * NOTE: It is STRONGLY RECOMMENDED that new and updated code use User::$me,
- * User::$loaded, and User::$profiles directly, rather than using any of the
- * deprecated global variables. A future version of SMF will remove backward
- * compatibility support for these deprecated globals.
+ * - The data previously available in the deprecated $memberContext array is now
+ *   available via the $formatted property of a User object. For example, where
+ *   old code might have used $memberContext[$id_member], the same information
+ *   is now available via User::$loaded[$id_member]->formatted. Note that, in
+ *   the same way that loadMemberContext($id_member) had to be called in order
+ *   to populate $memberContext[$id_member], User::$loaded[$id_member]->format()
+ *   must be called in order to populate User::$loaded[$id_member]->formatted.
+ *
+ * NOTE: It is STRONGLY RECOMMENDED that new and updated code use User::$me and
+ * User::$loaded directly, rather than using any of the deprecated global
+ * variables. A future version of SMF will remove backward compatibility support
+ * for these deprecated globals.
  */
 class User implements \ArrayAccess
 {
@@ -1178,6 +1180,10 @@ class User implements \ArrayAccess
 	 * @var array
 	 *
 	 * Basic data from the database about all loaded users.
+	 *
+	 * @deprecated 3.0 In future versions of SMF this will either become an
+	 *    internal static property or be eliminated entirely. Either way, it
+	 *    will not be available in the public scope.
 	 */
 	public static array $profiles = [];
 
@@ -1186,7 +1192,8 @@ class User implements \ArrayAccess
 	 *
 	 * Basic data from the database about the current user.
 	 * A reference to User::$profiles[User::$my_id].
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $settings;
 
@@ -1195,7 +1202,8 @@ class User implements \ArrayAccess
 	 *
 	 * Processed data about the current user.
 	 * This is set to a reference to User::$me once the latter exists.
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $info;
 
@@ -1204,7 +1212,8 @@ class User implements \ArrayAccess
 	 *
 	 * Alternative way to get formatted data about users.
 	 * A reference to User::$loaded[$id]->formatted (where $id is a user ID).
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $memberContext;
 
@@ -4272,7 +4281,7 @@ class User implements \ArrayAccess
 		$this->dataset = $profile['dataset'];
 
 		// An easy way for mods to add or adjust properties.
-		IntegrationHook::call('integrate_user_properties', [$this]);
+		IntegrationHook::call('integrate_user_properties', [$this, &$profile]);
 	}
 
 	/**
@@ -4432,8 +4441,7 @@ class User implements \ArrayAccess
 			// to reset their ID for security, but otherwise leave it to the
 			// action to verify the TFA credentials.
 			if (($_REQUEST['action'] ?? '') === 'logintfa') {
-				Utils::$context['tfa_member'] = self::$profiles[self::$my_id];
-				self::$profiles[self::$my_id] = [];
+				Utils::$context['tfa_member_id'] = self::$my_id;
 				self::$my_id = 0;
 
 				return;
@@ -4607,12 +4615,12 @@ class User implements \ArrayAccess
 			'dataset' => 'basic',
 		];
 
-		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member'])) {
+		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member_id'])) {
 			$_COOKIE[Config::$cookiename] = '';
 		}
 
 		// Expire the 2FA cookie
-		if (isset($_COOKIE[Config::$cookiename . '_tfa']) && empty(Utils::$context['tfa_member'])) {
+		if (isset($_COOKIE[Config::$cookiename . '_tfa']) && empty(Utils::$context['tfa_member_id'])) {
 			$tfa_data = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
 			list(, , $exp) = array_pad((array) $tfa_data, 3, 0);
