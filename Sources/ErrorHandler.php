@@ -124,6 +124,22 @@ class ErrorHandler
 	}
 
 	/**
+	 * Log an exception, if the error logging is enabled.
+	 *
+	 * $file and $line should be __FILE__ and __LINE__, respectively.
+	 *
+	 * Example use:
+	 *  die(ErrorHandler::log($msg));
+	 *
+	 * @param \Exception $ex The message to log.
+	 * @param string|bool|null $error_type The type of error.
+	 */
+	public static function logException(\Exception $ex, string|bool|null $error_type = null): string
+	{
+		return self::getService()->log($ex->getMessage(), $error_type ?? \get_class($ex), $ex->getFile(), $ex->getLine(), $ex->getTrace());
+	}
+
+	/**
 	 * An unrecoverable error.
 	 *
 	 * This function stops execution and displays an error message.
