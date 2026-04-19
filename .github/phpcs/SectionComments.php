@@ -44,6 +44,11 @@ final class SectionComments extends AbstractFixer
 		parent::__construct();
 
 		$this->comments = [
+			'case' => implode("\n\t", [
+				'/************',
+				' * Enum cases',
+				' ************/',
+			]),
 			'const' => implode("\n\t", [
 				'/*****************',
 				' * Class constants',
@@ -232,8 +237,19 @@ final class SectionComments extends AbstractFixer
 
 		$tokens->clearEmptyTokens();
 
+		// Does this file contain an enumeration?
+		$is_enum = false;
+
+		foreach ($tokens as $token) {
+			if ($token->isGivenKind(T_ENUM)) {
+				$is_enum = true;
+				break;
+			}
+		}
+
 		// Now insert fresh copies of the section comments.
 		$exists = [
+			'case' => false,
 			'const' => false,
 			'public_property' => false,
 			'public_static_property' => false,
@@ -256,6 +272,7 @@ final class SectionComments extends AbstractFixer
 					'T_PUBLIC',
 					'T_PROTECTED',
 					'T_PRIVATE',
+					$is_enum && !$exists['case'] ? 'T_CASE' : NAN,
 				] : [
 					'T_CONST',
 					'T_STATIC',
@@ -269,6 +286,8 @@ final class SectionComments extends AbstractFixer
 			// Which comment type do we want to insert?
 			if (in_array('T_CONST', $in)) {
 				$insert_type = 'const';
+			} elseif ($is_enum && !$exists['case'] && in_array('T_CASE', $in)) {
+				$insert_type = 'case';
 			} elseif (in_array('T_VARIABLE', $in)) {
 				if (in_array('T_STATIC', $in)) {
 					if (in_array('T_PUBLIC', $in)) {
