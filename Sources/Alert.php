@@ -795,7 +795,13 @@ class Alert implements \ArrayAccess
 			$loaded[$row['id_alert']] = new self($row['id_alert'], $row);
 		}
 
-		foreach (array_unique($members) as $memID) {
+		$members = array_unique($members);
+
+		// These members will need to be loaded in the following loop anyway,
+		// so load them all at once now for efficiency.
+		User::load($members, dataset: UserDataset::Minimal);
+
+		foreach ($members as $memID) {
 			self::checkMsgAccess($possible_msgs[$memID] ?? [], $memID, $simple_access_check);
 			self::checkTopicAccess($possible_topics[$memID] ?? [], $memID, $simple_access_check);
 			self::deleteInvisible($loaded, $memID);
@@ -1348,13 +1354,13 @@ class Alert implements \ArrayAccess
 			return;
 		}
 
-		if ((User::$me->id ?? NAN) != $memID || !isset(User::$me->query_see_board)) {
-			self::$qb[$memID] = User::buildQueryBoard($memID);
-		} else {
-			self::$qb[$memID]['query_see_board'] = '{query_see_board}';
-			self::$qb[$memID]['query_see_topic_board'] = '{query_see_topic_board}';
-			self::$qb[$memID]['query_see_message_board'] = '{query_see_message_board}';
-		}
+		User::load($memID, dataset: UserDataset::Minimal);
+
+		self::$qb[$memID] = [
+			'query_see_board' => User::$loaded[$memID]->query_see_board,
+			'query_see_topic_board' => User::$loaded[$memID]->query_see_topic_board,
+			'query_see_message_board' => User::$loaded[$memID]->query_see_message_board,
+		];
 	}
 
 	/**

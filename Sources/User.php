@@ -1882,171 +1882,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Loads the mod cache data.
-	 *
-	 * Stores the information on the current user's moderation powers in
-	 * User::$me->mod_cache and $_SESSION['mc'].
-	 */
-	public function loadModCache(): void
-	{
-		// This only applies to the current user.
-		if (!$this->is_me) {
-			// Quietly ignore this.
-			return;
-		}
-
-		if (
-			isset($_SESSION['mc'])
-			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
-			&& $_SESSION['mc']['id'] == $this->id
-		) {
-			$this->mod_cache = $_SESSION['mc'];
-		} else {
-			$this->rebuildModCache();
-		}
-
-		// Now that we have the mod cache taken care of, let's setup a cache
-		// for the number of mod reports still open.
-		if (
-			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
-			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
-			&& $_SESSION['rc']['id'] == $this->id
-		) {
-			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
-			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
-		} elseif ($_SESSION['mc']['bq'] != '0=1') {
-			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
-			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
-		} else {
-			Utils::$context['open_mod_reports'] = 0;
-			Utils::$context['open_member_reports'] = 0;
-		}
-	}
-
-	/**
-	 * Quickly find out what moderation authority the current user has
-	 *
-	 * Builds the moderator, group and board level queries for the user.
-	 *
-	 * Stores the information on the current users moderation powers in
-	 * User::$me->mod_cache and $_SESSION['mc'].
-	 */
-	public function rebuildModCache(): void
-	{
-		// This only applies to the current user.
-		if (!$this->is_me) {
-			// Quietly ignore this.
-			return;
-		}
-
-		// What groups can they moderate?
-		if (!$this->is_guest) {
-			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
-		} else {
-			$group_query = '0=1';
-		}
-
-		if ($group_query == '0=1' && !$this->is_guest) {
-			$groups = [];
-
-			$request = Db::$db->query(
-				'SELECT id_group
-				FROM {db_prefix}group_moderators
-				WHERE id_member = {int:current_member}',
-				[
-					'current_member' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$groups[] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-
-			if (empty($groups)) {
-				$group_query = '0=1';
-			} else {
-				$group_query = 'id_group IN (' . implode(',', $groups) . ')';
-			}
-		}
-
-		// Then, same again, just the boards this time!
-		if (!$this->is_guest) {
-			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
-		} else {
-			$board_query = '0=1';
-		}
-
-		if ($board_query == '0=1' && !$this->is_guest) {
-			$boards = $this->boardsAllowedTo('moderate_board', true);
-
-			if (empty($boards)) {
-				$board_query = '0=1';
-			} else {
-				$board_query = 'id_board IN (' . implode(',', $boards) . ')';
-			}
-		}
-
-		// What boards are they the moderator of?
-		$boards_mod = [];
-
-		if (!$this->is_guest) {
-			$request = Db::$db->query(
-				'SELECT id_board
-				FROM {db_prefix}moderators
-				WHERE id_member = {int:current_member}',
-				[
-					'current_member' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$boards_mod[] = $row['id_board'];
-			}
-			Db::$db->free_result($request);
-
-			// Can any of the groups they're in moderate any of the boards?
-			$request = Db::$db->query(
-				'SELECT id_board
-				FROM {db_prefix}moderator_groups
-				WHERE id_group IN({array_int:groups})',
-				[
-					'groups' => $this->groups,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$boards_mod[] = $row['id_board'];
-			}
-			Db::$db->free_result($request);
-
-			// Just in case we've got duplicates here...
-			$boards_mod = array_unique($boards_mod);
-		}
-
-		$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
-
-		$_SESSION['mc'] = [
-			'time' => time(),
-			// This looks a bit funny but protects against the login redirect.
-			'id' => $this->id && $this->name ? $this->id : 0,
-			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
-			'gq' => $group_query,
-			'bq' => $board_query,
-			'ap' => !$this->is_guest ? $this->boardsAllowedTo('approve_posts') : [],
-			'mb' => $boards_mod,
-			'mq' => $mod_query,
-		];
-
-		IntegrationHook::call('integrate_mod_cache');
-
-		$this->mod_cache = $_SESSION['mc'];
-
-		// Might as well clean up some tokens while we are at it.
-		SecurityToken::clean();
-	}
-
-	/**
 	 * Requires a user who is logged in (not a guest).
 	 *
 	 * Checks if the user is currently a guest, and if so asks them to login
@@ -3186,112 +3021,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Builds query_see_board and query_wanna_see_board (plus variants) for the
-	 * given user.
-	 *
-	 * Returns array with keys:
-	 *  - query_see_board
-	 *  - query_see_message_board
-	 *  - query_see_topic_board
-	 *  - query_wanna_see_board
-	 *  - query_wanna_see_message_board
-	 *  - query_wanna_see_topic_board
-	 *
-	 * @param int $id The ID of the user.
-	 * @return array All board query variants.
-	 */
-	public static function buildQueryBoard(int $id): array
-	{
-		$query_part = [];
-
-		if (isset(self::$loaded[$id])) {
-			$groups = self::$loaded[$id]->groups;
-			$can_see_all_boards = self::$loaded[$id]->is_admin || self::$loaded[$id]->can_manage_boards;
-			$ignoreboards = !empty(self::$loaded[$id]->ignoreboards) ? self::$loaded[$id]->ignoreboards : null;
-		} elseif ($id === 0) {
-			$groups = [-1];
-			$can_see_all_boards = false;
-			$ignoreboards = [];
-		} else {
-			$request = Db::$db->query(
-				'SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
-				FROM {db_prefix}members AS mem
-				WHERE mem.id_member = {int:id_member}
-				LIMIT 1',
-				[
-					'id_member' => $id,
-				],
-			);
-
-			$row = Db::$db->fetch_assoc($request);
-
-			if (empty($row['additional_groups'])) {
-				$groups = [$row['id_group'], $row['id_post_group']];
-			} else {
-				$groups = array_merge(
-					[$row['id_group'], $row['id_post_group']],
-					explode(',', $row['additional_groups']),
-				);
-			}
-
-			// Because history has proven that it is possible for groups to go bad - clean up in case.
-			$groups = array_map('intval', $groups);
-
-			$can_see_all_boards = \in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && \count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
-
-			$ignoreboards = !empty($row['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : [];
-		}
-
-		// Just build this here, it makes it easier to change/use - administrators can see all boards.
-		if ($can_see_all_boards) {
-			$query_part['query_see_board'] = '1=1';
-		}
-		// Otherwise only the boards that can be accessed by the groups this user belongs to.
-		else {
-			$query_part['query_see_board'] = '
-				EXISTS (
-					SELECT bpv.id_board
-					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-					WHERE bpv.id_group IN (' . implode(',', $groups) . ')
-						AND bpv.deny = 0
-						AND bpv.id_board = b.id_board
-				)';
-
-			if (!empty(Config::$modSettings['deny_boards_access'])) {
-				$query_part['query_see_board'] .= '
-				AND NOT EXISTS (
-					SELECT bpv.id_board
-					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-					WHERE bpv.id_group IN ( ' . implode(',', $groups) . ')
-						AND bpv.deny = 1
-						AND bpv.id_board = b.id_board
-				)';
-			}
-		}
-
-		$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
-		$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
-
-		// Build the list of boards they WANT to see.
-		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
-
-		// If they aren't ignoring any boards then they want to see all the boards they can see
-		if (empty($ignoreboards)) {
-			$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
-			$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
-			$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
-		}
-		// Ok I guess they don't want to see all the boards
-		else {
-			$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-			$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-			$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-		}
-
-		return $query_part;
-	}
-
-	/**
 	 * Updates the columns in the members table.
 	 *
 	 * Assumes the data has been htmlspecialchar'd.
@@ -4351,9 +4080,7 @@ class User implements \ArrayAccess
 		$this->warning = (int) ($profile['warning'] ?? 0);
 		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && \count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
-		foreach (self::buildQueryBoard($this->id) as $key => $value) {
-			$this->{$key} = $value;
-		}
+		$this->buildQueryBoard();
 
 		// What dataset did we load for this user?
 		$this->dataset = $profile['dataset'];
@@ -5092,6 +4819,227 @@ class User implements \ArrayAccess
 		}
 
 		return $is_mod;
+	}
+
+	/**
+	 * Builds query_see_board (and all its variants) for this user.
+	 */
+	protected function buildQueryBoard(): void
+	{
+		if (!isset($this->groups)) {
+			return;
+		}
+
+		// Just build this here, it makes it easier to change/use - administrators can see all boards.
+		if ($this->is_admin || $this->can_manage_boards) {
+			$this->query_see_board = '1=1';
+		}
+		// Otherwise only the boards that can be accessed by the groups this user belongs to.
+		else {
+			$this->query_see_board = '
+				EXISTS (
+					SELECT bpv.id_board
+					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
+					WHERE bpv.id_group IN (' . implode(',', $this->groups) . ')
+						AND bpv.deny = 0
+						AND bpv.id_board = b.id_board
+				)';
+
+			if (!empty(Config::$modSettings['deny_boards_access'])) {
+				$this->query_see_board .= '
+				AND NOT EXISTS (
+					SELECT bpv.id_board
+					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
+					WHERE bpv.id_group IN ( ' . implode(',', $this->groups) . ')
+						AND bpv.deny = 1
+						AND bpv.id_board = b.id_board
+				)';
+			}
+		}
+
+		$this->query_see_message_board = str_replace('b.', 'm.', $this->query_see_board);
+		$this->query_see_topic_board = str_replace('b.', 't.', $this->query_see_board);
+
+		// Build the list of boards they WANT to see.
+		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
+
+		// If they aren't ignoring any boards then they want to see all the boards they can see
+		if (empty(Config::$modSettings['allow_ignore_boards']) || empty($this->ignoreboards)) {
+			$this->query_wanna_see_board = $this->query_see_board;
+			$this->query_wanna_see_message_board = $this->query_see_message_board;
+			$this->query_wanna_see_topic_board = $this->query_see_topic_board;
+		}
+		// Ok I guess they don't want to see all the boards
+		else {
+			$this->query_wanna_see_board = '(' . $this->query_see_board . ' AND b.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+			$this->query_wanna_see_message_board = '(' . $this->query_see_message_board . ' AND m.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+			$this->query_wanna_see_topic_board = '(' . $this->query_see_topic_board . ' AND t.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+		}
+	}
+
+	/**
+	 * Loads the mod cache data.
+	 *
+	 * Stores the information on the current user's moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	protected function loadModCache(): void
+	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Quietly ignore this.
+			return;
+		}
+
+		if (
+			isset($_SESSION['mc'])
+			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
+			&& $_SESSION['mc']['id'] == $this->id
+		) {
+			$this->mod_cache = $_SESSION['mc'];
+		} else {
+			$this->rebuildModCache();
+		}
+
+		// Now that we have the mod cache taken care of, let's setup a cache
+		// for the number of mod reports still open.
+		if (
+			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
+			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
+			&& $_SESSION['rc']['id'] == $this->id
+		) {
+			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
+			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		} elseif ($_SESSION['mc']['bq'] != '0=1') {
+			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
+			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
+		} else {
+			Utils::$context['open_mod_reports'] = 0;
+			Utils::$context['open_member_reports'] = 0;
+		}
+	}
+
+	/**
+	 * Quickly find out what moderation authority the current user has
+	 *
+	 * Builds the moderator, group and board level queries for the user.
+	 *
+	 * Stores the information on the current users moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	protected function rebuildModCache(): void
+	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Quietly ignore this.
+			return;
+		}
+
+		// What groups can they moderate?
+		if (!$this->is_guest) {
+			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
+		} else {
+			$group_query = '0=1';
+		}
+
+		if ($group_query == '0=1' && !$this->is_guest) {
+			$groups = [];
+
+			$request = Db::$db->query(
+				'SELECT id_group
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:current_member}',
+				[
+					'current_member' => $this->id,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$groups[] = $row['id_group'];
+			}
+			Db::$db->free_result($request);
+
+			if (empty($groups)) {
+				$group_query = '0=1';
+			} else {
+				$group_query = 'id_group IN (' . implode(',', $groups) . ')';
+			}
+		}
+
+		// Then, same again, just the boards this time!
+		if (!$this->is_guest) {
+			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
+		} else {
+			$board_query = '0=1';
+		}
+
+		if ($board_query == '0=1' && !$this->is_guest) {
+			$boards = $this->boardsAllowedTo('moderate_board', true);
+
+			if (empty($boards)) {
+				$board_query = '0=1';
+			} else {
+				$board_query = 'id_board IN (' . implode(',', $boards) . ')';
+			}
+		}
+
+		// What boards are they the moderator of?
+		$boards_mod = [];
+
+		if (!$this->is_guest) {
+			$request = Db::$db->query(
+				'SELECT id_board
+				FROM {db_prefix}moderators
+				WHERE id_member = {int:current_member}',
+				[
+					'current_member' => $this->id,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Can any of the groups they're in moderate any of the boards?
+			$request = Db::$db->query(
+				'SELECT id_board
+				FROM {db_prefix}moderator_groups
+				WHERE id_group IN({array_int:groups})',
+				[
+					'groups' => $this->groups,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Just in case we've got duplicates here...
+			$boards_mod = array_unique($boards_mod);
+		}
+
+		$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
+
+		$_SESSION['mc'] = [
+			'time' => time(),
+			// This looks a bit funny but protects against the login redirect.
+			'id' => $this->id && $this->name ? $this->id : 0,
+			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
+			'gq' => $group_query,
+			'bq' => $board_query,
+			'ap' => !$this->is_guest ? $this->boardsAllowedTo('approve_posts') : [],
+			'mb' => $boards_mod,
+			'mq' => $mod_query,
+		];
+
+		IntegrationHook::call('integrate_mod_cache');
+
+		$this->mod_cache = $_SESSION['mc'];
+
+		// Might as well clean up some tokens while we are at it.
+		SecurityToken::clean();
 	}
 
 	/*************************

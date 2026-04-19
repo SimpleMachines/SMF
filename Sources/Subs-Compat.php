@@ -1031,7 +1031,16 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function build_query_board(int $id): array
 	{
-		return SMF\User::buildQueryBoard($id);
+		SMF\User::load($id, dataset: SMF\UserDataset::Minimal);
+
+		return [
+			'query_see_board' => SMF\User::$loaded[$id]->query_see_board,
+			'query_see_message_board' => SMF\User::$loaded[$id]->query_see_message_board,
+			'query_see_topic_board' => SMF\User::$loaded[$id]->query_see_topic_board,
+			'query_wanna_see_board' => SMF\User::$loaded[$id]->query_wanna_see_board,
+			'query_wanna_see_message_board' => SMF\User::$loaded[$id]->query_wanna_see_message_board,
+			'query_wanna_see_topic_board' => SMF\User::$loaded[$id]->query_wanna_see_topic_board,
+		];
 	}
 
 	/**
