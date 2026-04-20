@@ -139,31 +139,45 @@ class PackageUtils
 			self::mktree($destination, 0777);
 		}
 
-		$flags = unpack('Ct/Cf', substr($data, 2, 2));
-
 		// Not deflate!
-		if ($flags['t'] != 8) {
+		if ($data[2] != "\x08") {
 			return false;
 		}
-		$flags = $flags['f'];
 
+		// RFC 1952
+		$flags = ord($data[3]);
+
+		// Gzip file header is always 10 bytes.
 		$offset = 10;
-		$octdec = ['mode', 'uid', 'gid', 'size', 'mtime', 'checksum'];
 
-		// "Read" the filename and comment.
-		// @todo Might be mussed.
-		if ($flags & 12) {
-			while ($flags & 8 && $data[$offset++] != "\0") {
-				continue;
-			}
-
-			while ($flags & 4 && $data[$offset++] != "\0") {
-				continue;
-			}
+		// fHCRC
+		if ($flags & 0x2) {
+			$offset += 2;
 		}
 
-		$crc = unpack('Vcrc32/Visize', substr($data, \strlen($data) - 8, 8));
-		$data = @gzinflate(substr($data, $offset, \strlen($data) - 8 - $offset));
+		// fEXTRA
+		if ($flags & 0x4) {
+			$xlen = unpack('v', $data, $offset)[1];
+			$offset += 2 + $xlen;
+		}
+
+		// fNAME
+		while ($flags & 0x8 && $data[$offset++] !== "\0") {
+			continue;
+		}
+
+		// fCOMMENT
+		while ($flags & 0x10 && $data[$offset++] !== "\0") {
+			continue;
+		}
+
+		$len = \strlen($data);
+		$crc = unpack('V', $data, $len - 8)[1];
+		$data = gzinflate(substr($data, $offset, -8));
+
+		if ($data === false) {
+			return false;
+		}
 
 		// Compare as hex strings rather than integers in order to avoid
 		// inconsistencies between 32-bit and 64-bit systems.
@@ -171,33 +185,23 @@ class PackageUtils
 			return false;
 		}
 
-		$blocks = \strlen($data) / 512 - 1;
-		$offset = 0;
-
+		$blocks = $len / 512 - 1;
+		$block = 0;
 		$return = [];
 
-		while ($offset < $blocks) {
-			$header = substr($data, $offset << 9, 512);
-			$current = unpack('a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1type/a100linkname/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a155path', $header);
+		// All data is block-aligned by 512 bytes.
+		while ($block < $blocks)
+		{
+			$offset = $block++ << 9;
+			$file_info = unpack('Z100filename/@124/A12size/A12mtime/A8checksum/Atype/@345/Z155prefix', $data, $offset);
 
-			// Blank record?  This is probably at the end of the file.
-			if (empty($current['filename'])) {
-				$offset += 512;
-
+			// Blank record? This is probably at the end of the file.
+			if (empty($file_info['filename'])) {
 				continue;
 			}
 
-			foreach ($current as $k => $v) {
-				if (\in_array($k, $octdec)) {
-					$current[$k] = octdec(trim($v));
-				} else {
-					$current[$k] = trim($v);
-				}
-			}
 			static $ord_cache = null;
 
-			if ($current['type'] == '5' && !str_ends_with($current['filename'], '/')) {
-				$current['filename'] .= '/';
 			if ($ord_cache === null) {
 				$ord_cache = [];
 				for ($i = 0; $i < 256; $i++) {
@@ -207,40 +211,55 @@ class PackageUtils
 
 			$checksum = 256;
 
-			for ($i = 0; $i < 148; $i++) {
-				$checksum += \ord($header[$i]);
+			for ($i = 0, $j = $offset; $i < 148; $i++, $j++) {
+				$checksum += $ord_cache[$data[$j]];
 			}
 
-			for ($i = 156; $i < 512; $i++) {
-				$checksum += \ord($header[$i]);
+			for ($i = 156, $j = $offset + 156; $i < 512; $i++, $j++) {
+				$checksum += $ord_cache[$data[$j]];
 			}
 
-			if ($current['checksum'] != $checksum) {
-				break;
+			if (octdec($file_info['checksum']) != $checksum)    {
+				continue;
 			}
 
-			$size = ceil($current['size'] / 512);
-			$offset += $size;
+			// Handle ustar Posix compliant path prefixes.
+			if (!empty($file_info['prefix'])) {
+				$file_info['filename'] = $file_info['prefix'] . '/' . $file_info['filename'];
+			}
+
+			// Ensure that directory listings end in a slash.
+			if ($file_info['type'] === '5' && $file_info['filename'][-1] !== '/') {
+				$file_info['filename'] .= '/';
+			}
+
+			$is_file = $file_info['filename'][-1] !== '/';
+			$file_info['size'] = octdec($file_info['size']);
+			$file_info['mtime'] = octdec($file_info['mtime']);
+
+			// Calculate the number of blocks taken up by the data.
+			$size = ceil($file_info['size'] / 512);
+			$block += $size;
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
-			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
+			if ($single_file && $destination !== null && str_starts_with($destination, '*/')) {
 				$write_this = true;
 			}
 			// Not a directory and doesn't exist already...
-			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
+			elseif ($is_file && $destination !== null && !file_exists($destination . '/' . $file_info['filename'])) {
 				$write_this = true;
 			}
 			// File exists... check if it is newer.
-			elseif (!str_ends_with($current['filename'], '/')) {
-				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
+			elseif ($is_file) {
+				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $file_info['filename']) < $file_info['mtime']);
 			}
 			// Folder... create.
 			elseif ($destination !== null && !$single_file) {
 				// Protect from accidental parent directory writing...
-				$current['filename'] = strtr($current['filename'], ['../' => '', '/..' => '']);
+				$file_info['filename'] = strtr($file_info['filename'], ['../' => '', '/..' => '']);
 
-				if (!file_exists($destination . '/' . $current['filename'])) {
-					self::mktree($destination . '/' . $current['filename'], 0777);
+				if (!file_exists($destination . '/' . $file_info['filename'])) {
+					self::mktree($destination . '/' . $file_info['filename'], 0777);
 				}
 				$write_this = false;
 			} else {
@@ -248,15 +267,15 @@ class PackageUtils
 			}
 
 			if ($write_this && $destination !== null) {
-				$current['data'] = substr($data, $offset + 512, $current['size']);
+				$file_info['data'] = substr($data, $offset + 512, $file_info['size']);
 
-				if (str_contains($current['filename'], '/') && !$single_file) {
-					self::mktree($destination . '/' . \dirname($current['filename']), 0777);
+				if (str_contains($file_info['filename'], '/') && !$single_file) {
+					self::mktree($destination . '/' . \dirname($file_info['filename']), 0777);
 				}
 
 				// Is this the file we're looking for?
-				if ($single_file && ($destination == $current['filename'] || $destination == '*/' . basename($current['filename']))) {
-					return $current['data'];
+				if ($single_file && ($destination === $file_info['filename'] || $destination === '*/' . basename($file_info['filename']))) {
+					return $file_info['data'];
 				}
 
 				// If we're looking for another file, keep going.
@@ -265,17 +284,17 @@ class PackageUtils
 				}
 
 				// Looking for restricted files?
-				if ($files_to_extract !== null && !\in_array($current['filename'], $files_to_extract)) {
+				if ($files_to_extract !== null && !\in_array($file_info['filename'], $files_to_extract)) {
 					continue;
 				}
 
-				self::packagePutContents($destination . '/' . $current['filename'], $current['data']);
+				self::packagePutContents($destination . '/' . $file_info['filename'], $file_info['data']);
 			}
 
-			if (!str_ends_with($current['filename'], '/')) {
+			if ($is_file) {
 				$return[] = [
-					'filename' => $current['filename'],
-					'size' => $current['size'],
+					'filename' => $file_info['filename'],
+					'size' => $file_info['size'],
 					'skipped' => false,
 				];
 			}
@@ -285,11 +304,7 @@ class PackageUtils
 			self::flushCache();
 		}
 
-		if ($single_file) {
-			return false;
-		}
-
-		return $return;
+		return $single_file ? false : $return;
 	}
 
 	/**
