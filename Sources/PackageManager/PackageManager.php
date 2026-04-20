@@ -1597,18 +1597,6 @@ class PackageManager
 				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
 				'default_sort_col' => 'id' . $type,
 				'columns' => [
-					'id' . $type => [
-						'header' => [
-							'value' => Lang::getTxt('package_id', file: 'Packages'),
-						],
-						'data' => [
-							'db' => 'sort_id',
-						],
-						'sort' => [
-							'default' => 'sort_id',
-							'reverse' => 'sort_id',
-						],
-					],
 					'package_name' . $type => [
 						'header' => [
 							'value' => Lang::getTxt('package_name_header', file: 'Packages'),
