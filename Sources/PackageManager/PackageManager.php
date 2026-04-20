@@ -1579,7 +1579,8 @@ class PackageManager
 		Utils::$context['page_title'] .= ' - ' . Lang::getTxt('browse_packages', file: 'Admin');
 
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
-		Utils::$context['available_packages'] = 0;
+		$packages = self::getPackages();
+		Utils::$context['available_packages'] = \count($packages);
 		Utils::$context['modification_types'] = ['modification', 'avatar', 'language', 'unknown', 'smiley'];
 
 		IntegrationHook::call('integrate_modification_types');
@@ -1591,8 +1592,22 @@ class PackageManager
 				'title' => Lang::getTxt($type . '_package', file: 'Packages'),
 				'no_items_label' => Lang::getTxt('no_packages', file: 'Packages'),
 				'get_items' => [
-					'function' => [$this, 'list_getPackages'],
-					'params' => [$type],
+					'function' => function($start, $items_per_page, $sort) use ($packages, $type)
+					{
+						if (!isset($packages[$type]))
+							return [];
+
+						$col = strtok($sort, ' ');
+						$dir = strtok(' ');
+						array_multisort(
+							array_column($packages[$type], $col),
+							$dir === 'desc' ? SORT_DESC : SORT_ASC,
+							$packages[$type]
+						);
+
+						return $packages[$type];
+					},
+				],
 				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
 				'default_sort_col' => 'time_installed',
 				'default_sort_dir' => 'desc',
@@ -1610,7 +1625,7 @@ class PackageManager
 						],
 						'sort' => [
 							'default' => 'name',
-							'reverse' => 'name',
+							'reverse' => 'name desc',
 						],
 					],
 					'version' => [
@@ -1622,7 +1637,7 @@ class PackageManager
 						],
 						'sort' => [
 							'default' => 'version',
-							'reverse' => 'version',
+							'reverse' => 'version desc',
 						],
 					],
 					'time_installed' => [
@@ -1639,7 +1654,7 @@ class PackageManager
 						],
 						'sort' => [
 							'default' => 'time_installed',
-							'reverse' => 'time_installed',
+							'reverse' => 'time_installed desc',
 						],
 					],
 					'operations' => [
@@ -3182,18 +3197,13 @@ class PackageManager
 	 * Determines whether the package has been installed or not by
 	 * checking it against {@link loadInstalledPackages()}.
 	 *
-	 * @param int $start The item to start with (not used here)
-	 * @param int $items_per_page The number of items to show per page (not used here)
-	 * @param string $sort A string indicating how to sort the results
-	 * @param string $params Type of packages
 	 * @return array An array of information about the packages
 	 */
-	public function list_getPackages(int $start, int $items_per_page, string $sort, string $params): array
+	public function getPackages(): array
 	{
 		static $installed_mods;
 
 		$packages = [];
-		$column = [];
 
 		// We need the packages directory to be writable for this.
 		if (!@is_writable(Config::$packagesdir)) {
@@ -3279,11 +3289,9 @@ class PackageManager
 					continue;
 				}
 
-				if (!empty($packageInfo)) {
+				if ($packageInfo !== []) {
 					if (!isset($sort_id[$packageInfo['type']])) {
-						$packageInfo['sort_id'] = $sort_id['unknown'];
-					} else {
-						$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+						$packageInfo['type'] = 'unknown';
 					}
 
 					$packageInfo['time_installed'] = 0;
@@ -3371,26 +3379,11 @@ class PackageManager
 					// Save some memory by not passing the XmlArray object into context.
 					unset($packageInfo['xml']);
 
-					if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type']) {
-						$column[] = $packageInfo[$sort];
-						$sort_id[$packageInfo['type']]++;
-						$packages[] = $packageInfo;
-					} elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown') {
-						$column[] = $packageInfo[$sort];
-						$packageInfo['sort_id'] = $sort_id['unknown'];
-						$sort_id['unknown']++;
-						$packages[] = $packageInfo;
-					}
+					$packages[$packageInfo['type']][] = $packageInfo;
 				}
 			}
 			closedir($dir);
 		}
-		Utils::$context['available_packages'] += \count($packages);
-		array_multisort(
-			$column,
-			isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
-			$packages,
-		);
 
 		return $packages;
 	}
