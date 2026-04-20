@@ -549,18 +549,21 @@ class PackageUtils
 	 */
 	public static function getPackageInfo(string $gzfilename): array|string
 	{
-		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
+		$path = Config::$packagesdir . '/' . $gzfilename;
+
+		// Extract package-info.xml
 		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
 			$packageInfo = self::readTgzData($gzfilename, 'package-info.xml', true);
 		} else {
-			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
+			if (!file_exists($path)) {
 				return 'package_get_error_not_found';
 			}
 
-			if (is_file(Config::$packagesdir . '/' . $gzfilename)) {
-				$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
-			} elseif (file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
-				$packageInfo = file_get_contents(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml');
+
+			if (is_file($path)) {
+				$packageInfo = self::readTgzFile($path, '*/package-info.xml', true);
+			} elseif (file_exists($path . '/package-info.xml')) {
+				$packageInfo = file_get_contents($path . '/package-info.xml');
 			} else {
 				return 'package_get_error_missing_xml';
 			}
@@ -569,20 +572,17 @@ class PackageUtils
 		// Nothing?
 		if (empty($packageInfo)) {
 			// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-			$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
+			$packageInfo = self::readTgzFile($path, '*/theme_info.xml', true);
 
 			if (!empty($packageInfo)) {
 				return 'package_get_error_is_theme';
 			}
 
-			if (
-				is_file(Config::$packagesdir . '/' . $gzfilename)
-				&& filesize(Config::$packagesdir . '/' . $gzfilename) === 0
-			) {
+			if (is_file($path) && filesize($path) === 0) {
 				return 'package_get_error_is_zero';
 			}
 
-			if (!file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
+			if (!file_exists($path . '/package-info.xml')) {
 				return 'package_get_error_missing_xml';
 			}
 
