@@ -1615,7 +1615,7 @@ class PackageManager
 							'style' => 'width: 25%;',
 						],
 						'data' => [
-							'db' => 'name',
+							'db_htmlsafe' => 'name',
 						],
 						'sort' => [
 							'default' => 'name',
@@ -1627,7 +1627,7 @@ class PackageManager
 							'value' => Lang::getTxt('package_version_header', file: 'Packages'),
 						],
 						'data' => [
-							'db' => 'version',
+							'db_htmlsafe' => 'version',
 						],
 						'sort' => [
 							'default' => 'version',

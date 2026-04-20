@@ -586,18 +586,8 @@ class PackageUtils
 		$packageInfo = $packageInfo->path('package-info[0]');
 
 		$package = $packageInfo->to_array();
-		$package = Utils::htmlspecialcharsRecursive($package);
 		$package['xml'] = $packageInfo;
 		$package['filename'] = $gzfilename;
-
-		// Don't want to mess with code...
-		$types = ['install', 'uninstall', 'upgrade'];
-
-		foreach ($types as $type) {
-			if (isset($package[$type]['code'])) {
-				$package[$type]['code'] = Utils::htmlspecialcharsDecode($package[$type]['code']);
-			}
-		}
 
 		if (!isset($package['type'])) {
 			$package['type'] = 'modification';
