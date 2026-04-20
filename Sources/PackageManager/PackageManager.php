@@ -1593,11 +1593,14 @@ class PackageManager
 				'get_items' => [
 					'function' => [$this, 'list_getPackages'],
 					'params' => [$type],
+				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
+				'default_sort_col' => 'time_installed',
+				'default_sort_dir' => 'desc',
+				'request_vars' => [
+					'sort' => $type . '_sort',
 				],
-				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
-				'default_sort_col' => 'id' . $type,
 				'columns' => [
-					'package_name' . $type => [
+					'package_name' => [
 						'header' => [
 							'value' => Lang::getTxt('package_name_header', file: 'Packages'),
 							'style' => 'width: 25%;',
@@ -1610,7 +1613,7 @@ class PackageManager
 							'reverse' => 'name',
 						],
 					],
-					'version' . $type => [
+					'version' => [
 						'header' => [
 							'value' => Lang::getTxt('package_version_header', file: 'Packages'),
 						],
@@ -1622,7 +1625,7 @@ class PackageManager
 							'reverse' => 'version',
 						],
 					],
-					'time_installed' . $type => [
+					'time_installed' => [
 						'header' => [
 							'value' => Lang::getTxt('package_installed_time', file: 'Packages'),
 						],
@@ -1639,10 +1642,7 @@ class PackageManager
 							'reverse' => 'time_installed',
 						],
 					],
-					'operations' . $type => [
-						'header' => [
-							'value' => '',
-						],
+					'operations' => [
 						'data' => [
 							'function' => function ($package) use ($type) {
 								$return = '';
