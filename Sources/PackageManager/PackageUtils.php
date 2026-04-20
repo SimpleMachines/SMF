@@ -194,9 +194,15 @@ class PackageUtils
 					$current[$k] = trim($v);
 				}
 			}
+			static $ord_cache = null;
 
 			if ($current['type'] == '5' && !str_ends_with($current['filename'], '/')) {
 				$current['filename'] .= '/';
+			if ($ord_cache === null) {
+				$ord_cache = [];
+				for ($i = 0; $i < 256; $i++) {
+					$ord_cache[\chr($i)] = $i;
+				}
 			}
 
 			$checksum = 256;
@@ -3706,18 +3712,27 @@ class PackageUtils
 				'',                                                // Padding
 			);
 
+			static $ord_cache = null;
+
+			if ($ord_cache === null) {
+				$ord_cache = [];
+				for ($i = 0; $i < 256; $i++) {
+					$ord_cache[\chr($i)] = $i;
+				}
+			}
+
 			// Calculate checksum for the tar header.
 			$checksum = 256;
 
 			for ($i = 0; $i < 148; $i++) {
 				if ($data_first[$i] !== "\0") {
-					$checksum += \ord($data_first[$i]);
+					$checksum += $ord_cache[$data_first[$i]];
 				}
 			}
 
 			for ($i = 0; $i < 356; $i++) {
 				if ($data_last[$i] !== "\0") {
-					$checksum += \ord($data_last[$i]);
+					$checksum += $ord_cache[$data_last[$i]];
 				}
 			}
 
