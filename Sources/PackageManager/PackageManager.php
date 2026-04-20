@@ -1689,8 +1689,17 @@ class PackageManager
 			new ItemList($listOptions);
 		}
 
-		Utils::$context['sub_template'] = 'browse';
-		Utils::$context['default_list'] = 'packages_lists';
+		if (Utils::$context['available_packages'] === 0) {
+			Utils::$context['sub_templates'][] = 'no_packages';
+		} else {
+			foreach (Utils::$context['modification_types'] as $type) {
+				if (!empty(Utils::$context['packages_lists_' . $type]['rows'])) {
+					Utils::$context['sub_templates'][] = ['show_list', ['packages_lists_' . $type]];
+				}
+			}
+		}
+
+		Utils::$context['template_layers'][] = 'browse';
 
 		$get_versions = Db::$db->query(
 			'SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',

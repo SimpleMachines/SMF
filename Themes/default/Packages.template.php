@@ -553,7 +553,7 @@ function template_examine()
 /**
  * List all packages
  */
-function template_browse()
+function template_browse_above()
 {
 	echo '
 		<div id="update_section"></div>
@@ -608,21 +608,22 @@ function template_browse()
 
 	echo '
 		</div><!-- #admin_form_wrapper -->';
+}
 
-	if (Utils::$context['available_packages'] == 0) {
-		echo '
+/**
+ * List all packages
+ */
+function template_no_packages()
+{
+	echo '
 		<div class="noticebox">', Lang::getTxt('no_packages', file: 'Packages'), '</div>';
-	} else {
-		foreach (Utils::$context['modification_types'] as $type) {
-			if (!empty(Utils::$context['packages_lists_' . $type]['rows'])) {
-				template_show_list('packages_lists_' . $type);
-			}
-		}
+}
 
-		echo '
-		<br>';
-	}
-
+/**
+ * List all packages
+ */
+function template_browse_below()
+{
 	// The advanced (emulation) box, collapsed by default
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=packages;sa=browse" method="get">
