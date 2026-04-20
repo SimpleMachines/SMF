@@ -214,7 +214,6 @@ class PackageUtils
 			}
 
 			$size = ceil($current['size'] / 512);
-			$current['data'] = substr($data, ++$offset << 9, $current['size']);
 			$offset += $size;
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
@@ -243,6 +242,8 @@ class PackageUtils
 			}
 
 			if ($write_this && $destination !== null) {
+				$current['data'] = substr($data, $offset + 512, $current['size']);
+
 				if (str_contains($current['filename'], '/') && !$single_file) {
 					self::mktree($destination . '/' . \dirname($current['filename']), 0777);
 				}
@@ -268,8 +269,6 @@ class PackageUtils
 			if (!str_ends_with($current['filename'], '/')) {
 				$return[] = [
 					'filename' => $current['filename'],
-					'md5' => md5($current['data']),
-					'preview' => substr($current['data'], 0, 100),
 					'size' => $current['size'],
 					'skipped' => false,
 				];
@@ -388,29 +387,29 @@ class PackageUtils
 				}
 			}
 
-			// Get the actual compressed data.
-			$file_info['data'] = substr(
-				$data,
-				$header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'],
-				$file_info['compressed_size'],
-			);
-
-			// Only for the deflate method (the most common)
-			if ($file_info['compression'] == 8) {
-				$file_info['data'] = gzinflate($file_info['data']);
-			}
-			// We do not support any other compression methods.
-			elseif ($file_info['compression'] != 0) {
-				continue;
-			}
-
-			// PKZip/ITU-T V.42 CRC-32
-			if (hash('crc32b', $file_info['data']) !== \sprintf('%08x', $file_info['crc'])) {
-				continue;
-			}
-
 			// Okay! We can write this file, looks good from here...
 			if ($write_this) {
+				// Get the actual compressed data.
+				$file_info['data'] = substr(
+					$data,
+					$header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'],
+					$file_info['compressed_size'],
+				);
+
+				// Only for the deflate method (the most common)
+				if ($file_info['compression'] === 8) {
+					$file_info['data'] = gzinflate($file_info['data']);
+				}
+				// We do not support any other compression methods.
+				elseif ($file_info['compression'] !== 0) {
+					continue;
+				}
+
+				// PKZip/ITU-T V.42 CRC-32
+			if (hash('crc32b', $file_info['data']) !== dechex($file_info['crc'])) {
+					continue;
+				}
+
 				// If we're looking for a specific file, and this is it... ka-bam, baby.
 				if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename']))) {
 					return $file_info['data'];
@@ -431,8 +430,6 @@ class PackageUtils
 			if ($is_file) {
 				$return[] = [
 					'filename' => $file_info['filename'],
-					'md5' => md5($file_info['data']),
-					'preview' => substr($file_info['data'], 0, 100),
 					'size' => $file_info['size'],
 					'skipped' => false,
 				];
