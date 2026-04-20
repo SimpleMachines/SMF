@@ -3201,8 +3201,6 @@ class PackageManager
 	 */
 	public function getPackages(): array
 	{
-		static $installed_mods;
-
 		$packages = [];
 
 		// We need the packages directory to be writable for this.
@@ -3232,22 +3230,10 @@ class PackageManager
 			unset($_SESSION['single_version_emulate']);
 		}
 
-		if (empty($installed_mods)) {
-			$instmods = PackageUtils::loadInstalledPackages();
-			$installed_mods = [];
+		$installed_mods = PackageUtils::loadInstalledPackages();
 
-			// Look through the list of installed mods...
-			foreach ($instmods as $installed_mod) {
-				$installed_mods[$installed_mod['package_id']] = [
-					'id' => $installed_mod['id'],
-					'version' => $installed_mod['version'],
-					'time_installed' => $installed_mod['time_installed'],
-				];
-			}
-
-			// Get a list of all the ids installed, so the latest packages won't include already installed ones.
-			Utils::$context['installed_mods'] = array_keys($installed_mods);
-		}
+		// Get a list of all the ids installed, so the latest packages widget won't include already installed ones.
+		Utils::$context['installed_mods'] = array_keys($installed_mods);
 
 		if ($dir = @opendir(Config::$packagesdir)) {
 			$dirs = [];
@@ -3295,15 +3281,17 @@ class PackageManager
 					}
 
 					$packageInfo['time_installed'] = 0;
-					$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
+					$id = $packageInfo['id'];
+					$packageInfo['is_installed'] = isset($installed_mods[$id]);
 
 					if ($packageInfo['is_installed']) {
-						$packageInfo['is_current'] = $installed_mods[$packageInfo['id']]['version'] == $packageInfo['version'];
-						$packageInfo['is_newer'] = $installed_mods[$packageInfo['id']]['version'] > $packageInfo['version'];
-						$packageInfo['installed_id'] = $installed_mods[$packageInfo['id']]['id'];
+						$installed_mod = $installed_mods[$id];
+						$packageInfo['is_current'] = $installed_mod['version'] == $packageInfo['version'];
+						$packageInfo['is_newer'] = $installed_mod['version'] > $packageInfo['version'];
+						$packageInfo['installed_id'] = $installed_mod['id'];
 
 						if ($packageInfo['is_current']) {
-							$packageInfo['time_installed'] = $installed_mods[$packageInfo['id']]['time_installed'];
+							$packageInfo['time_installed'] = $installed_mod['time_installed'];
 						}
 					}
 
@@ -3345,7 +3333,7 @@ class PackageManager
 						foreach ($upgrades as $upgrade) {
 							// Even if it is for this SMF, is it for the installed version of the mod?
 							if (!$upgrade->exists('@for') || PackageUtils::matchPackageVersion($the_version, $upgrade->fetch('@for'))) {
-								if (!$upgrade->exists('@from') || PackageUtils::matchPackageVersion((string) $installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
+								if (!$upgrade->exists('@from') || PackageUtils::matchPackageVersion((string) $installed_mod['version'], $upgrade->fetch('@from'))) {
 									$packageInfo['can_upgrade'] = true;
 									break;
 								}

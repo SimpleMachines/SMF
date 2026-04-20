@@ -495,24 +495,19 @@ class PackageUtils
 			],
 		);
 		$installed = [];
-		$found = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Already found this? If so don't add it twice!
-			if (\in_array($row['package_id'], $found)) {
+			if (isset($installed[$row['package_id']])) {
 				continue;
 			}
 
-			$found[] = $row['package_id'];
-
-			$row = Utils::htmlspecialcharsRecursive($row, ENT_QUOTES);
-
-			$installed[] = [
+			$installed[$row['package_id']] = [
 				'id' => $row['id_install'],
-				'name' => Utils::htmlspecialchars($row['name']),
+				'name' => $row['name'],
 				'filename' => $row['filename'],
 				'package_id' => $row['package_id'],
-				'version' => Utils::htmlspecialchars($row['version']),
+				'version' => $row['version'],
 				'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 			];
 		}
