@@ -3247,26 +3247,29 @@ class PackageManager
 			IntegrationHook::call('integrate_packages_sort_id', [&$sort_id, &$packages]);
 
 			while ($package = readdir($dir)) {
-				if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && !str_ends_with(strtolower($package), '.tar.gz') && !str_ends_with(strtolower($package), '.tgz') && !str_ends_with(strtolower($package), '.zip'))) {
+				// Skip hidden files and directories.
+				if ($package[0] === '.' || $package === 'temp') {
 					continue;
 				}
 
-				// Skip directories or files that are named the same.
-				if (is_dir(Config::$packagesdir . '/' . $package)) {
+				$is_dir = is_dir(Config::$packagesdir . '/' . $package);
+				if ($is_dir)
+				{
+					// Skip packages that are named the same.
 					if (\in_array($package, $dirs)) {
 						continue;
 					}
 					$dirs[] = $package;
-				} elseif (str_ends_with(strtolower($package), '.tar.gz')) {
-					if (\in_array(substr($package, 0, -7), $dirs)) {
-						continue;
+				} else {
+					// pathinfo() does not parse complex file extensions correctly, so do it manually.
+					if (preg_match('/^.*(?=\.(?:zip|t(?:ar\.)?gz)$)/i', $package, $m)) {
+						$basename = $m[0];
+
+						if (\in_array($basename, $dirs)) {
+							continue;
+						}
+						$dirs[] = $basename;
 					}
-					$dirs[] = substr($package, 0, -7);
-				} elseif (str_ends_with(strtolower($package), '.zip') || str_ends_with(strtolower($package), '.tgz')) {
-					if (\in_array(substr($package, 0, -4), $dirs)) {
-						continue;
-					}
-					$dirs[] = substr($package, 0, -4);
 				}
 
 				$packageInfo = PackageUtils::getPackageInfo($package);
