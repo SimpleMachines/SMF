@@ -3714,14 +3714,32 @@ class PackageUtils
 				decoct($stat['mtime']),                            // Last modification time
 			);
 
+			static $uid_cache = [];
+			static $gid_cache = [];
+
+			$uid = $stat['uid'];
+			$gid = $stat['gid'];
+
+			if (!isset($uid_cache[$uid])) {
+				$uid_cache[$uid] = function_exists('posix_getpwuid')
+					? (posix_getpwuid($uid)['name'] ?? '')
+					: '';
+			}
+
+			if (!isset($gid_cache[$gid])) {
+				$gid_cache[$gid] = function_exists('posix_getgrgid')
+					? (posix_getgrgid($gid)['name'] ?? '')
+					: '';
+			}
+
 			$data_last = pack(
 				'a1a100a6a2a32a32a8a8a155a12',
 				$is_dir ? '5' : '0',                              // File type ('0' = file, '5' = directory)
 				'',                                               // Link name
 				'ustar',                                          // UStar indicator
 				'00',                                             // Version
-				\function_exists('posix_getpwuid') ? posix_getpwuid($stat['uid'])['name'] : '', // Owner name
-				\function_exists('posix_getgrgid') ? posix_getgrgid($stat['gid'])['name'] : '', // Group name
+				$uid_cache[$uid],                                 // Owner name
+				$gid_cache[$gid],                                 // Group name
 				'',                                               // Device major number
 				'',                                               // Device minor number
 				'',                                               // Root directory for paths
