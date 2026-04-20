@@ -3690,6 +3690,7 @@ class PackageUtils
 	): bool {
 		$stream_prefix = \function_exists('gzopen') ? 'compress.zlib://' : '';
 		$output = fopen($stream_prefix . $dirname . '/' . $output_file . '.' . $output_ext, 'w');
+		$root_len = \strlen($root);
 
 		// Iterate through each file and write its data to the archive.
 		foreach ($files as $file_info) {
@@ -3705,12 +3706,12 @@ class PackageUtils
 			// Create the tar header data.
 			$data_first = pack(
 				'a100a8a8a8a12a12',
-				str_replace($root, '', $file_info->getPathname()),// Relative path
-				\sprintf('%6o ', $stat['mode']),                   // File permissions
-				\sprintf('%6o ', $stat['uid']),                    // Owner ID
-				\sprintf('%6o ', $stat['gid']),                    // Group ID
-				\sprintf('%11o ', $is_dir ? 0 : $stat['size']),    // File size
-				\sprintf('%11o ', $stat['mtime']),                  // Last modification time
+				substr($file_info->getPathname(), $root_len),      // Relative path
+				decoct($stat['mode']),                             // File permissions
+				decoct($stat['uid']),                              // Owner ID
+				decoct($stat['gid']),                              // Group ID
+				decoct($is_dir ? 0 : $stat['size']),               // File size
+				decoct($stat['mtime']),                            // Last modification time
 			);
 
 			$data_last = pack(
@@ -3718,13 +3719,13 @@ class PackageUtils
 				$is_dir ? '5' : '0',                              // File type ('0' = file, '5' = directory)
 				'',                                               // Link name
 				'ustar',                                          // UStar indicator
-				'',                                               // Version
+				'00',                                             // Version
 				\function_exists('posix_getpwuid') ? posix_getpwuid($stat['uid'])['name'] : '', // Owner name
 				\function_exists('posix_getgrgid') ? posix_getgrgid($stat['gid'])['name'] : '', // Group name
 				'',                                               // Device major number
 				'',                                               // Device minor number
 				'',                                               // Root directory for paths
-				'',                                                // Padding
+				'',                                               // Padding
 			);
 
 			static $ord_cache = null;
@@ -3752,7 +3753,9 @@ class PackageUtils
 			}
 
 			// Write the header to the archive.
-			fwrite($output, $data_first . pack('a8', decoct($checksum)) . $data_last);
+			fwrite($output, $data_first);
+			fwrite($output, pack('a8', decoct($checksum)));
+			fwrite($output, $data_last);
 
 			// If the file is a directory, skip writing file contents.
 			if ($is_dir) {
