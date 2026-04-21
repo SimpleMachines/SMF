@@ -1456,7 +1456,7 @@ class Maintenance implements ActionInterface
 				FROM {db_prefix}messages AS m
 				JOIN {db_prefix}boards AS b on m.id_board = b.id_board
 				WHERE m.id_member != 0
-					AND b.count_posts = 0',
+					AND b.posts_count = 1',
 				[
 				],
 			);
@@ -1474,7 +1474,7 @@ class Maintenance implements ActionInterface
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 			WHERE m.id_member != {int:zero}
-				AND b.count_posts = {int:zero}
+				AND b.posts_count != {int:zero}
 				' . (!empty(Config::$modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 			GROUP BY m.id_member
 			LIMIT {int:start}, {int:number}',
@@ -1526,7 +1526,7 @@ class Maintenance implements ActionInterface
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 			WHERE m.id_member != {int:zero}
-				AND b.count_posts = {int:zero}
+				AND b.posts_count != {int:zero}
 				' . (!empty(Config::$modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 			GROUP BY m.id_member',
 			[
@@ -2077,14 +2077,14 @@ class Maintenance implements ActionInterface
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND b.count_posts = {int:count_posts})
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND b.posts_count = {int:posts_count})
 				WHERE m.id_member = {int:guest_id}
 					AND m.approved = {int:is_approved}' . (!empty($recycle_board) ? '
 					AND m.id_board != {int:recycled_board}' : '') . (empty($email) ? '' : '
 					AND m.poster_email = {string:email_address}') . (empty($membername) ? '' : '
 					AND m.poster_name = {string:member_name}'),
 				[
-					'count_posts' => 0,
+					'posts_count' => 1,
 					'guest_id' => 0,
 					'email_address' => $email,
 					'member_name' => $membername,

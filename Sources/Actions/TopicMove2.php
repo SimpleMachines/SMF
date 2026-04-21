@@ -106,7 +106,7 @@ class TopicMove2 implements ActionInterface, Routable
 
 		// Make sure they can see the board they are trying to move to (and get whether posts count in the target board).
 		$request = Db::$db->query(
-			'SELECT b.count_posts, b.name, m.subject
+			'SELECT b.posts_count, b.name, m.subject
 			FROM {db_prefix}boards AS b
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -221,14 +221,14 @@ class TopicMove2 implements ActionInterface, Routable
 
 			$posterOptions = [
 				'id' => User::$me->id,
-				'update_post_count' => empty($pcounter),
+				'update_post_count' => !empty($pcounter),
 			];
 
 			Msg::create($msgOptions, $topicOptions, $posterOptions);
 		}
 
 		$request = Db::$db->query(
-			'SELECT count_posts
+			'SELECT posts_count
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
@@ -259,7 +259,7 @@ class TopicMove2 implements ActionInterface, Routable
 				}
 
 				// The board we're moving from counted posts, but not to.
-				if (empty($pcounter_from)) {
+				if (!empty($pcounter_from)) {
 					$posters[$row['id_member']]--;
 				}
 				// The reverse: from didn't, to did.

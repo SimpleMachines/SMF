@@ -254,7 +254,7 @@ class Board implements \ArrayAccess, Routable
 	 *
 	 * Whether posts in this board count toward a user's total post count.
 	 */
-	public bool $count_posts = true;
+	public bool $posts_count = true;
 
 	/**
 	 * @var bool
@@ -423,7 +423,6 @@ class Board implements \ArrayAccess, Routable
 		'id_theme' => 'theme',
 		'board_theme' => 'theme',
 		'id_profile' => 'profile',
-		'posts_count' => 'count_posts',
 		'href' => 'url',
 		'id_last_msg' => 'last_msg',
 		'id_msg_updated' => 'msg_updated',
@@ -434,6 +433,7 @@ class Board implements \ArrayAccess, Routable
 
 		// Initial exclamation mark means inverse of the property.
 		'is_read' => '!new',
+		'count_posts' => '!posts_count',
 	];
 
 	/****************************
@@ -470,7 +470,7 @@ class Board implements \ArrayAccess, Routable
 			'profile',
 			'redirect',
 			'recycle',
-			'count_posts',
+			'posts_count',
 			'cur_topic_approved',
 			'cur_topic_starter',
 		],
@@ -1275,7 +1275,7 @@ class Board implements \ArrayAccess, Routable
 		$board->profile = (int) ($boardOptions['profile'] ?? $board->profile ?? 1);
 
 		// Boolean properties.
-		$board->count_posts = !empty($boardOptions['posts_count'] ?? $board->count_posts ?? true);
+		$board->posts_count = !empty($boardOptions['posts_count'] ?? $board->posts_count ?? true);
 		$board->override_theme = !empty($boardOptions['override_theme'] ?? $board->override_theme ?? false);
 
 		// Array properties.
@@ -2328,7 +2328,7 @@ class Board implements \ArrayAccess, Routable
 								break;
 
 							case 'override_theme':
-							case 'count_posts':
+							case 'posts_count':
 								$props[$key] = !empty($value);
 								break;
 
@@ -2522,7 +2522,7 @@ class Board implements \ArrayAccess, Routable
 			'description' => 'string',
 			'num_topics' => 'int',
 			'num_posts' => 'int',
-			'count_posts' => 'int',
+			'posts_count' => 'int',
 			'id_theme' => 'int',
 			'override_theme' => 'int',
 			'unapproved_posts' => 'int',
@@ -2544,7 +2544,7 @@ class Board implements \ArrayAccess, Routable
 			$this->description,
 			$this->num_topics,
 			$this->num_posts,
-			(int) $this->count_posts,
+			(int) $this->posts_count,
 			$this->theme,
 			(int) $this->override_theme,
 			$this->unapproved_posts,
@@ -2642,7 +2642,7 @@ class Board implements \ArrayAccess, Routable
 					'id_profile = {int:profile}',
 					'name = {string:board_name}',
 					'description = {string:board_description}',
-					'count_posts = {int:count_posts}',
+					'posts_count = {int:posts_count}',
 					'id_theme = {int:board_theme}',
 					'override_theme = {int:override_theme}',
 					'redirect = {string:redirect}',
@@ -2659,15 +2659,27 @@ class Board implements \ArrayAccess, Routable
 					'profile' => $this->profile,
 					'board_name' => $this->name,
 					'board_description' => $this->description,
-					'count_posts' => (int) $this->count_posts,
+					'posts_count' => (int) $this->posts_count,
 					'board_theme' => $this->theme,
 					'override_theme' => (int) $this->override_theme,
 					'redirect' => $this->redirect,
 				],
 			);
 
+			// Old mods would have expected $params['count_posts'], which had
+			// an inverted value (i.e. 0 = true, 1 = false).
+			if (!empty(Config::$backward_compatibility)) {
+				$params['count_posts'] = (int) !$this->posts_count;
+			}
+
 			// Do any hooks want to add or adjust anything?
 			IntegrationHook::call('integrate_modify_board', [$this->id, $this->internal_data['boardOptions'] ?? [], &$set, &$params]);
+
+			// Clean up the backward compatibility changes.
+			if (!empty(Config::$backward_compatibility)) {
+				$params['posts_count'] = (int) empty($params['count_posts']);
+				unset($params['count_posts']);
+			}
 		}
 
 		// Perform the update.

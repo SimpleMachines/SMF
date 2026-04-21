@@ -1370,7 +1370,7 @@ class Msg implements \ArrayAccess, Routable
 		$request = Db::$db->query(
 			'SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
 				m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
-				t.approved AS topic_approved, b.count_posts
+				t.approved AS topic_approved, b.posts_count
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1459,7 +1459,7 @@ class Msg implements \ArrayAccess, Routable
 			$board_changes[$row['id_board']]['posts'] += $approve ? 1 : -1;
 
 			// Post count for the user?
-			if ($row['id_member'] && empty($row['count_posts'])) {
+			if ($row['id_member'] && !empty($row['posts_count'])) {
 				$member_post_changes[$row['id_member']] = isset($member_post_changes[$row['id_member']]) ? $member_post_changes[$row['id_member']] + 1 : 1;
 			}
 		}
@@ -1848,7 +1848,7 @@ class Msg implements \ArrayAccess, Routable
 				m.id_member, m.icon, m.poster_time, m.subject, m.body,
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
 				t.id_member_started AS id_member_poster,
-				b.count_posts
+				b.posts_count
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -1866,6 +1866,12 @@ class Msg implements \ArrayAccess, Routable
 		}
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
+
+		// Old mods would have expected $row['count_posts'], which had
+		// an inverted value (i.e. 0 = true, 1 = false).
+		if (!empty(Config::$backward_compatibility)) {
+			$row['count_posts'] = (int) empty($row['posts_count']);
+		}
 
 		// Give mods a heads-up before we do anything.
 		IntegrationHook::call('integrate_pre_remove_message', [$message, $decreasePostCount, $row]);
@@ -2236,7 +2242,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// If the poster was registered and the board this message was on incremented
 		// the member's posts when it was posted, decrease his or her post count.
-		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved']) {
+		if (!empty($row['id_member']) && $decreasePostCount && !empty($row['posts_count']) && $row['approved']) {
 			$member = current(User::load((int) $row['id_member'], dataset: UserDataset::Minimal));
 			$member->posts--;
 			$member->save();
