@@ -41,9 +41,9 @@ class UserDrafts extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$tables = Db::$db->list_tables();
+		$table = new Schema\v2_1\UserDrafts();
 
-		return !\in_array(Config::$db_prefix . 'user_drafts', $tables) || Maintenance::getCurrentStart() > 0;
+		return !$table->exists();
 	}
 
 	/**
@@ -53,14 +53,10 @@ class UserDrafts extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$drafts_table = new Schema\v2_1\UserDrafts();
-
-		$tables = Db::$db->list_tables();
-
 		// Creating draft table.
-		if ($start <= 0 && !\in_array(Config::$db_prefix . 'user_drafts', $tables)) {
-			$drafts_table->create();
-
+		if ($start <= 0) {
+			$table = new Schema\v2_1\UserDrafts();
+			$table->create();
 			$this->handleTimeout(++$start);
 		}
 

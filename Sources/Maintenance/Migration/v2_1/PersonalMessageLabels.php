@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
@@ -75,15 +74,13 @@ class PersonalMessageLabels extends MigrationBase
 		$pm_labels_table = new Schema\v2_1\PmLabels();
 		$pm_labeled_messages_table = new Schema\v2_1\PmLabeledMessages();
 
-		$tables = Db::$db->list_tables();
-
 		if ($start <= 0) {
-			if (!\in_array(Config::$db_prefix . 'pm_labels', $tables)) {
+			if (!$pm_labels_table->exists()) {
 				$pm_labels_table->create();
 				$this->handleTimeout(0);
 			}
 
-			if (!\in_array(Config::$db_prefix . 'pm_labeled_messages', $tables)) {
+			if (!$pm_labeled_messages_table->exists()) {
 				$pm_labeled_messages_table->create();
 				$this->handleTimeout(0);
 			}

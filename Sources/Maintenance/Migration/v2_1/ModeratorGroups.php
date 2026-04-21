@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -40,9 +38,9 @@ class ModeratorGroups extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$tables = Db::$db->list_tables();
+		$table = new Schema\v2_1\ModeratorGroups();
 
-		return !\in_array(Config::$db_prefix . 'moderator_groups', $tables);
+		return !$table->exists();
 	}
 
 	/**

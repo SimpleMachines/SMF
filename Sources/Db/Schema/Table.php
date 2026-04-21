@@ -76,6 +76,17 @@ class Table
 	 */
 	public ?int $auto_start;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Cached output of Db::$db->list_tables
+	 */
+	protected static array $existing_tables = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -95,6 +106,21 @@ class Table
 	}
 
 	/**
+	 * Checks whether a table with this name exists in the database.
+	 *
+	 * @param bool $force_refresh If true, force a refresh of the tables list.
+	 * @return bool Whether this table exists.
+	 */
+	public function exists(bool $force_refresh = false)
+	{
+		if ($force_refresh || empty(self::$existing_tables)) {
+			self::$existing_tables = Db::$db->list_tables();
+		}
+
+		return \in_array(Db::$db->prefix . $this->name, self::$existing_tables);
+	}
+
+	/**
 	 * Checks all the columns and indexes in this table to make sure they
 	 * are defined the way they should be, and fixes any that aren't.
 	 *
@@ -106,7 +132,7 @@ class Table
 			return false;
 		}
 
-		if (empty(Db::$db->list_tables(false, Db::$db->prefix . $this->name))) {
+		if (!$this->exists()) {
 			return $this->create();
 		}
 
@@ -287,13 +313,20 @@ class Table
 			return false;
 		}
 
-		return Db::$db->create_table(
+		$success = Db::$db->create_table(
 			'{db_prefix}' . $this->name,
 			array_map('get_object_vars', array_values($this->columns)),
 			array_map('get_object_vars', array_values($this->indexes)),
 			$parameters,
 			$if_exists,
 		);
+
+		if ($success) {
+			// Force a refresh of the list of tables.
+			self::$existing_tables = [];
+		}
+
+		return $success;
 	}
 
 	/**
@@ -305,7 +338,14 @@ class Table
 	 */
 	public function drop(): bool
 	{
-		return Db::$db->drop_table('{db_prefix}' . $this->name);
+		$success = Db::$db->drop_table('{db_prefix}' . $this->name);
+
+		if ($success) {
+			// Force a refresh of the list of tables.
+			self::$existing_tables = [];
+		}
+
+		return $success;
 	}
 
 	/**
