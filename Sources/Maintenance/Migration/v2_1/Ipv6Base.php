@@ -111,7 +111,7 @@ class Ipv6Base extends MigrationBase
 			// Execute updates every $setSize & also when done with contents of $arIp
 			if ((($i + 1) == $count) || (($i + 1) % $setSize === 0)) {
 				$updates['whereSet'] = array_values($updates);
-				Db::$db->query(
+				$this->query(
 					'UPDATE {db_prefix}' . $targetTable . '
 					SET ' . $newCol . ' = CASE ' .
 					implode('

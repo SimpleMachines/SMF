@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MailType extends MigrationBase
@@ -38,7 +37,7 @@ class MailType extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		Db::$db->query(
+		$this->query(
 			'UPDATE {db_prefix}settings
 			SET value =
 				CASE
