@@ -267,6 +267,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
+		$db_string = $this->backcompatFixes($db_string);
+
 		return $db_string;
 	}
 
@@ -2921,6 +2923,24 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// We reached a impossible location, but static anlaysis doesnt know that.
 		throw new \Exception();
+	}
+
+	/**
+	 * Helper for $this->quote() that makes any changes to the query string that
+	 * might be required for backward compatibility support.
+	 *
+	 * Assumes $db_string has already been processed by replacement_callback().
+	 *
+	 * @param string $db_string The database query string.
+	 * @return string Possibly modified version of $db_string.
+	 */
+	protected function backcompatFixes(string $db_string): string
+	{
+		if (empty(Config::$backward_compatibility)) {
+			return $db_string;
+		}
+
+		return $db_string;
 	}
 
 	/**
