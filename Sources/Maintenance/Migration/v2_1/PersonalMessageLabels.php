@@ -116,6 +116,8 @@ class PersonalMessageLabels extends MigrationBase
 			while (!$is_done) {
 				$this->handleTimeout($start);
 
+				$label_info = [];
+				$member_list = [];
 				$inserts = [];
 
 				// Pull the label info
@@ -131,9 +133,6 @@ class PersonalMessageLabels extends MigrationBase
 					],
 				);
 
-				$label_info = [];
-				$member_list = [];
-
 				while ($row = Db::$db->fetch_assoc($get_labels)) {
 					$member_list[] = $row['id_member'];
 
@@ -148,6 +147,11 @@ class PersonalMessageLabels extends MigrationBase
 				}
 
 				Db::$db->free_result($get_labels);
+
+				if (empty($member_list)) {
+					$is_done = true;
+					break;
+				}
 
 				foreach ($label_info as $id_member => $labels) {
 					foreach ($labels as $label => $index) {
@@ -311,32 +315,10 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$pm_recipients_table = new Schema\v2_1\PmRecipients();
-		$existing_structure = $pm_recipients_table->getCurrentStructure();
-
-		foreach ($existing_structure['columns'] as $column) {
-			if ($column['name'] == 'labels') {
-				$col = new Column(
-					name: $column['name'],
-					type: 'varchar',
-				);
-
-				$pm_recipients_table->dropColumn($col);
-			}
-		}
+		$pm_recipients_table->dropColumn('labels');
 
 		$members_table = new Schema\v2_1\Members();
-		$existing_structure = $members_table->getCurrentStructure();
-
-		foreach ($existing_structure['columns'] as $column) {
-			if ($column['name'] == 'message_labels') {
-				$col = new Column(
-					name: $column['name'],
-					type: 'varchar',
-				);
-
-				$members_table->dropColumn($col);
-			}
-		}
+		$members_table->dropColumn('message_labels');
 
 		return true;
 	}
