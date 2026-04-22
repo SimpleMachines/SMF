@@ -36,11 +36,11 @@ abstract class MaintenanceTemplate
 		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?? 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
-		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css">' : '', '
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Maintenance::$context['started'] . '">
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css?' . Maintenance::$context['started'] . '">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
+		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css?' . Maintenance::$context['started'] . '">' : '', '
 		<script src="', Maintenance::$theme_url, '/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
-		<script src="', Maintenance::$theme_url, '/scripts/script.js"></script>
+		<script src="', Maintenance::$theme_url, '/scripts/script.js?' . Maintenance::$context['started'] . '"></script>
 		<script>
 			const smf_scripturl = \'', Maintenance::getSelf(), '\';
 			const smf_charset = \'UTF-8\';
