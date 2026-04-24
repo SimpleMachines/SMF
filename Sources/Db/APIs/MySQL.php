@@ -2105,14 +2105,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra", generation_expression "generation_expression"
-			FROM information_schema.columns
-			WHERE table_name = {string:table_name}
-				AND table_schema = {string:db_name}
-			ORDER BY ordinal_position',
+			'SHOW COLUMNS
+			FROM {identifier:table_name}
+			IN {identifier:db}',
 			[
+				'db' => strtr($database, ['`' => '']),
 				'table_name' => $real_table_name,
-				'db_name' => $this->name,
 			],
 		);
 		$columns = [];
@@ -2126,8 +2124,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				// Can we split out the size?
 				if (preg_match('~^(.+?)\s*\((\d+)\)$~', $row['Type'], $matches)) {
-					$type = $matches[1];
-					$size = $matches[2];
+					[$type, $size] = $this->calculate_type($matches[1], (int) $matches[2], true);
 				} elseif (preg_match('~^(.+?)\s+unsigned$~', $row['Type'], $matches)) {
 					$type = $matches[1];
 					$size = null;
@@ -2152,12 +2149,32 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					unset($unsigned);
 				}
 
+				// If this is a generated column, look up its generation expression.
 				if (str_contains($row['Extra'], 'GENERATED')) {
-					$columns[$row['Field']]['generation_expression'] = $this->unescape_string($row['generation_expression']);
+					$result2 = $this->query(
+						'SELECT generation_expression
+						FROM information_schema.columns
+						WHERE column_name = {string:field}
+							AND table_name = {string:table_name}
+							AND table_schema = {string:db}',
+						[
+							'db' => strtr($database, ['`' => '']),
+							'table_name' => $real_table_name,
+							'field' => $row['Field'],
+						],
+					);
+
+					[$generation_expression] = $this->fetch_row($result2);
+
+					$this->free_result($result2);
+
+					$columns[$row['Field']]['generation_expression'] = $this->unescape_string($generation_expression);
+
 					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}
+
 		$this->free_result($result);
 
 		return $columns;
