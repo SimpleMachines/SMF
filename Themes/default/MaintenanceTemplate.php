@@ -376,7 +376,7 @@ abstract class MaintenanceTemplate
 
 				function getNextSubstep()
 				{
-					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json"
+					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . ';json"
 						.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 						.replace(/start=\d+/, "start=" + iCurrentStart);
 
