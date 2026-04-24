@@ -88,23 +88,6 @@ class Ipv6BanItem extends MigrationBase
 				// Note, We now support MySQL 8+, which means we could use INET6_ATON.
 				// The upgrade logic was built this way and should remain the same.
 				// If changed, a full upgrade from 2.0 to 3.0 would need to be tested.
-				$this->quote(
-					'UPDATE IGNORE {db_prefix}ban_items
-					SET ip_low =
-						UNHEX(
-							hex(
-								INET_ATON(concat(ip_low1,{literal:.},ip_low2,{literal:.},ip_low3,{literal:.},ip_low4))
-							)
-						),
-					ip_high =
-						UNHEX(
-							hex(
-								INET_ATON(concat(ip_high1,{literal:.},ip_high2,{literal:.},ip_high3,{literal:.},ip_high4))
-							)
-						)
-					WHERE ip_low1 > 0',
-				);
-
 				$this->query(
 					'UPDATE IGNORE {db_prefix}ban_items
 					SET ip_low =
@@ -121,7 +104,6 @@ class Ipv6BanItem extends MigrationBase
 						)
 					WHERE ip_low1 > 0',
 				);
-
 			}
 
 			$this->handleTimeout(++$start);
