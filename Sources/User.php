@@ -22,6 +22,7 @@ use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema\v3_0\Members as MembersTable;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
 use SMF\Permissions\UserPermissionSet;
@@ -4771,10 +4772,17 @@ class User implements \ArrayAccess
 		}
 
 		// This is what a guest's variables should be.
-		self::$profiles[0] = [
-			'dataset' => UserDataset::Basic,
-		];
+		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
+			self::$profiles[0]['avatar_original'] ??= self::$profiles[0]['avatar'] ??= '';
+			self::$profiles[0]['primary_group'] ??= self::$profiles[0]['member_group'] ??= '';
+			self::$profiles[0]['post_group'] ??= '';
+			self::$profiles[0]['member_group_color'] ??= '';
+			self::$profiles[0]['post_group_color'] ??= '';
+			self::$profiles[0]['options'] ??= [];
+			self::$profiles[0]['dataset'] = UserDataset::Basic;
+		}
 
+		// If they gave us a bad cookie, discard it.
 		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member_id'])) {
 			$_COOKIE[Config::$cookiename] = '';
 		}
@@ -4838,23 +4846,20 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Determines which membergroups the current user belongs to.
+	 * Determines which membergroups this user belongs to.
 	 */
 	protected function setGroups(): void
 	{
-		if (!empty($this->id)) {
-			$this->group_id = (int) self::$profiles[$this->id]['id_group'];
-			$this->post_group_id = (int) self::$profiles[$this->id]['id_post_group'];
-			$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'])));
-			$this->groups = array_unique(array_merge([0, $this->group_id, $this->post_group_id], $this->additional_groups));
-		}
-		// Guests are only part of the guest group.
-		else {
-			$this->group_id = -1;
-			$this->post_group_id = -1;
-			$this->additional_groups = [];
-			$this->groups = [-1];
-		}
+		$default_group = empty($this->id) ? Group::GUEST : Group::REGULAR;
+
+		$this->group_id = (int) (self::$profiles[$this->id]['id_group'] ?? $default_group);
+		$this->post_group_id = (int) (self::$profiles[$this->id]['id_post_group'] ?? $default_group);
+		$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'] ?? '')));
+
+		$this->groups = array_unique(array_merge(
+			[$default_group, $this->group_id, $this->post_group_id],
+			$this->additional_groups,
+		));
 	}
 
 	/**
@@ -5129,7 +5134,21 @@ class User implements \ArrayAccess
 
 		// For guests, there is no data to load, so just fake it.
 		if (\in_array(0, $users)) {
-			self::$profiles[0] = ['dataset' => $dataset];
+			foreach ((new MembersTable())->columns as $column) {
+				self::$profiles[0][$column->name] = match (true) {
+					$column->name === 'timezone' => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+					$column->name === 'time_format' => Config::$modSettings['time_format'] ?? '%F %k:%M',
+					$column->name === 'id_group' => Group::GUEST,
+					$column->name === 'id_post_group' => Group::GUEST,
+					$column->name === 'is_activated' => self::NOT_ACTIVATED,
+					isset($column->default) => $column->default,
+					str_contains($column->type, 'int') => 0,
+					default => '',
+				};
+			}
+
+			self::$profiles[0]['dataset'] = UserDataset::Minimal;
+
 			$loaded_ids[] = 0;
 			$users = array_filter($users);
 		}
