@@ -571,7 +571,8 @@ class Received implements \ArrayAccess
 	 */
 	public static function setNotNew(): void
 	{
-		User::updateMemberData(User::$me->id, ['new_pm' => 0]);
+		User::$me->new_pm = 0;
+		User::$me->save();
 
 		Db::$db->query(
 			'UPDATE {db_prefix}pm_recipients

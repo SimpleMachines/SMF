@@ -1030,13 +1030,14 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// Increase the post counter for the user that created the post.
-		if (!empty($posterOptions['update_post_count']) && !empty($posterOptions['id']) && $msgOptions['approved']) {
-			// Are you the one that happened to create this post?
-			if (User::$me->id == $posterOptions['id']) {
-				User::$me->posts++;
-			}
-
-			User::updateMemberData($posterOptions['id'], ['posts' => '+']);
+		if (
+			!empty($posterOptions['update_post_count'])
+			&& !empty($posterOptions['id'])
+			&& $msgOptions['approved']
+		) {
+			$member = current(User::load((int) $posterOptions['id'], dataset: UserDataset::Minimal));
+			$member->posts++;
+			$member->save();
 		}
 
 		// They've posted, so they can make the view count go up one if they really want. (this is to keep views >= replies...)
@@ -1615,9 +1616,21 @@ class Msg implements \ArrayAccess, Routable
 
 		// Post count for the members?
 		if (!empty($member_post_changes)) {
-			foreach ($member_post_changes as $id_member => $count_change) {
-				User::updateMemberData($id_member, ['posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change]);
+			$members = User::load(
+				array_map('intval', array_keys($member_post_changes)),
+				dataset: UserDataset::Minimal,
+			);
+
+			foreach ($members as $member) {
+				if ($approve) {
+					$member->posts += $member_post_changes[$member->id];
+				} else {
+					$member->posts -= $member_post_changes[$member->id];
+					$member->posts = max(0, $member->posts);
+				}
 			}
+
+			User::saveBatch($members);
 		}
 
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
@@ -2224,7 +2237,9 @@ class Msg implements \ArrayAccess, Routable
 		// If the poster was registered and the board this message was on incremented
 		// the member's posts when it was posted, decrease his or her post count.
 		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved']) {
-			User::updateMemberData((int) $row['id_member'], ['posts' => '-']);
+			$member = current(User::load((int) $row['id_member'], dataset: UserDataset::Minimal));
+			$member->posts--;
+			$member->save();
 		}
 
 		// Only remove posts if they're not recycled.

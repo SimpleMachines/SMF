@@ -679,17 +679,6 @@ class Group implements \ArrayAccess
 			],
 		);
 
-		// Update the primary groups of members.
-		Db::$db->query(
-			'UPDATE {db_prefix}members
-			SET id_group = {int:regular_group}
-			WHERE id_group = {int:this_group}',
-			[
-				'this_group' => $this->id,
-				'regular_group' => self::REGULAR,
-			],
-		);
-
 		// Update any inherited groups (Lose inheritance).
 		Db::$db->query(
 			'UPDATE {db_prefix}membergroups
@@ -701,25 +690,29 @@ class Group implements \ArrayAccess
 			],
 		);
 
-		// Update the additional groups of members.
-		$updates = [];
+		// Update the primary and additional groups of members.
+		if ($this->min_posts === -1) {
+			$members = User::loadCustom(
+				query_customizations: [
+					'where' => [
+						'(mem.id_group = {int:this_group}) OR (FIND_IN_SET({int:this_group}, mem.additional_groups) != 0)',
+					],
+					'params' => [
+						'this_group' => $this->id,
+					],
+				],
+				dataset: UserDataset::Minimal,
+			);
 
-		$request = Db::$db->query(
-			'SELECT id_member, additional_groups
-			FROM {db_prefix}members
-			WHERE FIND_IN_SET({int:this_group}, additional_groups) != 0',
-			[
-				'this_group' => $this->id,
-			],
-		);
+			foreach ($members as $member) {
+				if ($member->group_id === $this->id) {
+					$member->group_id = self::REGULAR;
+				}
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$updates[$row['additional_groups']][] = $row['id_member'];
-		}
-		Db::$db->free_result($request);
+				$member->additional_groups = array_diff($member->additional_groups, [$this->id]);
+			}
 
-		foreach ($updates as $additional_groups => $member_array) {
-			User::updateMemberData($member_array, ['additional_groups' => implode(',', array_diff(explode(',', $additional_groups), [$this->id]))]);
+			User::saveBatch($members);
 		}
 
 		// No boards can provide access to these groups anymore.
@@ -1001,45 +994,32 @@ class Group implements \ArrayAccess
 			User::$me->validateSession('admin', true);
 		}
 
-		// Make sure all members are integers.
-		$members = array_unique(array_map('intval', (array) $members));
-
-		// There's nobody to add.
-		if (empty($members)) {
-			return false;
-		}
-
-		// Load the user info for the new members.
-		$members = array_map(
-			fn($mem) => $mem->id,
-			User::load($members, User::LOAD_BY_ID, UserDataset::Minimal),
+		// Update the groups for all indicated members.
+		$members = User::load(
+			array_unique(array_map('intval', (array) $members)),
+			dataset: UserDataset::Minimal,
 		);
 
 		if (empty($members)) {
 			return false;
 		}
 
-		// Filter out members that are already in the group and figure out which
-		// members get this as their new primary group and which get it as an
-		// new additional group.
-		$set_primary = [];
-		$set_additional = [];
-
-		/* @var \SMF\User $member */
-		foreach ($members as $key => $id_member) {
-
+		foreach ($members as $member) {
 			// Forcing primary.
 			if ($type === 'force_primary') {
-				if (User::$loaded[$id_member]->group_id !== $this->id) {
-					$set_primary[] = $id_member;
-				}
+				$member->additional_groups[] = $member->group_id;
+				$member->group_id = $this->id;
+				$member->additional_groups = array_diff($member->additional_groups, [$this->id]);
+				$member->additional_groups = array_unique($member->additional_groups);
+				sort($member->additional_groups);
 			}
 			// They're already in this group.
-			elseif (\in_array($this->id, User::$loaded[$id_member]->groups)) {
+			elseif (\in_array($this->id, $member->groups)) {
 				continue;
 			}
-			// They have a different primary group.
-			elseif (User::$loaded[$id_member]->group_id !== self::REGULAR) {
+			// They already have a primary group besides just self::REGULAR,
+			// so this will need to be an additional group.
+			elseif ($member->group_id !== self::REGULAR) {
 				// Skip if we only want to set their primary group.
 				if ($type === 'only_primary') {
 					continue;
@@ -1051,85 +1031,41 @@ class Group implements \ArrayAccess
 				}
 
 				// Set this as an additional group.
-				$set_additional[] = $id_member;
+				$member->additional_groups[] = $this->id;
+				$member->additional_groups = array_unique($member->additional_groups);
+				sort($member->additional_groups);
 			}
 			// This can only be an additional group.
 			elseif ($type === 'only_additional') {
-				$set_additional[] = $id_member;
+				$member->additional_groups[] = $this->id;
+				$member->additional_groups = array_unique($member->additional_groups);
+				sort($member->additional_groups);
 			}
 			// They have no primary group, so let's give them one.
 			else {
-				$set_primary[] = $id_member;
+				$member->group_id = $this->id;
 			}
 		}
 
-		// We need some special handling if we are forcing the primary.
-		if ($type === 'force_primary') {
-			if (empty($set_primary)) {
-				return false;
-			}
-
-			Config::updateModSettings(['settings_updated' => time()]);
-
-			$to_set = [];
-
-			foreach ($set_primary as $id_member) {
-				$new_additional_groups = array_diff(User::$loaded[$id_member]->groups, [$this->id, User::$loaded[$id_member]->post_group_id]);
-				sort($new_additional_groups);
-
-				$to_set[implode(',', $new_additional_groups)][] = $id_member;
-			}
-
-			foreach ($to_set as $new_additional_groups => $member_ids) {
-				User::updateMemberData($member_ids, [
-					'id_group' => $this->id,
-					'additional_groups' => $new_additional_groups,
-				]);
-			}
-
-			return true;
-		}
-
-		if (empty($set_primary) && empty($set_additional)) {
-			return false;
-		}
+		User::saveBatch($members);
 
 		Config::updateModSettings(['settings_updated' => time()]);
-
-		if (!empty($set_primary)) {
-			User::updateMemberData($set_primary, ['id_group' => $this->id]);
-		}
-
-		if (!empty($set_additional)) {
-			$to_set = [];
-
-			foreach ($set_additional as $id_member) {
-				$new_additional_groups = array_unique(array_merge(User::$loaded[$id_member]->additional_groups, [$this->id]));
-				sort($new_additional_groups);
-
-				$to_set[implode(',', $new_additional_groups)][] = $id_member;
-			}
-
-			foreach ($to_set as $new_additional_groups => $member_ids) {
-				User::updateMemberData($member_ids, ['additional_groups' => $new_additional_groups]);
-			}
-		}
 
 		// For historical reasons, the hook expects an array rather than just the name string.
 		$group_names = [$this->id => $this->name];
 
-		IntegrationHook::call('integrate_add_members_to_group', [$members, $this->id, &$group_names]);
+		IntegrationHook::call('integrate_add_members_to_group', [array_map(fn($m) => $m->id, $members), $this->id, &$group_names]);
 
 		// Update their postgroup statistics.
-		Logging::updateStats('postgroups', $members);
+		Logging::updateStats('postgroups', array_map(fn($m) => $m->id, $members));
 
 		// Log the data.
-		foreach ($members as $id_member) {
+		foreach ($members as $member) {
 			Logging::logAction(
 				'added_to_group',
 				[
 					'group' => $this->name,
-					'member' => $id_member,
+					'member' => $member->id,
 				],
 				'admin',
 			);
@@ -1297,37 +1233,27 @@ class Group implements \ArrayAccess
 	{
 		// Fix post-count based groups and moderator group.
 		if ($this->min_posts > -1 || $this->id === self::MOD) {
-			// Can't be primary groups.
-			Db::$db->query(
-				'UPDATE {db_prefix}members
-				SET id_group = {int:regular_member}
-				WHERE id_group = {int:current_group}',
-				[
-					'regular_member' => self::REGULAR,
-					'current_group' => $this->id,
+			$members = User::loadCustom(
+				query_customizations: [
+					'where' => [
+						'(mem.id_group = {int:this_group}) OR (FIND_IN_SET({int:this_group}, mem.additional_groups) != 0)',
+					],
+					'params' => [
+						'this_group' => $this->id,
+					],
 				],
+				dataset: UserDataset::Minimal,
 			);
 
-			// Can't be additional groups.
-			$updates = [];
+			foreach ($members as $member) {
+				if ($member->group_id === $this->id) {
+					$member->group_id = self::REGULAR;
+				}
 
-			$request = Db::$db->query(
-				'SELECT id_member, additional_groups
-				FROM {db_prefix}members
-				WHERE FIND_IN_SET({string:current_group}, additional_groups) != 0',
-				[
-					'current_group' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$updates[$row['additional_groups']][] = $row['id_member'];
+				$member->additional_groups = array_diff($member->additional_groups, [$this->id]);
 			}
-			Db::$db->free_result($request);
 
-			foreach ($updates as $additional_groups => $memberArray) {
-				User::updateMemberData($memberArray, ['additional_groups' => implode(',', array_diff(explode(',', $additional_groups), [$this->id]))]);
-			}
+			User::saveBatch($members);
 
 			// Post-count based groups can't be moderator groups, and the main moderator group already is one.
 			Db::$db->query(
@@ -1340,38 +1266,29 @@ class Group implements \ArrayAccess
 		}
 		// A hidden group?.
 		elseif ($this->hidden == self::INVISIBLE) {
-			$updates = [];
-
-			$request = Db::$db->query(
-				'SELECT id_member, additional_groups
-				FROM {db_prefix}members
-				WHERE id_group = {int:current_group}
-					AND FIND_IN_SET({int:current_group}, additional_groups) = 0',
-				[
-					'current_group' => $this->id,
+			$members = User::loadCustom(
+				query_customizations: [
+					'where' => [
+						'(mem.id_group = {int:this_group})',
+					],
+					'params' => [
+						'this_group' => $this->id,
+					],
 				],
+				dataset: UserDataset::Minimal,
 			);
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$updates[$row['additional_groups']][] = $row['id_member'];
+			foreach ($members as $member) {
+				if ($member->group_id === $this->id) {
+					$member->group_id = self::REGULAR;
+				}
+
+				$member->additional_groups[] = $this->id;
+				$member->additional_groups = array_unique($member->additional_groups);
+				sort($member->additional_groups);
 			}
-			Db::$db->free_result($request);
 
-			foreach ($updates as $additional_groups => $memberArray) {
-				$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $this->id;
-
-				User::updateMemberData($memberArray, ['additional_groups' => $new_groups]);
-			}
-
-			Db::$db->query(
-				'UPDATE {db_prefix}members
-				SET id_group = {int:regular_member}
-				WHERE id_group = {int:current_group}',
-				[
-					'regular_member' => self::REGULAR,
-					'current_group' => $this->id,
-				],
-			);
+			User::saveBatch($members);
 
 			// Hidden groups can't moderate boards
 			Db::$db->query(
@@ -2215,13 +2132,19 @@ class Group implements \ArrayAccess
 	}
 
 	/**
-	 * Returns the IDs of all post-count based groups.
+	 * Returns the IDs and minimum posts of all post-count based groups.
 	 *
-	 * @return array IDs of all post-count based groups
+	 * @return array IDs and minimum posts of all post-count based groups.
 	 */
 	public static function getPostGroups(): array
 	{
 		if (isset(self::$post_groups)) {
+			return self::$post_groups;
+		}
+
+		if (($post_groups = CacheApi::get('group:post_groups', 360)) !== null) {
+			self::$post_groups = $post_groups;
+
 			return self::$post_groups;
 		}
 
@@ -2252,6 +2175,8 @@ class Group implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		arsort(self::$post_groups);
+
+		CacheApi::put('group:post_groups', self::$post_groups, 360);
 
 		return self::$post_groups;
 	}

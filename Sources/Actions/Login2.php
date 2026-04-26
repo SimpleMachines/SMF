@@ -154,7 +154,7 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		User::$me->password_salt = bin2hex(random_bytes(16));
-		User::updateMemberData(User::$me->id, ['password_salt' => User::$me->password_salt]);
+		User::$me->save();
 
 		// Preserve the 2FA cookie?
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
@@ -326,14 +326,13 @@ class Login2 implements ActionInterface, Routable
 
 			// If we got here then we can reset the flood counter.
 			$this->member->passwd_flood = '';
-			User::updateMemberData($this->member->id, ['passwd_flood' => '']);
+			$this->member->save();
 		}
 
 		// Correct password, but they've got no salt. Fix it!
 		if (\strlen($this->member->password_salt) < 32) {
 			$this->member->password_salt = bin2hex(random_bytes(16));
-
-			User::updateMemberData($this->member->id, ['password_salt' => $this->member->password_salt]);
+			$this->member->save();
 		}
 
 		// Check their activation status.
@@ -452,7 +451,9 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
-		User::updateMemberData($id_member, ['passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries]);
+		$member = current(User::load($id_member, dataset: UserDataset::None));
+		$member->passwd_flood = $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries;
+		$member->save();
 	}
 
 	/******************
@@ -631,8 +632,7 @@ class Login2 implements ActionInterface, Routable
 			$this->member->password_salt = bin2hex(random_bytes(16));
 			$this->member->passwd_flood = '';
 
-			// Update the password and set up the hash.
-			User::updateMemberData($this->member->id, ['passwd' => $this->member->passwd, 'password_salt' => $this->member->password_salt, 'passwd_flood' => $this->member->passwd_flood]);
+			$this->member->save();
 		}
 		// Okay, they for sure didn't enter the password!
 		else {
@@ -746,7 +746,7 @@ class Login2 implements ActionInterface, Routable
 		elseif (\in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			if (isset($_REQUEST['undelete'])) {
 				$this->member->is_activated = $this->member->is_activated >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED;
-				User::updateMemberData($this->member->id, ['is_activated' => $this->member->is_activated]);
+				$this->member->save();
 
 				Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)]);
 			} else {
@@ -812,17 +812,15 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// You've logged in, haven't you?
-		$update = [
-			'member_ip' => User::$me->ip,
-			'member_ip2' => IP::getUserIPAlternative(),
-			'validation_code' => '',
-		];
+		User::$me->ip = IP::getUserIP();
+		User::$me->ip2 = IP::getUserIPAlternative();
+		User::$me->validation_code = '';
 
 		if (empty(User::$me->tfa_secret)) {
-			$update['last_login'] = time();
+			User::$me->last_login = time();
 		}
 
-		User::updateMemberData(User::$me->id, $update);
+		User::$me->save();
 
 		// Get rid of the online entry for that old guest....
 		Db::$db->query(

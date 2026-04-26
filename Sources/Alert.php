@@ -530,7 +530,9 @@ class Alert implements \ArrayAccess
 			);
 
 			if ($update_count) {
-				User::updateMemberData($this->member, ['alerts' => '+']);
+				User::load($this->member, dataset: UserDataset::None);
+				User::$loaded[$this->member]->alerts = self::count($this->member);
+				User::$loaded[$this->member]->save();
 			}
 		}
 		// Updating an existing alert.
@@ -564,7 +566,9 @@ class Alert implements \ArrayAccess
 
 			// Has the is_read value changed since we loaded this alert?
 			if ($update_count && $this->is_read !== $this->initial_is_read) {
-				User::updateMemberData($this->member, ['alerts' => '+']);
+				User::load($this->member, dataset: UserDataset::None);
+				User::$loaded[$this->member]->alerts = self::count($this->member);
+				User::$loaded[$this->member]->save();
 			}
 		}
 	}
@@ -723,7 +727,13 @@ class Alert implements \ArrayAccess
 		);
 
 		// Update the alert counts for the members.
-		User::updateMemberData($members, ['alerts' => '+']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 
 		return $created;
 	}
@@ -1001,7 +1011,13 @@ class Alert implements \ArrayAccess
 		}
 
 		// Now update the members' alert counts in the database.
-		User::updateMemberData($members, ['alerts' => $read ? '-' : '+']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 	}
 
 	/**
@@ -1041,7 +1057,13 @@ class Alert implements \ArrayAccess
 			}
 
 			// Now update the members' alert counts in the database.
-			User::updateMemberData($members, ['alerts' => $read ? 0 : '+']);
+			$members = User::load($members, dataset: UserDataset::None);
+
+			foreach ($members as $member) {
+				$member->alerts = $read ? 0 : self::count($member->id);
+			}
+
+			User::saveBatch($members);
 		}
 	}
 
@@ -1113,7 +1135,13 @@ class Alert implements \ArrayAccess
 		}
 
 		// Gotta know how many unread alerts are left.
-		User::updateMemberData($members, ['alerts' => '-']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 	}
 
 	/**
@@ -1553,17 +1581,12 @@ class Alert implements \ArrayAccess
 		}
 
 		// One last thing: tweak counter on member record.
-		// Do it directly to avoid creating a loop in User::updateMemberData().
+		// Do it directly rather than by calling self::count() to avoid creating a loop.
 		if ($num_unread_deletes > 0) {
-			Db::$db->query(
-				'UPDATE {db_prefix}members
-				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
-				WHERE id_member = {int:member}',
-				[
-					'unread_deletes' => $num_unread_deletes,
-					'member' => $memID,
-				],
-			);
+			User::load($memID, dataset: UserDataset::Minimal);
+			User::$loaded[$memID]->alerts -= $num_unread_deletes;
+			User::$loaded[$memID]->alerts = max(0, User::$loaded[$memID]->alerts);
+			User::$loaded[$memID]->save();
 		}
 	}
 

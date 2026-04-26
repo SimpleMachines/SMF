@@ -105,7 +105,7 @@ class BuddyListToggle implements ActionInterface, Routable
 		}
 
 		// Update the settings.
-		User::updateMemberData(User::$me->id, ['buddy_list' => implode(',', User::$me->buddies)]);
+		User::$me->save();
 
 		// Redirect back to the profile
 		Utils::redirectexit('action=profile;u=' . $this->userReceiver);

@@ -528,8 +528,6 @@ class Subscriptions implements ActionInterface
 				}
 				Db::$db->free_result($request);
 
-				$changes = [];
-
 				// Is their group changing? This subscription may not have changed primary group.
 				if (!empty($id_group)) {
 					foreach ($members as $member) {
@@ -537,7 +535,7 @@ class Subscriptions implements ActionInterface
 						// subscription, and their current group was granted by the sub,
 						// then remove it.
 						if ($member->old_id_group != $member->group_id && $member->group_id == $id_group) {
-							$changes[$member->id]['id_group'] = $member->old_id_group;
+							$member->group_id = $member->old_id_group;
 						}
 					}
 				}
@@ -547,21 +545,15 @@ class Subscriptions implements ActionInterface
 					$add_groups = array_map('intval', explode(',', $add_groups));
 
 					foreach ($members as $member) {
-						// First let's get their groups sorted.
-						$new_groups = array_diff($member->additional_groups, $add_groups);
-
-						if ($new_groups != $member->additional_groups) {
-							$changes[$member->id]['additional_groups'] = implode(',', $new_groups);
-						}
+						$member->additional_groups = array_diff(
+							$member->additional_groups,
+							$add_groups,
+						);
 					}
 				}
 
-				// We're going through changes...
-				if (!empty($changes)) {
-					foreach ($changes as $id_member => $new_values) {
-						User::updateMemberData($id_member, $new_values);
-					}
-				}
+				// Save the changes...
+				User::saveBatch($members);
 			}
 
 			// Delete the subscription

@@ -119,16 +119,22 @@ class Logout extends Login2
 		Cookie::setLoginCookie(-3600, 0);
 
 		// And some other housekeeping while we're at it.
-		$salt = bin2hex(random_bytes(16));
-
 		if (!empty(User::$me->id)) {
-			User::updateMemberData(User::$me->id, ['password_salt' => $salt]);
-		}
+			User::$me->password_salt = bin2hex(random_bytes(16));
+			User::$me->save();
 
-		if (!empty(Config::$modSettings['tfa_mode']) && !empty(User::$me->id) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
-			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
+			if (
+				!empty(Config::$modSettings['tfa_mode'])
+				&& !empty($_COOKIE[Config::$cookiename . '_tfa'])
+			) {
+				list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
-			Cookie::setTFACookie((int) $exp - time(), User::$me->id, Cookie::encrypt(User::$me->tfa_backup, $salt));
+				Cookie::setTFACookie(
+					(int) $exp - time(),
+					User::$me->id,
+					Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt),
+				);
+			}
 		}
 
 		session_destroy();

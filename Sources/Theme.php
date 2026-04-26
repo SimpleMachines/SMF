@@ -202,8 +202,8 @@ class Theme
 
 		$this->loadTemplatesAndLangFiles();
 
-		// Allow overriding the forum's default time/number formats.
-		if (empty(User::$profiles[User::$me->id]['time_format']) && Lang::txtExists('time_format', file: 'ThemeStrings')) {
+		// Allow the theme to override the forum's default time format.
+		if (empty(User::$me->real_time_format) && Lang::txtExists('time_format', file: 'ThemeStrings')) {
 			User::$me->time_format = Lang::getTxt('time_format', file: 'ThemeStrings');
 		}
 

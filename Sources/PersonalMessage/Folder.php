@@ -282,7 +282,8 @@ class Folder
 	{
 		$this->mode = ($this->mode + 1) % 3;
 
-		User::updateMemberData(User::$me->id, ['pm_prefs' => (User::$me->pm_prefs & 252) | $this->mode]);
+		User::$me->pm_prefs = (User::$me->pm_prefs & 252) | $this->mode;
+		User::$me->save();
 
 		// Remove 'view' from the query string so that refreshing the browser
 		// doesn't cause the view to change again.

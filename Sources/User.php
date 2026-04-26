@@ -206,14 +206,14 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of any additional groups this user belongs to.
 	 */
-	public array $additional_groups = [];
+	public array $additional_groups;
 
 	/**
 	 * @var array
 	 *
 	 * IDs of all the groups this user belongs to.
 	 */
-	public array $groups = [];
+	public array $groups;
 
 	/**
 	 * @var bool
@@ -357,7 +357,7 @@ class User implements \ArrayAccess
 	 *
 	 * Total amount of time the user has been logged in, measured in seconds.
 	 */
-	public int $total_time_logged_in = 0;
+	public int $total_time_logged_in;
 
 	/**
 	 * @var bool
@@ -399,7 +399,24 @@ class User implements \ArrayAccess
 	 *
 	 * The user's preferred time format.
 	 */
-	public string $time_format;
+	public string $time_format {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->time_format ??= !empty($this->real_time_format) ? $this->real_time_format : (Config::$modSettings['time_format'] ?? '%F %k:%M');
+
+			return $this->time_format;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * The user's preferred time format as recorded in the database.
+	 *
+	 * This exists because the theme might temporarily override the $time_format
+	 * property, and we wouldn't want that temporary change to become permanent.
+	 */
+	public protected(set) string $real_time_format;
 
 	/**
 	 * @var string
@@ -514,14 +531,14 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of users on this user's buddy list.
 	 */
-	public array $buddies = [];
+	public array $buddies;
 
 	/**
 	 * @var array
 	 *
 	 * IDs of users that this user is ignoring.
 	 */
-	public array $ignoreusers = [];
+	public array $ignoreusers;
 
 	/**
 	 * @var int
@@ -570,7 +587,7 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of boards that this user is ignoring.
 	 */
-	public array $ignoreboards = [];
+	public array $ignoreboards;
 
 	/**
 	 * @var string
@@ -607,6 +624,7 @@ class User implements \ArrayAccess
 	 * @var array
 	 *
 	 * Info about the icons associated with this user's group.
+	 *
 	 * (Exactly which group will depend on the situation.)
 	 */
 	public array $icons;
@@ -1219,58 +1237,60 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Fields in the member table that take integers.
-	 */
-	public static array $knownInts = [
-		'alerts',
-		'date_registered',
-		'gender',
-		'id_group',
-		'id_msg_last_visit',
-		'id_post_group',
-		'id_theme',
-		'instant_messages',
-		'is_activated',
-		'last_login',
-		'new_pm',
-		'pm_prefs',
-		'pm_receive_from',
-		'posts',
-		'show_online',
-		'total_time_logged_in',
-		'unread_messages',
-		'warning',
-	];
-
-	/**
-	 * @var array
+	 * Known columns in the members table and their type indicators as used in
+	 * SMF's database parameter substitution system.
 	 *
-	 * Fields in the member table that take floats.
+	 * Additional columns may be added at runtime.
 	 */
-	public static array $knownFloats = [
-		'time_offset',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Names of variables to pass to the integrate_change_member_data hook.
-	 */
-	public static array $integration_vars = [
-		'avatar',
-		'birthdate',
-		'email_address',
-		'gender',
-		'id_group',
-		'lngfile',
-		'location',
-		'member_name',
-		'real_name',
-		'time_format',
-		'time_offset',
-		'timezone',
-		'website_title',
-		'website_url',
+	public static array $column_types = [
+		'id_member' => 'int',
+		'member_name' => 'string',
+		'date_registered' => 'int',
+		'posts' => 'int',
+		'id_group' => 'int',
+		'lngfile' => 'string',
+		'last_login' => 'int',
+		'real_name' => 'string',
+		'instant_messages' => 'int',
+		'unread_messages' => 'int',
+		'new_pm' => 'int',
+		'alerts' => 'int',
+		'buddy_list' => 'string',
+		'pm_ignore_list' => 'string',
+		'pm_prefs' => 'int',
+		'passwd' => 'string',
+		'email_address' => 'string',
+		'personal_text' => 'string',
+		'birthdate' => 'date',
+		'website_title' => 'string',
+		'website_url' => 'string',
+		'show_online' => 'int',
+		'time_format' => 'string',
+		'signature' => 'string',
+		'time_offset' => 'float',
+		'avatar' => 'string',
+		'usertitle' => 'string',
+		'member_ip' => 'string',
+		'member_ip2' => 'string',
+		'secret_question' => 'string',
+		'secret_answer' => 'string',
+		'id_theme' => 'int',
+		'is_activated' => 'int',
+		'validation_code' => 'string',
+		'id_msg_last_visit' => 'int',
+		'additional_groups' => 'string',
+		'smiley_set' => 'string',
+		'id_post_group' => 'int',
+		'total_time_logged_in' => 'int',
+		'password_salt' => 'string',
+		'ignore_boards' => 'string',
+		'warning' => 'int',
+		'passwd_flood' => 'string',
+		'pm_receive_from' => 'int',
+		'timezone' => 'string',
+		'tfa_secret' => 'string',
+		'tfa_backup' => 'string',
+		'spoofdetector_name' => 'string',
 	];
 
 	/*********************
@@ -1414,6 +1434,26 @@ class User implements \ArrayAccess
 
 		$this->fixTimezoneSetting();
 		$this->setProperties();
+	}
+
+	/**
+	 * Saves this user's data to the members table in the database.
+	 *
+	 * Does nothing if this is a guest.
+	 *
+	 * Note: If you are updating many members at once, it is more efficient
+	 * to call User::saveBatch($members) than to call $member->save() for
+	 * each member individually.
+	 */
+	public function save(): void
+	{
+		// Can't save guests.
+		if (empty($this->id)) {
+			return;
+		}
+
+		// Since self::saveBatch() already has the logic we need, use it.
+		self::saveBatch([$this]);
 	}
 
 	/**
@@ -1870,8 +1910,10 @@ class User implements \ArrayAccess
 			}
 
 			$this->total_time_logged_in += (time() - $_SESSION['timeOnlineUpdated']);
+			$this->last_login = time();
+			$this->ip2 = IP::getUserIPAlternative();
+			$this->save();
 
-			self::updateMemberData($this->id, ['last_login' => time(), 'member_ip' => $this->ip, 'member_ip2' => IP::getUserIPAlternative(), 'total_time_logged_in' => $this->total_time_logged_in]);
 
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
 				CacheApi::put('user_settings-' . $this->id, self::$profiles[$this->id], 60);
@@ -2951,9 +2993,6 @@ class User implements \ArrayAccess
 	 *
 	 * Assumes the data has been htmlspecialchar'd.
 	 *
-	 * This function should be used whenever member data needs to be
-	 * updated in place of an UPDATE query.
-	 *
 	 * $members is either an int or an array of ints to be updated.
 	 *
 	 * $data is an associative array of the columns to be updated and their
@@ -2966,184 +3005,388 @@ class User implements \ArrayAccess
 	 * If a member's post count is updated, this method also updates their post
 	 * groups.
 	 *
-	 * @param int|array|null $members An array of member IDs, the ID of a single member,
-	 *    or null to update this for all members.
+	 * @deprecated 3.0 Use $member->save() or User::saveBatch($members) instead
+	 *    of this deprecated method.
+	 *
+	 * @param int|array|null $ids An array of member IDs, the ID of a single
+	 *    member, or null to update this for all members.
 	 * @param array $data The info to update for the members.
 	 */
-	public static function updateMemberData(int|array|null $members, array $data): void
+	final public static function updateMemberData(int|array|null $ids, array $data): void
 	{
-		// An empty array means there's nobody to update.
-		if ($members === []) {
+		if (empty($data) || $ids === [] || $ids === 0) {
 			return;
 		}
 
-		// For loaded members, update the loaded objects with the new data.
-		foreach ((array) ($members ?? array_keys(User::$loaded)) as $member) {
-			if ($member instanceof self) {
-				$member = $member->id;
-			}
+		// Null means all members.
+		if (\is_null($ids)) {
+			$request = Db::$db->query(
+				'SELECT id_member
+				FROM {db_prefix}members',
+			);
 
-			if (!isset(User::$loaded[$member])) {
-				continue;
-			}
+			$ids = array_map(
+				fn($row) => (int) $row['id_member'],
+				Db::$db->fetch_all($request),
+			);
 
-			foreach ($data as $var => $val) {
-				if ($var === 'alerts' && ($val === '+' || $val === '-')) {
-					$val = Alert::count($member, true);
-				} elseif (\in_array($var, self::$knownInts) && ($val === '+' || $val === '-')) {
-					$val = User::$loaded[$member]->{$var} + ($val === '+' ? 1 : -1);
-				}
+			Db::$db->free_result($request);
+		}
 
-				if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-					$val = max(0, $val);
-				}
+		// Clean up the IDs. We want no duplicates and no guests.
+		$ids = array_unique(
+			array_filter(
+				array_map(
+					'intval',
+					array_filter((array) $ids, 'is_numeric'),
+				),
+				fn($id) => $id > 0,
+			),
+		);
 
-				if ($var === 'avatar' && \is_string($val)) {
-					$val = new Avatar(
-						original_url: $val,
-						email: User::$loaded[$member]->email,
-						id_member: (int) $member,
-					);
-				}
+		// If necessary, add custom column types to self::$column_types.
+		self::setColumnTypes($data);
 
-				User::$loaded[$member]->set([$var => $val]);
+		// Which dataset do we need?
+		foreach ($data as $var => $val) {
+			// Incrementing/decrementing requires loading the current values.
+			if ($var !== 'alerts' && self::$column_types[$var] === 'int' && preg_match('/[+\-]/', $val)) {
+				$dataset = UserDataset::Minimal;
+			} else {
+				$dataset ??= UserDataset::None;
 			}
 		}
 
-		$parameters = [];
+		// Load the members.
+		$members = self::load($ids, dataset: $dataset);
 
-		if (\is_array($members)) {
-			$condition = 'id_member IN ({array_int:members})';
-			$parameters['members'] = $members;
-		} elseif ($members === null) {
-			$condition = '1=1';
-		} else {
-			$condition = 'id_member = {int:member}';
-			$parameters['member'] = $members;
+		if (empty($members)) {
+			return;
 		}
 
-		if (!empty(Config::$modSettings['integrate_change_member_data'])) {
-			$vars_to_integrate = array_intersect(self::$integration_vars, array_keys($data));
-
-			// Only proceed if there are any variables left to call the integration function.
-			if (\count($vars_to_integrate) != 0) {
-				// Fetch a list of member_names if necessary
-				if ((!\is_array($members) && $members === self::$me->id) || (\is_array($members) && \count($members) == 1 && \in_array(self::$me->id, $members))) {
-					$member_names = [self::$me->username];
-				} else {
-					$member_names = [];
-
-					$request = Db::$db->query(
-						'SELECT member_name
-						FROM {db_prefix}members
-						WHERE ' . $condition,
-						$parameters,
-					);
-
-					while ($row = Db::$db->fetch_assoc($request)) {
-						$member_names[] = $row['member_name'];
-					}
-					Db::$db->free_result($request);
-				}
-
-				if (!empty($member_names)) {
-					foreach ($vars_to_integrate as $var) {
-						IntegrationHook::call('integrate_change_member_data', [$member_names, $var, &$data[$var], &self::$knownInts, &self::$knownFloats]);
-					}
-				}
-			}
-		}
-
-		$setString = '';
-
+		// Pre-process some data types.
 		foreach ($data as $var => $val) {
 			switch ($var) {
 				case 'birthdate':
-					$type = 'date';
-
+				case 'birth_date':
 					try {
-						$val = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
+						$data[$var] = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
 					} catch (\Throwable $e) {
-						$val = '1004-01-01';
+						$data[$var] = '1004-01-01';
 					}
 
 					break;
 
 				case 'member_ip':
 				case 'member_ip2':
-					$type = 'inet';
-					break;
+					$val = IP::create($val);
 
-				default:
-					$type = 'string';
-					break;
-			}
-
-			if (\in_array($var, self::$knownInts)) {
-				$type = 'int';
-			} elseif (\in_array($var, self::$knownFloats)) {
-				$type = 'float';
-			}
-
-			// Doing an increment?
-			if ($var == 'alerts' && ($val === '+' || $val === '-')) {
-				if (\is_array($members)) {
-					$val = 'CASE ';
-
-					foreach ($members as $k => $v) {
-						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count((int) $v, true) . ' ';
+					if (!$val->isValid()) {
+						unset($data[$var]);
+					} else {
+						$data[$var] = (string) $val;
 					}
 
-					$val = $val . ' END';
+					break;
 
-					$type = 'raw';
-				} else {
-					$val = Alert::count($members, true);
-				}
-			} elseif ($type == 'int' && ($val === '+' || $val === '-')) {
-				$val = $var . ' ' . $val . ' 1';
-				$type = 'raw';
+				case 'avatar':
+					$val = new Avatar(
+						original_url: $val,
+						email: User::$loaded[$member]->email,
+						id_member: (int) $member,
+					);
+					break;
 			}
-
-			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
-			if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
-					if ($match[1] != '+ ') {
-						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
-					}
-
-					$type = 'raw';
-				}
-			}
-
-			$setString .= ' ' . $var . ' = {' . $type . ':p_' . $var . '},';
-			$parameters['p_' . $var] = $val;
 		}
 
-		Db::$db->query(
-			'UPDATE {db_prefix}members
-			SET' . substr($setString, 0, -1) . '
-			WHERE ' . $condition,
-			$parameters,
-		);
+		foreach ($members as $member) {
+			foreach ($data as $var => $val) {
+				if ($var === 'avatar') {
+					$member->avatar = new Avatar(
+						original_url: $val,
+						email: $member->email,
+						id_member: $member->id,
+					);
+				} elseif ($var === 'alerts') {
+					$member->alerts = Alert::count($member->id);
+				} elseif ((self::$column_types[$var] ?? null) === 'int') {
+					if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $matches)) {
+						if ($matches[1] === '+ ') {
+							$member->{$var} = $member->{$var} + (int) $matches[2];
+						} else {
+							$member->{$var} = $member->{$var} - (int) $matches[2];
+						}
+					} else {
+						switch ($val) {
+							case '+':
+								$member->{$var}++;
+								break;
 
-		Logging::updateStats('postgroups', $members, array_keys($data));
+							case '-':
+								$member->{$var} = max(0, $member->{$var} - 1);
+								break;
 
-		// Clear any caching?
-		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members)) {
-			if (!\is_array($members)) {
-				$members = [$members];
+							default:
+								$member->{$var} = max(0, (int) $val);
+								break;
+						}
+					}
+				} elseif ((self::$column_types[$var] ?? null) === 'float') {
+					$member->{$var} = (float) $val;
+				} else {
+					$member->{$var} = $val;
+				}
 			}
+		}
 
+		self::saveBatch($members);
+	}
+
+	/**
+	 * Writes data for the given members to the database.
+	 *
+	 * If a member's post count is updated, this method also updates their post
+	 * groups.
+	 *
+	 * @param array $members Array of instances of this class.
+	 */
+	public static function saveBatch(array $members): void
+	{
+		// Filter out any guests.
+		$members = array_filter($members, fn($member) => $member->id > 0);
+
+		if (empty($members)) {
+			return;
+		}
+
+		// Ensure self::$column_types includes all necessary columns.
+		if ($p = array_find(self::$profiles, fn($p) => $p['dataset'] !== UserDataset::None)) {
+			self::setColumnTypes($p);
+		} else {
+			foreach (self::queryData(selects: ['mem.*'], limit: 1) as $row) {
+				self::setColumnTypes($row);
+			}
+		}
+
+		// Call the deprecated integrate_change_member_data hook.
+		self::integrateChangeMemberData($members);
+
+		// Build the $set and $params lists.
+		$set = [];
+		$params = [
+			'members' => array_map(fn($member) => $member->id, $members),
+		];
+
+		foreach (self::$column_types as $column => $type) {
 			foreach ($members as $member) {
-				if (CacheApi::$enable >= 3) {
-					CacheApi::put('member_data-profile-' . $member, null, 120);
-					CacheApi::put('member_data-normal-' . $member, null, 120);
-					CacheApi::put('member_data-basic-' . $member, null, 120);
-					CacheApi::put('member_data-minimal-' . $member, null, 120);
+				// Build the $param value for this member.
+				switch ($column) {
+					case 'id_member':
+						// Never change the ID.
+						break;
+
+					case 'id_post_group':
+						// This one is special. We calculate it below.
+						break;
+
+					case 'id_group':
+						if (!\in_array($member->group_id ?? Group::GUEST, [Group::MOD, Group::GUEST])) {
+							$params[$column . '_' . $member->id] = $member->group_id;
+						} elseif (!\in_array($member->primary_group_id ?? Group::GUEST, [Group::MOD, Group::GUEST])) {
+							$params[$column . '_' . $member->id] = $member->primary_group_id;
+						}
+
+						break;
+
+					case 'lngfile':
+						if (!empty(Config::$modSettings['userLanguage']) && !empty($member->language)) {
+							$params[$column . '_' . $member->id] = $member->language;
+						}
+
+						break;
+
+					case 'website_title':
+					case 'website_url':
+						$key = substr($column, 8);
+
+						if (isset($member->website[$key])) {
+							$params[$column . '_' . $member->id] = $member->website[$key];
+						}
+
+						break;
+
+					case 'avatar':
+						if (isset($member->avatar)) {
+							// If the avatar is a Gravatar, use 'gravatar://...'
+							if ($member->avatar->url->isGravatar()) {
+								if (!empty(Config::$modSettings['gravatarOverride'])) {
+									$params[$column . '_' . $member->id] = 'gravatar://';
+								} elseif (!empty($member->avatar->email)) {
+									$params[$column . '_' . $member->id] = 'gravatar://' . $member->avatar->email;
+								} else {
+									$params[$column . '_' . $member->id] = 'gravatar://' . $member->email;
+								}
+							}
+							// Clear the column if...
+							elseif (
+								// The avatar is a data URI.
+								$member->avatar->url->isScheme('data')
+								// The avatar is an attachment.
+								|| !empty($member->avatar->id_attach)
+								|| (
+									!empty(Config::$modSettings['custom_avatar_url'])
+									&& str_starts_with((string) $member->avatar->url, Config::$modSettings['custom_avatar_url'])
+								)
+								// The avatar is the default.
+								|| (
+									!empty(Config::$modSettings['avatar_url'])
+									&& (string) $member->avatar->url === Config::$modSettings['avatar_url'] . '/default.png'
+								)
+							) {
+								$params[$column . '_' . $member->id] = '';
+							}
+							// If the avatar is a prepackaged image, use the relative path.
+							elseif (
+								!empty(Config::$modSettings['avatar_url'])
+								&& str_starts_with((string) $member->avatar->url, Config::$modSettings['avatar_url'])
+							) {
+								$params[$column . '_' . $member->id] = ltrim(substr((string) $member->avatar->url, \strlen(Config::$modSettings['avatar_url'])), '/');
+							}
+							// If $url is just the proxied version of $original_url,
+							// then stick with $original_url.
+							elseif (
+								isset($member->avatar->original_url)
+								&& (string) $member->avatar->url === (string) (Url::create($member->avatar->original_url)->proxied())
+							) {
+								$params[$column . '_' . $member->id] = $member->avatar->original_url;
+							}
+							// Otherwise, use the full $url.
+							else {
+								$params[$column . '_' . $member->id] = (string) $member->avatar->url;
+							}
+						}
+
+						break;
+
+					case 'spoofdetector_name':
+						if (isset($member->name)) {
+							$params[$column . '_' . $member->id] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($member->name, ENT_QUOTES)));
+						}
+
+						break;
+
+					case 'time_format':
+						if (isset($member->real_time_format)) {
+							$params[$column . '_' . $member->id] = $member->real_time_format;
+						}
+
+						break;
+
+					default:
+						$prop = match ($column) {
+							'instant_messages' => 'messages',
+							'id_theme' => 'theme',
+							'member_ip' => 'ip',
+							'member_ip2' => 'ip2',
+							'buddy_list' => 'buddies',
+							'pm_ignore_list' => 'ignoreusers',
+							'ignore_boards' => 'ignoreboards',
+							default => $column,
+						};
+
+						if (isset($member->{$prop})) {
+							$value = \is_array($member->{$prop}) ? implode(',', $member->{$prop}) : $member->{$prop};
+
+							if (\in_array($type, ['int', 'float'])) {
+								settype($value, $type);
+							}
+
+							$params[$column . '_' . $member->id] = $value;
+						}
+
+						break;
 				}
 
-				CacheApi::put('user_settings-' . $member, null, 60);
+				// Build the $set value for this member.
+				if (\array_key_exists($column . '_' . $member->id, $params)) {
+					$set[$column][$member->id] = '{' . $type . ':' . $column . '_' . $member->id . '}';
+				}
+
+				// Special handling for the post group.
+				if ($column === 'posts' && isset($set[$column][$member->id])) {
+					// Load the post groups in ascending order.
+					if (!isset($post_groups)) {
+						$post_groups = Group::getPostGroups();
+						asort($post_groups);
+					}
+
+					$set['id_post_group'][$member->id] = '{int:id_post_group_' . $member->id . '}';
+
+					// Find the correct group.
+					foreach ($post_groups as $group_id => $min_posts) {
+						if ($min_posts <= $member->posts) {
+							$params['id_post_group_' . $member->id] = $group_id;
+						}
+					}
+				}
+			}
+		}
+
+		/*
+		 * Allow mods to adjust $set and $params for their custom columns.
+		 *
+		 * MOD AUTHORS: If you use this hook, you probably also want to use the
+		 * integrate_user_properties hook to control how your custom columns are
+		 * assigned to object properties when retrieved from the database.
+		 */
+		IntegrationHook::call('integrate_save_member_data', [$members, &$set, &$params]);
+
+		// Build each column's complete SET statement.
+		foreach ($set as $column => $to_set) {
+			if (empty($to_set)) {
+				unset($set[$column]);
+				continue;
+			}
+
+			$statement = $column . ' = CASE';
+
+			foreach ($to_set as $id => $value) {
+				$statement .= "\n\t\t\t\t\t" . 'WHEN id_member = ' . $id . ' THEN ' . $value;
+			}
+
+			$statement .= "\n\t\t\t\t\t" . 'ELSE ' . $column;
+			$statement .= "\n\t\t\t\t" . 'END';
+
+			$set[$column] = $statement;
+		}
+
+		// Perform the update.
+		Db::$db->query(
+			'UPDATE {db_prefix}members
+			SET
+				' . implode(",\n\t\t\t\t", $set) . '
+			WHERE id_member IN ({array_int:members})',
+			$params,
+		);
+
+		// Clear any caching?
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
+			foreach ($members as $member) {
+				if (CacheApi::$enable >= 3) {
+					CacheApi::put('member_data-profile-' . $member->id, null, 120);
+					CacheApi::put('member_data-normal-' . $member->id, null, 120);
+					CacheApi::put('member_data-basic-' . $member->id, null, 120);
+					CacheApi::put('member_data-minimal-' . $member->id, null, 120);
+				}
+
+				CacheApi::put('user_settings-' . $member->id, null, 60);
+			}
+		}
+
+		// Ensure $member->groups is correct for each updated member.
+		foreach ($members as $member) {
+			if (isset($member->groups)) {
+				$member->groups = array_unique(array_merge([0, $member->group_id ?? 0, $member->post_group_id ?? 0], $member->additional_groups ?? []));
 			}
 		}
 	}
@@ -3660,111 +3903,291 @@ class User implements \ArrayAccess
 
 	/**
 	 * Sets object properties based on data in User::$profiles[$this->id].
+	 *
+	 * @param bool $reset If true, discards all property values and sets them
+	 *    afresh.
 	 */
-	protected function setProperties(): void
+	protected function setProperties(bool $reset = false): void
 	{
 		// For developer convenience.
 		$profile = &self::$profiles[$this->id];
 
 		// Vital info.
-		$this->username = $profile['member_name'] ?? '';
-		$this->name = $profile['real_name'] ?? '';
-		$this->email = $profile['email_address'] ?? '';
-		$this->passwd = $profile['passwd'] ?? '';
-		$this->password_salt = $profile['password_salt'] ?? '';
-		$this->tfa_secret = $profile['tfa_secret'] ?? '';
-		$this->tfa_backup = $profile['tfa_backup'] ?? '';
-		$this->secret_question = $profile['secret_question'] ?? '';
-		$this->secret_answer = $profile['secret_answer'] ?? '';
-		$this->validation_code = $profile['validation_code'] ?? '';
-		$this->passwd_flood = $profile['passwd_flood'] ?? '';
+		if ($reset || !isset($this->username)) {
+			$this->username = $profile['member_name'] ?? '';
+		}
+
+		if ($reset || !isset($this->name)) {
+			$this->name = $profile['real_name'] ?? '';
+		}
+
+		if ($reset || !isset($this->email)) {
+			$this->email = $profile['email_address'] ?? '';
+		}
+
+		if ($reset || !isset($this->passwd)) {
+			$this->passwd = $profile['passwd'] ?? '';
+		}
+
+		if ($reset || !isset($this->password_salt)) {
+			$this->password_salt = $profile['password_salt'] ?? '';
+		}
+
+		if ($reset || !isset($this->tfa_secret)) {
+			$this->tfa_secret = $profile['tfa_secret'] ?? '';
+		}
+
+		if ($reset || !isset($this->tfa_backup)) {
+			$this->tfa_backup = $profile['tfa_backup'] ?? '';
+		}
+
+		if ($reset || !isset($this->secret_question)) {
+			$this->secret_question = $profile['secret_question'] ?? '';
+		}
+
+		if ($reset || !isset($this->secret_answer)) {
+			$this->secret_answer = $profile['secret_answer'] ?? '';
+		}
+
+		if ($reset || !isset($this->validation_code)) {
+			$this->validation_code = $profile['validation_code'] ?? '';
+		}
+
+		if ($reset || !isset($this->passwd_flood)) {
+			$this->passwd_flood = $profile['passwd_flood'] ?? '';
+		}
 
 		// User status.
-		$this->setGroups();
+		$this->setGroups($reset);
 		$this->setPossiblyRobot();
-		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
-		$this->is_banned = $this->is_activated >= self::BANNED;
-		$this->is_online = (bool) ($profile['is_online'] ?? $this->is_me);
+
+		if ($reset || !isset($this->is_activated)) {
+			$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
+		}
+
+		if ($reset || !isset($this->is_banned)) {
+			$this->is_banned = $this->is_activated >= self::BANNED;
+		}
+
+		if ($reset || !isset($this->is_online)) {
+			$this->is_online = (bool) ($profile['is_online'] ?? $this->is_me);
+		}
 
 		// User activity and history.
-		$this->show_online = (bool) ($profile['show_online'] ?? false);
-		$this->url = $profile['url'] ?? '';
-		$this->last_login = (int) ($profile['last_login'] ?? 0);
-		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
-		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
-		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
-		$this->ip = (string) ($this->is_me ? IP::getUserIP() : $profile['member_ip'] ?? '');
-		$this->ip2 = (string) ($this->is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
+		if ($reset || !isset($this->show_online)) {
+			$this->show_online = (bool) ($profile['show_online'] ?? false);
+		}
+
+		if ($reset || !isset($this->url)) {
+			$this->url = $profile['url'] ?? '';
+		}
+
+		if ($reset || !isset($this->last_login)) {
+			$this->last_login = (int) ($profile['last_login'] ?? 0);
+		}
+
+		if ($reset || !isset($this->id_msg_last_visit)) {
+			$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
+		}
+
+		if ($reset || !isset($this->total_time_logged_in)) {
+			$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
+		}
+
+		if ($reset || !isset($this->date_registered)) {
+			$this->date_registered = (int) ($profile['date_registered'] ?? 0);
+		}
+
+		if ($reset || !isset($this->ip)) {
+			$this->ip = $this->is_me ? IP::getUserIP() : $profile['member_ip'] ?? '';
+		}
+
+		if ($reset || !isset($this->ip2)) {
+			$this->ip2 = (string) ($this->is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
+		}
 
 		// Additional profile info.
-		$this->posts = (int) ($profile['posts'] ?? 0);
-		$this->title = $profile['usertitle'] ?? '';
-		$this->signature = $profile['signature'] ?? '';
-		$this->personal_text = $profile['personal_text'] ?? '';
-		$this->birthdate = $profile['birthdate'] ?? '';
-		$this->website['url'] = $profile['website_url'] ?? '';
-		$this->website['title'] = $profile['website_title'] ?? '';
+		if ($reset || !isset($this->posts)) {
+			$this->posts = (int) ($profile['posts'] ?? 0);
+		}
+
+		if ($reset || !isset($this->title)) {
+			$this->title = $profile['usertitle'] ?? '';
+		}
+
+		if ($reset || !isset($this->signature)) {
+			$this->signature = $profile['signature'] ?? '';
+		}
+
+		if ($reset || !isset($this->personal_text)) {
+			$this->personal_text = $profile['personal_text'] ?? '';
+		}
+
+		if ($reset || !isset($this->birthdate)) {
+			$this->birthdate = $profile['birthdate'] ?? '';
+		}
+
+		if ($reset || !isset($this->website['url'])) {
+			$this->website['url'] = $profile['website_url'] ?? '';
+		}
+
+		if ($reset || !isset($this->website['title'])) {
+			$this->website['title'] = $profile['website_title'] ?? '';
+		}
 
 		// Presentation preferences.
-		$this->theme = (int) ($profile['id_theme'] ?? 0);
-		$this->options = (array) ($profile['options'] ?? []);
-		$this->smiley_set = $profile['smiley_set'] ?? '';
+		if ($reset || !isset($this->theme)) {
+			$this->theme = (int) ($profile['id_theme'] ?? 0);
+		}
+
+		if ($reset || !isset($this->options)) {
+			$this->options = (array) ($profile['options'] ?? []);
+		}
+
+		if ($reset || !isset($this->smiley_set)) {
+			$this->smiley_set = $profile['smiley_set'] ?? '';
+		}
 
 		// Localization.
-		$this->setLanguage();
-		$this->time_format = empty($profile['time_format']) ? (Config::$modSettings['time_format'] ?? '%F %k:%M') : $profile['time_format'];
-		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
+		$this->setLanguage($reset);
+
+		if ($reset || !isset($this->real_time_format)) {
+			$this->real_time_format = $profile['time_format'] ?? '';
+		}
+
+		if ($reset || !isset($this->timezone)) {
+			$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
+		}
+
+		if ($reset || !isset($this->time_offset)) {
+			$this->time_offset = (int) ($profile['time_offset'] ?? 0);
+		}
 
 		// Buddies and personal messages.
-		$this->buddies = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
-		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
-		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
-		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
-		$this->messages = (int) ($profile['instant_messages'] ?? 0);
-		$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
-		$this->new_pm = (int) ($profile['new_pm'] ?? 0);
+		if ($reset || !isset($this->buddies)) {
+			$this->buddies = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
+		}
+
+		if ($reset || !isset($this->ignoreusers)) {
+			$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
+		}
+
+		if ($reset || !isset($this->pm_receive_from)) {
+			$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
+		}
+
+		if ($reset || !isset($this->pm_prefs)) {
+			$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
+		}
+
+		if ($reset || !isset($this->messages)) {
+			$this->messages = (int) ($profile['instant_messages'] ?? 0);
+		}
+
+		if ($reset || !isset($this->unread_messages)) {
+			$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
+		}
+
+		if ($reset || !isset($this->new_pm)) {
+			$this->new_pm = (int) ($profile['new_pm'] ?? 0);
+		}
 
 		// What does the user want to see or know about?
-		$this->alerts = (int) ($profile['alerts'] ?? 0);
-		$this->ignoreboards = !empty($profile['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
+		if ($reset || !isset($this->alerts)) {
+			$this->alerts = (int) ($profile['alerts'] ?? 0);
+		}
+
+		if ($reset || !isset($this->ignoreboards)) {
+			$this->ignoreboards = !empty($profile['ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
+		}
 
 		// Extended membergroup info.
-		$this->group_name = $profile['member_group'] ?? '';
-		$this->post_group_name = $profile['post_group'] ?? '';
-		$this->group_color = $profile['member_group_color'] ?? '';
-		$this->post_group_color = $profile['post_group_color'] ?? '';
-		$this->icons = empty($profile['icons']) ? ['', ''] : explode('#', $profile['icons']);
-		$this->primary_group_id = $this->group_id;
-		$this->primary_group_name = $this->group_name;
-		$this->primary_group_color = $this->group_color;
-		$this->primary_group_icons = $this->icons;
+		if ($reset || !isset($this->group_name)) {
+			$this->group_name = $profile['member_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->post_group_name)) {
+			$this->post_group_name = $profile['post_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->group_color)) {
+			$this->group_color = $profile['member_group_color'] ?? '';
+		}
+
+		if ($reset || !isset($this->post_group_color)) {
+			$this->post_group_color = $profile['post_group_color'] ?? '';
+		}
+
+		if ($reset || !isset($this->icons)) {
+			$this->icons = empty($profile['icons']) ? ['', ''] : explode('#', $profile['icons']);
+		}
+
+		if ($reset || !isset($this->primary_group_id)) {
+			$this->primary_group_id = $this->group_id;
+		}
+
+		if ($reset || !isset($this->primary_group_name)) {
+			$this->primary_group_name = $profile['primary_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->primary_group_color)) {
+			$this->primary_group_color = $this->group_color;
+		}
+
+		if ($reset || !isset($this->primary_group_icons)) {
+			$this->primary_group_icons = $this->icons;
+		}
 
 		// The avatar is a complicated thing, and historically had multiple
 		// representations in the code. This supports everything.
-		$this->avatar = new Avatar(
-			url: $profile['avatar'] ?? null,
-			original_url: $profile['avatar_original'] ?? null,
-			filename: $profile['filename'] ?? null,
-			id_attach: isset($profile['id_attach']) ? (int) $profile['id_attach'] : null,
-			attachment_type: isset($profile['attachment_type']) ? (int) $profile['attachment_type'] : null,
-			width: isset($profile['attachment_width']) ? (int) $profile['attachment_width'] : null,
-			height: isset($profile['attachment_height']) ? (int) $profile['attachment_height'] : null,
-			email: $this->email,
-			id_member: $this->id,
-		);
+		if ($reset || empty($this->avatar->url)) {
+			$this->avatar = new Avatar(
+				url: $profile['avatar'] ?? null,
+				original_url: $profile['avatar_original'] ?? null,
+				filename: $profile['filename'] ?? null,
+				id_attach: isset($profile['id_attach']) ? (int) $profile['id_attach'] : null,
+				attachment_type: isset($profile['attachment_type']) ? (int) $profile['attachment_type'] : null,
+				width: isset($profile['attachment_width']) ? (int) $profile['attachment_width'] : null,
+				height: isset($profile['attachment_height']) ? (int) $profile['attachment_height'] : null,
+				email: $this->email,
+				id_member: $this->id,
+			);
+		}
 
 		// Info about stuff related to permissions.
 		// Note that we populate $this->permission_sets elsewhere.
-		$this->warning = (int) ($profile['warning'] ?? 0);
-		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && \count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
+		if ($reset || !isset($this->warning)) {
+			$this->warning = (int) ($profile['warning'] ?? 0);
+		}
 
-		$this->buildQueryBoard();
+		if ($reset || !isset($this->can_manage_boards)) {
+			$this->can_manage_boards = (
+				!empty($this->is_admin)
+				|| (
+					!empty(Config::$modSettings['board_manager_groups'])
+					&& !empty($this->groups)
+					&& array_intersect(
+						$this->groups,
+						explode(',', Config::$modSettings['board_manager_groups']),
+					) !== []
+				)
+			);
+		}
+
+		if ($reset || !isset($this->query_see_board)) {
+			$this->buildQueryBoard();
+		}
 
 		// What dataset did we load for this user?
 		$this->dataset = $profile['dataset'];
 
-		// An easy way for mods to add or adjust properties.
+		/*
+		 * Allows mods to add or adjust properties.
+		 *
+		 * MOD AUTHORS: If you use this hook, you probably also want to use the
+		 * integrate_save_member_data hook to control how your data is saved
+		 * back to the database.
+		 */
 		IntegrationHook::call('integrate_user_properties', [$this, &$profile]);
 	}
 
@@ -4149,7 +4572,11 @@ class User implements \ArrayAccess
 
 			// If it was *at least* five hours ago...
 			if ($visitTime < time() - 5 * 3600) {
-				self::updateMemberData(self::$my_id, ['id_msg_last_visit' => (int) Config::$modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => IP::getUserIP(), 'member_ip2' => IP::getUserIPAlternative()]);
+				$this->id_msg_last_visit = (int) Config::$modSettings['maxMsgID'];
+				$this->last_login = time();
+				$this->ip = IP::getUserIP();
+				$this->ip2 = IP::getUserIPAlternative();
+				$this->save();
 
 				self::$profiles[self::$my_id]['last_login'] = time();
 
@@ -4253,14 +4680,24 @@ class User implements \ArrayAccess
 
 	/**
 	 * Determines which membergroups this user belongs to.
+	 *
+	 * @param bool $reset If true, discard current group info and set it afresh.
 	 */
-	protected function setGroups(): void
+	protected function setGroups(bool $reset = false): void
 	{
 		$default_group = empty($this->id) ? Group::GUEST : Group::REGULAR;
 
-		$this->group_id = (int) (self::$profiles[$this->id]['id_group'] ?? $default_group);
-		$this->post_group_id = (int) (self::$profiles[$this->id]['id_post_group'] ?? $default_group);
-		$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'] ?? '')));
+		if ($reset || !isset($this->group_id)) {
+			$this->group_id = (int) (self::$profiles[$this->id]['id_group'] ?? $default_group);
+		}
+
+		if ($reset || !isset($this->post_group_id)) {
+			$this->post_group_id = (int) (self::$profiles[$this->id]['id_post_group'] ?? $default_group);
+		}
+
+		if ($reset || !isset($this->additional_groups)) {
+			$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'] ?? '')));
+		}
 
 		$this->groups = array_unique(array_merge(
 			[$default_group, $this->group_id, $this->post_group_id],
@@ -4374,9 +4811,16 @@ class User implements \ArrayAccess
 	 * Sets the current user's preferred language.
 	 *
 	 * Uses their saved setting, unless they are requesting a different one.
+	 *
+	 * @param bool $reset If true, discard current value of $this->language and
+	 *    set it afresh.
 	 */
-	protected function setLanguage(): void
+	protected function setLanguage(bool $reset = false): void
 	{
+		if (!$reset && isset($this->language)) {
+			return;
+		}
+
 		// Is everyone forced to use the default language?
 		if (empty(Config::$modSettings['userLanguage'])) {
 			$this->language = Config::$language;
@@ -4401,7 +4845,7 @@ class User implements \ArrayAccess
 
 			// Make it permanent for members.
 			if (!empty($this->id)) {
-				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				$this->save();
 				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
@@ -5323,6 +5767,47 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Ensures self::$column_types contains all necessary column types.
+	 *
+	 * This is necessary because mods might add columns to the members table.
+	 *
+	 * @param array $data Array of columns and values.
+	 */
+	protected static function setColumnTypes(array $data = []): void
+	{
+		// Filter out profile data elements whose column types we already know
+		// or that we know do not come from the members table at all.
+		$data = array_diff_key(
+			$data,
+			self::$column_types,
+			[
+				'id_attach' => null,
+				'filename' => null,
+				'attachment_type' => null,
+				'attachment_width' => null,
+				'attachment_height' => null,
+				'is_online' => null,
+				'member_group_color' => null,
+				'member_group' => null,
+				'post_group_color' => null,
+				'post_group' => null,
+				'icons' => null,
+				'url' => null,
+				'dataset' => null,
+			],
+		);
+
+		if (empty($data)) {
+			return;
+		}
+
+		self::$column_types = array_merge(
+			self::$column_types,
+			Db::$db->getTypeIndicators('{db_prefix}members', $data),
+		);
+	}
+
+	/**
 	 * Calls the deprecated integrate_user_info hook.
 	 *
 	 * MOD AUTHORS: Update your code to use the integrate_user_properties hook,
@@ -5334,6 +5819,71 @@ class User implements \ArrayAccess
 	{
 		if (!empty(Config::$backward_compatibility) && !empty(Config::$modSettings['integrate_user_info'])) {
 			IntegrationHook::call('integrate_user_info');
+		}
+	}
+
+	/**
+	 * Calls the deprecated integrate_change_member_data hook.
+	 *
+	 * MOD AUTHORS: Update your code to use the integrate_save_member_data hook,
+	 * which can be found in SMF\User::saveBatch()
+	 *
+	 * @deprecated 3.0
+	 *
+	 * @param array $members Instances of this class.
+	 */
+	protected static function integrateChangeMemberData(array $members): void
+	{
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_change_member_data'])) {
+			return;
+		}
+
+		$known_ints = [];
+		$known_floats = [];
+
+		foreach (self::$column_types as $col => $type) {
+			switch ($type) {
+				case 'int':
+					$known_ints[] = $col;
+					break;
+
+				case 'float':
+					$known_floats[] = $col;
+					break;
+			}
+		}
+
+		// For this hook, we need at least the minimal data for all affected members.
+		$members = self::load(array_map(fn($member) => $member->id, $members), dataset: UserDataset::Minimal);
+
+		foreach ($members as $member) {
+			$integration_vars = [
+				'avatar' => &$member->avatar['original_url'],
+				'birthdate' => &$member->birthdate,
+				'email_address' => &$member->email,
+				'id_group' => &$member->group_id,
+				'lngfile' => &$member->language,
+				'member_name' => &$member->username,
+				'real_name' => &$member->name,
+				'time_format' => &$member->time_format,
+				'time_offset' => &$member->time_offset,
+				'timezone' => &$member->timezone,
+				'website_title' => &$member->website['title'],
+				'website_url' => &$member->website['url'],
+			];
+
+			foreach ($integration_vars as $var => $value) {
+				IntegrationHook::call(
+					'integrate_change_member_data',
+					[
+						[$member->username],
+						$var,
+						&$value,
+						$known_ints,
+						$known_floats,
+					],
+				);
+			}
 		}
 	}
 }

@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
-use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -413,56 +412,18 @@ class Logging
 
 			case 'postgroups':
 				// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-				if ($parameter2 !== null && !\in_array('posts', $parameter2)) {
+				if (!\in_array('posts', $parameter2 ?? [])) {
 					return;
 				}
 
-				$postgroups = CacheApi::get('updateStats:postgroups', 360);
-
-				if ($postgroups == null || $parameter1 == null) {
-					// Fetch the postgroups!
-					$postgroups = Group::getPostGroups();
-
-					CacheApi::put('updateStats:postgroups', $postgroups, 360);
+				if (\is_null($parameter1)) {
+					$parameter1 = array_map(fn($member) => $member->id, User::$loaded);
 				}
 
-				// Oh great, they've screwed their post groups.
-				if (empty($postgroups)) {
-					return;
-				}
+				$members = User::load((array) $parameter1, dataset: UserDataset::Minimal);
 
-				// Set all membergroups from most posts to least posts.
-				$conditions = '';
-				$last_min = 0;
-
-				foreach ($postgroups as $id => $min_posts) {
-					foreach (User::$loaded as $member) {
-						if ($member->posts < $min_posts) {
-							continue;
-						}
-
-						if (empty($last_min) || $member->posts <= $last_min) {
-							$member->post_group_id = $id;
-						}
-					}
-
-					$conditions .= '
-						WHEN posts >= ' . $min_posts . (!empty($last_min) ? ' AND posts <= ' . $last_min : '') . ' THEN ' . $id;
-
-					$last_min = $min_posts;
-				}
-
-				// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-				Db::$db->query(
-					'UPDATE {db_prefix}members
-					SET id_post_group = CASE ' . $conditions . '
-					ELSE 0
-					END' . ($parameter1 != null ? '
-					WHERE ' . (\is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
-					[
-						'members' => $parameter1,
-					],
-				);
+				// Saving the members will automatically recalculate their post groups.
+				User::saveBatch($members);
 
 				break;
 

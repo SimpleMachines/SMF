@@ -114,10 +114,9 @@ class TFASetup implements ActionInterface
 			$backup = bin2hex(random_bytes(8));
 			$backup_encrypted = Security::hashPassword($backup);
 
-			User::updateMemberData(Profile::$member->id, [
-				'tfa_secret' => $_SESSION['tfa_secret'],
-				'tfa_backup' => $backup_encrypted,
-			]);
+			Profile::$member->tfa_secret = $_SESSION['tfa_secret'];
+			Profile::$member->tfa_backup = $backup_encrypted;
+			Profile::$member->save();
 
 			Cookie::setTFACookie(Cookie::LENGTH_TFA, Profile::$member->id, Cookie::encrypt($backup_encrypted, Profile::$member->password_salt));
 

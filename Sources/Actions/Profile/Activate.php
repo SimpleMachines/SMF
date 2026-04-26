@@ -64,13 +64,9 @@ class Activate implements ActionInterface
 			IntegrationHook::call('integrate_activate', [Profile::$member->username]);
 
 			// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
-			User::updateMemberData(
-				Profile::$member->id,
-				[
-					'is_activated' => Profile::$member->is_activated >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED,
-					'validation_code' => '',
-				],
-			);
+			Profile::$member->is_activated = Profile::$member->is_activated >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED;
+			Profile::$member->validation_code = '';
+			Profile::$member->save();
 
 			// Log what we did?
 			Logging::logAction('approve_member', ['member' => Profile::$member->id], 'admin');

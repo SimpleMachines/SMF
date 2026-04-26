@@ -130,7 +130,7 @@ class BuddyIgnoreLists implements ActionInterface
 			Profile::$member->buddies = array_diff(Profile::$member->buddies, [(int) $_GET['remove']]);
 
 			// Make the changes.
-			User::updateMemberData(Profile::$member->id, ['buddy_list' => implode(',', Profile::$member->buddies)]);
+			Profile::$member->save();
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
 			Utils::redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
@@ -185,7 +185,7 @@ class BuddyIgnoreLists implements ActionInterface
 				Db::$db->free_result($request);
 
 				// Now update the current user's buddy list.
-				User::updateMemberData(Profile::$member->id, ['buddy_list' => implode(',', Profile::$member->buddies)]);
+				Profile::$member->save();
 			}
 
 			// Back to the buddy list!
@@ -314,7 +314,7 @@ class BuddyIgnoreLists implements ActionInterface
 			Profile::$member->ignoreusers = array_diff(Profile::$member->ignoreusers, [(int) $_GET['remove']]);
 
 			// Make the changes.
-			User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => implode(',', Profile::$member->ignoreusers)]);
+			Profile::$member->save();
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
 			Utils::redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
@@ -367,7 +367,7 @@ class BuddyIgnoreLists implements ActionInterface
 				Db::$db->free_result($request);
 
 				// Now update the current user's ignored list.
-				User::updateMemberData(Profile::$member->id, ['pm_ignore_list' => implode(',', Profile::$member->ignoreusers)]);
+				Profile::$member->save();
 			}
 
 			// Back to the list of pitiful people!

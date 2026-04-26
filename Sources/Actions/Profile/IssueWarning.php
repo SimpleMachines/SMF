@@ -512,7 +512,8 @@ class IssueWarning implements ActionInterface
 			}
 
 			// Make the change.
-			User::updateMemberData(Profile::$member->id, ['warning' => $_POST['warning_level']]);
+			Profile::$member->warning = $_POST['warning_level'];
+			Profile::$member->save();
 
 			// Leave a lovely message.
 			Utils::$context['profile_updated'] = Lang::getTxt(Profile::$member->is_me ? 'profile_updated_own' : 'profile_warning_success', file: 'Profile');

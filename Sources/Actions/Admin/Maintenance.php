@@ -36,6 +36,7 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -659,6 +660,8 @@ class Maintenance implements ActionInterface
 
 		// Get all members with wrong number of personal messages.
 		if ($_REQUEST['step'] <= 5) {
+			$members = [];
+
 			$request = Db::$db->query(
 				'SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 					MAX(mem.instant_messages) AS instant_messages
@@ -672,8 +675,16 @@ class Maintenance implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData((int) $row['id_member'], ['instant_messages' => (int) $row['real_num']]);
+				// Get an instance of User for this member.
+				$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+
+				// Set the correct value.
+				$member->instant_messages = (int) $row['real_num'];
+
+				// Keep track of this member.
+				$members[$member->id] = $member;
 			}
+
 			Db::$db->free_result($request);
 
 			$request = Db::$db->query(
@@ -690,9 +701,20 @@ class Maintenance implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData($row['id_member'], ['unread_messages' => $row['real_num']]);
+				// If this member is already loaded, User::load() will just return the same instance as before.
+				$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+
+				// Set the correct value.
+				$member->unread_messages = (int) $row['real_num'];
+
+				// Keep track of this member.
+				$members[$member->id] = $member;
 			}
+
 			Db::$db->free_result($request);
+
+			// Save the repaired data for the affected members.
+			User::saveBatch($members);
 
 			if (microtime(true) - TIME_START > 3) {
 				Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
@@ -2061,7 +2083,9 @@ class Maintenance implements ActionInterface
 			list($messageCount) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			User::updateMemberData($memID, ['posts' => 'posts + ' . $messageCount]);
+			$member = current(User::load($memID, dataset: UserDataset::Minimal));
+			$member->posts += $messageCount;
+			$member->save();
 		}
 
 		$query_parts = [];

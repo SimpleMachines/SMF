@@ -24,7 +24,6 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
 use SMF\User;
-use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -73,7 +72,8 @@ class LoginTFA extends Login2
 			$code = $_POST['tfa_code'];
 
 			if (\strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
-				User::updateMemberData($member->id, ['last_login' => time()]);
+				$member->last_login = time();
+				$member->save();
 
 				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member->id, Cookie::encrypt($member->tfa_backup, $member->password_salt));
 
@@ -99,11 +99,10 @@ class LoginTFA extends Login2
 				|| Security::hashVerifyPassword(Utils::strtolower($member->username) . $backup, $member->tfa_backup)
 			) {
 				// Get rid of their current TFA settings
-				User::updateMemberData($member->id, [
-					'tfa_secret' => '',
-					'tfa_backup' => '',
-					'last_login' => time(),
-				]);
+				$member->tfa_secret = '';
+				$member->tfa_backup = '';
+				$member->last_login = time();
+				$member->save();
 
 				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member->id, Cookie::encrypt($member->tfa_backup, $member->password_salt));
 

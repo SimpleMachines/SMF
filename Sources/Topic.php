@@ -1508,7 +1508,9 @@ class Topic implements \ArrayAccess, Routable
 
 		// Decrease the post counts.
 		if ($decreasePostCount) {
-			$requestMembers = Db::$db->query(
+			$adjustments = [];
+
+			$request = Db::$db->query(
 				'SELECT m.id_member, COUNT(*) AS posts
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1525,12 +1527,22 @@ class Topic implements \ArrayAccess, Routable
 				],
 			);
 
-			if (Db::$db->num_rows($requestMembers) > 0) {
-				while ($rowMembers = Db::$db->fetch_assoc($requestMembers)) {
-					User::updateMemberData((int) $rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
+			if (Db::$db->num_rows($request) > 0) {
+				while ($row = Db::$db->fetch_assoc($request)) {
+					$adjustments[(int) $row['id_member']] = $row['posts'];
 				}
 			}
-			Db::$db->free_result($requestMembers);
+
+			Db::$db->free_result($request);
+
+			$members = User::load(array_keys($adjustments), dataset: UserDataset::Minimal);
+
+			foreach ($members as $member) {
+				$member->posts -= $adjustments[$member->id];
+				$member->posts = max(0, $member->posts);
+			}
+
+			User::saveBatch($members);
 		}
 
 		// Recycle topics that aren't in the recycle board...

@@ -221,12 +221,9 @@ class Delete implements ActionInterface
 		// Deleting their own account, but they need approval to delete.
 		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum')) {
 			// Setup their account for deletion.
-			User::updateMemberData(
-				Profile::$member->id,
-				[
-					'is_activated' => (isset($_POST['anonymize']) || !empty(Config::$modSettings['always_anonymize_deleted_accounts']) ? User::REQUESTED_DELETE_ANONYMIZE : User::REQUESTED_DELETE) + (Profile::$member->is_banned ? User::BANNED : 0),
-				],
-			);
+			Profile::$member->is_activated = ((isset($_POST['anonymize']) || !empty(Config::$modSettings['always_anonymize_deleted_accounts'])) ? User::REQUESTED_DELETE_ANONYMIZE : User::REQUESTED_DELETE) + (Profile::$member->is_banned ? User::BANNED : 0);
+
+			Profile::$member->save();
 
 			// Another account needs approval...
 			Config::updateModSettings(['unapprovedMembers' => true], true);

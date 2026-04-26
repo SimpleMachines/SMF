@@ -570,10 +570,12 @@ class Profile extends User implements \ArrayAccess
 						} elseif ($value !== null) {
 							Security::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
-							User::updateMemberData($this->id, ['member_name' => $value]);
+							$old_username = $this->username;
+							$this->username = $value;
+							parent::save();
 
 							// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
-							IntegrationHook::call('integrate_reset_pass', [$this->username, $value, $_POST['passwrd1']]);
+							IntegrationHook::call('integrate_reset_pass', [$old_username, $value, $_POST['passwrd1']]);
 						}
 					}
 
@@ -890,7 +892,7 @@ class Profile extends User implements \ArrayAccess
 						],
 					];
 
-					Utils::$context['member']['time_format'] = $this->time_format;
+					Utils::$context['member']['time_format'] = $this->real_time_format;
 
 					$now = new Time('now', Config::$modSettings['default_timezone']);
 
@@ -1530,7 +1532,17 @@ class Profile extends User implements \ArrayAccess
 				IntegrationHook::call('integrate_reset_pass', [$this->username, $this->username, $_POST['passwrd2']]);
 			}
 
-			parent::updateMemberData($this->id, $this->new_data);
+			// Update the raw profile data.
+			foreach ($this->new_data as $key => $value) {
+				// Reminder: $this->data is a reference to parent::$profiles[$this->id]
+				$this->data[$key] = $value;
+			}
+
+			// Update the properties of this object.
+			$this->setProperties(reset: true);
+
+			// Save the new values to the database.
+			parent::save();
 		}
 
 		// Make any updates to custom fields and theme options.
@@ -2216,10 +2228,6 @@ class Profile extends User implements \ArrayAccess
 				// And update the user profile.
 				$this->data[$key] = $this->new_data[$db_key];
 			}
-		}
-
-		if (!empty($this->new_data['real_name'])) {
-			$this->new_data['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($this->new_data['real_name'], ENT_QUOTES)));
 		}
 	}
 
@@ -2953,16 +2961,18 @@ class Profile extends User implements \ArrayAccess
 		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.
+		$old_username = $this->username;
+
 		if ($username !== null) {
 			Security::validateUsername($this->id, $username);
-
-			// Update the database...
-			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);
-		} else {
-			User::updateMemberData($this->id, ['passwd' => $new_password_hashed]);
 		}
 
-		IntegrationHook::call('integrate_reset_pass', [$this->username, $username, $new_password]);
+		// Update the database...
+		$this->username = $username ?? $old_username;
+		$this->passwd = $new_password_hashed;
+		parent::save();
+
+		IntegrationHook::call('integrate_reset_pass', [$old_username, $username, $new_password]);
 
 		$replacements = [
 			'USERNAME' => $username,

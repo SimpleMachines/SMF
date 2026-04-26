@@ -160,7 +160,8 @@ class Reminder implements ActionInterface, Routable
 			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 			// Set the validation code in the database.
-			User::updateMemberData($this->member->id, ['validation_code' => $code . '|' . time()]);
+			$this->member->validation_code = $code . '|' . time();
+			$this->member->save();
 
 			// Set up the template.
 			Utils::$context['description'] = Lang::getTxt('reminder_sent', file: 'Profile');
@@ -260,7 +261,9 @@ class Reminder implements ActionInterface, Routable
 		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
-		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($_POST['passwrd1'])]);
+		$this->member->validation_code = '';
+		$this->member->passwd = Security::hashPassword($_POST['passwrd1']);
+		$this->member->save();
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
@@ -356,7 +359,8 @@ class Reminder implements ActionInterface, Routable
 			Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
 			|| md5($_POST['secret_answer']) === $this->member->secret_answer
 		) {
-			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($_POST['secret_answer'])]);
+			$this->member->secret_answer = Security::hashPassword($_POST['secret_answer']);
+			$this->member->save();
 		}
 
 		// You can't use a blank one!
@@ -382,7 +386,8 @@ class Reminder implements ActionInterface, Routable
 		}
 
 		// Alright, so long as 'yer sure.
-		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($_POST['passwrd1'])]);
+		$this->member->passwd = Security::hashPassword($_POST['passwrd1']);
+		$this->member->save();
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
