@@ -1167,18 +1167,6 @@ class User implements \ArrayAccess
 	public static self $me;
 
 	/**
-	 * @var int
-	 *
-	 * ID number of the current user.
-	 *
-	 * As a general rule, code outside this class should use User::$me->id
-	 * rather than User::$my_id. The only exception to this rule is in code
-	 * executed during the login and logout processes, because User::$me->id
-	 * is not set at all points during those processes.
-	 */
-	public static int $my_id;
-
-	/**
 	 * @var string
 	 *
 	 * "Session check" value for the current user.
@@ -1328,6 +1316,16 @@ class User implements \ArrayAccess
 	 ****************************/
 
 	/**
+	 * @var int
+	 *
+	 * ID number of the current user.
+	 *
+	 * This is used during self::loadMe() to keep track of the ID while we are
+	 * still in the process of validating the credentials.
+	 */
+	protected static int $my_id;
+
+	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
@@ -1356,6 +1354,13 @@ class User implements \ArrayAccess
 	{
 		if ($boards === []) {
 			$boards = null;
+		}
+
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->fixTimezoneSetting();
+			$this->setProperties();
 		}
 
 		foreach (
@@ -1430,6 +1435,13 @@ class User implements \ArrayAccess
 		// If this user's data is already loaded, skip it.
 		if (!empty($this->formatted) && $this->custom_fields_displayed >= $display_custom_fields) {
 			return $this->formatted;
+		}
+
+		if (!$this->dataset->includes(UserDataset::Minimal)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->fixTimezoneSetting();
+			$this->setProperties();
 		}
 
 		// The minimal values.
@@ -2792,6 +2804,13 @@ class User implements \ArrayAccess
 
 		$boards = $deny_boards = array_fill_keys($permissions, []);
 
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->fixTimezoneSetting();
+			$this->setProperties();
+		}
+
 		foreach (PermissionProfile::loadAll() as $profile) {
 			if (empty($profile->boards())) {
 				continue;
@@ -2843,6 +2862,13 @@ class User implements \ArrayAccess
 			return $this->accessible_boards;
 		}
 
+		if (empty($this->query_see_board)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->fixTimezoneSetting();
+			$this->setProperties();
+		}
+
 		$request = Db::$db->query(
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
@@ -2869,6 +2895,13 @@ class User implements \ArrayAccess
 	 */
 	public function groupsCanModerate(bool $ignore_protected = false): array
 	{
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->fixTimezoneSetting();
+			$this->setProperties();
+		}
+
 		// $ignore_protected only ever matters in this one scenario.
 		if (
 			$ignore_protected
@@ -2927,26 +2960,36 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param ?UserDataset $dataset What kind of data to load. Leave null for a
-	 *    dynamically determined default.
+	 * @param UserDataset $dataset What kind of data to load.
+	 *    Default: UserDataset::Normal
 	 * @return array Instances of this class for the loaded users.
 	 */
-	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, UserDataset $dataset = UserDataset::Normal): array
 	{
 		$users = (array) $users;
 
 		$loaded = [];
 
-		// No ID? Just get the current user.
 		if ($users === []) {
-			if (!isset(self::$me)) {
-				$loaded[] = new self(null, $dataset);
+			return $loaded;
+		}
+
+		// If looking up by name or email, we need to load at least the minimal data.
+		if ($dataset === UserDataset::None && $type !== self::LOAD_BY_ID) {
+			$dataset = UserDataset::Minimal;
+		}
+
+		if ($dataset === UserDataset::None) {
+			foreach ($users as $id) {
+				if (!isset(self::$loaded[$id])) {
+					self::$loaded[$id] = new self($id, $dataset);
+				}
+
+				$loaded[] = self::$loaded[$id];
 			}
 		} else {
-			$dataset ??= UserDataset::Normal;
-
 			// Load members.
-			foreach (($loaded_ids = self::loadUserData((array) $users, $type, $dataset)) as $id) {
+			foreach (self::loadUserData((array) $users, $type, $dataset) as $id) {
 				// Not yet loaded.
 				if (!isset(self::$loaded[$id])) {
 					new self($id, $dataset);
@@ -2961,6 +3004,63 @@ class User implements \ArrayAccess
 		}
 
 		return $loaded;
+	}
+
+	/**
+	 * Loads the current user based on cookie data.
+	 *
+	 * The loaded user is assigned to User::$me and also returned.
+	 *
+	 * @return self An instance of this class for the current user.
+	 */
+	public static function loadMe(): self
+	{
+		if (!isset(self::$me)) {
+			self::$me = new self();
+
+			// Current user is a guest until proven otherwise.
+			self::$my_id = 0;
+
+			// Allow mods to do verification if they want.
+			self::$me->integrateVerifyUser();
+
+			// Load the user's data.
+			self::$me->setMyId();
+			self::loadUserData((array) self::$my_id, self::LOAD_BY_ID, self::$me->chooseMyDataset());
+
+			// Verify that the user is who they claim to be.
+			// If verification fails, self::$my_id will be reset to 0.
+			self::$me->verifyPassword();
+			self::$me->verifyTfa();
+
+			// At this point, we know the user ID for sure.
+			self::$me->id = self::$my_id;
+
+			// Also track this in our list of all loaded instances.
+			self::$loaded[self::$me->id] = self::$me;
+
+			// If the user is a guest, initialize all the critical user settings.
+			if (empty(self::$me->id)) {
+				self::$me->initializeGuest();
+			}
+			// Otherwise, update the user's last visit time.
+			else {
+				self::$me->setLastVisit();
+			}
+
+			// Fix up the timezone and time_offset values.
+			self::$me->fixTimezoneSetting();
+
+			// Now set all the properties.
+			self::$me->setProperties();
+
+			// Backward compatibility.
+			self::$info = self::$me;
+			Utils::$context['user'] = self::$me;
+			self::integrateUserInfo();
+		}
+
+		return self::$me;
 	}
 
 	/**
@@ -4081,104 +4181,63 @@ class User implements \ArrayAccess
 	/**
 	 * Constructor. Protected in order to force instantiation via User::load().
 	 *
-	 * @param int|null $id The ID number of the user, or null for current user.
-	 * @param ?UserDataset $dataset What kind of data to load.
-	 *    If left null, the default depends on the value of $id:
-	 *     - If $id is an integer, $dataset will default to UserDataset::Normal.
-	 *     - If $id is also null (i.e. we are loading the current user), then
-	 *       $dataset will be determined automatically based on what the user is
-	 *       doing on the forum.
+	 * @param ?int $id The ID number of the user. If null, no data will be
+	 *    loaded into the object properties. Default: null.
+	 * @param UserDataset $dataset The set of data to load. Ignored if $id is
+	 *    null. If set to UserDataset::None, no data will be loaded into the
+	 *    object properties. Default: UserDataset::Normal.
 	 */
-	protected function __construct(?int $id = null, ?UserDataset $dataset = null)
+	protected function __construct(?int $id = null, UserDataset $dataset = UserDataset::Normal)
 	{
-		// No ID given, so load current user.
+		// No ID given, so we can't load any data.
 		if (!isset($id)) {
-			// Only do this once.
-			if (!isset(self::$my_id)) {
-				// This is the special $me instance.
-				self::$me = $this;
-
-				// Current user is a guest until proven otherwise.
-				self::$my_id = 0;
-
-				// Allow mods to do verification if they want.
-				$this->integrateVerifyUser();
-
-				// Load the user's data.
-				$this->setMyId();
-				self::loadUserData((array) self::$my_id, self::LOAD_BY_ID, $dataset ?? $this->chooseMyDataset());
-
-				// Verify that the user is who they claim to be.
-				// If verification fails, self::$my_id will be reset to 0.
-				$this->verifyPassword();
-				$this->verifyTfa();
-
-				// At this point, we know the user ID for sure.
-				$this->id = self::$my_id;
-
-				// Also track this in our list of all loaded instances.
-				self::$loaded[$this->id] = $this;
-
-				// If the user is a guest, initialize all the critical user settings.
-				if (empty($this->id)) {
-					$this->initializeGuest();
-				}
-				// Otherwise, update the user's last visit time.
-				else {
-					$this->setLastVisit();
-				}
-
-				// Fix up the timezone and time_offset values.
-				$this->fixTimezoneSetting();
-
-				// Now set all the properties.
-				$this->setProperties();
-
-				// Backward compatibility.
-				self::$info = $this;
-				Utils::$context['user'] = $this;
-
-				// MOD AUTHORS: integrate_user_info is deprecated. Use integrate_user_properties instead.
-				if (!empty(Config::$backward_compatibility)) {
-					IntegrationHook::call('integrate_user_info');
-				}
-			}
+			return;
 		}
+
+		$this->id = $id;
+
 		// Reloading the current user requires special handling.
-		elseif (isset(self::$my_id) && $id == self::$my_id) {
+		if ($id == (self::$my_id ?? NAN)) {
 			// Copy over the existing data.
 			$this->set(get_object_vars(self::$me));
+
+			// Must load at least the minimal data in this situation.
+			if ($dataset === UserDataset::None) {
+				unset($dataset);
+			}
 
 			$dataset ??= $this->chooseMyDataset();
 
 			if (!self::$me->dataset->includes($dataset)) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-			}
 
-			$this->fixTimezoneSetting();
-			$this->setProperties();
+				$this->fixTimezoneSetting();
+				$this->setProperties();
+			}
 
 			self::$loaded[$id] = $this;
 			self::setMe($id);
+
+			return;
 		}
+
+		// Specifically told not to load any data.
+		if ($dataset === UserDataset::None) {
+			return;
+		}
+
 		// Load the specified member.
-		else {
-			$this->id = $id;
+		self::$loaded[$id] = $this;
 
-			self::$loaded[$id] = $this;
-
-			$dataset ??= UserDataset::Normal;
-
-			if (
-				empty(self::$profiles[$id])
-				|| !self::$profiles[$id]['dataset']->includes($dataset)
-			) {
-				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-			}
-
-			$this->fixTimezoneSetting();
-			$this->setProperties();
+		if (
+			empty(self::$profiles[$id])
+			|| !self::$profiles[$id]['dataset']->includes($dataset)
+		) {
+			self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
 		}
+
+		$this->fixTimezoneSetting();
+		$this->setProperties();
 	}
 
 	/**
@@ -4299,6 +4358,12 @@ class User implements \ArrayAccess
 	 */
 	protected function integrateVerifyUser(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		if (\count($integration_ids = IntegrationHook::call('integrate_verify_user')) === 0) {
 			return;
 		}
@@ -4322,8 +4387,14 @@ class User implements \ArrayAccess
 	 */
 	protected function setMyId(): void
 	{
-		// No need to check if this has already been set.
-		if (!empty(self::$my_id)) {
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		// Do nothing if an integration already did this job.
+		if ($this->already_verified) {
 			return;
 		}
 
@@ -4369,6 +4440,12 @@ class User implements \ArrayAccess
 	 */
 	protected function chooseMyDataset(): UserDataset
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Board index, message index, or topic.
 		if (
 			!isset($_REQUEST['action'])
@@ -4404,6 +4481,13 @@ class User implements \ArrayAccess
 	 */
 	protected function verifyPassword(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		// Do nothing if this is a guest.
 		if (empty(self::$my_id)) {
 			return;
 		}
@@ -4443,7 +4527,18 @@ class User implements \ArrayAccess
 	 */
 	protected function verifyTfa(): void
 	{
-		if (empty(self::$my_id) || empty(Config::$modSettings['tfa_mode'])) {
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		if (
+			// Do nothing if this is a guest.
+			empty(self::$my_id)
+			// Do nothing if two factor authentication is disabled.
+			|| empty(Config::$modSettings['tfa_mode'])
+		) {
 			return;
 		}
 
@@ -4563,6 +4658,12 @@ class User implements \ArrayAccess
 	 */
 	protected function setLastVisit(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Let's not update the last visit time in these cases...
 		// 1. SSI doesn't count as visiting the forum.
 		// 2. RSS feeds and XMLHTTP requests don't count either.
@@ -4622,6 +4723,12 @@ class User implements \ArrayAccess
 	 */
 	protected function initializeGuest(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// This is what a guest's variables should be.
 		self::$profiles[0] = [
 			'dataset' => UserDataset::Basic,
@@ -4714,6 +4821,13 @@ class User implements \ArrayAccess
 	 */
 	protected function setPossiblyRobot(): void
 	{
+		// This check only applies to the current user.
+		if (!$this->is_me) {
+			$this->possibly_robot = false;
+
+			return;
+		}
+
 		// This is a logged in user, so definitely not a spider.
 		if (!empty($this->id)) {
 			$this->possibly_robot = false;
@@ -4820,6 +4934,11 @@ class User implements \ArrayAccess
 
 		// Which language does this user prefer?
 		$this->language = empty(self::$profiles[$this->id]['lngfile']) ? Config::$language : self::$profiles[$this->id]['lngfile'];
+
+		// If this isn't the current user, we're done.
+		if (!$this->is_me) {
+			return;
+		}
 
 		// Allow the user to change their language.
 		$languages = Lang::get();
@@ -5394,6 +5513,21 @@ class User implements \ArrayAccess
 
 		// Do any mods want to anonymize some custom content?
 		IntegrationHook::call('integrate_anonymize', [$member]);
+	}
+
+	/**
+	 * Calls the deprecated integrate_user_info hook.
+	 *
+	 * MOD AUTHORS: Update your code to use the integrate_user_properties hook,
+	 * which can be found in SMF\User::setProperties()
+	 *
+	 * @deprecated 3.0
+	 */
+	protected static function integrateUserInfo(): void
+	{
+		if (!empty(Config::$backward_compatibility) && !empty(Config::$modSettings['integrate_user_info'])) {
+			IntegrationHook::call('integrate_user_info');
+		}
 	}
 }
 

@@ -1228,7 +1228,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Log what we've done.
 		if (!isset(User::$me)) {
-			User::load(dataset: UserDataset::Minimal);
+			User::loadMe();
 		}
 
 		if (empty(User::$me->id) && !empty($this->user['id'])) {

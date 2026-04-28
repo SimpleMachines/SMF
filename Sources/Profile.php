@@ -1774,7 +1774,7 @@ class Profile extends User implements \ArrayAccess
 	 *    will be overwritten with UserDataset::Profile.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = UserDataset::Normal): array
 	{
 		$users = (array) $users;
 

@@ -155,7 +155,7 @@ class Theme
 
 		// Create User::$me if it is missing (e.g., an error very early in the login process).
 		if (!isset(User::$me)) {
-			User::load();
+			User::loadMe();
 		}
 
 		$this->fixSmileySet();

@@ -271,7 +271,7 @@ class ServerSideIncludes
 		Utils::$context['linktree'] = [];
 
 		// Load the user and their cookie, as well as their settings.
-		User::load();
+		User::loadMe();
 
 		// No one is a moderator outside the forum.
 		User::$me->is_mod = false;

@@ -4766,7 +4766,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function loadUserSettings(): void
 	{
-		SMF\User::load();
+		SMF\User::loadMe();
 	}
 
 	/**

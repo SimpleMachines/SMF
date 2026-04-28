@@ -1250,7 +1250,7 @@ class Install extends ToolsBase implements ToolsInterface
 			if (isset(Maintenance::$context['id_member'])) {
 				User::setMe((int) Maintenance::$context['id_member']);
 			} else {
-				User::load();
+				User::loadMe();
 			}
 
 			User::$me->ip = IP::getUserIP();

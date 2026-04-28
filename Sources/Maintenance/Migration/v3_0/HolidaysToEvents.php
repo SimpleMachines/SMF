@@ -631,7 +631,7 @@ class HolidaysToEvents extends MigrationBase
 	public function execute(): bool
 	{
 		if (!isset(User::$me)) {
-			User::load();
+			User::loadMe();
 		}
 
 		$request = $this->query(
