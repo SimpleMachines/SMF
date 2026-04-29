@@ -1326,6 +1326,15 @@ class User implements \ArrayAccess
 	protected static int $my_id;
 
 	/**
+	 * @var string
+	 *
+	 * The encrypted password string provided in the cookie.
+	 *
+	 * This is used during self::loadMe().
+	 */
+	protected static string $cookie_password;
+
+	/**
 	 * @var array
 	 *
 	 * BackwardCompatibility settings for this class.
@@ -4378,7 +4387,8 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Sets User::$my_id to the current user's ID from the login cookie.
+	 * Sets User::$my_id and User::$cookie_password to the current user's ID
+	 * and encrypted password from the login cookie.
 	 *
 	 * If no cookie was provided, checks $_SESSION to see if there is a match
 	 * with an existing session.
@@ -4398,39 +4408,60 @@ class User implements \ArrayAccess
 			return;
 		}
 
+		// Did they give us a cookie?
 		if (isset($_COOKIE[Config::$cookiename])) {
-			// First try 2.1 json-format cookie
+			// First try JSON format cookie
 			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, 512, 0, false);
 
-			// Legacy format (for recent 2.0 --> 2.1 upgrades)
+			// Legacy format (for recent upgrades from SMF 2.0)
 			if (empty($cookie_data)) {
 				$cookie_data = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 			}
 
-			list(self::$my_id, $this->passwd, $expires, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
+			// Extract the cookie data.
+			list($id, self::$cookie_password, $expires, $cookie_domain, $cookie_path) = array_pad((array) ($cookie_data ?? []), 5, '');
 
-			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
-
-			$this->stay_logged_in = ($expires - time()) > 86400;
-
-			// Make sure the cookie is set to the correct domain and path
-			if ([$cookie_domain, $cookie_path] !== Cookie::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']))) {
+			// Make sure the cookie is set to the correct domain and path.
+			if (
+				isset($_COOKIE[Config::$cookiename])
+				&& [$cookie_domain, $cookie_path] !== Cookie::urlParts(
+					!empty(Config::$modSettings['localCookies']),
+					!empty(Config::$modSettings['globalCookies']),
+				)
+			) {
 				Cookie::setLoginCookie((int) $expires - time(), self::$my_id);
 			}
-		} elseif (isset($_SESSION['login_' . Config::$cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty(Config::$modSettings['disableCheckUA']))) {
+		}
+		// Can we recover it from session data?
+		elseif (
+			isset($_SESSION['login_' . Config::$cookiename])
+			&& (
+				$_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT']
+				|| !empty(Config::$modSettings['disableCheckUA'])
+			)
+		) {
 			// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 			$cookie_data = Utils::jsonDecode($_SESSION['login_' . Config::$cookiename], true);
 
-			if (empty($cookie_data)) {
-				$cookie_data = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
-			}
-
-			list(self::$my_id, $this->passwd, $expires) = array_pad((array) $cookie_data, 3, '');
-
-			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) == 40 && (int) $expires > time() ? (int) self::$my_id : 0;
-
-			$this->stay_logged_in = ($expires - time()) > 86400;
+			// Extract the cookie data.
+			list($id, self::$cookie_password, $expires) = array_pad((array) ($cookie_data ?? []), 3, '');
 		}
+
+		if (
+			empty($id)
+			|| \strlen(self::$cookie_password) === 0
+			|| (int) $expires <= time()
+		) {
+			self::$my_id = 0;
+
+			return;
+		}
+
+		// Found it.
+		self::$my_id = (int) $id;
+
+		// Do they want to stay logged in?
+		$this->stay_logged_in = ((int) $expires - time()) > 86400;
 	}
 
 	/**
@@ -4492,32 +4523,42 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Did we find 'im?  If not, junk it.
-		if (!empty(self::$profiles[self::$my_id])) {
-			// As much as the password should be right, we can assume the integration set things up.
-			if (!empty($this->already_verified) && $this->already_verified === true) {
-				$check = true;
-			}
-			// SHA-512 hash should be 128 characters long.
-			elseif (\strlen($this->passwd) == 128) {
-				$check = hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['passwd'], self::$profiles[self::$my_id]['password_salt']), $this->passwd);
-			} else {
-				$check = false;
-			}
-
-			// Wrong password or not activated - either way, you're going nowhere.
-			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] % self::BANNED == self::ACTIVATED) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
-		} else {
+		// Can't log into an account that doesn't exist.
+		if (
+			!isset(
+				self::$profiles[self::$my_id]['member_name'],
+				self::$profiles[self::$my_id]['passwd'],
+				self::$profiles[self::$my_id]['password_salt'],
+				self::$profiles[self::$my_id]['is_activated'],
+			)
+		) {
 			self::$my_id = 0;
+
+			return;
 		}
 
-		// If we no longer have the member maybe they're being all hackey, stop brute force!
-		if (empty(self::$my_id)) {
+		// Did they supply the correct password? (Assume true if already verified.)
+		$password_correct = !empty($this->already_verified) ? true : hash_equals(
+			Cookie::encrypt(
+				self::$profiles[self::$my_id]['passwd'],
+				self::$profiles[self::$my_id]['password_salt'],
+			),
+			self::$cookie_password,
+		);
+
+		// Wrong password or not activated - either way, you're going nowhere.
+		if (
+			!$password_correct
+			|| self::$profiles[self::$my_id]['is_activated'] % self::BANNED !== self::ACTIVATED
+		) {
+			$id = self::$my_id;
+			self::$my_id = 0;
+
 			Login2::validatePasswordFlood(
-				!empty(self::$profiles[self::$my_id]['id_member']) ? self::$profiles[self::$my_id]['id_member'] : self::$my_id,
-				!empty(self::$profiles[self::$my_id]['member_name']) ? self::$profiles[self::$my_id]['member_name'] : '',
-				!empty(self::$profiles[self::$my_id]['passwd_flood']) ? self::$profiles[self::$my_id]['passwd_flood'] : false,
-				self::$my_id != 0,
+				$id,
+				self::$profiles[$id]['member_name'],
+				self::$profiles[$id]['passwd_flood'],
+				$password_correct,
 			);
 		}
 	}
