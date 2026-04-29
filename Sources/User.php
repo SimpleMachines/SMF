@@ -1355,6 +1355,68 @@ class User implements \ArrayAccess
 	 ****************/
 
 	/**
+	 * Constructor.
+	 *
+	 * @param ?int $id The ID number of the user. If null, no data will be
+	 *    loaded into the object properties. Default: null.
+	 * @param UserDataset $dataset The set of data to load. Ignored if $id is
+	 *    null. If set to UserDataset::None, no data will be loaded into the
+	 *    object properties apart from $this->id. Default: UserDataset::Normal.
+	 */
+	public function __construct(?int $id = null, UserDataset $dataset = UserDataset::Normal)
+	{
+		// No ID given, so we can't load any data.
+		if (!isset($id)) {
+			return;
+		}
+
+		$this->id = $id;
+
+		// Reloading the current user requires special handling.
+		if ($id == (self::$my_id ?? NAN)) {
+			// Copy over the existing data.
+			$this->set(get_object_vars(self::$me));
+
+			// Must load at least the minimal data in this situation.
+			if ($dataset === UserDataset::None) {
+				unset($dataset);
+			}
+
+			$dataset ??= $this->chooseMyDataset();
+
+			if (!self::$me->dataset->includes($dataset)) {
+				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
+
+				$this->fixTimezoneSetting();
+				$this->setProperties();
+			}
+
+			self::$loaded[$id] = $this;
+			self::setMe($id);
+
+			return;
+		}
+
+		// Specifically told not to load any data.
+		if ($dataset === UserDataset::None) {
+			return;
+		}
+
+		// Load the specified member.
+		self::$loaded[$id] = $this;
+
+		if (
+			empty(self::$profiles[$id])
+			|| !self::$profiles[$id]['dataset']->includes($dataset)
+		) {
+			self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
+		}
+
+		$this->fixTimezoneSetting();
+		$this->setProperties();
+	}
+
+	/**
 	 * Load this user's permissions.
 	 *
 	 * @param int|array|null $boards Boards to load permissions for.
@@ -4187,68 +4249,6 @@ class User implements \ArrayAccess
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected in order to force instantiation via User::load().
-	 *
-	 * @param ?int $id The ID number of the user. If null, no data will be
-	 *    loaded into the object properties. Default: null.
-	 * @param UserDataset $dataset The set of data to load. Ignored if $id is
-	 *    null. If set to UserDataset::None, no data will be loaded into the
-	 *    object properties. Default: UserDataset::Normal.
-	 */
-	protected function __construct(?int $id = null, UserDataset $dataset = UserDataset::Normal)
-	{
-		// No ID given, so we can't load any data.
-		if (!isset($id)) {
-			return;
-		}
-
-		$this->id = $id;
-
-		// Reloading the current user requires special handling.
-		if ($id == (self::$my_id ?? NAN)) {
-			// Copy over the existing data.
-			$this->set(get_object_vars(self::$me));
-
-			// Must load at least the minimal data in this situation.
-			if ($dataset === UserDataset::None) {
-				unset($dataset);
-			}
-
-			$dataset ??= $this->chooseMyDataset();
-
-			if (!self::$me->dataset->includes($dataset)) {
-				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-
-				$this->fixTimezoneSetting();
-				$this->setProperties();
-			}
-
-			self::$loaded[$id] = $this;
-			self::setMe($id);
-
-			return;
-		}
-
-		// Specifically told not to load any data.
-		if ($dataset === UserDataset::None) {
-			return;
-		}
-
-		// Load the specified member.
-		self::$loaded[$id] = $this;
-
-		if (
-			empty(self::$profiles[$id])
-			|| !self::$profiles[$id]['dataset']->includes($dataset)
-		) {
-			self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-		}
-
-		$this->fixTimezoneSetting();
-		$this->setProperties();
-	}
 
 	/**
 	 * Sets object properties based on data in User::$profiles[$this->id].
