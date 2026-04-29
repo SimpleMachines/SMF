@@ -2064,8 +2064,8 @@ class Board implements \ArrayAccess, Routable
 	 *  - If cache is enabled, Board::$info is stored in cache.
 	 *  - Redirects to appropriate post if only a message ID was requested.
 	 *  - Is only used when inside a topic or board.
-	 *  - Determines the local moderators for the board and calls
-	 *    User::setModerators.
+	 *  - Loads User objects for the local moderators of the board and assigns
+	 *    them moderator status.
 	 *  - Prevents access if user is not in proper group nor a local moderator
 	 *    of the board.
 	 *
@@ -2120,7 +2120,14 @@ class Board implements \ArrayAccess, Routable
 				}
 
 				if (!empty(self::$board_id)) {
-					User::setModerators();
+					if (!empty($this->moderators)) {
+						foreach (User::load(array_keys($this->moderators)) as $mod) {
+							// Setting this to true will automatically trigger related
+							// changes like adjusting their group, icons, etc.
+							$mod->is_mod = true;
+						}
+					}
+
 					$this->checkAccess();
 					$this->buildLinkTree();
 				}

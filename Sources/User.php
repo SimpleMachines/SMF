@@ -262,7 +262,14 @@ class User implements \ArrayAccess
 	 *
 	 * Whether this user is a moderator on the current board.
 	 */
-	public bool $is_mod;
+	public bool $is_mod {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => $this->isMod();`
+		&get => $this->isMod();
+		set {
+			$this->isMod($value);
+		}
+	}
 
 	/**
 	 * @var int
@@ -566,15 +573,6 @@ class User implements \ArrayAccess
 	/**
 	 * @var string
 	 *
-	 * Name of the user's primary group.
-	 *
-	 * Does not change even if the user is a moderator on the current board.
-	 */
-	public string $primary_group_name;
-
-	/**
-	 * @var string
-	 *
 	 * Name of the user's post-count based group.
 	 */
 	public string $post_group_name;
@@ -600,6 +598,42 @@ class User implements \ArrayAccess
 	 * (Exactly which group will depend on the situation.)
 	 */
 	public array $icons;
+
+	/**
+	 * @var int
+	 *
+	 * ID of the user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public int $primary_group_id;
+
+	/**
+	 * @var string
+	 *
+	 * Name of the user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public string $primary_group_name;
+
+	/**
+	 * @var string
+	 *
+	 * The color associated with this user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public string $primary_group_color;
+
+	/**
+	 * @var array
+	 *
+	 * The icons associated with this user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public array $primary_group_icons;
 
 	/**
 	 * @var Avatar
@@ -2651,79 +2685,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Figures out which users are moderators on the current board, and sets
-	 * them as such.
-	 */
-	public static function setModerators(): void
-	{
-		if (isset(Board::$info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null) {
-			$request = Db::$db->query(
-				'SELECT group_name, online_color, icons
-				FROM {db_prefix}membergroups
-				WHERE id_group = {int:moderator_group}
-				LIMIT 1',
-				[
-					'moderator_group' => 3,
-				],
-			);
-			$moderator_group_info = Db::$db->fetch_assoc($request);
-			Db::$db->free_result($request);
-
-			CacheApi::put('moderator_group_info', $moderator_group_info, 480);
-		}
-
-		foreach (self::$profiles as $id => &$profile) {
-			if (empty($id)) {
-				continue;
-			}
-
-			if (!isset(self::$loaded[$id])) {
-				new self($id);
-			}
-
-			$user = self::$loaded[$id];
-
-			// Global moderators.
-			$profile['is_mod'] = \in_array(2, $user->groups);
-
-			// Can't do much else without a board.
-			if (!isset(Board::$info)) {
-				continue;
-			}
-
-			if (!empty(Board::$info->moderators)) {
-				$profile['is_mod'] |= isset(Board::$info->moderators[$id]);
-			}
-
-			if (!empty(Board::$info->moderator_groups)) {
-				$profile['is_mod'] |= array_intersect($user->groups, array_keys(Board::$info->moderator_groups)) !== [];
-			}
-
-			// By popular demand, don't show admins or global moderators as moderators.
-			if ($profile['is_mod'] && $user->group_id != 1 && $user->group_id != 2) {
-				$profile['member_group'] = $moderator_group_info['group_name'];
-			}
-
-			// If the Moderator group has no color or icons, but their group does... don't overwrite.
-			if ($profile['is_mod'] && !empty($moderator_group_info['icons'])) {
-				$profile['icons'] = $moderator_group_info['icons'];
-			}
-
-			if ($profile['is_mod'] && !empty($moderator_group_info['online_color'])) {
-				$profile['member_group_color'] = $moderator_group_info['online_color'];
-			}
-
-			// Update object properties.
-			$user->setProperties();
-
-			// Add this user to the moderators group if they're not already an admin or moderator.
-			if ($user->is_mod && array_intersect([1, 2, 3], $user->groups) === []) {
-				$user->groups[] = 3;
-			}
-		}
-	}
-
-	/**
 	 * Builds query_see_board and query_wanna_see_board (plus variants) for the
 	 * given user.
 	 *
@@ -3885,8 +3846,6 @@ class User implements \ArrayAccess
 			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
-
-		self::setModerators();
 	}
 
 	/**
@@ -3913,7 +3872,6 @@ class User implements \ArrayAccess
 		// User status.
 		$this->setGroups();
 		$this->setPossiblyRobot();
-		$this->is_mod = \in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= self::BANNED;
 		$this->is_online = (bool) ($profile['is_online'] ?? $this->is_me);
@@ -3963,11 +3921,14 @@ class User implements \ArrayAccess
 
 		// Extended membergroup info.
 		$this->group_name = $profile['member_group'] ?? '';
-		$this->primary_group_name = $profile['primary_group'] ?? '';
 		$this->post_group_name = $profile['post_group'] ?? '';
 		$this->group_color = $profile['member_group_color'] ?? '';
 		$this->post_group_color = $profile['post_group_color'] ?? '';
 		$this->icons = empty($profile['icons']) ? ['', ''] : explode('#', $profile['icons']);
+		$this->primary_group_id = $this->group_id;
+		$this->primary_group_name = $this->group_name;
+		$this->primary_group_color = $this->group_color;
+		$this->primary_group_icons = $this->icons;
 
 		// The avatar is a complicated thing, and historically had multiple
 		// representations in the code. This supports everything.
@@ -4568,6 +4529,76 @@ class User implements \ArrayAccess
 		}
 	}
 
+	/**
+	 * Callback for the property hooks of $this->is_mod that determines the
+	 * correct value to use and also adjusts other properties as necessary to
+	 * reflect this user's moderator status (or lack thereof).
+	 *
+	 * Guests can never be moderators, so if this method is called on a guest,
+	 * the $is_mod argument will be ignored and overridden by false.
+	 *
+	 * @todo Returns by reference in order to make it easier for the property
+	 *    to maintain compatibility with \ArrayAccess. Once \ArrayAccess
+	 *    compatibility is no longer required, this method can be changed to
+	 *    not return by reference.
+	 *
+	 * @param ?bool $is_mod Whether this user should be given moderator status.
+	 *    If null, will be determined by whether this user's groups include the
+	 *    global moderator and/or local moderator group. Default: null.
+	 * @return bool Whether this user should have moderator status.
+	 */
+	protected function &isMod(?bool $is_mod = null): bool
+	{
+		if (!isset($this->groups)) {
+			$this->setGroups();
+		}
+
+		// Guests can never be moderators.
+		if ($this->is_guest) {
+			$is_mod = false;
+		}
+
+		if (!isset($is_mod)) {
+			$is_mod = array_intersect([Group::GLOBAL_MOD, Group::MOD], $this->groups) !== [];
+		}
+
+		if ($is_mod) {
+			// By popular demand, don't show admins or global moderators as
+			// local moderators.
+			if (!\in_array($this->group_id ?? Group::REGULAR, [Group::ADMIN, Group::GLOBAL_MOD])) {
+				$moderator_group = current(Group::load(Group::MOD));
+
+				// Set this member's group name to Moderator.
+				$this->group_name = $moderator_group->name;
+
+				// Set this member's icons and color to those for a moderator
+				// (unless the moderator group has no color or icons).
+				if (!empty($moderator_group->icons)) {
+					$this->icons = array_pad(explode('#', $moderator_group->icons), 2, '');
+				}
+
+				if (!empty($moderator_group->online_color)) {
+					$this->group_color = $moderator_group->online_color;
+				}
+			}
+
+			// Make this user a local moderator if they're not already a global
+			// or local moderator.
+			if (array_intersect([Group::GLOBAL_MOD, Group::MOD], $this->groups) === []) {
+				$this->groups[] = Group::MOD;
+			}
+		} else {
+			$this->group_id = $this->primary_group_id ?? $this->group_id ?? ($this->is_guest ? Group::GUEST : Group::REGULAR);
+			$this->group_name = $this->primary_group_name ?? '';
+			$this->group_color = $this->primary_group_color ?? '';
+			$this->icons = $this->primary_group_icons ?? [];
+
+			$this->groups = array_diff($this->groups, [Group::MOD]);
+		}
+
+		return $is_mod;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -4746,7 +4777,6 @@ class User implements \ArrayAccess
 				}
 
 				// Keep track of the member's normal member group.
-				$row['primary_group'] = $row['member_group'] ?? '';
 				$row['member_group'] = $row['member_group'] ?? '';
 				$row['post_group'] = $row['post_group'] ?? '';
 				$row['member_group_color'] = $row['member_group_color'] ?? '';
