@@ -978,9 +978,9 @@ class Theme
 		}
 
 		Utils::$context['common_stats'] = [
-			'total_posts' => Lang::numberFormat((int) Config::$modSettings['totalMessages']),
-			'total_topics' => Lang::numberFormat((int) Config::$modSettings['totalTopics']),
-			'total_members' => Lang::numberFormat((int) Config::$modSettings['totalMembers']),
+			'total_posts' => (int) Config::$modSettings['totalMessages'],
+			'total_topics' => Config::$modSettings['totalTopics'],
+			'total_members' => (int) Config::$modSettings['totalMembers'],
 			'latest_member' => [
 				'id' => Config::$modSettings['latestMember'],
 				'name' => Config::$modSettings['latestRealName'],
