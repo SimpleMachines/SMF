@@ -4773,12 +4773,7 @@ class User implements \ArrayAccess
 
 		// This is what a guest's variables should be.
 		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
-			self::$profiles[0]['avatar_original'] ??= self::$profiles[0]['avatar'] ??= '';
-			self::$profiles[0]['primary_group'] ??= self::$profiles[0]['member_group'] ??= '';
-			self::$profiles[0]['post_group'] ??= '';
-			self::$profiles[0]['member_group_color'] ??= '';
-			self::$profiles[0]['post_group_color'] ??= '';
-			self::$profiles[0]['options'] ??= [];
+			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
 			self::$profiles[0]['dataset'] = UserDataset::Basic;
 		}
 
@@ -5216,151 +5211,271 @@ class User implements \ArrayAccess
 
 		// Look up any un-cached member data.
 		if (!empty($users)) {
-			$select_columns = ['mem.*'];
-			$select_tables = ['{db_prefix}members AS mem'];
+			$query_customizations = [
+				'selects' => ['mem.*'],
+				'joins' => [],
+				'where' => [],
+				'order' => [],
+				'group' => [],
+				'limit' => 0,
+				'params' => [],
+			];
 
-			switch ($dataset) {
-				case UserDataset::Profile:
-					$select_columns[] = 'lo.url';
-					// no break
+			self::addQueryCustomizationsForLoadType($query_customizations, $users, $type);
+			self::addQueryCustomizationsForDataset($query_customizations, $dataset);
 
-				case UserDataset::Normal:
-					$select_columns[] = 'COALESCE(lo.log_time, 0) AS is_online';
-					$select_columns[] = 'mg.online_color AS member_group_color';
-					$select_columns[] = 'COALESCE(mg.group_name, {string:blank_string}) AS member_group';
-					$select_columns[] = 'pg.online_color AS post_group_color';
-					$select_columns[] = 'COALESCE(pg.group_name, {string:blank_string}) AS post_group';
-					$select_columns[] = 'CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
-
-					$select_tables[] = 'LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)';
-					$select_tables[] = 'LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)';
-					$select_tables[] = 'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
-					// no break
-
-				case UserDataset::Basic:
-					$select_columns[] = 'COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS attachment_width, a.height AS attachment_height';
-
-					$select_tables[] = 'LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)';
-					// no break
-
-				case UserDataset::Minimal:
-					break;
-			}
-
-			switch ($type) {
-				case self::LOAD_BY_EMAIL:
-					$where = 'mem.email_address' . (\count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}');
-					break;
-
-				case self::LOAD_BY_NAME:
-					if (Db::$db->case_sensitive) {
-						$where = 'LOWER(mem.member_name)';
-						$users = array_map('strtolower', $users);
-					} else {
-						$where = 'mem.member_name';
-					}
-
-					$where .= \count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}';
-
-					break;
-
-				default:
-					$where = 'mem.id_member' . (\count($users) > 1 ? ' IN ({array_int:users})' : ' = {int:users}');
-					break;
-			}
-
-			// Allow mods to easily add to the selected member data
-			IntegrationHook::call('integrate_load_member_data', [&$select_columns, &$select_tables, &$dataset]);
-
-			// Load the members' data.
-			$request = Db::$db->query(
-				'SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
-				FROM ' . implode("\n\t\t\t\t\t", $select_tables) . '
-				WHERE ' . $where . (\count($users) > 1 ? '' : '
-				LIMIT 1'),
-				[
-					'blank_string' => '',
-					'users' => \count($users) > 1 ? $users : reset($users),
-				],
+			$loaded_ids = array_merge(
+				$loaded_ids,
+				self::retrieveUserData($query_customizations, $dataset),
 			);
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$row['id_member'] = (int) $row['id_member'];
+			if (!empty(CacheApi::$enable) && $dataset->includes(UserDataset::Minimal)) {
+				foreach ($loaded_ids as $id) {
+					if (CacheApi::$enable >= 2 && $id === (self::$my_id ?? NAN)) {
+						CacheApi::put('user_settings-' . $id, self::$profiles[$id], 60);
+					}
 
-				// If the image proxy is enabled, we still want the original URL when they're editing the profile...
-				$row['avatar_original'] = $row['avatar'] ?? '';
-
-				// Take care of proxying the avatar if required.
-				if (!empty($row['avatar'])) {
-					$row['avatar'] = Url::create($row['avatar'])->proxied();
-				}
-
-				// Keep track of the member's normal member group.
-				$row['member_group'] = $row['member_group'] ?? '';
-				$row['post_group'] = $row['post_group'] ?? '';
-				$row['member_group_color'] = $row['member_group_color'] ?? '';
-				$row['post_group_color'] = $row['post_group_color'] ?? '';
-
-				// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
-				$row['ignore_boards'] = rtrim($row['ignore_boards'], ',');
-
-				// Unpack the IP addresses.
-				if (isset($row['member_ip'])) {
-					$row['member_ip'] = new IP($row['member_ip']);
-				}
-
-				if (isset($row['member_ip2'])) {
-					$row['member_ip2'] = new IP($row['member_ip2']);
-				}
-
-				$row['is_online'] = $row['is_online'] ?? $row['id_member'] === (self::$my_id ?? NAN);
-
-				// Declare this for now. We'll fill it in later.
-				$row['options'] = [];
-
-				// Save it.
-				if (!isset(self::$profiles[$row['id_member']])) {
-					self::$profiles[$row['id_member']] = [];
-				}
-
-				// Use array_merge here to avoid data loss if we somehow call
-				// this twice for the same member but with different datasets.
-				self::$profiles[$row['id_member']] = array_merge(self::$profiles[$row['id_member']], $row);
-
-				// If this is the current user's data, alias it to User::$settings.
-				if ($row['id_member'] === (self::$my_id ?? NAN)) {
-					self::$settings = &self::$profiles[$row['id_member']];
-				}
-
-				$loaded_ids[] = $row['id_member'];
-			}
-			Db::$db->free_result($request);
-
-			if (!empty($loaded_ids) && $dataset->exceeds(UserDataset::Minimal)) {
-				self::loadOptions($loaded_ids);
-			}
-
-			// This hook's name is due to historical reasons.
-			IntegrationHook::call('integrate_load_min_user_settings', [&self::$profiles]);
-
-			if ($type === self::LOAD_BY_ID && !empty(CacheApi::$enable)) {
-				foreach ($users as $id) {
-					if ($id === (self::$my_id ?? NAN)) {
-						if (CacheApi::$enable >= 2) {
-							CacheApi::put('user_settings-' . $id, self::$profiles[$id], 60);
-						}
-					} elseif (CacheApi::$enable >= 3) {
+					if (CacheApi::$enable >= 3) {
 						CacheApi::put('member_data-' . $dataset->value . '-' . $id, self::$profiles[$id], 240);
 					}
 				}
 			}
 		}
 
+		return $loaded_ids;
+	}
+
+	/**
+	 * Adds stuff to $query_customizations based on $users and $type.
+	 *
+	 * @param array &$query_customizations
+	 * @param array $users Users specified by ID, name, or email address.
+	 * @param int $type Whether $users contains IDs, names, or email addresses.
+	 *    Possible values are this class's LOAD_BY_* constants.
+	 */
+	protected static function addQueryCustomizationsForLoadType(array &$query_customizations, array $users, int $type): void
+	{
+		switch ($type) {
+			case self::LOAD_BY_EMAIL:
+				$query_customizations['where'][] = 'mem.email_address IN ({array_string:users})';
+				$query_customizations['params']['users'] = $users;
+				break;
+
+			case self::LOAD_BY_NAME:
+				if (Db::$db->case_sensitive) {
+					$query_customizations['where'][] = 'LOWER(mem.member_name) IN ({array_string:users})';
+					$query_customizations['params']['users'] = array_map('strtolower', $users);
+				} else {
+					$query_customizations['where'][] = 'mem.member_name IN ({array_string:users})';
+					$query_customizations['params']['users'] = $users;
+				}
+
+				break;
+
+			default:
+				$query_customizations['where'][] = 'mem.id_member IN ({array_int:users})';
+				$query_customizations['params']['users'] = $users;
+				break;
+		}
+	}
+
+	/**
+	 * Adds stuff to $query_customizations based on $dataset.
+	 *
+	 * @param array &$query_customizations
+	 * @param UserDataset $dataset
+	 */
+	protected static function addQueryCustomizationsForDataset(array &$query_customizations, UserDataset $dataset): void
+	{
+		switch ($dataset) {
+			case UserDataset::Profile:
+				$query_customizations['selects'][] = 'lo.url';
+				// no break
+
+			case UserDataset::Normal:
+				$query_customizations['selects'] = array_merge(
+					$query_customizations['selects'],
+					[
+						'COALESCE(lo.log_time, 0) AS is_online',
+						'mg.online_color AS member_group_color',
+						'COALESCE(mg.group_name, {empty}) AS member_group',
+						'pg.online_color AS post_group_color',
+						'COALESCE(pg.group_name, {empty}) AS post_group',
+						'CASE WHEN mem.id_group = 0 OR mg.icons = {empty} THEN pg.icons ELSE mg.icons END AS icons',
+					],
+				);
+
+				$query_customizations['joins'] = array_merge(
+					$query_customizations['joins'],
+					[
+						'LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)',
+						'LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)',
+						'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)',
+					],
+				);
+				// no break
+
+			case UserDataset::Basic:
+				$query_customizations['selects'] = array_merge(
+					$query_customizations['selects'],
+					[
+						'COALESCE(a.id_attach, 0) AS id_attach',
+						'a.filename',
+						'a.attachment_type',
+						'a.width AS attachment_width',
+						'a.height AS attachment_height',
+					],
+				);
+
+				$query_customizations['joins'][] = 'LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)';
+				// no break
+
+			case UserDataset::Minimal:
+				// We always want all the columns in the members table.
+				if (!\in_array('mem.*', $query_customizations['selects'])) {
+					array_unshift($query_customizations['selects'], 'mem.*');
+				}
+
+				// Try to avoid duplicate columns in the result rows.
+				foreach ($query_customizations['selects'] as $sel_num => $select) {
+					if (preg_match('/^mem\.\w+$/', $select)) {
+						unset($query_customizations['selects'][$sel_num]);
+					}
+				}
+
+				break;
+		}
+
+		$query_customizations['selects'] = array_unique($query_customizations['selects']);
+		$query_customizations['joins'] = array_unique($query_customizations['joins']);
+
+		// Allow mods to easily add to the selected member data
+		IntegrationHook::call('integrate_load_member_data', [&$query_customizations['selects'], &$query_customizations['joins'], $dataset->value]);
+	}
+
+	/**
+	 * Populates self::$profiles with data retrieved via self::queryData()
+	 *
+	 * @param array $query_customizations Customizations to the SQL query.
+	 * @param UserDataset $dataset
+	 * @return array The IDs of the loaded members.
+	 */
+	protected static function retrieveUserData(array $query_customizations, UserDataset $dataset): array
+	{
+		$loaded_ids = [];
+
+		foreach (self::queryData(...$query_customizations) as $row) {
+			$row = self::processRawUserData($row);
+
+			// Save it.
+			// Use array_merge here to avoid data loss if we call this multiple
+			// times for the same member with different datasets.
+			self::$profiles[$row['id_member']] = array_merge(
+				self::$profiles[$row['id_member']] ?? [],
+				$row,
+			);
+
+			// If this is the current user's data, alias it to User::$settings.
+			if ($row['id_member'] === (self::$my_id ?? NAN)) {
+				self::$settings = &self::$profiles[$row['id_member']];
+			}
+
+			$loaded_ids[] = $row['id_member'];
+		}
+
+		if (!empty($loaded_ids) && $dataset->exceeds(UserDataset::Minimal)) {
+			self::loadOptions($loaded_ids);
+		}
+
 		foreach ($loaded_ids as $id) {
 			self::$profiles[$id]['dataset'] = $dataset;
 		}
 
+		// This hook's name is due to historical reasons.
+		IntegrationHook::call('integrate_load_min_user_settings', [&self::$profiles]);
+
 		return $loaded_ids;
+	}
+
+	/**
+	 * Generator that runs queries about user data and yields the result rows.
+	 *
+	 * @param array $selects Table columns to select.
+	 * @param array $params Parameters to substitute into query text.
+	 * @param array $joins Zero or more *complete* JOIN clauses.
+	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
+	 *    Note that 'FROM {db_prefix}members AS mem' is always part of the query.
+	 * @param array $where Zero or more conditions for the WHERE clause.
+	 *    Conditions will be placed in parentheses and concatenated with AND.
+	 *    If this is left empty, no WHERE clause will be used.
+	 * @param array $order Zero or more conditions for the ORDER BY clause.
+	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
+	 * @param int|string $limit Maximum number of results to retrieve.
+	 *    If this is left empty, all results will be retrieved.
+	 *
+	 * @return \Generator<array> Iterating over the result gives database rows.
+	 */
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
+	{
+		$request = Db::$db->query(
+			'SELECT
+				' . implode(', ', $selects) . '
+			FROM {db_prefix}members AS mem' . (empty($joins) ? '' : '
+				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
+			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
+			LIMIT ' . $limit : ''),
+			$params,
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			yield $row;
+		}
+		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Helper for self::retrieveUserData() that does some basic processing of
+	 * retrieved data records.
+	 *
+	 * @param array $row A row of data.
+	 * @return array Updated $row.
+	 */
+	protected static function processRawUserData(array $row): array
+	{
+		$row['id_member'] = (int) $row['id_member'];
+
+		// If the image proxy is enabled, we still want the original URL when they're editing the profile...
+		$row['avatar_original'] = $row['avatar'] ??= '';
+
+		// Take care of proxying the avatar if required.
+		if (!empty($row['avatar'])) {
+			$row['avatar'] = Url::create($row['avatar'])->proxied();
+		}
+
+		// Keep track of the member's normal member group.
+		$row['primary_group'] = $row['member_group'] ??= '';
+		$row['post_group'] ??= '';
+		$row['member_group_color'] ??= '';
+		$row['post_group_color'] ??= '';
+
+		// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
+		$row['ignore_boards'] = rtrim($row['ignore_boards'] ?? '', ',');
+
+		// Unpack the IP addresses.
+		foreach (['member_ip', 'member_ip2'] as $key) {
+			$row[$key] = ($row[$key] ?? '') !== '' ? (string) new IP($row[$key]) : '';
+		}
+
+		$row['is_online'] = $row['is_online'] ?? $row['id_member'] === (self::$my_id ?? NAN);
+
+		// Declare this for now. We'll fill it in later.
+		$row['options'] = [];
+
+		return $row;
 	}
 
 	/**
