@@ -654,7 +654,11 @@ class Calendar implements ActionInterface, Routable
 
 			// Get all the visible events within a date range.
 			if (isset($_REQUEST['start_date'])) {
-				$low_date = @(new Time($_REQUEST['start_date']));
+				try {
+					$low_date = new Time($_REQUEST['start_date']);
+				} catch (\Throwable $e) {
+					ErrorHandler::fatalLang('invalid_date', false, 400);
+				}
 			}
 
 			if (!isset($low_date)) {
@@ -663,7 +667,11 @@ class Calendar implements ActionInterface, Routable
 			}
 
 			if (isset($_REQUEST['duration'])) {
-				$duration = @(new TimeInterval($_REQUEST['duration']));
+				try {
+					$duration = new TimeInterval($_REQUEST['duration']);
+				} catch (\Throwable $e) {
+					ErrorHandler::fatalLang('invalid_days_numb', false, 400);
+				}
 			}
 
 			if (!isset($duration)) {
