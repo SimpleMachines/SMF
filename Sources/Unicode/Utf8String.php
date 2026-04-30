@@ -829,14 +829,14 @@ class Utf8String implements \Stringable
 
 					// Test consists of the characters before and after the extending characters.
 					if (isset($chars[$i + $j + 1])) {
-						$test_string .= $chars[$i]['char'] . $chars[$i + $j + 1]['char'];
+						$test_string = $chars[$i]['char'] . $chars[$i + $j + 1]['char'];
 
 						$current_string = $this->string;
 						$this->string = $test_string;
 
 						// Set the break_after of the last extender to whether there
 						// would be a break if the extenders were not present.
-						$chars[$i + $j]['break_after'] = \count($this->extractWords($level)) > 1;
+						$chars[$i + $j]['break_after'] = \count($this->extractWords(0)) > 1;
 
 						$this->string = $current_string;
 					} else {
