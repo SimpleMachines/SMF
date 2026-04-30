@@ -458,6 +458,7 @@ class Cookie
 		// Verify the data.
 		if (
 			User::$me->is_guest
+			|| !isset($cookie)
 			|| $cookie->member !== User::$me->id
 			|| $cookie->hash !== self::encrypt(User::$me->passwd, User::$me->password_salt)
 		) {
