@@ -563,7 +563,8 @@ class Table
 	/**
 	 * Gets all known table schemas.
 	 *
-	 * @return array All known table schemas.
+	 * @param string $schema_version E.g. 'v3_0'.
+	 * @return array All known table schemas for the given schema version.
 	 */
 	final public static function getAll(string $schema_version): array
 	{
@@ -591,6 +592,47 @@ class Table
 		}
 
 		return $tables;
+	}
+
+	/**
+	 * Finds and returns the table schema class for the specified table name.
+	 *
+	 * @param string $table_name The name of the table.
+	 * @param string $schema_version E.g. 'v3_0'.
+	 * @return ?self An instance of this class, or null if nothing was found.
+	 */
+	final public static function find(string $table_name, string $schema_version): ?self
+	{
+		// Strip off the prefix.
+		foreach (['{db_prefix}', Config::$db_prefix, Db::$db?->prefix ?? ''] as $prefix) {
+			if (str_starts_with($table_name, $prefix)) {
+				$table_name = substr($table_name, \strlen($prefix));
+				break;
+			}
+		}
+
+		// Try to reverse-engineer the class name from the table name.
+		$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\' . ucfirst(preg_replace_callback(
+			'/_(\w)/',
+			fn($matches) => strtoupper($matches[1]),
+			$table_name,
+		));
+
+		// Does it exist?
+		if (class_exists($fully_qualified_class_name)) {
+			return new $fully_qualified_class_name();
+		}
+
+		// Failed to reverse-engineer the class name, so loop through them all
+		// to see if we can find a match that way.
+		foreach (self::getAll($schema_version) as $table) {
+			if ($table->name === $table_name) {
+				return $table;
+			}
+		}
+
+		// Couldn't find it.
+		return null;
 	}
 
 	/**

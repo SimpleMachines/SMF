@@ -850,13 +850,12 @@ class Utils
 	 *
 	 * Similar to, but with more capabilities than, mb_convert_case().
 	 *
-	 * Note that setting $form to 'kc_casefold' will override any value of $case
-	 * and will always fold the case of the string. Also note that setting $form
-	 * to 'kc_casefold' is not the same as setting $case to 'fold' and $form to
-	 * 'kc'; specifically, setting $case to 'fold' and $form to 'kc' does not
-	 * remove "default ignorable code points" from the string, whereas setting
-	 * $form to 'kc_casefold' does. See notes on the normalize() method for more
-	 * information about when 'kc_casefold' should be used.
+	 * Note that setting $form to 'kc_casefold' is not the same as setting $case
+	 * to 'fold' and $form to 'kc'; specifically, setting $case to 'fold' and
+	 * $form to 'kc' does not remove "default ignorable code points" from the
+	 * string, whereas setting $form to 'kc_casefold' does. See notes on the
+	 * normalize() method for more information about when 'kc_casefold' should
+	 * be used.
 	 *
 	 * @param string $string The input string.
 	 * @param string $case One of 'upper', 'lower', 'fold', 'title', 'ucfirst',
@@ -2487,7 +2486,7 @@ class Utils
 	 *************************/
 
 	/**
-	 * Helper method for Utils::call_helper.
+	 * Helper method for Utils::getCallable().
 	 *
 	 * Receives a string and tries to figure it out if it contains info to load
 	 * a file.

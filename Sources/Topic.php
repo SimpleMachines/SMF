@@ -90,8 +90,8 @@ class Topic implements \ArrayAccess, Routable
 	/**
 	 * @var int
 	 *
-	 * ID number of the user who reply this topic.
-	 * This will be 0 for topics replied by guests.
+	 * ID number of the user who most recently replied to this topic.
+	 * This will be 0 if a guest made the most recent reply.
 	 */
 	public int $id_member_updated;
 

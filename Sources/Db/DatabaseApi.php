@@ -375,16 +375,51 @@ abstract class DatabaseApi
 	 */
 	public function getTypeIndicators(string $table_name, array $column_values): array
 	{
-		$columns = $this->list_columns($table_name, true);
+		static $column_types = [];
+
+		// Strip off the prefix.
+		foreach (['{db_prefix}', Config::$db_prefix, $this->prefix] as $prefix) {
+			if (str_starts_with($table_name, $prefix)) {
+				$table_name = substr($table_name, \strlen($prefix));
+				break;
+			}
+		}
+
+		if (!isset($column_types[$table_name])) {
+			$column_types[$table_name] = [];
+
+			// First try looking up the column info from the schema files.
+			// We do this first to try to avoid an extra database query.
+			// This approach does assume that the columns in the database are
+			// defined the way they are supposed to be, but that's fine since
+			// if the theoretical column type doesn't match the actual column
+			// type, we are doomed to run into errors anyway.
+			$table = Schema\Table::find($table_name, preg_replace('/^(\d+)\.(\d+)/', 'v$1_$2', SMF_VERSION));
+
+			if ($table instanceof Schema\Table) {
+				foreach ($table->columns as $col) {
+					$column_types[$table_name][$col->name] = $col->type;
+				}
+			}
+
+			// If we didn't find a schema file for this table, or if $column_values
+			// refers to any columns that are not defined in the schema file, then
+			// we need to do a database query.
+			if (array_diff_key($column_values, $column_types[$table_name]) !== []) {
+				foreach ($this->list_columns($table_name, true) as $col) {
+					$column_types[$table_name][$col['name']] = $col['type'];
+				}
+			}
+		}
 
 		$types = [];
 
 		foreach ($column_values as $column_name => $value) {
-			if (!isset($columns[$column_name])) {
+			if (!isset($column_types[$table_name][$column_name])) {
 				continue;
 			}
 
-			switch (strtolower($columns[$column_name]['type'])) {
+			switch (strtolower($column_types[$table_name][$column_name])) {
 				case 'decimal':
 				case 'numeric':
 				case 'float':
