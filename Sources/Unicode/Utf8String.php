@@ -713,20 +713,24 @@ class Utf8String implements \Stringable
 			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
 			 */
 			$chars = preg_split('/(.)/su', $this->string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$char_positions = [];
+			$position = 0;
 
 			foreach ($chars as $i => $char) {
 				$chars[$i] = [
 					'char' => $char,
 					'break_after' => false,
 				];
+				$char_positions[$i] = $position;
+				$position += \strlen($char);
 			}
 
 			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 			$prop_classes = utf8_regex_properties();
 
 			for ($i = 0; $i < \count($chars); $i++) {
-				$substring_before = implode('', \array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
-				$substring_after = implode('', \array_slice(array_map(fn($char) => $char['char'], $chars), $i));
+				$substring_before = substr($this->string, 0, $char_positions[$i]);
+				$substring_after = substr($this->string, $char_positions[$i]);
 
 				// Do not break within CRLF.
 				if ($chars[$i]['char'] === "\r" && isset($chars[$i + 1]) && $chars[$i + 1]['char'] === "\n") {
