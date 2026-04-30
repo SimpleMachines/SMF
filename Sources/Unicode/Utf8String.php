@@ -728,6 +728,67 @@ class Utf8String implements \Stringable
 			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 			$prop_classes = utf8_regex_properties();
 
+			$patterns = [
+				'vertical' => '/\v/u',
+
+				'emoji_zwj' => '/^\x{200D}[' . $prop_classes['Emoji'] . ']/u',
+
+				'wsegspace' => '/^[' . $prop_classes['WSegSpace'] . ']{2}/u',
+
+				'extend_format' => '/^\V([' . $prop_classes['Extend'] . $prop_classes['Format'] . '\x{200D}]+)/u',
+
+				'letters' => '/^[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']{2}/u',
+
+				'mid_letter' => '/^['
+					. $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']'
+					. '[' . $prop_classes['MidLetter'] . $prop_classes['MidNumLet'] . '\']'
+					. '[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']'
+					. '/u',
+
+				'hebrew_quote' => '/^[' . $prop_classes['Hebrew_Letter'] . ']\'/u',
+
+				'hebrew_double_quote' => '/^['
+					. $prop_classes['Hebrew_Letter'] . ']'
+					. '"'
+					. '[' . $prop_classes['Hebrew_Letter'] . ']'
+					. '/u',
+
+				'numeric_pair' => '/^[' . $prop_classes['Numeric'] . ']{2}/u',
+
+				'letter_numeric' => '/^[' . $prop_classes['ALetter'] . '][' . $prop_classes['Numeric'] . ']/u',
+
+				'numeric_letter' => '/^[' . $prop_classes['Numeric'] . '][' . $prop_classes['ALetter'] . ']/u',
+
+				'numeric_mid_numeric' => '/^['
+					. $prop_classes['Numeric'] . ']'
+					. '[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']'
+					. '[' . $prop_classes['Numeric'] . ']'
+					. '/u',
+
+				'midnum_between_numbers' => '/^['
+					. $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']'
+					. '[' . $prop_classes['Numeric'] . ']'
+					. '/u',
+
+				'katakana' => '/^[' . $prop_classes['Katakana'] . ']{2}/u',
+
+				'extendnumlet_after' => '/^['
+					. $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']'
+					. '[' . $prop_classes['ExtendNumLet'] . ']'
+					. '/u',
+
+				'extendnumlet_before' => '/^['
+					. $prop_classes['ExtendNumLet'] . ']'
+					. '[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']'
+					. '/u',
+
+				'regional_indicator' => '/^[' . $prop_classes['Regional_Indicator'] . ']/u',
+
+				'regional_indicator_before' => '/[' . $prop_classes['Regional_Indicator'] . ']*$/u',
+
+				'numeric_before' => '/[' . $prop_classes['Numeric'] . ']$/u',
+			];
+
 			for ($i = 0; $i < \count($chars); $i++) {
 				$substring_before = substr($this->string, 0, $char_positions[$i]);
 				$substring_after = substr($this->string, $char_positions[$i]);
@@ -739,31 +800,25 @@ class Utf8String implements \Stringable
 				}
 
 				// Otherwise break before and after line breaks.
-				if (preg_match('/\v/u', $char)) {
+				if (preg_match($patterns['vertical'], $chars[$i]['char'])) {
 					$chars[$i]['break_after'] = true;
 					continue;
 				}
 
 				// Do not break within emoji zwj sequences.
-				if (preg_match('/^\x{200D}[' . $prop_classes['Emoji'] . ']/u', $substring_after)) {
+				if (preg_match($patterns['emoji_zwj'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Keep horizontal whitespace together.
-				if (preg_match('/^[' . $prop_classes['WSegSpace'] . ']{2}/u', $substring_after)) {
+				if (preg_match($patterns['wsegspace'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Ignore Format and Extend characters, except after start of text and line breaks.
-				if (
-					preg_match(
-						'/^\V([' . $prop_classes['Extend'] . $prop_classes['Format'] . '\x{200D}]+)/u',
-						$substring_after,
-						$matches,
-					)
-				) {
+				if (preg_match($patterns['extend_format'], $substring_after, $matches)) {
 					// Don't break before the extending character.
 					$chars[$i]['break_after'] = false;
 
@@ -794,169 +849,79 @@ class Utf8String implements \Stringable
 				}
 
 				// Do not break between most letters.
-				if (preg_match('/^[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']{2}/u', $substring_after)) {
+				if (preg_match($patterns['letters'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Do not break letters across certain punctuation, such as within "e.g." or "example.com".
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
-						'[' . $prop_classes['MidLetter'] . $prop_classes['MidNumLet'] . '\']' .
-						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
-						'/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['mid_letter'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					$chars[++$i]['break_after'] = false;
 					continue;
 				}
 
-				if (
-					preg_match(
-						'/^[' . $prop_classes['Hebrew_Letter'] . ']\'/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['hebrew_quote'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['Hebrew_Letter'] . ']' .
-						'"' .
-						'[' . $prop_classes['Hebrew_Letter'] . ']' .
-						'/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['hebrew_double_quote'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					$chars[++$i]['break_after'] = false;
 					continue;
 				}
 
 				// Do not break within sequences of digits, or digits adjacent to letters (“3a”, or “A3”).
-				if (
-					preg_match(
-						'/^[' . $prop_classes['Numeric'] . ']{2}/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['numeric_pair'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
-				if (
-					preg_match(
-						'/^[' . $prop_classes['ALetter'] . '][' . $prop_classes['Numeric'] . ']/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['letter_numeric'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['Numeric'] . ']' .
-						'[' . $prop_classes['ALetter'] . ']' .
-						'/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['numeric_letter'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Do not break within sequences, such as “3.2” or “3,456.789”.
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['Numeric'] . ']' .
-						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
-						'[' . $prop_classes['Numeric'] . ']' .
-						'/u',
-						$substring_after,
-					)
-				) {
+				if (preg_match($patterns['numeric_mid_numeric'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				if (
-					preg_match(
-						'/[' . $prop_classes['Numeric'] . ']$/u',
-						$substring_before,
-					)
-					&& preg_match(
-						'/^' .
-						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
-						'[' . $prop_classes['Numeric'] . ']' .
-						'/u',
-						$substring_after,
-					)
+					preg_match($patterns['numeric_before'], $substring_before) &&
+					preg_match($patterns['midnum_between_numbers'], $substring_after)
 				) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Do not break between Katakana.
-				if (
-					preg_match(
-						'/^[' . $prop_classes['Katakana'] . '][' . $prop_classes['Katakana'] . ']/u',
-						$substring_after,
-					)
-				) {
-					$chars[$i]['break_after'] = false;
+				if (preg_match($patterns['katakana'], $substring_after)) {
 					continue;
 				}
 
 				// Do not break from extenders.
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
-						'[' . $prop_classes['ExtendNumLet'] . ']' .
-						'/u',
-						$substring_after,
-						$matches,
-					)
-				) {
+				if (preg_match($patterns['extendnumlet_after'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
-				if (
-					preg_match(
-						'/^' .
-						'[' . $prop_classes['ExtendNumLet'] . ']' .
-						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
-						'/u',
-						$substring_after,
-						$matches,
-					)
-				) {
+				if (preg_match($patterns['extendnumlet_before'], $substring_after)) {
 					$chars[$i]['break_after'] = false;
 					continue;
 				}
 
 				// Do not break within emoji flag sequences.
 				if (
-					preg_match(
-						'/^[' . $prop_classes['Regional_Indicator'] . ']/u',
-						$substring_after,
-					)
-					&& preg_match(
-						'/[' . $prop_classes['Regional_Indicator'] . ']*$/u',
-						$substring_before,
-						$matches,
-					)
+					preg_match($patterns['regional_indicator'], $substring_after) &&
+					preg_match($patterns['regional_indicator_before'], $substring_before, $matches)
 				) {
 					$chars[$i]['break_after'] = mb_strlen($matches[0]) % 2 === 1;
 					continue;
@@ -971,7 +936,7 @@ class Utf8String implements \Stringable
 			$word = '';
 
 			foreach ($chars as $char) {
-				$word .= $char['char'];
+				$word .= $char['char'] ?? '';
 
 				if ($char['break_after']) {
 					$words[] = $word;
