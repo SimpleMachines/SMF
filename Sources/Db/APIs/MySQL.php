@@ -1390,7 +1390,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
 
 		// Now add the thing!
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
 			ADD ' . $this->create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'),
 			[
@@ -1398,7 +1398,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1930,7 +1930,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Create the table!
-		$this->query(
+		$result = $this->query(
 			$table_query,
 			[
 				'security_override' => true,
@@ -1971,7 +1971,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->drop_table($short_table_name . '_old');
 		}
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1997,15 +1997,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$tables = $this->list_tables($database);
 
 		if (\in_array($full_table_name, $tables)) {
-			$query = 'DROP TABLE ' . $short_table_name;
-			$this->query(
-				$query,
+			$result = $this->query(
+				'DROP TABLE ' . $short_table_name,
 				[
 					'security_override' => true,
 				],
 			);
 
-			return true;
+			return $result !== false;
 		}
 
 		// Otherwise do 'nout.
@@ -2049,14 +2048,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_old_name . ' RENAME ' . $short_new_name,
 			[
 				'security_override' => true,
 			],
 		);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -2249,7 +2248,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($columns as $column) {
 			if ($column['name'] == $column_name) {
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
@@ -2257,7 +2256,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2279,7 +2278,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// If the name is primary we want the primary key!
 			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP PRIMARY KEY',
 					[
@@ -2287,12 +2286,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 
 			if ($index['name'] == $index_name) {
 				// Drop the bugger...
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP INDEX ' . $index_name,
 					[
@@ -2300,7 +2299,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2433,11 +2432,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 		}
 
-		$this->query('SET SESSION sql_mode = {string:sql_mode}', [
+		$result = $this->query('SET SESSION sql_mode = {string:sql_mode}', [
 			'sql_mode' => $sql_mode,
 		]);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
