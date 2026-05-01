@@ -181,7 +181,7 @@ class PackageUtils
 
 		// Compare as hex strings rather than integers in order to avoid
 		// inconsistencies between 32-bit and 64-bit systems.
-		if (hash('crc32b', $data) !== dechex($crc['crc32'])) {
+		if (hash('crc32b', $data) !== dechex($crc)) {
 			return false;
 		}
 
