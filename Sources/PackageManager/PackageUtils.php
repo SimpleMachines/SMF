@@ -427,7 +427,7 @@ class PackageUtils
 				}
 
 				// PKZip/ITU-T V.42 CRC-32
-			if (hash('crc32b', $file_info['data']) !== dechex($file_info['crc'])) {
+				if (hash('crc32b', $file_info['data']) !== dechex($file_info['crc'])) {
 					continue;
 				}
 
