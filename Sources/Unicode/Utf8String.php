@@ -1368,9 +1368,6 @@ class Utf8String implements \Stringable
 	 */
 	protected function preserveEmoji(array &$placeholders): void
 	{
-		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
-		$prop_classes = utf8_regex_properties();
-
 		$this->string  = preg_replace_callback(
 			self::emojiRegex(),
 			function ($matches) use (&$placeholders) {
