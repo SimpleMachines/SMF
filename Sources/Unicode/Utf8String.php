@@ -670,6 +670,8 @@ class Utf8String implements \Stringable
 		require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
+		$pattern = '/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u';
+
 		// Split into words, with Unicode awareness.
 		$words = $this->semanticSplit();
 
@@ -677,7 +679,7 @@ class Utf8String implements \Stringable
 			$word = Utils::htmlTrim($word);
 
 			// Filter out punctuation marks, etc.
-			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
+			if (preg_replace($pattern, '', $word) === '') {
 				unset($words[$key]);
 			}
 		}
