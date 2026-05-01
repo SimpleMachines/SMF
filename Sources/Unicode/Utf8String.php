@@ -897,8 +897,8 @@ class Utf8String implements \Stringable
 				}
 
 				if (
-					preg_match($patterns['numeric_before'], $substring_before) &&
-					preg_match($patterns['midnum_between_numbers'], $substring_after)
+					preg_match($patterns['numeric_before'], $substring_before)
+					&& preg_match($patterns['midnum_between_numbers'], $substring_after)
 				) {
 					$chars[$i]['break_after'] = false;
 					continue;
@@ -922,8 +922,8 @@ class Utf8String implements \Stringable
 
 				// Do not break within emoji flag sequences.
 				if (
-					preg_match($patterns['regional_indicator'], $substring_after) &&
-					preg_match($patterns['regional_indicator_before'], $substring_before, $matches)
+					preg_match($patterns['regional_indicator'], $substring_after)
+					&& preg_match($patterns['regional_indicator_before'], $substring_before, $matches)
 				) {
 					$chars[$i]['break_after'] = mb_strlen($matches[0]) % 2 === 1;
 					continue;
