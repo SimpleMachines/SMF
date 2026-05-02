@@ -1153,7 +1153,7 @@ class Config
 			IntegrationHook::call('integrate_autoload', [&$class_map]);
 
 			foreach ($class_map as $prefix => $dirname) {
-				self::$loader->addPsr4($prefix, $dirname);
+				self::$loader->addPsr4($prefix, self::$sourcedir . '/' . $dirname);
 			}
 		}
 
