@@ -150,7 +150,10 @@ class SecurityToken extends \ArrayObject
 			&& $_SESSION['token'][$type . '-' . $action]->val === $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action]->var]
 
 			// Is the hash correct?
-			&& $_SESSION['token'][$type . '-' . $action]->hash === self::getHash($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action]->var])
+			&& hash_equals(
+				$_SESSION['token'][$type . '-' . $action]->hash,
+				self::getHash($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action]->var]),
+			)
 
 			// Is it recent enough?
 			&& $_SESSION['token'][$type . '-' . $action]->time + self::EXPIRY_TIME >= time()
@@ -219,7 +222,7 @@ class SecurityToken extends \ArrayObject
 	/**
 	 * Gets the hash for a token.
 	 *
-	 * The generated hash depends on $val and the user's "session check" value, and
+	 * The generated hash depends on $val, the user's "session check" value, and
 	 * the current user agent string. In other words, the token will be valid
 	 * only for the current session and in the current browser.
 	 *
