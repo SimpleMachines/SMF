@@ -212,7 +212,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			self::$cache[self::$count]['s'] = ($st = microtime(true)) - TIME_START;
 		}
 
-		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
+		$ret = mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
 		if ($ret === false && empty($db_values['db_error_skip'])) {
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
