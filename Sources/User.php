@@ -428,9 +428,20 @@ class User implements \ArrayAccess
 	/**
 	 * @var float
 	 *
-	 * The UTC offset of the user's time zone.
+	 * How many hours the user's time zone is offset from the forum's default
+	 * time zone.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public float $time_offset;
+	public float $time_offset {
+		&get {
+			$this->time_offset = !isset($this->timezone) ? 0 : ((new \DateTimeZone($this->timezone))->getOffset(new \DateTime('now')) - (new \DateTimeZone(Config::$modSettings['default_timezone'] ?? date_default_timezone_get()))->getOffset(new \DateTime('now'))) / 3600;
+
+			return $this->time_offset;
+		}
+	}
 
 	/**
 	 * @var int
@@ -1267,7 +1278,6 @@ class User implements \ArrayAccess
 		'show_online' => 'int',
 		'time_format' => 'string',
 		'signature' => 'string',
-		'time_offset' => 'float',
 		'avatar' => 'string',
 		'usertitle' => 'string',
 		'member_ip' => 'string',
@@ -1406,8 +1416,6 @@ class User implements \ArrayAccess
 
 			if (!self::$me->dataset->includes($dataset)) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-
-				$this->fixTimezoneSetting();
 				$this->setProperties();
 			}
 
@@ -1432,7 +1440,6 @@ class User implements \ArrayAccess
 			self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
 		}
 
-		$this->fixTimezoneSetting();
 		$this->setProperties();
 	}
 
@@ -1471,7 +1478,6 @@ class User implements \ArrayAccess
 		if (empty($this->groups)) {
 			$this->id ??= 0;
 			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
-			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
 
@@ -1552,7 +1558,6 @@ class User implements \ArrayAccess
 		if (!$this->dataset->includes(UserDataset::Minimal)) {
 			$this->id ??= 0;
 			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
-			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
 
@@ -2647,7 +2652,6 @@ class User implements \ArrayAccess
 		if (empty($this->groups)) {
 			$this->id ??= 0;
 			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
-			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
 
@@ -2705,7 +2709,6 @@ class User implements \ArrayAccess
 		if (empty($this->query_see_board)) {
 			$this->id ??= 0;
 			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
-			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
 
@@ -2738,7 +2741,6 @@ class User implements \ArrayAccess
 		if (empty($this->groups)) {
 			$this->id ??= 0;
 			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
-			$this->fixTimezoneSetting();
 			$this->setProperties();
 		}
 
@@ -2887,9 +2889,6 @@ class User implements \ArrayAccess
 			else {
 				self::$me->setLastVisit();
 			}
-
-			// Fix up the timezone and time_offset values.
-			self::$me->fixTimezoneSetting();
 
 			// Now set all the properties.
 			self::$me->setProperties();
@@ -4056,11 +4055,11 @@ class User implements \ArrayAccess
 		}
 
 		if ($reset || !isset($this->timezone)) {
-			$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-		}
-
-		if ($reset || !isset($this->time_offset)) {
-			$this->time_offset = (int) ($profile['time_offset'] ?? 0);
+			$this->timezone = match (true) {
+				empty($this->id) => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+				!\in_array($profile['timezone'] ?? null, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+				default => $profile['timezone'],
+			};
 		}
 
 		// Buddies and personal messages.
@@ -4633,48 +4632,6 @@ class User implements \ArrayAccess
 		} else {
 			Utils::$context['login_token_var'] = $_SESSION['token']['post-login']->var;
 			Utils::$context['login_token'] = $_SESSION['token']['post-login']->val;
-		}
-	}
-
-	/**
-	 * Ensures timezone and time_offset are both set to correct values.
-	 */
-	protected function fixTimezoneSetting(): void
-	{
-		if (!empty($this->id)) {
-			// Ensure we don't use an invalid time zone.
-			if (!\in_array(self::$profiles[$this->id]['timezone'] ?? null, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-				unset(self::$profiles[$this->id]['timezone']);
-			}
-
-			// Figure out the new time offset.
-			if (!empty(self::$profiles[$this->id]['timezone'])) {
-				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
-				$tz_user = TimeZone::create(self::$profiles[$this->id]['timezone']);
-				$time_system = new \DateTime('now', $tz_system);
-				$time_user = new \DateTime('now', $tz_user);
-				self::$profiles[$this->id]['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-			}
-			// We need a time zone.
-			else {
-				if (!empty(self::$profiles[$this->id]['time_offset'])) {
-					$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
-					$time_system = new \DateTime('now', $tz_system);
-
-					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
-				}
-
-				if (empty(self::$profiles[$this->id]['timezone'])) {
-					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-					self::$profiles[$this->id]['time_offset'] = 0;
-				}
-			}
-		}
-		// Guests use the forum default.
-		else {
-			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-			self::$profiles[$this->id]['time_offset'] = 0;
 		}
 	}
 
@@ -5866,7 +5823,6 @@ class User implements \ArrayAccess
 				'member_name' => &$member->username,
 				'real_name' => &$member->name,
 				'time_format' => &$member->time_format,
-				'time_offset' => &$member->time_offset,
 				'timezone' => &$member->timezone,
 				'website_title' => &$member->website['title'],
 				'website_url' => &$member->website['url'],

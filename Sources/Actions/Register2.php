@@ -51,6 +51,8 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take strings.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_strings = [
 		'birthdate',
@@ -69,6 +71,8 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take integers.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_ints = [
 		'id_theme',
@@ -78,15 +82,17 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take floats.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
-	public array $possible_floats = [
-		'time_offset',
-	];
+	public array $possible_floats = [];
 
 	/**
 	 * @var array
 	 *
 	 * Registration fields that take booleans.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_bools = [
 		'show_online',
@@ -253,6 +259,9 @@ class Register2 extends Register
 			'extra_register_vars' => [],
 			'theme_vars' => [],
 		];
+
+		// Allow mods to add special handling for any extra registration vars.
+		IntegrationHook::call('integrate_extra_register_vars', [&$this->possible_strings, &$this->possible_ints, &$this->possible_floats, &$this->possible_bools]);
 
 		// Include the additional options that might have been filled in.
 		foreach ($this->possible_strings as $var) {
@@ -696,7 +705,8 @@ class Register2 extends Register
 			'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 		];
 		$known_floats = [
-			'time_offset',
+			// This is empty in a default SMF install, but mods can add to it
+			// using the integrate_register hook.
 		];
 		$known_inets = [
 			'member_ip', 'member_ip2',
