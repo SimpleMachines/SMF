@@ -214,6 +214,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$ret = mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
+		// Debugging.
+		if (DebugUtils::isDebugEnabled()) {
+			self::$cache[self::$count]['t'] = microtime(true) - $st;
+		}
+
 		if ($ret === false && empty($db_values['db_error_skip'])) {
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
 			$query_error = $this->error();
@@ -237,11 +242,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			ErrorHandler::log(Lang::getTxt('database_error', file: 'General') . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
-		}
-
-		// Debugging.
-		if (DebugUtils::isDebugEnabled()) {
-			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
 		return $ret;
