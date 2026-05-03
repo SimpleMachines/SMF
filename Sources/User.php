@@ -4180,6 +4180,45 @@ class User implements \ArrayAccess
 		// What dataset did we load for this user?
 		$this->dataset = $profile['dataset'];
 
+		// Basic handling for any custom profile data. If mods want to do
+		// anything more complicated, they can use the hook below.
+		foreach ($profile as $key => $value) {
+			if (
+				!\in_array(
+					$key,
+					[
+						// All the standard data.
+						'additional_groups', 'alerts', 'attachment_height',
+						'attachment_type', 'attachment_width', 'avatar',
+						'avatar_original', 'birthdate', 'buddy_list',
+						'dataset', 'date_registered', 'email_address',
+						'filename', 'icons', 'id_attach', 'id_group',
+						'id_member', 'id_msg_last_visit', 'id_post_group',
+						'id_theme', 'ignore_boards', 'instant_messages',
+						'is_activated', 'is_online', 'last_login', 'lngfile',
+						'member_group', 'member_group_color', 'member_ip',
+						'member_ip2', 'member_name', 'new_pm', 'options',
+						'passwd', 'passwd_flood', 'password_salt',
+						'personal_text', 'pm_ignore_list', 'pm_prefs',
+						'pm_receive_from', 'post_group', 'post_group_color',
+						'posts', 'primary_group', 'real_name',
+						'secret_answer', 'secret_question', 'show_online',
+						'signature', 'smiley_set', 'spoofdetector_name',
+						'tfa_backup', 'tfa_secret', 'time_format', 'timezone',
+						'total_time_logged_in', 'unread_messages', 'url',
+						'usertitle', 'validation_code', 'warning',
+						'website_title', 'website_url',
+						// Obsolete data. Ignore if present.
+						'mod_prefs', 'time_offset',
+					],
+				)
+			) {
+				if ($reset || !isset($this->{$key})) {
+					$this->{$key} = is_numeric($value) ? $value + 0 : $value;
+				}
+			}
+		}
+
 		/*
 		 * Allows mods to add or adjust properties.
 		 *
