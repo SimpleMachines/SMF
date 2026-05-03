@@ -2513,7 +2513,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Either we aren't in SSI mode, or it failed.
 		if (empty($this->connection)) {
-			if (empty($options)) {
+			if (empty($options)) { 
 				$options = ['dont_select_db' => SMF == 'SSI'];
 			}
 
@@ -2579,8 +2579,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// Ignore some errors and strict mode warnings when we are not debugging.
-		mysqli_report(DebugUtils::isDebugEnabled() ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
+		// Available options:
+		// MYSQLI_REPORT_ALL => Set all options on (report all)
+		// MYSQLI_REPORT_ERROR => Report errors from mysqli function calls
+		// MYSQLI_REPORT_INDEX => Report if no index or bad index was used in a query
+		// MYSQLI_REPORT_STRICT => Throw a `mysqli_sql_exception` for errors instead of warnings
+		// MYSQLI_REPORT_OFF => Turns reporting off
+		// This was the default prior to PHP 8.1, and all our code assumes it.
+		mysqli_report(MYSQLI_REPORT_OFF);
 
 		$success = false;
 
