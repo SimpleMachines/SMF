@@ -2391,7 +2391,7 @@ class User implements \ArrayAccess
 		IntegrationHook::call('integrate_boards_allowed_to', [&$boards, $deny_boards, $permissions, $check_access, $simple]);
 
 		// Ensure each permission's array is a simple list.
-		$boards = array_map(fn($board_list) => array_values($board_list), $boards);
+		$boards = array_map(fn($board_list) => array_values((array) $board_list), $boards);
 
 		return $boards;
 	}
