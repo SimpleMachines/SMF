@@ -231,8 +231,23 @@ class Board implements \ArrayAccess, Routable
 	 * @var bool
 	 *
 	 * Whether this board is the recycle bin board.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $recycle = false;
+	public bool $recycle {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => !empty(Config::$modSettings['recycle_enable']) && $this->id == (Config::$modSettings['recycle_board'] ?? NAN);`
+		&get {
+			$this->recycle = (
+				!empty(Config::$modSettings['recycle_enable'])
+				&& $this->id == (Config::$modSettings['recycle_board'] ?? NAN)
+			);
+
+			return $this->recycle;
+		}
+	}
 
 	/**
 	 * @var bool
@@ -325,6 +340,15 @@ class Board implements \ArrayAccess, Routable
 	 * What error (if any) was encountered while loading this board.
 	 */
 	public string $error;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether this board is selected in the search form.
+	 *
+	 * Only used during search.
+	 */
+	public bool $selected = false;
 
 	/**************************
 	 * Public static properties
@@ -1106,59 +1130,6 @@ class Board implements \ArrayAccess, Routable
 		Db::$db->free_result($result);
 
 		return (int) $memberID;
-	}
-
-	/**
-	 * Fetches the list of boards the user is allowed to see and organizes them by categories.
-	 *
-	 * This function queries the database for boards visible to the current user, grouped by categories.
-	 * It returns a structured array of categories and their associated boards.
-	 *
-	 * @param array $boards An array of board IDs to mark as selected.
-	 * @return array The structured array of categories and boards.
-	 */
-	public static function getUserVisibleBoards(array $boards): array
-	{
-		// Query to fetch boards visible to the user.
-		$request = Db::$db->query(
-			'SELECT id_board, b.name, child_level, c.name AS cat_name, id_cat
-			FROM {db_prefix}boards AS b
-				JOIN {db_prefix}categories AS c USING (id_cat)
-			WHERE {query_see_board}
-				AND redirect = {string:empty_string}
-			ORDER BY board_order',
-			[
-				'empty_string' => '',
-			],
-			identifier: 'order_by_board_order',
-		);
-
-		$categories = [];
-		$categoryTracker = [];
-		$currentCategoryIndex = -1;
-
-		// Process the results and group boards by categories.
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!isset($categoryTracker[$row['id_cat']])) {
-				$categories[++$currentCategoryIndex] = [
-					'id' => (int) $row['id_cat'],
-					'name' => $row['cat_name'],
-					'boards' => [],
-				];
-				$categoryTracker[$row['id_cat']] = true;
-			}
-
-			$categories[$currentCategoryIndex]['boards'][] = [
-				'id' => (int) $row['id_board'],
-				'name' => $row['name'],
-				'child_level' => (int) $row['child_level'],
-				'selected' => \in_array($row['id_board'], $boards),
-			];
-		}
-
-		Db::$db->free_result($request);
-
-		return $categories;
 	}
 
 	/**
@@ -2313,7 +2284,6 @@ class Board implements \ArrayAccess, Routable
 
 							case 'id_board':
 								$props['id'] = (int) $value;
-								$props['recycle'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == $value;
 								break;
 
 							case 'id_cat':

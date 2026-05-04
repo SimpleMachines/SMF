@@ -18,7 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
-use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -70,7 +70,6 @@ class Search implements ActionInterface, Routable
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');
-			Theme::loadTemplate('GenericControls');
 			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		}
 
@@ -175,19 +174,51 @@ class Search implements ActionInterface, Routable
 			}
 		}
 
-		// If user selected some particular boards, is this one of them?
-		if (!empty(Utils::$context['search_params']['brd'])) {
-			$boards = Utils::$context['search_params']['brd'];
-		}
-		// User didn't select any boards, so select all except ignored and recycle boards.
-		elseif (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board'])) {
-			$boards = array_merge(User::$me->ignoreboards, [(int) Config::$modSettings['recycle_board']]);
-		} else {
-			$boards = User::$me->ignoreboards;
+		// Find all the boards this user is allowed to see.
+		Category::getTree();
+
+		Utils::$context['num_boards'] = 0;
+		Utils::$context['boards_check_all'] = true;
+		Utils::$context['categories'] = [];
+
+		foreach (Category::$loaded as $category) {
+			// Clone it so that we can edit it without touching the real data.
+			$cat = clone $category;
+
+			// Remove all redirect boards from the its children.
+			$cat->children = array_filter(
+				$cat->children,
+				fn($board) => empty($board->redirect),
+			);
+
+			// Skip empty categories.
+			if (empty($cat->children)) {
+				continue;
+			}
+
+			// Add the category to the list.
+			Utils::$context['categories'][$cat->id] = $cat;
+
+			// Figure out which boards to mark as selected.
+			foreach ($cat->children as $key => $board) {
+				Utils::$context['num_boards']++;
+
+				// If user selected some particular boards, is this one of them?
+				if (!empty(Utils::$context['search_params']['brd'])) {
+					$board->selected = \in_array($board->id, Utils::$context['search_params']['brd']);
+				}
+				// User didn't select any boards, so select all except ignored and recycle boards.
+				else {
+					$board->selected = !$board->recycle && !\in_array($board->id, User::$me->ignoreboards);
+				}
+
+				if (!$board->selected && !$board->recycle) {
+					Utils::$context['boards_check_all'] = false;
+				}
+			}
 		}
 
-		Utils::$context['categories'] = Board::getUserVisibleBoards($boards);
-
+		// Searching in a topic?
 		if (!empty($_REQUEST['topic'])) {
 			Utils::$context['search_params']['topic'] = (int) $_REQUEST['topic'];
 			Utils::$context['search_params']['show_complete'] = true;
