@@ -209,7 +209,7 @@ class Search implements ActionInterface, Routable
 				}
 				// User didn't select any boards, so select all except ignored and recycle boards.
 				else {
-					$board->selected = !$board->recycle && !\in_array($board->id, User::$me->ignoreboards);
+					$board->selected = !$board->recycle && (empty(Config::$modSettings['allow_ignore_boards']) || !\in_array($board->id, User::$me->ignoreboards));
 				}
 
 				if (!$board->selected && !$board->recycle) {
