@@ -2428,8 +2428,11 @@ class Utils
 		}
 
 		// Process static or instance method callables.
-		if (str_contains($input, '::')) {
-			list($class, $method) = explode('::', $input);
+		$pos = strpos($input, '::');
+
+		if ($pos !== false) {
+			$class = substr($input, 0, $pos);
+			$method = substr($input, $pos + 2);
 
 			// Handle instance creation for methods with "#".
 			if (str_contains($method, '#')) {
