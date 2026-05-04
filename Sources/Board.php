@@ -341,6 +341,15 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public string $error;
 
+	/**
+	 * @var bool
+	 *
+	 * Whether this board is selected in the search form.
+	 *
+	 * Only used during search.
+	 */
+	public bool $selected = false;
+
 	/**************************
 	 * Public static properties
 	 **************************/
