@@ -2198,7 +2198,7 @@ class Group implements \ArrayAccess
 
 		$groups = [];
 
-		foreach (GroupPermissionSet::load(self::getAll(), $profile) as $set) {
+		foreach (GroupPermissionSet::load($profile, self::getAll()) as $set) {
 			$can = !$any;
 
 			foreach ($permissions as $permission) {
