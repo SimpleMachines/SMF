@@ -1039,8 +1039,8 @@ class User implements \ArrayAccess
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
 				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
-				'is_buddy' => \in_array($this->id, self::$me->buddies),
-				'is_reverse_buddy' => \in_array(self::$me->id, $this->buddies),
+				'is_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array($this->id, self::$me->buddies),
+				'is_reverse_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
@@ -3620,7 +3620,7 @@ class User implements \ArrayAccess
 				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',
 			array_merge($where_params, [
-				'buddy_list' => self::$me->buddies,
+				'buddy_list' => !empty(Config::$modSettings['enable_buddylist']) ? self::$me->buddies : [],
 				'limit' => $max,
 				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
 			]),
@@ -3946,7 +3946,7 @@ class User implements \ArrayAccess
 		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
 
 		// Buddies and personal messages.
-		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
+		$this->buddies = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
 		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
 		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
 		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);

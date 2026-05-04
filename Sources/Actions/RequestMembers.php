@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Routable;
 use SMF\User;
@@ -64,6 +65,11 @@ class RequestMembers implements ActionInterface, Routable
 		User::$me->checkSession('get');
 
 		header('content-type: text/plain; charset=UTF-8');
+
+		// Can't search for buddies if that feature is disabled.
+		if (empty(Config::$modSettings['enable_buddylist'])) {
+			unset($_REQUEST['buddies']);
+		}
 
 		$request = Db::$db->query(
 			'SELECT real_name
