@@ -93,17 +93,17 @@ class ACP implements ActionInterface, Routable
 			'areas' => [
 				'index' => [
 					'label' => 'admin_center',
-					'function' => __NAMESPACE__ . '\\Home::call',
+					'function' => Home::call(...),
 					'icon' => 'administration',
 				],
 				'credits' => [
 					'label' => 'support_credits_title',
-					'function' => __NAMESPACE__ . '\\Home::call',
+					'function' => Home::call(...),
 					'icon' => 'support',
 				],
 				'news' => [
 					'label' => 'news_title',
-					'function' => __NAMESPACE__ . '\\News::call',
+					'function' => News::call(...),
 					'icon' => 'news',
 					'permission' => [
 						'edit_news',
@@ -147,13 +147,13 @@ class ACP implements ActionInterface, Routable
 					],
 				],
 				'search' => [
-					'function' => __NAMESPACE__ . '\\Find::call',
+					'function' => Find::call(...),
 					'permission' => ['admin_forum'],
 					'select' => 'index',
 				],
 				'adminlogoff' => [
 					'label' => 'admin_logoff',
-					'function' => __NAMESPACE__ . '\\EndSession::call',
+					'function' => EndSession::call(...),
 					'enabled' => true,
 					'icon' => 'exit',
 				],
@@ -165,7 +165,7 @@ class ACP implements ActionInterface, Routable
 			'areas' => [
 				'featuresettings' => [
 					'label' => 'modSettings_title',
-					'function' => __NAMESPACE__ . '\\Features::call',
+					'function' => Features::call(...),
 					'icon' => 'features',
 					'subsections' => [
 						'basic' => [
@@ -196,12 +196,12 @@ class ACP implements ActionInterface, Routable
 				],
 				'antispam' => [
 					'label' => 'antispam_title',
-					'function' => __NAMESPACE__ . '\\AntiSpam::call',
+					'function' => AntiSpam::call(...),
 					'icon' => 'security',
 				],
 				'languages' => [
 					'label' => 'language_configuration',
-					'function' => __NAMESPACE__ . '\\Languages::call',
+					'function' => Languages::call(...),
 					'icon' => 'languages',
 					'subsections' => [
 						'edit' => [
@@ -217,13 +217,13 @@ class ACP implements ActionInterface, Routable
 				],
 				'current_theme' => [
 					'label' => 'theme_current_settings',
-					'function' => __NAMESPACE__ . '\\Themes::call',
+					'function' => Themes::call(...),
 					'custom_url' => '{scripturl}?action=admin;area=theme;sa=list;th=%1$d',
 					'icon' => 'current_theme',
 				],
 				'theme' => [
 					'label' => 'theme_admin',
-					'function' => __NAMESPACE__ . '\\Themes::call',
+					'function' => Themes::call(...),
 					'custom_url' => '{scripturl}?action=admin;area=theme',
 					'icon' => 'themes',
 					'subsections' => [
@@ -243,7 +243,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'modsettings' => [
 					'label' => 'admin_modifications',
-					'function' => __NAMESPACE__ . '\\Mods::call',
+					'function' => Mods::call(...),
 					'icon' => 'modifications',
 					'subsections' => [
 						// MOD AUTHORS: If your mod has just a few simple
@@ -265,7 +265,7 @@ class ACP implements ActionInterface, Routable
 			'areas' => [
 				'manageboards' => [
 					'label' => 'admin_boards',
-					'function' => __NAMESPACE__ . '\\Boards::call',
+					'function' => Boards::call(...),
 					'icon' => 'boards',
 					'permission' => ['manage_boards'],
 					'subsections' => [
@@ -283,7 +283,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'postsettings' => [
 					'label' => 'manageposts',
-					'function' => __NAMESPACE__ . '\\Posts::call',
+					'function' => Posts::call(...),
 					'permission' => ['admin_forum'],
 					'icon' => 'posts',
 					'subsections' => [
@@ -303,7 +303,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'managecalendar' => [
 					'label' => 'manage_calendar',
-					'function' => __NAMESPACE__ . '\\Calendar::call',
+					'function' => Calendar::call(...),
 					'icon' => 'calendar',
 					'permission' => ['admin_forum'],
 					'inactive' => false,
@@ -324,7 +324,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'managesearch' => [
 					'label' => 'manage_search',
-					'function' => __NAMESPACE__ . '\\Search::call',
+					'function' => Search::call(...),
 					'icon' => 'search',
 					'permission' => ['admin_forum'],
 					'subsections' => [
@@ -341,7 +341,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'smileys' => [
 					'label' => 'smileys_manage',
-					'function' => __NAMESPACE__ . '\\Smileys::call',
+					'function' => Smileys::call(...),
 					'icon' => 'smiley',
 					'permission' => ['manage_smileys'],
 					'subsections' => [
@@ -371,7 +371,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'manageattachments' => [
 					'label' => 'attachments_avatars',
-					'function' => __NAMESPACE__ . '\\Attachments::call',
+					'function' => Attachments::call(...),
 					'icon' => 'attachment',
 					'permission' => ['manage_attachments'],
 					'subsections' => [
@@ -395,7 +395,7 @@ class ACP implements ActionInterface, Routable
 				'sengines' => [
 					'label' => 'search_engines',
 					'inactive' => false,
-					'function' => __NAMESPACE__ . '\\SearchEngines::call',
+					'function' => SearchEngines::call(...),
 					'icon' => 'engines',
 					'permission' => 'admin_forum',
 					'subsections' => [
@@ -427,7 +427,7 @@ class ACP implements ActionInterface, Routable
 			'areas' => [
 				'viewmembers' => [
 					'label' => 'admin_users',
-					'function' => __NAMESPACE__ . '\\Members::call',
+					'function' => Members::call(...),
 					'icon' => 'members',
 					'permission' => ['moderate_forum'],
 					'subsections' => [
@@ -445,7 +445,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'membergroups' => [
 					'label' => 'admin_groups',
-					'function' => __NAMESPACE__ . '\\Membergroups::call',
+					'function' => Membergroups::call(...),
 					'icon' => 'membergroups',
 					'permission' => ['manage_membergroups'],
 					'subsections' => [
@@ -465,7 +465,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'permissions' => [
 					'label' => 'edit_permissions',
-					'function' => __NAMESPACE__ . '\\Permissions::call',
+					'function' => Permissions::call(...),
 					'icon' => 'permissions',
 					'permission' => ['manage_permissions'],
 					'subsections' => [
@@ -493,7 +493,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'regcenter' => [
 					'label' => 'registration_center',
-					'function' => __NAMESPACE__ . '\\Registration::call',
+					'function' => Registration::call(...),
 					'icon' => 'regcenter',
 					'permission' => [
 						'admin_forum',
@@ -524,14 +524,14 @@ class ACP implements ActionInterface, Routable
 				],
 				'warnings' => [
 					'label' => 'warnings',
-					'function' => __NAMESPACE__ . '\\Warnings::call',
+					'function' => Warnings::call(...),
 					'icon' => 'warning',
 					'inactive' => false,
 					'permission' => ['admin_forum'],
 				],
 				'ban' => [
 					'label' => 'ban_title',
-					'function' => __NAMESPACE__ . '\\Bans::call',
+					'function' => Bans::call(...),
 					'icon' => 'ban',
 					'permission' => 'manage_bans',
 					'subsections' => [
@@ -552,7 +552,7 @@ class ACP implements ActionInterface, Routable
 				'paidsubscribe' => [
 					'label' => 'paid_subscriptions',
 					'inactive' => false,
-					'function' => __NAMESPACE__ . '\\Subscriptions::call',
+					'function' => Subscriptions::call(...),
 					'icon' => 'paid',
 					'permission' => 'admin_forum',
 					'subsections' => [
@@ -572,7 +572,7 @@ class ACP implements ActionInterface, Routable
 			'areas' => [
 				'serversettings' => [
 					'label' => 'admin_server_settings',
-					'function' => __NAMESPACE__ . '\\Server::call',
+					'function' => Server::call(...),
 					'icon' => 'server',
 					'subsections' => [
 						'general' => [
@@ -603,7 +603,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'maintain' => [
 					'label' => 'maintain_title',
-					'function' => __NAMESPACE__ . '\\Maintenance::call',
+					'function' => Maintenance::call(...),
 					'icon' => 'maintain',
 					'subsections' => [
 						'routine' => [
@@ -630,7 +630,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'scheduledtasks' => [
 					'label' => 'maintain_tasks',
-					'function' => __NAMESPACE__ . '\\Tasks::call',
+					'function' => Tasks::call(...),
 					'icon' => 'scheduled',
 					'subsections' => [
 						'tasks' => [
@@ -649,7 +649,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'mailqueue' => [
 					'label' => 'mailqueue_title',
-					'function' => __NAMESPACE__ . '\\Mail::call',
+					'function' => \SMF\Actions\Admin\Mail::call(...),
 					'icon' => 'mail',
 					'subsections' => [
 						'browse' => [
@@ -668,12 +668,12 @@ class ACP implements ActionInterface, Routable
 				],
 				'reports' => [
 					'label' => 'generate_reports',
-					'function' => __NAMESPACE__ . '\\Reports::call',
+					'function' => Reports::call(...),
 					'icon' => 'reports',
 				],
 				'logs' => [
 					'label' => 'logs',
-					'function' => __NAMESPACE__ . '\\Logs::call',
+					'function' => Logs::call(...),
 					'icon' => 'logs',
 					'subsections' => [
 						'errorlog' => [
@@ -713,7 +713,7 @@ class ACP implements ActionInterface, Routable
 				],
 				'repairboards' => [
 					'label' => 'admin_repair',
-					'function' => __NAMESPACE__ . '\\RepairBoards::call',
+					'function' => RepairBoards::call(...),
 					'select' => 'maintain',
 					'hidden' => true,
 				],

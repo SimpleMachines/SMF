@@ -343,11 +343,11 @@ class ReportedContent implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report']['id'],
 			'default_sort_col' => 'time',
 			'get_items' => [
-				'function' => __NAMESPACE__ . '\\Logs::list_getModLogEntries',
+				'function' => Logs::list_getModLogEntries(...),
 				'params' => $params,
 			],
 			'get_count' => [
-				'function' => __NAMESPACE__ . '\\Logs::list_getModLogEntryCount',
+				'function' => Logs::list_getModLogEntryCount(...),
 				'params' => $params,
 			],
 			// This assumes we are viewing by user.

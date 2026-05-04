@@ -68,17 +68,17 @@ class Main implements ActionInterface, Routable
 			'areas' => [
 				'index' => [
 					'label' => 'moderation_center',
-					'function' => __NAMESPACE__ . '\\Home::call',
+					'function' => Home::call(...),
 					'icon' => 'administration',
 				],
 				'modlogoff' => [
 					'label' => 'mc_logoff',
-					'function' => __NAMESPACE__ . '\\EndSession::call',
+					'function' => EndSession::call(...),
 					'enabled' => true,
 					'icon' => 'exit',
 				],
 				'notice' => [
-					'function' => __NAMESPACE__ . '\\ShowNotice::call',
+					'function' => ShowNotice::call(...),
 					'select' => 'index',
 				],
 			],
@@ -89,13 +89,13 @@ class Main implements ActionInterface, Routable
 				'modlog' => [
 					'label' => 'modlog_view',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\Logs::call',
+					'function' => Logs::call(...),
 					'icon' => 'logs',
 				],
 				'warnings' => [
 					'label' => 'mc_warnings',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\Warnings::call',
+					'function' => Warnings::call(...),
 					'icon' => 'warning',
 					'subsections' => [
 						'log' => [
@@ -117,7 +117,7 @@ class Main implements ActionInterface, Routable
 				'postmod' => [
 					'label' => 'mc_unapproved_posts',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\Posts::call',
+					'function' => Posts::call(...),
 					'icon' => 'posts',
 					'custom_url' => '{scripturl}?action=moderate;area=postmod',
 					'subsections' => [
@@ -132,14 +132,14 @@ class Main implements ActionInterface, Routable
 				'attachmod' => [
 					'label' => 'mc_unapproved_attachments',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\Posts::call',
+					'function' => Posts::call(...),
 					'icon' => 'post_moderation_attach',
 					'custom_url' => '{scripturl}?action=moderate;area=attachmod;sa=attachments',
 				],
 				'reportedposts' => [
 					'label' => 'mc_reported_posts',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\ReportedContent::call',
+					'function' => ReportedContent::call(...),
 					'icon' => 'reports',
 					'subsections' => [
 						'show' => [
@@ -158,13 +158,13 @@ class Main implements ActionInterface, Routable
 			'areas' => [
 				'groups' => [
 					'label' => 'mc_group_requests',
-					'function' => __NAMESPACE__ . '\\Groups::call',
+					'function' => Groups::call(...),
 					'icon' => 'members_request',
 					'custom_url' => '{scripturl}?action=moderate;area=groups;sa=requests',
 				],
 				'viewgroups' => [
 					'label' => 'mc_view_groups',
-					'function' => __NAMESPACE__ . '\\Groups::call',
+					'function' => Groups::call(...),
 					'icon' => 'membergroups',
 				],
 			],
@@ -176,7 +176,7 @@ class Main implements ActionInterface, Routable
 				'userwatch' => [
 					'label' => 'mc_watched_users_title',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\WatchedUsers::call',
+					'function' => WatchedUsers::call(...),
 					'icon' => 'members_watched',
 					'subsections' => [
 						'member' => [
@@ -190,7 +190,7 @@ class Main implements ActionInterface, Routable
 				'reportedmembers' => [
 					'label' => 'mc_reported_members_title',
 					'enabled' => true,
-					'function' => __NAMESPACE__ . '\\ReportedContent::call',
+					'function' => ReportedContent::call(...),
 					'icon' => 'members_watched',
 					'subsections' => [
 						'open' => [

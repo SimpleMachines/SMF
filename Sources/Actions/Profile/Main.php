@@ -118,7 +118,7 @@ class Main implements ActionInterface, Routable
 			'areas' => [
 				'summary' => [
 					'label' => 'summary',
-					'function' => __NAMESPACE__ . '\\Summary::call',
+					'function' => Summary::call(...),
 					'sub_template' => 'summary',
 					'icon' => 'administration',
 					'permission' => [
@@ -127,7 +127,7 @@ class Main implements ActionInterface, Routable
 					],
 				],
 				'popup' => [
-					'function' => __NAMESPACE__ . '\\Popup::call',
+					'function' => Popup::call(...),
 					'sub_template' => 'profile_popup',
 					'permission' => [
 						'own' => ['is_not_guest'],
@@ -136,7 +136,7 @@ class Main implements ActionInterface, Routable
 					'select' => 'summary',
 				],
 				'alerts_popup' => [
-					'function' => __NAMESPACE__ . '\\AlertsPopup::call',
+					'function' => AlertsPopup::call(...),
 					'sub_template' => 'alerts_popup',
 					'permission' => [
 						'own' => ['is_not_guest'],
@@ -146,7 +146,7 @@ class Main implements ActionInterface, Routable
 				],
 				'statistics' => [
 					'label' => 'statPanel',
-					'function' => __NAMESPACE__ . '\\StatPanel::call',
+					'function' => StatPanel::call(...),
 					'sub_template' => 'statPanel',
 					'icon' => 'stats',
 					'permission' => [
@@ -156,7 +156,7 @@ class Main implements ActionInterface, Routable
 				],
 				'showposts' => [
 					'label' => 'showPosts',
-					'function' => __NAMESPACE__ . '\\ShowPosts::call',
+					'function' => ShowPosts::call(...),
 					'sub_template' => 'showPosts',
 					'icon' => 'posts',
 					'subsections' => [
@@ -207,7 +207,7 @@ class Main implements ActionInterface, Routable
 				],
 				'showalerts' => [
 					'label' => 'alerts_show',
-					'function' => __NAMESPACE__ . '\\ShowAlerts::call',
+					'function' => ShowAlerts::call(...),
 					'sub_template' => 'showAlerts',
 					'icon' => 'alerts',
 					'permission' => [
@@ -217,7 +217,7 @@ class Main implements ActionInterface, Routable
 				],
 				'permissions' => [
 					'label' => 'showPermissions',
-					'function' => __NAMESPACE__ . '\\ShowPermissions::call',
+					'function' => ShowPermissions::call(...),
 					'sub_template' => 'showPermissions',
 					'icon' => 'permissions',
 					'permission' => [
@@ -227,7 +227,7 @@ class Main implements ActionInterface, Routable
 				],
 				'tracking' => [
 					'label' => 'trackUser',
-					'function' => __NAMESPACE__ . '\\Tracking::call',
+					'function' => Tracking::call(...),
 					'sub_template' => 'tracking',
 					'icon' => 'logs',
 					'subsections' => [
@@ -283,7 +283,7 @@ class Main implements ActionInterface, Routable
 				],
 				'viewwarning' => [
 					'label' => 'profile_view_warnings',
-					'function' => __NAMESPACE__ . '\\ViewWarning::call',
+					'function' => ViewWarning::call(...),
 					'sub_template' => 'viewWarning',
 					'icon' => 'warning',
 					'enabled' => true,
@@ -299,7 +299,7 @@ class Main implements ActionInterface, Routable
 			'areas' => [
 				'account' => [
 					'label' => 'account',
-					'function' => __NAMESPACE__ . '\\Account::call',
+					'function' => Account::call(...),
 					'sub_template' => 'edit_options',
 					'icon' => 'maintain',
 					'enabled' => true,
@@ -313,7 +313,7 @@ class Main implements ActionInterface, Routable
 				],
 				'tfasetup' => [
 					'label' => 'account',
-					'function' => __NAMESPACE__ . '\\TFASetup::call',
+					'function' => TFASetup::call(...),
 					'sub_template' => 'tfasetup',
 					'token' => 'profile-tfa%u',
 					'enabled' => true,
@@ -326,7 +326,7 @@ class Main implements ActionInterface, Routable
 				],
 				'tfadisable' => [
 					'label' => 'account',
-					'function' => __NAMESPACE__ . '\\TFADisable::call',
+					'function' => TFADisable::call(...),
 					'sub_template' => 'tfadisable',
 					'token' => 'profile-tfa%u',
 					'sc' => 'post',
@@ -341,7 +341,7 @@ class Main implements ActionInterface, Routable
 				],
 				'forumprofile' => [
 					'label' => 'forumprofile',
-					'function' => __NAMESPACE__ . '\\ForumProfile::call',
+					'function' => ForumProfile::call(...),
 					'sub_template' => 'edit_options',
 					'icon' => 'members',
 					'sc' => 'post',
@@ -353,7 +353,7 @@ class Main implements ActionInterface, Routable
 				],
 				'theme' => [
 					'label' => 'theme',
-					'function' => __NAMESPACE__ . '\\ThemeOptions::call',
+					'function' => ThemeOptions::call(...),
 					'sub_template' => 'edit_options',
 					'icon' => 'features',
 					'sc' => 'post',
@@ -365,7 +365,7 @@ class Main implements ActionInterface, Routable
 				],
 				'notification' => [
 					'label' => 'notification',
-					'function' => __NAMESPACE__ . '\\Notification::call',
+					'function' => Notification::call(...),
 					'sub_template' => 'notification',
 					'icon' => 'alerts',
 					'sc' => 'post',
@@ -397,7 +397,7 @@ class Main implements ActionInterface, Routable
 				],
 				'ignoreboards' => [
 					'label' => 'ignoreboards',
-					'function' => __NAMESPACE__ . '\\IgnoreBoards::call',
+					'function' => IgnoreBoards::call(...),
 					'sub_template' => 'ignoreboards',
 					'icon' => 'boards',
 					'enabled' => true,
@@ -410,7 +410,7 @@ class Main implements ActionInterface, Routable
 				],
 				'lists' => [
 					'label' => 'editBuddyIgnoreLists',
-					'function' => __NAMESPACE__ . '\\BuddyIgnoreLists::call',
+					'function' => BuddyIgnoreLists::call(...),
 					'sub_template' => 'editBuddyIgnoreLists',
 					'icon' => 'frenemy',
 					'enabled' => true,
@@ -430,7 +430,7 @@ class Main implements ActionInterface, Routable
 				],
 				'groupmembership' => [
 					'label' => 'groupmembership',
-					'function' => __NAMESPACE__ . '\\GroupMembership::call',
+					'function' => GroupMembership::call(...),
 					'sub_template' => 'groupMembership',
 					'icon' => 'people',
 					'enabled' => true,
@@ -469,7 +469,7 @@ class Main implements ActionInterface, Routable
 				],
 				'issuewarning' => [
 					'label' => 'profile_issue_warning',
-					'function' => __NAMESPACE__ . '\\IssueWarning::call',
+					'function' => IssueWarning::call(...),
 					'sub_template' => 'issueWarning',
 					'icon' => 'warning',
 					'token' => 'profile-iw%u',
@@ -491,7 +491,7 @@ class Main implements ActionInterface, Routable
 				],
 				'subscriptions' => [
 					'label' => 'subscriptions',
-					'function' => __NAMESPACE__ . '\\PaidSubs::call',
+					'function' => PaidSubs::call(...),
 					'icon' => 'paid',
 					'enabled' => true,
 					'permission' => [
@@ -501,7 +501,7 @@ class Main implements ActionInterface, Routable
 				],
 				'getprofiledata' => [
 					'label' => 'export_profile_data',
-					'function' => __NAMESPACE__ . '\\Export::call',
+					'function' => Export::call(...),
 					'sub_template' => 'export_profile_data',
 					'icon' => 'packages',
 					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
@@ -512,7 +512,7 @@ class Main implements ActionInterface, Routable
 				],
 				'download' => [
 					'label' => 'export_profile_data',
-					'function' => __NAMESPACE__ . '\\ExportDownload::call',
+					'function' => ExportDownload::call(...),
 					'sub_template' => 'download_export_file',
 					'icon' => 'packages',
 					'hidden' => true,
@@ -524,7 +524,7 @@ class Main implements ActionInterface, Routable
 				],
 				'dlattach' => [
 					'label' => 'export_profile_data',
-					'function' => __NAMESPACE__ . '\\ExportAttachment::call',
+					'function' => ExportAttachment::call(...),
 					'sub_template' => 'export_attachment',
 					'icon' => 'packages',
 					'hidden' => true,
@@ -536,7 +536,7 @@ class Main implements ActionInterface, Routable
 				],
 				'deleteaccount' => [
 					'label' => 'deleteAccount',
-					'function' => __NAMESPACE__ . '\\Delete::call',
+					'function' => Delete::call(...),
 					'sub_template' => 'deleteAccount',
 					'icon' => 'members_delete',
 					'sc' => 'post',
@@ -548,7 +548,7 @@ class Main implements ActionInterface, Routable
 					],
 				],
 				'activateaccount' => [
-					'function' => __NAMESPACE__ . '\\Activate::call',
+					'function' => Activate::call(...),
 					'icon' => 'regcenter',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
