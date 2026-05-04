@@ -172,7 +172,7 @@ function template_main()
 							<a href="javascript:void(0);" onclick="selectBoards([', !empty($category['child_ids']) ? implode(', ', $category['child_ids']) : '', '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
-			$cat_boards = array_values($category['boards']);
+			$cat_boards = array_values($category['children']);
 
 			foreach ($cat_boards as $key => $board) {
 				echo '
