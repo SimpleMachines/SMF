@@ -1511,7 +1511,10 @@ class Calendar implements ActionInterface, Routable
 		foreach ($cache_block['data']['calendar_events'] as $k => $event) {
 			// Remove events that the user may not see or wants to ignore.
 			if (
-				\in_array($event->id_board, User::$me->ignoreboards)
+				(
+					!empty(Config::$modSettings['allow_ignore_boards'])
+					&& \in_array($event->id_board, User::$me->ignoreboards)
+				)
 				|| (
 					\count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
 					&& !User::$me->allowedTo('admin_forum')
