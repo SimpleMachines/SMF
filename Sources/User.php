@@ -4002,7 +4002,14 @@ class User implements \ArrayAccess
 		}
 
 		if ($reset || !isset($this->ip2)) {
-			$this->ip2 = (string) ($this->is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
+			$this->ip2 = match (true) {
+				// Current user is behind a proxy, so use the alternative IP.
+				$this->is_me && !\in_array(IP::getUserIPAlternative(), [IP::getUserIP(), '']) => IP::getUserIPAlternative(),
+				// Current user has a new IP, so use their previous IP.
+				$this->is_me && $this->ip !== ($profile['member_ip'] ?? '') => $profile['member_ip'] ?? '',
+				// Either not the current user, or current user hasn't changed IPs.
+				default => $profile['member_ip2'] ?? '',
+			};
 		}
 
 		// Additional profile info.
