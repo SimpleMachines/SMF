@@ -2513,7 +2513,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Either we aren't in SSI mode, or it failed.
 		if (empty($this->connection)) {
-			if (empty($options)) { 
+			if (empty($options)) {
 				$options = ['dont_select_db' => SMF == 'SSI'];
 			}
 
