@@ -118,7 +118,7 @@ class IntegrationHook
 		foreach ($this->callables as $func_string => $callable) {
 			// Is it valid?
 			if (\is_callable($callable)) {
-				$this->results[$func_string] = \call_user_func_array($callable, $parameters);
+				$this->results[$func_string] = $callable(...$parameters);
 			}
 			// This failed, but we want to do so silently.
 			elseif ($this->ignore_errors) {
