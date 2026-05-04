@@ -2419,9 +2419,6 @@ class Utils
 			return \is_callable($input) ? $input : false;
 		}
 
-		// Sanitize and trim the input.
-		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
-
 		// Attempt to load a file, if applicable.
 		$input = self::loadFile($input);
 
