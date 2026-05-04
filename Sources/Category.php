@@ -136,6 +136,24 @@ class Category implements \ArrayAccess
 	 */
 	public bool $show_unread;
 
+	/**
+	 * @var array
+	 *
+	 * IDs of all boards in this category.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 */
+	public array $child_ids {
+		&get {
+			$this->child_ids = [];
+			self::recursiveBoards($this->child_ids, $this);
+
+			return $this->child_ids;
+		}
+	}
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -785,9 +803,9 @@ class Category implements \ArrayAccess
 	 * Used by self::getTree().
 	 *
 	 * @param array &$list The board list
-	 * @param \SMF\Category|\SMF\Board &$tree The board tree
+	 * @param self|Board &$tree The board tree
 	 */
-	public static function recursiveBoards(array &$list, \SMF\Category|\SMF\Board &$tree): void
+	public static function recursiveBoards(array &$list, self|Board &$tree): void
 	{
 		if (empty($tree->children)) {
 			return;
