@@ -231,8 +231,23 @@ class Board implements \ArrayAccess, Routable
 	 * @var bool
 	 *
 	 * Whether this board is the recycle bin board.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $recycle = false;
+	public bool $recycle {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => !empty(Config::$modSettings['recycle_enable']) && $this->id == (Config::$modSettings['recycle_board'] ?? NAN);`
+		&get {
+			$this->recycle = (
+				!empty(Config::$modSettings['recycle_enable'])
+				&& $this->id == (Config::$modSettings['recycle_board'] ?? NAN)
+			);
+
+			return $this->recycle;
+		}
+	}
 
 	/**
 	 * @var bool
@@ -2260,7 +2275,6 @@ class Board implements \ArrayAccess, Routable
 
 							case 'id_board':
 								$props['id'] = (int) $value;
-								$props['recycle'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == $value;
 								break;
 
 							case 'id_cat':
