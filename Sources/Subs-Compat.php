@@ -10503,7 +10503,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function groupsAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		$return = [];
+		$result = [];
 
 		$scope = isset($board_id) ? 'board' : 'global';
 
@@ -10525,7 +10525,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			}
 		}
 
-		return $return;
+		return $result;
 	}
 
 	/**
