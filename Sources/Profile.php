@@ -276,7 +276,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param bool $force_reload Whether to reload the data.
 	 */
-	public function loadStandardFields(bool $force_reload = false)
+	public function loadStandardFields(bool $force_reload = false): void
 	{
 		// Don't load this twice!
 		if (!empty($this->standard_fields) && !$force_reload) {
@@ -1147,7 +1147,7 @@ class Profile extends User implements \ArrayAccess
 	 *    theme, where "default theme" means whichever theme is used for guests.
 	 *    Default: false.
 	 */
-	public function loadThemeOptions(bool $default_only = false)
+	public function loadThemeOptions(bool $default_only = false): void
 	{
 		// Get this member's current theme options.
 		if ($default_only && $this->theme != (Config::$modSettings['theme_guests'] ?? 1)) {
