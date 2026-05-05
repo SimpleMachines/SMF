@@ -267,6 +267,32 @@ class Profile extends User implements \ArrayAccess
 	 ****************/
 
 	/**
+	 * Constructor.
+	 *
+	 * @param int $id The ID number of the user.
+	 */
+	public function __construct(int $id)
+	{
+		$this->id = $id;
+
+		self::$loaded[$this->id] = $this;
+
+		if (
+			empty(parent::$profiles[$id])
+			|| !parent::$profiles[$id]['dataset']->includes(UserDataset::Profile)
+		) {
+			parent::loadUserData((array) $id, parent::LOAD_BY_ID, UserDataset::Profile);
+		}
+
+		$this->setProperties();
+
+		$this->data = &parent::$profiles[$this->id];
+
+		// Create the slug for this member.
+		Slug::create($this->name, 'member', $this->id);
+	}
+
+	/**
 	 * This defines every profile field known to man.
 	 *
 	 * @param bool $force_reload Whether to reload the data.
@@ -2120,32 +2146,6 @@ class Profile extends User implements \ArrayAccess
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected in order to force instantiation via self::load().
-	 *
-	 * @param int $id The ID number of the user.
-	 */
-	protected function __construct(int $id)
-	{
-		$this->id = $id;
-
-		self::$loaded[$this->id] = $this;
-
-		if (
-			empty(parent::$profiles[$id])
-			|| !parent::$profiles[$id]['dataset']->includes(UserDataset::Profile)
-		) {
-			parent::loadUserData((array) $id, parent::LOAD_BY_ID, UserDataset::Profile);
-		}
-
-		$this->setProperties();
-
-		$this->data = &parent::$profiles[$this->id];
-
-		// Create the slug for this member.
-		Slug::create($this->name, 'member', $this->id);
-	}
 
 	/**
 	 * Sanitizes and validates input for any changes to the standard fields.
