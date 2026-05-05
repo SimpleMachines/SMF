@@ -3395,58 +3395,41 @@ class User implements \ArrayAccess
 	 *
 	 * Requires profile_remove_own or profile_remove_any permission for
 	 * respectively removing your own account or any account.
+	 *
 	 * Non-admins cannot delete admins.
-	 * The function:
+	 *
+	 * This method:
 	 *   - changes author of messages, topics and polls to guest authors.
 	 *   - removes all log entries concerning the deleted members, except the
-	 *     error logs, ban logs and moderation logs.
+	 *     error logs, ban logs, and moderation logs.
 	 *   - removes these members' personal messages (only the inbox), avatars,
 	 *     ban entries, theme settings, moderator positions, poll and votes.
 	 *   - updates member statistics afterwards.
 	 *
 	 * @param int|array $users The ID of a user or an array of user IDs.
-	 * @param bool $check_not_admin Whether to verify the users aren't admins.
+	 * @param bool $protect_admins If true, will not delete administrators.
+	 *    Even when this is false, it will be forced to true if the current user
+	 *    is not an administrator or if they are the only administrator.
 	 *    Default: false.
 	 * @param bool $anonymize If true, force anonymization of all deleted users.
 	 *    If false, deleted users will be anonymized only if they requested it
 	 *    or Config::$modSettings['always_anonymize_deleted_accounts'] is true.
 	 *    Default: false.
 	 */
-	public static function delete(int|array $users, bool $check_not_admin = false, bool $anonymize = false): void
+	public static function delete(int|array $users, bool $protect_admins = false, bool $anonymize = false): void
 	{
-		// Try give us a while to sort this out...
-		Sapi::setTimeLimit();
-
-		// Try to get some more memory.
-		Sapi::setMemoryLimit('128M');
-
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);
 
 		// Make sure there's no void user in here.
-		$users = array_filter(array_map('intval', $users), fn($user) => $user > 0);
+		$users = array_values(array_filter(array_map('intval', $users), fn($user) => $user > 0));
 
-		// How many are they deleting?
 		if (empty($users)) {
 			return;
 		}
 
-		if (\count($users) == 1) {
-			list($user) = $users;
-
-			if ($user == self::$me->id) {
-				self::$me->isAllowedTo('profile_remove_own');
-			} else {
-				self::$me->isAllowedTo('profile_remove_any');
-			}
-		} else {
-			foreach ($users as $k => $v) {
-				$users[$k] = (int) $v;
-			}
-
-			// Deleting more than one?  You can't have more than one account...
-			self::$me->isAllowedTo('profile_remove_any');
-		}
+		// Permission check.
+		self::$me->isAllowedTo($users === [self::$me->id] ? 'profile_remove_own' : 'profile_remove_any');
 
 		// Get their names for logging purposes.
 		$admins = [];
@@ -3481,8 +3464,10 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-		if (!empty($admins) && ($check_not_admin || (!self::$me->allowedTo('admin_forum') && (\count($users) != 1 || $users[0] != self::$me->id)))) {
+		// Only admins can delete admins, and there must always be at least one admin.
+		$protect_admins = $protect_admins || !self::$me->is_admin || (!empty($admins) && current(Group::load(Group::ADMIN))->countMembers() <= \count($admins));
+
+		if (!empty($admins) && $protect_admins) {
 			$users = array_diff($users, $admins);
 
 			foreach ($admins as $id) {
@@ -3491,9 +3476,18 @@ class User implements \ArrayAccess
 		}
 
 		// No one left?
-		if (empty($users)) {
+		if (empty($user_log_details)) {
 			return;
 		}
+
+		// Once we start, don't stop.
+		$previous_ignore_user_abort = (bool) ignore_user_abort(true);
+
+		// Try to give us a while to sort this out...
+		Sapi::setTimeLimit();
+
+		// Try to get some more memory.
+		Sapi::setMemoryLimit('128M');
 
 		// Log the action - regardless of who is deleting it.
 		$log_changes = [];
@@ -3530,91 +3524,114 @@ class User implements \ArrayAccess
 		}
 
 		$set_tables = [
-			// Make these peoples' posts guest posts.
-			['messages', 'id_member'],
-			['polls', 'id_member'],
-			// Make these peoples' posts guest first posts and last posts.
-			['topics', 'id_member_started'],
-			['topics', 'id_member_updated'],
-			['log_actions', 'id_member'],
-			['log_banned', 'id_member'],
-			['log_errors', 'id_member'],
-			['log_reported', 'id_member'],
-			['log_reported_comments', 'id_member'],
-			// Make their votes appear as guest votes - at least it keeps the totals right.
-			// @todo Consider adding back in cookie protection.
-			['log_polls', 'id_member'],
+			// Change these people's posts into guest posts.
+			['table' => 'messages', 'col' => 'id_member'],
+			['table' => 'polls', 'col' => 'id_member'],
+			['table' => 'topics', 'col' => 'id_member_started'],
+			['table' => 'topics', 'col' => 'id_member_updated'],
+			// Change these people's admin and moderation log entries.
+			[
+				'table' => 'log_actions',
+				'col' => 'id_member',
+				'where' => ' AND id_log != {int:log_type}',
+				'log_type' => 2,
+			],
+			// Change certain other log entries that shouldn't be deleted.
+			['table' => 'log_banned', 'col' => 'id_member'],
+			['table' => 'log_errors', 'col' => 'id_member'],
+			['table' => 'log_reported', 'col' => 'id_member'],
+			['table' => 'log_reported_comments', 'col' => 'id_member'],
+			['table' => 'log_polls', 'col' => 'id_member'],
 		];
 
 		$delete_tables = [
-			// Delete the member.
-			['members', 'id_member'],
-			['member_logins', 'id_member'],
-			['user_alerts', 'id_member'],
-			['user_alerts', 'id_member_started'],
-			['user_alerts_prefs', 'id_member'],
-			// Delete any drafts...
-			['user_drafts', 'id_member'],
-			// Delete anything they liked.
-			['user_likes', 'id_member'],
-			// Delete their mentions
-			['mentions', 'id_member'],
-			// Delete the logs...
-			['log_actions', 'id_member', ' AND id_log = {int:log_type}', ['log_type' => 2]],
-			['log_boards', 'id_member'],
-			['log_comments', 'id_recipient', ' AND comment_type = {string:warntpl}', ['warntpl' => 'warntpl']],
-			['log_group_requests', 'id_member'],
-			['log_mark_read', 'id_member'],
-			['log_notify', 'id_member'],
-			['log_online', 'id_member'],
-			['log_subscribed', 'id_member'],
-			['log_topics', 'id_member'],
-			['personal_messages', 'id_member_from'],
-			['pm_rules', 'id_member'],
-			// They no longer exist, so we don't know who it was sent to.
-			['pm_recipients', 'id_member'],
+			// Delete these members.
+			['table' => 'members', 'col' => 'id_member'],
+			['table' => 'member_logins', 'col' => 'id_member'],
+			['table' => 'user_alerts', 'col' => 'id_member'],
+			['table' => 'user_alerts', 'col' => 'id_member_started'],
+			['table' => 'user_alerts_prefs', 'col' => 'id_member'],
+			// Delete their drafts.
+			['table' => 'user_drafts', 'col' => 'id_member'],
+			// Delete the likes they made.
+			['table' => 'user_likes', 'col' => 'id_member'],
+			// Delete any mentions of them.
+			['table' => 'mentions', 'col' => 'id_member'],
+			// Delete their profile edit logs.
+			[
+				'table' => 'log_actions',
+				'col' => 'id_member',
+				'where' => ' AND id_log = {int:log_type}',
+				'log_type' => 2,
+			],
+			// Delete their other log entries.
+			[
+				'table' => 'log_comments',
+				'col' => 'id_recipient',
+				'where' => ' AND comment_type = {literal:warntpl}',
+			],
+			['table' => 'log_boards', 'col' => 'id_member'],
+			['table' => 'log_group_requests', 'col' => 'id_member'],
+			['table' => 'log_mark_read', 'col' => 'id_member'],
+			['table' => 'log_notify', 'col' => 'id_member'],
+			['table' => 'log_online', 'col' => 'id_member'],
+			['table' => 'log_subscribed', 'col' => 'id_member'],
+			['table' => 'log_topics', 'col' => 'id_member'],
+			// Delete their PM data.
+			['table' => 'personal_messages', 'col' => 'id_member_from'],
+			['table' => 'pm_rules', 'col' => 'id_member'],
+			['table' => 'pm_recipients', 'col' => 'id_member'],
 			// It's over, no more moderation for you.
-			['moderators', 'id_member'],
-			['group_moderators', 'id_member'],
+			['table' => 'moderators', 'col' => 'id_member'],
+			['table' => 'group_moderators', 'col' => 'id_member'],
 			// If you don't exist we can't ban you.
-			['ban_items', 'id_member'],
-			// Remove individual theme settings.
-			['themes', 'id_member'],
+			['table' => 'ban_items', 'col' => 'id_member'],
+			// Delete their theme settings.
+			['table' => 'themes', 'col' => 'id_member'],
 		];
 
+		// Change some of their data into guest data.
 		foreach ($set_tables as $d) {
+			$d['guest_id'] = 0;
+			$d['users'] = $users;
+			$where = $d['where'] ?? '';
+			unset($d['where']);
+
 			Db::$db->query(
 				'UPDATE {db_prefix}{raw:table}
 				SET {raw:col} = {int:guest_id}
-				WHERE {raw:col} IN ({array_int:users})',
-				[
-					'table' => $d[0],
-					'col' => $d[1],
-					'guest_id' => 0,
-					'users' => $users,
-				],
+				WHERE {raw:col} IN ({array_int:users})' . $where,
+				$d,
 			);
+
+			Sapi::setTimeLimit();
 		}
 
-		// Delete personal messages.
+		// Delete their personal messages.
 		PM::delete(null, null, $users);
+		Sapi::setTimeLimit();
 
+		// Delete other data for these members.
 		foreach ($delete_tables as $d) {
+			$d['guest_id'] = 0;
+			$d['users'] = $users;
+			$where = $d['where'] ?? '';
+			unset($d['where']);
+
 			Db::$db->query(
 				'DELETE FROM {db_prefix}{raw:table}
-				WHERE {raw:col} IN ({array_int:users})' . ($d[2] ?? ''),
-				array_merge($d[3] ?? [], [
-					'table' => $d[0],
-					'col' => $d[1],
-					'users' => $users,
-				]),
+				WHERE {raw:col} IN ({array_int:users})' . $where,
+				$d,
 			);
+
+			Sapi::setTimeLimit();
 		}
 
 		// Delete avatar.
 		Attachment::remove(['id_member' => $users]);
+		Sapi::setTimeLimit();
 
-		// These users are nobody's buddy nomore.
+		// These people are nobody's buddies anymore.
 		$request = Db::$db->query(
 			'SELECT id_member, pm_ignore_list, buddy_list
 			FROM {db_prefix}members
@@ -3638,6 +3655,8 @@ class User implements \ArrayAccess
 					'buddy_list' => implode(',', array_diff(explode(',', $row['buddy_list']), $users)),
 				],
 			);
+
+			Sapi::setTimeLimit();
 		}
 		Db::$db->free_result($request);
 
@@ -3650,6 +3669,8 @@ class User implements \ArrayAccess
 			],
 		);
 
+		Sapi::setTimeLimit();
+
 		// Make sure no member's birthday is still sticking in the calendar...
 		Config::updateModSettings([
 			'calendar_updated' => time(),
@@ -3657,10 +3678,13 @@ class User implements \ArrayAccess
 
 		// Integration rocks!
 		IntegrationHook::call('integrate_delete_members', [$users]);
+		Sapi::setTimeLimit();
 
 		Logging::updateStats('member');
-
 		Logging::logActions($log_changes);
+
+		// It is now safe to allow abort.
+		ignore_user_abort($previous_ignore_user_abort);
 	}
 
 	/**
@@ -5617,6 +5641,9 @@ class User implements \ArrayAccess
 	 */
 	protected static function anonymize(int $member): void
 	{
+		// This might take a while.
+		Sapi::setTimeLimit();
+
 		$anonymous_name = Utils::strtolower(Lang::getTxt('user', file: 'General')) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
 
 		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';

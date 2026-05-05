@@ -54,7 +54,7 @@ class Activate implements ActionInterface
 				|| Profile::$member->is_activated == User::REQUESTED_DELETE_BANNED
 				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE_BANNED
 			) {
-				User::delete(Utils::$context['id_member']);
+				User::delete(Profile::$member->id);
 				Utils::redirectexit();
 			}
 
