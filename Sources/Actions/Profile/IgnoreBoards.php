@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Actions\MessageIndex;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -49,50 +50,23 @@ class IgnoreBoards implements ActionInterface
 		Utils::$context['num_boards'] = 0;
 		Utils::$context['categories'] = [];
 
-		$request = Db::$db->query(
-			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
-				' . (!empty(Profile::$member->data['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-			WHERE {query_see_board}
-				AND redirect = {string:empty_string}',
-			[
-				'ignore_boards' => !empty(Profile::$member->data['ignore_boards']) ? explode(',', Profile::$member->data['ignore_boards']) : [],
-				'empty_string' => '',
-			],
-			identifier: 'order_by_board_order',
-		);
+		// Find all the boards this user is allowed to see.
+		$ignored_boards = !empty(Profile::$member->data['ignore_boards'])
+			? explode(',', Profile::$member->data['ignore_boards'])
+			: [];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			Utils::$context['num_boards']++;
-
-			// This category hasn't been set up yet..
-			if (!isset(Utils::$context['categories'][$row['id_cat']])) {
-				Utils::$context['categories'][$row['id_cat']] = [
-					'id' => $row['id_cat'],
-					'name' => $row['cat_name'],
-					'boards' => [],
-				];
-			}
-
-			// Set this board up, and let the template know when it's a child.  (indent them..)
-			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
-				'id' => $row['id_board'],
-				'name' => $row['name'],
-				'child_level' => $row['child_level'],
-				'selected' => $row['is_ignored'],
-			];
-		}
-		Db::$db->free_result($request);
-
-		Category::sort(Utils::$context['categories']);
+		Utils::$context['num_boards'] = 0;
+		Utils::$context['categories'] = MessageIndex::getBoardList([
+			'use_permissions' => true,
+			'not_redirection' => true,
+		]);
 
 		// Now, let's sort the list of categories into the boards for templates that like that.
 		$temp_boards = [];
 
-		foreach (Utils::$context['categories'] as $category) {
+		foreach (Utils::$context['categories'] as $cat_id => $category) {
 			// Include a list of boards per category for easy toggling.
-			Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
+			Utils::$context['categories'][$cat_id]['child_ids'] = array_keys($category['boards']);
 
 			$temp_boards[] = [
 				'name' => $category['name'],
@@ -100,6 +74,12 @@ class IgnoreBoards implements ActionInterface
 			];
 
 			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
+
+			foreach ($category['boards'] as $board_id => $board) {
+				Utils::$context['num_boards']++;
+
+				Utils::$context['categories'][$cat_id]['boards'][$board_id]['selected'] => in_array($board_id, $ignored_boards);
+			}
 		}
 
 		$max_boards = max(2, ceil(\count($temp_boards) / 2));

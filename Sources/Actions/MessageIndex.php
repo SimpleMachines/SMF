@@ -188,16 +188,16 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		$where = [];
-		$where_parameters = [];
+		$params = [];
 
 		if (isset($boardListOptions['excluded_boards'])) {
 			$where[] = 'b.id_board NOT IN ({array_int:excluded_boards})';
-			$where_parameters['excluded_boards'] = $boardListOptions['excluded_boards'];
+			$params['excluded_boards'] = $boardListOptions['excluded_boards'];
 		}
 
 		if (isset($boardListOptions['included_boards'])) {
 			$where[] = 'b.id_board IN ({array_int:included_boards})';
-			$where_parameters['included_boards'] = $boardListOptions['included_boards'];
+			$params['included_boards'] = $boardListOptions['included_boards'];
 		}
 
 		if (!empty($boardListOptions['ignore_boards'])) {
@@ -208,43 +208,46 @@ class MessageIndex implements ActionInterface, Routable
 
 		if (!empty($boardListOptions['not_redirection'])) {
 			$where[] = 'b.redirect = {string:blank_redirect}';
-			$where_parameters['blank_redirect'] = '';
+			$params['blank_redirect'] = '';
 		}
 
-		$request = Db::$db->query(
-			'SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level, b.redirect
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' . (empty($where) ? '' : '
-			WHERE ' . implode('
-				AND ', $where)),
-			$where_parameters,
-			identifier: 'order_by_board_order',
-		);
+		$selects = [
+			'c.name AS cat_name',
+			'c.id_cat',
+			'b.id_board',
+			'b.name AS board_name',
+			'b.child_level',
+			'b.redirect',
+		];
+
+		$joins = [
+			'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
+		];
+
+		$order = [
+			'b.board_order',
+		];
 
 		$return_value = [];
+		$selected = $boardListOptions['selected_board'] ?? null;
 
-		if (Db::$db->num_rows($request) !== 0) {
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!isset($return_value[$row['id_cat']])) {
-					$return_value[$row['id_cat']] = [
-						'id' => $row['id_cat'],
-						'name' => $row['cat_name'],
-						'boards' => [],
-					];
-				}
-
-				$return_value[$row['id_cat']]['boards'][$row['id_board']] = [
-					'id' => $row['id_board'],
-					'name' => $row['board_name'],
-					'child_level' => $row['child_level'],
-					'redirect' => $row['redirect'],
-					'selected' => isset($boardListOptions['selected_board']) && $boardListOptions['selected_board'] == $row['id_board'],
+		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row) {
+			if (!isset($return_value[$row['id_cat']])) {
+				$return_value[$row['id_cat']] = [
+					'id' => $row['id_cat'],
+					'name' => $row['cat_name'],
+					'boards' => [],
 				];
 			}
-		}
-		Db::$db->free_result($request);
 
-		Category::sort($return_value);
+			$return_value[$row['id_cat']]['boards'][$row['id_board']] = [
+				'id' => $row['id_board'],
+				'name' => $row['board_name'],
+				'child_level' => $row['child_level'],
+				'redirect' => $row['redirect'],
+				'selected' => $selected === $row['id_board'],
+			];
+		}
 
 		return $return_value;
 	}
