@@ -116,7 +116,7 @@ class IntegrationHook
 
 		// Loop through each callable.
 		foreach ($this->callables as $func_string => $callable) {
-			$this->results[$func_string] = $callable(...1$parameters);
+			$this->results[$func_string] = $callable(...$parameters);
 		}
 
 		return $this->results;
