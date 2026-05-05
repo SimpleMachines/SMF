@@ -151,13 +151,6 @@ class Profile extends User implements \ArrayAccess
 	public static array $loaded = [];
 
 	/**
-	 * @var int
-	 *
-	 * ID of the member whose profile is being viewed.
-	 */
-	public static int $memID;
-
-	/**
 	 * @var self
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
@@ -1486,7 +1479,16 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area ?? null]);
+		IntegrationHook::call(
+			'integrate_profile_save',
+			[
+				&$this->new_data,
+				&$this->save_errors,
+				$this->id,
+				$this->data,
+				Menu::$loaded['profile']->current_area ?? null,
+			],
+		);
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
@@ -1772,37 +1774,88 @@ class Profile extends User implements \ArrayAccess
 	 *    If $users is not set, this will be ignored.
 	 * @param UserDataset $dataset Ignored. Any value passed to this parameter
 	 *    will be overwritten with UserDataset::Profile.
-	 * @return array The IDs of the loaded members.
+	 * @return array Instances of this class for the loaded members.
 	 */
 	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = UserDataset::Normal): array
 	{
 		$users = (array) $users;
 
+		$loaded = [];
+
 		if (empty($users)) {
+			return $loaded;
+		}
+
+		foreach (parent::loadUserData($users, $type, UserDataset::Profile) as $id) {
+			if (!isset(self::$loaded[$id])) {
+				new self($id);
+			}
+
+			$loaded[] = self::$loaded[$id];
+		}
+
+		return $loaded;
+	}
+
+	/**
+	 * Loads the profile for the member whose profile page is being viewed.
+	 *
+	 * The loaded profile is assigned to Profile::$member and also returned.
+	 *
+	 * It is possible to specify the member ID manually using the $id parameter,
+	 * but in typical use cases it is better to leave that parameter as null so
+	 * that the correct value can be determined from the URL query parameters.
+	 *
+	 * @param ?int $id A member ID. If null, will be determined automatically.
+	 *    Default: null.
+	 * @return self An instance of this class for the requested member.
+	 */
+	public static function loadMember(?int $id = null): self
+	{
+		if (!isset(self::$member) || (isset($id) && self::$member->id !== $id)) {
+			if (isset($id)) {
+				$user = $id;
+				$type = self::LOAD_BY_ID;
+			}
 			// Did we get the user by name...
-			if (isset($_REQUEST['user'])) {
-				$users = (array) $_REQUEST['user'];
+			elseif (isset($_REQUEST['user'])) {
+				$user = $_REQUEST['user'];
 				$type = self::LOAD_BY_NAME;
 			}
 			// ... or by id_member?
 			elseif (!empty($_REQUEST['u'])) {
-				$users = array_map('intval', (array) $_REQUEST['u']);
+				$user = (int) $_REQUEST['u'];
+				$type = self::LOAD_BY_ID;
 			}
 			// If it was just ?action=profile, edit your own profile, but only if you're not a guest.
 			else {
 				// Members only...
 				User::$me->kickIfGuest();
-				$users = [User::$me->id];
+				$user = User::$me->id;
+				$type = self::LOAD_BY_ID;
 			}
+
+			$loaded = self::load($user, $type, UserDataset::Profile);
+
+			if (empty($loaded)) {
+				ErrorHandler::fatalLang('not_a_user', false);
+			}
+
+			self::$member = current($loaded);
+
+			// Let's have some information about this member ready, too.
+			self::$member->format();
+			Utils::$context['member'] = &self::$member->formatted;
+			Utils::$context['id_member'] = self::$member->id;
+
+			// Backward compatibility.
+			self::$cur_profile = &self::$member->data;
+			self::$profile_fields = &self::$member->standard_fields;
+			self::$profile_vars = &self::$member->new_data;
+			self::$post_errors = &self::$member->save_errors;
 		}
 
-		$loaded_ids = parent::loadUserData($users, $type, UserDataset::Profile);
-
-		foreach (array_diff($loaded_ids, array_keys(self::$loaded)) as $id) {
-			new self($id);
-		}
-
-		return $loaded_ids;
+		return self::$member;
 	}
 
 	/**
@@ -2075,30 +2128,23 @@ class Profile extends User implements \ArrayAccess
 	 */
 	protected function __construct(int $id)
 	{
-		parent::__construct($id, UserDataset::Profile);
+		$this->id = $id;
 
 		self::$loaded[$this->id] = $this;
 
-		if (empty(self::$member->id)) {
-			self::$member = $this;
-			self::$memID = $this->id;
+		if (
+			empty(parent::$profiles[$id])
+			|| !parent::$profiles[$id]['dataset']->includes(UserDataset::Profile)
+		) {
+			parent::loadUserData((array) $id, parent::LOAD_BY_ID, UserDataset::Profile);
 		}
+
+		$this->setProperties();
 
 		$this->data = &parent::$profiles[$this->id];
 
-		// Let's have some information about this member ready, too.
-		$this->format();
-		Utils::$context['member'] = &$this->formatted;
-		Utils::$context['id_member'] = $id;
-
 		// Create the slug for this member.
 		Slug::create($this->name, 'member', $this->id);
-
-		// Backward compatibility.
-		self::$cur_profile = &self::$member->data;
-		self::$profile_fields = &$this->standard_fields;
-		self::$profile_vars = &$this->new_data;
-		self::$post_errors = &$this->save_errors;
 	}
 
 	/**
@@ -2370,7 +2416,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// The true in the hook params replaces an obsolete $returnErrors variable.
-		// The !self::$member->post_sanitized replaces an obsolete $sanitize variable.
+		// The !$this->post_sanitized replaces an obsolete $sanitize variable.
 		$hook_errors = IntegrationHook::call('integrate_save_custom_profile_fields', [
 			&$this->new_cf_data['updates'],
 			&$this->log_changes,
@@ -2378,7 +2424,7 @@ class Profile extends User implements \ArrayAccess
 			true,
 			$this->id,
 			$area,
-			!self::$member->post_sanitized,
+			!$this->post_sanitized,
 			&$deletes,
 		]);
 

@@ -1509,7 +1509,7 @@ class Features implements ActionInterface
 
 		Theme::loadTemplate('Profile');
 
-		Profile::load(0);
+		Profile::loadMember(0);
 		Notification::call();
 
 		Utils::$context['page_title'] = Lang::getTxt('notify_settings', file: 'Admin');

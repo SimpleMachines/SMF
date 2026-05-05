@@ -45,10 +45,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function account(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Account::call();
 	}
@@ -70,10 +67,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function activateAccount(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Activate::call();
 	}
@@ -394,10 +388,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function alert_configuration(int $memID, bool $defaultSettings = false): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Notification::load();
 		$obj->subaction = 'alerts';
@@ -462,10 +453,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function alert_markread(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Notification::load();
 		$obj->subaction = 'markread';
@@ -479,10 +467,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function alert_notifications_boards(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Notification::load();
 		$obj->subaction = 'boards';
@@ -496,10 +481,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function alert_notifications_topics(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Notification::load();
 		$obj->subaction = 'topics';
@@ -523,10 +505,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function alerts_popup(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\AlertsPopup::call();
 	}
@@ -1920,10 +1899,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function deleteAccount(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Delete::call();
 	}
@@ -1935,10 +1911,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function deleteAccount2(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$saving = SMF\Utils::$context['completed_save'] ?? null;
 		SMF\Utils::$context['completed_save'] = true;
@@ -2227,10 +2200,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function download_export_file(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ExportDownload::call();
 	}
@@ -2293,10 +2263,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function editBuddies(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\BuddyIgnoreLists::load();
 		$obj->subaction = 'buddies';
@@ -2310,10 +2277,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function editBuddyIgnoreLists(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\BuddyIgnoreLists::call();
 	}
@@ -2357,10 +2321,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function editIgnoreList(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\BuddyIgnoreLists::load();
 		$obj->subaction = 'ignore';
@@ -2668,10 +2629,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function export_attachment(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ExportAttachment::call();
 	}
@@ -2685,10 +2643,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function export_profile_data(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Export::call();
 	}
@@ -2892,10 +2847,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function forumProfile(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ForumProfile::call();
 	}
@@ -3616,10 +3568,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function groupMembership(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\GroupMembership::call();
 	}
@@ -3636,10 +3585,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function groupMembership2(array $profile_vars, array $post_errors, int $memID): string
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\GroupMembership::load();
 		$obj->save();
@@ -3927,10 +3873,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function ignoreboards(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\IgnoreBoards::call();
 	}
@@ -4220,10 +4163,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function issueWarning(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\IssueWarning::call();
 	}
@@ -4427,11 +4367,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function loadCustomFields(int $id, string $area = 'summary'): void
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
-
-		SMF\Profile::$loaded[$id]->loadCustomFields($area);
+		SMF\Profile::loadMember($id)->loadCustomFields($area);
 	}
 
 	/**
@@ -4635,11 +4571,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function loadProfileFields(bool $force_reload = false, ?int $id = null): void
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
-
-		SMF\Profile::$loaded[$id]->loadStandardFields($force_reload);
+		SMF\Profile::loadMember($id)->loadStandardFields($force_reload);
 	}
 
 	/**
@@ -4735,11 +4667,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function loadThemeOptions(int $id, bool $defaultSettings = false): void
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
-
-		SMF\Profile::$loaded[$id]->loadThemeOptions($defaultSettings);
+		SMF\Profile::loadMember($id)->loadThemeOptions($defaultSettings);
 	}
 
 	/**
@@ -5119,9 +5047,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
+		SMF\Profile::loadMember($id);
 
 		$_REQUEST['sa'] = $area;
 		SMF\Profile::$member->post_sanitized = !$sanitize;
@@ -5141,10 +5067,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function makeNotificationChanges(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Notification::load()->changeNotifications();
 	}
@@ -5157,9 +5080,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function makeThemeChanges(int $id, int $id_theme): void
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
+		SMF\Profile::loadMember($id);
 
 		SMF\Profile::$member->new_data['id_theme'] = $id_theme;
 		SMF\Profile::$member->save();
@@ -6677,10 +6598,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function notification(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Notification::call();
 	}
@@ -7253,10 +7171,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function profile_popup(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Popup::call();
 	}
@@ -7268,11 +7183,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function profileLoadGroups(?int $id = null): bool
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
-
-		SMF\Profile::$loaded[$id]->loadAssignableGroups();
+		SMF\Profile::loadMember($id)->loadAssignableGroups();
 
 		return true;
 	}
@@ -8659,11 +8570,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function setupProfileContext(array $fields, int $id): void
 	{
-		if (!isset(SMF\Profile::$loaded[$id])) {
-			SMF\Profile::load($id);
-		}
-
-		SMF\Profile::$member->setupContext($fields);
+		SMF\Profile::loadMember($id)->setupContext($fields);
 	}
 
 	/**
@@ -8715,10 +8622,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function showAlerts(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ShowAlerts::call();
 	}
@@ -8743,10 +8647,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function showAttachments(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\ShowPosts::load();
 		$obj->subaction = 'attach';
@@ -8821,10 +8722,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function showPermissions(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ShowPermissions::call();
 	}
@@ -8851,10 +8749,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function showPosts(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ShowPosts::call();
 	}
@@ -8895,10 +8790,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function showUnwatched(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\ShowPosts::load();
 		$obj->subaction = 'unwatchedtopics';
@@ -9380,10 +9272,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function statPanel(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\StatPanel::call();
 	}
@@ -9426,10 +9315,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function subscriptions(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\PaidSubs::call();
 	}
@@ -9441,10 +9327,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function summary(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\Summary::call();
 	}
@@ -9556,10 +9439,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function tfadisable(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\TFADisable::call();
 	}
@@ -9579,10 +9459,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function theme(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ThemeOptions::call();
 	}
@@ -9717,10 +9594,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function trackActivity(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Tracking::load();
 		$obj->subaction = 'activity';
@@ -9734,10 +9608,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function trackEdits(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Tracking::load();
 		$obj->subaction = 'edits';
@@ -9751,10 +9622,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function trackGroupReq(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Tracking::load();
 		$obj->subaction = 'groupreq';
@@ -9780,10 +9648,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 			$memID = SMF\User::$me->id;
 		}
 
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\TrackIP::call();
 	}
@@ -9795,10 +9660,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function TrackLogins(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		$obj = SMF\Actions\Profile\Tracking::load();
 		$obj->subaction = 'logins';
@@ -10621,10 +10483,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function viewWarning(int $memID): void
 	{
-		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
-			unset(SMF\Profile::$member);
-			SMF\Profile::load($memID);
-		}
+		SMF\Profile::loadMember($memID);
 
 		SMF\Actions\Profile\ViewWarning::call();
 	}

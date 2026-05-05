@@ -875,7 +875,7 @@ class Main implements ActionInterface, Routable
 	protected function __construct()
 	{
 		// Load the data of the member whose profile we are viewing.
-		Profile::load();
+		Profile::loadMember();
 	}
 
 	/**

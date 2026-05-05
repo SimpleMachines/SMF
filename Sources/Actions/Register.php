@@ -277,7 +277,7 @@ class Register implements ActionInterface, Routable
 		}
 
 		// Any custom fields we want filled in?
-		Profile::load(0);
+		Profile::loadMember(0);
 		Profile::$member->loadCustomFields('register');
 
 		// Or any standard ones?

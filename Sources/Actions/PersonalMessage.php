@@ -743,7 +743,7 @@ class PersonalMessage implements ActionInterface, Routable
 		// We want them to submit back to here.
 		Utils::$context['profile_custom_submit_url'] = Config::$scripturl . '?action=pm;sa=settings;save';
 
-		Profile::load(User::$me->id);
+		Profile::loadMember(User::$me->id);
 
 		Theme::loadTemplate('Profile');
 

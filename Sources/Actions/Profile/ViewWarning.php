@@ -143,7 +143,7 @@ class ViewWarning implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		// Make sure things which are disabled stay disabled.

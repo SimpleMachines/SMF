@@ -202,7 +202,7 @@ class ShowAlerts implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		// Users may only view their own alerts.

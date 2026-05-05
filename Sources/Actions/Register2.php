@@ -394,7 +394,7 @@ class Register2 extends Register
 
 		// We'll do custom fields after as then we get to use the helper function!
 		if (!empty($_POST['customfield'])) {
-			Profile::load($member_id);
+			Profile::loadMember($member_id);
 			Profile::$member->loadCustomFields('register');
 			Profile::$member->save();
 		}

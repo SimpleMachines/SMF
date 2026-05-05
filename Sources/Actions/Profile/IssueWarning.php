@@ -395,7 +395,7 @@ class IssueWarning implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		// Get all the actual settings.
