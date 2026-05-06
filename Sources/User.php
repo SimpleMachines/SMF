@@ -1545,15 +1545,6 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Log what they were trying to do that didn't work.
-		if ($log) {
-			if (!empty(Config::$modSettings['who_enabled'])) {
-				$_GET['error'] = 'guest_login';
-			}
-
-			$this->logOnline(true);
-		}
-
 		// Just die.
 		if (isset($_REQUEST['xml'])) {
 			Utils::obExit(false);
