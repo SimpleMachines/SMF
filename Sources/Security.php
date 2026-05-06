@@ -103,11 +103,6 @@ function is_not_guest($message = '')
 	if (!$user_info['is_guest'])
 		return;
 
-	// Log what they were trying to do didn't work)
-	if (!empty($modSettings['who_enabled']))
-		$_GET['error'] = 'guest_login';
-	writeLog(true);
-
 	// Just die.
 	if (isset($_REQUEST['xml']))
 		obExit(false);
