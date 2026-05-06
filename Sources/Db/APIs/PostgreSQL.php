@@ -456,7 +456,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			foreach ($data as $dataRow) {
 				if (\count($indexed_columns) !== \count($dataRow)) {
 						$this->error_backtrace(
-							'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+							'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
 							'',
 							E_USER_ERROR,
 							__FILE__,
