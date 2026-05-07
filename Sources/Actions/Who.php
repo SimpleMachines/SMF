@@ -523,7 +523,7 @@ class Who implements ActionInterface, Routable
 
 			if (isset($actions['error'])) {
 				$error_message = Lang::getTxt(
-					$actions['error'] == 'guest_login' ? 'who_guest_login' : $actions['error'],
+					$actions['error'],
 					(array) ($actions['error_params'] ?? []),
 					file: 'Who+Errors',
 				);
