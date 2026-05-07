@@ -215,6 +215,84 @@ class Security
 	}
 
 	/**
+	 * Check if a name is in the reserved words list.
+	 * (name, current member id, name/username?.)
+	 * - checks if name is a reserved name or username.
+	 * - if is_name is false, the name is assumed to be a username.
+	 * - the current_id_member variable is used to ignore duplicate matches with
+	 *   the current member.
+	 *
+	 * @param string $name The name to check
+	 * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
+	 * @param bool $is_name Whether we're checking against reserved names or just usernames
+	 * @param bool $fatal Whether to die with a fatal error if the name is reserved
+	 * @return bool False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
+	 */
+	public static function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
+	{
+		$name = Utils::entityDecode($name);
+		$checkName = Utils::strtolower($name);
+
+		// Administrators are never restricted ;).
+		if (
+			!User::$me->allowedTo('moderate_forum')
+			&& (
+				(
+					!empty(Config::$modSettings['reserveName'])
+					&& $is_name
+				)
+				|| (
+					!empty(Config::$modSettings['reserveUser'])
+					&& !$is_name
+				)
+			)
+		) {
+			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
+				return true;
+			}
+
+			$censor_name = $name;
+
+			if (Lang::censorText($censor_name) != $name) {
+				if ($fatal) {
+					ErrorHandler::fatalLang('name_censored', 'password', [$name]);
+				}
+
+				return true;
+			}
+		}
+
+		// Characters we just shouldn't allow, regardless.
+		foreach (['*'] as $char) {
+			if (strpos($checkName, $char) !== false) {
+				if ($fatal) {
+					ErrorHandler::fatalLang('username_reserved', 'password', [$char]);
+				}
+
+				return true;
+			}
+		}
+
+		// Check for similar existing member names.
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member, $fatal)) {
+			return true;
+		}
+
+		// Does the name resemble a member group name?
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
+			return true;
+		}
+
+		// Okay, they passed.
+		$is_reserved = false;
+
+		// Maybe a mod wants to perform further checks?
+		IntegrationHook::call('integrate_check_name', [$checkName, &$is_reserved, $current_id_member, $is_name]);
+
+		return $is_reserved;
+	}
+
+	/**
 	 * Check if a specific confirm parameter was given.
 	 *
 	 * @param string $action The action we want to check against.

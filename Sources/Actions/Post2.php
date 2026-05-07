@@ -308,7 +308,7 @@ class Post2 extends Post
 
 		if ($this->authorIsGuest) {
 			// If user is a guest, make sure the chosen name isn't taken.
-			if (User::isReservedName($_POST['guestname'], 0, true, false) && (!isset($this->existing_msg->poster_name) || $_POST['guestname'] != $this->existing_msg->poster_name)) {
+			if (Security::isReservedName($_POST['guestname'], 0, true, false) && (!isset($this->existing_msg->poster_name) || $_POST['guestname'] != $this->existing_msg->poster_name)) {
 				$this->errors[] = 'bad_name';
 			}
 		}

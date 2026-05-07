@@ -207,7 +207,7 @@ class Register2 extends Register
 			}
 
 			// Only set it if you can and if we are sure it is good
-			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !User::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60) {
+			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !Security::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60) {
 				$this->possible_strings[] = 'real_name';
 			}
 		}

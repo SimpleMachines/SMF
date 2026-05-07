@@ -4170,7 +4170,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
 	{
-		return SMF\User::isReservedName($name, $current_id_member, $is_name, $fatal);
+		return SMF\Security::isReservedName($name, $current_id_member, $is_name, $fatal);
 	}
 
 	/**

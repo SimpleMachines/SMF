@@ -700,7 +700,7 @@ class Profile extends User implements \ArrayAccess
 						return 'name_too_long';
 					}
 
-					if ($this->name != $value && User::isReservedName($value, $this->id)) {
+					if ($this->name != $value && Security::isReservedName($value, $this->id)) {
 						return 'name_taken';
 					}
 
