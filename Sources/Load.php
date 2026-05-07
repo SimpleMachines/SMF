@@ -938,7 +938,7 @@ function loadUserSettings()
 		$languages = getLanguages();
 
 		// Is it valid?
-		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
+		if (!empty($_GET['language']) && is_string($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
 		{
 			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
 
