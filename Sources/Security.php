@@ -103,6 +103,7 @@ function is_not_guest($message = '')
 	if (!$user_info['is_guest'])
 		return;
 
+	// Log what they were trying to do didn't work)
 	writeLog(true);
 
 	// Just die.
