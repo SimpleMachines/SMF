@@ -4513,7 +4513,7 @@ class User implements \ArrayAccess
 		$languages = Lang::get();
 
 		// Change was requested in URL parameters.
-		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')])) {
+		if (!empty($_GET['language']) && \is_string($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')])) {
 			$this->language = strtr($_GET['language'], './\\:', '____');
 
 			// Make it permanent for members.
