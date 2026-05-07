@@ -3461,7 +3461,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check for similar existing member names.
-		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member ?? 0, $fatal)) {
 			return true;
 		}
 
