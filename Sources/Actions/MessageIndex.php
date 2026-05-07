@@ -229,7 +229,13 @@ class MessageIndex implements ActionInterface, Routable
 		];
 
 		$return_value = [];
-		$selected = $boardListOptions['selected_board'] ?? null;
+		$selected = null;
+
+		if (isset($boardListOptions['selected_boards']) && \is_array($boardListOptions['selected_boards'])) {
+			$selected = array_flip($boardListOptions['selected_boards']);
+		} elseif (isset($boardListOptions['selected_board'])) {
+			$selected = [$boardListOptions['selected_board'] => true];
+		}
 
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row) {
 			if (!isset($return_value[$row['id_cat']])) {
@@ -245,7 +251,7 @@ class MessageIndex implements ActionInterface, Routable
 				'name' => $row['board_name'],
 				'child_level' => $row['child_level'],
 				'redirect' => $row['redirect'],
-				'selected' => $selected === $row['id_board'],
+				'selected' => $selected !== null && isset($selected[$row['id_board']]),
 			];
 		}
 

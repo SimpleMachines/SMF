@@ -48,17 +48,12 @@ class IgnoreBoards implements ActionInterface
 
 		// Find all the boards this user is allowed to see.
 		Utils::$context['num_boards'] = 0;
-		Utils::$context['categories'] = [];
-
-		// Find all the boards this user is allowed to see.
-		$ignored_boards = !empty(Profile::$member->data['ignore_boards'])
-			? explode(',', Profile::$member->data['ignore_boards'])
-			: [];
-
-		Utils::$context['num_boards'] = 0;
 		Utils::$context['categories'] = MessageIndex::getBoardList([
 			'use_permissions' => true,
 			'not_redirection' => true,
+			'selected_boards' = !empty(Profile::$member->data['ignore_boards'])
+				? explode(',', Profile::$member->data['ignore_boards'])
+				: [],
 		]);
 
 		// Now, let's sort the list of categories into the boards for templates that like that.
@@ -75,11 +70,7 @@ class IgnoreBoards implements ActionInterface
 
 			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 
-			foreach ($category['boards'] as $board_id => $board) {
-				Utils::$context['num_boards']++;
-
-				Utils::$context['categories'][$cat_id]['boards'][$board_id]['selected'] => in_array($board_id, $ignored_boards);
-			}
+			Utils::$context['num_boards'] += \count($category['boards']);
 		}
 
 		$max_boards = max(2, ceil(\count($temp_boards) / 2));
