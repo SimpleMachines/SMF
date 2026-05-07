@@ -4126,7 +4126,25 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function isBannedEmail(string $email, string $restriction, string $error): void
 	{
-		SMF\User::isBannedEmail($email, $restriction, $error);
+		$temp = new SMF\User();
+		$temp->username = '';
+		$temp->email = $email;
+		$temp->ip = '127.0.0.1';
+		$temp->ip2 = '127.0.0.1';
+
+		$bans = SMF\Security::checkBans($temp);
+
+		// You're in biiig trouble!
+		if (($bans['cannot_access']['email_address'] ?? null) == $email) {
+			SMF\Logging::logBan($bans['cannot_access']['ids']);
+			SMF\ErrorHandler::fatal(SMF\Lang::getTxt('your_ban', ['name' => SMF\Lang::getTxt('guest_title', file: 'General')]) . ($bans['cannot_access']['reason'] ?? ''), false, 403);
+		}
+
+		// Log this ban for future reference.
+		if (!empty($bans[$restriction]) && $bans[$restriction]['email_address'] == $email) {
+			SMF\Logging::logBan($bans[$restriction]['ids'], $email);
+			SMF\ErrorHandler::fatal($error . ($bans[$restriction]['reason'] ?? ''), false, 403);
+		}
 	}
 
 	/**

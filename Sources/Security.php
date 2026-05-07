@@ -359,6 +359,157 @@ class Security
 	}
 
 	/**
+	 * Checks whether the given User is subject to any bans.
+	 *
+	 * Caches this information for optimization purposes.
+	 *
+	 * @param User $user An instance of SMF\User.
+	 * @param bool $force_check Whether to force a recheck.
+	 * @return array Info about any bans placed on this user.
+	 */
+	public static function checkBans(User $user, bool $force_check = false): array
+	{
+		$bans = [];
+
+		$restrictions = [
+			'cannot_access',
+			'cannot_login',
+			'cannot_post',
+			'cannot_register',
+		];
+
+		// You cannot be banned if you are an admin.
+		if ($user->is_admin) {
+			return $bans;
+		}
+
+		// Only check the ban every so often, to reduce load.
+		if (
+			!$force_check
+			&& ($_SESSION['ban']['last_checked'] ?? NAN) >= (Config::$modSettings['banLastUpdated'] ?? NAN)
+			&& ($_SESSION['ban']['id_member'] ?? NAN) == ($user->id ?? NAN)
+			&& ($_SESSION['ban']['ip'] ?? NAN) == ($user->ip ?? NAN)
+			&& ($_SESSION['ban']['ip2'] ?? NAN) == ($user->ip2 ?? NAN)
+			&& ($_SESSION['ban']['email'] ?? NAN) == ($user->email ?? NAN)
+		) {
+			foreach ($restrictions as $restriction) {
+				$bans[$restriction] = $_SESSION[$restriction];
+			}
+
+			return $bans;
+		}
+
+		// Innocent until proven guilty. (but we know you are! :P)
+		$ban_query = [];
+		$ban_query_vars = ['current_time' => time()];
+
+		// Check both IP addresses.
+		foreach (['ip', 'ip2'] as $ip_number) {
+			if (!isset($user->{$ip_number})) {
+				continue;
+			}
+
+			if ($ip_number == 'ip2' && $user->ip2 == $user->ip) {
+				continue;
+			}
+
+			$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
+			$ban_query_vars[$ip_number] = $user->{$ip_number};
+
+			// IP was valid, maybe there's also a hostname...
+			if (empty(Config::$modSettings['disableHostnameLookup']) && $user->{$ip_number} != 'unknown') {
+				$ip = new IP($user->{$ip_number});
+				$hostname = $ip->getHost();
+
+				if (\strlen($hostname) > 0) {
+					$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
+					$ban_query_vars['hostname' . $ip_number] = $hostname;
+				}
+			}
+		}
+
+		// Is their email address banned?
+		if (\strlen($user->email ?? '') > 0) {
+			$ban_query[] = '({string:email} LIKE bi.email_address)';
+			$ban_query_vars['email'] = $user->email;
+		}
+
+		// How about this user?
+		if (!empty($user->id)) {
+			$ban_query[] = 'bi.id_member = {int:id_member}';
+			$ban_query_vars['id_member'] = $user->id;
+		}
+
+		// Check the ban, if there's information.
+		if (!empty($ban_query)) {
+			// Store every type of ban that applies to you in your session.
+			$request = Db::$db->query(
+				'SELECT
+					bi.id_ban,
+					bi.email_address,
+					bi.id_member,
+					bg.cannot_access,
+					bg.cannot_register,
+					bg.cannot_post,
+					bg.cannot_login,
+					bg.reason,
+					COALESCE(bg.expire_time, 0) AS expire_time
+				FROM {db_prefix}ban_items AS bi
+					INNER JOIN {db_prefix}ban_groups AS bg ON (
+						bg.id_ban_group = bi.id_ban_group
+						AND (
+							bg.expire_time IS NULL
+							OR bg.expire_time > {int:current_time}
+						)
+					)
+				WHERE
+					(' . implode(' OR ', $ban_query) . ')',
+				$ban_query_vars,
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				foreach ($restrictions as $restriction) {
+					if (!empty($row[$restriction])) {
+						$bans[$restriction]['reason'] = $row['reason'];
+						$bans[$restriction]['ids'][] = $row['id_ban'];
+
+						if (!empty($row['id_member'])) {
+							$bans[$restriction]['id_member'] = $user->id;
+						}
+
+						if (!empty($row['email_address'])) {
+							$bans[$restriction]['email_address'] = $user->email;
+						}
+
+						$bans['expire_time'] = match (true) {
+							$row['expire_time'] == 0 => 0,
+							($bans['expire_time'] ?? 1) == 0 => 0,
+							default => max($row['expire_time'], $bans['expire_time'] ?? 0),
+						};
+					}
+				}
+			}
+			Db::$db->free_result($request);
+		}
+
+		// If this is the current user, remember for later.
+		if ($user->is_me) {
+			$_SESSION['ban'] = array_merge(
+				[
+					'last_checked' => time(),
+					'id_member' => $user->id,
+					'ip' => $user->ip,
+					'ip2' => $user->ip2,
+					'email' => $user->email,
+				],
+				$bans,
+			);
+		}
+
+		return $bans;
+	}
+
+	/**
 	 * Check if a specific confirm parameter was given.
 	 *
 	 * @param string $action The action we want to check against.

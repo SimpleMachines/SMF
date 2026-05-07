@@ -523,11 +523,6 @@ class Register2 extends Register
 			}
 		}
 
-		// You may not be allowed to register this email.
-		if (!empty($reg_options['check_email_ban'])) {
-			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
-		}
-
 		// Check if the email address is in use.
 		$request = Db::$db->query(
 			'SELECT id_member
@@ -545,6 +540,19 @@ class Register2 extends Register
 			$reg_errors[] = ['lang', 'email_in_use', false, [Utils::htmlspecialchars($reg_options['email'])]];
 		}
 		Db::$db->free_result($request);
+
+		// Are they banned from registering?
+		$temp = new User();
+		$temp->username = $reg_options['username'];
+		$temp->email = empty($reg_options['check_email_ban']) ? '' : $reg_options['email'];
+		$temp->ip = $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip;
+		$temp->ip2 = $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative();
+
+		$bans = Security::checkBans($temp);
+
+		if (!empty($bans['cannot_register'])) {
+			ErrorHandler::fatal(Lang::getTxt('ban_register_prohibited', file: 'Login'), false, 403);
+		}
 
 		// Perhaps someone else wants to check this user.
 		IntegrationHook::call('integrate_register_check', [&$reg_options, &$reg_errors]);

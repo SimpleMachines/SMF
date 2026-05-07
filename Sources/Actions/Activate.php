@@ -304,9 +304,6 @@ class Activate implements ActionInterface, Routable
 				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
 			}
 
-			// Make sure their email isn't banned.
-			User::isBannedEmail($_POST['new_email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
-
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
 				'SELECT id_member
@@ -323,8 +320,15 @@ class Activate implements ActionInterface, Routable
 			}
 			Db::$db->free_result($request);
 
-			User::updateMemberData($this->member->id, ['email_address' => $_POST['new_email']]);
+			// Make sure their email isn't banned.
 			$this->member->email = $_POST['new_email'];
+			$bans = Security::checkBans($this->member, true);
+
+			if (!empty($bans['cannot_register'])) {
+				ErrorHandler::fatal(Lang::getTxt('ban_register_prohibited', file: 'Login'), false, 403);
+			}
+
+			User::updateMemberData($this->member->id, ['email_address' => $_POST['new_email']]);
 
 			$this->email_change = true;
 		}
