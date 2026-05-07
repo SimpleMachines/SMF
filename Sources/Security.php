@@ -103,6 +103,8 @@ function is_not_guest($message = '')
 	if (!$user_info['is_guest'])
 		return;
 
+	writeLog(true);
+
 	// Just die.
 	if (isset($_REQUEST['xml']))
 		obExit(false);
