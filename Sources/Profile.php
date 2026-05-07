@@ -568,7 +568,7 @@ class Profile extends User implements \ArrayAccess
 						if ($reset_password) {
 							$this->resetPassword($value);
 						} elseif ($value !== null) {
-							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
+							Security::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
 							User::updateMemberData($this->id, ['member_name' => $value]);
 
@@ -2954,7 +2954,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Do some checks on the username if needed.
 		if ($username !== null) {
-			User::validateUsername($this->id, $username);
+			Security::validateUsername($this->id, $username);
 
 			// Update the database...
 			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);

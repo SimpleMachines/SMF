@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\Profile;
 use SMF\Routable;
 use SMF\Sapi;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -360,7 +361,7 @@ class Register implements ActionInterface, Routable
 		// Clean it up like mother would.
 		Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 
-		$errors = User::validateUsername(0, Utils::$context['checked_username'], true);
+		$errors = Security::validateUsername(0, Utils::$context['checked_username'], true);
 
 		Utils::$context['valid_username'] = empty($errors);
 	}

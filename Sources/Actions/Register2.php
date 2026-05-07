@@ -475,7 +475,7 @@ class Register2 extends Register
 			$reg_errors[] = ['lang', 'profile_error_bad_email'];
 		}
 
-		$username_validation_errors = User::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
+		$username_validation_errors = Security::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
 
 		if (!empty($username_validation_errors)) {
 			$reg_errors = array_merge($reg_errors, $username_validation_errors);

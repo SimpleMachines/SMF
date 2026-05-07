@@ -959,7 +959,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Replace any kind of space or illegal character with a normal space, and then trim.
 		$_POST['username'] = Utils::htmlTrim(Utils::normalizeSpaces(Utils::sanitizeChars($_POST['username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 
-		$username_errors = User::validateUsername(0, $_POST['username'], true, false);
+		$username_errors = Security::validateUsername(0, $_POST['username'], true, false);
 
 		if (!empty($username_errors)) {
 			foreach ($username_errors as $error) {

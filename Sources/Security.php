@@ -215,6 +215,72 @@ class Security
 	}
 
 	/**
+	 * Checks whether a username obeys a load of rules.
+	 *
+	 * @param int $memID The ID of the member
+	 * @param string $username The username to validate.
+	 * @param bool $return_error Whether to return errors.
+	 * @param bool $check_reserved_name Whether to check this against the list
+	 *    of reserved names.
+	 * @return array|null Null if there are no errors, otherwise an array of
+	 *    errors if $return_error is true.
+	 */
+	public static function validateUsername(int $memID, string $username, bool $return_error = false, bool $check_reserved_name = true): ?array
+	{
+		$errors = [];
+
+		// Don't use too long a name.
+		if (Utils::entityStrlen($username) > 25) {
+			$errors[] = ['lang', 'error_long_name'];
+		}
+
+		// No name?!  How can you register with no name?
+		if ($username == '') {
+			$errors[] = ['lang', 'need_username'];
+		}
+
+		// Only these characters are permitted.
+		if (
+			\in_array($username, ['_', '|'])
+			|| strpos($username, '[code') !== false
+			|| strpos($username, '[/code') !== false
+			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
+		) {
+			$errors[] = ['lang', 'error_invalid_characters_username'];
+		}
+
+		if (stristr($username, Lang::getTxt('guest_title', file: 'General')) !== false) {
+			$errors[] = ['lang', 'username_reserved', 'general', [Lang::getTxt('guest_title', file: 'General')]];
+		}
+
+		if ($check_reserved_name && self::isReservedName($username, $memID, false)) {
+			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::getTxt('name_in_use', file: 'General')];
+		}
+
+		// Maybe a mod wants to perform more checks?
+		IntegrationHook::call('integrate_validate_username', [$username, &$errors]);
+
+		if ($return_error) {
+			return $errors;
+		}
+
+		if (empty($errors)) {
+			return null;
+		}
+
+		$error = $errors[0];
+
+		ErrorHandler::fatal(
+			Lang::getTxt(
+				$error[1],
+				(array) ($error[3] ?? []),
+				file: 'Errors',
+			),
+			empty($error[2]) || User::$me->is_admin ? false : $error[2],
+		);
+	}
+
+	/**
 	 * Check if a name is in the reserved words list.
 	 * (name, current member id, name/username?.)
 	 * - checks if name is a reserved name or username.

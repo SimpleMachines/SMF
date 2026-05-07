@@ -10355,7 +10355,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		bool $return_error = false,
 		bool $check_reserved_name = true,
 	): ?array {
-		return SMF\User::validateUsername($memID, $username, $return_error, $check_reserved_name);
+		return SMF\Security::validateUsername($memID, $username, $return_error, $check_reserved_name);
 	}
 
 	/**
