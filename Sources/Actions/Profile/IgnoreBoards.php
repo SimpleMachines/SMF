@@ -16,11 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
-use SMF\ActionTrait;
 use SMF\Actions\MessageIndex;
+use SMF\ActionTrait;
 use SMF\Category;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\Utils;

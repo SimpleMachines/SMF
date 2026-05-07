@@ -20,7 +20,6 @@ use SMF\Actions\MessageIndex;
 use SMF\Actions\TopicRemove;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
-use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
