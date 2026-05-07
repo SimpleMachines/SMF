@@ -4753,7 +4753,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function log_ban(array $ban_ids = [], ?string $email = null): void
 	{
-		SMF\User::$me->logBan($ban_ids, $email);
+		SMF\Logging::logBan($ban_ids, $email);
 	}
 
 	/**

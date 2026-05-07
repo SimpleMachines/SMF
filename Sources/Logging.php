@@ -192,6 +192,57 @@ class Logging
 	}
 
 	/**
+	 * Logs a ban in the database.
+	 *
+	 * Increments the hit counters for the specified ban ID's (if any).
+	 *
+	 * @param array $ban_ids The IDs of the bans.
+	 * @param ?string $email The email address associated with the user that
+	 *    triggered this hit. If not set, uses the current user's email address.
+	 * @param ?string $ip_address The IP address associated with the user that
+	 *    triggered this hit. If not set, uses the current user's IP address.
+	 * @param ?int $id The ID number associated with the user that triggered this
+	 *    hit. If not set, uses the current user's ID number.
+	 */
+	public static function logBan(array $ban_ids = [], ?string $email = null, ?string $ip_address = null, ?int $id = null): void
+	{
+		// Don't log web accelerators, it's very confusing...
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
+			return;
+		}
+
+		Db::$db->insert(
+			'',
+			'{db_prefix}log_banned',
+			[
+				'id_member' => 'int',
+				'ip' => 'inet',
+				'email' => 'string',
+				'log_time' => 'int',
+			],
+			[
+				$id ?? User::$me->id,
+				$ip_address ?? User::$me->ip,
+				$email ?? User::$me->email,
+				time(),
+			],
+			['id_ban_log'],
+		);
+
+		// One extra point for these bans.
+		if (!empty($ban_ids)) {
+			Db::$db->query(
+				'UPDATE {db_prefix}ban_items
+				SET hits = hits + 1
+				WHERE id_ban IN ({array_int:ban_ids})',
+				[
+					'ban_ids' => $ban_ids,
+				],
+			);
+		}
+	}
+
+	/**
 	 * Update some basic statistics.
 	 *
 	 * 'member' statistic updates the latest member, the total member

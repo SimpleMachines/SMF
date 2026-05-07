@@ -2090,7 +2090,7 @@ class User implements \ArrayAccess
 
 			// Mark the cannot_access and cannot_post bans as being 'hit'.
 			if (isset($_SESSION['ban']['cannot_access'], $_SESSION['ban']['cannot_post'], $_SESSION['ban']['cannot_login'])) {
-				$this->logBan(array_merge(
+				Logging::logBan(array_merge(
 					isset($_SESSION['ban']['cannot_access']) ? $_SESSION['ban']['cannot_access']['ids'] : [],
 					isset($_SESSION['ban']['cannot_post']) ? $_SESSION['ban']['cannot_post']['ids'] : [],
 					isset($_SESSION['ban']['cannot_login']) ? $_SESSION['ban']['cannot_login']['ids'] : [],
@@ -2222,59 +2222,6 @@ class User implements \ArrayAccess
 		// Fix up the banning permissions.
 		foreach ($this->permission_sets as $set) {
 			$set->applyBansAndWarnings();
-		}
-	}
-
-	/**
-	 * Logs a ban in the database.
-	 *
-	 * Increments the hit counters for the specified ban ID's (if any).
-	 *
-	 * @param array $ban_ids The IDs of the bans.
-	 * @param string|null $email The email address associated with the user that
-	 *    triggered this hit. If not set, uses the current user's email address.
-	 */
-	public function logBan(array $ban_ids = [], ?string $email = null): void
-	{
-		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
-			// Quietly ignore this.
-			return;
-		}
-
-		// Don't log web accelerators, it's very confusing...
-		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
-			return;
-		}
-
-		Db::$db->insert(
-			'',
-			'{db_prefix}log_banned',
-			[
-				'id_member' => 'int',
-				'ip' => 'inet',
-				'email' => 'string',
-				'log_time' => 'int',
-			],
-			[
-				$this->id,
-				$this->ip,
-				$email ?? $this->email,
-				time(),
-			],
-			['id_ban_log'],
-		);
-
-		// One extra point for these bans.
-		if (!empty($ban_ids)) {
-			Db::$db->query(
-				'UPDATE {db_prefix}ban_items
-				SET hits = hits + 1
-				WHERE id_ban IN ({array_int:ban_ids})',
-				[
-					'ban_ids' => $ban_ids,
-				],
-			);
 		}
 	}
 
@@ -3545,7 +3492,7 @@ class User implements \ArrayAccess
 
 		// You're in biiig trouble.  Banned for the rest of this session!
 		if (isset($_SESSION['ban']['cannot_access'])) {
-			self::$me->logBan($_SESSION['ban']['cannot_access']['ids']);
+			Logging::logBan($_SESSION['ban']['cannot_access']['ids']);
 
 			$_SESSION['ban']['last_checked'] = time();
 
@@ -3554,7 +3501,7 @@ class User implements \ArrayAccess
 
 		if (!empty($ban_ids)) {
 			// Log this ban for future reference.
-			self::$me->logBan($ban_ids, $email);
+			Logging::logBan($ban_ids, $email);
 
 			ErrorHandler::fatal($error . $ban_reason, false);
 		}
