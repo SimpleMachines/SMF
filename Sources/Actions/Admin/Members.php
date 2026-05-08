@@ -1190,7 +1190,7 @@ class Members implements ActionInterface
 				'username' => $row['member_name'],
 				'name' => $row['real_name'],
 				'email' => $row['email_address'],
-				'language' => empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'],
+				'language' => empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'],
 				'code' => $row['validation_code'],
 			];
 		}

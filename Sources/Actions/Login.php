@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\Lang;
 use SMF\SecurityToken;
 use SMF\Theme;

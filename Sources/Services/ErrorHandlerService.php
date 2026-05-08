@@ -36,6 +36,7 @@ class ErrorHandlerService
 		'general',
 		'critical',
 		'database',
+		'cache',
 		'undefined_vars',
 		'user',
 		'ban',
@@ -45,6 +46,15 @@ class ErrorHandlerService
 		'paidsubs',
 		'backup',
 		'login',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Map of exceptions to the categories we have.
+	 */
+	public array $known_exception_types = [
+		\SQLite3Exception::class => 'cache',
 	];
 
 	/****************
@@ -251,6 +261,11 @@ class ErrorHandlerService
 		// This prevents us from infinite looping if the hook or call produces an error.
 		$other_error_types = [];
 
+		// Exceptions may get mapped back into our common error types.
+		if (isset($this->known_exception_types[$error_type])) {
+			$error_type = $this->known_exception_types[$error_type];
+		}
+
 		if (empty($tried_hook)) {
 			$tried_hook = true;
 
@@ -383,12 +398,12 @@ class ErrorHandlerService
 
 		// Log the error in the forum's language, but don't waste the time if we aren't logging
 		if ($log) {
-			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Config::$language);
 			$this->log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if (!$log || Lang::$default != User::$me->language) {
+		if (!$log || Config::$language != User::$me->language) {
 			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
 		}
 

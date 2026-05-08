@@ -364,8 +364,8 @@ class Mail
 		// Just in case we run into a problem.
 		if (empty(Lang::$txt)) {
 			Theme::loadEssential();
-			Lang::load('Errors', Lang::$default, false);
-			Lang::load('General', Lang::$default, false);
+			Lang::load('Errors', Config::$language, false);
+			Lang::load('General', Config::$language, false);
 		}
 
 		// By default send 5 at once.

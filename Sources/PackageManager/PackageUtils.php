@@ -3525,8 +3525,8 @@ class PackageUtils
 					$files[] = $file_info;
 				}
 			}
-		} catch (\Exception $e) {
-			ErrorHandler::log($e->getMessage(), 'backup');
+		} catch (\Exception $ex) {
+			ErrorHandler::logException($ex, 'backup');
 
 			return false;
 		}

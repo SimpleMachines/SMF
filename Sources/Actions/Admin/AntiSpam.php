@@ -82,18 +82,18 @@ class AntiSpam implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		if (empty(Utils::$context['qa_by_lang'][strtr(Lang::$default, ['-utf8' => ''])]) && !empty(Utils::$context['question_answers'])) {
+		if (empty(Utils::$context['qa_by_lang'][strtr(Config::$language, ['-utf8' => ''])]) && !empty(Utils::$context['question_answers'])) {
 			if (empty(Utils::$context['settings_insert_above'])) {
 				Utils::$context['settings_insert_above'] = '';
 			}
 
-			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default], file: 'ManageSettings') . '</div>';
+			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Config::$language], file: 'ManageSettings') . '</div>';
 		}
 
 		// Thirdly, push some JavaScript for the form to make it work.
 		$nextrow = !empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1;
 		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::getTxt('setup_verification_add_answer', file: 'ManageSettings'));
-		$default_lang = strtr(Lang::$default, ['-utf8' => '']);
+		$default_lang = strtr(Config::$language, ['-utf8' => '']);
 
 		Theme::addInlineJavaScript(<<<END
 				var nextrow = {$nextrow};

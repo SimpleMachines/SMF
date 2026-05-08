@@ -236,7 +236,7 @@ class Announce implements ActionInterface, Routable
 				continue;
 			}
 
-			$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
+			$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
 
 			// If the language wasn't defined yet, load it and compose a notification message.
 			if (!isset($announcements[$cur_language])) {

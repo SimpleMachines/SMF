@@ -107,7 +107,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		} catch (\Exception $ex) {
 			if (!$this->logOnce) {
 				$this->logOnce = true;
-				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+				ErrorHandler::logException($ex, null);
 			}
 
 			return false;
@@ -140,7 +140,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		} catch (\Exception $ex) {
 			if (!$this->logOnce) {
 				$this->logOnce = true;
-				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+				ErrorHandler::logException($ex, null);
 			}
 
 			return null;
@@ -173,7 +173,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		} catch (\Exception $ex) {
 			if (!$this->logOnce) {
 				$this->logOnce = true;
-				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+				ErrorHandler::logException($ex);
 			}
 
 			return false;
@@ -201,7 +201,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		} catch (\Exception $ex) {
 			if (!$this->logOnce) {
 				$this->logOnce = true;
-				ErrorHandler::log(self::class . ':' . $ex->getMessage());
+				ErrorHandler::logException($ex, null);
 			}
 
 			$result = false;

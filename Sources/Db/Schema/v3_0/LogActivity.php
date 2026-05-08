@@ -71,7 +71,7 @@ class LogActivity extends Table
 			),
 			'most_on' => new Column(
 				name: 'most_on',
-				type: 'smallint',
+				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,

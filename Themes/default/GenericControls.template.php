@@ -105,9 +105,9 @@ function template_control_richedit_buttons(string $editor_id): void
  *   - `'all'`: Displays all items together.
  * @param bool $reset Whether to reset the internal tracking counter.
  *
- * @return bool Returns `false` if no items are left to display, `true` if displaying a single item, and `void` otherwise.
+ * @return ?bool Returns `false` if no items are left to display, `true` if displaying a single item, and `null` otherwise.
  */
-function template_control_verification(int|string $verify_id, string $display_type = 'all', bool $reset = false): bool
+function template_control_verification(int|string $verify_id, string $display_type = 'all', bool $reset = false): ?bool
 {
 	$verify_context = Verifier::$loaded[$verify_id];
 
@@ -206,6 +206,8 @@ function template_control_verification(int|string $verify_id, string $display_ty
 	if ($display_type == 'single') {
 		return true;
 	}
+
+	return null;
 }
 
 /**

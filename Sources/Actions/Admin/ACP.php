@@ -1751,7 +1751,7 @@ class ACP implements ActionInterface, Routable
 			$replacements['USERNAME'] = $row['real_name'];
 
 			// Load the data from the template.
-			$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+			$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
 
 			// Then send the actual email.
 			Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
@@ -1773,7 +1773,7 @@ class ACP implements ActionInterface, Routable
 				$replacements['USERNAME'] = $recipient['name'];
 
 				// Load the template again.
-				$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $recipient['lang']);
+				$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $recipient['lang']);
 
 				// Send off the email.
 				Mail::send($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);

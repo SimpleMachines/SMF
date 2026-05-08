@@ -927,7 +927,7 @@ class MessageIndex implements ActionInterface, Routable
 
 		// Now we tack the info onto the end of the linktree
 		if (!empty(Utils::$context['link_moderators'])) {
-			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][\count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => \count(Utils::$context['link_moderators']), 'list' => Lang::sentenceList(Utils::$context['link_moderators'])], file: 'General') . ')</span>';
 		}
 	}
 
@@ -984,7 +984,7 @@ class MessageIndex implements ActionInterface, Routable
 		Utils::$context['can_post_new'] = User::$me->allowedTo('post_new') || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_topics'));
 		Utils::$context['can_post_poll'] = Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_post') && Utils::$context['can_post_new'];
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-		Utils::$context['can_approve_posts'] = User::$me->allowedTo('approve_posts');
+		Utils::$context['can_approve_posts'] = User::$me->allowedTo('approve_posts', Board::$info->id);
 
 		Utils::$context['jump_to'] = [
 			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),

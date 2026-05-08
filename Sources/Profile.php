@@ -764,7 +764,7 @@ class Profile extends User implements \ArrayAccess
 						}
 						// No images at all? That's no good. Let the admin know, and quietly skip for this user.
 						else {
-							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]], file: 'Errors', lang: Lang::$default));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]], file: 'Errors', lang: Config::$language));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}
@@ -2899,7 +2899,7 @@ class Profile extends User implements \ArrayAccess
 		];
 
 		// Send off the email.
-		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$this->id]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : User::$profiles[$this->id]['lngfile']);
+		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$this->id]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : User::$profiles[$this->id]['lngfile']);
 
 		Mail::send($this->new_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 

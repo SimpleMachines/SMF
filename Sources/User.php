@@ -2201,6 +2201,15 @@ class User implements \ArrayAccess
 			),
 		);
 
+		// Shortcut for a special case.
+		if (
+			$permissions === ['approve_posts']
+			&& \count($boards) === 1
+			&& !empty($this->mod_cache['ap'])
+		) {
+			return $this->mod_cache['ap'] == [0] || array_intersect($boards, $this->mod_cache['ap']) === $boards;
+		}
+
 		// If a permission doesn't exist, it can't be done.
 		foreach ($permissions as $key => $permission) {
 			if (!Permission::exists($permission)) {
@@ -2380,6 +2389,9 @@ class User implements \ArrayAccess
 
 		// Maybe a mod needs to tweak the list of allowed boards on the fly?
 		IntegrationHook::call('integrate_boards_allowed_to', [&$boards, $deny_boards, $permissions, $check_access, $simple]);
+
+		// Ensure each permission's array is a simple list.
+		$boards = array_map(fn($board_list) => array_values((array) $board_list), $boards);
 
 		return $boards;
 	}
@@ -4501,7 +4513,7 @@ class User implements \ArrayAccess
 		$languages = Lang::get();
 
 		// Change was requested in URL parameters.
-		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')])) {
+		if (!empty($_GET['language']) && \is_string($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')])) {
 			$this->language = strtr($_GET['language'], './\\:', '____');
 
 			// Make it permanent for members.

@@ -113,7 +113,7 @@ class Calendar implements ActionInterface, Routable
 	{
 		// You can't do anything if the calendar is off.
 		if (empty(Config::$modSettings['cal_enabled'])) {
-			ErrorHandler::fatalLang('calendar_off', false);
+			ErrorHandler::fatalLang('calendar_off', false, 403);
 		}
 
 		// This is gonna be needed...
@@ -240,11 +240,11 @@ class Calendar implements ActionInterface, Routable
 
 		// Make sure the year and month are in valid ranges.
 		if ($curPage['month'] < 1 || $curPage['month'] > 12) {
-			ErrorHandler::fatalLang('invalid_month', false);
+			ErrorHandler::fatalLang('invalid_month', false, 400);
 		}
 
 		if ($curPage['year'] < Config::$modSettings['cal_minyear'] || $curPage['year'] > Config::$modSettings['cal_maxyear']) {
-			ErrorHandler::fatalLang('invalid_year', false);
+			ErrorHandler::fatalLang('invalid_year', false, 400);
 		}
 
 		// If we have a day clean that too.
@@ -252,7 +252,7 @@ class Calendar implements ActionInterface, Routable
 			$isValid = checkdate((int) $curPage['month'], (int) $curPage['day'], (int) $curPage['year']);
 
 			if (!$isValid) {
-				ErrorHandler::fatalLang('invalid_day', false);
+				ErrorHandler::fatalLang('invalid_day', false, 400);
 			}
 		}
 
@@ -524,7 +524,7 @@ class Calendar implements ActionInterface, Routable
 			list(Utils::$context['event']) = Event::load($_REQUEST['eventid']);
 
 			if (empty(Utils::$context['event'])) {
-				ErrorHandler::fatalLang('no_access', false);
+				ErrorHandler::fatalLang('no_access', false, 403);
 			}
 
 			// If it has a board, then they should be editing it within the topic.
@@ -608,7 +608,7 @@ class Calendar implements ActionInterface, Routable
 	{
 		// You can't export if the calendar export feature is off.
 		if (empty(Config::$modSettings['cal_export'])) {
-			ErrorHandler::fatalLang('calendar_export_off', false);
+			ErrorHandler::fatalLang('calendar_export_off', false, 403);
 		}
 
 		$file = [
@@ -632,7 +632,7 @@ class Calendar implements ActionInterface, Routable
 			$event = current(Event::load((int) $_REQUEST['eventid']));
 
 			if (!($event instanceof Event)) {
-				ErrorHandler::fatalLang('no_access', false);
+				ErrorHandler::fatalLang('no_access', false, 403);
 			}
 
 			// Was a specific occurrence requested, or the event in general?
@@ -654,7 +654,11 @@ class Calendar implements ActionInterface, Routable
 
 			// Get all the visible events within a date range.
 			if (isset($_REQUEST['start_date'])) {
-				$low_date = @(new Time($_REQUEST['start_date']));
+				try {
+					$low_date = new Time($_REQUEST['start_date']);
+				} catch (\Throwable $e) {
+					ErrorHandler::fatalLang('invalid_date', false, 400);
+				}
 			}
 
 			if (!isset($low_date)) {
@@ -663,7 +667,11 @@ class Calendar implements ActionInterface, Routable
 			}
 
 			if (isset($_REQUEST['duration'])) {
-				$duration = @(new TimeInterval($_REQUEST['duration']));
+				try {
+					$duration = new TimeInterval($_REQUEST['duration']);
+				} catch (\Throwable $e) {
+					ErrorHandler::fatalLang('invalid_days_numb', false, 400);
+				}
 			}
 
 			if (!isset($duration)) {
@@ -935,7 +943,7 @@ class Calendar implements ActionInterface, Routable
 		// Is the calendar enabled?
 		if (empty(Config::$modSettings['cal_enabled'])) {
 			if ($trigger_error) {
-				ErrorHandler::fatalLang('calendar_off', false);
+				ErrorHandler::fatalLang('calendar_off', false, 403);
 			}
 
 			return false;
@@ -955,7 +963,7 @@ class Calendar implements ActionInterface, Routable
 		// Are we in a topic?
 		if (empty(Topic::$topic_id)) {
 			if ($trigger_error) {
-				ErrorHandler::fatalLang('missing_topic_id', false);
+				ErrorHandler::fatalLang('missing_topic_id', false, 400);
 			}
 
 			return false;
@@ -964,7 +972,7 @@ class Calendar implements ActionInterface, Routable
 		// Don't let guests edit the posts of other guests.
 		if (User::$me->is_guest) {
 			if ($trigger_error) {
-				ErrorHandler::fatalLang('not_your_topic', false);
+				ErrorHandler::fatalLang('not_your_topic', false, 403);
 			}
 
 			return false;
@@ -1549,49 +1557,49 @@ class Calendar implements ActionInterface, Routable
 				$d = date_parse(str_replace(',', '', Time::convertToEnglish($_POST['start_date'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count'])) {
-					ErrorHandler::fatalLang('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false, 400);
 				}
 
 				if (empty($d['year'])) {
-					ErrorHandler::fatalLang('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false, 400);
 				}
 
 				if (empty($d['month'])) {
-					ErrorHandler::fatalLang('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false, 400);
 				}
 			} elseif (isset($_POST['start_datetime'])) {
 				$d = date_parse(str_replace(',', '', Time::convertToEnglish($_POST['start_datetime'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count'])) {
-					ErrorHandler::fatalLang('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false, 400);
 				}
 
 				if (empty($d['year'])) {
-					ErrorHandler::fatalLang('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false, 400);
 				}
 
 				if (empty($d['month'])) {
-					ErrorHandler::fatalLang('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false, 400);
 				}
 			}
 			// The 2.0 way
 			else {
 				// No month?  No year?
 				if (!isset($_POST['month'])) {
-					ErrorHandler::fatalLang('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false, 400);
 				}
 
 				if (!isset($_POST['year'])) {
-					ErrorHandler::fatalLang('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false, 400);
 				}
 
 				// Check the month and year...
 				if ($_POST['month'] < 1 || $_POST['month'] > 12) {
-					ErrorHandler::fatalLang('invalid_month', false);
+					ErrorHandler::fatalLang('invalid_month', false, 400);
 				}
 
 				if ($_POST['year'] < Config::$modSettings['cal_minyear'] || $_POST['year'] > Config::$modSettings['cal_maxyear']) {
-					ErrorHandler::fatalLang('invalid_year', false);
+					ErrorHandler::fatalLang('invalid_year', false, 400);
 				}
 			}
 		}
@@ -1601,7 +1609,7 @@ class Calendar implements ActionInterface, Routable
 
 		// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 		if (isset($_POST['span']) && (($_POST['span'] < 1) || (!empty(Config::$modSettings['cal_maxspan']) && $_POST['span'] > Config::$modSettings['cal_maxspan']))) {
-			ErrorHandler::fatalLang('invalid_days_numb', false);
+			ErrorHandler::fatalLang('invalid_days_numb', false, 400);
 		}
 
 		// There is no need to validate the following values if we are just deleting the event.
@@ -1610,18 +1618,18 @@ class Calendar implements ActionInterface, Routable
 			if (empty($_POST['start_date']) && empty($_POST['start_datetime'])) {
 				// No day?
 				if (!isset($_POST['day'])) {
-					ErrorHandler::fatalLang('event_day_missing', false);
+					ErrorHandler::fatalLang('event_day_missing', false, 400);
 				}
 
 				// Bad day?
 				if (!checkdate($_POST['month'], $_POST['day'], $_POST['year'])) {
-					ErrorHandler::fatalLang('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false, 400);
 				}
 			}
 
 			if (!isset($_POST['evtitle'])) {
 				if (!isset($_POST['subject'])) {
-					ErrorHandler::fatalLang('event_title_missing', false);
+					ErrorHandler::fatalLang('event_title_missing', false, 400);
 				}
 
 				$_POST['evtitle'] = $_POST['subject'];
@@ -1629,7 +1637,7 @@ class Calendar implements ActionInterface, Routable
 
 			// No title?
 			if (Utils::htmlTrim($_POST['evtitle']) === '') {
-				ErrorHandler::fatalLang('event_title_missing', false);
+				ErrorHandler::fatalLang('event_title_missing', false, 400);
 			}
 
 			if (Utils::entityStrlen($_POST['evtitle']) > 100) {

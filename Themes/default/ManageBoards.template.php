@@ -152,7 +152,7 @@ function template_modify_category()
 					</dd>
 					<dt>
 						<strong>', Lang::getTxt('mboards_description', file: 'ManageBoards'), '</strong><br>
-						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::getTxt('mboards_cat_description_desc', file: 'ManageBoards')), '</span>
+						<span class="smalltext">', Lang::getTxt('mboards_cat_description_desc', ['allowed_tags' => implode(', ', Utils::$context['description_allowed_tags'])], file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
 						<textarea name="cat_desc" rows="3" cols="35">', Utils::$context['category']['description'], '</textarea>
@@ -338,7 +338,7 @@ function template_modify_board()
 					</dd>
 					<dt>
 						<strong>', Lang::getTxt('mboards_description', file: 'ManageBoards'), '</strong><br>
-						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', Utils::$context['description_allowed_tags']), Lang::getTxt('mboards_description_desc', file: 'ManageBoards')), '</span>
+						<span class="smalltext">', Lang::getTxt('mboards_description_desc', ['allowed_tags' => implode(', ', Utils::$context['description_allowed_tags'])], file: 'ManageBoards'), '</span>
 					</dt>
 					<dd>
 						<textarea name="desc" rows="3" cols="35">', Utils::$context['board']['description'], '</textarea>
