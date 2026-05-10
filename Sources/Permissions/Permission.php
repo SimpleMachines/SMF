@@ -1382,11 +1382,7 @@ class Permission implements \ArrayAccess
 	public static function getNonGuestPermissions(): array
 	{
 		if (empty(self::$non_guest_permissions)) {
-			self::getAll();
-
-			self::$non_guest_permissions = [];
-
-			foreach (self::$permissions as $perm) {
+			foreach (self::getAll() as $perm) {
 				if ($perm->never_guests) {
 					self::$non_guest_permissions[] = $perm->name;
 					self::$non_guest_permissions[] = $perm->generic_name;
@@ -1454,13 +1450,13 @@ class Permission implements \ArrayAccess
 		Utils::$context['non_guest_permissions'] = self::$non_guest_permissions;
 
 		// Track whether the hook makes any changes.
-		$temp = Utils::jsonEncode(Utils::$context['non_guest_permissions']);
+		$temp = Utils::$context['non_guest_permissions'];
 
 		// Give mods access to this list.
 		IntegrationHook::call('integrate_load_illegal_guest_permissions');
 
 		// If the hook changed anything, sync that back to our master list.
-		if ($temp != Utils::jsonEncode(Utils::$context['non_guest_permissions'])) {
+		if ($temp != Utils::$context['non_guest_permissions']) {
 			// Did the hook add a permission to Utils::$context['non_guest_permissions']?
 			foreach (Utils::$context['non_guest_permissions'] as $permission) {
 				foreach (['', '_own', '_any'] as $suffix) {
@@ -1478,7 +1474,9 @@ class Permission implements \ArrayAccess
 			}
 
 			// Now rebuild the list.
-			foreach (self::$permissions as $perm) {
+			self::$non_guest_permissions = [];
+
+			foreach (self::getAll() as $perm) {
 				if ($perm->never_guests) {
 					self::$non_guest_permissions[] = $perm->name;
 					self::$non_guest_permissions[] = $perm->generic_name;
