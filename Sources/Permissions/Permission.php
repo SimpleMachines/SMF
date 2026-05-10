@@ -1507,24 +1507,48 @@ class Permission implements \ArrayAccess
 			return;
 		}
 
+		// Don't bother if the current user can't manage permissions,
+		// since that makes everything unassignable.
+		if (!User::$me->allowedTo('manage_permissions')) {
+			return;
+		}
+
 		// This context variable exists only for the sake of the hook.
-		Utils::$context['illegal_permissions'] = self::$unassignable;
+		Utils::$context['illegal_permissions'] = array_values(array_intersect(
+			// These were the only permissions in the illegal_permissions array in SMF 2.1.
+			[
+				'admin_forum',
+				'bbc_html',
+				'manage_membergroups',
+				'manage_permissions',
+			],
+			self::$unassignable,
+		));
 
 		// Track whether the hook makes any changes.
-		$temp = Utils::jsonEncode(self::$unassignable);
+		$temp = Utils::$context['illegal_permissions'];
 
 		// Give mods access to this list.
 		IntegrationHook::call('integrate_load_illegal_permissions');
 
-		// If the hook added anything, sync that back to our master list.
-		// Because this hook can't tell us what the prerequisites are, we assume
-		// that the permission can only be granted by admins.
-		if ($temp != Utils::jsonEncode(self::$unassignable)) {
+		// If the hook made any changes, sync them back to our master list.
+		if ($temp != Utils::$context['illegal_permissions']) {
+			// Anything added?
 			foreach (Utils::$context['illegal_permissions'] as $permission) {
 				foreach (['', '_own', '_any'] as $suffix) {
-					if (isset(self::$permissions[$permission . $suffix])) {
-						self::$permissions[$permission . $suffix]->assigner_prerequisites[] = 'admin_forum';
+					if (
+						isset(self::$permissions[$permission . $suffix])
+						&& self::$permissions[$permission . $suffix]->canAssign()
+					) {
+						self::$permissions[$permission . $suffix]->can_assign = false;
 					}
+				}
+			}
+
+			// Anything removed?
+			foreach ($temp as $permission) {
+				if (!\in_array($permission, Utils::$context['illegal_permissions'])) {
+					self::$permissions[$permission]->can_assign = true;
 				}
 			}
 
@@ -1532,7 +1556,7 @@ class Permission implements \ArrayAccess
 			self::$unassignable = [];
 
 			foreach (self::getAll() as $perm) {
-				if (!empty($perm->assigner_prerequisites) && !User::$me->allowedTo($perm->assigner_prerequisites)) {
+				if (!$perm->canAssign()) {
 					self::$unassignable[] = $perm->name;
 					self::$unassignable[] = $perm->generic_name;
 				}
