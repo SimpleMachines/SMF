@@ -1026,6 +1026,7 @@ class User implements \ArrayAccess
 				foreach (['actual_theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'] as $dir => $url) {
 					if (file_exists(Theme::$current->settings[$dir] . '/images/membericons/' . $this->icons[1])) {
 						$group_icon_url = Theme::$current->settings[$url] . '/membericons/' . $this->icons[1];
+						break;
 					}
 				}
 			}
