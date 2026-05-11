@@ -67,6 +67,7 @@ return (new PhpCsFixer\Config())
 		'ordered_class_elements' => [
 			'order' => [
 				'use_trait',
+				'case',
 				'constant_public',
 				'constant_protected',
 				'constant_private',
