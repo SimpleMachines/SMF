@@ -394,7 +394,7 @@ abstract class DatabaseApi
 			// defined the way they are supposed to be, but that's fine since
 			// if the theoretical column type doesn't match the actual column
 			// type, we are doomed to run into errors anyway.
-			$table = Schema\Table::find($table_name, preg_replace('/^(\d+)\.(\d+)/', 'v$1_$2', SMF_VERSION));
+			$table = Schema\Table::find($table_name, preg_replace('/^(\d+)\.(\d+).*/', 'v$1_$2', SMF_VERSION));
 
 			if ($table instanceof Schema\Table) {
 				foreach ($table->columns as $col) {
