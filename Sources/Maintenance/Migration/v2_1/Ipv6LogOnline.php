@@ -15,12 +15,13 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
-use SMF\Maintenance\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
-class Ipv6LogOnline extends Ipv6Base
+class Ipv6LogOnline extends MigrationBase
 {
+	use IPv6Converter;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -42,11 +43,7 @@ class Ipv6LogOnline extends Ipv6Base
 		$table = new Schema\v2_1\LogOnline();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Db::$db->title === POSTGRE_TITLE) {
-			return $existing_structure['columns']['ip']['type'] !== 'inet';
-		}
-
-		return $existing_structure['columns']['ip']['type'] !== 'varbinary';
+		return $existing_structure['columns']['ip']['type'] !== 'inet';
 	}
 
 	/**
@@ -55,10 +52,15 @@ class Ipv6LogOnline extends Ipv6Base
 	public function execute(): bool
 	{
 		$table = new Schema\v2_1\LogOnline();
-		$existing_structure = $table->getCurrentStructure();
 
-		$start = Maintenance::getCurrentStart();
+		$this->query('TRUNCATE TABLE {db_prefix}log_online');
 
-		return $this->truncateAndConvert($table, 'ip', true);
+		$this->convertIntegerColumnToInet($table, $table->columns['ip']);
+
+		$table->normalize();
+
+		$this->handleTimeout();
+
+		return true;
 	}
 }
