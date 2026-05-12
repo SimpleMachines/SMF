@@ -709,4 +709,5 @@ function simplify_ip($ip)
 	$ip = trim($ip, '[]');
 	return preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $ip);
 }
+
 ?>
