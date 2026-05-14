@@ -81,7 +81,5 @@ class BackgroundTasks extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

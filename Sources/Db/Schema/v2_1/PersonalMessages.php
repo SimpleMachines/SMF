@@ -129,7 +129,5 @@ class PersonalMessages extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

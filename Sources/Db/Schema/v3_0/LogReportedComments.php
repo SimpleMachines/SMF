@@ -114,7 +114,5 @@ class LogReportedComments extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

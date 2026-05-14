@@ -131,7 +131,5 @@ class Subscriptions extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -143,7 +143,5 @@ class LogErrors extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

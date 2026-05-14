@@ -69,7 +69,5 @@ class PmLabels extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

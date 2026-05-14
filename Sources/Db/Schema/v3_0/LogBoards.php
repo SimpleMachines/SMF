@@ -72,7 +72,5 @@ class LogBoards extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

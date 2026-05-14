@@ -247,7 +247,5 @@ class ScheduledTasks extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

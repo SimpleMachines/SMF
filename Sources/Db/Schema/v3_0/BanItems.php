@@ -119,7 +119,5 @@ class BanItems extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

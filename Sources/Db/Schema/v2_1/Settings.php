@@ -888,9 +888,5 @@ class Settings extends Table
 				],
 			),
 		];
-
-		parent::__construct();
-
-		parent::__construct();
 	}
 }

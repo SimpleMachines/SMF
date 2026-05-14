@@ -165,7 +165,5 @@ class LogActions extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

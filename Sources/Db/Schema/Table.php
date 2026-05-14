@@ -22,7 +22,7 @@ use SMF\Lang;
 /**
  * Represents a database table.
  */
-class Table
+abstract class Table
 {
 	/*******************
 	 * Public properties
@@ -61,7 +61,20 @@ class Table
 	 *
 	 * The default character set for the table.
 	 */
-	public ?string $default_charset;
+	public ?string $default_charset {
+		get {
+			// As of SMF 3.0, all tables always use four-byte UTF-8.
+			if (
+				!isset($this->default_charset)
+				&& preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
+				&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
+			) {
+				$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
+			}
+
+			return $this->default_charset ?? null;
+		}
+	}
 
 	/**
 	 * @var int
@@ -90,20 +103,6 @@ class Table
 	/****************
 	 * Public methods
 	 ****************/
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct()
-	{
-		// As of SMF 3.0, all tables always use four-byte UTF-8.
-		if (
-			preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
-			&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
-		) {
-			$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
-		}
-	}
 
 	/**
 	 * Checks whether a table with this name exists in the database.

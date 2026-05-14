@@ -132,7 +132,5 @@ class UserAlerts extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

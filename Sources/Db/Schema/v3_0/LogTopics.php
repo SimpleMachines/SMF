@@ -86,7 +86,5 @@ class LogTopics extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -103,7 +103,5 @@ class LogOnline extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

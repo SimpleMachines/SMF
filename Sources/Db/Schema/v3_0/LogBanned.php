@@ -89,7 +89,5 @@ class LogBanned extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -69,7 +69,5 @@ class LogFloodcontrol extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

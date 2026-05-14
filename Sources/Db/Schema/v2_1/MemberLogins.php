@@ -92,7 +92,5 @@ class MemberLogins extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

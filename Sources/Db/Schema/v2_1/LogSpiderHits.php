@@ -106,7 +106,5 @@ class LogSpiderHits extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

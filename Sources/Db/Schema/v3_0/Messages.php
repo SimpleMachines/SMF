@@ -320,7 +320,5 @@ class Messages extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

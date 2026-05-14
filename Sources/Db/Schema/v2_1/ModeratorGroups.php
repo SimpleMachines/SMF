@@ -63,7 +63,5 @@ class ModeratorGroups extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

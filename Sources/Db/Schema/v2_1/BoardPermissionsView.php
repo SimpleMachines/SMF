@@ -98,7 +98,5 @@ class BoardPermissionsView extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

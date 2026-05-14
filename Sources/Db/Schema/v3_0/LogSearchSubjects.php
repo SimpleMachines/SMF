@@ -73,7 +73,5 @@ class LogSearchSubjects extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }
