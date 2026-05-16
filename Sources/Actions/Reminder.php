@@ -159,7 +159,7 @@ class Reminder implements ActionInterface, Routable
 			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 			// Set the validation code in the database.
-			User::updateMemberData($this->member->id, ['validation_code' => $code]);
+			User::updateMemberData($this->member->id, ['validation_code' => $code . '|' . time()]);
 
 			// Set up the template.
 			Utils::$context['description'] = Lang::getTxt('reminder_sent', file: 'Profile');
@@ -244,8 +244,11 @@ class Reminder implements ActionInterface, Routable
 			}
 		}
 
+		list($real_code, $issue_time) = $this->member->validation_code;
+		$issue_time = empty($issue_time) ? 0 : (int) $issue_time;
+
 		// Quit if this code is not right.
-		if (empty($_POST['code']) || $this->member->validation_code !== $_POST['code']) {
+		if (empty($_POST['code']) || $real_code !== $_POST['code'] || $issue_time + 3600 < time()) {
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 

@@ -805,7 +805,11 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// You've logged in, haven't you?
-		$update = ['member_ip' => User::$me->ip, 'member_ip2' => IP::getUserIPAlternative()];
+		$update = [
+			'member_ip' => User::$me->ip,
+			'member_ip2' => IP::getUserIPAlternative(),
+			'validation_code' => ''
+		];
 
 		if (empty(User::$me->tfa_secret)) {
 			$update['last_login'] = time();
