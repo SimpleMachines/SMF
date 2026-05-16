@@ -904,7 +904,12 @@ function VerificationCode()
  */
 function RegisterCheckUsername()
 {
-	global $sourcedir, $context;
+	global $sourcedir, $context, $scripturl, $cookiename;
+
+	// Who are you again?
+	if (empty($_COOKIE) || empty($_COOKIE[$cookiename]) || empty($_SERVER['HTTP_REFERER']) || stripos($_SERVER['HTTP_REFERER'], $scripturl) !== 0) {
+		send_http_status(403);
+	}
 
 	// This is XML!
 	loadTemplate('Xml');
