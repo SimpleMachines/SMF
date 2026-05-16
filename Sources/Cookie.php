@@ -434,12 +434,8 @@ class Cookie
 
 			// Recreate and restore the new session.
 			Session::load();
-
-			// @todo should we use session_regenerate_id(true); now that we are 5.1+
-			session_regenerate_id();
-
+			session_regenerate_id(true);
 			$_SESSION = $oldSessionData;
-
 			$_SESSION['login_' . Config::$cookiename] = $_COOKIE[Config::$cookiename];
 		}
 	}
