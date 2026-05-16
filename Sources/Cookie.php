@@ -205,8 +205,8 @@ class Cookie
 		$this->expires = $expires ?? time() + self::LENGTH_DEFAULT;
 		$this->domain = $domain ?? self::$default_domain;
 		$this->path = $path ?? self::$default_path;
-		$this->secure = $secure ?? !empty(Config::$modSettings['secureCookies']);
-		$this->httponly = $httponly ?? !empty(Config::$modSettings['httponlyCookies']);
+		$this->secure = $secure ?? empty(Config::$modSettings['secureCookies']) && Config::$modSettings['secureCookies'] === false ? false : !empty(Config::$modSettings['force_ssl']) || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+		$this->httponly = $httponly ?? empty(Config::$modSettings['httponlyCookies']) && Config::$modSettings['httponlyCookies'] === false ? false : true;
 		$this->samesite = $samesite ?? !empty(Config::$modSettings['samesiteCookies']) ? Config::$modSettings['samesiteCookies'] : 'lax';
 
 		// Allow mods to add custom info to the cookie
