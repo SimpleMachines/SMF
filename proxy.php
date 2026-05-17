@@ -117,7 +117,7 @@ class ProxyServer
 	{
 		global $boardurl;
 
-		if (!$this->enabled)
+		if (!$this->enabled || $this->secret === 'smfisawesome')
 			return false;
 
 		// Try to create the image cache directory if it doesn't exist
