@@ -5644,9 +5644,8 @@ class User implements \ArrayAccess
 		// This might take a while.
 		Sapi::setTimeLimit();
 
-		$anonymous_name = Utils::strtolower(Lang::getTxt('user', file: 'General')) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
-
-		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
+		$anonymous_uuid = Uuid::create(5, 'member=' . $member)->getShortForm(true);
+		$anonymous_name = 'u_' . substr($anonymous_uuid, 0, 8);
 
 		// Anonymize the member's posts.
 		Db::$db->query(
@@ -5657,7 +5656,7 @@ class User implements \ArrayAccess
 			WHERE id_member = {int:member}',
 			[
 				'anonymous_name' => $anonymous_name,
-				'anonymous_email' => Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid',
+				'anonymous_email' => $anonymous_uuid . '@email.invalid',
 				'guest_id' => 0,
 				'member' => $member,
 			],
