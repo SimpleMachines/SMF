@@ -1169,25 +1169,15 @@ class Config
 		}
 
 		// Setting the timezone is a requirement for some functions.
-		if (isset(self::$modSettings['default_timezone']) && \in_array(self::$modSettings['default_timezone'], timezone_identifiers_list())) {
+		if (
+			\in_array(
+				self::$modSettings['default_timezone'] ?? null,
+				timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC),
+			)
+		) {
 			date_default_timezone_set(self::$modSettings['default_timezone']);
 		} else {
-			// Get PHP's default timezone, if set
-			$ini_tz = \ini_get('date.timezone');
-
-			self::$modSettings['default_timezone'] = !empty($ini_tz) ? $ini_tz : '';
-
-			// If date.timezone is unset, invalid, or just plain weird, make a best guess
-			if (!\in_array(self::$modSettings['default_timezone'], timezone_identifiers_list())) {
-				$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
-				self::$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
-
-				if (empty(self::$modSettings['default_timezone'])) {
-					self::$modSettings['default_timezone'] = 'UTC';
-				}
-			}
-
-			date_default_timezone_set(self::$modSettings['default_timezone']);
+			self::updateModSettings(['default_timezone' => date_default_timezone_get()]);
 		}
 
 		// Check the load averages?
