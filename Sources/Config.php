@@ -1187,10 +1187,12 @@ class Config
 
 		// Check the load averages?
 		if (!empty(self::$modSettings['loadavg_enable'])) {
-			self::$modSettings['load_average'] = Sapi::getLoadAverage();
+			if (!empty(self::$backward_compatibility)) {
+				self::$modSettings['load_average'] = Sapi::getLoadAverage();
+			}
 
-			if (self::$modSettings['load_average'] >= 0.00) {
-				IntegrationHook::call('integrate_load_average', [self::$modSettings['load_average']]);
+			if (Sapi::getLoadAverage() >= 0.00) {
+				IntegrationHook::call('integrate_load_average', [Sapi::getLoadAverage()]);
 			}
 
 			if (Sapi::isOverloaded(self::$modSettings['loadavg_forum'])) {
