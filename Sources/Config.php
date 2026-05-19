@@ -1002,37 +1002,40 @@ class Config
 			self::$boarddir = !empty($_SERVER['SCRIPT_FILENAME']) ? \dirname(realpath($_SERVER['SCRIPT_FILENAME'])) : \dirname(__DIR__);
 		}
 
-		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources')) {
-			self::$sourcedir = self::$boarddir . '/Sources';
-		}
-
-		if ((empty(self::$vendordir) || !is_dir(realpath(self::$vendordir))) && is_dir(self::$boarddir . '/vendor')) {
-			self::$vendordir = self::$boarddir . '/vendor';
-		}
-
-		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
-			self::$packagesdir = self::$boarddir . '/Packages';
-		}
-
-		if ((empty(self::$languagesdir) || !is_dir(realpath(self::$languagesdir))) && is_dir(self::$boarddir . '/Languages')) {
-			self::$languagesdir = self::$boarddir . '/Languages';
+		foreach (['sourcedir' => 'Sources', 'vendordir' => 'vendor', 'packagesdir' => 'Packages', 'languagesdir' => 'Languages'] as $var => $dir) {
+			if (
+				!is_dir(self::${$var} ?? '')
+				&& is_dir(self::$boarddir . DIRECTORY_SEPARATOR . $dir)
+			) {
+				self::${$var} = self::$boarddir . DIRECTORY_SEPARATOR . $dir;
+			}
 		}
 
 		// Make absolutely sure the language is legitimate.
-		if (empty(self::$language) || !is_dir(self::$languagesdir . '/' . self::$language)) {
+		if (
+			empty(self::$language)
+			|| !is_dir(self::$languagesdir . DIRECTORY_SEPARATOR . self::$language)
+		) {
 			self::$language = self::$settings_defs['language']['default'];
 
-			if (!is_dir(self::$languagesdir . '/' . self::$language)) {
+			if (!is_dir(self::$languagesdir . DIRECTORY_SEPARATOR . self::$language)) {
 				die('Language files not found.');
 			}
 		}
 
 		// Make absolutely sure the cache directory is defined and writable.
-		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
-			if (is_dir(self::$boarddir . '/cache') && is_writable(self::$boarddir . '/cache')) {
-				self::$cachedir = self::$boarddir . '/cache';
+		if (
+			empty(self::$cachedir)
+			|| !is_dir(self::$cachedir)
+			|| !is_writable(self::$cachedir)
+		) {
+			if (
+				is_dir(self::$boarddir . DIRECTORY_SEPARATOR . 'cache')
+				&& is_writable(self::$boarddir . DIRECTORY_SEPARATOR . 'cache')
+			) {
+				self::$cachedir = self::$boarddir . DIRECTORY_SEPARATOR . 'cache';
 			} else {
-				self::$cachedir = self::getTempDir() . '/smf_cache_' . md5(self::$boarddir);
+				self::$cachedir = self::getTempDir() . DIRECTORY_SEPARATOR . 'smf_cache_' . md5(self::$boarddir);
 				@mkdir(self::$cachedir, 0750);
 			}
 		}
@@ -1093,20 +1096,21 @@ class Config
 			Db\DatabaseApi::$db->free_result($request);
 
 			// Do a few things to protect against missing settings or settings with invalid values...
-			if (empty(self::$modSettings['defaultMaxTopics']) || self::$modSettings['defaultMaxTopics'] <= 0 || self::$modSettings['defaultMaxTopics'] > 999) {
-				self::$modSettings['defaultMaxTopics'] = 20;
-			}
+			$default_max_values = [
+				'defaultMaxTopics' => 20,
+				'defaultMaxMessages' => 15,
+				'defaultMaxMembers' => 30,
+				'defaultMaxListItems' => 15,
+			];
 
-			if (empty(self::$modSettings['defaultMaxMessages']) || self::$modSettings['defaultMaxMessages'] <= 0 || self::$modSettings['defaultMaxMessages'] > 999) {
-				self::$modSettings['defaultMaxMessages'] = 15;
-			}
-
-			if (empty(self::$modSettings['defaultMaxMembers']) || self::$modSettings['defaultMaxMembers'] <= 0 || self::$modSettings['defaultMaxMembers'] > 999) {
-				self::$modSettings['defaultMaxMembers'] = 30;
-			}
-
-			if (empty(self::$modSettings['defaultMaxListItems']) || self::$modSettings['defaultMaxListItems'] <= 0 || self::$modSettings['defaultMaxListItems'] > 999) {
-				self::$modSettings['defaultMaxListItems'] = 15;
+			foreach ($default_max_values as $setting => $default) {
+				if (
+					empty(self::$modSettings[$setting])
+					|| self::$modSettings[$setting] <= 0
+					|| self::$modSettings[$setting] > 999
+				) {
+					self::$modSettings[$setting] = $default;
+				}
 			}
 
 			if (!\is_array(self::$modSettings['attachmentUploadDir'])) {
@@ -1162,7 +1166,7 @@ class Config
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary
-		self::$modSettings['browser_cache'] = !empty(self::$modSettings['browser_cache']) ? (int) self::$modSettings['browser_cache'] : 0;
+		self::$modSettings['browser_cache'] = (int) (self::$modSettings['browser_cache'] ?? 0);
 
 		// Disable image proxy if we don't have SSL enabled
 		if (empty(self::$modSettings['force_ssl'])) {
@@ -1283,16 +1287,9 @@ class Config
 			return;
 		}
 
-		$to_remove = [];
-
 		// Go check if there is any setting to be removed.
-		foreach ($change_array as $k => $v) {
-			if ($v === null) {
-				// Found some, remove them from the original array and add them to ours.
-				unset($change_array[$k]);
-				$to_remove[] = $k;
-			}
-		}
+		$to_remove = array_filter($change_array, fn($setting) => $setting === null);
+		$change_array = array_diff_key($change_array, $to_remove);
 
 		// Proceed with the deletion.
 		if (!empty($to_remove)) {
@@ -1310,7 +1307,7 @@ class Config
 			foreach ($change_array as $variable => $value) {
 				Db\DatabaseApi::$db->query(
 					'UPDATE {db_prefix}settings
-					SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
+					SET value = {' . (\is_bool($value) ? 'raw' : 'string') . ':value}
 					WHERE variable = {string:variable}',
 					[
 						'value' => $value === true ? 'value + 1' : ($value === false ? 'value - 1' : $value),
