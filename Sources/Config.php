@@ -2492,29 +2492,20 @@ class Config
 		// Prevents warnings about constants that are already defined.
 		$settingsText = preg_replace_callback(
 			'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
-			function ($matches) {
-				return 'define(\'' . bin2hex(random_bytes(16)) . '\'';
-			},
+			fn($matches) => 'define(\'' . bin2hex(random_bytes(16)) . '\'',
 			$settingsText,
 		);
 
-		// Handle eval errors gracefully in all PHP versions.
+		// Handle eval errors gracefully.
 		try {
-			if ($settingsText !== '' && @eval($settingsText) === false) {
-				throw new \ErrorException('eval error');
-			}
-
-			unset($mtime, $settingsFile, $settingsText);
-			$defined_vars = get_defined_vars();
+			eval($settingsText);
 		} catch (\Throwable $e) {
-		} catch (\ErrorException $e) {
-		}
-
-		if (isset($e)) {
 			return false;
 		}
 
-		return $defined_vars;
+		unset($mtime, $settingsFile, $settingsText);
+
+		return get_defined_vars();
 	}
 
 	/**
