@@ -1058,42 +1058,19 @@ class Uuid implements \Stringable
 	 * that PHP's base_convert() produces. This is different from basic base32,
 	 * which is specified in RFC 4648, section 6.
 	 *
-	 * This implementation is optimized specifically for UUIDs:
-	 *
 	 * @param string $hex A hexadecimal string.
 	 * @return string A base32hex string.
 	 */
 	protected static function encodeBase32Hex(string $hex): string
 	{
-		$bin = hex2bin($hex);
-		$alphabet = self::BASE32_HEX;
-		$buffer = 0;
-		$bits = 0;
-		$pos = 0;
+		$b32 = '';
 
-		// UUID Base32 is always 26 chars
-		$out = str_repeat('0', 26);
-
-		// UUIDs are always exactly 128 bits (16 bytes).
-		for ($i = 0; $i < 16; $i++) {
-			// Each input byte contributes 8 bits to a buffer.
-			$buffer = ($buffer << 8) | \ord($bin[$i]);
-			$bits += 8;
-
-			// Output characters consume 5 bits at a time.  Remaining bits are carried forward between iterations.
-			while ($bits >= 5) {
-				$bits -= 5;
-
-				$out[$pos++] = $alphabet[($buffer >> $bits) & 31];
-			}
+		foreach (str_split(strrev($hex), 10) as $chunk) {
+			$b32 = str_pad(base_convert(strrev($chunk), 16, 32), 8, '0', STR_PAD_LEFT) . $b32;
 		}
 
-		// UUID Base32 encoding always leaves remaining bits.
-		if ($bits > 0) {
-			$out[$pos] = $alphabet[($buffer << (5 - $bits)) & 31];
-		}
-
-		return $out;
+		// Trim leading zeros if too long, but pad with leading zeros if too short.
+		return str_pad(ltrim($b32, '0'), 26, '0', STR_PAD_LEFT);
 	}
 
 	/**
@@ -1103,38 +1080,18 @@ class Uuid implements \Stringable
 	 * that PHP's base_convert() produces. This is different from basic base32,
 	 * which is specified in RFC 4648, section 6.
 	 *
-	 * This implementation is optimized specifically for UUIDs:
-	 *
 	 * @param string $b32 A base32hex string.
 	 * @return string A hexadecimal string.
 	 */
 	protected static function decodeBase32Hex(string $b32): string
 	{
-		$buffer = 0;
-		$bits = 0;
-		$pos = 0;
+		$hex = '';
 
-		// Decoded UUIDs are always exactly 16 bytes.
-		$out = str_repeat("\0", 16);
-
-		// UUID Base32 strings are always exactly 26 chars.
-		for ($i = 0; $i < 26; $i++) {
-			$c = \ord($b32[$i]);
-
-			// Convert ASCII to base32 (0-9 => 0-9, a-v => 10-31).
-			$buffer = ($buffer << 5) | ($c <= 57 ? $c - 48 : $c - 87);
-
-			// Each Base32 character contributes 5 bits to a buffer.
-			$bits += 5;
-
-			// Consume output bytes 8 bits at a time.
-			if ($bits >= 8) {
-				$bits -= 8;
-
-				$out[$pos++] = \chr(($buffer >> $bits) & 0xFF);
-			}
+		foreach (str_split(strrev($b32), 8) as $chunk) {
+			$hex = str_pad(base_convert(strrev($chunk), 32, 16), 10, '0', STR_PAD_LEFT) . $hex;
 		}
 
-		return bin2hex($out);
+		// Trim leading zeros if too long, but pad with leading zeros if too short.
+		return str_pad(ltrim($hex, '0'), 32, '0', STR_PAD_LEFT);
 	}
 }
