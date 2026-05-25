@@ -196,6 +196,7 @@ $txt['password'] = 'Password';
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['privacy_policy'] = 'Privacy Policy';
 
+$txt['invalid_credentials'] = 'The username or password you entered is incorrect';
 $txt['username_no_exist'] = 'That username does not exist.';
 $txt['no_user_with_email'] = 'There are no usernames associated with that email.';
 

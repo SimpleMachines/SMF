@@ -71,12 +71,13 @@ class RequestMembers implements ActionInterface, Routable
 			WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
 				AND is_activated IN ({array_int:activated})
-			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
+			LIMIT {int:limit}',
 			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
 				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
+				'limit' => Utils::entityStrlen($this->search) <= 2 ? 100 : 800,
 			],
 		);
 
