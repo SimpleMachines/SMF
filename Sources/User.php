@@ -2390,8 +2390,8 @@ class User implements \ArrayAccess
 		// Maybe a mod needs to tweak the list of allowed boards on the fly?
 		IntegrationHook::call('integrate_boards_allowed_to', [&$boards, $deny_boards, $permissions, $check_access, $simple]);
 
-		// Ensure each permission's array is a simple list.
-		$boards = array_map(fn($board_list) => array_values($board_list), $boards);
+		// Ensure there are no gaps in the keys.
+		$boards = $simple ? array_values($boards) : array_map(fn($board_list) => array_values($board_list), $boards);
 
 		return $boards;
 	}
