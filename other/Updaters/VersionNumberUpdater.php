@@ -79,6 +79,11 @@ class VersionNumberUpdater extends UpdaterBase
 	 *******************/
 
 	/**
+	 *
+	 */
+	public string $commit_msg = 'Updates version numbers, etc.';
+
+	/**
 	 * @var string
 	 *
 	 * Previous version based on the most recent Git tag.
@@ -146,7 +151,33 @@ class VersionNumberUpdater extends UpdaterBase
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
 		}
 
+		$this->ready_to_commit = true;
+
 		$this->removeUselessBranch();
+	}
+
+	/**
+	 * Gets a suitable string for a new Git tag based on $this->new_version.
+	 */
+	public function getNewTag(): string
+	{
+		return 'v' . preg_replace(
+			[
+				'/(\d)([A-Za-z])/',
+				'/([A-Za-z])(\d)/',
+				'/\s+/',
+				'/\s(?=[A-Za-z])/',
+				'/\s/',
+			],
+			[
+				'$1 $2',
+				'$1 $2',
+				' ',
+				'-',
+				'.',
+			],
+			strtolower($this->new_version),
+		);
 	}
 
 	/******************
