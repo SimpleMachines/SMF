@@ -40,6 +40,15 @@ use SMF\Tasks\UpdateUnicode;
  */
 class UnicodeDataUpdater extends UpdaterBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 *
+	 */
+	public string $commit_msg = 'Updates Unicode data';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -61,6 +70,8 @@ class UnicodeDataUpdater extends UpdaterBase
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
 		}
+
+		$this->ready_to_commit = true;
 
 		$this->removeUselessBranch();
 	}

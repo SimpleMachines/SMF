@@ -34,15 +34,16 @@ namespace SMF\other;
 
 require_once 'Updaters/UpdaterBase.php';
 
-foreach (
-	[
-		'UnicodeDataUpdater',
-		'AsciiTransliteratorDataUpdater',
-		'TimezoneDataUpdater',
-		'VersionNumberUpdater',
-	]
-	as $class_name
-) {
+$updaters = [
+	'TimezoneDataUpdater',
+	'UnicodeDataUpdater',
+	'AsciiTransliteratorDataUpdater',
+	'VersionNumberUpdater',
+];
+
+$num_updaters_executed = 0;
+
+foreach ($updaters as $class_name) {
 	$file_name = 'Updaters/' . $class_name . '.php';
 	$fully_qualified_class_name = __NAMESPACE__ . '\\Updaters\\' . $class_name;
 
@@ -52,7 +53,31 @@ foreach (
 
 	if ($class_name === 'VersionNumberUpdater') {
 		$updater->execute($argv[1] ?? null);
+		$new_tag = $updater->getNewTag();
 	} else {
 		$updater->execute();
 	}
+
+	$num_updaters_executed++;
+
+	if (!$updater->hasChanged()) {
+		continue;
+	}
+
+	if (!$updater->ready_to_commit) {
+		echo 'Changes are not ready to commit. Deal with them manually and commit them, then run this script again.' . PHP_EOL;
+
+		// Don't execute subsequent updaters until these changes are dealt with.
+		// This ensures that the version number updater and manifest updater
+		// don't end up working with bad data.
+		break;
+	}
+
+	if ($updater->commit()) {
+		echo 'Changes committed.' . PHP_EOL;
+	}
+}
+
+if ($num_updaters_executed === \count($updaters) && !empty($new_tag)) {
+	echo "You may now tag the new release using `git tag '{$new_tag}'`." . PHP_EOL;
 }

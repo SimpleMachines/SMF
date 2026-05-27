@@ -35,6 +35,15 @@ use SMF\Localization\AsciiTransliterator;
  */
 class AsciiTransliteratorDataUpdater extends UpdaterBase
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 *
+	 */
+	public string $commit_msg = 'Updates AsciiTransliterator data';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -42,7 +51,7 @@ class AsciiTransliteratorDataUpdater extends UpdaterBase
 	/**
 	 * Constructor.
 	 */
-	public function __construct(string $new_branch)
+	public function __construct(?string $new_branch = null)
 	{
 		parent::__construct($new_branch);
 
@@ -137,6 +146,8 @@ class AsciiTransliteratorDataUpdater extends UpdaterBase
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
 		}
+
+		$this->ready_to_commit = true;
 
 		$this->removeUselessBranch();
 	}
