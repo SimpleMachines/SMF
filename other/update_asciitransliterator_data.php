@@ -33,3 +33,11 @@ require_once 'Updaters/AsciiTransliteratorDataUpdater.php';
 
 $updater = new Updaters\AsciiTransliteratorDataUpdater('update_asciitransliterator_data');
 $updater->execute();
+
+if ($updater->hasChanged()) {
+	if (!$updater->ready_to_commit) {
+		echo 'Changes are not ready to commit. Deal with them manually.' . PHP_EOL;
+	} elseif ($updater->commit()) {
+		echo 'Changes committed.' . PHP_EOL;
+	}
+}

@@ -143,6 +143,11 @@ class TimezoneDataUpdater extends UpdaterBase
 	 *******************/
 
 	/**
+	 *
+	 */
+	public string $commit_msg = 'Updates time zone data';
+
+	/**
 	 * Git commit hash associated with TZDB_PREV_TAG.
 	 */
 	public string $prev_commit;
@@ -202,6 +207,9 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$this->checkoutNewBranch();
 
+		// Assume true until proven otherwise.
+		$this->ready_to_commit = true;
+
 		$this->fetchTzdbUpdates();
 		$this->updateTimezoneClass();
 		$this->updateTimezonesLangfile();
@@ -212,16 +220,12 @@ class TimezoneDataUpdater extends UpdaterBase
 		if (!empty($this->tz_data['changed']['wtf'])) {
 			$wtf_message = 'The following time zones changed in unexpected ways. Please review them manually to figure out what to do.' . PHP_EOL . "\t" . implode(PHP_EOL . "\t", $this->tz_data['changed']['wtf']) . PHP_EOL . PHP_EOL;
 
-			if (php_sapi_name() === 'cli') {
-				echo $wtf_message;
-			} else {
-				throw new \Exception($wtf_message);
-			}
+			throw new \Exception($wtf_message);
 		}
 
 		// Say something when finished.
 		if (php_sapi_name() === 'cli') {
-			echo 'Done. ', $this->files_updated ? 'Please review all changes manually.' : 'No changes were made.', PHP_EOL;
+			echo 'Done.', !$this->files_updated ? ' No changes were made.' : (!$this->ready_to_commit ? ' Please review all changes manually.' : ''), PHP_EOL;
 		}
 
 		$this->removeUselessBranch();
@@ -427,6 +431,7 @@ class TimezoneDataUpdater extends UpdaterBase
 					if (preg_match('~' . $search_for . '~', $file_contents)) {
 						echo "Added fallback code for {$tzid} in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
 
+						$this->ready_to_commit = false;
 						$this->files_updated = true;
 					}
 				}
@@ -506,6 +511,10 @@ class TimezoneDataUpdater extends UpdaterBase
 									$final_entry = preg_replace('~//\s*OPTIONS[^\n]+\n\h*~', $new_alt_tzid_comment, $final_entry);
 								}
 
+								if (str_contains($final_entry, 'OPTIONS')) {
+									$this->ready_to_commit = false;
+								}
+
 								$final_entries[] = $final_entry;
 
 								continue 2;
@@ -527,6 +536,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						$final_code = str_replace($existing_inner, $final_inner, $existing_code);
 						$file_contents = str_replace($existing_code, $final_code, $file_contents);
 
+						$this->ready_to_commit = false;
 						$this->files_updated = true;
 
 						echo "Fallback code for {$tzid} has been updated in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
@@ -861,6 +871,7 @@ class TimezoneDataUpdater extends UpdaterBase
 							echo "Created new metazone for {$tzid} in TimeZone::\$metazones.\n";
 							echo "ACTION NEEDED: Review the automatically generated \$tztxt key, '" . $metazone['tztxt_key'] . "'.\n\n";
 
+							$this->ready_to_commit = false;
 							$this->files_updated = true;
 
 							if (\count($added) === \count($this->new_metazones)) {
@@ -932,6 +943,7 @@ class TimezoneDataUpdater extends UpdaterBase
 				echo "Added \$tztxt['{$metazone['tztxt_key']}'] to Languages/en_US/Timezones.php.\n";
 				echo "ACTION NEEDED: Review the metazone label text, '{$label}'.\n\n";
 
+				$this->ready_to_commit = false;
 				$this->files_updated = true;
 			}
 
@@ -1266,6 +1278,8 @@ class TimezoneDataUpdater extends UpdaterBase
 			$label = str_replace(['St_', '_'], ['St. ', ' '], substr($tzid, strrpos($tzid, '/') + 1));
 
 			$msg = "ACTION NEEDED: Check that the label is spelled correctly, etc.\n";
+
+			$this->ready_to_commit = false;
 		}
 
 		return [$label, $msg];
