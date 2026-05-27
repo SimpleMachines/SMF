@@ -2733,6 +2733,40 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
+			case 'array_uuid':
+				if (\is_array($replacement)) {
+					if (empty($replacement)) {
+						$this->error_backtrace('Database error, given array of UUID values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					foreach ($replacement as $key => $value) {
+						if ($value instanceof Uuid) {
+							$replacement[$key] = \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $value);
+							continue;
+						}
+
+						$uuid = @Uuid::createFromString($value, false);
+
+						if (
+							str_replace(['{', '-', '}'], '', strtolower($value)) === str_replace('-', '', (string) $uuid)
+							|| $value === $uuid->getBinary()
+							|| $value === $uuid->getShortForm(false)
+							|| $value === $uuid->getShortForm(true)
+						) {
+							$replacement[$key] = \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $uuid);
+							continue;
+						}
+
+						$this->error_backtrace('Wrong value type sent to the database. Array of UUIDs expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					return implode(', ', $replacement);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of UUIDs expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				break;
+
 			case 'date':
 				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1) {
 					return \sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]);
@@ -2778,12 +2812,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'uuid':
 				if ($replacement instanceof Uuid) {
-					return \sprintf('UUID_TO_BIN(\'%1$s\')', \strval($replacement));
+					return \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $replacement);
 				}
 
 				$uuid = @Uuid::createFromString($replacement, false);
 
-				if (\in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
+				if (
+					str_replace(['{', '-', '}'], '', strtolower($replacement)) === str_replace('-', '', (string) $uuid)
+					|| $replacement === $uuid->getBinary()
+					|| $replacement === $uuid->getShortForm(false)
+					|| $replacement === $uuid->getShortForm(true)
+				) {
 					return \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $uuid);
 				}
 
