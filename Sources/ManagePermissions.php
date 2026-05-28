@@ -1822,7 +1822,8 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 					'status' => 'off',
 				);
 
-		$context[$row['permission']][$row['id_group']]['status'] = empty($row['status']) ? 'deny' : ($row['status'] == 1 ? 'on' : 'off');
+		if (isset($row['permission']))
+			$context[$row['permission']][$row['id_group']]['status'] = empty($row['status']) ? 'deny' : ($row['status'] == 1 ? 'on' : 'off');
 	}
 	$smcFunc['db_free_result']($request);
 
