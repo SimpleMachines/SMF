@@ -145,7 +145,7 @@ class PackageUtils
 		}
 
 		// RFC 1952
-		$flags = ord($data[3]);
+		$flags = \ord($data[3]);
 
 		// Gzip file header is always 10 bytes.
 		$offset = 10;
@@ -190,8 +190,7 @@ class PackageUtils
 		$return = [];
 
 		// All data is block-aligned by 512 bytes.
-		while ($block < $blocks)
-		{
+		while ($block < $blocks) {
 			$offset = $block++ << 9;
 			$file_info = unpack('Z100filename/@124/A12size/A12mtime/A8checksum/Atype/@345/Z155prefix', $data, $offset);
 
@@ -204,6 +203,7 @@ class PackageUtils
 
 			if ($ord_cache === null) {
 				$ord_cache = [];
+
 				for ($i = 0; $i < 256; $i++) {
 					$ord_cache[\chr($i)] = $i;
 				}
@@ -219,7 +219,7 @@ class PackageUtils
 				$checksum += $ord_cache[$data[$j]];
 			}
 
-			if (octdec($file_info['checksum']) != $checksum)    {
+			if (octdec($file_info['checksum']) != $checksum) {
 				continue;
 			}
 
@@ -361,7 +361,7 @@ class PackageUtils
 			$file_info = unpack(
 				'vflag/vcompression/vmtime/vmdate/Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len',
 				$data,
-				$header['offset'] + 6
+				$header['offset'] + 6,
 			);
 
 			$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
@@ -3721,13 +3721,13 @@ class PackageUtils
 			$gid = $stat['gid'];
 
 			if (!isset($uid_cache[$uid])) {
-				$uid_cache[$uid] = function_exists('posix_getpwuid')
+				$uid_cache[$uid] = \function_exists('posix_getpwuid')
 					? (posix_getpwuid($uid)['name'] ?? '')
 					: '';
 			}
 
 			if (!isset($gid_cache[$gid])) {
-				$gid_cache[$gid] = function_exists('posix_getgrgid')
+				$gid_cache[$gid] = \function_exists('posix_getgrgid')
 					? (posix_getgrgid($gid)['name'] ?? '')
 					: '';
 			}
@@ -3750,6 +3750,7 @@ class PackageUtils
 
 			if ($ord_cache === null) {
 				$ord_cache = [];
+
 				for ($i = 0; $i < 256; $i++) {
 					$ord_cache[\chr($i)] = $i;
 				}

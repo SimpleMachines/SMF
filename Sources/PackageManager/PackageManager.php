@@ -1592,17 +1592,17 @@ class PackageManager
 				'title' => Lang::getTxt($type . '_package', file: 'Packages'),
 				'no_items_label' => Lang::getTxt('no_packages', file: 'Packages'),
 				'get_items' => [
-					'function' => function($start, $items_per_page, $sort) use ($packages, $type)
-					{
-						if (!isset($packages[$type]))
+					'function' => function ($start, $items_per_page, $sort) use ($packages, $type) {
+						if (!isset($packages[$type])) {
 							return [];
+						}
 
 						$col = strtok($sort, ' ');
 						$dir = strtok(' ');
 						array_multisort(
 							array_column($packages[$type], $col),
 							$dir === 'desc' ? SORT_DESC : SORT_ASC,
-							$packages[$type]
+							$packages[$type],
 						);
 
 						return $packages[$type];
@@ -3253,8 +3253,8 @@ class PackageManager
 				}
 
 				$is_dir = is_dir(Config::$packagesdir . '/' . $package);
-				if ($is_dir)
-				{
+
+				if ($is_dir) {
 					// Skip packages that are named the same.
 					if (\in_array($package, $dirs)) {
 						continue;
