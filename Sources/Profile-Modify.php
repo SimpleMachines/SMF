@@ -3592,6 +3592,7 @@ function profileSaveAvatarData(&$value)
 
 			if (($tempfile = @tempnam($uploadDir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($profile_vars['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
 			{
+				require_once($sourcedir . '/Subs-Graphics.php');
 				$safe = checkSvgContents($tempfile);
 				@unlink($tempfile);
 			}
@@ -3653,6 +3654,7 @@ function profileSaveAvatarData(&$value)
 			// SVGs are special.
 			if ($mime_type === 'image/svg+xml')
 			{
+				require_once($sourcedir . '/Subs-Graphics.php');
 				if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
 				{
 					@unlink($_FILES['attachment']['tmp_name']);
