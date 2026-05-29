@@ -3496,6 +3496,7 @@ function profileSaveAvatarData(&$value)
 		return false;
 
 	require_once($sourcedir . '/ManageAttachments.php');
+	require_once($sourcedir . '/Subs-Graphics.php');
 
 	call_integration_hook('before_profile_save_avatar', array(&$value));
 
