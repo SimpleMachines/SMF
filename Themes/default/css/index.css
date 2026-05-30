@@ -1084,7 +1084,6 @@ table.table_grid td {
 }
 #top_info > li > a {
 	align-items: center;
-	display: inline-flex;
 	background: var(--topinfo-bg);
 	border-color: var(--topinfo-border-color);
 	border-radius: var(--topinfo-border-radius);
