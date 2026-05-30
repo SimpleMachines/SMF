@@ -286,7 +286,7 @@ class Login2 implements ActionInterface, Routable
 				true,
 			)
 		) {
-			Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
+			Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'Login')];
 
 			return;
 		}
@@ -301,7 +301,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Let them try again, it didn't match anything...
 		if (empty($loaded)) {
-			Utils::$context['login_errors'] = [Lang::getTxt('username_no_exist', file: 'General')];
+			Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'General')];
 
 			return;
 		}
@@ -643,7 +643,7 @@ class Login2 implements ActionInterface, Routable
 				// Log an error so we know that it didn't go well in the error log.
 				ErrorHandler::log(Lang::getTxt('incorrect_password', file: 'Login') . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
-				Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
+				Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'Login')];
 
 				return false;
 			}

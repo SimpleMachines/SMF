@@ -43,11 +43,25 @@ abstract class UpdaterBase
 	 *******************/
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The name of a new Git branch to hold the changes.
 	 */
-	public string $new_branch;
+	public ?string $new_branch;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the changes are ready to be committed.
+	 */
+	public bool $ready_to_commit = false;
+
+	/**
+	 * @var string
+	 *
+	 * Commit message to use if changes are committed.
+	 */
+	public string $commit_msg;
 
 	/**************************
 	 * Public static properties
@@ -80,7 +94,7 @@ abstract class UpdaterBase
 	 *
 	 * @param string $new_branch Name of a new Git branch to hold the changes.
 	 */
-	public function __construct(string $new_branch)
+	public function __construct(?string $new_branch = null)
 	{
 		// Set the name of our new Git branch.
 		$this->new_branch = $new_branch;
@@ -177,6 +191,10 @@ abstract class UpdaterBase
 	 */
 	public function checkoutNewBranch(): void
 	{
+		if (empty($this->new_branch)) {
+			return;
+		}
+
 		// Are we already on the new branch?
 		if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) === $this->new_branch) {
 			return;
@@ -215,19 +233,21 @@ abstract class UpdaterBase
 	 */
 	public function hasChanged(): bool
 	{
-		// Are there any committed changes?
-		$new_branch_hash = trim(shell_exec('git rev-parse "' . $this->new_branch . '"'));
-		$main_branch_hash = trim(shell_exec('git rev-parse "' . self::MAIN_BRANCH . '"'));
+		if (!empty($this->new_branch)) {
+			// Are there any committed changes?
+			$new_branch_hash = trim(shell_exec('git rev-parse "' . $this->new_branch . '"'));
+			$main_branch_hash = trim(shell_exec('git rev-parse "' . self::MAIN_BRANCH . '"'));
 
-		if ($new_branch_hash !== $main_branch_hash) {
-			return true;
-		}
+			if ($new_branch_hash !== $main_branch_hash) {
+				return true;
+			}
 
-		// Are we currently on the new branch?
-		$current_branch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
+			// Are we currently on the new branch?
+			$current_branch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
 
-		if ($current_branch !== $this->new_branch) {
-			throw new \Exception('Could not continue. Wrong branch checked out.');
+			if ($current_branch !== $this->new_branch) {
+				throw new \Exception('Could not continue. Wrong branch checked out.');
+			}
 		}
 
 		// Are there any uncommitted changes?
@@ -239,6 +259,10 @@ abstract class UpdaterBase
 	 */
 	public function removeUselessBranch(): void
 	{
+		if (empty($this->new_branch)) {
+			return;
+		}
+
 		// Never delete the main branch!
 		if ($this->new_branch === self::MAIN_BRANCH) {
 			return;
@@ -253,5 +277,21 @@ abstract class UpdaterBase
 			shell_exec('git checkout "' . self::MAIN_BRANCH . '"');
 			shell_exec('git branch -d "' . $this->new_branch . '"');
 		}
+	}
+
+	/**
+	 * Checks whether there are changes ready to commit and if so commits them.
+	 *
+	 * @return bool Whether a commit was made.
+	 */
+	public function commit(): bool
+	{
+		if (!$this->ready_to_commit || empty($this->commit_msg) || !$this->hasChanged()) {
+			return false;
+		}
+
+		exec("git commit -a -s -m '{$this->commit_msg}'", $output, $result_code);
+
+		return ($result_code == 0);
 	}
 }

@@ -1738,15 +1738,10 @@ class Permissions implements ActionInterface
 				$is_new = true;
 
 				foreach (['', '_own', '_any'] as $suffix) {
-					try {
-						$permission = Permission::get($generic_name . $suffix);
-					} catch (\Throwable $e) {
-						continue;
+					if (Permission::exists($generic_name . $suffix)) {
+						Permission::get($generic_name . $suffix)->view_group = $perm_info[1];
+						$is_new = false;
 					}
-
-					$is_new = false;
-					$permission->view_group = $perm_info[1];
-					unset($permission);
 				}
 
 				if ($is_new) {
@@ -1769,27 +1764,17 @@ class Permissions implements ActionInterface
 
 		foreach ($hidden_permissions as $permission) {
 			foreach (['', '_own', '_any'] as $suffix) {
-				try {
-					$permission = Permission::get($permission . $suffix);
-				} catch (\Throwable $e) {
-					continue;
+				if (Permission::exists($permission . $suffix)) {
+					Permission::get($permission . $suffix)->hidden = true;
 				}
-
-				$permission->hidden = true;
-				unset($permission);
 			}
 		}
 
 		foreach ($relabel_permissions as $permission => $label) {
 			foreach (['', '_own', '_any'] as $suffix) {
-				try {
-					$permission = Permission::get($permission . $suffix);
-				} catch (\Throwable $e) {
-					continue;
+				if (Permission::exists($permission . $suffix)) {
+					Permission::get($permission . $suffix)->label = $label;
 				}
-
-				$permission->label = $label;
-				unset($permission);
 			}
 		}
 	}

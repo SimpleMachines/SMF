@@ -431,7 +431,7 @@ function template_generic_xml_recursive(array $xml_data, string $parent_tag, str
 	echo "\n" . $indent . '<' . $parent_tag;
 
 	foreach ($parent_attributes as $attr_key => $attr_value) {
-		echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key, ENT_XML1, 'UTF-8')) . '="' . htmlspecialchars(Utils::cleanXml($attr_value, ENT_XML1, 'UTF-8')) . '"';
+		echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key), ENT_XML1, 'UTF-8') . '="' . htmlspecialchars(Utils::cleanXml($attr_value), ENT_XML1, 'UTF-8') . '"';
 	}
 
 	echo '>';
@@ -453,7 +453,7 @@ function template_generic_xml_recursive(array $xml_data, string $parent_tag, str
 
 			if (isset($data['attributes'])) {
 				foreach ($data['attributes'] as $attr_key => $attr_value) {
-					echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key, ENT_XML1, 'UTF-8')) . '="' . htmlspecialchars(Utils::cleanXml($attr_value, ENT_XML1, 'UTF-8')) . '"';
+					echo ' ' . htmlspecialchars(Utils::cleanXml($attr_key), ENT_XML1, 'UTF-8') . '="' . htmlspecialchars(Utils::cleanXml($attr_value), ENT_XML1, 'UTF-8') . '"';
 				}
 			}
 

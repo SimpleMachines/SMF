@@ -212,7 +212,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			self::$cache[self::$count]['s'] = ($st = microtime(true)) - TIME_START;
 		}
 
-		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
+		$ret = mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
+
+		// Debugging.
+		if (DebugUtils::isDebugEnabled()) {
+			self::$cache[self::$count]['t'] = microtime(true) - $st;
+		}
 
 		if ($ret === false && empty($db_values['db_error_skip'])) {
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
@@ -237,11 +242,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			ErrorHandler::log(Lang::getTxt('database_error', file: 'General') . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
-		}
-
-		// Debugging.
-		if (DebugUtils::isDebugEnabled()) {
-			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
 		return $ret;
@@ -407,7 +407,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($data as $dataRow) {
 			if (\count($indexed_columns) !== \count($dataRow)) {
 					$this->error_backtrace(
-						'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+						'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
 						'',
 						E_USER_ERROR,
 						__FILE__,
@@ -2579,8 +2579,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// Ignore some errors and strict mode warnings when we are not debugging.
-		mysqli_report(DebugUtils::isDebugEnabled() ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
+		// Available options:
+		// MYSQLI_REPORT_ALL => Set all options on (report all)
+		// MYSQLI_REPORT_ERROR => Report errors from mysqli function calls
+		// MYSQLI_REPORT_INDEX => Report if no index or bad index was used in a query
+		// MYSQLI_REPORT_STRICT => Throw a `mysqli_sql_exception` for errors instead of warnings
+		// MYSQLI_REPORT_OFF => Turns reporting off
+		// This was the default prior to PHP 8.1, and all our code assumes it.
+		mysqli_report(MYSQLI_REPORT_OFF);
 
 		$success = false;
 
@@ -2733,6 +2739,40 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
+			case 'array_uuid':
+				if (\is_array($replacement)) {
+					if (empty($replacement)) {
+						$this->error_backtrace('Database error, given array of UUID values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					foreach ($replacement as $key => $value) {
+						if ($value instanceof Uuid) {
+							$replacement[$key] = \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $value);
+							continue;
+						}
+
+						$uuid = @Uuid::createFromString($value, false);
+
+						if (
+							str_replace(['{', '-', '}'], '', strtolower($value)) === str_replace('-', '', (string) $uuid)
+							|| $value === $uuid->getBinary()
+							|| $value === $uuid->getShortForm(false)
+							|| $value === $uuid->getShortForm(true)
+						) {
+							$replacement[$key] = \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $uuid);
+							continue;
+						}
+
+						$this->error_backtrace('Wrong value type sent to the database. Array of UUIDs expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					return implode(', ', $replacement);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of UUIDs expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				break;
+
 			case 'date':
 				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1) {
 					return \sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]);
@@ -2778,12 +2818,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'uuid':
 				if ($replacement instanceof Uuid) {
-					return \sprintf('UUID_TO_BIN(\'%1$s\')', \strval($replacement));
+					return \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $replacement);
 				}
 
 				$uuid = @Uuid::createFromString($replacement, false);
 
-				if (\in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
+				if (
+					str_replace(['{', '-', '}'], '', strtolower($replacement)) === str_replace('-', '', (string) $uuid)
+					|| $replacement === $uuid->getBinary()
+					|| $replacement === $uuid->getShortForm(false)
+					|| $replacement === $uuid->getShortForm(true)
+				) {
 					return \sprintf('UUID_TO_BIN(\'%1$s\')', (string) $uuid);
 				}
 

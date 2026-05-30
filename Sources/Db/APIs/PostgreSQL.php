@@ -456,7 +456,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			foreach ($data as $dataRow) {
 				if (\count($indexed_columns) !== \count($dataRow)) {
 						$this->error_backtrace(
-							'Invalid insert query.  Requested columns does not match the number keys on inserted data.',
+							'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
 							'',
 							E_USER_ERROR,
 							__FILE__,
@@ -2626,6 +2626,40 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
+			case 'array_uuid':
+				if (\is_array($replacement)) {
+					if (empty($replacement)) {
+						$this->error_backtrace('Database error, given array of UUID values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					foreach ($replacement as $key => $value) {
+						if ($value instanceof Uuid) {
+							$replacement[$key] = \sprintf('\'%1$s\'::uuid', (string) $value);
+							continue;
+						}
+
+						$uuid = @Uuid::createFromString($value, false);
+
+						if (
+							str_replace(['{', '-', '}'], '', strtolower($value)) === str_replace('-', '', (string) $uuid)
+							|| $value === $uuid->getBinary()
+							|| $value === $uuid->getShortForm(false)
+							|| $value === $uuid->getShortForm(true)
+						) {
+							$replacement[$key] = \sprintf('\'%1$s\'::uuid', (string) $uuid);
+							continue;
+						}
+
+						$this->error_backtrace('Wrong value type sent to the database. UUID expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					return implode(', ', $replacement);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				break;
+
 			case 'date':
 				if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1) {
 					return \sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]) . '::date';
@@ -2675,7 +2709,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				$uuid = @Uuid::createFromString($replacement, false);
 
-				if (\in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
+				if (
+					str_replace(['{', '-', '}'], '', strtolower($replacement)) === str_replace('-', '', (string) $uuid)
+					|| $replacement === $uuid->getBinary()
+					|| $replacement === $uuid->getShortForm(false)
+					|| $replacement === $uuid->getShortForm(true)
+				) {
 					return \sprintf('\'%1$s\'::uuid', (string) $uuid);
 				}
 
