@@ -55,7 +55,7 @@ function template_main()
 		// Show just numbers...?
 		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
 			$list_of_viewers = [
-				Lang::getTxt('number_of_members', [0], file: 'General'),
+				Lang::getTxt('number_of_members', [count(Utils::$context['view_members'])], file: 'General'),
 			];
 		}
 		// Or show the actual people viewing the topic?
