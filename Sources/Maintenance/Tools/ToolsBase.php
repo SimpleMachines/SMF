@@ -650,6 +650,7 @@ abstract class ToolsBase
 	protected function deleteOldSchemaAndMaintenanceFiles(?FtpConnection $ftp): void
 	{
 		if (!isset(Config::$modSettings['smf_version'])) {
+			Db::load();
 			Config::reloadModSettings();
 		}
 
