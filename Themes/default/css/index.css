@@ -1083,6 +1083,7 @@ table.table_grid td {
 	display: none;
 }
 #top_info > li > a {
+	display: inline-flex;
 	align-items: center;
 	background: var(--topinfo-bg);
 	border-color: var(--topinfo-border-color);
@@ -1180,7 +1181,7 @@ table.table_grid td {
 #top_info .amt {
 	inset-inline-end: 0;
 	position: absolute;
-	top: 0;
+	top: 5px;
 }
 /* Profile, alerts, pm, etc... */
 .top_menu {
