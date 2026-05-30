@@ -394,7 +394,7 @@ class Install extends ToolsBase implements ToolsInterface
 			// If we have not found a one, set some defaults.
 			if (!$foundOne) {
 				Maintenance::$context['db'] = [
-					'server' => $db->getDefaultHost(),
+					'server' => $db->getDefaultHost() === '' ? 'localhost' : $db->getDefaultHost(),
 					'user' => $db->getDefaultUser(),
 					'name' => $db->getDefaultName(),
 					'pass' => $db->getDefaultPassword(),
