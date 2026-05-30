@@ -2144,7 +2144,6 @@ h1.forumtitle span#siteslogan {
 .random_news {
 	display: flex;
 	gap: .25em;
-	padding-block: .75em;
 	padding-inline: .25em;
 	text-align: start;
 }
