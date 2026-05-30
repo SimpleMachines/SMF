@@ -290,7 +290,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (str_contains($db_string, '{')) {
 			// Do the quoting and escaping
 			$db_string = preg_replace_callback(
-				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				[
+					// The literal type can have arbitrary content.
+					'~{(literal):([^}]*)}~',
+					// Everything else needs to be a key in $db_values.
+					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				],
 				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
 				$db_string,
 			);
