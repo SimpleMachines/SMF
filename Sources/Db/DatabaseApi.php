@@ -406,7 +406,7 @@ abstract class DatabaseApi
 			// refers to any columns that are not defined in the schema file, then
 			// we need to do a database query.
 			if (array_diff_key($column_values, $column_types[$table_name]) !== []) {
-				foreach ($this->list_columns($table_name, true) as $col) {
+				foreach ($this->list_columns('{db_prefix}' . $table_name, true) as $col) {
 					$column_types[$table_name][$col['name']] = $col['type'];
 				}
 			}
