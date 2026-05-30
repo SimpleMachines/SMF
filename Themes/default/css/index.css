@@ -3750,6 +3750,7 @@ img.smiley {
 	display: flex;
 	justify-content: flex-end;
 	text-transform: capitalize;
+	gap: var(--button-gap);
 }
 
 /* Styles for the quick reply area. */
