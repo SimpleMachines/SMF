@@ -113,25 +113,35 @@ function template_registration_form()
 			<div class="title_bar">
 				<h4 class="titlebg">', Lang::getTxt('required_info', file: 'Login'), '</h4>
 			</div>
+
 			<div>
 				<label for="smf_autov_username">', Lang::getTxt('username', file: 'General'), ':</label>
 			</div>
 			<div>
 				<input type="text" name="user" data-autov="username" size="50" maxlength="25" value="', Utils::$context['username'] ?? '', '">
 			</div>
-			<label><label for="smf_autov_reserve1">', Lang::getTxt('user_email_address', file: 'General'), ':</label></div>
+
+			<div>
+				<label for="smf_autov_reserve1">', Lang::getTxt('user_email_address', file: 'General'), ':</label>
+			</div>
 			<div>
 				<input type="email" name="email" data-autov="reserve1" size="50" value="', Utils::$context['email'] ?? '', '">
-			<label><label for="smf_autov_pwmain">', Lang::getTxt('choose_pass', file: 'General'), ':</label></div>
+			</div>
+
+			<div>
+				<label for="smf_autov_pwmain">', Lang::getTxt('choose_pass', file: 'General'), ':</label>
+			</div>
 			<div>
 				<input type="password" name="passwrd1" data-autov="pwmain" size="50">
 			</div>
 			<div>
 				<label for="smf_autov_pwverify">', Lang::getTxt('verify_pass', file: 'General'), ':</label>
 			</div>
+
 			<div>
 				<input type="password" name="passwrd2" data-autov="pwverify" size="50">
 			</div>
+
 			<div>
 				<label for="notify_announcements">', Lang::getTxt('notify_announcements', file: 'General'), ':</label>
 			</div>
