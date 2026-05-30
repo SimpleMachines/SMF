@@ -752,7 +752,7 @@ class Board implements \ArrayAccess, Routable
 		// Are we saving the changes?
 		if ($save) {
 			foreach ($affected_boards as $board_id) {
-				self::$loaded[$board_id]->save();
+				self::$loaded[$board_id]->save(Board::SAVE_DEFINITION);
 			}
 
 			// Ensure that the order is correct.
@@ -1276,12 +1276,12 @@ class Board implements \ArrayAccess, Routable
 		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
 			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
-				self::$loaded[$moved]->save();
+				self::$loaded[$moved]->save(Board::SAVE_DEFINITION);
 			}
 		}
 
 		// We're ready to save the changes now.
-		$board->save();
+		$board->save(Board::SAVE_DEFINITION | Board::SAVE_MODS | Board::SAVE_GROUPS);
 
 		// If we were moving boards, ensure that the order is correct.
 		if (!empty($moved_boards)) {
