@@ -105,7 +105,7 @@ class Session implements \SessionHandlerInterface
 
 		// Don't bother writing the session for users just browsing
 		// If verification is required, always write the session
-		if ((empty($_REQUEST['action']) || \in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification'])) {
+		if ((empty($_REQUEST['action']) || \in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification']) && !empty(Config::$modSettings['allow_guest_access'])) {
 			return true;
 		}
 
