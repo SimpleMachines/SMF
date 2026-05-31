@@ -204,7 +204,7 @@ class Session implements \SessionHandlerInterface
 		@ini_set('session.use_cookies', '1');
 		@ini_set('url_rewriter.tags', '');
 		@ini_set('arg_separator.output', '&amp;');
-		@ini_set('session.lazy_write', true);
+		@ini_set('session.lazy_write', '1');
 		@ini_set('session.cookie_secure', !empty(Config::$modSettings['secureCookies']));
 
 		// Allows mods to change/add PHP settings
