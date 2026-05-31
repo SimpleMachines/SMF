@@ -2300,12 +2300,20 @@ class Maintenance implements ActionInterface
 	protected static function getDefinedFunctionsInFile(string $file): array
 	{
 		$source = file_get_contents($file);
-		// token_get_all() is too slow so use a nice little regex instead.
-		preg_match_all('/\bnamespace\s++((?P>label)(?:\\\(?P>label))*+)\s*+;|\bclass\s++((?P>label))[\w\s]*+{|\bfunction\s++((?P>label))\s*+\(.*?\)[:\|\w\s]*+{(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/is', $source, $matches, PREG_SET_ORDER);
 
+		if (!str_contains($source, 'function')) {
+			return [];
+		}
+
+		// Remove multiline comments so regex does not
+		// match fake functions/classes inside them.
+		$source = preg_replace('~//[^\h]+|/\*.*?\*/~s', '', $source);
 		$functions = [];
 		$namespace = '';
 		$class = '';
+
+		// token_get_all() is too slow so use a nice little regex instead.
+		preg_match_all('/\b(?:namespace\s+((?P>label)(?:\\\(?P>label))*+)\s*;|(?:class\s+((?P>label))(?:[\s,]|\\\\|(?P>label))*+|function\s+((?P>label))\s*\([^)]*\)\s*(?::[^{]+)?){)(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/i', $source, $matches, PREG_SET_ORDER);
 
 		foreach ($matches as $match) {
 			if (!empty($match[1])) {
