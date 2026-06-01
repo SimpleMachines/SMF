@@ -930,7 +930,7 @@ class Lang
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
 		if (!is_numeric($number)) {
-			throw new \ValueError();
+			return $number;
 		}
 
 		if (\is_string($number)) {
