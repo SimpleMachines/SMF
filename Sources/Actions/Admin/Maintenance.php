@@ -697,7 +697,7 @@ class Maintenance implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData($row['id_member'], ['instant_messages' => $row['real_num']]);
+				User::updateMemberData((int) $row['id_member'], ['instant_messages' => (int) $row['real_num']]);
 			}
 			Db::$db->free_result($request);
 
