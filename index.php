@@ -240,6 +240,30 @@ function smf_main()
 	if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && ($user_info['id'] != $board_info['cur_topic_starter'] || $user_info['is_guest']))
 		fatal_lang_error('not_a_topic', false);
 
+	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
+	$no_stat_actions = array(
+		'about:unknown' => true,
+		'clock' => true,
+		'dlattach' => true,
+		'findmember' => true,
+		'helpadmin' => true,
+		'jsoption' => true,
+		'likes' => true,
+		'modifycat' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
+		'requestmembers' => true,
+		'smstats' => true,
+		'suggest' => true,
+		'uploadAttach' => true,
+		'verificationcode' => true,
+		'viewquery' => true,
+		'viewsmfile' => true,
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
+	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
+
 	// Make sure that our scheduled tasks have been running as intended
 	check_cron();
 
@@ -300,30 +324,6 @@ function smf_main()
 			return 'Display';
 		}
 	}
-
-	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
-	$no_stat_actions = array(
-		'about:unknown' => true,
-		'clock' => true,
-		'dlattach' => true,
-		'findmember' => true,
-		'helpadmin' => true,
-		'jsoption' => true,
-		'likes' => true,
-		'modifycat' => true,
-		'pm' => array('sa' => array('popup')),
-		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
-		'requestmembers' => true,
-		'smstats' => true,
-		'suggest' => true,
-		'uploadAttach' => true,
-		'verificationcode' => true,
-		'viewquery' => true,
-		'viewsmfile' => true,
-		'xmlhttp' => true,
-		'.xml' => true,
-	);
-	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
 	$should_log = !is_filtered_request($no_stat_actions, 'action');
 	if ($should_log)
