@@ -673,8 +673,15 @@ class MessageFormatter
 
 			// Float precision format.
 			if (str_starts_with($stem, '.')) {
-				$significant_integers = \strlen(\strval(\intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				// Special handling if $number is in scientific notation.
+				if (stripos(\strval($number), 'E') !== false) {
+					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+					$significant_integers = max(1, (int) $exponent);
+					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+				} else {
+					$significant_integers = \strlen(\strval(\intval($number + 0)));
+					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				}
 
 				preg_match('/\.(0*)(#*)(\*?)/', $stem, $matches);
 
@@ -724,8 +731,15 @@ class MessageFormatter
 			}
 			// Significant digits format.
 			elseif (str_starts_with($stem, '@')) {
-				$significant_integers = \strlen(\strval(\intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				// Special handling if $number is in scientific notation.
+				if (stripos(\strval($number), 'E') !== false) {
+					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+					$significant_integers = max(1, (int) $exponent);
+					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+				} else {
+					$significant_integers = \strlen(\strval(\intval($number + 0)));
+					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				}
 
 				preg_match('/(@+)(#*)(\*?)/', $stem, $matches);
 
