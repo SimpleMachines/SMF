@@ -948,14 +948,7 @@ class Lang
 			}
 		}
 
-		$skeleton = match (true) {
-			// Told to use a specific number of decimal places.
-			!empty($decimals) => ':: .' . str_repeat('0', $decimals),
-			// Integers are easy.
-			ctype_digit((string) $number) => 'integer',
-			// Floats default to as much precision as necessary.
-			default => ':: .0*',
-		};
+		$skeleton = ':: ' . (!isset($decimals) ? '.*' : 'precision-increment/' . (10 ** -$decimals)) . ' rounding-mode-half-up';
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}
