@@ -662,7 +662,7 @@ class MessageFormatter
 		usort($tokens, fn($a, $b) => array_search(str_starts_with($a[0], '.') || str_starts_with($a[0], '@') ? substr($a[0], 0, 1) : $a[0], $preferred_order) <=> array_search(str_starts_with($b[0], '.') || str_starts_with($b[0], '@') ? substr($b[0], 0, 1) : $b[0], $preferred_order));
 
 		// A few variables that will affect how we manipulate and format numbers below.
-		$round = fn(int|float $number, int $precision = 0) => round($number, $precision, PHP_ROUND_HALF_EVEN);
+		$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_EVEN);
 		$group = 'thousands';
 		$flags = '0';
 
@@ -673,8 +673,15 @@ class MessageFormatter
 
 			// Float precision format.
 			if (str_starts_with($stem, '.')) {
-				$significant_integers = \strlen(\strval(\intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				// Special handling if $number is in scientific notation.
+				if (stripos(\strval($number), 'E') !== false) {
+					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+					$significant_integers = max(1, (int) $exponent);
+					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+				} else {
+					$significant_integers = \strlen(\strval(\intval($number + 0)));
+					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				}
 
 				preg_match('/\.(0*)(#*)(\*?)/', $stem, $matches);
 
@@ -724,8 +731,15 @@ class MessageFormatter
 			}
 			// Significant digits format.
 			elseif (str_starts_with($stem, '@')) {
-				$significant_integers = \strlen(\strval(\intval($number + 0)));
-				$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				// Special handling if $number is in scientific notation.
+				if (stripos(\strval($number), 'E') !== false) {
+					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+					$significant_integers = max(1, (int) $exponent);
+					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+				} else {
+					$significant_integers = \strlen(\strval(\intval($number + 0)));
+					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+				}
 
 				preg_match('/(@+)(#*)(\*?)/', $stem, $matches);
 
@@ -752,44 +766,44 @@ class MessageFormatter
 			} else {
 				switch ($stem) {
 					case 'rounding-mode-ceiling':
-						$round = fn(int|float $number, int $precision = 0) => ceil($number * (10 ** $precision)) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => ceil($number * (10 ** $precision)) / (10 ** $precision);
 						break;
 
 					case 'rounding-mode-floor':
-						$round = fn(int|float $number, int $precision = 0) => floor($number * (10 ** $precision)) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => floor($number * (10 ** $precision)) / (10 ** $precision);
 						break;
 
 					case 'rounding-mode-up':
-						$round = fn(int|float $number, int $precision = 0) => ($number >= 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => ($number >= 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
 						break;
 
 					case 'rounding-mode-down':
-						$round = fn(int|float $number, int $precision = 0) => ($number < 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => ($number < 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
 						break;
 
 					case 'rounding-mode-half-even':
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, PHP_ROUND_HALF_EVEN);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_EVEN);
 						break;
 
 					case 'rounding-mode-half-odd':
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, PHP_ROUND_HALF_ODD);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_ODD);
 						break;
 
 					case 'rounding-mode-half-ceiling':
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, $number >= 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, $number >= 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
 						break;
 
 					case 'rounding-mode-half-floor':
 						$rounding_mode = $number < 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN;
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, $number < 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, $number < 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
 						break;
 
 					case 'rounding-mode-half-down':
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_DOWN);
 						break;
 
 					case 'rounding-mode-half-up':
-						$round = fn(int|float $number, int $precision = 0) => round($number, $precision, PHP_ROUND_HALF_UP);
+						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_UP);
 						break;
 
 					case 'scale':

@@ -930,13 +930,10 @@ class Lang
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
 		if (!is_numeric($number)) {
-			throw new \ValueError();
+			return $number;
 		}
 
-		if (\is_string($number)) {
-			$number = $number + 0;
-		}
-
+		// Get the correct separator characters for the current language.
 		self::$decimal_separator = self::$txt['decimal_separator'] ?? null;
 		self::$digit_group_separator = self::$txt['digit_group_separator'] ?? null;
 
@@ -951,7 +948,14 @@ class Lang
 			}
 		}
 
-		$skeleton = \is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
+		$skeleton = match (true) {
+			// Told to use a specific number of decimal places.
+			!empty($decimals) => ':: .' . str_repeat('0', $decimals),
+			// Integers are easy.
+			ctype_digit((string) $number) => 'integer',
+			// Floats default to as much precision as necessary.
+			default => ':: .0*',
+		};
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}
