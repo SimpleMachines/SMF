@@ -782,7 +782,11 @@ class Lang
 		IntegrationHook::call('integrate_word_censor', [&$text]);
 
 		// Let SpoofDetector help us detect attempts to bypass the word censor.
-		Unicode\SpoofDetector::enhanceWordCensor($text);
+		// This method will temporarily append additional content to the censor
+		// settings if it detects an attempt to bypass the word censor.
+		if (Unicode\SpoofDetector::enhanceWordCensor($text)) {
+			$censor_vulgar = null;
+		}
 
 		// If they haven't yet been loaded, load them.
 		if ($censor_vulgar == null) {
