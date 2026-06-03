@@ -27,6 +27,17 @@ use SMF\Utils;
  */
 class SmileyParser extends Parser
 {
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Default smiley set.
+	 */
+	public static array $default_set = ['>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'];
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -224,7 +235,7 @@ class SmileyParser extends Parser
 				AND s.code IN ({array_string:default_codes})' : '') . '
 			ORDER BY LENGTH(s.code) DESC',
 			[
-				'default_codes' => ['>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'],
+				'default_codes' => self::$default_set,
 				'smiley_set' => $set,
 			],
 		);
