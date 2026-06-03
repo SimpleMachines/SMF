@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Parsers\SmileyParser;
 
 /**
  * Creates the editor input box so that people can write messages to post.
@@ -784,34 +785,38 @@ class Editor implements \ArrayAccess, \Stringable
 
 		Utils::$context['smileys'] = &self::$smileys_toolbar;
 
-		if (User::$me->smiley_set != 'none') {
-			// Cache for longer when customized smiley codes aren't enabled
-			$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
-
-			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null) {
-				$request = Db::$db->query(
-					'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
-					FROM {db_prefix}smileys AS s
-						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
-					WHERE s.hidden IN (0, 2)
-						AND f.smiley_set = {string:smiley_set}' . (empty(Config::$modSettings['smiley_enable']) ? '
-						AND s.code IN ({array_string:default_codes})' : '') . '
-					ORDER BY s.smiley_row, s.smiley_order',
-					[
-						'default_codes' => ['>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'],
-						'smiley_set' => User::$me->smiley_set,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					self::$smileys_toolbar[] = $row;
-				}
-				Db::$db->free_result($request);
-				CacheApi::put('posting_smileys_' . User::$me->smiley_set, self::$smileys_toolbar, $cache_time);
-			} else {
-				self::$smileys_toolbar = $temp;
-			}
+		if (empty(User::$me->smiley_set) || User::$me->smiley_set === 'none') {
+			return;
 		}
+
+		// Cache for longer when customized smiley codes aren't enabled
+		$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
+
+		if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) !== null && \is_array($temp)) {
+			self::$smileys_toolbar = $temp;
+
+			return;
+		}
+
+		$request = Db::$db->query(
+			'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
+			FROM {db_prefix}smileys AS s
+				JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+			WHERE s.hidden IN (0, 2)
+				AND f.smiley_set = {string:smiley_set}' . (empty(Config::$modSettings['smiley_enable']) ? '
+				AND s.code IN ({array_string:default_codes})' : '') . '
+			ORDER BY s.smiley_row, s.smiley_order',
+			[
+				'default_codes' => SmileyParser::$default_set,
+				'smiley_set' => User::$me->smiley_set,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			self::$smileys_toolbar[] = $row;
+		}
+		Db::$db->free_result($request);
+		CacheApi::put('posting_smileys_' . User::$me->smiley_set, self::$smileys_toolbar, $cache_time);
 	}
 
 	/**
