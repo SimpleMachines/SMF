@@ -376,6 +376,9 @@ class Who implements ActionInterface, Routable
 			return [];
 		}
 
+		IntegrationHook::call('integrate_who_allowed', [&self::$allowedActions]);
+
+		// This hook is depreated because it is missing the corerct prefix.
 		IntegrationHook::call('who_allowed', [&self::$allowedActions]);
 
 		if (!\is_array($urls)) {
@@ -642,6 +645,9 @@ class Who implements ActionInterface, Routable
 			Db::$db->free_result($result);
 		}
 
+		IntegrationHook::call('integrate_whos_online_after', [&$url_list, &$data]);
+
+		// This hook is depreated because it is missing the corerct prefix.
 		IntegrationHook::call('whos_online_after', [&$urls, &$data]);
 
 		if (!\is_array($urls)) {
