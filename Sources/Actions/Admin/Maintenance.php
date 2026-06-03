@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
+use SMF\Actions\MessageIndex;
 use SMF\Actions\TopicRemove;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
-use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
@@ -233,37 +233,10 @@ class Maintenance implements ActionInterface
 	public function topics(): void
 	{
 		// Let's load up the boards in case they are useful.
-		Utils::$context['categories'] = [];
-
-		$result = Db::$db->query(
-			'SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-			WHERE {query_see_board}
-				AND redirect = {string:blank_redirect}',
-			[
-				'blank_redirect' => '',
-			],
-			identifier: 'order_by_board_order',
-		);
-
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if (!isset(Utils::$context['categories'][$row['id_cat']])) {
-				Utils::$context['categories'][$row['id_cat']] = [
-					'name' => $row['cat_name'],
-					'boards' => [],
-				];
-			}
-
-			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
-				'id' => $row['id_board'],
-				'name' => $row['name'],
-				'child_level' => $row['child_level'],
-			];
-		}
-		Db::$db->free_result($result);
-
-		Category::sort(Utils::$context['categories']);
+		Utils::$context['categories'] = MessageIndex::getBoardList([
+			'use_permissions' => true,
+			'not_redirection' => true,
+		]);
 
 		if (isset($_GET['done']) && $_GET['done'] == 'purgeold') {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_old', file: 'ManageMaintenance');
@@ -274,6 +247,8 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Oh noes! I'd document this but that would give it away.
+	 *
+	 * @internal
 	 */
 	public function destroy(): void
 	{
