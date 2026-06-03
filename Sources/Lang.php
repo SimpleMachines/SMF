@@ -782,7 +782,11 @@ class Lang
 		IntegrationHook::call('integrate_word_censor', [&$text]);
 
 		// Let SpoofDetector help us detect attempts to bypass the word censor.
-		Unicode\SpoofDetector::enhanceWordCensor($text);
+		// This method will temporarily append additional content to the censor
+		// settings if it detects an attempt to bypass the word censor.
+		if (Unicode\SpoofDetector::enhanceWordCensor($text)) {
+			$censor_vulgar = null;
+		}
 
 		// If they haven't yet been loaded, load them.
 		if ($censor_vulgar == null) {
@@ -930,13 +934,10 @@ class Lang
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
 	{
 		if (!is_numeric($number)) {
-			throw new \ValueError();
+			return $number;
 		}
 
-		if (\is_string($number)) {
-			$number = $number + 0;
-		}
-
+		// Get the correct separator characters for the current language.
 		self::$decimal_separator = self::$txt['decimal_separator'] ?? null;
 		self::$digit_group_separator = self::$txt['digit_group_separator'] ?? null;
 
@@ -951,7 +952,7 @@ class Lang
 			}
 		}
 
-		$skeleton = \is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
+		$skeleton = ':: ' . (!isset($decimals) ? '.*' : 'precision-increment/' . (10 ** -$decimals)) . ' rounding-mode-half-up';
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}

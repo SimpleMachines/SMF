@@ -212,7 +212,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			self::$cache[self::$count]['s'] = ($st = microtime(true)) - TIME_START;
 		}
 
-		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
+		$ret = mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
+
+		// Debugging.
+		if (DebugUtils::isDebugEnabled()) {
+			self::$cache[self::$count]['t'] = microtime(true) - $st;
+		}
 
 		if ($ret === false && empty($db_values['db_error_skip'])) {
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
@@ -237,11 +242,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			ErrorHandler::log(Lang::getTxt('database_error', file: 'General') . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
-		}
-
-		// Debugging.
-		if (DebugUtils::isDebugEnabled()) {
-			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
 		return $ret;
@@ -2579,8 +2579,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// Ignore some errors and strict mode warnings when we are not debugging.
-		mysqli_report(DebugUtils::isDebugEnabled() ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
+		// Available options:
+		// MYSQLI_REPORT_ALL => Set all options on (report all)
+		// MYSQLI_REPORT_ERROR => Report errors from mysqli function calls
+		// MYSQLI_REPORT_INDEX => Report if no index or bad index was used in a query
+		// MYSQLI_REPORT_STRICT => Throw a `mysqli_sql_exception` for errors instead of warnings
+		// MYSQLI_REPORT_OFF => Turns reporting off
+		// This was the default prior to PHP 8.1, and all our code assumes it.
+		mysqli_report(MYSQLI_REPORT_OFF);
 
 		$success = false;
 

@@ -136,11 +136,12 @@ class SpoofDetector
 	 * Prevent spoof characters from bypassing the word censor.
 	 *
 	 * @param string $text The string being censored.
+	 * @return bool Whether a spoof attempt was detected.
 	 */
-	public static function enhanceWordCensor(string $text): void
+	public static function enhanceWordCensor(string $text): bool
 	{
 		if (empty(Config::$modSettings['spoofdetector_censor'])) {
-			return;
+			return false;
 		}
 
 		$vulgar_spoofs = [];
@@ -195,6 +196,8 @@ class SpoofDetector
 			}
 		}
 
+		$spoof_detected = false;
+
 		if (!empty($vulgar_spoofs)) {
 			foreach ($vulgar_spoofs as $key => $spoofwords) {
 				foreach ($spoofwords as $spoofword) {
@@ -203,11 +206,16 @@ class SpoofDetector
 						continue;
 					}
 
+					// Update the censor settings with this new data.
 					Config::$modSettings['censor_vulgar'] .= "\n" . $spoofword;
 					Config::$modSettings['censor_proper'] .= "\n" . $proper[$key];
+
+					$spoof_detected = true;
 				}
 			}
 		}
+
+		return $spoof_detected;
 	}
 
 	/**
