@@ -107,7 +107,13 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->_details['last_member_id'] = $row['id_member'];
 
-			$skeleton = Utils::htmlspecialchars(SpoofDetector::getSkeletonString(html_entity_decode($row['real_name'], ENT_QUOTES)));
+			$name = Utils::entityDecode($row['real_name'], nbsp_to_space: true);
+
+			if (empty(Config::$modSettings['reserveCase'])) {
+				$name = Utils::casefold($name);
+			}
+
+			$skeleton = SpoofDetector::getSkeletonString($name);
 
 			// Don't bother updating if there's been no change.
 			if ($row['spoofdetector_name'] === $skeleton) {
