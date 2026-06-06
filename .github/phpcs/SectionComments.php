@@ -34,6 +34,7 @@ final class SectionComments extends AbstractFixer
 	 *******************/
 
 	public array $comments;
+	public string $comment_regex;
 
 	/****************
 	 * Public methods
@@ -95,6 +96,12 @@ final class SectionComments extends AbstractFixer
 				' *************************/',
 			]),
 		];
+
+		foreach ($this->comments as $type => $string) {
+			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
+		}
+
+		$this->comment_regex = implode('|', $regexes);
 	}
 
 	public function getName(): string
@@ -200,30 +207,24 @@ final class SectionComments extends AbstractFixer
 	protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
 	{
 		// First remove any existing section comments.
-		foreach ($this->comments as $type => $string) {
-			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
-		}
-
 		foreach ($tokens as $key => $token) {
 			if ($token->getName() === 'T_COMMENT') {
-				foreach ($regexes as $type => $regex) {
-					if (preg_match('/^' . $regex . '$/', $token->getContent())) {
-						$tokens->clearAt($key);
+				if (preg_match('/^' . $this->comment_regex . '$/', $token->getContent())) {
+					$tokens->clearAt($key);
 
-						if ($tokens[$key + 1]->isWhitespace()) {
-							$tokens[$key + 1] = new Token([
+					if ($tokens[$key + 1]->isWhitespace()) {
+						$tokens[$key + 1] = new Token([
+							T_WHITESPACE,
+							"\n\n\t",
+						]);
+					} else {
+						$tokens->insertAt(
+							$key + 1,
+							new Token([
 								T_WHITESPACE,
 								"\n\n\t",
-							]);
-						} else {
-							$tokens->insertAt(
-								$key + 1,
-								new Token([
-									T_WHITESPACE,
-									"\n\n\t",
-								]),
-							);
-						}
+							]),
+						);
 					}
 				}
 			}
