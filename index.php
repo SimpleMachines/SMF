@@ -264,18 +264,6 @@ function smf_main()
 	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
-	$should_log = !is_filtered_request($no_stat_actions, 'action');
-	if ($should_log)
-	{
-		// Log this user as online.
-		writeLog();
-
-		// Track forum statistics and hits...?
-		if (!empty($modSettings['hitStats']))
-			trackStats(array('hits' => '+'));
-	}
-	unset($no_stat_actions);
-
 	// Make sure that our scheduled tasks have been running as intended
 	check_cron();
 
@@ -336,6 +324,18 @@ function smf_main()
 			return 'Display';
 		}
 	}
+
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
+	if ($should_log)
+	{
+		// Log this user as online.
+		writeLog();
+
+		// Track forum statistics and hits...?
+		if (!empty($modSettings['hitStats']))
+			trackStats(array('hits' => '+'));
+	}
+	unset($no_stat_actions);
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
