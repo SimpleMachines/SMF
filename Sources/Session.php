@@ -31,6 +31,8 @@ function loadSession()
 	@ini_set('session.use_cookies', true);
 	@ini_set('url_rewriter.tags', '');
 	@ini_set('arg_separator.output', '&amp;');
+	@ini_set('session.lazy_write', true);
+	@ini_set('session.cookie_secure', !empty($modSettings['secureCookies']));
 
 	// Allows mods to change/add PHP settings
 	call_integration_hook('integrate_load_session');
@@ -172,10 +174,17 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	#[\ReturnTypeWillChange]
 	public function write(/*PHP 8.0 string*/$id,/*PHP 8.0 string */ $data): bool
 	{
-		global $smcFunc;
+		global $smcFunc, $scripturl, $context, $modSettings;
+		// Any action that is not dependent on data within the session may be added to this array
+		static $no_writes = array('dlattach');
 
 		// Don't bother writing the session if cookies are disabled; no way to retrieve it later
 		if (empty($_COOKIE))
+			return true;
+
+		// Don't bother writing the session for users just browsing
+		// If verification is required, always write the session
+		if ((empty($_REQUEST['action']) || in_array($_REQUEST['action'], $no_writes, true)) && !empty($scripturl) && empty($context['require_verification']) && !empty($modSettings['allow_guest_access']))
 			return true;
 
 		if (!$this->isValidSessionID($id))
