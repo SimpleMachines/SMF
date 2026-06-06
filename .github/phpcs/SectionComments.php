@@ -188,15 +188,9 @@ final class SectionComments extends AbstractFixer
 		return -110;
 	}
 
-	public function isCandidate(Tokens $tokens): bool
+	public function isCandidate(Tokens $tokens): bool 
 	{
-		foreach ($tokens as $token) {
-			if ($token->isClassy()) {
-				return true;
-			}
-		}
-
-		return false;
+		return $tokens->isAnyTokenKindsFound(Token::getClassyTokenKinds());
 	}
 
 	/******************
