@@ -252,10 +252,12 @@ final class SectionComments extends AbstractFixer
 		$in = [];
 
 		foreach ($tokens as $key => $token) {
+			$name = $token->getName();
+
 			// Build up the list of token types so that we can figure out
 			// which comment type we will want.
 			if (in_array(
-				$token->getName(),
+				$name,
 				empty($in) ? [
 					'T_PUBLIC',
 					'T_PROTECTED',
@@ -268,39 +270,39 @@ final class SectionComments extends AbstractFixer
 					'T_FUNCTION',
 				],
 			)) {
-				$in[$key] = $token->getName();
+				$in[$name] = $key;
 			}
 
 			// Which comment type do we want to insert?
-			if (in_array('T_CONST', $in)) {
+			if (array_key_exists('T_CONST', $in)) {
 				$insert_type = 'const';
-			} elseif ($is_enum && !$exists['case'] && in_array('T_CASE', $in)) {
+			} elseif ($is_enum && !$exists['case'] && array_key_exists('T_CASE', $in)) {
 				$insert_type = 'case';
-			} elseif (in_array('T_VARIABLE', $in)) {
-				if (in_array('T_STATIC', $in)) {
-					if (in_array('T_PUBLIC', $in)) {
+			} elseif (array_key_exists('T_VARIABLE', $in)) {
+				if (array_key_exists('T_STATIC', $in)) {
+					if (array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_property';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_property';
 					}
 				} else {
-					if (in_array('T_PUBLIC', $in)) {
+					if (array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_property';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_property';
 					}
 				}
-			} elseif (in_array('T_FUNCTION', $in)) {
-				if (in_array('T_STATIC', $in)) {
-					if (in_array('T_PUBLIC', $in)) {
+			} elseif (array_key_exists('T_FUNCTION', $in)) {
+				if (array_key_exists('T_STATIC', $in)) {
+					if (array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_method';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_method';
 					}
 				} else {
-					if (in_array('T_PUBLIC', $in)) {
+					if (array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_method';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_method';
 					}
 				}
@@ -310,7 +312,7 @@ final class SectionComments extends AbstractFixer
 				if (!$exists[$insert_type]) {
 					// Start by assuming we want to insert right before the
 					// 'public', 'protected', or 'private' keyword.
-					$insert_at = array_key_first($in);
+					$insert_at = array_first($in);
 
 					// Walk back to include any preceding 'final' or 'readonly'
 					// keywords, as well as any comments or whitespace.
