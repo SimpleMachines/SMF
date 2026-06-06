@@ -235,6 +235,7 @@ final class SectionComments extends AbstractFixer
 		$is_enum = $tokens->isAnyTokenKindsFound([T_ENUM]);
 
 		// Now insert fresh copies of the section comments.
+		$slices = [];
 		$exists = [
 			'case' => false,
 			'const' => false,
@@ -344,10 +345,7 @@ final class SectionComments extends AbstractFixer
 					}
 
 					// Insert our comment.
-					$tokens->insertAt(
-						$insert_at,
-						$to_insert,
-					);
+					$slices[$insert_at] = $to_insert;
 
 					// This comment type has now been done.
 					$exists[$insert_type] = true;
@@ -356,6 +354,11 @@ final class SectionComments extends AbstractFixer
 				$in = [];
 				unset($insert_type);
 			}
+		}
+
+		// Insert comments.
+		if ($slices !== []) {
+			$tokens->insertSlices($slices);
 		}
 	}
 }
