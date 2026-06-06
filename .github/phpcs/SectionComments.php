@@ -232,14 +232,7 @@ final class SectionComments extends AbstractFixer
 		$tokens->clearEmptyTokens();
 
 		// Does this file contain an enumeration?
-		$is_enum = false;
-
-		foreach ($tokens as $token) {
-			if ($token->isGivenKind(T_ENUM)) {
-				$is_enum = true;
-				break;
-			}
-		}
+		$is_enum = $tokens->isAnyTokenKindsFound([T_ENUM]);
 
 		// Now insert fresh copies of the section comments.
 		$exists = [
