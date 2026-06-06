@@ -104,8 +104,6 @@ function is_not_guest($message = '')
 		return;
 
 	// Log what they were trying to do didn't work)
-	if (!empty($modSettings['who_enabled']))
-		$_GET['error'] = 'guest_login';
 	writeLog(true);
 
 	// Just die.
