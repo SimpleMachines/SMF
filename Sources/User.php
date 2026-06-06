@@ -1547,10 +1547,6 @@ class User implements \ArrayAccess
 
 		// Log what they were trying to do that didn't work.
 		if ($log) {
-			if (!empty(Config::$modSettings['who_enabled'])) {
-				$_GET['error'] = 'guest_login';
-			}
-
 			$this->logOnline(true);
 		}
 
