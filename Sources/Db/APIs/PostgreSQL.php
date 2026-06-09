@@ -2621,7 +2621,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = \sprintf('\'%1$s\'', pg_escape_string($this->connection, $value));
+						$replacement[$key] = \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $value));
 					}
 
 					return implode(', ', $replacement);
