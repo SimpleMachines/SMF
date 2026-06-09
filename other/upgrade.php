@@ -3510,22 +3510,27 @@ function upgrade_unserialize($string)
 		$data = @safe_unserialize($string);
 
 		// The serialized data is broken.
-		if ($data === false)
+		// OR... Has strings that are not utf8.
+		if (($data === false) || (mb_check_encoding($string, 'UTF-8') === false))
 		{
 			// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
 			$new_string = preg_replace_callback(
 				'~\bs:(\d+):"(.*?)";(?=$|[bidsaO]:|[{}}]|N;)~s',
 				function ($matches)
 				{
+					// If not utf8, use cheezy-21-encoding, because json_encode ONLY works on utf8
+					// Will decode this after json_encode; utf8 conversion can then proceed properly on the non-utf8 data
+					if (mb_check_encoding($matches[2], 'UTF-8') === false)
+					{
+						$matches[2] = 'czy21enc:' . bin2hex($matches[2]);
+					}
 					return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';
 				},
 				$string
 			);
 
-			// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
-
 			// Did it work?
-			$data = @safe_unserialize($string);
+			$data = @safe_unserialize($new_string);
 		}
 	}
 	// Just a plain string, then.
@@ -3648,7 +3653,23 @@ function serialize_to_json()
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
+						{
 							$new_settings[$var] = json_encode($temp);
+							if ($new_settings[$var] === false)
+								$new_settings[$var] = '';
+							else
+							{
+								// Decode cheezy-21-encoding to preserve non-utf8 strings before utf8 conversion
+								$new_settings[$var] = preg_replace_callback(
+									'~"czy21enc:((?:[0-9a-f]{2})*)"~',
+									function ($matches)
+									{
+										return '"' . hex2bin($matches[1]) . '"';
+									},
+									$new_settings[$var]
+								);
+							}
+						}
 					}
 				}
 
@@ -3686,6 +3707,20 @@ function serialize_to_json()
 						if ($temp !== false)
 						{
 							$row['value'] = json_encode($temp);
+							if ($row['value'] === false)
+								$row['value'] = '';
+							else
+							{
+								// Decode cheezy-21-encoding to preserve non-utf8 strings before utf8 conversion
+								$row['value'] = preg_replace_callback(
+									'~"czy21enc:((?:[0-9a-f]{2})*)"~',
+									function ($matches)
+									{
+										return '"' . hex2bin($matches[1]) . '"';
+									},
+									$row['value']
+								);
+							}
 
 							// Even though we have all values from the table, UPDATE is still faster than REPLACE
 							$smcFunc['db_query']('', '
@@ -3762,6 +3797,20 @@ function serialize_to_json()
 								}
 
 								$row[$col] = json_encode($temp);
+								if ($row[$col] === false)
+									$row[$col] = '';
+								else
+								{
+									// Decode cheezy-21-encoding to preserve non-utf8 strings before utf8 conversion
+									$row[$col] = preg_replace_callback(
+										'~"czy21enc:((?:[0-9a-f]{2})*)"~',
+										function ($matches)
+										{
+											return '"' . hex2bin($matches[1]) . '"';
+										},
+										$row[$col]
+									);
+								}
 
 								// Build our SET string and variables array
 								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
