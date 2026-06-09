@@ -34,6 +34,7 @@ final class SectionComments extends AbstractFixer
 	 *******************/
 
 	public array $comments;
+
 	public string $comment_regex;
 
 	/****************
@@ -195,7 +196,7 @@ final class SectionComments extends AbstractFixer
 		return -110;
 	}
 
-	public function isCandidate(Tokens $tokens): bool 
+	public function isCandidate(Tokens $tokens): bool
 	{
 		return $tokens->isAnyTokenKindsFound(Token::getClassyTokenKinds());
 	}
@@ -257,7 +258,7 @@ final class SectionComments extends AbstractFixer
 
 			// Build up the list of token types so that we can figure out
 			// which comment type we will want.
-			if (in_array(
+			if (\in_array(
 				$name,
 				empty($in) ? [
 					'T_PUBLIC',
@@ -275,35 +276,35 @@ final class SectionComments extends AbstractFixer
 			}
 
 			// Which comment type do we want to insert?
-			if (array_key_exists('T_CONST', $in)) {
+			if (\array_key_exists('T_CONST', $in)) {
 				$insert_type = 'const';
-			} elseif ($is_enum && !$exists['case'] && array_key_exists('T_CASE', $in)) {
+			} elseif ($is_enum && !$exists['case'] && \array_key_exists('T_CASE', $in)) {
 				$insert_type = 'case';
-			} elseif (array_key_exists('T_VARIABLE', $in)) {
-				if (array_key_exists('T_STATIC', $in)) {
-					if (array_key_exists('T_PUBLIC', $in)) {
+			} elseif (\array_key_exists('T_VARIABLE', $in)) {
+				if (\array_key_exists('T_STATIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_property';
-					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_property';
 					}
 				} else {
-					if (array_key_exists('T_PUBLIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_property';
-					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_property';
 					}
 				}
-			} elseif (array_key_exists('T_FUNCTION', $in)) {
-				if (array_key_exists('T_STATIC', $in)) {
-					if (array_key_exists('T_PUBLIC', $in)) {
+			} elseif (\array_key_exists('T_FUNCTION', $in)) {
+				if (\array_key_exists('T_STATIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_method';
-					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_method';
 					}
 				} else {
-					if (array_key_exists('T_PUBLIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_method';
-					} elseif (array_key_exists('T_PROTECTED', $in) || array_key_exists('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_method';
 					}
 				}
