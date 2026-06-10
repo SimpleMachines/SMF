@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\OutputTypeInterface;
@@ -135,6 +136,11 @@ class AutoSuggest implements ActionInterface, Routable
 				'children' => [],
 			],
 		];
+
+		// Can't search for buddies if that feature is disabled.
+		if (empty(Config::$modSettings['enable_buddylist'])) {
+			unset($this->search_param['buddies']);
+		}
 
 		// Find the member.
 		$request = Db::$db->query(

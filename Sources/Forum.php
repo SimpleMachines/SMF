@@ -629,32 +629,6 @@ class Forum
 			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
-		// Don't log if this is an attachment, avatar, toggle of editor buttons,
-		// theme option, XML feed, popup, etc.
-		if (
-			self::$current_action?->canBeLogged() === true
-			|| (
-				self::$current_action === null
-				&& !QueryString::isFilteredRequest(self::$unlogged_actions, 'action')
-			)
-		) {
-			// Log this user as online.
-			User::$me->logOnline();
-
-			// Track forum statistics and hits...?
-			if (!empty(Config::$modSettings['hitStats'])) {
-				Logging::trackStats(['hits' => '+']);
-			}
-
-			// Login cookies should only expire after a period of inactivity.
-			// Since doing something worthy of logging means this member is
-			// actively engaged with the forum right now, refresh their login
-			// cookie in order to reset the countdown to its expiry date.
-			if (!User::$me->is_guest) {
-				Cookie::updateLoginCookieExpiry();
-			}
-		}
-
 		// Make sure that our scheduled tasks have been running as intended.
 		Config::checkCron();
 
@@ -681,6 +655,32 @@ class Forum
 			)
 		) {
 			User::$me->kickIfGuest(null, false);
+		}
+
+		// Don't log if this is an attachment, avatar, toggle of editor buttons,
+		// theme option, XML feed, popup, etc.
+		if (
+			self::$current_action?->canBeLogged() === true
+			|| (
+				self::$current_action === null
+				&& !QueryString::isFilteredRequest(self::$unlogged_actions, 'action')
+			)
+		) {
+			// Log this user as online.
+			User::$me->logOnline();
+
+			// Track forum statistics and hits...?
+			if (!empty(Config::$modSettings['hitStats'])) {
+				Logging::trackStats(['hits' => '+']);
+			}
+
+			// Login cookies should only expire after a period of inactivity.
+			// Since doing something worthy of logging means this member is
+			// actively engaged with the forum right now, refresh their login
+			// cookie in order to reset the countdown to its expiry date.
+			if (!User::$me->is_guest) {
+				Cookie::updateLoginCookieExpiry();
+			}
 		}
 	}
 

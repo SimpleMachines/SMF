@@ -80,7 +80,7 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Set a few minor things.
 		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
-		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
+		Utils::$context['show_buddies'] = !empty(User::$me->buddies) && !empty(Config::$modSettings['enable_buddylist']);
 		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
 
 		// Retrieve the categories and boards.

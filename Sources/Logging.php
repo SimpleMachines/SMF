@@ -669,7 +669,7 @@ class Logging
 			}
 
 			// Buddies get counted and highlighted.
-			$is_buddy = \in_array($row['id_member'], User::$me->buddies);
+			$is_buddy = !empty(Config::$modSettings['enable_buddylist']) && \in_array($row['id_member'], User::$me->buddies);
 
 			if ($is_buddy) {
 				$membersOnlineStats['num_buddies']++;

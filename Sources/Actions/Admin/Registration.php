@@ -609,6 +609,8 @@ class Registration implements ActionInterface
 
 			$_POST['reserved'] = Utils::normalize($_POST['reserved']);
 
+			$reserve_case = Config::$modSettings['reserveCase'];
+
 			// Set all the options....
 			Config::updateModSettings([
 				'reserveWord' => (int) !empty($_POST['matchword']),
@@ -619,6 +621,28 @@ class Registration implements ActionInterface
 			]);
 
 			Utils::$context['saved_successful'] = true;
+
+			// If the case setting changed, must rebuild the spoofdetector_name
+			// values in the members table.
+			if ($reserve_case != Config::$modSettings['reserveCase']) {
+				Db::$db->insert(
+					'insert',
+					'{db_prefix}background_tasks',
+					[
+						'task_class' => 'string',
+						'task_data' => 'string',
+						'claimed_time' => 'int',
+					],
+					[
+						[
+							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							json_encode(['last_member_id' => 0]),
+							0,
+						],
+					],
+					['id_task'],
+				);
+			}
 		}
 
 		// Get the reserved word options and words.

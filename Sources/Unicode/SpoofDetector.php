@@ -228,7 +228,16 @@ class SpoofDetector
 	 */
 	public static function checkReservedName(string $name, bool $fatal = false): bool
 	{
-		$skeleton = self::getSkeletonString(html_entity_decode($name, ENT_QUOTES));
+		// For ease of comparison, decode any entities.
+		$name = Utils::entityDecode($name, nbsp_to_space: true);
+
+		// Do we want caseless comparison?
+		if (empty(Config::$modSettings['reserveCase'])) {
+			$name = Utils::casefold($name);
+		}
+
+		// Get the "skeleton" for this name.
+		$skeleton = self::getSkeletonString($name);
 
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
@@ -241,19 +250,19 @@ class SpoofDetector
 				continue;
 			}
 
-			// The admin might've used entities too, level the playing field.
-			$reserved_check = html_entity_decode($reserved, ENT_QUOTES);
+			// The admin might've used entities too, so level the playing field.
+			$reserved_check = Utils::entityDecode($reserved, nbsp_to_space: true);
 
 			// Case sensitive name?
 			if (empty(Config::$modSettings['reserveCase'])) {
-				$reserved_check = Utils::strtolower($reserved_check);
+				$reserved_check = Utils::casefold($reserved_check);
 			}
 
 			$reserved_skeleton = self::getSkeletonString($reserved_check);
 
 			// Skeletons match.
 			if ($skeleton == $reserved_skeleton) {
-				$homograph_names[] = $reserved_check;
+				$homograph_names[$reserved] = $reserved_check;
 			}
 			// Skeleton of the name includes skeleton of a reserved name.
 			elseif (
@@ -324,6 +333,14 @@ class SpoofDetector
 	 */
 	public static function checkSimilarMemberName(string $name, int $id_member = 0, bool $fatal = false): bool
 	{
+		$name = Utils::entityDecode($name, nbsp_to_space: true);
+
+		if (empty(Config::$modSettings['reserveCase'])) {
+			$name = Utils::casefold($name);
+		}
+
+		$skeleton = self::getSkeletonString($name);
+
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
@@ -335,12 +352,18 @@ class SpoofDetector
 				AND id_member != {int:current_member}') . '',
 			[
 				'current_member' => $id_member,
-				'skeleton' => Utils::htmlspecialchars(self::getSkeletonString(html_entity_decode($name, ENT_QUOTES))),
+				'skeleton' => $skeleton,
 			],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$homograph_names[] = html_entity_decode($row['real_name'], ENT_QUOTES);
+			$real_name = Utils::entityDecode($row['real_name'], nbsp_to_space: true);
+
+			if (empty(Config::$modSettings['reserveCase'])) {
+				$real_name = Utils::casefold($real_name);
+			}
+
+			$homograph_names[$row['real_name']] = $real_name;
 		}
 
 		Db::$db->free_result($request);
@@ -363,21 +386,32 @@ class SpoofDetector
 	 */
 	public static function checkSimilarGroupName(string $name, bool $fatal = false): bool
 	{
-		$skeleton = self::getSkeletonString(html_entity_decode($name, ENT_QUOTES));
+		$name = Utils::entityDecode($name, nbsp_to_space: true);
+
+		if (empty(Config::$modSettings['reserveCase'])) {
+			$name = Utils::casefold($name);
+		}
+
+		$skeleton = self::getSkeletonString($name);
 
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
 		// Get all the membergroup names.
 		$request = Db::$db->query(
-			'SELECT group_name AS name
+			'SELECT group_name
 			FROM {db_prefix}membergroups',
-			[],
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if ($skeleton === self::getSkeletonString(html_entity_decode($row['name'], ENT_QUOTES))) {
-				$homograph_names[] = $row['name'];
+			$group_name = Utils::entityDecode($row['group_name'], nbsp_to_space: true);
+
+			if (empty(Config::$modSettings['reserveCase'])) {
+				$group_name = Utils::casefold($group_name);
+			}
+
+			if ($skeleton === self::getSkeletonString($group_name)) {
+				$homograph_names[$row['group_name']] = $group_name;
 			}
 		}
 		Db::$db->free_result($request);
@@ -407,7 +441,7 @@ class SpoofDetector
 	{
 		$name_script_set = self::resolveScriptSet($name);
 
-		foreach ($homograph_names as $homograph_name) {
+		foreach ($homograph_names as $orig => $homograph_name) {
 			$homograph_name_script_set = self::resolveScriptSet($homograph_name);
 
 			// If they are mixed script confusables, reject.
@@ -417,7 +451,7 @@ class SpoofDetector
 				&& array_intersect($name_script_set, $homograph_name_script_set) === []
 			) {
 				if ($fatal) {
-					ErrorHandler::fatalLang('username_reserved', 'password', [$homograph_name]);
+					ErrorHandler::fatalLang('username_reserved', 'password', [$orig]);
 				}
 
 				return true;
@@ -436,7 +470,7 @@ class SpoofDetector
 			// This takes care of "ǉeto" vs. "ljeto".
 			if ($name_kc === $homograph_name_kc) {
 				if ($fatal) {
-					ErrorHandler::fatalLang('username_reserved', 'password', [$homograph_name]);
+					ErrorHandler::fatalLang('username_reserved', 'password', [$orig]);
 				}
 
 				return true;
@@ -449,7 +483,7 @@ class SpoofDetector
 			// This takes care of "Bogden" vs. "Boɡden".
 			if (!preg_match('~^[' . $regexes['Allowed'] . ']*$~u', $name_kc) || !preg_match('~^[' . $regexes['Allowed'] . ']*$~u', $homograph_name_kc)) {
 				if ($fatal) {
-					ErrorHandler::fatalLang('username_reserved', 'password', [$homograph_name]);
+					ErrorHandler::fatalLang('username_reserved', 'password', [$orig]);
 				}
 
 				return true;

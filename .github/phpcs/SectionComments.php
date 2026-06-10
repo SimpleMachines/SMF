@@ -35,6 +35,8 @@ final class SectionComments extends AbstractFixer
 
 	public array $comments;
 
+	public string $comment_regex;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -95,6 +97,12 @@ final class SectionComments extends AbstractFixer
 				' *************************/',
 			]),
 		];
+
+		foreach ($this->comments as $type => $string) {
+			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
+		}
+
+		$this->comment_regex = implode('|', $regexes);
 	}
 
 	public function getName(): string
@@ -190,13 +198,7 @@ final class SectionComments extends AbstractFixer
 
 	public function isCandidate(Tokens $tokens): bool
 	{
-		foreach ($tokens as $token) {
-			if ($token->isClassy()) {
-				return true;
-			}
-		}
-
-		return false;
+		return $tokens->isAnyTokenKindsFound(Token::getClassyTokenKinds());
 	}
 
 	/******************
@@ -206,30 +208,24 @@ final class SectionComments extends AbstractFixer
 	protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
 	{
 		// First remove any existing section comments.
-		foreach ($this->comments as $type => $string) {
-			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
-		}
-
 		foreach ($tokens as $key => $token) {
 			if ($token->getName() === 'T_COMMENT') {
-				foreach ($regexes as $type => $regex) {
-					if (preg_match('/^' . $regex . '$/', $token->getContent())) {
-						$tokens->clearAt($key);
+				if (preg_match('/^' . $this->comment_regex . '$/', $token->getContent())) {
+					$tokens->clearAt($key);
 
-						if ($tokens[$key + 1]->isWhitespace()) {
-							$tokens[$key + 1] = new Token([
+					if ($tokens[$key + 1]->isWhitespace()) {
+						$tokens[$key + 1] = new Token([
+							T_WHITESPACE,
+							"\n\n\t",
+						]);
+					} else {
+						$tokens->insertAt(
+							$key + 1,
+							new Token([
 								T_WHITESPACE,
 								"\n\n\t",
-							]);
-						} else {
-							$tokens->insertAt(
-								$key + 1,
-								new Token([
-									T_WHITESPACE,
-									"\n\n\t",
-								]),
-							);
-						}
+							]),
+						);
 					}
 				}
 			}
@@ -238,16 +234,10 @@ final class SectionComments extends AbstractFixer
 		$tokens->clearEmptyTokens();
 
 		// Does this file contain an enumeration?
-		$is_enum = false;
-
-		foreach ($tokens as $token) {
-			if ($token->isGivenKind(T_ENUM)) {
-				$is_enum = true;
-				break;
-			}
-		}
+		$is_enum = $tokens->isAnyTokenKindsFound([T_ENUM]);
 
 		// Now insert fresh copies of the section comments.
+		$slices = [];
 		$exists = [
 			'case' => false,
 			'const' => false,
@@ -264,10 +254,12 @@ final class SectionComments extends AbstractFixer
 		$in = [];
 
 		foreach ($tokens as $key => $token) {
+			$name = $token->getName();
+
 			// Build up the list of token types so that we can figure out
 			// which comment type we will want.
-			if (in_array(
-				$token->getName(),
+			if (\in_array(
+				$name,
 				empty($in) ? [
 					'T_PUBLIC',
 					'T_PROTECTED',
@@ -280,39 +272,39 @@ final class SectionComments extends AbstractFixer
 					'T_FUNCTION',
 				],
 			)) {
-				$in[$key] = $token->getName();
+				$in[$name] = $key;
 			}
 
 			// Which comment type do we want to insert?
-			if (in_array('T_CONST', $in)) {
+			if (\array_key_exists('T_CONST', $in)) {
 				$insert_type = 'const';
-			} elseif ($is_enum && !$exists['case'] && in_array('T_CASE', $in)) {
+			} elseif ($is_enum && !$exists['case'] && \array_key_exists('T_CASE', $in)) {
 				$insert_type = 'case';
-			} elseif (in_array('T_VARIABLE', $in)) {
-				if (in_array('T_STATIC', $in)) {
-					if (in_array('T_PUBLIC', $in)) {
+			} elseif (\array_key_exists('T_VARIABLE', $in)) {
+				if (\array_key_exists('T_STATIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_property';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_property';
 					}
 				} else {
-					if (in_array('T_PUBLIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_property';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_property';
 					}
 				}
-			} elseif (in_array('T_FUNCTION', $in)) {
-				if (in_array('T_STATIC', $in)) {
-					if (in_array('T_PUBLIC', $in)) {
+			} elseif (\array_key_exists('T_FUNCTION', $in)) {
+				if (\array_key_exists('T_STATIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_static_method';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_static_method';
 					}
 				} else {
-					if (in_array('T_PUBLIC', $in)) {
+					if (\array_key_exists('T_PUBLIC', $in)) {
 						$insert_type = 'public_method';
-					} elseif (in_array('T_PROTECTED', $in) || in_array('T_PRIVATE', $in)) {
+					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
 						$insert_type = 'internal_method';
 					}
 				}
@@ -322,7 +314,7 @@ final class SectionComments extends AbstractFixer
 				if (!$exists[$insert_type]) {
 					// Start by assuming we want to insert right before the
 					// 'public', 'protected', or 'private' keyword.
-					$insert_at = array_key_first($in);
+					$insert_at = array_first($in);
 
 					// Walk back to include any preceding 'final' or 'readonly'
 					// keywords, as well as any comments or whitespace.
@@ -357,10 +349,7 @@ final class SectionComments extends AbstractFixer
 					}
 
 					// Insert our comment.
-					$tokens->insertAt(
-						$insert_at,
-						$to_insert,
-					);
+					$slices[$insert_at] = $to_insert;
 
 					// This comment type has now been done.
 					$exists[$insert_type] = true;
@@ -369,6 +358,11 @@ final class SectionComments extends AbstractFixer
 				$in = [];
 				unset($insert_type);
 			}
+		}
+
+		// Insert comments.
+		if ($slices !== []) {
+			$tokens->insertSlices($slices);
 		}
 	}
 }

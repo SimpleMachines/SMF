@@ -861,7 +861,7 @@ class Display implements ActionInterface, Routable
 					$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 				}
 
-				$is_buddy = \in_array($row['id_member'], User::$me->buddies);
+				$is_buddy = !empty(Config::$modSettings['enable_buddylist']) && \in_array($row['id_member'], User::$me->buddies);
 
 				if ($is_buddy) {
 					$link = '<strong>' . $link . '</strong>';

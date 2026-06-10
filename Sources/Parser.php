@@ -230,11 +230,11 @@ abstract class Parser
 	public static string $locale;
 
 	/**
-	 * @var int
+	 * @var float
 	 *
 	 * User's time offset from UTC.
 	 */
-	public static int $time_offset;
+	public static float $time_offset;
 
 	/**
 	 * @var string

@@ -95,8 +95,17 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function write(string $session_id, string $data): bool
 	{
+		// Any action that is not dependent on data within the session may be added to this array
+		static $no_writes = ['dlattach'];
+
 		// Don't bother writing the session if cookies are disabled
 		if (empty($_COOKIE)) {
+			return true;
+		}
+
+		// Don't bother writing the session for users just browsing
+		// If verification is required, always write the session
+		if ((empty($_REQUEST['action']) || \in_array($_REQUEST['action'], $no_writes, true)) && !empty(Config::$scripturl) && empty(Utils::$context['require_verification']) && !empty(Config::$modSettings['allow_guest_access'])) {
 			return true;
 		}
 
@@ -195,6 +204,8 @@ class Session implements \SessionHandlerInterface
 		@ini_set('session.use_cookies', '1');
 		@ini_set('url_rewriter.tags', '');
 		@ini_set('arg_separator.output', '&amp;');
+		@ini_set('session.lazy_write', '1');
+		@ini_set('session.cookie_secure', !empty(Config::$modSettings['secureCookies']));
 
 		// Allows mods to change/add PHP settings
 		IntegrationHook::call('integrate_load_session');
