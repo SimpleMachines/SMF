@@ -1694,7 +1694,7 @@ class ServerSideIncludes
 
 		$bracketList = [];
 
-		if (!empty(User::$me->buddies)) {
+		if (!empty(Config::$modSettings['enable_buddylist']) && !empty(User::$me->buddies)) {
 			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']], file: 'General');
 		}
 

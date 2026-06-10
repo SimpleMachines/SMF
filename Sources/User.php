@@ -347,11 +347,11 @@ class User implements \ArrayAccess
 	public string $timezone;
 
 	/**
-	 * @var int
+	 * @var float
 	 *
 	 * The UTC offset of the user's time zone.
 	 */
-	public int $time_offset;
+	public float $time_offset;
 
 	/**
 	 * @var int
@@ -1026,6 +1026,7 @@ class User implements \ArrayAccess
 				foreach (['actual_theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'] as $dir => $url) {
 					if (file_exists(Theme::$current->settings[$dir] . '/images/membericons/' . $this->icons[1])) {
 						$group_icon_url = Theme::$current->settings[$url] . '/membericons/' . $this->icons[1];
+						break;
 					}
 				}
 			}
@@ -1038,8 +1039,8 @@ class User implements \ArrayAccess
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
 				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
-				'is_buddy' => \in_array($this->id, self::$me->buddies),
-				'is_reverse_buddy' => \in_array(self::$me->id, $this->buddies),
+				'is_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array($this->id, self::$me->buddies),
+				'is_reverse_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
@@ -1861,8 +1862,8 @@ class User implements \ArrayAccess
 		}
 
 		// Fix up the banning permissions.
-		if (isset($this->permissions_set)) {
-			$this->permissions_set->applyBansAndWarnings();
+		foreach ($this->permission_sets as $set) {
+			$set->applyBansAndWarnings();
 		}
 	}
 
@@ -2723,7 +2724,7 @@ class User implements \ArrayAccess
 		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 		// If they aren't ignoring any boards then they want to see all the boards they can see
-		if (empty($ignoreboards)) {
+		if (empty(Config::$modSettings['allow_ignore_boards']) || empty($this->ignoreboards)) {
 			$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
 			$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
 			$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
@@ -2882,7 +2883,7 @@ class User implements \ArrayAccess
 					$val = max(0, $val);
 				}
 
-				User::$loaded[$member]->set([$var, $val]);
+				User::$loaded[$member]->set([$var => $val]);
 			}
 		}
 
@@ -3461,7 +3462,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check for similar existing member names.
-		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member ?? 0, $fatal)) {
 			return true;
 		}
 
@@ -3619,7 +3620,7 @@ class User implements \ArrayAccess
 				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',
 			array_merge($where_params, [
-				'buddy_list' => self::$me->buddies,
+				'buddy_list' => !empty(Config::$modSettings['enable_buddylist']) ? self::$me->buddies : [],
 				'limit' => $max,
 				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
 			]),
@@ -3945,7 +3946,7 @@ class User implements \ArrayAccess
 		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
 
 		// Buddies and personal messages.
-		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
+		$this->buddies = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
 		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
 		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
 		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
