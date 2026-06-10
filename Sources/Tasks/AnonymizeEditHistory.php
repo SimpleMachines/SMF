@@ -56,7 +56,6 @@ class AnonymizeEditHistory extends BackgroundTask
 
 		if (Db::$title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg, edit_history
 				FROM {db_prefix}messages
 				WHERE edit_history @? {string:jsonpath}
@@ -69,7 +68,6 @@ class AnonymizeEditHistory extends BackgroundTask
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg, edit_history
 				FROM {db_prefix}messages
 				WHERE {int:member} MEMBER OF (edit_history->{string:path})
@@ -98,7 +96,6 @@ class AnonymizeEditHistory extends BackgroundTask
 			$row['edit_history'] = json_encode($row['edit_history']);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET edit_history = {string:edit_history}
 				WHERE id_msg = {int:id_msg}',
