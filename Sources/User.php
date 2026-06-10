@@ -2724,7 +2724,7 @@ class User implements \ArrayAccess
 		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 		// If they aren't ignoring any boards then they want to see all the boards they can see
-		if (empty(Config::$modSettings['allow_ignore_boards']) || empty($this->ignoreboards)) {
+		if (empty($ignoreboards)) {
 			$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
 			$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
 			$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
