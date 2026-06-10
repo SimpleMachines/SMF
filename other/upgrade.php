@@ -3445,31 +3445,6 @@ function ConvertUtf8()
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('db_character_set' => 'utf8'));
 
-		// The conversion might have messed up some serialized strings. Fix them!
-		$request = $smcFunc['db_query']('', '
-			SELECT id_action, extra
-			FROM {db_prefix}log_actions
-			WHERE action IN ({string:remove}, {string:delete})',
-			array(
-				'remove' => 'remove',
-				'delete' => 'delete',
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (@safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_actions
-					SET extra = {string:extra}
-					WHERE id_action = {int:current_action}',
-					array(
-						'current_action' => $row['id_action'],
-						'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
-					)
-				);
-		}
-		$smcFunc['db_free_result']($request);
-
 		if ($upcontext['dropping_index'] && $command_line)
 		{
 			echo "\n" . '', $txt['upgrade_fulltext_error'], '';
