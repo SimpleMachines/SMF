@@ -1055,7 +1055,7 @@ class Post2 extends Post
 		Utils::$context['poster_id'] = $this->existing_msg->id_member;
 
 		// Can they approve it?
-		$approve_checked = (!empty($REQUEST['approve']) ? true : false);
+		$approve_checked = (!empty($_REQUEST['approve']) ? true : false);
 		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved > 0) : true;
 
 		if (!User::$me->allowedTo('moderate_forum') || !$this->authorIsGuest) {
