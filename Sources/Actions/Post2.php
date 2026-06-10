@@ -658,7 +658,7 @@ class Post2 extends Post
 		}
 
 		// Log an act of moderation - modifying.
-		if (!empty($moderationAction)) {
+		if (!empty($this->moderation_action)) {
 			Logging::logAction('modify', ['topic' => $this->existing_msg->id_topic, 'message' => $this->existing_msg->id, 'member' => $this->existing_msg->id_member, 'board' => $this->existing_msg->id_board]);
 		}
 
@@ -1031,13 +1031,13 @@ class Post2 extends Post
 			User::$me->isAllowedTo('modify_replies');
 
 			// If you're modifying a reply, I say it better be logged...
-			$moderationAction = true;
+			$this->moderation_action = true;
 		} else {
 			User::$me->isAllowedTo('modify_any');
 
 			// Log it, assuming you're not modifying your own post.
 			if ($this->existing_msg->id_member != User::$me->id) {
-				$moderationAction = true;
+				$this->moderation_action = true;
 			}
 		}
 
