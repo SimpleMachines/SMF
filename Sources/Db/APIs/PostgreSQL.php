@@ -751,7 +751,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// If we are in a transaction, abort.
-		if (!empty($inTransaction)) {
+		if (!empty($this->inTransaction)) {
 			$this->transaction('rollback');
 		}
 
