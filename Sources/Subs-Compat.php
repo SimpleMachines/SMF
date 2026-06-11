@@ -10880,7 +10880,11 @@ function ssi_fetchPosts(
 	bool $override_permissions = false,
 	string $output_method = 'echo',
 ): ?array {
-	return SMF\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
+	return SMF\ServerSideIncludes::fetchPosts(
+		$post_ids,
+		$override_permissions,
+		$output_method,
+	);
 }
 
 /**
@@ -10946,7 +10950,12 @@ function ssi_recentTopics(
 	?array $include_boards = null,
 	string $output_method = 'echo',
 ): ?array {
-	return SMF\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
+	return SMF\ServerSideIncludes::recentTopics(
+		$num_recent,
+		$exclude_boards,
+		$include_boards,
+		$output_method,
+	);
 }
 
 /**
@@ -10996,8 +11005,11 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo'): ?array
  * @return ?array Either displays a list of topics or returns an array of
  *    info about them, depending on output_method.
  */
-function ssi_topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
-{
+function ssi_topTopics(
+	string $type = 'replies',
+	int $num_topics = 10,
+	string $output_method = 'echo',
+): ?array {
 	return SMF\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
 }
 
@@ -11428,8 +11440,11 @@ function ssi_recentEvents(int $max_events = 7, string $output_method = 'echo'): 
  *    user ID.
  * @return bool Whether or not the password is correct.
  */
-function ssi_checkPassword(?int $id = null, ?string $password = null, bool $is_username = false): bool
-{
+function ssi_checkPassword(
+	?int $id = null,
+	?string $password = null,
+	bool $is_username = false,
+): bool {
 	return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
 }
 
@@ -11448,9 +11463,16 @@ function ssi_checkPassword(?int $id = null, ?string $password = null, bool $is_u
  * @return ?array Displays a table of attachment info or returns an array
  *    containing info about the attachments, depending on output_method.
  */
-function ssi_recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::recentAttachments($num_attachments, $attachment_ext, $output_method);
+function ssi_recentAttachments(
+	int $num_attachments = 10,
+	array $attachment_ext = [],
+	string $output_method = 'echo',
+): ?array {
+	return SMF\ServerSideIncludes::recentAttachments(
+		$num_attachments,
+		$attachment_ext,
+		$output_method,
+	);
 }
 
 /***************************
