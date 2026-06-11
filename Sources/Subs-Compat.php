@@ -11487,69 +11487,75 @@ if (
  ***************************/
 
 /*
- * Prevent fatal errors under PHP 8 when a disabled internal function is called.
+ * Prevent fatal errors under PHP 8 when disabled internal functions are called.
  *
  * Before PHP 8, calling a disabled internal function merely generated a
  * warning that could be easily suppressed by the @ operator. But as of PHP 8
  * a disabled internal function is treated like it is undefined, which means
  * a fatal error will be thrown and execution will halt. SMF expects the old
  * behaviour, so these no-op polyfills make sure that is what happens.
+ *
+ * This section contains compatibility functions that meet the following
+ * conditions:
+ *
+ * 1. SMF assumes they are defined, even if disabled. Note that prior to
+ *    PHP 8, this was always true for internal functions.
+ *
+ * 2. Some hosts are known to disable them.
+ *
+ * 3. SMF can get by without them (as opposed to missing functions that
+ *    really SHOULD cause execution to halt).
  */
 if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
-	// This is wrapped in a closure to keep the global namespace clean.
-	call_user_func(function () {
-		/*
-		 * This array contains function names that meet the following conditions:
-		 *
-		 * 1. SMF assumes they are defined, even if disabled. Note that prior to
-		 *    PHP 8, this was always true for internal functions.
-		 *
-		 * 2. Some hosts are known to disable them.
-		 *
-		 * 3. SMF can get by without them (as opposed to missing functions that
-		 *    really SHOULD cause execution to halt).
-		 */
-		$optional_funcs = [
-			'set_time_limit',
-		];
-
-		foreach ($optional_funcs as $func) {
-			if (!function_exists($func)) {
-				eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled", E_USER_WARNING); }');
-			}
+	if (!function_exists('set_time_limit')) {
+		function set_time_limit(int $seconds): bool
+		{
+			return false;
 		}
-	});
+	}
 }
 
 /*****************
  * Polyfills, etc.
  *****************/
 
+if (!defined('IDNA_DEFAULT')) {
+	define('IDNA_DEFAULT', 0);
+}
+
+if (!defined('IDNA_ALLOW_UNASSIGNED')) {
+	define('IDNA_ALLOW_UNASSIGNED', 1);
+}
+
+if (!defined('IDNA_USE_STD3_RULES')) {
+	define('IDNA_USE_STD3_RULES', 2);
+}
+
+if (!defined('IDNA_CHECK_BIDI')) {
+	define('IDNA_CHECK_BIDI', 4);
+}
+
+if (!defined('IDNA_CHECK_CONTEXTJ')) {
+	define('IDNA_CHECK_CONTEXTJ', 8);
+}
+
+if (!defined('IDNA_NONTRANSITIONAL_TO_ASCII')) {
+	define('IDNA_NONTRANSITIONAL_TO_ASCII', 16);
+}
+
+if (!defined('IDNA_NONTRANSITIONAL_TO_UNICODE')) {
+	define('IDNA_NONTRANSITIONAL_TO_UNICODE', 32);
+}
+
+if (!defined('INTL_IDNA_VARIANT_2003')) {
+	define('INTL_IDNA_VARIANT_2003', 0);
+}
+
+if (!defined('INTL_IDNA_VARIANT_UTS46')) {
+	define('INTL_IDNA_VARIANT_UTS46', 1);
+}
+
 if (!function_exists('idn_to_ascii')) {
-	// This is wrapped in a closure to keep the global namespace clean.
-	call_user_func(function () {
-		/**
-		 * IDNA_* constants used as flags for the idn_to_* functions.
-		 */
-		$idna_constants = [
-			'IDNA_DEFAULT' => 0,
-			'IDNA_ALLOW_UNASSIGNED' => 1,
-			'IDNA_USE_STD3_RULES' => 2,
-			'IDNA_CHECK_BIDI' => 4,
-			'IDNA_CHECK_CONTEXTJ' => 8,
-			'IDNA_NONTRANSITIONAL_TO_ASCII' => 16,
-			'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
-			'INTL_IDNA_VARIANT_2003' => 0,
-			'INTL_IDNA_VARIANT_UTS46' => 1,
-		];
-
-		foreach ($idna_constants as $name => $value) {
-			if (!defined($name)) {
-				define($name, $value);
-			}
-		}
-	});
-
 	/**
 	 * Compatibility function.
 	 *
