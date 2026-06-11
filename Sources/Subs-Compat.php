@@ -10760,7 +10760,7 @@ function ssi_full_version($output_method = 'echo')
  */
 function ssi_software_year($output_method = 'echo')
 {
-	return SMF\ServerSideIncludes::softwareYear($output_method = 'echo');
+	return SMF\ServerSideIncludes::softwareYear($output_method);
 }
 
 /**
