@@ -99,10 +99,10 @@ final class SectionComments extends AbstractFixer
 		];
 
 		foreach ($this->comments as $type => $string) {
-			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
+			$words[] = trim($string, "/* \n\t");
 		}
 
-		$this->comment_regex = implode('|', $regexes);
+		$this->comment_regex = '/^\/[*\s]+(?:' . implode('|', $words) . ')[*\s]+\/$/';
 	}
 
 	public function getName(): string
@@ -207,31 +207,15 @@ final class SectionComments extends AbstractFixer
 
 	protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
 	{
-		// First remove any existing section comments.
-		foreach ($tokens as $key => $token) {
-			if ($token->getName() === 'T_COMMENT') {
-				if (preg_match('/^' . $this->comment_regex . '$/', $token->getContent())) {
-					$tokens->clearAt($key);
+		$existing = [];
 
-					if ($tokens[$key + 1]->isWhitespace()) {
-						$tokens[$key + 1] = new Token([
-							T_WHITESPACE,
-							"\n\n\t",
-						]);
-					} else {
-						$tokens->insertAt(
-							$key + 1,
-							new Token([
-								T_WHITESPACE,
-								"\n\n\t",
-							]),
-						);
-					}
+		foreach ($tokens as $key => $token) {
+			if ($token->getId() === T_COMMENT) {
+				if (preg_match($this->comment_regex, $token->getContent())) {
+					$existing[$key] = true;
 				}
 			}
 		}
-
-		$tokens->clearEmptyTokens();
 
 		// Does this file contain an enumeration?
 		$is_enum = $tokens->isAnyTokenKindsFound([T_ENUM]);
@@ -254,57 +238,58 @@ final class SectionComments extends AbstractFixer
 		$in = [];
 
 		foreach ($tokens as $key => $token) {
-			$name = $token->getName();
+			$id = $token->getId();
 
 			// Build up the list of token types so that we can figure out
 			// which comment type we will want.
 			if (\in_array(
-				$name,
-				empty($in) ? [
-					'T_PUBLIC',
-					'T_PROTECTED',
-					'T_PRIVATE',
-					$is_enum && !$exists['case'] ? 'T_CASE' : NAN,
+				$id,
+				$in === [] ? [
+					T_PUBLIC,
+					T_PROTECTED,
+					T_PRIVATE,
+					$is_enum && !$exists['case'] ? T_CASE : -1,
 				] : [
-					'T_CONST',
-					'T_STATIC',
-					'T_VARIABLE',
-					'T_FUNCTION',
+					T_CONST,
+					T_STATIC,
+					T_VARIABLE,
+					T_FUNCTION,
 				],
+				true,
 			)) {
-				$in[$name] = $key;
+				$in[$id] = $key;
 			}
 
 			// Which comment type do we want to insert?
-			if (\array_key_exists('T_CONST', $in)) {
+			if (isset($in[T_CONST])) {
 				$insert_type = 'const';
-			} elseif ($is_enum && !$exists['case'] && \array_key_exists('T_CASE', $in)) {
+			} elseif ($is_enum && !$exists['case'] && isset($in[T_CASE])) {
 				$insert_type = 'case';
-			} elseif (\array_key_exists('T_VARIABLE', $in)) {
-				if (\array_key_exists('T_STATIC', $in)) {
-					if (\array_key_exists('T_PUBLIC', $in)) {
+			} elseif (isset($in[T_VARIABLE])) {
+				if (isset($in[T_STATIC])) {
+					if (isset($in[T_PUBLIC])) {
 						$insert_type = 'public_static_property';
-					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
+					} elseif (isset($in[T_PROTECTED]) || isset($in[T_PRIVATE])) {
 						$insert_type = 'internal_static_property';
 					}
 				} else {
-					if (\array_key_exists('T_PUBLIC', $in)) {
+					if (isset($in[T_PUBLIC])) {
 						$insert_type = 'public_property';
-					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
+					} elseif (isset($in[T_PROTECTED]) || isset($in[T_PRIVATE])) {
 						$insert_type = 'internal_property';
 					}
 				}
-			} elseif (\array_key_exists('T_FUNCTION', $in)) {
-				if (\array_key_exists('T_STATIC', $in)) {
-					if (\array_key_exists('T_PUBLIC', $in)) {
+			} elseif (isset($in[T_FUNCTION])) {
+				if (isset($in[T_STATIC])) {
+					if (isset($in[T_PUBLIC])) {
 						$insert_type = 'public_static_method';
-					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
+					} elseif (isset($in[T_PROTECTED]) || isset($in[T_PRIVATE])) {
 						$insert_type = 'internal_static_method';
 					}
 				} else {
-					if (\array_key_exists('T_PUBLIC', $in)) {
+					if (isset($in[T_PUBLIC])) {
 						$insert_type = 'public_method';
-					} elseif (\array_key_exists('T_PROTECTED', $in) || \array_key_exists('T_PRIVATE', $in)) {
+					} elseif (isset($in[T_PROTECTED]) || isset($in[T_PRIVATE])) {
 						$insert_type = 'internal_method';
 					}
 				}
@@ -332,31 +317,58 @@ final class SectionComments extends AbstractFixer
 					// Now we need to take one step forward again.
 					$insert_at++;
 
-					// Create the comment to insert.
-					$to_insert = [
-						new Token([
-							T_COMMENT,
-							$this->comments[$insert_type],
-						]),
-					];
+					if ($tokens[$insert_at]->getContent() !== $this->comments[$insert_type]) {
+						// Create the comment to insert.
+						$to_insert = [
+							new Token([
+								T_COMMENT,
+								$this->comments[$insert_type],
+							]),
+						];
 
-					// If necessary, also insert some whitespace.
-					if (!$tokens[$insert_at]->isWhitespace()) {
-						$to_insert[] = new Token([
-							T_WHITESPACE,
-							"\n\n\t",
-						]);
+						// If necessary, also insert some whitespace.
+						if (!$tokens[$insert_at]->isWhitespace()) {
+							$to_insert[] = new Token([
+								T_WHITESPACE,
+								"\n\n\t",
+							]);
+						}
+
+						// Insert our comment.
+						$slices[$insert_at] = $to_insert;
+
+						// This comment type has now been done.
+						$exists[$insert_type] = true;
+					} else {
+						// Normalize whitespace.
+						if ($tokens[$insert_at + 1]->isWhitespace()) {
+							$tokens[$insert_at + 1] = new Token([
+								T_WHITESPACE,
+								"\n\n\t",
+							]);
+						}
+
+						$exists[$insert_type] = true;
+
+						// Do not remove this token.
+						if (isset($existing[$insert_at])) {
+							unset($existing[$insert_at]);
+						}
 					}
-
-					// Insert our comment.
-					$slices[$insert_at] = $to_insert;
-
-					// This comment type has now been done.
-					$exists[$insert_type] = true;
 				}
 
 				$in = [];
 				unset($insert_type);
+			}
+		}
+
+		// Any existing tokens to empty out?
+		foreach ($existing as $key => $_) {
+			$tokens->clearAt($key);
+
+			// If necessary, also delete whitespace.
+			if ($tokens[$key + 1]->isWhitespace()) {
+				$tokens->clearAt($key + 1);
 			}
 		}
 
