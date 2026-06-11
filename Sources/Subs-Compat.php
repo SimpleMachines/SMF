@@ -1447,6 +1447,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Cache\CacheApi::clean($type);
 	}
 
+	function cleanRequest(): void
+	{
+		SMF\QueryString::cleanRequest();
+	}
+
 	/**
 	 * Removes old unused tokens from session
 	 * defaults to 3 hours before a token is considered expired
@@ -4039,11 +4044,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return (string) $iri === '' ? false : (string) $iri;
 	}
 
-	function cleanRequest(): void
-	{
-		SMF\QueryString::cleanRequest();
-	}
-
 	/**
 	 * Compares existance request variables against an array.
 	 *
@@ -5767,11 +5767,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj = SMF\Actions\PersonalMessage::load();
 		$obj->subaction = 'settings';
 		$obj->execute();
-	}
-
-	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
-	{
-		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
 	}
 
 	/**
@@ -7519,6 +7514,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Utils::redirectexit($setLocation, $refresh, $permanent);
 	}
 
+	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
+	{
+		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
+	}
+
 	/**
 	 * Used to re-econodes an image to a specified image format
 	 * - creates a copy of the file at the same location as fileName.
@@ -8395,11 +8395,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj->execute();
 	}
 
-	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
-	{
-		return SMF\Mail::serverParse($message, $socket, $code, $response);
-	}
-
 	/**
 	 * Sends a notification to members who have elected to receive emails
 	 * when things happen to a topic, such as replies are posted.
@@ -8441,11 +8436,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\PersonalMessage\PM::send($recipients, $subject, $message, $store_outbox, $from ?? null, $pm_head);
 	}
 
-	function tokenTxtReplace(string $string = ''): string
-	{
-		return SMF\Lang::tokenTxtReplace($string);
-	}
-
 	/**
 	 * Concatenates an array of strings into a grammatically correct sentence list
 	 *
@@ -8458,6 +8448,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function sentence_list(array $list): string
 	{
 		return SMF\Lang::sentenceList($list);
+	}
+
+	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
+	{
+		return SMF\Mail::serverParse($message, $socket, $code, $response);
 	}
 
 	/**
@@ -9662,6 +9657,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$date = new SMF\Time('@' . $log_time, $tzid);
 
 		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
+	}
+
+	function tokenTxtReplace(string $string = ''): string
+	{
+		return SMF\Lang::tokenTxtReplace($string);
 	}
 
 	/**
