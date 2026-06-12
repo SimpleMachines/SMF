@@ -23,11 +23,6 @@ use SMF\Url;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
 
-// IMAGETYPE_AVIF was added in PHP 8.1
-if (!\defined('IMAGETYPE_AVIF')) {
-	\define('IMAGETYPE_AVIF', 19);
-}
-
 /**
  * Represents an image and allows low-level graphics operations to be performed,
  * specially as needed for avatars, attachments, etc.
@@ -43,20 +38,24 @@ class Image
 
 	// Maps certain IMAGETYPE_* constants to ImageMagick formats.
 	public const IMAGETYPE_TO_IMAGICK = [
-		IMAGETYPE_BMP => 'bmp',
 		IMAGETYPE_GIF => 'gif',
-		IMAGETYPE_ICO => 'ico',
-		IMAGETYPE_JP2 => 'jp2',
 		IMAGETYPE_JPEG => 'jpeg',
-		IMAGETYPE_JPEG2000 => 'jp2',
 		IMAGETYPE_PNG => 'png',
 		IMAGETYPE_PSD => 'psd',
+		IMAGETYPE_BMP => 'bmp',
 		IMAGETYPE_TIFF_II => 'tiff',
 		IMAGETYPE_TIFF_MM => 'tiff',
+		IMAGETYPE_JPC => 'j2c',
+		IMAGETYPE_JP2 => 'jp2',
 		IMAGETYPE_WBMP => 'wbmp',
-		IMAGETYPE_WEBP => 'webp',
 		IMAGETYPE_XBM => 'xbm',
+		IMAGETYPE_ICO => 'ico',
+		IMAGETYPE_WEBP => 'webp',
 		IMAGETYPE_AVIF => 'avif',
+		// IMAGETYPE_HEIF, added in PHP 8.5.
+		20 => 'heic', // No, that 'c' is not a typo.
+		// IMAGETYPE_SVG, added in PHP 8.5 when libxml is loaded.
+		21 => 'svg',
 	];
 
 	// Maps certain IMAGETYPE_* constants to IMG_* constants.
