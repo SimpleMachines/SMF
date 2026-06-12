@@ -59,6 +59,17 @@ class Image
 		IMAGETYPE_AVIF => 'avif',
 	];
 
+	// Maps certain IMAGETYPE_* constants to IMG_* constants.
+	public const IMAGETYPE_TO_IMG = [
+		IMAGETYPE_GIF => IMG_GIF,
+		IMAGETYPE_JPEG => IMG_JPG,
+		IMAGETYPE_PNG => IMG_PNG,
+		IMAGETYPE_BMP => IMG_BMP,
+		IMAGETYPE_WBMP => IMG_WBMP,
+		IMAGETYPE_WEBP => IMG_WEBP,
+		IMAGETYPE_AVIF => IMG_AVIF,
+	];
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -548,7 +559,7 @@ class Image
 				}
 			} elseif (\extension_loaded('gd')) {
 				foreach (self::getImageTypes() as $name => $int) {
-					if (imagetypes() & $int) {
+					if (imagetypes() & (self::IMAGETYPE_TO_IMG[$int] ?? 0)) {
 						self::$supported[$name] = $int;
 					}
 				}
