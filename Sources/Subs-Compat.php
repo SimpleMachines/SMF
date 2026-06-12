@@ -29,7 +29,7 @@ if (!defined('SMF')) {
  * providing backward compatibility support requires providing all of those
  * global functions as wrappers around class methods.
  */
-if (!empty(SMF\Config::$backward_compatibility)) {
+if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_handler')) {
 	/**
 	 * I solemly swear to no longer chase squirrels.
 	 */
@@ -1445,6 +1445,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function clean_cache(string $type = ''): void
 	{
 		SMF\Cache\CacheApi::clean($type);
+	}
+
+	function cleanRequest(): void
+	{
+		SMF\QueryString::cleanRequest();
 	}
 
 	/**
@@ -4039,11 +4044,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return (string) $iri === '' ? false : (string) $iri;
 	}
 
-	function cleanRequest(): void
-	{
-		SMF\QueryString::cleanRequest();
-	}
-
 	/**
 	 * Compares existance request variables against an array.
 	 *
@@ -5767,11 +5767,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj = SMF\Actions\PersonalMessage::load();
 		$obj->subaction = 'settings';
 		$obj->execute();
-	}
-
-	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
-	{
-		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
 	}
 
 	/**
@@ -7519,6 +7514,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		SMF\Utils::redirectexit($setLocation, $refresh, $permanent);
 	}
 
+	function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
+	{
+		return SMF\Mail::reduceQueue($number, $override_limit, $force_send);
+	}
+
 	/**
 	 * Used to re-econodes an image to a specified image format
 	 * - creates a copy of the file at the same location as fileName.
@@ -8395,11 +8395,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$obj->execute();
 	}
 
-	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
-	{
-		return SMF\Mail::serverParse($message, $socket, $code, $response);
-	}
-
 	/**
 	 * Sends a notification to members who have elected to receive emails
 	 * when things happen to a topic, such as replies are posted.
@@ -8441,11 +8436,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\PersonalMessage\PM::send($recipients, $subject, $message, $store_outbox, $from ?? null, $pm_head);
 	}
 
-	function tokenTxtReplace(string $string = ''): string
-	{
-		return SMF\Lang::tokenTxtReplace($string);
-	}
-
 	/**
 	 * Concatenates an array of strings into a grammatically correct sentence list
 	 *
@@ -8458,6 +8448,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function sentence_list(array $list): string
 	{
 		return SMF\Lang::sentenceList($list);
+	}
+
+	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
+	{
+		return SMF\Mail::serverParse($message, $socket, $code, $response);
 	}
 
 	/**
@@ -9664,6 +9659,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
 	}
 
+	function tokenTxtReplace(string $string = ''): string
+	{
+		return SMF\Lang::tokenTxtReplace($string);
+	}
+
 	/**
 	 * Turn off/on unread replies subscription for a topic as well as sets individual topic's alert preferences
 	 * Must be called with a topic specified in the URL.
@@ -10705,752 +10705,781 @@ if (!empty(SMF\Config::$backward_compatibility)) {
  * disabled. Unlike mods, for which the Package Manager will automatically
  * enable backward compatibility mode as needed, calls to SSI functions do not
  * automatically trigger backward compatibility mode. Thus, these functions
- * need to be available always.
+ * need to be available whenever SSI is being used.
  ******************************************************************************/
 
-/**
- * This shuts down the SSI and shows the footer.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::shutdown() instead.
- */
-function ssi_shutdown(): void
-{
-	SMF\ServerSideIncludes::shutdown();
-}
+if (
+	!function_exists('ssi_shutdown')
+	// Check for the file instead of just SMF === 'SSI' in order to maintain
+	// expected behaviour from previous versions.
+	&& in_array(SMF\Config::$boarddir . DIRECTORY_SEPARATOR . 'SSI.php', get_included_files())
+) {
+	/**
+	 * This shuts down the SSI and shows the footer.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::shutdown() instead.
+	 */
+	function ssi_shutdown(): void
+	{
+		SMF\ServerSideIncludes::shutdown();
+	}
 
-/**
- * Show the SMF version.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::version() instead.
- *
- * @param string $output_method If 'echo', displays the version, otherwise
- *    returns it. Default: 'echo'.
- * @return null|string Returns nothing if output_method is 'echo', otherwise
- *    returns the version.
- */
-function ssi_version($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::version($output_method);
-}
+	/**
+	 * Show the SMF version.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::version() instead.
+	 *
+	 * @param string $output_method If 'echo', displays the version, otherwise
+	 *    returns it. Default: 'echo'.
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the version.
+	 */
+	function ssi_version($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::version($output_method);
+	}
 
-/**
- * Show the full SMF version string.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::fullVersion() instead.
- *
- * @param string $output_method If 'echo', displays the full version string,
- *    otherwise returns it. Default: 'echo'.
- * @return ?string Returns nothing if output_method is 'echo', otherwise
- *    returns the version string.
- */
-function ssi_full_version($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::fullVersion($output_method);
-}
+	/**
+	 * Show the full SMF version string.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::fullVersion() instead.
+	 *
+	 * @param string $output_method If 'echo', displays the full version string,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the version string.
+	 */
+	function ssi_full_version($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::fullVersion($output_method);
+	}
 
-/**
- * Show the SMF software year.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::softwareYear() instead.
- *
- * @param string $output_method If 'echo', displays the software year,
- *    otherwise returns it. Default: 'echo'.
- * @return ?string Returns nothing if output_method is 'echo', otherwise
- *    returns the software year.
- */
-function ssi_software_year($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::softwareYear($output_method = 'echo');
-}
+	/**
+	 * Show the SMF software year.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::softwareYear() instead.
+	 *
+	 * @param string $output_method If 'echo', displays the software year,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the software year.
+	 */
+	function ssi_software_year($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::softwareYear($output_method);
+	}
 
-/**
- * Show the forum copyright. Only used in our ssi_examples files.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::copyright() instead.
- *
- * @param string $output_method If 'echo', displays the forum copyright,
- *    otherwise returns it. Default: 'echo'.
- * @return ?string Returns nothing if output_method is 'echo', otherwise
- *    returns the copyright string.
- */
-function ssi_copyright($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::copyright($output_method);
-}
+	/**
+	 * Show the forum copyright. Only used in our ssi_examples files.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::copyright() instead.
+	 *
+	 * @param string $output_method If 'echo', displays the forum copyright,
+	 *    otherwise returns it. Default: 'echo'.
+	 * @return ?string Returns nothing if output_method is 'echo', otherwise
+	 *    returns the copyright string.
+	 */
+	function ssi_copyright($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::copyright($output_method);
+	}
 
-/**
- * Display a welcome message, like: Hey, User, you have 0 messages, 0 are new.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::welcome() instead.
- *
- * @param string $output_method The output method. If 'echo', will display
- *    everything. Otherwise returns an array of user info.
- *    Default: 'echo'.
- * @return ?\SMF\User Displays a welcome message or returns a User object
- *    depending on output_method.
- */
-function ssi_welcome($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::welcome($output_method);
-}
+	/**
+	 * Display a welcome message, like: Hey, User, you have 0 messages, 0 are new.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::welcome() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', will display
+	 *    everything. Otherwise returns an array of user info.
+	 *    Default: 'echo'.
+	 * @return ?\SMF\User Displays a welcome message or returns a User object
+	 *    depending on output_method.
+	 */
+	function ssi_welcome($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::welcome($output_method);
+	}
 
-/**
- * Display a menu bar, like is displayed at the top of the forum.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::menubar() instead.
- *
- * @param string $output_method The output method. If 'echo', will display
- *    the menu, otherwise returns an array of menu data.
- *    Default: 'echo'.
- * @return ?array Displays the menu or returns an array of menu data
- *    depending on output_method.
- */
-function ssi_menubar($output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::menubar($output_method);
-}
+	/**
+	 * Display a menu bar, like is displayed at the top of the forum.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::menubar() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', will display
+	 *    the menu, otherwise returns an array of menu data.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the menu or returns an array of menu data
+	 *    depending on output_method.
+	 */
+	function ssi_menubar($output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::menubar($output_method);
+	}
 
-/**
- * Show a logout link.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::logout() instead.
- *
- * @param string $redirect_to URL to redirect the user to after logout.
- * @param string $output_method The output method. If 'echo', shows a logout
- *    link, otherwise returns the HTML for it.
- *    Default: 'echo'.
- * @return string|bool|null Displays a logout link or returns its HTML
- *    depending on output_method.
- */
-function ssi_logout($redirect_to = '', $output_method = 'echo')
-{
-	return SMF\ServerSideIncludes::logout($redirect_to, $output_method);
-}
+	/**
+	 * Show a logout link.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::logout() instead.
+	 *
+	 * @param string $redirect_to URL to redirect the user to after logout.
+	 * @param string $output_method The output method. If 'echo', shows a logout
+	 *    link, otherwise returns the HTML for it.
+	 *    Default: 'echo'.
+	 * @return string|bool|null Displays a logout link or returns its HTML
+	 *    depending on output_method.
+	 */
+	function ssi_logout($redirect_to = '', $output_method = 'echo')
+	{
+		return SMF\ServerSideIncludes::logout($redirect_to, $output_method);
+	}
 
-/**
- * Recent post list:   [board] Subject by Poster    Date
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentPosts() instead.
- *
- * @param int $num_recent How many recent posts to display.
- * @param null|array $exclude_boards If set, doesn't show posts from the
- *    specified boards.
- * @param null|array $include_boards If set, only includes posts from the
- *    specified boards.
- * @param string $output_method The output method. If 'echo', displays the
- *    posts, otherwise returns an array of information about them.
- *    Default: 'echo'.
- * @param bool $limit_body Whether or not to only show the first 384
- *    characters of each post.
- * @return ?array Displays a list of recent posts or returns an array of
- *    information about them depending on output_method.
- */
-function ssi_recentPosts(
-	int $num_recent = 8,
-	?array $exclude_boards = null,
-	?array $include_boards = null,
-	string $output_method = 'echo',
-	bool $limit_body = true,
-): ?array {
-	return SMF\ServerSideIncludes::recentPosts(
-		$num_recent,
-		$exclude_boards,
-		$include_boards,
-		$output_method,
-		$limit_body,
-	);
-}
+	/**
+	 * Recent post list:   [board] Subject by Poster    Date
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentPosts() instead.
+	 *
+	 * @param int $num_recent How many recent posts to display.
+	 * @param null|array $exclude_boards If set, doesn't show posts from the
+	 *    specified boards.
+	 * @param null|array $include_boards If set, only includes posts from the
+	 *    specified boards.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of information about them.
+	 *    Default: 'echo'.
+	 * @param bool $limit_body Whether or not to only show the first 384
+	 *    characters of each post.
+	 * @return ?array Displays a list of recent posts or returns an array of
+	 *    information about them depending on output_method.
+	 */
+	function ssi_recentPosts(
+		int $num_recent = 8,
+		?array $exclude_boards = null,
+		?array $include_boards = null,
+		string $output_method = 'echo',
+		bool $limit_body = true,
+	): ?array {
+		return SMF\ServerSideIncludes::recentPosts(
+			$num_recent,
+			$exclude_boards,
+			$include_boards,
+			$output_method,
+			$limit_body,
+		);
+	}
 
-/**
- * Fetches one or more posts by ID.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchPosts() instead.
- *
- * @param int[] $post_ids An array containing the IDs of the posts to show.
- * @param bool $override_permissions Whether to ignore permissions. If true,
- *    will show posts even if the user doesn't have permission to see them.
- * @param string $output_method The output method. If 'echo', displays the
- *    posts, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays the specified posts or returns an array of info
- *    about them, depending on output_method.
- */
-function ssi_fetchPosts(
-	array $post_ids = [],
-	bool $override_permissions = false,
-	string $output_method = 'echo',
-): ?array {
-	return SMF\ServerSideIncludes::fetchPosts($post_ids, $override_permissions, $output_method);
-}
+	/**
+	 * Fetches one or more posts by ID.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchPosts() instead.
+	 *
+	 * @param int[] $post_ids An array containing the IDs of the posts to show.
+	 * @param bool $override_permissions Whether to ignore permissions. If true,
+	 *    will show posts even if the user doesn't have permission to see them.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the specified posts or returns an array of info
+	 *    about them, depending on output_method.
+	 */
+	function ssi_fetchPosts(
+		array $post_ids = [],
+		bool $override_permissions = false,
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::fetchPosts(
+			$post_ids,
+			$override_permissions,
+			$output_method,
+		);
+	}
 
-/**
- * This handles actually pulling post info. Called from other functions to
- * eliminate duplication.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::queryPosts() instead.
- *
- * @param string $query_where The WHERE clause for the query.
- * @param array $query_where_params Array of parameters for the WHERE clause.
- * @param int|string $query_limit The maximum number of rows to return.
- * @param string $query_order The ORDER BY clause for the query.
- * @param string $output_method The output method. If 'echo', displays the
- *    posts, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @param bool $limit_body If true, will only show the first 384 characters
- *    of the post rather than all of it.
- * @param bool $override_permissions Whether or not to ignore permissions.
- *    If true, will show all posts regardless of whether the user can
- *    normally see them.
- * @return ?array Displays the posts or returns an array of info about them,
- *    depending on output_method.
- */
-function ssi_queryPosts(
-	string $query_where = '',
-	array $query_where_params = [],
-	int $query_limit = 10,
-	string $query_order = 'm.id_msg DESC',
-	string $output_method = 'echo',
-	bool $limit_body = false,
-	bool $override_permissions = false,
-): ?array {
-	return SMF\ServerSideIncludes::queryPosts(
-		$query_where,
-		$query_where_params,
-		$query_limit,
-		$query_order,
-		$output_method,
-		$limit_body,
-		$override_permissions,
-	);
-}
+	/**
+	 * This handles actually pulling post info. Called from other functions to
+	 * eliminate duplication.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::queryPosts() instead.
+	 *
+	 * @param string $query_where The WHERE clause for the query.
+	 * @param array $query_where_params Array of parameters for the WHERE clause.
+	 * @param int|string $query_limit The maximum number of rows to return.
+	 * @param string $query_order The ORDER BY clause for the query.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    posts, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @param bool $limit_body If true, will only show the first 384 characters
+	 *    of the post rather than all of it.
+	 * @param bool $override_permissions Whether or not to ignore permissions.
+	 *    If true, will show all posts regardless of whether the user can
+	 *    normally see them.
+	 * @return ?array Displays the posts or returns an array of info about them,
+	 *    depending on output_method.
+	 */
+	function ssi_queryPosts(
+		string $query_where = '',
+		array $query_where_params = [],
+		int $query_limit = 10,
+		string $query_order = 'm.id_msg DESC',
+		string $output_method = 'echo',
+		bool $limit_body = false,
+		bool $override_permissions = false,
+	): ?array {
+		return SMF\ServerSideIncludes::queryPosts(
+			$query_where,
+			$query_where_params,
+			$query_limit,
+			$query_order,
+			$output_method,
+			$limit_body,
+			$override_permissions,
+		);
+	}
 
-/**
- * Recent topic list:   [board] Subject by Poster   Date
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentTopics() instead.
- *
- * @param int $num_recent How many recent topics to show.
- * @param null|array $exclude_boards If set, exclude topics from the
- *    specified board(s).
- * @param null|array $include_boards If set, only include topics from the
- *    specified board(s).
- * @param string $output_method The output method. If 'echo', displays a
- *    list of topics, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return void|array Either displays a list of topics or returns an array
- *    of info about them, depending on output_method.
- */
-function ssi_recentTopics(
-	int $num_recent = 8,
-	?array $exclude_boards = null,
-	?array $include_boards = null,
-	string $output_method = 'echo',
-): ?array {
-	return SMF\ServerSideIncludes::recentTopics($num_recent, $exclude_boards, $include_boards, $output_method);
-}
+	/**
+	 * Recent topic list:   [board] Subject by Poster   Date
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentTopics() instead.
+	 *
+	 * @param int $num_recent How many recent topics to show.
+	 * @param null|array $exclude_boards If set, exclude topics from the
+	 *    specified board(s).
+	 * @param null|array $include_boards If set, only include topics from the
+	 *    specified board(s).
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return void|array Either displays a list of topics or returns an array
+	 *    of info about them, depending on output_method.
+	 */
+	function ssi_recentTopics(
+		int $num_recent = 8,
+		?array $exclude_boards = null,
+		?array $include_boards = null,
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::recentTopics(
+			$num_recent,
+			$exclude_boards,
+			$include_boards,
+			$output_method,
+		);
+	}
 
-/**
- * Shows a list of top posters
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topPoster() instead.
- *
- * @param int $topNumber How many top posters to list.
- * @param string $output_method The output method. If 'echo', will display a
- *    list of users, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Either displays a list of users or returns an array of
- *    info about them, depending on output_method.
- */
-function ssi_topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topPoster($topNumber, $output_method);
-}
+	/**
+	 * Shows a list of top posters
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topPoster() instead.
+	 *
+	 * @param int $topNumber How many top posters to list.
+	 * @param string $output_method The output method. If 'echo', will display a
+	 *    list of users, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of users or returns an array of
+	 *    info about them, depending on output_method.
+	 */
+	function ssi_topPoster(int $topNumber = 1, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topPoster($topNumber, $output_method);
+	}
 
-/**
- * Shows a list of top boards based on activity
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topBoards() instead.
- *
- * @param int $num_top How many boards to display.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of boards, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of the top boards or returns an array of
- *    info about them, depending on output_method.
- */
-function ssi_topBoards($num_top = 10, $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topBoards($num_top, $output_method);
-}
+	/**
+	 * Shows a list of top boards based on activity
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topBoards() instead.
+	 *
+	 * @param int $num_top How many boards to display.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of boards, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of the top boards or returns an array of
+	 *    info about them, depending on output_method.
+	 */
+	function ssi_topBoards($num_top = 10, $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topBoards($num_top, $output_method);
+	}
 
-/**
- * Shows a list of top topics based on views or replies
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopics() instead.
- *
- * @param string $type Can be either 'replies' or 'views'.
- * @param int $num_topics How many topics to display.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of topics, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Either displays a list of topics or returns an array of
- *    info about them, depending on output_method.
- */
-function ssi_topTopics(string $type = 'replies', int $num_topics = 10, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
-}
+	/**
+	 * Shows a list of top topics based on views or replies
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopics() instead.
+	 *
+	 * @param string $type Can be either 'replies' or 'views'.
+	 * @param int $num_topics How many topics to display.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of topics or returns an array of
+	 *    info about them, depending on output_method.
+	 */
+	function ssi_topTopics(
+		string $type = 'replies',
+		int $num_topics = 10,
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::topTopics($type, $num_topics, $output_method);
+	}
 
-/**
- * Top topics based on replies
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopicsReplies() instead.
- *
- * @param int $num_topics How many topics to show.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of topics, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Either displays a list of top topics or returns an array
- *    of info about them, depending on output_method.
- */
-function ssi_topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topTopicsReplies($num_topics, $output_method);
-}
+	/**
+	 * Top topics based on replies
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopicsReplies() instead.
+	 *
+	 * @param int $num_topics How many topics to show.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of top topics or returns an array
+	 *    of info about them, depending on output_method.
+	 */
+	function ssi_topTopicsReplies(int $num_topics = 10, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topTopicsReplies($num_topics, $output_method);
+	}
 
-/**
- * Top topics based on views
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopicsViews() instead.
- *
- * @param int $num_topics How many topics to show.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of topics, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Either displays a list of top topics or returns an array
- *    of info about them, depending on output_method.
- */
-function ssi_topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topTopicsViews($num_topics, $output_method);
-}
+	/**
+	 * Top topics based on views
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topTopicsViews() instead.
+	 *
+	 * @param int $num_topics How many topics to show.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of topics, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of top topics or returns an array
+	 *    of info about them, depending on output_method.
+	 */
+	function ssi_topTopicsViews(int $num_topics = 10, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topTopicsViews($num_topics, $output_method);
+	}
 
-/**
- * Show a link to the latest member: Please welcome, Someone, our latest member.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::latestMember() instead.
- *
- * @param string $output_method The output method. If 'echo', returns a
- *    string with a link to the latest member's profile, otherwise returns
- *    an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a "welcome" message for the latest member or
- *    returns an array of info about them, depending on output_method.
- */
-function ssi_latestMember(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::latestMember($output_method);
-}
+	/**
+	 * Show a link to the latest member: Please welcome, Someone, our latest member.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::latestMember() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', returns a
+	 *    string with a link to the latest member's profile, otherwise returns
+	 *    an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a "welcome" message for the latest member or
+	 *    returns an array of info about them, depending on output_method.
+	 */
+	function ssi_latestMember(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::latestMember($output_method);
+	}
 
-/**
- * Fetches a random member.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::randomMember() instead.
- *
- * @param string $random_type If 'day', only fetches a new random member
- *    once a day.
- * @param string $output_method The output method. If 'echo', displays a
- *    link to the member's profile, otherwise returns an array of info about
- *    them.
- *    Default: 'echo'.
- * @return ?array Displays a link to a random member's profile or returns an
- *    array of info about them depending on output_method.
- */
-function ssi_randomMember(string $random_type = '', string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::randomMember($random_type, $output_method);
-}
+	/**
+	 * Fetches a random member.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::randomMember() instead.
+	 *
+	 * @param string $random_type If 'day', only fetches a new random member
+	 *    once a day.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    link to the member's profile, otherwise returns an array of info about
+	 *    them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a link to a random member's profile or returns an
+	 *    array of info about them depending on output_method.
+	 */
+	function ssi_randomMember(string $random_type = '', string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::randomMember($random_type, $output_method);
+	}
 
-/**
- * Fetch specific members
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchMember() instead.
- *
- * @param array $member_ids The IDs of the members to fetch.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of links to the members' profiles, otherwise returns an array of
- *    info about them.
- *    Default: 'echo'.
- * @return ?array Displays links to the specified members' profiles or
- *    returns an array of info about them, depending on output_method.
- */
-function ssi_fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::fetchMember($member_ids, $output_method);
-}
+	/**
+	 * Fetch specific members
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchMember() instead.
+	 *
+	 * @param array $member_ids The IDs of the members to fetch.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of links to the members' profiles, otherwise returns an array of
+	 *    info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays links to the specified members' profiles or
+	 *    returns an array of info about them, depending on output_method.
+	 */
+	function ssi_fetchMember(array $member_ids = [], string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::fetchMember($member_ids, $output_method);
+	}
 
-/**
- * Get all members in the specified group
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchGroupMembers() instead.
- *
- * @param int|null $group_id The ID of the group to get members from.
- * @param string $output_method The output method. If 'echo', returns a list
- *    of group members, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of group members or returns an array of
- *    info about them, depending on output_method.
- */
-function ssi_fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
-}
+	/**
+	 * Get all members in the specified group
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::fetchGroupMembers() instead.
+	 *
+	 * @param int|null $group_id The ID of the group to get members from.
+	 * @param string $output_method The output method. If 'echo', returns a list
+	 *    of group members, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of group members or returns an array of
+	 *    info about them, depending on output_method.
+	 */
+	function ssi_fetchGroupMembers(?int $group_id = null, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::fetchGroupMembers($group_id, $output_method);
+	}
 
-/**
- * Pulls info about members based on the specified parameters. Used by other
- * functions to eliminate duplication.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::queryMembers() instead.
- *
- * @param string|null $query_where The WHERE clause of the query.
- * @param array $query_where_params The parameters for the WHERE clause.
- * @param string|int $query_limit The number of rows to return or an empty
- *    string to return all.
- * @param string $query_order The ORDER BY clause of the query.
- * @param string $output_method The output method. If 'echo', displays a
- *    list of members, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of members or returns an array of info
- *    about them, depending on output_method.
- */
-function ssi_queryMembers(
-	?string $query_where = null,
-	array $query_where_params = [],
-	string|int $query_limit = '',
-	string $query_order = 'id_member DESC',
-	string $output_method = 'echo',
-): ?array {
-	return SMF\ServerSideIncludes::queryMembers(
-		$query_where,
-		$query_where_params,
-		$query_limit,
-		$query_order,
-		$output_method,
-	);
-}
+	/**
+	 * Pulls info about members based on the specified parameters. Used by other
+	 * functions to eliminate duplication.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::queryMembers() instead.
+	 *
+	 * @param string|null $query_where The WHERE clause of the query.
+	 * @param array $query_where_params The parameters for the WHERE clause.
+	 * @param string|int $query_limit The number of rows to return or an empty
+	 *    string to return all.
+	 * @param string $query_order The ORDER BY clause of the query.
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of members, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of members or returns an array of info
+	 *    about them, depending on output_method.
+	 */
+	function ssi_queryMembers(
+		?string $query_where = null,
+		array $query_where_params = [],
+		string|int $query_limit = '',
+		string $query_order = 'id_member DESC',
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::queryMembers(
+			$query_where,
+			$query_where_params,
+			$query_limit,
+			$query_order,
+			$output_method,
+		);
+	}
 
-/**
- * Show some basic stats:   Total This: XXXX, etc.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::boardStats() instead.
- *
- * @param string $output_method The output method. If 'echo', displays the
- *    stats, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Returns null if the user can't view stats. Otherwise
- *    either displays the stats or returns an array of info about them,
- *    depending on output_method.
- */
-function ssi_boardStats(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::boardStats($output_method);
-}
+	/**
+	 * Show some basic stats:   Total This: XXXX, etc.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::boardStats() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    stats, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Returns null if the user can't view stats. Otherwise
+	 *    either displays the stats or returns an array of info about them,
+	 *    depending on output_method.
+	 */
+	function ssi_boardStats(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::boardStats($output_method);
+	}
 
-/**
- * Shows a list of online users:  YY Guests, ZZ Users and then a list...
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::whoseOnline() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list, otherwise returns an array of info about the online users.
- *    Default: 'echo'.
- * @return ?array Either displays a list of online users or returns an array
- *    of info about them, depending on output_method.
- */
-function ssi_whosOnline(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::whosOnline($output_method);
-}
+	/**
+	 * Shows a list of online users:  YY Guests, ZZ Users and then a list...
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::whoseOnline() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list, otherwise returns an array of info about the online users.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of online users or returns an array
+	 *    of info about them, depending on output_method.
+	 */
+	function ssi_whosOnline(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::whosOnline($output_method);
+	}
 
-/**
- * Just like whosOnline except it also logs the online presence.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::logOnline() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list, otherwise returns an array of info about the online users.
- *    Default: 'echo'.
- * @return ?array Either displays a list of online users or returns an array
- *    of info about them, depending on output_method.
- */
-function ssi_logOnline(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::logOnline($output_method);
-}
+	/**
+	 * Just like whosOnline except it also logs the online presence.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::logOnline() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list, otherwise returns an array of info about the online users.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays a list of online users or returns an array
+	 *    of info about them, depending on output_method.
+	 */
+	function ssi_logOnline(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::logOnline($output_method);
+	}
 
-/**
- * Shows a login box
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::login() instead.
- *
- * @param string $redirect_to URL to redirect the user to after they login.
- * @param string $output_method The output method. If 'echo' and the user is
- *    a guest, displays a login box, otherwise returns whether the user is a
- *    guest.
- *    Default: 'echo'.
- * @return ?bool Either displays a login box or returns whether the user is
- *    a guest, depending on whether the user is logged in and output_method.
- */
-function ssi_login($redirect_to = '', $output_method = 'echo'): ?bool
-{
-	return SMF\ServerSideIncludes::login($redirect_to, $output_method);
-}
+	/**
+	 * Shows a login box
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::login() instead.
+	 *
+	 * @param string $redirect_to URL to redirect the user to after they login.
+	 * @param string $output_method The output method. If 'echo' and the user is
+	 *    a guest, displays a login box, otherwise returns whether the user is a
+	 *    guest.
+	 *    Default: 'echo'.
+	 * @return ?bool Either displays a login box or returns whether the user is
+	 *    a guest, depending on whether the user is logged in and output_method.
+	 */
+	function ssi_login($redirect_to = '', $output_method = 'echo'): ?bool
+	{
+		return SMF\ServerSideIncludes::login($redirect_to, $output_method);
+	}
 
-/**
- * Show the top poll based on votes
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::topPoll() instead.
- *
- * @param string $output_method The output method. If 'echo', displays the
- *    poll, otherwise returns an array of info about it.
- *    Default: 'echo'.
- * @return ?array Either shows the top poll or returns an array of info
- *    about it, depending on output_method.
- */
-function ssi_topPoll(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::topPoll($output_method);
-}
+	/**
+	 * Show the top poll based on votes
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::topPoll() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either shows the top poll or returns an array of info
+	 *    about it, depending on output_method.
+	 */
+	function ssi_topPoll(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::topPoll($output_method);
+	}
 
-/**
- * Shows the most recent poll
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentPoll() instead.
- *
- * @param bool $topPollInstead Whether to show the top poll (based on votes)
- *    instead of the most recent one.
- * @param string $output_method The output method. If 'echo', displays the
- *    poll, otherwise returns an array of info about it.
- *    Default: 'echo'.
- * @return ?array Either shows the poll or returns an array of info about it,
- *    depending on output_method.
- */
-function ssi_recentPoll($topPollInstead = false, $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::recentPoll($topPollInstead, $output_method);
-}
+	/**
+	 * Shows the most recent poll
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentPoll() instead.
+	 *
+	 * @param bool $topPollInstead Whether to show the top poll (based on votes)
+	 *    instead of the most recent one.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either shows the poll or returns an array of info about it,
+	 *    depending on output_method.
+	 */
+	function ssi_recentPoll($topPollInstead = false, $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::recentPoll($topPollInstead, $output_method);
+	}
 
-/**
- * Shows the poll from the specified topic
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::showPoll() instead.
- *
- * @param null|int $topic The topic to show the poll from.
- *    If null, $_REQUEST['ssi_topic'] will be used instead.
- * @param string $output_method The output method. If 'echo', displays the
- *    poll, otherwise returns an array of info about it.
- *    Default: 'echo'.
- * @return ?array Either displays the poll or returns an array of info about
- *    it, depending on output_method.
- */
-function ssi_showPoll(?int $topic = null, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::showPoll($topic, $output_method);
-}
+	/**
+	 * Shows the poll from the specified topic
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::showPoll() instead.
+	 *
+	 * @param null|int $topic The topic to show the poll from.
+	 *    If null, $_REQUEST['ssi_topic'] will be used instead.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    poll, otherwise returns an array of info about it.
+	 *    Default: 'echo'.
+	 * @return ?array Either displays the poll or returns an array of info about
+	 *    it, depending on output_method.
+	 */
+	function ssi_showPoll(?int $topic = null, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::showPoll($topic, $output_method);
+	}
 
-/**
- * Handles voting in a poll (done automatically)
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::pollVote() instead.
- */
-function ssi_pollVote()
-{
-	return SMF\ServerSideIncludes::pollVote();
-}
+	/**
+	 * Handles voting in a poll (done automatically)
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::pollVote() instead.
+	 */
+	function ssi_pollVote()
+	{
+		return SMF\ServerSideIncludes::pollVote();
+	}
 
-/**
- * Shows a search box
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::quickSearch() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    search box, otherwise returns the URL of the search page.
- *    Default: 'echo'.
- * @return ?string Displays a search box or returns the URL to the search
- *    page depending on output_method. If you don't have permission to
- *    search, the function won't return anything.
- */
-function ssi_quickSearch(string $output_method = 'echo'): ?string
-{
-	return SMF\ServerSideIncludes::quickSearch($output_method);
-}
+	/**
+	 * Shows a search box
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::quickSearch() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    search box, otherwise returns the URL of the search page.
+	 *    Default: 'echo'.
+	 * @return ?string Displays a search box or returns the URL to the search
+	 *    page depending on output_method. If you don't have permission to
+	 *    search, the function won't return anything.
+	 */
+	function ssi_quickSearch(string $output_method = 'echo'): ?string
+	{
+		return SMF\ServerSideIncludes::quickSearch($output_method);
+	}
 
-/**
- * Show a random forum news item
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::news() instead.
- *
- * @param string $output_method The output method. If 'echo', shows the news
- *    item, otherwise returns it.
- *    Default: 'echo'.
- * @return ?string Shows or returns a random forum news item, depending on
- *    output_method.
- */
-function ssi_news(string $output_method = 'echo'): ?string
-{
-	return SMF\ServerSideIncludes::news($output_method);
-}
+	/**
+	 * Show a random forum news item
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::news() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', shows the news
+	 *    item, otherwise returns it.
+	 *    Default: 'echo'.
+	 * @return ?string Shows or returns a random forum news item, depending on
+	 *    output_method.
+	 */
+	function ssi_news(string $output_method = 'echo'): ?string
+	{
+		return SMF\ServerSideIncludes::news($output_method);
+	}
 
-/**
- * Show today's birthdays.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysBirthdays() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list of users, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of users or returns an array of info about
- *    them depending on output_method.
- */
-function ssi_todaysBirthdays(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::todaysBirthdays($output_method);
-}
+	/**
+	 * Show today's birthdays.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysBirthdays() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of users, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of users or returns an array of info about
+	 *    them depending on output_method.
+	 */
+	function ssi_todaysBirthdays(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysBirthdays($output_method);
+	}
 
-/**
- * Shows today's holidays.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysHolidays() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list of holidays, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of holidays or returns an array of info
- *    about them depending on output_method.
- */
-function ssi_todaysHolidays(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::todaysHolidays($output_method);
-}
+	/**
+	 * Shows today's holidays.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysHolidays() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of holidays, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of holidays or returns an array of info
+	 *    about them depending on output_method.
+	 */
+	function ssi_todaysHolidays(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysHolidays($output_method);
+	}
 
-/**
- * Shows today's events.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysEvents() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list of events, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays a list of events or returns an array of info
- *    about them depending on output_method.
- */
-function ssi_todaysEvents(string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::todaysEvents($output_method);
-}
+	/**
+	 * Shows today's events.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysEvents() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of events, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a list of events or returns an array of info
+	 *    about them depending on output_method.
+	 */
+	function ssi_todaysEvents(string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::todaysEvents($output_method);
+	}
 
-/**
- * Shows today's calendar items (events, birthdays and holidays)
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysCalendar() instead.
- *
- * @param string $output_method The output method. If 'echo', displays a
- *    list of calendar items, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return array|string|null Displays a list of calendar items or returns an
- *    array of info about them depending on output_method.
- */
-function ssi_todaysCalendar(string $output_method = 'echo'): array|string|null
-{
-	return SMF\ServerSideIncludes::todaysCalendar($output_method);
-}
+	/**
+	 * Shows today's calendar items (events, birthdays and holidays)
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::todaysCalendar() instead.
+	 *
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    list of calendar items, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return array|string|null Displays a list of calendar items or returns an
+	 *    array of info about them depending on output_method.
+	 */
+	function ssi_todaysCalendar(string $output_method = 'echo'): array|string|null
+	{
+		return SMF\ServerSideIncludes::todaysCalendar($output_method);
+	}
 
-/**
- * Show the latest news, with a template... by board.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::boardNews() instead.
- *
- * @param ?int $board The ID of the board to get the info from.
- *    Defaults to $board or $_GET['board'] if not set.
- * @param ?int $limit How many items to show.
- *    Defaults to $_GET['limit'] or 5 if not set.
- * @param ?int $start Start with the specified item.
- *    Defaults to $_GET['start'] or 0 if not set.
- * @param ?int $length How many characters to show from each post.
- *    Defaults to $_GET['length'] or 0 (no limit) if not set.
- * @param string $output_method The output method. If 'echo', displays the
- *    news items, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays the news items or returns an array of info about
- *    them, depending on output_method.
- */
-function ssi_boardNews(
-	?int $board = null,
-	?int $limit = null,
-	?int $start = null,
-	?int $length = null,
-	string $output_method = 'echo',
-): ?array {
-	return SMF\ServerSideIncludes::boardNews(
-		$board,
-		$limit,
-		$start,
-		$length,
-		$output_method,
-	);
-}
+	/**
+	 * Show the latest news, with a template... by board.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::boardNews() instead.
+	 *
+	 * @param ?int $board The ID of the board to get the info from.
+	 *    Defaults to $board or $_GET['board'] if not set.
+	 * @param ?int $limit How many items to show.
+	 *    Defaults to $_GET['limit'] or 5 if not set.
+	 * @param ?int $start Start with the specified item.
+	 *    Defaults to $_GET['start'] or 0 if not set.
+	 * @param ?int $length How many characters to show from each post.
+	 *    Defaults to $_GET['length'] or 0 (no limit) if not set.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    news items, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the news items or returns an array of info about
+	 *    them, depending on output_method.
+	 */
+	function ssi_boardNews(
+		?int $board = null,
+		?int $limit = null,
+		?int $start = null,
+		?int $length = null,
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::boardNews(
+			$board,
+			$limit,
+			$start,
+			$length,
+			$output_method,
+		);
+	}
 
-/**
- * Show the most recent events
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentEvents() instead.
- *
- * @param int $max_events The maximum number of events to show.
- * @param string $output_method The output method. If 'echo', displays the
- *    events, otherwise returns an array of info about them.
- *    Default: 'echo'.
- * @return ?array Displays the events or returns an array of info about them,
- *    depending on output_method.
- */
-function ssi_recentEvents(int $max_events = 7, string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::recentEvents($max_events, $output_method);
-}
+	/**
+	 * Show the most recent events
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentEvents() instead.
+	 *
+	 * @param int $max_events The maximum number of events to show.
+	 * @param string $output_method The output method. If 'echo', displays the
+	 *    events, otherwise returns an array of info about them.
+	 *    Default: 'echo'.
+	 * @return ?array Displays the events or returns an array of info about them,
+	 *    depending on output_method.
+	 */
+	function ssi_recentEvents(int $max_events = 7, string $output_method = 'echo'): ?array
+	{
+		return SMF\ServerSideIncludes::recentEvents($max_events, $output_method);
+	}
 
-/**
- * Checks whether the specified password is correct for the specified user.
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::checkPassword() instead.
- *
- * @param int|string|null $id The ID or username of a user.
- * @param string|null $password The password to check.
- * @param bool $is_username If true, treats $id as a username rather than a
- *    user ID.
- * @return bool Whether or not the password is correct.
- */
-function ssi_checkPassword(?int $id = null, ?string $password = null, bool $is_username = false): bool
-{
-	return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
-}
+	/**
+	 * Checks whether the specified password is correct for the specified user.
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::checkPassword() instead.
+	 *
+	 * @param int|string|null $id The ID or username of a user.
+	 * @param string|null $password The password to check.
+	 * @param bool $is_username If true, treats $id as a username rather than a
+	 *    user ID.
+	 * @return bool Whether or not the password is correct.
+	 */
+	function ssi_checkPassword(
+		?int $id = null,
+		?string $password = null,
+		bool $is_username = false,
+	): bool {
+		return SMF\ServerSideIncludes::checkPassword($id, $password, $is_username);
+	}
 
-/**
- * Shows the most recent attachments that the user can see
- *
- * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentAttachments() instead.
- *
- * @param int $num_attachments How many to show.
- * @param array $attachment_ext If set, only shows attachments with the
- *    specified extensions ('jpg', 'gif', etc.)
- * @param string $output_method The output method. If 'echo', displays a
- *    table with links/info, otherwise returns an array with information
- *    about the attachments.
- *    Default: 'echo'.
- * @return ?array Displays a table of attachment info or returns an array
- *    containing info about the attachments, depending on output_method.
- */
-function ssi_recentAttachments(int $num_attachments = 10, array $attachment_ext = [], string $output_method = 'echo'): ?array
-{
-	return SMF\ServerSideIncludes::recentAttachments($num_attachments, $attachment_ext, $output_method);
+	/**
+	 * Shows the most recent attachments that the user can see
+	 *
+	 * @deprecated 3.0 Use \SMF\ServerSideIncludes::recentAttachments() instead.
+	 *
+	 * @param int $num_attachments How many to show.
+	 * @param array $attachment_ext If set, only shows attachments with the
+	 *    specified extensions ('jpg', 'gif', etc.)
+	 * @param string $output_method The output method. If 'echo', displays a
+	 *    table with links/info, otherwise returns an array with information
+	 *    about the attachments.
+	 *    Default: 'echo'.
+	 * @return ?array Displays a table of attachment info or returns an array
+	 *    containing info about the attachments, depending on output_method.
+	 */
+	function ssi_recentAttachments(
+		int $num_attachments = 10,
+		array $attachment_ext = [],
+		string $output_method = 'echo',
+	): ?array {
+		return SMF\ServerSideIncludes::recentAttachments(
+			$num_attachments,
+			$attachment_ext,
+			$output_method,
+		);
+	}
 }
 
 /***************************
@@ -11458,69 +11487,75 @@ function ssi_recentAttachments(int $num_attachments = 10, array $attachment_ext 
  ***************************/
 
 /*
- * Prevent fatal errors under PHP 8 when a disabled internal function is called.
+ * Prevent fatal errors under PHP 8 when disabled internal functions are called.
  *
  * Before PHP 8, calling a disabled internal function merely generated a
  * warning that could be easily suppressed by the @ operator. But as of PHP 8
  * a disabled internal function is treated like it is undefined, which means
  * a fatal error will be thrown and execution will halt. SMF expects the old
  * behaviour, so these no-op polyfills make sure that is what happens.
+ *
+ * This section contains compatibility functions that meet the following
+ * conditions:
+ *
+ * 1. SMF assumes they are defined, even if disabled. Note that prior to
+ *    PHP 8, this was always true for internal functions.
+ *
+ * 2. Some hosts are known to disable them.
+ *
+ * 3. SMF can get by without them (as opposed to missing functions that
+ *    really SHOULD cause execution to halt).
  */
 if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
-	// This is wrapped in a closure to keep the global namespace clean.
-	call_user_func(function () {
-		/*
-		 * This array contains function names that meet the following conditions:
-		 *
-		 * 1. SMF assumes they are defined, even if disabled. Note that prior to
-		 *    PHP 8, this was always true for internal functions.
-		 *
-		 * 2. Some hosts are known to disable them.
-		 *
-		 * 3. SMF can get by without them (as opposed to missing functions that
-		 *    really SHOULD cause execution to halt).
-		 */
-		$optional_funcs = [
-			'set_time_limit',
-		];
-
-		foreach ($optional_funcs as $func) {
-			if (!function_exists($func)) {
-				eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled", E_USER_WARNING); }');
-			}
+	if (!function_exists('set_time_limit')) {
+		function set_time_limit(int $seconds): bool
+		{
+			return false;
 		}
-	});
+	}
 }
 
 /*****************
  * Polyfills, etc.
  *****************/
 
+if (!defined('IDNA_DEFAULT')) {
+	define('IDNA_DEFAULT', 0);
+}
+
+if (!defined('IDNA_ALLOW_UNASSIGNED')) {
+	define('IDNA_ALLOW_UNASSIGNED', 1);
+}
+
+if (!defined('IDNA_USE_STD3_RULES')) {
+	define('IDNA_USE_STD3_RULES', 2);
+}
+
+if (!defined('IDNA_CHECK_BIDI')) {
+	define('IDNA_CHECK_BIDI', 4);
+}
+
+if (!defined('IDNA_CHECK_CONTEXTJ')) {
+	define('IDNA_CHECK_CONTEXTJ', 8);
+}
+
+if (!defined('IDNA_NONTRANSITIONAL_TO_ASCII')) {
+	define('IDNA_NONTRANSITIONAL_TO_ASCII', 16);
+}
+
+if (!defined('IDNA_NONTRANSITIONAL_TO_UNICODE')) {
+	define('IDNA_NONTRANSITIONAL_TO_UNICODE', 32);
+}
+
+if (!defined('INTL_IDNA_VARIANT_2003')) {
+	define('INTL_IDNA_VARIANT_2003', 0);
+}
+
+if (!defined('INTL_IDNA_VARIANT_UTS46')) {
+	define('INTL_IDNA_VARIANT_UTS46', 1);
+}
+
 if (!function_exists('idn_to_ascii')) {
-	// This is wrapped in a closure to keep the global namespace clean.
-	call_user_func(function () {
-		/**
-		 * IDNA_* constants used as flags for the idn_to_* functions.
-		 */
-		$idna_constants = [
-			'IDNA_DEFAULT' => 0,
-			'IDNA_ALLOW_UNASSIGNED' => 1,
-			'IDNA_USE_STD3_RULES' => 2,
-			'IDNA_CHECK_BIDI' => 4,
-			'IDNA_CHECK_CONTEXTJ' => 8,
-			'IDNA_NONTRANSITIONAL_TO_ASCII' => 16,
-			'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
-			'INTL_IDNA_VARIANT_2003' => 0,
-			'INTL_IDNA_VARIANT_UTS46' => 1,
-		];
-
-		foreach ($idna_constants as $name => $value) {
-			if (!defined($name)) {
-				define($name, $value);
-			}
-		}
-	});
-
 	/**
 	 * Compatibility function.
 	 *
