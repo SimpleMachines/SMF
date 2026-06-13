@@ -215,8 +215,13 @@ class Image
 			$this->original = $this->source;
 			$this->is_temp = false;
 		} else {
+			// Is $source the URL for an external file?
+			$url = Url::create($source);
+			$is_url = $url->isValid();
+			unset($url);
+
 			// External file.
-			if (Url::create($source)->isValid()) {
+			if ($is_url) {
 				// Remember the URL as the original source.
 				$this->original = $source;
 
@@ -237,11 +242,14 @@ class Image
 			}
 		}
 
+		// Save memory.
+		unset($source);
+
 		// Get the MIME type of the source file.
 		$mime_type = Utils::getMimeType($this->source, true);
 
 		// Not an image? Error and bail out.
-		if (!\is_string($mime_type) || strpos($mime_type, 'image/') !== 0) {
+		if (!\is_string($mime_type) || !str_starts_with($mime_type, 'image/')) {
 			if ($this->is_temp) {
 				@unlink($this->source);
 			}
