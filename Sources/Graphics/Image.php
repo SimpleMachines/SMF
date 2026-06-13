@@ -159,30 +159,6 @@ class Image
 	 */
 	public bool $embedded_thumb = false;
 
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * All IMAGETYPE_* constants known by this version of PHP.
-	 *
-	 * Keys are the string names of the constants.
-	 * Values are the literal integer values of those constants.
-	 */
-	public static array $image_types;
-
-	/**
-	 * @var array
-	 *
-	 * Raster image types that are fully supported both by this class and by the
-	 * installed graphics library.
-	 *
-	 * Values are the integer values of IMAGETYPE_* constants.
-	 */
-	public static array $supported;
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -194,6 +170,24 @@ class Image
 	 * This is used by the reencode() method.
 	 */
 	protected bool $force_resize = false;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Cache for self::getImageTypes()
+	 */
+	protected static array $image_types;
+
+	/**
+	 * @var array
+	 *
+	 * Cache for self::getSupportedFormats()
+	 */
+	protected static array $supported;
 
 	/****************
 	 * Public methods
@@ -454,7 +448,7 @@ class Image
 		}
 
 		// What destination format do we want?
-		if ($preferred_type === 0 || !\in_array($preferred_type, self::$supported)) {
+		if ($preferred_type === 0 || !\in_array($preferred_type, self::getSupportedFormats())) {
 			$preferred_type = $this->type ?? self::DEFAULT_IMAGETYPE;
 		}
 
@@ -1028,9 +1022,9 @@ class Image
 		}
 
 		// Figure out the functions we need.
-		$imagecreatefrom = 'imagecreatefrom' . strtolower(substr(array_search($this->type, self::$supported), 10));
+		$imagecreatefrom = 'imagecreatefrom' . strtolower(substr(array_search($this->type, self::getSupportedFormats()), 10));
 
-		$imagesave = 'image' . strtolower(substr(array_search($preferred_type, self::$supported), 10));
+		$imagesave = 'image' . strtolower(substr(array_search($preferred_type, self::getSupportedFormats()), 10));
 
 		// Do the functions exist?
 		if (!\function_exists($imagecreatefrom) || !\function_exists($imagesave)) {
