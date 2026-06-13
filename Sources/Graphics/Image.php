@@ -355,7 +355,7 @@ class Image
 	 * with the appropriate file extension for the new format, and then removes
 	 * the original file.
 	 *
-	 * @param int $preferred_type And IMAGETYPE_* constant, or 0 for automatic.
+	 * @param int $preferred_type An IMAGETYPE_* constant, or 0 for automatic.
 	 * @return bool Whether the reencoding operation was successful.
 	 */
 	public function reencode(int $preferred_type = 0): bool
@@ -420,7 +420,7 @@ class Image
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
 	 * @param int $max_height The maximum allowed height.
-	 * @param int &$preferred_type And IMAGETYPE_* constant, or 0 for automatic.
+	 * @param int &$preferred_type An IMAGETYPE_* constant, or 0 for automatic.
 	 * @return bool Whether it succeeded.
 	 */
 	public function resize(string $destination, int $max_width, int $max_height, int &$preferred_type = 0): bool
@@ -437,12 +437,17 @@ class Image
 
 		// If it doesn't need to be resized, just copy it to the destination.
 		if (!$this->shouldResize($max_width, $max_height)) {
-			if ($this->source !== $destination) {
-				copy($this->source, $destination);
-				$this->source = $destination;
+			if ($this->source === $destination) {
+				return true;
 			}
 
-			return true;
+			if (@copy($this->source, $destination)) {
+				$this->source = $destination;
+
+				return true;
+			}
+
+			return false;
 		}
 
 		// Nothing to do without GD or Imagick.
@@ -1014,7 +1019,7 @@ class Image
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
 	 * @param int $max_height The maximum allowed height.
-	 * @param int $preferred_type And IMAGETYPE_* constant.
+	 * @param int $preferred_type An IMAGETYPE_* constant.
 	 * @return bool Whether the operation was successful.
 	 */
 	protected function resizeUsingGD(string $destination, int $max_width, int $max_height, int $preferred_type): bool
@@ -1048,8 +1053,6 @@ class Image
 			return false;
 		}
 
-		$success = false;
-
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) && (empty($max_height) || round($this->height * $max_width / $this->width) <= $max_height)) {
 			$dst_width = (int) $max_width;
@@ -1057,6 +1060,9 @@ class Image
 		} elseif (!empty($max_height)) {
 			$dst_width = (int) round($this->width * $max_height / $this->height);
 			$dst_height = (int) $max_height;
+		} else {
+			$dst_width = 0;
+			$dst_height = 0;
 		}
 
 		// Don't bother resizing if it's already smaller...
@@ -1117,7 +1123,7 @@ class Image
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
 	 * @param int $max_height The maximum allowed height.
-	 * @param int $preferred_type And IMAGETYPE_* constant.
+	 * @param int $preferred_type An IMAGETYPE_* constant.
 	 * @return bool Whether the operation was successful.
 	 */
 	protected function resizeUsingImagick(string $destination, int $max_width, int $max_height, int $preferred_type): bool
