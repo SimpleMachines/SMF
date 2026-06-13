@@ -1710,11 +1710,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 ) ENGINE=MyISAM;
 ---#
 
----# Adding likes column to the messages table. (May take a while)
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes SMALLINT UNSIGNED NOT NULL DEFAULT '0';
----#
-
 /******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
@@ -2362,14 +2357,6 @@ ADD COLUMN in_inbox TINYINT NOT NULL DEFAULT '1';
 ---#
 
 /******************************************************************************/
---- Adding support for edit reasons (May take a while)
-/******************************************************************************/
----# Adding "modified_reason" column to messages (May take a while)
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
----#
-
-/******************************************************************************/
 --- Cleaning up guest permissions
 /******************************************************************************/
 ---# Removing permissions guests can no longer have...
@@ -2597,10 +2584,6 @@ ADD COLUMN tfa_required TINYINT NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Remove redundant indexes
 /******************************************************************************/
----# Duplicates to messages_current_topic
-DROP INDEX idx_id_topic on {$db_prefix}messages;
-DROP INDEX idx_topic on {$db_prefix}messages;
----#
 
 ---# Duplicate to topics_last_message_sticky and topics_board_news
 DROP INDEX idx_id_board on {$db_prefix}topics;
@@ -2774,69 +2757,6 @@ DROP INDEX temp_old_ip2 on {$db_prefix}members;
 ---# Remove the old member columns
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
----#
-
-/******************************************************************************/
---- Update messages poster_ip with ipv6 support (May take a while)
-/******************************************************************************/
----# Rename old ip column on messages
----{
-$doChange = true;
-$column_info = upgradeGetColumnInfo('{db_prefix}messages', 'poster_ip');
-if (stripos($column_info['type'], 'varbinary') !== false)
-	$doChange = false;
-
-if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(255);");
----}
----#
-
----# Add the new ip column to messages
-ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
----#
-
----# Create an ip index for old ips
----{
-$doChange = true;
-$results = $smcFunc['db_list_columns']('{db_prefix}messages');
-if (!in_array('poster_ip_old', $results))
-	$doChange = false;
-
-if ($doChange)
-	upgrade_query("CREATE INDEX {$db_prefix}temp_old_poster_ip ON {$db_prefix}messages (poster_ip_old);");
----}
----#
-
----# Initialize new ip column
----{
-$results = $smcFunc['db_list_columns']('{db_prefix}messages');
-if (in_array('poster_ip_old', $results))
-{
-	upgrade_query("UPDATE {$db_prefix}messages SET poster_ip = '';");
-}
----}
----#
-
----# Convert ips on messages
----{
-MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
----}
----#
-
----# Remove the temporary ip indexes
-DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
----#
-
----# Drop old column to messages
-ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
----#
-
----# Add the index again to messages poster ip topic
-CREATE INDEX idx_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
----#
-
----# Add the index again to messages poster ip msg
-CREATE INDEX idx_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
 
 /******************************************************************************/
@@ -3077,14 +2997,6 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---#
 
 /******************************************************************************/
---- Create index for messages likes
-/******************************************************************************/
----# Add Index for messages likes
-DROP INDEX idx_likes ON {$db_prefix}messages;
-CREATE INDEX idx_likes ON {$db_prefix}messages (likes);
----#
-
-/******************************************************************************/
 --- Aligning legacy column data
 /******************************************************************************/
 ---# Updating board_permissions
@@ -3203,56 +3115,6 @@ DROP INDEX idx_active_real_name;
 ---# Updating members active_real_name (add)
 ALTER TABLE {$db_prefix}members
 ADD INDEX idx_active_real_name (is_activated, real_name);
----#
-
----# Updating messages drop old ipIndex
-ALTER TABLE {$db_prefix}messages
-DROP INDEX ipIndex;
----#
-
----# Updating messages drop old ip_index
-ALTER TABLE {$db_prefix}messages
-DROP INDEX ip_index;
----#
-
----# Updating messages drop old related_ip
-ALTER TABLE {$db_prefix}messages
-DROP INDEX related_ip;
----#
-
----# Updating messages drop old topic ix
-ALTER TABLE {$db_prefix}messages
-DROP INDEX topic;
----#
-
----# Updating messages drop another old topic ix
-ALTER TABLE {$db_prefix}messages
-DROP INDEX id_topic;
----#
-
----# Updating messages drop approved ix
-ALTER TABLE {$db_prefix}messages
-DROP INDEX approved;
----#
-
----# Updating messages drop approved ix alt name
-ALTER TABLE {$db_prefix}messages
-DROP INDEX idx_approved;
----#
-
----# Updating messages drop id_board ix
-ALTER TABLE {$db_prefix}messages
-DROP INDEX id_board;
----#
-
----# Updating messages drop id_board ix alt name
-ALTER TABLE {$db_prefix}messages
-DROP INDEX idx_id_board;
----#
-
----# Updating messages add new id_board ix
-ALTER TABLE {$db_prefix}messages
-ADD UNIQUE INDEX idx_id_board (id_board, id_msg, approved);
 ---#
 
 ---# Updating topics drop old id_board ix
@@ -3911,4 +3773,239 @@ foreach($files AS $filename)
 ---# Updating primary key for log_search_results table
 ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
+---#
+
+/******************************************************************************/
+---  Restructure Messages
+/******************************************************************************/
+
+---# If messages_21upgr_copy doesn't exist, create it
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}messages', 'poster_ip');
+if (stripos($column_info['type'], 'varbinary') === false)
+{
+	$request = $smcFunc['db_query']('',
+		'SHOW TABLES LIKE {string:table_copy}',
+		array(
+			'table_copy' => $db_prefix . 'messages_21upgr_copy',
+		),
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+	{
+		$smcFunc['db_query']('',
+			'RENAME TABLE {db_prefix}messages to {db_prefix}messages_21upgr_copy',
+			array(),
+		);
+		$smcFunc['db_query']('',
+			'CREATE TABLE {db_prefix}messages LIKE {db_prefix}messages_21upgr_copy',
+			array(),
+		);
+	}
+}
+---}
+---#
+
+/* We want all structural changes to the messages table done here, prior to repopulating. */
+/* Many of these operations result in a full table copy & rebuild under the covers... */
+/* Doing these operations on an empty table saves a LOT of time. */
+
+---# Adding likes column to the messages table
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN likes SMALLINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Adding "modified_reason" column to messages
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
+---# Duplicates to messages_current_topic
+DROP INDEX idx_id_topic on {$db_prefix}messages;
+DROP INDEX idx_topic on {$db_prefix}messages;
+---#
+
+---# Redefine Index for messages likes
+DROP INDEX idx_likes ON {$db_prefix}messages;
+CREATE INDEX idx_likes ON {$db_prefix}messages (likes);
+---#
+
+---# Updating messages drop old ipIndex
+ALTER TABLE {$db_prefix}messages
+DROP INDEX ipIndex;
+---#
+
+---# Updating messages drop old ip_index
+ALTER TABLE {$db_prefix}messages
+DROP INDEX ip_index;
+---#
+
+---# Updating messages drop old related_ip
+ALTER TABLE {$db_prefix}messages
+DROP INDEX related_ip;
+---#
+
+---# Updating messages drop old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX topic;
+---#
+
+---# Updating messages drop another old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX id_topic;
+---#
+
+---# Updating messages drop approved ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX approved;
+---#
+
+---# Updating messages drop approved ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_approved;
+---#
+
+---# Updating messages drop id_board ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX id_board;
+---#
+
+---# Updating messages drop id_board ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_id_board;
+---#
+
+---# Updating messages add new id_board ix
+ALTER TABLE {$db_prefix}messages
+ADD UNIQUE INDEX idx_id_board (id_board, id_msg, approved);
+---#
+
+---# Rename old ip column on messages
+---{
+$doChange = true;
+$column_info = upgradeGetColumnInfo('{db_prefix}messages', 'poster_ip');
+if (stripos($column_info['type'], 'varbinary') !== false)
+	$doChange = false;
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(255);");
+---}
+---#
+
+---# Add the new ip column to messages
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+---#
+
+---# Create an ip index for old ips
+---{
+$doChange = true;
+$results = $smcFunc['db_list_columns']('{db_prefix}messages');
+if (!in_array('poster_ip_old', $results))
+	$doChange = false;
+
+// Move to end for faster deletion later
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE COLUMN poster_ip_old poster_ip_old varchar(255) AFTER poster_ip;");
+
+if ($doChange)
+	upgrade_query("CREATE INDEX {$db_prefix}temp_old_poster_ip ON {$db_prefix}messages (poster_ip_old);");
+---}
+---#
+
+---# Repopulate messages table
+---{
+$request = $smcFunc['db_query']('',
+	'SHOW TABLES LIKE {string:table_copy}',
+	array(
+		'table_copy' => $db_prefix . 'messages_21upgr_copy',
+	),
+);
+if ($smcFunc['db_num_rows']($request) > 0)
+{
+	$chunksize = 50000;
+	$records = 0;
+	$chunks = 1;
+	$request = $smcFunc['db_query']('',
+		'SELECT COUNT(*) FROM {db_prefix}messages_21upgr_copy',
+		array(),
+	);
+	list ($records) = $smcFunc['db_fetch_row']($request);
+	$chunks = ceil($records/$chunksize);
+
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Repopulating messages table';
+	$step_progress['current'] = $_GET['a'];
+	$step_progress['total'] = $chunks;
+
+	// Just in case of restart...
+	if ($_GET['a'] == 0)
+	{
+		$request = $smcFunc['db_query']('',
+			'TRUNCATE TABLE {db_prefix}messages',
+			array(),
+		);
+	}
+
+	// Need column lists...  map old poster_ip to poster_ip_old, and '' to the new poster_ip
+	// Other new cols have defaults, we are OK not mapping them
+	$msg_columns = $smcFunc['db_list_columns']('{db_prefix}messages_21upgr_copy');
+	$old_ip_key = array_search('poster_ip', $msg_columns, true);
+	unset($msg_columns[$old_ip_key]);
+	$from_cols = implode(',', $msg_columns) . ',\'\',poster_ip';
+	$to_cols = implode(',', $msg_columns) . ',poster_ip,poster_ip_old';
+
+	$is_done = false;
+	while (!$is_done)
+	{
+		nextSubstep($substep);
+
+		$request = $smcFunc['db_query']('',
+			'INSERT INTO {db_prefix}messages ({raw:to_cols}) SELECT {raw:from_cols} FROM {db_prefix}messages_21upgr_copy WHERE id_msg BETWEEN {int:chunk_start} AND {int:chunk_end}',
+			array(
+				'to_cols' => $to_cols,
+				'from_cols' => $from_cols,
+				'chunk_start' => ($_GET['a'] * $chunksize) + 1,
+				'chunk_end' => (($_GET['a'] + 1) * $chunksize),
+			),
+		);
+
+		$_GET['a']++;
+		$step_progress['current'] = $_GET['a'];
+		if ($_GET['a'] >= $chunks)
+			$is_done = true;
+	}
+	// Done with this now...
+	$request = $smcFunc['db_query']('',
+		'DROP TABLE {db_prefix}messages_21upgr_copy',
+		array(),
+	);
+}
+$step_progress = array();
+unset($_GET['a']);
+---}
+---#
+
+/******************************************************************************/
+--- IPv6 Conversion
+/******************************************************************************/
+
+---# Convert ips on messages
+---{
+MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
+---}
+---#
+
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
+---#
+
+---# Drop old column to messages
+ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
+---#
+
+---# Add the index again to messages poster ip topic
+CREATE INDEX idx_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+---#
+
+---# Add the index again to messages poster ip msg
+CREATE INDEX idx_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
