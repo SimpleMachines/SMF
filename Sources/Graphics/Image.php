@@ -670,8 +670,13 @@ class Image
 			return;
 		}
 
-		// SVGs don't have an IMAGETYPE_*.
+		// In PHP 8.5 when libxml is loaded, exif_imagetype() can detect SVGs
+		// and assigns them the type IMAGETYPE_SVG. But since we don't know
+		// whether that'll work on this particular server, just set it manually.
 		if ($this->mime_type === 'image/svg+xml') {
+			// IMAGETYPE_SVG === 21
+			$this->type = 21;
+
 			return;
 		}
 
@@ -690,10 +695,19 @@ class Image
 		}
 
 		// If all else fails, see if we can guess from the MIME type.
-		if (strpos($this->mime_type, 'image/') === 0) {
-			// Unfortunately, 'image/tiff' could be two different things,
-			// and if we got here, we have no way to guess which one.
+		if (str_starts_with($this->mime_type, 'image/')) {
+			// 'image/tiff' could be two different things.
 			if ($this->mime_type === 'image/tiff') {
+				switch (file_get_contents($this->source, offset: 0, length: 2)) {
+					case 'II':
+						$this->type = IMAGETYPE_TIFF_II;
+						break;
+
+					case 'MM':
+						$this->type = IMAGETYPE_TIFF_MM;
+						break;
+				}
+
 				return;
 			}
 
@@ -1149,37 +1163,5 @@ class Image
 		}
 
 		return $imagick->writeImage($destination);
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Gets the IMAGETYPE_* constant corresponding to the passed MIME type.
-	 *
-	 * This doesn't work for all cases, but it does for the most common ones.
-	 *
-	 * @return int An IMAGETYPE_* constant, or 0 if no match was found.
-	 */
-	protected static function mimeTypeToImageType(string $mime_type): int
-	{
-		// We can't do anything useful with 'application/octet-stream', etc.
-		if (strpos($mime_type, 'image/') !== 0) {
-			return 0;
-		}
-
-		// Unfortunately, 'image/tiff' could be two different things.
-		if ($mime_type === 'image/tiff') {
-			return 0;
-		}
-
-		foreach (self::getImageTypes() as $type) {
-			if (image_type_to_mime_type($type) === $mime_type) {
-				return $type;
-			}
-		}
-
-		return 0;
 	}
 }
