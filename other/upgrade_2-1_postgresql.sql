@@ -71,6 +71,59 @@ if (!empty($upcontext['empty_error']))
 ---#
 
 /******************************************************************************/
+--- Checking for fulltext index
+/******************************************************************************/
+
+---# If index exists drop it and make a note
+---{
+// Detect whether a fulltext index is set.
+$request = $smcFunc['db_query']('', '
+	SHOW INDEX
+	FROM {db_prefix}messages',
+	array(
+	)
+);
+
+$_SESSION['dropping_index'] = false;
+
+// If there's a fulltext index, we need to drop it first...
+if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
+{
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
+			$upgrtmp['fulltext_index'][] = $row['Key_name'];
+	$smcFunc['db_free_result']($request);
+
+	if (isset($upgrtmp['fulltext_index']))
+		$upgrtmp['fulltext_index'] = array_unique($upgrtmp['fulltext_index']);
+}
+
+// Drop it and make a note...
+if (!empty($upgrtmp['fulltext_index']))
+{
+	$_SESSION['dropping_index'] = true;
+
+	$smcFunc['db_query']('', '
+		ALTER TABLE {db_prefix}messages
+		DROP INDEX ' . implode(',
+		DROP INDEX ', $upgrtmp['fulltext_index']),
+		array(
+			'db_error_skip' => true,
+		)
+	);
+
+	// Update the settings table
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('db_search_index', ''),
+		array('variable')
+	);
+}
+---}
+---#
+
+/******************************************************************************/
 --- Fixing sequences
 /******************************************************************************/
 
