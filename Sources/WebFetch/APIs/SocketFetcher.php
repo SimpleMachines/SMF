@@ -176,6 +176,14 @@ class SocketFetcher extends WebFetchApi
 			return $this;
 		}
 
+		// SSRF guard: applies to the initial target AND to every redirect
+		// re-entry below, replacing the broken cross-host check.
+		if (!WebFetchApi::isFetchSafe($url)) {
+			$this->closeConnection();
+
+			return $this;
+		}
+
 		$host = ($url->scheme === 'https' ? 'ssl://' : '') . $url->host;
 		$port = !empty($url->port) ? $url->port : ($url->scheme === 'https' ? 443 : 80);
 
@@ -260,8 +268,9 @@ class SocketFetcher extends WebFetchApi
 				return $this;
 			}
 
-			// Close if it moved to a different host.
-			if ($location->$host !== $url->host) {
+			// Close if it moved to a different host. (The redirect target is
+			// re-validated by the isFetchSafe() guard on the request() re-entry.)
+			if ($location->host !== $url->host) {
 				$this->closeConnection();
 			}
 

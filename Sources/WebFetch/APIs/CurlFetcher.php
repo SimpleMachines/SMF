@@ -434,6 +434,16 @@ class CurlFetcher extends WebFetchApi
 	 */
 	private function redirect(string $target_url, string $referrer_url): void
 	{
+		// SSRF guard: re-validate the redirect target before following it, so a
+		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
+		if (!WebFetchApi::isFetchSafe(Url::create($target_url, true))) {
+			if (isset($this->response[$this->current_redirect - 1])) {
+				$this->response[$this->current_redirect - 1]['success'] = false;
+			}
+
+			return;
+		}
+
 		// No, no, I last saw that over there... really, 301, 302, 307
 		$this->setOptions();
 		$this->options[CURLOPT_REFERER] = $referrer_url;

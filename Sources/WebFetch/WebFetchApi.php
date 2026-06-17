@@ -125,6 +125,14 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			$url = Url::create($url, true)->validate()->toAscii();
 		}
 
+		// SSRF guard: refuse loopback/private/link-local/reserved targets and
+		// non-fetchable schemes before any connection is attempted.
+		if (!self::isFetchSafe($url)) {
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
+
+			return false;
+		}
+
 		// No scheme? No data for you!
 		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
@@ -172,6 +180,64 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		}
 
 		return $fetcher->result('body');
+	}
+
+	/**
+	 * Decides whether a URL is safe to fetch from the server.
+	 *
+	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
+	 * host resolves (or is) a non-global IP address: loopback, private,
+	 * link-local (incl. 169.254.0.0/16 cloud metadata), or other reserved
+	 * ranges. This is the single chokepoint that prevents the avatar, proxy,
+	 * getMimeType, and task fetchers from being used as SSRF primitives. It is
+	 * also re-applied to each redirect target by the fetchers.
+	 *
+	 * @param \SMF\Url $url The URL to check.
+	 * @return bool True if the URL is safe to fetch, false otherwise.
+	 */
+	public static function isFetchSafe(Url $url): bool
+	{
+		// Only known fetchable schemes.
+		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
+			return false;
+		}
+
+		if (empty($url->host)) {
+			return false;
+		}
+
+		// Resolve the host to its address(es). A literal IP resolves to itself.
+		$ips = [];
+
+		if (filter_var($url->host, FILTER_VALIDATE_IP) !== false) {
+			$ips[] = $url->host;
+		} else {
+			$records = @dns_get_record($url->host, DNS_A | DNS_AAAA);
+
+			foreach ((array) $records as $record) {
+				if (!empty($record['ip'])) {
+					$ips[] = $record['ip'];
+				}
+
+				if (!empty($record['ipv6'])) {
+					$ips[] = $record['ipv6'];
+				}
+			}
+		}
+
+		// Couldn't resolve to anything: refuse rather than guess.
+		if ($ips === []) {
+			return false;
+		}
+
+		// EVERY resolved address must be a global, public, unicast IP.
+		foreach ($ips as $ip) {
+			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/******************
