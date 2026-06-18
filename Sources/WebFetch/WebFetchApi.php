@@ -72,6 +72,13 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	private static array $still_alive = [];
 
+	/**
+	 * @var array
+	 *
+	 * Cache for the results of self::isFetchSafe()
+	 */
+	private static array $safe_hosts = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -221,6 +228,11 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			return false;
 		}
 
+		// Avoid unnecessary repetition.
+		if (isset(self::$safe_hosts[$url->host])) {
+			return self::$safe_hosts[$url->host];
+		}
+
 		// Resolve the host to its address(es). A literal IP resolves to itself.
 		$ips = [];
 
@@ -240,19 +252,24 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			}
 		}
 
-		// Couldn't resolve to anything: refuse rather than guess.
-		if ($ips === []) {
-			return false;
+		if (
+			// Couldn't resolve to anything: refuse rather than guess.
+			$ips === []
+			// EVERY resolved address must be a global, public, unicast IP.
+			|| $ips !== filter_var_array(
+				$ips,
+				[
+					'filter' => FILTER_VALIDATE_IP,
+					'flags' => FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
+				],
+			)
+		) {
+			self::$safe_hosts[$url->host] = false;
 		}
 
-		// EVERY resolved address must be a global, public, unicast IP.
-		foreach ($ips as $ip) {
-			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-				return false;
-			}
-		}
+		self::$safe_hosts[$url->host] ??= true;
 
-		return true;
+		return self::$safe_hosts[$url->host];
 	}
 
 	/******************
