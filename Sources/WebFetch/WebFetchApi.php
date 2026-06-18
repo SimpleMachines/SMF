@@ -193,12 +193,20 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 * also re-applied to each redirect target by the fetchers.
 	 *
 	 * @param \SMF\Url $url The URL to check.
+	 * @param array $allowed_schemes Optional list of allowed URL schemes.
+	 *    If empty, all schemes that have handlers are allowed. Otherwise, only
+	 *    URLs using the one of the specified schemes will be allowed.
+	 *    Default: []
 	 * @return bool True if the URL is safe to fetch, false otherwise.
 	 */
-	public static function isFetchSafe(Url $url): bool
+	public static function isFetchSafe(Url $url, array $allowed_schemes = []): bool
 	{
 		// Only known fetchable schemes.
-		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
+		if (
+			empty($url->scheme)
+			|| !isset(self::$scheme_handlers[$url->scheme])
+			|| (!empty($allowed_schemes) && !\in_array($url->scheme, $allowed_schemes))
+		) {
 			return false;
 		}
 
