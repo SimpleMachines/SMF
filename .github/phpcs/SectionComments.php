@@ -341,6 +341,15 @@ final class SectionComments extends AbstractFixer
 						$exists[$insert_type] = true;
 					} else {
 						// Normalize whitespace.
+						if ($tokens[$insert_at - 1]->isWhitespace()) {
+							$prev = $tokens->getPrevMeaningfulToken($insert_at);
+
+							$tokens[$insert_at - 1] = new Token([
+								T_WHITESPACE,
+								$tokens[$prev]->equals('{') ? "\n\t" : "\n\n\t",
+							]);
+						}
+
 						if ($tokens[$insert_at + 1]->isWhitespace()) {
 							$tokens[$insert_at + 1] = new Token([
 								T_WHITESPACE,
