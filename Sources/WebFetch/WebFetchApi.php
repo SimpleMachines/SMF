@@ -122,8 +122,10 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	public static function fetch(Url|string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
 		if (!($url instanceof Url)) {
-			$url = Url::create($url, true)->validate()->toAscii();
+			$url = Url::create($url, true)->validate();
 		}
+
+		$url->toAscii();
 
 		// SSRF guard: refuse loopback/private/link-local/reserved targets and
 		// non-fetchable schemes before any connection is attempted.
@@ -210,7 +212,12 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			return false;
 		}
 
-		if (empty($url->host)) {
+		if (
+			// Must have a host.
+			empty($url->host)
+			// Reject reserved TLDs, since they are never in public DNS.
+			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $url->host)
+		) {
 			return false;
 		}
 
