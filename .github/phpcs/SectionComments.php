@@ -19,6 +19,7 @@ use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
+use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
@@ -316,6 +317,21 @@ final class SectionComments extends AbstractFixer
 
 					// Now we need to take one step forward again.
 					$insert_at++;
+
+					// Rewind to the first attribute in an attribute group.
+					while ($tokens[$prev_index = $tokens->getPrevMeaningfulToken($insert_at)]->isGivenKind(CT::T_ATTRIBUTE_CLOSE)) {
+						$insert_at = $tokens->findBlockStart(Tokens::BLOCK_TYPE_ATTRIBUTE, $prev_index);
+
+						while (
+							isset($tokens[$insert_at - 1])
+							&& ($tokens[$insert_at - 1]->isWhitespace() || $tokens[$insert_at - 1]->isComment())
+						) {
+							$insert_at--;
+						}
+
+						// Now we need to take one step forward again.
+						$insert_at++;
+					}
 
 					if ($tokens[$insert_at]->getContent() !== $this->comments[$insert_type]) {
 						// Create the comment to insert.
