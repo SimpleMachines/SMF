@@ -100,8 +100,15 @@ class IP implements \Stringable
 		}
 		// Is it in a valid IPv6 string?
 		elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
-			// Pack and unpack to ensure it is in standard form.
-			$this->ip = inet_ntop(inet_pton($ip));
+			if (str_starts_with($ip, '64:ff9b::')) {
+				// Workaround for a PHP bug where NAT64 addresses aren't handled
+				// properly when the last 32 bits are in IPv6 notation instead
+				// of IPv4 notation. See https://en.wikipedia.org/wiki/NAT64.
+				$this->ip = '64:ff9b::' . inet_ntop(hex2bin(substr(bin2hex(inet_pton($ip)), -8)));
+			} else {
+				// Pack and unpack to ensure it is in standard form.
+				$this->ip = inet_ntop(inet_pton($ip));
+			}
 		}
 		// It's either in binary form or it's invalid.
 		else {

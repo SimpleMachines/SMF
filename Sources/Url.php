@@ -499,7 +499,7 @@ class Url implements \Stringable
 			// Don't proxy URLs whose hosts are private or reserved IP addresses.
 			|| (
 				filter_var($proxied->host, FILTER_VALIDATE_IP) !== false
-				&& filter_var($proxied->host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
+				&& filter_var($proxied->host, FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) === false
 			)
 		) {
 			return $proxied;
