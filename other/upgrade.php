@@ -3629,7 +3629,7 @@ function serialize_to_json()
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
 						{
-							$new_settings[$var] = json_encode($temp);
+							$new_settings[$var] = json_encode($temp, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 							if ($new_settings[$var] === false)
 								$new_settings[$var] = '';
 							else
@@ -3681,7 +3681,7 @@ function serialize_to_json()
 
 						if ($temp !== false)
 						{
-							$row['value'] = json_encode($temp);
+							$row['value'] = json_encode($temp, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 							if ($row['value'] === false)
 								$row['value'] = '';
 							else
@@ -3771,7 +3771,7 @@ function serialize_to_json()
 										echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
 								}
 
-								$row[$col] = json_encode($temp);
+								$row[$col] = json_encode($temp, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 								if ($row[$col] === false)
 									$row[$col] = '';
 								else
