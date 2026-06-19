@@ -225,10 +225,11 @@ class CurlFetcher extends WebFetchApi
 	 */
 	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		if (!$url instanceof Url) {
+		if (!($url instanceof Url)) {
 			$url = new Url($url, true);
-			$url->toAscii();
 		}
+
+		$url->toAscii();
 
 		// If we can't do it, bail out.
 		if (!\function_exists('curl_init')) {
@@ -246,7 +247,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !\in_array($url->scheme, ['http', 'https'])) {
+		if (!WebFetchApi::isFetchSafe($url, ['http', 'https'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -434,6 +435,16 @@ class CurlFetcher extends WebFetchApi
 	 */
 	private function redirect(string $target_url, string $referrer_url): void
 	{
+		// SSRF guard: re-validate the redirect target before following it, so a
+		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
+		if (!WebFetchApi::isFetchSafe(Url::create($target_url, true))) {
+			if (isset($this->response[$this->current_redirect - 1])) {
+				$this->response[$this->current_redirect - 1]['success'] = false;
+			}
+
+			return;
+		}
+
 		// No, no, I last saw that over there... really, 301, 302, 307
 		$this->setOptions();
 		$this->options[CURLOPT_REFERER] = $referrer_url;

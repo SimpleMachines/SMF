@@ -134,16 +134,13 @@ class ProxyServer
 
 		$request = new Url($_GET['request']);
 
-		// Basic sanity check.
-		if (!$request->isValid()) {
-			return false;
-		}
-
-		// Just in case...
 		if (
-			filter_var($request->host, FILTER_VALIDATE_IP) !== false
-			|| $request->host === 'localhost'
+			// Basic sanity check.
+			!$request->isValid()
+			// Don't proxy our own resources.
 			|| $request->host === Url::create(Config::$boardurl)->host
+			// SSRF protection: don't proxy localhost, private or reserved IPs, etc.
+			|| !WebFetchApi::isFetchSafe($request)
 		) {
 			return false;
 		}

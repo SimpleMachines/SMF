@@ -17,6 +17,7 @@ namespace SMF\WebFetch;
 
 use SMF\Lang;
 use SMF\Url;
+use SMF\IP;
 
 /**
  * Class SearchApi
@@ -72,6 +73,13 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	private static array $still_alive = [];
 
+	/**
+	 * @var array
+	 *
+	 * Cache for the results of self::isFetchSafe()
+	 */
+	private static array $safe_hosts = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -122,7 +130,17 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	public static function fetch(Url|string $url, string|array $post_data = [], bool $keep_alive = false): string|false
 	{
 		if (!($url instanceof Url)) {
-			$url = Url::create($url, true)->validate()->toAscii();
+			$url = Url::create($url, true)->validate();
+		}
+
+		$url->toAscii();
+
+		// SSRF guard: refuse loopback/private/link-local/reserved targets and
+		// non-fetchable schemes before any connection is attempted.
+		if (!self::isFetchSafe($url)) {
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
+
+			return false;
 		}
 
 		// No scheme? No data for you!
@@ -172,6 +190,81 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		}
 
 		return $fetcher->result('body');
+	}
+
+	/**
+	 * Decides whether a URL is safe to fetch from the server.
+	 *
+	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
+	 * host resolves (or is) a non-global IP address: loopback, private,
+	 * link-local (incl. 169.254.0.0/16 cloud metadata), or other reserved
+	 * ranges. This is the single chokepoint that prevents the avatar, proxy,
+	 * getMimeType, and task fetchers from being used as SSRF primitives. It is
+	 * also re-applied to each redirect target by the fetchers.
+	 *
+	 * @param \SMF\Url $url The URL to check.
+	 * @param array $allowed_schemes Optional list of allowed URL schemes.
+	 *    If empty, all schemes that have handlers are allowed. Otherwise, only
+	 *    URLs using the one of the specified schemes will be allowed.
+	 *    Default: []
+	 * @return bool True if the URL is safe to fetch, false otherwise.
+	 */
+	public static function isFetchSafe(Url $url, array $allowed_schemes = []): bool
+	{
+		// Only known fetchable schemes.
+		if (
+			empty($url->scheme)
+			|| !isset(self::$scheme_handlers[$url->scheme])
+			|| (!empty($allowed_schemes) && !\in_array($url->scheme, $allowed_schemes))
+		) {
+			return false;
+		}
+
+		if (
+			// Must have a host.
+			empty($url->host)
+			// Reject reserved TLDs, since they are never in public DNS.
+			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $url->host)
+		) {
+			return false;
+		}
+
+		// Avoid unnecessary repetition.
+		if (isset(self::$safe_hosts[$url->host])) {
+			return self::$safe_hosts[$url->host];
+		}
+
+		// Resolve the host to its address(es). A literal IP resolves to itself.
+		$ips = [];
+
+		if (filter_var($url->host, FILTER_VALIDATE_IP) !== false) {
+			$ips[] = $url->host;
+		} else {
+			$records = @dns_get_record($url->host, DNS_A | DNS_AAAA);
+
+			foreach ((array) $records as $record) {
+				if (!empty($record['ip'])) {
+					$ips[] = $record['ip'];
+				}
+
+				if (!empty($record['ipv6'])) {
+					$ips[] = $record['ipv6'];
+				}
+			}
+		}
+
+		if (
+			// Couldn't resolve to anything: refuse rather than guess.
+			$ips === []
+			// EVERY resolved address must be a global, public, unicast IP.
+			|| $ips !== array_filter($ips, fn($ip) => IP::create($ip)->isValid(FILTER_FLAG_GLOBAL_RANGE)),
+		) {
+			self::$safe_hosts[$url->host] = false;
+		}
+
+		self::$safe_hosts[$url->host] ??= true;
+
+		return self::$safe_hosts[$url->host];
 	}
 
 	/******************
