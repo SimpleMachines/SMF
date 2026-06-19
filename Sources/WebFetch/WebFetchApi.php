@@ -15,9 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\WebFetch;
 
+use SMF\IP;
 use SMF\Lang;
 use SMF\Url;
-use SMF\IP;
 
 /**
  * Class SearchApi
@@ -257,7 +257,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			// Couldn't resolve to anything: refuse rather than guess.
 			$ips === []
 			// EVERY resolved address must be a global, public, unicast IP.
-			|| $ips !== array_filter($ips, fn($ip) => IP::create($ip)->isValid(FILTER_FLAG_GLOBAL_RANGE)),
+			|| $ips !== array_filter($ips, fn($ip) => IP::create($ip)->isValid(FILTER_FLAG_GLOBAL_RANGE))
 		) {
 			self::$safe_hosts[$url->host] = false;
 		}
