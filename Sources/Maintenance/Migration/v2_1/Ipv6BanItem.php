@@ -95,8 +95,8 @@ class Ipv6BanItem extends MigrationBase
 				$this->query(
 					'UPDATE IGNORE {db_prefix}ban_items
 					SET
-						ip_low = INET6_ATON(CONCAT_WS({literal:.}, ip_low1, ip_low2, ip_low3, ip_low4)),
-						ip_high = INET6_ATON(CONCAT_WS({literal:.}, ip_high1, ip_high2, ip_high3, ip_high4))
+						ip_low = UNHEX(HEX(INET_ATON(CONCAT_WS({literal:.}, ip_low1, ip_low2, ip_low3, ip_low4)))),
+						ip_high = UNHEX(HEX(INET_ATON(CONCAT_WS({literal:.}, ip_high1, ip_high2, ip_high3, ip_high4))))
 					WHERE ip_low1 > 0',
 				);
 			}
