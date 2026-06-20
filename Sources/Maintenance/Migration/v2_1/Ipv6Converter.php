@@ -53,7 +53,11 @@ trait Ipv6Converter
 
 			$this->query(
 				'UPDATE {db_prefix}{raw:table}
-				SET {raw:temp} = INET6_ATON({raw:column})',
+				SET
+					{raw:temp} = CASE
+						WHEN TRIM({raw:column}) = {empty} THEN NULL
+						ELSE INET6_ATON({raw:column})
+					END',
 				[
 					'table' => $table->name,
 					'column' => $column->name,
