@@ -677,13 +677,13 @@ class MessageFormatter
 			// Float precision format.
 			if (str_starts_with($stem, '.')) {
 				// Special handling if $number is in scientific notation.
-				if (stripos(\strval($number), 'E') !== false) {
-					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+				if (strpos(var_export($number, true), 'E') !== false) {
+					list($base, $exponent) = explode('E', var_export($number, true));
 					$significant_integers = max(1, (int) $exponent);
 					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
 				} else {
-					$significant_integers = \strlen(\strval(\intval($number + 0)));
-					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+					$significant_integers = (int) strpos(self::strval($number), '.');
+					$significant_decimals = (int) strpos(strrev(self::strval($number)), '.');
 				}
 
 				preg_match('/\.(0*)(#*)(\*?)/', $stem, $matches);
@@ -728,20 +728,20 @@ class MessageFormatter
 
 				$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 
-				if (!empty($options) && \in_array('w', $options) && $number == (int) $number) {
-					$number = \strval(\intval($number));
+				if (\in_array('w', $options ?? [])) {
+					$number = preg_replace('/\.0*$/', '', $number);
 				}
 			}
 			// Significant digits format.
 			elseif (str_starts_with($stem, '@')) {
 				// Special handling if $number is in scientific notation.
-				if (stripos(\strval($number), 'E') !== false) {
-					list($base, $exponent) = explode('E', strtoupper(\strval($number)));
+				if (strpos(var_export($number, true), 'E') !== false) {
+					list($base, $exponent) = explode('E', var_export($number, true));
 					$significant_integers = max(1, (int) $exponent);
 					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
 				} else {
-					$significant_integers = \strlen(\strval(\intval($number + 0)));
-					$significant_decimals = (int) strpos(strrev(\strval($number)), '.');
+					$significant_integers = (int) strpos(self::strval($number), '.');
+					$significant_decimals = (int) strpos(strrev(self::strval($number)), '.');
 				}
 
 				preg_match('/(@+)(#*)(\*?)/', $stem, $matches);
@@ -763,8 +763,8 @@ class MessageFormatter
 					$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 				}
 
-				if (!empty($options) && \in_array('w', $options) && $number == (int) $number) {
-					$number = \strval(\intval($number));
+				if (\in_array('w', $options ?? [])) {
+					$number = preg_replace('/\.0*$/', '', $number);
 				}
 			} else {
 				switch ($stem) {
@@ -859,14 +859,21 @@ class MessageFormatter
 						break;
 
 					case 'precision-increment':
-						$number /= $options[0];
-						$number = $round($number);
-						$number *= $options[0];
+						// Do we need to do any complicated rounding?
+						if (!empty($options[0] + 0) && trim($options[0], '0.') !== '1') {
+							$number = $round($number / $options[0]) * $options[0];
+						}
 
-						if (\is_float($number)) {
-							$precision = \is_float($options[0] + 0) ? \strlen($options[0]) - \strlen(\strval(\intval($options[0] + 0))) - 1 : 0;
+						$precision = str_contains($options[0], '.') ? strpos(strrev($options[0]), '.') : -(\strlen($options[0]) - 1);
 
-							$number = \sprintf("%0.{$precision}F", $number);
+						$number = self::strval($number);
+
+						if (!ctype_digit($number)) {
+							$number = \sprintf($precision <= 0 ? '%d' : '%.' . min($precision, strpos(strrev($number), '.')) . 'F', $round($number, $precision)) . str_repeat('0', max(0, $precision - strpos(strrev($number), '.')));
+						} elseif ($precision > 0) {
+							$number .= '.' . str_repeat('0', $precision);
+						} else {
+							$number = substr($number, 0, -(\strlen($options[0]))) . $round(substr($number, -(\strlen($options[0]))), $precision);
 						}
 
 						break;
@@ -972,11 +979,8 @@ class MessageFormatter
 		}
 
 		// Ensure $number is a string.
-		if (\is_float($number)) {
-			$precision = (int) strpos(strrev(\strval($number)), '.');
-			$number = \sprintf("%{$flags}.{$precision}F", $number);
-		} elseif (\is_int($number)) {
-			$number = \sprintf("%{$flags}d", $number);
+		if (!\is_string($number)) {
+			$number = self::strval($number, $flags);
 		}
 
 		// Apply the relevant grouping to the number.
@@ -1018,5 +1022,77 @@ class MessageFormatter
 		}
 
 		return $number;
+	}
+
+	/**
+	 * A wrapper for strval() with special handling to address the specific
+	 * needs of this class.
+	 *
+	 * @param mixed $input The value to be converted to a string.
+	 * @param string $flags Optional sprintf() flags.
+	 * @return string The new string.
+	 */
+	protected static function strval(mixed $input, string $flags = ''): string
+	{
+		// Convert floats to strings.
+		// Use var_export() for highest possible fidelity.
+		if (\is_float($input)) {
+			$input = var_export($input, true);
+		}
+
+		// For non-strings, just use normal strval().
+		if (!\is_string($input)) {
+			return $flags === '' ? @\strval($input) : \sprintf("%{$flags}s", @\strval($input));
+		}
+
+		// Non-numeric strings and integer strings need no further work.
+		if (!is_numeric($input) || ctype_digit($input)) {
+			return $input;
+		}
+
+		// A simple float.
+		if (stripos($input, 'E') === false) {
+			// Before returning, check whether sprintf() formats it with
+			// scientific notation.
+			$temp = \sprintf('%.17H', $input);
+
+			if (strpos($temp, 'E') === false) {
+				return \sprintf("%{$flags}.17H", $input);
+			}
+
+			$input = $temp;
+		}
+
+		// Scientific notation takes more work.
+		list($significand, $e) = explode('E', strtoupper($input));
+
+		$e = (int) $e;
+
+		// In case the decimal point is in a weird place.
+		if (strpos($significand, '.') !== 1) {
+			$e += strpos($significand, '.') - 1;
+			$significand = str_replace('.', '', $significand);
+			$significand = substr($significand, 0, 1) . '.' . substr($significand, 1);
+		}
+
+		// Shorten overly long significands.
+		if (\strlen($significand) > 18) {
+			// Do the rounding manually to avoid floating point errors.
+			$significand = substr($significand, 0, 17) . substr((string) round((int) substr($significand, 17, 2), -1), 0, 1);
+
+			$input = $significand . 'E' . \sprintf('%+d', $e);
+		}
+
+		// Negative exponents still aren't too difficult.
+		if ($e < 0) {
+			return \sprintf("%{$flags}." . (abs($e) + \strlen($significand) - 2) . 'F', $input);
+		}
+
+		// Postive exponents can get tricky for large values.
+		@list($int, $frac) = explode('.', $significand);
+
+		$frac = str_pad($frac ?? '', $e, '0');
+
+		return \sprintf("%{$flags}d", $int) . substr($frac, 0, $e) . rtrim('.' . substr($frac, $e), '.0');
 	}
 }
