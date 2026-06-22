@@ -952,7 +952,7 @@ class Lang
 			}
 		}
 
-		$skeleton = ':: ' . (!isset($decimals) ? '.*' : 'precision-increment/' . (10 ** -$decimals)) . ' rounding-mode-half-up';
+		$skeleton = ':: ' . (!isset($decimals) ? '.*' : 'precision-increment/' . \sprintf('%.' . max(0, $decimals) . 'F', 10 ** -$decimals)) . ' rounding-mode-half-up';
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}
