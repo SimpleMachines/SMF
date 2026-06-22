@@ -108,7 +108,7 @@ class ExportDownload implements ActionInterface
 
 		// Make sure they gave the correct authentication token.
 		// We use these tokens so the user can download without logging in, as required by the GDPR.
-		if ($_GET['t'] !== $this->dltoken) {
+		if (!hash_equals($this->dltoken, $_GET['t'])) {
 			Utils::sendHttpStatus(403);
 
 			exit;

@@ -309,7 +309,7 @@ abstract class Notify implements ActionInterface
 		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, \in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
 
 		// Don't do anything if the token they gave is wrong
-		if ($_REQUEST['token'] !== $expected_token) {
+		if (!hash_equals($expected_token, $_REQUEST['token'])) {
 			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 		}
 

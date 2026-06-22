@@ -245,7 +245,7 @@ class Auth
 		$binary = $this->base32_decode($initKey);
 
 		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++) {
-			if ($this->generateOneTime($binary, (string) $time) == $code) {
+			if (hash_equals($this->generateOneTime($binary, (string) $time), $code)) {
 				return true;
 			}
 		}
