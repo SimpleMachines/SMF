@@ -607,9 +607,12 @@ class MessageFormatter
 			// Tokens that affect how to manipulate the number.
 			'rounding-mode-ceiling',
 			'rounding-mode-floor',
-			'rounding-mode-down',
 			'rounding-mode-up',
+			'rounding-mode-down',
 			'rounding-mode-half-even',
+			'rounding-mode-half-odd',
+			'rounding-mode-half-ceiling',
+			'rounding-mode-half-floor',
 			'rounding-mode-half-down',
 			'rounding-mode-half-up',
 			'rounding-mode-unnecessary',
@@ -662,7 +665,7 @@ class MessageFormatter
 		usort($tokens, fn($a, $b) => array_search(str_starts_with($a[0], '.') || str_starts_with($a[0], '@') ? substr($a[0], 0, 1) : $a[0], $preferred_order) <=> array_search(str_starts_with($b[0], '.') || str_starts_with($b[0], '@') ? substr($b[0], 0, 1) : $b[0], $preferred_order));
 
 		// A few variables that will affect how we manipulate and format numbers below.
-		$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_EVEN);
+		$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, \RoundingMode::HalfEven);
 		$group = 'thousands';
 		$flags = '0';
 
@@ -766,44 +769,87 @@ class MessageFormatter
 			} else {
 				switch ($stem) {
 					case 'rounding-mode-ceiling':
-						$round = fn(int|float|string $number, int $precision = 0) => ceil($number * (10 ** $precision)) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::PositiveInfinity,
+						);
 						break;
 
 					case 'rounding-mode-floor':
-						$round = fn(int|float|string $number, int $precision = 0) => floor($number * (10 ** $precision)) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::NegativeInfinity,
+						);
 						break;
 
 					case 'rounding-mode-up':
-						$round = fn(int|float|string $number, int $precision = 0) => ($number >= 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::AwayFromZero,
+						);
 						break;
 
 					case 'rounding-mode-down':
-						$round = fn(int|float|string $number, int $precision = 0) => ($number < 0 ? ceil($number * (10 ** $precision)) : floor($number * (10 ** $precision))) / (10 ** $precision);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::TowardsZero,
+						);
 						break;
 
 					case 'rounding-mode-half-even':
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_EVEN);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::HalfEven,
+						);
 						break;
 
 					case 'rounding-mode-half-odd':
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_ODD);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::HalfOdd,
+						);
 						break;
 
 					case 'rounding-mode-half-ceiling':
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, $number >= 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							$number >= 0 ? \RoundingMode::HalfAwayFromZero : \RoundingMode::HalfTowardsZero,
+						);
 						break;
 
 					case 'rounding-mode-half-floor':
-						$rounding_mode = $number < 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN;
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, $number < 0 ? PHP_ROUND_HALF_UP : PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							$number < 0 ? \RoundingMode::HalfAwayFromZero : \RoundingMode::HalfTowardsZero,
+						);
 						break;
 
 					case 'rounding-mode-half-down':
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_DOWN);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::HalfTowardsZero,
+						);
 						break;
 
 					case 'rounding-mode-half-up':
-						$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, PHP_ROUND_HALF_UP);
+						$round = fn(int|float|string $number, int $precision = 0) => round(
+							$number + 0,
+							$precision,
+							\RoundingMode::HalfAwayFromZero,
+						);
+						break;
+
+					case 'rounding-mode-unnecessary':
+						$round = fn(int|float|string $number, int $precision = 0) => (float) $number;
 						break;
 
 					case 'scale':
