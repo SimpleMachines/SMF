@@ -222,7 +222,13 @@ class Security
 	 */
 	public static function checkConfirm(string $action): bool|string
 	{
-		if (isset($_GET['confirm'], $_SESSION['confirm_' . $action])     && hash_hmac('md5', $_SERVER['HTTP_USER_AGENT'], $_GET['confirm']) == $_SESSION['confirm_' . $action]) {
+		if (
+			isset($_GET['confirm'], $_SESSION['confirm_' . $action])
+			&& hash_equals(
+				$_SESSION['confirm_' . $action],
+				hash_hmac('md5', $_SERVER['HTTP_USER_AGENT'], $_GET['confirm']),
+			)
+		) {
 			return true;
 		}
 

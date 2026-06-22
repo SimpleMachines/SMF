@@ -64,7 +64,7 @@ class ExportAttachment implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['t']) || $_GET['t'] !== $this->dltoken) {
+		if (!isset($_GET['t']) || !hash_equals($this->dltoken, $_GET['t'])) {
 			Utils::sendHttpStatus(403);
 
 			exit;

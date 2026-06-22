@@ -1816,7 +1816,7 @@ class Calendar implements ActionInterface, Routable
 			if (
 				!($user instanceof User)
 				|| !$user->allowedTo('calendar_view')
-				|| $_REQUEST['token'] !== $this->createToken($user)
+				|| !hash_equals($this->createToken($user), $_REQUEST['token'])
 			) {
 				exit;
 			}
@@ -1852,7 +1852,7 @@ class Calendar implements ActionInterface, Routable
 		if (User::$me->is_guest && !empty($_REQUEST['u']) && isset($_REQUEST['token'])) {
 			$user = current(User::load((int) $_REQUEST['u']));
 
-			if (($user instanceof User) && $_REQUEST['token'] === $this->createToken($user)) {
+			if (($user instanceof User) && hash_equals($this->createToken($user), $_REQUEST['token'])) {
 				return $user;
 			}
 		}
