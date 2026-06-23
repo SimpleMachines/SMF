@@ -378,6 +378,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		array('variable')
 	);
 ---}
+---#
 
 ---# Disable Moderation Center Security if it doesn't exist
 ---{
@@ -876,7 +877,7 @@ VALUES
 ---#
 
 /******************************************************************************/
----- Adding background tasks support
+--- Adding background tasks support
 /******************************************************************************/
 ---# Adding the new table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
@@ -3321,6 +3322,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	deny smallint NOT NULL,
 	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
+---#
 
 ---# upgrade check
 ---{
@@ -3331,7 +3333,7 @@ $upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_ar
 ---}
 ---#
 
----#
+---# Truncate board_permissions view
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 

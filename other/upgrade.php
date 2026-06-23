@@ -5089,7 +5089,7 @@ function template_upgrade_complete()
  * @param int $setSize The amount of entries after which to update the database.
  * @return bool
  */
-function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 10000, $setSize = 100)
 {
 	global $smcFunc, $step_progress;
 

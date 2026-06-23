@@ -1061,7 +1061,7 @@ VALUES
 ---#
 
 /******************************************************************************/
----- Adding background tasks support
+--- Adding background tasks support
 /******************************************************************************/
 ---# Adding the sequence
 CREATE SEQUENCE IF NOT EXISTS {$db_prefix}background_tasks_seq;
@@ -2010,7 +2010,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 /******************************************************************************/
 --- Cleaning up integration hooks
 /******************************************************************************/
----#
+---# Deleting integration hooks
 DELETE FROM {$db_prefix}settings
 WHERE variable LIKE 'integrate_%';
 ---#
@@ -2150,6 +2150,7 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 		array('variable')
 	);
 ---}
+---#
 
 /******************************************************************************/
 --- Updating files that fetched from simplemachines.org
@@ -3098,7 +3099,7 @@ ALTER TABLE {$db_prefix}log_errors
 ---#
 
 /******************************************************************************/
---- update log_errors members ip with ipv6 support
+--- update members ip with ipv6 support
 /******************************************************************************/
 ---# upgrade check
 ---{
@@ -3108,7 +3109,7 @@ if (stripos($column_info['type'], 'inet') !== false)
 ---}
 ---#
 
----#
+---# update old columns on members
 ALTER TABLE {$db_prefix}members
 	ALTER member_ip DROP not null,
 	ALTER member_ip DROP default,
@@ -3594,6 +3595,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	deny smallint NOT NULL,
 	PRIMARY KEY (id_group, id_board, deny)
 );
+---#
 
 ---# upgrade check
 ---{
@@ -3604,7 +3606,7 @@ $upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_ar
 ---}
 ---#
 
----#
+---# Truncate board_permissions view
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 
