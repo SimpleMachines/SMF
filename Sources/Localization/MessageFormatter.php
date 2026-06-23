@@ -22,6 +22,7 @@ use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
+use function SMF\Unicode\country_currencies;
 use function SMF\Unicode\currencies;
 
 /**
@@ -40,28 +41,139 @@ class MessageFormatter
 	 * Note that not all currencies have long-form symbols. For currencies that
 	 * do not have long-form symbols, the raw currency code is used instead.
 	 */
-	public const CURRENCY_SYMBOLS = [
+	public const CURRENCY_SYMBOLS_LONG = [
 		'AUD' => 'A$',
 		'BRL' => 'R$',
 		'CAD' => 'CA$',
-		'CNY' => 'CN¥',
-		'EUR' => '€',
-		'GBP' => '£',
+		'CNY' => "CN\u{A5}",
+		'DEFAULT' => '¤',
+		'EUR' => "\u{20AC}",
+		'GBP' => "\u{A3}",
 		'HKD' => 'HK$',
-		'ILS' => '₪',
-		'INR' => '₹',
-		'JPY' => '¥',
-		'KRW' => '₩',
+		'ILS' => "\u{20AA}",
+		'INR' => "\u{20B9}",
+		'JPY' => "\u{A5}",
+		'KRW' => "\u{20A9}",
 		'MXN' => 'MX$',
 		'NZD' => 'NZ$',
-		'PHP' => '₱',
+		'PHP' => "\u{20B1}",
 		'TWD' => 'NT$',
 		'USD' => 'US$',
-		'VND' => '₫',
-		'XAF' => 'FCFA',
+		'VND' => "\u{20AB}",
+		'XAF' => "FCFA\u{A0}",
 		'XCD' => 'EC$',
-		'XOF' => "F\u{202F}CFA",
-		'XPF' => 'CFPF',
+		'XCG' => "Cg.\u{A0}",
+		'XOF' => "F\u{202F}CFA\u{A0}",
+		'XPF' => "CFPF\u{A0}",
+	];
+
+	/**
+	 * Short-form (and often ambiguous) symbols for certain currencies.
+	 *
+	 * Note that not all currencies have short-form symbols. For currencies that
+	 * do not have short-form symbols, the raw currency code is used instead.
+	 */
+	public const CURRENCY_SYMBOLS_SHORT = [
+		'AFN' => "\u{60B}",
+		'AMD' => "\u{58F}",
+		'AOA' => "Kz\u{A0}",
+		'ARS' => '$',
+		'AUD' => '$',
+		'AZN' => "\u{20BC}",
+		'BAM' => "KM\u{A0}",
+		'BBD' => '$',
+		'BDT' => "\u{9F3}",
+		'BMD' => '$',
+		'BND' => '$',
+		'BOB' => "Bs\u{A0}",
+		'BRL' => 'R$',
+		'BSD' => '$',
+		'BWP' => "P\u{A0}",
+		'BZD' => '$',
+		'CAD' => '$',
+		'CLP' => '$',
+		'CNY' => "\u{A5}",
+		'COP' => '$',
+		'CRC' => "\u{20A1}",
+		'CUP' => '$',
+		'CZK' => "K\u{10D}\u{A0}",
+		'DEFAULT' => '¤',
+		'DKK' => "kr\u{A0}",
+		'DOP' => '$',
+		'EGP' => "E\u{A3}",
+		'EUR' => "\u{20AC}",
+		'FJD' => '$',
+		'FKP' => "\u{A3}",
+		'GBP' => "\u{A3}",
+		'GEL' => "\u{20BE}",
+		'GHS' => "GH\u{20B5}",
+		'GIP' => "\u{A3}",
+		'GNF' => "FG\u{A0}",
+		'GTQ' => "Q\u{A0}",
+		'GYD' => '$',
+		'HKD' => '$',
+		'HNL' => "L\u{A0}",
+		'HUF' => "Ft\u{A0}",
+		'IDR' => "Rp\u{A0}",
+		'ILS' => "\u{20AA}",
+		'INR' => "\u{20B9}",
+		'ISK' => "kr\u{A0}",
+		'JMD' => '$',
+		'JPY' => "\u{A5}",
+		'KGS' => "\u{20C0}",
+		'KHR' => "\u{17DB}",
+		'KMF' => "CF\u{A0}",
+		'KPW' => "\u{20A9}",
+		'KRW' => "\u{20A9}",
+		'KYD' => '$',
+		'KZT' => "\u{20B8}",
+		'LAK' => "\u{20AD}",
+		'LBP' => "L\u{A3}",
+		'LKR' => "Rs\u{A0}",
+		'LRD' => '$',
+		'MGA' => "Ar\u{A0}",
+		'MMK' => "K\u{A0}",
+		'MNT' => "\u{20AE}",
+		'MUR' => "Rs\u{A0}",
+		'MXN' => '$',
+		'MYR' => "RM\u{A0}",
+		'NAD' => '$',
+		'NGN' => "\u{20A6}",
+		'NIO' => 'C$',
+		'NOK' => "kr\u{A0}",
+		'NPR' => "Rs\u{A0}",
+		'NZD' => '$',
+		'PHP' => "\u{20B1}",
+		'PKR' => "Rs\u{A0}",
+		'PLN' => "z\u{142}\u{A0}",
+		'PYG' => "\u{20B2}",
+		'RON' => "lei\u{A0}",
+		'RUB' => "\u{20BD}",
+		'RWF' => "RF\u{A0}",
+		'SBD' => '$',
+		'SEK' => "kr\u{A0}",
+		'SGD' => '$',
+		'SHP' => "\u{A3}",
+		'SRD' => '$',
+		'SSP' => "\u{A3}",
+		'STN' => "Db\u{A0}",
+		'SYP' => "\u{A3}",
+		'THB' => "\u{E3F}",
+		'TOP' => 'T$',
+		'TRY' => "\u{20BA}",
+		'TTD' => '$',
+		'TWD' => '$',
+		'UAH' => "\u{20B4}",
+		'USD' => '$',
+		'UYU' => '$',
+		'VND' => "\u{20AB}",
+		'XAF' => "FCFA\u{A0}",
+		'XCD' => '$',
+		'XCG' => "Cg.\u{A0}",
+		'XOF' => "F\u{202F}CFA\u{A0}",
+		'XPF' => "CFPF\u{A0}",
+		'ZAR' => "R\u{A0}",
+		'ZMW' => "ZK\u{A0}",
 	];
 
 	/**************************
@@ -187,7 +299,7 @@ class MessageFormatter
 								else {
 									require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
 
-									$country_currencies = \function_exists('country_currencies') ? country_currencies() : [];
+									$country_currencies = country_currencies();
 
 									// If the admin wants to prioritize a certain country, use that.
 									if (!empty(Config::$modSettings['timezone_priority_countries'])) {
@@ -620,6 +732,8 @@ class MessageFormatter
 			'sign-always',
 			'sign-never',
 			'sign-except-zero',
+			'precision-currency-standard',
+			'precision-currency-cash',
 
 			// Tokens that manipulate the number.
 			'scale',
@@ -637,22 +751,20 @@ class MessageFormatter
 			'group-thousands',
 			'decimal-auto',
 			'decimal-always',
-			'percent',
-			'permille',
-			'currency',
-
-			// Unsupported.
-			'precision-currency-standard',
-			'precision-currency-cash',
-			'base-unit',
-			'measure-unit',
-			'unit',
-			'per-measure-unit',
 			'unit-width-narrow',
 			'unit-width-short',
 			'unit-width-full-name',
 			'unit-width-iso-code',
 			'unit-width-hidden',
+			'percent',
+			'permille',
+			'currency',
+
+			// Unsupported.
+			'base-unit',
+			'measure-unit',
+			'unit',
+			'per-measure-unit',
 			'latin',
 			'numbering-system',
 			'sign-negative',
@@ -668,6 +780,7 @@ class MessageFormatter
 		$round = fn(int|float|string $number, int $precision = 0) => round($number + 0, $precision, \RoundingMode::HalfEven);
 		$group = 'thousands';
 		$flags = '0';
+		$currency_symbols = self::CURRENCY_SYMBOLS_LONG;
 
 		// Work through the tokens.
 		foreach ($tokens as $token) {
@@ -755,7 +868,7 @@ class MessageFormatter
 					if ($precision >= 0) {
 						$number = \sprintf("%{$flags}.{$precision}F", $round($number, $precision));
 					} else {
-						$number = (string) $round($number, $precision);
+						$number = self::strval($round($number, $precision));
 					}
 				} else {
 					$precision = min(max($significant_decimals, \strlen($matches[1]) - $significant_integers), \strlen($matches[1]) - $significant_integers);
@@ -914,13 +1027,102 @@ class MessageFormatter
 
 						$currency = $currencies[$options[0]];
 
-						if ($currency['digits'] === 0) {
-							$number = \strval(\intval($number));
-						} else {
-							$number = \sprintf('%0.' . $currency['digits'] . 'F', $number);
+						$number = self::strval($round($number, $currency['digits']));
+
+						if (str_contains($skeleton, 'precision-currency-standard')) {
+							$number = self::applyNumberSkeleton(
+								$number,
+								'precision-increment/' . \sprintf('%0.' . $currency['digits'] . 'F', $currency['rounding'] * (10 ** -$currency['digits'])),
+							);
+						} elseif (str_contains($skeleton, 'precision-currency-cash')) {
+							$cash_digits = $currency['cashDigits'] ?? $currency['digits'];
+							$cash_rounding = $currency['cashRounding'] ?? $currency['rounding'];
+
+							$number = self::applyNumberSkeleton(
+								$number,
+								'precision-increment/' . \sprintf(
+									'%0.' . $cash_digits . 'F',
+									$cash_rounding * (10 ** -$cash_digits),
+								),
+							);
 						}
 
-						$post_processing[] = fn($number) => (\in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::getTxt('currency_format', file: 'General'), ['{0}' => \in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
+						$post_processing[] = function ($number) use ($currency_symbols, $options) {
+							// If this currency has no defined symbol, use the raw currency code.
+							$symbol = $currency_symbols[$options[0]] ?? $options[0] . "\u{A0}";
+
+							// Get this language's currency format.
+							$currency_format = Lang::getTxt('currency_format', file: 'General');
+
+							// Gather info about the format.
+							$symbol_after = (bool) preg_match('/\{0\}\s*¤/u', $currency_format, $matches);
+
+							$space_between = (bool) preg_match('/\s+¤|¤\s+/u', $currency_format, $matches);
+
+							// Do we need to force a space separator in there?
+							if ($space_between) {
+								$symbol = match ($symbol_after) {
+									false => match (str_ends_with($symbol, "\u{A0}")) {
+										false => $symbol . "\u{A0}",
+										true => $symbol,
+									},
+									true => match (str_starts_with($symbol, "\u{A0}")) {
+										false => "\u{A0}" . $symbol,
+										true => $symbol,
+									},
+								};
+							}
+
+							// Do we need to swap where the space separator occurs?
+							if ($symbol_after) {
+								$symbol = preg_replace('/(.*?)(\s+)$/', '$2$1', $symbol);
+							}
+
+							// Now that we've pushed any space separators into the symbols,
+							// remove the space separators from the format string.
+							$currency_format = preg_replace('/\s*¤\s*/', '¤', $currency_format);
+
+							// Deal with postive and negative signs.
+							if (!$symbol_after && \in_array(substr($number, 0, 1), ['-', '+'])) {
+								$sign = substr($number, 0, 1);
+								$number = substr($number, 1);
+							} else {
+								$sign = '';
+							}
+
+							// Do the job.
+							return $sign . strtr($currency_format, ['{0}' => $number, '¤' => $currency_symbol]);
+						};
+
+						break;
+
+					case 'precision-currency-standard':
+					case 'precision-currency-cash':
+						// These tokens are only meant to be used in conjuction
+						// with currency/XXX. If they occur alone, treat them
+						// like '.00'. Otherwise, they are handled elsewhere.
+						if (\count($tokens) === 1) {
+							$number = \sprintf("%{$flags}.2F", $round($number, 2));
+						}
+
+						break;
+
+					case 'unit-width-narrow':
+						$currency_symbols = self::CURRENCY_SYMBOLS_SHORT;
+						break;
+
+					case 'unit-width-short':
+					case 'unit-width-full-name':
+					case 'unit-width-iso-code':
+						$currency_symbols = self::CURRENCY_SYMBOLS_LONG;
+						break;
+
+					case 'unit-width-hidden':
+						require_once Sapi::canonicalPath(Config::$sourcedir . '/Unicode/Currencies.php');
+
+						foreach (currencies() as $currency_code => $currency_info) {
+							$currency_symbols[$currency_code] = '';
+						}
 
 						break;
 
