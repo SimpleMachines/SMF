@@ -128,7 +128,9 @@ class MessageFormatter
 
 			$fmt = self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message]->format(array_filter($args, 'is_scalar'));
 
-			return $fmt == false ? '' : strtr($fmt, array_flip($placeholders));
+			if ($fmt !== false) {
+				return strtr($fmt, array_flip($placeholders));
+			}
 		}
 
 		// Parse $message and build the finalized string.
