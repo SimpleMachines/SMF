@@ -546,26 +546,6 @@ class MessageFormatter
 	protected static function applyNumberSkeleton(int|float|string $number, string $skeleton): string
 	{
 		// For simplicity, standardize alternative notations to a single form.
-		$skeleton = strtr($skeleton, [
-			'%x100' => 'percent scale/100',
-			',_' => 'group-off',
-			',?' => 'group-min2',
-			',!' => 'group-on-aligned',
-			'+!' => 'sign-always',
-			'+_' => 'sign-never',
-			'+?' => 'sign-except-zero',
-			'+-' => 'sign-negative',
-			'()' => 'sign-accounting',
-			'()!' => 'sign-accounting-always',
-			'()?' => 'sign-accounting-except-zero',
-			'()-' => 'sign-accounting-negative',
-			'KK' => 'compact-long',
-			'K' => 'compact-short',
-			'precision-integer' => '.',
-			'precision-unlimited' => '.*',
-			'sign-auto' => '',
-		]);
-
 		$skeleton = preg_replace_callback_array(
 			[
 				'/(?<=\s|^)(EE?)((?:\+[!?])?)(0+)(?=\s|$)/' => function ($matches) {
@@ -588,6 +568,24 @@ class MessageFormatter
 					return $long_form;
 				},
 				'/(?<=\s|^)0+(?=\s|$)/' => fn($matches) => 'integer-width/*' . $matches[0],
+				'/(?<=\s|^)(KK?)(?=\s|$)/' => fn($matches) => 'compact-' . ($matches[1] === 'KK' ? 'long' : 'short'),
+				'/(?<=\s|^)%x(\d+)(?=\s|$)/' => fn($matches) => 'percent scale/' . $matches[1],
+				'/(?<=\s|^)(?>\(\)[!?\-]?|\+[!?\-_]|,[!?_])(?=\s|$)/' => fn($matches) => match ($matches[0]) {
+					',_' => 'group-off',
+					',?' => 'group-min2',
+					',!' => 'group-on-aligned',
+					'+!' => 'sign-always',
+					'+_' => 'sign-never',
+					'+?' => 'sign-except-zero',
+					'+-' => 'sign-negative',
+					'()' => 'sign-accounting',
+					'()!' => 'sign-accounting-always',
+					'()?' => 'sign-accounting-except-zero',
+					'()-' => 'sign-accounting-negative',
+				},
+				'/(?<=\s|^)precision-integer(?=\s|$)/' => fn($matches) => '.',
+				'/(?<=\s|^)precision-unlimited(?=\s|$)/' => fn($matches) => '.*',
+				'/(?<=\s|^)sign-auto(?=\s|$)/' => fn($matches) => '',
 			],
 			$skeleton,
 		);
