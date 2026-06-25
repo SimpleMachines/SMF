@@ -505,7 +505,7 @@ class ServerSideIncludes
 				echo Lang::getTxt('hello_member', file: 'General'), ' <strong>', User::$me->name, '</strong>';
 
 				if (User::$me->allowedTo('pm_read')) {
-					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages], file: 'General');
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm;f=inbox'], file: 'General');
 				}
 			}
 
