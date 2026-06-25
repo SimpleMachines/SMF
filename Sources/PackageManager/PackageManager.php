@@ -1579,7 +1579,8 @@ class PackageManager
 		Utils::$context['page_title'] .= ' - ' . Lang::getTxt('browse_packages', file: 'Admin');
 
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
-		Utils::$context['available_packages'] = 0;
+		$packages = self::getPackages();
+		Utils::$context['available_packages'] = \count($packages);
 		Utils::$context['modification_types'] = ['modification', 'avatar', 'language', 'unknown', 'smiley'];
 
 		IntegrationHook::call('integrate_modification_types');
@@ -1591,50 +1592,55 @@ class PackageManager
 				'title' => Lang::getTxt($type . '_package', file: 'Packages'),
 				'no_items_label' => Lang::getTxt('no_packages', file: 'Packages'),
 				'get_items' => [
-					'function' => [$this, 'list_getPackages'],
-					'params' => [$type],
+					'function' => function ($start, $items_per_page, $sort) use ($packages, $type) {
+						if (!isset($packages[$type])) {
+							return [];
+						}
+
+						$col = strtok($sort, ' ');
+						$dir = strtok(' ');
+						array_multisort(
+							array_column($packages[$type], $col),
+							$dir === 'desc' ? SORT_DESC : SORT_ASC,
+							$packages[$type],
+						);
+
+						return $packages[$type];
+					},
 				],
-				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
-				'default_sort_col' => 'id' . $type,
+				'base_href' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
+				'default_sort_col' => 'time_installed',
+				'default_sort_dir' => 'desc',
+				'request_vars' => [
+					'sort' => $type . '_sort',
+				],
 				'columns' => [
-					'id' . $type => [
-						'header' => [
-							'value' => Lang::getTxt('package_id', file: 'Packages'),
-						],
-						'data' => [
-							'db' => 'sort_id',
-						],
-						'sort' => [
-							'default' => 'sort_id',
-							'reverse' => 'sort_id',
-						],
-					],
-					'package_name' . $type => [
+					'package_name' => [
 						'header' => [
 							'value' => Lang::getTxt('package_name_header', file: 'Packages'),
 							'style' => 'width: 25%;',
 						],
 						'data' => [
-							'db' => 'name',
+							'db_htmlsafe' => 'name',
 						],
 						'sort' => [
 							'default' => 'name',
-							'reverse' => 'name',
+							'reverse' => 'name desc',
 						],
 					],
-					'version' . $type => [
+					'version' => [
 						'header' => [
 							'value' => Lang::getTxt('package_version_header', file: 'Packages'),
 						],
 						'data' => [
-							'db' => 'version',
+							'db_htmlsafe' => 'version',
 						],
 						'sort' => [
 							'default' => 'version',
-							'reverse' => 'version',
+							'reverse' => 'version desc',
 						],
 					],
-					'time_installed' . $type => [
+					'time_installed' => [
 						'header' => [
 							'value' => Lang::getTxt('package_installed_time', file: 'Packages'),
 						],
@@ -1648,13 +1654,10 @@ class PackageManager
 						],
 						'sort' => [
 							'default' => 'time_installed',
-							'reverse' => 'time_installed',
+							'reverse' => 'time_installed desc',
 						],
 					],
-					'operations' . $type => [
-						'header' => [
-							'value' => '',
-						],
+					'operations' => [
 						'data' => [
 							'function' => function ($package) use ($type) {
 								$return = '';
@@ -1689,8 +1692,17 @@ class PackageManager
 			new ItemList($listOptions);
 		}
 
-		Utils::$context['sub_template'] = 'browse';
-		Utils::$context['default_list'] = 'packages_lists';
+		if (Utils::$context['available_packages'] === 0) {
+			Utils::$context['sub_templates'][] = 'no_packages';
+		} else {
+			foreach (Utils::$context['modification_types'] as $type) {
+				if (!empty(Utils::$context['packages_lists_' . $type]['rows'])) {
+					Utils::$context['sub_templates'][] = ['show_list', ['packages_lists_' . $type]];
+				}
+			}
+		}
+
+		Utils::$context['template_layers'][] = 'browse';
 
 		$get_versions = Db::$db->query(
 			'SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
@@ -3185,18 +3197,11 @@ class PackageManager
 	 * Determines whether the package has been installed or not by
 	 * checking it against {@link loadInstalledPackages()}.
 	 *
-	 * @param int $start The item to start with (not used here)
-	 * @param int $items_per_page The number of items to show per page (not used here)
-	 * @param string $sort A string indicating how to sort the results
-	 * @param string $params Type of packages
 	 * @return array An array of information about the packages
 	 */
-	public function list_getPackages(int $start, int $items_per_page, string $sort, string $params): array
+	public function getPackages(): array
 	{
-		static $installed_mods;
-
 		$packages = [];
-		$column = [];
 
 		// We need the packages directory to be writable for this.
 		if (!@is_writable(Config::$packagesdir)) {
@@ -3225,22 +3230,10 @@ class PackageManager
 			unset($_SESSION['single_version_emulate']);
 		}
 
-		if (empty($installed_mods)) {
-			$instmods = PackageUtils::loadInstalledPackages();
-			$installed_mods = [];
+		$installed_mods = PackageUtils::loadInstalledPackages();
 
-			// Look through the list of installed mods...
-			foreach ($instmods as $installed_mod) {
-				$installed_mods[$installed_mod['package_id']] = [
-					'id' => $installed_mod['id'],
-					'version' => $installed_mod['version'],
-					'time_installed' => $installed_mod['time_installed'],
-				];
-			}
-
-			// Get a list of all the ids installed, so the latest packages won't include already installed ones.
-			Utils::$context['installed_mods'] = array_keys($installed_mods);
-		}
+		// Get a list of all the ids installed, so the latest packages widget won't include already installed ones.
+		Utils::$context['installed_mods'] = array_keys($installed_mods);
 
 		if ($dir = @opendir(Config::$packagesdir)) {
 			$dirs = [];
@@ -3254,26 +3247,29 @@ class PackageManager
 			IntegrationHook::call('integrate_packages_sort_id', [&$sort_id, &$packages]);
 
 			while ($package = readdir($dir)) {
-				if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir(Config::$packagesdir . '/' . $package) && file_exists(Config::$packagesdir . '/' . $package . '/package-info.xml')) && !str_ends_with(strtolower($package), '.tar.gz') && !str_ends_with(strtolower($package), '.tgz') && !str_ends_with(strtolower($package), '.zip'))) {
+				// Skip hidden files and directories.
+				if ($package[0] === '.' || $package === 'temp') {
 					continue;
 				}
 
-				// Skip directories or files that are named the same.
-				if (is_dir(Config::$packagesdir . '/' . $package)) {
+				$is_dir = is_dir(Config::$packagesdir . '/' . $package);
+
+				if ($is_dir) {
+					// Skip packages that are named the same.
 					if (\in_array($package, $dirs)) {
 						continue;
 					}
 					$dirs[] = $package;
-				} elseif (str_ends_with(strtolower($package), '.tar.gz')) {
-					if (\in_array(substr($package, 0, -7), $dirs)) {
-						continue;
+				} else {
+					// pathinfo() does not parse complex file extensions correctly, so do it manually.
+					if (preg_match('/^.*(?=\.(?:zip|t(?:ar\.)?gz)$)/i', $package, $m)) {
+						$basename = $m[0];
+
+						if (\in_array($basename, $dirs)) {
+							continue;
+						}
+						$dirs[] = $basename;
 					}
-					$dirs[] = substr($package, 0, -7);
-				} elseif (str_ends_with(strtolower($package), '.zip') || str_ends_with(strtolower($package), '.tgz')) {
-					if (\in_array(substr($package, 0, -4), $dirs)) {
-						continue;
-					}
-					$dirs[] = substr($package, 0, -4);
 				}
 
 				$packageInfo = PackageUtils::getPackageInfo($package);
@@ -3282,23 +3278,23 @@ class PackageManager
 					continue;
 				}
 
-				if (!empty($packageInfo)) {
+				if ($packageInfo !== []) {
 					if (!isset($sort_id[$packageInfo['type']])) {
-						$packageInfo['sort_id'] = $sort_id['unknown'];
-					} else {
-						$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+						$packageInfo['type'] = 'unknown';
 					}
 
 					$packageInfo['time_installed'] = 0;
-					$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
+					$id = $packageInfo['id'];
+					$packageInfo['is_installed'] = isset($installed_mods[$id]);
 
 					if ($packageInfo['is_installed']) {
-						$packageInfo['is_current'] = $installed_mods[$packageInfo['id']]['version'] == $packageInfo['version'];
-						$packageInfo['is_newer'] = $installed_mods[$packageInfo['id']]['version'] > $packageInfo['version'];
-						$packageInfo['installed_id'] = $installed_mods[$packageInfo['id']]['id'];
+						$installed_mod = $installed_mods[$id];
+						$packageInfo['is_current'] = $installed_mod['version'] == $packageInfo['version'];
+						$packageInfo['is_newer'] = $installed_mod['version'] > $packageInfo['version'];
+						$packageInfo['installed_id'] = $installed_mod['id'];
 
 						if ($packageInfo['is_current']) {
-							$packageInfo['time_installed'] = $installed_mods[$packageInfo['id']]['time_installed'];
+							$packageInfo['time_installed'] = $installed_mod['time_installed'];
 						}
 					}
 
@@ -3340,7 +3336,7 @@ class PackageManager
 						foreach ($upgrades as $upgrade) {
 							// Even if it is for this SMF, is it for the installed version of the mod?
 							if (!$upgrade->exists('@for') || PackageUtils::matchPackageVersion($the_version, $upgrade->fetch('@for'))) {
-								if (!$upgrade->exists('@from') || PackageUtils::matchPackageVersion((string) $installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from'))) {
+								if (!$upgrade->exists('@from') || PackageUtils::matchPackageVersion((string) $installed_mod['version'], $upgrade->fetch('@from'))) {
 									$packageInfo['can_upgrade'] = true;
 									break;
 								}
@@ -3374,26 +3370,11 @@ class PackageManager
 					// Save some memory by not passing the XmlArray object into context.
 					unset($packageInfo['xml']);
 
-					if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type']) {
-						$column[] = $packageInfo[$sort];
-						$sort_id[$packageInfo['type']]++;
-						$packages[] = $packageInfo;
-					} elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown') {
-						$column[] = $packageInfo[$sort];
-						$packageInfo['sort_id'] = $sort_id['unknown'];
-						$sort_id['unknown']++;
-						$packages[] = $packageInfo;
-					}
+					$packages[$packageInfo['type']][] = $packageInfo;
 				}
 			}
 			closedir($dir);
 		}
-		Utils::$context['available_packages'] += \count($packages);
-		array_multisort(
-			$column,
-			isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
-			$packages,
-		);
 
 		return $packages;
 	}

@@ -139,103 +139,127 @@ class PackageUtils
 			self::mktree($destination, 0777);
 		}
 
-		$flags = unpack('Ct/Cf', substr($data, 2, 2));
-
 		// Not deflate!
-		if ($flags['t'] != 8) {
+		if ($data[2] != "\x08") {
 			return false;
 		}
-		$flags = $flags['f'];
 
+		// RFC 1952
+		$flags = \ord($data[3]);
+
+		// Gzip file header is always 10 bytes.
 		$offset = 10;
-		$octdec = ['mode', 'uid', 'gid', 'size', 'mtime', 'checksum'];
 
-		// "Read" the filename and comment.
-		// @todo Might be mussed.
-		if ($flags & 12) {
-			while ($flags & 8 && $data[$offset++] != "\0") {
-				continue;
-			}
-
-			while ($flags & 4 && $data[$offset++] != "\0") {
-				continue;
-			}
+		// fHCRC
+		if ($flags & 0x2) {
+			$offset += 2;
 		}
 
-		$crc = unpack('Vcrc32/Visize', substr($data, \strlen($data) - 8, 8));
-		$data = @gzinflate(substr($data, $offset, \strlen($data) - 8 - $offset));
+		// fEXTRA
+		if ($flags & 0x4) {
+			$xlen = unpack('v', $data, $offset)[1];
+			$offset += 2 + $xlen;
+		}
+
+		// fNAME
+		while ($flags & 0x8 && $data[$offset++] !== "\0") {
+			continue;
+		}
+
+		// fCOMMENT
+		while ($flags & 0x10 && $data[$offset++] !== "\0") {
+			continue;
+		}
+
+		$len = \strlen($data);
+		$crc = unpack('V', $data, $len - 8)[1];
+		$data = gzinflate(substr($data, $offset, -8));
+
+		if ($data === false) {
+			return false;
+		}
 
 		// Compare as hex strings rather than integers in order to avoid
 		// inconsistencies between 32-bit and 64-bit systems.
-		if (hash('crc32b', $data) !== dechex($crc['crc32'])) {
+		if (hash('crc32b', $data) !== dechex($crc)) {
 			return false;
 		}
 
-		$blocks = \strlen($data) / 512 - 1;
-		$offset = 0;
-
+		$blocks = $len / 512 - 1;
+		$block = 0;
 		$return = [];
 
-		while ($offset < $blocks) {
-			$header = substr($data, $offset << 9, 512);
-			$current = unpack('a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1type/a100linkname/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a155path', $header);
+		// All data is block-aligned by 512 bytes.
+		while ($block < $blocks) {
+			$offset = $block++ << 9;
+			$file_info = unpack('Z100filename/@124/A12size/A12mtime/A8checksum/Atype/@345/Z155prefix', $data, $offset);
 
-			// Blank record?  This is probably at the end of the file.
-			if (empty($current['filename'])) {
-				$offset += 512;
-
+			// Blank record? This is probably at the end of the file.
+			if (empty($file_info['filename'])) {
 				continue;
 			}
 
-			foreach ($current as $k => $v) {
-				if (\in_array($k, $octdec)) {
-					$current[$k] = octdec(trim($v));
-				} else {
-					$current[$k] = trim($v);
-				}
-			}
+			static $ord_cache = null;
 
-			if ($current['type'] == '5' && !str_ends_with($current['filename'], '/')) {
-				$current['filename'] .= '/';
+			if ($ord_cache === null) {
+				$ord_cache = [];
+
+				for ($i = 0; $i < 256; $i++) {
+					$ord_cache[\chr($i)] = $i;
+				}
 			}
 
 			$checksum = 256;
 
-			for ($i = 0; $i < 148; $i++) {
-				$checksum += \ord($header[$i]);
+			for ($i = 0, $j = $offset; $i < 148; $i++, $j++) {
+				$checksum += $ord_cache[$data[$j]];
 			}
 
-			for ($i = 156; $i < 512; $i++) {
-				$checksum += \ord($header[$i]);
+			for ($i = 156, $j = $offset + 156; $i < 512; $i++, $j++) {
+				$checksum += $ord_cache[$data[$j]];
 			}
 
-			if ($current['checksum'] != $checksum) {
-				break;
+			if (octdec($file_info['checksum']) != $checksum) {
+				continue;
 			}
 
-			$size = ceil($current['size'] / 512);
-			$current['data'] = substr($data, ++$offset << 9, $current['size']);
-			$offset += $size;
+			// Handle ustar Posix compliant path prefixes.
+			if (!empty($file_info['prefix'])) {
+				$file_info['filename'] = $file_info['prefix'] . '/' . $file_info['filename'];
+			}
+
+			// Ensure that directory listings end in a slash.
+			if ($file_info['type'] === '5' && $file_info['filename'][-1] !== '/') {
+				$file_info['filename'] .= '/';
+			}
+
+			$is_file = $file_info['filename'][-1] !== '/';
+			$file_info['size'] = octdec($file_info['size']);
+			$file_info['mtime'] = octdec($file_info['mtime']);
+
+			// Calculate the number of blocks taken up by the data.
+			$size = ceil($file_info['size'] / 512);
+			$block += $size;
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
-			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
+			if ($single_file && $destination !== null && str_starts_with($destination, '*/')) {
 				$write_this = true;
 			}
 			// Not a directory and doesn't exist already...
-			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
+			elseif ($is_file && $destination !== null && !file_exists($destination . '/' . $file_info['filename'])) {
 				$write_this = true;
 			}
 			// File exists... check if it is newer.
-			elseif (!str_ends_with($current['filename'], '/')) {
-				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
+			elseif ($is_file) {
+				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $file_info['filename']) < $file_info['mtime']);
 			}
 			// Folder... create.
 			elseif ($destination !== null && !$single_file) {
 				// Protect from accidental parent directory writing...
-				$current['filename'] = strtr($current['filename'], ['../' => '', '/..' => '']);
+				$file_info['filename'] = strtr($file_info['filename'], ['../' => '', '/..' => '']);
 
-				if (!file_exists($destination . '/' . $current['filename'])) {
-					self::mktree($destination . '/' . $current['filename'], 0777);
+				if (!file_exists($destination . '/' . $file_info['filename'])) {
+					self::mktree($destination . '/' . $file_info['filename'], 0777);
 				}
 				$write_this = false;
 			} else {
@@ -243,13 +267,15 @@ class PackageUtils
 			}
 
 			if ($write_this && $destination !== null) {
-				if (str_contains($current['filename'], '/') && !$single_file) {
-					self::mktree($destination . '/' . \dirname($current['filename']), 0777);
+				$file_info['data'] = substr($data, $offset + 512, $file_info['size']);
+
+				if (str_contains($file_info['filename'], '/') && !$single_file) {
+					self::mktree($destination . '/' . \dirname($file_info['filename']), 0777);
 				}
 
 				// Is this the file we're looking for?
-				if ($single_file && ($destination == $current['filename'] || $destination == '*/' . basename($current['filename']))) {
-					return $current['data'];
+				if ($single_file && ($destination === $file_info['filename'] || $destination === '*/' . basename($file_info['filename']))) {
+					return $file_info['data'];
 				}
 
 				// If we're looking for another file, keep going.
@@ -258,19 +284,17 @@ class PackageUtils
 				}
 
 				// Looking for restricted files?
-				if ($files_to_extract !== null && !\in_array($current['filename'], $files_to_extract)) {
+				if ($files_to_extract !== null && !\in_array($file_info['filename'], $files_to_extract)) {
 					continue;
 				}
 
-				self::packagePutContents($destination . '/' . $current['filename'], $current['data']);
+				self::packagePutContents($destination . '/' . $file_info['filename'], $file_info['data']);
 			}
 
-			if (!str_ends_with($current['filename'], '/')) {
+			if ($is_file) {
 				$return[] = [
-					'filename' => $current['filename'],
-					'md5' => md5($current['data']),
-					'preview' => substr($current['data'], 0, 100),
-					'size' => $current['size'],
+					'filename' => $file_info['filename'],
+					'size' => $file_info['size'],
 					'skipped' => false,
 				];
 			}
@@ -280,11 +304,7 @@ class PackageUtils
 			self::flushCache();
 		}
 
-		if ($single_file) {
-			return false;
-		}
-
-		return $return;
+		return $single_file ? false : $return;
 	}
 
 	/**
@@ -315,7 +335,7 @@ class PackageUtils
 		$return = [];
 
 		// End of central directory record (EOCD)
-		$cdir = unpack('vdisk/@4/vdisk_entries/ventries/@12/Voffset', substr($data, $data_ecr + 4, 16));
+		$cdir = unpack('vdisk/@4/vdisk_entries/ventries/@12/Voffset', $data, $data_ecr + 4);
 
 		// We only support a single disk.
 		if ($cdir['disk_entries'] != $cdir['entries']) {
@@ -327,7 +347,7 @@ class PackageUtils
 
 		for ($i = 0; $i < $cdir['entries']; $i++) {
 			// Central directory file header
-			$header = unpack('Vcompressed_size/@8/vlen1/vlen2/vlen3/vdisk/@22/Voffset', substr($data, $pos_entry + 20, 26));
+			$header = unpack('Vcompressed_size/@8/vlen1/vlen2/vlen3/vdisk/@22/Voffset', $data, $pos_entry + 20);
 
 			// Sanity check: same disk?
 			if ($header['disk'] != $cdir['disk']) {
@@ -340,11 +360,12 @@ class PackageUtils
 			// Local file header (so called because it is in the same file as the data in multi-part archives)
 			$file_info = unpack(
 				'vflag/vcompression/vmtime/vmdate/Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len',
-				substr($data, $header['offset'] + 6, 24),
+				$data,
+				$header['offset'] + 6,
 			);
 
 			$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
-			$is_file = !str_ends_with($file_info['filename'], '/');
+			$is_file = $file_info['filename'][-1] !== '/';
 
 			/*
 			 * If the bit at offset 3 (0x08) of the general-purpose flags field
@@ -361,7 +382,7 @@ class PackageUtils
 					$gplen += 4;
 				}
 
-				if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', substr($data, $gplen, 12))) !== false) {
+				if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', $data, $gplen)) !== false) {
 					$file_info = $general_purpose + $file_info;
 				}
 			}
@@ -387,29 +408,29 @@ class PackageUtils
 				}
 			}
 
-			// Get the actual compressed data.
-			$file_info['data'] = substr(
-				$data,
-				$header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'],
-				$file_info['compressed_size'],
-			);
-
-			// Only for the deflate method (the most common)
-			if ($file_info['compression'] == 8) {
-				$file_info['data'] = gzinflate($file_info['data']);
-			}
-			// We do not support any other compression methods.
-			elseif ($file_info['compression'] != 0) {
-				continue;
-			}
-
-			// PKZip/ITU-T V.42 CRC-32
-			if (hash('crc32b', $file_info['data']) !== \sprintf('%08x', $file_info['crc'])) {
-				continue;
-			}
-
 			// Okay! We can write this file, looks good from here...
 			if ($write_this) {
+				// Get the actual compressed data.
+				$file_info['data'] = substr(
+					$data,
+					$header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'],
+					$file_info['compressed_size'],
+				);
+
+				// Only for the deflate method (the most common)
+				if ($file_info['compression'] === 8) {
+					$file_info['data'] = gzinflate($file_info['data']);
+				}
+				// We do not support any other compression methods.
+				elseif ($file_info['compression'] !== 0) {
+					continue;
+				}
+
+				// PKZip/ITU-T V.42 CRC-32
+				if (hash('crc32b', $file_info['data']) !== dechex($file_info['crc'])) {
+					continue;
+				}
+
 				// If we're looking for a specific file, and this is it... ka-bam, baby.
 				if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename']))) {
 					return $file_info['data'];
@@ -430,8 +451,6 @@ class PackageUtils
 			if ($is_file) {
 				$return[] = [
 					'filename' => $file_info['filename'],
-					'md5' => md5($file_info['data']),
-					'preview' => substr($file_info['data'], 0, 100),
 					'size' => $file_info['size'],
 					'skipped' => false,
 				];
@@ -497,24 +516,19 @@ class PackageUtils
 			],
 		);
 		$installed = [];
-		$found = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Already found this? If so don't add it twice!
-			if (\in_array($row['package_id'], $found)) {
+			if (isset($installed[$row['package_id']])) {
 				continue;
 			}
 
-			$found[] = $row['package_id'];
-
-			$row = Utils::htmlspecialcharsRecursive($row, ENT_QUOTES);
-
-			$installed[] = [
+			$installed[$row['package_id']] = [
 				'id' => $row['id_install'],
-				'name' => Utils::htmlspecialchars($row['name']),
+				'name' => $row['name'],
 				'filename' => $row['filename'],
 				'package_id' => $row['package_id'],
-				'version' => Utils::htmlspecialchars($row['version']),
+				'version' => $row['version'],
 				'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 			];
 		}
@@ -535,18 +549,21 @@ class PackageUtils
 	 */
 	public static function getPackageInfo(string $gzfilename): array|string
 	{
-		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
+		$path = Config::$packagesdir . '/' . $gzfilename;
+
+		// Extract package-info.xml
 		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
 			$packageInfo = self::readTgzData($gzfilename, 'package-info.xml', true);
 		} else {
-			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
+			if (!file_exists($path)) {
 				return 'package_get_error_not_found';
 			}
 
-			if (is_file(Config::$packagesdir . '/' . $gzfilename)) {
-				$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
-			} elseif (file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
-				$packageInfo = file_get_contents(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml');
+
+			if (is_file($path)) {
+				$packageInfo = self::readTgzFile($path, '*/package-info.xml', true);
+			} elseif (file_exists($path . '/package-info.xml')) {
+				$packageInfo = file_get_contents($path . '/package-info.xml');
 			} else {
 				return 'package_get_error_missing_xml';
 			}
@@ -555,20 +572,17 @@ class PackageUtils
 		// Nothing?
 		if (empty($packageInfo)) {
 			// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-			$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
+			$packageInfo = self::readTgzFile($path, '*/theme_info.xml', true);
 
 			if (!empty($packageInfo)) {
 				return 'package_get_error_is_theme';
 			}
 
-			if (
-				is_file(Config::$packagesdir . '/' . $gzfilename)
-				&& filesize(Config::$packagesdir . '/' . $gzfilename) === 0
-			) {
+			if (is_file($path) && filesize($path) === 0) {
 				return 'package_get_error_is_zero';
 			}
 
-			if (!file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
+			if (!file_exists($path . '/package-info.xml')) {
 				return 'package_get_error_missing_xml';
 			}
 
@@ -586,18 +600,8 @@ class PackageUtils
 		$packageInfo = $packageInfo->path('package-info[0]');
 
 		$package = $packageInfo->to_array();
-		$package = Utils::htmlspecialcharsRecursive($package);
 		$package['xml'] = $packageInfo;
 		$package['filename'] = $gzfilename;
-
-		// Don't want to mess with code...
-		$types = ['install', 'uninstall', 'upgrade'];
-
-		foreach ($types as $type) {
-			if (isset($package[$type]['code'])) {
-				$package[$type]['code'] = Utils::htmlspecialcharsDecode($package[$type]['code']);
-			}
-		}
 
 		if (!isset($package['type'])) {
 			$package['type'] = 'modification';
@@ -3477,7 +3481,7 @@ class PackageUtils
 		];
 		$output_ext = \function_exists('gzopen') ? 'tgz' : 'tar';
 		$dirname = Config::$packagesdir . '/backups';
-		$output_file = self::package_unique_filename(
+		$output_file = self::generateUniqueFilename(
 			$dirname,
 			date('Y-m-d_') . preg_replace('/[$\\/:<>|?*"\']/', '', $id),
 			$output_ext,
@@ -3686,6 +3690,7 @@ class PackageUtils
 	): bool {
 		$stream_prefix = \function_exists('gzopen') ? 'compress.zlib://' : '';
 		$output = fopen($stream_prefix . $dirname . '/' . $output_file . '.' . $output_ext, 'w');
+		$root_len = \strlen($root);
 
 		// Iterate through each file and write its data to the archive.
 		foreach ($files as $file_info) {
@@ -3701,45 +3706,75 @@ class PackageUtils
 			// Create the tar header data.
 			$data_first = pack(
 				'a100a8a8a8a12a12',
-				str_replace($root, '', $file_info->getPathname()),// Relative path
-				\sprintf('%6o ', $stat['mode']),                   // File permissions
-				\sprintf('%6o ', $stat['uid']),                    // Owner ID
-				\sprintf('%6o ', $stat['gid']),                    // Group ID
-				\sprintf('%11o ', $is_dir ? 0 : $stat['size']),    // File size
-				\sprintf('%11o ', $stat['mtime']),                  // Last modification time
+				substr($file_info->getPathname(), $root_len),      // Relative path
+				decoct($stat['mode']),                             // File permissions
+				decoct($stat['uid']),                              // Owner ID
+				decoct($stat['gid']),                              // Group ID
+				decoct($is_dir ? 0 : $stat['size']),               // File size
+				decoct($stat['mtime']),                            // Last modification time
 			);
+
+			static $uid_cache = [];
+			static $gid_cache = [];
+
+			$uid = $stat['uid'];
+			$gid = $stat['gid'];
+
+			if (!isset($uid_cache[$uid])) {
+				$uid_cache[$uid] = \function_exists('posix_getpwuid')
+					? (posix_getpwuid($uid)['name'] ?? '')
+					: '';
+			}
+
+			if (!isset($gid_cache[$gid])) {
+				$gid_cache[$gid] = \function_exists('posix_getgrgid')
+					? (posix_getgrgid($gid)['name'] ?? '')
+					: '';
+			}
 
 			$data_last = pack(
 				'a1a100a6a2a32a32a8a8a155a12',
 				$is_dir ? '5' : '0',                              // File type ('0' = file, '5' = directory)
 				'',                                               // Link name
 				'ustar',                                          // UStar indicator
-				'',                                               // Version
-				\function_exists('posix_getpwuid') ? posix_getpwuid($stat['uid'])['name'] : '', // Owner name
-				\function_exists('posix_getgrgid') ? posix_getgrgid($stat['gid'])['name'] : '', // Group name
+				'00',                                             // Version
+				$uid_cache[$uid],                                 // Owner name
+				$gid_cache[$gid],                                 // Group name
 				'',                                               // Device major number
 				'',                                               // Device minor number
 				'',                                               // Root directory for paths
-				'',                                                // Padding
+				'',                                               // Padding
 			);
+
+			static $ord_cache = null;
+
+			if ($ord_cache === null) {
+				$ord_cache = [];
+
+				for ($i = 0; $i < 256; $i++) {
+					$ord_cache[\chr($i)] = $i;
+				}
+			}
 
 			// Calculate checksum for the tar header.
 			$checksum = 256;
 
 			for ($i = 0; $i < 148; $i++) {
 				if ($data_first[$i] !== "\0") {
-					$checksum += \ord($data_first[$i]);
+					$checksum += $ord_cache[$data_first[$i]];
 				}
 			}
 
 			for ($i = 0; $i < 356; $i++) {
 				if ($data_last[$i] !== "\0") {
-					$checksum += \ord($data_last[$i]);
+					$checksum += $ord_cache[$data_last[$i]];
 				}
 			}
 
 			// Write the header to the archive.
-			fwrite($output, $data_first . pack('a8', decoct($checksum)) . $data_last);
+			fwrite($output, $data_first);
+			fwrite($output, pack('a8', decoct($checksum)));
+			fwrite($output, $data_last);
 
 			// If the file is a directory, skip writing file contents.
 			if ($is_dir) {
