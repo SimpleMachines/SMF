@@ -304,6 +304,11 @@ class MessageFormatter
 				// @todo Implement 'spellout' properly.
 				case 'spellout':
 				case 'number':
+					if (!is_numeric($args[$arg_name] ?? null)) {
+						$final .= $part;
+						break;
+					}
+
 					if (str_starts_with($rest, '::')) {
 						$final .= self::applyNumberSkeleton($args[$arg_name] ?? 0, ltrim(substr($rest, 2)));
 					} else {
@@ -382,10 +387,20 @@ class MessageFormatter
 					break;
 
 				case 'ordinal':
+					if (!isset($args[$arg_name])) {
+						$final .= $part;
+						break;
+					}
+
 					$final .= self::formatMessage(Lang::getTxt('ordinal', file: 'General'), [$args[$arg_name]]);
 					break;
 
 				case 'date':
+					if (!isset($args[$arg_name])) {
+						$final .= $part;
+						break;
+					}
+
 					if ($args[$arg_name] instanceof \DateTimeInterface) {
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
@@ -427,6 +442,11 @@ class MessageFormatter
 					break;
 
 				case 'time':
+					if (!isset($args[$arg_name])) {
+						$final .= $part;
+						break;
+					}
+
 					if ($args[$arg_name] instanceof \DateTimeInterface) {
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
@@ -463,6 +483,11 @@ class MessageFormatter
 					break;
 
 				case 'duration':
+					if (!is_numeric($args[$arg_name] ?? null)) {
+						$final .= $part;
+						break;
+					}
+
 					// Input is a number of seconds.
 					$args[$arg_name] = (int) $args[$arg_name];
 
@@ -479,6 +504,11 @@ class MessageFormatter
 					break;
 
 				case 'plural':
+					if (!is_numeric($args[$arg_name] ?? null)) {
+						$final .= $part;
+						break;
+					}
+
 					if (str_starts_with($rest, 'offset:')) {
 						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
 						$offset = $offset_matches[1];
@@ -509,6 +539,11 @@ class MessageFormatter
 					break;
 
 				case 'selectordinal':
+					if (!is_numeric($args[$arg_name] ?? null)) {
+						$final .= $part;
+						break;
+					}
+
 					if (str_starts_with($rest, 'offset:')) {
 						preg_match('/^offset:(\d+)/', $rest, $offset_matches);
 						$offset = $offset_matches[1];
@@ -539,6 +574,11 @@ class MessageFormatter
 					break;
 
 				case 'select':
+					if (!isset($args[$arg_name])) {
+						$final .= $part;
+						break;
+					}
+
 					preg_match_all('/\b(?P<rule>\w+)\b\s*(?P<sel>{(?' . '>[^{}]|(?2))*})/', $rest, $cases, PREG_SET_ORDER);
 
 					foreach ($cases as $case) {
@@ -553,7 +593,7 @@ class MessageFormatter
 					break;
 
 				default:
-					if (\is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable) {
+					if (isset($args[$arg_name]) && (\is_scalar($args[$arg_name]) || $args[$arg_name] instanceof \Stringable)) {
 						$final .= (string) $args[$arg_name];
 					} else {
 						$final .= $part;
