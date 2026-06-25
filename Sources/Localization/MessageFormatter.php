@@ -199,6 +199,16 @@ class MessageFormatter
 	 */
 	private static $message_formatters = [];
 
+	/**
+	 * @var bool
+	 *
+	 * Whether to use the intl extension's \MessageFormatter class.
+	 *
+	 * This only exists for internal purposes and should be regarded as an
+	 * implementation detail.
+	 */
+	private static $use_intl;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -214,6 +224,23 @@ class MessageFormatter
 	{
 		if ($args === [] || !str_contains($message, '{') || !str_contains($message, '}')) {
 			return $message;
+		}
+
+		self::$use_intl ??= class_exists('\MessageFormatter');
+
+		// Workaround for cases where ICU loses precision on some manipulations
+		// of very large numbers.
+		if (self::$use_intl && preg_match_all('/^{\s*([^\s,]+)\s*,\s*number(?:,[^,}]+)?}$/', $message, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				if (
+					is_numeric($args[$match[1]] ?? null)
+					&& ($args[$match[1]] >= (2 ** 53) || $args[$match[1]] < -(2 ** 53))
+				) {
+					self::$use_intl = false;
+					$message = str_replace($match[0], self::formatMessage($match[0], [$match[1] => $args[$match[1]]]), $message);
+					self::$use_intl = true;
+				}
+			}
 		}
 
 		// Avoid issues with MessageFormat syntax characters in $args.
@@ -233,7 +260,7 @@ class MessageFormatter
 		}
 
 		// Use the intl extension's MessageFormatter class if available.
-		if (class_exists('\MessageFormatter')) {
+		if (self::$use_intl) {
 			if (!isset(self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message])) {
 				self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message] = new \MessageFormatter(Lang::getTxt('lang_locale', file: 'General'), $message);
 			}
