@@ -46,7 +46,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 	public static function upper(): void
 	{
 		echo '
-			<form id="upform" action="', Maintenance::$context['form_action'] ??  Maintenance::getSelf() . '?' . Maintenance::setQueryString(), '" method="post">';
+			<form id="', Maintenance::$tool->form_id, '" action="', Maintenance::$context['form_action'] ??  Maintenance::getSelf() . '?' . Maintenance::setQueryString(), '" method="post">';
 	}
 
 	/**
@@ -95,7 +95,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		if (!empty(Maintenance::$context['pause']) && !Maintenance::$tool->isDebug()) {
 			echo '
 			<script>
-				doAutoSubmit(3, "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "upform", "contbutt");
+				doAutoSubmit(3, "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "', Maintenance::$tool->form_id, '", "contbutt");
 			</script>';
 		}
 	}

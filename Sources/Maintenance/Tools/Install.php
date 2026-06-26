@@ -69,6 +69,13 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public string $script_file = 'install.php';
 
+	/**
+	 * @var string
+	 *
+	 * HTML element ID for the submission form in this tool's HTML templates.
+	 */
+	public string $form_id = 'install_form';
+
 	/*********************
 	 * Internal properties
 	 *********************/

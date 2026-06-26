@@ -393,7 +393,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 
@@ -419,7 +419,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 
@@ -466,7 +466,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}
@@ -487,7 +487,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}
@@ -508,7 +508,7 @@ abstract class MaintenanceTemplate
 								document.getElementById("try_again").style.display = "";
 							}
 
-							document.getElementById("upform").action = document.getElementById("upform").action
+							document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 								.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 								.replace(/start=\d+/, "start=" + iCurrentStart);
 						}

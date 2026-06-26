@@ -228,6 +228,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	public string $script_file = 'upgrade.php';
 
 	/**
+	 * @var string
+	 *
+	 * HTML element ID for the submission form in this tool's HTML templates.
+	 */
+	public string $form_id = 'upgrade_form';
+
+	/**
 	 * @var int
 	 *
 	 * The time we last updated the upgrade, populated by upgrade itself.

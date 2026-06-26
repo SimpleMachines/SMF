@@ -43,6 +43,13 @@ abstract class ToolsBase
 	public string $script_file;
 
 	/**
+	 * @var string
+	 *
+	 * HTML element ID for the submission form in this tool's HTML templates.
+	 */
+	public string $form_id;
+
+	/**
 	 * @var bool
 	 *
 	 * Debugging the upgrade.
