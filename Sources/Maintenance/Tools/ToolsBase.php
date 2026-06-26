@@ -547,16 +547,22 @@ abstract class ToolsBase
 	}
 
 	/**
-	 * This will check if we need to handle a timeout, if so, it sets up data for the next round.
+	 * This will check if we need to handle a timeout, if so, it sets up data
+	 * for the next round.
 	 *
+	 * @param array $json_response_data Data to send in a JSON response if we
+	 *    have timed out. This data is passed to Maintenance::jsonResponse().
+	 *    Only used when Maintenance::isJson() returns true.
 	 * @throws \ValueError
 	 * @throws \Exception
 	 */
-	public function checkAndHandleTimeout(): void
+	public function checkAndHandleTimeout(array $json_response_data = []): void
 	{
 		if (!Maintenance::isOutOfTime()) {
 			return;
 		}
+
+		$this->logProgress(Lang::getTxt('log_paused_step', ['num' => $this->getStep()->getId()], file: 'Maintenance'));
 
 		// If this is not json, we need to do a few things.
 		if (!Maintenance::isJson()) {
@@ -564,6 +570,8 @@ abstract class ToolsBase
 			Maintenance::$context['pause'] = true;
 
 			Maintenance::setQueryString();
+		} else {
+			Maintenance::jsonResponse($json_response_data);
 		}
 
 		Maintenance::exit(Maintenance::isJson());
