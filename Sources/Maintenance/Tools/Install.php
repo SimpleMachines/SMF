@@ -550,13 +550,13 @@ class Install extends ToolsBase implements ToolsInterface
 			);
 
 			// Okay, let's try the prefix if it didn't work...
-			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
 				Db::$db->query(
 					'CREATE DATABASE IF NOT EXISTS {identifier:name}',
 					[
 						'security_override' => true,
 						'db_error_skip' => true,
-						'name' => Db::$db->name,
+						'name' => Db::$db->prefix . Db::$db->name,
 					],
 					Db::$db->connection,
 				);
