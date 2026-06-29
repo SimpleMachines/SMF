@@ -68,6 +68,7 @@ class LogActions extends Table
 				name: 'ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'action' => new Column(
 				name: 'action',

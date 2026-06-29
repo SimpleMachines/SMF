@@ -67,6 +67,7 @@ class LogOnline extends Table
 				name: 'ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'url' => new Column(
 				name: 'url',

@@ -54,6 +54,7 @@ class LogBanned extends Table
 				name: 'ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'email' => new Column(
 				name: 'email',

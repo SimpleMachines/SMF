@@ -129,6 +129,7 @@ class Messages extends Table
 				name: 'poster_ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'smileys_enabled' => new Column(
 				name: 'smileys_enabled',

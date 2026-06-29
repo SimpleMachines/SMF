@@ -65,6 +65,7 @@ class LogReportedComments extends Table
 				name: 'member_ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'comment' => new Column(
 				name: 'comment',

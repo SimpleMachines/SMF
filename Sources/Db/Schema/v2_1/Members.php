@@ -224,11 +224,13 @@ class Members extends Table
 				name: 'member_ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'member_ip2' => new Column(
 				name: 'member_ip2',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'secret_question' => new Column(
 				name: 'secret_question',
