@@ -125,9 +125,6 @@ class ProxyServer
 			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
 				return false;
 
-		// Basic sanity check
-		$_GET['request'] = validate_iri($_GET['request']);
-
 		// We aren't going anywhere without these
 		if (empty($_GET['hash']) || empty($_GET['request']))
 			return false;
@@ -137,9 +134,12 @@ class ProxyServer
 
 		// Just in case...
 		if (
-			filter_var(parse_url($request, PHP_URL_HOST), FILTER_VALIDATE_IP) !== false
-			|| parse_url($request, PHP_URL_HOST) === 'localhost'
+			// Basic sanity check.
+			!validate_iri($request)
+			// Don't proxy our own resources.
 			|| parse_url($request, PHP_URL_HOST) === parse_url($boardurl, PHP_URL_HOST)
+			// SSRF protection: don't proxy localhost, private or reserved IPs, etc.
+			|| !is_fetch_safe($request)
 		) {
 			return false;
 		}
