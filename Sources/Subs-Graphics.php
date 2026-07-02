@@ -255,8 +255,8 @@ function checkSvgContents($fileName)
 		'/\b(\S:)?href\s*=\s*["\']\s*javascript:/i',
 
 		// No SVG event attributes allowed, since they execute scripts.
-		'/\bon\w+\s*=\s*["\']/',
-		'/<(\S*:)?set\b[^>]*\battributeName\s*=\s*(["\'])\s*on\w+\\1/i',
+		'/\bon\w+\s*=\s*["\']/i',
+		'/<(\S*:)?(set|animate(Motion|Transform)?)\b[^>]*\battributeName\s*=\s*(["\'])\s*(on\w+|(\S*:)?href)\\1/i',
 
 		// No XML Events allowed, since they execute scripts.
 		'~\bhttp://www\.w3\.org/2001/xml-events\b~i',
@@ -272,7 +272,7 @@ function checkSvgContents($fileName)
 		'/<!ENTITY\b/',
 
 		// Embedded external images can't have custom cross-origin rules.
-		'/<\b(\S*:)?image\b[^>]*\bcrossorigin\s*=/',
+		'/<\b(\S*:)?image\b[^>]*\bcrossorigin\s*=/i',
 
 		// No embedded PHP tags allowed.
 		// Harmless if the SVG is just the src of an img element, but very bad
