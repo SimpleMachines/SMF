@@ -4030,8 +4030,15 @@ function get_proxied_url($url)
 	$parsedurl = parse_iri($url);
 
 	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
-	// Don't proxy localhost or IP addresses, either
-	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https' || $parsedurl['host'] === 'localhost' || filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false)
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
+		return $url;
+
+	// Don't proxy URLs whose hosts are private or reserved IP addresses
+	if (filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false && filter_var($parsedurl['host'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE) === false)
+		return $url;
+
+	// Don't proxy URLs with domains that aren't part of public DNS
+	if (preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $parsedurl['host']))
 		return $url;
 
 	// We don't need to proxy our own resources
@@ -6117,6 +6124,15 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	global $webmaster_email, $sourcedir, $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
+	// SSRF guard: refuse loopback/private/link-local/reserved targets and
+	// non-fetchable schemes before any connection is attempted.
+	if (!is_fetch_safe($url))
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+		return false;
+	}
+
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
 
 	// No scheme? No data for you!
@@ -6283,6 +6299,64 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	}
 
 	return $data;
+}
+
+/**
+ * Decides whether a URL is safe to fetch from the server.
+ *
+ * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
+ * host resolves (or is) a non-global IP address: loopback, private,
+ * link-local (incl. 169.254.0.0/16 cloud metadata), or other reserved
+ * ranges. This is the single chokepoint that prevents the avatar, proxy,
+ * get_mime_type, and task fetchers from being used as SSRF primitives. It is
+ * also re-applied to each redirect target by the fetchers.
+ *
+ * @param string $url The URL to check.
+ * @return bool True if the URL is safe to fetch, false otherwise.
+ */
+function is_fetch_safe($url)
+{
+	static $safe_hosts = array();
+
+	$parsedurl = parse_iri(iri_to_url($url));
+
+	if (empty($parsedurl['scheme']) || !in_array($parsedurl['scheme'], array('http', 'https', 'ftp', 'ftps')) || empty($parsedurl['host']) || preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $parsedurl['host']))
+		return false;
+
+	// Avoid unnecessary repetition.
+	if (isset($safe_hosts[$parsedurl['host']]))
+		return $safe_hosts[$parsedurl['host']];
+
+	// Resolve the host to its address(es). A literal IP resolves to itself.
+	$ips = array();
+
+	if (filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false)
+	{
+		$ips[] = $parsedurl['host'];
+	}
+	else
+	{
+		$records = @dns_get_record($parsedurl['host'], DNS_A | DNS_AAAA);
+
+		foreach ((array) $records as $record)
+		{
+			if (!empty($record['ip']))
+				$ips[] = $record['ip'];
+
+			if (!empty($record['ipv6']))
+				$ips[] = $record['ipv6'];
+		}
+	}
+
+	$safe_hosts[$parsedurl['host']] = !empty($ips) && $ips === array_filter(
+		$ips,
+		function ($ip)
+		{
+			return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE);
+		}
+	);
+
+	return $safe_hosts[$parsedurl['host']];
 }
 
 /**
