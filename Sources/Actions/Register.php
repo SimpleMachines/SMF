@@ -347,6 +347,11 @@ class Register implements ActionInterface, Routable
 	 */
 	public function checkUsername(): void
 	{
+		// Who are you again?
+		if (empty($_COOKIE) || empty($_COOKIE[Config::$cookiename]) || empty($_SERVER['HTTP_REFERER']) || stripos($_SERVER['HTTP_REFERER'], Config::$scripturl) !== 0) {
+			Utils::sendHttpStatus(403);
+		}
+
 		// This is XML!
 		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'check_username';
