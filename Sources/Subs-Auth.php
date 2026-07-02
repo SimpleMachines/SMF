@@ -128,8 +128,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 		// Recreate and restore the new session.
 		loadSession();
-		// @todo should we use session_regenerate_id(true); now that we are 5.1+
-		session_regenerate_id();
+		session_regenerate_id(true);
 		$_SESSION = $oldSessionData;
 
 		$_SESSION['login_' . $cookiename] = $data;

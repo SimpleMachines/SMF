@@ -171,7 +171,17 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		elseif ($destination !== null && !$single_file)
 		{
 			// Protect from accidental parent directory writing...
-			$current['filename'] = strtr($current['filename'], array('../' => '', '/..' => ''));
+			do {
+				$prev = $current['filename'];
+				$current['filename'] = strtr($current['filename'], array(
+					'../' => '',
+					'/..' => '',
+					'..' . DIRECTORY_SEPARATOR => '',
+					DIRECTORY_SEPARATOR . '..' => '',
+					'..\\' => '',
+					'\\..' => '',
+				));
+			} while ($prev !== $current['filename']);
 
 			if (!file_exists($destination . '/' . $current['filename']))
 				mktree($destination . '/' . $current['filename'], 0777);
