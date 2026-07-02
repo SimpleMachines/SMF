@@ -116,7 +116,7 @@ class ProxyServer
 	 */
 	public function checkRequest(): bool
 	{
-		if (!$this->enabled) {
+		if (!$this->enabled || $this->secret === 'smfisawesome') {
 			return false;
 		}
 

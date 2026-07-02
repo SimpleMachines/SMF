@@ -232,7 +232,17 @@ class PackageUtils
 			// Folder... create.
 			elseif ($destination !== null && !$single_file) {
 				// Protect from accidental parent directory writing...
-				$current['filename'] = strtr($current['filename'], ['../' => '', '/..' => '']);
+				do {
+					$prev = $current['filename'];
+					$current['filename'] = strtr($current['filename'], array(
+						'../' => '',
+						'/..' => '',
+						'..' . DIRECTORY_SEPARATOR => '',
+						DIRECTORY_SEPARATOR . '..' => '',
+						'..\\' => '',
+						'\\..' => '',
+					));
+				} while ($prev !== $current['filename']);
 
 				if (!file_exists($destination . '/' . $current['filename'])) {
 					self::mktree($destination . '/' . $current['filename'], 0777);
