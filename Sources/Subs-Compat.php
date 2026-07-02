@@ -4045,6 +4045,24 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	}
 
 	/**
+	 * Decides whether a URL is safe to fetch from the server.
+	 *
+	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
+	 * host resolves (or is) a non-global IP address: loopback, private,
+	 * link-local (incl. 169.254.0.0/16 cloud metadata), or other reserved
+	 * ranges. This is the single chokepoint that prevents the avatar, proxy,
+	 * get_mime_type, and task fetchers from being used as SSRF primitives. It
+	 * is also re-applied to each redirect target by the fetchers.
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL is safe to fetch, false otherwise.
+	 */
+	function is_fetch_safe($url)
+	{
+		return SMF\WebFetch\WebFetchApi::isFetchSafe($url);
+	}
+
+	/**
 	 * Compares existance request variables against an array.
 	 *
 	 * The input array is associative, where keys denote accepted values
