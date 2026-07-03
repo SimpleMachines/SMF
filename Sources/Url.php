@@ -29,14 +29,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Url implements \Stringable
 {
-	/*****************
-	 * Class constants
-	 *****************/
-
-	public const SCHEME_HTTPS = 'https';
-	public const SCHEME_HTTP = 'http';
-	public const SCHEME_GRAVATAR = 'gravatar';
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -602,7 +594,7 @@ class Url implements \Stringable
 	 */
 	public function isWebsite(): bool
 	{
-		return $this->isScheme([self::SCHEME_HTTP, self::SCHEME_HTTPS]);
+		return $this->isScheme(['http', 'https']);
 	}
 
 	/**
@@ -623,16 +615,15 @@ class Url implements \Stringable
 	 */
 	public function isGravatar(): bool
 	{
-		return
-			$this->isScheme(self::SCHEME_GRAVATAR)
-			|| $this->url === 'gravatar://'
-			|| (
-				!empty($this->host)
-				&& (
-					$this->host === 'gravatar.com'
-					||  $this->host === 'secure.gravatar.com'
-				)
-			);
+		return (
+			// If this literal string was passed to the constructor, parse_url()
+			// would reject it, causing $this->scheme, etc., not to be set.
+			// However, the string itself would still be written to $this->url.
+			$this->url === 'gravatar://'
+			// A valid URL was passed.
+			|| $this->isScheme('gravatar')
+			|| \in_array($this->host ?? null, ['gravatar.com', 'secure.gravatar.com'])
+		);
 	}
 
 	/***********************
