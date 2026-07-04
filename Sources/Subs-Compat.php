@@ -8486,7 +8486,18 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function set_avatar_data(array $data = []): array
 	{
-		return SMF\User::setAvatarData($data);
+		$avatar = new SMF\Avatar(
+			original_url: $data['avatar'] ?? '',
+			email: $data['email'] ?? '',
+			filename: $data['filename'] ?? '',
+		);
+
+		return [
+			'name' => $data['avatar'] ?? '',
+			'image' => $avatar['image'],
+			'href' => $avatar['url'],
+			'url' => $avatar['url'],
+		];
 	}
 
 	/**
