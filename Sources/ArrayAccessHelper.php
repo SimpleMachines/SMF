@@ -57,9 +57,9 @@ trait ArrayAccessHelper
 
 			// Callable properties are calculated dynamically.
 			if (str_contains($real_prop, '::') && \is_callable($real_prop)) {
-				$this->custom[$prop] = \call_user_func($real_prop, $this);
+				$this->internal_data[$prop] = \call_user_func($real_prop, $this);
 
-				return $this->custom[$prop];
+				return $this->internal_data[$prop];
 			}
 
 			if (str_starts_with($real_prop, '!')) {
@@ -69,15 +69,15 @@ trait ArrayAccessHelper
 					$real_prop = explode('[', rtrim($real_prop, ']'));
 
 					if (\is_object($this->{$real_prop[0]})) {
-						$this->custom[$prop] = !$this->{$real_prop[0]}->{$real_prop[1]};
+						$this->internal_data[$prop] = !$this->{$real_prop[0]}->{$real_prop[1]};
 					} else {
-						$this->custom[$prop] = !$this->{$real_prop[0]}[$real_prop[1]];
+						$this->internal_data[$prop] = !$this->{$real_prop[0]}[$real_prop[1]];
 					}
 				} else {
-					$this->custom[$prop] = !$this->{$real_prop};
+					$this->internal_data[$prop] = !$this->{$real_prop};
 				}
 
-				return $this->custom[$prop];
+				return $this->internal_data[$prop];
 			}
 
 			if (str_contains($real_prop, '[')) {
@@ -93,7 +93,7 @@ trait ArrayAccessHelper
 			return $this->{$real_prop};
 		}
 
-		return $this->custom[$prop];
+		return $this->internal_data[$prop];
 	}
 
 	/**

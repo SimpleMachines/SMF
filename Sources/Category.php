@@ -235,8 +235,8 @@ class Category implements \ArrayAccess
 		}
 
 		// Save the unparsed description in case we need it later.
-		if (!isset($this->custom['unparsed_description'])) {
-			$this->custom['unparsed_description'] = $this->description;
+		if (!isset($this->internal_data['unparsed_description'])) {
+			$this->internal_data['unparsed_description'] = $this->description;
 		}
 
 		if (!empty(CacheApi::$enable)) {
@@ -275,8 +275,8 @@ class Category implements \ArrayAccess
 	 */
 	public function unparseDescription(): void
 	{
-		if (isset($this->custom['unparsed_description'])) {
-			$this->description = $this->custom['unparsed_description'];
+		if (isset($this->internal_data['unparsed_description'])) {
+			$this->description = $this->internal_data['unparsed_description'];
 		}
 	}
 

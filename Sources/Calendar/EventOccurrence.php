@@ -308,7 +308,7 @@ class EventOccurrence implements \ArrayAccess
 				} elseif (!($value instanceof TimeInterval)) {
 					$value = TimeInterval::createFromDateInterval($value);
 				}
-				$this->custom['duration'] = $value;
+				$this->internal_data['duration'] = $value;
 				break;
 
 			case 'end':
@@ -319,7 +319,7 @@ class EventOccurrence implements \ArrayAccess
 						break;
 					}
 				}
-				$this->custom['duration'] = $this->start->diff($value);
+				$this->internal_data['duration'] = $this->start->diff($value);
 				break;
 
 			case 'end_datetime':
@@ -338,7 +338,7 @@ class EventOccurrence implements \ArrayAccess
 			case 'end_timestamp':
 			case 'end_iso_gmdate':
 				$end->{substr($prop, 4)} = $value;
-				$this->custom['duration'] = $this->start->diff($end);
+				$this->internal_data['duration'] = $this->start->diff($end);
 				break;
 
 			// These properties are read-only.
@@ -370,7 +370,7 @@ class EventOccurrence implements \ArrayAccess
 	public function __get(string $prop): mixed
 	{
 		if (str_starts_with($prop, 'end')) {
-			$end = (clone $this->start)->add($this->custom['duration'] ?? $this->getParentEvent()->duration);
+			$end = (clone $this->start)->add($this->internal_data['duration'] ?? $this->getParentEvent()->duration);
 		}
 
 		switch ($prop) {
@@ -457,7 +457,7 @@ class EventOccurrence implements \ArrayAccess
 			case 'duration':
 			case 'title':
 			case 'location':
-				return $this->custom[$prop] ?? $this->getParentEvent()->{$prop};
+				return $this->internal_data[$prop] ?? $this->getParentEvent()->{$prop};
 
 			// These always inherit from the parent event.
 			case 'uid':

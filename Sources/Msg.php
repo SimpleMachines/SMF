@@ -331,17 +331,17 @@ class Msg implements \ArrayAccess, Routable
 
 			// If mods added extra columns to the table and those column values
 			// are reflected in this object's custom properties, save them too.
-			if (!empty($this->custom)) {
-				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+			if (!empty($this->internal_data)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->internal_data) as $key => $type) {
+					if (isset($this->internal_data[$key]) && !\is_array($this->internal_data[$key])) {
 						$columns[$key] = $type;
-						$params[] = $this->custom[$key];
+						$params[] = $this->internal_data[$key];
 					}
 				}
 			}
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
-			IntegrationHook::call('integrate_create_post', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
+			IntegrationHook::call('integrate_create_post', [&$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$columns, &$params]);
 
 			$this->id = (int) Db::$db->insert(
 				'',
@@ -365,7 +365,7 @@ class Msg implements \ArrayAccess, Routable
 			self::$loaded[$this->id] = $this;
 
 			// What if we want to export new posts out to a CMS?
-			IntegrationHook::call('integrate_after_create_post', [$this->custom['msgOptions'], $this->custom['topicOptions'], $this->custom['posterOptions'], $columns, $params]);
+			IntegrationHook::call('integrate_after_create_post', [$this->internal_data['msgOptions'], $this->internal_data['topicOptions'], $this->internal_data['posterOptions'], $columns, $params]);
 		} else {
 			$set = [
 				'id_topic = {int:id_topic}',
@@ -408,11 +408,11 @@ class Msg implements \ArrayAccess, Routable
 
 			// If mods added extra columns to the table and those column values
 			// are reflected in this object's custom properties, save them too.
-			if (!empty($this->custom)) {
-				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+			if (!empty($this->internal_data)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->internal_data) as $key => $type) {
+					if (isset($this->internal_data[$key]) && !\is_array($this->internal_data[$key])) {
 						$set[] = $key . ' = {' . $type . ':' . $key . '}';
-						$params[$key] = $this->custom[$key];
+						$params[$key] = $this->internal_data[$key];
 					}
 				}
 			}
@@ -435,7 +435,7 @@ class Msg implements \ArrayAccess, Routable
 				$set = [];
 
 				// MOD AUTHORS: This hook is deprecated. Use integrate_msg_update instead.
-				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$message_ints]);
+				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$message_ints]);
 
 				foreach ($messages_columns as $var => $val) {
 					$set[] = $var . ' = {' . (\in_array($var, $message_ints) ? 'int' : 'string') . ':' . $var . '}';
@@ -444,7 +444,7 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
-			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
+			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions']]);
 
 			Db::$db->query(
 				'UPDATE {db_prefix}messages

@@ -772,8 +772,8 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// Save the unparsed description in case we need it later.
-		if (!isset($this->custom['unparsed_description'])) {
-			$this->custom['unparsed_description'] = $this->description;
+		if (!isset($this->internal_data['unparsed_description'])) {
+			$this->internal_data['unparsed_description'] = $this->description;
 		}
 
 		if (!empty(CacheApi::$enable)) {
@@ -812,8 +812,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public function unparseDescription(): void
 	{
-		if (isset($this->custom['unparsed_description'])) {
-			$this->description = $this->custom['unparsed_description'];
+		if (isset($this->internal_data['unparsed_description'])) {
+			$this->description = $this->internal_data['unparsed_description'];
 		}
 	}
 
@@ -1271,7 +1271,7 @@ class Board implements \ArrayAccess, Routable
 		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
 
 		// There's an integration hook called in Board::save() that wants to know this.
-		$board->custom['boardOptions'] = $boardOptions;
+		$board->internal_data['boardOptions'] = $boardOptions;
 
 		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
@@ -2646,7 +2646,7 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			// Do any hooks want to add or adjust anything?
-			IntegrationHook::call('integrate_modify_board', [$this->id, $this->custom['boardOptions'] ?? [], &$set, &$params]);
+			IntegrationHook::call('integrate_modify_board', [$this->id, $this->internal_data['boardOptions'] ?? [], &$set, &$params]);
 		}
 
 		// Perform the update.
