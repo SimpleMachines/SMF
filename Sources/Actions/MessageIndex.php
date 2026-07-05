@@ -453,18 +453,24 @@ class MessageIndex implements ActionInterface, Routable
 
 		if (!empty(Theme::$current->settings['avatars_on_indexes'])) {
 			// Last post member avatar
-			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row['avatar'],
-				'email' => $row['email_address'],
-				'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
-			]);
+			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = new Avatar(
+				original_url: $row['avatar'],
+				filename: $row['last_member_filename'] ?? '',
+				id_attach: (int) $row['last_member_id_attach'],
+				attachment_type: (int) $row['last_member_attach_type'],
+				email: $row['email_address'],
+				id_member: (int) $row['last_id_member'],
+			);
 
 			// First post member avatar
-			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row['first_member_avatar'],
-				'email' => $row['first_member_mail'],
-				'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
-			]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = new Avatar(
+				original_url: $row['first_member_avatar'],
+				filename: $row['first_member_filename'] ?? '',
+				id_attach: (int) $row['first_member_id_attach'],
+				attachment_type: (int) $row['first_member_attach_type'],
+				email: $row['first_member_mail'],
+				id_member: (int) $row['first_id_member'],
+			);
 		}
 	}
 

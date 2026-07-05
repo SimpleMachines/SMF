@@ -531,22 +531,11 @@ class User implements \ArrayAccess
 	public array $icons;
 
 	/**
-	 * @var array
+	 * @var Avatar
 	 *
-	 * Info about the user's avatar.
+	 * The user's avatar.
 	 */
-	public array $avatar = [
-		'original_url' => null,
-		'url' => null,
-		'href' => null,
-		'name' => null,
-		'filename' => null,
-		'custom_dir' => null,
-		'id_attach' => null,
-		'width' => null,
-		'height' => null,
-		'image' => null,
-	];
+	public Avatar $avatar;
 
 	/**
 	 * @var array
@@ -2740,98 +2729,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Helper function to set an array of data for a user's avatar.
-	 *
-	 * The following keys are required:
-	 *  - avatar: The raw "avatar" column in members table.
-	 *  - email: The user's email address. Used to get the gravatar info.
-	 *  - filename: The attachment filename.
-	 *
-	 * @param array $data An array of raw info.
-	 * @return array An array of avatar data.
-	 */
-	public static function setAvatarData(array $data = []): array
-	{
-		// Come on!
-		if (empty($data)) {
-			return [];
-		}
-
-		// Set a nice default var.
-		$image = '';
-
-		// Gravatar has been set as mandatory!
-		if (!empty(Config::$modSettings['gravatarEnabled']) && !empty(Config::$modSettings['gravatarOverride'])) {
-			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://')) {
-				$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
-			} elseif (!empty($data['email'])) {
-				$image = self::getGravatarUrl($data['email']);
-			}
-		}
-		// Look if the user has a gravatar field or has set an external url as avatar.
-		else {
-			if (!$data['avatar'] instanceof Url) {
-				$data['avatar'] = new Url((string) $data['avatar']);
-			}
-
-			// So it's stored in the member table?
-			if ((string) $data['avatar'] !== '') {
-				// Gravatar.
-				if ($data['avatar']->isGravatar()) {
-					if ((string) $data['avatar'] === 'gravatar://') {
-						$image = self::getGravatarUrl($data['email']);
-					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
-						$image = self::getGravatarUrl(Utils::entitySubstr((string) $data['avatar'], 11));
-					}
-				}
-				// External url.
-				else {
-					if ($data['avatar'] instanceof Url) {
-						$url = $data['avatar'];
-					} else {
-						$url = new Url((string) $data['avatar']);
-					}
-
-					$image = isset($url->scheme) ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
-				}
-			}
-			// Perhaps this user has an attachment as avatar...
-			elseif (!empty($data['filename'])) {
-				$image = Config::$modSettings['custom_avatar_url'] . '/' . $data['filename'];
-			}
-			// Right... no avatar... use our default image.
-			elseif (isset(Config::$modSettings['avatar_url'])) {
-				$image = Config::$modSettings['avatar_url'] . '/default.png';
-			}
-			// Last ditch fallback is a transparent 1x1 GIF.
-			else {
-				$image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-			}
-		}
-
-
-		IntegrationHook::call('integrate_set_avatar_data', [&$image, &$data]);
-
-		// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
-		if (!empty($image)) {
-			return [
-				'name' => !empty($data['avatar']) ? (string) $data['avatar'] : '',
-				'image' => '<img class="avatar" src="' . $image . '" alt="">',
-				'href' => $image,
-				'url' => $image,
-			];
-		}
-
-		// Fallback to make life easier for everyone...
-		return [
-			'name' => '',
-			'image' => '',
-			'href' => '',
-			'url' => '',
-		];
-	}
-
-	/**
 	 * Updates the columns in the members table.
 	 *
 	 * Assumes the data has been htmlspecialchar'd.
@@ -2881,6 +2778,14 @@ class User implements \ArrayAccess
 
 				if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
 					$val = max(0, $val);
+				}
+
+				if ($var === 'avatar' && \is_string($val)) {
+					$val = new Avatar(
+						original_url: $val,
+						email: User::$loaded[$member]->email,
+						id_member: (int) $member,
+					);
 				}
 
 				User::$loaded[$member]->set([$var => $val]);
@@ -3968,21 +3873,16 @@ class User implements \ArrayAccess
 
 		// The avatar is a complicated thing, and historically had multiple
 		// representations in the code. This supports everything.
-		$this->avatar = array_merge(
-			[
-				'original_url' => $profile['avatar_original'] ?? '',
-				'url' => (string) ($profile['avatar'] ?? ''),
-				'filename' => $profile['filename'] ?? '',
-				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == Attachment::TYPE_AVATAR,
-				'id_attach' => $profile['id_attach'] ?? 0,
-				'width' => $profile['attachment_width'] ?? null,
-				'height' => $profile['attachment_height'] ?? null,
-			],
-			self::setAvatarData([
-				'avatar' => $profile['avatar'] ?? '',
-				'email' => $profile['email_address'] ?? '',
-				'filename' => $profile['filename'] ?? '',
-			]),
+		$this->avatar = new Avatar(
+			url: $profile['avatar'] ?? null,
+			original_url: $profile['avatar_original'] ?? null,
+			filename: $profile['filename'] ?? null,
+			id_attach: isset($profile['id_attach']) ? (int) $profile['id_attach'] : null,
+			attachment_type: isset($profile['attachment_type']) ? (int) $profile['attachment_type'] : null,
+			width: isset($profile['attachment_width']) ? (int) $profile['attachment_width'] : null,
+			height: isset($profile['attachment_height']) ? (int) $profile['attachment_height'] : null,
+			email: $this->email,
+			id_member: $this->id,
 		);
 
 		// Info about stuff related to permissions.
@@ -4846,56 +4746,6 @@ class User implements \ArrayAccess
 		}
 
 		Db::$db->free_result($request);
-	}
-
-	/**
-	 * Return a Gravatar URL based on
-	 * - the supplied email address,
-	 * - the global maximum rating,
-	 * - the global default fallback,
-	 * - maximum sizes as set in the admin panel.
-	 *
-	 * It is SSL aware, and caches most of the parameters.
-	 *
-	 * @param string $email_address The user's email address
-	 * @return string The gravatar URL
-	 */
-	protected static function getGravatarUrl(string $email_address): string
-	{
-		static $url_params = null;
-
-		if ($url_params === null) {
-			$ratings = ['G', 'PG', 'R', 'X'];
-			$defaults = ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank'];
-
-			$url_params = [];
-
-			if (!empty(Config::$modSettings['gravatarMaxRating']) && \in_array(Config::$modSettings['gravatarMaxRating'], $ratings)) {
-				$url_params[] = 'rating=' . Config::$modSettings['gravatarMaxRating'];
-			}
-
-			if (!empty(Config::$modSettings['gravatarDefault']) && \in_array(Config::$modSettings['gravatarDefault'], $defaults)) {
-				$url_params[] = 'default=' . Config::$modSettings['gravatarDefault'];
-			}
-
-			if (!empty(Config::$modSettings['avatar_max_width_external'])) {
-				$size_string = (int) Config::$modSettings['avatar_max_width_external'];
-			}
-
-			if (
-				!empty(Config::$modSettings['avatar_max_height_external'])
-				&& !empty($size_string)
-				&& (int) Config::$modSettings['avatar_max_height_external'] < $size_string
-			) {
-				$size_string = Config::$modSettings['avatar_max_height_external'];
-			}
-
-			if (!empty($size_string)) {
-				$url_params[] = 's=' . $size_string;
-			}
-		}
-
-		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
 	}
 
 	/**

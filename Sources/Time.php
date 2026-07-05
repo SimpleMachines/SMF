@@ -319,7 +319,7 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			default:
-				$this->custom[$prop] = $value;
+				$this->internal_data[$prop] = $value;
 				break;
 		}
 	}
@@ -403,7 +403,7 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			default:
-				$value = $this->custom[$prop] ?? null;
+				$value = $this->internal_data[$prop] ?? null;
 				break;
 		}
 
@@ -440,7 +440,7 @@ class Time extends \DateTime implements \ArrayAccess
 				return true;
 
 			default:
-				return isset($this->custom[$prop]);
+				return isset($this->internal_data[$prop]);
 		}
 	}
 
