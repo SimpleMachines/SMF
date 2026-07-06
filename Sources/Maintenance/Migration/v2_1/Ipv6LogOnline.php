@@ -55,9 +55,8 @@ class Ipv6LogOnline extends MigrationBase
 
 		$this->query('TRUNCATE TABLE {db_prefix}log_online');
 
-		$this->convertIntegerColumnToInet($table, $table->columns['ip']);
-
-		$table->normalize();
+		$table->dropColumn($table->columns['ip']);
+		$table->addColumn($table->columns['ip']);
 
 		$this->handleTimeout();
 
