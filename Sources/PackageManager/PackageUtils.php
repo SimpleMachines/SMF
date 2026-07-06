@@ -234,14 +234,14 @@ class PackageUtils
 				// Protect from accidental parent directory writing...
 				do {
 					$prev = $current['filename'];
-					$current['filename'] = strtr($current['filename'], array(
+					$current['filename'] = strtr($current['filename'], [
 						'../' => '',
 						'/..' => '',
 						'..' . DIRECTORY_SEPARATOR => '',
 						DIRECTORY_SEPARATOR . '..' => '',
 						'..\\' => '',
 						'\\..' => '',
-					));
+					]);
 				} while ($prev !== $current['filename']);
 
 				if (!file_exists($destination . '/' . $current['filename'])) {

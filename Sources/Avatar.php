@@ -499,7 +499,7 @@ class Avatar implements \ArrayAccess
 							true,
 						)
 					) {
-						$url = new Url(Config::$modSettings['custom_avatar_url'] . '/' . ltrim(strtr($this->filename, '\\', '/'), '/'));
+						$url = new Url(Config::$modSettings['avatar_url'] . '/' . ltrim(strtr($this->filename, '\\', '/'), '/'));
 					}
 
 					break;
