@@ -800,7 +800,7 @@ class Login2 implements ActionInterface, Routable
 		$update = [
 			'member_ip' => User::$me->ip,
 			'member_ip2' => IP::getUserIPAlternative(),
-			'validation_code' => ''
+			'validation_code' => '',
 		];
 
 		if (empty(User::$me->tfa_secret)) {
