@@ -223,15 +223,39 @@ class User implements \ArrayAccess
 	 * @var bool
 	 *
 	 * Whether this user is a guest.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $is_guest;
+	public bool $is_guest {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => empty($this->id);`
+		&get {
+			$this->is_guest = empty($this->id);
+
+			return $this->is_guest;
+		}
+	}
 
 	/**
 	 * @var bool
 	 *
 	 * Whether this user is an admin.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $is_admin;
+	public bool $is_admin {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => \in_array(Group::ADMIN, $this->groups ?? []);`
+		&get {
+			$this->is_admin = \in_array(Group::ADMIN, $this->groups ?? []);
+
+			return $this->is_admin;
+		}
+	}
 
 	/**
 	 * @var bool
@@ -3889,8 +3913,6 @@ class User implements \ArrayAccess
 		// User status.
 		$this->setGroups();
 		$this->setPossiblyRobot();
-		$this->is_guest = empty($this->id);
-		$this->is_admin = \in_array(1, $this->groups);
 		$this->is_mod = \in_array(3, $this->groups) || !empty($profile['is_mod']);
 		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
 		$this->is_banned = $this->is_activated >= self::BANNED;

@@ -910,7 +910,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['info']['areas']['viewwarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && Profile::$member->warning;
 
-		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups));
+		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || !Profile::$member->is_admin;
 
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
@@ -928,7 +928,7 @@ class Main implements ActionInterface, Routable
 
 		$this->profile_areas['profile_action']['areas']['issuewarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1;
 
-		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups);
+		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = !Profile::$member->is_admin;
 
 		$this->profile_areas['profile_action']['areas']['subscriptions']['enabled'] = !empty(Config::$modSettings['paid_enabled']) && Utils::$context['subs_available'];
 
