@@ -807,6 +807,35 @@ function loadEssentialData()
 			die($txt['error_db_connect_settings'] . '<br><br>' . $db_error);
 		}
 
+		// Many old 2.0 DBs don't have $db_character_set defined in Settings.php.
+		// We need to set it explicitly here so SET NAMES can do its job.
+		// Set it based on the charset for smf_messages.body.
+		if ($db_type == 'mysql' && !isset($db_character_set))
+		{
+			$body_charset = '';
+			$request = $smcFunc['db_query']('', '
+				SELECT CHARACTER_SET_NAME
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = {string:schema}
+				AND TABLE_NAME = {string:table}
+				AND COLUMN_NAME = {string:column}',
+				array(
+					'schema' => $db_name,
+					'table' => $db_prefix . 'messages',
+					'column' => 'body',
+				)
+			);
+			list ($body_charset) = $smcFunc['db_fetch_row']($request);
+			if (!empty($body_charset))
+			{
+				$db_character_set = $body_charset;
+				$changes = array();
+				$changes['db_character_set'] = $db_character_set;
+				require_once($sourcedir . '/Subs-Admin.php');
+				updateSettingsFile($changes);
+			}
+		}
+
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
 				SET NAMES {string:db_character_set}',
