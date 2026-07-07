@@ -692,7 +692,8 @@ function loadEssentialData()
 	if (version_compare(PHP_VERSION, '8.0.0', '>='))
 		require_once($sourcedir . '/Subs-Compat.php');
 
-	@set_time_limit(600);
+	// These are long running tasks, attempt to disable time check...
+	@set_time_limit(0);
 
 	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
 	{
@@ -2772,7 +2773,8 @@ function nextSubstep($substep)
 		return;
 	}
 
-	@set_time_limit(300);
+	// These are long running tasks, attempt to disable time check...
+	@set_time_limit(0);
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
