@@ -276,7 +276,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param bool $force_reload Whether to reload the data.
 	 */
-	public function loadStandardFields(bool $force_reload = false)
+	public function loadStandardFields(bool $force_reload = false): void
 	{
 		// Don't load this twice!
 		if (!empty($this->standard_fields) && !$force_reload) {
@@ -1133,8 +1133,10 @@ class Profile extends User implements \ArrayAccess
 			$this->custom_fields_required = $this->custom_fields_required || $cf_def['show_reg'] == 2;
 		}
 
-		Utils::$context['custom_fields'] = &$this->custom_fields;
-		Utils::$context['custom_fields_required'] = &$this->custom_fields_required;
+		if ($this === self::$member) {
+			Utils::$context['custom_fields'] = &$this->custom_fields;
+			Utils::$context['custom_fields_required'] = &$this->custom_fields_required;
+		}
 
 		IntegrationHook::call('integrate_load_custom_profile_fields', [$this->id, $area]);
 	}
@@ -1147,8 +1149,13 @@ class Profile extends User implements \ArrayAccess
 	 *    theme, where "default theme" means whichever theme is used for guests.
 	 *    Default: false.
 	 */
-	public function loadThemeOptions(bool $default_only = false)
+	public function loadThemeOptions(bool $default_only = false): void
 	{
+		// This only applies to self::$member.
+		if ($this !== self::$member) {
+			return;
+		}
+
 		// Get this member's current theme options.
 		if ($default_only && $this->theme != (Config::$modSettings['theme_guests'] ?? 1)) {
 			$temp = $this->data['options'] ?? [];
@@ -1207,6 +1214,11 @@ class Profile extends User implements \ArrayAccess
 	 */
 	public function loadSignatureData(): bool
 	{
+		// This only applies to self::$member.
+		if ($this !== self::$member) {
+			return false;
+		}
+
 		// Signature limits.
 		list($sig_limits, $sig_bbc) = explode(':', Config::$modSettings['signature_settings']);
 		$sig_limits = explode(',', $sig_limits);
@@ -1305,18 +1317,20 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// For the templates.
-		Utils::$context['member_groups'] = [
-			0 => [
-				'id' => 0,
-				'name' => Lang::getTxt('no_primary_membergroup', file: 'Profile'),
-				'is_primary' => $this->data['id_group'] == 0,
-				'can_be_additional' => false,
-				'can_be_primary' => true,
-			],
-		];
+		if ($this === self::$member) {
+			Utils::$context['member_groups'] = [
+				0 => [
+					'id' => 0,
+					'name' => Lang::getTxt('no_primary_membergroup', file: 'Profile'),
+					'is_primary' => $this->data['id_group'] == 0,
+					'can_be_additional' => false,
+					'can_be_primary' => true,
+				],
+			];
 
-		// Do not use array merge here, does not maintain key association.
-		Utils::$context['member_groups'] += $this->assignable_groups;
+			// Do not use array merge here, does not maintain key association.
+			Utils::$context['member_groups'] += $this->assignable_groups;
+		}
 
 		return true;
 	}
@@ -1326,9 +1340,15 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * @param array $fields The profile fields to display. Each item should
 	 *    correspond to an item in the $this->standard_fields array.
+	 * @throws \LogicException if called on an object that is not self::$member.
 	 */
 	public function setupContext(array $fields): void
 	{
+		if ($this !== self::$member) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a profile that is not ' . __CLASS__ . '::$member');
+		}
+
 		// Some default bits.
 		Utils::$context['profile_prehtml'] = '';
 		Utils::$context['profile_posthtml'] = '';

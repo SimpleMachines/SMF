@@ -44,6 +44,17 @@ class GroupMembership implements ActionInterface
 	 */
 	public string $change_type;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var array
+	 *
+	 * Info about groups that this member is part of or can become part of.
+	 */
+	protected array $current_and_assignable_groups;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -103,7 +114,7 @@ class GroupMembership implements ActionInterface
 		}, $open_requests);
 
 		// Show the assignable groups in the templates.
-		foreach (Profile::$member->current_and_assignable_groups as $id => $group) {
+		foreach ($this->current_and_assignable_groups as $id => $group) {
 			// Skip "Regular Members" for now.
 			if ($id == 0) {
 				continue;
@@ -173,12 +184,12 @@ class GroupMembership implements ActionInterface
 		// Which groups can they be assigned to?
 		$this->loadCurrentAndAssignableGroups();
 
-		if (!isset(Profile::$member->current_and_assignable_groups[$new_group_id])) {
+		if (!isset($this->current_and_assignable_groups[$new_group_id])) {
 			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
 		}
 
 		// Just for improved legibility...
-		$new_group_info = Profile::$member->current_and_assignable_groups[$new_group_id];
+		$new_group_info = $this->current_and_assignable_groups[$new_group_id];
 
 		// Can't request a non-requestable group.
 		if ($this->change_type == 'request' && $new_group_info['type'] != 2) {
@@ -269,7 +280,7 @@ class GroupMembership implements ActionInterface
 	 */
 	protected function loadCurrentAndAssignableGroups(): void
 	{
-		if (isset(Profile::$member->current_and_assignable_groups)) {
+		if (isset($this->current_and_assignable_groups)) {
 			return;
 		}
 
@@ -306,7 +317,7 @@ class GroupMembership implements ActionInterface
 			},
 		);
 
-		Profile::$member->current_and_assignable_groups = $current_and_assignable_groups;
+		$this->current_and_assignable_groups = $current_and_assignable_groups;
 	}
 
 	/**
@@ -319,16 +330,16 @@ class GroupMembership implements ActionInterface
 
 		// Hidden groups cannot be primary groups.
 		if (isset($new_group_id)) {
-			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]->can_be_primary;
+			$can_edit_primary = $this->current_and_assignable_groups[$new_group_id]->can_be_primary;
 		} else {
-			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
+			$possible_primary_groups = array_filter($this->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
 
 			$can_edit_primary = !empty($possible_primary_groups);
 		}
 
 		// Changing the primary group means turning the current primary group
 		// into an additional group. So, is that possible?
-		$can_edit_primary &= Profile::$member->group_id == Group::REGULAR || Profile::$member->current_and_assignable_groups[Profile::$member->group_id]->can_be_additional;
+		$can_edit_primary &= Profile::$member->group_id == Group::REGULAR || $this->current_and_assignable_groups[Profile::$member->group_id]->can_be_additional;
 
 		return (bool) $can_edit_primary;
 	}
