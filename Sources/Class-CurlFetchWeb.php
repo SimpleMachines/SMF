@@ -340,6 +340,16 @@ class curl_fetch_web_data
 	 */
 	private function redirect($target_url, $referer_url)
 	{
+		// SSRF guard: re-validate the redirect target before following it, so a
+		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
+		if (!is_fetch_safe($target_url))
+		{
+			if (isset($this->response[$this->current_redirect - 1]))
+				$this->response[$this->current_redirect - 1]['success'] = false;
+
+			return;
+		}
+
 		// no no I last saw that over there ... really, 301, 302, 307
 		$this->set_options();
 		$this->options[CURLOPT_REFERER] = $referer_url;
