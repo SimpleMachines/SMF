@@ -4052,93 +4052,114 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Check if we are forcing TFA
-		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'feed');
+		// If they've set up Two Factor Authentication, validate it.
+		if (!empty(self::$profiles[self::$my_id]['tfa_secret'])) {
+			// If they are performing the TFA login action itself, make sure
+			// to reset their ID for security, but otherwise leave it to the
+			// action to verify the TFA credentials.
+			if (($_REQUEST['action'] ?? '') === 'logintfa') {
+				Utils::$context['tfa_member'] = self::$profiles[self::$my_id];
+				self::$profiles[self::$my_id] = [];
+				self::$my_id = 0;
 
-		// Don't force TFA on popups
-		if ($force_tfasetup) {
-			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && \in_array($_REQUEST['area'], ['popup', 'alerts_popup'])) {
-				$force_tfasetup = false;
-			} elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup')) {
-				$force_tfasetup = false;
+				return;
 			}
 
+			// Don't get stuck in a loop.
+			if (($_REQUEST['action'] ?? '') === 'login2') {
+				return;
+			}
+
+			// Do any mods want to verify their TFA credentials for us?
+			$verified = IntegrationHook::call('integrate_verify_tfa', [self::$my_id, self::$profiles[self::$my_id]]);
+
+			if (\in_array(true, $verified)) {
+				return;
+			}
+
+			// Verify their TFA credentials ourselves.
+			$tfa_cookie = Config::$cookiename . '_tfa';
+			$tfa_secret = '';
+
+			if (!empty($_COOKIE[$tfa_cookie])) {
+				$tfa_data = Utils::jsonDecode($_COOKIE[$tfa_cookie], true);
+
+				list($tfa_member_id, $tfa_secret) = array_pad((array) $tfa_data, 2, '');
+
+				if ((int) $tfa_member_id !== self::$my_id) {
+					$tfa_secret = '';
+				}
+			}
+
+			// If they didn't provide the correct TFA credentials, they're no one to us.
+			if (
+				!hash_equals(
+					$tfa_secret,
+					Cookie::encrypt(
+						self::$profiles[self::$my_id]['tfa_backup'],
+						self::$profiles[self::$my_id]['password_salt'],
+					),
+				)
+			) {
+				Cookie::setLoginCookie(-3600, self::$my_id);
+				self::$profiles[self::$my_id] = [];
+				self::$my_id = 0;
+			}
+
+			return;
+		}
+
+		// They don't have any TFA credentials. Do they need to create some?
+		$force_tfasetup = (
+			// 1. The TFA setting requires it.
+			Config::$modSettings['tfa_mode'] >= 2
+			// 2. This is happening within the forum itself (not SSI, cron, etc.)
+			&& SMF === 1
+			// 3. This is not an AJAX request.
+			&& !isset($_REQUEST['xml'])
+			// 4. The requested action does NOT meet any of the following criteria:
+			&& !(
+				// 4.a. Logging out.
+				($_REQUEST['action'] ?? null) === 'logout'
+				// 4.b. Getting an RSS feed.
+				|| ($_REQUEST['action'] ?? null) === 'feed'
+				// 4.c. Doing the TFA setup.
+				|| (
+					($_REQUEST['action'] ?? null) === 'profile'
+					&& ($_REQUEST['area'] ?? null) === 'tfasetup'
+				)
+				// 4.d. Viewing one of the profile popups.
+				|| (
+					($_REQUEST['action'] ?? null) === 'profile'
+					&& \in_array($_REQUEST['area'] ?? null, ['popup', 'alerts_popup'])
+				)
+				// 4.d. Viewing the personal messages popup.
+				|| (
+					($_REQUEST['action'] ?? null) === 'pm'
+					&& ($_REQUEST['sa'] ?? null) == 'popup'
+				)
+			)
+		);
+
+		// Allow mods to turn off $force_tfasetup for their own actions.
+		// Note: we don't let mods turn it on if we already turned it off.
+		if ($force_tfasetup) {
 			IntegrationHook::call('integrate_force_tfasetup', [&$force_tfasetup]);
 		}
 
-		// Validate for Two Factor Authentication
-		if (!empty(self::$profiles[self::$my_id]['tfa_secret']) && (empty($_REQUEST['action']) || !\in_array($_REQUEST['action'], ['login2', 'logintfa']))) {
-			$tfacookie = Config::$cookiename . '_tfa';
-			$tfasecret = null;
+		// If we are only forcing SOME membergroups to use TFA, check whether
+		// this member belongs to any of those groups.
+		if ($force_tfasetup && Config::$modSettings['tfa_mode'] == 2) {
+			$this->setGroups();
 
-			$verified = IntegrationHook::call('integrate_verify_tfa', [self::$my_id, self::$profiles[self::$my_id]]);
-
-			if (empty($verified) || !\in_array(true, $verified)) {
-				if (!empty($_COOKIE[$tfacookie])) {
-					$tfa_data = Utils::jsonDecode($_COOKIE[$tfacookie], true);
-
-					list($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
-
-					if (!isset($tfamember, $tfasecret) || (int) $tfamember != self::$my_id) {
-						$tfasecret = null;
-					}
-				}
-
-				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || !hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['tfa_backup'], self::$profiles[self::$my_id]['password_salt']), $tfasecret)) {
-					Cookie::setLoginCookie(-3600, self::$my_id);
-					self::$profiles[self::$my_id] = [];
-					self::$my_id = 0;
-				}
+			if (empty(Group::load($this->groups, ['where' => ['tfa_required = 1']]))) {
+				$force_tfasetup = false;
 			}
 		}
-		// When authenticating their two factor code, make sure to reset their ID for security
-		elseif (!empty(self::$profiles[self::$my_id]['tfa_secret']) && $_REQUEST['action'] == 'logintfa') {
-			Utils::$context['tfa_member'] = self::$profiles[self::$my_id];
-			self::$profiles[self::$my_id] = [];
-			self::$my_id = 0;
-		}
-		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
-		elseif ($force_tfasetup) {
-			// Only do this if we are just forcing SOME membergroups
-			if (Config::$modSettings['tfa_mode'] == 2) {
-				// Build an array of ALL user membergroups.
-				$this->setGroups();
 
-				// Find out if any group requires 2FA
-				$request = Db::$db->query(
-					'SELECT COUNT(id_group) AS total
-					FROM {db_prefix}membergroups
-					WHERE tfa_required = {int:tfa_required}
-						AND id_group IN ({array_int:full_groups})',
-					[
-						'tfa_required' => 1,
-						'full_groups' => $this->groups,
-					],
-				);
-				$row = Db::$db->fetch_assoc($request);
-				Db::$db->free_result($request);
-			}
-			// Simplifies logic in the next "if"
-			else {
-				$row['total'] = 1;
-			}
-
-			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
-			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
-
-			if (
-				$row['total'] > 0
-				&& (
-					!\in_array($action, ['profile', 'logout'])
-					|| (
-						$action == 'profile'
-						&& $area != 'tfasetup'
-					)
-				)
-			) {
-				Utils::redirectexit('action=profile;area=tfasetup;forced');
-			}
+		// Are we forcing TFA?
+		if ($force_tfasetup) {
+			Utils::redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
 
