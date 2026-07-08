@@ -1,0 +1,158 @@
+// Traverse the DOM tree in our spinoff of jQuery's closest()
+function getClosest(el, divID)
+{
+	if (typeof divID == 'undefined' || divID == false)
+		return null;
+
+	do
+	{
+		// End the loop if quick edit is detected.
+		if (el.nodeName === 'TEXTAREA' || el.nodeName === 'INPUT' || el.id === 'error_box')
+			break;
+
+		if (el.id === divID)
+		{
+			return el;
+		}
+	}
+	while (el = el.parentNode);
+
+	// not found :(
+	return null;
+}
+
+function getSelectedText(node) {
+	var selection = window.getSelection();
+	// Need to be sure the selected text includes the right div.
+	for (var i = 0; i < selection.rangeCount; i++) {
+		const range = selection.getRangeAt(i);
+
+		if (range.intersectsNode(node)) {
+			const
+				frag = range.cloneContents(),
+				s = getClosest(range.startContainer, node.id),
+				e = getClosest(range.endContainer, node.id);
+
+			if (s && e) {
+				const container = document.createElement("div");
+				container.appendChild(range.cloneContents());
+				return container.innerHTML;
+			} else {
+				const el = frag.getElementById(node.id);
+				return el?.innerHTML;
+			}
+		}
+	}
+}
+
+function quotedTextClick(oOptions)
+{
+		text = '';
+
+		// The process has been started, hide the button.
+		$('#quoteSelected_' + oOptions.msgID).hide();
+
+		// Do a call to make sure this is a valid message.
+		$.ajax({
+			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject?.bRichTextEnabled ? 1 : 0),
+			type: 'GET',
+			headers: {
+				"X-SMF-AJAX": 1
+			},
+			xhrFields: {
+				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+			},
+			dataType: 'xml',
+			beforeSend: function () {
+				ajax_indicator(true);
+			},
+			complete: function(jqXHR, textStatus){
+				ajax_indicator(false);
+			},
+			success: function (data, textStatus, xhr) {
+				// Convert all smileys from images back to smiley code
+				oOptions.text = oOptions.text.replaceAll(/<img src=".*?" alt="(.*?)" title=".*?" class="smiley">/, '$1');
+
+				// Search the xml data to get the quote tag.
+				text = $(data).find('quote').text();
+
+				// Insert the selected text between the quotes BBC tags.
+				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
+
+				// Get the editor stuff.
+				var e = $('#' + oEditorID).get(0);
+				var oEditor = sceditor.instance(e);
+
+				// Convert any HTML into BBC tags.
+				text = oEditor.toBBCode(text);
+
+				// Push the text to the editor.
+				oEditor.insert(text);
+
+				// Move the view to the quick reply box. If available.
+				if (typeof oJumpAnchor != 'undefined'){
+					if (navigator.appName == 'Microsoft Internet Explorer')
+						window.location.hash = oJumpAnchor;
+					else
+						window.location.hash = '#' + oJumpAnchor;
+				}
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				// @todo Show some error.
+			}
+		});
+}
+
+$(function() {
+
+	// Event for handling selected quotes.
+	$(document).on('mouseup', '.inner, .list_posts', function() {
+
+		// Get everything we need.
+		var oSelected = {
+			divID : $(this).attr('id'),
+			msgID : $(this).data('msgid'),
+		};
+
+		// Get any selected text.
+		const node = this;
+		oSelected.text = getSelectedText(this);
+
+		// Do we have some selected text?
+		if (typeof oSelected.text == 'undefined' || oSelected.text == false)
+			return true;
+
+		// Show the "quote this" button.
+		$('#quoteSelected_' + oSelected.msgID).show();
+
+		// Remove any previous selection
+		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
+
+		$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e) {
+			e.preventDefault();
+			quotedTextClick(oSelected);
+		});
+
+		// Register global on click listener to catch deselect clicks outside of the div.
+		$(document).on('click.ondeselecttext' + oSelected.msgID, function() {
+			// Delay the check a bit to allow the deselection to happen.
+			setTimeout(function() {
+				selectedText = getSelectedText(node);
+
+				if (typeof selectedText != 'undefined' && selectedText != false)
+					return;
+
+				// Remove any 'click' event to the button.
+				$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
+
+				// Hide the button.
+				$('#quoteSelected_' + oSelected.msgID).hide();
+
+				// Remove this on click listener
+				$(document).off('click.ondeselecttext' + oSelected.msgID);
+			}, 1);
+		});
+
+		return true;
+	});
+});

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> &lt;&lt; :: SMF SSI.php <!--#include virtual="./SSI.php?ssi_function=version" --> :: &gt;&gt; </title>
+	</head>
+	<body style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt;">
+			<h1>SMF SSI.php Functions</h1>
+			Current Version <!--#include virtual="./SSI.php?ssi_function=version" --><br>
+			<br>
+			This file is used to demonstrate the capabilities of SSI.php using SHTML include functions.<br>
+			The examples the include tag, then the results of it. Examples are separated by horizontal rules.<br>
+
+		<hr>
+
+			<h3>Recent Topics Function: &lt;!--#include virtual="./SSI.php?ssi_function=recentTopics" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=recentTopics" -->
+
+		<hr>
+
+			<h3>Recent Posts Function: &lt;!--#include virtual="./SSI.php?ssi_function=recentPosts" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=recentPosts" -->
+
+		<hr>
+
+			<h3>Recent Poll Function: &lt;!--#include virtual="./SSI.php?ssi_function=recentPoll" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=recentPoll" -->
+
+		<hr>
+
+			<h3>Top Boards Function: &lt;!--#include virtual="./SSI.php?ssi_function=topBoards" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=topBoards" -->
+
+		<hr>
+
+			<h3>Top Topics by View Function: &lt;!--#include virtual="./SSI.php?ssi_function=topTopicsViews" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=topTopicsViews" -->
+
+		<hr>
+
+			<h3>Top Topics by Replies Function: &lt;!--#include virtual="./SSI.php?ssi_function=topTopicsReplies" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=topTopicsReplies" -->
+
+		<hr>
+
+			<h3>Top Poll Function: &lt;!--#include virtual="./SSI.php?ssi_function=topPoll" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=topPoll" -->
+
+		<hr>
+
+			<h3>Top Poster Function: &lt;!--#include virtual="./SSI.php?ssi_function=topPoster" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=topPoster" -->
+
+		<hr>
+
+			<h3>Topic's Poll Function: &lt;!--#include virtual="./SSI.php?ssi_function=showPoll;ssi_topic=##" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=showPoll;ssi_topic=1" -->
+
+		<hr>
+
+			<h3>Latest Member Function: &lt;!--#include virtual="./SSI.php?ssi_function=latestMember" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=latestMember" -->
+
+		<hr>
+
+			<h3>Random Member Function: &lt;!--#include virtual="./SSI.php?ssi_function=randomMember" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=randomMember" -->
+
+		<hr>
+
+			<h3>Board Stats: &lt;!--#include virtual="./SSI.php?ssi_function=boardStats" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=boardStats" -->
+
+		<hr>
+
+			<h3>Who's Online Function: &lt;!--#include virtual="./SSI.php?ssi_function=whosOnline" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=whosOnline" -->
+
+		<hr>
+
+			<h3>Log Online Presence + Who's Online Function: &lt;!--#include virtual="./SSI.php?ssi_function=logOnline" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=logOnline" -->
+
+		<hr>
+
+			<h3>Welcome Function: &lt;!--#include virtual="./SSI.php?ssi_function=welcome" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=welcome" -->
+
+		<hr>
+
+			<h3>News Function: &lt;!--#include virtual="./SSI.php?ssi_function=news" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=news" -->
+
+		<hr>
+
+			<h3>Board News Function: &lt;!--#include virtual="./SSI.php?ssi_function=boardNews" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=boardNews" -->
+
+		<hr>
+
+			<h3>Menubar Function: &lt;!--#include virtual="./SSI.php?ssi_function=menubar" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=menubar" -->
+
+		<hr>
+
+			<h3>Quick Search Function: &lt;!--#include virtual="./SSI.php?ssi_function=quickSearch" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=quickSearch" -->
+
+		<hr>
+
+			<h3>Login Function: &lt;!--#include virtual="./SSI.php?ssi_function=login" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=login" -->
+
+		<hr>
+
+			<h3>Log Out Function: &lt;!--#include virtual="./SSI.php?ssi_function=logout" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=logout" -->
+
+		<hr>
+
+			<h3>Today's Birthdays Function: &lt;!--#include virtual="./SSI.php?ssi_function=todaysBirthdays" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=todaysBirthdays" -->
+
+		<hr>
+
+			<h3>Today's Holidays Function: &lt;!--#include virtual="./SSI.php?ssi_function=todaysHolidays" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=todaysHolidays" -->
+
+		<hr>
+
+			<h3>Today's Events Function: &lt;!--#include virtual="./SSI.php?ssi_function=todaysEvents" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=todaysEvents" -->
+
+		<hr>
+
+			<h3>Today's Calendar Function: &lt;!--#include virtual="./SSI.php?ssi_function=todaysCalendar" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=todaysCalendar" -->
+
+		<hr>
+
+			<h3>Recent Calendar Events Function: &lt;!--#include virtual="./SSI.php?ssi_function=recentEvents" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=recentEvents" -->
+
+		<hr>
+
+			<h3>Recent Attachments Function &lt;!--#include virtual="./SSI.php?ssi_function=recentAttachments" --&gt;</h3>
+			<!--#include virtual="./SSI.php?ssi_function=recentAttachments" -->
+
+		<hr>
+
+		<br>
+		<br>
+		<span class="smalltext">
+			<!--#include virtual="./SSI.php?ssi_function=copyright" -->
+		</span>
+		<br>
+		<br>
+		<span class="smalltext" style="color: #CCCCCC;">
+			*ssi_examples.shtml last modified on <!--#config timefmt="%F" --><!--#echo var="LAST_MODIFIED" -->
+		</span>
+
+	</body>
+</html>

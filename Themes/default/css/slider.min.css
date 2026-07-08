@@ -1,0 +1,59 @@
+/**
+ *
+ * slippry v1.3 - Responsive content slider for jQuery
+ * http://slippry.com
+ *
+ * Authors: Lukas Jakob Hafner - @saftsaak
+ *          Thomas Hurd - @SeenNotHurd
+ *
+ * Copyright 2015, booncon oy - https://booncon.com
+ *
+ *
+ * Released under the MIT license - https://opensource.org/licenses/MIT
+ */
+/* kenBurns animations, very basic */
+
+@-webkit-keyframes left-right {
+0%{-ms-transform:translateY(-20%) translateX(-10%);-webkit-transform:translateY(-20%) translateX(-10%);transform:translateY(-20%) translateX(-10%)}
+100%{-ms-transform:translateY(0%) translateX(10%);-webkit-transform:translateY(0%) translateX(10%);transform:translateY(0%) translateX(10%)}
+}
+@keyframes left-right {
+0%{-ms-transform:translateY(-20%) translateX(-10%);-webkit-transform:translateY(-20%) translateX(-10%);transform:translateY(-20%) translateX(-10%)}
+100%{-ms-transform:translateY(0%) translateX(10%);-webkit-transform:translateY(0%) translateX(10%);transform:translateY(0%) translateX(10%)}
+}
+@-webkit-keyframes right-left {
+0%{-ms-transform:translateY(0%) translateX(10%);-webkit-transform:translateY(0%) translateX(10%);transform:translateY(0%) translateX(10%)}
+100%{-ms-transform:translateY(-20%) translateX(-10%);-webkit-transform:translateY(-20%) translateX(-10%);transform:translateY(-20%) translateX(-10%)}
+}
+@keyframes right-left {
+0%{-ms-transform:translateY(0%) translateX(10%);-webkit-transform:translateY(0%) translateX(10%);transform:translateY(0%) translateX(10%)}
+100%{-ms-transform:translateY(-20%) translateX(-10%);-webkit-transform:translateY(-20%) translateX(-10%);transform:translateY(-20%) translateX(-10%)}
+}
+.sy-box.sy-loading{background:url(../images/loading_sm.gif) 50% 50% no-repeat;background-size:32px;min-height:40px}
+.sy-box.sy-loading .sy-slides-wrap,.sy-box.sy-loading .sy-pager{visibility:hidden}
+.sy-slides-wrap{width:100%}
+.sy-slides-wrap:hover .sy-controls{display:block}
+.sy-slides-crop{width:100%;overflow:hidden}
+.sy-list{width:100%;list-style:none;margin:0;padding:0;position:relative}
+.sy-list.horizontal{-o-transition:left ease;-webkit-transition:left ease;transition:left ease}
+.sy-list.vertical{-o-transition:top ease;-webkit-transition:top ease;transition:top ease}
+.sy-slide{width:100%;padding:12px 16px;position: absolute;top: 0}
+.sy-slide.kenburns{width:140%;left:-20%}
+.sy-slide.kenburns.useCSS{-o-transition-property:opacity;-webkit-transition-property:opacity;transition-property:opacity}
+.sy-slide.kenburns.useCSS.sy-ken:nth-child(1n){-webkit-animation-name:left-right;-webkit-animation-fill-mode:forwards;-o-animation-name:left-right;-o-animation-fill-mode:forwards;animation-name:left-right;animation-fill-mode:forwards}
+.sy-slide.kenburns.useCSS.sy-ken:nth-child(2n){-webkit-animation-name:right-left;-webkit-animation-fill-mode:forwards;-o-animation-name:right-left;-o-animation-fill-mode:forwards;animation-name:right-left;animation-fill-mode:forwards}
+.sy-slide.sy-active{position: relative;z-index:3}
+.sy-slide > img{margin:0;padding:0;display:block;max-width:100%;border:0}
+.sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;border:0}
+.sy-pager{overflow:hidden;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
+.sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0 0.5em;border-radius:50%}
+.sy-pager li.sy-active a{background-color:#557EA0}
+.sy-pager li a{width:100%;height:100%;display:block;background-color:#ccc;text-indent:-9999px;background-size:2em;border-radius:50%}
+.sy-pager li a:link,.sy-pager li a:visited{opacity:1}
+.sy-pager li a:hover,.sy-pager li a:focus{opacity:.6}
+.sy-filler{width:100%;padding-top: 2px !important}
+.sy-filler.ready{-o-transition:padding 600ms ease;-webkit-transition:padding 600ms ease;transition:padding 600ms ease}
+/* SMF extra */
+#smf_slider {overflow: hidden;}
+.sy-box{margin:0 0 10px}
+.sy-slide > img.smiley {display: inline-block}

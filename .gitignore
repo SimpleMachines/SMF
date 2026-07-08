@@ -1,0 +1,77 @@
+# SMF Generated Files #
+#######################
+agreement.txt
+Settings.php
+Settings_bak.php
+Settings_org.php
+db_last_error.php
+cache/data*.php
+cache/data*.cache
+cache/*.db3
+Packages/backups/*
+Packages/temp
+*.*~
+Packages/*.tgz
+Packages/*.tar.gz
+Packages/*.zip
+Packages/*/
+attachments/
+/upgrade.php
+Themes/default/css/minified*.css
+Themes/default/scripts/minified*.js
+Themes/default/scripts/minified_deferred*.js
+custom_avatar/
+!custom_avatar/index.php
+!custom_avatar/blank.png
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.bat
+*.session
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.session
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Thumbs.db
+*.lnk
+
+# Test / Private files #
+########################
+/nbproject/private/
+/nbproject/
+.directory
+.idea/
+/test.php
+Themes/default/scripts/minified.js
+Themes/default/css/minified.css
+upgrade-helper.php
+.vscode/
+
+vendor/

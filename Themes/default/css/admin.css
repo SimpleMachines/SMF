@@ -1,0 +1,609 @@
+/* Start with most common */
+.action_admin .generic_list {
+	overflow: auto;
+}
+#admin_content .windowbg {
+	margin: 0 0 10px 0;
+	box-shadow: none;
+}
+#admin_content .button:not(.floatnone) {
+	float: right;
+}
+.action_admin .table_grid td {
+	border: 1px solid #ddd;
+	border-top: 0;
+}
+.action_admin .generic_list .flow_auto {
+	padding: 4px 2px;
+}
+.windowbg.nopadding {
+	margin: 0 !important;
+	padding: 0;
+}
+.windowbg ol {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+a.help span {
+	margin-right: 2px;
+}
+.table_caption, tr.table_caption td {
+	color: #000;
+	font-size: 10px;
+	font-weight: bold;
+}
+.additional_row div.floatleft {
+	padding: 0 10px;
+}
+fieldset {
+	padding: 6px;
+}
+fieldset dl {
+	margin: 0;
+}
+legend {
+	font-weight: bold;
+	color: #000;
+}
+
+/* Styles for the admin home screen.
+------------------------------------------------------- */
+/* Admin quick search bar, and results page. */
+.admin_search {
+	padding: 5px;
+	font-size: 0.9em;
+	float: right;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.admin_search input, .admin_search select, .admin_search .button {
+	border-radius: 4px;
+	margin: 0 0 0 2px;
+}
+.admin_search input[type="search"] {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+.search_results {
+	margin: 0 -6px;
+}
+.search_results li {
+	margin: 0;
+	padding: 5px 0;
+	overflow: auto;
+	line-height: 1.7em;
+	border-bottom: double #ccc;
+}
+.search_results li:last-child {
+	border: none;
+}
+.search_results li a strong {
+	color: #346;
+}
+.search_results li p {
+	padding: 0 20px;
+	line-height: 1.7em;
+}
+
+/* Cleaned this up a bit for less clutter.
+/* Admin and moderation could generally do with a clean up everywhere.
+/* Live news from smorg and support information. */
+#live_news, #support_info {
+	width: 70%;
+}
+#support_info {
+	width: 30%;
+	padding-left: 6px;
+}
+#admin_main_section {
+	overflow: auto;
+}
+#admin_main_section .windowbg {
+	padding: 6px 0;
+	border-radius: 0;
+	height: 12em;
+	overflow: auto;
+}
+#smfAnnouncements dt {
+	padding: 4px 6px 2px 6px;
+	border-top: 1px solid #bf6900;
+}
+#smfAnnouncements dt a {
+	color: #bf6900;
+	font-weight: bold;
+	display: block;
+}
+#smfAnnouncements dd {
+	margin: 0;
+	padding: 6px 12px;
+	border-top: double #ddd;
+}
+
+fieldset.admin_group legend {
+	background: #eaf1f4;
+	border: 1px solid #cacdd3;
+	padding: 1px 5px;
+	border-radius: 3px;
+}
+fieldset.admin_group a {
+	display: inline-block;
+	width: 100px;
+	font-size: 85%;
+	text-align: center;
+	vertical-align: top;
+}
+fieldset.admin_group .inactive {
+	opacity: 0.4;
+}
+
+/* The update warning. */
+#update_section {
+	margin: 6px 0;
+}
+
+/* The icons. */
+.large_admin_menu_icon_file {
+	margin: 0 auto;
+	display: block;
+	width: 32px;
+	height: 32px;
+}
+.large_admin_menu_icon::before {
+	background: url(../images/icons/admin_sprite.png) no-repeat -5px -47px;
+	margin: 0 auto;
+	display: block;
+	content: '';
+	width: 32px;
+	height: 32px;
+}
+.large_admin_menu_icon.attachment::before {
+	background-position: -5px -5px;
+}
+.large_admin_menu_icon.ban::before {
+	background-position: -47px -5px;
+}
+.large_admin_menu_icon.boards::before {
+	background-position: -89px -5px;
+}
+.large_admin_menu_icon.calendar::before {
+	background-position: -131px -5px;
+}
+.large_admin_menu_icon.current_theme::before {
+	background-position: -173px -5px;
+}
+.large_admin_menu_icon.default::before {
+	background-position: -5px -47px;
+}
+.large_admin_menu_icon.engines::before {
+	background-position: -47px -47px;
+}
+.large_admin_menu_icon.exit::before {
+	background-position: -89px -47px;
+}
+.large_admin_menu_icon.features::before {
+	background-position: -131px -47px;
+}
+.large_admin_menu_icon.languages::before {
+	background-position: -173px -47px;
+}
+.large_admin_menu_icon.logs::before {
+	background-position: -5px -89px;
+}
+.large_admin_menu_icon.mail::before {
+	background-position: -47px -89px;
+}
+.large_admin_menu_icon.maintain::before {
+	background-position: -89px -89px;
+}
+.large_admin_menu_icon.membergroups::before {
+	background-position: -131px -89px;
+}
+.large_admin_menu_icon.members::before {
+	background-position: -173px -89px;
+}
+.large_admin_menu_icon.modifications::before {
+	background-position: -5px -131px;
+}
+.large_admin_menu_icon.news::before {
+	background-position: -47px -131px;
+}
+.large_admin_menu_icon.packages::before {
+	background-position: -89px -131px;
+}
+.large_admin_menu_icon.paid::before {
+	background-position: -131px -131px;
+}
+.large_admin_menu_icon.permissions::before {
+	background-position: -173px -131px;
+}
+.large_admin_menu_icon.posts::before {
+	background-position: -5px -173px;
+}
+.large_admin_menu_icon.regcenter::before {
+	background-position: -47px -173px;
+}
+.large_admin_menu_icon.reports::before {
+	background-position: -89px -173px;
+}
+.large_admin_menu_icon.scheduled::before {
+	background-position: -131px -173px;
+}
+.large_admin_menu_icon.search::before {
+	background-position: -173px -173px;
+}
+.large_admin_menu_icon.security::before {
+	background-position: -215px -5px;
+}
+.large_admin_menu_icon.server::before {
+	background-position: -215px -47px;
+}
+.large_admin_menu_icon.smiley::before {
+	background-position: -215px -89px;
+}
+.large_admin_menu_icon.support::before {
+	background-position: -215px -131px;
+}
+.large_admin_menu_icon.themes::before {
+	background-position: -215px -173px;
+}
+.large_admin_menu_icon.warning::before {
+	background-position: -5px -215px;
+}
+
+/* Styles for the support and credits page.
+/* Hey, people might actually want to put their names on it now!
+/* Only a couple of trivial markup hacks that wont break any mods or themes.
+/* The older I get, the more devious I get. :D
+/* Nobody ever themes admin anyway. That's why it looked like crap. */
+#support_credits_list dl {
+	padding: 0 6px;
+}
+#support_credits_list dt {
+	float: left;
+	padding: 6px 0.8em 0 0;
+	text-indent: -4px;
+}
+#support_credits_list dd {
+	padding: 6px 0;
+}
+
+/* Styles for the package manager. */
+#package_list .tborder {
+	margin: .25em 0 .25em 26px;
+}
+#package_list ol, #package_list ol li {
+	list-style: decimal;
+	margin-left: 50px;
+	border: none;
+}
+#package_list li {
+	border: 1px solid #cacdd3;
+	padding: 0.2em;
+	margin: 1px;
+}
+.package_section {
+	border: 1px solid #cacdd3;
+}
+span.package_server {
+	padding: 0 3em;
+}
+pre.file_content {
+	overflow: auto;
+	width: 100%;
+	padding-bottom: 1em;
+}
+#view_package table {
+	border-collapse: collapse;
+}
+#view_package td[colspan="5"] {
+	border: none;
+	font-size: 0.9em;
+	padding: 0;
+}
+
+/* Styles for the file permissions section. */
+.file_permissions {
+	font-size: 0.8em;
+	white-space: nowrap;
+}
+.perms_status {
+	display: block;
+	width: 35%;
+	text-align: center;
+}
+.perm_read {
+	background-color: #d1f7bf;
+	width: 8%;
+}
+.perm_writable {
+	background-color: #ffbbbb;
+	width: 8%;
+}
+.perm_execute {
+	background-color: #fdd7af;
+	width: 8%;
+}
+.perm_custom {
+	background-color: #c2c6c0;
+	width: 8%;
+}
+.perm_no_change {
+	background-color: #eee;
+	width: 8%;
+}
+
+/* Styles for the BBC permissions */
+.list_bbc {
+	width: 33%;
+}
+
+/* Styles for the manage boards section. */
+#manage_boards {
+	overflow: auto;
+}
+.roundframe .windowbg {
+	border: 0;
+	padding: 0;
+	background: none;
+}
+#manage_boards li.windowbg {
+	padding: 8px 0;
+	margin: 0;
+	border-radius: 0;
+	border: 1px solid #ddd;
+	border-bottom: none;
+}
+#manage_boards li.windowbg:first-child {
+	border-top: none;
+}
+#manage_boards li.windowbg:last-child {
+	border-bottom: 1px solid #ddd;
+}
+#manage_boards li.windowbg:hover {
+	background: #d0e7f8;
+}
+#manage_boards li .floatleft {
+	font-weight: bold;
+	padding: 0 6px;
+}
+#manage_boards li#recycle_board {
+	background-color: #dee;
+}
+#manage_boards li.redirect_board, #manage_boards li.redirect_board:hover {
+	background-color: #eed;
+}
+.move_links {
+	padding: 0 13px 0 0;
+}
+#manage_boards .button {
+	margin: 0 8px 0 0;
+}
+#manage_boards dl {
+	padding: 8px 6px 0 6px;
+}
+
+#manage_boards dl textarea, #manage_boards dl table {
+	margin: 0 0 8px 0;
+}
+#manage_boards span.post_group, #manage_boards span.regular_members {
+	border-bottom: 1px dotted #000;
+	cursor: help;
+}
+.select_all_box {
+	display: none;
+}
+
+/* Styles for the manage members section. */
+.msearch_details {
+	display: block;
+	width: 49%;
+}
+dl.right dt {
+	padding-right: 10px;
+}
+
+/* Styles for the manage membergroups section. */
+.denyboards_layout .board:hover {
+	background: #e3e9ec;
+}
+.all_boards_in_cat {
+	margin-left: 2.5em;
+}
+
+/* Styles for the question and answers */
+fieldset.qa_fieldset {
+	clear: both;
+	display: none;
+}
+
+/* Styles for the manage search section. */
+span.search_weight {
+	width: 40px;
+	padding: 0 0.5em;
+	text-align: right;
+}
+.search_settings {
+	width: 47%;
+}
+
+/* Styles for the manage bans section. */
+.ban_restriction {
+	margin: 0.2em 0 0.2em 2.2em;
+}
+.ban_settings {
+	width: 46%;
+}
+#manage_bans dl {
+	margin-bottom: 1em;
+}
+#manage_bans fieldset dl.settings {
+	margin-bottom: 0;
+}
+#manage_bans textarea {
+	min-height: 4em;
+	height: 5em;
+}
+
+/* Styles for the manage subscriptions section. */
+#fixed_area {
+	width: 97%;
+}
+
+/* Styles for the manage permissions section. */
+.perm_name, .perm_profile, .perm_board {
+	display: block;
+	width: 40%;
+}
+.perm_boards {
+	padding: 0;
+	margin: 0 0 0.6em 0;
+}
+.perm_boards li {
+	list-style-type: none;
+	border: 1px solid #cacdd3;
+	border-top: 0;
+	padding: 0.2em;
+}
+.perm_boards li:first-child {
+	border-top: 1px solid #cacdd3;
+}
+.perm_groups {
+	background-color: #fff;
+}
+.perms {
+	width: 20px;
+	display: inline-block;
+	text-align: center;
+}
+
+/* Styles for the themes section. */
+ul.theme_options {
+	padding: 0;
+	margin: 0;
+}
+ul.theme_options li {
+	list-style: none;
+	padding: 0.4em;
+}
+.is_directory {
+	padding-left: 18px;
+}
+.is_directory span {
+	margin: -2px 3px 0 0;
+}
+.edit_file {
+	width: 100%;
+	font-family: monospace;
+	margin: 1ex 0;
+	white-space: pre;
+}
+
+dl.themes_list {
+	margin: 0;
+}
+dl.themes_list dt {
+	margin-bottom: 3px;
+	width: 40%;
+}
+dl.themes_list dd {
+	width: 59%;
+	font-style: italic;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+/* Generic boxes/textboxes requires to be full-width */
+#modcenter, #agreement, #reserved {
+	display: block;
+	width: 100%;
+}
+/* Styles for the moderation center. */
+/* Moderation Notes */
+ul.moderation_notes {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow: auto;
+	height: 10.2em;
+}
+ul.moderation_notes li {
+	padding: 0.2em;
+	border-bottom: 1px solid #ccc;
+}
+.notes {
+	margin-top: 0.4em;
+}
+.post_note {
+	width: calc(100% - 17ex);
+}
+.post_note input {
+	width: 100%;
+}
+
+/* Styles for the Report generation */
+#report_buttons {
+	min-height: 2.4em;
+	padding: 3px 0;
+}
+.report_results th {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+}
+
+#support_credits .sub_bar {
+	padding: 6px 0px 5px 0px;
+}
+#taskpad .button, #admin_form_wrapper {
+	margin: 5px 0 5px 0;
+}
+h3.config_hd {
+	background: url(../images/icons/config_hd.png) no-repeat 12px;
+	padding: 8px 0 8px 45px;
+}
+.full_width {
+	width: 100%;
+}
+
+#versions .table_grid {
+	margin: 0;
+}
+#Sources .half_table, #Default .half_table, #Languages .half_table {
+	padding-left: 20px;
+}
+
+.windowbg.highlight2 {
+	background: #d0e7f8;
+}
+
+/* Css edit page */
+#css_preview_box {
+	margin-bottom: 2ex;
+	border: 1px solid #777;
+	width: 100%;
+	height: 400px;
+}
+
+/* Smileys and Message icons section */
+.move_smileys img {
+	padding: 2px;
+	border: 2px solid transparent;
+	border-radius: 2px;
+	vertical-align: middle;
+}
+
+.move_smileys a:hover img {
+	border-color: #71a0c8;
+}
+
+.move_smileys .selected_item {
+	border-color: #ffb42d;
+}
+
+/* Progress bars */
+
+.progress_bar {
+	margin: 20px auto;
+	max-width: 750px;
+}

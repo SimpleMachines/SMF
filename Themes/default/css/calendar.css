@@ -1,0 +1,351 @@
+/* Styles for the calendar section.
+------------------------------------------------- */
+#calendar {
+	overflow: hidden;
+}
+#calendar .windowbg {
+	box-shadow: none;
+	border-radius: 0;
+	box-sizing: content-box;
+	margin: 0;
+}
+/* Used to indicate the current day in the grid. */
+#main_grid .calendar_today span.day_text,
+#month_grid .calendar_today,
+.calendar_week tr.days_wrapper td.calendar_today:first-child {
+	font-weight: bold;
+}
+.calendar_today,
+td.days:hover {
+	background: #fff;
+}
+#month_grid {
+	width: 214px;
+	float: left;
+	text-align: center;
+	overflow: hidden;
+	margin-right: 10px;
+}
+#month_grid h3 a {
+	padding: 0 6px 0 6px;
+}
+#month_grid table {
+	width: 100%;
+	margin-bottom: 12px;
+	border-collapse: collapse;
+	background: #f0f4f7;
+	border: 1px solid #ddd;
+}
+#main_grid {
+	overflow: auto;
+}
+#main_grid table {
+	width: 99.9%;
+	border-collapse: collapse;
+	background: #f0f4f7;
+	margin: 1px 0 0 0;
+	border: 1px solid #ddd;
+	overflow: auto;
+}
+#main_grid .cat_bar {
+	border-radius: 5px 5px 0 0;
+}
+#month_grid th:first-child {
+	background: #e7eaef;
+}
+#month_grid th.days {
+	background: #e7eaef;
+	font-size: smaller;
+}
+#month_grid th.days,
+#month_grid td.weeks {
+	padding: 2px;
+	text-align: center;
+}
+#month_grid td.weeks {
+	font-size: large;
+	background: #e7eaef;
+	width: 5%;
+}
+#month_grid td.weeks a:hover {
+	text-decoration: underline;
+}
+#month_grid h3.catbg,
+#main_grid h3.catbg {
+	padding: 8px 6px 4px 6px;
+}
+#main_grid h3.catbg span {
+	display: block;
+	font-size: 1.5em;
+	margin: -3px 4px 0 4px;
+}
+#main_grid th:first-child {
+	background: #e7eaef;
+}
+#main_grid th.days {
+	width: 14%;
+	padding: 5px 10px;
+	text-align: left;
+	background: #e7eaef;
+}
+#main_grid td.weeks {
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.8em;
+	background: #e7eaef;
+	padding: 5px;
+}
+#main_grid td.weeks a:hover {
+	text-decoration: none;
+}
+/* Main Highlighting */
+#main_grid td.disabled,
+#month_grid td.disabled {
+	background: #eee;
+	border: 1px solid #ddd;
+}
+#main_grid td.events,
+#month_grid td.events {
+	background: rgba(30, 245, 20, 0.1);
+}
+#main_grid td.holidays,
+#month_grid td.holidays {
+	background: rgba(23, 110, 245, 0.1);
+}
+#main_grid td.birthdays,
+#month_grid td.birthdays {
+	background: rgba(102, 0, 255, 0.1);
+}
+/* Special Case Highlighting */
+#main_grid td.events:hover,
+#month_grid td.events:hover,
+#month_grid td.calendar_today.events {
+	background: rgba(30, 245, 20, 0.2);
+}
+#main_grid td.holidays:hover,
+#month_grid td.holidays:hover,
+#month_grid td.calendar_today.holidays {
+	background: rgba(23, 110, 245, 0.2);
+}
+#main_grid td.birthdays:hover,
+#month_grid td.birthdays:hover,
+#month_grid td.calendar_today.birthdays {
+	background: rgba(153, 51, 255, 0.2);
+}
+#main_grid td.days,
+#month_grid td.days {
+	vertical-align: top;
+	text-align: left;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+#main_grid td.days {
+	padding: 5px;
+}
+#month_grid td.days {
+	padding: 0;
+	width: 12.5%;
+	text-align: center;
+}
+#month_grid td.days a {
+	display: block;
+	padding: 5px;
+}
+#month_grid td.days a:hover {
+	text-decoration: none;
+	background: rgba(97, 135, 166, 0.2);
+}
+#main_grid tbody tr:nth-child(2) td.days,
+#month_grid tbody tr:nth-child(2) {
+	border-top: 1px solid #ddd;
+}
+#main_grid tbody tr.days_wrapper > td:nth-child(2),
+#month_grid tr.days_wrapper > td:nth-child(2) {
+	border-left: 1px solid #ddd;
+}
+#main_grid tr.days_wrapper:nth-child(2) > td.weeks {
+	border-top: 1px solid #ddd;
+}
+#main_grid table:last-child td.weeks {
+	border-bottom: 1px solid #ddd;
+}
+#main_grid tr:not(.days_wrapper) th,
+#main_grid tr:not(.days_wrapper) td {
+	min-height: 30px;
+}
+#calendar_range,
+#calendar_navigation {
+	padding: 5px 0;
+	text-align: center;
+	max-width: 50%;
+	margin: auto;
+}
+#main_grid .act_day {
+	font-size: 12pt;
+}
+#main_grid .active_post_event > a {
+	color: #999;
+}
+div.week_month_title {
+	font-weight: bold;
+	font-size: xx-large;
+	margin: 0.8em 0 0.4em 0.15em;
+	line-height: 1.2em;
+}
+div.week_month_title a {
+	color: #555;
+}
+td.week_post {
+	vertical-align: middle !important;
+}
+div.week_add_event {
+	/* text-align: center; */
+}
+div.week_add_event > a {
+	/* font-size: x-large; */
+	color: #999;
+}
+div.week_add_event > a:hover {
+	color: #555;
+}
+span.hidelink {
+	font-style: italic;
+}
+#view_button {
+	margin-top: -2px;
+	margin-left: inherit;
+}
+#main_grid .buttonrow,
+#main_grid .buttonlist {
+	margin: 5px 0;
+	padding: 0
+}
+#main_grid td.days,
+.calendar_week td.days {
+	height: 100px;
+	padding: 10px;
+}
+.modify_event:hover {
+	text-decoration: none;
+}
+.modify_event_links {
+	float: right;
+}
+.event_wrapper:not(:last-child) {
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #ddd;
+}
+.event_time, .event_location {
+	color: #777;
+}
+.post_event_link {
+	vertical-align: middle;
+	height: 18px;
+	display: inline-block;
+}
+.active_post_event {
+	margin-top: 1em;
+}
+
+/* Break long words in calendar table cells to avoid layout problems */
+#main_grid td.days {
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
+}
+
+/* At less than 1024px wide, #main_grid needs all the space it can get */
+@media (max-width: 1023px) {
+	#month_grid {
+		display: none;
+	}
+}
+
+/* Small screens get the calendar in a vertical list */
+@media (max-width: 665px) {
+	#main_grid table {
+		border: none;
+		background: none;
+	}
+	#main_grid tr {
+		margin-bottom: 1em;
+	}
+	#main_grid tr:first-of-type {
+		display: none;
+	}
+	#main_grid tr:not(:first-of-type) {
+		display: block;
+	}
+	#main_grid td {
+		display: block;
+	}
+
+	#main_grid .calendar_table .days {
+		margin-top: 0;
+		height: auto;
+	}
+	#main_grid .calendar_table .days:not(.disabled) {
+		min-height: 45px;
+	}
+	#main_grid .calendar_table .weeks a::before {
+		content: attr(title);
+		font-size: 0.65em;
+		margin: 0 0.5em;
+		vertical-align: top;
+	}
+	#main_grid .calendar_table .weeks {
+		margin-top: 0;
+	}
+
+	#main_grid .calendar_week tr {
+		border: 1px solid #ddd !important;
+	}
+	#main_grid .calendar_week td {
+		margin: 0;
+		height: auto;
+		border: none !important;
+	}
+	#main_grid .calendar_week .event_col::before,
+	#main_grid .calendar_week .holiday_col::before,
+	#main_grid .calendar_week .birthday_col::before {
+		content: attr(data-css-prefix);
+	}
+	#main_grid .calendar_week .holiday_col:empty {
+		display: none;
+	}
+	#main_grid .calendar_week .birthday_col:empty {
+		display: none;
+	}
+	div.week_add_event {
+		display: inline-block;
+	}
+	div.week_add_event > a {
+		font-size: 1em;
+		text-decoration: underline;
+	}
+}
+
+@media (max-width: 639px) {
+	.calendar_top {
+		padding: 12px 8px;
+	}
+	#calendar_range,
+	#calendar_navigation {
+		max-width: none;
+	}
+}
+@media (max-width: 539px) {
+	#calendar_range {
+		clear: both;
+		padding: 10px 0 0;
+	}
+}
+@media (max-width: 479px) {
+	#calendar_navigation {
+		clear: both;
+		padding: 10px 0 0;
+	}
+}
