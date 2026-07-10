@@ -40,9 +40,9 @@ trait ArrayAccessHelper
 		// If someone is trying to append data to this object via `$object[] = ...`
 		// set $prop to a number. If we didn't do this, $prop would eventually
 		// be set to an empty string, which would cause unexpected behaviour.
-		$prop ??= (string) (1 + max(array_merge(array_filter(array_keys($this->internal_data), 'is_int'), [-1])));
+		$prop ??= 1 + max(array_merge(array_filter(array_keys($this->internal_data), 'is_int'), [-1]));
 
-		$this->__set($prop, $value);
+		$this->customPropertySet($prop, $value);
 	}
 
 	/**
@@ -108,7 +108,7 @@ trait ArrayAccessHelper
 	 */
 	public function offsetExists(mixed $prop): bool
 	{
-		return $this->__isset($prop);
+		return $this->customPropertyIsset($prop);
 	}
 
 	/**
@@ -118,6 +118,6 @@ trait ArrayAccessHelper
 	 */
 	public function offsetUnset(mixed $prop): void
 	{
-		$this->__unset($prop);
+		$this->customPropertyUnset($prop);
 	}
 }
