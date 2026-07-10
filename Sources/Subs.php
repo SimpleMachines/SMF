@@ -3884,7 +3884,7 @@ function parsesmileys(&$message)
 	static $smileyPregSearch = null, $smileyPregReplacements = array();
 
 	// No smiley set at all?!
-	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
+	if (empty($user_info['smiley_set']) || $user_info['smiley_set'] == 'none' || trim($message) == '')
 		return;
 
 	// Maybe a mod wants to implement an alternative method (e.g. emojis instead of images)
