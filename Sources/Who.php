@@ -317,7 +317,7 @@ function determineActions($urls, $preferred_prefix = false)
 	);
 	call_integration_hook('integrate_who_allowed', array(&$allowedActions));
 
-	// This hook is depreated because it is missing the corerct prefix.
+	// This hook is deprecated because it is missing the correct prefix.
 	call_integration_hook('who_allowed', array(&$allowedActions));
 
 	if (!is_array($urls))
@@ -565,7 +565,7 @@ function determineActions($urls, $preferred_prefix = false)
 
 	call_integration_hook('integrate_whos_online_after', array(&$url_list, &$data));
 
-	// This hook is depreated because it is missing the corerct prefix.
+	// This hook is deprecated because it is missing the correct prefix.
 	call_integration_hook('whos_online_after', array(&$urls, &$data));
 
 	if (!is_array($urls))
