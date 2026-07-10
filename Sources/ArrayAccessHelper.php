@@ -37,6 +37,11 @@ trait ArrayAccessHelper
 	 */
 	public function offsetSet(mixed $prop, mixed $value): void
 	{
+		// If someone is trying to append data to this object via `$object[] = ...`
+		// set $prop to a number. If we didn't do this, $prop would eventually
+		// be set to an empty string, which would cause unexpected behaviour.
+		$prop ??= (string) (1 + max(array_merge(array_filter(array_keys($this->internal_data), 'is_int'), [-1])));
+
 		$this->__set($prop, $value);
 	}
 
