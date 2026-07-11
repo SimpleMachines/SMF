@@ -1932,9 +1932,13 @@ function Post2()
 			SELECT id_member, poster_name, poster_email, poster_time, approved
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id_msg}
+				AND id_topic = {int:id_topic}
+				AND id_board = {int:id_board}
 			LIMIT 1',
 			array(
 				'id_msg' => $_REQUEST['msg'],
+				'id_topic' => $topic,
+				'id_board' => $board,
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
