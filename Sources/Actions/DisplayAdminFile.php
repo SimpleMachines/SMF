@@ -67,7 +67,7 @@ class DisplayAdminFile implements ActionInterface, Routable
 		);
 
 		if (Db::$db->num_rows($request) == 0) {
-			ErrorHandler::fatalLang('admin_file_not_found', true, [$_REQUEST['filename']], 404);
+			ErrorHandler::fatalLang('admin_file_not_found', true, [Utils::htmlspecialchars($_REQUEST['filename'])], 404);
 		}
 		list($file_data, $filetype) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
