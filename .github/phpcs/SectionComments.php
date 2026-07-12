@@ -249,7 +249,7 @@ final class SectionComments extends AbstractFixer
 					T_PUBLIC,
 					T_PROTECTED,
 					T_PRIVATE,
-					$is_enum && !$exists['case'] ? T_CASE : -1,
+					$is_enum && !$exists['case'] ? T_CASE : NAN,
 				] : [
 					T_CONST,
 					T_STATIC,
