@@ -4051,7 +4051,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function is_not_banned(bool $force_check = false): void
 	{
-		SMF\User::$me->kickIfBanned($force_check);
+		SMF\User::$me->enforceBans($force_check);
 	}
 
 	/**

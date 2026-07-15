@@ -289,7 +289,7 @@ class ServerSideIncludes
 
 		// Take care of any banning that needs to be done.
 		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
-			User::$me->kickIfBanned();
+			User::$me->enforceBans();
 		}
 
 		// Do we allow guests in here?

@@ -2015,7 +2015,7 @@ class User implements \ArrayAccess
 	 * @param bool $reg_kick If true, die if they are banned from registering.
 	 *    Only applicable to guests. Default: false.
 	 */
-	public function kickIfBanned(bool $force_check = false, bool $post_kick = false, bool $reg_kick = false): void
+	public function enforceBans(bool $force_check = false, bool $post_kick = false, bool $reg_kick = false): void
 	{
 		// This only applies to the current user.
 		if (!$this->is_me) {

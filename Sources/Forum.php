@@ -581,7 +581,7 @@ class Forum
 		}
 
 		// Check if the user should be disallowed access.
-		User::$me->kickIfBanned();
+		User::$me->enforceBans();
 	}
 
 	/**

@@ -799,7 +799,7 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Are you banned?
-		User::$me->kickIfBanned(true);
+		User::$me->enforceBans(true);
 
 		// Don't stick the language or theme after this point.
 		unset($_SESSION['language'], $_SESSION['id_theme']);
