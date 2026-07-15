@@ -998,7 +998,7 @@ class Config
 		}
 
 		// Make sure the paths are correct... at least try to fix them.
-		if (empty(self::$boarddir) || !is_dir(realpath(self::$boarddir))) {
+		if (empty(self::$boarddir) || !is_dir((string) realpath(self::$boarddir))) {
 			self::$boarddir = !empty($_SERVER['SCRIPT_FILENAME']) ? \dirname(realpath($_SERVER['SCRIPT_FILENAME'])) : \dirname(__DIR__);
 		}
 

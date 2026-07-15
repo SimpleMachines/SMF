@@ -134,13 +134,6 @@ class Members extends Table
 				not_null: true,
 				default: 0,
 			),
-			'mod_prefs' => new Column(
-				name: 'mod_prefs',
-				type: 'varchar',
-				size: 20,
-				not_null: true,
-				default: '',
-			),
 			'passwd' => new Column(
 				name: 'passwd',
 				type: 'varchar',
@@ -224,11 +217,13 @@ class Members extends Table
 				name: 'member_ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'member_ip2' => new Column(
 				name: 'member_ip2',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'secret_question' => new Column(
 				name: 'secret_question',
@@ -542,7 +537,5 @@ class Members extends Table
 				],
 			);
 		}
-
-		parent::__construct();
 	}
 }

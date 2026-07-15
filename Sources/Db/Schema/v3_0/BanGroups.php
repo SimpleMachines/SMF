@@ -63,6 +63,7 @@ class BanGroups extends Table
 				unsigned: true,
 				not_null: false,
 				default: null,
+				drop_default: true,
 			),
 			'cannot_access' => new Column(
 				name: 'cannot_access',
@@ -116,7 +117,5 @@ class BanGroups extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

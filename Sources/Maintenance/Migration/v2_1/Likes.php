@@ -15,8 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -40,9 +39,9 @@ class Likes extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$tables = Db::$db->list_tables();
+		$table = new Schema\v2_1\UserLikes();
 
-		return !\in_array(Config::$db_prefix . 'user_likes', $tables);
+		return !$table->exists();
 	}
 
 	/**
@@ -52,27 +51,19 @@ class Likes extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$LikesTable = new \SMF\Db\Schema\v2_1\UserLikes();
-
-		$tables = Db::$db->list_tables();
-
-		// Creating draft table.
-		if ($start <= 0 && !\in_array(Config::$db_prefix . 'user_likes', $tables)) {
-			$LikesTable->create();
-
+		if ($start <= 0) {
+			$likes_table = new Schema\v2_1\UserLikes();
+			$likes_table->create();
 			$this->handleTimeout(++$start);
 		}
 
 		// Adding likes column to the messages table. (May take a while)
 		if ($start <= 1) {
-			$MessagesTable = new \SMF\Db\Schema\v2_1\Messages();
-			$existing_structure = $MessagesTable->getCurrentStructure();
+			$messages_table = new Schema\v2_1\Messages();
+			$existing_structure = $messages_table->getCurrentStructure();
 
-			foreach ($MessagesTable->columns as $column) {
-				// Add the columns.
-				if ($column->name === 'likes' && !isset($existing_structure['columns'][$column->name])) {
-					$MessagesTable->addColumn($column);
-				}
+			if (!isset($existing_structure['columns']['likes'])) {
+				$messages_table->addColumn($messages_table->columns['likes']);
 			}
 
 			$this->handleTimeout(++$start);

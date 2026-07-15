@@ -65,7 +65,5 @@ class PmLabeledMessages extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

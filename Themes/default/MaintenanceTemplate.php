@@ -36,16 +36,17 @@ abstract class MaintenanceTemplate
 		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?? 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
-		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css">' : '', '
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Maintenance::$context['started'] . '">
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css?' . Maintenance::$context['started'] . '">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
+		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css?' . Maintenance::$context['started'] . '">' : '', '
 		<script src="', Maintenance::$theme_url, '/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
-		<script src="', Maintenance::$theme_url, '/scripts/script.js"></script>
+		<script src="', Maintenance::$theme_url, '/scripts/script.js?' . Maintenance::$context['started'] . '"></script>
 		<script>
 			const smf_scripturl = \'', Maintenance::getSelf(), '\';
 			const smf_charset = \'UTF-8\';
 			const allow_xhjr_credentials = true;
 			const isDebug = ', Maintenance::$tool->isDebug() ? 'true' : 'false', ';
+			const timeStarted = ', Maintenance::$context['started'], ';
 			let startPercent = ', Maintenance::$overall_percent, ';
 		</script>
 	</head>
@@ -124,8 +125,9 @@ abstract class MaintenanceTemplate
 							<span id="substep_text">', Maintenance::getItemsProgress(), '%</span>
 						</div>
 
-						<div id="time_elapsed" class="smalltext time_elapsed">
-							', Maintenance::getTimeElapsed(), '
+						<div class="smalltext time_elapsed">
+							', Lang::getTxt('maintenance_time_elapsed', file: 'Maintenance'), '
+							<time id="time_elapsed">', Maintenance::getTimeElapsed(), '</time>
 						</div>
 					</div>
 					<div id="main_screen" class="clear">
@@ -181,6 +183,20 @@ abstract class MaintenanceTemplate
 				if (document.getElementById("item_progress")) {
 					document.getElementById("item_progress").style.width = width + "%";
 					setInnerHTML(document.getElementById("item_text"), width + "%");
+				}
+			}
+
+			// This function dynamically updates the "time elapsed" counter.
+			function updateTimeElapsed()
+			{
+				const elapsed = (Date.now() / 1000) - timeStarted;
+
+				const s = elapsed % 60;
+				const m = Math.floor(elapsed / 60) % 60;
+				const h = Math.floor(elapsed / 3600);
+
+				if (document.getElementById("time_elapsed")) {
+					document.getElementById("time_elapsed").textContent = ((h > 0) ? ((h < 10) ? "0" + h.toString() : h.toString()) + ":" : "") + ((m < 10) ? "0" + m.toString() : m.toString()) + ":" + ((s < 10) ? "0" + s.toString() : s.toString());
 				}
 			}
 		</script>
@@ -311,7 +327,7 @@ abstract class MaintenanceTemplate
 			<h3>', Lang::getTxt('upgrade_performing_substeps', ['type' => $type], file: 'Maintenance'), '</h3>
 			<h4><em>', Lang::getTxt('upgrade_please_be_patient', file: 'Maintenance'), '</em></h4>
 			<input type="hidden" name="', $done_param, '" id="', $done_param, '" value="0">
-			<div id="debug_section" class="bbc_code"><span id="debuginfo"></span></div>';
+			<div id="debug_section" class="bbc_code', !Maintenance::$tool->isDebug() ? ' hidden' : '', '"><span id="debuginfo"></span></div>';
 
 		echo '
 			<h3 id="current_tab">',
@@ -360,7 +376,7 @@ abstract class MaintenanceTemplate
 
 				function getNextSubstep()
 				{
-					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json"
+					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . ';json"
 						.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 						.replace(/start=\d+/, "start=" + iCurrentStart);
 
@@ -377,7 +393,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 
@@ -403,7 +419,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 
@@ -450,7 +466,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}
@@ -471,7 +487,7 @@ abstract class MaintenanceTemplate
 										document.getElementById("try_again").style.display = "";
 									}
 
-									document.getElementById("upform").action = document.getElementById("upform").action
+									document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
 								}
@@ -492,7 +508,7 @@ abstract class MaintenanceTemplate
 								document.getElementById("try_again").style.display = "";
 							}
 
-							document.getElementById("upform").action = document.getElementById("upform").action
+							document.getElementById("', Maintenance::$tool->form_id, '").action = document.getElementById("', Maintenance::$tool->form_id, '").action
 								.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 								.replace(/start=\d+/, "start=" + iCurrentStart);
 						}

@@ -278,7 +278,5 @@ class CustomFields extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

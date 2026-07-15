@@ -13,15 +13,13 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Migration\v2_1;
+namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class Ipv6MembersIP extends MigrationBase
+class DropModPrefs extends MigrationBase
 {
-	use IPv6Converter;
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -29,7 +27,7 @@ class Ipv6MembersIP extends MigrationBase
 	/**
 	 *
 	 */
-	public string $name = 'Updating members table with IPv6 support (part 1)';
+	public string $name = 'Removing mod_prefs column from members table';
 
 	/****************
 	 * Public methods
@@ -40,10 +38,10 @@ class Ipv6MembersIP extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new Schema\v2_1\Members();
+		$table = new Schema\v3_0\Members();
 		$existing_structure = $table->getCurrentStructure();
 
-		return $existing_structure['columns']['member_ip']['type'] !== 'inet';
+		return isset($existing_structure['columns']['mod_prefs']);
 	}
 
 	/**
@@ -51,10 +49,8 @@ class Ipv6MembersIP extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new Schema\v2_1\Members();
-
-		$this->convertStringColumnToInet($table, $table->columns['member_ip']);
-		$this->handleTimeout();
+		$table = new Schema\v3_0\Members();
+		$table->dropColumn('mod_prefs');
 
 		return true;
 	}

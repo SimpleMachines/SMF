@@ -88,7 +88,5 @@ class LogActivity extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

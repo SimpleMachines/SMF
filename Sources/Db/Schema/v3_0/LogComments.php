@@ -140,7 +140,5 @@ class LogComments extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -69,6 +69,13 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public string $script_file = 'install.php';
 
+	/**
+	 * @var string
+	 *
+	 * HTML element ID for the submission form in this tool's HTML templates.
+	 */
+	public string $form_id = 'install_form';
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -394,7 +401,7 @@ class Install extends ToolsBase implements ToolsInterface
 			// If we have not found a one, set some defaults.
 			if (!$foundOne) {
 				Maintenance::$context['db'] = [
-					'server' => $db->getDefaultHost(),
+					'server' => $db->getDefaultHost() === '' ? 'localhost' : $db->getDefaultHost(),
 					'user' => $db->getDefaultUser(),
 					'name' => $db->getDefaultName(),
 					'pass' => $db->getDefaultPassword(),
@@ -550,13 +557,13 @@ class Install extends ToolsBase implements ToolsInterface
 			);
 
 			// Okay, let's try the prefix if it didn't work...
-			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
 				Db::$db->query(
 					'CREATE DATABASE IF NOT EXISTS {identifier:name}',
 					[
 						'security_override' => true,
 						'db_error_skip' => true,
-						'name' => Db::$db->name,
+						'name' => Db::$db->prefix . Db::$db->name,
 					],
 					Db::$db->connection,
 				);
@@ -742,7 +749,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Some initialization may exist.
 		Db::$db->disableQueryCheck = true;
 
-		foreach (Table::getInitializers($this->schema_version, Db::$db->title) as $query) {
+		foreach (Table::getInitializers($this->schema_version) as $query) {
 			Db::$db->query($query, [
 				'security_override' => true,
 			]);

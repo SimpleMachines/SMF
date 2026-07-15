@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -40,9 +38,9 @@ class Mentions extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$tables = Db::$db->list_tables();
+		$table = new Schema\v2_1\Mentions();
 
-		return !\in_array(Config::$db_prefix . 'mentions', $tables);
+		return !$table->exists();
 	}
 
 	/**

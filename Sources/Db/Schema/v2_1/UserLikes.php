@@ -98,7 +98,5 @@ class UserLikes extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

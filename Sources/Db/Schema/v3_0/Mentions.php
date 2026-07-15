@@ -102,7 +102,5 @@ class Mentions extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

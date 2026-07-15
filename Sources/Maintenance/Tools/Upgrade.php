@@ -86,7 +86,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v2_1\FixDates::class,
 			Migration\v2_1\CreateMemberLogins::class,
 			Migration\v2_1\CollapsedCategories::class,
-			Migration\v2_1\BoardDescriptions::class,
 			Migration\v2_1\LegacyAttachments::class,
 			Migration\v2_1\AttachmentSizes::class,
 			Migration\v2_1\AttachmentDirectory::class,
@@ -154,6 +153,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v2_1\IdxLogComments::class,
 			Migration\v2_1\MysqlLegacyData::class,
 			Migration\v2_1\Smileys::class,
+			Migration\v2_1\BoardDescriptions::class,
 			Migration\v2_1\LogErrorsBacktrace::class,
 			Migration\v2_1\BoardPermissionsView::class,
 			Migration\v2_1\PostgreSqlSchemaDiff::class,
@@ -172,6 +172,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\RecurringEvents::class,
 			Migration\v3_0\HolidaysToEvents::class,
 			Migration\v3_0\EventUids::class,
+			Migration\v3_0\DropModPrefs::class,
 			Migration\v3_0\SpoofDetector::class,
 			Migration\v3_0\SearchResultsPrimaryKey::class,
 			Migration\v3_0\MailType::class,
@@ -193,7 +194,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Cleanup steps for 2.1 -> 3.0
 		'v3_0' => [
 			Cleanup\v3_0\TasksDirCase::class,
-			Cleanup\v3_0\OldFiles::class,
 		],
 	];
 
@@ -227,6 +227,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * This is used by various actions and links.
 	 */
 	public string $script_file = 'upgrade.php';
+
+	/**
+	 * @var string
+	 *
+	 * HTML element ID for the submission form in this tool's HTML templates.
+	 */
+	public string $form_id = 'upgrade_form';
 
 	/**
 	 * @var int
@@ -979,18 +986,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// If they have a "host:port" setup for the host, split that into separate values
 		// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
 		if (strpos(Config::$db_server, ':') !== false) {
-			list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
+			list(Config::$db_server, $db_port) = explode(':', Config::$db_server);
+			Config::$db_port = (int) $db_port;
 
 			$file_settings['db_server'] = Config::$db_server;
-
-			// Only set this if we're not using the default port
-			if (Config::$db_port != Db::$db->getDefaultPort()) {
-				$file_settings['db_port'] = (int) Config::$db_port;
-			}
+			$file_settings['db_port'] = Config::$db_port;
 		}
 
 		// If db_port is set and is the same as the default, set it to 0.
-		if (!empty(Config::$db_port) && Config::$db_port != Db::$db->getDefaultPort()) {
+		if (!empty(Config::$db_port) && Config::$db_port == Db::$db->getDefaultPort()) {
 			$file_settings['db_port'] = 0;
 		}
 
@@ -1223,10 +1227,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Log what we've done.
 		if (!isset(User::$me)) {
-			User::load();
+			User::load(dataset: 'minimal');
 		}
 
 		if (empty(User::$me->id) && !empty($this->user['id'])) {
+			User::load($this->user['id'], dataset: 'minimal');
 			User::setMe($this->user['id']);
 		}
 
@@ -1611,6 +1616,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Load up the current user safely.
 		if (!isset(User::$me)) {
+			User::load($this->user['id'], dataset: 'minimal');
 			User::setMe($this->user['id']);
 
 			if ($this->user['id'] === 0 && $this->user['name'] === 'Database Admin') {

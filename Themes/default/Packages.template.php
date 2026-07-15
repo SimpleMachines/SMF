@@ -1776,7 +1776,7 @@ function template_action_permissions()
 	$countDown = 3;
 
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="perm_submit" method="post" accept-charset="UTF-8">
+		<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" name="perm_submit" id="perm_submit" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::getTxt('package_file_perms_applying', file: 'Packages'), '</h3>
 			</div>';
@@ -1878,6 +1878,6 @@ function template_action_permissions()
 	// Just the countdown stuff
 	echo '
 	<script>
-		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::getTxt('not_done_continue', file: 'Admin')), '"perm_submit", "go");
+		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::getTxt('not_done_continue', file: 'Admin')), ', "perm_submit", "go");
 	</script>';
 }

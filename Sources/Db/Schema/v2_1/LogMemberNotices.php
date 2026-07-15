@@ -67,7 +67,5 @@ class LogMemberNotices extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -168,7 +168,5 @@ class LogSubscribed extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

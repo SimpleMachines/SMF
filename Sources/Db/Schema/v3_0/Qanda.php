@@ -83,7 +83,5 @@ class Qanda extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

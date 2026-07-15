@@ -27,7 +27,7 @@ class PostgreSQLIPv6Helper extends MigrationBase
 	/**
 	 *
 	 */
-	public string $name = 'helper function for ip convert';
+	public string $name = 'Adding helper function for IPv6 conversion';
 
 	/****************
 	 * Public methods

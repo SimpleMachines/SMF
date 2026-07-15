@@ -15,12 +15,13 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
-use SMF\Maintenance\Maintenance;
+use SMF\Maintenance\Migration\MigrationBase;
 
-class Ipv6Messages extends Ipv6Base
+class Ipv6Messages extends MigrationBase
 {
+	use IPv6Converter;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -28,7 +29,7 @@ class Ipv6Messages extends Ipv6Base
 	/**
 	 *
 	 */
-	public string $name = 'Update messages poster_ip with ipv6 support (May take a while)';
+	public string $name = 'Updating messages table with IPv6 support';
 
 	/****************
 	 * Public methods
@@ -42,12 +43,7 @@ class Ipv6Messages extends Ipv6Base
 		$table = new Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Db::$db->title === POSTGRE_TITLE) {
-			return $existing_structure['columns']['poster_ip']['type'] !== 'inet';
-		}
-
-		return isset($existing_structure['columns']['poster_ip_old'])
-			|| $existing_structure['columns']['poster_ip']['type'] !== 'varbinary';
+		return $existing_structure['columns']['poster_ip']['type'] !== 'inet';
 	}
 
 	/**
@@ -57,22 +53,8 @@ class Ipv6Messages extends Ipv6Base
 	{
 		$table = new Schema\v2_1\Messages();
 
-		// This will return true once its done, but we need to do a few more things.
-		$this->migrateData($table, 'poster_ip');
-
-		$start = Maintenance::getCurrentStart();
-
-		if ($start <= 7) {
-			$table->addIndex($table->indexes['idx_ip_index']);
-
-			$this->handleTimeout(++$start);
-		}
-
-		if ($start <= 8) {
-			$table->addIndex($table->indexes['idx_related_ip']);
-
-			$this->handleTimeout(++$start);
-		}
+		$this->convertStringColumnToInet($table, $table->columns['poster_ip']);
+		$this->handleTimeout();
 
 		return true;
 	}

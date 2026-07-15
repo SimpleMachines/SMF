@@ -91,8 +91,6 @@ class Column
 	 * @var bool
 	 *
 	 * Set this to true to drop the default during an ALTER TABLE operation.
-	 *
-	 * This is not set by __construct(). It can be set afterward.
 	 */
 	public bool $drop_default = false;
 
@@ -116,6 +114,8 @@ class Column
 	 *    Only applicable to integer columns.
 	 * @param ?string $charset The character set for string data.
 	 *    Only applicable to string types. If null, will be set automatically.
+	 * @param bool $drop_default Whether to drop the column's default during
+	 *    ALTER TABLE operations. Default: false.
 	 */
 	public function __construct(
 		string $name,
@@ -126,6 +126,7 @@ class Column
 		string|float|int|bool|null $default = null,
 		?bool $auto = null,
 		?string $charset = null,
+		bool $drop_default = false,
 	) {
 		$this->name = strtolower($name);
 		$this->type = strtolower($type);
@@ -134,7 +135,7 @@ class Column
 			$this->default = $default === 'NULL' ? null : $default;
 		}
 
-		foreach (['auto', 'size', 'unsigned', 'not_null'] as $var) {
+		foreach (['auto', 'size', 'unsigned', 'not_null', 'drop_default'] as $var) {
 			if (isset($var)) {
 				$this->{$var} = ${$var};
 			}

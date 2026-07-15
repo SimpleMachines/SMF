@@ -238,7 +238,7 @@ class PostgreSqlSequences extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		for ($i = Maintenance::getCurrentStart(); $i < \count($this->sequences); Maintenance::setCurrentStart()) {
+		for ($i = Maintenance::getCurrentStart(); $i < \count($this->sequences); $i++) {
 			$this->handleTimeout();
 
 			$value = $this->sequences[$i];
@@ -248,9 +248,11 @@ class PostgreSqlSequences extends MigrationBase
 				[
 					'key' => Config::$db_prefix . $value['key'],
 					'field' => $value['field'],
-					'table' => $value['table'],
+					'table' => Config::$db_prefix . $value['table'],
 				],
 			);
+
+			Maintenance::setCurrentStart();
 		}
 
 		return true;

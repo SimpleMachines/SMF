@@ -51,13 +51,13 @@ class RecurringEvents extends MigrationBase
 		}
 
 		if (Db::$db->title === MYSQL_TITLE) {
-			Db::$db->query(
+			$this->query(
 				'ALTER TABLE {db_prefix}calendar
 				MODIFY COLUMN start_date DATE AFTER id_member',
 				[],
 			);
 
-			Db::$db->query(
+			$this->query(
 				'ALTER TABLE {db_prefix}calendar
 				MODIFY COLUMN end_date DATE AFTER start_date',
 				[],
@@ -67,7 +67,7 @@ class RecurringEvents extends MigrationBase
 
 		$updates = [];
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'SELECT id_event, start_date, end_date, start_time, end_time, timezone
 			FROM {db_prefix}calendar',
 			[],
@@ -120,7 +120,7 @@ class RecurringEvents extends MigrationBase
 		Db::$db->free_result($request);
 
 		foreach ($updates as $id_event => $changes) {
-			Db::$db->query(
+			$this->query(
 				'UPDATE {db_prefix}calendar
 				SET duration = {string:duration}, end_date = {date:end_date}, rrule = {string:rrule}
 				WHERE id_event = {int:id_event}',

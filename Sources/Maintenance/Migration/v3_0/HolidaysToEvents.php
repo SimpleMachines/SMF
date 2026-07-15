@@ -634,7 +634,7 @@ class HolidaysToEvents extends MigrationBase
 			User::load();
 		}
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'SELECT title, GROUP_CONCAT(event_date) as rdates
 			FROM {db_prefix}calendar_holidays
 			GROUP BY title',

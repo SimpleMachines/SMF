@@ -67,7 +67,5 @@ class Sessions extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }
