@@ -64,8 +64,8 @@ class Popup
 			$count_unread = \count($pms);
 
 			if ($count_unread != User::$me->unread_messages) {
-				User::updateMemberData(User::$me->id, ['unread_messages' => $count_unread]);
-				User::$me->unread_messages = \count($pms);
+				User::$me->unread_messages = $count_unread;
+				User::$me->save();
 			}
 
 			// Now, actually fetch me some PMs.

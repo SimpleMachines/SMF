@@ -71,7 +71,5 @@ class SmileyFiles extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

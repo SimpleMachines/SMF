@@ -1008,7 +1008,7 @@ class Tracking implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		// Moderation must be on to track edits.

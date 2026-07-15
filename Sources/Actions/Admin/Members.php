@@ -364,7 +364,7 @@ class Members implements ActionInterface
 				}
 				// Date values have to match a date format that PHP recognizes.
 				elseif ($param_info['type'] == 'date') {
-					$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . User::getTimezone());
+					$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . User::$me->timezone);
 
 					if (!\is_int($search_params[$param_name])) {
 						continue;
@@ -625,7 +625,7 @@ class Members implements ActionInterface
 							if (empty($rowData['last_login'])) {
 								$difference = Lang::getTxt('never', file: 'General');
 							} else {
-								$tz = timezone_open(User::getTimezone());
+								$tz = timezone_open(User::$me->timezone);
 								$today = new \DateTime('today', $tz);
 								$prev = (new \DateTime('@' . $rowData['last_login']))->setTimezone($tz)->setTime(0, 0, 0, 0);
 

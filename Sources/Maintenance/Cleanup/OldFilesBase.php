@@ -13,13 +13,16 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Cleanup\v3_0;
+namespace SMF\Maintenance\Cleanup;
 
 use SMF\Config;
-use SMF\Maintenance\Cleanup\CleanupBase;
 use SMF\Utils;
 
-class OldFiles extends CleanupBase
+/**
+ * Base class for cleanup tasks that delete files that have been removed in a
+ * new version of SMF.
+ */
+abstract class OldFilesBase extends CleanupBase
 {
 	/*******************
 	 * Public properties
@@ -37,7 +40,7 @@ class OldFiles extends CleanupBase
 	/**
 	 * @var array
 	 *
-	 * List of files removed in SMF 3.0.
+	 * List of files removed in the relevant version of SMF.
 	 */
 	protected array $removed = [
 		// Files in the Themes directory.
@@ -57,9 +60,7 @@ class OldFiles extends CleanupBase
 	 ****************/
 
 	/**
-	 * Check if the task should be performed or not.
 	 *
-	 * @return bool True if this task needs to be run, false otherwise.
 	 */
 	public function isCandidate(): bool
 	{

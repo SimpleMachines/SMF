@@ -453,18 +453,24 @@ class MessageIndex implements ActionInterface, Routable
 
 		if (!empty(Theme::$current->settings['avatars_on_indexes'])) {
 			// Last post member avatar
-			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row['avatar'],
-				'email' => $row['email_address'],
-				'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
-			]);
+			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = new Avatar(
+				original_url: $row['avatar'],
+				filename: $row['last_member_filename'] ?? '',
+				id_attach: (int) $row['last_member_id_attach'],
+				attachment_type: (int) $row['last_member_attach_type'],
+				email: $row['email_address'],
+				id_member: (int) $row['last_id_member'],
+			);
 
 			// First post member avatar
-			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = User::setAvatarData([
-				'avatar' => $row['first_member_avatar'],
-				'email' => $row['first_member_mail'],
-				'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
-			]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = new Avatar(
+				original_url: $row['first_member_avatar'],
+				filename: $row['first_member_filename'] ?? '',
+				id_attach: (int) $row['first_member_id_attach'],
+				attachment_type: (int) $row['first_member_attach_type'],
+				email: $row['first_member_mail'],
+				id_member: (int) $row['first_id_member'],
+			);
 		}
 	}
 
@@ -1027,7 +1033,7 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		// Is Quick Moderation active/needed?
 		if (!empty(Theme::$current->options['display_quick_mod']) && !empty(Utils::$context['topics'])) {
-			Utils::$context['can_markread'] = User::$me->is_logged;
+			Utils::$context['can_markread'] = !User::$me->is_guest;
 			Utils::$context['can_lock'] = User::$me->allowedTo('lock_any');
 			Utils::$context['can_sticky'] = User::$me->allowedTo('make_sticky');
 			Utils::$context['can_move'] = User::$me->allowedTo('move_any');
@@ -1066,7 +1072,7 @@ class MessageIndex implements ActionInterface, Routable
 
 			// Can we use quick moderation checkboxes?
 			if (Theme::$current->options['display_quick_mod'] == 1) {
-				Utils::$context['can_quick_mod'] = User::$me->is_logged || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
+				Utils::$context['can_quick_mod'] = !User::$me->is_guest || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
 			}
 			// Or the icons?
 			else {
@@ -1096,7 +1102,7 @@ class MessageIndex implements ActionInterface, Routable
 			Utils::$context['normal_buttons']['post_poll'] = ['text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => Config::$scripturl . '?action=post;board=' . Utils::$context['current_board'] . '.0;poll'];
 		}
 
-		if (User::$me->is_logged) {
+		if (!User::$me->is_guest) {
 			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 

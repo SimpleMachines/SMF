@@ -113,7 +113,7 @@ class MarkdownParser extends Parser
 		')' .
 		'(?(DEFINE)' .
 			'(?<tag_name>[a-zA-Z][a-zA-Z0-9\-]*)' .
-			'(?<attribute_value_unquoted>[^\s"\'=<>`])' .
+			'(?<attribute_value_unquoted>[^\s"\'=<>`]*)' .
 			'(?<attribute_value_single_quoted>\'[^\']*\')' .
 			'(?<attribute_value_double_quoted>"[^"]*")' .
 			'(?<attribute_value>(?P>attribute_value_unquoted)|(?P>attribute_value_single_quoted)|(?P>attribute_value_double_quoted))' .

@@ -148,7 +148,7 @@ class ShowPosts implements ActionInterface
 	public function unwatched(): void
 	{
 		// Only the owner can see the list (if the function is enabled of course)
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts');
 		}
 
@@ -487,7 +487,7 @@ class ShowPosts implements ActionInterface
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
-				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') || User::$me->is_owner ? '' : '
+				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') || Profile::$member->is_me ? '' : '
 				AND a.approved = {int:is_approved}') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
@@ -537,13 +537,13 @@ class ShowPosts implements ActionInterface
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me || User::$me->allowedTo('approve_posts') ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND b.id_board = {int:board}' : '') . (!\in_array(0, $boards_allowed) ? '
-				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
+				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			[
@@ -571,7 +571,7 @@ class ShowPosts implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -588,7 +588,7 @@ class ShowPosts implements ActionInterface
 		$title = [
 			'messages' => 'showPosts',
 			'topics' => 'showTopics',
-			'unwatchedtopics' => User::$me->is_owner ? 'showUnwatched' : 'showPosts',
+			'unwatchedtopics' => Profile::$member->is_me ? 'showUnwatched' : 'showPosts',
 			'attach' => 'showAttachments',
 		];
 
@@ -660,7 +660,7 @@ class ShowPosts implements ActionInterface
 				FROM {db_prefix}topics AS t' . '
 				WHERE {query_see_topic_board}
 					AND t.id_member_started = {int:current_member}' . (!empty(Board::$info->id) ? '
-					AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+					AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 					AND t.approved = {int:is_approved}'),
 				[
 					'current_member' => Profile::$member->id,
@@ -671,10 +671,10 @@ class ShowPosts implements ActionInterface
 		} else {
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
-				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-					AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+					AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 					AND m.approved = {int:is_approved}
 					AND t.approved = {int:is_approved}'),
 				[
@@ -690,10 +690,10 @@ class ShowPosts implements ActionInterface
 
 		$request = Db::$db->query(
 			'SELECT MIN(id_msg), MAX(id_msg)
-			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
-				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			[
@@ -767,7 +767,7 @@ class ShowPosts implements ActionInterface
 					WHERE t.id_member_started = {int:current_member}' . (!empty(Board::$info->id) ? '
 						AND t.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 						AND ' . $range_limit) . '
-						AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+						AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 					ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 					LIMIT {int:start}, {int:max}',
@@ -792,7 +792,7 @@ class ShowPosts implements ActionInterface
 					WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 						AND b.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 						AND ' . $range_limit) . '
-						AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
+						AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || Profile::$member->is_me ? '' : '
 						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 					ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 					LIMIT {int:start}, {int:max}',

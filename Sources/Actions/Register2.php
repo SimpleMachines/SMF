@@ -51,6 +51,8 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take strings.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_strings = [
 		'birthdate',
@@ -69,6 +71,8 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take integers.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_ints = [
 		'id_theme',
@@ -78,15 +82,17 @@ class Register2 extends Register
 	 * @var array
 	 *
 	 * Registration fields that take floats.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
-	public array $possible_floats = [
-		'time_offset',
-	];
+	public array $possible_floats = [];
 
 	/**
 	 * @var array
 	 *
 	 * Registration fields that take booleans.
+	 *
+	 * Mods can add to this using the integrate_extra_register_vars hook.
 	 */
 	public array $possible_bools = [
 		'show_online',
@@ -207,7 +213,7 @@ class Register2 extends Register
 			}
 
 			// Only set it if you can and if we are sure it is good
-			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !User::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60) {
+			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !Security::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60) {
 				$this->possible_strings[] = 'real_name';
 			}
 		}
@@ -253,6 +259,9 @@ class Register2 extends Register
 			'extra_register_vars' => [],
 			'theme_vars' => [],
 		];
+
+		// Allow mods to add special handling for any extra registration vars.
+		IntegrationHook::call('integrate_extra_register_vars', [&$this->possible_strings, &$this->possible_ints, &$this->possible_floats, &$this->possible_bools]);
 
 		// Include the additional options that might have been filled in.
 		foreach ($this->possible_strings as $var) {
@@ -394,7 +403,7 @@ class Register2 extends Register
 
 		// We'll do custom fields after as then we get to use the helper function!
 		if (!empty($_POST['customfield'])) {
-			Profile::load($member_id);
+			Profile::loadMember($member_id);
 			Profile::$member->loadCustomFields('register');
 			Profile::$member->save();
 		}
@@ -475,7 +484,7 @@ class Register2 extends Register
 			$reg_errors[] = ['lang', 'profile_error_bad_email'];
 		}
 
-		$username_validation_errors = User::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
+		$username_validation_errors = Security::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
 
 		if (!empty($username_validation_errors)) {
 			$reg_errors = array_merge($reg_errors, $username_validation_errors);
@@ -523,11 +532,6 @@ class Register2 extends Register
 			}
 		}
 
-		// You may not be allowed to register this email.
-		if (!empty($reg_options['check_email_ban'])) {
-			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
-		}
-
 		// Check if the email address is in use.
 		$request = Db::$db->query(
 			'SELECT id_member
@@ -545,6 +549,19 @@ class Register2 extends Register
 			$reg_errors[] = ['lang', 'email_in_use', false, [Utils::htmlspecialchars($reg_options['email'])]];
 		}
 		Db::$db->free_result($request);
+
+		// Are they banned from registering?
+		$temp = new User();
+		$temp->username = $reg_options['username'];
+		$temp->email = empty($reg_options['check_email_ban']) ? '' : $reg_options['email'];
+		$temp->ip = $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip;
+		$temp->ip2 = $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative();
+
+		$bans = Security::checkBans($temp);
+
+		if (!empty($bans['cannot_register'])) {
+			ErrorHandler::fatal(Lang::getTxt('ban_register_prohibited', file: 'Login'), false, 403);
+		}
 
 		// Perhaps someone else wants to check this user.
 		IntegrationHook::call('integrate_register_check', [&$reg_options, &$reg_errors]);
@@ -688,7 +705,8 @@ class Register2 extends Register
 			'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 		];
 		$known_floats = [
-			'time_offset',
+			// This is empty in a default SMF install, but mods can add to it
+			// using the integrate_register hook.
 		];
 		$known_inets = [
 			'member_ip', 'member_ip2',

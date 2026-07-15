@@ -271,7 +271,7 @@ class ServerSideIncludes
 		Utils::$context['linktree'] = [];
 
 		// Load the user and their cookie, as well as their settings.
-		User::load();
+		User::loadMe();
 
 		// No one is a moderator outside the forum.
 		User::$me->is_mod = false;
@@ -289,7 +289,7 @@ class ServerSideIncludes
 
 		// Take care of any banning that needs to be done.
 		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
-			User::$me->kickIfBanned();
+			User::$me->enforceBans();
 		}
 
 		// Do we allow guests in here?
@@ -505,7 +505,7 @@ class ServerSideIncludes
 				echo Lang::getTxt('hello_member', file: 'General'), ' <strong>', User::$me->name, '</strong>';
 
 				if (User::$me->allowedTo('pm_read')) {
-					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages], file: 'General');
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm;f=inbox'], file: 'General');
 				}
 			}
 

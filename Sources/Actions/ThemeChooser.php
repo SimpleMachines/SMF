@@ -93,13 +93,25 @@ class ThemeChooser implements ActionInterface, Routable
 			}
 			// 0 means we are resetting everyone's theme.
 			elseif ($_REQUEST['u'] === 0) {
-				User::updateMemberData(null, ['id_theme' => $id_theme]);
+				Db::$db->query(
+					'UPDATE {db_prefix}members
+					SET id_theme = {int:theme}',
+					[
+						'theme' => $id_theme,
+					],
+				);
+
 				Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 			}
 			// Setting a particular user's theme.
-			elseif ($this->canChooseTheme($_REQUEST['u'], $id_theme)) {
-				// An identifier of zero means that the user wants the forum default theme.
-				User::updateMemberData($_REQUEST['u'], ['id_theme' => $id_theme]);
+			elseif (
+				// Can the current user do this?
+				$this->canChooseTheme($_REQUEST['u'], $id_theme)
+				// Can we successfully load the specified user?
+				&& ($member = current(User::load((int) $_REQUEST['u'], dataset: UserDataset::Minimal)))
+			) {
+				$member->theme = $id_theme;
+				$member->save();
 
 				if (!empty($variant)) {
 					// Set the identifier to the forum default.

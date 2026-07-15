@@ -108,7 +108,5 @@ class UserReacts extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -136,7 +136,7 @@ function template_main()
 	</div><!-- #boardindex_table -->';
 
 	// Show the mark all as read button?
-	if (User::$me->is_logged && !empty(Utils::$context['categories'])) {
+	if (!User::$me->is_guest && !empty(Utils::$context['categories'])) {
 		echo '
 	<div class="mark_read">
 		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '

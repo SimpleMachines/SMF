@@ -228,7 +228,7 @@ class Maintenance
 	public function __construct()
 	{
 		Security::frameOptionsHeader('SAMEORIGIN');
-		self::$theme_dir = \dirname(SMF_SETTINGS_FILE) . '/Themes/default';
+		self::$theme_dir = self::getBaseDir() . '/Themes/default';
 
 		// This might be overwritten by the tool, but we need a default value.
 		self::$context['started'] = (int) TIME_START;
@@ -744,12 +744,17 @@ class Maintenance
 	 */
 	public static function getTimeElapsed(): string
 	{
-		// How long have we been running this?
-		$elapsed = time() - (int) self::$context['started'];
-		$mins = (int) ($elapsed / 60);
-		$seconds = $elapsed - $mins * 60;
+		$duration = (new \DateTime('@' . self::$context['started']))->diff(new \DateTime());
 
-		return Lang::getTxt('maintenance_time_elasped_ms', ['m' => $mins, 's' => $seconds]);
+		if ((int) $duration->format('%a') > 0) {
+			return \strval((int) $duration->format('%h') + ((int) $duration->format('%a') * 24)) . $duration->format(':%I:%S');
+		}
+
+		if ((int) $duration->format('%h') > 0) {
+			return $duration->format('%h:%I:%S');
+		}
+
+		return $duration->format('%i:%S');
 	}
 
 	/**

@@ -131,7 +131,5 @@ class Polls extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

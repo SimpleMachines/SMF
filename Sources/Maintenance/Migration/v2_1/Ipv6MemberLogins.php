@@ -15,11 +15,13 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
+use SMF\Maintenance\Migration\MigrationBase;
 
-class Ipv6MemberLogins extends Ipv6Base
+class Ipv6MemberLogins extends MigrationBase
 {
+	use IPv6Converter;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -27,21 +29,11 @@ class Ipv6MemberLogins extends Ipv6Base
 	/**
 	 *
 	 */
-	public string $name = 'Update member_logins ip with ipv6 support';
+	public string $name = 'Updating member_logins table with IPv6 support';
 
 	/****************
 	 * Public methods
 	 ****************/
-
-	/**
-	 *
-	 */
-	public function __construct()
-	{
-		if (Db::$db->title !== POSTGRE_TITLE) {
-			$this->name .= ' without converting';
-		}
-	}
 
 	/**
 	 *
@@ -51,11 +43,10 @@ class Ipv6MemberLogins extends Ipv6Base
 		$table = new Schema\v2_1\MemberLogins();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Db::$db->title === POSTGRE_TITLE) {
-			return $existing_structure['columns']['ip']['type'] !== 'inet';
-		}
-
-		return $existing_structure['columns']['ip']['type'] !== 'varbinary';
+		return (
+			$existing_structure['columns']['ip']['type'] !== 'inet'
+			|| $existing_structure['columns']['ip2']['type'] !== 'inet'
+		);
 	}
 
 	/**
@@ -64,7 +55,26 @@ class Ipv6MemberLogins extends Ipv6Base
 	public function execute(): bool
 	{
 		$table = new Schema\v2_1\MemberLogins();
+		$existing_structure = $table->getCurrentStructure();
 
-		return $this->convertWithNoDataPreservation($table, 'ip') && $this->convertWithNoDataPreservation($table, 'ip2');
+		foreach (['ip', 'ip2'] as $col) {
+			if ($existing_structure['columns'][$col]['type'] !== 'inet') {
+				// This table was added in 2.1 and never had the 'CHAR' type. So if
+				// these columns are somehow the wrong type, their data is useless.
+				$this->query(
+					'UPDATE {db_prefix}{raw:table}
+					SET {identifier:column} = {empty}',
+					[
+						'table' => $table->name,
+						'column' => $col,
+					],
+				);
+
+				$table->alterColumn($table->columns[$col]);
+				$this->handleTimeout();
+			}
+		}
+
+		return true;
 	}
 }

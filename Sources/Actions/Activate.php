@@ -165,13 +165,15 @@ class Activate implements ActionInterface, Routable
 		IntegrationHook::call('integrate_activate', [$this->member->username]);
 
 		// Validation complete - update the database!
-		User::updateMemberData($this->member->id, ['is_activated' => User::ACTIVATED, 'validation_code' => '']);
+		$prev_is_activated = $this->member->is_activated;
+		$this->member->is_activated = User::ACTIVATED;
+		$this->member->save();
 
 		// Also do a proper member stat re-evaluation.
 		Logging::updateStats('member', false);
 
 		// Notify the admin about new activations, but not re-activations.
-		if (empty($this->member->is_activated)) {
+		if ($prev_is_activated === User::NOT_ACTIVATED) {
 			Mail::adminNotify('activation', $this->member->id, $this->member->username);
 		}
 
@@ -304,9 +306,6 @@ class Activate implements ActionInterface, Routable
 				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
 			}
 
-			// Make sure their email isn't banned.
-			User::isBannedEmail($_POST['new_email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
-
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
 				'SELECT id_member
@@ -323,9 +322,18 @@ class Activate implements ActionInterface, Routable
 			}
 			Db::$db->free_result($request);
 
-			User::updateMemberData($this->member->id, ['email_address' => $_POST['new_email']]);
+			// Set the new email address.
 			$this->member->email = $_POST['new_email'];
 
+			// Make sure their email isn't banned.
+			$bans = Security::checkBans($this->member, true);
+
+			if (!empty($bans['cannot_register'])) {
+				ErrorHandler::fatal(Lang::getTxt('ban_register_prohibited', file: 'Login'), false, 403);
+			}
+
+			// Save the changes.
+			$this->member->save();
 			$this->email_change = true;
 		}
 	}
@@ -361,7 +369,7 @@ class Activate implements ActionInterface, Routable
 	 */
 	protected function showRetryInvalidCode(): void
 	{
-		if (!empty($this->member->is_activated)) {
+		if ($this->member->is_activated !== User::NOT_ACTIVATED) {
 			ErrorHandler::fatalLang('already_activated', false);
 		} elseif ($this->member->validation_code == '') {
 			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username], file: 'Profile'), false);

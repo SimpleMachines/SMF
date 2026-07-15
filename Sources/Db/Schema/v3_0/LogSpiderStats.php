@@ -77,7 +77,5 @@ class LogSpiderStats extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

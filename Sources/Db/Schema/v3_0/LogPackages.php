@@ -182,7 +182,5 @@ class LogPackages extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

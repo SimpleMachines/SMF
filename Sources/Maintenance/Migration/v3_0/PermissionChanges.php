@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class PermissionChanges extends MigrationBase
@@ -38,7 +37,7 @@ class PermissionChanges extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		Db::$db->query(
+		$this->query(
 			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:perms})',
 			[

@@ -72,7 +72,5 @@ class LogScheduledTasks extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

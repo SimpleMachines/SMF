@@ -14,6 +14,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Profile;
 use SMF\Security;
 use SMF\Theme;
 use SMF\User;
@@ -25,7 +26,7 @@ use SMF\Utils;
 function template_profile_above()
 {
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
-	if (BrowserDetector::isBrowser('is_chrome') && !User::$me->is_owner) {
+	if (BrowserDetector::isBrowser('is_chrome') && !Profile::$member->is_me) {
 		echo '
 			<script>
 				disableAutoComplete();
@@ -259,7 +260,7 @@ function template_summary()
 				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>', Utils::$context['can_send_pm'] ? '</a>' : '', '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>';
 
 	// Can they add this member as a buddy?
-	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner) {
+	if (!empty(Utils::$context['can_have_buddy']) && !Profile::$member->is_me) {
 		echo '
 				<br>
 				<a href="', Config::$scripturl, '?action=buddy;u=', Utils::$context['id_member'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('buddy_' . (Utils::$context['member']['is_buddy'] ? 'remove' : 'add'), file: 'Profile'), '</a>';
@@ -268,7 +269,7 @@ function template_summary()
 	echo '
 			</span>';
 
-	if (!User::$me->is_owner && Utils::$context['can_send_pm']) {
+	if (!Profile::$member->is_me && Utils::$context['can_send_pm']) {
 		echo '
 			<a href="', Config::$scripturl, '?action=pm;sa=send;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('profile_sendpm_short', file: 'Profile'), '</a>';
 	}
@@ -276,7 +277,7 @@ function template_summary()
 	echo '
 			<a href="', Config::$scripturl, '?action=profile;area=showposts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('showPosts', file: 'Profile'), '</a>';
 
-	if (User::$me->is_owner && !empty(Config::$modSettings['drafts_post_enabled'])) {
+	if (Profile::$member->is_me && !empty(Config::$modSettings['drafts_post_enabled'])) {
 		echo '
 			<a href="', Config::$scripturl, '?action=profile;area=showdrafts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>';
 	}
@@ -310,7 +311,7 @@ function template_summary()
 		<div id="detailedinfo">
 			<dl class="settings">';
 
-	if (User::$me->is_owner || User::$me->is_admin) {
+	if (Profile::$member->is_me || User::$me->is_admin) {
 		echo '
 				<dt>', Lang::getTxt('username', file: 'General'), '</dt>
 				<dd>', Utils::$context['member']['username'], '</dd>';
@@ -473,7 +474,7 @@ function template_summary()
 			echo '
 					<dt>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</dt>
 					<dd>
-						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
+						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !Profile::$member->is_me ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
 
 			// Can we provide information on what this means?
 			if (!empty(Utils::$context['warning_status'])) {
@@ -561,7 +562,7 @@ function template_showPosts()
 					),
 		file: 'Profile',
 	),
-				!User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
+				!Profile::$member->is_me ? ' - ' . Utils::$context['member']['name'] : '', '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
 		<div class="pagesection">
@@ -648,7 +649,7 @@ function template_showAlerts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-			', Lang::getTxt(!User::$me->is_owner ? 'alerts_member' : 'alerts', ['member' => Utils::$context['member']['name']], file: 'General'), '
+			', Lang::getTxt(!Profile::$member->is_me ? 'alerts_member' : 'alerts', ['member' => Utils::$context['member']['name']], file: 'General'), '
 			</h3>
 		</div>';
 
@@ -732,7 +733,7 @@ function template_showDrafts()
 	echo '
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', !User::$me->is_owner ? Lang::getTxt('drafts_member', ['member' => Utils::$context['member']['name']], file: 'Drafts') : Lang::getTxt('drafts', file: 'Drafts'), '
+				', !Profile::$member->is_me ? Lang::getTxt('drafts_member', ['member' => Utils::$context['member']['name']], file: 'Drafts') : Lang::getTxt('drafts', file: 'Drafts'), '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
 		<div class="pagesection">
@@ -797,7 +798,7 @@ function template_editBuddies()
 {
 	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
-	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
+	<div class="infobox">', Lang::getTxt(Profile::$member->is_me ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
 	} elseif (!empty(Utils::$context['saved_failed'])) {
 		echo '
 	<div class="errorbox">', Utils::$context['saved_failed'], '</div>';
@@ -927,7 +928,7 @@ function template_editIgnoreList()
 {
 	if (!empty(Utils::$context['saved_successful'])) {
 		echo '
-	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
+	<div class="infobox">', Lang::getTxt(Profile::$member->is_me ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
 	} elseif (!empty(Utils::$context['saved_failed'])) {
 		echo '
 	<div class="errorbox">', Utils::$context['saved_failed'], '</div>';
@@ -2465,11 +2466,11 @@ function template_issueWarning()
 	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', Lang::getTxt(User::$me->is_owner ? 'profile_warning_level' : 'profile_issue_warning', file: 'Profile'), '
+				', Lang::getTxt(Profile::$member->is_me ? 'profile_warning_level' : 'profile_issue_warning', file: 'Profile'), '
 			</h3>
 		</div>';
 
-	if (!User::$me->is_owner) {
+	if (!Profile::$member->is_me) {
 		echo '
 		<p class="information">', Lang::getTxt('profile_warning_desc', file: 'Profile'), '</p>';
 	}
@@ -2478,7 +2479,7 @@ function template_issueWarning()
 		<div class="windowbg">
 			<dl class="settings">';
 
-	if (!User::$me->is_owner) {
+	if (!Profile::$member->is_me) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_warning_name', file: 'Profile'), '</strong>
@@ -2508,7 +2509,7 @@ function template_issueWarning()
 					</div>
 				</dd>';
 
-	if (!User::$me->is_owner) {
+	if (!Profile::$member->is_me) {
 		echo '
 				<dt>
 					<strong>', Lang::getTxt('profile_warning_reason', file: 'Profile'), '</strong><br>
@@ -2575,7 +2576,7 @@ function template_issueWarning()
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="button" name="preview" id="preview_button" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
-				<input type="submit" name="save" value="', Lang::getTxt(User::$me->is_owner ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt(Profile::$member->is_me ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
 			</div><!-- .righttext -->
 		</div><!-- .windowbg -->
 	</form>';
@@ -2586,7 +2587,7 @@ function template_issueWarning()
 	echo '
 	<script>';
 
-	if (!User::$me->is_owner) {
+	if (!Profile::$member->is_me) {
 		echo '
 		modifyWarnNotify();
 		$(document).ready(function() {
@@ -2653,7 +2654,7 @@ function template_deleteAccount()
 			</div>';
 
 	// If deleting another account give them a lovely info box.
-	if (!User::$me->is_owner) {
+	if (!Profile::$member->is_me) {
 		echo '
 			<p class="information">', Lang::getTxt('deleteAccount_desc', file: 'Profile'), '</p>';
 	}
@@ -2668,7 +2669,7 @@ function template_deleteAccount()
 	}
 
 	// If the user is deleting their own account warn them first - and require a password!
-	if (User::$me->is_owner) {
+	if (Profile::$member->is_me) {
 		echo '
 				<div class="errorbox">', Lang::getTxt('own_profile_confirm', file: 'Profile'), '</div>
 				<fieldset>';
@@ -2856,7 +2857,7 @@ function template_profile_group_manage()
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', Lang::getTxt('moderator_why_missing', file: 'Profile'), '</a></span>
 							</dt>
 							<dd>
-								<select name="id_group" ', (User::$me->is_owner && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
+								<select name="id_group" ', (Profile::$member->is_me && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
 
 	// Fill the select box with all primary member groups that can be assigned to a member.
 	foreach (Utils::$context['member_groups'] as $member_group) {
@@ -3338,7 +3339,7 @@ function template_tfadisable()
 			<div class="roundframe">
 				<form action="', Config::$scripturl, '?action=profile;area=tfadisable" method="post">';
 
-	if (User::$me->is_owner) {
+	if (Profile::$member->is_me) {
 		echo '
 					<div class="block">
 						<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::getTxt('current_password', file: 'Profile'), '</strong><br>
@@ -3389,7 +3390,7 @@ function template_profile_tfa()
 							</dt>
 							<dd>';
 
-	if (!Utils::$context['tfa_enabled'] && User::$me->is_owner) {
+	if (!Utils::$context['tfa_enabled'] && Profile::$member->is_me) {
 		echo '
 								<a href="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, ['http://' => 'https://']) : Config::$scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', Lang::getTxt('tfa_profile_enable', file: 'Profile'), '</a>';
 	} elseif (!Utils::$context['tfa_enabled']) {

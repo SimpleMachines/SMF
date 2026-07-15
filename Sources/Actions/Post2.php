@@ -221,20 +221,36 @@ class Post2 extends Post
 				$this->errors[] = 'long_name';
 			}
 
+			$author = new User();
+			$author->username = $_POST['guestname'];
+			$author->email = $_POST['email'];
+			$author->ip = User::$me->ip;
+			$author->ip2 = User::$me->ip2;
+
 			if (empty(Config::$modSettings['guest_post_no_email'])) {
 				// Only check if they changed it!
-				if (!isset($this->existing_msg) || $this->existing_msg->poster_email != $_POST['email']) {
-					if (!User::$me->allowedTo('moderate_forum') && (!isset($_POST['email']) || $_POST['email'] == '')) {
+				if (!isset($this->existing_msg) || $this->existing_msg->poster_email != $author->email) {
+					if (!User::$me->allowedTo('moderate_forum') && $author->email == '') {
 						$this->errors[] = 'no_email';
 					}
 
-					if (!User::$me->allowedTo('moderate_forum') && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+					if (!User::$me->allowedTo('moderate_forum') && !filter_var($author->email, FILTER_VALIDATE_EMAIL)) {
 						$this->errors[] = 'bad_email';
 					}
 				}
+			}
 
-				// Now make sure this email address is not banned from posting.
-				User::isBannedEmail($_POST['email'], 'cannot_post', Lang::getTxt('you_are_post_banned', ['name' => Lang::getTxt('guest_title', file: 'General')]));
+			// Is this name, IP address, or email address banned from posting?
+			$bans = Security::checkBans($author);
+
+			if (!empty($bans['cannot_post'])) {
+				// If they're banned from posting, we don't want to go back to
+				// the post editor; we want to abort abruptly.
+				ErrorHandler::fatal(
+					Lang::getTxt('you_are_post_banned', ['name' => $author->name], file: 'General') . (!empty($bans['cannot_post']['reason']) ? '<br>' . $bans['cannot_post']['reason'] : ''),
+					false,
+					403,
+				);
 			}
 
 			// In case they are making multiple posts this visit, help them along by storing their name.
@@ -308,7 +324,7 @@ class Post2 extends Post
 
 		if ($this->authorIsGuest) {
 			// If user is a guest, make sure the chosen name isn't taken.
-			if (User::isReservedName($_POST['guestname'], 0, true, false) && (!isset($this->existing_msg->poster_name) || $_POST['guestname'] != $this->existing_msg->poster_name)) {
+			if (Security::isReservedName($_POST['guestname'], 0, true, false) && (!isset($this->existing_msg->poster_name) || $_POST['guestname'] != $this->existing_msg->poster_name)) {
 				$this->errors[] = 'bad_name';
 			}
 		}
@@ -658,7 +674,7 @@ class Post2 extends Post
 		}
 
 		// Log an act of moderation - modifying.
-		if (!empty($moderationAction)) {
+		if (!empty($this->moderation_action)) {
 			Logging::logAction('modify', ['topic' => $this->existing_msg->id_topic, 'message' => $this->existing_msg->id, 'member' => $this->existing_msg->id_member, 'board' => $this->existing_msg->id_board]);
 		}
 
@@ -1031,13 +1047,13 @@ class Post2 extends Post
 			User::$me->isAllowedTo('modify_replies');
 
 			// If you're modifying a reply, I say it better be logged...
-			$moderationAction = true;
+			$this->moderation_action = true;
 		} else {
 			User::$me->isAllowedTo('modify_any');
 
 			// Log it, assuming you're not modifying your own post.
 			if ($this->existing_msg->id_member != User::$me->id) {
-				$moderationAction = true;
+				$this->moderation_action = true;
 			}
 		}
 
@@ -1055,7 +1071,7 @@ class Post2 extends Post
 		Utils::$context['poster_id'] = $this->existing_msg->id_member;
 
 		// Can they approve it?
-		$approve_checked = (!empty($REQUEST['approve']) ? true : false);
+		$approve_checked = (!empty($_REQUEST['approve']) ? true : false);
 		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved > 0) : true;
 
 		if (!User::$me->allowedTo('moderate_forum') || !$this->authorIsGuest) {

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
@@ -41,9 +40,9 @@ class VerificationQuestions extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$tables = Db::$db->list_tables();
+		$table = new Schema\v2_1\Qanda();
 
-		return !\in_array(Config::$db_prefix . 'qanda', $tables);
+		return !$table->exists();
 	}
 
 	/**
@@ -53,14 +52,10 @@ class VerificationQuestions extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new Schema\v2_1\Qanda();
-
-		$tables = Db::$db->list_tables();
-
-		// Creating draft table.
-		if ($start <= 0 && !\in_array(Config::$db_prefix . 'qanda', $tables)) {
+		// Creating table.
+		if ($start <= 0) {
+			$table = new Schema\v2_1\Qanda();
 			$table->create();
-
 			$this->handleTimeout(++$start);
 		}
 

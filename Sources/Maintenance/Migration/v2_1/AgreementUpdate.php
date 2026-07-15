@@ -110,7 +110,7 @@ class AgreementUpdate extends MigrationBase
 			$this->handleTimeout($start);
 
 			$extras = [];
-			$request = Db::$db->query(
+			$request = $this->query(
 				'SELECT id_action, extra
 					FROM {db_prefix}log_actions
 					WHERE id_member = {int:blank_id}
@@ -145,7 +145,7 @@ class AgreementUpdate extends MigrationBase
 				}
 
 				if (!empty($extra['applicator'])) {
-					$request = Db::$db->query(
+					$request = $this->query(
 						'UPDATE {db_prefix}log_actions
 							SET id_member = {int:id_member}
 							WHERE id_action = {int:id_action}',

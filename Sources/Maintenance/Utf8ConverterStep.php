@@ -743,7 +743,7 @@ class Utf8ConverterStep extends Step
 			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
-					'next' => $substeps[Maintenance::getCurrentSubStep()]->name,
+					'next' => isset($substeps[Maintenance::getCurrentSubStep()]) ? $substeps[Maintenance::getCurrentSubStep()]->name : '',
 					'completed' => true,
 					'substep' => Maintenance::getCurrentSubStep(),
 					'start' => Maintenance::getCurrentStart(),

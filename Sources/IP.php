@@ -100,8 +100,15 @@ class IP implements \Stringable
 		}
 		// Is it in a valid IPv6 string?
 		elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
-			// Pack and unpack to ensure it is in standard form.
-			$this->ip = inet_ntop(inet_pton($ip));
+			if (str_starts_with($ip, '64:ff9b::')) {
+				// Workaround for a PHP bug where NAT64 addresses aren't handled
+				// properly when the last 32 bits are in IPv6 notation instead
+				// of IPv4 notation. See https://en.wikipedia.org/wiki/NAT64.
+				$this->ip = '64:ff9b::' . inet_ntop(hex2bin(substr(bin2hex(inet_pton($ip)), -8)));
+			} else {
+				// Pack and unpack to ensure it is in standard form.
+				$this->ip = inet_ntop(inet_pton($ip));
+			}
 		}
 		// It's either in binary form or it's invalid.
 		else {
@@ -161,6 +168,20 @@ class IP implements \Stringable
 	public function isValid(int $flags = 0): bool
 	{
 		return filter_var($this->ip, FILTER_VALIDATE_IP, $flags) !== false;
+	}
+
+	/**
+	 * Check whether this is an IPv6 containing an IPv4.
+	 *
+	 * Returns true for IPs matching one of the following patterns:
+	 *  - ::ffff:123.123.123.123
+	 *  = 64:ff9b::123.123.123.123
+	 *
+	 * @return bool
+	 */
+	public function is4in6(): bool
+	{
+		return $this->isValid(FILTER_FLAG_IPV6) && (str_starts_with($this->ip, '::ffff:') || str_starts_with($this->ip, '64:ff9b::'));
 	}
 
 	/**
@@ -515,6 +536,8 @@ class IP implements \Stringable
 			return '';
 		}
 
+		$remote_addr = new self($_SERVER['REMOTE_ADDR']);
+
 		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
 		if (!isset(Config::$modSettings['proxy_ip_header'])) {
 			Config::$modSettings['proxy_ip_header'] = 'autodetect';
@@ -542,7 +565,7 @@ class IP implements \Stringable
 				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
 					if (
 						$proxy == $_SERVER['REMOTE_ADDR']
-						|| (new IP($_SERVER['REMOTE_ADDR']))->matchToCIDR($proxy)
+						|| $remote_addr->matchToCIDR($proxy)
 					) {
 						$valid_sender = true;
 						break;
@@ -554,31 +577,30 @@ class IP implements \Stringable
 				}
 			}
 
-			// If there are commas, get the last one.. probably.
-			if (str_contains($_SERVER[$proxyIPheader], ',')) {
-				$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
+			$ips = array_map(
+				fn($ip) => new self($ip),
+				array_map(
+					'trim',
+					array_reverse(explode(',', $_SERVER[$proxyIPheader])),
+				),
+			);
 
-				// Go through each IP...
-				foreach ($ips as $i => $ip) {
-					// Make sure it's in a valid range...
-					if (self::isLocal($ip) && !self::isLocal($_SERVER['REMOTE_ADDR'])) {
-						continue;
-					}
-
-					// Otherwise, we've got an IP!
-					return static::$user_ip = trim($ip);
+			foreach ($ips as $ip) {
+				if ($ip->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
+					static::$user_ip = $ip->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $ip) : (string) $ip;
 				}
 			}
-			// Otherwise just use the only one.
-			elseif (!self::isLocal($_SERVER[$proxyIPheader]) && self::isLocal($_SERVER['REMOTE_ADDR'])) {
-				return static::$user_ip = $_SERVER[$proxyIPheader];
-			} elseif (self::is4in6($_SERVER[$proxyIPheader])) {
-				// @ TODO: Convert to IPv6.
-				continue;
+
+			// If both IPs are private, then I guess that's all we've got.
+			if (!isset(static::$user_ip) && !$remote_addr->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
+				static::$user_ip = $ips[0]->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $ips[0]) : (string) $ips[0];
 			}
 		}
 
-		return static::$user_ip = $_SERVER['REMOTE_ADDR'];
+		// If checking proxy headers gave us nothing, use the plain remote address.
+		static::$user_ip ??= $_SERVER['REMOTE_ADDR'];
+
+		return static::$user_ip;
 	}
 
 	/**
@@ -757,40 +779,5 @@ class IP implements \Stringable
 		$query .= "\0\0\x0C\0\1";
 
 		return $query;
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Check whether this is a local area network address or not.
-	 *
-	 * @param string $ip
-	 * @return bool
-	 */
-	private static function isLocal(string $ip): bool
-	{
-		return preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) === 1;
-	}
-
-	/**
-	 * Check whether this is a IPv4 inside of a IPv6.
-	 *
-	 * @param string $ip
-	 * @return bool
-	 */
-	private static function is4in6(string $ip): bool
-	{
-		if (!self::create($ip)->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $ip) !== 0) {
-			$ipv4_in_v6 = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $ip);
-
-			// Just incase we have a legacy IPv4 address.
-			if (preg_match('~^(((1?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $ipv4_in_v6) === 0) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

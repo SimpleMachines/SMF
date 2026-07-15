@@ -30,6 +30,7 @@ use SMF\Permissions\Permission;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -616,7 +617,7 @@ class Membergroups implements ActionInterface
 
 					// Get the IDs of the named members.
 					if (!empty($moderators)) {
-						foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator) {
+						foreach (User::load($moderators, User::LOAD_BY_NAME, UserDataset::Minimal) as $moderator) {
 							$group->moderator_ids[] = $moderator->id;
 						}
 					}
@@ -626,7 +627,7 @@ class Membergroups implements ActionInterface
 					$moderators = array_filter(array_map('intval', $_POST['moderator_list']));
 
 					if (!empty($moderators)) {
-						foreach (User::load($moderators, User::LOAD_BY_ID, 'minimal') as $moderator) {
+						foreach (User::load($moderators, User::LOAD_BY_ID, UserDataset::Minimal) as $moderator) {
 							$group->moderator_ids[] = $moderator->id;
 						}
 					}

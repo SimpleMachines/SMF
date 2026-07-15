@@ -48,12 +48,7 @@ class Smileys extends MigrationBase
 		// Adding the new `smiley_files` table
 		if ($start <= 0) {
 			$table = new Schema\v2_1\SmileyFiles();
-			$existing_tables = Db::$db->list_tables();
-
-			if (!\in_array(Config::$db_prefix . $table->name, $existing_tables)) {
-				$table->create();
-			}
-
+			$table->create();
 			$this->handleTimeout(++$start);
 		}
 

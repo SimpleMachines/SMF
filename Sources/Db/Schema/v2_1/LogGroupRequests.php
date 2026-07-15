@@ -125,7 +125,5 @@ class LogGroupRequests extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

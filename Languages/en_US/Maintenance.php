@@ -65,13 +65,7 @@ $txt['maintenance_progress'] = 'Progress';
 $txt['maintenance_step'] = 'Step';
 $txt['maintenance_overall_progress'] = 'Overall Progress';
 $txt['maintenance_substep_progress'] = 'Step Progress';
-$txt['maintenance_time_elasped_ms'] = 'Time Elapsed {m, plural,
-	one {# minute}
-	other {# minutes}
-} and {s, plural,
-	one {# second}
-	other {# seconds}
-}';
+$txt['maintenance_time_elapsed'] = 'Time Elapsed: ';
 
 // File Permissions.
 $txt['chmod_linux_info'] = 'If you have a shell account, the following command can automatically correct permissions on these files';

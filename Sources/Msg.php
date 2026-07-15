@@ -338,17 +338,17 @@ class Msg implements \ArrayAccess, Routable
 
 			// If mods added extra columns to the table and those column values
 			// are reflected in this object's custom properties, save them too.
-			if (!empty($this->custom)) {
-				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+			if (!empty($this->internal_data)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->internal_data) as $key => $type) {
+					if (isset($this->internal_data[$key]) && !\is_array($this->internal_data[$key])) {
 						$columns[$key] = $type;
-						$params[] = $this->custom[$key];
+						$params[] = $this->internal_data[$key];
 					}
 				}
 			}
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
-			IntegrationHook::call('integrate_create_post', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
+			IntegrationHook::call('integrate_create_post', [&$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$columns, &$params]);
 
 			$this->id = (int) Db::$db->insert(
 				'',
@@ -372,7 +372,7 @@ class Msg implements \ArrayAccess, Routable
 			self::$loaded[$this->id] = $this;
 
 			// What if we want to export new posts out to a CMS?
-			IntegrationHook::call('integrate_after_create_post', [$this->custom['msgOptions'], $this->custom['topicOptions'], $this->custom['posterOptions'], $columns, $params]);
+			IntegrationHook::call('integrate_after_create_post', [$this->internal_data['msgOptions'], $this->internal_data['topicOptions'], $this->internal_data['posterOptions'], $columns, $params]);
 		} else {
 			$set = [
 				'id_topic = {int:id_topic}',
@@ -415,11 +415,11 @@ class Msg implements \ArrayAccess, Routable
 
 			// If mods added extra columns to the table and those column values
 			// are reflected in this object's custom properties, save them too.
-			if (!empty($this->custom)) {
-				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !\is_array($this->custom[$key])) {
+			if (!empty($this->internal_data)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}messages', $this->internal_data) as $key => $type) {
+					if (isset($this->internal_data[$key]) && !\is_array($this->internal_data[$key])) {
 						$set[] = $key . ' = {' . $type . ':' . $key . '}';
-						$params[$key] = $this->custom[$key];
+						$params[$key] = $this->internal_data[$key];
 					}
 				}
 			}
@@ -442,7 +442,7 @@ class Msg implements \ArrayAccess, Routable
 				$set = [];
 
 				// MOD AUTHORS: This hook is deprecated. Use integrate_msg_update instead.
-				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$message_ints]);
+				IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$params, &$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$message_ints]);
 
 				foreach ($messages_columns as $var => $val) {
 					$set[] = $var . ' = {' . (\in_array($var, $message_ints) ? 'int' : 'string') . ':' . $var . '}';
@@ -451,7 +451,7 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
-			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
+			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions']]);
 
 			Db::$db->query(
 				'UPDATE {db_prefix}messages
@@ -556,15 +556,15 @@ class Msg implements \ArrayAccess, Routable
 
 			// If the topic is locked, you might not be able to delete the post...
 			if ($topic->is_locked) {
-				$topic->permissions['can_remove_post'] &= (User::$me->started && $topic->is_locked == 1) || User::$me->allowedTo('lock_any');
+				$topic->permissions['can_remove_post'] &= ($topic->started_by_me && $topic->is_locked == 1) || User::$me->allowedTo('lock_any');
 			}
 
 			$this->formatted += [
 				'approved' => $this->approved,
 				'can_approve' => !$this->approved && $topic->permissions['can_approve'],
 				'can_unapprove' => !empty(Config::$modSettings['postmod_active']) && $topic->permissions['can_approve'] && $this->approved,
-				'can_modify' => (!$topic->is_locked || User::$me->allowedTo('moderate_board')) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_replies') && User::$me->started) || (User::$me->allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
-				'can_remove' => User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && User::$me->started) || (User::$me->allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
+				'can_modify' => (!$topic->is_locked || User::$me->allowedTo('moderate_board')) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_replies') && $topic->started_by_me) || (User::$me->allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
+				'can_remove' => User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && $topic->started_by_me) || (User::$me->allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
 				'can_see_ip' => User::$me->allowedTo('moderate_forum') || ($this->id_member == User::$me->id && !empty(User::$me->id)),
 				'css_class' => $this->approved ? 'windowbg' : 'approvebg',
 			];
@@ -1061,13 +1061,14 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// Increase the post counter for the user that created the post.
-		if (!empty($posterOptions['update_post_count']) && !empty($posterOptions['id']) && $msgOptions['approved']) {
-			// Are you the one that happened to create this post?
-			if (User::$me->id == $posterOptions['id']) {
-				User::$me->posts++;
-			}
-
-			User::updateMemberData($posterOptions['id'], ['posts' => '+']);
+		if (
+			!empty($posterOptions['update_post_count'])
+			&& !empty($posterOptions['id'])
+			&& $msgOptions['approved']
+		) {
+			$member = current(User::load((int) $posterOptions['id'], dataset: UserDataset::Minimal));
+			$member->posts++;
+			$member->save();
 		}
 
 		// They've posted, so they can make the view count go up one if they really want. (this is to keep views >= replies...)
@@ -1646,9 +1647,21 @@ class Msg implements \ArrayAccess, Routable
 
 		// Post count for the members?
 		if (!empty($member_post_changes)) {
-			foreach ($member_post_changes as $id_member => $count_change) {
-				User::updateMemberData($id_member, ['posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change]);
+			$members = User::load(
+				array_map('intval', array_keys($member_post_changes)),
+				dataset: UserDataset::Minimal,
+			);
+
+			foreach ($members as $member) {
+				if ($approve) {
+					$member->posts += $member_post_changes[$member->id];
+				} else {
+					$member->posts -= $member_post_changes[$member->id];
+					$member->posts = max(0, $member->posts);
+				}
 			}
+
+			User::saveBatch($members);
 		}
 
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
@@ -2255,7 +2268,9 @@ class Msg implements \ArrayAccess, Routable
 		// If the poster was registered and the board this message was on incremented
 		// the member's posts when it was posted, decrease his or her post count.
 		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved']) {
-			User::updateMemberData((int) $row['id_member'], ['posts' => '-']);
+			$member = current(User::load((int) $row['id_member'], dataset: UserDataset::Minimal));
+			$member->posts--;
+			$member->save();
 		}
 
 		// Only remove posts if they're not recycled.

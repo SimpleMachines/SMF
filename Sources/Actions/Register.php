@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\Profile;
 use SMF\Routable;
 use SMF\Sapi;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -277,7 +278,7 @@ class Register implements ActionInterface, Routable
 		}
 
 		// Any custom fields we want filled in?
-		Profile::load(0);
+		Profile::loadMember(0);
 		Profile::$member->loadCustomFields('register');
 
 		// Or any standard ones?
@@ -287,10 +288,9 @@ class Register implements ActionInterface, Routable
 			// Setup some important context.
 			Theme::loadTemplate('Profile');
 
-			User::$me->is_owner = true;
-
 			// Here, and here only, emulate the permissions the user would have to do this.
 			User::$me->permission_sets[0]->grant(['profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb']);
+
 			$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 			// Website is a little different
@@ -298,18 +298,18 @@ class Register implements ActionInterface, Routable
 				unset($reg_fields['website']);
 
 				if (isset($_POST['website_title'])) {
-					User::$profiles[User::$me->id]['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
+					Profile::$member->data['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
 				}
 
 				if (isset($_POST['website_url'])) {
-					User::$profiles[User::$me->id]['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
+					Profile::$member->data['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
 				}
 			}
 
 			// We might have had some submissions on this front - go check.
 			foreach ($reg_fields as $field) {
 				if (isset($_POST[$field])) {
-					User::$profiles[User::$me->id][$field] = Utils::htmlspecialchars($_POST[$field]);
+					Profile::$member->data[$field] = Utils::htmlspecialchars($_POST[$field]);
 				}
 			}
 
@@ -347,6 +347,11 @@ class Register implements ActionInterface, Routable
 	 */
 	public function checkUsername(): void
 	{
+		// Who are you again?
+		if (empty($_COOKIE) || empty($_COOKIE[Config::$cookiename]) || empty($_SERVER['HTTP_REFERER']) || stripos($_SERVER['HTTP_REFERER'], Config::$scripturl) !== 0) {
+			Utils::sendHttpStatus(403);
+		}
+
 		// This is XML!
 		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'check_username';
@@ -356,7 +361,7 @@ class Register implements ActionInterface, Routable
 		// Clean it up like mother would.
 		Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 
-		$errors = User::validateUsername(0, Utils::$context['checked_username'], true);
+		$errors = Security::validateUsername(0, Utils::$context['checked_username'], true);
 
 		Utils::$context['valid_username'] = empty($errors);
 	}

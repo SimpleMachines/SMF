@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -41,12 +39,7 @@ class CreateBackgroundTasks extends MigrationBase
 	public function execute(): bool
 	{
 		$background_tasks_table = new Schema\v2_1\BackgroundTasks();
-
-		$tables = Db::$db->list_tables();
-
-		if (!\in_array(Config::$db_prefix . $background_tasks_table->name, $tables)) {
-			$background_tasks_table->create();
-		}
+		$background_tasks_table->create();
 
 		return true;
 	}

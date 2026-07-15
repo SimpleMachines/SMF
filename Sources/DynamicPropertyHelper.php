@@ -92,7 +92,7 @@ trait DynamicPropertyHelper
 	 *
 	 * Arbitrary custom data about this object.
 	 */
-	protected array $custom = [];
+	protected array $internal_data = [];
 
 	/****************
 	 * Public methods
@@ -196,7 +196,7 @@ trait DynamicPropertyHelper
 		} elseif (property_exists($this, $prop)) {
 			$this->{$prop} = $value;
 		} else {
-			$this->custom[$prop] = $value;
+			$this->internal_data[$prop] = $value;
 		}
 	}
 
@@ -238,7 +238,7 @@ trait DynamicPropertyHelper
 			return $this->{$prop} ?? null;
 		}
 
-		return $this->custom[$prop] ?? null;
+		return $this->internal_data[$prop] ?? null;
 	}
 
 	/**
@@ -273,7 +273,7 @@ trait DynamicPropertyHelper
 			return isset($this->{$prop});
 		}
 
-		return isset($this->custom[$prop]);
+		return isset($this->internal_data[$prop]);
 	}
 
 	/**
@@ -291,7 +291,7 @@ trait DynamicPropertyHelper
 		if (property_exists($this, $prop)) {
 			unset($this->{$prop});
 		} else {
-			unset($this->custom[$prop]);
+			unset($this->internal_data[$prop]);
 		}
 	}
 }

@@ -429,7 +429,7 @@ class TrackIP implements ActionInterface, Routable
 			$this->memID = User::$me->id;
 		} else {
 			if (!isset(Profile::$member)) {
-				Profile::load();
+				Profile::loadMember();
 			}
 
 			$this->memID = Profile::$member->id;

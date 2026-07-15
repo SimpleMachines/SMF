@@ -128,7 +128,7 @@ class Registration implements ActionInterface
 	public function register(): void
 	{
 		// Are there any custom profile fields required during registration?
-		Profile::load(0);
+		Profile::loadMember(0);
 		Profile::$member->loadCustomFields('register');
 
 		if (!empty($_POST['regSubmit'])) {
@@ -160,7 +160,7 @@ class Registration implements ActionInterface
 			if (!empty($memberID)) {
 				// We'll do custom fields after as then we get to use the helper function!
 				if (!empty($_POST['customfield'])) {
-					Profile::load($memberID);
+					Profile::loadMember($memberID);
 					Profile::$member->loadCustomFields('register');
 					Profile::$member->save();
 				}
@@ -398,7 +398,7 @@ class Registration implements ActionInterface
 				Utils::$context['agreement_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
 					],
 				);
@@ -580,7 +580,7 @@ class Registration implements ActionInterface
 				Utils::$context['privacy_policy_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown', file: 'General') . ')' : $diff->name,
 					],
 					file: 'General',

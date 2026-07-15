@@ -189,7 +189,7 @@ class Search2 implements ActionInterface, Routable
 			Utils::$context['can_remove'] |= $output['quick_mod']['remove'];
 			Utils::$context['can_merge'] |= \in_array($output['board']['id'], SearchResult::$boards_can['merge_any']);
 			Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
-			Utils::$context['can_markread'] = User::$me->is_logged;
+			Utils::$context['can_markread'] = !User::$me->is_guest;
 
 			// Sets Utils::$context['qmod_actions']
 			// This is also where the integrate_quick_mod_actions_search hook now lives.

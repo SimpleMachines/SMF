@@ -215,6 +215,301 @@ class Security
 	}
 
 	/**
+	 * Checks whether a username obeys a load of rules.
+	 *
+	 * @param int $memID The ID of the member
+	 * @param string $username The username to validate.
+	 * @param bool $return_error Whether to return errors.
+	 * @param bool $check_reserved_name Whether to check this against the list
+	 *    of reserved names.
+	 * @return array|null Null if there are no errors, otherwise an array of
+	 *    errors if $return_error is true.
+	 */
+	public static function validateUsername(int $memID, string $username, bool $return_error = false, bool $check_reserved_name = true): ?array
+	{
+		$errors = [];
+
+		// Don't use too long a name.
+		if (Utils::entityStrlen($username) > 25) {
+			$errors[] = ['lang', 'error_long_name'];
+		}
+
+		// No name?!  How can you register with no name?
+		if ($username == '') {
+			$errors[] = ['lang', 'need_username'];
+		}
+
+		// Only these characters are permitted.
+		if (
+			\in_array($username, ['_', '|'])
+			|| strpos($username, '[code') !== false
+			|| strpos($username, '[/code') !== false
+			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
+		) {
+			$errors[] = ['lang', 'error_invalid_characters_username'];
+		}
+
+		if (stristr($username, Lang::getTxt('guest_title', file: 'General')) !== false) {
+			$errors[] = ['lang', 'username_reserved', 'general', [Lang::getTxt('guest_title', file: 'General')]];
+		}
+
+		if ($check_reserved_name && self::isReservedName($username, $memID, false)) {
+			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::getTxt('name_in_use', file: 'General')];
+		}
+
+		// Maybe a mod wants to perform more checks?
+		IntegrationHook::call('integrate_validate_username', [$username, &$errors]);
+
+		if ($return_error) {
+			return $errors;
+		}
+
+		if (empty($errors)) {
+			return null;
+		}
+
+		$error = $errors[0];
+
+		ErrorHandler::fatal(
+			Lang::getTxt(
+				$error[1],
+				(array) ($error[3] ?? []),
+				file: 'Errors',
+			),
+			empty($error[2]) || User::$me->is_admin ? false : $error[2],
+		);
+	}
+
+	/**
+	 * Check if a name is in the reserved words list.
+	 * (name, current member id, name/username?.)
+	 * - checks if name is a reserved name or username.
+	 * - if is_name is false, the name is assumed to be a username.
+	 * - the current_id_member variable is used to ignore duplicate matches with
+	 *   the current member.
+	 *
+	 * @param string $name The name to check
+	 * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
+	 * @param bool $is_name Whether we're checking against reserved names or just usernames
+	 * @param bool $fatal Whether to die with a fatal error if the name is reserved
+	 * @return bool False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
+	 */
+	public static function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
+	{
+		$name = Utils::entityDecode($name);
+		$checkName = Utils::strtolower($name);
+
+		// Administrators are never restricted ;).
+		if (
+			!User::$me->allowedTo('moderate_forum')
+			&& (
+				(
+					!empty(Config::$modSettings['reserveName'])
+					&& $is_name
+				)
+				|| (
+					!empty(Config::$modSettings['reserveUser'])
+					&& !$is_name
+				)
+			)
+		) {
+			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
+				return true;
+			}
+
+			$censor_name = $name;
+
+			if (Lang::censorText($censor_name) != $name) {
+				if ($fatal) {
+					ErrorHandler::fatalLang('name_censored', 'password', [$name]);
+				}
+
+				return true;
+			}
+		}
+
+		// Characters we just shouldn't allow, regardless.
+		foreach (['*'] as $char) {
+			if (strpos($checkName, $char) !== false) {
+				if ($fatal) {
+					ErrorHandler::fatalLang('username_reserved', 'password', [$char]);
+				}
+
+				return true;
+			}
+		}
+
+		// Check for similar existing member names.
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member, $fatal)) {
+			return true;
+		}
+
+		// Does the name resemble a member group name?
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
+			return true;
+		}
+
+		// Okay, they passed.
+		$is_reserved = false;
+
+		// Maybe a mod wants to perform further checks?
+		IntegrationHook::call('integrate_check_name', [$checkName, &$is_reserved, $current_id_member, $is_name]);
+
+		return $is_reserved;
+	}
+
+	/**
+	 * Checks whether the given User is subject to any bans.
+	 *
+	 * Caches this information for optimization purposes.
+	 *
+	 * @param User $user An instance of SMF\User.
+	 * @param bool $force_check Whether to force a recheck.
+	 * @return array Info about any bans placed on this user.
+	 */
+	public static function checkBans(User $user, bool $force_check = false): array
+	{
+		$bans = [];
+
+		$restrictions = [
+			'cannot_access',
+			'cannot_login',
+			'cannot_post',
+			'cannot_register',
+		];
+
+		// You cannot be banned if you are an admin.
+		if ($user->is_admin) {
+			return $bans;
+		}
+
+		// Only check the ban every so often, to reduce load.
+		if (
+			!$force_check
+			&& ($_SESSION['ban']['last_checked'] ?? NAN) >= (Config::$modSettings['banLastUpdated'] ?? NAN)
+			&& ($_SESSION['ban']['id_member'] ?? NAN) == ($user->id ?? NAN)
+			&& ($_SESSION['ban']['ip'] ?? NAN) == ($user->ip ?? NAN)
+			&& ($_SESSION['ban']['ip2'] ?? NAN) == ($user->ip2 ?? NAN)
+			&& ($_SESSION['ban']['email'] ?? NAN) == ($user->email ?? NAN)
+		) {
+			foreach ($restrictions as $restriction) {
+				$bans[$restriction] = $_SESSION[$restriction];
+			}
+
+			return $bans;
+		}
+
+		// Innocent until proven guilty. (but we know you are! :P)
+		$ban_query = [];
+		$ban_query_vars = ['current_time' => time()];
+
+		// Check both IP addresses.
+		foreach (['ip', 'ip2'] as $ip_number) {
+			if (!isset($user->{$ip_number})) {
+				continue;
+			}
+
+			if ($ip_number == 'ip2' && $user->ip2 == $user->ip) {
+				continue;
+			}
+
+			$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
+			$ban_query_vars[$ip_number] = $user->{$ip_number};
+
+			// IP was valid, maybe there's also a hostname...
+			if (empty(Config::$modSettings['disableHostnameLookup']) && $user->{$ip_number} != 'unknown') {
+				$ip = new IP($user->{$ip_number});
+				$hostname = $ip->getHost();
+
+				if (\strlen($hostname) > 0) {
+					$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
+					$ban_query_vars['hostname' . $ip_number] = $hostname;
+				}
+			}
+		}
+
+		// Is their email address banned?
+		if (\strlen($user->email ?? '') > 0) {
+			$ban_query[] = '({string:email} LIKE bi.email_address)';
+			$ban_query_vars['email'] = $user->email;
+		}
+
+		// How about this user?
+		if (!empty($user->id)) {
+			$ban_query[] = 'bi.id_member = {int:id_member}';
+			$ban_query_vars['id_member'] = $user->id;
+		}
+
+		// Check the ban, if there's information.
+		if (!empty($ban_query)) {
+			// Store every type of ban that applies to you in your session.
+			$request = Db::$db->query(
+				'SELECT
+					bi.id_ban,
+					bi.email_address,
+					bi.id_member,
+					bg.cannot_access,
+					bg.cannot_register,
+					bg.cannot_post,
+					bg.cannot_login,
+					bg.reason,
+					COALESCE(bg.expire_time, 0) AS expire_time
+				FROM {db_prefix}ban_items AS bi
+					INNER JOIN {db_prefix}ban_groups AS bg ON (
+						bg.id_ban_group = bi.id_ban_group
+						AND (
+							bg.expire_time IS NULL
+							OR bg.expire_time > {int:current_time}
+						)
+					)
+				WHERE
+					(' . implode(' OR ', $ban_query) . ')',
+				$ban_query_vars,
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				foreach ($restrictions as $restriction) {
+					if (!empty($row[$restriction])) {
+						$bans[$restriction]['reason'] = $row['reason'];
+						$bans[$restriction]['ids'][] = $row['id_ban'];
+
+						if (!empty($row['id_member'])) {
+							$bans[$restriction]['id_member'] = $user->id;
+						}
+
+						if (!empty($row['email_address'])) {
+							$bans[$restriction]['email_address'] = $user->email;
+						}
+
+						$bans['expire_time'] = match (true) {
+							$row['expire_time'] == 0 => 0,
+							($bans['expire_time'] ?? 1) == 0 => 0,
+							default => max($row['expire_time'], $bans['expire_time'] ?? 0),
+						};
+					}
+				}
+			}
+			Db::$db->free_result($request);
+		}
+
+		// If this is the current user, remember for later.
+		if ($user->is_me) {
+			$_SESSION['ban'] = array_merge(
+				[
+					'last_checked' => time(),
+					'id_member' => $user->id,
+					'ip' => $user->ip,
+					'ip2' => $user->ip2,
+					'email' => $user->email,
+				],
+				$bans,
+			);
+		}
+
+		return $bans;
+	}
+
+	/**
 	 * Check if a specific confirm parameter was given.
 	 *
 	 * @param string $action The action we want to check against.
@@ -222,7 +517,13 @@ class Security
 	 */
 	public static function checkConfirm(string $action): bool|string
 	{
-		if (isset($_GET['confirm'], $_SESSION['confirm_' . $action])     && hash_hmac('md5', $_SERVER['HTTP_USER_AGENT'], $_GET['confirm']) == $_SESSION['confirm_' . $action]) {
+		if (
+			isset($_GET['confirm'], $_SESSION['confirm_' . $action])
+			&& hash_equals(
+				$_SESSION['confirm_' . $action],
+				hash_hmac('md5', $_SERVER['HTTP_USER_AGENT'], $_GET['confirm']),
+			)
+		) {
 			return true;
 		}
 

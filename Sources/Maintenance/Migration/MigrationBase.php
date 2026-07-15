@@ -64,7 +64,8 @@ class MigrationBase implements SubStepInterface
 	/**
 	 * Wrapper for the tool to handle timeout protection.
 	 *
-	 * If a timeout needs to occur, it is handled, ensure that prior to this call, all variables are updated..
+	 * @param ?int $start If set, the current start value will be set to this
+	 *    value before the timeout check itself occurs.
 	 */
 	protected function handleTimeout(?int $start = null): void
 	{
@@ -72,7 +73,16 @@ class MigrationBase implements SubStepInterface
 			Maintenance::setCurrentStart($start);
 		}
 
-		Maintenance::$tool->checkAndHandleTimeout();
+		Maintenance::$tool->checkAndHandleTimeout([
+			'name' => $this->name,
+			'completed' => false,
+			'substep' => Maintenance::getCurrentSubStep(),
+			'start' => Maintenance::getCurrentStart(),
+			'total' => Maintenance::$total_substeps,
+			'debug' => [
+				'call' => $this::class,
+			],
+		]);
 	}
 
 	/**

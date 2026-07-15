@@ -284,7 +284,7 @@ class ErrorHandlerService
 
 		// Don't log the same error countless times, as we can get in a cycle of depression...
 		$error_info = [
-			User::$me->id ?? User::$my_id ?? 0,
+			User::$me->id ?? 0,
 			time(),
 			User::$me->ip ?? IP::getUserIP(),
 			$request_url,

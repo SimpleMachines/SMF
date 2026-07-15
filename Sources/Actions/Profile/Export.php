@@ -147,7 +147,7 @@ class Export implements ActionInterface
 			$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 			// If requested by the user, delete any existing export files and background tasks.
-			if (isset($_POST['delete'], $_POST['format'])   && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken) {
+			if (isset($_POST['delete'], $_POST['format'])   && $_POST['format'] === $format && isset($_POST['t']) && hash_equals($dltoken, $_POST['t'])) {
 				Db::$db->query(
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE task_class = {string:class}
