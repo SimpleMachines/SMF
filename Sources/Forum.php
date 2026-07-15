@@ -562,7 +562,7 @@ class Forum
 		Security::corsPolicyHeader();
 
 		// Load the user's cookie (or set as guest) and load their settings.
-		User::load();
+		User::loadMe();
 
 		// Load the current board's information.
 		Board::load();
@@ -581,7 +581,7 @@ class Forum
 		}
 
 		// Check if the user should be disallowed access.
-		User::$me->kickIfBanned();
+		User::$me->enforceBans();
 	}
 
 	/**

@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Sapi;
 use SMF\Unicode\SpoofDetector;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -120,13 +121,14 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 				continue;
 			}
 
-			$updates[$row['id_member']] = ['spoofdetector_name' => $skeleton];
+			$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+			$member->name = $row['real_name'];
+
+			$updates[$member->id] = $member;
 		}
 		Db::$db->free_result($request);
 
-		foreach ($updates as $id_member => $data) {
-			User::updateMemberData($id_member, $data);
-		}
+		User::saveBatch($updates);
 
 		if ($this->_details['last_member_id'] < Config::$modSettings['latestMember']) {
 			$this->respawn($this->_details);

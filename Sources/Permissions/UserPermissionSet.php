@@ -210,7 +210,7 @@ class UserPermissionSet
 	public function applyBansAndWarnings(): void
 	{
 		// This only applies to the current user.
-		if ($this->user !== User::$me) {
+		if (!$this->user->is_me) {
 			return;
 		}
 

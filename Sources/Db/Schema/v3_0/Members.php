@@ -193,12 +193,6 @@ class Members extends Table
 				type: 'text',
 				not_null: true,
 			),
-			'time_offset' => new Column(
-				name: 'time_offset',
-				type: 'float',
-				not_null: true,
-				default: 0,
-			),
 			'avatar' => new Column(
 				name: 'avatar',
 				type: 'varchar',

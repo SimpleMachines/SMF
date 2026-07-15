@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\User;
+use SMF\UserDataset;
 
 /**
  * Base class for all background tasks.
@@ -105,20 +106,6 @@ abstract class BackgroundTask
 	abstract public function execute();
 
 	/**
-	 * Loads minimal info for the previously loaded user ids.
-	 *
-	 * @param array $user_ids
-	 * @throws \Exception
-	 * @return array
-	 */
-	public function getMinUserInfo(array $user_ids = []): array
-	{
-		$loaded_ids = array_map(fn($member) => $member->id, User::load($user_ids, User::LOAD_BY_ID, 'minimal'));
-
-		return array_intersect_key(User::$profiles, array_flip($loaded_ids));
-	}
-
-	/**
 	 * Determines whether it is safe to execute this task.
 	 *
 	 * @return bool Whether it is safe to execute the task.
@@ -134,6 +121,20 @@ abstract class BackgroundTask
 		}
 
 		return $can_execute;
+	}
+
+	/**
+	 * Loads the specified users with (at least) their minimal data.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
+	 *
+	 * @param array $user_ids
+	 * @throws \Exception
+	 * @return array
+	 */
+	public function getMinUserInfo(array $user_ids = []): array
+	{
+		return User::load($user_ids, User::LOAD_BY_ID, UserDataset::Minimal);
 	}
 
 	/******************

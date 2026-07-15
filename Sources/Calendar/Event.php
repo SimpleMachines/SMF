@@ -419,7 +419,7 @@ class Event implements \ArrayAccess
 			// Preparing default data to show in the calendar posting form.
 			case -1:
 				$this->id = $id;
-				$props['start'] = $props['start'] ?? new Time('now ' . User::getTimezone());
+				$props['start'] = $props['start'] ?? new Time('now ' . User::$me->timezone);
 				$props['duration'] = $props['duration'] ?? new TimeInterval('PT1H');
 				$props['member'] = $props['member'] ?? User::$me->id;
 				$props['name'] = $props['name'] ?? User::$me->name;
@@ -1968,7 +1968,7 @@ class Event implements \ArrayAccess
 					$props['start'] = new Time($matches[1] . ($matches[2] === 'Z' ? ' UTC' : ''));
 					$props['allday'] = false;
 				} elseif (preg_match('/:(\d+)/', $line, $matches)) {
-					$props['start'] = new Time($matches[1] . ' ' . User::getTimezone());
+					$props['start'] = new Time($matches[1] . ' ' . User::$me->timezone);
 					$props['allday'] = true;
 				}
 			}
@@ -1979,7 +1979,7 @@ class Event implements \ArrayAccess
 				} elseif (preg_match('/:(\d+T\d+)(Z?)/', $line, $matches)) {
 					$end = new Time($matches[1] . ($matches[2] === 'Z' ? ' UTC' : ''));
 				} elseif (preg_match('/:(\d+)/', $line, $matches)) {
-					$end = new Time($matches[1] . ' ' . User::getTimezone());
+					$end = new Time($matches[1] . ' ' . User::$me->timezone);
 				}
 
 				$props['duration'] = TimeInterval::createFromDateInterval($props['start']->diff($end));
@@ -2532,7 +2532,7 @@ class Event implements \ArrayAccess
 			$row['allday'] = !isset($row['start_time']) || !isset($row['timezone']) || !\in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 
 			// Replace start time and date scalars with a Time object.
-			$row['start'] = new Time($row['start_date'] . (!$row['allday'] ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ' ' . User::getTimezone()));
+			$row['start'] = new Time($row['start_date'] . (!$row['allday'] ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ' ' . User::$me->timezone));
 			unset($row['start_date'], $row['start_time'], $row['timezone']);
 
 			// Replace duration string with a TimeInterval object.
@@ -2583,7 +2583,7 @@ class Event implements \ArrayAccess
 		$input['allday'] = !empty($input['allday']);
 
 		if (!isset($input['timezone']) || ($tz = @timezone_open($input['timezone'])) === false) {
-			$tz = timezone_open(User::getTimezone());
+			$tz = timezone_open(User::$me->timezone);
 		}
 
 		$input['timezone'] = $tz->getName();

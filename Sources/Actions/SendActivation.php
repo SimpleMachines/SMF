@@ -42,7 +42,7 @@ class SendActivation implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		User::$me->is_guest = true;
+		User::$me->id = 0;
 
 		// Send them to the done-with-registration-login screen.
 		Theme::loadTemplate('Register');

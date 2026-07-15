@@ -404,7 +404,7 @@ class MessageFormatter
 					if ($args[$arg_name] instanceof \DateTimeInterface) {
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
-						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::$me->timezone);
 					} elseif (\is_string($args[$arg_name])) {
 						$args[$arg_name] = date_create($args[$arg_name]);
 
@@ -450,7 +450,7 @@ class MessageFormatter
 					if ($args[$arg_name] instanceof \DateTimeInterface) {
 						$args[$arg_name] = Time::createFromInterface($args[$arg_name]);
 					} elseif (is_numeric($args[$arg_name])) {
-						$args[$arg_name] = new Time('@' . $args[$arg_name], User::getTimezone());
+						$args[$arg_name] = new Time('@' . $args[$arg_name], User::$me->timezone);
 					} elseif (\is_string($args[$arg_name])) {
 						$args[$arg_name] = date_create($args[$arg_name]);
 

@@ -1499,7 +1499,6 @@ class Features implements ActionInterface
 	public function alerts(): void
 	{
 		// Dummy settings for the template...
-		User::$me->is_owner = false;
 		Utils::$context['member'] = [];
 		Utils::$context['id_member'] = 0;
 		Utils::$context['menu_item_selected'] = 'alerts';
@@ -1510,7 +1509,7 @@ class Features implements ActionInterface
 
 		Theme::loadTemplate('Profile');
 
-		Profile::load(0);
+		Profile::loadMember(0);
 		Notification::call();
 
 		Utils::$context['page_title'] = Lang::getTxt('notify_settings', file: 'Admin');

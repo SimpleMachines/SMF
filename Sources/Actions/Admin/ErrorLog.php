@@ -29,6 +29,7 @@ use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -321,7 +322,7 @@ class ErrorLog implements ActionInterface
 			if ($this->filter['variable'] == 'id_member') {
 				$id = $this->filter['value']['sql'];
 
-				User::load($id, User::LOAD_BY_ID, 'minimal');
+				User::load($id, User::LOAD_BY_ID, UserDataset::Minimal);
 
 				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::getTxt('guest', file: 'General')) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {

@@ -50,9 +50,7 @@ class IgnoreBoards implements ActionInterface
 		Utils::$context['categories'] = MessageIndex::getBoardList([
 			'use_permissions' => true,
 			'not_redirection' => true,
-			'selected_boards' => !empty(Profile::$member->data['ignore_boards'])
-				? explode(',', Profile::$member->data['ignore_boards'])
-				: [],
+			'selected_boards' => Profile::$member->ignoreboards ?? [],
 		]);
 
 		// Now, let's sort the list of categories into the boards for templates that like that.
@@ -100,7 +98,7 @@ class IgnoreBoards implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 	}
 }

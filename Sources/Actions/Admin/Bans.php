@@ -34,6 +34,7 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -1129,9 +1130,16 @@ class Bans implements ActionInterface
 		Db::$db->free_result($request);
 
 		if (!empty($updates)) {
-			foreach ($updates as $newStatus => $members) {
-				User::updateMemberData($members, ['is_activated' => $newStatus]);
+			$members = [];
+
+			foreach ($updates as $newStatus => $ids) {
+				foreach (User::load($ids, dataset: UserDataset::None) as $member) {
+					$member->is_activated = $newStatus;
+					$members[] = $member;
+				}
 			}
+
+			User::saveBatch($members);
 		}
 
 		// Update the latest member and our total members as banning may change them.

@@ -121,7 +121,7 @@ class ExportAttachment implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 
 		$this->idhash = hash_hmac('sha1', (string) Profile::$member->id, Config::getAuthSecret());

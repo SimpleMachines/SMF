@@ -90,9 +90,11 @@ class Profile extends User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Profile data about the user whose profile is being viewed.
+	 * Raw profile data about the user whose profile is being viewed.
 	 *
-	 * This is a reference to User::$profiles[$this->id].
+	 * In SMF 3.0, this is a reference to User::$profiles[$this->id], but that
+	 * should be regarded as an implementation detail and may change in future
+	 * versions of SMF.
 	 */
 	public array $data = [];
 
@@ -147,13 +149,6 @@ class Profile extends User implements \ArrayAccess
 	 * All loaded instances of this class.
 	 */
 	public static array $loaded = [];
-
-	/**
-	 * @var int
-	 *
-	 * ID of the member whose profile is being viewed.
-	 */
-	public static int $memID;
 
 	/**
 	 * @var self
@@ -270,6 +265,32 @@ class Profile extends User implements \ArrayAccess
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * Constructor.
+	 *
+	 * @param int $id The ID number of the user.
+	 */
+	public function __construct(int $id)
+	{
+		$this->id = $id;
+
+		self::$loaded[$this->id] = $this;
+
+		if (
+			empty(parent::$profiles[$id])
+			|| !parent::$profiles[$id]['dataset']->includes(UserDataset::Profile)
+		) {
+			parent::loadUserData((array) $id, parent::LOAD_BY_ID, UserDataset::Profile);
+		}
+
+		$this->setProperties();
+
+		$this->data = &parent::$profiles[$this->id];
+
+		// Create the slug for this member.
+		Slug::create($this->name, 'member', $this->id);
+	}
 
 	/**
 	 * This defines every profile field known to man.
@@ -412,10 +433,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'email_address' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
 				'label' => Lang::getTxt('user_email_address', file: 'General'),
 				'subtext' => Lang::getTxt('valid_email', file: 'General'),
-				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
+				'postinput' => !$this->is_me && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -508,7 +529,7 @@ class Profile extends User implements \ArrayAccess
 					Lang::get();
 
 					if (isset(Utils::$context['languages'][$value])) {
-						if (User::$me->is_owner && empty(Utils::$context['password_auth_failed'])) {
+						if ($this->is_me && empty(Utils::$context['password_auth_failed'])) {
 							$_SESSION['language'] = $value;
 						}
 
@@ -547,12 +568,14 @@ class Profile extends User implements \ArrayAccess
 						if ($reset_password) {
 							$this->resetPassword($value);
 						} elseif ($value !== null) {
-							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
+							Security::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
-							User::updateMemberData($this->id, ['member_name' => $value]);
+							$old_username = $this->username;
+							$this->username = $value;
+							parent::save();
 
 							// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
-							IntegrationHook::call('integrate_reset_pass', [$this->username, $value, $_POST['passwrd1']]);
+							IntegrationHook::call('integrate_reset_pass', [$old_username, $value, $_POST['passwrd1']]);
 						}
 					}
 
@@ -560,10 +583,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd1' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
 				'label' => Lang::getTxt('choose_pass', file: 'General'),
 				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
-				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
+				'postinput' => !$this->is_me && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -595,7 +618,7 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd2' => [
-				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
+				'type' => $this->is_me || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
 				'label' => Lang::getTxt('verify_pass', file: 'General'),
 				'size' => 20,
 				'value' => '',
@@ -679,7 +702,7 @@ class Profile extends User implements \ArrayAccess
 						return 'name_too_long';
 					}
 
-					if ($this->name != $value && User::isReservedName($value, $this->id)) {
+					if ($this->name != $value && Security::isReservedName($value, $this->id)) {
 						return 'name_taken';
 					}
 
@@ -819,7 +842,7 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['allow_no_censored'] = false;
 
-					if (User::$me->is_admin || User::$me->is_owner) {
+					if (User::$me->is_admin || $this->is_me) {
 						Utils::$context['allow_no_censored'] = !empty(Config::$modSettings['allow_no_censored']);
 					}
 
@@ -869,7 +892,7 @@ class Profile extends User implements \ArrayAccess
 						],
 					];
 
-					Utils::$context['member']['time_format'] = $this->time_format;
+					Utils::$context['member']['time_format'] = $this->real_time_format;
 
 					$now = new Time('now', Config::$modSettings['default_timezone']);
 
@@ -963,7 +986,7 @@ class Profile extends User implements \ArrayAccess
 					fn($p) => $p->name,
 					array_filter(
 						Permission::getByGenericName($field['permission']),
-						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+						fn($p) => $p->own_any !== 'own' || $this->is_me,
 					),
 				);
 
@@ -1013,7 +1036,7 @@ class Profile extends User implements \ArrayAccess
 
 			// Check the privacy level for this field.
 			if ($area !== 'register' && !User::$me->allowedTo('admin_forum')) {
-				if ($cf_def['private'] >= (User::$me->is_owner ? 3 : 2)) {
+				if ($cf_def['private'] >= ($this->is_me ? 3 : 2)) {
 					continue;
 				}
 
@@ -1458,7 +1481,7 @@ class Profile extends User implements \ArrayAccess
 	public function save(): void
 	{
 		// General-purpose permission for anything that doesn't have its own.
-		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
+		$this->can_change_extra = User::$me->allowedTo($this->is_me ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
 
 		// The applicator is the same as the member affected if we are registering a new member.
 		$this->applicator = empty(User::$me->id) && ($_REQUEST['sa'] ?? null) === 'register' ? $this->id : User::$me->id;
@@ -1473,8 +1496,8 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
-			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
+		if ($this->is_me && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
+			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', $this->id];
 		}
 
 		$this->prepareToSaveStandardFields();
@@ -1484,7 +1507,16 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area ?? null]);
+		IntegrationHook::call(
+			'integrate_profile_save',
+			[
+				&$this->new_data,
+				&$this->save_errors,
+				$this->id,
+				$this->data,
+				Menu::$loaded['profile']->current_area ?? null,
+			],
+		);
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
@@ -1500,7 +1532,17 @@ class Profile extends User implements \ArrayAccess
 				IntegrationHook::call('integrate_reset_pass', [$this->username, $this->username, $_POST['passwrd2']]);
 			}
 
-			parent::updateMemberData($this->id, $this->new_data);
+			// Update the raw profile data.
+			foreach ($this->new_data as $key => $value) {
+				// Reminder: $this->data is a reference to parent::$profiles[$this->id]
+				$this->data[$key] = $value;
+			}
+
+			// Update the properties of this object.
+			$this->setProperties(reset: true);
+
+			// Save the new values to the database.
+			parent::save();
 		}
 
 		// Make any updates to custom fields and theme options.
@@ -1577,7 +1619,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
+		Utils::$context['profile_updated'] = Lang::getTxt($this->is_me ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
@@ -1685,7 +1727,7 @@ class Profile extends User implements \ArrayAccess
 
 		// If we are changing group status, update permission cache as necessary.
 		if ($value != $this->data['id_group'] || isset($this->new_data['additional_groups'])) {
-			if (User::$me->is_owner) {
+			if ($this->is_me) {
 				$_SESSION['mc']['time'] = 0;
 			} else {
 				Config::updateModSettings(['settings_updated' => time()]);
@@ -1768,38 +1810,90 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string|null $dataset Ignored.
-	 * @return array The IDs of the loaded members.
+	 * @param UserDataset $dataset Ignored. Any value passed to this parameter
+	 *    will be overwritten with UserDataset::Profile.
+	 * @return array Instances of this class for the loaded members.
 	 */
-	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?UserDataset $dataset = UserDataset::Normal): array
 	{
 		$users = (array) $users;
 
+		$loaded = [];
+
 		if (empty($users)) {
+			return $loaded;
+		}
+
+		foreach (parent::loadUserData($users, $type, UserDataset::Profile) as $id) {
+			if (!isset(self::$loaded[$id])) {
+				new self($id);
+			}
+
+			$loaded[] = self::$loaded[$id];
+		}
+
+		return $loaded;
+	}
+
+	/**
+	 * Loads the profile for the member whose profile page is being viewed.
+	 *
+	 * The loaded profile is assigned to Profile::$member and also returned.
+	 *
+	 * It is possible to specify the member ID manually using the $id parameter,
+	 * but in typical use cases it is better to leave that parameter as null so
+	 * that the correct value can be determined from the URL query parameters.
+	 *
+	 * @param ?int $id A member ID. If null, will be determined automatically.
+	 *    Default: null.
+	 * @return self An instance of this class for the requested member.
+	 */
+	public static function loadMember(?int $id = null): self
+	{
+		if (!isset(self::$member) || (isset($id) && self::$member->id !== $id)) {
+			if (isset($id)) {
+				$user = $id;
+				$type = self::LOAD_BY_ID;
+			}
 			// Did we get the user by name...
-			if (isset($_REQUEST['user'])) {
-				$users = (array) $_REQUEST['user'];
+			elseif (isset($_REQUEST['user'])) {
+				$user = $_REQUEST['user'];
 				$type = self::LOAD_BY_NAME;
 			}
 			// ... or by id_member?
 			elseif (!empty($_REQUEST['u'])) {
-				$users = array_map('intval', (array) $_REQUEST['u']);
+				$user = (int) $_REQUEST['u'];
+				$type = self::LOAD_BY_ID;
 			}
 			// If it was just ?action=profile, edit your own profile, but only if you're not a guest.
 			else {
 				// Members only...
 				User::$me->kickIfGuest();
-				$users = [User::$me->id];
+				$user = User::$me->id;
+				$type = self::LOAD_BY_ID;
 			}
+
+			$loaded = self::load($user, $type, UserDataset::Profile);
+
+			if (empty($loaded)) {
+				ErrorHandler::fatalLang('not_a_user', false);
+			}
+
+			self::$member = current($loaded);
+
+			// Let's have some information about this member ready, too.
+			self::$member->format();
+			Utils::$context['member'] = &self::$member->formatted;
+			Utils::$context['id_member'] = self::$member->id;
+
+			// Backward compatibility.
+			self::$cur_profile = &self::$member->data;
+			self::$profile_fields = &self::$member->standard_fields;
+			self::$profile_vars = &self::$member->new_data;
+			self::$post_errors = &self::$member->save_errors;
 		}
 
-		$loaded_ids = parent::loadUserData($users, $type, 'profile');
-
-		foreach (array_diff($loaded_ids, array_keys(self::$loaded)) as $id) {
-			new self($id);
-		}
-
-		return $loaded_ids;
+		return self::$member;
 	}
 
 	/**
@@ -2066,42 +2160,6 @@ class Profile extends User implements \ArrayAccess
 	 ******************/
 
 	/**
-	 * Constructor. Protected in order to force instantiation via self::load().
-	 *
-	 * @param int $id The ID number of the user.
-	 */
-	protected function __construct(int $id)
-	{
-		parent::__construct($id, 'profile');
-
-		self::$loaded[$this->id] = $this;
-
-		if (empty(self::$member->id)) {
-			self::$member = $this;
-			self::$memID = $this->id;
-		}
-
-		$this->data = &parent::$profiles[$this->id];
-
-		// Let's have some information about this member ready, too.
-		$this->format();
-		Utils::$context['member'] = &$this->formatted;
-		Utils::$context['id_member'] = $id;
-
-		// Is this the profile of the user himself or herself?
-		parent::$me->is_owner = $this->id === parent::$me->id;
-
-		// Create the slug for this member.
-		Slug::create($this->name, 'member', $this->id);
-
-		// Backward compatibility.
-		self::$cur_profile = &self::$member->data;
-		self::$profile_fields = &$this->standard_fields;
-		self::$profile_vars = &$this->new_data;
-		self::$post_errors = &$this->save_errors;
-	}
-
-	/**
 	 * Sanitizes and validates input for any changes to the standard fields.
 	 */
 	protected function prepareToSaveStandardFields(): void
@@ -2170,10 +2228,6 @@ class Profile extends User implements \ArrayAccess
 				// And update the user profile.
 				$this->data[$key] = $this->new_data[$db_key];
 			}
-		}
-
-		if (!empty($this->new_data['real_name'])) {
-			$this->new_data['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($this->new_data['real_name'], ENT_QUOTES)));
 		}
 	}
 
@@ -2249,7 +2303,7 @@ class Profile extends User implements \ArrayAccess
 			// Check the privacy level for this field.
 			if ($area !== 'register' && !User::$me->allowedTo('admin_forum')) {
 				// If not the admin or the owner, cannot modify.
-				if (!User::$me->is_owner) {
+				if (!$this->is_me) {
 					continue;
 				}
 
@@ -2370,7 +2424,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// The true in the hook params replaces an obsolete $returnErrors variable.
-		// The !self::$member->post_sanitized replaces an obsolete $sanitize variable.
+		// The !$this->post_sanitized replaces an obsolete $sanitize variable.
 		$hook_errors = IntegrationHook::call('integrate_save_custom_profile_fields', [
 			&$this->new_cf_data['updates'],
 			&$this->log_changes,
@@ -2378,7 +2432,7 @@ class Profile extends User implements \ArrayAccess
 			true,
 			$this->id,
 			$area,
-			!self::$member->post_sanitized,
+			!$this->post_sanitized,
 			&$deletes,
 		]);
 
@@ -2449,7 +2503,7 @@ class Profile extends User implements \ArrayAccess
 				}
 
 				// Only let admins and owners change the censor.
-				if ($opt == 'allow_no_censored' && !User::$me->is_admin && !User::$me->is_owner) {
+				if ($opt == 'allow_no_censored' && !User::$me->is_admin && !$this->is_me) {
 					continue;
 				}
 
@@ -2861,7 +2915,7 @@ class Profile extends User implements \ArrayAccess
 		];
 
 		// Send off the email.
-		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$this->id]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : User::$profiles[$this->id]['lngfile']);
+		$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, $this->language ?? Config::$language);
 
 		Mail::send($this->new_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 
@@ -2907,16 +2961,18 @@ class Profile extends User implements \ArrayAccess
 		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.
-		if ($username !== null) {
-			User::validateUsername($this->id, $username);
+		$old_username = $this->username;
 
-			// Update the database...
-			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);
-		} else {
-			User::updateMemberData($this->id, ['passwd' => $new_password_hashed]);
+		if ($username !== null) {
+			Security::validateUsername($this->id, $username);
 		}
 
-		IntegrationHook::call('integrate_reset_pass', [$this->username, $username, $new_password]);
+		// Update the database...
+		$this->username = $username ?? $old_username;
+		$this->passwd = $new_password_hashed;
+		parent::save();
+
+		IntegrationHook::call('integrate_reset_pass', [$old_username, $username, $new_password]);
 
 		$replacements = [
 			'USERNAME' => $username,
@@ -2942,7 +2998,7 @@ class Profile extends User implements \ArrayAccess
 			Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
 		}
 
-		User::reload($memID, 'profile');
+		User::reload($memID, UserDataset::Profile);
 
 		User::$me->logOnline();
 	}

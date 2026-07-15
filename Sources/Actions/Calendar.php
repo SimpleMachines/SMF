@@ -197,7 +197,7 @@ class Calendar implements ActionInterface, Routable
 		$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
 		$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
-		$start_object = checkdate($month, $day, $year) === true ? new Time(implode('-', [$year, $month, $day]) . ' ' . User::getTimezone()) : new Time(implode('-', [$today['year'], $today['month'], $today['day']]) . ' ' . User::getTimezone());
+		$start_object = checkdate($month, $day, $year) === true ? new Time(implode('-', [$year, $month, $day]) . ' ' . User::$me->timezone) : new Time(implode('-', [$today['year'], $today['month'], $today['day']]) . ' ' . User::$me->timezone);
 
 		// Need an end date for the list view
 		if (!empty($_REQUEST['end_date'])) {
@@ -216,13 +216,13 @@ class Calendar implements ActionInterface, Routable
 		$end_object = null;
 
 		if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year)) {
-			$end_object = new Time(implode('-', [$end_year, $end_month, $end_day]) . ' ' . User::getTimezone());
+			$end_object = new Time(implode('-', [$end_year, $end_month, $end_day]) . ' ' . User::$me->timezone);
 		}
 
 		if (empty($end_object) || $start_object >= $end_object) {
 			$num_days_shown = empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'];
 
-			$end_object = new Time($start_object->format('Y-m-d') . ' ' . User::getTimezone());
+			$end_object = new Time($start_object->format('Y-m-d') . ' ' . User::$me->timezone);
 
 			date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
 		}
@@ -555,7 +555,7 @@ class Calendar implements ActionInterface, Routable
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday) {
 			$now = Time::create('now');
-			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->tz = User::$me->timezone;
 			Utils::$context['event']->selected_occurrence->start->modify($now->format('H:i:s'));
 			Utils::$context['event']->selected_occurrence->duration = new TimeInterval('PT' . ($now->format('H') < 23 ? '1H' : (59 - $now->format('i')) . 'M'));
 		}
@@ -868,7 +868,7 @@ class Calendar implements ActionInterface, Routable
 		$occurrences = [];
 
 		$one_day = new \DateInterval('P1D');
-		$tz = TimeZone::create(User::getTimezone());
+		$tz = TimeZone::create(User::$me->timezone);
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
 		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {
@@ -979,7 +979,7 @@ class Calendar implements ActionInterface, Routable
 		// Linking an event counts as modifying the first post.
 		Topic::load();
 
-		$perm = User::$me->started ? ['modify_own', 'modify_any'] : 'modify_any';
+		$perm = Topic::$info->started_by_me ? ['modify_own', 'modify_any'] : 'modify_any';
 
 		if (!User::$me->allowedTo($perm, Topic::$info->id_board, true)) {
 			if ($trigger_error) {
@@ -1002,10 +1002,10 @@ class Calendar implements ActionInterface, Routable
 	public static function getTodayInfo(): array
 	{
 		return [
-			'day' => (int) Time::strftime('%d', time(), User::getTimezone()),
-			'month' => (int) Time::strftime('%m', time(), User::getTimezone()),
-			'year' => (int) Time::strftime('%Y', time(), User::getTimezone()),
-			'date' => Time::strftime('%Y-%m-%d', time(), User::getTimezone()),
+			'day' => (int) Time::strftime('%d', time(), User::$me->timezone),
+			'month' => (int) Time::strftime('%m', time(), User::$me->timezone),
+			'year' => (int) Time::strftime('%Y', time(), User::$me->timezone),
+			'date' => Time::strftime('%Y-%m-%d', time(), User::$me->timezone),
 		];
 	}
 
@@ -1019,12 +1019,12 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public static function getCalendarGrid(string $selected_date, array $calendarOptions, bool $is_previous = false): array
 	{
-		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
+		$selected_object = new Time($selected_date . ' ' . User::$me->timezone);
 
-		$next_object = new Time($selected_date . ' ' . User::getTimezone());
+		$next_object = new Time($selected_date . ' ' . User::$me->timezone);
 		$next_object->modify('first day of next month');
 
-		$prev_object = new Time($selected_date . ' ' . User::getTimezone());
+		$prev_object = new Time($selected_date . ' ' . User::$me->timezone);
 		$prev_object->modify('first day of previous month');
 
 		// Eventually this is what we'll be returning.
@@ -1059,8 +1059,8 @@ class Calendar implements ActionInterface, Routable
 		// Get today's date.
 		$today = self::getTodayInfo();
 
-		$first_day_object = new Time($selected_object->format('Y-m-01') . ' ' . User::getTimezone());
-		$last_day_object = new Time($selected_object->format('Y-m-t') . ' ' . User::getTimezone());
+		$first_day_object = new Time($selected_object->format('Y-m-01') . ' ' . User::$me->timezone);
+		$last_day_object = new Time($selected_object->format('Y-m-t') . ' ' . User::$me->timezone);
 
 		// Get information about this month.
 		$month_info = [
@@ -1073,8 +1073,8 @@ class Calendar implements ActionInterface, Routable
 				'day_of_month' => $last_day_object->format('t'),
 				'date' => $last_day_object->format('Y-m-d'),
 			],
-			'first_day_of_year' => Time::create($selected_object->format('Y-01-01') . ' ' . User::getTimezone())->format('w'),
-			'first_day_of_next_year' => Time::create(($selected_object->format('Y') + 1) . '-01-01' . ' ' . User::getTimezone())->format('w'),
+			'first_day_of_year' => Time::create($selected_object->format('Y-01-01') . ' ' . User::$me->timezone)->format('w'),
+			'first_day_of_next_year' => Time::create(($selected_object->format('Y') + 1) . '-01-01' . ' ' . User::$me->timezone)->format('w'),
 		];
 
 		// The number of days the first row is shifted to the right for the starting day.
@@ -1172,7 +1172,7 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public static function getCalendarWeek(string $selected_date, array $calendarOptions): array
 	{
-		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
+		$selected_object = new Time($selected_date . ' ' . User::$me->timezone);
 
 		// Get today's date.
 		$today = self::getTodayInfo();
@@ -1181,7 +1181,7 @@ class Calendar implements ActionInterface, Routable
 		$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 
 		$day_of_week = $selected_object->format('w');
-		$first_day_object = new Time($selected_date . ' ' . User::getTimezone());
+		$first_day_object = new Time($selected_date . ' ' . User::$me->timezone);
 
 		if ($day_of_week != $calendarOptions['start_day']) {
 			// Here we offset accordingly to get things to the real start of a week.
@@ -1194,17 +1194,17 @@ class Calendar implements ActionInterface, Routable
 			date_sub($first_day_object, date_interval_create_from_date_string($date_diff . ' days'));
 		}
 
-		$last_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::getTimezone());
+		$last_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::$me->timezone);
 		date_add($last_day_object, date_interval_create_from_date_string('1 week'));
 
 		$month = $first_day_object->format('n');
 		$year = $first_day_object->format('Y');
 		$day = $first_day_object->format('d');
 
-		$next_object = new Time($selected_date . ' ' . User::getTimezone());
+		$next_object = new Time($selected_date . ' ' . User::$me->timezone);
 		date_add($next_object, date_interval_create_from_date_string('1 week'));
 
-		$prev_object = new Time($selected_date . ' ' . User::getTimezone());
+		$prev_object = new Time($selected_date . ' ' . User::$me->timezone);
 		date_sub($prev_object, date_interval_create_from_date_string('1 week'));
 
 		// Now start filling in the calendar grid.
@@ -1241,7 +1241,7 @@ class Calendar implements ActionInterface, Routable
 		// This holds all the main data - there is at least one month!
 		$calendarGrid['months'] = [];
 
-		$current_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::getTimezone());
+		$current_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::$me->timezone);
 
 		for ($i = 0; $i < 7; $i++) {
 			$current_month = $current_day_object->format('n');
@@ -1288,8 +1288,8 @@ class Calendar implements ActionInterface, Routable
 	public static function getCalendarList(string $start_date, string $end_date, array $calendarOptions): array
 	{
 		// DateTime objects make life easier
-		$start_object = new Time($start_date . ' ' . User::getTimezone());
-		$end_object = new Time($end_date . ' ' . User::getTimezone());
+		$start_object = new Time($start_date . ' ' . User::$me->timezone);
+		$end_object = new Time($end_date . ' ' . User::$me->timezone);
 
 		$calendarGrid = [
 			'start_date' => $start_object->format(Time::getDateFormat()),
@@ -1511,7 +1511,10 @@ class Calendar implements ActionInterface, Routable
 		foreach ($cache_block['data']['calendar_events'] as $k => $event) {
 			// Remove events that the user may not see or wants to ignore.
 			if (
-				\in_array($event->id_board, User::$me->ignoreboards)
+				(
+					!empty(Config::$modSettings['allow_ignore_boards'])
+					&& \in_array($event->id_board, User::$me->ignoreboards)
+				)
 				|| (
 					\count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
 					&& !User::$me->allowedTo('admin_forum')

@@ -88,6 +88,25 @@ class Topic implements \ArrayAccess, Routable
 	public int $id_member_started;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether this topic was started by the current user.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 */
+	public bool $started_by_me {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => !empty($this->id_member_started) && $this->id_member_started === User::$me?->id;`
+		&get {
+			$this->started_by_me = !empty($this->id_member_started) && $this->id_member_started === User::$me?->id;
+
+			return $this->started_by_me;
+		}
+	}
+
+	/**
 	 * @var int
 	 *
 	 * ID number of the user who most recently replied to this topic.
@@ -595,7 +614,7 @@ class Topic implements \ArrayAccess, Routable
 		}
 
 		foreach (self::$anyown_permissions as $contextual => $perm) {
-			$this->permissions[$contextual] = User::$me->allowedTo($perm . '_any') || (User::$me->started && User::$me->allowedTo($perm . '_own'));
+			$this->permissions[$contextual] = User::$me->allowedTo($perm . '_any') || ($this->started_by_me && User::$me->allowedTo($perm . '_own'));
 		}
 
 		if (!User::$me->is_admin && $this->permissions['can_move'] && !Config::$modSettings['topic_move_any']) {
@@ -608,12 +627,12 @@ class Topic implements \ArrayAccess, Routable
 
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
 		if ($this->is_locked) {
-			$this->permissions['can_delete'] &= (($this->is_locked == 1 && User::$me->started) || User::$me->allowedTo('lock_any'));
+			$this->permissions['can_delete'] &= (($this->is_locked == 1 && $this->started_by_me) || User::$me->allowedTo('lock_any'));
 		}
 
 		// Cleanup all the permissions with extra stuff...
 		$this->permissions['can_mark_notify'] = !User::$me->is_guest;
-		$this->permissions['calendar_post'] &= !empty(Config::$modSettings['cal_enabled']) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && User::$me->started));
+		$this->permissions['calendar_post'] &= !empty(Config::$modSettings['cal_enabled']) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && $this->started_by_me));
 		$this->permissions['can_add_poll'] &= Config::$modSettings['pollMode'] == '1' && $this->id_poll <= 0;
 		$this->permissions['can_remove_poll'] &= Config::$modSettings['pollMode'] == '1' && $this->id_poll > 0;
 		$this->permissions['can_reply'] &= empty($this->is_locked) || User::$me->allowedTo('moderate_board');
@@ -631,7 +650,7 @@ class Topic implements \ArrayAccess, Routable
 		$this->permissions['can_print'] = empty(Config::$modSettings['disable_print_topic']);
 
 		// Start this off for quick moderation - it will be or'd for each post.
-		$this->permissions['can_remove_post'] = User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && User::$me->started);
+		$this->permissions['can_remove_post'] = User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && $this->started_by_me);
 
 		// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
 		$this->permissions['can_restore_topic'] &= !empty(Board::$info->recycle) && !empty($this->id_previous_board);
@@ -642,7 +661,7 @@ class Topic implements \ArrayAccess, Routable
 		$this->permissions['drafts_autosave'] = !empty($this->permissions['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// They can't link an existing topic to the calendar unless they can modify the first post...
-		$this->permissions['calendar_post'] &= User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && User::$me->started);
+		$this->permissions['calendar_post'] &= User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && $this->started_by_me);
 
 		// For convenience, return the permissions array.
 		return $this->permissions;
@@ -1489,7 +1508,9 @@ class Topic implements \ArrayAccess, Routable
 
 		// Decrease the post counts.
 		if ($decreasePostCount) {
-			$requestMembers = Db::$db->query(
+			$adjustments = [];
+
+			$request = Db::$db->query(
 				'SELECT m.id_member, COUNT(*) AS posts
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1506,12 +1527,22 @@ class Topic implements \ArrayAccess, Routable
 				],
 			);
 
-			if (Db::$db->num_rows($requestMembers) > 0) {
-				while ($rowMembers = Db::$db->fetch_assoc($requestMembers)) {
-					User::updateMemberData((int) $rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
+			if (Db::$db->num_rows($request) > 0) {
+				while ($row = Db::$db->fetch_assoc($request)) {
+					$adjustments[(int) $row['id_member']] = $row['posts'];
 				}
 			}
-			Db::$db->free_result($requestMembers);
+
+			Db::$db->free_result($request);
+
+			$members = User::load(array_keys($adjustments), dataset: UserDataset::Minimal);
+
+			foreach ($members as $member) {
+				$member->posts -= $adjustments[$member->id];
+				$member->posts = max(0, $member->posts);
+			}
+
+			User::saveBatch($members);
 		}
 
 		// Recycle topics that aren't in the recycle board...
@@ -1973,11 +2004,6 @@ class Topic implements \ArrayAccess, Routable
 			$this->total_visible_posts = $this->num_replies + ($this->is_approved ? 1 : 0);
 		} else {
 			$this->total_visible_posts = $this->num_replies + $this->unapproved_posts + ($this->is_approved ? 1 : 0);
-		}
-
-		// Did this user start the topic or not?
-		if (isset(User::$me)) {
-			User::$me->started = User::$me->id == $this->id_member_started && !User::$me->is_guest;
 		}
 	}
 }

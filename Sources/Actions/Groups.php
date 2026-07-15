@@ -30,6 +30,7 @@ use SMF\SecurityToken;
 use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -299,7 +300,7 @@ class Groups implements ActionInterface, Routable
 		Utils::$context['members'] = [];
 
 		if ($group->loadMembers() !== []) {
-			foreach (User::load($group->members, User::LOAD_BY_ID, 'normal') as $member) {
+			foreach (User::load($group->members, User::LOAD_BY_ID, UserDataset::Normal) as $member) {
 				Utils::$context['members'][] = $member->format();
 			}
 		}

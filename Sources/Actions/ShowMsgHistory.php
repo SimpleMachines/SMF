@@ -81,7 +81,7 @@ class ShowMsgHistory implements ActionInterface, Routable
 			for ($i = 0; $i < \count($msg->edit_history); $i++) {
 				$diff = $msg->edit_history[$i];
 
-				Utils::$context['page_title'] = strip_tags($msg->subject . ' - ' . (new Time($diff->time1))->setTimezone(User::getTimezone())->format());
+				Utils::$context['page_title'] = strip_tags($msg->subject . ' - ' . (new Time($diff->time1))->setTimezone(User::$me->timezone)->format());
 
 				// Uh-oh. The edit history got corrupted somehow.
 				if ($hash !== $diff->label1) {

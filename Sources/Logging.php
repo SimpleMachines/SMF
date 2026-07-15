@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
-use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -192,6 +191,57 @@ class Logging
 	}
 
 	/**
+	 * Logs a ban in the database.
+	 *
+	 * Increments the hit counters for the specified ban ID's (if any).
+	 *
+	 * @param array $ban_ids The IDs of the bans.
+	 * @param ?string $email The email address associated with the user that
+	 *    triggered this hit. If not set, uses the current user's email address.
+	 * @param ?string $ip_address The IP address associated with the user that
+	 *    triggered this hit. If not set, uses the current user's IP address.
+	 * @param ?int $id The ID number associated with the user that triggered this
+	 *    hit. If not set, uses the current user's ID number.
+	 */
+	public static function logBan(array $ban_ids = [], ?string $email = null, ?string $ip_address = null, ?int $id = null): void
+	{
+		// Don't log web accelerators, it's very confusing...
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
+			return;
+		}
+
+		Db::$db->insert(
+			'',
+			'{db_prefix}log_banned',
+			[
+				'id_member' => 'int',
+				'ip' => 'inet',
+				'email' => 'string',
+				'log_time' => 'int',
+			],
+			[
+				$id ?? User::$me->id,
+				$ip_address ?? User::$me->ip,
+				$email ?? User::$me->email,
+				time(),
+			],
+			['id_ban_log'],
+		);
+
+		// One extra point for these bans.
+		if (!empty($ban_ids)) {
+			Db::$db->query(
+				'UPDATE {db_prefix}ban_items
+				SET hits = hits + 1
+				WHERE id_ban IN ({array_int:ban_ids})',
+				[
+					'ban_ids' => $ban_ids,
+				],
+			);
+		}
+	}
+
+	/**
 	 * Update some basic statistics.
 	 *
 	 * 'member' statistic updates the latest member, the total member
@@ -362,56 +412,18 @@ class Logging
 
 			case 'postgroups':
 				// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-				if ($parameter2 !== null && !\in_array('posts', $parameter2)) {
+				if (!\in_array('posts', $parameter2 ?? [])) {
 					return;
 				}
 
-				$postgroups = CacheApi::get('updateStats:postgroups', 360);
-
-				if ($postgroups == null || $parameter1 == null) {
-					// Fetch the postgroups!
-					$postgroups = Group::getPostGroups();
-
-					CacheApi::put('updateStats:postgroups', $postgroups, 360);
+				if (\is_null($parameter1)) {
+					$parameter1 = array_map(fn($member) => $member->id, User::$loaded);
 				}
 
-				// Oh great, they've screwed their post groups.
-				if (empty($postgroups)) {
-					return;
-				}
+				$members = User::load((array) $parameter1, dataset: UserDataset::Minimal);
 
-				// Set all membergroups from most posts to least posts.
-				$conditions = '';
-				$last_min = 0;
-
-				foreach ($postgroups as $id => $min_posts) {
-					foreach (User::$loaded as $member) {
-						if ($member->posts < $min_posts) {
-							continue;
-						}
-
-						if (empty($last_min) || $member->posts <= $last_min) {
-							$member->post_group_id = $id;
-						}
-					}
-
-					$conditions .= '
-						WHEN posts >= ' . $min_posts . (!empty($last_min) ? ' AND posts <= ' . $last_min : '') . ' THEN ' . $id;
-
-					$last_min = $min_posts;
-				}
-
-				// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-				Db::$db->query(
-					'UPDATE {db_prefix}members
-					SET id_post_group = CASE ' . $conditions . '
-					ELSE 0
-					END' . ($parameter1 != null ? '
-					WHERE ' . (\is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
-					[
-						'members' => $parameter1,
-					],
-				);
+				// Saving the members will automatically recalculate their post groups.
+				User::saveBatch($members);
 
 				break;
 
