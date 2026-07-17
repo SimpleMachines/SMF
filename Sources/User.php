@@ -308,9 +308,9 @@ class User implements \ArrayAccess
 	 */
 	public bool $is_me {
 		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
-		// `get => $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
+		// `get => $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
 		&get {
-			$this->is_me = $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);
+			$this->is_me = $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);
 
 			return $this->is_me;
 		}
