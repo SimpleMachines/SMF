@@ -1357,6 +1357,19 @@ class User implements \ArrayAccess
 	protected static int $my_id;
 
 	/**
+	 * @var int
+	 *
+	 * Permanent record of the ID number of the current user as determined when
+	 * validating the login cookie.
+	 *
+	 * Normally the same as self::$my_id, but may differ if self::setMe() was
+	 * used to change the value of self::$me. This is used by self:loadMe() to
+	 * revert self::$me back to the real current user without having to re-parse
+	 * the cookie.
+	 */
+	protected static int $cookie_id;
+
+	/**
 	 * @var string
 	 *
 	 * The encrypted password string provided in the cookie.
@@ -1412,7 +1425,7 @@ class User implements \ArrayAccess
 				unset($dataset);
 			}
 
-			$dataset ??= $this->chooseMyDataset();
+			$dataset ??= self::$me->chooseMyDataset();
 
 			if (!self::$me->dataset->includes($dataset)) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
@@ -2853,10 +2866,28 @@ class User implements \ArrayAccess
 	 *
 	 * The loaded user is assigned to User::$me and also returned.
 	 *
+	 * Note that if User::setMe() was previously used to change the value of
+	 * User::$me, calling this method will change it back to the original user.
+	 *
 	 * @return self An instance of this class for the current user.
 	 */
 	public static function loadMe(): self
 	{
+		// If we loaded the user earlier, but then self::setMe() changed
+		// self::$me to something else, we can save ourselves some effort now
+		// by simply reverting self::$me back to the original user.
+		if (isset(self::$me, self::$cookie_id) && self::$me->id !== self::$cookie_id) {
+			// Double check whether all required data was loaded.
+			if (
+				!isset(self::$loaded[self::$cookie_id])
+				|| self::$me->chooseMyDataset()->exceeds(self::$loaded[self::$cookie_id]->dataset)
+			) {
+				self::reload(self::$cookie_id, self::$me->chooseMyDataset());
+			}
+
+			self::setMe(self::$cookie_id);
+		}
+
 		if (!isset(self::$me)) {
 			self::$me = new self();
 
@@ -2877,6 +2908,7 @@ class User implements \ArrayAccess
 
 			// At this point, we know the user ID for sure.
 			self::$me->id = self::$my_id;
+			self::$cookie_id = self::$my_id;
 
 			// Also track this in our list of all loaded instances.
 			self::$loaded[self::$me->id] = self::$me;
@@ -2958,7 +2990,8 @@ class User implements \ArrayAccess
 				$grouped_by_dataset[$dataset->value][] = $id;
 			}
 
-			unset(self::$loaded[$id], self::$profiles[$id]);
+			unset(self::$loaded[$id]);
+			self::$profiles[$id] = [];
 		}
 
 		$loaded = [];
