@@ -1153,7 +1153,7 @@ class User implements \ArrayAccess
 	 */
 	public bool $is_owner {
 		&get {
-			$this->is_owner = Profile::$member->is_me ?? false;
+			$this->is_owner = $this->is_me && (Profile::$member->is_me ?? false);
 
 			return $this->is_owner;
 		}
@@ -1172,7 +1172,7 @@ class User implements \ArrayAccess
 	 */
 	public bool $started {
 		&get {
-			$this->started = Topic::$info->started_by_me ?? false;
+			$this->started = $this->is_me && (Topic::$info->started_by_me ?? false);
 
 			return $this->started;
 		}
