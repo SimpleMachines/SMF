@@ -3064,76 +3064,80 @@ class User implements \ArrayAccess
 		}
 
 		// Pre-process some data types.
-		foreach ($data as $var => $val) {
-			switch ($var) {
-				case 'birthdate':
-				case 'birth_date':
-					try {
-						$data[$var] = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
-					} catch (\Throwable $e) {
-						$data[$var] = '1004-01-01';
-					}
-
-					break;
-
-				case 'member_ip':
-				case 'member_ip2':
-					$val = IP::create($val);
-
-					if (!$val->isValid()) {
-						unset($data[$var]);
-					} else {
-						$data[$var] = (string) $val;
-					}
-
-					break;
-
-				case 'avatar':
-					$val = new Avatar(
-						original_url: $val,
-						email: User::$loaded[$member]->email,
-						id_member: (int) $member,
-					);
-					break;
-			}
-		}
-
 		foreach ($members as $member) {
 			foreach ($data as $var => $val) {
-				if ($var === 'avatar') {
-					$member->avatar = new Avatar(
-						original_url: $val,
-						email: $member->email,
-						id_member: $member->id,
-					);
-				} elseif ($var === 'alerts') {
-					$member->alerts = Alert::count($member->id);
-				} elseif ((self::$column_types[$var] ?? null) === 'int') {
-					if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $matches)) {
-						if ($matches[1] === '+ ') {
-							$member->{$var} = $member->{$var} + (int) $matches[2];
-						} else {
-							$member->{$var} = $member->{$var} - (int) $matches[2];
+				switch ($var) {
+					case 'avatar':
+						$member->avatar = new Avatar(
+							original_url: $val,
+							email: $member->email,
+							id_member: $member->id,
+						);
+						break;
+
+					case 'birthdate':
+					case 'birth_date':
+						try {
+							$member->birthdate = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
+						} catch (\Throwable $e) {
+							$member->birthdate = '1004-01-01';
 						}
-					} else {
-						switch ($val) {
-							case '+':
-								$member->{$var}++;
+						break;
+
+					case 'member_ip':
+					case 'member_ip2':
+						$val = IP::create($val);
+
+						if ($val->isValid()) {
+							$member->{$var} = (string) $val;
+						}
+						break;
+
+					case 'alerts':
+						$member->alerts = Alert::count($member->id);
+						break;
+
+					default:
+						switch ((self::$column_types[$var] ?? null)) {
+							case 'int':
+								if (
+									preg_match(
+										'~^' . $var . '\s*(\+\s*|-\s*|\+\s*-)(\d+)~',
+										(string) $val,
+										$matches,
+									)
+								) {
+									if (trim($matches[1]) === '+') {
+										$member->{$var} += (int) $matches[2];
+									} else {
+										$member->{$var} = max(0, $member->{$var} - (int) $matches[2]);
+									}
+								} else {
+									switch ($val) {
+										case '+':
+											$member->{$var}++;
+											break;
+
+										case '-':
+											$member->{$var} = max(0, $member->{$var} - 1);
+											break;
+
+										default:
+											$member->{$var} = max(0, (int) $val);
+											break;
+									}
+								}
 								break;
 
-							case '-':
-								$member->{$var} = max(0, $member->{$var} - 1);
+							case 'float':
+								$member->{$var} = (float) $val;
 								break;
 
 							default:
-								$member->{$var} = max(0, (int) $val);
+								$member->{$var} = $val;
 								break;
 						}
-					}
-				} elseif ((self::$column_types[$var] ?? null) === 'float') {
-					$member->{$var} = (float) $val;
-				} else {
-					$member->{$var} = $val;
+						break;
 				}
 			}
 		}
