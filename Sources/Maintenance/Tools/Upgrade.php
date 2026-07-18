@@ -808,10 +808,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				!empty($_POST['db_pass'])
 				&& Maintenance::loginWithDatabasePassword((string) $_POST['db_pass'])
 			) {
-				$this->user = [
-					'id' => 0,
-					'name' => 'Database Admin',
-				];
+				$this->user['id'] = 0;
+				$this->user['name'] = 'Database Admin';
 
 				$_SESSION['is_logged'] = true;
 
@@ -821,10 +819,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')), '2.1.dev.0', '<');
 
 			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
-				$this->user = [
-					'id' => $id,
-					'name' => (string) $_POST['user'],
-				];
+				$this->user['id'] = $id;
+				$this->user['name'] = (string) $_POST['user'];
 
 				$_SESSION['is_logged'] = true;
 
@@ -1229,18 +1225,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			['id_task'],
 		);
 
-		// Log what we've done.
-		if (!isset(User::$me)) {
-			User::loadMe();
-		}
-
-		if (empty(User::$me->id) && !empty($this->user['id'])) {
-			User::load($this->user['id'], dataset: UserDataset::Minimal);
-			User::setMe($this->user['id']);
-		}
-
-		User::$me->ip = IP::getUserIP();
-
 		// Log the action manually, so CLI still works.
 		Db::$db->insert(
 			'',
@@ -1260,19 +1244,20 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				[
 					time(),
 					3,
-					User::$me->id,
-					User::$me->ip,
+					$this->user['id'],
+					IP::getUserIP(),
 					'upgrade',
 					0,
 					0,
 					0,
-					json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+					json_encode([
+						'version' => SMF_FULL_VERSION,
+						'member_acted' => $this->user['name'],
+					]),
 				],
 			],
 			['id_action'],
 		);
-
-		User::setMe(0);
 
 		// Finalize some settings in the settings file.
 		$file_settings = [
