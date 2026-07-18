@@ -55,13 +55,6 @@ class Maintenance
 	/**
 	 * @var array
 	 *
-	 * General variables we pass between the logic and template.
-	 */
-	public static array $context = [];
-
-	/**
-	 * @var array
-	 *
 	 * List of languages we have for ths tool.
 	 */
 	public static array $languages = [];
@@ -232,7 +225,7 @@ class Maintenance
 		self::$theme_dir = self::getBaseDir() . '/Themes/default';
 
 		// This might be overwritten by the tool, but we need a default value.
-		self::$context['started'] = (int) TIME_START;
+		Utils::$context['started'] = (int) TIME_START;
 		self::$script_start = (int) TIME_START;
 
 		// No integration hooks allowed during maintenance.
@@ -284,10 +277,10 @@ class Maintenance
 			self::$tool->setStep($step);
 
 			// The current weight of this step in terms of overall progress.
-			self::$context['step_weight'] = $step->getProgress();
+			Utils::$context['step_weight'] = $step->getProgress();
 
 			// Make sure we reset the skip button.
-			self::$context['skip'] = false;
+			Utils::$context['skip'] = false;
 
 			// What should we call for this step?
 			if (($callable = Utils::getCallable($step->getFunction(), true)) === false) {
@@ -305,7 +298,7 @@ class Maintenance
 			self::setCurrentStart(0);
 
 			// No warnings pass on.
-			self::$context['warning'] = '';
+			Utils::$context['warning'] = '';
 
 			self::$overall_percent += (int) $step->getProgress();
 		}
@@ -748,7 +741,7 @@ class Maintenance
 	 */
 	public static function getTimeElapsed(): string
 	{
-		$duration = (new \DateTime('@' . self::$context['started']))->diff(new \DateTime());
+		$duration = (new \DateTime('@' . Utils::$context['started']))->diff(new \DateTime());
 
 		if ((int) $duration->format('%a') > 0) {
 			return \strval((int) $duration->format('%h') + ((int) $duration->format('%a') * 24)) . $duration->format(':%I:%S');
@@ -771,7 +764,7 @@ class Maintenance
 	public static function isOutOfTime(): bool
 	{
 		if (Sapi::isCLI()) {
-			if (time() - self::$context['started'] > 1 && !self::$tool->isDebug()) {
+			if (time() - Utils::$context['started'] > 1 && !self::$tool->isDebug()) {
 				echo '.';
 			}
 
@@ -872,7 +865,7 @@ class Maintenance
 
 			// Call the template.
 			if (self::$sub_template !== '') {
-				self::$context['form_url'] = self::getSelf() . '?step=' . self::getCurrentStep();
+				Utils::$context['form_url'] = self::getSelf() . '?step=' . self::getCurrentStep();
 
 				\call_user_func([self::$template, self::$sub_template]);
 			}

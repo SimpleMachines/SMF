@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
+use SMF\Utils;
 
 /**
  * Template for Installer
@@ -45,16 +46,16 @@ class InstallTemplate extends MaintenanceTemplate
 	 */
 	public static function lower(): void
 	{
-		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip'])) {
+		if (!empty(Utils::$context['continue']) || !empty(Utils::$context['skip'])) {
 			echo '
 								<div class="floatright">';
 
-			if (!empty(Maintenance::$context['continue'])) {
+			if (!empty(Utils::$context['continue'])) {
 				echo '
 									<input type="submit" id="contbutt" name="contbutt" value="', Lang::getTxt('action_continue', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">';
 			}
 
-			if (!empty(Maintenance::$context['skip'])) {
+			if (!empty(Utils::$context['skip'])) {
 				echo '
 									<input type="submit" id="skip" name="skip" value="', Lang::getTxt('action_skip', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">';
 			}
@@ -123,14 +124,14 @@ class InstallTemplate extends MaintenanceTemplate
 			<p>', Lang::getTxt('ftp_setup_why_info', file: 'Maintenance'), '</p>
 			<ul class="error_content">
 				<li>', implode('</li>
-				<li>', Maintenance::$context['chmod_files']), '</li>
+				<li>', Utils::$context['chmod_files']), '</li>
 			</ul>';
 
-		if (isset(Maintenance::$context['systemos'], Maintenance::$context['detected_path']) && Maintenance::$context['systemos'] == 'linux') {
+		if (isset(Utils::$context['systemos'], Utils::$context['detected_path']) && Utils::$context['systemos'] == 'linux') {
 			echo '
 			<hr>
 			<p>', Lang::getTxt('chmod_linux_info', file: 'Maintenance'), '</p>
-			<samp># chmod a+w ', implode(' ' . Maintenance::$context['detected_path'] . '/', Maintenance::$context['chmod_files']), '</samp>';
+			<samp># chmod a+w ', implode(' ' . Utils::$context['detected_path'] . '/', Utils::$context['chmod_files']), '</samp>';
 		}
 
 		// This is serious!
@@ -144,16 +145,16 @@ class InstallTemplate extends MaintenanceTemplate
 			<hr>
 			<p>', Lang::getTxt('ftp_setup_info', file: 'Maintenance'), '</p>';
 
-		if (!empty(Maintenance::$context['ftp_errors'])) {
+		if (!empty(Utils::$context['ftp_errors'])) {
 			echo '
 			<div class="error_message">
 				', Lang::getTxt('error_ftp_no_connect', file: 'Maintenance'), '<br><br>
-				<code>', implode('<br>', Maintenance::$context['ftp_errors']), '</code>
+				<code>', implode('<br>', Utils::$context['ftp_errors']), '</code>
 			</div>';
 		}
 
 		echo '
-			<form action="', Maintenance::$context['form_url'], '" method="post">
+			<form action="', Utils::$context['form_url'], '" method="post">
 				<dl class="settings">
 					<dt>
 						<label for="ftp_server">', Lang::getTxt('ftp_server', file: 'Maintenance'), ':</label>
@@ -161,16 +162,16 @@ class InstallTemplate extends MaintenanceTemplate
 					<dd>
 						<div class="floatright">
 							<label for="ftp_port" class="textbox"><strong>', Lang::getTxt('ftp_port', file: 'Maintenance'), ':&nbsp;</strong></label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Maintenance::$context['chmod']['port'] ?? '', '">
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['chmod']['port'] ?? '', '">
 						</div>
-						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Maintenance::$context['chmod']['server'] ?? '', '">
+						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['chmod']['server'] ?? '', '">
 						<div class="smalltext block">', Lang::getTxt('ftp_server_info', file: 'Maintenance'), '</div>
 					</dd>
 					<dt>
 						<label for="ftp_username">', Lang::getTxt('ftp_username', file: 'Maintenance'), ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Maintenance::$context['chmod']['username'] ?? '', '">
+						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Utils::$context['chmod']['username'] ?? '', '">
 						<div class="smalltext block">', Lang::getTxt('ftp_username_info', file: 'Maintenance'), '</div>
 					</dd>
 					<dt>
@@ -184,15 +185,15 @@ class InstallTemplate extends MaintenanceTemplate
 						<label for="ftp_path">', Lang::getTxt('ftp_path', file: 'Maintenance'), ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Maintenance::$context['chmod']['path'] ?? '', '">
-						<div class="smalltext block">', Maintenance::$context['chmod']['path_msg'] ?? '', '</div>
+						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Utils::$context['chmod']['path'] ?? '', '">
+						<div class="smalltext block">', Utils::$context['chmod']['path_msg'] ?? '', '</div>
 					</dd>
 				</dl>
 				<div class="righttext buttons">
 					<input type="submit" value="', Lang::getTxt('ftp_connect', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">
 				</div>
 			</form>
-			', Lang::getTxt('ftp_setup_again', ['url' => Maintenance::$context['form_url']], file: 'Maintenance');
+			', Lang::getTxt('ftp_setup_again', ['url' => Utils::$context['form_url']], file: 'Maintenance');
 	}
 
 	/**
@@ -209,7 +210,7 @@ class InstallTemplate extends MaintenanceTemplate
 			<dl class="settings">';
 
 		// More than one database type?
-		if (\count(Maintenance::$context['databases']) > 1) {
+		if (\count(Utils::$context['databases']) > 1) {
 			echo '
 				<dt>
 					<label for="db_type_input">', Lang::getTxt('db_settings_type', file: 'Maintenance'), ':</label>
@@ -217,7 +218,7 @@ class InstallTemplate extends MaintenanceTemplate
 				<dd>
 					<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
 
-			foreach (Maintenance::$context['databases'] as $key => $db) {
+			foreach (Utils::$context['databases'] as $key => $db) {
 				echo '
 						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $key, '</option>';
 			}
@@ -229,7 +230,7 @@ class InstallTemplate extends MaintenanceTemplate
 		} else {
 			echo '
 				<dd>
-					<input type="hidden" name="db_type" value="', Maintenance::$context['db']['type'], '">
+					<input type="hidden" name="db_type" value="', Utils::$context['db']['type'], '">
 				</dd>';
 		}
 
@@ -238,35 +239,35 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="db_server_input">', Lang::getTxt('db_settings_server', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_server" id="db_server_input" value="', Maintenance::$context['db']['server'], '" size="30">
+					<input type="text" name="db_server" id="db_server_input" value="', Utils::$context['db']['server'], '" size="30">
 					<div class="smalltext">', Lang::getTxt('db_settings_server_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="db_port_input">', Lang::getTxt('db_settings_port', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_port" id="db_port_input" value="', Maintenance::$context['db']['port'], '">
+					<input type="text" name="db_port" id="db_port_input" value="', Utils::$context['db']['port'], '">
 					<div class="smalltext">', Lang::getTxt('db_settings_port_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="db_user_input">', Lang::getTxt('db_settings_username', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_user" id="db_user_input" value="', Maintenance::$context['db']['user'], '" size="30">
+					<input type="text" name="db_user" id="db_user_input" value="', Utils::$context['db']['user'], '" size="30">
 					<div class="smalltext">', Lang::getTxt('db_settings_username_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="db_passwd_input">', Lang::getTxt('db_settings_password', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="password" name="db_passwd" id="db_passwd_input" value="', Maintenance::$context['db']['pass'], '" size="30">
+					<input type="password" name="db_passwd" id="db_passwd_input" value="', Utils::$context['db']['pass'], '" size="30">
 					<div class="smalltext">', Lang::getTxt('db_settings_password_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="db_name_input">', Lang::getTxt('db_settings_database', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_name" id="db_name_input" value="', empty(Maintenance::$context['db']['name']) ? 'smf' : Maintenance::$context['db']['name'], '" size="30" pattern="^\w+$">
+					<input type="text" name="db_name" id="db_name_input" value="', empty(Utils::$context['db']['name']) ? 'smf' : Utils::$context['db']['name'], '" size="30" pattern="^\w+$">
 					<div class="smalltext">
 						', Lang::getTxt('db_settings_database_info', file: 'Maintenance'), '
 						<span id="db_name_info_warning">', Lang::getTxt('db_settings_database_info_note', file: 'Maintenance'), '</span>
@@ -276,7 +277,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="db_prefix_input">', Lang::getTxt('db_settings_prefix', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="db_prefix" id="db_prefix_input" value="', Maintenance::$context['db']['prefix'], '" size="30">
+					<input type="text" name="db_prefix" id="db_prefix_input" value="', Utils::$context['db']['prefix'], '" size="30">
 					<div class="smalltext">', Lang::getTxt('db_settings_prefix_info', file: 'Maintenance'), '</div>
 				</dd>
 			</dl>';
@@ -318,7 +319,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="boardurl_input">', Lang::getTxt('install_settings_url', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="boardurl" id="boardurl_input" value="', Maintenance::$context['detected_url'], '" size="65">
+					<input type="text" name="boardurl" id="boardurl_input" value="', Utils::$context['detected_url'], '" size="65">
 					<div class="smalltext">', Lang::getTxt('install_settings_url_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
@@ -345,7 +346,7 @@ class InstallTemplate extends MaintenanceTemplate
 				<dd>
 					<input type="checkbox" name="dbsession" id="dbsession_check" checked>
 					<label for="dbsession_check">', Lang::getTxt('install_settings_dbsession_title', file: 'Maintenance'), '</label>
-					<div class="smalltext">', Maintenance::$context['test_dbsession'] ? Lang::getTxt('install_settings_dbsession_info1', file: 'Maintenance') : Lang::getTxt('install_settings_dbsession_info2', file: 'Maintenance'), '</div>
+					<div class="smalltext">', Utils::$context['test_dbsession'] ? Lang::getTxt('install_settings_dbsession_info1', file: 'Maintenance') : Lang::getTxt('install_settings_dbsession_info2', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>', Lang::getTxt('install_settings_stats', file: 'Maintenance'), ':</dt>
 				<dd>
@@ -355,8 +356,8 @@ class InstallTemplate extends MaintenanceTemplate
 				</dd>
 				<dt>', Lang::getTxt('force_ssl', file: 'Maintenance'), ':</dt>
 				<dd>
-					<input type="checkbox" name="force_ssl" id="force_ssl"', Maintenance::$context['ssl_chkbx_checked'] ? ' checked' : '',
-						Maintenance::$context['ssl_chkbx_protected'] ? ' disabled' : '', '>
+					<input type="checkbox" name="force_ssl" id="force_ssl"', Utils::$context['ssl_chkbx_checked'] ? ' checked' : '',
+						Utils::$context['ssl_chkbx_protected'] ? ' disabled' : '', '>
 					<label for="force_ssl">', Lang::getTxt('force_ssl_label', file: 'Maintenance'), '</label>
 					<div class="smalltext"><strong>', Lang::getTxt('force_ssl_info', file: 'Maintenance'), '</strong></div>
 				</dd>
@@ -370,21 +371,21 @@ class InstallTemplate extends MaintenanceTemplate
 	public static function databasePopulation(): void
 	{
 		echo '
-			<p>', !empty(Maintenance::$context['was_refresh']) ? Lang::getTxt('user_refresh_install_desc', file: 'Maintenance') : Lang::getTxt('db_populate_info', file: 'Maintenance'), '</p>';
+			<p>', !empty(Utils::$context['was_refresh']) ? Lang::getTxt('user_refresh_install_desc', file: 'Maintenance') : Lang::getTxt('db_populate_info', file: 'Maintenance'), '</p>';
 
-		if (!empty(Maintenance::$context['sql_results'])) {
+		if (!empty(Utils::$context['sql_results'])) {
 			echo '
 			<ul>
-				<li>', implode('</li><li>', Maintenance::$context['sql_results']), '</li>
+				<li>', implode('</li><li>', Utils::$context['sql_results']), '</li>
 			</ul>';
 		}
 
-		if (!empty(Maintenance::$context['failures'])) {
+		if (!empty(Utils::$context['failures'])) {
 			echo '
 			<div class="red">', Lang::getTxt('error_db_queries', file: 'Maintenance'), '</div>
 			<ul>';
 
-			foreach (Maintenance::$context['failures'] as $line => $fail) {
+			foreach (Utils::$context['failures'] as $line => $fail) {
 				echo '
 				<li>', nl2br(htmlspecialchars($fail)), '</li>';
 			}
@@ -418,7 +419,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="username">', Lang::getTxt('user_settings_username', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="username" id="username" value="', Maintenance::$context['username'], '" size="40">
+					<input type="text" name="username" id="username" value="', Utils::$context['username'], '" size="40">
 					<div class="smalltext">', Lang::getTxt('user_settings_username_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
@@ -439,19 +440,19 @@ class InstallTemplate extends MaintenanceTemplate
 					<label for="email">', Lang::getTxt('user_settings_admin_email', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="email" name="email" id="email" value="', Maintenance::$context['email'], '" size="40">
+					<input type="email" name="email" id="email" value="', Utils::$context['email'], '" size="40">
 					<div class="smalltext">', Lang::getTxt('user_settings_admin_email_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="server_email">', Lang::getTxt('user_settings_server_email', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" name="server_email" id="server_email" value="', Maintenance::$context['server_email'], '" size="40">
+					<input type="text" name="server_email" id="server_email" value="', Utils::$context['server_email'], '" size="40">
 					<div class="smalltext">', Lang::getTxt('user_settings_server_email_info', file: 'Maintenance'), '</div>
 				</dd>
 			</dl>';
 
-		if (Maintenance::$context['require_db_confirm']) {
+		if (Utils::$context['require_db_confirm']) {
 			echo '
 			<h2>', Lang::getTxt('user_settings_database', file: 'Maintenance'), '</h2>
 			<p>', Lang::getTxt('user_settings_database_info', file: 'Maintenance'), '</p>
@@ -475,13 +476,13 @@ class InstallTemplate extends MaintenanceTemplate
 		MaintenanceTemplate::showLog();
 
 		// Install directory still writable?
-		if (Maintenance::$context['dir_still_writable']) {
+		if (Utils::$context['dir_still_writable']) {
 			echo '
 			<p><em>', Lang::getTxt('still_writable', file: 'Maintenance'), '</em></p>';
 		}
 
 		// Don't show the box if it's like 99% sure it won't work :P.
-		if (Maintenance::$context['can_delete_script']) {
+		if (Utils::$context['can_delete_script']) {
 			echo '
 			<label>
 				<input type="checkbox" id="delete_self" onclick="doTheDelete();">
