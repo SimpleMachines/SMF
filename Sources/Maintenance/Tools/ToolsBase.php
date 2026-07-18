@@ -442,7 +442,9 @@ abstract class ToolsBase
 				}
 
 				// Don't forget the login token.
-				Maintenance::$context += SecurityToken::create('login');
+				SecurityToken::create('login');
+				Maintenance::$context['login_token_var'] = Utils::$context['login_token_var'];
+				Maintenance::$context['login_token'] = Utils::$context['login_token'];
 
 				return false;
 			}

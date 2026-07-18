@@ -798,7 +798,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		) {
 			if (!SecurityToken::validate('login', 'post', false)) {
 				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Errors');
-				Maintenance::$context += SecurityToken::create('login');
+				SecurityToken::create('login');
+				Maintenance::$context['login_token_var'] = Utils::$context['login_token_var'];
+				Maintenance::$context['login_token'] = Utils::$context['login_token'];
 
 				return false;
 			}
@@ -830,7 +832,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance::$context['continue'] = true;
 		}
 
-		Maintenance::$context += SecurityToken::create('login');
+		SecurityToken::create('login');
+		Maintenance::$context['login_token_var'] = Utils::$context['login_token_var'];
+		Maintenance::$context['login_token'] = Utils::$context['login_token'];
 
 		return false;
 	}
