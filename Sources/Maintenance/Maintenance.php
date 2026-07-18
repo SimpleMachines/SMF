@@ -679,9 +679,9 @@ class Maintenance
 		Db::$db->free_result($request);
 
 		if (!empty($row)) {
-			list($id_member, $name, $password, $id_group, $addGroups, $user_language) = $row;
+			list($id_member, $name, $passwd, $id_group, $additional_groups, $user_language) = $row;
 
-			$groups = explode(',', $addGroups);
+			$groups = explode(',', $additional_groups);
 			$groups[] = (int) $id_group;
 
 			foreach ($groups as $k => $v) {
@@ -690,16 +690,16 @@ class Maintenance
 
 			if (
 				// SMF 3.0+
-				Security::hashVerifyPassword($_REQUEST['passwrd'], $password)
+				Security::hashVerifyPassword($password, $passwd)
 				// SMF 2.1 prepended the username to the password.
-				|| Security::hashVerifyPassword(Utils::strtolower($name) . $_REQUEST['passwrd'], $password)
+				|| Security::hashVerifyPassword(Utils::strtolower($name) . $password, $passwd)
 				// SMF 2.0 used sha1
-				|| ($use_old_hashing && $password === sha1(strtolower($name) . $_REQUEST['passwrd']))
+				|| ($use_old_hashing && hash_equals($passwd, sha1(strtolower($name) . $password)))
 			) {
 				$id = (int) $id_member;
 			}
 
-			// We have a valid login.
+			// We have a valid login, but are they really an admin?
 			if ($id > 0 && !\in_array(1, $groups)) {
 				$request = Db::$db->query(
 					'SELECT permission
@@ -738,7 +738,7 @@ class Maintenance
 		#[\SensitiveParameter]
 		string $password,
 	): bool {
-		return Config::$db_passwd === $password;
+		return hash_equals(Config::$db_passwd, $password);
 	}
 
 	/**
