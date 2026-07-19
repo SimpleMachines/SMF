@@ -11425,7 +11425,7 @@ if (
 	 * @return bool Whether or not the password is correct.
 	 */
 	function ssi_checkPassword(
-		?int $id = null,
+		int|string|null $id = null,
 		?string $password = null,
 		bool $is_username = false,
 	): bool {

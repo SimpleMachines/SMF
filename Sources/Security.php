@@ -24,9 +24,108 @@ use ZxcvbnPhp\Zxcvbn;
  */
 class Security
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() not to check password fallbacks.
+	 */
+	public const PASSWORD_FALLBACK_NONE  = 0b0000;
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check password fallbacks for
+	 * other forum software and/or via the integrate_other_passwords hook.
+	 *
+	 * Note: Config::$modSettings['enable_password_conversion'] must also be
+	 * true in order to check fallbacks for other forum software.
+	 */
+	public const PASSWORD_FALLBACK_OTHER = 0b0001;
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check password fallbacks for
+	 * YaBB SE and SMF 1.0.
+	 */
+	public const PASSWORD_FALLBACK_SMF10 = 0b0010;
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check password fallbacks for
+	 * SMF 1.1 and SMF 2.0.
+	 */
+	public const PASSWORD_FALLBACK_SMF20 = 0b0100;
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check password fallbacks for
+	 * SMF 2.1.
+	 */
+	public const PASSWORD_FALLBACK_SMF21 = 0b1000;
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check password fallbacks for
+	 * all versions of SMF.
+	 */
+	public const PASSWORD_FALLBACK_SMF = (
+		self::PASSWORD_FALLBACK_SMF10
+		| self::PASSWORD_FALLBACK_SMF20
+		| self::PASSWORD_FALLBACK_SMF21
+	);
+
+	/**
+	 * @var int
+	 *
+	 * Used to tell Security::checkPassword() to check all password fallbacks.
+	 */
+	public const PASSWORD_FALLBACK_ALL = (
+		self::PASSWORD_FALLBACK_OTHER
+		| self::PASSWORD_FALLBACK_SMF
+	);
+
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Checks whether the password is the correct one for the given member.
+	 *
+	 * @param string $password The password to check.
+	 * @param User $member The member whose password we are checking.
+	 * @param int $allowed_fallbacks Which fallbacks to check.
+	 *    Must be a bitmask of this class's PASSWORD_FALLBACK_* constants.
+	 * @param bool $flood_check Whether to check for flooding attempts.
+	 *    Default: true
+	 * @return bool Whether the password is correct.
+	 */
+	public static function checkPassword(
+		string $password,
+		User $member,
+		int $allowed_fallbacks,
+		bool $flood_check = true,
+	): bool {
+		if (self::hashVerifyPassword($password, $member->passwd)) {
+			return true;
+		}
+
+		// Let's be cautious, no hacking please. thanx.
+		if ($flood_check) {
+			self::validatePasswordFlood($member->id, $member->username, $member->passwd_flood);
+		}
+
+		// If the forum was recently upgraded, password might be encrypted
+		// using a different algorithm. If so, fix it. Otherwise, bail out.
+		return self::checkPasswordFallbacks($password, $member, $allowed_fallbacks);
+	}
 
 	/**
 	 * Hashes the user's password
@@ -1130,5 +1229,227 @@ class Security
 				header('Access-Control-Allow-Credentials: true');
 			}
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Checks a user-supplied password against other possible encrypted strings.
+	 *
+	 * If a match is found, the old encrypted string is replaced with an updated
+	 * version that uses modern encryption.
+	 *
+	 * This allows seamlessly updating the encryption after the forum has been
+	 * upgraded or converted.
+	 *
+	 * @param string $password The password to check.
+	 * @param User $member The member whose password we are checking.
+	 * @param int $allowed_fallbacks Which fallbacks to check.
+	 *    Must be a bitmask of this class's PASSWORD_FALLBACK_* constants.
+	 * @return bool Whether the supplied password was correct.
+	 */
+	protected static function checkPasswordFallbacks(string $password, User $member, int $allowed_fallbacks): bool
+	{
+		// Maybe we were too hasty... let's try some other authentication methods.
+		$other_passwords = [];
+
+		// SMF 2.1 prepended the username before the password.
+		if (
+			$allowed_fallbacks & self::PASSWORD_FALLBACK_SMF21
+			&& self::hashVerifyPassword(Utils::strtolower($member->username) . $password, $member->passwd)
+		) {
+			$other_passwords[] = $member->passwd;
+		}
+
+		// SMF 2.0 and 1.1.
+		if (
+			$allowed_fallbacks & self::PASSWORD_FALLBACK_SMF20
+			&& \strlen($member->passwd) == 40
+		) {
+			// Maybe they are using a hash from before the password fix.
+			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
+			$other_passwords[] = sha1(strtolower($member->username) . $password);
+
+			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
+			if (!empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
+				// Try iconv first, for no particular reason.
+				if (\function_exists('iconv')) {
+					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $member->username)) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $password)));
+				}
+
+				// Say it aint so, iconv failed!
+				if (empty($other_passwords['iconv']) && \function_exists('mb_convert_encoding')) {
+					$other_passwords[] = sha1(strtolower(mb_convert_encoding($member->username, 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($password, 'UTF-8', Config::$modSettings['previousCharacterSet'])));
+				}
+			}
+		}
+
+		// SMF 1.0 and YaBB SE.
+		if (
+			$allowed_fallbacks & self::PASSWORD_FALLBACK_SMF10
+			&& \strlen($member->passwd) == 32
+			&& $member->password_salt == ''
+		) {
+			$other_passwords[] = hash_hmac('md5', $password, strtolower($member->username));
+		}
+
+		if (
+			$allowed_fallbacks & self::PASSWORD_FALLBACK_OTHER
+			&& !empty(Config::$modSettings['enable_password_conversion'])
+		) {
+			// None of the below cases will be used most of the time (because the salt is normally set.)
+			if ($member->password_salt == '') {
+				// Discus, MD5 (used a lot), SHA-1 (used some), IkonBoard, and none at all.
+				switch (\strlen($member->passwd)) {
+					case 13:
+						$other_passwords[] = crypt($password, substr($password, 0, 2));
+						$other_passwords[] = crypt($password, substr($member->passwd, 0, 2));
+						$other_passwords[] = crypt($password, $member->passwd);
+
+						// This one is a strange one... MyPHP, crypt() on the MD5 hash.
+						$other_passwords[] = crypt(md5($password), md5($password));
+						break;
+
+					case 32:
+						$other_passwords[] = md5($password);
+						$other_passwords[] = md5($password . strtolower($member->username));
+						$other_passwords[] = md5(md5($password));
+
+						// APBoard 2 Login Method.
+						$other_passwords[] = md5(crypt($password, 'CRYPT_MD5'));
+						break;
+
+					case 34:
+						// phpBB3.
+						$other_passwords[] = self::phpBB3_password_check($password, $member->passwd);
+						break;
+
+					case 40:
+						$other_passwords[] = sha1($password);
+						break;
+
+					case 64:
+						// Snitz style - SHA-256.
+						$other_passwords[] = hash('sha256', $password);
+						break;
+				}
+
+				$other_passwords[] = $password;
+			}
+			// If the salt is set let's try some other options
+			else {
+				switch (\strlen($member->passwd)) {
+					case 32:
+						// MyBB
+						$other_passwords[] = md5(md5($member->password_salt) . md5($password));
+
+						// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
+						$other_passwords[] = md5(md5($password) . stripslashes($member->password_salt));
+
+						// Hmm.. p'raps it's Invision 2 style?
+						$other_passwords[] = md5(md5($member->password_salt) . md5($password));
+
+						// Some common md5 ones.
+						$other_passwords[] = md5($member->password_salt . $password);
+						$other_passwords[] = md5($password . $member->password_salt);
+						break;
+
+					case 40:
+						// BurningBoard3 style of hashing.
+						$other_passwords[] = sha1($member->password_salt . sha1($member->password_salt . sha1($password)));
+						// PunBB
+						$other_passwords[] = sha1($member->password_salt . sha1($password));
+						break;
+
+					case 64:
+						// PHP-Fusion
+						$other_passwords[] = hash_hmac('sha256', $password, $member->password_salt);
+						break;
+				}
+			}
+		}
+
+		// Allows mods to easily extend the $other_passwords array
+		if ($allowed_fallbacks & self::PASSWORD_FALLBACK_OTHER) {
+			IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
+		}
+
+		// Whichever encryption it was using, let's make it use SMF's now ;).
+		if (\in_array($member->passwd, $other_passwords)) {
+			$member->passwd = self::hashPassword($password);
+			$member->password_salt = bin2hex(random_bytes(16));
+			$member->passwd_flood = '';
+
+			$member->save();
+
+			return true;
+		}
+
+		// Okay, they for sure didn't enter the password!
+		return false;
+	}
+
+	/**
+	 * Custom encryption for phpBB3 based passwords.
+	 *
+	 * @param string $passwd The password to check.
+	 * @param string $passwd_hash The hashed password stored in the database.
+	 * @return ?string The hashed version of $passwd.
+	 */
+	protected static function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
+	{
+		// Too long or too short?
+		if (\strlen($passwd_hash) != 34) {
+			return null;
+		}
+
+		// Range of characters allowed.
+		$range = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+		// Tests
+		$strpos = strpos($range, $passwd_hash[3]);
+		$count = 1 << $strpos;
+		$salt = substr($passwd_hash, 4, 8);
+
+		$hash = md5($salt . $passwd, true);
+
+		for (; $count != 0; --$count) {
+			$hash = md5($hash . $passwd, true);
+		}
+
+		$output = substr($passwd_hash, 0, 12);
+		$i = 0;
+
+		while ($i < 16) {
+			$value = \ord($hash[$i++]);
+			$output .= $range[$value & 0x3f];
+
+			if ($i < 16) {
+				$value |= \ord($hash[$i]) << 8;
+			}
+
+			$output .= $range[($value >> 6) & 0x3f];
+
+			if ($i++ >= 16) {
+				break;
+			}
+
+			if ($i < 16) {
+				$value |= \ord($hash[$i]) << 16;
+			}
+
+			$output .= $range[($value >> 12) & 0x3f];
+
+			if ($i++ >= 16) {
+				break;
+			}
+
+			$output .= $range[($value >> 18) & 0x3f];
+		}
+
+		// Return now.
+		return $output;
 	}
 }
