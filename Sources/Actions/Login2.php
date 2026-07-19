@@ -31,7 +31,6 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
-use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -322,7 +321,7 @@ class Login2 implements ActionInterface, Routable
 		// Correct password, but it took multiple tries...
 		elseif (!empty($this->member->passwd_flood)) {
 			// Let's be sure they weren't a little hacker.
-			self::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
+			Security::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 			// If we got here then we can reset the flood counter.
 			$this->member->passwd_flood = '';
@@ -386,74 +385,6 @@ class Login2 implements ActionInterface, Routable
 			Utils::$context['from_ajax'] = true;
 			Utils::$context['template_layers'] = [];
 		}
-	}
-
-	/**
-	 * This protects against brute force attacks on a member's password.
-	 * Importantly, even if the password was right we DON'T TELL THEM!
-	 *
-	 * @param int $id_member The ID of the member
-	 * @param string $member_name The name of the member.
-	 * @param bool|string $password_flood_value False if we don't have a flood value, otherwise a string with a timestamp and number of tries separated by a |
-	 * @param bool $was_correct Whether or not the password was correct
-	 * @param bool $tfa Whether we're validating for two-factor authentication
-	 */
-	public static function validatePasswordFlood(int $id_member, string $member_name, bool|string $password_flood_value = false, bool $was_correct = false, bool $tfa = false): void
-	{
-		// As this is only brute protection, we allow 5 attempts every 10 seconds.
-
-		// Destroy any session or cookie data about this member, as they validated wrong.
-		// Only if they're not validating for 2FA
-		if (!$tfa) {
-			Cookie::setLoginCookie(-3600, 0);
-
-			if (isset($_SESSION['login_' . Config::$cookiename])) {
-				unset($_SESSION['login_' . Config::$cookiename]);
-			}
-		}
-
-		// We need a member!
-		if (!$id_member) {
-			// Redirect back!
-			Utils::redirectexit();
-
-			// Probably not needed, but still make sure...
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// Right, have we got a flood value?
-		if ($password_flood_value !== false) {
-			@list($time_stamp, $number_tries) = explode('|', $password_flood_value);
-		}
-
-		// Timestamp or number of tries invalid?
-		if (empty($number_tries) || empty($time_stamp)) {
-			$number_tries = 0;
-			$time_stamp = time();
-		}
-
-		// They've failed logging in already
-		if (!empty($number_tries)) {
-			// Give them less chances if they failed before
-			$number_tries = $time_stamp < time() - 20 ? 2 : $number_tries;
-
-			// They are trying too fast, make them wait longer
-			if ($time_stamp < time() - 10) {
-				$time_stamp = time();
-			}
-		}
-
-		$number_tries++;
-
-		// Broken the law?
-		if ($number_tries > 5) {
-			ErrorHandler::fatalLang('login_threshold_brute_fail', 'login', [$member_name]);
-		}
-
-		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
-		$member = current(User::load($id_member, dataset: UserDataset::None));
-		$member->passwd_flood = $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries;
-		$member->save();
 	}
 
 	/******************
@@ -521,7 +452,7 @@ class Login2 implements ActionInterface, Routable
 	protected function checkPasswordFallbacks(): bool
 	{
 		// Let's be cautious, no hacking please. thanx.
-		self::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood);
+		Security::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood);
 
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];

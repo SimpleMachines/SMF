@@ -17,7 +17,6 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
-use SMF\Actions\Login2;
 use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
@@ -4512,7 +4511,7 @@ class User implements \ArrayAccess
 			$id = self::$my_id;
 			self::$my_id = 0;
 
-			Login2::validatePasswordFlood(
+			Security::validatePasswordFlood(
 				$id,
 				self::$profiles[$id]['member_name'],
 				self::$profiles[$id]['passwd_flood'],
