@@ -858,9 +858,9 @@ class MessageFormatter
 			if (str_starts_with($stem, '.')) {
 				// Special handling if $number is in scientific notation.
 				if (strpos(var_export($number, true), 'E') !== false) {
-					list($base, $exponent) = explode('E', var_export($number, true));
-					$significant_integers = max(1, (int) $exponent);
-					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+					list($significand, $magnitude) = explode('E', var_export($number, true));
+					$significant_integers = max(1, (int) $magnitude);
+					$significant_decimals = (\strlen($significand) - 2) + max(-$magnitude, 0);
 				} else {
 					$significant_integers = (int) strpos(self::strval($number), '.');
 					$significant_decimals = (int) strpos(strrev(self::strval($number)), '.');
@@ -916,9 +916,9 @@ class MessageFormatter
 			elseif (str_starts_with($stem, '@')) {
 				// Special handling if $number is in scientific notation.
 				if (strpos(var_export($number, true), 'E') !== false) {
-					list($base, $exponent) = explode('E', var_export($number, true));
-					$significant_integers = max(1, (int) $exponent);
-					$significant_decimals = (\strlen($base) - 2) + max(-$exponent, 0);
+					list($significand, $magnitude) = explode('E', var_export($number, true));
+					$significant_integers = max(1, (int) $magnitude);
+					$significant_decimals = (\strlen($significand) - 2) + max(-$magnitude, 0);
 				} else {
 					$significant_integers = (int) strpos(self::strval($number), '.');
 					$significant_decimals = (int) strpos(strrev(self::strval($number)), '.');
@@ -1321,6 +1321,10 @@ class MessageFormatter
 
 		// A simple float.
 		if (stripos($input, 'E') === false) {
+			if (\strlen($input) < 18) {
+				return $input;
+			}
+
 			// Before returning, check whether sprintf() formats it with
 			// scientific notation.
 			$temp = \sprintf('%.17H', $input);
@@ -1333,35 +1337,46 @@ class MessageFormatter
 		}
 
 		// Scientific notation takes more work.
-		list($significand, $e) = explode('E', strtoupper($input));
+		list($significand, $magnitude) = explode('E', strtoupper($input));
 
-		$e = (int) $e;
+		$magnitude = (int) $magnitude;
 
 		// In case the decimal point is in a weird place.
-		if (strpos($significand, '.') !== 1) {
-			$e += strpos($significand, '.') - 1;
-			$significand = str_replace('.', '', $significand);
-			$significand = substr($significand, 0, 1) . '.' . substr($significand, 1);
+		switch (strpos($significand, '.')) {
+			// Decimal point is in the expected place.
+			case 1:
+				break;
+
+			// Decimal point is missing.
+			case false:
+				$magnitude += \strlen($significand) - 1;
+				$significand = substr($significand, 0, 1) . '.' . substr($significand, 1);
+				break;
+
+			// Decimal point is in an unexpected place.
+			default:
+				$magnitude += strpos($significand, '.') - 1;
+				$significand = str_replace('.', '', $significand);
+				$significand = substr($significand, 0, 1) . '.' . substr($significand, 1);
+				break;
 		}
 
 		// Shorten overly long significands.
 		if (\strlen($significand) > 18) {
 			// Do the rounding manually to avoid floating point errors.
 			$significand = substr($significand, 0, 17) . substr((string) round((int) substr($significand, 17, 2), -1), 0, 1);
-
-			$input = $significand . 'E' . \sprintf('%+d', $e);
 		}
 
-		// Negative exponents still aren't too difficult.
-		if ($e < 0) {
-			return \sprintf("%{$flags}." . (abs($e) + \strlen($significand) - 2) . 'F', $input);
+		// Negative exponents.
+		if ($magnitude < 0) {
+			return \sprintf("%{$flags}d", 0) . '.' . str_repeat('0', abs($magnitude) - 1) . str_replace('.', '', $significand);
 		}
 
-		// Postive exponents can get tricky for large values.
-		@list($int, $frac) = explode('.', $significand);
+		// Postive exponents.
+		@list($significant_integers, $significant_decimals) = explode('.', $significand);
 
-		$frac = str_pad($frac ?? '', $e, '0');
+		$significant_decimals = str_pad($significant_decimals ?? '', $magnitude, '0');
 
-		return \sprintf("%{$flags}d", $int) . substr($frac, 0, $e) . rtrim('.' . substr($frac, $e), '.0');
+		return \sprintf("%{$flags}d", $significant_integers) . substr($significant_decimals, 0, $magnitude) . rtrim('.' . substr($significant_decimals, $magnitude), '.0');
 	}
 }
