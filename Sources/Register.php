@@ -922,6 +922,7 @@ function RegisterCheckUsername()
 
 	require_once($sourcedir . '/Subs-Auth.php');
 	$errors = validateUsername(0, $context['checked_username'], true);
+	$context['checked_username'] = $smcFunc['htmlspecialchars']($context['checked_username']);
 
 	$context['valid_username'] = empty($errors);
 }
