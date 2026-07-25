@@ -308,9 +308,9 @@ class User implements \ArrayAccess
 	 */
 	public bool $is_me {
 		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
-		// `get => $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
+		// `get => $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
 		&get {
-			$this->is_me = $this::class === self::class ? $this === self::$me : ($this->id ?? NAN) === (self::$my_id ?? NAN);
+			$this->is_me = $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);
 
 			return $this->is_me;
 		}
@@ -1153,7 +1153,7 @@ class User implements \ArrayAccess
 	 */
 	public bool $is_owner {
 		&get {
-			$this->is_owner = Profile::$member->is_me ?? false;
+			$this->is_owner = $this->is_me && (Profile::$member->is_me ?? false);
 
 			return $this->is_owner;
 		}
@@ -1172,7 +1172,7 @@ class User implements \ArrayAccess
 	 */
 	public bool $started {
 		&get {
-			$this->started = Topic::$info->started_by_me ?? false;
+			$this->started = $this->is_me && (Topic::$info->started_by_me ?? false);
 
 			return $this->started;
 		}
@@ -1357,6 +1357,19 @@ class User implements \ArrayAccess
 	protected static int $my_id;
 
 	/**
+	 * @var int
+	 *
+	 * Permanent record of the ID number of the current user as determined when
+	 * validating the login cookie.
+	 *
+	 * Normally the same as self::$my_id, but may differ if self::setMe() was
+	 * used to change the value of self::$me. This is used by self:loadMe() to
+	 * revert self::$me back to the real current user without having to re-parse
+	 * the cookie.
+	 */
+	protected static int $cookie_id;
+
+	/**
 	 * @var string
 	 *
 	 * The encrypted password string provided in the cookie.
@@ -1412,7 +1425,7 @@ class User implements \ArrayAccess
 				unset($dataset);
 			}
 
-			$dataset ??= $this->chooseMyDataset();
+			$dataset ??= self::$me->chooseMyDataset();
 
 			if (!self::$me->dataset->includes($dataset)) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
@@ -2853,10 +2866,28 @@ class User implements \ArrayAccess
 	 *
 	 * The loaded user is assigned to User::$me and also returned.
 	 *
+	 * Note that if User::setMe() was previously used to change the value of
+	 * User::$me, calling this method will change it back to the original user.
+	 *
 	 * @return self An instance of this class for the current user.
 	 */
 	public static function loadMe(): self
 	{
+		// If we loaded the user earlier, but then self::setMe() changed
+		// self::$me to something else, we can save ourselves some effort now
+		// by simply reverting self::$me back to the original user.
+		if (isset(self::$me, self::$cookie_id) && self::$me->id !== self::$cookie_id) {
+			// Double check whether all required data was loaded.
+			if (
+				!isset(self::$loaded[self::$cookie_id])
+				|| self::$me->chooseMyDataset()->exceeds(self::$loaded[self::$cookie_id]->dataset)
+			) {
+				self::reload(self::$cookie_id, self::$me->chooseMyDataset());
+			}
+
+			self::setMe(self::$cookie_id);
+		}
+
 		if (!isset(self::$me)) {
 			self::$me = new self();
 
@@ -2877,6 +2908,7 @@ class User implements \ArrayAccess
 
 			// At this point, we know the user ID for sure.
 			self::$me->id = self::$my_id;
+			self::$cookie_id = self::$my_id;
 
 			// Also track this in our list of all loaded instances.
 			self::$loaded[self::$me->id] = self::$me;
@@ -2958,7 +2990,8 @@ class User implements \ArrayAccess
 				$grouped_by_dataset[$dataset->value][] = $id;
 			}
 
-			unset(self::$loaded[$id], self::$profiles[$id]);
+			unset(self::$loaded[$id]);
+			self::$profiles[$id] = [];
 		}
 
 		$loaded = [];
@@ -3064,76 +3097,80 @@ class User implements \ArrayAccess
 		}
 
 		// Pre-process some data types.
-		foreach ($data as $var => $val) {
-			switch ($var) {
-				case 'birthdate':
-				case 'birth_date':
-					try {
-						$data[$var] = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
-					} catch (\Throwable $e) {
-						$data[$var] = '1004-01-01';
-					}
-
-					break;
-
-				case 'member_ip':
-				case 'member_ip2':
-					$val = IP::create($val);
-
-					if (!$val->isValid()) {
-						unset($data[$var]);
-					} else {
-						$data[$var] = (string) $val;
-					}
-
-					break;
-
-				case 'avatar':
-					$val = new Avatar(
-						original_url: $val,
-						email: User::$loaded[$member]->email,
-						id_member: (int) $member,
-					);
-					break;
-			}
-		}
-
 		foreach ($members as $member) {
 			foreach ($data as $var => $val) {
-				if ($var === 'avatar') {
-					$member->avatar = new Avatar(
-						original_url: $val,
-						email: $member->email,
-						id_member: $member->id,
-					);
-				} elseif ($var === 'alerts') {
-					$member->alerts = Alert::count($member->id);
-				} elseif ((self::$column_types[$var] ?? null) === 'int') {
-					if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $matches)) {
-						if ($matches[1] === '+ ') {
-							$member->{$var} = $member->{$var} + (int) $matches[2];
-						} else {
-							$member->{$var} = $member->{$var} - (int) $matches[2];
+				switch ($var) {
+					case 'avatar':
+						$member->avatar = new Avatar(
+							original_url: $val,
+							email: $member->email,
+							id_member: $member->id,
+						);
+						break;
+
+					case 'birthdate':
+					case 'birth_date':
+						try {
+							$member->birthdate = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
+						} catch (\Throwable $e) {
+							$member->birthdate = '1004-01-01';
 						}
-					} else {
-						switch ($val) {
-							case '+':
-								$member->{$var}++;
+						break;
+
+					case 'member_ip':
+					case 'member_ip2':
+						$val = IP::create($val);
+
+						if ($val->isValid()) {
+							$member->{$var} = (string) $val;
+						}
+						break;
+
+					case 'alerts':
+						$member->alerts = Alert::count($member->id);
+						break;
+
+					default:
+						switch ((self::$column_types[$var] ?? null)) {
+							case 'int':
+								if (
+									preg_match(
+										'~^' . $var . '\s*(\+\s*|-\s*|\+\s*-)(\d+)~',
+										(string) $val,
+										$matches,
+									)
+								) {
+									if (trim($matches[1]) === '+') {
+										$member->{$var} += (int) $matches[2];
+									} else {
+										$member->{$var} = max(0, $member->{$var} - (int) $matches[2]);
+									}
+								} else {
+									switch ($val) {
+										case '+':
+											$member->{$var}++;
+											break;
+
+										case '-':
+											$member->{$var} = max(0, $member->{$var} - 1);
+											break;
+
+										default:
+											$member->{$var} = max(0, (int) $val);
+											break;
+									}
+								}
 								break;
 
-							case '-':
-								$member->{$var} = max(0, $member->{$var} - 1);
+							case 'float':
+								$member->{$var} = (float) $val;
 								break;
 
 							default:
-								$member->{$var} = max(0, (int) $val);
+								$member->{$var} = $val;
 								break;
 						}
-					}
-				} elseif ((self::$column_types[$var] ?? null) === 'float') {
-					$member->{$var} = (float) $val;
-				} else {
-					$member->{$var} = $val;
+						break;
 				}
 			}
 		}

@@ -207,6 +207,9 @@ class ErrorHandlerService
 		static $last_error;
 		static $tried_hook = false;
 		static $error_call = 0;
+		static $error_batch = [];
+		static $batch_size = 10;
+		static $shutdown_registered = false;
 
 		$error_call++;
 
@@ -297,8 +300,7 @@ class ErrorHandlerService
 		];
 
 		if (empty($last_error) || $last_error != $error_info) {
-			// Insert the error into the database.
-			Db::$db->error_insert($error_info);
+			$error_batch[] = $error_info;
 			$last_error = $error_info;
 
 			// Get an error count, if necessary
@@ -312,6 +314,22 @@ class ErrorHandlerService
 				Db::$db->free_result($query);
 			} else {
 				Utils::$context['num_errors']++;
+			}
+
+			// Flush batch when threshold reached.
+			if (\count($error_batch) >= $batch_size) {
+				$this->flushErrorBatch($error_batch);
+				$error_batch = [];
+			}
+
+			// Register shutdown function to flush remaining batch.
+			if (!$shutdown_registered) {
+				register_shutdown_function(function () use (&$error_batch) {
+					if (!empty($error_batch)) {
+						$this->flushErrorBatch($error_batch);
+					}
+				});
+				$shutdown_registered = true;
 			}
 		}
 
@@ -744,6 +762,24 @@ class ErrorHandlerService
 			http_response_code($code);
 		} else {
 			header('HTTP/1.1 ' . $code . ' ' . $message);
+		}
+	}
+
+	/**
+	 * Flush batched errors to database in a single multi-row operation.
+	 * This is much faster than individual inserts, especially during high-error scenarios.
+	 *
+	 * @param array $errors Array of error info arrays to flush
+	 */
+	private function flushErrorBatch(array $errors): void
+	{
+		if (empty($errors)) {
+			return;
+		}
+
+		// Insert all batched errors in one query
+		foreach ($errors as $error_info) {
+			Db::$db->error_insert($error_info);
 		}
 	}
 }

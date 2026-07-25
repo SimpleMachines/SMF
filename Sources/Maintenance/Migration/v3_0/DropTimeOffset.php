@@ -112,7 +112,7 @@ class DropTimeOffset extends MigrationBase
 		// Just in case the previous update missed anyone.
 		$this->query(
 			'UPDATE {db_prefix}members
-			SET timzone = {string:tzid}
+			SET timezone = {string:tzid}
 			WHERE timezone = {empty}',
 			[
 				'tzid' => $forum_tzid,

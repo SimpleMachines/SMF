@@ -17,6 +17,7 @@ namespace SMF\Maintenance;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Maintenance\Tools\ToolsInterface;
 use SMF\Sapi;
@@ -233,6 +234,9 @@ class Maintenance
 		// This might be overwritten by the tool, but we need a default value.
 		self::$context['started'] = (int) TIME_START;
 		self::$script_start = (int) TIME_START;
+
+		// No integration hooks allowed during maintenance.
+		IntegrationHook::$enabled = false;
 	}
 
 	/**

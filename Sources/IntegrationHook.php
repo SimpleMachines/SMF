@@ -48,6 +48,19 @@ class IntegrationHook
 	 */
 	public array $results = [];
 
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether integration hooks are currently enabled.
+	 *
+	 * Always true except in special circumstances.
+	 */
+	public static bool $enabled = true;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -72,7 +85,11 @@ class IntegrationHook
 	 */
 	public function __construct(string $name, ?bool $ignore_errors = null)
 	{
-		if (!class_exists('SMF\\Config', false) || !class_exists('SMF\\Utils', false)) {
+		if (
+			!self::$enabled
+			|| !class_exists('SMF\\Config', false)
+			|| !class_exists('SMF\\Utils', false)
+		) {
 			return;
 		}
 
@@ -110,7 +127,7 @@ class IntegrationHook
 	 */
 	public function execute(array $parameters = []): array
 	{
-		if (empty($this->callables)) {
+		if (!self::$enabled || empty($this->callables)) {
 			return $this->results;
 		}
 
