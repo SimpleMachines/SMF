@@ -3327,6 +3327,8 @@ class User implements \ArrayAccess
 							// rather than simply returning false.
 							'member_name' => 'username',
 							'real_name' => 'name',
+							'email_address' => 'email',
+							'usertitle' => 'title',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
 							'member_ip' => 'ip',
