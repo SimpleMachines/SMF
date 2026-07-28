@@ -3320,6 +3320,13 @@ class User implements \ArrayAccess
 
 					default:
 						$prop = match ($column) {
+							// These columns must map to the canonical properties.
+							// The identically named backward compatibility aliases
+							// are by-reference hooks, so isset() on one of them
+							// throws an Error if it has not been initialised
+							// rather than simply returning false.
+							'member_name' => 'username',
+							'real_name' => 'name',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
 							'member_ip' => 'ip',
