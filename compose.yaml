@@ -1,0 +1,76 @@
+# SMF development environment (PostgreSQL).
+#
+#   docker compose up -d --build
+#   -> http://localhost:8080/install.php
+#
+# Everything below has a working default, so no .env file is required. Copy
+# .docker/env.example to .env if you want to change ports or credentials.
+
+name: smf-dev
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.4}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      # The checkout is bind-mounted, so edits on the host are live immediately.
+      - .:/var/www/html
+    environment:
+      SMF_DB_SERVER: db
+      SMF_DB_PORT: "5432"
+      SMF_DB_NAME: ${POSTGRES_DB:-smf}
+      SMF_DB_USER: ${POSTGRES_USER:-smf}
+      SMF_DB_PASSWD: ${POSTGRES_PASSWORD:-smf}
+      SMF_BOARDURL: http://localhost:${WEB_PORT:-8080}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:${POSTGRES_VERSION:-17-alpine}
+    ports:
+      # Exposed on 5433 by default so it cannot collide with a local postgres.
+      - "${POSTGRES_PORT:-5433}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-smf}
+      POSTGRES_USER: ${POSTGRES_USER:-smf}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-smf}
+      # Dev-only: skip the password prompt cost for local connections.
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./.docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-smf} -d ${POSTGRES_DB:-smf}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Catches every mail the forum sends. Nothing leaves the machine.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_PORT:-8025}:8025"
+    restart: unless-stopped
+
+  # Browse and query the database at http://localhost:8081
+  adminer:
+    image: adminer:latest
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: dracula
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  db-data:
