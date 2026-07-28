@@ -2103,6 +2103,11 @@ class User implements \ArrayAccess
 		];
 
 		foreach ($restrictions as $restriction) {
+			// No ban of this type recorded? Then there is nothing to enforce.
+			if (empty($bans[$restriction])) {
+				continue;
+			}
+
 			$ban = $bans[$restriction];
 
 			switch ($restriction) {
