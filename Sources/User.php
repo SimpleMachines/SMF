@@ -2182,7 +2182,11 @@ class User implements \ArrayAccess
 				$_GET['action'] = '';
 				$_GET['board'] = '';
 				$_GET['topic'] = '';
-				unset(Topic::$topic_id, Topic::$info, Board::$board_id, Board::$info);
+				// These are static, so they have to be cleared, not unset.
+				Topic::$topic_id = null;
+				Topic::$info = null;
+				Board::$board_id = null;
+				Board::$info = null;
 
 				$this->logOnline(true);
 			}
