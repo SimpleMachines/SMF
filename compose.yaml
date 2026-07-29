@@ -1,7 +1,10 @@
-# SMF development environment (PostgreSQL).
+# SMF development environment.
 #
 #   docker compose up -d --build
 #   -> http://localhost:8080/install.php
+#
+# Both database engines SMF supports are running. MySQL is what the forum is
+# pointed at by default; set SMF_DB_TYPE=postgresql in .env to use the other.
 #
 # Everything below has a working default, so no .env file is required. Copy
 # .docker/env.example to .env if you want to change ports or credentials.
@@ -21,33 +24,76 @@ services:
       # The checkout is bind-mounted, so edits on the host are live immediately.
       - .:/var/www/html
     environment:
-      SMF_DB_SERVER: db
-      SMF_DB_PORT: "5432"
-      SMF_DB_NAME: ${POSTGRES_DB:-smf}
-      SMF_DB_USER: ${POSTGRES_USER:-smf}
-      SMF_DB_PASSWD: ${POSTGRES_PASSWORD:-smf}
+      # Which engine the generated Settings.php points at: mysql or postgresql.
+      SMF_DB_TYPE: ${SMF_DB_TYPE:-mysql}
+      SMF_DB_NAME: ${DB_NAME:-smf}
+      SMF_DB_USER: ${DB_USER:-smf}
+      SMF_DB_PASSWD: ${DB_PASSWORD:-smf}
+      # Per-engine host and port, so switching SMF_DB_TYPE is the only change
+      # needed. These are container-internal, not the host ports below.
+      SMF_MYSQL_SERVER: mysql
+      SMF_MYSQL_PORT: "3306"
+      SMF_POSTGRES_SERVER: postgres
+      SMF_POSTGRES_PORT: "5432"
       SMF_BOARDURL: http://localhost:${WEB_PORT:-8080}
     depends_on:
-      db:
+      mysql:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     restart: unless-stopped
 
-  db:
+  mysql:
+    image: mysql:${MYSQL_VERSION:-8.4}
+    ports:
+      # Exposed on 3307 by default so it cannot collide with a local mysql.
+      - "${MYSQL_PORT:-3307}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-smf}
+      MYSQL_USER: ${DB_USER:-smf}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-smf}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-smf}
+    # SMF creates its tables as InnoDB/utf8mb4, so match that at server level
+    # rather than relying on whichever defaults the image ships with. The
+    # collation is deliberately left to the charset default: SMF's own DDL says
+    # `DEFAULT CHARSET=utf8mb4` with no COLLATE, so forcing a different one here
+    # would only apply to objects SMF did not create, and the two would diverge.
+    command:
+      - --character-set-server=utf8mb4
+      - --default-storage-engine=InnoDB
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./.docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+    restart: unless-stopped
+
+  postgres:
     image: postgres:${POSTGRES_VERSION:-17-alpine}
+    # Also reachable as `db`, which is what installs made before MySQL was
+    # added have in their Settings.php.
+    networks:
+      default:
+        aliases:
+          - db
     ports:
       # Exposed on 5433 by default so it cannot collide with a local postgres.
       - "${POSTGRES_PORT:-5433}:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-smf}
-      POSTGRES_USER: ${POSTGRES_USER:-smf}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-smf}
+      POSTGRES_DB: ${DB_NAME:-smf}
+      POSTGRES_USER: ${DB_USER:-smf}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smf}
       # Dev-only: skip the password prompt cost for local connections.
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./.docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-smf} -d ${POSTGRES_DB:-smf}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-smf} -d ${DB_NAME:-smf}"]
       interval: 3s
       timeout: 3s
       retries: 20
@@ -60,17 +106,22 @@ services:
       - "${MAILPIT_PORT:-8025}:8025"
     restart: unless-stopped
 
-  # Browse and query the database at http://localhost:8081
+  # Browse and query either database at http://localhost:8081. The server field
+  # is pre-filled with whichever engine the forum is using; type the other
+  # service name in to look at it instead.
   adminer:
     image: adminer:latest
     ports:
       - "${ADMINER_PORT:-8081}:8080"
     environment:
-      ADMINER_DEFAULT_SERVER: db
+      # Service name, not engine name: mysql or postgres.
+      ADMINER_DEFAULT_SERVER: ${ADMINER_SERVER:-mysql}
       ADMINER_DESIGN: dracula
     depends_on:
-      - db
+      - mysql
+      - postgres
     restart: unless-stopped
 
 volumes:
   db-data:
+  mysql-data:

@@ -29,6 +29,7 @@ RUN install-php-extensions \
         msmtp \
         msmtp-mta \
         postgresql-client \
+        default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Route mail() at Mailpit so outgoing forum mail is captured, never sent.

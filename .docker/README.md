@@ -1,13 +1,15 @@
-# SMF development environment (PostgreSQL)
+# SMF development environment
 
 A throwaway, reproducible local stack for working on SMF 3.0. Nothing here is
 part of the shipped forum — it lives in `.docker/` precisely so the CI checks
 (`check-smf-index.php`, `check-smf-license.php`) skip it.
 
+Both database engines SMF supports are in the stack. **MySQL is the default.**
+
 ## Requirements
 
-Docker Desktop (Linux containers). Nothing else — no local PHP, Composer or
-PostgreSQL install is needed.
+Docker Desktop (Linux containers). Nothing else — no local PHP, Composer, MySQL
+or PostgreSQL install is needed.
 
 ## Start
 
@@ -19,36 +21,58 @@ First boot takes a few minutes: it builds the PHP image and runs
 `composer install` into `vendor/`. Watch it with `docker compose logs -f web`
 and wait for the `[smf-dev] ready` line.
 
-| Service  | URL                     | Notes                                    |
-| -------- | ----------------------- | ---------------------------------------- |
-| Forum    | http://localhost:8080   | The forum itself                          |
-| Mailpit  | http://localhost:8025   | Every mail the forum sends lands here     |
-| Adminer  | http://localhost:8081   | Database browser, pre-pointed at `db`     |
-| Postgres | `localhost:5433`        | For DBeaver/psql/etc. on the host         |
+| Service    | URL / address           | Notes                                   |
+| ---------- | ----------------------- | --------------------------------------- |
+| Forum      | http://localhost:8080   | The forum itself                        |
+| Mailpit    | http://localhost:8025   | Every mail the forum sends lands here   |
+| Adminer    | http://localhost:8081   | Database browser, pre-pointed at MySQL  |
+| MySQL      | `localhost:3307`        | For a client on the host                |
+| PostgreSQL | `localhost:5433`        | For a client on the host                |
 
-Database credentials are `smf` / `smf` / database `smf` throughout.
+Credentials are `smf` / `smf` / database `smf` on both engines.
+
+## Choosing the engine
+
+Both database services always start. `SMF_DB_TYPE` decides which one the forum
+is pointed at, and it defaults to `mysql`:
+
+```sh
+# In .env, or inline:
+SMF_DB_TYPE=postgresql docker compose up -d
+```
+
+This only affects the `Settings.php` the entrypoint *generates*. Once the forum
+is installed, `Settings.php` is what counts and changing the variable does
+nothing — the entrypoint says so in the log rather than leaving you guessing. To
+move to the other engine, delete `Settings.php` and `Settings_bak.php`, then
+restart `web` and reinstall.
+
+Because both engines run side by side with separate volumes, you can install on
+one, switch, install on the other, and switch back: each database keeps its own
+forum.
 
 ## Installing the forum
 
-On first boot the entrypoint writes a `Settings.php` pre-filled for the
-`db` service and copies `other/install.php` to the web root, so
+On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
+engine and copies `other/install.php` to the web root, so
 http://localhost:8080 redirects into the installer.
 
 The installer does **not** read its form defaults from `Settings.php` — it uses
-the hardcoded defaults in `SMF\Db\APIs\PostgreSQL`. On the *Database Server
-Settings* step you must enter:
+the hardcoded defaults in the database API class. On the *Database Server
+Settings* step, enter:
 
-| Field         | Value        |
-| ------------- | ------------ |
-| Database type | `PostgreSQL` |
-| Server        | `db`         |
-| Port          | `5432`       |
-| Username      | `smf`        |
-| Password      | `smf`        |
-| Database name | `smf`        |
+| Field         | MySQL   | PostgreSQL   |
+| ------------- | ------- | ------------ |
+| Database type | `MySQL` | `PostgreSQL` |
+| Server        | `mysql` | `postgres`   |
+| Port          | `3306`  | `5432`       |
+| Username      | `smf`   | `smf`        |
+| Password      | `smf`   | `smf`        |
+| Database name | `smf`   | `smf`        |
 
-Port `5432` is correct here: `5433` is only how the host reaches postgres from
-outside Docker. Containers talk to each other on the internal network.
+The internal ports are correct here: `3307` and `5433` are only how the *host*
+reaches the databases from outside Docker. Containers talk to each other on the
+compose network.
 
 When the installer finishes, delete `install.php` from the repo root — while it
 exists, `Settings.php` redirects every request back into the installer.
@@ -56,17 +80,22 @@ exists, `Settings.php` redirects every request back into the installer.
 ## Everyday use
 
 ```sh
-docker compose logs -f web          # apache + php errors, live
-docker compose exec web bash        # shell in the web container
-docker compose exec db psql -U smf  # psql on the forum database
+docker compose logs -f web              # apache + php errors, live
+docker compose exec web bash            # shell in the web container
+
+docker compose exec mysql mysql -usmf -psmf smf    # mysql client
+docker compose exec postgres psql -U smf           # psql
 
 docker compose exec web composer install
 docker compose exec web composer lint
 
-docker compose restart web          # after changing php.ini or the vhost
-docker compose down                 # stop, keep the database
-docker compose down -v              # stop and destroy the database
+docker compose up -d --build web        # after changing anything in .docker/php/
+docker compose down                     # stop, keep both databases
+docker compose down -v                  # stop and destroy both databases
 ```
+
+`php.ini`, the vhost and the entrypoint are copied into the image at build time,
+not bind-mounted, so a plain `restart` will not pick up edits to them. Rebuild.
 
 The repository is bind-mounted at `/var/www/html`, so edits on the host are
 live on the next request. Opcache is on but revalidates every request, so you
@@ -77,19 +106,32 @@ To reinstall from scratch: `docker compose down -v`, delete `Settings.php` and
 
 ## Configuration
 
-`compose.yaml` works with no `.env` file. To change ports, versions or
-credentials, copy `.docker/env.example` to `.env` in the repository root.
+`compose.yaml` works with no `.env` file. To change ports, versions, the engine
+or credentials, copy `.docker/env.example` to `.env` in the repository root.
+
+The `postgres` service also answers to the hostname `db`, which is what
+`Settings.php` files generated before MySQL was added point at.
 
 ## What is in the image
 
 PHP 8.4 on Apache, with everything `other/requirements.md` lists:
 
-- Required: `mbstring`, `fileinfo`, `pgsql` (SMF checks for `pg_connect`), plus
-  `mysqli` so the installer still offers MySQL.
+- Required: `mbstring`, `fileinfo`, and both `mysqli` and `pgsql` (SMF checks
+  for `pg_connect`), so either engine can be chosen at install time.
 - Recommended: `gd`, `intl`, `curl`, `exif`, `ftp`, `xsl`, and `zip`.
-- `standard_conforming_strings` is set `on` at database level, as SMF requires.
+- Both database command line clients, for the `docker compose exec` recipes
+  above and for the entrypoint's readiness check.
 - `mail()` is routed through msmtp into Mailpit, so no mail can escape the
   machine.
+
+Engine settings SMF asks for are pinned at server level rather than left to the
+image defaults:
+
+- PostgreSQL: `standard_conforming_strings = on`, as `requirements.md` requires.
+- MySQL: `utf8mb4` and InnoDB, matching SMF's own table DDL. The collation is
+  deliberately left at the charset default, because SMF sets `CHARSET` without
+  `COLLATE`; forcing a different one here would diverge from the tables it
+  creates.
 
 ## Files
 
@@ -100,6 +142,7 @@ compose.yaml                     the stack
 .docker/php/vhost.conf           apache vhost
 .docker/php/msmtprc              mail() -> mailpit
 .docker/php/entrypoint.sh        composer install, Settings.php, permissions
-.docker/postgres/init/10-smf.sh  runs once on first database creation
+.docker/mysql/init/10-smf.sh     runs once on first mysql database creation
+.docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
 ```
