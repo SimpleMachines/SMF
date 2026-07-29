@@ -16,7 +16,8 @@
 	"prefer-stable": true,
 	"require-dev": {
 		"simplemachines/build-tools": "dev-release-3.0",
-		"friendsofphp/php-cs-fixer": "^3.95"
+		"friendsofphp/php-cs-fixer": "^3.95",
+		"phpunit/phpunit": "^13.1"
 	},
 	"scripts": {
 		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
