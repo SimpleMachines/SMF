@@ -2105,6 +2105,10 @@ class User implements \ArrayAccess
 		foreach ($restrictions as $restriction) {
 			$ban = $bans[$restriction];
 
+			if (empty($ban['ids'])) {
+				continue;
+			}
+
 			switch ($restriction) {
 				// If you're fully banned, it's end of the story for you.
 				case 'cannot_access':
