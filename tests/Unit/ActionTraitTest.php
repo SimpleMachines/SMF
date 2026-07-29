@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use SMF\Actions\Agreement;
 use SMF\Actions\AgreementAccept;
@@ -15,7 +15,7 @@ use SMF\Actions\Unread;
 use SMF\Actions\UnreadReplies;
 use SMF\ActionTrait;
 
-#[CoversClass(ActionTrait::class)]
+#[CoversTrait(ActionTrait::class)]
 class ActionTraitTest extends TestCase
 {
 	/****************
