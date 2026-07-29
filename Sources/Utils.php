@@ -1160,13 +1160,13 @@ class Utils
 			}
 
 			if ($trailing !== '') {
-				$regex = array_map(fn($r) => '(?' . '>' . $r . $trailing . ')', $regex);
+				$regex = array_map(fn($r) => '(?' . '>' . $r . preg_quote($trailing, $delim) . ')', $regex);
 			}
 		} else {
 			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
 
 			if ($trailing !== '') {
-				$regex = '(?' . '>' . $regex . $trailing . ')';
+				$regex = '(?' . '>' . $regex . preg_quote($trailing, $delim) . ')';
 			}
 		}
 

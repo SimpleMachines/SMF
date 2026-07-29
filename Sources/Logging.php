@@ -220,10 +220,12 @@ class Logging
 				'log_time' => 'int',
 			],
 			[
-				$id ?? User::$me->id,
-				$ip_address ?? User::$me->ip,
-				$email ?? User::$me->email,
-				time(),
+				[
+					$id ?? User::$me->id,
+					$ip_address ?? User::$me->ip,
+					$email ?? User::$me->email,
+					time(),
+				],
 			],
 			['id_ban_log'],
 		);
