@@ -393,7 +393,9 @@ class Security
 			&& ($_SESSION['ban']['email'] ?? NAN) == ($user->email ?? NAN)
 		) {
 			foreach ($restrictions as $restriction) {
-				$bans[$restriction] = $_SESSION[$restriction];
+				if (isset($_SESSION[$restriction])) {
+					$bans[$restriction] = $_SESSION[$restriction];
+				}
 			}
 
 			return $bans;
