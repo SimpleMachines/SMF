@@ -2228,6 +2228,10 @@ class User implements \ArrayAccess
 		}
 
 		// Fix up the banning permissions.
+		if (!isset($this->permission_sets)) {
+			$this->loadPermissions();
+		}
+
 		foreach ($this->permission_sets as $set) {
 			$set->applyBansAndWarnings();
 		}
