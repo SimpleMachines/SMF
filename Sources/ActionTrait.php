@@ -115,7 +115,10 @@ trait ActionTrait
 	 */
 	public static function load(): static
 	{
-		if (!isset(static::$obj)) {
+		// A static property is shared with every descendant class that doesn't
+		// redeclare it, so $obj might currently hold an instance of a relative
+		// of this class rather than an instance of this class itself.
+		if (!isset(static::$obj) || static::$obj::class !== static::class) {
 			static::$obj = new static();
 		}
 
