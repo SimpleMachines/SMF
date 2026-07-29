@@ -78,11 +78,29 @@ class UrlTest extends TestCase
 		$this->assertTrue((new Url('https://example.com'))->isScheme('https'));
 		$this->assertTrue((new Url('https://example.com'))->isScheme(['http', 'https']));
 		$this->assertFalse((new Url('https://example.com'))->isScheme('ftp'));
+	}
 
-		// Not asserted here: an uppercase scheme does not match its lowercase
-		// name, because isScheme() compares the un-normalised scheme with
-		// in_array(). RFC 3986 makes schemes case insensitive, so that looks
-		// like a defect rather than something to pin down in a test.
+	public function testIsSchemeIgnoresCaseOnBothSides(): void
+	{
+		// RFC 3986 section 3.1: scheme names are case insensitive. The scheme is
+		// not normalised on parsing, so the comparison has to fold it.
+		$this->assertTrue((new Url('HTTPS://example.com'))->isScheme('https'));
+		$this->assertTrue((new Url('https://example.com'))->isScheme('HTTPS'));
+		$this->assertTrue((new Url('HtTp://example.com'))->isScheme(['http', 'https']));
+	}
+
+	public function testAnUppercaseSchemeIsStillAWebsite(): void
+	{
+		$this->assertTrue((new Url('HTTP://example.com'))->isWebsite());
+		$this->assertTrue((new Url('HTTPS://example.com'))->isWebsite());
+		$this->assertFalse((new Url('ftp://example.com'))->isWebsite());
+	}
+
+	public function testAnUppercaseDataUriIsRecognised(): void
+	{
+		// User's avatar handling asks isScheme('data') to decide whether the
+		// value is an inline image or a remote address.
+		$this->assertTrue((new Url('DATA:image/png;base64,AAAA'))->isScheme('data'));
 	}
 
 	#[DataProvider('validityProvider')]

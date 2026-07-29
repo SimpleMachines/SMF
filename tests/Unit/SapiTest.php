@@ -27,8 +27,29 @@ class SapiTest extends TestCase
 		$this->assertTrue(Sapi::isCLI());
 	}
 
+	public function testNoMemoryLimitIsReportedAsMoreThanAnythingWillNeed(): void
+	{
+		// A memory_limit of -1 means unlimited. Reporting it as 0 made
+		// setMemoryLimit() decide the current limit was too small and impose
+		// one, so asking for 128M on an unlimited server capped it at 128M.
+		$this->assertSame(PHP_INT_MAX, Sapi::memoryReturnBytes('-1'));
+	}
+
+	public function testAPlainByteCountKeepsItsLastDigit(): void
+	{
+		// The designator is optional, and Graphics\Image passes a computed byte
+		// count without one. Stripping the last character regardless turned this
+		// into a tenth of the memory that was actually asked for.
+		$this->assertSame(50000000, Sapi::memoryReturnBytes('50000000'));
+	}
+
+	public function testSurroundingWhitespaceIsIgnored(): void
+	{
+		$this->assertSame(67108864, Sapi::memoryReturnBytes(' 64M '));
+	}
+
 	#[DataProvider('memorySizeProvider')]
-	public function testMemoryReturnBytesUnderstandsUnitSuffixes(string $val, int $expected): void
+	public function testMemoryReturnBytes(string $val, int $expected): void
 	{
 		$this->assertSame($expected, Sapi::memoryReturnBytes($val));
 	}
@@ -38,12 +59,6 @@ class SapiTest extends TestCase
 	 ***********************/
 
 	/**
-	 * Only values carrying a unit suffix are covered here. memoryReturnBytes()
-	 * unconditionally strips the last character before parsing the number, so a
-	 * plain byte count such as '128' or the '-1' that means "no limit" is not
-	 * read correctly. Those cases are deliberately not asserted rather than
-	 * pinned to the current behaviour.
-	 *
 	 * @return array<string, array{string, int}>
 	 */
 	public static function memorySizeProvider(): array
@@ -54,6 +69,9 @@ class SapiTest extends TestCase
 			'gigabytes' => ['1G', 1073741824],
 			'lowercase suffix' => ['256m', 268435456],
 			'zero megabytes' => ['0M', 0],
+			'plain byte count' => ['128', 128],
+			'zero' => ['0', 0],
+			'empty' => ['', 0],
 		];
 	}
 }
