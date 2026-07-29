@@ -384,30 +384,6 @@ class CreatePost_Notify extends BackgroundTask
 	 ******************/
 
 	/**
-	 * Gets a member's time offset from the forum's default time zone.
-	 *
-	 * The members table no longer has a time_offset column, so this derives the
-	 * offset from the member's time zone, exactly as User::$time_offset does.
-	 *
-	 * @param string $timezone The member's time zone identifier.
-	 * @return float The offset in hours.
-	 */
-	protected static function getTimeOffset(string $timezone): float
-	{
-		if ($timezone === '') {
-			return 0;
-		}
-
-		$now = new \DateTime('now');
-		$default = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-
-		return (
-			(new \DateTimeZone($timezone))->getOffset($now)
-			- (new \DateTimeZone($default))->getOffset($now)
-		) / 3600;
-	}
-
-	/**
 	 * Update an alert if a message was updated since the alert was created.
 	 *
 	 * @param int $msg_id Message ID to update
@@ -832,5 +808,33 @@ class CreatePost_Notify extends BackgroundTask
 
 			$this->members['done'][] = $member_id;
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Gets a member's time offset from the forum's default time zone.
+	 *
+	 * The members table no longer has a time_offset column, so this derives the
+	 * offset from the member's time zone, exactly as User::$time_offset does.
+	 *
+	 * @param string $timezone The member's time zone identifier.
+	 * @return float The offset in hours.
+	 */
+	protected static function getTimeOffset(string $timezone): float
+	{
+		if ($timezone === '') {
+			return 0;
+		}
+
+		$now = new \DateTime('now');
+		$default = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
+
+		return (
+			(new \DateTimeZone($timezone))->getOffset($now)
+			- (new \DateTimeZone($default))->getOffset($now)
+		) / 3600;
 	}
 }
