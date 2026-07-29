@@ -600,12 +600,23 @@ class Url implements \Stringable
 	/**
 	 * Check if this URL uses one of the specified schemes.
 	 *
+	 * Scheme names are case insensitive, per RFC 3986, section 3.1, and this
+	 * class does not normalize them, so both sides are folded before comparing.
+	 *
 	 * @param string|string[] $scheme Schemes to check.
 	 * @return bool Whether the URL matches a scheme.
 	 */
 	public function isScheme(string|array $scheme): bool
 	{
-		return !empty($this->scheme) && \in_array($this->scheme, array_map('strval', (array) $scheme));
+		if (empty($this->scheme)) {
+			return false;
+		}
+
+		return \in_array(
+			strtolower($this->scheme),
+			array_map(fn($s) => strtolower((string) $s), (array) $scheme),
+			true,
+		);
 	}
 
 	/**
