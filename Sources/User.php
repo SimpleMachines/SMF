@@ -2224,9 +2224,6 @@ class User implements \ArrayAccess
 		}
 
 		// Fix up the banning permissions.
-		// The permissions aren't necessarily loaded yet. For example, this
-		// method is called immediately after logging in, at which point
-		// User::$me has been replaced by a freshly loaded instance.
 		if (!isset($this->permission_sets)) {
 			$this->loadPermissions();
 		}
