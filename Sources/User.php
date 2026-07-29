@@ -2103,7 +2103,7 @@ class User implements \ArrayAccess
 		];
 
 		foreach ($restrictions as $restriction) {
-			$ban = $bans[$restriction];
+			$ban = $bans[$restriction] ?? [];
 
 			if (empty($ban['ids'])) {
 				continue;
