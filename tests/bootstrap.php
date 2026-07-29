@@ -51,3 +51,16 @@ define('SMF_SETTINGS_BACKUP_FILE', TESTS_BOARDDIR . '/Settings_bak.php');
 $loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
 $loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
 $loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
+
+/*
+ * Paths and the default language, which the Unicode and entity helpers need in
+ * order to locate their data files. These are the only pieces of Config the suite
+ * sets: no modSettings, no database credentials, nothing read from Settings.php.
+ * A test that needs more than this is an integration test.
+ */
+SMF\Config::$boarddir = (string) realpath(TESTS_BOARDDIR);
+SMF\Config::$sourcedir = SMF\Config::$boarddir . '/Sources';
+SMF\Config::$packagesdir = SMF\Config::$boarddir . '/Packages';
+SMF\Config::$languagesdir = SMF\Config::$boarddir . '/Languages';
+SMF\Config::$cachedir = SMF\Config::$boarddir . '/cache';
+SMF\Config::$language = 'en_US';
