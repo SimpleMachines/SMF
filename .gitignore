@@ -87,3 +87,7 @@ vendor/
 .phplint-cache
 .phplint.cache
 composer.phar
+
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache

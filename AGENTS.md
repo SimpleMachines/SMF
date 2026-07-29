@@ -79,11 +79,22 @@ param, throws, return.
 
 ## Verifying a change
 
-**There is no test suite.** No PHPUnit, no `tests/` directory, nothing in the history.
-CI only proves that the code parses (`phplint` on 8.4 and 8.5) and is formatted
-correctly. It never executes SMF. Do not assume green checks mean a change works.
+There is a unit test suite, but it is small and deliberately narrow:
 
-So verify by running the forum. The repository ships a Docker environment:
+```bash
+composer test        # or: vendor/bin/phpunit
+```
+
+It runs without a database, a `Settings.php` or a request: `tests/bootstrap.php` only
+defines the constants `index.php` would define and points the autoloader at `Sources/`.
+That covers pure helpers and class-level behaviour. **Anything reaching
+`Config::$modSettings`, `User::$me` or `Db::$db` is out of scope**, which is most of the
+forum. Add a test there when the code you are touching is reachable that way; do not
+contort production code to make it testable.
+
+The rest of CI only proves the code parses (`phplint` on 8.4 and 8.5) and is formatted.
+So a fully green PR still tells you very little about whether a change works. Verify by
+running the forum. The repository ships a Docker environment:
 
 ```bash
 docker compose up -d --build

@@ -6,11 +6,13 @@ namespace SMF\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use SMF\Actions\Agreement;
+use SMF\Actions\AgreementAccept;
 use SMF\Actions\Login;
 use SMF\Actions\Login2;
 use SMF\Actions\Logout;
-use SMF\Actions\Notify;
-use SMF\Actions\NotifyBoard;
+use SMF\Actions\Unread;
+use SMF\Actions\UnreadReplies;
 use SMF\ActionTrait;
 
 #[CoversClass(ActionTrait::class)]
@@ -46,9 +48,15 @@ class ActionTraitTest extends TestCase
 
 	public function testTheSameProblemInAnUnrelatedHierarchy(): void
 	{
-		Notify::load();
+		// Eleven action classes extend another action and none redeclare $obj,
+		// so this is not specific to the login hierarchy. Notify is abstract and
+		// so cannot be loaded at all; Agreement and Unread are the other pairs
+		// with a concrete parent.
+		Agreement::load();
+		Unread::load();
 
-		$this->assertInstanceOf(NotifyBoard::class, NotifyBoard::load());
+		$this->assertInstanceOf(AgreementAccept::class, AgreementAccept::load());
+		$this->assertInstanceOf(UnreadReplies::class, UnreadReplies::load());
 	}
 
 	public function testLoadCachesTheInstanceItReturns(): void
