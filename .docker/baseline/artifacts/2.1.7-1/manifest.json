@@ -18,18 +18,18 @@
     "profiles": {
         "tiny": {
             "mysql": {
-                "generated": "2026-07-30T18:22:34+00:00",
+                "generated": "2026-07-30T19:15:32+00:00",
                 "php_version": "8.2.32",
                 "server_version": "MySQL 8.4.11",
                 "populate_commit": null,
                 "files": {
                     "mysql.sql": {
-                        "bytes": 968950,
-                        "sha256": "8b5a85d9b9d2ced6413aebee903b381ecdf8dc67bc97f78b8d127189a9467fb2"
+                        "bytes": 972198,
+                        "sha256": "27116b929ef5c3b5acdb9206d676b180df3cc36b886d31af8b6d545fe900806b"
                     },
                     "files-mysql.tgz": {
-                        "bytes": 1040,
-                        "sha256": "8f3e9de513c5a695f2ec1213d2d7a26a655e95966096e0fa21c4ac4496c703f1"
+                        "bytes": 1041,
+                        "sha256": "d8d70d2ae9f1d9fc230d35ed117738715e2a5045fa705e8da9edef9af0df87b0"
                     }
                 },
                 "row_counts": {
@@ -51,7 +51,7 @@
                     "log_polls": 24,
                     "log_reported": 3,
                     "log_reported_comments": 6,
-                    "log_search_subjects": 527,
+                    "log_search_subjects": 507,
                     "log_spider_hits": 5,
                     "mail_queue": 2,
                     "membergroups": 8,
@@ -78,18 +78,18 @@
                 }
             },
             "postgresql": {
-                "generated": "2026-07-30T18:23:35+00:00",
+                "generated": "2026-07-30T19:16:32+00:00",
                 "php_version": "8.2.32",
                 "server_version": "PostgreSQL 17.10",
                 "populate_commit": null,
                 "files": {
                     "postgres.sql": {
-                        "bytes": 941089,
-                        "sha256": "dac2361a0ccdc8bd1fd8734524dd5a4b13232327d46bbb634b2a21b83d093979"
+                        "bytes": 940654,
+                        "sha256": "8a245319d0a443d5b81fcf539b1635b10100c78bcd2157531cef180019d61ffd"
                     },
                     "files-postgresql.tgz": {
-                        "bytes": 1040,
-                        "sha256": "e1f64c4861526b8d563f8c921f2fcd2a8e6f1e7ff482ea31a85de6d3cefe3198"
+                        "bytes": 1041,
+                        "sha256": "733d6d76d9f9509790fda1f6a179d5dc25ea3c136e3e28c14ab20d98bce8adf2"
                     }
                 },
                 "row_counts": {
@@ -111,7 +111,7 @@
                     "log_polls": 24,
                     "log_reported": 3,
                     "log_reported_comments": 6,
-                    "log_search_subjects": 518,
+                    "log_search_subjects": 505,
                     "log_spider_hits": 5,
                     "mail_queue": 2,
                     "membergroups": 8,
@@ -132,7 +132,7 @@
                     "settings": 230,
                     "smileys": 22,
                     "themes": 136,
-                    "topics": 149,
+                    "topics": 148,
                     "user_drafts": 5,
                     "user_likes": 30
                 }
@@ -140,18 +140,18 @@
         },
         "small": {
             "mysql": {
-                "generated": "2026-07-30T18:32:14+00:00",
+                "generated": "2026-07-30T19:25:05+00:00",
                 "php_version": "8.2.32",
                 "server_version": "MySQL 8.4.11",
                 "populate_commit": null,
                 "files": {
                     "mysql.sql": {
-                        "bytes": 8109396,
-                        "sha256": "15ca9979ad83f4a500b3e2ac99385125e58637a5d31ad40b38989c852939cd17"
+                        "bytes": 8147150,
+                        "sha256": "db1ea52c8005ab74d7efb85f67d1f5146082472e2c100f532da48b3ddb3f5098"
                     },
                     "files-mysql.tgz": {
-                        "bytes": 1038,
-                        "sha256": "081ac564c7d0b332c6d4194f5db68d316dcae80f0e302247d68052cf74caf910"
+                        "bytes": 1042,
+                        "sha256": "3d76857d59056d01bb0014c3d6146c78413bcbe35771c4352a23955f4fb55393"
                     }
                 },
                 "row_counts": {
@@ -173,7 +173,7 @@
                     "log_polls": 24,
                     "log_reported": 3,
                     "log_reported_comments": 6,
-                    "log_search_subjects": 4115,
+                    "log_search_subjects": 4080,
                     "log_spider_hits": 5,
                     "mail_queue": 2,
                     "membergroups": 24,
@@ -194,24 +194,24 @@
                     "settings": 230,
                     "smileys": 22,
                     "themes": 136,
-                    "topics": 1186,
+                    "topics": 1191,
                     "user_drafts": 5,
                     "user_likes": 30
                 }
             },
             "postgresql": {
-                "generated": "2026-07-30T18:36:10+00:00",
+                "generated": "2026-07-30T19:28:54+00:00",
                 "php_version": "8.2.32",
                 "server_version": "PostgreSQL 17.10",
                 "populate_commit": null,
                 "files": {
                     "postgres.sql": {
-                        "bytes": 7494857,
-                        "sha256": "2a962a21a1de4be3e403ba8c606855d06d350fab7d8099eac8b53cfa8c43887c"
+                        "bytes": 7531321,
+                        "sha256": "b36da7343be09410a242b2424af804d6e0b681550663a66c6a1cefa507058fc3"
                     },
                     "files-postgresql.tgz": {
-                        "bytes": 1039,
-                        "sha256": "719b8180a72704730c727b8cf791053ab381120cd59649a87e3af53c04db9cdb"
+                        "bytes": 1045,
+                        "sha256": "741da4c07ca9866e2247f146b19153d61841208f6af3b0e4bc12c029afe9c6da"
                     }
                 },
                 "row_counts": {
@@ -233,7 +233,7 @@
                     "log_polls": 24,
                     "log_reported": 3,
                     "log_reported_comments": 6,
-                    "log_search_subjects": 4112,
+                    "log_search_subjects": 4157,
                     "log_spider_hits": 5,
                     "mail_queue": 2,
                     "membergroups": 24,

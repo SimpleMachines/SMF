@@ -11,7 +11,7 @@
  * than one day.
  *
  * So: four events covering the shapes the migration has to handle, and three
- * holidays covering both kinds of date 2.1 supports. A holiday with year 0004
+ * holidays covering both kinds of date 2.1 supports. A holiday dated in the sentinel year 1004
  * is 2.1's way of saying "every year", and that is exactly the case
  * HolidaysToEvents has to turn into a recurrence rule.
  *
@@ -109,14 +109,20 @@ else
 		array('title' => 'All-day maintenance window')
 	);
 
-	// Holidays. 2.1 stores a recurring holiday as a date in year 0004 -- the
-	// year is ignored and only the month and day are read. A holiday with a
-	// real year happens once. SMF 3.0 has to tell those apart and turn the
-	// first kind into a yearly recurrence rule.
+	// Holidays. 2.1 marks a recurring holiday with the sentinel year 1004 --
+	// getHolidayRange() rewrites the range bounds to that year to find them, and
+	// it is the default for the column. Only the month and day are meaningful.
+	// A holiday with a real year happens once, and SMF 3.0 has to tell the two
+	// apart: turning the recurring kind into a yearly recurrence rule is the
+	// whole of HolidaysToEvents.
+	//
+	// The year has to be exactly 1004. Any other placeholder (0004 looks just
+	// as arbitrary) is simply a holiday in that year, which SMF never shows and
+	// the migration would carry across as a one-off.
 	$holidays = array(
 		array('2026-11-27', 'Baseline one-off holiday'),
-		array('0004-12-25', 'Baseline yearly holiday'),
-		array('0004-01-01', 'Baseline new year'),
+		array('1004-12-25', 'Baseline yearly holiday'),
+		array('1004-01-01', 'Baseline new year'),
 	);
 
 	$smcFunc['db_insert']('insert',
@@ -126,9 +132,17 @@ else
 		array('id_holiday')
 	);
 
-	// The calendar caches its own bounds in settings; without this the new rows
-	// would be invisible until something else happened to update them.
-	updateSettings(array('calendar_updated' => time()));
+	// A fresh 2.1 install ships with the calendar switched off, which would
+	// leave the baseline in a state no real forum is in: four events and three
+	// holidays that nobody could have created, on a feature nobody can reach.
+	// calendar_updated is the cache of the calendar's own date bounds; without
+	// it the new rows stay invisible until something else happens to refresh it.
+	updateSettings(array(
+		'cal_enabled' => 1,
+		'cal_showholidays' => 3,
+		'cal_showevents' => 3,
+		'calendar_updated' => time(),
+	));
 
 	baseline_say(sprintf(
 		'%s: %d event(s), %d holiday(s)',

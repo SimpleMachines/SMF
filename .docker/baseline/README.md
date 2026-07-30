@@ -158,7 +158,7 @@ header which migrations it is there to exercise.
 | `20-profile-fields` | custom fields and their values, theme options, collapsed categories | 2.1 stores field *values* in the `themes` table as `cust_<name>`; unpicking that is what `CustomFieldsPart1-3` do |
 | `30-content` | polls, PMs and labels, drafts, likes, mentions, edited posts, moved topics, look-alike names | one migration each, and a fresh install has none of it |
 | `35-attachments` | real files on disk plus their rows, including a thumbnail and an avatar | `LegacyAttachments`, `AttachmentSizes` and `AttachmentDirectory` have nothing to do against a forum where nobody ever attached anything |
-| `40-calendar` | four events and three holidays | a holiday dated year 0004 is 2.1's "every year", and turning that into a recurrence rule is the whole of `HolidaysToEvents` |
+| `40-calendar` | four events and three holidays | a holiday dated in the sentinel year 1004 is 2.1's "every year", and turning that into a recurrence rule is the whole of `HolidaysToEvents` |
 | `50-logs` | error, action, online, reported, flood, spider and search logs | every one has an IP column with its own migration, and all are empty on a fresh install |
 | `60-admin` | bans (including an IPv6 range), a package, legacy settings, member columns | `DropTimeOffset`, `DropModPrefs`, `RemoveCookieTime` and `MailType` are no-ops unless the old values are actually present |
 | `70-engine-quirks` | MyISAM tables on MySQL; assertions on PostgreSQL | a 2.1 install on a modern server creates *everything* as InnoDB, so `ConvertToInnoDb` would find nothing to convert |
