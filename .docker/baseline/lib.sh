@@ -5,9 +5,12 @@
 # this from the repository root. In-container scripts (install-forum.sh,
 # populate.sh) source it too, and only use the parts that do not touch docker.
 #
+# Everything defined here is consumed by the scripts that source this file, and
+# a linter reading it on its own cannot see any of those uses -- hence the
+# blanket disable below. Keep it on its own, with nothing after it that starts
+# with the linter's name, or the following line gets parsed as a directive too.
+#
 # shellcheck disable=SC2034
-# Everything here is consumed by the scripts that source this file, which
-# shellcheck cannot see from inside it.
 
 # Git Bash on Windows rewrites anything that looks like a Unix path before
 # handing it to a program -- so a container-side path like /artifacts/... is
