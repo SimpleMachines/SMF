@@ -94,22 +94,33 @@ contort production code to make it testable.
 
 The rest of CI only proves the code parses (`phplint` on 8.4 and 8.5) and is formatted.
 So a fully green PR still tells you very little about whether a change works. Verify by
-running the forum. The repository ships a Docker environment:
+running the forum. The repository ships a Docker environment, documented in full in
+`.docker/README.md`:
 
 ```bash
 docker compose up -d --build
 # http://localhost:8080          the forum (install.php on first run)
 # http://localhost:8081          Adminer
 # http://localhost:8025          Mailpit, catches all outgoing mail
+# localhost:3307                 MySQL 8.4
 # localhost:5433                 PostgreSQL 17
 ```
+
+Both database services always start. `SMF_DB_TYPE` decides which one the generated
+`Settings.php` points at, and it defaults to `mysql`. Because raw SQL has to work on
+both engines, verify anything touching SQL on the other one as well: delete
+`Settings.php` and `Settings_bak.php`, restart `web` with `SMF_DB_TYPE` set the other
+way, then reinstall.
 
 The checkout is bind-mounted into the web container, so edits are live with no rebuild.
 Useful while working:
 
 ```bash
-docker exec smf-dev-web-1 php -l /var/www/html/Sources/Whatever.php
-docker exec smf-dev-db-1 psql -U smf -d smf -c 'SELECT * FROM smf_log_errors ORDER BY id_error DESC LIMIT 5;'
+docker compose exec web php -l /var/www/html/Sources/Whatever.php
+
+# Whichever engine the forum is installed on:
+docker compose exec mysql mysql -usmf -psmf smf -e 'SELECT * FROM smf_log_errors ORDER BY id_error DESC LIMIT 5;'
+docker compose exec postgres psql -U smf -d smf -c 'SELECT * FROM smf_log_errors ORDER BY id_error DESC LIMIT 5;'
 ```
 
 `smf_log_errors` is the first place to look. Many failures are recorded there rather
