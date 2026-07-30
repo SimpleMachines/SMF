@@ -108,7 +108,12 @@ fi
 
 # A carriage return in a dump means it came back over a TTY. Catch it here
 # rather than at restore time on somebody else's machine.
-if grep -q $'\r' "$DUMP"; then
+#
+# Counted with tr rather than matched with grep: a grep pattern written as
+# $'\r' is quoted differently by different shells, and one that silently
+# becomes the empty pattern matches every line -- a check that always fires is
+# no more useful than one that never does.
+if [ "$(tr -dc '\r' < "$DUMP" | wc -c)" -gt 0 ]; then
 	die "${DUMP} contains carriage returns -- it was streamed through a TTY, not written to the bind mount"
 fi
 

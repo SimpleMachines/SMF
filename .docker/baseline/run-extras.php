@@ -76,8 +76,11 @@ foreach ($scripts as $script)
 	if ($only !== '' && $only !== $name)
 		continue;
 
-	// Each script decides for itself whether it has already run, so that a
-	// half-finished generator run can simply be repeated.
+	// Each script checks its own marker and skips itself, so re-running this
+	// after the last script has finished is free. A script that failed *part
+	// way* is a different matter -- its marker was never written, so a re-run
+	// would insert its rows a second time. Recover from that with reset.sh and
+	// a fresh build, not by running this again.
 	$baseline_force = $force;
 
 	require $script;
