@@ -84,6 +84,9 @@ vendor/
 /install.php
 /install_2-1_mysql.sql
 /install_2-1_postgresql.sql
+# Written by the baseline's package-log seeding, and by the package manager on
+# any real install. It travels inside the artifacts, not in the checkout.
+/Packages/installed.list
 
 # Baseline generator #
 #######################
