@@ -90,3 +90,5 @@ if (!empty($mismatches))
 baseline_say(sprintf('verify: %d table(s) match the manifest', count($expected) - 1));
 
 exit(0);
+
+?>

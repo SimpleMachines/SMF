@@ -104,3 +104,5 @@ else
 
 	baseline_mark_applied($baseline_name);
 }
+
+?>

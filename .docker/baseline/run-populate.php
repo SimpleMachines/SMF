@@ -273,3 +273,5 @@ function baseline_format($current, $targets)
 
 	return implode('  ', $parts);
 }
+
+?>

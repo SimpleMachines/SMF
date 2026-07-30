@@ -146,3 +146,5 @@ function fail($message)
 	fwrite(STDERR, '[baseline] patch-populate.php: ' . $message . "\n");
 	exit(1);
 }
+
+?>

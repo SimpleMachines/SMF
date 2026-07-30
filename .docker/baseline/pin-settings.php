@@ -126,3 +126,5 @@ function fail($message)
 	fwrite(STDERR, '[baseline] pin-settings.php: ' . $message . "\n");
 	exit(1);
 }
+
+?>

@@ -638,3 +638,5 @@ function baseline_setting($variable)
 		array('variable' => $variable)
 	);
 }
+
+?>

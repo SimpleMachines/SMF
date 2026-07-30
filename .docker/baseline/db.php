@@ -167,3 +167,5 @@ function baseline_count($connection, $type, $prefix, $table)
 
 	return $result === false ? -1 : (int) mysqli_fetch_row($result)[0];
 }
+
+?>

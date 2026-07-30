@@ -302,3 +302,5 @@ function baseline_human_size($bytes)
 
 	return $bytes . ' bytes';
 }
+
+?>

@@ -228,3 +228,5 @@ function baseline_say($message)
 {
 	echo '[baseline] ', $message, "\n";
 }
+
+?>

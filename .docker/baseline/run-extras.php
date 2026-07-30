@@ -92,3 +92,5 @@ if ($ran === 0)
 	baseline_fail('nothing matched --only ' . $only);
 
 baseline_say('extras complete');
+
+?>

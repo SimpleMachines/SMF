@@ -183,3 +183,5 @@ function baseline_count_fields()
 
 	return (int) $count;
 }
+
+?>

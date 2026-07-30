@@ -57,3 +57,5 @@ if (
 echo $manifest['profiles'][$wanted['profile']][$wanted['engine']]['files'][$wanted['file']]['sha256'];
 
 exit(0);
+
+?>
