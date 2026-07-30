@@ -63,7 +63,17 @@ else
 		);
 	}
 
-	$smcFunc['db_insert']('ignore',
+	// 'insert', not 'ignore'. On PostgreSQL, db_insert() builds its ON CONFLICT
+	// clause only from key columns that also appear in the column list -- and
+	// id_field is a sequence we deliberately do not supply. The result is
+	// `ON CONFLICT () DO NOTHING`, which is a syntax error: the query fails, the
+	// error is logged rather than raised, and the script carries on believing it
+	// inserted three fields. That is exactly how this baseline shipped once with
+	// its custom field *values* present and their definitions missing on
+	// PostgreSQL but not on MySQL.
+	$before = baseline_count_fields();
+
+	$smcFunc['db_insert']('insert',
 		'{db_prefix}custom_fields',
 		array(
 			'col_name' => 'string-12', 'field_name' => 'string-40', 'field_desc' => 'string-255',
@@ -76,6 +86,18 @@ else
 		$field_rows,
 		array('id_field')
 	);
+
+	// Count what actually arrived rather than what was asked for. A silent
+	// failure that still reports success is worse than a loud one.
+	$added = baseline_count_fields() - $before;
+
+	if ($added !== count($field_rows))
+		baseline_fail(sprintf(
+			'%s: inserted %d of %d custom fields -- check docker compose logs for the database error',
+			$baseline_name,
+			$added,
+			count($field_rows)
+		));
 
 	// Now the values. 'cust_' . col_name in the themes table, against theme 1,
 	// which is exactly the shape SMF 3.0 has to migrate away from.
@@ -140,10 +162,24 @@ else
 	baseline_say(sprintf(
 		'%s: %d field(s), %d value row(s), %d collapsed categor(y|ies)',
 		$baseline_name,
-		count($field_rows),
+		$added,
 		count($values),
 		count($collapsed)
 	));
 
 	baseline_mark_applied($baseline_name);
+}
+
+/**
+ * @return int Rows currently in {db_prefix}custom_fields.
+ */
+function baseline_count_fields()
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}custom_fields', array());
+	list ($count) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return (int) $count;
 }

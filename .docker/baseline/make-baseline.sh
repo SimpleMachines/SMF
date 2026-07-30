@@ -78,6 +78,13 @@ for engine in $list; do
 
 	if [ "$SKIP_EXTRAS" -eq 0 ]; then
 		docker compose exec -T web php .docker/baseline/run-extras.php
+
+		# Before dumping, not after: an artifact whose data is thin is worth
+		# catching while the forum that produced it still exists. Row counts
+		# would not catch it -- the custom field definitions were once missing
+		# on PostgreSQL while the table still had the four a stock install
+		# supplies.
+		docker compose exec -T web php .docker/baseline/check-coverage.php
 	fi
 
 	bash "$BASELINE_DIR/dump.sh" --engine "$engine" --profile "$PROFILE" --version "$VERSION"

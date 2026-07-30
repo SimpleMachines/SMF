@@ -66,6 +66,7 @@ make-baseline.sh          one command, runs everything below
  │   └─ run-populate.php
  ├─ run-extras.php        everything Populate.php does not create
  │   └─ extras/*.php
+ ├─ check-coverage.php    asserts the seeded columns are actually filled
  ├─ dump.sh               mysqldump / pg_dump + manifest.php
  └─ restore.sh            loads it back and verifies it (verify.php)
 
@@ -162,6 +163,31 @@ header which migrations it is there to exercise.
 | `50-logs` | error, action, online, reported, flood, spider and search logs | every one has an IP column with its own migration, and all are empty on a fresh install |
 | `60-admin` | bans (including an IPv6 range), a package, legacy settings, member columns | `DropTimeOffset`, `DropModPrefs`, `RemoveCookieTime` and `MailType` are no-ops unless the old values are actually present |
 | `70-engine-quirks` | MyISAM tables on MySQL; assertions on PostgreSQL | a 2.1 install on a modern server creates *everything* as InnoDB, so `ConvertToInnoDb` would find nothing to convert |
+
+### Checking the seeding actually worked
+
+`check-coverage.php` runs after the extras and asserts, table by table, that the
+columns the migrations read are genuinely filled — 78 checks across both
+engines. It is not the same thing as `verify.php`, which compares row counts
+against the manifest: that proves a dump restored intact, not that the rows were
+worth dumping.
+
+It exists because it was needed. The custom field *definitions* were silently
+missing on PostgreSQL for a while. `db_insert()` builds its `ON CONFLICT` clause
+only from key columns that also appear in the column list, and `id_field` is a
+sequence the script deliberately does not supply — so PostgreSQL received
+`ON CONFLICT () DO NOTHING`, rejected it as a syntax error, SMF logged that
+instead of raising it, and the script reported three fields inserted. Row counts
+looked healthy, because a stock install supplies four fields of its own. Only
+reading the data showed it.
+
+Run it by hand at any time:
+
+```sh
+docker compose exec -T web php .docker/baseline/check-coverage.php
+```
+
+### Idempotency
 
 Each script records a marker in `{db_prefix}settings`, so it travels inside the
 dump and a restored baseline knows what it already contains. Re-running is
