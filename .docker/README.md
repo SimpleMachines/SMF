@@ -81,6 +81,7 @@ exists, `Settings.php` redirects every request back into the installer.
 
 ```sh
 docker compose logs -f web              # apache + php errors, live
+docker compose logs -f postgres         # every failing query, with its SQL
 docker compose exec web bash            # shell in the web container
 
 docker compose exec mysql mysql -usmf -psmf smf    # mysql client
@@ -103,6 +104,30 @@ never need to restart for a PHP change.
 
 To reinstall from scratch: `docker compose down -v`, delete `Settings.php` and
 `Settings_bak.php`, then `docker compose up -d`.
+
+## Debugging SQL with the PostgreSQL log
+
+The `postgres` log is the best tool in the stack for tracking down a broken
+query. PostgreSQL logs every statement that errors together with the SQL that
+caused it, always and without any configuration:
+
+```
+2026-01-01 12:00:00.000 UTC [98] ERROR:  relation "nope" does not exist at character 15
+2026-01-01 12:00:00.000 UTC [98] STATEMENT:  select * from nope;
+```
+
+Nothing is written to a file inside the container, so the compose log above is
+where to look. Add `--since 5m` to it to skip past the startup noise.
+
+MySQL has no equivalent: it logs server errors only, never the client statement
+that failed, so a query SMF gets wrong leaves no trace in its log. Since MySQL
+is the default engine, a suspected SQL problem is worth reproducing against
+PostgreSQL — install on it once and you can switch back and forth, because each
+database keeps its own forum.
+
+Only failing statements are logged. Successful ones, timings and connections
+are not, so this shows you the queries that break, not the ones that merely
+return the wrong thing.
 
 ## Configuration
 
