@@ -32,28 +32,24 @@ table td {
 	min-width: 5ex;
 }
 
-code::before {
+.bbc_code code::before {
 	position: absolute;
 	content: 'Code:';
 	top: -1.35em;
 	left: 0;
+	display: block;
+	text-align: left;
 }
-code[data-title]::before {
+.bbc_code code[data-title]::before {
 	content: 'Code: (' attr(data-title) ')';
 }
-code {
+.bbc_code {
 	margin-top: 1.5em;
 	position: relative;
 	background: #eee;
 	border: 1px solid #aaa;
 	white-space: pre-wrap;
 	padding: .25em;
-	display: block;
-}
-.ie6 code, .ie7 code {
-	margin-top: 0;
-}
-code::before, code {
 	display: block;
 	text-align: left;
 }
