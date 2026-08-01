@@ -1010,7 +1010,7 @@
 			const searchKey = this.context.getOpt("searchKey");
 			const highlightFirst = this.context.getOpt("highlightFirst");
 
-			for (let i = 0; i < limit; i++) {
+			for (let i = 0, n = Math.min(limit, items.length); i < n; i++) {
 				let item = items[i];
 				item["atwho-at"] = this.context.at;
 				const li = this.context.callbacks("tplEval")?.call(this.context, tpl, item, "onDisplay");
