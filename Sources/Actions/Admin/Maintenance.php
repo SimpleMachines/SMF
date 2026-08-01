@@ -78,7 +78,6 @@ class Maintenance implements ActionInterface
 	public static array $subactions = [
 		'routine' => [
 			'function' => 'routine',
-			'template' => 'maintain_routine',
 			'activities' => [
 				'version' => 'version',
 				'repair' => 'repair',
@@ -90,7 +89,6 @@ class Maintenance implements ActionInterface
 		],
 		'database' => [
 			'function' => 'database',
-			'template' => 'maintain_database',
 			'activities' => [
 				'optimize' => 'optimize',
 				'convertentities' => 'entitiesToUnicode',
@@ -154,7 +152,7 @@ class Maintenance implements ActionInterface
 		// Set a few things.
 		Utils::$context['page_title'] = Lang::getTxt('maintain_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+		Utils::$context['sub_template'] = self::$subactions[$this->subaction]['template'] ?? 'options';
 
 		$call = \is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
@@ -180,6 +178,13 @@ class Maintenance implements ActionInterface
 	 */
 	public function routine(): void
 	{
+		$this->setOptions('?action=admin;area=maintain');
+
+		Utils::$context['options']['cleancache'] = [
+			'title' => Lang::getTxt('maintain_cache', file: 'ManageMaintenance'),
+			'info' => Lang::getTxt('maintain_cache_info', file: 'ManageMaintenance'),
+		];
+
 		if (isset($_GET['done']) && \in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_' . $_GET['done'], file: 'ManageMaintenance');
 		}
@@ -190,24 +195,54 @@ class Maintenance implements ActionInterface
 	 */
 	public function database(): void
 	{
-		// Show some conversion options?
-		Utils::$context['convert_entities'] = true;
+		$this->setOptions('?action=admin;area=maintain;sa=database');
 
+		Utils::$context['options']['convertentities'] = [
+			'title' => Lang::getTxt('entity_convert_title', file: 'ManageMaintenance'),
+			'info' => Lang::getTxt('entity_convert_introduction', file: 'ManageMaintenance'),
+		];
+
+		// Offer to convert the body column of the messages table, but only on MySQL.
 		if (Config::$db_type == 'mysql') {
-			$colData = Db::$db->list_columns('{db_prefix}messages', true);
+			$body_type = array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'];
+			$convert_to = $body_type == 'text' ? 'mediumtext' : 'text';
 
-			foreach ($colData as $column) {
-				if ($column['name'] == 'body') {
-					$body_type = $column['type'];
-				}
+			Utils::$context['options']['convertmsgbody'] = [
+				'title' => Lang::getTxt($convert_to . '_title', file: 'ManageMaintenance'),
+				'info' => Lang::getTxt($convert_to == 'mediumtext' ? 'mediumtext_introduction' : 'body_checking_introduction', file: 'ManageMaintenance'),
+			];
+
+			// Shrinking the column back down would truncate posts they can currently make.
+			if ($convert_to == 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] >= 65536) {
+				Utils::$context['options']['convertmsgbody']['after'] = '<p class="infobox">' . Lang::getTxt('convert_to_suggest_text', file: 'ManageMaintenance') . '</p>';
 			}
-
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : null;
+		} else {
+			unset(Utils::$context['options']['convertmsgbody']);
 		}
 
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('entity_convert_title', file: 'ManageMaintenance');
 		}
+	}
+
+	/**
+	 * Builds the list of tasks the current sub-action offers, for template_maintain_options().
+	 *
+	 * Each task is keyed by its activity name, so the template can find its label and
+	 * description as maintain_<activity> and maintain_<activity>_info. A task whose strings
+	 * are not named that way supplies its own 'title' and 'info' afterwards.
+	 *
+	 * @param string $post_url Query string the form submits to.
+	 */
+	protected function setOptions(string $post_url): void
+	{
+		Utils::$context['template_layers'][] = 'maintain';
+		Utils::$context['post_url'] = Config::$scripturl . $post_url;
+
+		Utils::$context['options'] = array_fill_keys(
+			array_keys(self::$subactions[$this->subaction]['activities']),
+			[],
+		);
 	}
 
 	/**

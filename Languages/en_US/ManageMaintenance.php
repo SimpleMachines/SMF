@@ -162,8 +162,8 @@ $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute 
 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';
-$txt['maintain_errors'] = 'Find and repair any errors';
-$txt['maintain_errors_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help in finding them again.';
+$txt['maintain_repair'] = 'Find and repair any errors';
+$txt['maintain_repair_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help in finding them again.';
 $txt['maintain_logs'] = 'Empty out unimportant logs';
 $txt['maintain_logs_info'] = 'This function will empty out all unimportant logs. This should be avoided unless something is wrong, but it does not hurt anything.';
 $txt['maintain_cache'] = 'Empty SMF’s cache';
@@ -205,7 +205,9 @@ $txt['maintain_members_confirm'] = 'Are you sure you really want to delete these
 
 $txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
 $txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". This operation is not reversible.';
+$txt['text_title'] = 'Convert to TEXT';
 $txt['body_checking_introduction'] = 'This function will convert the column of your database that contains the text of the messages into a "TEXT" format (currently is "MEDIUMTEXT"). This operation will allow to slightly reduce the amount of space occupied by each message (1 byte per message). If any message stored into the database is longer than 65535 characters it will be truncated and part of the text will be lost.';
+$txt['convert_to_suggest_text'] = 'Your maximum allowed post size is larger than 65535 characters, so converting the column back to "TEXT" would truncate posts your members can currently make. Reduce the maximum message length first.';
 
 $txt['entity_convert_title'] = 'Convert HTML-entities to UTF-8 characters';
 $txt['entity_convert_only_utf8'] = 'The database needs to be in UTF-8 format before HTML-entities can be converted to UTF-8';
