@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.5
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -1381,6 +1381,7 @@ function utf8_normalize_kd_maps()
 		"\xEA\x9A\x9C" => "\xD1\x8A",
 		"\xEA\x9A\x9D" => "\xD1\x8C",
 		"\xEA\x9D\xB0" => "\xEA\x9D\xAF",
+		"\xEA\x9F\xB1" => "\x53",
 		"\xEA\x9F\xB2" => "\x43",
 		"\xEA\x9F\xB3" => "\x46",
 		"\xEA\x9F\xB4" => "\x51",

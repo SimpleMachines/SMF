@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.5
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -295,7 +295,7 @@ function utf8_regex_quick_check()
 			'\x{3280}-\x{33FF}' .
 			'\x{A69C}-\x{A69D}' .
 			'\x{A770}' .
-			'\x{A7F2}-\x{A7F4}' .
+			'\x{A7F1}-\x{A7F4}' .
 			'\x{A7F8}-\x{A7F9}' .
 			'\x{AB5C}-\x{AB5F}' .
 			'\x{AB69}' .
@@ -976,7 +976,7 @@ function utf8_regex_quick_check()
 			'\x{3280}-\x{33FF}' .
 			'\x{A69C}-\x{A69D}' .
 			'\x{A770}' .
-			'\x{A7F2}-\x{A7F4}' .
+			'\x{A7F1}-\x{A7F4}' .
 			'\x{A7F8}-\x{A7F9}' .
 			'\x{AB5C}-\x{AB5F}' .
 			'\x{AB69}' .
@@ -1819,12 +1819,15 @@ function utf8_regex_quick_check()
 			'\x{A7C4}-\x{A7C7}' .
 			'\x{A7C9}' .
 			'\x{A7CB}-\x{A7CC}' .
+			'\x{A7CE}' .
 			'\x{A7D0}' .
+			'\x{A7D2}' .
+			'\x{A7D4}' .
 			'\x{A7D6}' .
 			'\x{A7D8}' .
 			'\x{A7DA}' .
 			'\x{A7DC}' .
-			'\x{A7F2}-\x{A7F5}' .
+			'\x{A7F1}-\x{A7F5}' .
 			'\x{A7F8}-\x{A7F9}' .
 			'\x{AB5C}-\x{AB5F}' .
 			'\x{AB69}' .
@@ -1881,6 +1884,7 @@ function utf8_regex_quick_check()
 			'\x{10D50}-\x{10D65}' .
 			'\x{118A0}-\x{118BF}' .
 			'\x{16E40}-\x{16E5F}' .
+			'\x{16EA0}-\x{16EB8}' .
 			'\x{1BCA0}-\x{1BCA3}' .
 			'\x{1CCD6}-\x{1CCF9}' .
 			'\x{1D15E}-\x{1D164}' .
