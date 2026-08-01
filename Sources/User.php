@@ -3328,6 +3328,10 @@ class User implements \ArrayAccess
 
 					default:
 						$prop = match ($column) {
+							'member_name' => 'username',
+							'real_name' => 'name',
+							'email_address' => 'email',
+							'usertitle' => 'title',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
 							'member_ip' => 'ip',
