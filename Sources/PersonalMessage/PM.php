@@ -34,6 +34,7 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 use SMF\Verifier;
 
