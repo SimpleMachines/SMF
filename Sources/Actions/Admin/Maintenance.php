@@ -226,26 +226,6 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Builds the list of tasks the current sub-action offers, for template_maintain_options().
-	 *
-	 * Each task is keyed by its activity name, so the template can find its label and
-	 * description as maintain_<activity> and maintain_<activity>_info. A task whose strings
-	 * are not named that way supplies its own 'title' and 'info' afterwards.
-	 *
-	 * @param string $post_url Query string the form submits to.
-	 */
-	protected function setOptions(string $post_url): void
-	{
-		Utils::$context['template_layers'][] = 'maintain';
-		Utils::$context['post_url'] = Config::$scripturl . $post_url;
-
-		Utils::$context['options'] = array_fill_keys(
-			array_keys(self::$subactions[$this->subaction]['activities']),
-			[],
-		);
-	}
-
-	/**
 	 * Supporting function for the members maintenance area.
 	 */
 	public function members(): void
@@ -2198,6 +2178,26 @@ class Maintenance implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Builds the list of tasks the current sub-action offers, for template_maintain_options().
+	 *
+	 * Each task is keyed by its activity name, so the template can find its label and
+	 * description as maintain_<activity> and maintain_<activity>_info. A task whose strings
+	 * are not named that way supplies its own 'title' and 'info' afterwards.
+	 *
+	 * @param string $post_url Query string the form submits to.
+	 */
+	protected function setOptions(string $post_url): void
+	{
+		Utils::$context['template_layers'][] = 'maintain';
+		Utils::$context['post_url'] = Config::$scripturl . $post_url;
+
+		Utils::$context['options'] = array_fill_keys(
+			array_keys(self::$subactions[$this->subaction]['activities']),
+			[],
+		);
+	}
 
 	/**
 	 * Constructor. Protected to force instantiation via self::load().
