@@ -2451,76 +2451,14 @@ function template_issueWarning()
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-<<<<<<< HEAD
-				<input type="button" name="preview" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
-				<input type="submit" name="save" value="', Lang::getTxt(User::$me->is_owner ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
-=======
 				<input type="button" name="preview" id="preview_button" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
 				<input type="submit" name="save" value="', Lang::getTxt(Profile::$member->is_me ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
->>>>>>> release-3.0
 			</div><!-- .righttext -->
 		</div><!-- .windowbg -->
 	</form>';
 
 	// Previous warnings?
 	template_show_list('view_warnings');
-<<<<<<< HEAD
-=======
-
-	echo '
-	<script>';
-
-	if (!Profile::$member->is_me) {
-		echo '
-		modifyWarnNotify();
-		$(document).ready(function() {
-			$("#preview_button").click(function() {
-				return ajax_getTemplatePreview();
-			});
-		});
-
-		function ajax_getTemplatePreview ()
-		{
-			$.ajax({
-				type: "POST",
-				headers: {
-					"X-SMF-AJAX": 1
-				},
-				xhrFields: {
-					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-				},
-				url: "' . Config::$scripturl . '?action=xmlhttp;sa=previews;xml",
-				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
-				context: document.body,
-				success: function(request){
-					$("#box_preview").css({display:""});
-					$("#body_preview").html($(request).find(\'body\').text());
-					if ($(request).find("error").text() != \'\')
-					{
-						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors">\';
-						var errors = $(request).find(\'error\').each(function() {
-							errors_html += \'<li>\' + $(this).text() + \'</li>\';
-						});
-						errors_html += \'</ul>\';
-
-						$("#profile_error").html(errors_html);
-					}
-					else
-					{
-						$("#profile_error").css({display:"none"});
-						$("#error_list").html(\'\');
-					}
-				return false;
-				},
-			});
-			return false;
-		}';
-	}
-
-	echo '
-	</script>';
->>>>>>> release-3.0
 }
 
 /**
