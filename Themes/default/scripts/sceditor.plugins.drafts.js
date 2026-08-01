@@ -134,16 +134,17 @@
 
 			// Draft::setProperties() splits these on commas, so they go as one
 			// joined value rather than as a repeated field.
+			//
+			// Collected by selector rather than through form.elements, because that
+			// returns a RadioNodeList once there is more than one recipient, and a
+			// RadioNodeList has a value property of its own — so checking for one
+			// cannot tell a single recipient apart from several.
 			var recipients = function (field)
 			{
-				var el = form.elements[field];
-
-				if (!el)
-					return '';
-
-				var values = 'value' in el ? [el.value] : Array.prototype.map.call(el, function (o) { return o.value; });
-
-				return values.map(function (v) { return parseInt(v); }).join(',');
+				return Array.prototype.map.call(
+					form.querySelectorAll('input[name="' + field + '"]'),
+					function (el) { return parseInt(el.value); },
+				).filter(function (id) { return !isNaN(id); }).join(',');
 			};
 
 			editor.getDraftFormData = function ()
