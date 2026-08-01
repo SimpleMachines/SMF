@@ -209,7 +209,7 @@ class Draft
 						// These have to be ints
 						case 'type':
 						case 'poster_time':
-							$this->type = (int) $value;
+							$this->$key = (int) $value;
 							break;
 
 						// Boolean values
