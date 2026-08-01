@@ -8,11 +8,11 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.7
+ * @version 2.1.8
  */
 
 // Version information...
-define('SMF_VERSION', '2.1.7');
+define('SMF_VERSION', '2.1.8');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2026');
 define('SMF_LANG_VERSION', '2.1.5');
