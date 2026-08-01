@@ -152,7 +152,7 @@ class Maintenance implements ActionInterface
 		// Set a few things.
 		Utils::$context['page_title'] = Lang::getTxt('maintain_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = self::$subactions[$this->subaction]['template'] ?? 'options';
+		Utils::$context['sub_template'] = self::$subactions[$this->subaction]['template'] ?? 'maintain_options';
 
 		$call = \is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
