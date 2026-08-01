@@ -573,7 +573,6 @@ function template_main()
 
 	echo '
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 		</script>';
 
 	// If the user is replying to a topic show the previous posts.

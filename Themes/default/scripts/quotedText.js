@@ -54,7 +54,7 @@ function quotedTextClick(oOptions)
 
 		// Do a call to make sure this is a valid message.
 		$.ajax({
-			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject?.bRichTextEnabled ? 1 : 0),
+			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (sceditor.instance(document.getElementById(oEditorID))?.inSourceMode() ? 0 : 1),
 			type: 'GET',
 			headers: {
 				"X-SMF-AJAX": 1

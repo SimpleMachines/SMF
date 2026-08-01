@@ -1041,6 +1041,5 @@ function template_quickreply()
 				});
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 		</script>';
 }
