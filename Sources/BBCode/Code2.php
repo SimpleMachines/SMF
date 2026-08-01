@@ -63,6 +63,20 @@ class Code2 extends BBCode
 		if (!isset($disabled['code'])) {
 			$code = \is_array($data) ? $data[0] : $data;
 
+			// [code=php] on a snippet that omits the opening tag still wants highlighting,
+			// so add one, and take it back off once highlight_string() has done its work.
+			$add_begin = (
+				\is_array($data)
+				&& isset($data[1])
+				&& strtoupper($data[1]) === 'PHP'
+				&& !str_contains($code, '&lt;?php')
+			);
+
+			if ($add_begin) {
+				$code = '&lt;?php ' . $code . '?&gt;';
+				$data[1] = 'PHP';
+			}
+
 			$parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
@@ -78,12 +92,22 @@ class Code2 extends BBCode
 					$parts[$i++] = '';
 				}
 				$parts[$i] = Parser::highlightPhpCode($string . $parts[$i]);
+
+				if (\is_array($data) && empty($data[1])) {
+					$data[1] = 'PHP';
+				}
+			}
+
+			$code = implode('', $parts);
+
+			if ($add_begin) {
+				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
 			}
 
 			if (\is_array($data)) {
-				$data[0] = implode('', $parts);
+				$data[0] = $code;
 			} else {
-				$data = implode('', $parts);
+				$data = $code;
 			}
 		}
 	}
