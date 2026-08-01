@@ -83,7 +83,7 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Set a few minor things.
 		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
-		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
+		Utils::$context['show_buddies'] = !empty(User::$me->buddies) && !empty(Config::$modSettings['enable_buddylist']);
 		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
 
 		// Retrieve the categories and boards.
@@ -439,7 +439,7 @@ class BoardIndex implements ActionInterface, Routable
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 
 			// Perhaps we are ignoring this board?
-			$ignoreThisBoard = \in_array($row_board['id_board'], User::$me->ignoreboards);
+			$ignoreThisBoard = !empty(Config::$modSettings['allow_ignore_boards']) && \in_array($row_board['id_board'], User::$me->ignoreboards);
 			$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
 			if ($board_index_options['include_categories']) {

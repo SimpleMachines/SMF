@@ -19,6 +19,12 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
+/**
+ * @todo Find a SQL standard way of handling this.
+ *    Maybe DATEADD with a calc on YEAR() to find what it takes to make it 1004?
+ *    PostgreSQL does not have DATEFROMPARTS, but does have make_date (9.4>),
+ *    which would be similar the more standard DATEFROMPARTS.
+ */
 class FixDates extends MigrationBase
 {
 	/*******************
@@ -39,121 +45,61 @@ class FixDates extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		// @@ TODO: Find a SQL standard way of handling this.  Maybe DATEADD with a calc on YEAR() to find what it takes to make it 1004?
-		// PostgreSQL does not have DATEFROMPARTS, but does have make_date (9.4>), which would be similar the more standard DATEFROMPARTS.
+		if (Db::$db->title === POSTGRE_TITLE) {
+			$boilerplate = 'UPDATE {db_prefix}%1$s
+				SET %2$s = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM %2$s) < 1004 THEN 1004 END, EXTRACT(MONTH FROM %2$s), EXTRACT(DAY FROM %2$s))::date
+				WHERE EXTRACT(YEAR FROM %2$s) < 1004';
 
-		// PostgreSQL does the query a bit different.
-		$is_pgsql = Db::$db->title === POSTGRE_TITLE;
-
-		if (Maintenance::getCurrentStart() < 1 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}calendar
-				SET start_date = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM start_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM start_date), EXTRACT(DAY FROM start_date))::date
-				WHERE EXTRACT(YEAR FROM start_date) < 1004',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 1) {
-			$this->query(
-				'UPDATE {db_prefix}calendar
-				SET start_date = DATE(CONCAT(1004, {literal:-}, MONTH(start_date), {literal:-}, DAY(start_date)))
-				WHERE YEAR(start_date) < 1004',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
-
-		if (Maintenance::getCurrentStart() < 2 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}calendar
-				SET end_date = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM end_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM end_date), EXTRACT(DAY FROM end_date))::date
-				WHERE EXTRACT(YEAR FROM end_date) < 1004',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 2) {
-			$this->query(
-				'UPDATE {db_prefix}calendar
-				SET end_date = DATE(CONCAT(1004, {literal:-}, MONTH(end_date), {literal:-}, DAY(end_date)))
-				WHERE YEAR(end_date) < 1004',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
-
-		if (Maintenance::getCurrentStart() < 3 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}calendar_holidays
-				SET event_date = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM event_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM event_date), EXTRACT(DAY FROM event_date))::date
-				WHERE EXTRACT(YEAR FROM event_date) < 1004',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 3) {
-			$this->query(
-				'UPDATE {db_prefix}calendar_holidays
-				SET event_date = DATE(CONCAT(1004, {literal:-}, MONTH(event_date), {literal:-}, DAY(event_date)))
-				WHERE YEAR(event_date) < 1004',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
-
-		if (Maintenance::getCurrentStart() < 4 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}log_spider_stats
-				SET stat_date = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
-				WHERE EXTRACT(YEAR FROM stat_date) < 1004',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 4) {
-			$this->query(
-				'UPDATE {db_prefix}log_spider_stats
-				SET stat_date = DATE(CONCAT(1004, {literal:-}, MONTH(stat_date), {literal:-}, DAY(stat_date)))
-				WHERE YEAR(stat_date) < 1004',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
-
-		if (Maintenance::getCurrentStart() < 5 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}log_spider_stats
+			$bday_query = 'UPDATE {db_prefix}members
 				SET birthdate = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
-				WHERE EXTRACT(YEAR FROM birthdate) < 1004 OR EXTRACT(MONTH FROM birthdate) < 1 OR EXTRACT(DAY FROM birthdate) < 1',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 5) {
-			$this->query(
-				'UPDATE {db_prefix}members
-				SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), {literal:-}, IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), {literal:-}, IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
-				WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
+				WHERE EXTRACT(YEAR FROM birthdate) < 1004 OR EXTRACT(MONTH FROM birthdate) < 1 OR EXTRACT(DAY FROM birthdate) < 1';
 
-		if (Maintenance::getCurrentStart() < 6 && $is_pgsql) {
-			$this->query(
-				'UPDATE {db_prefix}members
-				SET birthdate = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
-				WHERE EXTRACT(YEAR FROM birthdate) < 1004 OR EXTRACT(MONTH FROM birthdate) < 1 OR EXTRACT(DAY FROM birthdate) < 1',
-				[],
-			);
-		} elseif (Maintenance::getCurrentStart() < 6) {
-			$this->query(
-				'UPDATE {db_prefix}members
-				SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), {literal:-}, IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), {literal:-}, IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
-				WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1',
-				[],
-			);
-		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
+		} else {
+			$boilerplate = 'UPDATE {db_prefix}%1$s
+				SET %2$s = DATE(CONCAT(1004, {literal:-}, MONTH(%2$s), {literal:-}, DAY(%2$s)))
+				WHERE YEAR(%2$s) < 1004';
 
-		if (Maintenance::getCurrentStart() < 7) {
+			$bday_query = 'UPDATE {db_prefix}members
+				SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), {literal:-}, IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), {literal:-}, IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
+				WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1';
+		}
+
+		if (Maintenance::getCurrentStart() < 1) {
+			$this->query(\sprintf($boilerplate, 'calendar', 'start_date'));
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 2) {
+			$this->query(\sprintf($boilerplate, 'calendar', 'end_date'));
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 3) {
+			$this->query(\sprintf($boilerplate, 'calendar_holidays', 'event_date'));
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 4) {
+			$this->query(\sprintf($boilerplate, 'log_spider_stats', 'stat_date'));
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 5) {
+			$this->query($bday_query);
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 6) {
 			Db::$db->change_column(
 				'{db_prefix}log_activity',
 				'DATE',
@@ -162,22 +108,63 @@ class FixDates extends MigrationBase
 					'default' => null,
 				],
 			);
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
 		}
-		Maintenance::setCurrentStart();
-		$this->handleTimeout();
 
-		$fixes = [
-			['tbl' => '{db_prefix}calendar', 'col' => 'start_date'],
-			['tbl' => '{db_prefix}calendar', 'col' => 'end_date'],
-			['tbl' => '{db_prefix}calendar_holidays', 'col' => 'event_date'],
-			['tbl' => '{db_prefix}log_spider_stats', 'col' => 'stat_date'],
-			['tbl' => '{db_prefix}members', 'col' => 'birthdate'],
-		];
+		if (Maintenance::getCurrentStart() < 7) {
+			Db::$db->change_column(
+				'{db_prefix}calendar',
+				'start_date',
+				['default' => '1004-01-01'],
+			);
 
-		for ($key = Maintenance::getCurrentStart(); $key < \count($fixes); Maintenance::setCurrentStart()) {
-			$fix = $fixes[$key - 7];
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
 
-			Db::$db->change_column($fix['tbl'], $fix['col'], ['default' => '1004-01-01']);
+		if (Maintenance::getCurrentStart() < 8) {
+			Db::$db->change_column(
+				'{db_prefix}calendar',
+				'end_date',
+				['default' => '1004-01-01'],
+			);
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 9) {
+			Db::$db->change_column(
+				'{db_prefix}calendar_holidays',
+				'event_date',
+				['default' => '1004-01-01'],
+			);
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 10) {
+			Db::$db->change_column(
+				'{db_prefix}log_spider_stats',
+				'stat_date',
+				['default' => '1004-01-01'],
+			);
+
+			Maintenance::setCurrentStart();
+			$this->handleTimeout();
+		}
+
+		if (Maintenance::getCurrentStart() < 11) {
+			Db::$db->change_column(
+				'{db_prefix}members',
+				'stat_date',
+				['birthdate' => '1004-01-01'],
+			);
+
+			Maintenance::setCurrentStart();
 			$this->handleTimeout();
 		}
 

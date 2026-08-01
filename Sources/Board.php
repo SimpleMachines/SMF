@@ -752,7 +752,7 @@ class Board implements \ArrayAccess, Routable
 		// Are we saving the changes?
 		if ($save) {
 			foreach ($affected_boards as $board_id) {
-				self::$loaded[$board_id]->save();
+				self::$loaded[$board_id]->save(Board::SAVE_DEFINITION);
 			}
 
 			// Ensure that the order is correct.
@@ -772,8 +772,8 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		// Save the unparsed description in case we need it later.
-		if (!isset($this->custom['unparsed_description'])) {
-			$this->custom['unparsed_description'] = $this->description;
+		if (!isset($this->internal_data['unparsed_description'])) {
+			$this->internal_data['unparsed_description'] = $this->description;
 		}
 
 		if (!empty(CacheApi::$enable)) {
@@ -812,8 +812,8 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public function unparseDescription(): void
 	{
-		if (isset($this->custom['unparsed_description'])) {
-			$this->description = $this->custom['unparsed_description'];
+		if (isset($this->internal_data['unparsed_description'])) {
+			$this->description = $this->internal_data['unparsed_description'];
 		}
 	}
 
@@ -1188,7 +1188,7 @@ class Board implements \ArrayAccess, Routable
 
 				// Find all the id_member's for the member_name's in the list.
 				if (!empty($moderators)) {
-					foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator) {
+					foreach (User::load($moderators, User::LOAD_BY_NAME, UserDataset::Minimal) as $moderator) {
 						$boardOptions['moderators'][] = $moderator->id;
 					}
 				}
@@ -1271,17 +1271,17 @@ class Board implements \ArrayAccess, Routable
 		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
 
 		// There's an integration hook called in Board::save() that wants to know this.
-		$board->custom['boardOptions'] = $boardOptions;
+		$board->internal_data['boardOptions'] = $boardOptions;
 
 		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
 			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
-				self::$loaded[$moved]->save();
+				self::$loaded[$moved]->save(Board::SAVE_DEFINITION);
 			}
 		}
 
 		// We're ready to save the changes now.
-		$board->save();
+		$board->save(Board::SAVE_DEFINITION | Board::SAVE_MODS | Board::SAVE_GROUPS);
 
 		// If we were moving boards, ensure that the order is correct.
 		if (!empty($moved_boards)) {
@@ -2064,8 +2064,8 @@ class Board implements \ArrayAccess, Routable
 	 *  - If cache is enabled, Board::$info is stored in cache.
 	 *  - Redirects to appropriate post if only a message ID was requested.
 	 *  - Is only used when inside a topic or board.
-	 *  - Determines the local moderators for the board and calls
-	 *    User::setModerators.
+	 *  - Loads User objects for the local moderators of the board and assigns
+	 *    them moderator status.
 	 *  - Prevents access if user is not in proper group nor a local moderator
 	 *    of the board.
 	 *
@@ -2120,7 +2120,14 @@ class Board implements \ArrayAccess, Routable
 				}
 
 				if (!empty(self::$board_id)) {
-					User::setModerators();
+					if (!empty($this->moderators)) {
+						foreach (User::load(array_keys($this->moderators)) as $mod) {
+							// Setting this to true will automatically trigger related
+							// changes like adjusting their group, icons, etc.
+							$mod->is_mod = true;
+						}
+					}
+
 					$this->checkAccess();
 					$this->buildLinkTree();
 				}
@@ -2646,7 +2653,7 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			// Do any hooks want to add or adjust anything?
-			IntegrationHook::call('integrate_modify_board', [$this->id, $this->custom['boardOptions'] ?? [], &$set, &$params]);
+			IntegrationHook::call('integrate_modify_board', [$this->id, $this->internal_data['boardOptions'] ?? [], &$set, &$params]);
 		}
 
 		// Perform the update.

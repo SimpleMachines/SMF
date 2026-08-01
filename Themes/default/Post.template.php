@@ -841,7 +841,7 @@ function template_announcement_send()
 	</div><!-- #announcement -->
 	<br>
 	<script>
-		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ');
+		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ', "autoSubmit", "b");
 	</script>';
 }
 

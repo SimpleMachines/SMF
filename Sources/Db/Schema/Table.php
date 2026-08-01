@@ -22,7 +22,7 @@ use SMF\Lang;
 /**
  * Represents a database table.
  */
-class Table
+abstract class Table
 {
 	/*******************
 	 * Public properties
@@ -61,7 +61,20 @@ class Table
 	 *
 	 * The default character set for the table.
 	 */
-	public ?string $default_charset;
+	public ?string $default_charset {
+		get {
+			// As of SMF 3.0, all tables always use four-byte UTF-8.
+			if (
+				!isset($this->default_charset)
+				&& preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
+				&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
+			) {
+				$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
+			}
+
+			return $this->default_charset ?? null;
+		}
+	}
 
 	/**
 	 * @var int
@@ -76,22 +89,34 @@ class Table
 	 */
 	public ?int $auto_start;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Cached output of Db::$db->list_tables
+	 */
+	protected static array $existing_tables = [];
+
 	/****************
 	 * Public methods
 	 ****************/
 
 	/**
-	 * Constructor.
+	 * Checks whether a table with this name exists in the database.
+	 *
+	 * @param bool $force_refresh If true, force a refresh of the tables list.
+	 * @return bool Whether this table exists.
 	 */
-	public function __construct()
+	public function exists(bool $force_refresh = false)
 	{
-		// As of SMF 3.0, all tables always use four-byte UTF-8.
-		if (
-			preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
-			&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
-		) {
-			$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
+		if ($force_refresh || empty(self::$existing_tables)) {
+			self::$existing_tables = Db::$db->list_tables();
 		}
+
+		return \in_array(Db::$db->prefix . $this->name, self::$existing_tables);
 	}
 
 	/**
@@ -106,7 +131,7 @@ class Table
 			return false;
 		}
 
-		if (empty(Db::$db->list_tables(false, Db::$db->prefix . $this->name))) {
+		if (!$this->exists()) {
 			return $this->create();
 		}
 
@@ -287,13 +312,20 @@ class Table
 			return false;
 		}
 
-		return Db::$db->create_table(
+		$success = Db::$db->create_table(
 			'{db_prefix}' . $this->name,
 			array_map('get_object_vars', array_values($this->columns)),
 			array_map('get_object_vars', array_values($this->indexes)),
 			$parameters,
 			$if_exists,
 		);
+
+		if ($success) {
+			// Force a refresh of the list of tables.
+			self::$existing_tables = [];
+		}
+
+		return $success;
 	}
 
 	/**
@@ -305,7 +337,14 @@ class Table
 	 */
 	public function drop(): bool
 	{
-		return Db::$db->drop_table('{db_prefix}' . $this->name);
+		$success = Db::$db->drop_table('{db_prefix}' . $this->name);
+
+		if ($success) {
+			// Force a refresh of the list of tables.
+			self::$existing_tables = [];
+		}
+
+		return $success;
 	}
 
 	/**
@@ -636,23 +675,21 @@ class Table
 	}
 
 	/**
-	 * Gets all known table schemas.
+	 * Gets database initializer queries for the indicated SMF version.
 	 *
+	 * @param string $schema_version E.g. 'v3_0'.
 	 * @return array All known table schemas.
 	 */
-	final public static function getInitializers(string $schema_version, string $title): array
+	final public static function getInitializers(string $schema_version): array
 	{
-		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . $title . '.php')) {
+		if (file_exists(__DIR__ . '/' . $schema_version . '/Initialize/' . Db::$db->title . '.php')) {
 
-			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . $title;
+			$fully_qualified_class_name = __NAMESPACE__ . '\\' . $schema_version . '\\Initialize\\' . Db::$db->title;
 
 			if (!class_exists($fully_qualified_class_name)) {
 				return [];
 			}
 
-			/**
-			 * @var \SMF\Db\Schema\v3_0\Initialize\Base
-			 */
 			$intializer = new $fully_qualified_class_name(Db::$db->get_version());
 
 			return $intializer->getAll();

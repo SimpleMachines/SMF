@@ -248,7 +248,7 @@ class Permissions extends MigrationBase
 				);
 			}
 
-			Db::$db->query(
+			$this->query(
 				'DELETE FROM {db_prefix}settings
 				WHERE variable = {string:warning_show}',
 				[
@@ -306,7 +306,7 @@ class Permissions extends MigrationBase
 
 		$this->handleTimeout(++$start);
 
-		Db::$db->query(
+		$this->query(
 			'DELETE FROM {db_prefix}permissions
 			WHERE id_group = {int:guests}
 				AND permission IN ({array_string:illegal_perms})',

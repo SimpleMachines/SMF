@@ -35,8 +35,10 @@ class PostgreSqlSchemaDiff extends MigrationBase
 	 *********************/
 
 	/**
-	 * Schmea fixes we will peform, these are not cross database safe as we intend to run this only on PostgreSQL.
 	 * @var array
+	 *
+	 * Schmea fixes we will peform, these are not cross database safe as we
+	 * intend to run this only on PostgreSQL.
 	 */
 	private array $schema_fixes = [
 		['log_subscribed', 'ALTER pending_details DROP DEFAULT'],
@@ -141,6 +143,7 @@ class PostgreSqlSchemaDiff extends MigrationBase
 		$this->query(
 			'DROP INDEX IF EXISTS {db_prefix}log_actions_id_topic_id_log',
 		);
+
 		$this->query(
 			'CREATE INDEX {db_prefix}log_actions_id_topic_id_log ON {db_prefix}log_actions (id_topic, id_log)',
 		);

@@ -269,7 +269,5 @@ class Topics extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

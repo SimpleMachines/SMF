@@ -331,7 +331,7 @@ function template_create_index_progress()
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 	</form>
 	<script>
-		doAutoSubmit(10, ', Utils::escapeJavaScript(Lang::getTxt('search_create_index_continue', file: 'Search')), ');
+		doAutoSubmit(10, ', Utils::escapeJavaScript(Lang::getTxt('search_create_index_continue', file: 'Search')), ', "autoSubmit", "b");
 	</script>';
 }
 

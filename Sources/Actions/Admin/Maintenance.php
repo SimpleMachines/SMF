@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
+use SMF\Actions\MessageIndex;
 use SMF\Actions\TopicRemove;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
-use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
@@ -36,6 +36,7 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -244,37 +245,10 @@ class Maintenance implements ActionInterface
 	public function topics(): void
 	{
 		// Let's load up the boards in case they are useful.
-		Utils::$context['categories'] = [];
-
-		$result = Db::$db->query(
-			'SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-			WHERE {query_see_board}
-				AND redirect = {string:blank_redirect}',
-			[
-				'blank_redirect' => '',
-			],
-			identifier: 'order_by_board_order',
-		);
-
-		while ($row = Db::$db->fetch_assoc($result)) {
-			if (!isset(Utils::$context['categories'][$row['id_cat']])) {
-				Utils::$context['categories'][$row['id_cat']] = [
-					'name' => $row['cat_name'],
-					'boards' => [],
-				];
-			}
-
-			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
-				'id' => $row['id_board'],
-				'name' => $row['name'],
-				'child_level' => $row['child_level'],
-			];
-		}
-		Db::$db->free_result($result);
-
-		Category::sort(Utils::$context['categories']);
+		Utils::$context['categories'] = MessageIndex::getBoardList([
+			'use_permissions' => true,
+			'not_redirection' => true,
+		]);
 
 		if (isset($_GET['done']) && $_GET['done'] == 'purgeold') {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_old', file: 'ManageMaintenance');
@@ -285,6 +259,8 @@ class Maintenance implements ActionInterface
 
 	/**
 	 * Oh noes! I'd document this but that would give it away.
+	 *
+	 * @internal
 	 */
 	public function destroy(): void
 	{
@@ -695,6 +671,8 @@ class Maintenance implements ActionInterface
 
 		// Get all members with wrong number of personal messages.
 		if ($_REQUEST['step'] <= 5) {
+			$members = [];
+
 			$request = Db::$db->query(
 				'SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 					MAX(mem.instant_messages) AS instant_messages
@@ -708,8 +686,16 @@ class Maintenance implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData($row['id_member'], ['instant_messages' => $row['real_num']]);
+				// Get an instance of User for this member.
+				$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+
+				// Set the correct value.
+				$member->instant_messages = (int) $row['real_num'];
+
+				// Keep track of this member.
+				$members[$member->id] = $member;
 			}
+
 			Db::$db->free_result($request);
 
 			$request = Db::$db->query(
@@ -726,9 +712,20 @@ class Maintenance implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData($row['id_member'], ['unread_messages' => $row['real_num']]);
+				// If this member is already loaded, User::load() will just return the same instance as before.
+				$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+
+				// Set the correct value.
+				$member->unread_messages = (int) $row['real_num'];
+
+				// Keep track of this member.
+				$members[$member->id] = $member;
 			}
+
 			Db::$db->free_result($request);
+
+			// Save the repaired data for the affected members.
+			User::saveBatch($members);
 
 			if (microtime(true) - TIME_START > 3) {
 				Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
@@ -2097,7 +2094,9 @@ class Maintenance implements ActionInterface
 			list($messageCount) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			User::updateMemberData($memID, ['posts' => 'posts + ' . $messageCount]);
+			$member = current(User::load($memID, dataset: UserDataset::Minimal));
+			$member->posts += $messageCount;
+			$member->save();
 		}
 
 		$query_parts = [];
@@ -2311,12 +2310,20 @@ class Maintenance implements ActionInterface
 	protected static function getDefinedFunctionsInFile(string $file): array
 	{
 		$source = file_get_contents($file);
-		// token_get_all() is too slow so use a nice little regex instead.
-		preg_match_all('/\bnamespace\s++((?P>label)(?:\\\(?P>label))*+)\s*+;|\bclass\s++((?P>label))[\w\s]*+{|\bfunction\s++((?P>label))\s*+\(.*?\)[:\|\w\s]*+{(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/is', $source, $matches, PREG_SET_ORDER);
 
+		if (!str_contains($source, 'function')) {
+			return [];
+		}
+
+		// Remove multiline comments so regex does not
+		// match fake functions/classes inside them.
+		$source = preg_replace('~//[^\h]+|/\*.*?\*/~s', '', $source);
 		$functions = [];
 		$namespace = '';
 		$class = '';
+
+		// token_get_all() is too slow so use a nice little regex instead.
+		preg_match_all('/\b(?:namespace\s+((?P>label)(?:\\\(?P>label))*+)\s*;|(?:class\s+((?P>label))(?:[\s,]|\\\\|(?P>label))*+|function\s+((?P>label))\s*\([^)]*\)\s*(?::[^{]+)?){)(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/i', $source, $matches, PREG_SET_ORDER);
 
 		foreach ($matches as $match) {
 			if (!empty($match[1])) {

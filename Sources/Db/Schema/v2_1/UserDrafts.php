@@ -155,7 +155,5 @@ class UserDrafts extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

@@ -27,6 +27,7 @@ use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 use XSLTProcessor;
 
@@ -932,7 +933,7 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// Load the specifed member. Abort on failure.
-		if (User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile') === []) {
+		if (User::load($this->_details['uid'], User::LOAD_BY_ID, UserDataset::Profile) === []) {
 			// Delete any existing export files.
 			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret()) . '.' . $this->_details['format_settings']['extension'];
 

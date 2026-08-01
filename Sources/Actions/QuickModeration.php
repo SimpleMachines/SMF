@@ -27,6 +27,7 @@ use SMF\Mail;
 use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -711,7 +712,7 @@ class QuickModeration implements ActionInterface, Routable
 			Topic::move($topics, $to);
 		}
 
-		// Does the post counts need to be updated?
+		// Do the post counts need to be updated?
 		if (!empty($moveTos)) {
 			$topicRecounts = [];
 			$request = Db::$db->query(
@@ -745,7 +746,8 @@ class QuickModeration implements ActionInterface, Routable
 				$request = Db::$db->query(
 					'SELECT id_member, id_topic
 					FROM {db_prefix}messages
-					WHERE id_topic IN ({array_int:moved_topic_ids})',
+					WHERE id_topic IN ({array_int:moved_topic_ids})
+						AND id_member > 0',
 					[
 						'moved_topic_ids' => array_keys($topicRecounts),
 					],
@@ -766,10 +768,18 @@ class QuickModeration implements ActionInterface, Routable
 				}
 				Db::$db->free_result($request);
 
-				// And now update them member's post counts
-				foreach ($members as $id_member => $post_adj) {
-					User::updateMemberData($id_member, ['posts' => 'posts + ' . $post_adj]);
+				// And now update the member's post counts.
+				foreach ($members as $id => $post_adj) {
+					$members[$id] = current(User::load($id, dataset: UserDataset::Minimal));
+
+					if ($members[$id] instanceof User) {
+						$members[$id]->posts += $post_adj;
+					} else {
+						unset($members[$id]);
+					}
 				}
+
+				User::saveBatch($members);
 			}
 		}
 

@@ -412,7 +412,7 @@ function template_email_members_send()
 		</form>
 
 		<script>
-			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('email_continue', file: 'Admin')), ');
+			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('email_continue', file: 'Admin')), ', "autoSubmit", "b");
 		</script>';
 }
 

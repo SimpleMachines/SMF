@@ -99,7 +99,5 @@ class Categories extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

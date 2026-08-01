@@ -46,7 +46,18 @@ class Login extends Login2
 		// You are already logged in, go take a tour of the boards
 		if (!empty(User::$me->id)) {
 			// This came from a valid hashed return url.  Or something that knows our secrets...
-			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
+			if (
+				!empty($_REQUEST['return_hash'])
+				&& !empty($_REQUEST['return_to'])
+				&& hash_equals(
+					hash_hmac(
+						'sha1',
+						Utils::htmlspecialcharsDecode($_REQUEST['return_to']),
+						Config::getAuthSecret(),
+					),
+					$_REQUEST['return_hash'],
+				)
+			) {
 				Utils::redirectexit(Utils::htmlspecialcharsDecode($_REQUEST['return_to']));
 			} else {
 				Utils::redirectexit();
@@ -79,13 +90,31 @@ class Login extends Login2
 		}
 
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
-		if (isset($_SESSION['old_url']) && !str_contains($_SESSION['old_url'], 'dlattach') && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) {
+		if (
+			isset($_SESSION['old_url'])
+			&& !str_contains($_SESSION['old_url'], 'dlattach')
+			&& preg_match('~(board|topic)[=,]~', $_SESSION['old_url'])
+		) {
 			$_SESSION['login_url'] = $_SESSION['old_url'];
 		}
 		// This came from a valid hashed return url.  Or something that knows our secrets...
-		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
+		elseif (
+			!empty($_REQUEST['return_hash'])
+			&& !empty($_REQUEST['return_to'])
+			&& hash_equals(
+				hash_hmac(
+					'sha1',
+					Utils::htmlspecialcharsDecode($_REQUEST['return_to']),
+					Config::getAuthSecret(),
+				),
+				$_REQUEST['return_hash'],
+			)
+		) {
 			$_SESSION['login_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
-		} elseif (isset($_SESSION['login_url']) && str_contains($_SESSION['login_url'], 'dlattach')) {
+		} elseif (
+			isset($_SESSION['login_url'])
+			&& str_contains($_SESSION['login_url'], 'dlattach')
+		) {
 			unset($_SESSION['login_url']);
 		}
 

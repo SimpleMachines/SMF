@@ -49,7 +49,7 @@ class PostgreSqlFunctions extends MigrationBase
 	{
 		$schema_version = substr(__NAMESPACE__, strrpos(__NAMESPACE__, '\\', -1) + 1);
 
-		$queries = Table::getInitializers($schema_version, POSTGRE_TITLE);
+		$queries = Table::getInitializers($schema_version);
 
 		foreach ($queries as $query) {
 			// Use the upgrade query handler.

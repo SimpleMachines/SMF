@@ -112,7 +112,5 @@ class PmRecipients extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

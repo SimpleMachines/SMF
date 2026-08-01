@@ -37,7 +37,12 @@ trait ArrayAccessHelper
 	 */
 	public function offsetSet(mixed $prop, mixed $value): void
 	{
-		$this->__set($prop, $value);
+		// If someone is trying to append data to this object via `$object[] = ...`
+		// set $prop to a number. If we didn't do this, $prop would eventually
+		// be set to an empty string, which would cause unexpected behaviour.
+		$prop ??= 1 + max(array_merge(array_filter(array_keys($this->internal_data), 'is_int'), [-1]));
+
+		$this->customPropertySet($prop, $value);
 	}
 
 	/**
@@ -57,9 +62,9 @@ trait ArrayAccessHelper
 
 			// Callable properties are calculated dynamically.
 			if (str_contains($real_prop, '::') && \is_callable($real_prop)) {
-				$this->custom[$prop] = \call_user_func($real_prop, $this);
+				$this->internal_data[$prop] = \call_user_func($real_prop, $this);
 
-				return $this->custom[$prop];
+				return $this->internal_data[$prop];
 			}
 
 			if (str_starts_with($real_prop, '!')) {
@@ -69,15 +74,15 @@ trait ArrayAccessHelper
 					$real_prop = explode('[', rtrim($real_prop, ']'));
 
 					if (\is_object($this->{$real_prop[0]})) {
-						$this->custom[$prop] = !$this->{$real_prop[0]}->{$real_prop[1]};
+						$this->internal_data[$prop] = !$this->{$real_prop[0]}->{$real_prop[1]};
 					} else {
-						$this->custom[$prop] = !$this->{$real_prop[0]}[$real_prop[1]];
+						$this->internal_data[$prop] = !$this->{$real_prop[0]}[$real_prop[1]];
 					}
 				} else {
-					$this->custom[$prop] = !$this->{$real_prop};
+					$this->internal_data[$prop] = !$this->{$real_prop};
 				}
 
-				return $this->custom[$prop];
+				return $this->internal_data[$prop];
 			}
 
 			if (str_contains($real_prop, '[')) {
@@ -93,7 +98,7 @@ trait ArrayAccessHelper
 			return $this->{$real_prop};
 		}
 
-		return $this->custom[$prop];
+		return $this->internal_data[$prop];
 	}
 
 	/**
@@ -103,7 +108,7 @@ trait ArrayAccessHelper
 	 */
 	public function offsetExists(mixed $prop): bool
 	{
-		return $this->__isset($prop);
+		return $this->customPropertyIsset($prop);
 	}
 
 	/**
@@ -113,6 +118,6 @@ trait ArrayAccessHelper
 	 */
 	public function offsetUnset(mixed $prop): void
 	{
-		$this->__unset($prop);
+		$this->customPropertyUnset($prop);
 	}
 }

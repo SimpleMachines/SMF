@@ -256,7 +256,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (str_contains($db_string, '{')) {
 			// Do the quoting and escaping
 			$db_string = preg_replace_callback(
-				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				[
+					// The literal type can have arbitrary content.
+					'~{(literal):([^}]*)}~',
+					// Everything else needs to be a key in $db_values.
+					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				],
 				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
 				$db_string,
 			);
@@ -938,19 +943,29 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
-		// If this failed, we go old school.
 		if ($result) {
+			$columns = [];
+
+			// Do we have any generated columns to deal with?
+			foreach ($this->list_columns($table, true) as $column) {
+				// Skip generated columns in the insert statement.
+				if (empty($column['generation_expression'])) {
+					$columns[] = $column['name'];
+				}
+			}
+
 			$request = $this->query(
 				'INSERT INTO {raw:backup_table}
-				SELECT *
+				({raw:columns})
+				SELECT {raw:columns}
 				FROM {raw:table}',
 				[
 					'backup_table' => $backup_table,
 					'table' => $table,
+					'columns' => implode(', ', $columns),
 				],
 			);
 
-			// Old school or no school?
 			if ($request) {
 				return $request;
 			}
@@ -1045,6 +1060,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					'auto_inc' => $auto_inc,
 				],
 			);
+		}
+
+		// Restore the generation expressions on any generated columns.
+		foreach ($this->list_columns($table, true) as $column) {
+			if (!empty($column['generation_expression'])) {
+				$this->change_column($backup_table, $column['name'], $column);
+			}
 		}
 
 		return $request;
@@ -1373,7 +1395,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
 
 		// Now add the thing!
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
 			ADD ' . $this->create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'),
 			[
@@ -1381,7 +1403,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1913,7 +1935,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Create the table!
-		$this->query(
+		$result = $this->query(
 			$table_query,
 			[
 				'security_override' => true,
@@ -1954,7 +1976,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->drop_table($short_table_name . '_old');
 		}
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1980,15 +2002,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$tables = $this->list_tables($database);
 
 		if (\in_array($full_table_name, $tables)) {
-			$query = 'DROP TABLE ' . $short_table_name;
-			$this->query(
-				$query,
+			$result = $this->query(
+				'DROP TABLE ' . $short_table_name,
 				[
 					'security_override' => true,
 				],
 			);
 
-			return true;
+			return $result !== false;
 		}
 
 		// Otherwise do 'nout.
@@ -2032,14 +2053,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_old_name . ' RENAME ' . $short_new_name,
 			[
 				'security_override' => true,
 			],
 		);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -2088,14 +2109,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra", generation_expression "generation_expression"
-			FROM information_schema.columns
-			WHERE table_name = {string:table_name}
-				AND table_schema = {string:db_name}
-			ORDER BY ordinal_position',
+			'SHOW COLUMNS
+			FROM {identifier:table_name}
+			IN {identifier:db}',
 			[
+				'db' => strtr($database, ['`' => '']),
 				'table_name' => $real_table_name,
-				'db_name' => $this->name,
 			],
 		);
 		$columns = [];
@@ -2109,8 +2128,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				// Can we split out the size?
 				if (preg_match('~^(.+?)\s*\((\d+)\)$~', $row['Type'], $matches)) {
-					$type = $matches[1];
-					$size = $matches[2];
+					[$type, $size] = $this->calculate_type($matches[1], (int) $matches[2], true);
 				} elseif (preg_match('~^(.+?)\s+unsigned$~', $row['Type'], $matches)) {
 					$type = $matches[1];
 					$size = null;
@@ -2135,12 +2153,32 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					unset($unsigned);
 				}
 
+				// If this is a generated column, look up its generation expression.
 				if (str_contains($row['Extra'], 'GENERATED')) {
-					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
+					$result2 = $this->query(
+						'SELECT generation_expression
+						FROM information_schema.columns
+						WHERE column_name = {string:field}
+							AND table_name = {string:table_name}
+							AND table_schema = {string:db}',
+						[
+							'db' => strtr($database, ['`' => '']),
+							'table_name' => $real_table_name,
+							'field' => $row['Field'],
+						],
+					);
+
+					[$generation_expression] = $this->fetch_row($result2);
+
+					$this->free_result($result2);
+
+					$columns[$row['Field']]['generation_expression'] = $this->unescape_string($generation_expression);
+
 					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}
+
 		$this->free_result($result);
 
 		return $columns;
@@ -2215,7 +2253,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($columns as $column) {
 			if ($column['name'] == $column_name) {
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
@@ -2223,7 +2261,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2245,7 +2283,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			// If the name is primary we want the primary key!
 			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP PRIMARY KEY',
 					[
@@ -2253,12 +2291,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 
 			if ($index['name'] == $index_name) {
 				// Drop the bugger...
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP INDEX ' . $index_name,
 					[
@@ -2266,7 +2304,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2399,11 +2437,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 		}
 
-		$this->query('SET SESSION sql_mode = {string:sql_mode}', [
+		$result = $this->query('SET SESSION sql_mode = {string:sql_mode}', [
 			'sql_mode' => $sql_mode,
 		]);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**

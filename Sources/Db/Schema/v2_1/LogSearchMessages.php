@@ -63,7 +63,5 @@ class LogSearchMessages extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

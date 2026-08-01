@@ -57,14 +57,14 @@ class Delete implements ActionInterface
 	 */
 	public function show(): void
 	{
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			User::$me->isAllowedTo('profile_remove_any');
 		} elseif (!User::$me->allowedTo('profile_remove_any')) {
 			User::$me->isAllowedTo('profile_remove_own');
 		}
 
 		// Permissions for removing stuff...
-		Utils::$context['can_delete_posts'] = !User::$me->is_owner && User::$me->allowedTo('moderate_forum');
+		Utils::$context['can_delete_posts'] = !Profile::$member->is_me && User::$me->allowedTo('moderate_forum');
 
 		// Did the user request to be anonymized?
 		Utils::$context['should_anonymize'] = !empty(Config::$modSettings['always_anonymize_deleted_accounts']) || Profile::$member->is_activated % User::BANNED === User::REQUESTED_DELETE_ANONYMIZE;
@@ -73,7 +73,7 @@ class Delete implements ActionInterface
 		Utils::$context['show_perma_delete'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']);
 
 		// Can they do this, or will they need approval?
-		Utils::$context['needs_approval'] = User::$me->is_owner && !empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum');
+		Utils::$context['needs_approval'] = Profile::$member->is_me && !empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum');
 
 		Utils::$context['page_title'] = Lang::getTxt('deleteAccount', ['name' => Profile::$member->name]);
 	}
@@ -83,7 +83,7 @@ class Delete implements ActionInterface
 	 */
 	public function delete(): void
 	{
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			User::$me->isAllowedTo('profile_remove_any');
 		} elseif (!User::$me->allowedTo('profile_remove_any')) {
 			User::$me->isAllowedTo('profile_remove_own');
@@ -119,7 +119,7 @@ class Delete implements ActionInterface
 		}
 
 		// Deleting someone else's account.
-		if (!User::$me->is_owner) {
+		if (!Profile::$member->is_me) {
 			// Delete poll votes, if requested.
 			if (!empty($_POST['deleteVotes']) && User::$me->allowedTo('moderate_forum')) {
 				// First we find any polls that this user has voted in...
@@ -221,12 +221,9 @@ class Delete implements ActionInterface
 		// Deleting their own account, but they need approval to delete.
 		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum')) {
 			// Setup their account for deletion.
-			User::updateMemberData(
-				Profile::$member->id,
-				[
-					'is_activated' => (isset($_POST['anonymize']) || !empty(Config::$modSettings['always_anonymize_deleted_accounts']) ? User::REQUESTED_DELETE_ANONYMIZE : User::REQUESTED_DELETE) + (Profile::$member->is_banned ? User::BANNED : 0),
-				],
-			);
+			Profile::$member->is_activated = ((isset($_POST['anonymize']) || !empty(Config::$modSettings['always_anonymize_deleted_accounts'])) ? User::REQUESTED_DELETE_ANONYMIZE : User::REQUESTED_DELETE) + (Profile::$member->is_banned ? User::BANNED : 0);
+
+			Profile::$member->save();
 
 			// Another account needs approval...
 			Config::updateModSettings(['unapprovedMembers' => true], true);
@@ -251,7 +248,7 @@ class Delete implements ActionInterface
 	protected function __construct()
 	{
 		if (!isset(Profile::$member)) {
-			Profile::load();
+			Profile::loadMember();
 		}
 	}
 }

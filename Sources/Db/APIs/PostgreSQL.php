@@ -290,7 +290,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (str_contains($db_string, '{')) {
 			// Do the quoting and escaping
 			$db_string = preg_replace_callback(
-				'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				[
+					// The literal type can have arbitrary content.
+					'~{(literal):([^}]*)}~',
+					// Everything else needs to be a key in $db_values.
+					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
+				],
 				fn($matches) => $this->replacement__callback($matches, $db_values, $connection ?? $this->connection),
 				$db_string,
 			);
@@ -751,7 +756,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// If we are in a transaction, abort.
-		if (!empty($inTransaction)) {
+		if (!empty($this->inTransaction)) {
 			$this->transaction('rollback');
 		}
 
@@ -1314,7 +1319,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Now add the thing!
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
 			ADD COLUMN ' . $column_info['name'] . ' ' . $type . $generated,
 			[
@@ -1334,7 +1339,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->change_column($table_name, $column_info['name'], $column_info);
 		}
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1876,7 +1881,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$table_query .= ')';
 
 		// Create the table!
-		$this->query(
+		$result = $this->query(
 			$table_query,
 			[
 				'security_override' => true,
@@ -1931,7 +1936,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$this->drop_table($table_name . '_old');
 		}
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -1966,7 +1971,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$sequence_query = 'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq';
 
 			// drop them
-			$this->query(
+			$result = $this->query(
 				$table_query,
 				[
 					'security_override' => true,
@@ -1981,7 +1986,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			$this->transaction('commit');
 
-			return true;
+			return $result !== false;
 		}
 
 		// Otherwise do 'nout.
@@ -2025,14 +2030,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		$this->query(
+		$result = $this->query(
 			'ALTER TABLE ' . $short_old_name . ' RENAME TO ' . $short_new_name,
 			[
 				'security_override' => true,
 			],
 		);
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
@@ -2198,7 +2203,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					);
 				}
 
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
@@ -2206,7 +2211,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2234,7 +2239,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			// If the name is primary we want the primary key!
 			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
-				$this->query(
+				$result = $this->query(
 					'ALTER TABLE ' . $real_table_name . '
 					DROP CONSTRAINT ' . $index['name'],
 					[
@@ -2242,19 +2247,19 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 
 			if ($index['name'] == $index_name) {
 				// Drop the bugger...
-				$this->query(
+				$result = $this->query(
 					'DROP INDEX ' . $real_table_name . '_' . $index_name,
 					[
 						'security_override' => true,
 					],
 				);
 
-				return true;
+				return $result !== false;
 			}
 		}
 
@@ -2616,7 +2621,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = \sprintf('\'%1$s\'', pg_escape_string($this->connection, $value));
+						$replacement[$key] = \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $value));
 					}
 
 					return implode(', ', $replacement);

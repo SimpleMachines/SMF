@@ -72,7 +72,7 @@ class LanguageDirectory extends MigrationBase
 			$this->handleTimeout();
 
 			// Skip errors here so we don't croak if the columns don't exist...
-			$request = Db::$db->query(
+			$request = $this->query(
 				'SELECT id_member
                 FROM {db_prefix}members
                 WHERE lngfile IN ({array_string:possible_languages})
@@ -105,7 +105,7 @@ class LanguageDirectory extends MigrationBase
 			$args['search_members'] = $members;
 
 
-			Db::$db->query(
+			$this->query(
 				'UPDATE {db_prefix}members
                 SET lngfile = CASE
                     ' . implode(' ', $statements) . '

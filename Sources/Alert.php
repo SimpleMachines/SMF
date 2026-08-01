@@ -302,7 +302,7 @@ class Alert implements \ArrayAccess
 				$this->content_type === 'profile' ? $this->content_id : null,
 			]),
 			User::LOAD_BY_ID,
-			$with_avatar ? 'basic' : 'minimal',
+			$with_avatar ? UserDataset::Basic : UserDataset::Minimal,
 		);
 
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
@@ -530,7 +530,9 @@ class Alert implements \ArrayAccess
 			);
 
 			if ($update_count) {
-				User::updateMemberData($this->member, ['alerts' => '+']);
+				User::load($this->member, dataset: UserDataset::None);
+				User::$loaded[$this->member]->alerts = self::count($this->member);
+				User::$loaded[$this->member]->save();
 			}
 		}
 		// Updating an existing alert.
@@ -564,7 +566,9 @@ class Alert implements \ArrayAccess
 
 			// Has the is_read value changed since we loaded this alert?
 			if ($update_count && $this->is_read !== $this->initial_is_read) {
-				User::updateMemberData($this->member, ['alerts' => '+']);
+				User::load($this->member, dataset: UserDataset::None);
+				User::$loaded[$this->member]->alerts = self::count($this->member);
+				User::$loaded[$this->member]->save();
 			}
 		}
 	}
@@ -723,7 +727,13 @@ class Alert implements \ArrayAccess
 		);
 
 		// Update the alert counts for the members.
-		User::updateMemberData($members, ['alerts' => '+']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 
 		return $created;
 	}
@@ -795,7 +805,13 @@ class Alert implements \ArrayAccess
 			$loaded[$row['id_alert']] = new self($row['id_alert'], $row);
 		}
 
-		foreach (array_unique($members) as $memID) {
+		$members = array_unique($members);
+
+		// These members will need to be loaded in the following loop anyway,
+		// so load them all at once now for efficiency.
+		User::load($members, dataset: UserDataset::Minimal);
+
+		foreach ($members as $memID) {
 			self::checkMsgAccess($possible_msgs[$memID] ?? [], $memID, $simple_access_check);
 			self::checkTopicAccess($possible_topics[$memID] ?? [], $memID, $simple_access_check);
 			self::deleteInvisible($loaded, $memID);
@@ -995,7 +1011,13 @@ class Alert implements \ArrayAccess
 		}
 
 		// Now update the members' alert counts in the database.
-		User::updateMemberData($members, ['alerts' => $read ? '-' : '+']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 	}
 
 	/**
@@ -1035,7 +1057,13 @@ class Alert implements \ArrayAccess
 			}
 
 			// Now update the members' alert counts in the database.
-			User::updateMemberData($members, ['alerts' => $read ? 0 : '+']);
+			$members = User::load($members, dataset: UserDataset::None);
+
+			foreach ($members as $member) {
+				$member->alerts = $read ? 0 : self::count($member->id);
+			}
+
+			User::saveBatch($members);
 		}
 	}
 
@@ -1107,7 +1135,13 @@ class Alert implements \ArrayAccess
 		}
 
 		// Gotta know how many unread alerts are left.
-		User::updateMemberData($members, ['alerts' => '-']);
+		$members = User::load($members, dataset: UserDataset::None);
+
+		foreach ($members as $member) {
+			$member->alerts = self::count($member->id);
+		}
+
+		User::saveBatch($members);
 	}
 
 	/**
@@ -1348,13 +1382,13 @@ class Alert implements \ArrayAccess
 			return;
 		}
 
-		if ((User::$me->id ?? NAN) != $memID || !isset(User::$me->query_see_board)) {
-			self::$qb[$memID] = User::buildQueryBoard($memID);
-		} else {
-			self::$qb[$memID]['query_see_board'] = '{query_see_board}';
-			self::$qb[$memID]['query_see_topic_board'] = '{query_see_topic_board}';
-			self::$qb[$memID]['query_see_message_board'] = '{query_see_message_board}';
-		}
+		User::load($memID, dataset: UserDataset::Minimal);
+
+		self::$qb[$memID] = [
+			'query_see_board' => User::$loaded[$memID]->query_see_board,
+			'query_see_topic_board' => User::$loaded[$memID]->query_see_topic_board,
+			'query_see_message_board' => User::$loaded[$memID]->query_see_message_board,
+		];
 	}
 
 	/**
@@ -1547,17 +1581,12 @@ class Alert implements \ArrayAccess
 		}
 
 		// One last thing: tweak counter on member record.
-		// Do it directly to avoid creating a loop in User::updateMemberData().
+		// Do it directly rather than by calling self::count() to avoid creating a loop.
 		if ($num_unread_deletes > 0) {
-			Db::$db->query(
-				'UPDATE {db_prefix}members
-				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
-				WHERE id_member = {int:member}',
-				[
-					'unread_deletes' => $num_unread_deletes,
-					'member' => $memID,
-				],
-			);
+			User::load($memID, dataset: UserDataset::Minimal);
+			User::$loaded[$memID]->alerts -= $num_unread_deletes;
+			User::$loaded[$memID]->alerts = max(0, User::$loaded[$memID]->alerts);
+			User::$loaded[$memID]->save();
 		}
 	}
 

@@ -1636,7 +1636,15 @@ class PM implements \ArrayAccess
 		}
 
 		if (!empty($all_to)) {
-			User::updateMemberData($all_to, ['instant_messages' => '+', 'unread_messages' => '+', 'new_pm' => 1]);
+			$members = User::load($all_to, dataset: UserDataset::Minimal);
+
+			foreach ($members as $member) {
+				$member->messages++;
+				$member->unread_messages++;
+				$member->new_pm = 1;
+			}
+
+			User::saveBatch($members);
 		}
 
 		return $log;
@@ -1690,7 +1698,10 @@ class PM implements \ArrayAccess
 		}
 
 		if ($folder != 'sent' || $folder === null) {
-			// Calculate the number of messages each member's gonna lose...
+			// Load the affected members.
+			$members = User::load($owner, dataset: UserDataset::Minimal);
+
+			// Calculate the number of messages each member is going to lose...
 			$request = Db::$db->query(
 				'SELECT id_member, COUNT(*) AS num_deleted_messages, CASE WHEN is_read & 1 >= 1 THEN 1 ELSE 0 END AS is_read
 				FROM {db_prefix}pm_recipients
@@ -1704,24 +1715,21 @@ class PM implements \ArrayAccess
 				],
 			);
 
-			// ...And update the statistics accordingly - now including unread messages!.
+			// Update the statistics accordingly - now including unread messages!
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if ($row['is_read']) {
-					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']]);
-				} else {
-					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']]);
-				}
+				$member = array_find($members, fn($mem) => $mem->id == $row['id_member']);
 
-				// If this is the current member we need to make their message count correct.
-				if (User::$me->id == $row['id_member']) {
-					User::$me->messages -= $row['num_deleted_messages'];
+				$member->messages -= $row['num_deleted_messages'];
 
-					if (!($row['is_read'])) {
-						User::$me->unread_messages -= $row['num_deleted_messages'];
-					}
+				if (!$row['is_read']) {
+					$member->unread_messages -= $row['num_deleted_messages'];
 				}
 			}
+
 			Db::$db->free_result($request);
+
+			// Save the changes to the affected members.
+			User::saveBatch($members);
 
 			// Do the actual deletion.
 			Db::$db->query(
@@ -1933,11 +1941,14 @@ class PM implements \ArrayAccess
 
 			// Need to store all this.
 			CacheApi::put('labelCounts:' . $owner, Utils::$context['labels'], 720);
-			User::updateMemberData((int) $owner, ['unread_messages' => $total_unread]);
 
-			// If it was for the current member, reflect this in User::$me as well.
 			if ($owner == User::$me->id) {
 				User::$me->unread_messages = $total_unread;
+				User::$me->save();
+			} else {
+				$member = current(User::load($owner, dataset: UserDataset::None));
+				$member->unread_messages = $total_unread;
+				$member->save();
 			}
 		}
 	}

@@ -58,11 +58,13 @@ class MemberLogins extends Table
 				name: 'ip',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'ip2' => new Column(
 				name: 'ip2',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 		];
 
@@ -92,7 +94,5 @@ class MemberLogins extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

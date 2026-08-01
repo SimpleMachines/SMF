@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
@@ -75,15 +74,13 @@ class PersonalMessageLabels extends MigrationBase
 		$pm_labels_table = new Schema\v2_1\PmLabels();
 		$pm_labeled_messages_table = new Schema\v2_1\PmLabeledMessages();
 
-		$tables = Db::$db->list_tables();
-
 		if ($start <= 0) {
-			if (!\in_array(Config::$db_prefix . 'pm_labels', $tables)) {
+			if (!$pm_labels_table->exists()) {
 				$pm_labels_table->create();
 				$this->handleTimeout(0);
 			}
 
-			if (!\in_array(Config::$db_prefix . 'pm_labeled_messages', $tables)) {
+			if (!$pm_labeled_messages_table->exists()) {
 				$pm_labeled_messages_table->create();
 				$this->handleTimeout(0);
 			}
@@ -116,10 +113,12 @@ class PersonalMessageLabels extends MigrationBase
 			while (!$is_done) {
 				$this->handleTimeout($start);
 
+				$label_info = [];
+				$member_list = [];
 				$inserts = [];
 
 				// Pull the label info
-				$get_labels = Db::$db->query(
+				$get_labels = $this->query(
 					'SELECT id_member, message_labels
 					FROM {db_prefix}members
 					WHERE message_labels != {string:blank}
@@ -130,9 +129,6 @@ class PersonalMessageLabels extends MigrationBase
 						'limit' => $this->limit,
 					],
 				);
-
-				$label_info = [];
-				$member_list = [];
 
 				while ($row = Db::$db->fetch_assoc($get_labels)) {
 					$member_list[] = $row['id_member'];
@@ -148,6 +144,11 @@ class PersonalMessageLabels extends MigrationBase
 				}
 
 				Db::$db->free_result($get_labels);
+
+				if (empty($member_list)) {
+					$is_done = true;
+					break;
+				}
 
 				foreach ($label_info as $id_member => $labels) {
 					foreach ($labels as $label => $index) {
@@ -172,7 +173,7 @@ class PersonalMessageLabels extends MigrationBase
 				}
 
 				// This is the easy part - update the inbox stuff
-				Db::$db->query(
+				$this->query(
 					'UPDATE {db_prefix}pm_recipients
 					SET in_inbox = {int:in_inbox}
 					WHERE FIND_IN_SET({int:minusone}, labels)
@@ -185,7 +186,7 @@ class PersonalMessageLabels extends MigrationBase
 				);
 
 				// Now we go pull the new IDs for each label
-				$get_new_label_ids = Db::$db->query(
+				$get_new_label_ids = $this->query(
 					'SELECT *
 					FROM {db_prefix}pm_labels
 					WHERE id_member IN ({array_int:member_list})',
@@ -206,7 +207,7 @@ class PersonalMessageLabels extends MigrationBase
 
 				// Pull label info from pm_recipients
 				// Ignore any that are only in the inbox
-				$get_pm_labels = Db::$db->query(
+				$get_pm_labels = $this->query(
 					'SELECT id_pm, id_member, labels
 					FROM {db_prefix}pm_recipients
 					WHERE deleted = {int:not_deleted}
@@ -249,7 +250,7 @@ class PersonalMessageLabels extends MigrationBase
 				}
 
 				// Final step of this ridiculously massive process
-				$get_pm_rules = Db::$db->query(
+				$get_pm_rules = $this->query(
 					'SELECT id_member, id_rule, actions
 					FROM {db_prefix}pm_rules
 					WHERE id_member IN ({array_int:member_list})',
@@ -278,7 +279,7 @@ class PersonalMessageLabels extends MigrationBase
 						// Put this back into a string
 						$actions = serialize($actions);
 
-						Db::$db->query(
+						$this->query(
 							'UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}',
@@ -291,7 +292,7 @@ class PersonalMessageLabels extends MigrationBase
 				}
 
 				// Remove processed pm labels, to avoid duplicated data if upgrader is restarted.
-				Db::$db->query(
+				$this->query(
 					'UPDATE {db_prefix}members
 					SET message_labels = {string:blank}
 					WHERE id_member IN ({array_int:member_list})',
@@ -311,32 +312,10 @@ class PersonalMessageLabels extends MigrationBase
 		}
 
 		$pm_recipients_table = new Schema\v2_1\PmRecipients();
-		$existing_structure = $pm_recipients_table->getCurrentStructure();
-
-		foreach ($existing_structure['columns'] as $column) {
-			if ($column['name'] == 'labels') {
-				$col = new Column(
-					name: $column['name'],
-					type: 'varchar',
-				);
-
-				$pm_recipients_table->dropColumn($col);
-			}
-		}
+		$pm_recipients_table->dropColumn('labels');
 
 		$members_table = new Schema\v2_1\Members();
-		$existing_structure = $members_table->getCurrentStructure();
-
-		foreach ($existing_structure['columns'] as $column) {
-			if ($column['name'] == 'message_labels') {
-				$col = new Column(
-					name: $column['name'],
-					type: 'varchar',
-				);
-
-				$members_table->dropColumn($col);
-			}
-		}
+		$members_table->dropColumn('message_labels');
 
 		return true;
 	}

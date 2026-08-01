@@ -28,6 +28,7 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -159,7 +160,8 @@ class Reminder implements ActionInterface, Routable
 			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 			// Set the validation code in the database.
-			User::updateMemberData($this->member->id, ['validation_code' => $code]);
+			$this->member->validation_code = $code . '|' . time();
+			$this->member->save();
 
 			// Set up the template.
 			Utils::$context['description'] = Lang::getTxt('reminder_sent', file: 'Profile');
@@ -244,8 +246,11 @@ class Reminder implements ActionInterface, Routable
 			}
 		}
 
+		list($real_code, $issue_time) = $this->member->validation_code;
+		$issue_time = empty($issue_time) ? 0 : (int) $issue_time;
+
 		// Quit if this code is not right.
-		if (empty($_POST['code']) || $this->member->validation_code !== $_POST['code']) {
+		if (empty($_POST['code']) || $real_code !== $_POST['code'] || $issue_time + 3600 < time()) {
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
@@ -256,7 +261,9 @@ class Reminder implements ActionInterface, Routable
 		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
-		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($_POST['passwrd1'])]);
+		$this->member->validation_code = '';
+		$this->member->passwd = Security::hashPassword($_POST['passwrd1']);
+		$this->member->save();
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
@@ -353,7 +360,8 @@ class Reminder implements ActionInterface, Routable
 			Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
 			|| md5($_POST['secret_answer']) === $this->member->secret_answer
 		) {
-			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($_POST['secret_answer'])]);
+			$this->member->secret_answer = Security::hashPassword($_POST['secret_answer']);
+			$this->member->save();
 		}
 
 		// You can't use a blank one!
@@ -379,7 +387,8 @@ class Reminder implements ActionInterface, Routable
 		}
 
 		// Alright, so long as 'yer sure.
-		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($_POST['passwrd1'])]);
+		$this->member->passwd = Security::hashPassword($_POST['passwrd1']);
+		$this->member->save();
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
@@ -431,14 +440,14 @@ class Reminder implements ActionInterface, Routable
 		// Load by ID.
 		if (!empty($uid)) {
 			$err_msg = 'invalid_userid';
-			$loaded = User::load($uid, User::LOAD_BY_ID, 'minimal');
+			$loaded = User::load($uid, User::LOAD_BY_ID, UserDataset::Minimal);
 		}
 		// Load by name or email.
 		elseif (isset($_POST['user']) && $_POST['user'] != '') {
-			$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, 'minimal');
+			$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, UserDataset::Minimal);
 
 			if (empty($loaded)) {
-				$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, 'minimal');
+				$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, UserDataset::Minimal);
 			}
 		}
 

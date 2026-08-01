@@ -2073,7 +2073,7 @@ abstract class SearchApi implements SearchApiInterface
 						$indexedResults += Db::$db->affected_rows();
 					}
 
-					if (!empty($maxMessageResults) && $indexedResults >= $maxMessageResults) {
+					if (!empty($this->maxMessageResults) && $indexedResults >= $this->maxMessageResults) {
 						break;
 					}
 				}

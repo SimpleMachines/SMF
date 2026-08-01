@@ -631,10 +631,10 @@ class HolidaysToEvents extends MigrationBase
 	public function execute(): bool
 	{
 		if (!isset(User::$me)) {
-			User::load();
+			User::loadMe();
 		}
 
-		$request = Db::$db->query(
+		$request = $this->query(
 			'SELECT title, GROUP_CONCAT(event_date) as rdates
 			FROM {db_prefix}calendar_holidays
 			GROUP BY title',

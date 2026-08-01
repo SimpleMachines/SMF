@@ -639,6 +639,7 @@ class QueryString
 			&& !Sapi::httpsOn()
 			&& str_starts_with($_SERVER['REQUEST_URL'] ?? '', 'http://')
 			&& SMF != 'SSI'
+			&& !\defined('SMF_INSTALLING')
 		) {
 			if (isset($_GET['sslRedirect'])) {
 				ErrorHandler::fatalLang('login_ssl_required', false);
@@ -654,7 +655,7 @@ class QueryString
 	 */
 	protected static function wwwRedirect(): void
 	{
-		if (SMF == 'SSI') {
+		if (SMF == 'SSI' || \defined('SMF_INSTALLING')) {
 			return;
 		}
 
@@ -678,7 +679,7 @@ class QueryString
 	 */
 	protected static function fixUrl(): void
 	{
-		if (SMF == 'SSI') {
+		if (SMF == 'SSI' || \defined('SMF_INSTALLING')) {
 			return;
 		}
 

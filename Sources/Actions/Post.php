@@ -845,7 +845,7 @@ class Post implements ActionInterface, Routable
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->tz = User::$me->timezone;
 			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
 			Utils::$context['event']->selected_occurrence->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}

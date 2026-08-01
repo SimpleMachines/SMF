@@ -128,7 +128,7 @@ class Registration implements ActionInterface
 	public function register(): void
 	{
 		// Are there any custom profile fields required during registration?
-		Profile::load(0);
+		Profile::loadMember(0);
 		Profile::$member->loadCustomFields('register');
 
 		if (!empty($_POST['regSubmit'])) {
@@ -160,7 +160,7 @@ class Registration implements ActionInterface
 			if (!empty($memberID)) {
 				// We'll do custom fields after as then we get to use the helper function!
 				if (!empty($_POST['customfield'])) {
-					Profile::load($memberID);
+					Profile::loadMember($memberID);
 					Profile::$member->loadCustomFields('register');
 					Profile::$member->save();
 				}
@@ -398,7 +398,7 @@ class Registration implements ActionInterface
 				Utils::$context['agreement_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
 					],
 				);
@@ -580,7 +580,7 @@ class Registration implements ActionInterface
 				Utils::$context['privacy_policy_history'][$diff->label1] = Lang::getTxt(
 					'edit_history_linktext',
 					[
-						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'time' => (new Time($diff->time1))->setTimezone(User::$me->timezone)->format(),
 						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown', file: 'General') . ')' : $diff->name,
 					],
 					file: 'General',
@@ -609,6 +609,8 @@ class Registration implements ActionInterface
 
 			$_POST['reserved'] = Utils::normalize($_POST['reserved']);
 
+			$reserve_case = Config::$modSettings['reserveCase'];
+
 			// Set all the options....
 			Config::updateModSettings([
 				'reserveWord' => (int) !empty($_POST['matchword']),
@@ -619,6 +621,28 @@ class Registration implements ActionInterface
 			]);
 
 			Utils::$context['saved_successful'] = true;
+
+			// If the case setting changed, must rebuild the spoofdetector_name
+			// values in the members table.
+			if ($reserve_case != Config::$modSettings['reserveCase']) {
+				Db::$db->insert(
+					'insert',
+					'{db_prefix}background_tasks',
+					[
+						'task_class' => 'string',
+						'task_data' => 'string',
+						'claimed_time' => 'int',
+					],
+					[
+						[
+							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							json_encode(['last_member_id' => 0]),
+							0,
+						],
+					],
+					['id_task'],
+				);
+			}
 		}
 
 		// Get the reserved word options and words.

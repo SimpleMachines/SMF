@@ -36,7 +36,7 @@ class InstallTemplate extends MaintenanceTemplate
 	{
 		if (\count(Maintenance::$tool->getSteps()) - 1 !== (int) Maintenance::getCurrentStep()) {
 		echo '
-		<form action="', Maintenance::getSelf(), (Maintenance::$sub_template !== '' ? '?step=' . Maintenance::getCurrentStep() : ''), '" method="post">';
+		<form id="', Maintenance::$tool->form_id, '" action="', Maintenance::getSelf(), (Maintenance::$sub_template !== '' ? '?step=' . Maintenance::getCurrentStep() : ''), '" method="post">';
 		}
 	}
 

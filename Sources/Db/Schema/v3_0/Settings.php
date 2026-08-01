@@ -893,7 +893,5 @@ class Settings extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

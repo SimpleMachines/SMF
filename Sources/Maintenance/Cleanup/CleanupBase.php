@@ -38,9 +38,7 @@ abstract class CleanupBase implements SubStepInterface
 	 ****************/
 
 	/**
-	 * Check if the task should be performed or not.
 	 *
-	 * @return bool True if this task needs to be run, false otherwise.
 	 */
 	public function isCandidate(): bool
 	{

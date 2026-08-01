@@ -141,7 +141,5 @@ class MailQueue extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

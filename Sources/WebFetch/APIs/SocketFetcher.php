@@ -164,13 +164,16 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public function request(string|Url $url, array|string $post_data = []): object
 	{
-		if (!$url instanceof Url) {
+		if (!($url instanceof Url)) {
 			$url = new Url($url, true);
-			$url->toAscii();
 		}
 
+		$url->toAscii();
+
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !\in_array($url->scheme, ['http', 'https'])) {
+		if (!WebFetchApi::isFetchSafe($url, ['http', 'https'])) {
+			$this->closeConnection();
+
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -260,8 +263,9 @@ class SocketFetcher extends WebFetchApi
 				return $this;
 			}
 
-			// Close if it moved to a different host.
-			if ($location->$host !== $url->host) {
+			// Close if it moved to a different host. (The redirect target is
+			// re-validated by the isFetchSafe() guard on the request() re-entry.)
+			if ($location->host !== $url->host) {
 				$this->closeConnection();
 			}
 

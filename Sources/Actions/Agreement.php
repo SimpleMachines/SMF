@@ -168,7 +168,7 @@ class Agreement implements ActionInterface, Routable
 			// Uh-oh. The edit history got corrupted somehow.
 			if ($hash !== $diff->label1) {
 				Utils::$context['diff'] = '<div style="white-space:pre-wrap">' . Parser::transform($text) . '</div>';
-				Utils::$context['page_title'] = isset($time) ? strip_tags((new Time($time))->setTimezone(User::getTimezone())->format()) : ($doc === 'policy' ? Lang::getTxt('privacy_policy', file: 'General') : Lang::getTxt('registration_agreement', file: 'General'));
+				Utils::$context['page_title'] = isset($time) ? strip_tags((new Time($time))->setTimezone(User::$me->timezone)->format()) : ($doc === 'policy' ? Lang::getTxt('privacy_policy', file: 'General') : Lang::getTxt('registration_agreement', file: 'General'));
 
 				break;
 			}
@@ -176,7 +176,7 @@ class Agreement implements ActionInterface, Routable
 			// Found it.
 			if ($diff->label1 === $_GET['hash']) {
 				Utils::$context['diff'] = '<div style="white-space:pre-wrap">' . $diff->formatHtml($text, true, true) . '</div>';
-				Utils::$context['page_title'] = strip_tags((new Time($diff->time1))->setTimezone(User::getTimezone())->format());
+				Utils::$context['page_title'] = strip_tags((new Time($diff->time1))->setTimezone(User::$me->timezone)->format());
 
 				return;
 			}

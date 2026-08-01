@@ -33,6 +33,7 @@ use SMF\Routable;
 use SMF\Security;
 use SMF\Topic;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -257,20 +258,29 @@ class TopicMove2 implements ActionInterface, Routable
 					$posters[$row['id_member']] = 0;
 				}
 
-				$posters[$row['id_member']]++;
-			}
-			Db::$db->free_result($request);
-
-			foreach ($posters as $id_member => $posts) {
 				// The board we're moving from counted posts, but not to.
 				if (empty($pcounter_from)) {
-					User::updateMemberData($id_member, ['posts' => 'posts - ' . $posts]);
+					$posters[$row['id_member']]--;
 				}
 				// The reverse: from didn't, to did.
 				else {
-					User::updateMemberData($id_member, ['posts' => 'posts + ' . $posts]);
+					$posters[$row['id_member']]++;
 				}
 			}
+
+			Db::$db->free_result($request);
+
+			foreach ($posters as $id => $post_adj) {
+				$posters[$id] = current(User::load($id, dataset: UserDataset::Minimal));
+
+				if ($posters[$id] instanceof User) {
+					$posters[$id]->posts += $post_adj;
+				} else {
+					unset($posters[$id]);
+				}
+			}
+
+			User::saveBatch($posters);
 		}
 
 		// Do the move (includes statistics update needed for the redirect topic).

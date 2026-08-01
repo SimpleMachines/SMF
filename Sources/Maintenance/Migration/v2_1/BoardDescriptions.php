@@ -68,7 +68,7 @@ class BoardDescriptions extends MigrationBase
 			$this->query(
 				'UPDATE {db_prefix}boards
 				SET name = {string:name}, description = {string:description}
-				WHERE id = {int:id}',
+				WHERE id_board = {int:id}',
 				[
 					'id' => $row['id_board'],
 					'name' => Utils::htmlspecialchars(strip_tags(Parser::transform($row['name'], Parser::OUTPUT_BBC))),

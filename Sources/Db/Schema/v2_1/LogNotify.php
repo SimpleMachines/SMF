@@ -98,7 +98,5 @@ class LogNotify extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

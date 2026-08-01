@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Routable;
@@ -61,7 +62,7 @@ class BuddyListToggle implements ActionInterface, Routable
 		User::$me->isAllowedTo('profile_extra_own');
 		User::$me->kickIfGuest();
 
-		if (empty($this->userReceiver)) {
+		if (empty($this->userReceiver) || empty(Config::$modSettings['enable_buddylist'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -104,7 +105,7 @@ class BuddyListToggle implements ActionInterface, Routable
 		}
 
 		// Update the settings.
-		User::updateMemberData(User::$me->id, ['buddy_list' => implode(',', User::$me->buddies)]);
+		User::$me->save();
 
 		// Redirect back to the profile
 		Utils::redirectexit('action=profile;u=' . $this->userReceiver);

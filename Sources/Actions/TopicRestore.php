@@ -26,6 +26,7 @@ use SMF\Msg;
 use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -206,7 +207,7 @@ class TopicRestore implements ActionInterface, Routable
 					continue;
 				}
 
-				// Ok we got here so me move them from here to there.
+				// Ok we got here so move them from here to there.
 				Topic::move([$row['id_topic']], (int) $row['id_previous_board']);
 
 				// Lets see if the board that we are returning to has post count enabled.
@@ -222,6 +223,8 @@ class TopicRestore implements ActionInterface, Routable
 				Db::$db->free_result($request2);
 
 				if (empty($count_posts)) {
+					$members = [];
+
 					// Lets get the members that need their post count restored.
 					$request2 = Db::$db->query(
 						'SELECT id_member, COUNT(*) AS post_count
@@ -235,10 +238,24 @@ class TopicRestore implements ActionInterface, Routable
 						],
 					);
 
-					while ($member = Db::$db->fetch_assoc($request2)) {
-						User::updateMemberData((int) $member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
+					while ($row2 = Db::$db->fetch_assoc($request2)) {
+						$members[(int) $row2['id_member']] = (int) $row2['post_count'];
 					}
+
 					Db::$db->free_result($request2);
+
+					// And now update the member's post counts.
+					foreach ($members as $id => $post_adj) {
+						$members[$id] = current(User::load($id, dataset: UserDataset::Minimal));
+
+						if ($members[$id] instanceof User) {
+							$members[$id]->posts += $post_adj;
+						} else {
+							unset($members[$id]);
+						}
+					}
+
+					User::saveBatch($members);
 				}
 
 				// Log it.
@@ -310,20 +327,26 @@ class TopicRestore implements ActionInterface, Routable
 		// Lets see if the board that we are returning to has post count enabled.
 		if (empty($count_posts)) {
 			// Lets get the members that need their post count restored.
-			$request = Db::$db->query(
-				'SELECT id_member
-				FROM {db_prefix}messages
-				WHERE id_msg IN ({array_int:messages})
-					AND approved = {int:is_approved}',
-				[
-					'messages' => $msgs,
-					'is_approved' => 1,
+			$members = User::loadCustom(
+				query_customizations: [
+					'joins' => ['{db_prefix}messages AS m ON (m.id_member = mem.id_member)'],
+					'where' => [
+						'm.id_msg IN ({array_int:messages})',
+						'm.approved = {int:is_approved}',
+					],
+					'params' => [
+						'messages' => $msgs,
+						'is_approved' => 1,
+					],
 				],
+				dataset: UserDataset::Minimal,
 			);
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				User::updateMemberData($row['id_member'], ['posts' => '+']);
+			foreach ($members as $member) {
+				$member->posts++;
 			}
+
+			User::saveBatch($members);
 		}
 
 		// Time to move the messages.

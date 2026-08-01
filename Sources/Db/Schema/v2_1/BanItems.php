@@ -54,11 +54,13 @@ class BanItems extends Table
 				name: 'ip_low',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'ip_high' => new Column(
 				name: 'ip_high',
 				type: 'inet',
 				size: 16,
+				default: null,
 			),
 			'hostname' => new Column(
 				name: 'hostname',
@@ -119,7 +121,5 @@ class BanItems extends Table
 				],
 			),
 		];
-
-		parent::__construct();
 	}
 }

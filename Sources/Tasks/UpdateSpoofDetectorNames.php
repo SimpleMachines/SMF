@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Sapi;
 use SMF\Unicode\SpoofDetector;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -107,20 +108,27 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$this->_details['last_member_id'] = $row['id_member'];
 
-			$skeleton = Utils::htmlspecialchars(SpoofDetector::getSkeletonString(html_entity_decode($row['real_name'], ENT_QUOTES)));
+			$name = Utils::entityDecode($row['real_name'], nbsp_to_space: true);
+
+			if (empty(Config::$modSettings['reserveCase'])) {
+				$name = Utils::casefold($name);
+			}
+
+			$skeleton = SpoofDetector::getSkeletonString($name);
 
 			// Don't bother updating if there's been no change.
 			if ($row['spoofdetector_name'] === $skeleton) {
 				continue;
 			}
 
-			$updates[$row['id_member']] = ['spoofdetector_name' => $skeleton];
+			$member = current(User::load((int) $row['id_member'], dataset: UserDataset::None));
+			$member->name = $row['real_name'];
+
+			$updates[$member->id] = $member;
 		}
 		Db::$db->free_result($request);
 
-		foreach ($updates as $id_member => $data) {
-			User::updateMemberData($id_member, $data);
-		}
+		User::saveBatch($updates);
 
 		if ($this->_details['last_member_id'] < Config::$modSettings['latestMember']) {
 			$this->respawn($this->_details);

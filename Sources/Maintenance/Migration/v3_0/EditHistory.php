@@ -50,7 +50,7 @@ class EditHistory extends MigrationBase
 		}
 
 		// Populate edit_history.
-		$request = Db::$db->query(
+		$request = $this->query(
 			'SELECT id_msg, body, modified_time, modified_name, modified_reason, edit_history
 			FROM {db_prefix}messages
 			WHERE id_msg > {int:start}
@@ -77,7 +77,7 @@ class EditHistory extends MigrationBase
 				$row['modified_reason'],
 			]]);
 
-			Db::$db->query(
+			$this->query(
 				'UPDATE {db_prefix}messages
 				SET edit_history = {string:edit_history}
 				WHERE id_msg = {int:id_msg}',

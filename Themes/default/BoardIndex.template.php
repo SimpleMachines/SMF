@@ -88,7 +88,7 @@ function template_boardindex()
 		template_list_boards($category['boards']);
 
 		echo '
-		</div><!-- .boards_container -->';
+		</div><!-- #category_[id]_boards -->';
 	}
 
 	echo '
@@ -138,7 +138,7 @@ function template_list_boards(array $boards): void
 			if (function_exists('template_bi_' . $board['type'] . '_children')) {
 				call_user_func('template_bi_' . $board['type'] . '_children', $board);
 			} else {
-			template_bi_board_children($board);
+				template_bi_board_children($board);
 			}
 
 			echo '

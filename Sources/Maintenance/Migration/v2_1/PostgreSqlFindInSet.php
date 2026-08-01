@@ -27,7 +27,7 @@ class PostgreSQLFindInSet extends MigrationBase
 	/**
 	 *
 	 */
-	public string $name = 'Add find_in_set function (PostgreSQL)';
+	public string $name = 'Adding FIND_IN_SET function (PostgreSQL)';
 
 	/****************
 	 * Public methods

@@ -22,6 +22,7 @@ use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema\v3_0\Members as MembersTable;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
 use SMF\Permissions\UserPermissionSet;
@@ -36,38 +37,40 @@ use SMF\PersonalMessage\PM;
  * The current user is available as User::$me. For example, if you need to know
  * the current user's ID number, use User::$me->id.
  *
- * For the convenience of theme creators, User::$me is also available as
- * Utils::$context['user'], and its properties can be accessed as if they were
- * array elements. This means that Utils::$context['user']['id'] is
- * interchangeable with User::$me->id.
+ * For the sake of backward compatibility, user data can be accessed in a number
+ * of alternative formats:
  *
- * The data previously available in the deprecated global $user_profile array
- * is now available as User::$profiles. For example, where old code might have
- * used $user_profile[$id_member]['last_login'], the same information is now
- * available as User::profiles[$id_member]['last_login'].
+ * - The deprecated global $user_info is now simply a reference to User::$me.
+ *   The properties of User::$me can be accessed as if they were array elements,
+ *   so $user_info['id'] is interchangeable with User::$me->id.
  *
- * The data previously available in the deprecated $memberContext array is now
- * available via the $formatted property of a User object. For example, where
- * old code might have used $memberContext[$id_member], the same information is
- * now available via User::$loaded[$id_member]->formatted. Also note that, in
- * the same way that loadMemberContext($id_member) had to be called in order to
- * populate $memberContext[$id_member], User::$loaded[$id_member]->format() must
- * be called in order to populate User::$loaded[$id_member]->formatted.
+ * - Similarly, the deprecated global $context['user'] is now simply a reference
+ *   to User::$me.
  *
- * To facilitate backward compatibility, the deprecated global $user_info array
- * is still available, but it is simply a reference to User::$me.
+ * - The deprecated global $user_profile is now a reference to User::$profiles.
+ *   Note that accessing User::$profiles from outside this class is also
+ *   deprecated; new code should work with User objects via User::$loaded rather
+ *   than working with the User::profiles array.
  *
- * Similarly, the deprecated global $user_settings array is still available, but
- * it is simply a reference to User::$profiles[User::$me->id].
+ * - Similarly, the deprecated global $user_settings array is now a reference to
+ *   User::$profiles[User::$me->id].
  *
- * Similarly, the deprecated global $cur_profile array is still available, but
- * it is simply a reference to User::$profiles[$id], where $id is the ID of the
- * user whose profile is being viewed.
+ * - Similarly, the deprecated global $cur_profile array is now a reference to
+ *   User::$profiles[$id], where $id is the ID of the user whose profile is
+ *   being viewed.
  *
- * NOTE: It is STRONGLY RECOMMENDED that new and updated code use User::$me,
- * User::$loaded, and User::$profiles directly, rather than using any of the
- * deprecated global variables. A future version of SMF will remove backward
- * compatibility support for these deprecated globals.
+ * - The data previously available in the deprecated $memberContext array is now
+ *   available via the $formatted property of a User object. For example, where
+ *   old code might have used $memberContext[$id_member], the same information
+ *   is now available via User::$loaded[$id_member]->formatted. Note that, in
+ *   the same way that loadMemberContext($id_member) had to be called in order
+ *   to populate $memberContext[$id_member], User::$loaded[$id_member]->format()
+ *   must be called in order to populate User::$loaded[$id_member]->formatted.
+ *
+ * NOTE: It is STRONGLY RECOMMENDED that new and updated code use User::$me and
+ * User::$loaded directly, rather than using any of the deprecated global
+ * variables. A future version of SMF will remove backward compatibility support
+ * for these deprecated globals.
  */
 class User implements \ArrayAccess
 {
@@ -203,14 +206,14 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of any additional groups this user belongs to.
 	 */
-	public array $additional_groups = [];
+	public array $additional_groups;
 
 	/**
 	 * @var array
 	 *
 	 * IDs of all the groups this user belongs to.
 	 */
-	public array $groups = [];
+	public array $groups;
 
 	/**
 	 * @var bool
@@ -220,25 +223,65 @@ class User implements \ArrayAccess
 	public bool $possibly_robot;
 
 	/**
+	 * @var string
+	 *
+	 * Info about how many times they recently entered the wrong password.
+	 *
+	 * This is used to prevent brute force attempts to find someone's password.
+	 */
+	public string $passwd_flood;
+
+	/**
 	 * @var bool
 	 *
 	 * Whether this user is a guest.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $is_guest;
+	public bool $is_guest {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => empty($this->id);`
+		&get {
+			$this->is_guest = empty($this->id);
+
+			return $this->is_guest;
+		}
+	}
 
 	/**
 	 * @var bool
 	 *
 	 * Whether this user is an admin.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public bool $is_admin;
+	public bool $is_admin {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => \in_array(Group::ADMIN, $this->groups ?? []);`
+		&get {
+			$this->is_admin = \in_array(Group::ADMIN, $this->groups ?? []);
+
+			return $this->is_admin;
+		}
+	}
 
 	/**
 	 * @var bool
 	 *
 	 * Whether this user is a moderator on the current board.
 	 */
-	public bool $is_mod;
+	public bool $is_mod {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => $this->isMod();`
+		&get => $this->isMod();
+		set {
+			$this->isMod($value);
+		}
+	}
 
 	/**
 	 * @var int
@@ -253,6 +296,25 @@ class User implements \ArrayAccess
 	 * Whether this user has been banned.
 	 */
 	public bool $is_banned;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether this is the current user.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 */
+	public bool $is_me {
+		// @todo Once \ArrayAccess compatibility is no longer required, change this hook to
+		// `get => $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);`
+		&get {
+			$this->is_me = $this::class === self::class ? $this === (self::$me ?? null) : ($this->id ?? NAN) === (self::$my_id ?? NAN);
+
+			return $this->is_me;
+		}
+	}
 
 	/**
 	 * @var bool
@@ -295,7 +357,7 @@ class User implements \ArrayAccess
 	 *
 	 * Total amount of time the user has been logged in, measured in seconds.
 	 */
-	public int $total_time_logged_in = 0;
+	public int $total_time_logged_in;
 
 	/**
 	 * @var bool
@@ -337,7 +399,24 @@ class User implements \ArrayAccess
 	 *
 	 * The user's preferred time format.
 	 */
-	public string $time_format;
+	public string $time_format {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->time_format ??= !empty($this->real_time_format) ? $this->real_time_format : (Config::$modSettings['time_format'] ?? '%F %k:%M');
+
+			return $this->time_format;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * The user's preferred time format as recorded in the database.
+	 *
+	 * This exists because the theme might temporarily override the $time_format
+	 * property, and we wouldn't want that temporary change to become permanent.
+	 */
+	public protected(set) string $real_time_format;
 
 	/**
 	 * @var string
@@ -347,11 +426,22 @@ class User implements \ArrayAccess
 	public string $timezone;
 
 	/**
-	 * @var int
+	 * @var float
 	 *
-	 * The UTC offset of the user's time zone.
+	 * How many hours the user's time zone is offset from the forum's default
+	 * time zone.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
 	 */
-	public int $time_offset;
+	public float $time_offset {
+		&get {
+			$this->time_offset = !isset($this->timezone) ? 0 : ((new \DateTimeZone($this->timezone))->getOffset(new \DateTime('now')) - (new \DateTimeZone(Config::$modSettings['default_timezone'] ?? date_default_timezone_get()))->getOffset(new \DateTime('now'))) / 3600;
+
+			return $this->time_offset;
+		}
+	}
 
 	/**
 	 * @var int
@@ -399,6 +489,34 @@ class User implements \ArrayAccess
 	];
 
 	/**
+	 * @var string
+	 *
+	 * URL of this user's profile page. Will be an empty string for guests.
+	 */
+	public string $href {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->href ??= empty($this->id) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id;
+
+			return $this->href;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * HTML link to this user's profile page. Will be an empty string for guests.
+	 */
+	public string $link {
+		// This &get hook lets us set a default value programmatically.
+		&get {
+			$this->link ??= empty($this->id) || empty($this->name) ? '' : '<a href="' . $this->href . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>';
+
+			return $this->link;
+		}
+	}
+
+	/**
 	 * @var int
 	 *
 	 * The user's preferred theme.
@@ -424,14 +542,14 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of users on this user's buddy list.
 	 */
-	public array $buddies = [];
+	public array $buddies;
 
 	/**
 	 * @var array
 	 *
 	 * IDs of users that this user is ignoring.
 	 */
-	public array $ignoreusers = [];
+	public array $ignoreusers;
 
 	/**
 	 * @var int
@@ -480,7 +598,7 @@ class User implements \ArrayAccess
 	 *
 	 * IDs of boards that this user is ignoring.
 	 */
-	public array $ignoreboards = [];
+	public array $ignoreboards;
 
 	/**
 	 * @var string
@@ -491,15 +609,6 @@ class User implements \ArrayAccess
 	 * is a moderator on the current board.
 	 */
 	public string $group_name;
-
-	/**
-	 * @var string
-	 *
-	 * Name of the user's primary group.
-	 *
-	 * Does not change even if the user is a moderator on the current board.
-	 */
-	public string $primary_group_name;
 
 	/**
 	 * @var string
@@ -526,27 +635,53 @@ class User implements \ArrayAccess
 	 * @var array
 	 *
 	 * Info about the icons associated with this user's group.
+	 *
 	 * (Exactly which group will depend on the situation.)
 	 */
 	public array $icons;
 
 	/**
+	 * @var int
+	 *
+	 * ID of the user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public int $primary_group_id;
+
+	/**
+	 * @var string
+	 *
+	 * Name of the user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public string $primary_group_name;
+
+	/**
+	 * @var string
+	 *
+	 * The color associated with this user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
+	 */
+	public string $primary_group_color;
+
+	/**
 	 * @var array
 	 *
-	 * Info about the user's avatar.
+	 * The icons associated with this user's primary group.
+	 *
+	 * Does not change even if the user is a moderator on the current board.
 	 */
-	public array $avatar = [
-		'original_url' => null,
-		'url' => null,
-		'href' => null,
-		'name' => null,
-		'filename' => null,
-		'custom_dir' => null,
-		'id_attach' => null,
-		'width' => null,
-		'height' => null,
-		'image' => null,
-	];
+	public array $primary_group_icons;
+
+	/**
+	 * @var Avatar
+	 *
+	 * The user's avatar.
+	 */
+	public Avatar $avatar;
 
 	/**
 	 * @var array
@@ -574,14 +709,6 @@ class User implements \ArrayAccess
 	 * Moderator access info.
 	 */
 	public array $mod_cache = [];
-
-	/**
-	 * @var string
-	 *
-	 * Moderator preferences.
-	 * @todo This doesn't appear to be used anywhere.
-	 */
-	public string $mod_prefs = '';
 
 	/**
 	 * @var bool
@@ -640,11 +767,416 @@ class User implements \ArrayAccess
 	public string $query_wanna_see_message_board;
 
 	/**
+	 * @var UserDataset
+	 *
+	 * The dataset that was loaded for this user.
+	 *
+	 * Initially set to UserDataset::None. Will change once this user's
+	 * data has been loaded.
+	 */
+	public protected(set) UserDataset $dataset = UserDataset::None;
+
+	/**
 	 * @var array
 	 *
 	 * Formatted versions of this user's properties, suitable for display.
 	 */
 	public array $formatted = [];
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_member {
+		&get => $this->id;
+		set {
+			$this->id = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->username.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_name {
+		&get => $this->username;
+		set {
+			$this->username = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $real_name {
+		&get => $this->name;
+		set {
+			$this->name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $display_name {
+		&get => $this->name;
+		set {
+			$this->name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->email.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $email_address {
+		&get => $this->email;
+		set {
+			$this->email = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->language.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $lngfile {
+		&get => $this->language;
+		set {
+			$this->language = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->ip.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_ip {
+		&get => $this->ip;
+		set {
+			$this->ip = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->ip2.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_ip2 {
+		&get => $this->ip2;
+		set {
+			$this->ip2 = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->title.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $usertitle {
+		&get => $this->title;
+		set {
+			$this->title = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->title.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $blurb {
+		&get => $this->title;
+		set {
+			$this->title = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->theme.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_theme {
+		&get => $this->theme;
+		set {
+			$this->theme = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->post_group_id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_post_group {
+		&get => $this->post_group_id;
+		set {
+			$this->post_group_id = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->group_id.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $id_group {
+		&get => $this->group_id;
+		set {
+			$this->group_id = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->ignoreusers.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $pm_ignore_list {
+		&get => $this->ignoreusers;
+		set {
+			$this->ignoreusers = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->buddies.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $buddy_list {
+		&get => $this->buddies;
+		set {
+			$this->buddies = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->messages.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $instant_messages {
+		&get => $this->messages;
+		set {
+			$this->messages = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->website['url'].
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $website_url {
+		&get => $this->website['url'];
+		set {
+			$this->website['url'] = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->website['title'].
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $website_title {
+		&get => $this->website['title'];
+		set {
+			$this->website['title'] = $value;
+		}
+	}
+
+	/**
+	 * @var array
+	 *
+	 * Backward compatibility alias of $this->ignoreboards.
+	 *
+	 * @deprecated 3.0
+	 */
+	public array $ignore_boards {
+		&get => $this->ignoreboards;
+		set {
+			$this->ignoreboards = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->group_name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_group {
+		&get => $this->group_name;
+		set {
+			$this->group_name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->primary_group_name.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $primary_group {
+		&get => $this->primary_group_name;
+		set {
+			$this->primary_group_name = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->group_color.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $member_group_color {
+		&get => $this->group_color;
+		set {
+			$this->group_color = $value;
+		}
+	}
+
+	/**
+	 * @var string
+	 *
+	 * Backward compatibility alias of $this->birthdate.
+	 *
+	 * @deprecated 3.0
+	 */
+	public string $birth_date {
+		&get => $this->birthdate;
+		set {
+			$this->birthdate = $value;
+		}
+	}
+
+	/**
+	 * @var int
+	 *
+	 * Backward compatibility alias of $this->last_login.
+	 *
+	 * @deprecated 3.0
+	 */
+	public int $last_login_timestamp {
+		&get => $this->last_login;
+		set {
+			$this->last_login = $value;
+		}
+	}
+
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of !$this->is_guest.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $is_logged {
+		&get {
+			// Intentionally does not use $this->is_logged in order to keep this
+			// property virtual rather than backed, because backed properties
+			// cannot have both &get and set hooks.
+			$is_logged = !($this->is_guest ?? true);
+
+			return $is_logged;
+		}
+		set {
+			$this->is_guest = !$value;
+		}
+	}
+
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of Profile::$member->is_me.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $is_owner {
+		&get {
+			$this->is_owner = $this->is_me && (Profile::$member->is_me ?? false);
+
+			return $this->is_owner;
+		}
+	}
+
+	/**
+	 * @var bool
+	 *
+	 * Backward compatibility alias of Topic::$info->started_by_me.
+	 *
+	 * For the sake of compatibility with \ArrayAccess it is possible to write
+	 * to this property, but doing so is pointless because the value will be
+	 * overwritten the next time the property is read.
+	 *
+	 * @deprecated 3.0
+	 */
+	public bool $started {
+		&get {
+			$this->started = $this->is_me && (Topic::$info->started_by_me ?? false);
+
+			return $this->started;
+		}
+	}
 
 	/**************************
 	 * Public static properties
@@ -665,18 +1197,6 @@ class User implements \ArrayAccess
 	public static self $me;
 
 	/**
-	 * @var int
-	 *
-	 * ID number of the current user.
-	 *
-	 * As a general rule, code outside this class should use User::$me->id
-	 * rather than User::$my_id. The only exception to this rule is in code
-	 * executed during the login and logout processes, because User::$me->id
-	 * is not set at all points during those processes.
-	 */
-	public static int $my_id;
-
-	/**
 	 * @var string
 	 *
 	 * "Session check" value for the current user.
@@ -688,6 +1208,10 @@ class User implements \ArrayAccess
 	 * @var array
 	 *
 	 * Basic data from the database about all loaded users.
+	 *
+	 * @deprecated 3.0 In future versions of SMF this will either become an
+	 *    internal static property or be eliminated entirely. Either way, it
+	 *    will not be available in the public scope.
 	 */
 	public static array $profiles = [];
 
@@ -696,7 +1220,8 @@ class User implements \ArrayAccess
 	 *
 	 * Basic data from the database about the current user.
 	 * A reference to User::$profiles[User::$my_id].
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $settings;
 
@@ -705,7 +1230,8 @@ class User implements \ArrayAccess
 	 *
 	 * Processed data about the current user.
 	 * This is set to a reference to User::$me once the latter exists.
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $info;
 
@@ -714,65 +1240,67 @@ class User implements \ArrayAccess
 	 *
 	 * Alternative way to get formatted data about users.
 	 * A reference to User::$loaded[$id]->formatted (where $id is a user ID).
-	 * Only exists for backward compatibility reasons.
+	 *
+	 * @deprecated 3.0 Only exists for backward compatibility reasons.
 	 */
 	public static $memberContext;
 
 	/**
 	 * @var array
 	 *
-	 * Fields in the member table that take integers.
-	 */
-	public static array $knownInts = [
-		'alerts',
-		'date_registered',
-		'gender',
-		'id_group',
-		'id_msg_last_visit',
-		'id_post_group',
-		'id_theme',
-		'instant_messages',
-		'is_activated',
-		'last_login',
-		'new_pm',
-		'pm_prefs',
-		'pm_receive_from',
-		'posts',
-		'show_online',
-		'total_time_logged_in',
-		'unread_messages',
-		'warning',
-	];
-
-	/**
-	 * @var array
+	 * Known columns in the members table and their type indicators as used in
+	 * SMF's database parameter substitution system.
 	 *
-	 * Fields in the member table that take floats.
+	 * Additional columns may be added at runtime.
 	 */
-	public static array $knownFloats = [
-		'time_offset',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Names of variables to pass to the integrate_change_member_data hook.
-	 */
-	public static array $integration_vars = [
-		'avatar',
-		'birthdate',
-		'email_address',
-		'gender',
-		'id_group',
-		'lngfile',
-		'location',
-		'member_name',
-		'real_name',
-		'time_format',
-		'time_offset',
-		'timezone',
-		'website_title',
-		'website_url',
+	public static array $column_types = [
+		'id_member' => 'int',
+		'member_name' => 'string',
+		'date_registered' => 'int',
+		'posts' => 'int',
+		'id_group' => 'int',
+		'lngfile' => 'string',
+		'last_login' => 'int',
+		'real_name' => 'string',
+		'instant_messages' => 'int',
+		'unread_messages' => 'int',
+		'new_pm' => 'int',
+		'alerts' => 'int',
+		'buddy_list' => 'string',
+		'pm_ignore_list' => 'string',
+		'pm_prefs' => 'int',
+		'passwd' => 'string',
+		'email_address' => 'string',
+		'personal_text' => 'string',
+		'birthdate' => 'date',
+		'website_title' => 'string',
+		'website_url' => 'string',
+		'show_online' => 'int',
+		'time_format' => 'string',
+		'signature' => 'string',
+		'avatar' => 'string',
+		'usertitle' => 'string',
+		'member_ip' => 'string',
+		'member_ip2' => 'string',
+		'secret_question' => 'string',
+		'secret_answer' => 'string',
+		'id_theme' => 'int',
+		'is_activated' => 'int',
+		'validation_code' => 'string',
+		'id_msg_last_visit' => 'int',
+		'additional_groups' => 'string',
+		'smiley_set' => 'string',
+		'id_post_group' => 'int',
+		'total_time_logged_in' => 'int',
+		'password_salt' => 'string',
+		'ignore_boards' => 'string',
+		'warning' => 'int',
+		'passwd_flood' => 'string',
+		'pm_receive_from' => 'int',
+		'timezone' => 'string',
+		'tfa_secret' => 'string',
+		'tfa_backup' => 'string',
+		'spoofdetector_name' => 'string',
 	];
 
 	/*********************
@@ -780,53 +1308,11 @@ class User implements \ArrayAccess
 	 *********************/
 
 	/**
-	 * @var array
-	 *
-	 * Alternate names for some object properties.
-	 */
-	protected array $prop_aliases = [
-		'id_member' => 'id',
-		'member_name' => 'username',
-		'real_name' => 'name',
-		'display_name' => 'name',
-		'email_address' => 'email',
-		'lngfile' => 'language',
-		'member_group' => 'group_name',
-		'primary_group' => 'primary_group_name',
-		'member_group_color' => 'group_color',
-		'member_ip' => 'ip',
-		'member_ip2' => 'ip2',
-		'usertitle' => 'title',
-		'blurb' => 'title',
-		'id_theme' => 'theme',
-		'ignore_boards' => 'ignoreboards',
-		'pm_ignore_list' => 'ignoreusers',
-		'buddy_list' => 'buddies',
-		'instant_messages' => 'messages',
-		'birth_date' => 'birthdate',
-		'last_login_timestamp' => 'last_login',
-
-		// Square brackets are parsed to find array elements.
-		'website_url' => 'website[url]',
-		'website_title' => 'website[title]',
-
-		// Initial exclamation mark means inverse of the property.
-		'is_logged' => '!is_guest',
-	];
-
-	/**
 	 * @var bool
 	 *
 	 * Whether the integrate_verify_user hook verified this user for us.
 	 */
 	private bool $already_verified = false;
-
-	/**
-	 * @var string
-	 *
-	 * The dataset that was loaded for this user.
-	 */
-	private string $dataset;
 
 	/**
 	 * @var bool
@@ -861,16 +1347,36 @@ class User implements \ArrayAccess
 	 ****************************/
 
 	/**
-	 * @var array
+	 * @var int
 	 *
-	 * Maps names of dataset levels to numeric values.
+	 * ID number of the current user.
+	 *
+	 * This is used during self::loadMe() to keep track of the ID while we are
+	 * still in the process of validating the credentials.
 	 */
-	protected static array $dataset_levels = [
-		'minimal' => 0,
-		'basic' => 1,
-		'normal' => 2,
-		'profile' => 3,
-	];
+	protected static int $my_id;
+
+	/**
+	 * @var int
+	 *
+	 * Permanent record of the ID number of the current user as determined when
+	 * validating the login cookie.
+	 *
+	 * Normally the same as self::$my_id, but may differ if self::setMe() was
+	 * used to change the value of self::$me. This is used by self:loadMe() to
+	 * revert self::$me back to the real current user without having to re-parse
+	 * the cookie.
+	 */
+	protected static int $cookie_id;
+
+	/**
+	 * @var string
+	 *
+	 * The encrypted password string provided in the cookie.
+	 *
+	 * This is used during self::loadMe().
+	 */
+	protected static string $cookie_password;
 
 	/**
 	 * @var array
@@ -892,19 +1398,82 @@ class User implements \ArrayAccess
 	 ****************/
 
 	/**
-	 * Sets custom properties.
+	 * Constructor.
 	 *
-	 * @param string $prop The property name.
-	 * @param mixed $value The value to set.
+	 * @param ?int $id The ID number of the user. If null, no data will be
+	 *    loaded into the object properties. Default: null.
+	 * @param UserDataset $dataset The set of data to load. Ignored if $id is
+	 *    null. If set to UserDataset::None, no data will be loaded into the
+	 *    object properties apart from $this->id. Default: UserDataset::Normal.
 	 */
-	public function __set(string $prop, mixed $value): void
+	public function __construct(?int $id = null, UserDataset $dataset = UserDataset::Normal)
 	{
-		if (\in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && \is_string($value)) {
-			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
-			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
+		// No ID given, so we can't load any data.
+		if (!isset($id)) {
+			return;
 		}
 
-		$this->customPropertySet($prop, $value);
+		$this->id = $id;
+
+		// Reloading the current user requires special handling.
+		if ($id == (self::$my_id ?? NAN)) {
+			// Copy over the existing data.
+			$this->set(get_object_vars(self::$me));
+
+			// Must load at least the minimal data in this situation.
+			if ($dataset === UserDataset::None) {
+				unset($dataset);
+			}
+
+			$dataset ??= self::$me->chooseMyDataset();
+
+			if (!self::$me->dataset->includes($dataset)) {
+				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
+				$this->setProperties();
+			}
+
+			self::$loaded[$id] = $this;
+			self::setMe($id);
+
+			return;
+		}
+
+		// Specifically told not to load any data.
+		if ($dataset === UserDataset::None) {
+			return;
+		}
+
+		// Load the specified member.
+		self::$loaded[$id] = $this;
+
+		if (
+			empty(self::$profiles[$id])
+			|| !self::$profiles[$id]['dataset']->includes($dataset)
+		) {
+			self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
+		}
+
+		$this->setProperties();
+	}
+
+	/**
+	 * Saves this user's data to the members table in the database.
+	 *
+	 * Does nothing if this is a guest.
+	 *
+	 * Note: If you are updating many members at once, it is more efficient
+	 * to call User::saveBatch($members) than to call $member->save() for
+	 * each member individually.
+	 */
+	public function save(): void
+	{
+		// Can't save guests.
+		if (empty($this->id)) {
+			return;
+		}
+
+		// Since self::saveBatch() already has the logic we need, use it.
+		self::saveBatch([$this]);
 	}
 
 	/**
@@ -917,6 +1486,12 @@ class User implements \ArrayAccess
 	{
 		if ($boards === []) {
 			$boards = null;
+		}
+
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->setProperties();
 		}
 
 		foreach (
@@ -993,26 +1568,32 @@ class User implements \ArrayAccess
 			return $this->formatted;
 		}
 
+		if (!$this->dataset->includes(UserDataset::Minimal)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->setProperties();
+		}
+
 		// The minimal values.
 		$this->formatted = [
 			'id' => $this->id,
 			'username' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->username,
 			'name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->name,
-			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
-			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>',
+			'href' => $this->href,
+			'link' => $this->link,
 			'email' => $this->email,
-			'show_email' => !self::$me->is_guest && (self::$me->id == $this->id || self::$me->allowedTo('moderate_forum')),
+			'show_email' => !self::$me->is_guest && ($this->is_me || self::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $this->date_registered)->format(),
 			'registered_timestamp' => $this->date_registered,
 		];
 
 		// Basic, normal, and profile want the avatar.
-		if (\in_array($this->dataset, ['basic', 'normal', 'profile'])) {
+		if ($this->dataset->exceeds(UserDataset::Minimal)) {
 			$this->formatted['avatar'] = $this->avatar;
 		}
 
 		// Normal and profile want lots more data.
-		if (\in_array($this->dataset, ['normal', 'profile'])) {
+		if ($this->dataset->exceeds(UserDataset::Basic)) {
 			// Go the extra mile and load the user's native language name.
 			if (empty($loadedLanguages)) {
 				$loadedLanguages = Lang::get(true);
@@ -1026,6 +1607,7 @@ class User implements \ArrayAccess
 				foreach (['actual_theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'] as $dir => $url) {
 					if (file_exists(Theme::$current->settings[$dir] . '/images/membericons/' . $this->icons[1])) {
 						$group_icon_url = Theme::$current->settings[$url] . '/membericons/' . $this->icons[1];
+						break;
 					}
 				}
 			}
@@ -1037,9 +1619,9 @@ class User implements \ArrayAccess
 			$this->formatted += [
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
-				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
-				'is_buddy' => \in_array($this->id, self::$me->buddies),
-				'is_reverse_buddy' => \in_array(self::$me->id, $this->buddies),
+				'link_color' => strstr($this->link, '>', true) . ' style="color:' . $this->group_color . ';"' . strstr($this->link, '>'),
+				'is_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array($this->id, self::$me->buddies),
+				'is_reverse_buddy' => !empty(Config::$modSettings['enable_buddylist']) && \in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
@@ -1179,7 +1761,7 @@ class User implements \ArrayAccess
 	public function logOnline(bool $force = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1346,8 +1928,10 @@ class User implements \ArrayAccess
 			}
 
 			$this->total_time_logged_in += (time() - $_SESSION['timeOnlineUpdated']);
+			$this->last_login = time();
+			$this->ip2 = IP::getUserIPAlternative();
+			$this->save();
 
-			self::updateMemberData($this->id, ['last_login' => time(), 'member_ip' => $this->ip, 'member_ip2' => IP::getUserIPAlternative(), 'total_time_logged_in' => $this->total_time_logged_in]);
 
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
 				CacheApi::put('user_settings-' . $this->id, self::$profiles[$this->id], 60);
@@ -1355,171 +1939,6 @@ class User implements \ArrayAccess
 
 			$_SESSION['timeOnlineUpdated'] = time();
 		}
-	}
-
-	/**
-	 * Loads the mod cache data.
-	 *
-	 * Stores the information on the current user's moderation powers in
-	 * User::$me->mod_cache and $_SESSION['mc'].
-	 */
-	public function loadModCache(): void
-	{
-		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
-			// Quietly ignore this.
-			return;
-		}
-
-		if (
-			isset($_SESSION['mc'])
-			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
-			&& $_SESSION['mc']['id'] == $this->id
-		) {
-			$this->mod_cache = $_SESSION['mc'];
-		} else {
-			$this->rebuildModCache();
-		}
-
-		// Now that we have the mod cache taken care of, let's setup a cache
-		// for the number of mod reports still open.
-		if (
-			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
-			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
-			&& $_SESSION['rc']['id'] == $this->id
-		) {
-			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
-			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
-		} elseif ($_SESSION['mc']['bq'] != '0=1') {
-			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
-			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
-		} else {
-			Utils::$context['open_mod_reports'] = 0;
-			Utils::$context['open_member_reports'] = 0;
-		}
-	}
-
-	/**
-	 * Quickly find out what moderation authority the current user has
-	 *
-	 * Builds the moderator, group and board level queries for the user.
-	 *
-	 * Stores the information on the current users moderation powers in
-	 * User::$me->mod_cache and $_SESSION['mc'].
-	 */
-	public function rebuildModCache(): void
-	{
-		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
-			// Quietly ignore this.
-			return;
-		}
-
-		// What groups can they moderate?
-		if (!$this->is_guest) {
-			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
-		} else {
-			$group_query = '0=1';
-		}
-
-		if ($group_query == '0=1' && !$this->is_guest) {
-			$groups = [];
-
-			$request = Db::$db->query(
-				'SELECT id_group
-				FROM {db_prefix}group_moderators
-				WHERE id_member = {int:current_member}',
-				[
-					'current_member' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$groups[] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-
-			if (empty($groups)) {
-				$group_query = '0=1';
-			} else {
-				$group_query = 'id_group IN (' . implode(',', $groups) . ')';
-			}
-		}
-
-		// Then, same again, just the boards this time!
-		if (!$this->is_guest) {
-			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
-		} else {
-			$board_query = '0=1';
-		}
-
-		if ($board_query == '0=1' && !$this->is_guest) {
-			$boards = $this->boardsAllowedTo('moderate_board', true);
-
-			if (empty($boards)) {
-				$board_query = '0=1';
-			} else {
-				$board_query = 'id_board IN (' . implode(',', $boards) . ')';
-			}
-		}
-
-		// What boards are they the moderator of?
-		$boards_mod = [];
-
-		if (!$this->is_guest) {
-			$request = Db::$db->query(
-				'SELECT id_board
-				FROM {db_prefix}moderators
-				WHERE id_member = {int:current_member}',
-				[
-					'current_member' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$boards_mod[] = $row['id_board'];
-			}
-			Db::$db->free_result($request);
-
-			// Can any of the groups they're in moderate any of the boards?
-			$request = Db::$db->query(
-				'SELECT id_board
-				FROM {db_prefix}moderator_groups
-				WHERE id_group IN({array_int:groups})',
-				[
-					'groups' => $this->groups,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$boards_mod[] = $row['id_board'];
-			}
-			Db::$db->free_result($request);
-
-			// Just in case we've got duplicates here...
-			$boards_mod = array_unique($boards_mod);
-		}
-
-		$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
-
-		$_SESSION['mc'] = [
-			'time' => time(),
-			// This looks a bit funny but protects against the login redirect.
-			'id' => $this->id && $this->name ? $this->id : 0,
-			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
-			'gq' => $group_query,
-			'bq' => $board_query,
-			'ap' => !$this->is_guest ? $this->boardsAllowedTo('approve_posts') : [],
-			'mb' => $boards_mod,
-			'mq' => $mod_query,
-		];
-
-		IntegrationHook::call('integrate_mod_cache');
-
-		$this->mod_cache = $_SESSION['mc'];
-
-		// Might as well clean up some tokens while we are at it.
-		SecurityToken::clean();
 	}
 
 	/**
@@ -1535,7 +1954,7 @@ class User implements \ArrayAccess
 	public function kickIfGuest(?string $message = null, bool $log = true): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1547,10 +1966,6 @@ class User implements \ArrayAccess
 
 		// Log what they were trying to do that didn't work.
 		if ($log) {
-			if (!empty(Config::$modSettings['who_enabled'])) {
-				$_GET['error'] = 'guest_login';
-			}
-
 			$this->logOnline(true);
 		}
 
@@ -1600,15 +2015,23 @@ class User implements \ArrayAccess
 	/**
 	 * Does banning related stuff (i.e. disallowing access).
 	 *
-	 * Checks if the user is banned, and if so dies with an error.
-	 * Caches this information for optimization purposes.
+	 * Checks if the user is completely banned, and if so dies with an error.
+	 *
+	 * Otherwise, applies any permissions changes required to enforce partial
+	 * bans or restrictions due to high warning levels.
 	 *
 	 * @param bool $force_check Whether to force a recheck.
+	 *    Default: false.
+	 * @param bool $post_kick If true, die if they are if banned from posting.
+	 *    If false, merely applies permissions that prevent them from posting.
+	 *    Default: false.
+	 * @param bool $reg_kick If true, die if they are banned from registering.
+	 *    Only applicable to guests. Default: false.
 	 */
-	public function kickIfBanned(bool $force_check = false): void
+	public function enforceBans(bool $force_check = false, bool $post_kick = false, bool $reg_kick = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Quietly ignore this.
 			return;
 		}
@@ -1618,155 +2041,12 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Only check the ban every so often. (to reduce load.)
-		if (
-			$force_check
-			|| !isset($_SESSION['ban'])
-			|| empty(Config::$modSettings['banLastUpdated'])
-			|| $_SESSION['ban']['last_checked'] < Config::$modSettings['banLastUpdated']
-			|| $_SESSION['ban']['id_member'] != $this->id
-			|| $_SESSION['ban']['ip'] != $this->ip
-			|| $_SESSION['ban']['ip2'] != $this->ip2
-			|| (
-				isset($this->email, $_SESSION['ban']['email'])
-				&& $_SESSION['ban']['email'] != $this->email
-			)
-		) {
-			// Innocent until proven guilty.  (but we know you are! :P)
-			$_SESSION['ban'] = [
-				'last_checked' => time(),
-				'id_member' => $this->id,
-				'ip' => $this->ip,
-				'ip2' => $this->ip2,
-				'email' => $this->email,
-			];
+		// Check whether they have any bans recorded in the database.
+		$bans = Security::checkBans($this, $force_check);
 
-			$ban_query = [];
-			$ban_query_vars = ['current_time' => time()];
-			$flag_is_activated = false;
-
-			// Check both IP addresses.
-			foreach (['ip', 'ip2'] as $ip_number) {
-				if ($ip_number == 'ip2' && $this->ip2 == $this->ip) {
-					continue;
-				}
-
-				$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
-				$ban_query_vars[$ip_number] = $this->{$ip_number};
-
-				// IP was valid, maybe there's also a hostname...
-				if (empty(Config::$modSettings['disableHostnameLookup']) && $this->{$ip_number} != 'unknown') {
-					$ip = new IP($this->{$ip_number});
-					$hostname = $ip->getHost();
-
-					if (\strlen($hostname) > 0) {
-						$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
-						$ban_query_vars['hostname' . $ip_number] = $hostname;
-					}
-				}
-			}
-
-			// Is their email address banned?
-			if (\strlen($this->email) != 0) {
-				$ban_query[] = '({string:email} LIKE bi.email_address)';
-				$ban_query_vars['email'] = $this->email;
-			}
-
-			// How about this user?
-			if (!$this->is_guest && !empty($this->id)) {
-				$ban_query[] = 'bi.id_member = {int:id_member}';
-				$ban_query_vars['id_member'] = $this->id;
-			}
-
-			// Check the ban, if there's information.
-			if (!empty($ban_query)) {
-				$restrictions = [
-					'cannot_access',
-					'cannot_login',
-					'cannot_post',
-					'cannot_register',
-				];
-
-				// Store every type of ban that applies to you in your session.
-				$request = Db::$db->query(
-					'SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
-						bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
-					FROM {db_prefix}ban_items AS bi
-						INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
-					WHERE
-						(' . implode(' OR ', $ban_query) . ')',
-					$ban_query_vars,
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					foreach ($restrictions as $restriction) {
-						if (!empty($row[$restriction])) {
-							$_SESSION['ban'][$restriction]['reason'] = $row['reason'];
-							$_SESSION['ban'][$restriction]['ids'][] = $row['id_ban'];
-
-							if (
-								!isset($_SESSION['ban']['expire_time'])
-								|| (
-									$_SESSION['ban']['expire_time'] != 0
-									&& (
-										$row['expire_time'] == 0
-										|| $row['expire_time'] > $_SESSION['ban']['expire_time']
-									)
-								)
-							) {
-								$_SESSION['ban']['expire_time'] = $row['expire_time'];
-							}
-
-							if (
-								!$this->is_guest
-								&& $restriction == 'cannot_access'
-								&& (
-									$row['id_member'] == $this->id
-									|| $row['email_address'] == $this->email
-								)
-							) {
-								$flag_is_activated = true;
-							}
-						}
-					}
-				}
-				Db::$db->free_result($request);
-			}
-
-			// Mark the cannot_access and cannot_post bans as being 'hit'.
-			if (isset($_SESSION['ban']['cannot_access'], $_SESSION['ban']['cannot_post'], $_SESSION['ban']['cannot_login'])) {
-				$this->logBan(array_merge(
-					isset($_SESSION['ban']['cannot_access']) ? $_SESSION['ban']['cannot_access']['ids'] : [],
-					isset($_SESSION['ban']['cannot_post']) ? $_SESSION['ban']['cannot_post']['ids'] : [],
-					isset($_SESSION['ban']['cannot_login']) ? $_SESSION['ban']['cannot_login']['ids'] : [],
-				));
-			}
-
-			// If for whatever reason the is_activated flag seems wrong, do a little work to clear it up.
-			if (
-				$this->id
-				&& (
-					(
-						$this->is_activated >= self::BANNED
-						&& !$flag_is_activated
-					)
-					|| (
-						$this->is_activated < self::BANNED
-						&& $flag_is_activated
-					)
-				)
-			) {
-				Bans::updateBanMembers();
-			}
-		}
-
-		// Hey, I know you! You're ehm...
-		if (!isset($_SESSION['ban']['cannot_access']) && !empty($_COOKIE[Config::$cookiename . '_'])) {
-			$bans = explode(',', $_COOKIE[Config::$cookiename . '_']);
-
-			foreach ($bans as $key => $value) {
-				$bans[$key] = (int) $value;
-			}
+		// Do they have a cookie recording their bans?
+		if (!isset($bans['cannot_access']) && !empty($_COOKIE[Config::$cookiename . '_'])) {
+			$ban_ids = array_map('intval', explode(',', $_COOKIE[Config::$cookiename . '_']));
 
 			$request = Db::$db->query(
 				'SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
@@ -1778,30 +2058,122 @@ class User implements \ArrayAccess
 				LIMIT {int:limit}',
 				[
 					'cannot_access' => 1,
-					'ban_list' => $bans,
+					'ban_list' => $ban_ids,
 					'current_time' => time(),
-					'limit' => \count($bans),
+					'limit' => \count($ban_ids),
 				],
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
-				$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
-				$_SESSION['ban']['expire_time'] = $row['expire_time'];
+				$bans['cannot_access']['ids'][] = $row['id_ban'];
+				$bans['cannot_access']['reason'] = $row['reason'];
+				$bans['expire_time'] = $row['expire_time'];
 			}
+
 			Db::$db->free_result($request);
 
-			// My mistake. Next time better.
-			if (!isset($_SESSION['ban']['cannot_access'])) {
+			// If the bans recorded in the cookie no longer apply, delete it.
+			if (!isset($bans['cannot_access'])) {
 				$cookie = new Cookie(Config::$cookiename . '_', [], time() - 3600);
 				$cookie->set();
 			}
 		}
 
-		// If you're fully banned, it's end of the story for you.
-		if (isset($_SESSION['ban']['cannot_access'])) {
+		// If for whatever reason the is_activated flag seems wrong, do a little work to clear it up.
+		if (
+			!$this->is_guest
+			&& isset($this->is_activated)
+			&& !empty($bans['cannot_access'])
+			&& ($this->is_activated >= self::BANNED) != ($bans['cannot_access']['email_address'] == $this->email || $bans['cannot_access']['id_member'] == $this->id)
+		) {
+			Bans::updateBanMembers();
+		}
+
+		// Who are we giving the boot?
+		$name = ($this->name ?? '') !== '' ? $this->name : Lang::getTxt('guest_title', file: 'General');
+
+		// Walk through the different ban types to see if we should kick this user out.
+		$should_kick = false;
+
+		$restrictions = [
+			'cannot_access',
+			'cannot_login',
+			'cannot_post',
+			'cannot_register',
+		];
+
+		foreach ($restrictions as $restriction) {
+			$ban = $bans[$restriction] ?? [];
+
+			if (empty($ban['ids'])) {
+				continue;
+			}
+
+			switch ($restriction) {
+				// If you're fully banned, it's end of the story for you.
+				case 'cannot_access':
+					$should_kick = true;
+					$remove_from_log_online = !$this->is_guest;
+					$die_silently = ($_REQUEST['action'] ?? null) == 'dlattach';
+					$force_logout = true;
+					$set_ban_cookie = true;
+					$show_expiry = true;
+					$message = Lang::getTxt('your_ban', ['name' => $name], file: 'General') . (!empty($ban['reason']) ? '<br>' . $ban['reason'] : '');
+					break 2;
+
+				case 'cannot_login':
+					// You're not allowed to log in but yet you are. Let's fix that.
+					if (!$this->is_guest) {
+						$should_kick = true;
+						$remove_from_log_online = true;
+						$die_silently = false;
+						$force_logout = true;
+						$set_ban_cookie = true;
+						$show_expiry = true;
+						$message = Lang::getTxt('your_ban', ['name' => $name], file: 'General') . (!empty($ban['reason']) ? '<br>' . $ban['reason'] : '');
+						break 2;
+					}
+
+					break;
+
+				case 'cannot_post':
+					if ($post_kick) {
+						$should_kick = true;
+						$remove_from_log_online = false;
+						$die_silently = false;
+						$force_logout = false;
+						$set_ban_cookie = false;
+						$show_expiry = !$this->is_guest;
+						$message = Lang::getTxt('you_are_post_banned', ['name' => $name], file: 'General') . (!empty($ban['reason']) ? '<br>' . $ban['reason'] : '');
+						break 2;
+					}
+
+					break;
+
+				case 'cannot_register':
+					// Registration bans only make sense for guests.
+					if ($reg_kick && $this->is_guest) {
+						$should_kick = true;
+						$remove_from_log_online = false;
+						$die_silently = false;
+						$force_logout = false;
+						$set_ban_cookie = false;
+						$show_expiry = false;
+						$message = Lang::getTxt('ban_register_prohibited', file: 'Login') . (!empty($ban['reason']) ? '<br>' . $ban['reason'] : '');
+						break 2;
+					}
+
+					break;
+			}
+		}
+
+		// You banned, sucka!
+		if ($should_kick) {
+			Logging::logBan($ban['ids']);
+
 			// We don't wanna see you!
-			if (!$this->is_guest) {
+			if ($remove_from_log_online) {
+				// Remove all traces of whatever they were doing.
 				Db::$db->query(
 					'DELETE FROM {db_prefix}log_online
 					WHERE id_member = {int:current_member}',
@@ -1809,117 +2181,59 @@ class User implements \ArrayAccess
 						'current_member' => $this->id,
 					],
 				);
+			} else {
+				// Show them as only hitting the board index.
+				$_GET['action'] = '';
+				$_GET['board'] = '';
+				$_GET['topic'] = '';
+				unset(Topic::$topic_id, Topic::$info, Board::$board_id, Board::$info);
+
+				$this->logOnline(true);
 			}
 
-			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach') {
+			// A goodbye present.
+			if ($set_ban_cookie) {
+				$cookie = new Cookie(Config::$cookiename . '_', implode(',', $ban['ids']), time() - 3600);
+				$cookie->set();
+			}
+
+			// Log the user out.
+			if ($force_logout) {
+				User::setMe(0);
+				Logout::call(true, false);
+			}
+
+			// Show no message?
+			if ($die_silently) {
 				die();
 			}
 
-			// 'Log' the user out.  Can't have any funny business... (save the name!)
-			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::getTxt('guest_title', file: 'General');
+			// Let them know when this ban will expire?
+			if ($show_expiry) {
+				if (empty($bans['expire_time'])) {
+					$message .= '<br>' . Lang::getTxt('your_ban_expires_never', file: 'General');
+				} else {
+					$message .= '<br>' . Lang::getTxt(
+						'your_ban_expires',
+						[Time::create('@' . $bans['expire_time'])->format(null, false)],
+						file: 'General',
+					);
+				}
+			}
 
-			User::setMe(0);
-
-			// A goodbye present.
-			$cookie = new Cookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() - 3600);
-			$cookie->set();
-
-			// Don't scare anyone, now.
-			$_GET['action'] = '';
-			$_GET['board'] = '';
-			$_GET['topic'] = '';
-			$this->logOnline(true);
-			Logout::call(true, false);
-
-			// You banned, sucka!
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name], file: 'General') . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::getTxt('your_ban_expires_never', file: 'General')), false, 403);
+			ErrorHandler::fatal($message, false, 403);
 
 			// We should never reach this point, but just in case...
 			die('No direct access...');
 		}
 
-		// You're not allowed to log in but yet you are. Let's fix that.
-		if (isset($_SESSION['ban']['cannot_login']) && !$this->is_guest) {
-			// We don't wanna see you!
-			Db::$db->query(
-				'DELETE FROM {db_prefix}log_online
-				WHERE id_member = {int:current_member}',
-				[
-					'current_member' => $this->id,
-				],
-			);
-
-			// 'Log' the user out.  Can't have any funny business... (save the name!)
-			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::getTxt('guest_title', file: 'General');
-			User::setMe(0);
-
-			// SMF's Wipe 'n Clean(r) erases all traces.
-			$_GET['action'] = '';
-			$_GET['board'] = '';
-			$_GET['topic'] = '';
-			$this->logOnline(true);
-
-			Logout::call(true, false);
-
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name], file: 'General') . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::getTxt('your_ban_expires_never', file: 'General')) . '<br>' . Lang::getTxt('ban_continue_browse', file: 'General'), false, 403);
-		}
-
 		// Fix up the banning permissions.
-		if (isset($this->permissions_set)) {
-			$this->permissions_set->applyBansAndWarnings();
-		}
-	}
-
-	/**
-	 * Logs a ban in the database.
-	 *
-	 * Increments the hit counters for the specified ban ID's (if any).
-	 *
-	 * @param array $ban_ids The IDs of the bans.
-	 * @param string|null $email The email address associated with the user that
-	 *    triggered this hit. If not set, uses the current user's email address.
-	 */
-	public function logBan(array $ban_ids = [], ?string $email = null): void
-	{
-		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
-			// Quietly ignore this.
-			return;
+		if (!isset($this->permission_sets)) {
+			$this->loadPermissions();
 		}
 
-		// Don't log web accelerators, it's very confusing...
-		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
-			return;
-		}
-
-		Db::$db->insert(
-			'',
-			'{db_prefix}log_banned',
-			[
-				'id_member' => 'int',
-				'ip' => 'inet',
-				'email' => 'string',
-				'log_time' => 'int',
-			],
-			[
-				$this->id,
-				$this->ip,
-				$email ?? $this->email,
-				time(),
-			],
-			['id_ban_log'],
-		);
-
-		// One extra point for these bans.
-		if (!empty($ban_ids)) {
-			Db::$db->query(
-				'UPDATE {db_prefix}ban_items
-				SET hits = hits + 1
-				WHERE id_ban IN ({array_int:ban_ids})',
-				[
-					'ban_ids' => $ban_ids,
-				],
-			);
+		foreach ($this->permission_sets as $set) {
+			$set->applyBansAndWarnings();
 		}
 	}
 
@@ -1942,7 +2256,7 @@ class User implements \ArrayAccess
 	public function validateSession(string $type = 'admin', bool $force = false): ?string
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -2038,7 +2352,7 @@ class User implements \ArrayAccess
 	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -2282,7 +2596,7 @@ class User implements \ArrayAccess
 	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
 		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
+		if (!$this->is_me) {
 			// Complain loudly about this programmer error.
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
@@ -2356,6 +2670,12 @@ class User implements \ArrayAccess
 
 		$boards = $deny_boards = array_fill_keys($permissions, []);
 
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->setProperties();
+		}
+
 		foreach (PermissionProfile::loadAll() as $profile) {
 			if (empty($profile->boards())) {
 				continue;
@@ -2407,6 +2727,12 @@ class User implements \ArrayAccess
 			return $this->accessible_boards;
 		}
 
+		if (empty($this->query_see_board)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->setProperties();
+		}
+
 		$request = Db::$db->query(
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
@@ -2433,6 +2759,12 @@ class User implements \ArrayAccess
 	 */
 	public function groupsCanModerate(bool $ignore_protected = false): array
 	{
+		if (empty($this->groups)) {
+			$this->id ??= 0;
+			self::loadUserData([$this->id], dataset: UserDataset::Minimal);
+			$this->setProperties();
+		}
+
 		// $ignore_protected only ever matters in this one scenario.
 		if (
 			$ignore_protected
@@ -2491,32 +2823,42 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
+	 * @param UserDataset $dataset What kind of data to load.
+	 *    Default: UserDataset::Normal
 	 * @return array Instances of this class for the loaded users.
 	 */
-	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, UserDataset $dataset = UserDataset::Normal): array
 	{
 		$users = (array) $users;
 
 		$loaded = [];
 
-		// No ID? Just get the current user.
 		if ($users === []) {
-			if (!isset(self::$me)) {
-				$loaded[] = new self(null, $dataset);
+			return $loaded;
+		}
+
+		// If looking up by name or email, we need to load at least the minimal data.
+		if ($dataset === UserDataset::None && $type !== self::LOAD_BY_ID) {
+			$dataset = UserDataset::Minimal;
+		}
+
+		if ($dataset === UserDataset::None) {
+			foreach ($users as $id) {
+				if (!isset(self::$loaded[$id])) {
+					self::$loaded[$id] = new self($id, $dataset);
+				}
+
+				$loaded[] = self::$loaded[$id];
 			}
 		} else {
-			$dataset = $dataset ?? 'normal';
-
 			// Load members.
-			foreach (($loaded_ids = self::loadUserData((array) $users, $type, $dataset)) as $id) {
+			foreach (self::loadUserData((array) $users, $type, $dataset) as $id) {
 				// Not yet loaded.
 				if (!isset(self::$loaded[$id])) {
 					new self($id, $dataset);
 				}
 				// Already loaded, so just update the properties.
-				elseif (self::$dataset_levels[self::$loaded[$id]->dataset] < self::$dataset_levels[$dataset]) {
+				elseif (!self::$loaded[$id]->dataset->includes($dataset)) {
 					self::$loaded[$id]->setProperties();
 				}
 
@@ -2528,22 +2870,145 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Loads the current user based on cookie data.
+	 *
+	 * The loaded user is assigned to User::$me and also returned.
+	 *
+	 * Note that if User::setMe() was previously used to change the value of
+	 * User::$me, calling this method will change it back to the original user.
+	 *
+	 * @return self An instance of this class for the current user.
+	 */
+	public static function loadMe(): self
+	{
+		// If we loaded the user earlier, but then self::setMe() changed
+		// self::$me to something else, we can save ourselves some effort now
+		// by simply reverting self::$me back to the original user.
+		if (isset(self::$me, self::$cookie_id) && self::$me->id !== self::$cookie_id) {
+			// Double check whether all required data was loaded.
+			if (
+				!isset(self::$loaded[self::$cookie_id])
+				|| self::$me->chooseMyDataset()->exceeds(self::$loaded[self::$cookie_id]->dataset)
+			) {
+				self::reload(self::$cookie_id, self::$me->chooseMyDataset());
+			}
+
+			self::setMe(self::$cookie_id);
+		}
+
+		if (!isset(self::$me)) {
+			self::$me = new self();
+
+			// Current user is a guest until proven otherwise.
+			self::$my_id = 0;
+
+			// Allow mods to do verification if they want.
+			self::$me->integrateVerifyUser();
+
+			// Load the user's data.
+			self::$me->setMyId();
+			self::loadUserData((array) self::$my_id, self::LOAD_BY_ID, self::$me->chooseMyDataset());
+
+			// Verify that the user is who they claim to be.
+			// If verification fails, self::$my_id will be reset to 0.
+			self::$me->verifyPassword();
+			self::$me->verifyTfa();
+
+			// At this point, we know the user ID for sure.
+			self::$me->id = self::$my_id;
+			self::$cookie_id = self::$my_id;
+
+			// Also track this in our list of all loaded instances.
+			self::$loaded[self::$me->id] = self::$me;
+
+			// If the user is a guest, initialize all the critical user settings.
+			if (empty(self::$me->id)) {
+				self::$me->initializeGuest();
+			}
+			// Otherwise, update the user's last visit time.
+			else {
+				self::$me->setLastVisit();
+			}
+
+			// Now set all the properties.
+			self::$me->setProperties();
+
+			// Backward compatibility.
+			self::$info = self::$me;
+			Utils::$context['user'] = self::$me;
+			self::integrateUserInfo();
+		}
+
+		return self::$me;
+	}
+
+	/**
+	 * Loads users according to arbitrary query criteria.
+	 *
+	 * @param array $query_customizations
+	 * @param ?UserDataset $dataset What kind of data to load.
+	 *    Default: UserDataset::Normal.
+	 * @return array Instances of this class for the loaded users.
+	 */
+	public static function loadCustom(array $query_customizations, UserDataset $dataset = UserDataset::Normal): array
+	{
+		$loaded = [];
+
+		$query_customizations['selects'] ??= ['mem.*'];
+		$query_customizations['joins'] ??= [];
+		$query_customizations['where'] ??= [];
+		$query_customizations['order'] ??= [];
+		$query_customizations['group'] ??= [];
+		$query_customizations['limit'] ??= 0;
+		$query_customizations['params'] ??= [];
+
+		self::addQueryCustomizationsForDataset($query_customizations, $dataset);
+
+		foreach (self::retrieveUserData($query_customizations, $dataset) as $id) {
+			if (!isset(self::$loaded[$id])) {
+				new self($id, $dataset);
+			} else {
+				self::$loaded[$id]->setProperties();
+			}
+
+			$loaded[] = self::$loaded[$id];
+		}
+
+		return $loaded;
+	}
+
+	/**
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
-	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
+	 * @param ?UserDataset $dataset What kind of data to load. Leave null to use
+	 *    the same dataset as the old instances.
 	 * @return array The ids of the loaded members.
 	 */
-	public static function reload(int|array $users = [], ?string $dataset = null): array
+	public static function reload(int|array $users = [], ?UserDataset $dataset = null): array
 	{
 		$users = (array) $users;
 
+		$grouped_by_dataset = [];
+
 		foreach ($users as $id) {
-			unset(self::$loaded[$id], self::$profiles[$id]);
+			if ($dataset === null) {
+				$grouped_by_dataset[(self::$loaded[$id]->dataset ?? UserDataset::Normal)->value][] = $id;
+			} else {
+				$grouped_by_dataset[$dataset->value][] = $id;
+			}
+
+			unset(self::$loaded[$id]);
+			self::$profiles[$id] = [];
 		}
 
-		return self::load($users, self::LOAD_BY_ID, $dataset);
+		$loaded = [];
+
+		foreach ($grouped_by_dataset as $new_dataset => $ids) {
+			$loaded += self::load($ids, self::LOAD_BY_ID, UserDataset::from($new_dataset));
+		}
+
+		return $loaded;
 	}
 
 	/**
@@ -2564,283 +3029,9 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Figures out which users are moderators on the current board, and sets
-	 * them as such.
-	 */
-	public static function setModerators(): void
-	{
-		if (isset(Board::$info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null) {
-			$request = Db::$db->query(
-				'SELECT group_name, online_color, icons
-				FROM {db_prefix}membergroups
-				WHERE id_group = {int:moderator_group}
-				LIMIT 1',
-				[
-					'moderator_group' => 3,
-				],
-			);
-			$moderator_group_info = Db::$db->fetch_assoc($request);
-			Db::$db->free_result($request);
-
-			CacheApi::put('moderator_group_info', $moderator_group_info, 480);
-		}
-
-		foreach (self::$profiles as $id => &$profile) {
-			if (empty($id)) {
-				continue;
-			}
-
-			if (!isset(self::$loaded[$id])) {
-				new self($id);
-			}
-
-			$user = self::$loaded[$id];
-
-			// Global moderators.
-			$profile['is_mod'] = \in_array(2, $user->groups);
-
-			// Can't do much else without a board.
-			if (!isset(Board::$info)) {
-				continue;
-			}
-
-			if (!empty(Board::$info->moderators)) {
-				$profile['is_mod'] |= isset(Board::$info->moderators[$id]);
-			}
-
-			if (!empty(Board::$info->moderator_groups)) {
-				$profile['is_mod'] |= array_intersect($user->groups, array_keys(Board::$info->moderator_groups)) !== [];
-			}
-
-			// By popular demand, don't show admins or global moderators as moderators.
-			if ($profile['is_mod'] && $user->group_id != 1 && $user->group_id != 2) {
-				$profile['member_group'] = $moderator_group_info['group_name'];
-			}
-
-			// If the Moderator group has no color or icons, but their group does... don't overwrite.
-			if ($profile['is_mod'] && !empty($moderator_group_info['icons'])) {
-				$profile['icons'] = $moderator_group_info['icons'];
-			}
-
-			if ($profile['is_mod'] && !empty($moderator_group_info['online_color'])) {
-				$profile['member_group_color'] = $moderator_group_info['online_color'];
-			}
-
-			// Update object properties.
-			$user->setProperties();
-
-			// Add this user to the moderators group if they're not already an admin or moderator.
-			if ($user->is_mod && array_intersect([1, 2, 3], $user->groups) === []) {
-				$user->groups[] = 3;
-			}
-		}
-	}
-
-	/**
-	 * Builds query_see_board and query_wanna_see_board (plus variants) for the
-	 * given user.
-	 *
-	 * Returns array with keys:
-	 *  - query_see_board
-	 *  - query_see_message_board
-	 *  - query_see_topic_board
-	 *  - query_wanna_see_board
-	 *  - query_wanna_see_message_board
-	 *  - query_wanna_see_topic_board
-	 *
-	 * @param int $id The ID of the user.
-	 * @return array All board query variants.
-	 */
-	public static function buildQueryBoard(int $id): array
-	{
-		$query_part = [];
-
-		if (isset(self::$loaded[$id])) {
-			$groups = self::$loaded[$id]->groups;
-			$can_see_all_boards = self::$loaded[$id]->is_admin || self::$loaded[$id]->can_manage_boards;
-			$ignoreboards = !empty(self::$loaded[$id]->ignoreboards) ? self::$loaded[$id]->ignoreboards : null;
-		} elseif ($id === 0) {
-			$groups = [-1];
-			$can_see_all_boards = false;
-			$ignoreboards = [];
-		} else {
-			$request = Db::$db->query(
-				'SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
-				FROM {db_prefix}members AS mem
-				WHERE mem.id_member = {int:id_member}
-				LIMIT 1',
-				[
-					'id_member' => $id,
-				],
-			);
-
-			$row = Db::$db->fetch_assoc($request);
-
-			if (empty($row['additional_groups'])) {
-				$groups = [$row['id_group'], $row['id_post_group']];
-			} else {
-				$groups = array_merge(
-					[$row['id_group'], $row['id_post_group']],
-					explode(',', $row['additional_groups']),
-				);
-			}
-
-			// Because history has proven that it is possible for groups to go bad - clean up in case.
-			$groups = array_map('intval', $groups);
-
-			$can_see_all_boards = \in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && \count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
-
-			$ignoreboards = !empty($row['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : [];
-		}
-
-		// Just build this here, it makes it easier to change/use - administrators can see all boards.
-		if ($can_see_all_boards) {
-			$query_part['query_see_board'] = '1=1';
-		}
-		// Otherwise only the boards that can be accessed by the groups this user belongs to.
-		else {
-			$query_part['query_see_board'] = '
-				EXISTS (
-					SELECT bpv.id_board
-					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-					WHERE bpv.id_group IN (' . implode(',', $groups) . ')
-						AND bpv.deny = 0
-						AND bpv.id_board = b.id_board
-				)';
-
-			if (!empty(Config::$modSettings['deny_boards_access'])) {
-				$query_part['query_see_board'] .= '
-				AND NOT EXISTS (
-					SELECT bpv.id_board
-					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-					WHERE bpv.id_group IN ( ' . implode(',', $groups) . ')
-						AND bpv.deny = 1
-						AND bpv.id_board = b.id_board
-				)';
-			}
-		}
-
-		$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
-		$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
-
-		// Build the list of boards they WANT to see.
-		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
-
-		// If they aren't ignoring any boards then they want to see all the boards they can see
-		if (empty($ignoreboards)) {
-			$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
-			$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
-			$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
-		}
-		// Ok I guess they don't want to see all the boards
-		else {
-			$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-			$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-			$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-		}
-
-		return $query_part;
-	}
-
-	/**
-	 * Helper function to set an array of data for a user's avatar.
-	 *
-	 * The following keys are required:
-	 *  - avatar: The raw "avatar" column in members table.
-	 *  - email: The user's email address. Used to get the gravatar info.
-	 *  - filename: The attachment filename.
-	 *
-	 * @param array $data An array of raw info.
-	 * @return array An array of avatar data.
-	 */
-	public static function setAvatarData(array $data = []): array
-	{
-		// Come on!
-		if (empty($data)) {
-			return [];
-		}
-
-		// Set a nice default var.
-		$image = '';
-
-		// Gravatar has been set as mandatory!
-		if (!empty(Config::$modSettings['gravatarEnabled']) && !empty(Config::$modSettings['gravatarOverride'])) {
-			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://')) {
-				$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
-			} elseif (!empty($data['email'])) {
-				$image = self::getGravatarUrl($data['email']);
-			}
-		}
-		// Look if the user has a gravatar field or has set an external url as avatar.
-		else {
-			if (!$data['avatar'] instanceof Url) {
-				$data['avatar'] = new Url((string) $data['avatar']);
-			}
-
-			// So it's stored in the member table?
-			if ((string) $data['avatar'] !== '') {
-				// Gravatar.
-				if ($data['avatar']->isGravatar()) {
-					if ((string) $data['avatar'] === 'gravatar://') {
-						$image = self::getGravatarUrl($data['email']);
-					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
-						$image = self::getGravatarUrl(Utils::entitySubstr((string) $data['avatar'], 11));
-					}
-				}
-				// External url.
-				else {
-					if ($data['avatar'] instanceof Url) {
-						$url = $data['avatar'];
-					} else {
-						$url = new Url((string) $data['avatar']);
-					}
-
-					$image = isset($url->scheme) ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
-				}
-			}
-			// Perhaps this user has an attachment as avatar...
-			elseif (!empty($data['filename'])) {
-				$image = Config::$modSettings['custom_avatar_url'] . '/' . $data['filename'];
-			}
-			// Right... no avatar... use our default image.
-			elseif (isset(Config::$modSettings['avatar_url'])) {
-				$image = Config::$modSettings['avatar_url'] . '/default.png';
-			}
-			// Last ditch fallback is a transparent 1x1 GIF.
-			else {
-				$image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-			}
-		}
-
-
-		IntegrationHook::call('integrate_set_avatar_data', [&$image, &$data]);
-
-		// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
-		if (!empty($image)) {
-			return [
-				'name' => !empty($data['avatar']) ? (string) $data['avatar'] : '',
-				'image' => '<img class="avatar" src="' . $image . '" alt="">',
-				'href' => $image,
-				'url' => $image,
-			];
-		}
-
-		// Fallback to make life easier for everyone...
-		return [
-			'name' => '',
-			'image' => '',
-			'href' => '',
-			'url' => '',
-		];
-	}
-
-	/**
 	 * Updates the columns in the members table.
 	 *
 	 * Assumes the data has been htmlspecialchar'd.
-	 *
-	 * This function should be used whenever member data needs to be
-	 * updated in place of an UPDATE query.
 	 *
 	 * $members is either an int or an array of ints to be updated.
 	 *
@@ -2854,229 +3045,398 @@ class User implements \ArrayAccess
 	 * If a member's post count is updated, this method also updates their post
 	 * groups.
 	 *
-	 * @param int|array|null $members An array of member IDs, the ID of a single member,
-	 *    or null to update this for all members.
+	 * @deprecated 3.0 Use $member->save() or User::saveBatch($members) instead
+	 *    of this deprecated method.
+	 *
+	 * @param int|array|null $ids An array of member IDs, the ID of a single
+	 *    member, or null to update this for all members.
 	 * @param array $data The info to update for the members.
 	 */
-	public static function updateMemberData(int|array|null $members, array $data): void
+	final public static function updateMemberData(int|array|null $ids, array $data): void
 	{
-		// An empty array means there's nobody to update.
-		if ($members === []) {
+		if (empty($data) || $ids === [] || $ids === 0) {
 			return;
 		}
 
-		// For loaded members, update the loaded objects with the new data.
-		foreach ((array) ($members ?? array_keys(User::$loaded)) as $member) {
-			if ($member instanceof self) {
-				$member = $member->id;
-			}
-
-			if (!isset(User::$loaded[$member])) {
-				continue;
-			}
-
-			foreach ($data as $var => $val) {
-				if ($var === 'alerts' && ($val === '+' || $val === '-')) {
-					$val = Alert::count($member, true);
-				} elseif (\in_array($var, self::$knownInts) && ($val === '+' || $val === '-')) {
-					$val = User::$loaded[$member]->{$var} + ($val === '+' ? 1 : -1);
-				}
-
-				if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-					$val = max(0, $val);
-				}
-
-				User::$loaded[$member]->set([$var, $val]);
-			}
-		}
-
-		$parameters = [];
-
-		if (\is_array($members)) {
-			$condition = 'id_member IN ({array_int:members})';
-			$parameters['members'] = $members;
-		} elseif ($members === null) {
-			$condition = '1=1';
-		} else {
-			$condition = 'id_member = {int:member}';
-			$parameters['member'] = $members;
-		}
-
-		if (!empty(Config::$modSettings['integrate_change_member_data'])) {
-			$vars_to_integrate = array_intersect(self::$integration_vars, array_keys($data));
-
-			// Only proceed if there are any variables left to call the integration function.
-			if (\count($vars_to_integrate) != 0) {
-				// Fetch a list of member_names if necessary
-				if ((!\is_array($members) && $members === self::$me->id) || (\is_array($members) && \count($members) == 1 && \in_array(self::$me->id, $members))) {
-					$member_names = [self::$me->username];
-				} else {
-					$member_names = [];
-
-					$request = Db::$db->query(
-						'SELECT member_name
-						FROM {db_prefix}members
-						WHERE ' . $condition,
-						$parameters,
-					);
-
-					while ($row = Db::$db->fetch_assoc($request)) {
-						$member_names[] = $row['member_name'];
-					}
-					Db::$db->free_result($request);
-				}
-
-				if (!empty($member_names)) {
-					foreach ($vars_to_integrate as $var) {
-						IntegrationHook::call('integrate_change_member_data', [$member_names, $var, &$data[$var], &self::$knownInts, &self::$knownFloats]);
-					}
-				}
-			}
-		}
-
-		$setString = '';
-
-		foreach ($data as $var => $val) {
-			switch ($var) {
-				case 'birthdate':
-					$type = 'date';
-
-					try {
-						$val = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
-					} catch (\Throwable $e) {
-						$val = '1004-01-01';
-					}
-
-					break;
-
-				case 'member_ip':
-				case 'member_ip2':
-					$type = 'inet';
-					break;
-
-				default:
-					$type = 'string';
-					break;
-			}
-
-			if (\in_array($var, self::$knownInts)) {
-				$type = 'int';
-			} elseif (\in_array($var, self::$knownFloats)) {
-				$type = 'float';
-			}
-
-			// Doing an increment?
-			if ($var == 'alerts' && ($val === '+' || $val === '-')) {
-				if (\is_array($members)) {
-					$val = 'CASE ';
-
-					foreach ($members as $k => $v) {
-						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count((int) $v, true) . ' ';
-					}
-
-					$val = $val . ' END';
-
-					$type = 'raw';
-				} else {
-					$val = Alert::count($members, true);
-				}
-			} elseif ($type == 'int' && ($val === '+' || $val === '-')) {
-				$val = $var . ' ' . $val . ' 1';
-				$type = 'raw';
-			}
-
-			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
-			if (\in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
-					if ($match[1] != '+ ') {
-						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
-					}
-
-					$type = 'raw';
-				}
-			}
-
-			$setString .= ' ' . $var . ' = {' . $type . ':p_' . $var . '},';
-			$parameters['p_' . $var] = $val;
-		}
-
-		Db::$db->query(
-			'UPDATE {db_prefix}members
-			SET' . substr($setString, 0, -1) . '
-			WHERE ' . $condition,
-			$parameters,
-		);
-
-		Logging::updateStats('postgroups', $members, array_keys($data));
-
-		// Clear any caching?
-		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members)) {
-			if (!\is_array($members)) {
-				$members = [$members];
-			}
-
-			foreach ($members as $member) {
-				if (CacheApi::$enable >= 3) {
-					CacheApi::put('member_data-profile-' . $member, null, 120);
-					CacheApi::put('member_data-normal-' . $member, null, 120);
-					CacheApi::put('member_data-basic-' . $member, null, 120);
-					CacheApi::put('member_data-minimal-' . $member, null, 120);
-				}
-
-				CacheApi::put('user_settings-' . $member, null, 60);
-			}
-		}
-	}
-
-	/**
-	 * Gets a member's selected time zone identifier
-	 *
-	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
-	 * @return string The time zone identifier string for the user's time zone.
-	 */
-	public static function getTimezone(?int $id_member = null): string
-	{
-		static $member_cache = [];
-
-		if (\is_null($id_member)) {
-			$id_member = empty(self::$me->id) ? 0 : self::$me->id;
-		} else {
-			$id_member = (int) $id_member;
-		}
-
-		// Check if we already have this in self::$loaded.
-		if (isset(self::$loaded[$id_member]) && !empty(self::$loaded[$id_member]->timezone)) {
-			return self::$loaded[$id_member]->timezone;
-		}
-
-		// Did we already look this up?
-		if (isset($member_cache[$id_member])) {
-			return $member_cache[$id_member];
-		}
-
-		if (!empty($id_member)) {
-			// Look it up in the database.
+		// Null means all members.
+		if (\is_null($ids)) {
 			$request = Db::$db->query(
-				'SELECT timezone
-				FROM {db_prefix}members
-				WHERE id_member = {int:id_member}',
-				[
-					'id_member' => $id_member,
-				],
+				'SELECT id_member
+				FROM {db_prefix}members',
 			);
-			list($timezone) = Db::$db->fetch_row($request);
+
+			$ids = array_map(
+				fn($row) => (int) $row['id_member'],
+				Db::$db->fetch_all($request),
+			);
+
 			Db::$db->free_result($request);
 		}
 
-		// If it is invalid, fall back to the default.
-		if (empty($timezone) || !\in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-			$timezone = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
+		// Clean up the IDs. We want no duplicates and no guests.
+		$ids = array_unique(
+			array_filter(
+				array_map(
+					'intval',
+					array_filter((array) $ids, 'is_numeric'),
+				),
+				fn($id) => $id > 0,
+			),
+		);
+
+		// If necessary, add custom column types to self::$column_types.
+		self::setColumnTypes($data);
+
+		// Which dataset do we need?
+		foreach ($data as $var => $val) {
+			// Incrementing/decrementing requires loading the current values.
+			if ($var !== 'alerts' && self::$column_types[$var] === 'int' && preg_match('/[+\-]/', $val)) {
+				$dataset = UserDataset::Minimal;
+			} else {
+				$dataset ??= UserDataset::None;
+			}
 		}
 
-		// Save for later.
-		$member_cache[$id_member] = $timezone;
+		// Load the members.
+		$members = self::load($ids, dataset: $dataset);
 
-		return $timezone;
+		if (empty($members)) {
+			return;
+		}
+
+		// Pre-process some data types.
+		foreach ($members as $member) {
+			foreach ($data as $var => $val) {
+				switch ($var) {
+					case 'avatar':
+						$member->avatar = new Avatar(
+							original_url: $val,
+							email: $member->email,
+							id_member: $member->id,
+						);
+						break;
+
+					case 'birthdate':
+					case 'birth_date':
+						try {
+							$member->birthdate = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
+						} catch (\Throwable $e) {
+							$member->birthdate = '1004-01-01';
+						}
+						break;
+
+					case 'member_ip':
+					case 'member_ip2':
+						$val = IP::create($val);
+
+						if ($val->isValid()) {
+							$member->{$var} = (string) $val;
+						}
+						break;
+
+					case 'alerts':
+						$member->alerts = Alert::count($member->id);
+						break;
+
+					default:
+						switch ((self::$column_types[$var] ?? null)) {
+							case 'int':
+								if (
+									preg_match(
+										'~^' . $var . '\s*(\+\s*|-\s*|\+\s*-)(\d+)~',
+										(string) $val,
+										$matches,
+									)
+								) {
+									if (trim($matches[1]) === '+') {
+										$member->{$var} += (int) $matches[2];
+									} else {
+										$member->{$var} = max(0, $member->{$var} - (int) $matches[2]);
+									}
+								} else {
+									switch ($val) {
+										case '+':
+											$member->{$var}++;
+											break;
+
+										case '-':
+											$member->{$var} = max(0, $member->{$var} - 1);
+											break;
+
+										default:
+											$member->{$var} = max(0, (int) $val);
+											break;
+									}
+								}
+								break;
+
+							case 'float':
+								$member->{$var} = (float) $val;
+								break;
+
+							default:
+								$member->{$var} = $val;
+								break;
+						}
+						break;
+				}
+			}
+		}
+
+		self::saveBatch($members);
+	}
+
+	/**
+	 * Writes data for the given members to the database.
+	 *
+	 * If a member's post count is updated, this method also updates their post
+	 * groups.
+	 *
+	 * @param array $members Array of instances of this class.
+	 */
+	public static function saveBatch(array $members): void
+	{
+		// Filter out any guests.
+		$members = array_filter($members, fn($member) => $member->id > 0);
+
+		if (empty($members)) {
+			return;
+		}
+
+		// Ensure self::$column_types includes all necessary columns.
+		if ($p = array_find(self::$profiles, fn($p) => $p['dataset'] !== UserDataset::None)) {
+			self::setColumnTypes($p);
+		} else {
+			foreach (self::queryData(selects: ['mem.*'], limit: 1) as $row) {
+				self::setColumnTypes($row);
+			}
+		}
+
+		// Call the deprecated integrate_change_member_data hook.
+		self::integrateChangeMemberData($members);
+
+		// Build the $set and $params lists.
+		$set = [];
+		$params = [
+			'members' => array_map(fn($member) => $member->id, $members),
+		];
+
+		foreach (self::$column_types as $column => $type) {
+			foreach ($members as $member) {
+				// Build the $param value for this member.
+				switch ($column) {
+					case 'id_member':
+						// Never change the ID.
+						break;
+
+					case 'id_post_group':
+						// This one is special. We calculate it below.
+						break;
+
+					case 'id_group':
+						if (!\in_array($member->group_id ?? Group::GUEST, [Group::MOD, Group::GUEST])) {
+							$params[$column . '_' . $member->id] = $member->group_id;
+						} elseif (!\in_array($member->primary_group_id ?? Group::GUEST, [Group::MOD, Group::GUEST])) {
+							$params[$column . '_' . $member->id] = $member->primary_group_id;
+						}
+
+						break;
+
+					case 'lngfile':
+						if (!empty(Config::$modSettings['userLanguage']) && !empty($member->language)) {
+							$params[$column . '_' . $member->id] = $member->language;
+						}
+
+						break;
+
+					case 'website_title':
+					case 'website_url':
+						$key = substr($column, 8);
+
+						if (isset($member->website[$key])) {
+							$params[$column . '_' . $member->id] = $member->website[$key];
+						}
+
+						break;
+
+					case 'avatar':
+						if (isset($member->avatar)) {
+							// If the avatar is a Gravatar, use 'gravatar://...'
+							if ($member->avatar->url->isGravatar()) {
+								if (!empty(Config::$modSettings['gravatarOverride'])) {
+									$params[$column . '_' . $member->id] = 'gravatar://';
+								} elseif (!empty($member->avatar->email)) {
+									$params[$column . '_' . $member->id] = 'gravatar://' . $member->avatar->email;
+								} else {
+									$params[$column . '_' . $member->id] = 'gravatar://' . $member->email;
+								}
+							}
+							// Clear the column if...
+							elseif (
+								// The avatar is a data URI.
+								$member->avatar->url->isScheme('data')
+								// The avatar is an attachment.
+								|| !empty($member->avatar->id_attach)
+								|| (
+									!empty(Config::$modSettings['custom_avatar_url'])
+									&& str_starts_with((string) $member->avatar->url, Config::$modSettings['custom_avatar_url'])
+								)
+								// The avatar is the default.
+								|| (
+									!empty(Config::$modSettings['avatar_url'])
+									&& (string) $member->avatar->url === Config::$modSettings['avatar_url'] . '/default.png'
+								)
+							) {
+								$params[$column . '_' . $member->id] = '';
+							}
+							// If the avatar is a prepackaged image, use the relative path.
+							elseif (
+								!empty(Config::$modSettings['avatar_url'])
+								&& str_starts_with((string) $member->avatar->url, Config::$modSettings['avatar_url'])
+							) {
+								$params[$column . '_' . $member->id] = ltrim(substr((string) $member->avatar->url, \strlen(Config::$modSettings['avatar_url'])), '/');
+							}
+							// If $url is just the proxied version of $original_url,
+							// then stick with $original_url.
+							elseif (
+								isset($member->avatar->original_url)
+								&& (string) $member->avatar->url === (string) (Url::create($member->avatar->original_url)->proxied())
+							) {
+								$params[$column . '_' . $member->id] = $member->avatar->original_url;
+							}
+							// Otherwise, use the full $url.
+							else {
+								$params[$column . '_' . $member->id] = (string) $member->avatar->url;
+							}
+						}
+
+						break;
+
+					case 'spoofdetector_name':
+						if (isset($member->name)) {
+							$params[$column . '_' . $member->id] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($member->name, ENT_QUOTES)));
+						}
+
+						break;
+
+					case 'time_format':
+						if (isset($member->real_time_format)) {
+							$params[$column . '_' . $member->id] = $member->real_time_format;
+						}
+
+						break;
+
+					default:
+						$prop = match ($column) {
+							'member_name' => 'username',
+							'real_name' => 'name',
+							'email_address' => 'email',
+							'usertitle' => 'title',
+							'instant_messages' => 'messages',
+							'id_theme' => 'theme',
+							'member_ip' => 'ip',
+							'member_ip2' => 'ip2',
+							'buddy_list' => 'buddies',
+							'pm_ignore_list' => 'ignoreusers',
+							'ignore_boards' => 'ignoreboards',
+							default => $column,
+						};
+
+						if (isset($member->{$prop})) {
+							$value = \is_array($member->{$prop}) ? implode(',', $member->{$prop}) : $member->{$prop};
+
+							if (\in_array($type, ['int', 'float'])) {
+								settype($value, $type);
+							}
+
+							$params[$column . '_' . $member->id] = $value;
+						}
+
+						break;
+				}
+
+				// Build the $set value for this member.
+				if (\array_key_exists($column . '_' . $member->id, $params)) {
+					$set[$column][$member->id] = '{' . $type . ':' . $column . '_' . $member->id . '}';
+				}
+
+				// Special handling for the post group.
+				if ($column === 'posts' && isset($set[$column][$member->id])) {
+					// Load the post groups in ascending order.
+					if (!isset($post_groups)) {
+						$post_groups = Group::getPostGroups();
+						asort($post_groups);
+					}
+
+					$set['id_post_group'][$member->id] = '{int:id_post_group_' . $member->id . '}';
+
+					// Find the correct group.
+					foreach ($post_groups as $group_id => $min_posts) {
+						if ($min_posts <= $member->posts) {
+							$params['id_post_group_' . $member->id] = $group_id;
+						}
+					}
+				}
+			}
+		}
+
+		/*
+		 * Allow mods to adjust $set and $params for their custom columns.
+		 *
+		 * MOD AUTHORS: If you use this hook, you probably also want to use the
+		 * integrate_user_properties hook to control how your custom columns are
+		 * assigned to object properties when retrieved from the database.
+		 */
+		IntegrationHook::call('integrate_save_member_data', [$members, &$set, &$params]);
+
+		// Build each column's complete SET statement.
+		foreach ($set as $column => $to_set) {
+			if (empty($to_set)) {
+				unset($set[$column]);
+				continue;
+			}
+
+			$statement = $column . ' = CASE';
+
+			foreach ($to_set as $id => $value) {
+				$statement .= "\n\t\t\t\t\t" . 'WHEN id_member = ' . $id . ' THEN ' . $value;
+			}
+
+			$statement .= "\n\t\t\t\t\t" . 'ELSE ' . $column;
+			$statement .= "\n\t\t\t\t" . 'END';
+
+			$set[$column] = $statement;
+		}
+
+		// Perform the update.
+		Db::$db->query(
+			'UPDATE {db_prefix}members
+			SET
+				' . implode(",\n\t\t\t\t", $set) . '
+			WHERE id_member IN ({array_int:members})',
+			$params,
+		);
+
+		// Clear any caching?
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
+			foreach ($members as $member) {
+				if (CacheApi::$enable >= 3) {
+					CacheApi::put('member_data-profile-' . $member->id, null, 120);
+					CacheApi::put('member_data-normal-' . $member->id, null, 120);
+					CacheApi::put('member_data-basic-' . $member->id, null, 120);
+					CacheApi::put('member_data-minimal-' . $member->id, null, 120);
+				}
+
+				CacheApi::put('user_settings-' . $member->id, null, 60);
+			}
+		}
+
+		// Ensure $member->groups is correct for each updated member.
+		foreach ($members as $member) {
+			if (isset($member->groups)) {
+				$member->groups = array_unique(array_merge([0, $member->group_id ?? 0, $member->post_group_id ?? 0], $member->additional_groups ?? []));
+			}
+		}
 	}
 
 	/**
@@ -3084,58 +3444,41 @@ class User implements \ArrayAccess
 	 *
 	 * Requires profile_remove_own or profile_remove_any permission for
 	 * respectively removing your own account or any account.
+	 *
 	 * Non-admins cannot delete admins.
-	 * The function:
+	 *
+	 * This method:
 	 *   - changes author of messages, topics and polls to guest authors.
 	 *   - removes all log entries concerning the deleted members, except the
-	 *     error logs, ban logs and moderation logs.
+	 *     error logs, ban logs, and moderation logs.
 	 *   - removes these members' personal messages (only the inbox), avatars,
 	 *     ban entries, theme settings, moderator positions, poll and votes.
 	 *   - updates member statistics afterwards.
 	 *
 	 * @param int|array $users The ID of a user or an array of user IDs.
-	 * @param bool $check_not_admin Whether to verify the users aren't admins.
+	 * @param bool $protect_admins If true, will not delete administrators.
+	 *    Even when this is false, it will be forced to true if the current user
+	 *    is not an administrator or if they are the only administrator.
 	 *    Default: false.
 	 * @param bool $anonymize If true, force anonymization of all deleted users.
 	 *    If false, deleted users will be anonymized only if they requested it
 	 *    or Config::$modSettings['always_anonymize_deleted_accounts'] is true.
 	 *    Default: false.
 	 */
-	public static function delete(int|array $users, bool $check_not_admin = false, bool $anonymize = false): void
+	public static function delete(int|array $users, bool $protect_admins = false, bool $anonymize = false): void
 	{
-		// Try give us a while to sort this out...
-		Sapi::setTimeLimit();
-
-		// Try to get some more memory.
-		Sapi::setMemoryLimit('128M');
-
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);
 
 		// Make sure there's no void user in here.
-		$users = array_filter(array_map('intval', $users), fn($user) => $user > 0);
+		$users = array_values(array_filter(array_map('intval', $users), fn($user) => $user > 0));
 
-		// How many are they deleting?
 		if (empty($users)) {
 			return;
 		}
 
-		if (\count($users) == 1) {
-			list($user) = $users;
-
-			if ($user == self::$me->id) {
-				self::$me->isAllowedTo('profile_remove_own');
-			} else {
-				self::$me->isAllowedTo('profile_remove_any');
-			}
-		} else {
-			foreach ($users as $k => $v) {
-				$users[$k] = (int) $v;
-			}
-
-			// Deleting more than one?  You can't have more than one account...
-			self::$me->isAllowedTo('profile_remove_any');
-		}
+		// Permission check.
+		self::$me->isAllowedTo($users === [self::$me->id] ? 'profile_remove_own' : 'profile_remove_any');
 
 		// Get their names for logging purposes.
 		$admins = [];
@@ -3170,8 +3513,10 @@ class User implements \ArrayAccess
 			return;
 		}
 
-		// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-		if (!empty($admins) && ($check_not_admin || (!self::$me->allowedTo('admin_forum') && (\count($users) != 1 || $users[0] != self::$me->id)))) {
+		// Only admins can delete admins, and there must always be at least one admin.
+		$protect_admins = $protect_admins || !self::$me->is_admin || (!empty($admins) && current(Group::load(Group::ADMIN))->countMembers() <= \count($admins));
+
+		if (!empty($admins) && $protect_admins) {
 			$users = array_diff($users, $admins);
 
 			foreach ($admins as $id) {
@@ -3180,9 +3525,18 @@ class User implements \ArrayAccess
 		}
 
 		// No one left?
-		if (empty($users)) {
+		if (empty($user_log_details)) {
 			return;
 		}
+
+		// Once we start, don't stop.
+		$previous_ignore_user_abort = (bool) ignore_user_abort(true);
+
+		// Try to give us a while to sort this out...
+		Sapi::setTimeLimit();
+
+		// Try to get some more memory.
+		Sapi::setMemoryLimit('128M');
 
 		// Log the action - regardless of who is deleting it.
 		$log_changes = [];
@@ -3219,91 +3573,114 @@ class User implements \ArrayAccess
 		}
 
 		$set_tables = [
-			// Make these peoples' posts guest posts.
-			['messages', 'id_member'],
-			['polls', 'id_member'],
-			// Make these peoples' posts guest first posts and last posts.
-			['topics', 'id_member_started'],
-			['topics', 'id_member_updated'],
-			['log_actions', 'id_member'],
-			['log_banned', 'id_member'],
-			['log_errors', 'id_member'],
-			['log_reported', 'id_member'],
-			['log_reported_comments', 'id_member'],
-			// Make their votes appear as guest votes - at least it keeps the totals right.
-			// @todo Consider adding back in cookie protection.
-			['log_polls', 'id_member'],
+			// Change these people's posts into guest posts.
+			['table' => 'messages', 'col' => 'id_member'],
+			['table' => 'polls', 'col' => 'id_member'],
+			['table' => 'topics', 'col' => 'id_member_started'],
+			['table' => 'topics', 'col' => 'id_member_updated'],
+			// Change these people's admin and moderation log entries.
+			[
+				'table' => 'log_actions',
+				'col' => 'id_member',
+				'where' => ' AND id_log != {int:log_type}',
+				'log_type' => 2,
+			],
+			// Change certain other log entries that shouldn't be deleted.
+			['table' => 'log_banned', 'col' => 'id_member'],
+			['table' => 'log_errors', 'col' => 'id_member'],
+			['table' => 'log_reported', 'col' => 'id_member'],
+			['table' => 'log_reported_comments', 'col' => 'id_member'],
+			['table' => 'log_polls', 'col' => 'id_member'],
 		];
 
 		$delete_tables = [
-			// Delete the member.
-			['members', 'id_member'],
-			['member_logins', 'id_member'],
-			['user_alerts', 'id_member'],
-			['user_alerts', 'id_member_started'],
-			['user_alerts_prefs', 'id_member'],
-			// Delete any drafts...
-			['user_drafts', 'id_member'],
-			// Delete anything they liked.
-			['user_likes', 'id_member'],
-			// Delete their mentions
-			['mentions', 'id_member'],
-			// Delete the logs...
-			['log_actions', 'id_member', ' AND id_log = {int:log_type}', ['log_type' => 2]],
-			['log_boards', 'id_member'],
-			['log_comments', 'id_recipient', ' AND comment_type = {string:warntpl}', ['warntpl' => 'warntpl']],
-			['log_group_requests', 'id_member'],
-			['log_mark_read', 'id_member'],
-			['log_notify', 'id_member'],
-			['log_online', 'id_member'],
-			['log_subscribed', 'id_member'],
-			['log_topics', 'id_member'],
-			['personal_messages', 'id_member_from'],
-			['pm_rules', 'id_member'],
-			// They no longer exist, so we don't know who it was sent to.
-			['pm_recipients', 'id_member'],
+			// Delete these members.
+			['table' => 'members', 'col' => 'id_member'],
+			['table' => 'member_logins', 'col' => 'id_member'],
+			['table' => 'user_alerts', 'col' => 'id_member'],
+			['table' => 'user_alerts', 'col' => 'id_member_started'],
+			['table' => 'user_alerts_prefs', 'col' => 'id_member'],
+			// Delete their drafts.
+			['table' => 'user_drafts', 'col' => 'id_member'],
+			// Delete the likes they made.
+			['table' => 'user_likes', 'col' => 'id_member'],
+			// Delete any mentions of them.
+			['table' => 'mentions', 'col' => 'id_member'],
+			// Delete their profile edit logs.
+			[
+				'table' => 'log_actions',
+				'col' => 'id_member',
+				'where' => ' AND id_log = {int:log_type}',
+				'log_type' => 2,
+			],
+			// Delete their other log entries.
+			[
+				'table' => 'log_comments',
+				'col' => 'id_recipient',
+				'where' => ' AND comment_type = {literal:warntpl}',
+			],
+			['table' => 'log_boards', 'col' => 'id_member'],
+			['table' => 'log_group_requests', 'col' => 'id_member'],
+			['table' => 'log_mark_read', 'col' => 'id_member'],
+			['table' => 'log_notify', 'col' => 'id_member'],
+			['table' => 'log_online', 'col' => 'id_member'],
+			['table' => 'log_subscribed', 'col' => 'id_member'],
+			['table' => 'log_topics', 'col' => 'id_member'],
+			// Delete their PM data.
+			['table' => 'personal_messages', 'col' => 'id_member_from'],
+			['table' => 'pm_rules', 'col' => 'id_member'],
+			['table' => 'pm_recipients', 'col' => 'id_member'],
 			// It's over, no more moderation for you.
-			['moderators', 'id_member'],
-			['group_moderators', 'id_member'],
+			['table' => 'moderators', 'col' => 'id_member'],
+			['table' => 'group_moderators', 'col' => 'id_member'],
 			// If you don't exist we can't ban you.
-			['ban_items', 'id_member'],
-			// Remove individual theme settings.
-			['themes', 'id_member'],
+			['table' => 'ban_items', 'col' => 'id_member'],
+			// Delete their theme settings.
+			['table' => 'themes', 'col' => 'id_member'],
 		];
 
+		// Change some of their data into guest data.
 		foreach ($set_tables as $d) {
+			$d['guest_id'] = 0;
+			$d['users'] = $users;
+			$where = $d['where'] ?? '';
+			unset($d['where']);
+
 			Db::$db->query(
 				'UPDATE {db_prefix}{raw:table}
 				SET {raw:col} = {int:guest_id}
-				WHERE {raw:col} IN ({array_int:users})',
-				[
-					'table' => $d[0],
-					'col' => $d[1],
-					'guest_id' => 0,
-					'users' => $users,
-				],
+				WHERE {raw:col} IN ({array_int:users})' . $where,
+				$d,
 			);
+
+			Sapi::setTimeLimit();
 		}
 
-		// Delete personal messages.
+		// Delete their personal messages.
 		PM::delete(null, null, $users);
+		Sapi::setTimeLimit();
 
+		// Delete other data for these members.
 		foreach ($delete_tables as $d) {
+			$d['guest_id'] = 0;
+			$d['users'] = $users;
+			$where = $d['where'] ?? '';
+			unset($d['where']);
+
 			Db::$db->query(
 				'DELETE FROM {db_prefix}{raw:table}
-				WHERE {raw:col} IN ({array_int:users})' . ($d[2] ?? ''),
-				array_merge($d[3] ?? [], [
-					'table' => $d[0],
-					'col' => $d[1],
-					'users' => $users,
-				]),
+				WHERE {raw:col} IN ({array_int:users})' . $where,
+				$d,
 			);
+
+			Sapi::setTimeLimit();
 		}
 
 		// Delete avatar.
 		Attachment::remove(['id_member' => $users]);
+		Sapi::setTimeLimit();
 
-		// These users are nobody's buddy nomore.
+		// These people are nobody's buddies anymore.
 		$request = Db::$db->query(
 			'SELECT id_member, pm_ignore_list, buddy_list
 			FROM {db_prefix}members
@@ -3327,6 +3704,8 @@ class User implements \ArrayAccess
 					'buddy_list' => implode(',', array_diff(explode(',', $row['buddy_list']), $users)),
 				],
 			);
+
+			Sapi::setTimeLimit();
 		}
 		Db::$db->free_result($request);
 
@@ -3339,6 +3718,8 @@ class User implements \ArrayAccess
 			],
 		);
 
+		Sapi::setTimeLimit();
+
 		// Make sure no member's birthday is still sticking in the calendar...
 		Config::updateModSettings([
 			'calendar_updated' => time(),
@@ -3346,206 +3727,13 @@ class User implements \ArrayAccess
 
 		// Integration rocks!
 		IntegrationHook::call('integrate_delete_members', [$users]);
+		Sapi::setTimeLimit();
 
 		Logging::updateStats('member');
-
 		Logging::logActions($log_changes);
-	}
 
-	/**
-	 * Checks whether a username obeys a load of rules.
-	 *
-	 * @param string $username The username to validate.
-	 * @param bool $return_error Whether to return errors.
-	 * @param bool $check_reserved_name Whether to check this against the list
-	 *    of reserved names.
-	 * @return array|null Null if there are no errors, otherwise an array of
-	 *    errors if $return_error is true.
-	 */
-	public static function validateUsername(int $memID, string $username, bool $return_error = false, bool $check_reserved_name = true): ?array
-	{
-		$errors = [];
-
-		// Don't use too long a name.
-		if (Utils::entityStrlen($username) > 25) {
-			$errors[] = ['lang', 'error_long_name'];
-		}
-
-		// No name?!  How can you register with no name?
-		if ($username == '') {
-			$errors[] = ['lang', 'need_username'];
-		}
-
-		// Only these characters are permitted.
-		if (
-			\in_array($username, ['_', '|'])
-			|| strpos($username, '[code') !== false
-			|| strpos($username, '[/code') !== false
-			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
-		) {
-			$errors[] = ['lang', 'error_invalid_characters_username'];
-		}
-
-		if (stristr($username, Lang::getTxt('guest_title', file: 'General')) !== false) {
-			$errors[] = ['lang', 'username_reserved', 'general', [Lang::getTxt('guest_title', file: 'General')]];
-		}
-
-		if ($check_reserved_name && User::isReservedName($username, $memID, false)) {
-			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::getTxt('name_in_use', file: 'General')];
-		}
-
-		// Maybe a mod wants to perform more checks?
-		IntegrationHook::call('integrate_validate_username', [$username, &$errors]);
-
-		if ($return_error) {
-			return $errors;
-		}
-
-		if (empty($errors)) {
-			return null;
-		}
-
-		$error = $errors[0];
-
-		ErrorHandler::fatal(
-			Lang::getTxt(
-				$error[1],
-				(array) ($error[3] ?? []),
-				file: 'Errors',
-			),
-			empty($error[2]) || self::$me->is_admin ? false : $error[2],
-		);
-	}
-
-	/**
-	 * Check if a name is in the reserved words list.
-	 * (name, current member id, name/username?.)
-	 * - checks if name is a reserved name or username.
-	 * - if is_name is false, the name is assumed to be a username.
-	 * - the id_member variable is used to ignore duplicate matches with the
-	 * current member.
-	 *
-	 * @param string $name The name to check
-	 * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
-	 * @param bool $is_name Whether we're checking against reserved names or just usernames
-	 * @param bool $fatal Whether to die with a fatal error if the name is reserved
-	 * @return bool False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
-	 */
-	public static function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
-	{
-		$name = Utils::entityDecode($name);
-		$checkName = Utils::strtolower($name);
-
-		// Administrators are never restricted ;).
-		if (!self::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
-			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
-				return true;
-			}
-
-			$censor_name = $name;
-
-			if (Lang::censorText($censor_name) != $name) {
-				if ($fatal) {
-					ErrorHandler::fatalLang('name_censored', 'password', [$name]);
-				}
-
-				return true;
-			}
-		}
-
-		// Characters we just shouldn't allow, regardless.
-		foreach (['*'] as $char) {
-			if (strpos($checkName, $char) !== false) {
-				if ($fatal) {
-					ErrorHandler::fatalLang('username_reserved', 'password', [$char]);
-				}
-
-				return true;
-			}
-		}
-
-		// Check for similar existing member names.
-		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
-			return true;
-		}
-
-		// Does the name resemble a member group name?
-		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
-			return true;
-		}
-
-		// Okay, they passed.
-		$is_reserved = false;
-
-		// Maybe a mod wants to perform further checks?
-		IntegrationHook::call('integrate_check_name', [$checkName, &$is_reserved, $current_id_member, $is_name]);
-
-		return $is_reserved;
-	}
-
-	/**
-	 * Checks whether a given email address is be banned.
-	 * Performs an immediate ban if the check turns out positive.
-	 *
-	 * @param string $email The email to check.
-	 * @param string $restriction What type of restriction to check for.
-	 *    E.g.: cannot_post, cannot_register, etc.
-	 * @param string $error The error message to display if they are banned.
-	 */
-	public static function isBannedEmail(string $email, string $restriction, string $error): void
-	{
-		// Can't ban an empty email
-		if (empty($email) || trim($email) == '') {
-			return;
-		}
-
-		// Let's start with the bans based on your IP/hostname/memberID...
-		$ban_ids = isset($_SESSION['ban'][$restriction]) ? $_SESSION['ban'][$restriction]['ids'] : [];
-		$ban_reason = isset($_SESSION['ban'][$restriction]) ? $_SESSION['ban'][$restriction]['reason'] : '';
-
-		// ...and add to that the email address you're trying to register.
-		$request = Db::$db->query(
-			'SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
-			FROM {db_prefix}ban_items AS bi
-				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
-			WHERE {string:email} LIKE bi.email_address
-				AND (bg.' . $restriction . ' = {int:cannot_access} OR bg.cannot_access = {int:cannot_access})
-				AND (bg.expire_time IS NULL OR bg.expire_time >= {int:now})',
-			[
-				'email' => $email,
-				'cannot_access' => 1,
-				'now' => time(),
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!empty($row['cannot_access'])) {
-				$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
-				$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
-			}
-
-			if (!empty($row[$restriction])) {
-				$ban_ids[] = $row['id_ban'];
-				$ban_reason = $row['reason'];
-			}
-		}
-		Db::$db->free_result($request);
-
-		// You're in biiig trouble.  Banned for the rest of this session!
-		if (isset($_SESSION['ban']['cannot_access'])) {
-			self::$me->logBan($_SESSION['ban']['cannot_access']['ids']);
-
-			$_SESSION['ban']['last_checked'] = time();
-
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => Lang::getTxt('guest_title', file: 'General')]) . $_SESSION['ban']['cannot_access']['reason'], false);
-		}
-
-		if (!empty($ban_ids)) {
-			// Log this ban for future reference.
-			self::$me->logBan($ban_ids, $email);
-
-			ErrorHandler::fatal($error . $ban_reason, false);
-		}
+		// It is now safe to allow abort.
+		ignore_user_abort($previous_ignore_user_abort);
 	}
 
 	/**
@@ -3623,7 +3811,7 @@ class User implements \ArrayAccess
 				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',
 			array_merge($where_params, [
-				'buddy_list' => self::$me->buddies,
+				'buddy_list' => !empty(Config::$modSettings['enable_buddylist']) ? self::$me->buddies : [],
 				'limit' => $max,
 				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
 			]),
@@ -3786,222 +3974,339 @@ class User implements \ArrayAccess
 	 ******************/
 
 	/**
-	 * Constructor. Protected in order to force instantiation via User::load().
-	 *
-	 * @param int|null $id The ID number of the user, or null for current user.
-	 * @param string|null $dataset What kind of data to load.
-	 *    Can be one of 'profile', 'normal', 'basic', or 'minimal'.
-	 *    If left null, the default depends on the value of $id:
-	 *     - If $id is an integer, then $dataset will default to 'normal'.
-	 *     - If $id is also null (i.e. we are loading the current user), then
-	 *       $dataset will be determined automatically based on what the user is
-	 *       doing on the forum.
-	 */
-	protected function __construct(?int $id = null, ?string $dataset = null)
-	{
-		// No ID given, so load current user.
-		if (!isset($id)) {
-			// Only do this once.
-			if (!isset(self::$my_id)) {
-				// This is the special $me instance.
-				self::$me = $this;
-
-				// Current user is a guest until proven otherwise.
-				self::$my_id = 0;
-
-				// Allow mods to do verification if they want.
-				$this->integrateVerifyUser();
-
-				// Load the user's data.
-				$this->setMyId();
-				self::loadUserData((array) self::$my_id, self::LOAD_BY_ID, $dataset ?? $this->chooseMyDataset());
-
-				// Verify that the user is who they claim to be.
-				// If verification fails, self::$my_id will be reset to 0.
-				$this->verifyPassword();
-				$this->verifyTfa();
-
-				// At this point, we know the user ID for sure.
-				$this->id = self::$my_id;
-
-				// Also track this in our list of all loaded instances.
-				self::$loaded[$this->id] = $this;
-
-				// If the user is a guest, initialize all the critical user settings.
-				if (empty($this->id)) {
-					$this->initializeGuest();
-				}
-				// Otherwise, update the user's last visit time.
-				else {
-					$this->setLastVisit();
-				}
-
-				// Fix up the timezone and time_offset values.
-				$this->fixTimezoneSetting();
-
-				// Now set all the properties.
-				$this->setProperties();
-
-				// Backward compatibility.
-				self::$info = $this;
-				Utils::$context['user'] = $this;
-
-				// MOD AUTHORS: integrate_user_info is deprecated. Use integrate_user_properties instead.
-				if (!empty(Config::$backward_compatibility)) {
-					IntegrationHook::call('integrate_user_info');
-				}
-			}
-		}
-		// Reloading the current user requires special handling.
-		elseif (isset(self::$my_id) && $id == self::$my_id) {
-			// Copy over the existing data.
-			$this->set(get_object_vars(self::$me));
-
-			$dataset = $dataset ?? $this->chooseMyDataset();
-
-			if (self::$dataset_levels[self::$me->dataset] < self::$dataset_levels[$dataset]) {
-				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset);
-			}
-
-			$this->fixTimezoneSetting();
-			$this->setProperties();
-
-			self::$loaded[$id] = $this;
-			self::setMe($id);
-		}
-		// Load the specified member.
-		else {
-			$this->id = $id;
-
-			self::$loaded[$id] = $this;
-
-			if (empty(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
-				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset ?? 'normal');
-			}
-
-			$this->fixTimezoneSetting();
-			$this->setProperties();
-		}
-
-		self::setModerators();
-	}
-
-	/**
 	 * Sets object properties based on data in User::$profiles[$this->id].
+	 *
+	 * @param bool $reset If true, discards all property values and sets them
+	 *    afresh.
 	 */
-	protected function setProperties(): void
+	protected function setProperties(bool $reset = false): void
 	{
 		// For developer convenience.
 		$profile = &self::$profiles[$this->id];
-		$is_me = $this->id === (self::$my_id ?? NAN);
 
 		// Vital info.
-		$this->username = $profile['member_name'] ?? '';
-		$this->name = $profile['real_name'] ?? '';
-		$this->email = $profile['email_address'] ?? '';
-		$this->passwd = $profile['passwd'] ?? '';
-		$this->password_salt = $profile['password_salt'] ?? '';
-		$this->tfa_secret = $profile['tfa_secret'] ?? '';
-		$this->tfa_backup = $profile['tfa_backup'] ?? '';
-		$this->secret_question = $profile['secret_question'] ?? '';
-		$this->secret_answer = $profile['secret_answer'] ?? '';
-		$this->validation_code = $profile['validation_code'] ?? '';
-		$this->passwd_flood = $profile['passwd_flood'] ?? '';
+		if ($reset || !isset($this->username)) {
+			$this->username = $profile['member_name'] ?? '';
+		}
+
+		if ($reset || !isset($this->name)) {
+			$this->name = $profile['real_name'] ?? '';
+		}
+
+		if ($reset || !isset($this->email)) {
+			$this->email = $profile['email_address'] ?? '';
+		}
+
+		if ($reset || !isset($this->passwd)) {
+			$this->passwd = $profile['passwd'] ?? '';
+		}
+
+		if ($reset || !isset($this->password_salt)) {
+			$this->password_salt = $profile['password_salt'] ?? '';
+		}
+
+		if ($reset || !isset($this->tfa_secret)) {
+			$this->tfa_secret = $profile['tfa_secret'] ?? '';
+		}
+
+		if ($reset || !isset($this->tfa_backup)) {
+			$this->tfa_backup = $profile['tfa_backup'] ?? '';
+		}
+
+		if ($reset || !isset($this->secret_question)) {
+			$this->secret_question = $profile['secret_question'] ?? '';
+		}
+
+		if ($reset || !isset($this->secret_answer)) {
+			$this->secret_answer = $profile['secret_answer'] ?? '';
+		}
+
+		if ($reset || !isset($this->validation_code)) {
+			$this->validation_code = $profile['validation_code'] ?? '';
+		}
+
+		if ($reset || !isset($this->passwd_flood)) {
+			$this->passwd_flood = $profile['passwd_flood'] ?? '';
+		}
 
 		// User status.
-		$this->setGroups();
+		$this->setGroups($reset);
 		$this->setPossiblyRobot();
-		$this->is_guest = empty($this->id);
-		$this->is_admin = \in_array(1, $this->groups);
-		$this->is_mod = \in_array(3, $this->groups) || !empty($profile['is_mod']);
-		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
-		$this->is_banned = $this->is_activated >= self::BANNED;
-		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
+
+		if ($reset || !isset($this->is_activated)) {
+			$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
+		}
+
+		if ($reset || !isset($this->is_banned)) {
+			$this->is_banned = $this->is_activated >= self::BANNED;
+		}
+
+		if ($reset || !isset($this->is_online)) {
+			$this->is_online = (bool) ($profile['is_online'] ?? $this->is_me);
+		}
 
 		// User activity and history.
-		$this->show_online = (bool) ($profile['show_online'] ?? false);
-		$this->url = $profile['url'] ?? '';
-		$this->last_login = (int) ($profile['last_login'] ?? 0);
-		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
-		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
-		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
-		$this->ip = (string) ($is_me ? IP::getUserIP() : $profile['member_ip'] ?? '');
-		$this->ip2 = (string) ($is_me ? IP::getUserIPAlternative() : $profile['member_ip2'] ?? '');
+		if ($reset || !isset($this->show_online)) {
+			$this->show_online = (bool) ($profile['show_online'] ?? false);
+		}
+
+		if ($reset || !isset($this->url)) {
+			$this->url = $profile['url'] ?? '';
+		}
+
+		if ($reset || !isset($this->last_login)) {
+			$this->last_login = (int) ($profile['last_login'] ?? 0);
+		}
+
+		if ($reset || !isset($this->id_msg_last_visit)) {
+			$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
+		}
+
+		if ($reset || !isset($this->total_time_logged_in)) {
+			$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
+		}
+
+		if ($reset || !isset($this->date_registered)) {
+			$this->date_registered = (int) ($profile['date_registered'] ?? 0);
+		}
+
+		if ($reset || !isset($this->ip)) {
+			$this->ip = $this->is_me ? IP::getUserIP() : $profile['member_ip'] ?? '';
+		}
+
+		if ($reset || !isset($this->ip2)) {
+			$this->ip2 = match (true) {
+				// Current user is behind a proxy, so use the alternative IP.
+				$this->is_me && !\in_array(IP::getUserIPAlternative(), [IP::getUserIP(), '']) => IP::getUserIPAlternative(),
+				// Current user has a new IP, so use their previous IP.
+				$this->is_me && $this->ip !== ($profile['member_ip'] ?? '') => $profile['member_ip'] ?? '',
+				// Either not the current user, or current user hasn't changed IPs.
+				default => $profile['member_ip2'] ?? '',
+			};
+		}
 
 		// Additional profile info.
-		$this->posts = (int) ($profile['posts'] ?? 0);
-		$this->title = $profile['usertitle'] ?? '';
-		$this->signature = $profile['signature'] ?? '';
-		$this->personal_text = $profile['personal_text'] ?? '';
-		$this->birthdate = $profile['birthdate'] ?? '';
-		$this->website['url'] = $profile['website_url'] ?? '';
-		$this->website['title'] = $profile['website_title'] ?? '';
+		if ($reset || !isset($this->posts)) {
+			$this->posts = (int) ($profile['posts'] ?? 0);
+		}
+
+		if ($reset || !isset($this->title)) {
+			$this->title = $profile['usertitle'] ?? '';
+		}
+
+		if ($reset || !isset($this->signature)) {
+			$this->signature = $profile['signature'] ?? '';
+		}
+
+		if ($reset || !isset($this->personal_text)) {
+			$this->personal_text = $profile['personal_text'] ?? '';
+		}
+
+		if ($reset || !isset($this->birthdate)) {
+			$this->birthdate = $profile['birthdate'] ?? '';
+		}
+
+		if ($reset || !isset($this->website['url'])) {
+			$this->website['url'] = $profile['website_url'] ?? '';
+		}
+
+		if ($reset || !isset($this->website['title'])) {
+			$this->website['title'] = $profile['website_title'] ?? '';
+		}
 
 		// Presentation preferences.
-		$this->theme = (int) ($profile['id_theme'] ?? 0);
-		$this->options = (array) ($profile['options'] ?? []);
-		$this->smiley_set = $profile['smiley_set'] ?? '';
+		if ($reset || !isset($this->theme)) {
+			$this->theme = (int) ($profile['id_theme'] ?? 0);
+		}
+
+		if ($reset || !isset($this->options)) {
+			$this->options = (array) ($profile['options'] ?? []);
+		}
+
+		if ($reset || !isset($this->smiley_set)) {
+			$this->smiley_set = $profile['smiley_set'] ?? '';
+		}
 
 		// Localization.
-		$this->setLanguage();
-		$this->time_format = empty($profile['time_format']) ? (Config::$modSettings['time_format'] ?? '%F %k:%M') : $profile['time_format'];
-		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
+		$this->setLanguage($reset);
+
+		if ($reset || !isset($this->real_time_format)) {
+			$this->real_time_format = $profile['time_format'] ?? '';
+		}
+
+		if ($reset || !isset($this->timezone)) {
+			$this->timezone = match (true) {
+				empty($this->id) => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+				!\in_array($profile['timezone'] ?? null, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+				default => $profile['timezone'],
+			};
+		}
 
 		// Buddies and personal messages.
-		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
-		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
-		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
-		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
-		$this->messages = (int) ($profile['instant_messages'] ?? 0);
-		$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
-		$this->new_pm = (int) ($profile['new_pm'] ?? 0);
+		if ($reset || !isset($this->buddies)) {
+			$this->buddies = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
+		}
+
+		if ($reset || !isset($this->ignoreusers)) {
+			$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
+		}
+
+		if ($reset || !isset($this->pm_receive_from)) {
+			$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
+		}
+
+		if ($reset || !isset($this->pm_prefs)) {
+			$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
+		}
+
+		if ($reset || !isset($this->messages)) {
+			$this->messages = (int) ($profile['instant_messages'] ?? 0);
+		}
+
+		if ($reset || !isset($this->unread_messages)) {
+			$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
+		}
+
+		if ($reset || !isset($this->new_pm)) {
+			$this->new_pm = (int) ($profile['new_pm'] ?? 0);
+		}
 
 		// What does the user want to see or know about?
-		$this->alerts = (int) ($profile['alerts'] ?? 0);
-		$this->ignoreboards = !empty($profile['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
+		if ($reset || !isset($this->alerts)) {
+			$this->alerts = (int) ($profile['alerts'] ?? 0);
+		}
+
+		if ($reset || !isset($this->ignoreboards)) {
+			$this->ignoreboards = !empty($profile['ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
+		}
 
 		// Extended membergroup info.
-		$this->group_name = $profile['member_group'] ?? '';
-		$this->primary_group_name = $profile['primary_group'] ?? '';
-		$this->post_group_name = $profile['post_group'] ?? '';
-		$this->group_color = $profile['member_group_color'] ?? '';
-		$this->post_group_color = $profile['post_group_color'] ?? '';
-		$this->icons = empty($profile['icons']) ? ['', ''] : explode('#', $profile['icons']);
+		if ($reset || !isset($this->group_name)) {
+			$this->group_name = $profile['member_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->post_group_name)) {
+			$this->post_group_name = $profile['post_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->group_color)) {
+			$this->group_color = $profile['member_group_color'] ?? '';
+		}
+
+		if ($reset || !isset($this->post_group_color)) {
+			$this->post_group_color = $profile['post_group_color'] ?? '';
+		}
+
+		if ($reset || !isset($this->icons)) {
+			$this->icons = empty($profile['icons']) ? ['', ''] : explode('#', $profile['icons']);
+		}
+
+		if ($reset || !isset($this->primary_group_id)) {
+			$this->primary_group_id = $this->group_id;
+		}
+
+		if ($reset || !isset($this->primary_group_name)) {
+			$this->primary_group_name = $profile['primary_group'] ?? '';
+		}
+
+		if ($reset || !isset($this->primary_group_color)) {
+			$this->primary_group_color = $this->group_color;
+		}
+
+		if ($reset || !isset($this->primary_group_icons)) {
+			$this->primary_group_icons = $this->icons;
+		}
 
 		// The avatar is a complicated thing, and historically had multiple
 		// representations in the code. This supports everything.
-		$this->avatar = array_merge(
-			[
-				'original_url' => $profile['avatar_original'] ?? '',
-				'url' => (string) ($profile['avatar'] ?? ''),
-				'filename' => $profile['filename'] ?? '',
-				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == Attachment::TYPE_AVATAR,
-				'id_attach' => $profile['id_attach'] ?? 0,
-				'width' => $profile['attachment_width'] ?? null,
-				'height' => $profile['attachment_height'] ?? null,
-			],
-			self::setAvatarData([
-				'avatar' => $profile['avatar'] ?? '',
-				'email' => $profile['email_address'] ?? '',
-				'filename' => $profile['filename'] ?? '',
-			]),
-		);
+		if ($reset || empty($this->avatar->url)) {
+			$this->avatar = new Avatar(
+				url: $profile['avatar'] ?? null,
+				original_url: $profile['avatar_original'] ?? null,
+				filename: $profile['filename'] ?? null,
+				id_attach: isset($profile['id_attach']) ? (int) $profile['id_attach'] : null,
+				attachment_type: isset($profile['attachment_type']) ? (int) $profile['attachment_type'] : null,
+				width: isset($profile['attachment_width']) ? (int) $profile['attachment_width'] : null,
+				height: isset($profile['attachment_height']) ? (int) $profile['attachment_height'] : null,
+				email: $this->email,
+				id_member: $this->id,
+			);
+		}
 
 		// Info about stuff related to permissions.
 		// Note that we populate $this->permission_sets elsewhere.
-		$this->warning = (int) ($profile['warning'] ?? 0);
-		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && \count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
+		if ($reset || !isset($this->warning)) {
+			$this->warning = (int) ($profile['warning'] ?? 0);
+		}
 
-		foreach (self::buildQueryBoard($this->id) as $key => $value) {
-			$this->{$key} = $value;
+		if ($reset || !isset($this->can_manage_boards)) {
+			$this->can_manage_boards = (
+				!empty($this->is_admin)
+				|| (
+					!empty(Config::$modSettings['board_manager_groups'])
+					&& !empty($this->groups)
+					&& array_intersect(
+						$this->groups,
+						explode(',', Config::$modSettings['board_manager_groups']),
+					) !== []
+				)
+			);
+		}
+
+		if ($reset || !isset($this->query_see_board)) {
+			$this->buildQueryBoard();
 		}
 
 		// What dataset did we load for this user?
 		$this->dataset = $profile['dataset'];
 
-		// An easy way for mods to add or adjust properties.
-		IntegrationHook::call('integrate_user_properties', [$this]);
+		// Basic handling for any custom profile data. If mods want to do
+		// anything more complicated, they can use the hook below.
+		foreach ($profile as $key => $value) {
+			if (
+				!\in_array(
+					$key,
+					[
+						// All the standard data.
+						'additional_groups', 'alerts', 'attachment_height',
+						'attachment_type', 'attachment_width', 'avatar',
+						'avatar_original', 'birthdate', 'buddy_list',
+						'dataset', 'date_registered', 'email_address',
+						'filename', 'icons', 'id_attach', 'id_group',
+						'id_member', 'id_msg_last_visit', 'id_post_group',
+						'id_theme', 'ignore_boards', 'instant_messages',
+						'is_activated', 'is_online', 'last_login', 'lngfile',
+						'member_group', 'member_group_color', 'member_ip',
+						'member_ip2', 'member_name', 'new_pm', 'options',
+						'passwd', 'passwd_flood', 'password_salt',
+						'personal_text', 'pm_ignore_list', 'pm_prefs',
+						'pm_receive_from', 'post_group', 'post_group_color',
+						'posts', 'primary_group', 'real_name',
+						'secret_answer', 'secret_question', 'show_online',
+						'signature', 'smiley_set', 'spoofdetector_name',
+						'tfa_backup', 'tfa_secret', 'time_format', 'timezone',
+						'total_time_logged_in', 'unread_messages', 'url',
+						'usertitle', 'validation_code', 'warning',
+						'website_title', 'website_url',
+						// Obsolete data. Ignore if present.
+						'mod_prefs', 'time_offset',
+					],
+				)
+			) {
+				if ($reset || !isset($this->{$key})) {
+					$this->{$key} = is_numeric($value) ? $value + 0 : $value;
+				}
+			}
+		}
+
+		/*
+		 * Allows mods to add or adjust properties.
+		 *
+		 * MOD AUTHORS: If you use this hook, you probably also want to use the
+		 * integrate_save_member_data hook to control how your data is saved
+		 * back to the database.
+		 */
+		IntegrationHook::call('integrate_user_properties', [$this, &$profile]);
 	}
 
 	/**
@@ -4010,6 +4315,12 @@ class User implements \ArrayAccess
 	 */
 	protected function integrateVerifyUser(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		if (\count($integration_ids = IntegrationHook::call('integrate_verify_user')) === 0) {
 			return;
 		}
@@ -4024,7 +4335,8 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Sets User::$my_id to the current user's ID from the login cookie.
+	 * Sets User::$my_id and User::$cookie_password to the current user's ID
+	 * and encrypted password from the login cookie.
 	 *
 	 * If no cookie was provided, checks $_SESSION to see if there is a match
 	 * with an existing session.
@@ -4033,75 +4345,111 @@ class User implements \ArrayAccess
 	 */
 	protected function setMyId(): void
 	{
-		// No need to check if this has already been set.
-		if (!empty(self::$my_id)) {
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		// Do nothing if an integration already did this job.
+		if ($this->already_verified) {
 			return;
 		}
 
+		// Did they give us a cookie?
 		if (isset($_COOKIE[Config::$cookiename])) {
-			// First try 2.1 json-format cookie
+			// First try JSON format cookie
 			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, 512, 0, false);
 
-			// Legacy format (for recent 2.0 --> 2.1 upgrades)
+			// Legacy format (for recent upgrades from SMF 2.0)
 			if (empty($cookie_data)) {
 				$cookie_data = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 			}
 
-			list(self::$my_id, $this->passwd, $expires, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
+			// Extract the cookie data.
+			list($id, self::$cookie_password, $expires, $cookie_domain, $cookie_path) = array_pad((array) ($cookie_data ?? []), 5, '');
 
-			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
-
-			$this->stay_logged_in = ($expires - time()) > 86400;
-
-			// Make sure the cookie is set to the correct domain and path
-			if ([$cookie_domain, $cookie_path] !== Cookie::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']))) {
+			// Make sure the cookie is set to the correct domain and path.
+			if (
+				isset($_COOKIE[Config::$cookiename])
+				&& [$cookie_domain, $cookie_path] !== Cookie::urlParts(
+					!empty(Config::$modSettings['localCookies']),
+					!empty(Config::$modSettings['globalCookies']),
+				)
+			) {
 				Cookie::setLoginCookie((int) $expires - time(), self::$my_id);
 			}
-		} elseif (isset($_SESSION['login_' . Config::$cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty(Config::$modSettings['disableCheckUA']))) {
+		}
+		// Can we recover it from session data?
+		elseif (
+			isset($_SESSION['login_' . Config::$cookiename])
+			&& (
+				$_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT']
+				|| !empty(Config::$modSettings['disableCheckUA'])
+			)
+		) {
 			// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 			$cookie_data = Utils::jsonDecode($_SESSION['login_' . Config::$cookiename], true);
 
-			if (empty($cookie_data)) {
-				$cookie_data = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
-			}
-
-			list(self::$my_id, $this->passwd, $expires) = array_pad((array) $cookie_data, 3, '');
-
-			self::$my_id = !empty(self::$my_id) && \strlen($this->passwd) == 40 && (int) $expires > time() ? (int) self::$my_id : 0;
-
-			$this->stay_logged_in = ($expires - time()) > 86400;
+			// Extract the cookie data.
+			list($id, self::$cookie_password, $expires) = array_pad((array) ($cookie_data ?? []), 3, '');
 		}
+
+		if (
+			empty($id)
+			|| \strlen(self::$cookie_password) === 0
+			|| (int) $expires <= time()
+		) {
+			self::$my_id = 0;
+
+			return;
+		}
+
+		// Found it.
+		self::$my_id = (int) $id;
+
+		// Do they want to stay logged in?
+		$this->stay_logged_in = ((int) $expires - time()) > 86400;
 	}
 
 	/**
 	 * Figures out which dataset we want to load for the current user.
 	 *
-	 * @return string The name of a dataset to load.
+	 * @return UserDataset The name of a dataset to load.
 	 */
-	protected function chooseMyDataset(): string
+	protected function chooseMyDataset(): UserDataset
 	{
-		// Board index, message index, or topic.
-		if (!isset($_REQUEST['action'])) {
-			$dataset = 'normal';
-		}
-		// Popups, AJAX, etc.
-		elseif (QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')) {
-			$dataset = 'basic';
-		}
-		// Profile and personal messages (except the popups)
-		elseif (\in_array($_REQUEST['action'], ['profile', 'pm'])) {
-			$dataset = 'profile';
-		}
-		// Who's Online
-		elseif (\in_array($_REQUEST['action'], ['who'])) {
-			$dataset = 'normal';
-		}
-		// Everything else.
-		else {
-			$dataset = 'basic';
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
-		return $dataset;
+		// Board index, message index, or topic.
+		if (
+			!isset($_REQUEST['action'])
+			|| \in_array($_REQUEST['action'], ['boardindex', 'messageindex', 'display'])
+		) {
+			return UserDataset::Normal;
+		}
+
+		// Profile.
+		if ($_REQUEST['action'] === 'profile') {
+			return \in_array($_GET['area'] ?? null, ['popup', 'alerts_popup', 'download', 'dlattach']) ? UserDataset::Basic : UserDataset::Profile;
+		}
+
+		// Personal messages.
+		if ($_REQUEST['action'] === 'pm') {
+			return ($_GET['sa'] ?? null) === 'popup' ? UserDataset::Basic : UserDataset::Profile;
+		}
+
+		// Who's Online.
+		if ($_REQUEST['action'] === 'who') {
+			return UserDataset::Normal;
+		}
+
+		// Everything else.
+		return UserDataset::Basic;
 	}
 
 	/**
@@ -4112,36 +4460,53 @@ class User implements \ArrayAccess
 	 */
 	protected function verifyPassword(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		// Do nothing if this is a guest.
 		if (empty(self::$my_id)) {
 			return;
 		}
 
-		// Did we find 'im?  If not, junk it.
-		if (!empty(self::$profiles[self::$my_id])) {
-			// As much as the password should be right, we can assume the integration set things up.
-			if (!empty($this->already_verified) && $this->already_verified === true) {
-				$check = true;
-			}
-			// SHA-512 hash should be 128 characters long.
-			elseif (\strlen($this->passwd) == 128) {
-				$check = hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['passwd'], self::$profiles[self::$my_id]['password_salt']), $this->passwd);
-			} else {
-				$check = false;
-			}
-
-			// Wrong password or not activated - either way, you're going nowhere.
-			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] % self::BANNED == self::ACTIVATED) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
-		} else {
+		// Can't log into an account that doesn't exist.
+		if (
+			!isset(
+				self::$profiles[self::$my_id]['member_name'],
+				self::$profiles[self::$my_id]['passwd'],
+				self::$profiles[self::$my_id]['password_salt'],
+				self::$profiles[self::$my_id]['is_activated'],
+			)
+		) {
 			self::$my_id = 0;
+
+			return;
 		}
 
-		// If we no longer have the member maybe they're being all hackey, stop brute force!
-		if (empty(self::$my_id)) {
+		// Did they supply the correct password? (Assume true if already verified.)
+		$password_correct = !empty($this->already_verified) ? true : hash_equals(
+			Cookie::encrypt(
+				self::$profiles[self::$my_id]['passwd'],
+				self::$profiles[self::$my_id]['password_salt'],
+			),
+			self::$cookie_password,
+		);
+
+		// Wrong password or not activated - either way, you're going nowhere.
+		if (
+			!$password_correct
+			|| self::$profiles[self::$my_id]['is_activated'] % self::BANNED !== self::ACTIVATED
+		) {
+			$id = self::$my_id;
+			self::$my_id = 0;
+
 			Login2::validatePasswordFlood(
-				!empty(self::$profiles[self::$my_id]['id_member']) ? self::$profiles[self::$my_id]['id_member'] : self::$my_id,
-				!empty(self::$profiles[self::$my_id]['member_name']) ? self::$profiles[self::$my_id]['member_name'] : '',
-				!empty(self::$profiles[self::$my_id]['passwd_flood']) ? self::$profiles[self::$my_id]['passwd_flood'] : false,
-				self::$my_id != 0,
+				$id,
+				self::$profiles[$id]['member_name'],
+				self::$profiles[$id]['passwd_flood'],
+				$password_correct,
 			);
 		}
 	}
@@ -4151,97 +4516,128 @@ class User implements \ArrayAccess
 	 */
 	protected function verifyTfa(): void
 	{
-		if (empty(self::$my_id) || empty(Config::$modSettings['tfa_mode'])) {
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
+		if (
+			// Do nothing if this is a guest.
+			empty(self::$my_id)
+			// Do nothing if two factor authentication is disabled.
+			|| empty(Config::$modSettings['tfa_mode'])
+		) {
 			return;
 		}
 
-		// Check if we are forcing TFA
-		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'feed');
+		// If they've set up Two Factor Authentication, validate it.
+		if (!empty(self::$profiles[self::$my_id]['tfa_secret'])) {
+			// If they are performing the TFA login action itself, make sure
+			// to reset their ID for security, but otherwise leave it to the
+			// action to verify the TFA credentials.
+			if (($_REQUEST['action'] ?? '') === 'logintfa') {
+				Utils::$context['tfa_member_id'] = self::$my_id;
+				self::$my_id = 0;
 
-		// Don't force TFA on popups
-		if ($force_tfasetup) {
-			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && \in_array($_REQUEST['area'], ['popup', 'alerts_popup'])) {
-				$force_tfasetup = false;
-			} elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup')) {
-				$force_tfasetup = false;
+				return;
 			}
 
+			// Don't get stuck in a loop.
+			if (($_REQUEST['action'] ?? '') === 'login2') {
+				return;
+			}
+
+			// Do any mods want to verify their TFA credentials for us?
+			$verified = IntegrationHook::call('integrate_verify_tfa', [self::$my_id, self::$profiles[self::$my_id]]);
+
+			if (\in_array(true, $verified)) {
+				return;
+			}
+
+			// Verify their TFA credentials ourselves.
+			$tfa_cookie = Config::$cookiename . '_tfa';
+			$tfa_secret = '';
+
+			if (!empty($_COOKIE[$tfa_cookie])) {
+				$tfa_data = Utils::jsonDecode($_COOKIE[$tfa_cookie], true);
+
+				list($tfa_member_id, $tfa_secret) = array_pad((array) $tfa_data, 2, '');
+
+				if ((int) $tfa_member_id !== self::$my_id) {
+					$tfa_secret = '';
+				}
+			}
+
+			// If they didn't provide the correct TFA credentials, they're no one to us.
+			if (
+				!hash_equals(
+					$tfa_secret,
+					Cookie::encrypt(
+						self::$profiles[self::$my_id]['tfa_backup'],
+						self::$profiles[self::$my_id]['password_salt'],
+					),
+				)
+			) {
+				Cookie::setLoginCookie(-3600, self::$my_id);
+				self::$profiles[self::$my_id] = [];
+				self::$my_id = 0;
+			}
+
+			return;
+		}
+
+		// They don't have any TFA credentials. Do they need to create some?
+		$force_tfasetup = (
+			// 1. The TFA setting requires it.
+			Config::$modSettings['tfa_mode'] >= 2
+			// 2. This is happening within the forum itself (not SSI, cron, etc.)
+			&& SMF === 1
+			// 3. This is not an AJAX request.
+			&& !isset($_REQUEST['xml'])
+			// 4. The requested action does NOT meet any of the following criteria:
+			&& !(
+				// 4.a. Logging out.
+				($_REQUEST['action'] ?? null) === 'logout'
+				// 4.b. Getting an RSS feed.
+				|| ($_REQUEST['action'] ?? null) === 'feed'
+				// 4.c. Doing the TFA setup.
+				|| (
+					($_REQUEST['action'] ?? null) === 'profile'
+					&& ($_REQUEST['area'] ?? null) === 'tfasetup'
+				)
+				// 4.d. Viewing one of the profile popups.
+				|| (
+					($_REQUEST['action'] ?? null) === 'profile'
+					&& \in_array($_REQUEST['area'] ?? null, ['popup', 'alerts_popup'])
+				)
+				// 4.d. Viewing the personal messages popup.
+				|| (
+					($_REQUEST['action'] ?? null) === 'pm'
+					&& ($_REQUEST['sa'] ?? null) == 'popup'
+				)
+			)
+		);
+
+		// Allow mods to turn off $force_tfasetup for their own actions.
+		// Note: we don't let mods turn it on if we already turned it off.
+		if ($force_tfasetup) {
 			IntegrationHook::call('integrate_force_tfasetup', [&$force_tfasetup]);
 		}
 
-		// Validate for Two Factor Authentication
-		if (!empty(self::$profiles[self::$my_id]['tfa_secret']) && (empty($_REQUEST['action']) || !\in_array($_REQUEST['action'], ['login2', 'logintfa']))) {
-			$tfacookie = Config::$cookiename . '_tfa';
-			$tfasecret = null;
+		// If we are only forcing SOME membergroups to use TFA, check whether
+		// this member belongs to any of those groups.
+		if ($force_tfasetup && Config::$modSettings['tfa_mode'] == 2) {
+			$this->setGroups();
 
-			$verified = IntegrationHook::call('integrate_verify_tfa', [self::$my_id, self::$profiles[self::$my_id]]);
-
-			if (empty($verified) || !\in_array(true, $verified)) {
-				if (!empty($_COOKIE[$tfacookie])) {
-					$tfa_data = Utils::jsonDecode($_COOKIE[$tfacookie], true);
-
-					list($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
-
-					if (!isset($tfamember, $tfasecret) || (int) $tfamember != self::$my_id) {
-						$tfasecret = null;
-					}
-				}
-
-				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || !hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['tfa_backup'], self::$profiles[self::$my_id]['password_salt']), $tfasecret)) {
-					Cookie::setLoginCookie(-3600, self::$my_id);
-					self::$profiles[self::$my_id] = [];
-					self::$my_id = 0;
-				}
+			if (empty(Group::load($this->groups, ['where' => ['tfa_required = 1']]))) {
+				$force_tfasetup = false;
 			}
 		}
-		// When authenticating their two factor code, make sure to reset their ID for security
-		elseif (!empty(self::$profiles[self::$my_id]['tfa_secret']) && $_REQUEST['action'] == 'logintfa') {
-			Utils::$context['tfa_member'] = self::$profiles[self::$my_id];
-			self::$profiles[self::$my_id] = [];
-			self::$my_id = 0;
-		}
-		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
-		elseif ($force_tfasetup) {
-			// Only do this if we are just forcing SOME membergroups
-			if (Config::$modSettings['tfa_mode'] == 2) {
-				// Build an array of ALL user membergroups.
-				$this->setGroups();
 
-				// Find out if any group requires 2FA
-				$request = Db::$db->query(
-					'SELECT COUNT(id_group) AS total
-					FROM {db_prefix}membergroups
-					WHERE tfa_required = {int:tfa_required}
-						AND id_group IN ({array_int:full_groups})',
-					[
-						'tfa_required' => 1,
-						'full_groups' => $this->groups,
-					],
-				);
-				$row = Db::$db->fetch_assoc($request);
-				Db::$db->free_result($request);
-			}
-			// Simplifies logic in the next "if"
-			else {
-				$row['total'] = 1;
-			}
-
-			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
-			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
-
-			if (
-				$row['total'] > 0
-				&& (
-					!\in_array($action, ['profile', 'logout'])
-					|| (
-						$action == 'profile'
-						&& $area != 'tfasetup'
-					)
-				)
-			) {
-				Utils::redirectexit('action=profile;area=tfasetup;forced');
-			}
+		// Are we forcing TFA?
+		if ($force_tfasetup) {
+			Utils::redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
 
@@ -4251,6 +4647,12 @@ class User implements \ArrayAccess
 	 */
 	protected function setLastVisit(): void
 	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Let's not update the last visit time in these cases...
 		// 1. SSI doesn't count as visiting the forum.
 		// 2. RSS feeds and XMLHTTP requests don't count either.
@@ -4288,7 +4690,11 @@ class User implements \ArrayAccess
 
 			// If it was *at least* five hours ago...
 			if ($visitTime < time() - 5 * 3600) {
-				self::updateMemberData(self::$my_id, ['id_msg_last_visit' => (int) Config::$modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => IP::getUserIP(), 'member_ip2' => IP::getUserIPAlternative()]);
+				$this->id_msg_last_visit = (int) Config::$modSettings['maxMsgID'];
+				$this->last_login = time();
+				$this->ip = IP::getUserIP();
+				$this->ip2 = IP::getUserIPAlternative();
+				$this->save();
 
 				self::$profiles[self::$my_id]['last_login'] = time();
 
@@ -4310,17 +4716,25 @@ class User implements \ArrayAccess
 	 */
 	protected function initializeGuest(): void
 	{
-		// This is what a guest's variables should be.
-		self::$profiles[0] = [
-			'dataset' => 'basic',
-		];
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
 
-		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member'])) {
+		// This is what a guest's variables should be.
+		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
+			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
+			self::$profiles[0]['dataset'] = UserDataset::Basic;
+		}
+
+		// If they gave us a bad cookie, discard it.
+		if (isset($_COOKIE[Config::$cookiename]) && empty(Utils::$context['tfa_member_id'])) {
 			$_COOKIE[Config::$cookiename] = '';
 		}
 
 		// Expire the 2FA cookie
-		if (isset($_COOKIE[Config::$cookiename . '_tfa']) && empty(Utils::$context['tfa_member'])) {
+		if (isset($_COOKIE[Config::$cookiename . '_tfa']) && empty(Utils::$context['tfa_member_id'])) {
 			$tfa_data = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
 			list(, , $exp) = array_pad((array) $tfa_data, 3, 0);
@@ -4341,60 +4755,30 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Ensures timezone and time_offset are both set to correct values.
+	 * Determines which membergroups this user belongs to.
+	 *
+	 * @param bool $reset If true, discard current group info and set it afresh.
 	 */
-	protected function fixTimezoneSetting(): void
+	protected function setGroups(bool $reset = false): void
 	{
-		if (!empty($this->id)) {
-			// Figure out the new time offset.
-			if (!empty(self::$profiles[$this->id]['timezone'])) {
-				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
-				$tz_user = TimeZone::create(self::$profiles[$this->id]['timezone']);
-				$time_system = new \DateTime('now', $tz_system);
-				$time_user = new \DateTime('now', $tz_user);
-				self::$profiles[$this->id]['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-			}
-			// We need a time zone.
-			else {
-				if (!empty(self::$profiles[$this->id]['time_offset'])) {
-					$tz_system = TimeZone::create(Config::$modSettings['default_timezone']);
-					$time_system = new \DateTime('now', $tz_system);
+		$default_group = empty($this->id) ? Group::GUEST : Group::REGULAR;
 
-					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
-				}
+		if ($reset || !isset($this->group_id)) {
+			$this->group_id = (int) (self::$profiles[$this->id]['id_group'] ?? $default_group);
+		}
 
-				if (empty(self::$profiles[$this->id]['timezone'])) {
-					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-					self::$profiles[$this->id]['time_offset'] = 0;
-				}
-			}
+		if ($reset || !isset($this->post_group_id)) {
+			$this->post_group_id = (int) (self::$profiles[$this->id]['id_post_group'] ?? $default_group);
 		}
-		// Guests use the forum default.
-		else {
-			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
-			self::$profiles[$this->id]['time_offset'] = 0;
-		}
-	}
 
-	/**
-	 * Determines which membergroups the current user belongs to.
-	 */
-	protected function setGroups(): void
-	{
-		if (!empty($this->id)) {
-			$this->group_id = (int) self::$profiles[$this->id]['id_group'];
-			$this->post_group_id = (int) self::$profiles[$this->id]['id_post_group'];
-			$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'])));
-			$this->groups = array_unique(array_merge([0, $this->group_id, $this->post_group_id], $this->additional_groups));
+		if ($reset || !isset($this->additional_groups)) {
+			$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'] ?? '')));
 		}
-		// Guests are only part of the guest group.
-		else {
-			$this->group_id = -1;
-			$this->post_group_id = -1;
-			$this->additional_groups = [];
-			$this->groups = [-1];
-		}
+
+		$this->groups = array_unique(array_merge(
+			[$default_group, $this->group_id, $this->post_group_id],
+			$this->additional_groups,
+		));
 	}
 
 	/**
@@ -4402,6 +4786,13 @@ class User implements \ArrayAccess
 	 */
 	protected function setPossiblyRobot(): void
 	{
+		// This check only applies to the current user.
+		if (!$this->is_me) {
+			$this->possibly_robot = false;
+
+			return;
+		}
+
 		// This is a logged in user, so definitely not a spider.
 		if (!empty($this->id)) {
 			$this->possibly_robot = false;
@@ -4496,9 +4887,16 @@ class User implements \ArrayAccess
 	 * Sets the current user's preferred language.
 	 *
 	 * Uses their saved setting, unless they are requesting a different one.
+	 *
+	 * @param bool $reset If true, discard current value of $this->language and
+	 *    set it afresh.
 	 */
-	protected function setLanguage(): void
+	protected function setLanguage(bool $reset = false): void
 	{
+		if (!$reset && isset($this->language)) {
+			return;
+		}
+
 		// Is everyone forced to use the default language?
 		if (empty(Config::$modSettings['userLanguage'])) {
 			$this->language = Config::$language;
@@ -4509,6 +4907,11 @@ class User implements \ArrayAccess
 		// Which language does this user prefer?
 		$this->language = empty(self::$profiles[$this->id]['lngfile']) ? Config::$language : self::$profiles[$this->id]['lngfile'];
 
+		// If this isn't the current user, we're done.
+		if (!$this->is_me) {
+			return;
+		}
+
 		// Allow the user to change their language.
 		$languages = Lang::get();
 
@@ -4518,7 +4921,7 @@ class User implements \ArrayAccess
 
 			// Make it permanent for members.
 			if (!empty($this->id)) {
-				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				$this->save();
 				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
@@ -4552,6 +4955,297 @@ class User implements \ArrayAccess
 		}
 	}
 
+	/**
+	 * Callback for the property hooks of $this->is_mod that determines the
+	 * correct value to use and also adjusts other properties as necessary to
+	 * reflect this user's moderator status (or lack thereof).
+	 *
+	 * Guests can never be moderators, so if this method is called on a guest,
+	 * the $is_mod argument will be ignored and overridden by false.
+	 *
+	 * @todo Returns by reference in order to make it easier for the property
+	 *    to maintain compatibility with \ArrayAccess. Once \ArrayAccess
+	 *    compatibility is no longer required, this method can be changed to
+	 *    not return by reference.
+	 *
+	 * @param ?bool $is_mod Whether this user should be given moderator status.
+	 *    If null, will be determined by whether this user's groups include the
+	 *    global moderator and/or local moderator group. Default: null.
+	 * @return bool Whether this user should have moderator status.
+	 */
+	protected function &isMod(?bool $is_mod = null): bool
+	{
+		if (!isset($this->groups)) {
+			$this->setGroups();
+		}
+
+		// Guests can never be moderators.
+		if ($this->is_guest) {
+			$is_mod = false;
+		}
+
+		if (!isset($is_mod)) {
+			$is_mod = array_intersect([Group::GLOBAL_MOD, Group::MOD], $this->groups) !== [];
+		}
+
+		if ($is_mod) {
+			// By popular demand, don't show admins or global moderators as
+			// local moderators.
+			if (!\in_array($this->group_id ?? Group::REGULAR, [Group::ADMIN, Group::GLOBAL_MOD])) {
+				$moderator_group = current(Group::load(Group::MOD));
+
+				// Set this member's group name to Moderator.
+				$this->group_name = $moderator_group->name;
+
+				// Set this member's icons and color to those for a moderator
+				// (unless the moderator group has no color or icons).
+				if (!empty($moderator_group->icons)) {
+					$this->icons = array_pad(explode('#', $moderator_group->icons), 2, '');
+				}
+
+				if (!empty($moderator_group->online_color)) {
+					$this->group_color = $moderator_group->online_color;
+				}
+			}
+
+			// Make this user a local moderator if they're not already a global
+			// or local moderator.
+			if (array_intersect([Group::GLOBAL_MOD, Group::MOD], $this->groups) === []) {
+				$this->groups[] = Group::MOD;
+			}
+		} else {
+			$this->group_id = $this->primary_group_id ?? $this->group_id ?? ($this->is_guest ? Group::GUEST : Group::REGULAR);
+			$this->group_name = $this->primary_group_name ?? '';
+			$this->group_color = $this->primary_group_color ?? '';
+			$this->icons = $this->primary_group_icons ?? [];
+
+			$this->groups = array_diff($this->groups, [Group::MOD]);
+		}
+
+		return $is_mod;
+	}
+
+	/**
+	 * Builds query_see_board (and all its variants) for this user.
+	 */
+	protected function buildQueryBoard(): void
+	{
+		if (!isset($this->groups)) {
+			return;
+		}
+
+		// Just build this here, it makes it easier to change/use - administrators can see all boards.
+		if ($this->is_admin || $this->can_manage_boards) {
+			$this->query_see_board = '1=1';
+		}
+		// Otherwise only the boards that can be accessed by the groups this user belongs to.
+		else {
+			$this->query_see_board = '
+				EXISTS (
+					SELECT bpv.id_board
+					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
+					WHERE bpv.id_group IN (' . implode(',', $this->groups) . ')
+						AND bpv.deny = 0
+						AND bpv.id_board = b.id_board
+				)';
+
+			if (!empty(Config::$modSettings['deny_boards_access'])) {
+				$this->query_see_board .= '
+				AND NOT EXISTS (
+					SELECT bpv.id_board
+					FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
+					WHERE bpv.id_group IN ( ' . implode(',', $this->groups) . ')
+						AND bpv.deny = 1
+						AND bpv.id_board = b.id_board
+				)';
+			}
+		}
+
+		$this->query_see_message_board = str_replace('b.', 'm.', $this->query_see_board);
+		$this->query_see_topic_board = str_replace('b.', 't.', $this->query_see_board);
+
+		// Build the list of boards they WANT to see.
+		// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
+
+		// If they aren't ignoring any boards then they want to see all the boards they can see
+		if (empty(Config::$modSettings['allow_ignore_boards']) || empty($this->ignoreboards)) {
+			$this->query_wanna_see_board = $this->query_see_board;
+			$this->query_wanna_see_message_board = $this->query_see_message_board;
+			$this->query_wanna_see_topic_board = $this->query_see_topic_board;
+		}
+		// Ok I guess they don't want to see all the boards
+		else {
+			$this->query_wanna_see_board = '(' . $this->query_see_board . ' AND b.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+			$this->query_wanna_see_message_board = '(' . $this->query_see_message_board . ' AND m.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+			$this->query_wanna_see_topic_board = '(' . $this->query_see_topic_board . ' AND t.id_board NOT IN (' . implode(',', $this->ignoreboards) . '))';
+		}
+	}
+
+	/**
+	 * Loads the mod cache data.
+	 *
+	 * Stores the information on the current user's moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	protected function loadModCache(): void
+	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Quietly ignore this.
+			return;
+		}
+
+		if (
+			isset($_SESSION['mc'])
+			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
+			&& $_SESSION['mc']['id'] == $this->id
+		) {
+			$this->mod_cache = $_SESSION['mc'];
+		} else {
+			$this->rebuildModCache();
+		}
+
+		// Now that we have the mod cache taken care of, let's setup a cache
+		// for the number of mod reports still open.
+		if (
+			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
+			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
+			&& $_SESSION['rc']['id'] == $this->id
+		) {
+			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
+			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		} elseif ($_SESSION['mc']['bq'] != '0=1') {
+			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
+			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
+		} else {
+			Utils::$context['open_mod_reports'] = 0;
+			Utils::$context['open_member_reports'] = 0;
+		}
+	}
+
+	/**
+	 * Quickly find out what moderation authority the current user has
+	 *
+	 * Builds the moderator, group and board level queries for the user.
+	 *
+	 * Stores the information on the current users moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	protected function rebuildModCache(): void
+	{
+		// This only applies to the current user.
+		if (!$this->is_me) {
+			// Quietly ignore this.
+			return;
+		}
+
+		// What groups can they moderate?
+		if (!$this->is_guest) {
+			$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
+		} else {
+			$group_query = '0=1';
+		}
+
+		if ($group_query == '0=1' && !$this->is_guest) {
+			$groups = [];
+
+			$request = Db::$db->query(
+				'SELECT id_group
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:current_member}',
+				[
+					'current_member' => $this->id,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$groups[] = $row['id_group'];
+			}
+			Db::$db->free_result($request);
+
+			if (empty($groups)) {
+				$group_query = '0=1';
+			} else {
+				$group_query = 'id_group IN (' . implode(',', $groups) . ')';
+			}
+		}
+
+		// Then, same again, just the boards this time!
+		if (!$this->is_guest) {
+			$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
+		} else {
+			$board_query = '0=1';
+		}
+
+		if ($board_query == '0=1' && !$this->is_guest) {
+			$boards = $this->boardsAllowedTo('moderate_board', true);
+
+			if (empty($boards)) {
+				$board_query = '0=1';
+			} else {
+				$board_query = 'id_board IN (' . implode(',', $boards) . ')';
+			}
+		}
+
+		// What boards are they the moderator of?
+		$boards_mod = [];
+
+		if (!$this->is_guest) {
+			$request = Db::$db->query(
+				'SELECT id_board
+				FROM {db_prefix}moderators
+				WHERE id_member = {int:current_member}',
+				[
+					'current_member' => $this->id,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Can any of the groups they're in moderate any of the boards?
+			$request = Db::$db->query(
+				'SELECT id_board
+				FROM {db_prefix}moderator_groups
+				WHERE id_group IN({array_int:groups})',
+				[
+					'groups' => $this->groups,
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Just in case we've got duplicates here...
+			$boards_mod = array_unique($boards_mod);
+		}
+
+		$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
+
+		$_SESSION['mc'] = [
+			'time' => time(),
+			// This looks a bit funny but protects against the login redirect.
+			'id' => $this->id && $this->name ? $this->id : 0,
+			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
+			'gq' => $group_query,
+			'bq' => $board_query,
+			'ap' => !$this->is_guest ? $this->boardsAllowedTo('approve_posts') : [],
+			'mb' => $boards_mod,
+			'mq' => $mod_query,
+		];
+
+		IntegrationHook::call('integrate_mod_cache');
+
+		$this->mod_cache = $_SESSION['mc'];
+
+		// Might as well clean up some tokens while we are at it.
+		SecurityToken::clean();
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -4564,13 +5258,14 @@ class User implements \ArrayAccess
 	 * @param array $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset The set of data to load.
+	 * @param UserDataset $dataset The set of data to load.
 	 * @return array The IDs of the loaded members.
 	 */
-	protected static function loadUserData(array $users, int $type = self::LOAD_BY_ID, string $dataset = 'normal'): array
+	protected static function loadUserData(array $users, int $type = self::LOAD_BY_ID, UserDataset $dataset = UserDataset::Normal): array
 	{
-		if (!isset(self::$dataset_levels[$dataset])) {
-			$dataset = 'normal';
+		if (!$dataset->includes(UserDataset::Minimal)) {
+			// Complain loudly about this programmer error.
+			throw new \ValueError('Must load at least the minimal dataset for a user');
 		}
 
 		// Keep track of which IDs we load during this run.
@@ -4586,7 +5281,21 @@ class User implements \ArrayAccess
 
 		// For guests, there is no data to load, so just fake it.
 		if (\in_array(0, $users)) {
-			self::$profiles[0] = ['dataset' => $dataset];
+			foreach ((new MembersTable())->columns as $column) {
+				self::$profiles[0][$column->name] = match (true) {
+					$column->name === 'timezone' => Config::$modSettings['default_timezone'] ?? date_default_timezone_get(),
+					$column->name === 'time_format' => Config::$modSettings['time_format'] ?? '%F %k:%M',
+					$column->name === 'id_group' => Group::GUEST,
+					$column->name === 'id_post_group' => Group::GUEST,
+					$column->name === 'is_activated' => self::NOT_ACTIVATED,
+					isset($column->default) => $column->default,
+					str_contains($column->type, 'int') => 0,
+					default => '',
+				};
+			}
+
+			self::$profiles[0]['dataset'] = UserDataset::Minimal;
+
 			$loaded_ids[] = 0;
 			$users = array_filter($users);
 		}
@@ -4607,7 +5316,7 @@ class User implements \ArrayAccess
 					continue;
 				}
 
-				if (self::$dataset_levels[self::$profiles[$id]['dataset']] >= self::$dataset_levels[$dataset]) {
+				if (self::$profiles[$id]['dataset']->includes($dataset)) {
 					$loaded_ids[] = $id;
 					unset($users[$key]);
 				}
@@ -4617,6 +5326,8 @@ class User implements \ArrayAccess
 		// Is the member data cached?
 		if ($type === self::LOAD_BY_ID && !empty(CacheApi::$enable)) {
 			foreach ($users as $key => $id) {
+				unset($data);
+
 				if ($id === (self::$my_id ?? NAN)) {
 					if (CacheApi::$enable < 2) {
 						continue;
@@ -4630,13 +5341,19 @@ class User implements \ArrayAccess
 						continue;
 					}
 
-					if (($data = CacheApi::get('member_data-' . $dataset . '-' . $id, 240)) == null) {
+					if (($data = CacheApi::get('member_data-' . $dataset->value . '-' . $id, 240)) == null) {
 						continue;
 					}
 				}
 
+				if (!\is_array($data)) {
+					continue;
+				}
+
+				$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+
 				// Does the cached data have everything we need?
-				if (\is_array($data) && self::$dataset_levels[$data['dataset'] ?? 'minimal'] >= self::$dataset_levels[$dataset]) {
+				if ($data['dataset']->includes($dataset)) {
 					self::$profiles[$id] = $data;
 					$loaded_ids[] = $id;
 					unset($users[$key]);
@@ -4646,156 +5363,271 @@ class User implements \ArrayAccess
 
 		// Look up any un-cached member data.
 		if (!empty($users)) {
-			$select_columns = ['mem.*'];
-			$select_tables = ['{db_prefix}members AS mem'];
+			$query_customizations = [
+				'selects' => ['mem.*'],
+				'joins' => [],
+				'where' => [],
+				'order' => [],
+				'group' => [],
+				'limit' => 0,
+				'params' => [],
+			];
 
-			switch ($dataset) {
-				case 'profile':
-					$select_columns[] = 'lo.url';
-					// no break
+			self::addQueryCustomizationsForLoadType($query_customizations, $users, $type);
+			self::addQueryCustomizationsForDataset($query_customizations, $dataset);
 
-				case 'normal':
-					$select_columns[] = 'COALESCE(lo.log_time, 0) AS is_online';
-					$select_columns[] = 'mg.online_color AS member_group_color';
-					$select_columns[] = 'COALESCE(mg.group_name, {string:blank_string}) AS member_group';
-					$select_columns[] = 'pg.online_color AS post_group_color';
-					$select_columns[] = 'COALESCE(pg.group_name, {string:blank_string}) AS post_group';
-					$select_columns[] = 'CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
-
-					$select_tables[] = 'LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)';
-					$select_tables[] = 'LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)';
-					$select_tables[] = 'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
-					// no break
-
-				case 'basic':
-					$select_columns[] = 'COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS attachment_width, a.height AS attachment_height';
-
-					$select_tables[] = 'LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)';
-					// no break
-
-				case 'minimal':
-					break;
-
-				default:
-					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset], file: 'Errors'), E_USER_WARNING);
-					break;
-			}
-
-			switch ($type) {
-				case self::LOAD_BY_EMAIL:
-					$where = 'mem.email_address' . (\count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}');
-					break;
-
-				case self::LOAD_BY_NAME:
-					if (Db::$db->case_sensitive) {
-						$where = 'LOWER(mem.member_name)';
-						$users = array_map('strtolower', $users);
-					} else {
-						$where = 'mem.member_name';
-					}
-
-					$where .= \count($users) > 1 ? ' IN ({array_string:users})' : ' = {string:users}';
-
-					break;
-
-				default:
-					$where = 'mem.id_member' . (\count($users) > 1 ? ' IN ({array_int:users})' : ' = {int:users}');
-					break;
-			}
-
-			// Allow mods to easily add to the selected member data
-			IntegrationHook::call('integrate_load_member_data', [&$select_columns, &$select_tables, &$dataset]);
-
-			// Load the members' data.
-			$request = Db::$db->query(
-				'SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
-				FROM ' . implode("\n\t\t\t\t\t", $select_tables) . '
-				WHERE ' . $where . (\count($users) > 1 ? '' : '
-				LIMIT 1'),
-				[
-					'blank_string' => '',
-					'users' => \count($users) > 1 ? $users : reset($users),
-				],
+			$loaded_ids = array_merge(
+				$loaded_ids,
+				self::retrieveUserData($query_customizations, $dataset),
 			);
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$row['id_member'] = (int) $row['id_member'];
+			if (!empty(CacheApi::$enable) && $dataset->includes(UserDataset::Minimal)) {
+				foreach ($loaded_ids as $id) {
+					if (CacheApi::$enable >= 2 && $id === (self::$my_id ?? NAN)) {
+						CacheApi::put('user_settings-' . $id, self::$profiles[$id], 60);
+					}
 
-				// If the image proxy is enabled, we still want the original URL when they're editing the profile...
-				$row['avatar_original'] = $row['avatar'] ?? '';
-
-				// Take care of proxying the avatar if required.
-				if (!empty($row['avatar'])) {
-					$row['avatar'] = Url::create($row['avatar'])->proxied();
-				}
-
-				// Keep track of the member's normal member group.
-				$row['primary_group'] = $row['member_group'] ?? '';
-				$row['member_group'] = $row['member_group'] ?? '';
-				$row['post_group'] = $row['post_group'] ?? '';
-				$row['member_group_color'] = $row['member_group_color'] ?? '';
-				$row['post_group_color'] = $row['post_group_color'] ?? '';
-
-				// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
-				$row['ignore_boards'] = rtrim($row['ignore_boards'], ',');
-
-				// Unpack the IP addresses.
-				if (isset($row['member_ip'])) {
-					$row['member_ip'] = new IP($row['member_ip']);
-				}
-
-				if (isset($row['member_ip2'])) {
-					$row['member_ip2'] = new IP($row['member_ip2']);
-				}
-
-				$row['is_online'] = $row['is_online'] ?? $row['id_member'] === (self::$my_id ?? NAN);
-
-				// Declare this for now. We'll fill it in later.
-				$row['options'] = [];
-
-				// Save it.
-				if (!isset(self::$profiles[$row['id_member']])) {
-					self::$profiles[$row['id_member']] = [];
-				}
-
-				// Use array_merge here to avoid data loss if we somehow call
-				// this twice for the same member but with different datasets.
-				self::$profiles[$row['id_member']] = array_merge(self::$profiles[$row['id_member']], $row);
-
-				// If this is the current user's data, alias it to User::$settings.
-				if ($row['id_member'] === (self::$my_id ?? NAN)) {
-					self::$settings = &self::$profiles[$row['id_member']];
-				}
-
-				$loaded_ids[] = $row['id_member'];
-			}
-			Db::$db->free_result($request);
-
-			if (!empty($loaded_ids) && $dataset !== 'minimal') {
-				self::loadOptions($loaded_ids);
-			}
-
-			// This hook's name is due to historical reasons.
-			IntegrationHook::call('integrate_load_min_user_settings', [&self::$profiles]);
-
-			if ($type === self::LOAD_BY_ID && !empty(CacheApi::$enable)) {
-				foreach ($users as $id) {
-					if ($id === (self::$my_id ?? NAN)) {
-						if (CacheApi::$enable >= 2) {
-							CacheApi::put('user_settings-' . $id, self::$profiles[$id], 60);
-						}
-					} elseif (CacheApi::$enable >= 3) {
-						CacheApi::put('member_data-' . $dataset . '-' . $id, self::$profiles[$id], 240);
+					if (CacheApi::$enable >= 3) {
+						CacheApi::put('member_data-' . $dataset->value . '-' . $id, self::$profiles[$id], 240);
 					}
 				}
 			}
+		}
+
+		return $loaded_ids;
+	}
+
+	/**
+	 * Adds stuff to $query_customizations based on $users and $type.
+	 *
+	 * @param array &$query_customizations
+	 * @param array $users Users specified by ID, name, or email address.
+	 * @param int $type Whether $users contains IDs, names, or email addresses.
+	 *    Possible values are this class's LOAD_BY_* constants.
+	 */
+	protected static function addQueryCustomizationsForLoadType(array &$query_customizations, array $users, int $type): void
+	{
+		switch ($type) {
+			case self::LOAD_BY_EMAIL:
+				$query_customizations['where'][] = 'mem.email_address IN ({array_string:users})';
+				$query_customizations['params']['users'] = $users;
+				break;
+
+			case self::LOAD_BY_NAME:
+				if (Db::$db->case_sensitive) {
+					$query_customizations['where'][] = 'LOWER(mem.member_name) IN ({array_string:users})';
+					$query_customizations['params']['users'] = array_map('strtolower', $users);
+				} else {
+					$query_customizations['where'][] = 'mem.member_name IN ({array_string:users})';
+					$query_customizations['params']['users'] = $users;
+				}
+
+				break;
+
+			default:
+				$query_customizations['where'][] = 'mem.id_member IN ({array_int:users})';
+				$query_customizations['params']['users'] = $users;
+				break;
+		}
+	}
+
+	/**
+	 * Adds stuff to $query_customizations based on $dataset.
+	 *
+	 * @param array &$query_customizations
+	 * @param UserDataset $dataset
+	 */
+	protected static function addQueryCustomizationsForDataset(array &$query_customizations, UserDataset $dataset): void
+	{
+		switch ($dataset) {
+			case UserDataset::Profile:
+				$query_customizations['selects'][] = 'lo.url';
+				// no break
+
+			case UserDataset::Normal:
+				$query_customizations['selects'] = array_merge(
+					$query_customizations['selects'],
+					[
+						'COALESCE(lo.log_time, 0) AS is_online',
+						'mg.online_color AS member_group_color',
+						'COALESCE(mg.group_name, {empty}) AS member_group',
+						'pg.online_color AS post_group_color',
+						'COALESCE(pg.group_name, {empty}) AS post_group',
+						'CASE WHEN mem.id_group = 0 OR mg.icons = {empty} THEN pg.icons ELSE mg.icons END AS icons',
+					],
+				);
+
+				$query_customizations['joins'] = array_merge(
+					$query_customizations['joins'],
+					[
+						'LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)',
+						'LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)',
+						'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)',
+					],
+				);
+				// no break
+
+			case UserDataset::Basic:
+				$query_customizations['selects'] = array_merge(
+					$query_customizations['selects'],
+					[
+						'COALESCE(a.id_attach, 0) AS id_attach',
+						'a.filename',
+						'a.attachment_type',
+						'a.width AS attachment_width',
+						'a.height AS attachment_height',
+					],
+				);
+
+				$query_customizations['joins'][] = 'LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)';
+				// no break
+
+			case UserDataset::Minimal:
+				// We always want all the columns in the members table.
+				if (!\in_array('mem.*', $query_customizations['selects'])) {
+					array_unshift($query_customizations['selects'], 'mem.*');
+				}
+
+				// Try to avoid duplicate columns in the result rows.
+				foreach ($query_customizations['selects'] as $sel_num => $select) {
+					if (preg_match('/^mem\.\w+$/', $select)) {
+						unset($query_customizations['selects'][$sel_num]);
+					}
+				}
+
+				break;
+		}
+
+		$query_customizations['selects'] = array_unique($query_customizations['selects']);
+		$query_customizations['joins'] = array_unique($query_customizations['joins']);
+
+		// Allow mods to easily add to the selected member data
+		IntegrationHook::call('integrate_load_member_data', [&$query_customizations['selects'], &$query_customizations['joins'], $dataset->value]);
+	}
+
+	/**
+	 * Populates self::$profiles with data retrieved via self::queryData()
+	 *
+	 * @param array $query_customizations Customizations to the SQL query.
+	 * @param UserDataset $dataset
+	 * @return array The IDs of the loaded members.
+	 */
+	protected static function retrieveUserData(array $query_customizations, UserDataset $dataset): array
+	{
+		$loaded_ids = [];
+
+		foreach (self::queryData(...$query_customizations) as $row) {
+			$row = self::processRawUserData($row);
+
+			// Save it.
+			// Use array_merge here to avoid data loss if we call this multiple
+			// times for the same member with different datasets.
+			self::$profiles[$row['id_member']] = array_merge(
+				self::$profiles[$row['id_member']] ?? [],
+				$row,
+			);
+
+			// If this is the current user's data, alias it to User::$settings.
+			if ($row['id_member'] === (self::$my_id ?? NAN)) {
+				self::$settings = &self::$profiles[$row['id_member']];
+			}
+
+			$loaded_ids[] = $row['id_member'];
+		}
+
+		if (!empty($loaded_ids) && $dataset->exceeds(UserDataset::Minimal)) {
+			self::loadOptions($loaded_ids);
 		}
 
 		foreach ($loaded_ids as $id) {
 			self::$profiles[$id]['dataset'] = $dataset;
 		}
 
+		// This hook's name is due to historical reasons.
+		IntegrationHook::call('integrate_load_min_user_settings', [&self::$profiles]);
+
 		return $loaded_ids;
+	}
+
+	/**
+	 * Generator that runs queries about user data and yields the result rows.
+	 *
+	 * @param array $selects Table columns to select.
+	 * @param array $params Parameters to substitute into query text.
+	 * @param array $joins Zero or more *complete* JOIN clauses.
+	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
+	 *    Note that 'FROM {db_prefix}members AS mem' is always part of the query.
+	 * @param array $where Zero or more conditions for the WHERE clause.
+	 *    Conditions will be placed in parentheses and concatenated with AND.
+	 *    If this is left empty, no WHERE clause will be used.
+	 * @param array $order Zero or more conditions for the ORDER BY clause.
+	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param array $group Zero or more conditions for the GROUP BY clause.
+	 *    If this is left empty, no GROUP BY clause will be used.
+	 * @param int|string $limit Maximum number of results to retrieve.
+	 *    If this is left empty, all results will be retrieved.
+	 *
+	 * @return \Generator<array> Iterating over the result gives database rows.
+	 */
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
+	{
+		$request = Db::$db->query(
+			'SELECT
+				' . implode(', ', $selects) . '
+			FROM {db_prefix}members AS mem' . (empty($joins) ? '' : '
+				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($group) ? '' : '
+			GROUP BY ' . implode(', ', $group)) . (empty($order) ? '' : '
+			ORDER BY ' . implode(', ', $order)) . (!empty($limit) ? '
+			LIMIT ' . $limit : ''),
+			$params,
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			yield $row;
+		}
+		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Helper for self::retrieveUserData() that does some basic processing of
+	 * retrieved data records.
+	 *
+	 * @param array $row A row of data.
+	 * @return array Updated $row.
+	 */
+	protected static function processRawUserData(array $row): array
+	{
+		$row['id_member'] = (int) $row['id_member'];
+
+		// If the image proxy is enabled, we still want the original URL when they're editing the profile...
+		$row['avatar_original'] = $row['avatar'] ??= '';
+
+		// Take care of proxying the avatar if required.
+		if (!empty($row['avatar'])) {
+			$row['avatar'] = Url::create($row['avatar'])->proxied();
+		}
+
+		// Keep track of the member's normal member group.
+		$row['primary_group'] = $row['member_group'] ??= '';
+		$row['post_group'] ??= '';
+		$row['member_group_color'] ??= '';
+		$row['post_group_color'] ??= '';
+
+		// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
+		$row['ignore_boards'] = rtrim($row['ignore_boards'] ?? '', ',');
+
+		// Unpack the IP addresses.
+		foreach (['member_ip', 'member_ip2'] as $key) {
+			$row[$key] = ($row[$key] ?? '') !== '' ? (string) new IP($row[$key]) : '';
+		}
+
+		$row['is_online'] = $row['is_online'] ?? $row['id_member'] === (self::$my_id ?? NAN);
+
+		// Declare this for now. We'll fill it in later.
+		$row['options'] = [];
+
+		return $row;
 	}
 
 	/**
@@ -4852,65 +5684,17 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Return a Gravatar URL based on
-	 * - the supplied email address,
-	 * - the global maximum rating,
-	 * - the global default fallback,
-	 * - maximum sizes as set in the admin panel.
-	 *
-	 * It is SSL aware, and caches most of the parameters.
-	 *
-	 * @param string $email_address The user's email address
-	 * @return string The gravatar URL
-	 */
-	protected static function getGravatarUrl(string $email_address): string
-	{
-		static $url_params = null;
-
-		if ($url_params === null) {
-			$ratings = ['G', 'PG', 'R', 'X'];
-			$defaults = ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank'];
-
-			$url_params = [];
-
-			if (!empty(Config::$modSettings['gravatarMaxRating']) && \in_array(Config::$modSettings['gravatarMaxRating'], $ratings)) {
-				$url_params[] = 'rating=' . Config::$modSettings['gravatarMaxRating'];
-			}
-
-			if (!empty(Config::$modSettings['gravatarDefault']) && \in_array(Config::$modSettings['gravatarDefault'], $defaults)) {
-				$url_params[] = 'default=' . Config::$modSettings['gravatarDefault'];
-			}
-
-			if (!empty(Config::$modSettings['avatar_max_width_external'])) {
-				$size_string = (int) Config::$modSettings['avatar_max_width_external'];
-			}
-
-			if (
-				!empty(Config::$modSettings['avatar_max_height_external'])
-				&& !empty($size_string)
-				&& (int) Config::$modSettings['avatar_max_height_external'] < $size_string
-			) {
-				$size_string = Config::$modSettings['avatar_max_height_external'];
-			}
-
-			if (!empty($size_string)) {
-				$url_params[] = 's=' . $size_string;
-			}
-		}
-
-		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
-	}
-
-	/**
 	 * Anonymizes the specified member's personally identifying information.
 	 *
 	 * @param int $member The ID of the member to anonymize.
 	 */
 	protected static function anonymize(int $member): void
 	{
-		$anonymous_name = Utils::strtolower(Lang::getTxt('user', file: 'General')) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
+		// This might take a while.
+		Sapi::setTimeLimit();
 
-		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
+		$anonymous_uuid = Uuid::create(5, 'member=' . $member)->getShortForm(true);
+		$anonymous_name = 'u_' . substr($anonymous_uuid, 0, 8);
 
 		// Anonymize the member's posts.
 		Db::$db->query(
@@ -4921,7 +5705,7 @@ class User implements \ArrayAccess
 			WHERE id_member = {int:member}',
 			[
 				'anonymous_name' => $anonymous_name,
-				'anonymous_email' => Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid',
+				'anonymous_email' => $anonymous_uuid . '@email.invalid',
 				'guest_id' => 0,
 				'member' => $member,
 			],
@@ -5058,6 +5842,126 @@ class User implements \ArrayAccess
 
 		// Do any mods want to anonymize some custom content?
 		IntegrationHook::call('integrate_anonymize', [$member]);
+	}
+
+	/**
+	 * Ensures self::$column_types contains all necessary column types.
+	 *
+	 * This is necessary because mods might add columns to the members table.
+	 *
+	 * @param array $data Array of columns and values.
+	 */
+	protected static function setColumnTypes(array $data = []): void
+	{
+		// Filter out profile data elements whose column types we already know
+		// or that we know do not come from the members table at all.
+		$data = array_diff_key(
+			$data,
+			self::$column_types,
+			[
+				'id_attach' => null,
+				'filename' => null,
+				'attachment_type' => null,
+				'attachment_width' => null,
+				'attachment_height' => null,
+				'is_online' => null,
+				'member_group_color' => null,
+				'member_group' => null,
+				'post_group_color' => null,
+				'post_group' => null,
+				'icons' => null,
+				'url' => null,
+				'dataset' => null,
+			],
+		);
+
+		if (empty($data)) {
+			return;
+		}
+
+		self::$column_types = array_merge(
+			self::$column_types,
+			Db::$db->getTypeIndicators('{db_prefix}members', $data),
+		);
+	}
+
+	/**
+	 * Calls the deprecated integrate_user_info hook.
+	 *
+	 * MOD AUTHORS: Update your code to use the integrate_user_properties hook,
+	 * which can be found in SMF\User::setProperties()
+	 *
+	 * @deprecated 3.0
+	 */
+	protected static function integrateUserInfo(): void
+	{
+		if (!empty(Config::$backward_compatibility) && !empty(Config::$modSettings['integrate_user_info'])) {
+			IntegrationHook::call('integrate_user_info');
+		}
+	}
+
+	/**
+	 * Calls the deprecated integrate_change_member_data hook.
+	 *
+	 * MOD AUTHORS: Update your code to use the integrate_save_member_data hook,
+	 * which can be found in SMF\User::saveBatch()
+	 *
+	 * @deprecated 3.0
+	 *
+	 * @param array $members Instances of this class.
+	 */
+	protected static function integrateChangeMemberData(array $members): void
+	{
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_change_member_data'])) {
+			return;
+		}
+
+		$known_ints = [];
+		$known_floats = [];
+
+		foreach (self::$column_types as $col => $type) {
+			switch ($type) {
+				case 'int':
+					$known_ints[] = $col;
+					break;
+
+				case 'float':
+					$known_floats[] = $col;
+					break;
+			}
+		}
+
+		// For this hook, we need at least the minimal data for all affected members.
+		$members = self::load(array_map(fn($member) => $member->id, $members), dataset: UserDataset::Minimal);
+
+		foreach ($members as $member) {
+			$integration_vars = [
+				'avatar' => &$member->avatar['original_url'],
+				'birthdate' => &$member->birthdate,
+				'email_address' => &$member->email,
+				'id_group' => &$member->group_id,
+				'lngfile' => &$member->language,
+				'member_name' => &$member->username,
+				'real_name' => &$member->name,
+				'time_format' => &$member->time_format,
+				'timezone' => &$member->timezone,
+				'website_title' => &$member->website['title'],
+				'website_url' => &$member->website['url'],
+			];
+
+			foreach ($integration_vars as $var => $value) {
+				IntegrationHook::call(
+					'integrate_change_member_data',
+					[
+						[$member->username],
+						$var,
+						&$value,
+						$known_ints,
+						$known_floats,
+					],
+				);
+			}
+		}
 	}
 }
 

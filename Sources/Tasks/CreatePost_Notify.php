@@ -26,6 +26,7 @@ use SMF\Mentions;
 use SMF\Parser;
 use SMF\Theme;
 use SMF\User;
+use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -177,7 +178,7 @@ class CreatePost_Notify extends BackgroundTask
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
 				mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.smiley_set, mem.time_format, mem.time_offset, mem.timezone,
+				mem.smiley_set, mem.time_format, mem.timezone,
 				t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
@@ -482,7 +483,7 @@ class CreatePost_Notify extends BackgroundTask
 		if (!\in_array($posterOptions['id'], $user_ids)) {
 			$user_ids[] = $posterOptions['id'];
 		}
-		User::load($user_ids, User::LOAD_BY_ID, 'minimal');
+		User::load($user_ids, User::LOAD_BY_ID, UserDataset::Minimal);
 
 		$parsed_message = [];
 
@@ -573,11 +574,11 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
+			$localization = implode('|', [$member_data['lngfile'], $member_data['timezone'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {
 				// Use the target member's localization settings.
-				Parser::$time_offset = (int) $member_data['time_offset'];
+				Parser::$time_offset = self::getTimeOffset($member_data['timezone']);
 				Parser::$time_format = $member_data['time_format'];
 				Parser::$smiley_set = $member_data['smiley_set'];
 				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
@@ -676,7 +677,7 @@ class CreatePost_Notify extends BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 
-		User::load($posterOptions['id'], User::LOAD_BY_ID, 'minimal');
+		User::load($posterOptions['id'], User::LOAD_BY_ID, UserDataset::Minimal);
 
 		foreach ($this->members['quoted'] as $member_id => $member_data) {
 			if (\in_array($member_id, $this->members['done'])) {
@@ -807,5 +808,33 @@ class CreatePost_Notify extends BackgroundTask
 
 			$this->members['done'][] = $member_id;
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Gets a member's time offset from the forum's default time zone.
+	 *
+	 * The members table no longer has a time_offset column, so this derives the
+	 * offset from the member's time zone, exactly as User::$time_offset does.
+	 *
+	 * @param string $timezone The member's time zone identifier.
+	 * @return float The offset in hours.
+	 */
+	protected static function getTimeOffset(string $timezone): float
+	{
+		if ($timezone === '') {
+			return 0;
+		}
+
+		$now = new \DateTime('now');
+		$default = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
+
+		return (
+			(new \DateTimeZone($timezone))->getOffset($now)
+			- (new \DateTimeZone($default))->getOffset($now)
+		) / 3600;
 	}
 }

@@ -13,6 +13,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
 
@@ -426,7 +427,7 @@ function template_user_subscription()
 				<div><strong>', Lang::getTxt('paid_duration', file: 'ManagePaid'), '</strong> ', $subscription['length'], '</div>';
 			}
 
-			if (User::$me->is_owner) {
+			if (Profile::$member->is_me) {
 				echo '
 				<strong>', Lang::getTxt('paid_cost', file: 'ManagePaid'), '</strong>';
 

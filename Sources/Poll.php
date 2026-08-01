@@ -765,7 +765,7 @@ class Poll implements \ArrayAccess
 				}
 			}
 		} else {
-			$this->custom[$prop] = $value;
+			$this->internal_data[$prop] = $value;
 		}
 	}
 
