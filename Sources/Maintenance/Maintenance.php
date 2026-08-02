@@ -835,15 +835,25 @@ class Maintenance
 				exit(1);
 			}
 
-			// Nothing went wrong, but we are not finished either: a step wanted
-			// input it was not given. Say which one, so a script that has to be
-			// run more than once can tell where it got to.
-			if (isset(self::$tool) && self::getCurrentStep() <= \count(self::$tool->getSteps())) {
+			// Nothing went wrong, but we may not be finished either: a step can
+			// stop because it wanted input it was not given. Say which one, so
+			// a script that has to be run more than once can tell where it got
+			// to. The step numbers its own id from one, which is what every
+			// other line of output uses.
+			//
+			// The last step is excluded on purpose. Tools end by returning false
+			// from it so that the web flow stops and renders its "all done"
+			// template, which means reaching it is success, not a pause.
+			$steps = isset(self::$tool) ? self::$tool->getSteps() : [];
+
+			if (isset($steps[self::getCurrentStep()]) && self::getCurrentStep() < \count($steps) - 1) {
+				$stopped = $steps[self::getCurrentStep()];
+
 				fwrite(
 					STDERR,
-					'stopped at step ' . self::getCurrentStep()
-					. ' of ' . \count(self::$tool->getSteps())
-					. ' (' . (self::$tool->getSteps()[self::getCurrentStep()]?->getName() ?? 'unknown') . ")\n",
+					'stopped at step ' . $stopped->getId()
+					. ' of ' . \count($steps)
+					. ' (' . $stopped->getName() . ")\n",
 				);
 			}
 		}
