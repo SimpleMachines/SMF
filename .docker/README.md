@@ -170,7 +170,9 @@ SMF_ADMIN_USER=admin SMF_ADMIN_PASS='…' .docker/test.sh
 
 Getting that wrong makes those tests **skip**, with a message saying so, rather
 than fail — a password the suite does not know is a misconfigured forum, not a
-regression.
+regression. `user.sh check admin '…'` settles which it is, and
+`user.sh reset admin password` puts a forum installed some other way back on the
+credentials the suite expects.
 
 ## Writing a test
 
