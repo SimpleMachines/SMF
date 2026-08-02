@@ -202,20 +202,17 @@ class Maintenance implements ActionInterface
 			'info' => Lang::getTxt('entity_convert_introduction', file: 'ManageMaintenance'),
 		];
 
-		// Offer to convert the body column of the messages table, but only on MySQL.
-		if (Config::$db_type == 'mysql') {
-			$body_type = array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'];
-			$convert_to = $body_type == 'text' ? 'mediumtext' : 'text';
+		// Offer to lengthen the body column of the messages table. MySQL only, and
+		// only while it is still TEXT: converting back the other way was removed in
+		// #8787, and changeMsgBodyLength() returns without doing anything once the
+		// column is already MEDIUMTEXT.
+		$body_type = Config::$db_type == 'mysql' ? array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'] : null;
 
+		if ($body_type == 'text') {
 			Utils::$context['options']['convertmsgbody'] = [
-				'title' => Lang::getTxt($convert_to . '_title', file: 'ManageMaintenance'),
-				'info' => Lang::getTxt($convert_to == 'mediumtext' ? 'mediumtext_introduction' : 'body_checking_introduction', file: 'ManageMaintenance'),
+				'title' => Lang::getTxt('mediumtext_title', file: 'ManageMaintenance'),
+				'info' => Lang::getTxt('mediumtext_introduction', file: 'ManageMaintenance'),
 			];
-
-			// Shrinking the column back down would truncate posts they can currently make.
-			if ($convert_to == 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] >= 65536) {
-				Utils::$context['options']['convertmsgbody']['after'] = '<p class="infobox">' . Lang::getTxt('convert_to_suggest_text', file: 'ManageMaintenance') . '</p>';
-			}
 		} else {
 			unset(Utils::$context['options']['convertmsgbody']);
 		}
