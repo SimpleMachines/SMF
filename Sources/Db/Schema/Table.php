@@ -592,6 +592,10 @@ abstract class Table
 
 		$num_inserts = \count($ids ?? $this->initial_data);
 
+		if (isset($auto_col)) {
+			$this->resyncAutoIncrement($auto_col);
+		}
+
 		return $num_inserts;
 	}
 
@@ -696,5 +700,47 @@ abstract class Table
 		}
 
 		return [];
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Points the table's ID generator past the rows that were just inserted.
+	 *
+	 * The initial data carries its own IDs — the default board is board 1, and
+	 * plenty of other rows are referred to by number elsewhere in it — so they
+	 * are supplied rather than generated.
+	 *
+	 * MySQL notices that and moves AUTO_INCREMENT along by itself. PostgreSQL
+	 * does not: a sequence only advances when something calls nextval() on it,
+	 * and nothing has, so it still sits at 1 and hands 1 to the next insert.
+	 * That collides with the row already there, and the insert fails on the
+	 * primary key. The first topic anybody starts on a new forum is the usual
+	 * way to meet this, and it fails once and then works, because the failed
+	 * attempt consumed the 1 and the retry gets 2.
+	 *
+	 * The 2.1 upgrade path has had this fix for years, in the PostgreSqlSequences
+	 * migration. This is the same thing for a fresh install.
+	 *
+	 * @param string $auto_col Name of the auto-incrementing column.
+	 */
+	private function resyncAutoIncrement(string $auto_col): void
+	{
+		if (Db::$db->title !== POSTGRE_TITLE) {
+			return;
+		}
+
+		// COALESCE for the table that ended up empty after an 'ignore' insert:
+		// setval() will not accept NULL, and 1 is where the sequence began.
+		Db::$db->query(
+			'SELECT setval(\'{raw:sequence}\', COALESCE((SELECT MAX({raw:column}) FROM {db_prefix}{raw:table}), 1))',
+			[
+				'sequence' => Db::$db->prefix . $this->name . '_seq',
+				'column' => $auto_col,
+				'table' => $this->name,
+			],
+		);
 	}
 }
