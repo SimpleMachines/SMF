@@ -1082,9 +1082,9 @@ class Display implements ActionInterface, Routable
 			}
 		}
 
-		// Load the drafts js file.
+		// Load the draft autosave plugin.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['minimize' => true], 'smf_drafts');
 		}
 
 		// Spellcheck
@@ -1307,6 +1307,20 @@ class Display implements ActionInterface, Routable
 	 */
 	protected function loadEditor(): void
 	{
+		$plugins = [];
+		$options = [];
+
+		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
+			$plugins[] = 'drafts';
+			$plugins[] = 'messageDrafts';
+			$options['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
+				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+			];
+		}
+
 		// Now create the editor.
 		new Editor([
 			'id' => 'quickReply',
@@ -1318,6 +1332,8 @@ class Display implements ActionInterface, Routable
 			'preview_type' => Editor::PREVIEW_HTML,
 			// This is required
 			'required' => true,
+			'plugins' => $plugins,
+			'options' => $options,
 		]);
 
 		Utils::$context['attached'] = '';

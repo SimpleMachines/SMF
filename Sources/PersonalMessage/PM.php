@@ -595,7 +595,7 @@ class PM implements \ArrayAccess
 		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 
 		if (Utils::$context['drafts_autosave']) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['minimize' => true], 'smf_drafts');
 		}
 
 		Utils::$context['sub_template'] = 'send';
@@ -791,6 +791,20 @@ class PM implements \ArrayAccess
 			}
 		}
 
+		$plugins = [];
+		$options = [];
+
+		if (Utils::$context['drafts_autosave']) {
+			$plugins[] = 'drafts';
+			$plugins[] = 'pmDrafts';
+			$options['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=pm;sa=send2',
+				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+			];
+		}
+
 		// Now create the editor.
 		new Editor([
 			'id' => 'message',
@@ -802,6 +816,8 @@ class PM implements \ArrayAccess
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
+			'plugins' => $plugins,
+			'options' => $options,
 		]);
 
 		Utils::$context['bcc_value'] = '';
