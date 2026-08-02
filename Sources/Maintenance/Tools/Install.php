@@ -1151,6 +1151,14 @@ class Install extends ToolsBase implements ToolsInterface
 		// Reload $modSettings.
 		Config::reloadModSettings();
 
+		// Everything below needs a current user: Time and Logging both read
+		// User::$me to work out which time zone to record dates in.
+		if (isset(Maintenance::$context['id_member'])) {
+			User::setMe((int) Maintenance::$context['id_member']);
+		} else {
+			User::loadMe();
+		}
+
 		// Bring a warning over.
 		if (!empty(Maintenance::$context['account_existed'])) {
 			Maintenance::$warnings = Maintenance::$context['account_existed'];
@@ -1266,12 +1274,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 			// We've just installed!
 			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
-
-			if (isset(Maintenance::$context['id_member'])) {
-				User::setMe((int) Maintenance::$context['id_member']);
-			} else {
-				User::loadMe();
-			}
 
 			User::$me->ip = IP::getUserIP();
 
