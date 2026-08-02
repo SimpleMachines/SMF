@@ -30,13 +30,17 @@
 
 			var draft = XMLDoc.getElementsByTagName('draft')[0];
 
-			// If this was a new draft, remember the id the server gave it, so the
-			// next save updates it instead of making another one.
+			/*
+			 * If this was a new draft, remember the id the server gave it, so
+			 * the next save updates it instead of making another one.
+			 */
 			document.getElementById(opt.sLastID).value = draft.getAttribute('id');
 			document.getElementById(opt.sLastNote).textContent = draft.childNodes[0].nodeValue;
 
-			// Posting has a "draft saved" box, from the save button. Personal
-			// messages do not, hence the check.
+			/*
+			 * Posting has a "draft saved" box, from the save button. Personal
+			 * messages do not, hence the check.
+			 */
 			var section = document.getElementById('draft_section');
 
 			if (section)
@@ -49,8 +53,10 @@
 		{
 			var body = editor.val();
 
-			// Nothing to save, still saving the last one, being posted right now,
-			// or unchanged since the last save?
+			/*
+			 * Nothing to save, still saving the last one, being posted right
+			 * now, or unchanged since the last save?
+			 */
 			if (isEmptyText(body) || saving || smf_formSubmitted || lastValue === body)
 				return;
 
@@ -132,13 +138,16 @@
 			var editor = this,
 				form = document.forms.postmodify;
 
-			// Draft::setProperties() splits these on commas, so they go as one
-			// joined value rather than as a repeated field.
-			//
-			// Collected by selector rather than through form.elements, because that
-			// returns a RadioNodeList once there is more than one recipient, and a
-			// RadioNodeList has a value property of its own — so checking for one
-			// cannot tell a single recipient apart from several.
+			/*
+			 * Draft::setProperties() splits these on commas, so they go as one
+			 * joined value rather than as a repeated field.
+			 *
+			 * Collected by selector rather than through form.elements, because
+			 * that returns a RadioNodeList once there is more than one
+			 * recipient, and a RadioNodeList has a value property of its own —
+			 * so checking for one cannot tell a single recipient apart from
+			 * several.
+			 */
 			var recipients = function (field)
 			{
 				return Array.prototype.map.call(
