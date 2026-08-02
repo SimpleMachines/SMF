@@ -21,6 +21,8 @@
 	},
 	"scripts": {
 		"test": "phpunit --no-coverage",
+		"test-unit": "phpunit --no-coverage --testsuite unit",
+		"test-integration": "phpunit --no-coverage --testsuite integration",
 		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
 		"lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
 		"post-install-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
