@@ -2036,7 +2036,7 @@ class Themes implements ActionInterface
 				}
 				// Nope, sorry, couldn't find any theme already installed.
 				else {
-					ErrorHandler::fatalLang('package_get_error_theme_no_based_on_found', false, Utils::$context['to_install']['based_on']);
+					ErrorHandler::fatalLang('package_get_error_theme_no_based_on_found', false, [Utils::$context['to_install']['based_on']]);
 				}
 			}
 
