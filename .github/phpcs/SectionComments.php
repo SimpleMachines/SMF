@@ -314,7 +314,7 @@ final class SectionComments extends AbstractFixer
 				if (!$exists[$insert_type]) {
 					// Start by assuming we want to insert right before the
 					// 'public', 'protected', or 'private' keyword.
-					$insert_at = array_first($in);
+					$insert_at = $in[array_key_first($in)];
 
 					// Walk back to include any preceding 'final' or 'readonly'
 					// keywords, as well as any comments or whitespace.
