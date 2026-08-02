@@ -128,6 +128,32 @@ compose network.
 When the installer finishes, delete `install.php` from the repo root — while it
 exists, `Settings.php` redirects every request back into the installer.
 
+## Running CI locally
+
+```sh
+.docker/ci.sh              # everything CI checks
+.docker/ci.sh --full       # style check over the whole tree, not just changes
+.docker/ci.sh --fix        # apply the style fixes rather than reporting them
+```
+
+Mirrors `php.yml` (sign-off, the four file integrity checks, phplint) and
+`php-cs-fixer.yml`, and runs the test suite when the branch has one. Every check
+runs even after one fails, because finding out about the second problem on the
+next push is the thing this is meant to stop.
+
+`--full` is worth knowing about: the style workflow normally only looks at the
+files a pull request changed, but switches to the whole tree when `composer.lock`
+or the fixer config is in the diff. So a branch that touches a dependency
+inherits every pre-existing violation in the repository. `--full` tells you that
+before you push rather than after.
+
+Two things it cannot do for you:
+
+- **The other PHP version.** CI lints and tests on 8.4 *and* 8.5; the container
+  is whichever built it. To cover the other:
+  `PHP_VERSION=8.5 docker compose up -d --build web`.
+- **The integration tests on both engines.** Use `.docker/test.sh` for that.
+
 ## Everyday use
 
 ```sh
