@@ -139,6 +139,27 @@ to find. It clears `passwd_flood` at the same time: SMF locks an account out for
 a while after enough wrong guesses, and a fresh password behind a lockout looks
 exactly like a password that did not take.
 
+## Running the tests
+
+```sh
+.docker/test.sh                          # both engines
+.docker/test.sh --engine postgresql
+.docker/test.sh --engine both --filter ModSettings
+```
+
+Anything it does not recognise is passed on to PHPUnit. It installs a forum for
+an engine that has not got one, and puts the previously active engine back when
+it finishes.
+
+Running on both is the point rather than a thoroughness exercise. The counter
+regression in `tests/Integration/ModSettingsTest.php` **passes on MySQL with the
+bug still in place** and only fails on PostgreSQL, because MySQL coerces text to
+a number where PostgreSQL refuses. A suite that only ever sees one engine proves
+considerably less than it looks like it does.
+
+The unit suite needs none of this — `composer test` runs everything, and the
+integration tests skip themselves when there is no forum to talk to.
+
 ### Installing in a browser instead
 
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen

@@ -52,6 +52,12 @@ $loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
 $loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
 $loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
 
+// The unit tests are each self-contained, so nothing had to autoload them.
+// Anything sharing a base class or a helper does, and registering it here keeps
+// it beside the other two rather than adding an autoload-dev section that only
+// the test suite would ever use.
+$loader->setPsr4('SMF\\Tests\\', TESTS_BOARDDIR . '/tests');
+
 /*
  * Paths and the default language, which the Unicode and entity helpers need in
  * order to locate their data files. These are the only pieces of Config the suite

@@ -156,6 +156,7 @@ worked example in `tests/Unit/`:
 #### When it is not
 
 - Anything calling `Db::$db` — there is no connection, and faking one is not worth it.
+  This belongs in the integration suite below.
 - Anything reading `User::$me`, the session, `$_GET`/`$_POST`/`$_SERVER`, or expecting a
   loaded theme or `Utils::$context`.
 - Anything that emits output or sends headers. `beStrictAboutOutputDuringTests` is on, so
@@ -163,6 +164,44 @@ worked example in `tests/Unit/`:
 
 `failOnRisky` and `failOnWarning` are on as well: a test that asserts nothing is a
 failure, not a pass.
+
+### The integration suite
+
+`tests/Integration/` runs against a forum that is actually installed, so it reaches the
+things above: `Db::$db`, `Config::$modSettings` as the database holds it, and `User::$me`.
+
+```bash
+.docker/test.sh                     # both engines
+.docker/test.sh --engine postgresql
+```
+
+`composer test` still runs everything. When there is no forum to talk to the integration
+tests **skip** rather than fail, so it stays useful on a machine with no Docker. To get
+one: `.docker/install-forum.sh --engine mysql`.
+
+Extend `SMF\Tests\Integration\IntegrationTestCase`, which gives you:
+
+- a transaction per test, rolled back afterwards, so tests do not have to order
+  themselves around each other;
+- `actingAs($id)` and `adminId()` for a current user, via `User::setMe()` — the same seam
+  `Login2::DoLogin()` uses;
+- `hook($name, $function)`, registered in `$modSettings` only, so it disappears with the
+  rollback;
+- `assertNoErrorsLogged()`, which is usually the most valuable line in the test: SMF
+  records most of what goes wrong in `log_errors` rather than showing it, so a page that
+  returned the right thing while quietly logging an undefined index has still regressed;
+- `queryRow()` and `rawSetting()`, which read past `$modSettings` and its cache and fail
+  with a readable message instead of a `TypeError` when a query fails.
+
+Two things the rollback does not cover: **DDL**, since MySQL commits implicitly on
+`CREATE`/`ALTER`/`DROP`; and anything happening in another process, such as a request made
+over HTTP, which runs on its own connection.
+
+**Run both engines.** This is not thoroughness for its own sake — the two disagree often
+enough to matter. `ModSettingsTest` pins a bug that *passes on MySQL with the bug still
+in place*, because MySQL silently coerces text to a number where PostgreSQL refuses.
+On PostgreSQL a failed query also poisons the rest of the transaction, so one swallowed
+error turns every later query in the test into `false`.
 
 #### Writing one
 
