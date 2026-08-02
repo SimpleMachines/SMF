@@ -924,9 +924,6 @@ a[class^="mobile_generic_menu_"] {
 #profile_menu {
 	box-sizing: content-box;
 }
-.top_menu.scrollable {
-	max-height: 30em;
-}
 .pm_unread, .alerts_unread {
 	margin-top: 5px;
 	border-top: 1px solid #ddd;
