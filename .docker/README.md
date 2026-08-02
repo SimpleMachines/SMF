@@ -53,6 +53,57 @@ forum.
 
 ## Installing the forum
 
+```sh
+.docker/install-forum.sh --engine mysql
+.docker/install-forum.sh --engine postgresql
+.docker/install-forum.sh --engine both
+```
+
+That resets the engine's database and installs a forum into it, with no browser
+involved. It takes about a minute. Log in at http://localhost:8080 as
+`admin` / `password`.
+
+SMF 3.0's installer is CLI-native: `Maintenance::parseCliArguments()` turns
+`--name=value` into `$_POST`, and `Maintenance::execute()` then runs every step
+in one process, stopping at the first that still needs input. The script makes
+two passes, because `databasePopulation()` always stops the first time even
+though it succeeded — it pauses so a human can read its "N duplicate tables
+ignored" report, and the form's `pop_done` field is the short-circuit past it.
+Passing `pop_done` on the first pass would skip building the schema entirely.
+
+Two flags worth knowing:
+
+- `--force` reinstalls even when a forum is already there. Without it the
+  script leaves an existing install alone.
+- `--pin-secrets` fixes `auth_secret` and `image_proxy_secret` to known values
+  instead of the random ones `ForumSettings()` generates. Both installs then
+  differ only in their database, so a login cookie survives `use-engine.sh`.
+  Dev-only values for a throwaway forum: never reuse them.
+
+### Two forums at once
+
+`--engine both` installs MySQL first and PostgreSQL second, one after the other.
+It has to be sequential: `Settings.php` pins a single `$db_type`, and
+`Db::load()` hands back the connection it already made, so only one engine can
+ever be live in a process.
+
+Both installs are kept. Switch between them with:
+
+```sh
+.docker/use-engine.sh postgresql
+```
+
+That puts the saved `Settings.php` back and clears `cache/`. No restart is
+needed — the entrypoint only writes `Settings.php` when there is not one, so it
+leaves whatever is in place alone. The copies live in `.docker/settings/` and
+are gitignored.
+
+`reset.sh` is the other half: it empties one engine's database and restages the
+installer, discarding that forum. `use-engine.sh` switches between forums,
+`reset.sh` throws one away.
+
+### Installing in a browser instead
+
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
 engine and copies `other/install.php` to the web root, so
 http://localhost:8080 redirects into the installer.
@@ -102,8 +153,8 @@ The repository is bind-mounted at `/var/www/html`, so edits on the host are
 live on the next request. Opcache is on but revalidates every request, so you
 never need to restart for a PHP change.
 
-To reinstall from scratch: `docker compose down -v`, delete `Settings.php` and
-`Settings_bak.php`, then `docker compose up -d`.
+To reinstall from scratch: `.docker/install-forum.sh --engine mysql --force`.
+To wipe everything including the volumes: `docker compose down -v`.
 
 ## Debugging SQL with the PostgreSQL log
 
