@@ -1312,7 +1312,10 @@ class Config
 					SET value = {' . (\is_bool($value) ? 'raw' : 'string') . ':value}
 					WHERE variable = {string:variable}',
 					[
-						'value' => $value === true ? 'value + 1' : ($value === false ? 'value - 1' : $value),
+						// The column is text, so the arithmetic has to be cast
+						// in and back out again. MySQL is happy to do both
+						// implicitly, PostgreSQL is happy to do neither.
+						'value' => $value === true ? 'CONCAT(CAST(value AS DECIMAL) + 1, \'\')' : ($value === false ? 'CONCAT(CAST(value AS DECIMAL) - 1, \'\')' : $value),
 						'variable' => $variable,
 					],
 				);

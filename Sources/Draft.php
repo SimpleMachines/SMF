@@ -209,7 +209,7 @@ class Draft
 						// These have to be ints
 						case 'type':
 						case 'poster_time':
-							$this->type = (int) $value;
+							$this->$key = (int) $value;
 							break;
 
 						// Boolean values
@@ -738,7 +738,7 @@ class Draft
 
 			// Some items to return to the form.
 			Utils::$context['draft_saved'] = true;
-			Utils::$context['id' . ($this->type === 1 ? '_pm' : '') . '_draft'] = $this->id;
+			Utils::$context['id_draft'] = $this->id;
 		}
 		// Otherwise, creating a new draft.
 		else {
@@ -787,7 +787,7 @@ class Draft
 			if (!empty($this->id)) {
 				$this->poster_time = time();
 				Utils::$context['draft_saved'] = true;
-				Utils::$context['id' . ($this->type === 1 ? '_pm' : '') . '_draft'] = $this->id;
+				Utils::$context['id_draft'] = $this->id;
 			} else {
 				Utils::$context['draft_saved'] = false;
 			}

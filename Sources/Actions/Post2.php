@@ -983,6 +983,10 @@ class Post2 extends Post
 
 		$this->existing_msg = current($msgs);
 
+		if ($this->existing_msg->id_topic !== Topic::$topic_id || $this->existing_msg->id_board !== Board::$board_id) {
+			ErrorHandler::fatalLang('cant_find_messages', false);
+		}
+
 		if (!empty(Topic::$info->is_locked) && !User::$me->allowedTo('moderate_board')) {
 			ErrorHandler::fatalLang('topic_locked', false);
 		}

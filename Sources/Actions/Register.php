@@ -362,6 +362,7 @@ class Register implements ActionInterface, Routable
 		Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 
 		$errors = Security::validateUsername(0, Utils::$context['checked_username'], true);
+		Utils::$context['checked_username'] = Utils::htmlspecialchars(Utils::$context['checked_username']);
 
 		Utils::$context['valid_username'] = empty($errors);
 	}
