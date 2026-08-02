@@ -1165,9 +1165,12 @@ function getAttachMsgInfo($attachID)
 	}
 
 	$request = $smcFunc['db_query']('', '
-		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
+		SELECT
+			a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board, m.id_member, m.approved, m.poster_time,
+			t.locked AS is_locked, t.id_member_started
 		FROM {db_prefix}attachments AS a
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 		WHERE id_attach = {int:id_attach}
 		LIMIT 1',
 		array(

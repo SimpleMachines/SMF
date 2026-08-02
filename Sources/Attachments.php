@@ -155,15 +155,33 @@ class Attachments
 	 */
 	public function delete()
 	{
-		global $sourcedir;
+		global $sourcedir, $user_info, $modSettings;
 
 		// Need this, don't ask why just nod your head.
 		require_once($sourcedir . '/ManageAttachments.php');
 
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
+		if (checkSession('get', '', false) !== '' || $attachID === 0)
+			return $this->setResponse(array(
+				'text' => 'attached_file_deleted_error',
+				'type' => 'error',
+				'data' => false,
+			));
+
+		$msgInfo = getAttachMsgInfo($attachID);
+
+		$can_modify = false;
+		
+		if ($msgInfo !== [] && $msgInfo['msg'] > 0) {
+			$can_modify = $msgInfo !== [] && !$user_info['is_guest'] && (!$msgInfo['is_locked'] || allowedTo('moderate_board') ) && (allowedTo('modify_any') || (allowedTo('modify_replies') && $msgInfo['id_member_started'] == $user_info['id']) || (allowedTo('modify_own') && $msgInfo['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || !$msgInfo['approved'] || $msgInfo['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())));
+		}
+		else if ($msgInfo !== [] && $msgInfo['msg'] == 0) {
+			$can_modify = !empty($_SESSION['already_attached']) && isset($_SESSION['already_attached'][$attachID]);
+		}
+
 		// Need something to work with.
-		if (!$attachID || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
+		if (!$can_modify) 
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
