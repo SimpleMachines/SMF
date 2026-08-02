@@ -1144,8 +1144,11 @@ function addLoadEvent(fNewOnload)
 		aOnloadEvents[aOnloadEvents.length] = fNewOnload;
 }
 
-// Adds the "Select" and "Expand" buttons to every code block inside `parent`.
-// The button labels travel with the markup, in the data attributes emitted by the code BBCode.
+/*
+ * Adds the "Select" and "Expand" buttons to every code block inside `parent`.
+ * The button labels travel with the markup, in the data attributes emitted by
+ * the code BBCode.
+ */
 function attachBbCodeEvents(parent)
 {
 	parent.querySelectorAll('.bbc_code').forEach(function (item)
