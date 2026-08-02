@@ -71,6 +71,14 @@ though it succeeded — it pauses so a human can read its "N duplicate tables
 ignored" report, and the form's `pop_done` field is the short-circuit past it.
 Passing `pop_done` on the first pass would skip building the schema entirely.
 
+It then deletes `install.php`, which the installer asks for but cannot do
+itself — its `?delete` link is a GET, and command line arguments only ever reach
+`$_POST`. That matters more than it sounds: while the file is there
+`Settings.php` redirects every request back into the installer, and SMF puts a
+"MAJOR SECURITY RISK" box on every page it shows an administrator. Reinstalling
+still works, because `reset.sh` runs first and does not return until the
+entrypoint has staged a fresh copy.
+
 Two flags worth knowing:
 
 - `--force` reinstalls even when a forum is already there. Without it the
