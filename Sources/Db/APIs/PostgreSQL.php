@@ -280,7 +280,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		if ($this->last_result === false && empty($db_values['db_error_skip'])) {
 			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
-			$query_error = $this->error($connection);
+			$query_error = $this->error();
 
 			// Nothing's defined yet... just die with it.
 			if (empty(Utils::$context) || empty(Lang::$txt) || \defined('SMF_INSTALLING')) {
