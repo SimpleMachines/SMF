@@ -706,10 +706,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function error(?object $connection = null): string
 	{
-		if ($connection === null && $this->connection === null) {
-			return '';
-		}
-
 		if (!(($connection ?? $this->connection) instanceof \PgSql\Connection)) {
 			return '';
 		}
