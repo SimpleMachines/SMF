@@ -28,9 +28,9 @@ use SMF\User;
  */
 abstract class IntegrationTestCase extends TestCase
 {
-	/*******************
+	/*********************
 	 * Internal properties
-	 *******************/
+	 *********************/
 
 	/**
 	 * @var array Copy of Config::$modSettings taken before the test ran.
@@ -42,9 +42,9 @@ abstract class IntegrationTestCase extends TestCase
 	 */
 	private int $error_watermark = 0;
 
-	/****************
-	 * Public methods
-	 ****************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	public static function setUpBeforeClass(): void
 	{
@@ -58,9 +58,9 @@ abstract class IntegrationTestCase extends TestCase
 		}
 	}
 
-	/*******************
+	/******************
 	 * Internal methods
-	 *******************/
+	 ******************/
 
 	protected function setUp(): void
 	{
@@ -175,7 +175,7 @@ abstract class IntegrationTestCase extends TestCase
 		$errors = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$errors[] = sprintf(
+			$errors[] = \sprintf(
 				'  [%s] %s (%s:%d)',
 				$row['error_type'],
 				html_entity_decode((string) $row['message'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
@@ -189,7 +189,7 @@ abstract class IntegrationTestCase extends TestCase
 		$this->assertSame(
 			[],
 			$errors,
-			rtrim($message . "\n") . "the forum logged " . \count($errors) . " error(s):\n" . implode("\n", $errors),
+			rtrim($message . "\n") . 'the forum logged ' . \count($errors) . " error(s):\n" . implode("\n", $errors),
 		);
 	}
 
