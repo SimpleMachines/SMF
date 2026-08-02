@@ -1,14 +1,14 @@
 .atwho-view {
-	background: var(--mentions-bg);
-	border-color: var(--mentions-border-color);
-	border-radius: var(--mentions-border-radius);
-	border-style: var(--mentions-border-style);
-	border-width: var(--mentions-border-width);
-	box-shadow: var(--mentions-box-shadow);
+	background: var(--mentions-bg, #fff);
+	border-color: var(--mentions-border-color, hsl(0, 0%, 85%));
+	border-radius: var(--mentions-border-radius, 1px);
+	border-style: var(--mentions-border-style, solid);
+	border-width: var(--mentions-border-width, 1px);
+	box-shadow: var(--mentions-box-shadow, 0 0 5px rgba(0, 0, 0, 0.1));
 	display: none;
 	margin-block: 1.5em .25em;
 	margin-inline: 0;
-	min-width: var(--mentions-width);
+	min-width: var(--mentions-width, 120px);
 	padding: 0;
 	position: absolute;
 	top: 0;
@@ -20,16 +20,14 @@
 	padding: 0;
 }
 .atwho-view li {
-	background: var(--mentions-item-bg);
-	border-color: var(--mentions-item-border-color);
-	border-radius: var(--mentions-item-border-radius);
-	border-style: var(--mentions-item-border-style);
-	border-width: var(--mentions-item-border-width);
-	box-shadow: var(--mentions-item-box-shadow);
-	color: var(--mentions-item-color);
-	cursor: var(--mentions-item-cursor);
-	font-size: var(--mentions-item-font-size);
-	font-weight: var(--mentions-item-font-weight);
+	background: var(--mentions-item-bg, #f2f2f2);
+	border-color: var(--mentions-item-border-color, hsl(0, 0%, 85%));
+	border-style: var(--mentions-item-border-style, solid);
+	border-width: var(--mentions-item-border-width, 0 0 1px);
+	color: var(--mentions-item-color, hsl(0, 0%, 20%));
+	cursor: var(--mentions-item-cursor, pointer);
+	font-size: var(--mentions-item-font-size, .95em);
+	font-weight: var(--mentions-item-font-weight, normal);
 	margin: 0;
 	padding: 5px 10px;
 }
@@ -37,10 +35,10 @@
 	--mentions-item-border-width: 0;
 }
 .atwho-view .cur {
-	background: var(--mentions-item-bg_current);
-	color: var(--mentions-item-color_current);
-	font-size: var(--mentions-item-font-size_current);
-	font-weight: var(--mentions-item-font-weight_current);
+	background: var(--mentions-item-bg_current, hsl(225, 100%, 60%));
+	color: var(--mentions-item-color_current, #fff);
+	font-size: var(--mentions-item-font-size_current, .95em);
+	font-weight: var(--mentions-item-font-weight_current, normal);
 }
 .atwho-view li b {
 	color: inherit;
