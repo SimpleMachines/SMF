@@ -1604,13 +1604,14 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 			if (textFields[i] in document.forms.postmodify)
 			{
 				// Handle the WYSIWYG editor.
-				var e = $('#' + this.opts.sPostBoxContainerID).get(0);
+				var e = document.getElementById(this.opts.sPostBoxContainerID);
+				var oEditor = e ? sceditor.instance(e) : undefined;
 
 				// After moving this from Post template, html() stopped working in all cases.
-				if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined && typeof sceditor.instance(e).getText().html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html().php_to8bit().php_urlencode();
-				else if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined)
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().php_to8bit().php_urlencode();
+				if (textFields[i] == this.opts.sPostBoxContainerID && oEditor != undefined && typeof oEditor.val().html !== 'undefined')
+					x[x.length] = textFields[i] + '=' + oEditor.val().html().php_to8bit().php_urlencode();
+				else if (textFields[i] == this.opts.sPostBoxContainerID && oEditor != undefined)
+					x[x.length] = textFields[i] + '=' + oEditor.val().php_to8bit().php_urlencode();
 				else if (typeof document.forms.postmodify[textFields[i]].value.html !== 'undefined')
 					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html().php_to8bit().php_urlencode();
 				else
