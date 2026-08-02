@@ -1202,48 +1202,58 @@ class Install extends ToolsBase implements ToolsInterface
 			Db::$db->free_result($request);
 		}
 
-		// Automatically log them in ;)
-		if (isset(Maintenance::$context['id_member'], Maintenance::$context['password_salt'])) {
-			Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['id_member'], Cookie::encrypt($_POST['password1'], Maintenance::$context['password_salt']));
-		}
+		// Sign the new administrator in, so the browser that just ran the
+		// installer lands on an admin session rather than a login form.
+		//
+		// None of that means anything on the command line: there is no browser
+		// to hold the cookie, and no user agent to record against the session.
+		// Attempting it anyway sent headers after output had already started and
+		// left four warnings on every run, then wrote a session row keyed on an
+		// undefined HTTP_USER_AGENT.
+		if (!Sapi::isCLI()) {
+			// Automatically log them in ;)
+			if (isset(Maintenance::$context['id_member'], Maintenance::$context['password_salt'])) {
+				Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['id_member'], Cookie::encrypt($_POST['password1'], Maintenance::$context['password_salt']));
+			}
 
-		$result = Db::$db->query(
-			'SELECT value
-			FROM {db_prefix}settings
-			WHERE variable = {string:db_sessions}',
-			[
-				'db_sessions' => 'databaseSession_enable',
-				'db_error_skip' => true,
-			],
-		);
-
-		if (Db::$db->num_rows($result) != 0) {
-			list($db_sessions) = Db::$db->fetch_row($result);
-		}
-		Db::$db->free_result($result);
-
-		if (empty($db_sessions)) {
-			$_SESSION['admin_time'] = time();
-		} else {
-			$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
-
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}sessions',
+			$result = Db::$db->query(
+				'SELECT value
+				FROM {db_prefix}settings
+				WHERE variable = {string:db_sessions}',
 				[
-					'session_id' => 'string',
-					'last_update' => 'int',
-					'data' => 'string',
+					'db_sessions' => 'databaseSession_enable',
+					'db_error_skip' => true,
 				],
-				[
-					[
-						session_id(),
-						time(),
-						'USER_AGENT|s:' . \strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
-					],
-				],
-				['session_id'],
 			);
+
+			if (Db::$db->num_rows($result) != 0) {
+				list($db_sessions) = Db::$db->fetch_row($result);
+			}
+			Db::$db->free_result($result);
+
+			if (empty($db_sessions)) {
+				$_SESSION['admin_time'] = time();
+			} else {
+				$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
+
+				Db::$db->insert(
+					'replace',
+					'{db_prefix}sessions',
+					[
+						'session_id' => 'string',
+						'last_update' => 'int',
+						'data' => 'string',
+					],
+					[
+						[
+							session_id(),
+							time(),
+							'USER_AGENT|s:' . \strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+						],
+					],
+					['session_id'],
+				);
+			}
 		}
 
 		Logging::updateStats('member');
