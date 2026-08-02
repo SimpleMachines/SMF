@@ -172,6 +172,161 @@ Getting that wrong makes those tests **skip**, with a message saying so, rather
 than fail — a password the suite does not know is a misconfigured forum, not a
 regression.
 
+## Writing a test
+
+### Which suite
+
+Three of them, and picking the wrong one is the usual reason a test is harder to
+write than it should be:
+
+| Suite                    | Has                                    | Use it for                    |
+| ------------------------ | -------------------------------------- | ----------------------------- |
+| `tests/Unit`             | nothing — no database, no request      | pure functions, value objects |
+| `tests/Integration`      | `Db::$db`, `$modSettings`, `User::$me` | anything needing real data    |
+| `tests/Integration/Http` | all of that, plus a real request       | proving a *page* works        |
+
+Work down the list and stop at the first that can hold the test. An HTTP test
+costs about a second and cannot be rolled back; a unit test costs nothing. The
+limits of the unit suite are spelled out in `AGENTS.md`.
+
+Reach for HTTP only when the thing worth proving is in the parts nothing else
+touches: the session, the cookies, the security token, the theme and the
+templates. `User::setMe()` skips every one of them, which is exactly why the
+plain integration tests are cheap.
+
+### The shape of an HTTP test
+
+Four beats: fetch a page, submit a form on it, assert on what came back, assert
+nothing was logged.
+
+```php
+#[CoversNothing]
+class ProfileTest extends HttpTestCase
+{
+	public function testAMemberCanChangeTheirSignature(): void
+	{
+		$this->signInAsAdmin();
+
+		$form = $this->fetch('?action=profile;area=forumprofile');
+
+		$response = $this->submitForm($form, [
+			'signature' => 'Set by the integration suite.',
+			'save' => 'Change profile',          // the button
+		], '//form[contains(@action, "area=forumprofile")]');
+
+		$this->assertLessThan(400, $response->status, $response->errorText());
+		$this->assertNoErrorsLogged('saving a signature logged something.' . "\n");
+	}
+}
+```
+
+`#[CoversNothing]` is not optional. These cross dozens of classes, so naming one
+would be untrue, and `failOnRisky` wants an attribute either way.
+
+Four things that are easy to get wrong:
+
+- **Submit through `submitForm()`, not `HttpClient::submit()`.** Only the former
+  waits out flood control. `Security::spamProtection()` gives a moderator two
+  seconds between posts, per IP, and the tests all arrive from the same one far
+  faster than a person would; without the wait you get a suite that fails about
+  one run in five for no reproducible reason.
+- **Name the button you are pressing.** `formFields()` leaves every button out on
+  purpose, because the posting form carries both `preview` and `post` and sending
+  the pair means preview quietly wins — no post, and a perfectly good 200 to show
+  for it.
+- **Clean up whatever you write.** There is no transaction here; see
+  `HttpTestCase::usesTransaction()` for why one would not help. `PostingTest`
+  deletes through `Topic::remove()` rather than by hand, so the board and member
+  counters go back as well.
+- **`assertNoErrorsLogged()` is the point of the test**, not a formality. A page
+  can return exactly the right HTML while logging an undefined index, and that is
+  the failure mode this whole suite exists to catch.
+
+One thing to rule out before believing a failure: if `install.php` is still in
+the board root, SMF puts a "MAJOR SECURITY RISK" box on every page it shows an
+administrator. That is an `errorbox`, so it fails `assertLooksLikeAForumPage()`
+and turns up in `errorText()` in front of whatever the test was actually looking
+at. `install-forum.sh` removes the file once it is done; a forum installed
+through the browser needs it deleting by hand.
+
+### Who the request is
+
+The identity of an HTTP request is the cookie jar and nothing else. There are two
+states out of the box: a guest, which is what `setUp()` leaves you, and the
+administrator, through `signInAsAdmin()`.
+
+**`actingAs()` does not work here.** It is inherited from `IntegrationTestCase`
+and it repoints `User::$me` in the PHPUnit process — but the request is handled
+by Apache in a different process, which knows only the cookie. Calling it in an
+HTTP test changes nothing about the request and leaves the assertions describing
+a guest, confidently.
+
+So:
+
+- **Two users at once** means two `HttpClient` instances. Each opens its own
+  cookie jar, so they are independent browsers — which is how to test one member
+  sending another a PM.
+- **Back to being a guest** is `$this->http->forgetCookies()`, then
+  `$this->http->get('')` to pick up a fresh session.
+- **A member who is not the administrator** has to be made first, through
+  `Register2::registerMember()` with `interface => 'admin'` (which needs
+  `actingAs($this->adminId())` first, as it checks `moderate_forum`). That member
+  outlives the test, so delete it in `tearDown()`.
+
+### Finding the endpoint and the field names
+
+Endpoints are looked up; field names are not.
+
+`Forum::$actions` in `Sources/Forum.php` is the authoritative list of every
+`?action=` the forum answers and the class behind it. Sub-actions — the `;area=`
+and `;sa=` parts — are a `$subactions` property on that class. So
+`?action=profile;area=forumprofile` resolves as `$actions['profile']` →
+`Actions\Profile\Main` → its `$subactions`. That is quicker and more reliable
+than reading templates.
+
+Field names you are deliberately not meant to know. `HttpClient::submit()`
+scrapes every input, textarea and select out of the form it was handed and sends
+them back, the way a browser does. That is what carries the session check and the
+security token, both named unpredictably per session and neither hardcodable. All
+a test supplies is the few values it is choosing, plus the button.
+
+When you do need to see them, ask the page rather than the template:
+
+```sh
+docker compose exec web php -r '
+  require "tests/bootstrap.php";
+  $c = new SMF\Tests\Support\HttpClient();
+  $c->get("");
+  $p = $c->get("?action=login");
+  print_r($p->formFields("//form[contains(@action, \"login2\")]"));'
+```
+
+```
+Array
+(
+    [user] =>
+    [passwrd] =>
+    [d0004e1655] => b2f5189a9b3014cadee7bcb0b8d697f2
+    [b8ae8fd32d] => 8f6026ed9a1b91bf6fec315801a2a93c
+)
+```
+
+Two named fields, which are the ones a test writes, and two whose names are
+different for every session — the session check and the security token, and
+running the command twice gives two different pairs. That is what
+`submit()` is for, and why a test that builds its own POST body by hand gets a
+403 it cannot fix.
+
+The paths are relative because the container's working directory is
+`/var/www/html` already. Spelling them absolutely also works, but not from Git
+Bash on Windows, which rewrites anything that looks like a Unix path before
+Docker sees it.
+
+Note the throwaway `get("")` before the form is fetched. The very first request
+of a new session regenerates it, so a token minted on the first page a visitor
+ever sees is bound to a session that no longer exists by the time it comes back.
+The symptom is a 403 about the token, when the token was never the problem.
+
 ### Installing in a browser instead
 
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
