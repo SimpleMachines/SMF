@@ -1089,9 +1089,10 @@ class ExportProfileData extends BackgroundTask
 	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
 	{
 		foreach ($codes as &$code) {
-			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
+			// The "Select" and "Expand" buttons are built by JavaScript from these attributes,
+			// and an export has no JavaScript, so drop them.
 			if ($code['tag'] === 'code') {
-				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
+				$code['content'] = preg_replace('~ data-(?:select|shrink|expand)-txt="[^"]*"~', '', $code['content']);
 			}
 		}
 	}

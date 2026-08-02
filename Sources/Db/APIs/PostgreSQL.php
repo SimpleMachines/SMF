@@ -278,6 +278,31 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
 		}
 
+		if ($this->last_result === false && empty($db_values['db_error_skip'])) {
+			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
+			$query_error = $this->error();
+
+			// Nothing's defined yet... just die with it.
+			if (empty(Utils::$context) || empty(Lang::$txt) || \defined('SMF_INSTALLING')) {
+				die($query_error);
+			}
+
+			// Show an error message, if possible.
+			Utils::$context['error_title'] = Lang::getTxt('database_error', file: 'General');
+			$error_message = Lang::getTxt('try_again', file: 'General');
+
+			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
+				$error_message = nl2br($query_error) . '<br>' . Lang::getTxt('file', file: 'General') . ': ' . $file . '<br>' . Lang::getTxt('line', file: 'General') . ': ' . $line;
+
+				if (DebugUtils::isDebugEnabled()) {
+					$error_message .= '<br><br>' . nl2br($db_string);
+				}
+			}
+
+			ErrorHandler::log(Lang::getTxt('database_error', file: 'General') . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
+			ErrorHandler::fatal($error_message, false);
+		}
+
 		return $this->last_result;
 	}
 
@@ -681,10 +706,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function error(?object $connection = null): string
 	{
-		if ($connection === null && $this->connection === null) {
-			return '';
-		}
-
 		if (!(($connection ?? $this->connection) instanceof \PgSql\Connection)) {
 			return '';
 		}
