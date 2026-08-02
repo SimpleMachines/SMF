@@ -488,8 +488,10 @@
 					return;
 			}
 
-			// prevent a few navigation keys from
-			// working when the popup is in view
+			/*
+			 * prevent a few navigation keys from
+			 * working when the popup is in view
+			 */
 			e.preventDefault();
 			e.stopPropagation();
 		}
