@@ -39,7 +39,7 @@ class Code1 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $content = '<div class="codeheader"><span class="code">{txt_code}</span> <a class="codeoperation smf_select_text">{txt_code_select}</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}">{txt_code_expand}</a></div><code class="bbc_code">$1</code>';
+	public ?string $content = '<div class="codeheader">{txt_code}</div><pre data-select-txt="{txt_code_select}" data-shrink-txt="{txt_code_shrink}" data-expand-txt="{txt_code_expand}" class="bbc_code"><code>$1</code></pre>';
 
 	/**
 	 *
@@ -63,53 +63,27 @@ class Code1 extends BBCode
 		if (!isset($disabled['code'])) {
 			$code = \is_array($data) ? $data[0] : $data;
 
-			$add_begin = (
-				\is_array($data)
-				&& isset($data[1])
-				&& strtoupper($data[1]) === 'PHP'
-				&& !str_contains($code, '&lt;?php')
-			);
+			$parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			if ($add_begin) {
-				$code = '&lt;?php ' . $code . '?&gt;';
-				$data[1] = 'PHP';
-			}
-
-			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-			for ($php_i = 0, $php_n = \count($php_parts); $php_i < $php_n; $php_i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				// Do PHP code coloring?
-				if ($php_parts[$php_i] != '&lt;?php') {
+				if ($parts[$i] != '&lt;?php') {
 					continue;
 				}
 
-				$php_string = '';
+				$string = '';
 
-				while ($php_i + 1 < \count($php_parts) && $php_parts[$php_i] != '?&gt;') {
-					$php_string .= $php_parts[$php_i];
-					$php_parts[$php_i++] = '';
+				while ($i + 1 < $n && $parts[$i] != '?&gt;') {
+					$string .= $parts[$i];
+					$parts[$i++] = '';
 				}
-
-				$php_parts[$php_i] = Parser::highlightPhpCode($php_string . $php_parts[$php_i]);
-
-				if (\is_array($data) && empty($data[1])) {
-					$data[1] = 'PHP';
-				}
-			}
-
-			// Fix the PHP code stuff...
-			$code = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
-
-			$code = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $code);
-
-			if ($add_begin) {
-				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
+				$parts[$i] = Parser::highlightPhpCode($string . $parts[$i]);
 			}
 
 			if (\is_array($data)) {
-				$data[0] = $code;
+				$data[0] = implode('', $parts);
 			} else {
-				$data = $code;
+				$data = implode('', $parts);
 			}
 		}
 	}
