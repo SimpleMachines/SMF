@@ -16,20 +16,11 @@ const atwhoConfig = {
 				'suggest_type': 'member',
 				[smf_session_var]: smf_session_id
 			});
-			fetch(smf_scripturl + '?' + params + ';xml', {
+			smc_Request.fetchXML(smf_scripturl + '?' + params + ';xml', {
 				headers: {
-					"X-SMF-AJAX": 1,
 					'Accept': 'application/xml'
-				},
-				credentials: typeof allow_xhjr_credentials !== "undefined" ? 'include' : 'same-origin'
-			})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error("HTTP error " + response.status);
 				}
-				return response.text();
 			})
-			.then(responseText => new window.DOMParser().parseFromString(responseText, "text/xml"))
 			.then(responseXml => {
 				const members = responseXml.getElementsByTagName('item');
 
