@@ -62,11 +62,29 @@ abstract class IntegrationTestCase extends TestCase
 	 * Internal methods
 	 ******************/
 
+	/**
+	 * Whether to wrap the test in a transaction that is rolled back afterwards.
+	 *
+	 * Override and return false when the test causes work to happen in another
+	 * process - a request made over HTTP, say. That runs on its own connection,
+	 * so the transaction cannot undo it, and on MySQL, whose default isolation
+	 * level is REPEATABLE READ, this connection would go on reading the snapshot
+	 * it took before the request and never see what the request wrote.
+	 *
+	 * @return bool True to use a transaction, which is what most tests want.
+	 */
+	protected function usesTransaction(): bool
+	{
+		return true;
+	}
+
 	protected function setUp(): void
 	{
 		parent::setUp();
 
-		Db::$db->transaction('begin');
+		if ($this->usesTransaction()) {
+			Db::$db->transaction('begin');
+		}
 
 		// $modSettings is a plain static array, so a test that calls
 		// updateModSettings() changes it for everything that runs after it. The
@@ -78,7 +96,9 @@ abstract class IntegrationTestCase extends TestCase
 
 	protected function tearDown(): void
 	{
-		Db::$db->transaction('rollback');
+		if ($this->usesTransaction()) {
+			Db::$db->transaction('rollback');
+		}
 
 		Config::$modSettings = $this->mod_settings_backup;
 

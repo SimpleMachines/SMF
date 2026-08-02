@@ -197,6 +197,29 @@ Two things the rollback does not cover: **DDL**, since MySQL commits implicitly 
 `CREATE`/`ALTER`/`DROP`; and anything happening in another process, such as a request made
 over HTTP, which runs on its own connection.
 
+#### HTTP tests
+
+`tests/Integration/Http/` drives the forum over the wire, through `HttpTestCase`. Use it
+when the thing worth proving is that a *page* works: the session, the cookies, the theme
+and the templates are all in the path, and none of them are otherwise reachable.
+
+They cannot use a transaction and do not try to - see `HttpTestCase::usesTransaction()` -
+so a test that writes cleans up after itself. Four things about SMF make writing them
+harder than it looks, all of them handled in the base class:
+
+- **Arrive at the forum before submitting anything.** The first request of a new session
+  regenerates it, so a security token minted on the very first page a visitor sees can
+  never be validated. The symptom is a 403 "Token verification failed" that looks like a
+  broken token rather than a replaced session.
+- **Send the button you mean to press.** `HttpResponse::formFields()` deliberately leaves
+  buttons out. The posting form has both `preview` and `post`; submitting the pair means
+  preview wins, the post is never made, and the response is a perfectly ordinary 200.
+- **Flood control will hit you.** `Security::spamProtection()` allows a moderator one
+  login or post every two seconds per IP, and tests are far faster than people.
+  `submitForm()` waits it out once rather than failing at random.
+- **Quote `errorText()` in failure messages, not the body.** A fatal error in SMF is a
+  normal page, and its first few hundred characters are the menu.
+
 **Run both engines.** This is not thoroughness for its own sake — the two disagree often
 enough to matter. `ModSettingsTest` pins a bug that *passes on MySQL with the bug still
 in place*, because MySQL silently coerces text to a number where PostgreSQL refuses.

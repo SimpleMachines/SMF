@@ -160,6 +160,18 @@ considerably less than it looks like it does.
 The unit suite needs none of this — `composer test` runs everything, and the
 integration tests skip themselves when there is no forum to talk to.
 
+Some of the tests sign in, so they need to know the administrator. They default
+to what `install-forum.sh` creates (`admin` / `password`); if your forum has
+different credentials, export them:
+
+```sh
+SMF_ADMIN_USER=admin SMF_ADMIN_PASS='…' .docker/test.sh
+```
+
+Getting that wrong makes those tests **skip**, with a message saying so, rather
+than fail — a password the suite does not know is a misconfigured forum, not a
+regression.
+
 ### Installing in a browser instead
 
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
