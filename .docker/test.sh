@@ -66,7 +66,13 @@ for smf_type in $ENGINES; do
 
 	log "${smf_type}: running the tests"
 
-	if docker compose exec -T web vendor/bin/phpunit --no-coverage --colors=always "${PHPUNIT_ARGS[@]+"${PHPUNIT_ARGS[@]}"}"; then
+	# The HTTP tests sign in, so they need to be told who the administrator is.
+	# These default to what install-forum.sh created; export them to point the
+	# suite at a forum that was set up some other way.
+	if docker compose exec -T \
+		-e SMF_ADMIN_USER="$SMF_ADMIN_USER" \
+		-e SMF_ADMIN_PASS="$SMF_ADMIN_PASS" \
+		web vendor/bin/phpunit --no-coverage --colors=always "${PHPUNIT_ARGS[@]+"${PHPUNIT_ARGS[@]}"}"; then
 		log "${smf_type}: passed"
 	else
 		warn "${smf_type}: FAILED"
