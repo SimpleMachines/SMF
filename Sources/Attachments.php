@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -172,7 +172,7 @@ class Attachments
 		$msgInfo = getAttachMsgInfo($attachID);
 
 		$can_modify = false;
-		
+
 		if ($msgInfo !== [] && $msgInfo['msg'] > 0) {
 			$can_modify = $msgInfo !== [] && !$user_info['is_guest'] && (!$msgInfo['is_locked'] || allowedTo('moderate_board') ) && (allowedTo('modify_any') || (allowedTo('modify_replies') && $msgInfo['id_member_started'] == $user_info['id']) || (allowedTo('modify_own') && $msgInfo['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || !$msgInfo['approved'] || $msgInfo['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())));
 		}
@@ -181,7 +181,7 @@ class Attachments
 		}
 
 		// Need something to work with.
-		if (!$can_modify) 
+		if (!$can_modify)
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
