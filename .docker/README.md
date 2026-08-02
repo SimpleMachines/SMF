@@ -110,6 +110,35 @@ are gitignored.
 installer, discarding that forum. `use-engine.sh` switches between forums,
 `reset.sh` throws one away.
 
+## Accounts and passwords
+
+Two forums, each with its own administrator, and a password chosen months ago is
+a recipe for an afternoon of hand written SQL. `user.sh` is there so it is not:
+
+```sh
+.docker/user.sh list
+.docker/user.sh check admin 'password'
+.docker/user.sh reset admin 'a new password'
+```
+
+`check` exits 0 when SMF would accept the password and 1 when it would not, so
+it works in a conditional as well as by eye. It also points out an account that
+is not activated, which fails to log in with a correct password and looks
+exactly like a wrong one.
+
+`--engine mysql|postgresql` reads the settings `use-engine.sh` saved for that
+engine, so the *other* forum can be inspected without switching to it:
+
+```sh
+.docker/user.sh check admin 'password' --engine mysql
+```
+
+The hashing goes through SMF's own `Security` class rather than being written
+here, so what `reset` puts in the table is by construction what `Login2` expects
+to find. It clears `passwd_flood` at the same time: SMF locks an account out for
+a while after enough wrong guesses, and a fresh password behind a lockout looks
+exactly like a password that did not take.
+
 ### Installing in a browser instead
 
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
@@ -307,6 +336,12 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
+.docker/lib.sh                   paths, credentials and engine names, shared
+.docker/install-forum.sh         install a forum with no browser involved
+.docker/reset.sh                 empty one engine and restage the installer
+.docker/use-engine.sh            switch which installed forum is live
+.docker/user.sh                  inspect accounts, check and reset passwords
+
 .docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
 .docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
 .docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
