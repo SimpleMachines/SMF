@@ -137,4 +137,58 @@
 	--window-stickylocked-bg:                         #e8d8cf;
 	--window-approvetopic-bg:                         #e4a17c;
 	--window-approvepost-bg:                          #ffcbcb;
+
+	/** Error Box **/
+	--errorbox-bg:                                    #fee;
+	--errorbox-border-color:                          #c34;
+	--errorbox-border-style:                          solid;
+	--errorbox-border-width:                          2px;
+
+	/** Notice Box **/
+	--noticebox-bg:                                   #fff6ca;
+	--noticebox-border-color:                         #ffd324;
+	--noticebox-border-style:                         solid;
+	--noticebox-border-width:                         1px;
+	--noticebox-color:                                #666;
+
+	/** Info Box **/
+	--infobox-bg:                                     #cfc;
+	--infobox-border-color:                           green;
+	--infobox-border-style:                           solid;
+	--infobox-border-width:                           1px;
+	--infobox-color:                                  #222;
+
+	/** Desc Box **/
+	--descbox-border-color:                           #c5c5c5;
+	--descbox-border-style:                           solid;
+	--descbox-border-width:                           1px;
+
+	/** Generic Bar **/
+	--genericbar-bg:                                  #fff;
+	--genericbar-border-color:                        #cecaca;
+	--genericbar-border-radius:                       2px;
+	--genericbar-border-style:                        solid;
+	--genericbar-border-width:                        1px;
+	--genericbar-color:                               rgba(0, 0, 0, 0.6);
+	--genericbar-height:                              16px;
+	--genericbar-line-height:                         1.4em;
+	--genericbar-text-shadow:                         1px 1px rgba(255, 255, 255, .4);
+	--genericbar-width:                               15px;
+
+	--genericbar-inner-bg:                            orange;
+	--genericbar-inner-border-radius:                 1px;
+	--genericbar-inner-box-shadow:                    4px -4px 8px rgba(0, 0, 0, 0.1) inset, 4px 4px 8px rgba(255, 255, 255, 0.3) inset;
+	--genericbar-inner-box-shadow_vertical:           4px -4px 4px rgba(0, 0, 0, 0.1) inset, 4px 4px 4px rgba(255, 255, 255, 0.3) inset;
+
+	/** Progress Bar **/
+	--progressbar-border-radius:                      4px;
+	--progressbar-color:                              rgba(0, 0, 0, 0.8);
+	--progressbar-font-weight:                        bold;
+
+	--progressbar-inner-bg:                           #75da41;
+	--progressbar-inner-bg_blue:                      #34c2e3;
+	--progressbar-inner-bg_green:                     #75da41;
+	--progressbar-inner-bg_red:                       #f45d4c;
+	--progressbar-inner-bg_yellow:                    #f6c51c;
+	--progressbar-inner-box-shadow:                   -1px 1px 0 rgba(255, 255, 255, 0.25) inset, 1px -1px 0 rgba(0, 0, 0, 0.1) inset;
 }
