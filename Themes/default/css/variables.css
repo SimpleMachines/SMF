@@ -56,4 +56,25 @@
 	--fieldset-border-style:                          solid;
 	--fieldset-border-width:                          1px;
 	--fieldset-legend-color:                          #555;
+
+	/** Buttons **/
+	--button-bg_active:                               #557ea0;
+	--button-border-color:                            #ddd #bbb #aaa #ddd;
+	--button-border-color_active:                     #558080;
+	--button-border-color_hover:                      #aaa #ddd #ddd #bbb;
+	--button-border-radius:                           3px;
+	--button-border-style:                            solid;
+	--button-border-width:                            1px;
+	--button-box-shadow:                              1px 1px 1px rgba(221, 221, 221, 0.57);
+	--button-box-shadow_active:                       none;
+	--button-box-shadow_hover:                        -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
+	--button-color:                                   #444;
+	--button-color_active:                            #fff;
+	--button-color_active_hover:                      #ffc187;
+	--button-color_hover:                             #af6700;
+	--button-cursor:                                  pointer;
+	--button-font-size:                               0.7rem;
+	--button-font-weight_active:                      bold;
+	--button-text-shadow_active:                      0 0 1px #000;
+	--button-text-transform:                          uppercase;
 }

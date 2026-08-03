@@ -1114,16 +1114,16 @@ a[class^="mobile_generic_menu_"] {
 .button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
 	padding: 0 8px;
-	color: #444;
-	font-size: 0.7rem;
+	color: var(--button-color);
+	font-size: var(--button-font-size);
 	line-height: 2em;
-	text-transform: uppercase;
-	cursor: pointer;
+	text-transform: var(--button-text-transform);
+	cursor: var(--button-cursor);
 	min-height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
-	border: 1px solid;
-	border-color: #ddd #bbb #aaa #ddd;
-	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.57);
+	border: var(--button-border-width) var(--button-border-style);
+	border-color: var(--button-border-color);
+	border-radius: var(--button-border-radius);
+	box-shadow: var(--button-box-shadow);
 	box-sizing: border-box;
 	vertical-align: middle;
 }
@@ -1138,25 +1138,25 @@ html[lang="el-GR"] .inline_mod_check {
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
 	color: #222;
-	border-color: #aaa #ddd #ddd #bbb;
-	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
+	border-color: var(--button-border-color_hover);
+	box-shadow: var(--button-box-shadow_hover);
 	text-decoration: none;
 }
 .button:hover, .button:focus {
-	color: #af6700;
+	color: var(--button-color_hover);
 }
 /* the active one */
 .button.active {
-	background: #557ea0;
-	color: #fff;
-	font-weight: bold;
-	border: 1px solid #558080;
-	text-shadow: 0 0 1px #000;
+	background: var(--button-bg_active);
+	color: var(--button-color_active);
+	font-weight: var(--button-font-weight_active);
+	border: var(--button-border-width) var(--button-border-style) var(--button-border-color_active);
+	text-shadow: var(--button-text-shadow_active);
 }
 .button.active:hover, .button.active:focus {
-	color: #ffc187;
-	background: #557ea0;
-	box-shadow: none;
+	color: var(--button-color_active_hover);
+	background: var(--button-bg_active);
+	box-shadow: var(--button-box-shadow_active);
 }
 .cat_bar .button {
 	box-shadow: none;
