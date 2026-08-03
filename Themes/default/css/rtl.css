@@ -4,8 +4,14 @@
 .floatright {
 	float: left;
 }
+.bbc_float.floatright {
+	float: right;
+}
 .floatleft {
 	float: right;
+}
+.bbc_float.floatleft {
+	float: left;
 }
 .clear_left {
 	clear: right;
