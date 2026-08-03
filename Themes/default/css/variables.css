@@ -77,4 +77,64 @@
 	--button-font-weight_active:                      bold;
 	--button-text-shadow_active:                      0 0 1px #000;
 	--button-text-transform:                          uppercase;
+
+	/** Cat Bar **/
+	--catbar-bg:                                      #557ea0;
+	--catbar-border-color:                            #777;
+	--catbar-border-radius:                           6px 6px 0 0;
+	--catbar-border-style:                            solid;
+	--catbar-border-width:                            1px;
+	--catbar-box-shadow:                              0 16px 20px rgba(255, 255, 255, 0.15) inset;
+	--catbar-color:                                   #fff;
+	--catbar-font-family:                             "Tahoma", sans-serif;
+	--catbar-font-size:                               1.1em;
+	--catbar-text-shadow:                             -1px -1px 1px rgba(0, 0, 0, 0.2);
+	--catbar-text-shadow_hover:                       -1px -1px 0 rgba(0, 0, 0, 0.4);
+
+	/** Title Bar **/
+	--titlebar-bg:                                    #fff;
+	--titlebar-border-color:                          #ff9400 #ddd #bf6900 #ddd;
+	--titlebar-border-radius:                         2px 2px 0 0;
+	--titlebar-border-style:                          solid;
+	--titlebar-border-width:                          2px 1px;
+	--titlebar-color:                                 #666;
+
+	/** Sub Bar **/
+	--subbar-bg:                                      none;
+	--subbar-border-color:                            #ddd;
+	--subbar-border-style:                            solid;
+	--subbar-border-width:                            1px;
+	--subbar-box-shadow:                              0 -1px 0 #999 inset;
+	--subbar-text-shadow:                             none;
+
+	/** Round Frame **/
+	--roundframe-bg:                                  #f8f8f8;
+	--roundframe-border-color:                        #c5c5c5;
+	--roundframe-border-radius:                       7px;
+	--roundframe-border-style:                        solid;
+	--roundframe-border-width:                        1px;
+	--roundframe-box-shadow:                          0 -2px 2px rgba(0, 0, 0, 0.1);
+
+	/** Information **/
+	--information-bg:                                 #f8f8f8;
+	--information-border-color:                       #ddd;
+	--information-border-radius:                      0 0 7px 7px;
+	--information-border-style:                       solid;
+	--information-border-width:                       1px;
+
+	/** Windowbg **/
+	--window-bg:                                      #f0f4f7;
+	--window-bg_hover:                                #e2eef8;
+	--window-border-color:                            #ddd;
+	--window-border-radius:                           6px;
+	--window-border-style:                            solid;
+	--window-border-width:                            1px;
+	--window-box-shadow:                              0 -2px 2px rgba(0, 0, 0, 0.1);
+	--window-odd-bg:                                  #fdfdfd;
+	--window-target-bg:                               #ffffe0;
+	--window-locked-bg:                               #e7eaef;
+	--window-sticky-bg:                               #cfdce8;
+	--window-stickylocked-bg:                         #e8d8cf;
+	--window-approvetopic-bg:                         #e4a17c;
+	--window-approvepost-bg:                          #ffcbcb;
 }
