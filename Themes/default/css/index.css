@@ -2271,9 +2271,9 @@ a.main_icons.feed::before {
 	position: relative;
 }
 .errorbox {
-	background-color: #fee;
-	border-top: 2px solid #c34;
-	border-bottom: 2px solid #c34;
+	background-color: var(--errorbox-bg);
+	border-top: var(--errorbox-border-width) var(--errorbox-border-style) var(--errorbox-border-color);
+	border-bottom: var(--errorbox-border-width) var(--errorbox-border-style) var(--errorbox-border-color);
 }
 .errorbox h3 {
 	padding: 0;
@@ -2305,20 +2305,20 @@ a.main_icons.feed::before {
 	background-position: -161px -83px;
 }
 .noticebox {
-	color: #666;
-	background: #fff6ca;
-	border-top: 1px solid #ffd324;
-	border-bottom: 1px solid #ffd324;
+	color: var(--noticebox-color);
+	background: var(--noticebox-bg);
+	border-top: var(--noticebox-border-width) var(--noticebox-border-style) var(--noticebox-border-color);
+	border-bottom: var(--noticebox-border-width) var(--noticebox-border-style) var(--noticebox-border-color);
 }
 .infobox {
-	color: #222;
-	background: #cfc;
-	border-top: 1px solid green;
-	border-bottom: 1px solid green;
+	color: var(--infobox-color);
+	background: var(--infobox-bg);
+	border-top: var(--infobox-border-width) var(--infobox-border-style) var(--infobox-border-color);
+	border-bottom: var(--infobox-border-width) var(--infobox-border-style) var(--infobox-border-color);
 }
 .descbox {
 	padding: 7px 10px 7px 10px;
-	border: 1px solid #c5c5c5;
+	border: var(--descbox-border-width) var(--descbox-border-style) var(--descbox-border-color);
 	margin: 6px 0;
 }
 
@@ -2326,19 +2326,19 @@ a.main_icons.feed::before {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 .generic_bar, .progress_bar {
-	border: 1px solid #cecaca;
-	background: #fff;
-	min-height: 16px;
-	line-height: 1.4em;
-	border-radius: 2px;
+	border: var(--genericbar-border-width) var(--genericbar-border-style) var(--genericbar-border-color);
+	background: var(--genericbar-bg);
+	min-height: var(--genericbar-height);
+	line-height: var(--genericbar-line-height);
+	border-radius: var(--genericbar-border-radius);
 	position: relative;
 	overflow: hidden;
-	color: rgba(0, 0, 0, 0.6);
+	color: var(--genericbar-color);
 }
 .generic_bar span, .progress_bar span {
 	position: relative;
 	z-index: 2;
-	text-shadow: 1px 1px rgba(255, 255, 255, .4);
+	text-shadow: var(--genericbar-text-shadow);
 	display: inline-block;
 	padding: 0 5px;
 }
@@ -2348,50 +2348,47 @@ a.main_icons.feed::before {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	background: orange;
+	background: var(--genericbar-inner-bg);
 	transition: width .3s;
-	border-radius: 1px;
-	box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1) inset,
-		4px 4px 8px rgba(255,255,255,0.3) inset;
+	border-radius: var(--genericbar-inner-border-radius);
+	box-shadow: var(--genericbar-inner-box-shadow);
 	display: block;
 }
 .generic_bar.vertical {
-	width: 15px;
+	width: var(--genericbar-width);
 }
 .generic_bar.vertical .bar {
 	right: 0;
 	top: auto;
-	box-shadow: 4px -4px 4px rgba(0, 0, 0, 0.1) inset,
-		4px 4px 4px rgba(255,255,255,0.3) inset;
+	box-shadow: var(--genericbar-inner-box-shadow_vertical);
 }
 
 .progress_bar {
-	border-radius: 4px;
+	border-radius: var(--progressbar-border-radius);
 	text-align: center;
-	font-weight: bold;
-	color: rgba(0, 0, 0, 0.8);
+	font-weight: var(--progressbar-font-weight);
+	color: var(--progressbar-color);
 }
 .progress_bar .bar {
-	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.25) inset,
-		1px -1px 0 rgba(0,0,0,0.1) inset;
-	background-color: #75da41;
+	box-shadow: var(--progressbar-inner-box-shadow);
+	background-color: var(--progressbar-inner-bg);
 	background-size: 30px 30px;
 	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
 }
 .progress_yellow .bar {
-	background-color: #f6c51c;
+	background-color: var(--progressbar-inner-bg_yellow);
 }
 
 .progress_green .bar {
-	background-color: #75da41;
+	background-color: var(--progressbar-inner-bg_green);
 }
 
 .progress_red .bar {
-	background-color: #f45d4c;
+	background-color: var(--progressbar-inner-bg_red);
 }
 
 .progress_blue .bar {
-	background-color: #34c2e3;
+	background-color: var(--progressbar-inner-bg_blue);
 }
 
 /* Styles for the profile section.
