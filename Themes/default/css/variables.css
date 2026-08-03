@@ -1,0 +1,59 @@
+/* Design tokens for the default theme.
+/* Loaded ahead of index.css, so anything declared here can be overridden by a
+/* variant, by dark.css, or by a rule further down that sets the property on a
+/* narrower selector.
+/*
+/* Every value here is the one the theme already used before the token existed.
+/* Adding a token is not meant to change what the forum looks like. */
+:root {
+	/** HTML **/
+	--html-bg:                                        #3e5a78;
+
+	/** Body **/
+	--body-bg:                                        #e9eef2;
+	--body-color:                                     #4d4d4d;
+	--body-font-family:                               "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	--body-font-size:                                 83.33%;
+
+	/** Body Links **/
+	--body-link-color:                                #346;
+
+	/** Strong **/
+	--strong-color:                                   #444;
+
+	/** Headings **/
+	--heading-color:                                  #444;
+	--heading-font-size:                              1em;
+
+	/** Selection **/
+	--selection-bg:                                   #99d4ff;
+	--selection-color:                                rgba(0, 0, 0, 0.6);
+
+	/** Horizontal Rule **/
+	--horizontalrule-bg:                              #fff;
+	--horizontalrule-box-shadow:                      0 1px 0 #bbb inset;
+	--horizontalrule-height:                          2px;
+
+	/** Inputs **/
+	--input-bg:                                       #fff;
+	--input-bg_disabled:                              #eee;
+	--input-bg_focus:                                 #fff;
+	--input-bg_hover:                                 #fbfbfb;
+	--input-border-color:                             #bbb;
+	--input-border-color_disabled:                    #b6b6b6;
+	--input-border-color_focus:                       #7fb0d8;
+	--input-border-color_hover:                       #82a2bc;
+	--input-border-radius:                            3px;
+	--input-border-style:                             solid;
+	--input-border-width:                             1px;
+	--input-box-shadow:                               1px 2px 1px rgba(160, 187, 221, 0.2) inset;
+	--input-color:                                    #222;
+	--input-color_disabled:                           #999;
+
+	/** Fieldsets **/
+	--fieldset-border-color:                          #ddd;
+	--fieldset-border-radius:                         3px;
+	--fieldset-border-style:                          solid;
+	--fieldset-border-width:                          1px;
+	--fieldset-legend-color:                          #555;
+}
