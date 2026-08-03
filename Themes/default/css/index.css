@@ -255,10 +255,10 @@ a.new_posts:visited {
 /* Common classes to easy styling.
 ------------------------------------------------------- */
 .floatright {
-	float: right;
+	float: inline-end;
 }
 .floatleft {
-	float: left;
+	float: inline-start;
 }
 .floatnone {
 	float: none;
@@ -273,10 +273,10 @@ a.new_posts:visited {
 	clear: both;
 }
 .clear_left {
-	clear: left;
+	clear: inline-start;
 }
 .clear_right {
-	clear: right;
+	clear: inline-end;
 }
 
 /* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
@@ -297,14 +297,14 @@ h3.largetext {
 	text-align: center;
 }
 .righttext {
-	margin-left: auto;
-	margin-right: 0;
-	text-align: right;
+	margin-inline-start: auto;
+	margin-inline-end: 0;
+	text-align: end;
 }
 .lefttext {
-	margin-left: 0;
-	margin-right: auto;
-	text-align: left;
+	margin-inline-start: 0;
+	margin-inline-end: auto;
+	text-align: start;
 }
 .justifytext {
 	text-align: justify;
@@ -429,7 +429,7 @@ blockquote cite::before {
 	border: 1px solid #ddd;
 }
 .bbc_list {
-	text-align: left;
+	text-align: start;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
 }
