@@ -219,4 +219,40 @@
 	--bbc-link-border-color_hover:                    #346;
 	--bbc-link-border-style:                          solid;
 	--bbc-link-border-width:                          1px;
+
+	/** AJAX Notification Bar **/
+	--ajaxinprogress-bg:                              #fff;
+	--ajaxinprogress-border-color:                    #f96f00;
+	--ajaxinprogress-border-style:                    solid;
+	--ajaxinprogress-border-width:                    4px;
+	--ajaxinprogress-color:                           #f96f00;
+	--ajaxinprogress-font-size:                       1.6em;
+	--ajaxinprogress-line-height:                     25px;
+
+	--ajaxinprogress-link-color:                      orange;
+	--ajaxinprogress-link-font-size:                  0.9em;
+	--ajaxinprogress-link-text-decoration:            underline;
+
+	/** Popups **/
+	--popup-bg:                                       rgba(40, 64, 80, 0.5);
+
+	--popup-window-border-color:                      #777;
+	--popup-window-border-radius:                     7px 7px 3px 3px;
+	--popup-window-border-style:                      solid;
+	--popup-window-border-width:                      1px;
+	--popup-window-box-shadow:                        0 3px 6px rgba(0, 0, 0, 0.5);
+
+	--popup-heading-color:                            #bf6900;
+
+	--popup-content-color:                            #222;
+	--popup-content-line-height:                      1.6em;
+
+	/** Search Highlight **/
+	--searchhighlight-color:                          #ff7200;
+	--searchhighlight-font-size:                      1.1em;
+	--searchhighlight-font-weight:                    bold;
+
+	/** Moderation Link **/
+	--moderationlink-bg:                              #f59e00;
+	--moderationlink-font-weight:                     bold;
 }
