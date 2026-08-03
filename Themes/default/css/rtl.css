@@ -27,25 +27,6 @@
 	margin-right: 3px;
 }
 
-/* Lists with settings use these a lot.
-------------------------------------------------------- */
-dl.settings {
-	clear: left;
-}
-dl.settings dt {
-	float: right;
-	clear: both;
-}
-dl.settings dt.windowbg {
-	float: right;
-}
-dl.settings dd {
-	float: left;
-}
-dl.settings img {
-	margin: 0 0 0 10px;
-}
-
 /* Styles for popup windows
 ------------------------------------------------------- */
 .popup_heading .hide_popup {
