@@ -191,4 +191,32 @@
 	--progressbar-inner-bg_red:                       #f45d4c;
 	--progressbar-inner-bg_yellow:                    #f6c51c;
 	--progressbar-inner-box-shadow:                   -1px 1px 0 rgba(255, 255, 255, 0.25) inset, 1px -1px 0 rgba(0, 0, 0, 0.1) inset;
+
+	/** Quotes **/
+	--quote-bg:                                       #e0e6f6;
+	--quote-alternate-bg:                             #ebf4f8;
+	--quote-border-color:                             #d6dfe2 #aaa;
+	--quote-border-style:                             solid;
+	--quote-border-width:                             1px 2px;
+	--quote-font-size:                                0.85rem;
+
+	--quote-cite-border-color:                        rgba(0, 0, 0, 0.1);
+	--quote-cite-border-style:                        solid;
+	--quote-cite-border-width:                        1px;
+	--quote-cite-font-size:                           0.9em;
+
+	/** Code Blocks **/
+	--code-bg:                                        #f3f3f3;
+	--code-border-color:                              #bbb #dfdfdf #aaa;
+	--code-border-radius:                             2px;
+	--code-border-style:                              solid;
+	--code-border-width:                              2px 1px 3px;
+	--code-font-size:                                 0.78rem;
+	--code-height:                                    25em;
+
+	/** BBC Links **/
+	--bbc-link-border-color:                          #a8b6cf;
+	--bbc-link-border-color_hover:                    #346;
+	--bbc-link-border-style:                          solid;
+	--bbc-link-border-width:                          1px;
 }
