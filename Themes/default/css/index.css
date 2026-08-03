@@ -1,13 +1,13 @@
 /* You can find detailed information at https://wiki.simplemachines.org/smf/Curve2_CSS
 /* Index */
 html {
-	background: #3e5a78;
+	background: var(--html-bg);
 	scroll-padding-top: 3rem;
 }
 body {
-	background: #e9eef2;
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	color: #4d4d4d;
+	background: var(--body-bg);
+	font: var(--body-font-size)/150% var(--body-font-family);
+	color: var(--body-color);
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -15,8 +15,8 @@ body {
 }
 ::selection {
 	text-shadow: none;
-	background: #99d4ff;
-	color: rgba(0, 0, 0, 0.6);
+	background: var(--selection-bg);
+	color: var(--selection-color);
 }
 /* General reset */
 * {
@@ -38,27 +38,27 @@ abbr {
 	border-bottom: 0.1em dotted;
 }
 input, button, select, textarea {
-	color: #222;
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	background: #fff;
+	color: var(--input-color);
+	font: var(--body-font-size)/150% var(--body-font-family);
+	background: var(--input-bg);
 	outline: none;
-	border: 1px solid #bbb;
+	border: var(--input-border-width) var(--input-border-style) var(--input-border-color);
 	vertical-align: middle;
-	border-radius: 3px;
-	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
+	border-radius: var(--input-border-radius);
+	box-shadow: var(--input-box-shadow);
 	padding: 0.3em 0.4em;
 }
 input:hover, textarea:hover, button:hover, select:hover {
 	outline: none;
-	border-color: #82a2bc;
+	border-color: var(--input-border-color_hover);
 }
 textarea:hover {
-	background: #fbfbfb;
+	background: var(--input-bg_hover);
 }
 input:focus, textarea:focus, button:focus, select:focus {
 	outline: none;
-	border-color: #7fb0d8;
-	background: #fff;
+	border-color: var(--input-border-color_focus);
+	background: var(--input-bg_focus);
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -126,12 +126,12 @@ select option {
 fieldset {
 	padding: 18px;
 	margin: 0 0 6px 0;
-	border: 1px solid #ddd;
-	border-radius: 3px;
+	border: var(--fieldset-border-width) var(--fieldset-border-style) var(--fieldset-border-color);
+	border-radius: var(--fieldset-border-radius);
 }
 fieldset legend {
 	font-weight: bold;
-	color: #555;
+	color: var(--fieldset-legend-color);
 	box-shadow: none;
 	border: none;
 }
@@ -147,7 +147,7 @@ summary {
 /* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight */
 strong, .strong {
 	font-weight: bold;
-	color: #444;
+	color: var(--strong-color);
 }
 .cat_bar strong {
 	color: #fff;
@@ -157,8 +157,8 @@ em, .em {
 }
 /* Default <strong> color on these tags */
 h1, h2, h3, h4, h5, h6 {
-	font-size: 1em;
-	color: #444;
+	font-size: var(--heading-font-size);
+	color: var(--heading-color);
 }
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them */
 input[type="checkbox"], input[type="radio"] {
@@ -173,9 +173,9 @@ input[type="checkbox"], input[type="radio"] {
 }
 /* Give disabled input elements a different style */
 input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
-	background: #eee;
-	color: #999;
-	border-color: #b6b6b6;
+	background: var(--input-bg_disabled);
+	color: var(--input-color_disabled);
+	border-color: var(--input-border-color_disabled);
 	opacity: 0.8;
 	cursor: default;
 }
@@ -183,13 +183,13 @@ input[disabled], textarea[disabled], select[disabled], .button.disabled, .button
 hr {
 	border: none;
 	margin: 12px 0;
-	height: 2px;
-	background: #fff;
-	box-shadow: 0 1px 0 #bbb inset;
+	height: var(--horizontalrule-height);
+	background: var(--horizontalrule-bg);
+	box-shadow: var(--horizontalrule-box-shadow);
 }
 /* This is about links */
 a, a:visited, .reset.link {
-	color: #346;
+	color: var(--body-link-color);
 	text-decoration: none;
 }
 a:hover, .reset.link:hover {
