@@ -337,15 +337,15 @@ h3.largetext {
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
-	font-size: 0.85rem;
-	border: 1px solid #d6dfe2;
-	border-left: 2px solid #aaa;
-	border-right: 2px solid #aaa;
+	font-size: var(--quote-font-size);
+	border-color: var(--quote-border-color);
+	border-style: var(--quote-border-style);
+	border-width: var(--quote-border-width);
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-	font-size: 0.9em;
+	border-bottom: var(--quote-cite-border-width) var(--quote-cite-border-style) var(--quote-cite-border-color);
+	font-size: var(--quote-cite-font-size);
 	margin-bottom: 3px;
 }
 blockquote cite::before {
@@ -357,26 +357,26 @@ blockquote cite::before {
 	vertical-align: middle;
 }
 .bbc_standard_quote {
-	background-color: #e0e6f6;
+	background-color: var(--quote-bg);
 }
 .bbc_alternate_quote {
-	background-color: #ebf4f8;
+	background-color: var(--quote-alternate-bg);
 }
 
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-size: 0.78rem;
-	background: #f3f3f3;
-	border: 1px solid #dfdfdf;
-	border-top: 2px solid #bbb;
-	border-bottom: 3px solid #aaa;
-	border-radius: 2px;
+	font-size: var(--code-font-size);
+	background: var(--code-bg);
+	border-color: var(--code-border-color);
+	border-style: var(--code-border-style);
+	border-width: var(--code-border-width);
+	border-radius: var(--code-border-radius);
 	margin: 1px 0 6px 0;
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: pre;
-	max-height: 25em;
+	max-height: var(--code-height);
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -395,11 +395,11 @@ blockquote cite::before {
 }
 /* Styling for BBC tags */
 .bbc_link {
-	border-bottom: 1px solid #a8b6cf;
+	border-bottom: var(--bbc-link-border-width) var(--bbc-link-border-style) var(--bbc-link-border-color);
 }
 .bbc_link:hover {
 	text-decoration: none;
-	border-bottom: 1px solid #346;
+	border-bottom: var(--bbc-link-border-width) var(--bbc-link-border-style) var(--bbc-link-border-color_hover);
 }
 .bbc_size {
 	line-height: 1.4em;
