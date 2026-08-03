@@ -257,8 +257,14 @@ a.new_posts:visited {
 .floatright {
 	float: inline-end;
 }
+.bbc_float.floatright {
+	float: right;
+}
 .floatleft {
 	float: inline-start;
+}
+.bbc_float.floatleft {
+	float: left;
 }
 .floatnone {
 	float: none;
