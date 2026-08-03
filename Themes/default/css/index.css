@@ -580,9 +580,12 @@ a img {
 
 /* Highlighted text - such as search results. */
 .highlight {
-	font-weight: bold;
-	color: #ff7200 !important;
-	font-size: 1.1em;
+	font-weight: var(--searchhighlight-font-weight);
+	color: var(--searchhighlight-color) !important;
+	font-size: var(--searchhighlight-font-size);
+	/* Not a token: a custom property cannot hold "inherit". Stored on :root it
+	/* has no parent to inherit from, so it resolves to the guaranteed-invalid
+	/* value and the declaration falls back to transparent instead. */
 	background-color: inherit;
 }
 
@@ -672,30 +675,30 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	font-weight: bold;
+	font-weight: var(--moderationlink-font-weight);
 	padding: 0px 8px;
-	background: #f59e00;
+	background: var(--moderationlink-bg);
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
 #ajax_in_progress {
-	background: #fff;
-	border-bottom: 4px solid #f96f00;
-	color: #f96f00;
+	background: var(--ajaxinprogress-bg);
+	border-bottom: var(--ajaxinprogress-border-width) var(--ajaxinprogress-border-style) var(--ajaxinprogress-border-color);
+	color: var(--ajaxinprogress-color);
 	text-align: center;
-	font-size: 1.6em;
+	font-size: var(--ajaxinprogress-font-size);
 	padding: 8px;
 	width: 100%;
-	line-height: 25px;
+	line-height: var(--ajaxinprogress-line-height);
 	position: fixed;
 	top: 0;
 	left: 0;
 }
 
 #ajax_in_progress a {
-	color: orange;
-	text-decoration: underline;
-	font-size: 0.9em;
+	color: var(--ajaxinprogress-link-color);
+	text-decoration: var(--ajaxinprogress-link-text-decoration);
+	font-size: var(--ajaxinprogress-link-font-size);
 	float: right;
 	margin-right: 20px;
 }
@@ -2954,7 +2957,7 @@ dl.addrules dt.floatleft {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(40, 64, 80, 0.5);
+	background: var(--popup-bg);
 	z-index: 6;
 }
 #genericmenu > .popup_container {
@@ -2970,9 +2973,9 @@ dl.addrules dt.floatleft {
 	position: relative;
 	width: auto;
 	z-index: 99;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
-	border: 1px solid #777;
-	border-radius: 7px 7px 3px 3px;
+	box-shadow: var(--popup-window-box-shadow);
+	border: var(--popup-window-border-width) var(--popup-window-border-style) var(--popup-window-border-color);
+	border-radius: var(--popup-window-border-radius);
 	margin: 0 auto;
 	padding: 0;
 }
@@ -2987,11 +2990,11 @@ dl.addrules dt.floatleft {
 }
 .popup_heading {
 	padding: 10px 8px;
-	color: #bf6900;
+	color: var(--popup-heading-color);
 }
 .popup_content {
-	color: #222;
-	line-height: 1.6em;
+	color: var(--popup-content-color);
+	line-height: var(--popup-content-line-height);
 	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
