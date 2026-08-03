@@ -3029,30 +3029,30 @@ dl.addrules dt.floatleft {
 }
 
 .generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
-	background: #f0f4f7;
+	background: var(--window-bg);
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	border: var(--window-border-width) var(--window-border-style) var(--window-border-color);
+	border-radius: var(--window-border-radius);
+	box-shadow: var(--window-box-shadow);
 	overflow: auto;
 }
 /* Here comes the glory... */
 .windowbg:nth-of-type(even), .bg.even {
-	background: #f0f4f7;
+	background: var(--window-bg);
 }
 .windowbg:nth-of-type(odd), .bg.odd {
-	background: #fdfdfd;
+	background: var(--window-odd-bg);
 }
 
 /* Highlight the target item */
 .windowbg:target {
-	background: #ffffe0;
+	background: var(--window-target-bg);
 }
 
 /* Add some hover on table rows */
 tr.windowbg:hover {
-	background: #e2eef8;
+	background: var(--window-bg_hover);
 }
 
 /* Special treatment for #forumposts area */
@@ -3061,23 +3061,23 @@ tr.windowbg:hover {
 }
 /* Nobody wants locked topics to stand out much. */
 .windowbg.locked {
-	background: #e7eaef;
+	background: var(--window-locked-bg);
 }
 /* Sticky topics get a different background */
 .windowbg.sticky {
-	background: #cfdce8;
+	background: var(--window-sticky-bg);
 }
 /* Locked AND sticky are a bit more technical */
 .windowbg.sticky.locked {
-	background: #e8d8cf;
+	background: var(--window-stickylocked-bg);
 }
 /* Awaiting approval is a bit special, topics first */
 .windowbg.approvetopic {
-	background: #e4a17c;
+	background: var(--window-approvetopic-bg);
 }
 /* Unapproved posts in approved topics */
 .windowbg.approvepost {
-	background: #ffcbcb;
+	background: var(--window-approvepost-bg);
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -3856,12 +3856,12 @@ ul.post_options li {
 /* General Classes */
 /* Cat_bar / catbg */
 div.cat_bar {
-	background: #557ea0;
-	border-bottom: 1px solid #777;
+	background: var(--catbar-bg);
+	border-bottom: var(--catbar-border-width) var(--catbar-border-style) var(--catbar-border-color);
 	padding: 0;
-	border-radius: 6px 6px 0 0;
-	box-shadow: 0 16px 20px rgba(255, 255, 255, 0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2);
+	border-radius: var(--catbar-border-radius);
+	box-shadow: var(--catbar-box-shadow);
+	text-shadow: var(--catbar-text-shadow);
 }
 .cat_bar.collapsed,
 .cat_bar.cat_bar_round {
@@ -3872,26 +3872,26 @@ div.cat_bar {
 }
 /* Styles for rounded headers. */
 .cat_bar .desc {
-	color: #fff;
+	color: var(--catbar-color);
 	font-size: 12px;
 	line-height: 1.5em;
 	font-weight: normal;
 	margin: -8px 0 4px 8px;
 }
 .cat_bar .desc a {
-	color: #fff;
+	color: var(--catbar-color);
 	font-weight: 600;
 }
 h3.catbg {
 	overflow: hidden;
-	font-size: 1.1em;
-	font-family: "Tahoma", sans-serif;
+	font-size: var(--catbar-font-size);
+	font-family: var(--catbar-font-family);
 }
 h3.catbg, h3.catbg a, h3.catbg a:hover {
-	color: #fff;
+	color: var(--catbar-color);
 }
 h3.catbg a:hover {
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
+	text-shadow: var(--catbar-text-shadow_hover);
 	text-decoration: none;
 }
 h3.catbg .main_icons::before, h3.catbg .icon {
@@ -3909,27 +3909,27 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 .roundframe {
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
-	background: #f8f8f8;
-	border: 1px solid #c5c5c5;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	background: var(--roundframe-bg);
+	border: var(--roundframe-border-width) var(--roundframe-border-style) var(--roundframe-border-color);
+	border-radius: var(--roundframe-border-radius);
+	box-shadow: var(--roundframe-box-shadow);
 	overflow: auto;
 }
 /* TitleBar & SubBar */
 .title_bar {
-	border: 1px solid #ddd;
-	border-top: 2px solid #ff9400;
-	border-bottom: 2px solid #bf6900;
-	background: #fff;
-	color: #666;
-	border-radius: 2px 2px 0 0;
+	border-color: var(--titlebar-border-color);
+	border-style: var(--titlebar-border-style);
+	border-width: var(--titlebar-border-width);
+	background: var(--titlebar-bg);
+	color: var(--titlebar-color);
+	border-radius: var(--titlebar-border-radius);
 	margin: 5px 0 0 0;
 }
 .sub_bar {
-	border-bottom: 1px solid #ddd;
-	text-shadow: none;
-	background: none;
-	box-shadow: 0 -1px 0 #999 inset;
+	border-bottom: var(--subbar-border-width) var(--subbar-border-style) var(--subbar-border-color);
+	text-shadow: var(--subbar-text-shadow);
+	background: var(--subbar-bg);
+	box-shadow: var(--subbar-box-shadow);
 	clear: both;
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
@@ -3955,12 +3955,12 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 /* Other */
 /* Information */
 .information {
-	background: #f8f8f8;
+	background: var(--information-bg);
 	overflow: auto;
 	padding-bottom: .5em;
-	border: 1px solid #ddd;
+	border: var(--information-border-width) var(--information-border-style) var(--information-border-color);
 	border-top: none;
-	border-radius: 0 0 7px 7px;
+	border-radius: var(--information-border-radius);
 	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
 }
