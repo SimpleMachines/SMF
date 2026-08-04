@@ -1,0 +1,15 @@
+/* Dark colour mode for the default theme.
+/*
+/* Deliberately empty for now. This file is the placeholder the dark mode work
+/* lands in; a later pull request fills it with the token overrides.
+/*
+/* Nothing loads it yet. Theme.php only calls loadCSSFile('dark.css', ...) when
+/* settings['has_dark_mode'] is set, and index.template.php still sets that to
+/* false, so the switch stays off until there is something here to switch to.
+/*
+/* When it is filled in, override the tokens in variables.css rather than
+/* restating whole rules, and scope them to :root[data-mode="dark"]. Do not add
+/* :root[data-mode="system"] to that selector. Theme.php already attaches a
+/* (prefers-color-scheme: dark) media attribute to this stylesheet when the
+/* colour mode is "system", so the media query decides whether these rules apply
+/* at all and the attribute selector never has to test for it. */
