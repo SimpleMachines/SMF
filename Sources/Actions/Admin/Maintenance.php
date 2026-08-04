@@ -78,7 +78,6 @@ class Maintenance implements ActionInterface
 	public static array $subactions = [
 		'routine' => [
 			'function' => 'routine',
-			'template' => 'maintain_routine',
 			'activities' => [
 				'version' => 'version',
 				'repair' => 'repair',
@@ -90,7 +89,6 @@ class Maintenance implements ActionInterface
 		],
 		'database' => [
 			'function' => 'database',
-			'template' => 'maintain_database',
 			'activities' => [
 				'optimize' => 'optimize',
 				'convertentities' => 'entitiesToUnicode',
@@ -154,7 +152,7 @@ class Maintenance implements ActionInterface
 		// Set a few things.
 		Utils::$context['page_title'] = Lang::getTxt('maintain_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+		Utils::$context['sub_template'] = self::$subactions[$this->subaction]['template'] ?? 'maintain_options';
 
 		$call = \is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
@@ -180,6 +178,13 @@ class Maintenance implements ActionInterface
 	 */
 	public function routine(): void
 	{
+		$this->setOptions('?action=admin;area=maintain');
+
+		Utils::$context['options']['cleancache'] = [
+			'title' => Lang::getTxt('maintain_cache', file: 'ManageMaintenance'),
+			'info' => Lang::getTxt('maintain_cache_info', file: 'ManageMaintenance'),
+		];
+
 		if (isset($_GET['done']) && \in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_' . $_GET['done'], file: 'ManageMaintenance');
 		}
@@ -190,19 +195,26 @@ class Maintenance implements ActionInterface
 	 */
 	public function database(): void
 	{
-		// Show some conversion options?
-		Utils::$context['convert_entities'] = true;
+		$this->setOptions('?action=admin;area=maintain;sa=database');
 
-		if (Config::$db_type == 'mysql') {
-			$colData = Db::$db->list_columns('{db_prefix}messages', true);
+		Utils::$context['options']['convertentities'] = [
+			'title' => Lang::getTxt('entity_convert_title', file: 'ManageMaintenance'),
+			'info' => Lang::getTxt('entity_convert_introduction', file: 'ManageMaintenance'),
+		];
 
-			foreach ($colData as $column) {
-				if ($column['name'] == 'body') {
-					$body_type = $column['type'];
-				}
-			}
+		// Offer to lengthen the body column of the messages table. MySQL only, and
+		// only while it is still TEXT: converting back the other way was removed in
+		// #8787, and changeMsgBodyLength() returns without doing anything once the
+		// column is already MEDIUMTEXT.
+		$body_type = Config::$db_type == 'mysql' ? array_column(Db::$db->list_columns('{db_prefix}messages', true), 'type', 'name')['body'] : null;
 
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : null;
+		if ($body_type == 'text') {
+			Utils::$context['options']['convertmsgbody'] = [
+				'title' => Lang::getTxt('mediumtext_title', file: 'ManageMaintenance'),
+				'info' => Lang::getTxt('mediumtext_introduction', file: 'ManageMaintenance'),
+			];
+		} else {
+			unset(Utils::$context['options']['convertmsgbody']);
 		}
 
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
@@ -2163,6 +2175,26 @@ class Maintenance implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Builds the list of tasks the current sub-action offers, for template_maintain_options().
+	 *
+	 * Each task is keyed by its activity name, so the template can find its label and
+	 * description as maintain_<activity> and maintain_<activity>_info. A task whose strings
+	 * are not named that way supplies its own 'title' and 'info' afterwards.
+	 *
+	 * @param string $post_url Query string the form submits to.
+	 */
+	protected function setOptions(string $post_url): void
+	{
+		Utils::$context['template_layers'][] = 'maintain';
+		Utils::$context['post_url'] = Config::$scripturl . $post_url;
+
+		Utils::$context['options'] = array_fill_keys(
+			array_keys(self::$subactions[$this->subaction]['activities']),
+			[],
+		);
+	}
 
 	/**
 	 * Constructor. Protected to force instantiation via self::load().

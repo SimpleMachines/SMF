@@ -1,13 +1,13 @@
 /* You can find detailed information at https://wiki.simplemachines.org/smf/Curve2_CSS
 /* Index */
 html {
-	background: #3e5a78;
+	background: var(--html-bg);
 	scroll-padding-top: 3rem;
 }
 body {
-	background: #e9eef2;
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	color: #4d4d4d;
+	background: var(--body-bg);
+	font: var(--body-font-size)/150% var(--body-font-family);
+	color: var(--body-color);
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -15,8 +15,8 @@ body {
 }
 ::selection {
 	text-shadow: none;
-	background: #99d4ff;
-	color: rgba(0, 0, 0, 0.6);
+	background: var(--selection-bg);
+	color: var(--selection-color);
 }
 /* General reset */
 * {
@@ -38,27 +38,27 @@ abbr {
 	border-bottom: 0.1em dotted;
 }
 input, button, select, textarea {
-	color: #222;
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	background: #fff;
+	color: var(--input-color);
+	font: var(--body-font-size)/150% var(--body-font-family);
+	background: var(--input-bg);
 	outline: none;
-	border: 1px solid #bbb;
+	border: var(--input-border-width) var(--input-border-style) var(--input-border-color);
 	vertical-align: middle;
-	border-radius: 3px;
-	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
+	border-radius: var(--input-border-radius);
+	box-shadow: var(--input-box-shadow);
 	padding: 0.3em 0.4em;
 }
 input:hover, textarea:hover, button:hover, select:hover {
 	outline: none;
-	border-color: #82a2bc;
+	border-color: var(--input-border-color_hover);
 }
 textarea:hover {
-	background: #fbfbfb;
+	background: var(--input-bg_hover);
 }
 input:focus, textarea:focus, button:focus, select:focus {
 	outline: none;
-	border-color: #7fb0d8;
-	background: #fff;
+	border-color: var(--input-border-color_focus);
+	background: var(--input-bg_focus);
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -126,12 +126,12 @@ select option {
 fieldset {
 	padding: 18px;
 	margin: 0 0 6px 0;
-	border: 1px solid #ddd;
-	border-radius: 3px;
+	border: var(--fieldset-border-width) var(--fieldset-border-style) var(--fieldset-border-color);
+	border-radius: var(--fieldset-border-radius);
 }
 fieldset legend {
 	font-weight: bold;
-	color: #555;
+	color: var(--fieldset-legend-color);
 	box-shadow: none;
 	border: none;
 }
@@ -147,7 +147,7 @@ summary {
 /* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight */
 strong, .strong {
 	font-weight: bold;
-	color: #444;
+	color: var(--strong-color);
 }
 .cat_bar strong {
 	color: #fff;
@@ -157,8 +157,8 @@ em, .em {
 }
 /* Default <strong> color on these tags */
 h1, h2, h3, h4, h5, h6 {
-	font-size: 1em;
-	color: #444;
+	font-size: var(--heading-font-size);
+	color: var(--heading-color);
 }
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them */
 input[type="checkbox"], input[type="radio"] {
@@ -173,9 +173,9 @@ input[type="checkbox"], input[type="radio"] {
 }
 /* Give disabled input elements a different style */
 input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
-	background: #eee;
-	color: #999;
-	border-color: #b6b6b6;
+	background: var(--input-bg_disabled);
+	color: var(--input-color_disabled);
+	border-color: var(--input-border-color_disabled);
 	opacity: 0.8;
 	cursor: default;
 }
@@ -183,13 +183,13 @@ input[disabled], textarea[disabled], select[disabled], .button.disabled, .button
 hr {
 	border: none;
 	margin: 12px 0;
-	height: 2px;
-	background: #fff;
-	box-shadow: 0 1px 0 #bbb inset;
+	height: var(--horizontalrule-height);
+	background: var(--horizontalrule-bg);
+	box-shadow: var(--horizontalrule-box-shadow);
 }
 /* This is about links */
 a, a:visited, .reset.link {
-	color: #346;
+	color: var(--body-link-color);
 	text-decoration: none;
 }
 a:hover, .reset.link:hover {
@@ -255,9 +255,15 @@ a.new_posts:visited {
 /* Common classes to easy styling.
 ------------------------------------------------------- */
 .floatright {
+	float: inline-end;
+}
+.bbc_float.floatright {
 	float: right;
 }
 .floatleft {
+	float: inline-start;
+}
+.bbc_float.floatleft {
 	float: left;
 }
 .floatnone {
@@ -273,10 +279,10 @@ a.new_posts:visited {
 	clear: both;
 }
 .clear_left {
-	clear: left;
+	clear: inline-start;
 }
 .clear_right {
-	clear: right;
+	clear: inline-end;
 }
 
 /* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
@@ -297,14 +303,14 @@ h3.largetext {
 	text-align: center;
 }
 .righttext {
-	margin-left: auto;
-	margin-right: 0;
-	text-align: right;
+	margin-inline-start: auto;
+	margin-inline-end: 0;
+	text-align: end;
 }
 .lefttext {
-	margin-left: 0;
-	margin-right: auto;
-	text-align: left;
+	margin-inline-start: 0;
+	margin-inline-end: auto;
+	text-align: start;
 }
 .justifytext {
 	text-align: justify;
@@ -337,15 +343,15 @@ h3.largetext {
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
-	font-size: 0.85rem;
-	border: 1px solid #d6dfe2;
-	border-left: 2px solid #aaa;
-	border-right: 2px solid #aaa;
+	font-size: var(--quote-font-size);
+	border-color: var(--quote-border-color);
+	border-style: var(--quote-border-style);
+	border-width: var(--quote-border-width);
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-	font-size: 0.9em;
+	border-bottom: var(--quote-cite-border-width) var(--quote-cite-border-style) var(--quote-cite-border-color);
+	font-size: var(--quote-cite-font-size);
 	margin-bottom: 3px;
 }
 blockquote cite::before {
@@ -357,26 +363,26 @@ blockquote cite::before {
 	vertical-align: middle;
 }
 .bbc_standard_quote {
-	background-color: #e0e6f6;
+	background-color: var(--quote-bg);
 }
 .bbc_alternate_quote {
-	background-color: #ebf4f8;
+	background-color: var(--quote-alternate-bg);
 }
 
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-size: 0.78rem;
-	background: #f3f3f3;
-	border: 1px solid #dfdfdf;
-	border-top: 2px solid #bbb;
-	border-bottom: 3px solid #aaa;
-	border-radius: 2px;
+	font-size: var(--code-font-size);
+	background: var(--code-bg);
+	border-color: var(--code-border-color);
+	border-style: var(--code-border-style);
+	border-width: var(--code-border-width);
+	border-radius: var(--code-border-radius);
 	margin: 1px 0 6px 0;
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: pre;
-	max-height: 25em;
+	max-height: var(--code-height);
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -395,11 +401,11 @@ blockquote cite::before {
 }
 /* Styling for BBC tags */
 .bbc_link {
-	border-bottom: 1px solid #a8b6cf;
+	border-bottom: var(--bbc-link-border-width) var(--bbc-link-border-style) var(--bbc-link-border-color);
 }
 .bbc_link:hover {
 	text-decoration: none;
-	border-bottom: 1px solid #346;
+	border-bottom: var(--bbc-link-border-width) var(--bbc-link-border-style) var(--bbc-link-border-color_hover);
 }
 .bbc_size {
 	line-height: 1.4em;
@@ -429,7 +435,7 @@ blockquote cite::before {
 	border: 1px solid #ddd;
 }
 .bbc_list {
-	text-align: left;
+	text-align: start;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
 }
@@ -580,9 +586,12 @@ a img {
 
 /* Highlighted text - such as search results. */
 .highlight {
-	font-weight: bold;
-	color: #ff7200 !important;
-	font-size: 1.1em;
+	font-weight: var(--searchhighlight-font-weight);
+	color: var(--searchhighlight-color) !important;
+	font-size: var(--searchhighlight-font-size);
+	/* Not a token: a custom property cannot hold "inherit". Stored on :root it
+	/* has no parent to inherit from, so it resolves to the guaranteed-invalid
+	/* value and the declaration falls back to transparent instead. */
 	background-color: inherit;
 }
 
@@ -672,62 +681,77 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	font-weight: bold;
+	font-weight: var(--moderationlink-font-weight);
 	padding: 0px 8px;
-	background: #f59e00;
+	background: var(--moderationlink-bg);
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
 #ajax_in_progress {
-	background: #fff;
-	border-bottom: 4px solid #f96f00;
-	color: #f96f00;
+	background: var(--ajaxinprogress-bg);
+	border-bottom: var(--ajaxinprogress-border-width) var(--ajaxinprogress-border-style) var(--ajaxinprogress-border-color);
+	color: var(--ajaxinprogress-color);
 	text-align: center;
-	font-size: 1.6em;
+	font-size: var(--ajaxinprogress-font-size);
 	padding: 8px;
 	width: 100%;
-	line-height: 25px;
+	line-height: var(--ajaxinprogress-line-height);
 	position: fixed;
 	top: 0;
 	left: 0;
 }
 
 #ajax_in_progress a {
-	color: orange;
-	text-decoration: underline;
-	font-size: 0.9em;
+	color: var(--ajaxinprogress-link-color);
+	text-decoration: var(--ajaxinprogress-link-text-decoration);
+	font-size: var(--ajaxinprogress-link-font-size);
 	float: right;
 	margin-right: 20px;
+}
+
+/* A form offering a list of tasks to pick one of, e.g. forum maintenance. */
+.option_form label {
+	display: grid;
+	gap: 0 0.5em;
+	grid: auto 1fr / auto 1fr;
+	margin: 0 0 1em 0;
+}
+.option_form label input {
+	grid-row: 1 / 3;
+}
+.option_form p {
+	margin: 0;
 }
 
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
 dl.settings {
-	clear: right;
+	clear: inline-end;
 	overflow: auto;
 	margin: 0 0 10px 0;
 	padding: 5px;
 }
 dl.settings dt {
 	width: 56%;
-	float: left;
+	float: inline-start;
 	margin: 0 0 10px 0;
 	clear: both;
 }
 dl.settings dt.windowbg {
 	width: 98%;
-	float: left;
+	float: inline-start;
 	margin: 0 0 3px 0;
 	padding: 0 0 5px 0;
 	clear: both;
 }
 dl.settings dd {
 	width: 42%;
-	float: right;
+	float: inline-end;
 	margin: 0 0 3px 0;
 }
 dl.settings img {
-	margin: 0 10px 0 0;
+	margin-block: 0;
+	margin-inline: 0 10px;
 	vertical-align: middle;
 }
 
@@ -1100,16 +1124,16 @@ a[class^="mobile_generic_menu_"] {
 .button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
 	padding: 0 8px;
-	color: #444;
-	font-size: 0.7rem;
+	color: var(--button-color);
+	font-size: var(--button-font-size);
 	line-height: 2em;
-	text-transform: uppercase;
-	cursor: pointer;
+	text-transform: var(--button-text-transform);
+	cursor: var(--button-cursor);
 	min-height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
-	border: 1px solid;
-	border-color: #ddd #bbb #aaa #ddd;
-	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.57);
+	border: var(--button-border-width) var(--button-border-style);
+	border-color: var(--button-border-color);
+	border-radius: var(--button-border-radius);
+	box-shadow: var(--button-box-shadow);
 	box-sizing: border-box;
 	vertical-align: middle;
 }
@@ -1124,25 +1148,25 @@ html[lang="el-GR"] .inline_mod_check {
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
 	color: #222;
-	border-color: #aaa #ddd #ddd #bbb;
-	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
+	border-color: var(--button-border-color_hover);
+	box-shadow: var(--button-box-shadow_hover);
 	text-decoration: none;
 }
 .button:hover, .button:focus {
-	color: #af6700;
+	color: var(--button-color_hover);
 }
 /* the active one */
 .button.active {
-	background: #557ea0;
-	color: #fff;
-	font-weight: bold;
-	border: 1px solid #558080;
-	text-shadow: 0 0 1px #000;
+	background: var(--button-bg_active);
+	color: var(--button-color_active);
+	font-weight: var(--button-font-weight_active);
+	border: var(--button-border-width) var(--button-border-style) var(--button-border-color_active);
+	text-shadow: var(--button-text-shadow_active);
 }
 .button.active:hover, .button.active:focus {
-	color: #ffc187;
-	background: #557ea0;
-	box-shadow: none;
+	color: var(--button-color_active_hover);
+	background: var(--button-bg_active);
+	box-shadow: var(--button-box-shadow_active);
 }
 .cat_bar .button {
 	box-shadow: none;
@@ -2257,9 +2281,9 @@ a.main_icons.feed::before {
 	position: relative;
 }
 .errorbox {
-	background-color: #fee;
-	border-top: 2px solid #c34;
-	border-bottom: 2px solid #c34;
+	background-color: var(--errorbox-bg);
+	border-top: var(--errorbox-border-width) var(--errorbox-border-style) var(--errorbox-border-color);
+	border-bottom: var(--errorbox-border-width) var(--errorbox-border-style) var(--errorbox-border-color);
 }
 .errorbox h3 {
 	padding: 0;
@@ -2291,20 +2315,20 @@ a.main_icons.feed::before {
 	background-position: -161px -83px;
 }
 .noticebox {
-	color: #666;
-	background: #fff6ca;
-	border-top: 1px solid #ffd324;
-	border-bottom: 1px solid #ffd324;
+	color: var(--noticebox-color);
+	background: var(--noticebox-bg);
+	border-top: var(--noticebox-border-width) var(--noticebox-border-style) var(--noticebox-border-color);
+	border-bottom: var(--noticebox-border-width) var(--noticebox-border-style) var(--noticebox-border-color);
 }
 .infobox {
-	color: #222;
-	background: #cfc;
-	border-top: 1px solid green;
-	border-bottom: 1px solid green;
+	color: var(--infobox-color);
+	background: var(--infobox-bg);
+	border-top: var(--infobox-border-width) var(--infobox-border-style) var(--infobox-border-color);
+	border-bottom: var(--infobox-border-width) var(--infobox-border-style) var(--infobox-border-color);
 }
 .descbox {
 	padding: 7px 10px 7px 10px;
-	border: 1px solid #c5c5c5;
+	border: var(--descbox-border-width) var(--descbox-border-style) var(--descbox-border-color);
 	margin: 6px 0;
 }
 
@@ -2312,19 +2336,19 @@ a.main_icons.feed::before {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 .generic_bar, .progress_bar {
-	border: 1px solid #cecaca;
-	background: #fff;
-	min-height: 16px;
-	line-height: 1.4em;
-	border-radius: 2px;
+	border: var(--genericbar-border-width) var(--genericbar-border-style) var(--genericbar-border-color);
+	background: var(--genericbar-bg);
+	min-height: var(--genericbar-height);
+	line-height: var(--genericbar-line-height);
+	border-radius: var(--genericbar-border-radius);
 	position: relative;
 	overflow: hidden;
-	color: rgba(0, 0, 0, 0.6);
+	color: var(--genericbar-color);
 }
 .generic_bar span, .progress_bar span {
 	position: relative;
 	z-index: 2;
-	text-shadow: 1px 1px rgba(255, 255, 255, .4);
+	text-shadow: var(--genericbar-text-shadow);
 	display: inline-block;
 	padding: 0 5px;
 }
@@ -2334,50 +2358,47 @@ a.main_icons.feed::before {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	background: orange;
+	background: var(--genericbar-inner-bg);
 	transition: width .3s;
-	border-radius: 1px;
-	box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1) inset,
-		4px 4px 8px rgba(255,255,255,0.3) inset;
+	border-radius: var(--genericbar-inner-border-radius);
+	box-shadow: var(--genericbar-inner-box-shadow);
 	display: block;
 }
 .generic_bar.vertical {
-	width: 15px;
+	width: var(--genericbar-width);
 }
 .generic_bar.vertical .bar {
 	right: 0;
 	top: auto;
-	box-shadow: 4px -4px 4px rgba(0, 0, 0, 0.1) inset,
-		4px 4px 4px rgba(255,255,255,0.3) inset;
+	box-shadow: var(--genericbar-inner-box-shadow_vertical);
 }
 
 .progress_bar {
-	border-radius: 4px;
+	border-radius: var(--progressbar-border-radius);
 	text-align: center;
-	font-weight: bold;
-	color: rgba(0, 0, 0, 0.8);
+	font-weight: var(--progressbar-font-weight);
+	color: var(--progressbar-color);
 }
 .progress_bar .bar {
-	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.25) inset,
-		1px -1px 0 rgba(0,0,0,0.1) inset;
-	background-color: #75da41;
+	box-shadow: var(--progressbar-inner-box-shadow);
+	background-color: var(--progressbar-inner-bg);
 	background-size: 30px 30px;
 	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
 }
 .progress_yellow .bar {
-	background-color: #f6c51c;
+	background-color: var(--progressbar-inner-bg_yellow);
 }
 
 .progress_green .bar {
-	background-color: #75da41;
+	background-color: var(--progressbar-inner-bg_green);
 }
 
 .progress_red .bar {
-	background-color: #f45d4c;
+	background-color: var(--progressbar-inner-bg_red);
 }
 
 .progress_blue .bar {
-	background-color: #34c2e3;
+	background-color: var(--progressbar-inner-bg_blue);
 }
 
 /* Styles for the profile section.
@@ -2943,7 +2964,7 @@ dl.addrules dt.floatleft {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(40, 64, 80, 0.5);
+	background: var(--popup-bg);
 	z-index: 6;
 }
 #genericmenu > .popup_container {
@@ -2959,9 +2980,9 @@ dl.addrules dt.floatleft {
 	position: relative;
 	width: auto;
 	z-index: 99;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
-	border: 1px solid #777;
-	border-radius: 7px 7px 3px 3px;
+	box-shadow: var(--popup-window-box-shadow);
+	border: var(--popup-window-border-width) var(--popup-window-border-style) var(--popup-window-border-color);
+	border-radius: var(--popup-window-border-radius);
 	margin: 0 auto;
 	padding: 0;
 }
@@ -2976,11 +2997,11 @@ dl.addrules dt.floatleft {
 }
 .popup_heading {
 	padding: 10px 8px;
-	color: #bf6900;
+	color: var(--popup-heading-color);
 }
 .popup_content {
-	color: #222;
-	line-height: 1.6em;
+	color: var(--popup-content-color);
+	line-height: var(--popup-content-line-height);
 	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
@@ -3015,30 +3036,30 @@ dl.addrules dt.floatleft {
 }
 
 .generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
-	background: #f0f4f7;
+	background: var(--window-bg);
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	border: var(--window-border-width) var(--window-border-style) var(--window-border-color);
+	border-radius: var(--window-border-radius);
+	box-shadow: var(--window-box-shadow);
 	overflow: auto;
 }
 /* Here comes the glory... */
 .windowbg:nth-of-type(even), .bg.even {
-	background: #f0f4f7;
+	background: var(--window-bg);
 }
 .windowbg:nth-of-type(odd), .bg.odd {
-	background: #fdfdfd;
+	background: var(--window-odd-bg);
 }
 
 /* Highlight the target item */
 .windowbg:target {
-	background: #ffffe0;
+	background: var(--window-target-bg);
 }
 
 /* Add some hover on table rows */
 tr.windowbg:hover {
-	background: #e2eef8;
+	background: var(--window-bg_hover);
 }
 
 /* Special treatment for #forumposts area */
@@ -3047,23 +3068,23 @@ tr.windowbg:hover {
 }
 /* Nobody wants locked topics to stand out much. */
 .windowbg.locked {
-	background: #e7eaef;
+	background: var(--window-locked-bg);
 }
 /* Sticky topics get a different background */
 .windowbg.sticky {
-	background: #cfdce8;
+	background: var(--window-sticky-bg);
 }
 /* Locked AND sticky are a bit more technical */
 .windowbg.sticky.locked {
-	background: #e8d8cf;
+	background: var(--window-stickylocked-bg);
 }
 /* Awaiting approval is a bit special, topics first */
 .windowbg.approvetopic {
-	background: #e4a17c;
+	background: var(--window-approvetopic-bg);
 }
 /* Unapproved posts in approved topics */
 .windowbg.approvepost {
-	background: #ffcbcb;
+	background: var(--window-approvepost-bg);
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -3842,12 +3863,12 @@ ul.post_options li {
 /* General Classes */
 /* Cat_bar / catbg */
 div.cat_bar {
-	background: #557ea0;
-	border-bottom: 1px solid #777;
+	background: var(--catbar-bg);
+	border-bottom: var(--catbar-border-width) var(--catbar-border-style) var(--catbar-border-color);
 	padding: 0;
-	border-radius: 6px 6px 0 0;
-	box-shadow: 0 16px 20px rgba(255, 255, 255, 0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2);
+	border-radius: var(--catbar-border-radius);
+	box-shadow: var(--catbar-box-shadow);
+	text-shadow: var(--catbar-text-shadow);
 }
 .cat_bar.collapsed,
 .cat_bar.cat_bar_round {
@@ -3858,26 +3879,26 @@ div.cat_bar {
 }
 /* Styles for rounded headers. */
 .cat_bar .desc {
-	color: #fff;
+	color: var(--catbar-color);
 	font-size: 12px;
 	line-height: 1.5em;
 	font-weight: normal;
 	margin: -8px 0 4px 8px;
 }
 .cat_bar .desc a {
-	color: #fff;
+	color: var(--catbar-color);
 	font-weight: 600;
 }
 h3.catbg {
 	overflow: hidden;
-	font-size: 1.1em;
-	font-family: "Tahoma", sans-serif;
+	font-size: var(--catbar-font-size);
+	font-family: var(--catbar-font-family);
 }
 h3.catbg, h3.catbg a, h3.catbg a:hover {
-	color: #fff;
+	color: var(--catbar-color);
 }
 h3.catbg a:hover {
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
+	text-shadow: var(--catbar-text-shadow_hover);
 	text-decoration: none;
 }
 h3.catbg .main_icons::before, h3.catbg .icon {
@@ -3895,27 +3916,27 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 .roundframe {
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
-	background: #f8f8f8;
-	border: 1px solid #c5c5c5;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	background: var(--roundframe-bg);
+	border: var(--roundframe-border-width) var(--roundframe-border-style) var(--roundframe-border-color);
+	border-radius: var(--roundframe-border-radius);
+	box-shadow: var(--roundframe-box-shadow);
 	overflow: auto;
 }
 /* TitleBar & SubBar */
 .title_bar {
-	border: 1px solid #ddd;
-	border-top: 2px solid #ff9400;
-	border-bottom: 2px solid #bf6900;
-	background: #fff;
-	color: #666;
-	border-radius: 2px 2px 0 0;
+	border-color: var(--titlebar-border-color);
+	border-style: var(--titlebar-border-style);
+	border-width: var(--titlebar-border-width);
+	background: var(--titlebar-bg);
+	color: var(--titlebar-color);
+	border-radius: var(--titlebar-border-radius);
 	margin: 5px 0 0 0;
 }
 .sub_bar {
-	border-bottom: 1px solid #ddd;
-	text-shadow: none;
-	background: none;
-	box-shadow: 0 -1px 0 #999 inset;
+	border-bottom: var(--subbar-border-width) var(--subbar-border-style) var(--subbar-border-color);
+	text-shadow: var(--subbar-text-shadow);
+	background: var(--subbar-bg);
+	box-shadow: var(--subbar-box-shadow);
 	clear: both;
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
@@ -3941,12 +3962,12 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 /* Other */
 /* Information */
 .information {
-	background: #f8f8f8;
+	background: var(--information-bg);
 	overflow: auto;
 	padding-bottom: .5em;
-	border: 1px solid #ddd;
+	border: var(--information-border-width) var(--information-border-style) var(--information-border-color);
 	border-top: none;
-	border-radius: 0 0 7px 7px;
+	border-radius: var(--information-border-radius);
 	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
 }
@@ -4021,50 +4042,6 @@ p.information img {
 	border: 1px dotted gray;
 }
 
-/* Mentions */
-.atwho-view {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
-	margin-top: 18px;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 3px;
-	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-	min-width: 120px;
-	z-index: 11110 !important;
-}
-.atwho-view .cur {
-	background: #3366ff;
-	color: #fff;
-}
-.atwho-view .cur small {
-	color: #fff;
-}
-.atwho-view strong {
-	color: #3366ff;
-}
-.atwho-view .cur strong {
-	color: #fff;
-	font-weight: bold;
-}
-.atwho-view ul {
-	list-style: none;
-	padding: 0;
-	margin: auto;
-}
-.atwho-view ul li {
-	display: block;
-	padding: 5px 10px;
-	border-bottom: 1px solid #ddd;
-	cursor: pointer;
-}
-.atwho-view small {
-	font-size: smaller;
-	color: #777;
-	font-weight: normal;
-}
 /* On/Off Icons (User) */
 .on, .off {
 	display: inline-block;
