@@ -73,7 +73,7 @@ class Time1 extends BBCode
 
 		if (preg_match('/^\d+\.?\d*\s+(year|month|week|day|hour|minute|second)s?$/', $sanitized_date)) {
 			try {
-				$duration = TimeInterval::createFromDateInterval(\DateInterval::createFromDateString($sanitized_date));
+				$duration = TimeInterval::createFromDateString($sanitized_date);
 
 				$data = [$text, (string) $duration];
 

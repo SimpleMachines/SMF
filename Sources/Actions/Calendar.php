@@ -371,7 +371,7 @@ class Calendar implements ActionInterface, Routable
 
 				default:
 					$ics_url .= ';start_date=' . $start_object->format('Y-m-d');
-					$ics_url .= ';duration=' . (string) TimeInterval::createFromDateInterval($start_object->diff($end_object));
+					$ics_url .= ';duration=' . (string) $start_object->diff($end_object);
 					break;
 			}
 
