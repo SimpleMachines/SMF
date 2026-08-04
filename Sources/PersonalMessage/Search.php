@@ -505,7 +505,7 @@ class Search
 					$searchq_parameters['name_' . $k] = $v;
 					$clauses[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
 				}
-			
+
 			if (Db::$db->num_rows($request) == 0) {
 				$this->user_query = 'AND pm.id_member_from = 0 AND (' . implode(' OR ', $clauses) . ')';
 			} else {
