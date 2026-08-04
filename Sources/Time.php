@@ -739,6 +739,19 @@ class Time extends \DateTime implements \ArrayAccess
 		return $this;
 	}
 
+	/**
+	 * Like \DateTimeInterface::diff(), except it returns SMF\TimeInterval
+	 * instances instead of \DateInterval instances.
+	 *
+	 * @param DateTimeInterface $target The date to compare to.
+	 * @param bool $absolute Whether the interval be forced to be positive.
+	 * @return TimeInterval Representation of the difference between the dates.
+	 */
+	public function diff(DateTimeInterface $target, bool $absolute = false): TimeInterval
+	{
+		return TimeInterval::createFromDateInterval(date_diff($this, $target, $absolute));
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/

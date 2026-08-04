@@ -1198,7 +1198,7 @@ class Event implements \ArrayAccess
 						break;
 					}
 				}
-				$this->duration = TimeInterval::createFromDateInterval($this->start->diff($value));
+				$this->duration = $this->start->diff($value);
 				break;
 
 			case 'end_datetime':
@@ -1982,7 +1982,7 @@ class Event implements \ArrayAccess
 					$end = new Time($matches[1] . ' ' . User::$me->timezone);
 				}
 
-				$props['duration'] = TimeInterval::createFromDateInterval($props['start']->diff($end));
+				$props['duration'] = $props['start']->diff($end);
 			}
 
 			if (str_starts_with($line, 'DURATION')) {
@@ -2098,7 +2098,7 @@ class Event implements \ArrayAccess
 		if ($eventOptions['allday']) {
 			$eventOptions['end']->modify('+1 day');
 		}
-		$eventOptions['duration'] = TimeInterval::createFromDateInterval($eventOptions['start']->diff($eventOptions['end']));
+		$eventOptions['duration'] = $eventOptions['start']->diff($eventOptions['end']);
 		unset($eventOptions['end']);
 
 		// Unset all null values and all scalar date/time parameters.
