@@ -137,6 +137,9 @@ call_user_func(function () {
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
+
+	// Initialize the DI Container
+	SMF\Container::init();
 });
 
 // Devs want all error messages, but others don't.
@@ -150,7 +153,6 @@ if (SMF === 1) {
 
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . DIRECTORY_SEPARATOR . 'Subs-Compat.php';
-
 
 /*********************************************************************
  * From this point forward, do stuff specific to normal forum loading.

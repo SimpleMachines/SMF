@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Routable;
+use SMF\Services\DatabaseServiceInterface;
 use SMF\Theme;
 use SMF\Utils;
 
@@ -61,6 +62,25 @@ class Help implements ActionInterface, Routable
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * Constructor.
+	 *
+	 * Redirect to the user help ;).
+	 * It loads information needed for the help section.
+	 * It is accessed by ?action=help.
+	 *
+	 * Uses Help template and Manual language file.
+	 */
+	public function __construct(
+		private DatabaseServiceInterface $db,
+	) {
+		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
+
+		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
+			$this->subaction = $_GET['sa'];
+		}
+	}
 
 	public function isRestrictedGuestAccessAllowed(): bool
 	{
@@ -115,28 +135,5 @@ class Help implements ActionInterface, Routable
 		// Lastly, some minor template stuff.
 		Utils::$context['page_title'] = Lang::getTxt('manual_smf_user_help', file: 'Manual');
 		Utils::$context['sub_template'] = 'manual';
-	}
-
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 *
-	 * Redirect to the user help ;).
-	 * It loads information needed for the help section.
-	 * It is accessed by ?action=help.
-	 *
-	 * Uses Help template and Manual language file.
-	 */
-	protected function __construct()
-	{
-		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
 	}
 }
