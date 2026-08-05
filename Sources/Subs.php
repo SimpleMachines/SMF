@@ -6126,7 +6126,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 
 	// SSRF guard: refuse loopback/private/link-local/reserved targets and
 	// non-fetchable schemes before any connection is attempted.
-	if (!is_fetch_safe($url))
+	if (($url = make_fetch_safe($url)) === null)
 	{
 		loadLanguage('Errors');
 		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
@@ -6302,7 +6302,9 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 }
 
 /**
- * Decides whether a URL is safe to fetch from the server.
+ * Checks whether a URL is safe to fetch from the server, and then returns
+ * either a version of the URL where the host has been resolved to a literal
+ * IP address, or else null if the URL was unsafe to fetch.
  *
  * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
  * host resolves (or is) a non-global IP address: loopback, private,
@@ -6312,27 +6314,34 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
  * also re-applied to each redirect target by the fetchers.
  *
  * @param string $url The URL to check.
- * @return bool True if the URL is safe to fetch, false otherwise.
+ * @return string|null A version of $url where the host has been resolved to a
+ *    literal IP address, or else null if the URL was unsafe to fetch.
  */
-function is_fetch_safe($url)
+function make_fetch_safe($url)
 {
-	static $safe_hosts = array();
+	static $resolved_hosts = array();
 
-	$parsedurl = parse_iri(iri_to_url($url));
+	$url = iri_to_url($url);
+	$parsedurl = parse_iri($url);
 
 	if (empty($parsedurl['scheme']) || !in_array($parsedurl['scheme'], array('http', 'https', 'ftp', 'ftps')) || empty($parsedurl['host']) || preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $parsedurl['host']))
-		return false;
+		return null;
 
 	// Avoid unnecessary repetition.
-	if (isset($safe_hosts[$parsedurl['host']]))
-		return $safe_hosts[$parsedurl['host']];
+	if (isset($resolved_hosts[$parsedurl['host']]))
+	{
+		if (empty($resolved_hosts[$parsedurl['host']]))
+			return null;
+
+		return preg_replace('/' . preg_quote($parsedurl['host']) . '/', $resolved_hosts[$parsedurl['host']][0], $url, 1);
+	}
 
 	// Resolve the host to its address(es). A literal IP resolves to itself.
 	$ips = array();
 
-	if (filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false)
+	if (filter_var(trim($parsedurl['host'], '[]'), FILTER_VALIDATE_IP) !== false)
 	{
-		$ips[] = $parsedurl['host'];
+		$ips[] = trim($parsedurl['host'], '[]');
 	}
 	else
 	{
@@ -6348,15 +6357,24 @@ function is_fetch_safe($url)
 		}
 	}
 
-	$safe_hosts[$parsedurl['host']] = !empty($ips) && $ips === array_filter(
-		$ips,
+	$resolved_hosts[$parsedurl['host']] = array_values(array_map(
 		function ($ip)
 		{
-			return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE);
-		}
-	);
+			return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) ? '[' . $ip . ']' : $ip;
+		},
+		array_filter(
+			$ips,
+			function ($ip)
+			{
+				return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE);
+			}
+		),
+	));
 
-	return $safe_hosts[$parsedurl['host']];
+	if (empty($resolved_hosts[$parsedurl['host']]))
+		return null;
+
+	return preg_replace('/' . preg_quote($parsedurl['host']) . '/', $resolved_hosts[$parsedurl['host']][0], $url, 1);
 }
 
 /**
