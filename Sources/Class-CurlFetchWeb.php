@@ -342,7 +342,7 @@ class curl_fetch_web_data
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (!is_fetch_safe($target_url))
+		if (($target_url = make_fetch_safe($target_url)) === null)
 		{
 			if (isset($this->response[$this->current_redirect - 1]))
 				$this->response[$this->current_redirect - 1]['success'] = false;
