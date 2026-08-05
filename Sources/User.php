@@ -2103,7 +2103,11 @@ class User implements \ArrayAccess
 		];
 
 		foreach ($restrictions as $restriction) {
-			$ban = $bans[$restriction];
+			$ban = $bans[$restriction] ?? [];
+
+			if (empty($ban['ids'])) {
+				continue;
+			}
 
 			switch ($restriction) {
 				// If you're fully banned, it's end of the story for you.
@@ -2224,6 +2228,10 @@ class User implements \ArrayAccess
 		}
 
 		// Fix up the banning permissions.
+		if (!isset($this->permission_sets)) {
+			$this->loadPermissions();
+		}
+
 		foreach ($this->permission_sets as $set) {
 			$set->applyBansAndWarnings();
 		}
@@ -3320,6 +3328,10 @@ class User implements \ArrayAccess
 
 					default:
 						$prop = match ($column) {
+							'member_name' => 'username',
+							'real_name' => 'name',
+							'email_address' => 'email',
+							'usertitle' => 'title',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
 							'member_ip' => 'ip',

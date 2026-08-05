@@ -1,0 +1,45 @@
+.atwho-view {
+	background: var(--mentions-bg, #fff);
+	border-color: var(--mentions-border-color, hsl(0, 0%, 85%));
+	border-radius: var(--mentions-border-radius, 1px);
+	border-style: var(--mentions-border-style, solid);
+	border-width: var(--mentions-border-width, 1px);
+	box-shadow: var(--mentions-box-shadow, 0 0 5px rgba(0, 0, 0, 0.1));
+	display: none;
+	margin-block: 1.5em .25em;
+	margin-inline: 0;
+	min-width: var(--mentions-width, 120px);
+	padding: 0;
+	position: absolute;
+	top: 0;
+	z-index: 11110 !important;
+}
+.atwho-view ul {
+	list-style: none;
+	margin: auto;
+	padding: 0;
+}
+.atwho-view li {
+	background: var(--mentions-item-bg, #f2f2f2);
+	border-color: var(--mentions-item-border-color, hsl(0, 0%, 85%));
+	border-style: var(--mentions-item-border-style, solid);
+	border-width: var(--mentions-item-border-width, 0 0 1px);
+	color: var(--mentions-item-color, hsl(0, 0%, 20%));
+	cursor: var(--mentions-item-cursor, pointer);
+	font-size: var(--mentions-item-font-size, .95em);
+	font-weight: var(--mentions-item-font-weight, normal);
+	margin: 0;
+	padding: 5px 10px;
+}
+.atwho-view li:last-child {
+	--mentions-item-border-width: 0;
+}
+.atwho-view .cur {
+	background: var(--mentions-item-bg_current, hsl(225, 100%, 60%));
+	color: var(--mentions-item-color_current, #fff);
+	font-size: var(--mentions-item-font-size_current, .95em);
+	font-weight: var(--mentions-item-font-weight_current, normal);
+}
+.atwho-view li b {
+	color: inherit;
+}

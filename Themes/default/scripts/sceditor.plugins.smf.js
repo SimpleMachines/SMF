@@ -1529,23 +1529,28 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
-			code: null
+			code: null,
+			pre: {
+				class: 'bbc_code'
+			}
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			var
-				dom = sceditor.dom,
-				attr = dom.attr,
-				title = attr(element, 'data-title'),
-				from = title ?' =' + title : '';
+			// The <pre> is only a wrapper; the inner <code> carries the title.
+			if (element.tagName === 'PRE')
+				return content;
 
-			return '[code' + from + ']' + "\n" + content.replace('&#91;', '[') + "\n" + '[/code]';
+			const title = sceditor.dom.attr(element, 'data-title');
+			const from = title ? ' =' + title : '';
+
+			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
 		html(element, {defaultattr}, content) {
 			const from = defaultattr ? ' data-title="' + defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>').replace(/^<br[^>]*>/, '').replace(/<br[^>]*>$/, '') + '</code>'
+			// A <pre> preserves the whitespace itself, so the line breaks no longer need trimming.
+			return '<pre class="bbc_code"><code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code></pre>';
 		}
 	}
 ).set(

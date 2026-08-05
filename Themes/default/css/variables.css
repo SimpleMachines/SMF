@@ -1,0 +1,258 @@
+/* Design tokens for the default theme.
+/* Loaded ahead of index.css, so anything declared here can be overridden by a
+/* variant, by dark.css, or by a rule further down that sets the property on a
+/* narrower selector.
+/*
+/* Every value here is the one the theme already used before the token existed.
+/* Adding a token is not meant to change what the forum looks like. */
+:root {
+	/** HTML **/
+	--html-bg:                                        #3e5a78;
+
+	/** Body **/
+	--body-bg:                                        #e9eef2;
+	--body-color:                                     #4d4d4d;
+	--body-font-family:                               "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	--body-font-size:                                 83.33%;
+
+	/** Body Links **/
+	--body-link-color:                                #346;
+
+	/** Strong **/
+	--strong-color:                                   #444;
+
+	/** Headings **/
+	--heading-color:                                  #444;
+	--heading-font-size:                              1em;
+
+	/** Selection **/
+	--selection-bg:                                   #99d4ff;
+	--selection-color:                                rgba(0, 0, 0, 0.6);
+
+	/** Horizontal Rule **/
+	--horizontalrule-bg:                              #fff;
+	--horizontalrule-box-shadow:                      0 1px 0 #bbb inset;
+	--horizontalrule-height:                          2px;
+
+	/** Inputs **/
+	--input-bg:                                       #fff;
+	--input-bg_disabled:                              #eee;
+	--input-bg_focus:                                 #fff;
+	--input-bg_hover:                                 #fbfbfb;
+	--input-border-color:                             #bbb;
+	--input-border-color_disabled:                    #b6b6b6;
+	--input-border-color_focus:                       #7fb0d8;
+	--input-border-color_hover:                       #82a2bc;
+	--input-border-radius:                            3px;
+	--input-border-style:                             solid;
+	--input-border-width:                             1px;
+	--input-box-shadow:                               1px 2px 1px rgba(160, 187, 221, 0.2) inset;
+	--input-color:                                    #222;
+	--input-color_disabled:                           #999;
+
+	/** Fieldsets **/
+	--fieldset-border-color:                          #ddd;
+	--fieldset-border-radius:                         3px;
+	--fieldset-border-style:                          solid;
+	--fieldset-border-width:                          1px;
+	--fieldset-legend-color:                          #555;
+
+	/** Buttons **/
+	--button-bg_active:                               #557ea0;
+	--button-border-color:                            #ddd #bbb #aaa #ddd;
+	--button-border-color_active:                     #558080;
+	--button-border-color_hover:                      #aaa #ddd #ddd #bbb;
+	--button-border-radius:                           3px;
+	--button-border-style:                            solid;
+	--button-border-width:                            1px;
+	--button-box-shadow:                              1px 1px 1px rgba(221, 221, 221, 0.57);
+	--button-box-shadow_active:                       none;
+	--button-box-shadow_hover:                        -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
+	--button-color:                                   #444;
+	--button-color_active:                            #fff;
+	--button-color_active_hover:                      #ffc187;
+	--button-color_hover:                             #af6700;
+	--button-cursor:                                  pointer;
+	--button-font-size:                               0.7rem;
+	--button-font-weight_active:                      bold;
+	--button-text-shadow_active:                      0 0 1px #000;
+	--button-text-transform:                          uppercase;
+
+	/** Cat Bar **/
+	--catbar-bg:                                      #557ea0;
+	--catbar-border-color:                            #777;
+	--catbar-border-radius:                           6px 6px 0 0;
+	--catbar-border-style:                            solid;
+	--catbar-border-width:                            1px;
+	--catbar-box-shadow:                              0 16px 20px rgba(255, 255, 255, 0.15) inset;
+	--catbar-color:                                   #fff;
+	--catbar-font-family:                             "Tahoma", sans-serif;
+	--catbar-font-size:                               1.1em;
+	--catbar-text-shadow:                             -1px -1px 1px rgba(0, 0, 0, 0.2);
+	--catbar-text-shadow_hover:                       -1px -1px 0 rgba(0, 0, 0, 0.4);
+
+	/** Title Bar **/
+	--titlebar-bg:                                    #fff;
+	--titlebar-border-color:                          #ff9400 #ddd #bf6900 #ddd;
+	--titlebar-border-radius:                         2px 2px 0 0;
+	--titlebar-border-style:                          solid;
+	--titlebar-border-width:                          2px 1px;
+	--titlebar-color:                                 #666;
+
+	/** Sub Bar **/
+	--subbar-bg:                                      none;
+	--subbar-border-color:                            #ddd;
+	--subbar-border-style:                            solid;
+	--subbar-border-width:                            1px;
+	--subbar-box-shadow:                              0 -1px 0 #999 inset;
+	--subbar-text-shadow:                             none;
+
+	/** Round Frame **/
+	--roundframe-bg:                                  #f8f8f8;
+	--roundframe-border-color:                        #c5c5c5;
+	--roundframe-border-radius:                       7px;
+	--roundframe-border-style:                        solid;
+	--roundframe-border-width:                        1px;
+	--roundframe-box-shadow:                          0 -2px 2px rgba(0, 0, 0, 0.1);
+
+	/** Information **/
+	--information-bg:                                 #f8f8f8;
+	--information-border-color:                       #ddd;
+	--information-border-radius:                      0 0 7px 7px;
+	--information-border-style:                       solid;
+	--information-border-width:                       1px;
+
+	/** Windowbg **/
+	--window-bg:                                      #f0f4f7;
+	--window-bg_hover:                                #e2eef8;
+	--window-border-color:                            #ddd;
+	--window-border-radius:                           6px;
+	--window-border-style:                            solid;
+	--window-border-width:                            1px;
+	--window-box-shadow:                              0 -2px 2px rgba(0, 0, 0, 0.1);
+	--window-odd-bg:                                  #fdfdfd;
+	--window-target-bg:                               #ffffe0;
+	--window-locked-bg:                               #e7eaef;
+	--window-sticky-bg:                               #cfdce8;
+	--window-stickylocked-bg:                         #e8d8cf;
+	--window-approvetopic-bg:                         #e4a17c;
+	--window-approvepost-bg:                          #ffcbcb;
+
+	/** Error Box **/
+	--errorbox-bg:                                    #fee;
+	--errorbox-border-color:                          #c34;
+	--errorbox-border-style:                          solid;
+	--errorbox-border-width:                          2px;
+
+	/** Notice Box **/
+	--noticebox-bg:                                   #fff6ca;
+	--noticebox-border-color:                         #ffd324;
+	--noticebox-border-style:                         solid;
+	--noticebox-border-width:                         1px;
+	--noticebox-color:                                #666;
+
+	/** Info Box **/
+	--infobox-bg:                                     #cfc;
+	--infobox-border-color:                           green;
+	--infobox-border-style:                           solid;
+	--infobox-border-width:                           1px;
+	--infobox-color:                                  #222;
+
+	/** Desc Box **/
+	--descbox-border-color:                           #c5c5c5;
+	--descbox-border-style:                           solid;
+	--descbox-border-width:                           1px;
+
+	/** Generic Bar **/
+	--genericbar-bg:                                  #fff;
+	--genericbar-border-color:                        #cecaca;
+	--genericbar-border-radius:                       2px;
+	--genericbar-border-style:                        solid;
+	--genericbar-border-width:                        1px;
+	--genericbar-color:                               rgba(0, 0, 0, 0.6);
+	--genericbar-height:                              16px;
+	--genericbar-line-height:                         1.4em;
+	--genericbar-text-shadow:                         1px 1px rgba(255, 255, 255, .4);
+	--genericbar-width:                               15px;
+
+	--genericbar-inner-bg:                            orange;
+	--genericbar-inner-border-radius:                 1px;
+	--genericbar-inner-box-shadow:                    4px -4px 8px rgba(0, 0, 0, 0.1) inset, 4px 4px 8px rgba(255, 255, 255, 0.3) inset;
+	--genericbar-inner-box-shadow_vertical:           4px -4px 4px rgba(0, 0, 0, 0.1) inset, 4px 4px 4px rgba(255, 255, 255, 0.3) inset;
+
+	/** Progress Bar **/
+	--progressbar-border-radius:                      4px;
+	--progressbar-color:                              rgba(0, 0, 0, 0.8);
+	--progressbar-font-weight:                        bold;
+
+	--progressbar-inner-bg:                           #75da41;
+	--progressbar-inner-bg_blue:                      #34c2e3;
+	--progressbar-inner-bg_green:                     #75da41;
+	--progressbar-inner-bg_red:                       #f45d4c;
+	--progressbar-inner-bg_yellow:                    #f6c51c;
+	--progressbar-inner-box-shadow:                   -1px 1px 0 rgba(255, 255, 255, 0.25) inset, 1px -1px 0 rgba(0, 0, 0, 0.1) inset;
+
+	/** Quotes **/
+	--quote-bg:                                       #e0e6f6;
+	--quote-alternate-bg:                             #ebf4f8;
+	--quote-border-color:                             #d6dfe2 #aaa;
+	--quote-border-style:                             solid;
+	--quote-border-width:                             1px 2px;
+	--quote-font-size:                                0.85rem;
+
+	--quote-cite-border-color:                        rgba(0, 0, 0, 0.1);
+	--quote-cite-border-style:                        solid;
+	--quote-cite-border-width:                        1px;
+	--quote-cite-font-size:                           0.9em;
+
+	/** Code Blocks **/
+	--code-bg:                                        #f3f3f3;
+	--code-border-color:                              #bbb #dfdfdf #aaa;
+	--code-border-radius:                             2px;
+	--code-border-style:                              solid;
+	--code-border-width:                              2px 1px 3px;
+	--code-font-size:                                 0.78rem;
+	--code-height:                                    25em;
+
+	/** BBC Links **/
+	--bbc-link-border-color:                          #a8b6cf;
+	--bbc-link-border-color_hover:                    #346;
+	--bbc-link-border-style:                          solid;
+	--bbc-link-border-width:                          1px;
+
+	/** AJAX Notification Bar **/
+	--ajaxinprogress-bg:                              #fff;
+	--ajaxinprogress-border-color:                    #f96f00;
+	--ajaxinprogress-border-style:                    solid;
+	--ajaxinprogress-border-width:                    4px;
+	--ajaxinprogress-color:                           #f96f00;
+	--ajaxinprogress-font-size:                       1.6em;
+	--ajaxinprogress-line-height:                     25px;
+
+	--ajaxinprogress-link-color:                      orange;
+	--ajaxinprogress-link-font-size:                  0.9em;
+	--ajaxinprogress-link-text-decoration:            underline;
+
+	/** Popups **/
+	--popup-bg:                                       rgba(40, 64, 80, 0.5);
+
+	--popup-window-border-color:                      #777;
+	--popup-window-border-radius:                     7px 7px 3px 3px;
+	--popup-window-border-style:                      solid;
+	--popup-window-border-width:                      1px;
+	--popup-window-box-shadow:                        0 3px 6px rgba(0, 0, 0, 0.5);
+
+	--popup-heading-color:                            #bf6900;
+
+	--popup-content-color:                            #222;
+	--popup-content-line-height:                      1.6em;
+
+	/** Search Highlight **/
+	--searchhighlight-color:                          #ff7200;
+	--searchhighlight-font-size:                      1.1em;
+	--searchhighlight-font-weight:                    bold;
+
+	/** Moderation Link **/
+	--moderationlink-bg:                              #f59e00;
+	--moderationlink-font-weight:                     bold;
+}

@@ -497,26 +497,28 @@ class Search
 		// Simply do nothing if there're too many members matching the criteria.
 		if (Db::$db->num_rows($request) > $this->max_members_to_search) {
 			$this->user_query = '';
-		} elseif (Db::$db->num_rows($request) == 0) {
-			$this->user_query = 'AND pm.id_member_from = 0 AND ({raw:pm_from_name} LIKE {raw:guest_user_name_implode})';
-
-			$this->searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR ' . (Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name') . ' LIKE \'', $possible_users) . '\'';
-
-			$this->searchq_parameters['pm_from_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
 		} else {
-			$memberlist = [];
+				$searchq_parameters['real_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
+				$clauses = [];
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$memberlist[] = $row['id_member'];
+				foreach ($possible_users as $k => $v) {
+					$searchq_parameters['name_' . $k] = $v;
+					$clauses[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
+				}
+
+			if (Db::$db->num_rows($request) == 0) {
+				$this->user_query = 'AND pm.id_member_from = 0 AND (' . implode(' OR ', $clauses) . ')';
+			} else {
+				$memberlist = [];
+
+				while ($row = Db::$db->fetch_assoc($request)) {
+					$memberlist[] = $row['id_member'];
+				}
+
+				$this->searchq_parameters['member_list'] = $memberlist;
+
+				$this->user_query = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND (' . implode(' OR ', $clauses) . ')))';
 			}
-
-			$this->user_query = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND ({raw:pm_from_name} LIKE {raw:guest_user_name_implode})))';
-
-			$this->searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR ' . (Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name') . ' LIKE \'', $possible_users) . '\'';
-
-			$this->searchq_parameters['member_list'] = $memberlist;
-
-			$this->searchq_parameters['pm_from_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
 		}
 		Db::$db->free_result($request);
 	}

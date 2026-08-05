@@ -285,7 +285,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				addEventListener("load", smfCurrentVersion);
 
 				// This checks that the script file even exists!
-				if (typeof(smfSelectText) == \'undefined\') {
+				if (typeof(attachBbCodeEvents) == \'undefined\') {
 					document.getElementById(\'js_script_missing_error\').classList.remove(\'hidden\');
 				}
 			</script>';

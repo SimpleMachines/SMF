@@ -348,14 +348,15 @@ class Post implements ActionInterface, Routable
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
-			Theme::loadJavaScriptFile('jquery.caret.min.js', ['defer' => true], 'smf_caret');
-			Theme::loadJavaScriptFile('jquery.atwho.min.js', ['defer' => true], 'smf_atwho');
+			Theme::loadCSSFile('atwho.css', ['minimize' => true], 'smf_atwho');
+			Theme::loadJavaScriptFile('caret.js', ['defer' => true, 'minimize' => true], 'smf_caret');
+			Theme::loadJavaScriptFile('atwho.js', ['defer' => true, 'minimize' => true], 'smf_atwho');
 			Theme::loadJavaScriptFile('mentions.js', ['defer' => true, 'minimize' => true], 'smf_mentions');
 		}
 
-		// Load the drafts.js file
+		// Load the draft autosave plugin.
 		if (Utils::$context['drafts_autosave']) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['minimize' => true], 'smf_drafts');
 		}
 
 		// quotedText.js
@@ -1763,6 +1764,26 @@ class Post implements ActionInterface, Routable
 	 */
 	protected function loadEditor(): void
 	{
+		$plugins = [];
+		$options = [
+			'autofocus' => $this->intent !== self::INTENT_NEW_TOPIC,
+		];
+
+		if (Utils::$context['drafts_autosave']) {
+			$plugins[] = 'drafts';
+			$plugins[] = 'messageDrafts';
+			$options['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
+				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+			];
+		}
+
+		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
+			$plugins[] = 'mentions';
+		}
+
 		new Editor([
 			'id' => 'message',
 			'value' => Utils::$context['message'],
@@ -1772,9 +1793,8 @@ class Post implements ActionInterface, Routable
 			// We do XML preview here.
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
-			'options' => [
-				'autofocus' => $this->intent !== self::INTENT_NEW_TOPIC,
-			],
+			'plugins' => $plugins,
+			'options' => $options,
 		]);
 	}
 

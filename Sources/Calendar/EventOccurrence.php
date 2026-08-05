@@ -633,7 +633,7 @@ class EventOccurrence implements \ArrayAccess
 
 		$occurrence = $event->getOccurrence($id);
 
-		$offset = TimeInterval::createFromDateInterval(date_diff($occurrence->unadjusted_start, $eventOptions['start']));
+		$offset = $occurrence->unadjusted_start->diff($eventOptions['start']);
 
 		$occurrence->adjustment = new EventAdjustment(
 			$id,

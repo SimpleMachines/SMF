@@ -2325,11 +2325,6 @@ class Theme
 		// Queue our JQuery plugins!
 		self::loadJavaScriptFile('smf_jquery_plugins.js', ['minimize' => true], 'smf_jquery_plugins');
 
-		if (!User::$me->is_guest) {
-			self::loadJavaScriptFile('jquery.custom-scrollbar.js', ['minimize' => true], 'smf_jquery_scrollbar');
-			self::loadCSSFile('jquery.custom-scrollbar.css', ['force_current' => false, 'validate' => true], 'smf_scrollbar');
-		}
-
 		// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 		self::loadJavaScriptFile('script.js', ['defer' => false, 'minimize' => true], 'smf_script');
 		self::loadJavaScriptFile('theme.js', ['minimize' => true], 'smf_theme');

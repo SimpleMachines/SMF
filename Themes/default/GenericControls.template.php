@@ -90,18 +90,7 @@ function template_control_richedit_buttons(string $editor_id): void
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="', Theme::$current->settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave"></span>
-		</span>
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_draft\',
-				sSceditorID: \'', $editor_id, '\',
-				sType: \'post\',
-				bPM: ', isset(Utils::$context['drafts_type']) && Utils::$context['drafts_type'] === 'pm' ? 'true' : 'false', ',
-				iBoard: ', (Utils::$context['current_board'] ?? 0), ',
-				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
-			});
-		</script>';
+		</span>';
 	}
 }
 
