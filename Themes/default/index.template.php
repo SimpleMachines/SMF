@@ -561,14 +561,16 @@ function theme_linktree($force_show = false)
 		return;
 	}
 
+	// A breadcrumb trail is a landmark, and it is an ordered list rather than an
+	// unordered one - "General Category" comes before "General Discussion".
 	echo '
-				<div class="navigate_section">
-					<ul>';
+				<nav class="navigate_section" aria-label="', Lang::getTxt('breadcrumb', file: 'General'), '">
+					<ol itemscope itemtype="https://schema.org/BreadcrumbList">';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach (Utils::$context['linktree'] as $link_num => $tree) {
 		echo '
-						<li', ($link_num == count(Utils::$context['linktree']) - 1) ? ' class="last"' : '', '>';
+						<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"', ($link_num == count(Utils::$context['linktree']) - 1) ? ' class="last"' : '', '>';
 
 		// Don't show a separator for the first one.
 		// Better here. Always points to the next level when the linktree breaks to a second line.
@@ -583,14 +585,19 @@ function theme_linktree($force_show = false)
 			echo $tree['extra_before'], ' ';
 		}
 
-		// Show the link, including a URL if it should have one.
+		// Show the link, including a URL if it should have one. The itemprop
+		// attributes let a search engine read the trail as a breadcrumb.
 		if (isset($tree['url'])) {
 			echo '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
+							<a itemprop="item" href="' . $tree['url'] . '"><span itemprop="name">' . $tree['name'] . '</span></a>';
 		} else {
-		echo '
-							<span>' . $tree['name'] . '</span>';
+			echo '
+							<span itemprop="name">' . $tree['name'] . '</span>';
 		}
+
+		// Where this one sits in the trail. Positions are 1 based.
+		echo '
+							<meta itemprop="position" content="', $link_num + 1, '">';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after'])) {
@@ -602,8 +609,8 @@ function theme_linktree($force_show = false)
 	}
 
 	echo '
-					</ul>
-				</div><!-- .navigate_section -->';
+					</ol>
+				</nav><!-- .navigate_section -->';
 
 	$shown_linktree = true;
 }

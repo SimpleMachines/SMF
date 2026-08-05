@@ -1364,50 +1364,91 @@ ul li.greeting {
 
 /* The navigation list (i.e. linktree) */
 .navigate_section {
-	padding: 3px 0 0 0;
-	float: left;
-	width: 100%;
-}
-#main_content_section .navigate_section {
-	margin: 4px 0 0 0;
+	background: var(--navigatesection-bg);
+	border-color: var(--navigatesection-border-color);
+	border-radius: var(--navigatesection-border-radius);
+	border-style: var(--navigatesection-border-style);
+	border-width: var(--navigatesection-border-width);
+	box-shadow: var(--navigatesection-box-shadow);
+	margin-block: .5em .75em;
+	margin-inline: 0;
 	padding: 0;
 }
-.navigate_section ul {
-	margin: 4px 0 0 0;
-	padding: 0 10px;
+.navigate_section ol {
+	align-items: center;
+	background: var(--breadcrumb-bg);
+	border-color: var(--breadcrumb-border-color);
+	border-radius: var(--breadcrumb-border-radius);
+	border-style: var(--breadcrumb-border-style);
+	border-width: var(--breadcrumb-border-width);
+	box-shadow: var(--breadcrumb-box-shadow);
+	color: var(--breadcrumb-color);
+	display: flex;
+	flex-wrap: wrap;
+	font-family: var(--breadcrumb-font-family);
+	font-size: var(--breadcrumb-font-size);
+	margin: 0;
+	padding: .75em;
+}
+.navigate_section li {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .25em .15em;
+}
+.navigate_section a {
+	color: var(--breadcrumb-link-color);
+}
+.navigate_section a:hover {
+	color: var(--breadcrumb-link-color_hover);
+}
+.navigate_section a:focus {
+	color: var(--breadcrumb-link-color_focus);
+}
+.navigate_section li > a {
+	align-items: center;
+	display: inline-flex;
+	font-weight: var(--breadcrumb-link-font-weight);
+	gap: 0 .25em;
+	line-height: var(--breadcrumb-link-line-height);
+	padding: .2em;
+	text-decoration: var(--breadcrumb-link-text-decoration);
+	text-shadow: var(--breadcrumb-link-text-shadow);
+}
+.navigate_section li > a:hover {
+	font-weight: var(--breadcrumb-link-font-weight_hover);
+	text-decoration: var(--breadcrumb-link-text-decoration_hover);
+	text-shadow: var(--breadcrumb-link-text-shadow_hover);
+}
+.navigate_section li > a:focus {
+	font-weight: var(--breadcrumb-link-font-weight_focus);
+	text-decoration: var(--breadcrumb-link-text-decoration_focus);
+	text-shadow: var(--breadcrumb-link-text-shadow_focus);
+}
+/* The page you are on, which is the last crumb unless it is the only one. */
+.navigate_section li:last-child:not(:first-child) > a {
+	color: var(--breadcrumb-link-color_active);
+	font-weight: var(--breadcrumb-link-font-weight_active);
+	text-decoration: var(--breadcrumb-link-text-decoration_active);
+	text-shadow: var(--breadcrumb-link-text-shadow_active);
+}
+.navigate_section li > a + span {
 	font-size: 0.9em;
-	overflow: hidden;
-	border: 1px solid #ddd;
-	border-radius: 2px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.08);
 }
-.navigate_section ul li {
-	float: left;
-	padding-bottom: 3px;
-	line-height: 1.1em;
-	color: #444;
-	text-shadow: 1px 1px 0 #fff;
+.navigate_section span.board_moderators {
+	align-items: center;
+	display: inline-flex;
 }
-.navigate_section ul li a, .navigate_section ul li em {
-	padding: 4px 0 4px;
-	margin-top: -4px;
-	display: inline-block;
+.navigate_section span.board_moderators a {
+	padding-inline-start: 0.25em;
 }
-.navigate_section ul li span {
-	display: inline-block;
-	margin-top: 8px;
-}
-.navigate_section ul li .dividers {
-	color: #3f6b8c;
-	font: 83.33%/150% Arial, sans-serif;
-	padding: 0 2px 0 6px;
-}
-.navigate_section ul li .board_moderators a {
-	padding: 4px 0;
-}
-
-.navigate_section a:hover span {
-	text-decoration: underline;
+.navigate_section ol li .dividers {
+	color: var(--breadcrumb-divider-color);
+	font-family: var(--breadcrumb-divider-font-family);
+	font-size: var(--breadcrumb-divider-font-size);
+	line-height: var(--breadcrumb-divider-line-height);
+	margin: 0;
+	padding: 0 .4em;
 }
 
 /* The content section */

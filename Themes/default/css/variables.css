@@ -293,4 +293,48 @@
 	/** Moderation Link **/
 	--moderationlink-bg:                              #f59e00;
 	--moderationlink-font-weight:                     bold;
+
+	/** Navigate Section **/
+	--navigatesection-bg:                             hsl(0, 0%, 97%);
+	--navigatesection-border-color:                   hsl(0, 0%, 87%);
+	--navigatesection-border-radius:                  5px;
+	--navigatesection-border-style:                   solid;
+	--navigatesection-border-width:                   1px;
+	--navigatesection-box-shadow:                     0 0 1px 1px rgb(255, 255, 255) inset;
+
+	/** Breadcrumb **/
+	--breadcrumb-bg:                                  var(--navigatesection-bg);
+	--breadcrumb-border-color:                        transparent;
+	--breadcrumb-border-radius:                       var(--navigatesection-border-radius);
+	--breadcrumb-border-style:                        solid;
+	--breadcrumb-border-width:                        0;
+	--breadcrumb-box-shadow:                          0 6px 10px -5px rgba(0, 0, 0, 0.1);
+	--breadcrumb-color:                               hsl(0, 0%, 27%);
+	--breadcrumb-font-family:                         inherit;
+	--breadcrumb-font-size:                           0.9em;
+
+	/** Breadcrumb Divider **/
+	--breadcrumb-divider-color:                       hsl(206, 38%, 40%);
+	--breadcrumb-divider-font-family:                 Arial, sans-serif;
+	--breadcrumb-divider-font-size:                   0.8em;
+	--breadcrumb-divider-line-height:                 150%;
+
+	/** Breadcrumb Links **/
+	--breadcrumb-link-color:                          var(--primary-color-800);
+	--breadcrumb-link-color_active:                   hsl(213, 58%, 37%);
+	--breadcrumb-link-color_focus:                    var(--breadcrumb-link-color_hover);
+	--breadcrumb-link-color_hover:                    var(--primary-color-500);
+	--breadcrumb-link-font-weight:                    400;
+	--breadcrumb-link-font-weight_active:             700;
+	--breadcrumb-link-font-weight_focus:              var(--breadcrumb-link-font-weight_hover);
+	--breadcrumb-link-font-weight_hover:              var(--breadcrumb-link-font-weight);
+	--breadcrumb-link-line-height:                    1;
+	--breadcrumb-link-text-decoration:                none;
+	--breadcrumb-link-text-decoration_active:         none;
+	--breadcrumb-link-text-decoration_focus:          none;
+	--breadcrumb-link-text-decoration_hover:          none;
+	--breadcrumb-link-text-shadow:                    none;
+	--breadcrumb-link-text-shadow_active:             none;
+	--breadcrumb-link-text-shadow_focus:              none;
+	--breadcrumb-link-text-shadow_hover:              none;
 }
