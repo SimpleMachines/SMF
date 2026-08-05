@@ -61,28 +61,24 @@ abstract class MaintenanceTemplate
 		// Have we got a language drop down - if so do it on the first step only.
 		if (!empty(Maintenance::$languages) && \count(Maintenance::$languages) > 1 && Maintenance::getCurrentStep() == 0) {
 			echo '
-			<div id="upper_section">
-				<div id="inner_section">
-					<div id="inner_wrap">
-						<div class="news">
-							<form action="', Maintenance::getSelf(), '" method="get">
-								<label for="maintenance_language">', Lang::getTxt('maintenance_language', file: 'Maintenance'), ':</label>
-								<select id="maintenance_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
+			<div id="inner_wrap">
+				<div class="news">
+					<form action="', Maintenance::getSelf(), '" method="get">
+						<label for="maintenance_language">', Lang::getTxt('maintenance_language', file: 'Maintenance'), ':</label>
+						<select id="maintenance_language" name="lang_file" onchange="location.href = \'', Maintenance::getSelf(), '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 			foreach (Maintenance::$languages as $lang => $name) {
 				echo '
-									<option', isset($_SESSION['lang_file']) && $_SESSION['lang_file'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
+							<option', isset($_SESSION['lang_file']) && $_SESSION['lang_file'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
 			}
 
 			echo '
-								</select>
-								<noscript><input type="submit" value="', Lang::getTxt('action_set', file: 'Maintenance'), '" class="button"></noscript>
-							</form>
-						</div><!-- .news -->
-						<hr class="clear">
-					</div><!-- #inner_wrap -->
-				</div><!-- #inner_section -->
-			</div><!-- #upper_section -->';
+						</select>
+						<noscript><input type="submit" value="', Lang::getTxt('action_set', file: 'Maintenance'), '" class="button"></noscript>
+					</form>
+				</div><!-- .news -->
+				<hr class="clear">
+			</div><!-- #inner_wrap -->';
 		}
 
 		echo '
