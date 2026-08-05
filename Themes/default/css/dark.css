@@ -8,8 +8,16 @@
 /* false, so the switch stays off until there is something here to switch to.
 /*
 /* When it is filled in, override the tokens in variables.css rather than
-/* restating whole rules, and scope them to :root[data-mode="dark"]. Do not add
-/* :root[data-mode="system"] to that selector. Theme.php already attaches a
-/* (prefers-color-scheme: dark) media attribute to this stylesheet when the
-/* colour mode is "system", so the media query decides whether these rules apply
-/* at all and the attribute selector never has to test for it. */
+/* restating whole rules, and scope every block to both attribute values:
+/*
+/*	:root[data-mode="dark"],
+/*	:root[data-mode="system"] { ... }
+/*
+/* Both are required. Theme.php loads this file in every colour mode once dark
+/* mode is available, and only attaches a (prefers-color-scheme: dark) media
+/* attribute when the mode is "system"; index.template.php writes the mode
+/* straight into data-mode. So in "light" the selector is the only thing keeping
+/* these rules out, and in "system" the media query has already decided whether
+/* the file applies at all. Dropping the "system" alternative would mean that
+/* mode never gets dark styling, because the file loads, the media query
+/* matches, and then nothing selects. */
