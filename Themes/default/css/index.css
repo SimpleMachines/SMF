@@ -1222,10 +1222,12 @@ html[lang="el-GR"] .inline_mod_check {
 	line-height: 1.3em;
 	max-width: 100%;
 }
+/* These hang off #top_info, which is positioned. It sits at the end of the
+/* header, so they have to open towards the start or they run off the edge
+/* of the screen on a narrow window. */
 #pm_menu, #alerts_menu, #profile_menu {
-	left: 0;
-	right: 0;
-	padding-right: 10px;
+	inset-inline: auto 0;
+	padding-inline-end: 10px;
 }
 #profile_menu_top > img.avatar {
 	height: 18px;
