@@ -1207,9 +1207,11 @@ html[lang="el-GR"] .inline_mod_check {
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.14);
 }
 
-/* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
-	max-width: 1200px;
+/* Set maximum width limit for content.
+/* Anything that should line up with the rest of the page gets this class,
+/* rather than each wrapper being named individually in the selector. */
+.content-wrapper {
+	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
 }

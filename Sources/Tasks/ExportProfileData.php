@@ -135,7 +135,7 @@ class ExportProfileData extends BackgroundTask
 						</head>
 						<body>
 							<div id="footerfix">
-								<div id="header">
+								<div id="header" class="content-wrapper">
 									<h1 class="forumtitle">
 										<a id="top">
 											<xsl:attribute name="href">
@@ -145,7 +145,7 @@ class ExportProfileData extends BackgroundTask
 										</a>
 									</h1>
 								</div>
-								<div id="wrapper">
+								<div id="wrapper" class="content-wrapper">
 									<div id="upper_section">
 										<div id="inner_section">
 											<div id="inner_wrap">
@@ -167,7 +167,7 @@ class ExportProfileData extends BackgroundTask
 								</div>
 							</div>
 							<div id="footer">
-								<div class="inner_wrap">
+								<div class="inner_wrap content-wrapper">
 									<ul>
 										<li class="floatright">
 											<a>

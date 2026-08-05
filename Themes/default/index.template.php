@@ -231,7 +231,7 @@ function template_body_above()
 	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
 	<div id="top_section">
-		<div class="inner_wrap">';
+		<div class="inner_wrap content-wrapper">';
 
 	// If the user is logged in, display some things that might be useful.
 	if (!User::$me->is_guest) {
@@ -418,7 +418,7 @@ function template_body_above()
 	</div><!-- #top_section -->';
 
 	echo '
-	<header id="header">
+	<header id="header" class="content-wrapper">
 		<h1 class="forumtitle">
 			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
 		</h1>';
@@ -428,7 +428,7 @@ function template_body_above()
 
 	echo '
 	</header>
-	<div id="wrapper">
+	<div id="wrapper" class="content-wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
 				<div id="inner_wrap"', User::$me->is_guest ? ' class="hide_720"' : '', '>
@@ -506,7 +506,7 @@ function template_body_below()
 	// Show the footer with copyright, terms and help links.
 	echo '
 	<footer id="footer">
-		<div class="inner_wrap">';
+		<div class="inner_wrap content-wrapper">';
 
 	// There is now a global "Go to top" link at the right.
 	echo '
