@@ -47,6 +47,30 @@
 	/** Layout **/
 	--wrapper-width:                                  1200px;
 
+	/** Footer **/
+	--footer-bg:                                      var(--primary-color-700);
+	--footer-border-color:                            transparent;
+	--footer-border-style:                            solid;
+	--footer-border-width:                            0;
+	--footer-box-shadow:                              none;
+	--footer-color:                                   hsl(0, 0%, 96%);
+	--footer-font-size:                               0.85em;
+	--footer-height:                                  35px;
+
+	/** Footer Links **/
+	--footer-link-color:                              #fff;
+	--footer-link-color_focus:                        var(--footer-link-color_hover);
+	--footer-link-color_hover:                        #f8f8f8;
+	--footer-link-font-weight:                        400;
+	--footer-link-font-weight_focus:                  var(--footer-link-font-weight_hover);
+	--footer-link-font-weight_hover:                  var(--footer-link-font-weight);
+	--footer-link-text-decoration:                    none;
+	--footer-link-text-decoration_focus:              var(--footer-link-text-decoration_hover);
+	--footer-link-text-decoration_hover:              underline;
+	--footer-link-text-shadow:                        none;
+	--footer-link-text-shadow_focus:                  none;
+	--footer-link-text-shadow_hover:                  none;
+
 	/** Main Menu **/
 	--mainmenu-bg:                                    linear-gradient(#e2e9f3 0%, #fff 70%);
 	--mainmenu-border-color:                          #bbb;

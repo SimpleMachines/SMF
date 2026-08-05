@@ -497,13 +497,18 @@ function template_body_below()
 	// Show the footer with copyright, terms and help links.
 	echo '
 	<footer id="footer">
-		<div class="inner_wrap content_wrapper">';
+		<div class="content_wrapper">';
 
-	// There is now a global "Go to top" link at the right.
+	// The copyright at one end, the help links and the "Go to top" link at the
+	// other. They used to be separated by literal pipes; the gap does that now.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', ' | <a href="#header">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a></li>
 			<li class="copyright">', Theme::copyright(), '</li>
+			<li class="helplinks">
+				<a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
+				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', '
+				<a href="#header">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a>
+			</li>
 		</ul>';
 
 	// Show the load time?

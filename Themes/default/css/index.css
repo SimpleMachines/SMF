@@ -1477,15 +1477,51 @@ ul li.greeting {
 /* Footer is now full-width by default. */
 /* The footer with copyright links etc. */
 #footer {
-	margin: 4em 0 0 0;
-	padding: 10px 0;
-	background: #3e5a78;
-	border-top: 3px solid #b2b6bd;
+	background: var(--footer-bg);
+	border-color: var(--footer-border-color);
+	border-style: var(--footer-border-style);
+	border-width: var(--footer-border-width);
+	box-shadow: var(--footer-box-shadow);
+	color: var(--footer-color);
 	flex: none;
+	font-size: var(--footer-font-size);
+	margin: 4em 0 0 0;
+	min-height: var(--footer-height);
+	padding: 10px 0;
 }
-#footer li, #footer p, #footer a {
-	font-size: 0.9em;
-	color: #fff;
+#footer li, #footer p {
+	color: var(--footer-color);
+}
+#footer a {
+	color: var(--footer-link-color);
+	font-weight: var(--footer-link-font-weight);
+	text-decoration: var(--footer-link-text-decoration);
+	text-shadow: var(--footer-link-text-shadow);
+}
+#footer a:hover {
+	color: var(--footer-link-color_hover);
+	font-weight: var(--footer-link-font-weight_hover);
+	text-decoration: var(--footer-link-text-decoration_hover);
+	text-shadow: var(--footer-link-text-shadow_hover);
+}
+#footer a:focus {
+	color: var(--footer-link-color_focus);
+	font-weight: var(--footer-link-font-weight_focus);
+	text-decoration: var(--footer-link-text-decoration_focus);
+	text-shadow: var(--footer-link-text-shadow_focus);
+}
+/* Copyright at one end, help links at the other. */
+#footer ul {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25em .25em;
+	justify-content: space-between;
+}
+#footer li.helplinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75em;
 }
 #footer li.copyright {
 	display: block;
