@@ -4005,7 +4005,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	}
 
 	/**
-	 * Decides whether a URL is safe to fetch from the server.
+	 * Checks whether a URL is safe to fetch from the server, and then returns
+	 * either a version of the URL where the host has been resolved to a literal
+	 * IP address, or else null if the URL was unsafe to fetch.
 	 *
 	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
 	 * host resolves (or is) a non-global IP address: loopback, private,
@@ -4015,11 +4017,12 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 * is also re-applied to each redirect target by the fetchers.
 	 *
 	 * @param string $url The URL to check.
-	 * @return bool True if the URL is safe to fetch, false otherwise.
+	 * @return string|null A version of $url where the host has been resolved to
+	 *    a literal IP address, or else null if the URL was unsafe to fetch.
 	 */
-	function is_fetch_safe($url)
+	function make_fetch_safe($url)
 	{
-		return SMF\WebFetch\WebFetchApi::isFetchSafe($url);
+		return SMF\WebFetch\WebFetchApi::makeSafe($url);
 	}
 
 	/**

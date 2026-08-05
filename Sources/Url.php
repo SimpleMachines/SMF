@@ -518,6 +518,36 @@ class Url implements \Stringable
 	}
 
 	/**
+	 * Gets instances of SMF\IP for the IP address(es) that this URL's host
+	 * resolves to.
+	 *
+	 * @return array Zero or more instances of SMF\IP.
+	 */
+	public function getIPs(): array
+	{
+		// Resolve the host to its address(es). A literal IP resolves to itself.
+		$ips = [];
+
+		if (filter_var(trim($this->host, '[]'), FILTER_VALIDATE_IP)) {
+			$ips[] = new IP(trim($this->host, '[]'));
+		} else {
+			$records = @dns_get_record($this->host, DNS_A | DNS_AAAA);
+
+			foreach ((array) $records as $record) {
+				if (!empty($record['ip'])) {
+					$ips[] = new IP($record['ip']);
+				}
+
+				if (!empty($record['ipv6'])) {
+					$ips[] = new IP($record['ipv6']);
+				}
+			}
+		}
+
+		return $ips;
+	}
+
+	/**
 	 * Checks if this URL has an SSL certificate.
 	 *
 	 * @return bool Whether the URL has an SSL certificate.
