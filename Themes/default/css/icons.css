@@ -1,0 +1,13 @@
+/* Icons for the default theme.
+/*
+/* Deliberately empty for now. This file is the placeholder the icon work lands
+/* in; a later pull request fills it with the rules that replace the image files
+/* in Themes/default/images with CSS.
+/*
+/* Unlike dark.css this one is already loaded on every page. Theme.php has
+/* called loadCSSFile('icons.css', ...) at order_pos -200 since 3.0 Alpha, and a
+/* stylesheet that does not exist is dropped without complaint, so that call has
+/* been doing nothing until now.
+/*
+/* -200 puts it ahead of variables.css at -2 and index.css at 1, so anything
+/* declared here can be overridden by either of them. */
