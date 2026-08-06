@@ -247,7 +247,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (!WebFetchApi::isFetchSafe($url, ['http', 'https'])) {
+		if (($url = WebFetchApi::makeSafe($url, ['http', 'https'])) === null) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -437,7 +437,7 @@ class CurlFetcher extends WebFetchApi
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (!WebFetchApi::isFetchSafe(Url::create($target_url, true))) {
+		if (WebFetchApi::makeSafe(Url::create($target_url, true)) === null) {
 			if (isset($this->response[$this->current_redirect - 1])) {
 				$this->response[$this->current_redirect - 1]['success'] = false;
 			}

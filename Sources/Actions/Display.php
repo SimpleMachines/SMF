@@ -35,7 +35,6 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
-use SMF\TimeInterval;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -333,7 +332,7 @@ class Display implements ActionInterface, Routable
 				Db::$db->free_result($request);
 			}
 
-			$since = date_create('@' . $prev_timestamp)->diff(date_create('@' . $message->poster_time));
+			$since = Time::create('@' . $prev_timestamp)->diff(Time::create('@' . $message->poster_time));
 
 			if ($since->format('%a') > Config::$modSettings['oldTopicDays']) {
 				if ($since->format('%y') > 0) {
@@ -349,8 +348,6 @@ class Display implements ActionInterface, Routable
 					$num = $since->format('%a');
 					$unit = 'day';
 				}
-
-				$since = TimeInterval::createFromDateInterval($since);
 
 				$output['bump_notice'] = '<time class="bump_notice" datetime="' . (string) $since . '" title="' . $since->localize() . '">' . Lang::getTxt(
 					'bump_notice',
