@@ -100,7 +100,7 @@ final class SectionComments extends AbstractFixer
 		];
 
 		foreach ($this->comments as $type => $string) {
-			$words[] = trim($string, "/* \n\t");
+			$words[] = preg_replace('/\s+/', '\s+', preg_quote(trim($string, "/* \n\t"), '/'));
 		}
 
 		$this->comment_regex = '/^\/[*\s]+(?:' . implode('|', $words) . ')[*\s]+\/$/';
