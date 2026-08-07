@@ -286,7 +286,7 @@ final class SectionComments extends AbstractFixer
 			if (isset($insert_type)) {
 				$elements[] = [
 					'type' => $insert_type,
-					'start' => array_first($in),
+					'start' => $in[array_key_first($in)];,
 				];
 
 				$in = [];
