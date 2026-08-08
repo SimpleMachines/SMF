@@ -30,13 +30,13 @@ jobs:
     - name: Checkout
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
     - name: crowdin-action
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
       # You need to pin to a specific version for some reason...
-      uses: crowdin/github-action@2cc7959c565767d6bc118118d6df3b63bf361370 #2.6.1
+      uses: crowdin/github-action@c7af9bc98b01694653031fef2a0dc6c7888ce9bc #2.17.0
       with:
         # Push sources (the english files) to CrowdIn; do not push translations (non-english) in either direction
         upload_sources: true
