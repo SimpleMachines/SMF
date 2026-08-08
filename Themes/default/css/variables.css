@@ -44,6 +44,9 @@
 	--secondary-color-800:                            hsl(var(--secondary-color-hue), 98%, 47%);
 	--secondary-color-900:                            hsl(var(--secondary-color-hue), 97%, 46%);
 
+	/** Layout **/
+	--wrapper-width:                                  1200px;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
