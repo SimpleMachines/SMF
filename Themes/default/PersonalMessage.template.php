@@ -233,7 +233,7 @@ function template_folder()
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				<div class="floatright">
-					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">
+					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '" class="button you_sure">
 				</div>
 			</div>';
 		}
@@ -735,7 +735,7 @@ function template_subject_list()
 		}
 
 		echo '
-			<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">';
+			<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '" class="button you_sure">';
 	}
 
 	echo '
@@ -1599,7 +1599,7 @@ function template_rules()
 
 	if (!empty(Utils::$context['rules'])) {
 		echo '
-			<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return confirm(\'', Lang::getTxt('pm_js_apply_rules_confirm', file: 'PersonalMessage'), '\');" class="button">', Lang::getTxt('pm_apply_rules', file: 'PersonalMessage'), '</a>';
+			<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" data-confirm="', Lang::getTxt('pm_js_apply_rules_confirm', file: 'PersonalMessage'), '" class="button you_sure">', Lang::getTxt('pm_apply_rules', file: 'PersonalMessage'), '</a>';
 	}
 
 	echo '
