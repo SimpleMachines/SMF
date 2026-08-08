@@ -29,11 +29,11 @@ function template_generic_menu_dropdown_above()
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
-		<span class="menu_icon"></span>
-		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General'), '</span>
-	</a>
-	<div id="genericmenu">
+	<nav id="genericmenu" aria-label="', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General'), '">
+		<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
+			<span class="menu_icon"></span>
+			<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General'), '</span>
+		</a>
 		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
@@ -43,7 +43,7 @@ function template_generic_menu_dropdown_above()
 				', template_generic_menu($menu_context), '
 			</div>
 		</div>
-	</div>
+	</nav>
 	<script>
 		$( ".mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).click(function() {
 			$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).show();
