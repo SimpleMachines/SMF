@@ -163,30 +163,28 @@ class ExportProfileData extends BackgroundTask
 								</div>
 							</div>
 							<div id="footer">
-								<div class="inner_wrap content_wrapper">
+								<div class="content_wrapper">
 									<ul>
-										<li class="floatright">
+										<li class="copyright">
+											<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
+										</li>
+										<li class="helplinks">
 											<a>
 												<xsl:attribute name="href">
 													<xsl:value-of select="concat($scripturl, '?action=help')"/>
 												</xsl:attribute>
 												<xsl:value-of select="$txt_help"/>
 											</a>
-											<xsl:text> | </xsl:text>
 											<a>
 												<xsl:attribute name="href">
 													<xsl:value-of select="concat($scripturl, '?action=help;sa=rules')"/>
 												</xsl:attribute>
 												<xsl:value-of select="$txt_terms_rules"/>
 											</a>
-											<xsl:text> | </xsl:text>
 											<a href="#top">
 												<xsl:value-of select="$txt_go_up"/>
 												<xsl:text> &#9650;</xsl:text>
 											</a>
-										</li>
-										<li class="copyright">
-											<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
 										</li>
 									</ul>
 								</div>
