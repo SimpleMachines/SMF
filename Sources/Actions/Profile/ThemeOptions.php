@@ -54,7 +54,7 @@ class ThemeOptions implements ActionInterface
 				$available_variants = [];
 
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
-					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
+					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?: $variant;
 				}
 
 				Utils::$context['additional_options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
@@ -72,7 +72,7 @@ class ThemeOptions implements ActionInterface
 				$available_modes = [];
 
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
-					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
+					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?: $mode;
 				}
 
 				Utils::$context['additional_options'][] = Lang::getTxt('theme_opt_colormode', file: 'Profile');

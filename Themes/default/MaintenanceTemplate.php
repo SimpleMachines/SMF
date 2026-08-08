@@ -33,7 +33,7 @@ abstract class MaintenanceTemplate
 		echo '<!DOCTYPE html>
 	<html', Lang::getTxt('lang_rtl', file: 'General') == '1' ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?? 'UTF-8', '">
+		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?: 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
 		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Maintenance::$context['started'] . '">
