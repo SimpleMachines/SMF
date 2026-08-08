@@ -291,6 +291,23 @@ class TimeInterval extends \DateInterval implements \Stringable
 	}
 
 	/**
+	 * Returns the underlying \DateInterval instance.
+	 *
+	 * PHP's date arithmetic reads a \DateInterval's internal state directly
+	 * rather than going through the property hooks above, and this class never
+	 * calls parent::__construct(), so it cannot be handed to
+	 * \DateTimeInterface::add() or ::sub() itself. Anything doing date
+	 * arithmetic wants this instead. SMF\Time::add() and ::sub() call it for
+	 * you.
+	 *
+	 * @return \DateInterval The underlying \DateInterval.
+	 */
+	public function toDateInterval(): \DateInterval
+	{
+		return clone $this->base;
+	}
+
+	/**
 	 * Formats the object as a string so it can be reconstructed later.
 	 *
 	 * @return string A ISO 8601 duration string suitable for reconstructing

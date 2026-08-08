@@ -740,6 +740,37 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
+	 * Like \DateTime::add(), except that it also accepts the SMF\TimeInterval
+	 * instances that SMF\Time::diff() and the calendar hand around.
+	 *
+	 * Those are not usable by PHP's date arithmetic on their own, so they are
+	 * unwrapped first. See SMF\TimeInterval::toDateInterval().
+	 *
+	 * @param \DateInterval $interval The interval to add.
+	 * @return static reference to this object.
+	 */
+	public function add(\DateInterval $interval): static
+	{
+		parent::add($interval instanceof TimeInterval ? $interval->toDateInterval() : $interval);
+
+		return $this;
+	}
+
+	/**
+	 * Like \DateTime::sub(), except that it also accepts SMF\TimeInterval
+	 * instances. See self::add().
+	 *
+	 * @param \DateInterval $interval The interval to subtract.
+	 * @return static reference to this object.
+	 */
+	public function sub(\DateInterval $interval): static
+	{
+		parent::sub($interval instanceof TimeInterval ? $interval->toDateInterval() : $interval);
+
+		return $this;
+	}
+
+	/**
 	 * Like \DateTimeInterface::diff(), except it returns SMF\TimeInterval
 	 * instances instead of \DateInterval instances.
 	 *
