@@ -339,7 +339,12 @@ class RecurrenceIterator implements \Iterator
 
 		// We were given a view duration.
 		if (isset($view)) {
-			$this->view_end = (clone $this->view_start)->add($view);
+			// $view_start is a plain \DateTime or \DateTimeImmutable here, so
+			// unlike everywhere else in the calendar it cannot unwrap an
+			// SMF\TimeInterval for itself.
+			$this->view_end = (clone $this->view_start)->add(
+				$view instanceof TimeInterval ? $view->toDateInterval() : $view,
+			);
 		}
 		// Rule contained an UNTIL value, so use that as our view end.
 		elseif (isset($this->rrule->until)) {
