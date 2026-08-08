@@ -3131,7 +3131,7 @@ class MarkdownParser extends Parser
 						'{txt_code}' => Lang::getTxt('code', file: 'General'),
 						'{txt_code_select}' => Lang::getTxt('code_select', file: 'General'),
 						'{txt_code_shrink}' => Lang::getTxt('code_shrink', file: 'General'),
-						'{txt_code_expand}' => Lang::getTxt('quote_expand', file: 'General'),
+						'{txt_code_expand}' => Lang::getTxt('code_expand', file: 'General'),
 						'$2' => htmlspecialchars($element['properties']['info_string'] ?? ''),
 					],
 				);

@@ -295,7 +295,7 @@ function template_modify_language_entries()
 			if (!empty(Utils::$context['can_add_lang_entry'][$group])) {
 				echo '
 				<span class="add_lang_entry_button" style="display: none;">
-					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . Lang::getTxt('edit_language_entries_add', file: 'Admin') . '</a>
+					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . Lang::getTxt('edit_language_entries_add', file: 'ManageSettings') . '</a>
 				</span>
 				<script>
 					entry_num = ', $entry_num, ';
