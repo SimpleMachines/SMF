@@ -409,8 +409,9 @@ function template_main()
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
-							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
+							<strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 						</h4>
+						<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 					</div>
 					<div id="post_draft_options">
 						<dl class="settings">

@@ -3964,6 +3964,32 @@ div.cat_bar {
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
 }
+/* Both bars are a row: the heading takes whatever is left, and anything sitting
+/* beside it — a collapse toggle, a link — goes at the end. Deliberately only
+/* when the bar is a div: .title_bar is also put on a <tr>, and turning that into
+/* a flex row would take the table apart. */
+div.cat_bar,
+div.title_bar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+}
+div.cat_bar > h3,
+div.title_bar > h3,
+div.title_bar > h4 {
+	flex: 1;
+}
+/* A category's description belongs under its heading rather than beside it. */
+div.cat_bar > .desc {
+	flex-basis: 100%;
+}
+/* The toggles used to sit inside the heading and take its padding with them. */
+div.cat_bar > .toggle_up,
+div.cat_bar > .toggle_down,
+div.title_bar > .toggle_up,
+div.title_bar > .toggle_down {
+	margin-inline-end: 12px;
+}
 /* Styles for rounded headers. */
 .cat_bar .desc {
 	color: var(--catbar-color);

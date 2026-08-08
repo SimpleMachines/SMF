@@ -159,9 +159,9 @@ function template_main()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
 					</h4>
+					<span id="advanced_panel_toggle" class="toggle_down" style="display: none;"></span>
 				</div>
 				<div class="flow_auto boardslist" id="advanced_panel_div"', !empty(Utils::$context['boards_check_all']) ? ' style="display: none;"' : '', '>
 					<ul>';
