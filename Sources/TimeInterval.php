@@ -257,6 +257,14 @@ class TimeInterval extends \DateInterval implements \Stringable
 
 			$duration = rtrim($duration, 'PT');
 
+			// The fractional unit was the only one given, so taking it out has
+			// left nothing behind. 'P' and 'PT' are not durations \DateInterval
+			// will accept, but the zero duration is, and the fractional part is
+			// added to it immediately below.
+			if ($duration === '') {
+				$duration = 'PT0S';
+			}
+
 			// Create the base object.
 			$this->base = new parent($duration);
 
