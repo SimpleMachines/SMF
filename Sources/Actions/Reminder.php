@@ -246,7 +246,9 @@ class Reminder implements ActionInterface, Routable
 			}
 		}
 
-		list($real_code, $issue_time) = $this->member->validation_code;
+		// The code is stored as 'code|time'. Older codes have no time attached,
+		// so pad the result rather than assuming both halves are there.
+		list($real_code, $issue_time) = array_pad(explode('|', $this->member->validation_code), 2, '');
 		$issue_time = empty($issue_time) ? 0 : (int) $issue_time;
 
 		// Quit if this code is not right.
