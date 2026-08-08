@@ -179,7 +179,9 @@ class Search implements ActionInterface
 			$changes = [];
 
 			foreach ($factors as $factor) {
-				$changes[$factor] = (int) $_POST[$factor];
+				// A factor added by a mod through the hook above may well have
+				// no field of its own on the form.
+				$changes[$factor] = (int) ($_POST[$factor] ?? 0);
 			}
 
 			Config::updateModSettings($changes);
@@ -192,7 +194,9 @@ class Search implements ActionInterface
 		}
 
 		foreach ($factors as $factor) {
-			Utils::$context['relative_weights'][$factor] = round(100 * (Config::$modSettings[$factor] ?? 0) / Utils::$context['relative_weights']['total'], 1);
+			// Nothing stops every weight being set to zero, and the page has to
+			// keep working afterwards or there is no way back in to undo it.
+			Utils::$context['relative_weights'][$factor] = empty(Utils::$context['relative_weights']['total']) ? 0 : round(100 * (Config::$modSettings[$factor] ?? 0) / Utils::$context['relative_weights']['total'], 1);
 		}
 
 		SecurityToken::create('admin-msw');
