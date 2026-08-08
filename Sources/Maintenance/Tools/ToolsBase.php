@@ -503,9 +503,9 @@ abstract class ToolsBase
 
 				if (is_writable($file)) {
 					unset($files[$k]);
-					$this->logProgress(Lang::getTxt('done', file: 'Maintenance'));
+					$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				} else {
-					$this->logProgress(Lang::getTxt('failed', file: 'Maintenance'));
+					$this->logProgress(Lang::getTxt('log_failed', file: 'Maintenance'));
 				}
 			}
 
