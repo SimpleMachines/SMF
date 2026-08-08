@@ -246,7 +246,7 @@ class ErrorHandlerService
 
 		// Find the best path and query string we can...
 		if (SMF === 'SSI') {
-			$request_url = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ltrim($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME']	?? 'unknown.php') . !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''), '/');
+			$request_url = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ltrim($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME'] ?? 'unknown.php') . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')), '/');
 		} elseif (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
 			$request_url = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
 		} else {
