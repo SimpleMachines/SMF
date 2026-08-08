@@ -443,7 +443,9 @@ abstract class MaintenanceTemplate
 									document.getElementById("contbutt").disabled = 0;
 									document.getElementById("' . $done_param . '").value = 1;
 
-									setTimeout("doAutoSubmit();", 1000);
+									setTimeout(function() {
+										doAutoSubmit(0, "", "' . Maintenance::$tool->form_id . '", "contbutt");
+									}, 1000);
 								} else {
 									getNextSubstep();
 								}
