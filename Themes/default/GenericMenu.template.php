@@ -248,18 +248,22 @@ function template_generic_menu_tabs(&$menu_context)
 	}
 
 	// Print out all the items in this tab (if any).
-	if (!empty(Utils::$context['tabs'])) {
+	// What gets drawn below is $tab_context['tabs'], and that is only assembled
+	// above when this menu has a title of its own. Utils::$context['tabs'] is
+	// set as a side effect of drawing the menu, so it can be full while this
+	// one is still empty, which produced an empty menu on those pages.
+	if (!empty($tab_context['tabs'])) {
 		// The admin tabs.
 		echo '
 					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
 						<span class="menu_icon"></span>
-						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '</span>
+						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General'), '</span>
 					</a>
 					<div id="adm_submenus">
 						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
-									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '
+									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General'), '
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 								</div>';
 
