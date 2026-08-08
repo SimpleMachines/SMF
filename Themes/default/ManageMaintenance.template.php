@@ -330,7 +330,7 @@ function template_maintain_topics()
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board) {
 			echo '
-									<li style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;">
+									<li style="margin-inline-start: ', $board['child_level'] * 1.5, 'em;">
 										<label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked>', $board['name'], '</label>
 									</li>';
 		}
