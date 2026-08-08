@@ -47,6 +47,13 @@
 	/** Layout **/
 	--wrapper-width:                                  1200px;
 
+	/** Main Menu **/
+	--mainmenu-bg:                                    linear-gradient(#e2e9f3 0%, #fff 70%);
+	--mainmenu-border-color:                          #bbb;
+	--mainmenu-border-style:                          solid;
+	--mainmenu-border-width:                          0 0 1px 0;
+	--mainmenu-box-shadow:                            none;
+
 	/** Header **/
 	--header-bg:                                      #fff;
 	--header-border-color:                            transparent;

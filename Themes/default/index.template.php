@@ -422,64 +422,60 @@ function template_body_above()
 	echo '
 			</div><!-- .user_panel -->
 		</div><!-- .content_wrapper -->
-	</header>
+	</header>';
+
+	// The menu is a band of its own across the page, with its contents lined up
+	// with everything else by the wrapper inside it.
+	echo '
+	<nav id="main_menu" aria-label="', Lang::getTxt('mobile_user_menu', file: 'General'), '">
+		<div class="content_wrapper">
+			<a class="mobile_user_menu">
+				<span class="menu_icon"></span>
+				<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
+			</a>
+			<div id="mobile_user_menu" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
+						<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					</div>
+					', template_menu(), '
+				</div>
+			</div>
+		</div>
+	</nav>
 	<div id="wrapper" class="content_wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap"', User::$me->is_guest ? ' class="hide_720"' : '', '>
-					<div class="user">
-						<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
+		<div id="inner_wrap"', User::$me->is_guest ? ' class="hide_720"' : '', '>
+			<div class="user">
+				<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
 
 	if (!User::$me->is_guest) {
 		echo '
-						<ul class="unread_links">
-							<li>
-								<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
-							</li>
-							<li>
-								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
-							</li>
-						</ul>';
+				<ul class="unread_links">
+					<li>
+						<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
+					</li>
+					<li>
+						<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
+					</li>
+				</ul>';
 	}
 
 	echo '
-					</div>';
+			</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line'])) {
 		echo '
-					<div class="news">
-						<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
-						<p>', Utils::$context['random_news_line'], '</p>
-					</div>';
+			<div class="news">
+				<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
+				<p>', Utils::$context['random_news_line'], '</p>
+			</div>';
 	}
 
 	echo '
-				</div>';
-
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	// Load mobile menu here
-	echo '
-				<a class="mobile_user_menu">
-					<span class="menu_icon"></span>
-					<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
-				</a>
-				<nav id="main_menu" aria-label="', Lang::getTxt('mobile_user_menu', file: 'General'), '">
-					<div id="mobile_user_menu" class="popup_container">
-						<div class="popup_window description">
-							<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
-								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>
-							', template_menu(), '
-						</div>
-					</div>
-				</nav>';
+		</div><!-- #inner_wrap -->';
 
 	theme_linktree();
-
-	echo '
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '

@@ -909,7 +909,13 @@ a[class^="mobile_generic_menu_"] {
 	display: none;
 }
 
+/* A band of its own across the page, under the header. */
 #main_menu {
+	background: var(--mainmenu-bg);
+	border-color: var(--mainmenu-border-color);
+	border-style: var(--mainmenu-border-style);
+	border-width: var(--mainmenu-border-width);
+	box-shadow: var(--mainmenu-box-shadow);
 	margin: 0 0 4px 0;
 }
 
@@ -1310,25 +1316,15 @@ img#smflogo {
 }
 /*
 /* The user info, news, etc.*/
-#upper_section {
-	padding: 2px 2px 0 2px;
-}
-#inner_section {
-	padding: 12px 10px 2px 10px;
-	border-radius: 6px 6px 0 0;
-}
-#inner_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-/* The upper_section, float the two each way */
+/* The clock and the news line, one at each end. The padding was on the
+/* section that used to wrap this. */
 #inner_wrap {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid #bbb;
 	margin-bottom: 12px;
+	padding: 12px 10px 2px 10px;
 }
 .user {
 	padding: 0 4px 8px 4px;
@@ -1385,7 +1381,7 @@ ul li.greeting {
 	border-width: var(--navigatesection-border-width);
 	box-shadow: var(--navigatesection-box-shadow);
 	margin-block: .5em .75em;
-	margin-inline: 0;
+	margin-inline: 10px;
 	padding: 0;
 }
 .navigate_section ol {
@@ -4173,7 +4169,7 @@ h3.profile_hd::before,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
 .quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
-.inline_mod_check, .popup_window, #inner_section, .post_options ul,
+.inline_mod_check, .popup_window, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);

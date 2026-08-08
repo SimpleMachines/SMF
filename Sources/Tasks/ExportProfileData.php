@@ -146,20 +146,16 @@ class ExportProfileData extends BackgroundTask
 									</h1>
 								</div>
 								<div id="wrapper" class="content_wrapper">
-									<div id="upper_section">
-										<div id="inner_section">
-											<div id="inner_wrap">
-												<div class="user">
-													<time>
-														<xsl:attribute name="datetime">
-															<xsl:value-of select="@generated-date-UTC"/>
-														</xsl:attribute>
-														<xsl:value-of select="@generated-date-localized"/>
-													</time>
-												</div>
-												<hr class="clear"/>
-											</div>
+									<div id="inner_wrap">
+										<div class="user">
+											<time>
+												<xsl:attribute name="datetime">
+													<xsl:value-of select="@generated-date-UTC"/>
+												</xsl:attribute>
+												<xsl:value-of select="@generated-date-localized"/>
+											</time>
 										</div>
+										<hr class="clear"/>
 									</div>
 
 									<xsl:call-template name="content_section"/>
