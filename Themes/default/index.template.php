@@ -418,7 +418,7 @@ function template_body_above()
 	</div><!-- #top_section -->';
 
 	echo '
-	<div id="header">
+	<header id="header">
 		<h1 class="forumtitle">
 			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
 		</h1>';
@@ -427,7 +427,7 @@ function template_body_above()
 		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
 
 	echo '
-	</div>
+	</header>
 	<div id="wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
@@ -469,7 +469,7 @@ function template_body_above()
 					<span class="menu_icon"></span>
 					<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
 				</a>
-				<div id="main_menu">
+				<nav id="main_menu" aria-label="', Lang::getTxt('mobile_user_menu', file: 'General'), '">
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">
 							<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
@@ -478,7 +478,7 @@ function template_body_above()
 							', template_menu(), '
 						</div>
 					</div>
-				</div>';
+				</nav>';
 
 	theme_linktree();
 
@@ -489,7 +489,7 @@ function template_body_above()
 	// The main content should go here.
 	echo '
 		<div id="content_section">
-			<div id="main_content_section">';
+			<main id="main_content_section">';
 }
 
 /**
@@ -498,14 +498,14 @@ function template_body_above()
 function template_body_below()
 {
 	echo '
-			</div><!-- #main_content_section -->
+			</main><!-- #main_content_section -->
 		</div><!-- #content_section -->
 	</div><!-- #wrapper -->
 </div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
-	<div id="footer">
+	<footer id="footer">
 		<div class="inner_wrap">';
 
 	// There is now a global "Go to top" link at the right.
@@ -530,7 +530,7 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div><!-- #footer -->';
+	</footer><!-- #footer -->';
 
 }
 
