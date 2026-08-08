@@ -252,7 +252,16 @@ function template_generic_menu_tabs(&$menu_context)
 	// above when this menu has a title of its own. Utils::$context['tabs'] is
 	// set as a side effect of drawing the menu, so it can be full while this
 	// one is still empty, which produced an empty menu on those pages.
-	if (!empty($tab_context['tabs'])) {
+	// Labels arrive from the loop above, and it only runs over the areas the
+	// menu itself knows about, so a page that forces tabs of its own can leave
+	// some without one. Those cannot be drawn, so they do not count towards
+	// having anything to draw either. Same treatment the areas above get.
+	$drawable_tabs = array_filter(
+		$tab_context['tabs'] ?? [],
+		fn($tab) => empty($tab['disabled']) && !empty($tab['label']),
+	);
+
+	if (!empty($drawable_tabs)) {
 		// The admin tabs.
 		echo '
 					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
@@ -271,11 +280,7 @@ function template_generic_menu_tabs(&$menu_context)
 								<div class="generic_menu">
 									<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
 
-		foreach ($tab_context['tabs'] as $sa => $tab) {
-			if (!empty($tab['disabled'])) {
-				continue;
-			}
-
+		foreach ($drawable_tabs as $sa => $tab) {
 			if (!empty($tab['is_selected'])) {
 				echo '
 										<li>
