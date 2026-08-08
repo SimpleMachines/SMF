@@ -1210,7 +1210,7 @@ html[lang="el-GR"] .inline_mod_check {
 /* Set maximum width limit for content.
 /* Anything that should line up with the rest of the page gets this class,
 /* rather than each wrapper being named individually in the selector. */
-.content-wrapper {
+.content_wrapper {
 	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
