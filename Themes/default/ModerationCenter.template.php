@@ -209,7 +209,7 @@ function template_reported_posts_block()
 		</div><!-- #reported_posts_panel -->
 
 		<script>
-			var oWatchedUsersToggle = new smc_Toggle({
+			var oReportedPostsToggle = new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
 				aSwappableContainers: [
@@ -249,7 +249,7 @@ function template_reported_users_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter'), '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=reportedmembers" id="reported_users_link">', Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 			<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', '" title="', Lang::getTxt(empty(Utils::$context['admin_prefs']['mcur']) ? 'hide' : 'show', file: 'General'), '" style="display: none;"></span>
 		</div>
@@ -276,7 +276,7 @@ function template_reported_users_block()
 		</div><!-- #reported_users_panel -->
 
 		<script>
-			var oWatchedUsersToggle = new smc_Toggle({
+			var oReportedUsersToggle = new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcur']) ? 'true' : 'false', ',
 				aSwappableContainers: [

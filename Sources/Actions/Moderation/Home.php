@@ -510,7 +510,7 @@ class Home implements ActionInterface
 		foreach ($reported_users as $i => $row) {
 			Utils::$context['reported_users'][] = [
 				'id' => $row['id_report'],
-				'report_href' => Config::$scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
+				'report_href' => Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $row['id_report'],
 				'user' => [
 					'id' => $row['id_user'],
 					'name' => $row['user_name'],
