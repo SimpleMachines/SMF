@@ -1776,7 +1776,7 @@ class Post implements ActionInterface, Routable
 				'sLastNote' => 'draft_lastautosave',
 				'sLastID' => 'id_draft',
 				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
-				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
 			];
 		}
 
