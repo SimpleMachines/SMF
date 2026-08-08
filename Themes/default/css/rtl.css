@@ -131,15 +131,6 @@ img#smflogo {
 	text-align: left;
 }
 
-/* The navigation list (i.e. linktree) */
-.navigate_section ul li {
-	float: right;
-}
-
-.navigate_section ul li .dividers {
-	padding: 0 6px 0 2px;
-}
-
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
