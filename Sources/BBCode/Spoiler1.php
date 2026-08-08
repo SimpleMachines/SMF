@@ -123,7 +123,9 @@ class Spoiler1 extends BBCode
 			$bbc->before = Lang::formatText(
 				BBCodeParser::insertTxt($details->before),
 				[
-					'summary' => $params['{text}'] ?? Lang::getTxt('spoiler', var: 'editortxt'),
+					// An optional parameter that was not given arrives as an
+					// empty string rather than null, so ?? never falls back.
+					'summary' => $params['{text}'] ?: Lang::getTxt('spoiler', var: 'editortxt', file: 'Editor'),
 				],
 			);
 
