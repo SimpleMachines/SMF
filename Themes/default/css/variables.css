@@ -47,6 +47,15 @@
 	/** Layout **/
 	--wrapper-width:                                  1200px;
 
+	/** Header **/
+	--header-bg:                                      #fff;
+	--header-border-color:                            transparent;
+	--header-border-radius:                           0;
+	--header-border-style:                            solid;
+	--header-border-width:                            0;
+	--header-box-shadow:                              none;
+	--header-height:                                  80px;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 

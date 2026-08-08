@@ -1217,27 +1217,17 @@ html[lang="el-GR"] .inline_mod_check {
 }
 
 /* The framing graphics */
-/* The top bar. */
-#top_section {
-	border-bottom: 1px solid #bbb;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-	background: #fff;
-	clear: both;
-}
-#top_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
 #top_info {
 	padding: 5px 0;
 	line-height: 1.3em;
 	max-width: 100%;
 }
+/* These hang off #top_info, which is positioned. It sits at the end of the
+/* header, so they have to open towards the start or they run off the edge
+/* of the screen on a narrow window. */
 #pm_menu, #alerts_menu, #profile_menu {
-	left: 0;
-	right: 0;
-	padding-right: 10px;
+	inset-inline: auto 0;
+	padding-inline-end: 10px;
 }
 #profile_menu_top > img.avatar {
 	height: 18px;
@@ -1259,16 +1249,38 @@ html[lang="el-GR"] .inline_mod_check {
 #languages_form {
 	margin: 0 0 0 10px;
 }
-/* The logo and slogan. */
+/* The header. Full width, with its contents lined up with the rest of the
+/* page by the wrapper inside it. */
 #header {
-	padding: 2px 2px 12px 2px;
+	background: var(--header-bg);
+	border-color: var(--header-border-color);
+	border-radius: var(--header-border-radius);
+	border-style: var(--header-border-style);
+	border-width: var(--header-border-width);
+	box-shadow: var(--header-box-shadow);
+	margin: 0;
+	min-height: var(--header-height);
+	padding: .5em .2em;
+}
+#header .content_wrapper {
+	align-items: center;
 	display: flex;
-	align-items: flex-end;
+	gap: .5em;
+	justify-content: space-between;
+	min-height: var(--header-height);
 }
 #header::after {
 	content: "";
 	display: block;
 	clear: both;
+}
+/* Everything about the current user sits at the end of the header, stacked. */
+.user_panel {
+	align-content: space-between;
+	display: inline-grid;
+	flex: 1;
+	gap: .5em;
+	justify-content: flex-end;
 }
 /* The main title. */
 h1.forumtitle {
@@ -4159,7 +4171,7 @@ h3.profile_hd::before,
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .quickbuttons > li,
+.quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, #inner_section, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
