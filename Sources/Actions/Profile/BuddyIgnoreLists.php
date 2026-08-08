@@ -222,7 +222,10 @@ class BuddyIgnoreLists implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Get all the user's "buddies"...
-		$buddies = User::loadCustom(
+		// Only ask if there are any. {array_int:} with an empty array is a
+		// database error rather than a query that matches nothing, so a member
+		// who has never added a buddy would get an error page instead of a list.
+		$buddies = Profile::$member->buddies === [] ? [] : User::loadCustom(
 			[
 				'where' => ['mem.id_member IN ({array_int:buddy_list})'],
 				'order' => ['mem.real_name'],
@@ -375,7 +378,8 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 
 		// Initialise the list of members we're ignoring.
-		$ignored = User::loadCustom(
+		// Same as the buddy list above: an empty array cannot go into the query.
+		$ignored = Profile::$member->ignoreusers === [] ? [] : User::loadCustom(
 			[
 				'where' => ['mem.id_member IN ({array_int:ignore_list})'],
 				'order' => ['mem.real_name'],
