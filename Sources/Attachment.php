@@ -505,7 +505,7 @@ class Attachment implements \ArrayAccess
 				'COALESCE (m.approved, 0) AS approved',
 				'COALESCE (m.poster_time, 0) AS poster_time',
 				'COALESCE (t.locked, 0) AS is_locked',
-				'COALESCE (t.id_member_started, 0) AS id_member_started'
+				'COALESCE (t.id_member_started, 0) AS id_member_started',
 			];
 
 			$from = '{db_prefix}attachments AS a';
