@@ -2170,7 +2170,7 @@ function template_groupMembership()
 
 			if (Utils::$context['can_edit_primary']) {
 				echo '
-					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', '>';
+					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', $group['can_be_primary'] ? '' : ' disabled', '>';
 			}
 
 			echo '
@@ -2221,30 +2221,6 @@ function template_groupMembership()
 			}
 		}
 
-		// Javascript for the selector stuff.
-		echo '
-				<script>
-					var prevClass = "";
-					var prevDiv = "";
-					function highlightSelected(box)
-					{
-						if (prevClass != "")
-						{
-							prevDiv.className = prevClass;
-						}
-						prevDiv = document.getElementById(box);
-						prevClass = prevDiv.className;
-
-						prevDiv.className = "windowbg";
-					}';
-
-		if (isset(Utils::$context['groups']['member'][Utils::$context['primary_group']])) {
-			echo '
-					highlightSelected("primdiv_' . Utils::$context['primary_group'] . '");';
-		}
-
-		echo '
-				</script>';
 	}
 
 	echo '
