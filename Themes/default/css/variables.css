@@ -326,6 +326,35 @@
 	--popup-content-color:                            #222;
 	--popup-content-line-height:                      1.6em;
 
+	/** Collapse and Expand Toggles **/
+	--toggle-bg:                                      #f7f7f7;
+	--toggle-bg_hover:                                #bfd4e7;
+	--toggle-border-color:                            #c5c5c5;
+	--toggle-border-radius:                           3px;
+	--toggle-border-style:                            solid;
+	--toggle-border-width:                            1px;
+	--toggle-box-shadow:                              0 1px 2px rgba(0, 0, 0, .2), 0 1px 1px #fff inset, 0 -5px 4px rgba(0, 0, 0, .1) inset;
+	--toggle-box-shadow_hover:                        0 1px 2px rgba(0, 0, 0, 0.25) inset;
+
+	/** Message Icon Picker **/
+	--iconlist-bg:                                    #ffffff;
+	--iconlist-border-color:                          #adadad;
+	--iconlist-border-style:                          solid;
+	--iconlist-border-width:                          1px;
+	--iconlist-item-bg_hover:                         #e0e0f0;
+	--iconlist-item-border-color:                     #ffffff;
+	--iconlist-item-border-color_hover:               gray;
+	--iconlist-item-border-style:                     solid;
+	--iconlist-item-border-style_hover:               dotted;
+	--iconlist-item-border-width:                     1px;
+	--iconlist-item-border-width_hover:               1px;
+
+	/** Online and Offline Dots **/
+	--onoff-bg_off:                                   #a7a2a2;
+	--onoff-bg_on:                                    #89e75a;
+	--onoff-border-color_off:                         #969292;
+	--onoff-border-color_on:                          #74d246;
+
 	/** Search Highlight **/
 	--searchhighlight-color:                          #ff7200;
 	--searchhighlight-font-size:                      1.1em;
