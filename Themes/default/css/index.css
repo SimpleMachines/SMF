@@ -1288,11 +1288,13 @@ html[lang="el-GR"] .inline_mod_check {
 	gap: .5em;
 	justify-content: flex-end;
 }
-/* The main title. */
+/* The main title. The header lines its contents up in the middle now, so the
+/* title only keeps the padding that lines it up with the page content below
+/* it. The old top-heavy padding pushed it below everything beside it. */
 h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
-	padding: 22px 12px 6px 10px;
+	padding-inline: 10px 12px;
 	font-weight: normal;
 	flex: 1 1 auto;
 }
@@ -1300,14 +1302,12 @@ h1.forumtitle a {
 	color: #a85400;
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 }
-/* Float these items to the right */
+/* The slogan, or the Simple Machines logo when there is none. It used to carry
+/* a top margin to drop it onto the old bottom-aligned row; the header centres
+/* everything itself now. */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
 	font-size: 1.4em;
-}
-/* Tweak the SMF logo */
-img#smflogo {
-	margin: 16px 0 0 0;
 }
 /* Even guests need to be aligned */
 .welcome {
