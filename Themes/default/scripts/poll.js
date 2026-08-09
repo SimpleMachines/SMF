@@ -1,5 +1,6 @@
 /**
- * The bits of the posting form that only matter when a poll is attached.
+ * Editing a poll: adding options to it, and the settings that depend on each
+ * other.
  *
  * Loaded from Post.php when the posting form carries a poll, and from
  * PollEdit.php for the add/edit poll form, so everything here can assume the

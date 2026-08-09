@@ -69,7 +69,7 @@ function template_main()
 							</dd>';
 	}
 
-	// post.js puts the "add option" button here, after the list it appends to.
+	// poll.js puts the "add option" button here, after the list it appends to.
 	echo '
 						</dl>
 					</fieldset>

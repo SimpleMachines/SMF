@@ -364,7 +364,7 @@ class Post implements ActionInterface, Routable
 
 		// The poll fieldsets bring their own script along.
 		if (Utils::$context['make_poll']) {
-			Theme::loadJavaScriptFile('post.js', ['defer' => true, 'minimize' => true], 'smf_post');
+			Theme::loadJavaScriptFile('poll.js', ['defer' => true, 'minimize' => true], 'smf_poll');
 		}
 
 		// Knowing the current board ID might be handy.

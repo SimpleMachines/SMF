@@ -61,7 +61,7 @@ class PollEdit implements ActionInterface, Routable
 		}
 
 		Theme::loadTemplate('Poll');
-		Theme::loadJavaScriptFile('post.js', ['defer' => true, 'minimize' => true], 'smf_post');
+		Theme::loadJavaScriptFile('poll.js', ['defer' => true, 'minimize' => true], 'smf_poll');
 
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['is_edit'] = isset($_REQUEST['add']) ? 0 : 1;
