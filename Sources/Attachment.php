@@ -509,8 +509,10 @@ class Attachment implements \ArrayAccess
 			];
 
 			$from = '{db_prefix}attachments AS a';
-			$joins = ['LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)'];
-			$joins = ['LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)'];
+			$joins = [
+				'LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)',
+				'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)',
+			];
 			$where = ['a.id_attach IN ({array_int:ids})'];
 			$order = [];
 			$limit = 0;
