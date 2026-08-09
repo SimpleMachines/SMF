@@ -189,11 +189,13 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// Need something to work with.
 		if (!$can_modify) {
-			return $this->setResponse([
+			$this->setResponse([
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			]);
+
+			return;
 		}
 
 		// Lets pass some params and see what happens :P
