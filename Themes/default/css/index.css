@@ -1223,11 +1223,15 @@ html[lang="el-GR"] .inline_mod_check {
 }
 
 /* The framing graphics */
-/* The top bar. */
+/* The top bar. A band across the page above the header, holding everything to
+/* do with the current user. Same gradient and bottom border as the menu band
+/* under the header; it carries a shadow of its own on top of those. */
 #top_section {
-	border-bottom: 1px solid #bbb;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-	background: #fff;
+	background: var(--topsection-bg);
+	border-color: var(--topsection-border-color);
+	border-style: var(--topsection-border-style);
+	border-width: var(--topsection-border-width);
+	box-shadow: var(--topsection-box-shadow);
 	clear: both;
 }
 #top_section::after {
@@ -4219,7 +4223,7 @@ h3.profile_hd::before,
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .quickbuttons > li,
+.quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {

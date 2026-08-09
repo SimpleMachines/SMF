@@ -71,6 +71,13 @@
 	--footer-link-text-shadow_focus:                  none;
 	--footer-link-text-shadow_hover:                  none;
 
+	/** Top Bar **/
+	--topsection-bg:                                  linear-gradient(#e2e9f3 0%, #fff 70%);
+	--topsection-border-color:                        #bbb;
+	--topsection-border-style:                        solid;
+	--topsection-border-width:                        0 0 1px 0;
+	--topsection-box-shadow:                          0 1px 4px rgba(0, 0, 0, 0.16);
+
 	/** Main Menu **/
 	--mainmenu-bg:                                    linear-gradient(#e2e9f3 0%, #fff 70%);
 	--mainmenu-border-color:                          #bbb;
