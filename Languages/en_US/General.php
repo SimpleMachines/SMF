@@ -1229,6 +1229,9 @@ $txt['mobile_moderation'] = 'Moderation';
 $txt['mobile_user_menu'] = 'Main Menu';
 $txt['mobile_generic_menu'] = '{label} Menu';
 
+// Names the breadcrumb trail for screen readers. Not shown on screen.
+$txt['breadcrumb'] = 'Breadcrumb';
+
 // Punctuation mark that is normally used to separate list items in a sentence.
 $txt['sentence_list_separator'] = ',';
 

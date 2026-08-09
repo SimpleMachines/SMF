@@ -1704,9 +1704,13 @@ class PackageManager
 		Db::$db->free_result($get_versions);
 
 		// Decode the data.
-		$items = Utils::jsonDecode($data['data'], true);
+		// This list is fetched from simplemachines.org and cached in the
+		// database. A forum that has never managed to reach it — a fresh
+		// install, or one with no outbound access — has nothing stored, and
+		// jsonDecode() hands back null rather than a list of versions.
+		$items = Utils::jsonDecode($data['data'] ?? '', true);
 
-		Utils::$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
+		Utils::$context['emulation_versions'] = \is_array($items) ? preg_replace('~^SMF ~', '', $items) : [];
 
 		// Current SMF version, which is selected by default
 		Utils::$context['default_version'] = SMF_VERSION;

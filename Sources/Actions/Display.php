@@ -35,7 +35,7 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
-use SMF\TimeInterval;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -333,7 +333,7 @@ class Display implements ActionInterface, Routable
 				Db::$db->free_result($request);
 			}
 
-			$since = date_create('@' . $prev_timestamp)->diff(date_create('@' . $message->poster_time));
+			$since = Time::create('@' . $prev_timestamp)->diff(Time::create('@' . $message->poster_time));
 
 			if ($since->format('%a') > Config::$modSettings['oldTopicDays']) {
 				if ($since->format('%y') > 0) {
@@ -349,8 +349,6 @@ class Display implements ActionInterface, Routable
 					$num = $since->format('%a');
 					$unit = 'day';
 				}
-
-				$since = TimeInterval::createFromDateInterval($since);
 
 				$output['bump_notice'] = '<time class="bump_notice" datetime="' . (string) $since . '" title="' . $since->localize() . '">' . Lang::getTxt(
 					'bump_notice',
@@ -1082,9 +1080,9 @@ class Display implements ActionInterface, Routable
 			}
 		}
 
-		// Load the drafts js file.
+		// Load the draft autosave plugin.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['minimize' => true], 'smf_drafts');
 		}
 
 		// Spellcheck
@@ -1100,8 +1098,9 @@ class Display implements ActionInterface, Routable
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
-			Theme::loadJavaScriptFile('jquery.atwho.min.js', ['defer' => true], 'smf_atwho');
-			Theme::loadJavaScriptFile('jquery.caret.min.js', ['defer' => true], 'smf_caret');
+			Theme::loadCSSFile('atwho.css', ['minimize' => true], 'smf_atwho');
+			Theme::loadJavaScriptFile('caret.js', ['defer' => true, 'minimize' => true], 'smf_caret');
+			Theme::loadJavaScriptFile('atwho.js', ['defer' => true, 'minimize' => true], 'smf_atwho');
 			Theme::loadJavaScriptFile('mentions.js', ['defer' => true, 'minimize' => true], 'smf_mentions');
 		}
 
@@ -1307,6 +1306,24 @@ class Display implements ActionInterface, Routable
 	 */
 	protected function loadEditor(): void
 	{
+		$plugins = [];
+		$options = [];
+
+		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
+			$plugins[] = 'drafts';
+			$plugins[] = 'messageDrafts';
+			$options['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
+			];
+		}
+
+		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
+			$plugins[] = 'mentions';
+		}
+
 		// Now create the editor.
 		new Editor([
 			'id' => 'quickReply',
@@ -1318,6 +1335,8 @@ class Display implements ActionInterface, Routable
 			'preview_type' => Editor::PREVIEW_HTML,
 			// This is required
 			'required' => true,
+			'plugins' => $plugins,
+			'options' => $options,
 		]);
 
 		Utils::$context['attached'] = '';

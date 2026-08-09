@@ -17,74 +17,10 @@ use SMF\Theme;
 use SMF\Utils;
 
 /**
- * Template for the database maintenance tasks.
+ * Wraps every maintenance sub-action.
  */
-function template_maintain_database()
+function template_maintain_above()
 {
-	// If maintenance has finished tell the user.
-	if (!empty(Utils::$context['maintenance_finished'])) {
-		echo '
-	<div class="infobox">
-		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
-	</div>';
-	}
-
-	echo '
-	<div id="manage_maintenance">
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_optimize', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=optimize" method="post" accept-charset="UTF-8">
-				<p>', Lang::getTxt('maintain_optimize_info', file: 'ManageMaintenance'), '</p>
-				<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-			</form>
-		</div>';
-
-	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
-	if (isset(Utils::$context['convert_to'])) {
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
-				<p>', Lang::getTxt('mediumtext_introduction', file: 'ManageMaintenance'), '</p>
-				<input type="submit" name="evaluate_conversion" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-			</form>
-		</div>';
-	}
-
-	// We might want to convert entities if we're on UTF-8.
-	if (Utils::$context['convert_entities']) {
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('entity_convert_title', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="UTF-8">
-				<p>', Lang::getTxt('entity_convert_introduction', file: 'ManageMaintenance'), '</p>
-				<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-			</form>
-		</div>';
-	}
-
-	echo '
-	</div><!-- #manage_maintenance -->';
-}
-
-/**
- * Template for the routine maintenance tasks.
- */
-function template_maintain_routine()
-{
-	// Starts off with general maintenance procedures.
 	echo '
 	<div id="manage_maintenance">';
 
@@ -95,85 +31,40 @@ function template_maintain_routine()
 			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 		</div>';
 	}
+}
+
+function template_maintain_below()
+{
+	echo '
+	</div><!-- #manage_maintenance -->';
+}
+
+/**
+ * Lists the tasks of a maintenance sub-action as a single pick-one form.
+ *
+ * Utils::$context['options'] is keyed by activity name. A task can override its
+ * label and description with 'title' and 'info', and add markup after the
+ * description with 'after'.
+ */
+function template_maintain_options()
+{
+	echo '
+		<form action="', Utils::$context['post_url'], '" method="post" accept-charset="UTF-8" class="windowbg option_form">';
+
+	foreach (Utils::$context['options'] as $activity => $option) {
+		echo '
+			<label>
+				<input type="radio" name="activity" value="', $activity, '">
+				<strong>', $option['title'] ?? Lang::getTxt('maintain_' . $activity, file: 'ManageMaintenance'), '</strong>
+				<p>', $option['info'] ?? Lang::getTxt('maintain_' . $activity . '_info', file: 'ManageMaintenance'), $option['after'] ?? '', '</p>
+			</label>';
+	}
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_version', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_version_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_errors', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=repairboards" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_errors_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_recount', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_recount_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_rebuild_settings', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_rebuild_settings_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_logs', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_logs_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('maintain_cache', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="UTF-8">
-				<p>
-					', Lang::getTxt('maintain_cache_info', file: 'ManageMaintenance'), '
-					<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-				</p>
-			</form>
-		</div>
-	</div><!-- #manage_maintenance -->';
+			<input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
+		</form>';
 }
 
 /**
@@ -439,7 +330,7 @@ function template_maintain_topics()
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board) {
 			echo '
-									<li style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;">
+									<li style="margin-inline-start: ', $board['child_level'] * 1.5, 'em;">
 										<label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked>', $board['name'], '</label>
 									</li>';
 		}

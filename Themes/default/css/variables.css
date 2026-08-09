@@ -1,0 +1,381 @@
+/* Design tokens for the default theme.
+/* Loaded ahead of index.css, so anything declared here can be overridden by a
+/* variant, by dark.css, or by a rule further down that sets the property on a
+/* narrower selector.
+/*
+/* Every value here is the one the theme already used before the token existed.
+/* Adding a token is not meant to change what the forum looks like. */
+:root {
+	/* The two colour ramps the theme is built from. Each is nine steps derived
+	/* from one hue, so a forum can be re-tinted by changing the hue alone. The
+	/* 700 step is the base colour itself; lower numbers are lighter, higher are
+	/* darker.
+	/*
+	/* Nothing references these yet. They are here for the parts of the theme
+	/* that are still to come, so that the tokens those parts add can be written
+	/* in terms of the ramp instead of another hard-coded colour. The tokens
+	/* below still hold their own literal values and are unchanged. */
+
+	/** Primary Color **/
+	--primary-color-hex:                              #38546B;
+	--primary-color-hue:                              207;
+	--primary-color-50:                               hsl(var(--primary-color-hue), 93%, 95%);
+	--primary-color-100:                              hsl(var(--primary-color-hue), 43%, 84%);
+	--primary-color-200:                              hsl(var(--primary-color-hue), 30%, 73%);
+	--primary-color-300:                              hsl(var(--primary-color-hue), 26%, 62%);
+	--primary-color-400:                              hsl(var(--primary-color-hue), 23%, 54%);
+	--primary-color-500:                              hsl(var(--primary-color-hue), 27%, 45%);
+	--primary-color-600:                              hsl(var(--primary-color-hue), 29%, 39%);
+	--primary-color-700:                              var(--primary-color-hex);
+	--primary-color-800:                              hsl(var(--primary-color-hue), 34%, 25%);
+	--primary-color-900:                              hsl(var(--primary-color-hue), 44%, 17%);
+
+	/** Secondary Color **/
+	--secondary-color-hex:                            #ff9400;
+	--secondary-color-hue:                            35;
+	--secondary-color-50:                             hsl(var(--secondary-color-hue), 100%, 94%);
+	--secondary-color-100:                            hsl(var(--secondary-color-hue), 100%, 85%);
+	--secondary-color-200:                            hsl(var(--secondary-color-hue), 100%, 75%);
+	--secondary-color-300:                            hsl(var(--secondary-color-hue), 100%, 65%);
+	--secondary-color-400:                            hsl(var(--secondary-color-hue), 100%, 57%);
+	--secondary-color-500:                            var(--secondary-color-hex);
+	--secondary-color-600:                            hsl(var(--secondary-color-hue), 99%, 49%);
+	--secondary-color-700:                            hsl(var(--secondary-color-hue), 98%, 48%);
+	--secondary-color-800:                            hsl(var(--secondary-color-hue), 98%, 47%);
+	--secondary-color-900:                            hsl(var(--secondary-color-hue), 97%, 46%);
+
+	/** Layout **/
+	--wrapper-width:                                  1200px;
+
+	/** Footer **/
+	--footer-bg:                                      var(--primary-color-700);
+	--footer-border-color:                            transparent;
+	--footer-border-style:                            solid;
+	--footer-border-width:                            0;
+	--footer-box-shadow:                              none;
+	--footer-color:                                   hsl(0, 0%, 96%);
+	--footer-font-size:                               0.85em;
+	--footer-height:                                  35px;
+
+	/** Footer Links **/
+	--footer-link-color:                              #fff;
+	--footer-link-color_focus:                        var(--footer-link-color_hover);
+	--footer-link-color_hover:                        #f8f8f8;
+	--footer-link-font-weight:                        400;
+	--footer-link-font-weight_focus:                  var(--footer-link-font-weight_hover);
+	--footer-link-font-weight_hover:                  var(--footer-link-font-weight);
+	--footer-link-text-decoration:                    none;
+	--footer-link-text-decoration_focus:              var(--footer-link-text-decoration_hover);
+	--footer-link-text-decoration_hover:              underline;
+	--footer-link-text-shadow:                        none;
+	--footer-link-text-shadow_focus:                  none;
+	--footer-link-text-shadow_hover:                  none;
+
+	/** Top Bar **/
+	--topsection-bg:                                  linear-gradient(#e2e9f3 0%, #fff 70%);
+	--topsection-border-color:                        #bbb;
+	--topsection-border-style:                        solid;
+	--topsection-border-width:                        0 0 1px 0;
+	--topsection-box-shadow:                          0 1px 4px rgba(0, 0, 0, 0.16);
+
+	/** Main Menu **/
+	--mainmenu-bg:                                    linear-gradient(#e2e9f3 0%, #fff 70%);
+	--mainmenu-border-color:                          #bbb;
+	--mainmenu-border-style:                          solid;
+	--mainmenu-border-width:                          0 0 1px 0;
+	--mainmenu-box-shadow:                            none;
+
+	/** HTML **/
+	--html-bg:                                        #3e5a78;
+
+	/** Body **/
+	--body-bg:                                        #e9eef2;
+	--body-color:                                     #4d4d4d;
+	--body-font-family:                               "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	--body-font-size:                                 83.33%;
+
+	/** Body Links **/
+	--body-link-color:                                #346;
+
+	/** Strong **/
+	--strong-color:                                   #444;
+
+	/** Headings **/
+	--heading-color:                                  #444;
+	--heading-font-size:                              1em;
+
+	/** Selection **/
+	--selection-bg:                                   #99d4ff;
+	--selection-color:                                rgba(0, 0, 0, 0.6);
+
+	/** Horizontal Rule **/
+	--horizontalrule-bg:                              #fff;
+	--horizontalrule-box-shadow:                      0 1px 0 #bbb inset;
+	--horizontalrule-height:                          2px;
+
+	/** Inputs **/
+	--input-bg:                                       #fff;
+	--input-bg_disabled:                              #eee;
+	--input-bg_focus:                                 #fff;
+	--input-bg_hover:                                 #fbfbfb;
+	--input-border-color:                             #bbb;
+	--input-border-color_disabled:                    #b6b6b6;
+	--input-border-color_focus:                       #7fb0d8;
+	--input-border-color_hover:                       #82a2bc;
+	--input-border-radius:                            3px;
+	--input-border-style:                             solid;
+	--input-border-width:                             1px;
+	--input-box-shadow:                               1px 2px 1px rgba(160, 187, 221, 0.2) inset;
+	--input-color:                                    #222;
+	--input-color_disabled:                           #999;
+
+	/** Fieldsets **/
+	--fieldset-border-color:                          #ddd;
+	--fieldset-border-radius:                         3px;
+	--fieldset-border-style:                          solid;
+	--fieldset-border-width:                          1px;
+	--fieldset-legend-color:                          #555;
+
+	/** Buttons **/
+	--button-bg_active:                               #557ea0;
+	--button-border-color:                            #ddd #bbb #aaa #ddd;
+	--button-border-color_active:                     #558080;
+	--button-border-color_hover:                      #aaa #ddd #ddd #bbb;
+	--button-border-radius:                           3px;
+	--button-border-style:                            solid;
+	--button-border-width:                            1px;
+	--button-box-shadow:                              1px 1px 1px rgba(221, 221, 221, 0.57);
+	--button-box-shadow_active:                       none;
+	--button-box-shadow_hover:                        -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
+	--button-color:                                   #444;
+	--button-color_active:                            #fff;
+	--button-color_active_hover:                      #ffc187;
+	--button-color_hover:                             #af6700;
+	--button-cursor:                                  pointer;
+	--button-font-size:                               0.7rem;
+	--button-font-weight_active:                      bold;
+	--button-text-shadow_active:                      0 0 1px #000;
+	--button-text-transform:                          uppercase;
+
+	/** Cat Bar **/
+	--catbar-bg:                                      #557ea0;
+	--catbar-border-color:                            #777;
+	--catbar-border-radius:                           6px 6px 0 0;
+	--catbar-border-style:                            solid;
+	--catbar-border-width:                            1px;
+	--catbar-box-shadow:                              0 16px 20px rgba(255, 255, 255, 0.15) inset;
+	--catbar-color:                                   #fff;
+	--catbar-font-family:                             "Tahoma", sans-serif;
+	--catbar-font-size:                               1.1em;
+	--catbar-text-shadow:                             -1px -1px 1px rgba(0, 0, 0, 0.2);
+	--catbar-text-shadow_hover:                       -1px -1px 0 rgba(0, 0, 0, 0.4);
+
+	/** Title Bar **/
+	--titlebar-bg:                                    #fff;
+	--titlebar-border-color:                          #ff9400 #ddd #bf6900 #ddd;
+	--titlebar-border-radius:                         2px 2px 0 0;
+	--titlebar-border-style:                          solid;
+	--titlebar-border-width:                          2px 1px;
+	--titlebar-color:                                 #666;
+
+	/** Sub Bar **/
+	--subbar-bg:                                      none;
+	--subbar-border-color:                            #ddd;
+	--subbar-border-style:                            solid;
+	--subbar-border-width:                            1px;
+	--subbar-box-shadow:                              0 -1px 0 #999 inset;
+	--subbar-text-shadow:                             none;
+
+	/** Round Frame **/
+	--roundframe-bg:                                  #f8f8f8;
+	--roundframe-border-color:                        #c5c5c5;
+	--roundframe-border-radius:                       7px;
+	--roundframe-border-style:                        solid;
+	--roundframe-border-width:                        1px;
+	--roundframe-box-shadow:                          0 -2px 2px rgba(0, 0, 0, 0.1);
+
+	/** Information **/
+	--information-bg:                                 #f8f8f8;
+	--information-border-color:                       #ddd;
+	--information-border-radius:                      0 0 7px 7px;
+	--information-border-style:                       solid;
+	--information-border-width:                       1px;
+
+	/** Windowbg **/
+	--window-bg:                                      #f0f4f7;
+	--window-bg_hover:                                #e2eef8;
+	--window-border-color:                            #ddd;
+	--window-border-radius:                           6px;
+	--window-border-style:                            solid;
+	--window-border-width:                            1px;
+	--window-box-shadow:                              0 -2px 2px rgba(0, 0, 0, 0.1);
+	--window-odd-bg:                                  #fdfdfd;
+	--window-target-bg:                               #ffffe0;
+	--window-locked-bg:                               #e7eaef;
+	--window-sticky-bg:                               #cfdce8;
+	--window-stickylocked-bg:                         #e8d8cf;
+	--window-approvetopic-bg:                         #e4a17c;
+	--window-approvepost-bg:                          #ffcbcb;
+
+	/** Error Box **/
+	--errorbox-bg:                                    #fee;
+	--errorbox-border-color:                          #c34;
+	--errorbox-border-style:                          solid;
+	--errorbox-border-width:                          2px;
+
+	/** Notice Box **/
+	--noticebox-bg:                                   #fff6ca;
+	--noticebox-border-color:                         #ffd324;
+	--noticebox-border-style:                         solid;
+	--noticebox-border-width:                         1px;
+	--noticebox-color:                                #666;
+
+	/** Info Box **/
+	--infobox-bg:                                     #cfc;
+	--infobox-border-color:                           green;
+	--infobox-border-style:                           solid;
+	--infobox-border-width:                           1px;
+	--infobox-color:                                  #222;
+
+	/** Desc Box **/
+	--descbox-border-color:                           #c5c5c5;
+	--descbox-border-style:                           solid;
+	--descbox-border-width:                           1px;
+
+	/** Generic Bar **/
+	--genericbar-bg:                                  #fff;
+	--genericbar-border-color:                        #cecaca;
+	--genericbar-border-radius:                       2px;
+	--genericbar-border-style:                        solid;
+	--genericbar-border-width:                        1px;
+	--genericbar-color:                               rgba(0, 0, 0, 0.6);
+	--genericbar-height:                              16px;
+	--genericbar-line-height:                         1.4em;
+	--genericbar-text-shadow:                         1px 1px rgba(255, 255, 255, .4);
+	--genericbar-width:                               15px;
+
+	--genericbar-inner-bg:                            orange;
+	--genericbar-inner-border-radius:                 1px;
+	--genericbar-inner-box-shadow:                    4px -4px 8px rgba(0, 0, 0, 0.1) inset, 4px 4px 8px rgba(255, 255, 255, 0.3) inset;
+	--genericbar-inner-box-shadow_vertical:           4px -4px 4px rgba(0, 0, 0, 0.1) inset, 4px 4px 4px rgba(255, 255, 255, 0.3) inset;
+
+	/** Progress Bar **/
+	--progressbar-border-radius:                      4px;
+	--progressbar-color:                              rgba(0, 0, 0, 0.8);
+	--progressbar-font-weight:                        bold;
+
+	--progressbar-inner-bg:                           #75da41;
+	--progressbar-inner-bg_blue:                      #34c2e3;
+	--progressbar-inner-bg_green:                     #75da41;
+	--progressbar-inner-bg_red:                       #f45d4c;
+	--progressbar-inner-bg_yellow:                    #f6c51c;
+	--progressbar-inner-box-shadow:                   -1px 1px 0 rgba(255, 255, 255, 0.25) inset, 1px -1px 0 rgba(0, 0, 0, 0.1) inset;
+
+	/** Quotes **/
+	--quote-bg:                                       #e0e6f6;
+	--quote-alternate-bg:                             #ebf4f8;
+	--quote-border-color:                             #d6dfe2 #aaa;
+	--quote-border-style:                             solid;
+	--quote-border-width:                             1px 2px;
+	--quote-font-size:                                0.85rem;
+
+	--quote-cite-border-color:                        rgba(0, 0, 0, 0.1);
+	--quote-cite-border-style:                        solid;
+	--quote-cite-border-width:                        1px;
+	--quote-cite-font-size:                           0.9em;
+
+	/** Code Blocks **/
+	--code-bg:                                        #f3f3f3;
+	--code-border-color:                              #bbb #dfdfdf #aaa;
+	--code-border-radius:                             2px;
+	--code-border-style:                              solid;
+	--code-border-width:                              2px 1px 3px;
+	--code-font-size:                                 0.78rem;
+	--code-height:                                    25em;
+
+	/** BBC Links **/
+	--bbc-link-border-color:                          #a8b6cf;
+	--bbc-link-border-color_hover:                    #346;
+	--bbc-link-border-style:                          solid;
+	--bbc-link-border-width:                          1px;
+
+	/** AJAX Notification Bar **/
+	--ajaxinprogress-bg:                              #fff;
+	--ajaxinprogress-border-color:                    #f96f00;
+	--ajaxinprogress-border-style:                    solid;
+	--ajaxinprogress-border-width:                    4px;
+	--ajaxinprogress-color:                           #f96f00;
+	--ajaxinprogress-font-size:                       1.6em;
+	--ajaxinprogress-line-height:                     25px;
+
+	--ajaxinprogress-link-color:                      orange;
+	--ajaxinprogress-link-font-size:                  0.9em;
+	--ajaxinprogress-link-text-decoration:            underline;
+
+	/** Popups **/
+	--popup-bg:                                       rgba(40, 64, 80, 0.5);
+
+	--popup-window-border-color:                      #777;
+	--popup-window-border-radius:                     7px 7px 3px 3px;
+	--popup-window-border-style:                      solid;
+	--popup-window-border-width:                      1px;
+	--popup-window-box-shadow:                        0 3px 6px rgba(0, 0, 0, 0.5);
+
+	--popup-heading-color:                            #bf6900;
+
+	--popup-content-color:                            #222;
+	--popup-content-line-height:                      1.6em;
+
+	/** Search Highlight **/
+	--searchhighlight-color:                          #ff7200;
+	--searchhighlight-font-size:                      1.1em;
+	--searchhighlight-font-weight:                    bold;
+
+	/** Moderation Link **/
+	--moderationlink-bg:                              #f59e00;
+	--moderationlink-font-weight:                     bold;
+
+	/** Navigate Section **/
+	--navigatesection-bg:                             hsl(0, 0%, 97%);
+	--navigatesection-border-color:                   hsl(0, 0%, 87%);
+	--navigatesection-border-radius:                  5px;
+	--navigatesection-border-style:                   solid;
+	--navigatesection-border-width:                   1px;
+	--navigatesection-box-shadow:                     0 0 1px 1px rgb(255, 255, 255) inset;
+
+	/** Breadcrumb **/
+	--breadcrumb-bg:                                  var(--navigatesection-bg);
+	--breadcrumb-border-color:                        transparent;
+	--breadcrumb-border-radius:                       var(--navigatesection-border-radius);
+	--breadcrumb-border-style:                        solid;
+	--breadcrumb-border-width:                        0;
+	--breadcrumb-box-shadow:                          0 6px 10px -5px rgba(0, 0, 0, 0.1);
+	--breadcrumb-color:                               hsl(0, 0%, 27%);
+	--breadcrumb-font-family:                         inherit;
+	--breadcrumb-font-size:                           0.9em;
+
+	/** Breadcrumb Divider **/
+	--breadcrumb-divider-color:                       hsl(206, 38%, 40%);
+	--breadcrumb-divider-font-family:                 Arial, sans-serif;
+	--breadcrumb-divider-font-size:                   0.8em;
+	--breadcrumb-divider-line-height:                 150%;
+
+	/** Breadcrumb Links **/
+	--breadcrumb-link-color:                          var(--primary-color-800);
+	--breadcrumb-link-color_active:                   hsl(213, 58%, 37%);
+	--breadcrumb-link-color_focus:                    var(--breadcrumb-link-color_hover);
+	--breadcrumb-link-color_hover:                    var(--primary-color-500);
+	--breadcrumb-link-font-weight:                    400;
+	--breadcrumb-link-font-weight_active:             700;
+	--breadcrumb-link-font-weight_focus:              var(--breadcrumb-link-font-weight_hover);
+	--breadcrumb-link-font-weight_hover:              var(--breadcrumb-link-font-weight);
+	--breadcrumb-link-line-height:                    1;
+	--breadcrumb-link-text-decoration:                none;
+	--breadcrumb-link-text-decoration_active:         none;
+	--breadcrumb-link-text-decoration_focus:          none;
+	--breadcrumb-link-text-decoration_hover:          none;
+	--breadcrumb-link-text-shadow:                    none;
+	--breadcrumb-link-text-shadow_active:             none;
+	--breadcrumb-link-text-shadow_focus:              none;
+	--breadcrumb-link-text-shadow_hover:              none;
+}

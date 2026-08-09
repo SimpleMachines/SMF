@@ -264,6 +264,55 @@ span.hidelink {
 	overflow-wrap: break-word;
 }
 
+/* The geek clocks at ?action=clock.
+------------------------------------------------- */
+/* A lamp is an empty <li>: the border and the fill are the whole of it. The
+/* nesting is a list of units, each holding a list of the bits it is made of. */
+#geek_clock,
+#geek_clock ul,
+#geek_time,
+#geek_time ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#geek_clock,
+#geek_time {
+	margin-inline: auto;
+	width: fit-content;
+}
+#geek_clock li li,
+#geek_time li li {
+	block-size: 22px;
+	border: 1px solid currentColor;
+	border-radius: 50%;
+	inline-size: 22px;
+	margin: 2px;
+	opacity: 0.6;
+	transition: background 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+#geek_clock li li.lit,
+#geek_time li li.lit {
+	background: currentColor;
+	opacity: 1;
+}
+/* BCD is read down each column, so the units stand side by side. The columns
+/* line up on their last lamp, which is the one worth a single unit in each. */
+#geek_clock.bcd {
+	align-items: end;
+	display: flex;
+}
+/* Hours, minutes and seconds are two columns each. Keep the pairs apart. */
+#geek_clock.bcd > li:nth-child(even) {
+	margin-inline-end: 20px;
+}
+/* The other two are read along each row instead. */
+#geek_clock.hms li li,
+#geek_clock.omfg li li,
+#geek_time li li {
+	display: inline-block;
+}
+
 /* At less than 1024px wide, #main_grid needs all the space it can get */
 @media (max-width: 1023px) {
 	#month_grid {

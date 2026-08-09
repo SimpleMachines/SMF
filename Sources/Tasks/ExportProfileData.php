@@ -135,7 +135,7 @@ class ExportProfileData extends BackgroundTask
 						</head>
 						<body>
 							<div id="footerfix">
-								<div id="header">
+								<header id="header" class="content_wrapper">
 									<h1 class="forumtitle">
 										<a id="top">
 											<xsl:attribute name="href">
@@ -144,22 +144,18 @@ class ExportProfileData extends BackgroundTask
 											<xsl:value-of select="@forum-name"/>
 										</a>
 									</h1>
-								</div>
-								<div id="wrapper">
-									<div id="upper_section">
-										<div id="inner_section">
-											<div id="inner_wrap">
-												<div class="user">
-													<time>
-														<xsl:attribute name="datetime">
-															<xsl:value-of select="@generated-date-UTC"/>
-														</xsl:attribute>
-														<xsl:value-of select="@generated-date-localized"/>
-													</time>
-												</div>
-												<hr class="clear"/>
-											</div>
+								</header>
+								<div id="wrapper" class="content_wrapper">
+									<div id="inner_wrap">
+										<div class="user">
+											<time>
+												<xsl:attribute name="datetime">
+													<xsl:value-of select="@generated-date-UTC"/>
+												</xsl:attribute>
+												<xsl:value-of select="@generated-date-localized"/>
+											</time>
 										</div>
+										<hr class="clear"/>
 									</div>
 
 									<xsl:call-template name="content_section"/>
@@ -167,30 +163,28 @@ class ExportProfileData extends BackgroundTask
 								</div>
 							</div>
 							<div id="footer">
-								<div class="inner_wrap">
+								<div class="content_wrapper">
 									<ul>
-										<li class="floatright">
+										<li class="copyright">
+											<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
+										</li>
+										<li class="helplinks">
 											<a>
 												<xsl:attribute name="href">
 													<xsl:value-of select="concat($scripturl, '?action=help')"/>
 												</xsl:attribute>
 												<xsl:value-of select="$txt_help"/>
 											</a>
-											<xsl:text> | </xsl:text>
 											<a>
 												<xsl:attribute name="href">
 													<xsl:value-of select="concat($scripturl, '?action=help;sa=rules')"/>
 												</xsl:attribute>
 												<xsl:value-of select="$txt_terms_rules"/>
 											</a>
-											<xsl:text> | </xsl:text>
 											<a href="#top">
 												<xsl:value-of select="$txt_go_up"/>
 												<xsl:text> &#9650;</xsl:text>
 											</a>
-										</li>
-										<li class="copyright">
-											<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
 										</li>
 									</ul>
 								</div>
@@ -1089,9 +1083,10 @@ class ExportProfileData extends BackgroundTask
 	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
 	{
 		foreach ($codes as &$code) {
-			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
+			// The "Select" and "Expand" buttons are built by JavaScript from these attributes,
+			// and an export has no JavaScript, so drop them.
 			if ($code['tag'] === 'code') {
-				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
+				$code['content'] = preg_replace('~ data-(?:select|shrink|expand)-txt="[^"]*"~', '', $code['content']);
 			}
 		}
 	}

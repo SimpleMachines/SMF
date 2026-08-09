@@ -1001,21 +1001,6 @@ function template_quickreply()
 		</div><!-- #quickreply -->
 		<br class="clear">';
 
-	// Draft autosave available and the user has it enabled?
-	if (!empty(Utils::$context['drafts_autosave'])) {
-		echo '
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
-				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '
-				sType: \'', 'quick', '\',
-				iBoard: ', (empty(Utils::$context['current_board']) ? 0 : Utils::$context['current_board']), ',
-				iFreq: ', (empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000), '
-			});
-		</script>';
-	}
-
 	if (Utils::$context['show_spellchecking']) {
 		echo '
 		<form action="', Config::$scripturl, '?action=spellcheck" method="post" accept-charset="UTF-8" name="spell_form" id="spell_form" target="spellWindow">
@@ -1041,6 +1026,5 @@ function template_quickreply()
 				});
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 		</script>';
 }

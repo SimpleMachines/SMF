@@ -19,7 +19,7 @@ function spellCheck(formName, fieldName)
 
 	var aWords = new Array(), aResult = new Array();
 	var e = $('#' + fieldName).get(0);
-	var sText = sceditor.instance(e).getText(false);
+	var sText = sceditor.instance(e).val();
 	var bInCode = false;
 	var iOffset1, iOffset2;
 
@@ -296,7 +296,7 @@ function openSpellWin(width, height)
 function spellCheckGetText(editorID)
 {
 	var e = $('#' + editorID).get(0);
-	return sceditor.instance(e).getText(false);
+	return sceditor.instance(e).val();
 }
 function spellCheckSetText(text, editorID)
 {
