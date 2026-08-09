@@ -671,6 +671,11 @@ class Languages implements ActionInterface
 
 		Utils::$context['lang_id'] = &$lang_id;
 
+		// Neither the forum's own default nor en_US can go. en_US is what
+		// Lang::load() falls back to for any string the chosen language is
+		// missing, so a forum without it has no backstop at all.
+		Utils::$context['can_delete_language'] = $lang_id !== 'en_US' && $lang_id !== Config::$language;
+
 		// Get all the theme data.
 		$themes = [
 			1 => [
@@ -792,7 +797,7 @@ class Languages implements ActionInterface
 		}
 
 		// We no longer wish to speak this language.
-		if (!empty($_POST['delete_main']) && $lang_id != 'english') {
+		if (!empty($_POST['delete_main']) && Utils::$context['can_delete_language']) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 

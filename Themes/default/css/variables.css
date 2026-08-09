@@ -6,6 +6,87 @@
 /* Every value here is the one the theme already used before the token existed.
 /* Adding a token is not meant to change what the forum looks like. */
 :root {
+	/* The two colour ramps the theme is built from. Each is nine steps derived
+	/* from one hue, so a forum can be re-tinted by changing the hue alone. The
+	/* 700 step is the base colour itself; lower numbers are lighter, higher are
+	/* darker.
+	/*
+	/* Nothing references these yet. They are here for the parts of the theme
+	/* that are still to come, so that the tokens those parts add can be written
+	/* in terms of the ramp instead of another hard-coded colour. The tokens
+	/* below still hold their own literal values and are unchanged. */
+
+	/** Primary Color **/
+	--primary-color-hex:                              #38546B;
+	--primary-color-hue:                              207;
+	--primary-color-50:                               hsl(var(--primary-color-hue), 93%, 95%);
+	--primary-color-100:                              hsl(var(--primary-color-hue), 43%, 84%);
+	--primary-color-200:                              hsl(var(--primary-color-hue), 30%, 73%);
+	--primary-color-300:                              hsl(var(--primary-color-hue), 26%, 62%);
+	--primary-color-400:                              hsl(var(--primary-color-hue), 23%, 54%);
+	--primary-color-500:                              hsl(var(--primary-color-hue), 27%, 45%);
+	--primary-color-600:                              hsl(var(--primary-color-hue), 29%, 39%);
+	--primary-color-700:                              var(--primary-color-hex);
+	--primary-color-800:                              hsl(var(--primary-color-hue), 34%, 25%);
+	--primary-color-900:                              hsl(var(--primary-color-hue), 44%, 17%);
+
+	/** Secondary Color **/
+	--secondary-color-hex:                            #ff9400;
+	--secondary-color-hue:                            35;
+	--secondary-color-50:                             hsl(var(--secondary-color-hue), 100%, 94%);
+	--secondary-color-100:                            hsl(var(--secondary-color-hue), 100%, 85%);
+	--secondary-color-200:                            hsl(var(--secondary-color-hue), 100%, 75%);
+	--secondary-color-300:                            hsl(var(--secondary-color-hue), 100%, 65%);
+	--secondary-color-400:                            hsl(var(--secondary-color-hue), 100%, 57%);
+	--secondary-color-500:                            var(--secondary-color-hex);
+	--secondary-color-600:                            hsl(var(--secondary-color-hue), 99%, 49%);
+	--secondary-color-700:                            hsl(var(--secondary-color-hue), 98%, 48%);
+	--secondary-color-800:                            hsl(var(--secondary-color-hue), 98%, 47%);
+	--secondary-color-900:                            hsl(var(--secondary-color-hue), 97%, 46%);
+
+	/** Layout **/
+	--wrapper-width:                                  1200px;
+
+	/** Footer **/
+	--footer-bg:                                      var(--primary-color-700);
+	--footer-border-color:                            transparent;
+	--footer-border-style:                            solid;
+	--footer-border-width:                            0;
+	--footer-box-shadow:                              none;
+	--footer-color:                                   hsl(0, 0%, 96%);
+	--footer-font-size:                               0.85em;
+	--footer-height:                                  35px;
+
+	/** Footer Links **/
+	--footer-link-color:                              #fff;
+	--footer-link-color_focus:                        var(--footer-link-color_hover);
+	--footer-link-color_hover:                        #f8f8f8;
+	--footer-link-font-weight:                        400;
+	--footer-link-font-weight_focus:                  var(--footer-link-font-weight_hover);
+	--footer-link-font-weight_hover:                  var(--footer-link-font-weight);
+	--footer-link-text-decoration:                    none;
+	--footer-link-text-decoration_focus:              var(--footer-link-text-decoration_hover);
+	--footer-link-text-decoration_hover:              underline;
+	--footer-link-text-shadow:                        none;
+	--footer-link-text-shadow_focus:                  none;
+	--footer-link-text-shadow_hover:                  none;
+
+	/** Main Menu **/
+	--mainmenu-bg:                                    linear-gradient(#e2e9f3 0%, #fff 70%);
+	--mainmenu-border-color:                          #bbb;
+	--mainmenu-border-style:                          solid;
+	--mainmenu-border-width:                          0 0 1px 0;
+	--mainmenu-box-shadow:                            none;
+
+	/** Header **/
+	--header-bg:                                      #fff;
+	--header-border-color:                            transparent;
+	--header-border-radius:                           0;
+	--header-border-style:                            solid;
+	--header-border-width:                            0;
+	--header-box-shadow:                              none;
+	--header-height:                                  80px;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
@@ -255,4 +336,48 @@
 	/** Moderation Link **/
 	--moderationlink-bg:                              #f59e00;
 	--moderationlink-font-weight:                     bold;
+
+	/** Navigate Section **/
+	--navigatesection-bg:                             hsl(0, 0%, 97%);
+	--navigatesection-border-color:                   hsl(0, 0%, 87%);
+	--navigatesection-border-radius:                  5px;
+	--navigatesection-border-style:                   solid;
+	--navigatesection-border-width:                   1px;
+	--navigatesection-box-shadow:                     0 0 1px 1px rgb(255, 255, 255) inset;
+
+	/** Breadcrumb **/
+	--breadcrumb-bg:                                  var(--navigatesection-bg);
+	--breadcrumb-border-color:                        transparent;
+	--breadcrumb-border-radius:                       var(--navigatesection-border-radius);
+	--breadcrumb-border-style:                        solid;
+	--breadcrumb-border-width:                        0;
+	--breadcrumb-box-shadow:                          0 6px 10px -5px rgba(0, 0, 0, 0.1);
+	--breadcrumb-color:                               hsl(0, 0%, 27%);
+	--breadcrumb-font-family:                         inherit;
+	--breadcrumb-font-size:                           0.9em;
+
+	/** Breadcrumb Divider **/
+	--breadcrumb-divider-color:                       hsl(206, 38%, 40%);
+	--breadcrumb-divider-font-family:                 Arial, sans-serif;
+	--breadcrumb-divider-font-size:                   0.8em;
+	--breadcrumb-divider-line-height:                 150%;
+
+	/** Breadcrumb Links **/
+	--breadcrumb-link-color:                          var(--primary-color-800);
+	--breadcrumb-link-color_active:                   hsl(213, 58%, 37%);
+	--breadcrumb-link-color_focus:                    var(--breadcrumb-link-color_hover);
+	--breadcrumb-link-color_hover:                    var(--primary-color-500);
+	--breadcrumb-link-font-weight:                    400;
+	--breadcrumb-link-font-weight_active:             700;
+	--breadcrumb-link-font-weight_focus:              var(--breadcrumb-link-font-weight_hover);
+	--breadcrumb-link-font-weight_hover:              var(--breadcrumb-link-font-weight);
+	--breadcrumb-link-line-height:                    1;
+	--breadcrumb-link-text-decoration:                none;
+	--breadcrumb-link-text-decoration_active:         none;
+	--breadcrumb-link-text-decoration_focus:          none;
+	--breadcrumb-link-text-decoration_hover:          none;
+	--breadcrumb-link-text-shadow:                    none;
+	--breadcrumb-link-text-shadow_active:             none;
+	--breadcrumb-link-text-shadow_focus:              none;
+	--breadcrumb-link-text-shadow_hover:              none;
 }

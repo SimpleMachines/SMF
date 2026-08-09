@@ -156,10 +156,10 @@
 	#footer {
 		padding: 10px;
 	}
-	#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
+	.content_wrapper {
 		width: 100%;
 	}
-	#upper_section, #inner_section, #content_section {
+	#content_section {
 		border-radius: 0;
 	}
 	#boardindex_table .stats {

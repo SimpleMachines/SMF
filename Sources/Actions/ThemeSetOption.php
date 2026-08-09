@@ -18,7 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
-use SMF\CacheApi;
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Routable;
 use SMF\Theme;

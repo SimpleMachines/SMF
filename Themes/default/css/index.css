@@ -909,7 +909,13 @@ a[class^="mobile_generic_menu_"] {
 	display: none;
 }
 
+/* A band of its own across the page, under the header. */
 #main_menu {
+	background: var(--mainmenu-bg);
+	border-color: var(--mainmenu-border-color);
+	border-style: var(--mainmenu-border-style);
+	border-width: var(--mainmenu-border-width);
+	box-shadow: var(--mainmenu-box-shadow);
 	margin: 0 0 4px 0;
 }
 
@@ -1207,35 +1213,27 @@ html[lang="el-GR"] .inline_mod_check {
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.14);
 }
 
-/* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
-	max-width: 1200px;
+/* Set maximum width limit for content.
+/* Anything that should line up with the rest of the page gets this class,
+/* rather than each wrapper being named individually in the selector. */
+.content_wrapper {
+	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
 }
 
 /* The framing graphics */
-/* The top bar. */
-#top_section {
-	border-bottom: 1px solid #bbb;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-	background: #fff;
-	clear: both;
-}
-#top_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
 #top_info {
 	padding: 5px 0;
 	line-height: 1.3em;
 	max-width: 100%;
 }
+/* These hang off #top_info, which is positioned. It sits at the end of the
+/* header, so they have to open towards the start or they run off the edge
+/* of the screen on a narrow window. */
 #pm_menu, #alerts_menu, #profile_menu {
-	left: 0;
-	right: 0;
-	padding-right: 10px;
+	inset-inline: auto 0;
+	padding-inline-end: 10px;
 }
 #profile_menu_top > img.avatar {
 	height: 18px;
@@ -1257,16 +1255,38 @@ html[lang="el-GR"] .inline_mod_check {
 #languages_form {
 	margin: 0 0 0 10px;
 }
-/* The logo and slogan. */
+/* The header. Full width, with its contents lined up with the rest of the
+/* page by the wrapper inside it. */
 #header {
-	padding: 2px 2px 12px 2px;
+	background: var(--header-bg);
+	border-color: var(--header-border-color);
+	border-radius: var(--header-border-radius);
+	border-style: var(--header-border-style);
+	border-width: var(--header-border-width);
+	box-shadow: var(--header-box-shadow);
+	margin: 0;
+	min-height: var(--header-height);
+	padding: .5em .2em;
+}
+#header .content_wrapper {
+	align-items: center;
 	display: flex;
-	align-items: flex-end;
+	gap: .5em;
+	justify-content: space-between;
+	min-height: var(--header-height);
 }
 #header::after {
 	content: "";
 	display: block;
 	clear: both;
+}
+/* Everything about the current user sits at the end of the header, stacked. */
+.user_panel {
+	align-content: space-between;
+	display: inline-grid;
+	flex: 1;
+	gap: .5em;
+	justify-content: flex-end;
 }
 /* The main title. */
 h1.forumtitle {
@@ -1296,25 +1316,15 @@ img#smflogo {
 }
 /*
 /* The user info, news, etc.*/
-#upper_section {
-	padding: 2px 2px 0 2px;
-}
-#inner_section {
-	padding: 12px 10px 2px 10px;
-	border-radius: 6px 6px 0 0;
-}
-#inner_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-/* The upper_section, float the two each way */
+/* The clock and the news line, one at each end. The padding was on the
+/* section that used to wrap this. */
 #inner_wrap {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid #bbb;
 	margin-bottom: 12px;
+	padding: 12px 10px 2px 10px;
 }
 .user {
 	padding: 0 4px 8px 4px;
@@ -1364,50 +1374,91 @@ ul li.greeting {
 
 /* The navigation list (i.e. linktree) */
 .navigate_section {
-	padding: 3px 0 0 0;
-	float: left;
-	width: 100%;
-}
-#main_content_section .navigate_section {
-	margin: 4px 0 0 0;
+	background: var(--navigatesection-bg);
+	border-color: var(--navigatesection-border-color);
+	border-radius: var(--navigatesection-border-radius);
+	border-style: var(--navigatesection-border-style);
+	border-width: var(--navigatesection-border-width);
+	box-shadow: var(--navigatesection-box-shadow);
+	margin-block: .5em .75em;
+	margin-inline: 10px;
 	padding: 0;
 }
-.navigate_section ul {
-	margin: 4px 0 0 0;
-	padding: 0 10px;
+.navigate_section ol {
+	align-items: center;
+	background: var(--breadcrumb-bg);
+	border-color: var(--breadcrumb-border-color);
+	border-radius: var(--breadcrumb-border-radius);
+	border-style: var(--breadcrumb-border-style);
+	border-width: var(--breadcrumb-border-width);
+	box-shadow: var(--breadcrumb-box-shadow);
+	color: var(--breadcrumb-color);
+	display: flex;
+	flex-wrap: wrap;
+	font-family: var(--breadcrumb-font-family);
+	font-size: var(--breadcrumb-font-size);
+	margin: 0;
+	padding: .75em;
+}
+.navigate_section li {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .25em .15em;
+}
+.navigate_section a {
+	color: var(--breadcrumb-link-color);
+}
+.navigate_section a:hover {
+	color: var(--breadcrumb-link-color_hover);
+}
+.navigate_section a:focus {
+	color: var(--breadcrumb-link-color_focus);
+}
+.navigate_section li > a {
+	align-items: center;
+	display: inline-flex;
+	font-weight: var(--breadcrumb-link-font-weight);
+	gap: 0 .25em;
+	line-height: var(--breadcrumb-link-line-height);
+	padding: .2em;
+	text-decoration: var(--breadcrumb-link-text-decoration);
+	text-shadow: var(--breadcrumb-link-text-shadow);
+}
+.navigate_section li > a:hover {
+	font-weight: var(--breadcrumb-link-font-weight_hover);
+	text-decoration: var(--breadcrumb-link-text-decoration_hover);
+	text-shadow: var(--breadcrumb-link-text-shadow_hover);
+}
+.navigate_section li > a:focus {
+	font-weight: var(--breadcrumb-link-font-weight_focus);
+	text-decoration: var(--breadcrumb-link-text-decoration_focus);
+	text-shadow: var(--breadcrumb-link-text-shadow_focus);
+}
+/* The page you are on, which is the last crumb unless it is the only one. */
+.navigate_section li:last-child:not(:first-child) > a {
+	color: var(--breadcrumb-link-color_active);
+	font-weight: var(--breadcrumb-link-font-weight_active);
+	text-decoration: var(--breadcrumb-link-text-decoration_active);
+	text-shadow: var(--breadcrumb-link-text-shadow_active);
+}
+.navigate_section li > a + span {
 	font-size: 0.9em;
-	overflow: hidden;
-	border: 1px solid #ddd;
-	border-radius: 2px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.08);
 }
-.navigate_section ul li {
-	float: left;
-	padding-bottom: 3px;
-	line-height: 1.1em;
-	color: #444;
-	text-shadow: 1px 1px 0 #fff;
+.navigate_section span.board_moderators {
+	align-items: center;
+	display: inline-flex;
 }
-.navigate_section ul li a, .navigate_section ul li em {
-	padding: 4px 0 4px;
-	margin-top: -4px;
-	display: inline-block;
+.navigate_section span.board_moderators a {
+	padding-inline-start: 0.25em;
 }
-.navigate_section ul li span {
-	display: inline-block;
-	margin-top: 8px;
-}
-.navigate_section ul li .dividers {
-	color: #3f6b8c;
-	font: 83.33%/150% Arial, sans-serif;
-	padding: 0 2px 0 6px;
-}
-.navigate_section ul li .board_moderators a {
-	padding: 4px 0;
-}
-
-.navigate_section a:hover span {
-	text-decoration: underline;
+.navigate_section ol li .dividers {
+	color: var(--breadcrumb-divider-color);
+	font-family: var(--breadcrumb-divider-font-family);
+	font-size: var(--breadcrumb-divider-font-size);
+	line-height: var(--breadcrumb-divider-line-height);
+	margin: 0;
+	padding: 0 .4em;
 }
 
 /* The content section */
@@ -1426,15 +1477,51 @@ ul li.greeting {
 /* Footer is now full-width by default. */
 /* The footer with copyright links etc. */
 #footer {
-	margin: 4em 0 0 0;
-	padding: 10px 0;
-	background: #3e5a78;
-	border-top: 3px solid #b2b6bd;
+	background: var(--footer-bg);
+	border-color: var(--footer-border-color);
+	border-style: var(--footer-border-style);
+	border-width: var(--footer-border-width);
+	box-shadow: var(--footer-box-shadow);
+	color: var(--footer-color);
 	flex: none;
+	font-size: var(--footer-font-size);
+	margin: 4em 0 0 0;
+	min-height: var(--footer-height);
+	padding: 10px 0;
 }
-#footer li, #footer p, #footer a {
-	font-size: 0.9em;
-	color: #fff;
+#footer li, #footer p {
+	color: var(--footer-color);
+}
+#footer a {
+	color: var(--footer-link-color);
+	font-weight: var(--footer-link-font-weight);
+	text-decoration: var(--footer-link-text-decoration);
+	text-shadow: var(--footer-link-text-shadow);
+}
+#footer a:hover {
+	color: var(--footer-link-color_hover);
+	font-weight: var(--footer-link-font-weight_hover);
+	text-decoration: var(--footer-link-text-decoration_hover);
+	text-shadow: var(--footer-link-text-shadow_hover);
+}
+#footer a:focus {
+	color: var(--footer-link-color_focus);
+	font-weight: var(--footer-link-font-weight_focus);
+	text-decoration: var(--footer-link-text-decoration_focus);
+	text-shadow: var(--footer-link-text-shadow_focus);
+}
+/* Copyright at one end, help links at the other. */
+#footer ul {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25em .25em;
+	justify-content: space-between;
+}
+#footer li.helplinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75em;
 }
 #footer li.copyright {
 	display: block;
@@ -4116,9 +4203,9 @@ h3.profile_hd::before,
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .quickbuttons > li,
+.quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
-.inline_mod_check, .popup_window, #inner_section, .post_options ul,
+.inline_mod_check, .popup_window, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);

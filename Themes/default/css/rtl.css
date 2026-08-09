@@ -103,12 +103,6 @@ img#smflogo {
 	padding-left: 0;
 	text-align: left;
 }
-#upper_section .news {
-	float: right;
-}
-.navigate_section .unread_links {
-	float: left;
-}
 
 /* Profile drop it needs reverse on RTL */
 #profile_menu_top > img.avatar {
@@ -129,15 +123,6 @@ img#smflogo {
 /* The framing graphics */
 #search_form {
 	text-align: left;
-}
-
-/* The navigation list (i.e. linktree) */
-.navigate_section ul li {
-	float: right;
-}
-
-.navigate_section ul li .dividers {
-	padding: 0 6px 0 2px;
 }
 
 /* the posting icons */

@@ -228,16 +228,22 @@ function template_html_above()
  */
 function template_body_above()
 {
-	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
+	// The header holds the forum title on one side and everything to do with
+	// the current user on the other. h1 a is the target for "Go up" links.
 	echo '
-	<div id="top_section">
-		<div class="inner_wrap">';
+	<header id="header">
+		<div class="content_wrapper">
+			<h1 class="forumtitle">
+				<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
+			</h1>
+			', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '
+			<div class="user_panel">';
 
 	// If the user is logged in, display some things that might be useful.
 	if (!User::$me->is_guest) {
 		// Firstly, the user's menu
 		echo '
-			<ul class="floatleft" id="top_info">
+			<ul id="top_info">
 				<li>
 					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
@@ -291,7 +297,7 @@ function template_body_above()
 		// Some people like to do things the old-fashioned way.
 		if (!empty(Theme::$current->settings['login_main_menu'])) {
 			echo '
-			<ul class="floatleft">
+			<ul id="top_info">
 				<li class="welcome">', Lang::getTxt(
 				Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
 				[
@@ -305,7 +311,7 @@ function template_body_above()
 			</ul>';
 		} else {
 			echo '
-			<ul class="floatleft" id="top_info">
+			<ul id="top_info">
 				<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '
 				</li>
@@ -331,7 +337,7 @@ function template_body_above()
 		}
 	} else { // In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
-			<ul class="floatleft welcome">
+			<ul id="top_info" class="welcome">
 				<li>', Lang::getTxt(
 			'welcome_guest',
 			[
@@ -346,7 +352,7 @@ function template_body_above()
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1) {
 		echo '
-			<form id="languages_form" method="get" class="floatright">
+			<form id="languages_form" method="get">
 				<select id="language_select" name="language" onchange="this.form.submit()">';
 
 		foreach (Utils::$context['languages'] as $language) {
@@ -364,7 +370,7 @@ function template_body_above()
 
 	if (Utils::$context['allow_search']) {
 		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
+			<form id="search_form" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
@@ -414,82 +420,67 @@ function template_body_above()
 	}
 
 	echo '
-		</div><!-- .inner_wrap -->
-	</div><!-- #top_section -->';
+			</div><!-- .user_panel -->
+		</div><!-- .content_wrapper -->
+	</header>';
 
+	// The menu is a band of its own across the page, with its contents lined up
+	// with everything else by the wrapper inside it.
 	echo '
-	<div id="header">
-		<h1 class="forumtitle">
-			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
-		</h1>';
-
-	echo '
-		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
-
-	echo '
-	</div>
-	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap"', User::$me->is_guest ? ' class="hide_720"' : '', '>
-					<div class="user">
-						<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
+	<nav id="main_menu" aria-label="', Lang::getTxt('mobile_user_menu', file: 'General'), '">
+		<div class="content_wrapper">
+			<a class="mobile_user_menu">
+				<span class="menu_icon"></span>
+				<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
+			</a>
+			<div id="mobile_user_menu" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
+						<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					</div>
+					', template_menu(), '
+				</div>
+			</div>
+		</div>
+	</nav>
+	<div id="wrapper" class="content_wrapper">
+		<div id="inner_wrap"', User::$me->is_guest ? ' class="hide_720"' : '', '>
+			<div class="user">
+				<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
 
 	if (!User::$me->is_guest) {
 		echo '
-						<ul class="unread_links">
-							<li>
-								<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
-							</li>
-							<li>
-								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
-							</li>
-						</ul>';
+				<ul class="unread_links">
+					<li>
+						<a href="', Config::$scripturl, '?action=unread" title="', Lang::getTxt('unread_since_visit', file: 'General'), '">', Lang::getTxt('view_unread_category', file: 'General'), '</a>
+					</li>
+					<li>
+						<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::getTxt('show_unread_replies', file: 'General'), '">', Lang::getTxt('unread_replies', file: 'General'), '</a>
+					</li>
+				</ul>';
 	}
 
 	echo '
-					</div>';
+			</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line'])) {
 		echo '
-					<div class="news">
-						<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
-						<p>', Utils::$context['random_news_line'], '</p>
-					</div>';
+			<div class="news">
+				<h2>', Lang::getTxt('news', file: 'General'), ': </h2>
+				<p>', Utils::$context['random_news_line'], '</p>
+			</div>';
 	}
 
 	echo '
-				</div>';
-
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	// Load mobile menu here
-	echo '
-				<a class="mobile_user_menu">
-					<span class="menu_icon"></span>
-					<span class="text_menu">', Lang::getTxt('mobile_user_menu', file: 'General'), '</span>
-				</a>
-				<div id="main_menu">
-					<div id="mobile_user_menu" class="popup_container">
-						<div class="popup_window description">
-							<div class="popup_heading">', Lang::getTxt('mobile_user_menu', file: 'General'), '
-								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>
-							', template_menu(), '
-						</div>
-					</div>
-				</div>';
+		</div><!-- #inner_wrap -->';
 
 	theme_linktree();
-
-	echo '
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '
 		<div id="content_section">
-			<div id="main_content_section">';
+			<main id="main_content_section">';
 }
 
 /**
@@ -498,21 +489,26 @@ function template_body_above()
 function template_body_below()
 {
 	echo '
-			</div><!-- #main_content_section -->
+			</main><!-- #main_content_section -->
 		</div><!-- #content_section -->
 	</div><!-- #wrapper -->
 </div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
-	<div id="footer">
-		<div class="inner_wrap">';
+	<footer id="footer">
+		<div class="content_wrapper">';
 
-	// There is now a global "Go to top" link at the right.
+	// The copyright at one end, the help links and the "Go to top" link at the
+	// other. They used to be separated by literal pipes; the gap does that now.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', ' | <a href="#top_section">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a></li>
 			<li class="copyright">', Theme::copyright(), '</li>
+			<li class="helplinks">
+				<a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
+				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', '
+				<a href="#header">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a>
+			</li>
 		</ul>';
 
 	// Show the load time?
@@ -530,7 +526,7 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div><!-- #footer -->';
+	</footer><!-- #footer -->';
 
 }
 
@@ -561,14 +557,16 @@ function theme_linktree($force_show = false)
 		return;
 	}
 
+	// A breadcrumb trail is a landmark, and it is an ordered list rather than an
+	// unordered one - "General Category" comes before "General Discussion".
 	echo '
-				<div class="navigate_section">
-					<ul>';
+				<nav class="navigate_section" aria-label="', Lang::getTxt('breadcrumb', file: 'General'), '">
+					<ol itemscope itemtype="https://schema.org/BreadcrumbList">';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach (Utils::$context['linktree'] as $link_num => $tree) {
 		echo '
-						<li', ($link_num == count(Utils::$context['linktree']) - 1) ? ' class="last"' : '', '>';
+						<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"', ($link_num == count(Utils::$context['linktree']) - 1) ? ' class="last"' : '', '>';
 
 		// Don't show a separator for the first one.
 		// Better here. Always points to the next level when the linktree breaks to a second line.
@@ -583,14 +581,19 @@ function theme_linktree($force_show = false)
 			echo $tree['extra_before'], ' ';
 		}
 
-		// Show the link, including a URL if it should have one.
+		// Show the link, including a URL if it should have one. The itemprop
+		// attributes let a search engine read the trail as a breadcrumb.
 		if (isset($tree['url'])) {
 			echo '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
+							<a itemprop="item" href="' . $tree['url'] . '"><span itemprop="name">' . $tree['name'] . '</span></a>';
 		} else {
-		echo '
-							<span>' . $tree['name'] . '</span>';
+			echo '
+							<span itemprop="name">' . $tree['name'] . '</span>';
 		}
+
+		// Where this one sits in the trail. Positions are 1 based.
+		echo '
+							<meta itemprop="position" content="', $link_num + 1, '">';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after'])) {
@@ -602,8 +605,8 @@ function theme_linktree($force_show = false)
 	}
 
 	echo '
-					</ul>
-				</div><!-- .navigate_section -->';
+					</ol>
+				</nav><!-- .navigate_section -->';
 
 	$shown_linktree = true;
 }

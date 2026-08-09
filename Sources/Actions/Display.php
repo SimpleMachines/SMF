@@ -35,6 +35,7 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
