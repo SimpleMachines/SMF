@@ -972,6 +972,9 @@ class MessageIndex implements ActionInterface, Routable
 	 */
 	protected function setupTemplate(): void
 	{
+		// The child board rows here are drawn by the same template_bi_*
+		// helpers the board index uses, so that file has to come along.
+		Theme::loadTemplate('BoardIndex');
 		Theme::loadTemplate('MessageIndex');
 
 		// Javascript for inline editing.
