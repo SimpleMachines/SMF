@@ -326,6 +326,27 @@
 	--popup-content-color:                            #222;
 	--popup-content-line-height:                      1.6em;
 
+	/** Board Index **/
+	/* The hairline the board index draws everywhere: around a board group,
+	   between the stats columns, above a child board list and above the
+	   information line on a message index. */
+	--boardindex-border-color:                        #ddd;
+	--boardindex-border-style:                        solid;
+	--boardindex-border-width:                        1px;
+	--boardindex-subject-color:                       #a85400;
+
+	/** Board Picker Lists **/
+	--boardslist-border-color:                        #c4c4c4;
+	--boardslist-border-color_hover:                  #334466;
+	--boardslist-border-style:                        solid;
+	--boardslist-border-width:                        1px;
+
+	/** Info Center **/
+	--infocenter-row-border-color:                    #eaeaea;
+	--infocenter-row-border-style:                    solid;
+	--infocenter-row-border-width:                    1px;
+	--infocenter-time-color:                          #555;
+
 	/** Search Highlight **/
 	--searchhighlight-color:                          #ff7200;
 	--searchhighlight-font-size:                      1.1em;
