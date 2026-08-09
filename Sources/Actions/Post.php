@@ -1199,7 +1199,10 @@ class Post implements ActionInterface, Routable
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
 			Utils::$context['last_modified_name'] = $row['modified_name'];
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General');
+			// The reason is optional, so it needs brackets of its own here.
+			// Concatenation binds tighter than the ternary, so without them the
+			// whole thing is the condition and the note is always empty.
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . (empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General'));
 		}
 
 		// Get the stuff ready for the form.
