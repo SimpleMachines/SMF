@@ -956,17 +956,17 @@ a[class^="mobile_generic_menu_"] {
 }
 .pm_unread, .alerts_unread {
 	margin-top: 5px;
-	border-top: 1px solid #ddd;
+	border-top: var(--notifylist-border-width) var(--notifylist-border-style) var(--notifylist-border-color);
 }
 .unread_notify {
-	border-bottom: 1px solid #ddd;
+	border-bottom: var(--notifylist-border-width) var(--notifylist-border-style) var(--notifylist-border-color);
 }
 .no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
 .unread_notify:hover {
-	background: #eee;
+	background: var(--notifylist-item-bg_hover);
 	text-decoration: none;
 }
 .unread_notify:last-child {
@@ -2834,26 +2834,26 @@ dl.stats {
 	padding: 0 12px 0 0;
 }
 #personal_messages .capacity_bar {
-	background: #f0f4f7;
+	background: var(--capacitybar-bg);
 	display: block;
 	margin: 6px 0 0 12px;
 	height: 12px;
-	border: 1px solid #adadad;
+	border: var(--capacitybar-border-width) var(--capacitybar-border-style) var(--capacitybar-border-color);
 	width: 10em;
 }
 #personal_messages .capacity_bar span {
-	border-right: 1px solid #adadad;
+	border-right: var(--capacitybar-border-width) var(--capacitybar-border-style) var(--capacitybar-border-color);
 	display: block;
 	height: 12px;
 }
 #personal_messages .capacity_bar span.empty {
-	background: #a6d69d;
+	background: var(--capacitybar-inner-bg_empty);
 }
 #personal_messages .capacity_bar span.filled {
-	background: #eea800;
+	background: var(--capacitybar-inner-bg_filled);
 }
 #personal_messages .capacity_bar span.full {
-	background: #f10909;
+	background: var(--capacitybar-inner-bg_full);
 }
 #personal_messages .reportlinks {
 	padding: 6px 1.3em;
@@ -2869,7 +2869,7 @@ dl.stats {
 }
 dl.addrules dt.floatleft {
 	width: 15em;
-	color: #333;
+	color: var(--pmrules-label-color);
 	padding: 0 15px 6px 15px;
 }
 #addrule fieldset {
@@ -2880,7 +2880,7 @@ dl.addrules dt.floatleft {
 	margin-right: 10px;
 }
 .unread_pm {
-	background: #cfc;
+	background: var(--unreadpm-bg);
 }
 /* Styles for the show alerts section.
 ------------------------------------------------- */
