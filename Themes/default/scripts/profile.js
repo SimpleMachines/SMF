@@ -315,3 +315,117 @@ function export_download_all(format)
 		setTimeout(function() { iframe.remove(); }, 30000);
 	});
 }
+
+/*
+ * Everything below belongs to the "issue a warning" page. It used to be
+ * generated into the template, which meant the notification templates were
+ * written out as one JavaScript branch each. They arrive as data now:
+ * notification_templates holds the bodies in the order the select lists them,
+ * level_effects maps each warning level to what it does at that level.
+ */
+document.addEventListener('DOMContentLoaded', function ()
+{
+	var slider = document.getElementById('warning_level');
+
+	// Viewing your own warning level shows the slider and nothing else, so
+	// this half stands on its own.
+	if (slider)
+	{
+		slider.addEventListener('input', updateSlider);
+	}
+
+	var notify = document.getElementById('warn_notify');
+
+	if (!notify)
+		return;
+
+	notify.addEventListener('change', modifyWarnNotify);
+	document.getElementById('warn_temp').addEventListener('change', populateNotifyTemplate);
+	document.getElementById('preview_button').addEventListener('click', ajax_getTemplatePreview);
+
+	// The notification fields start out matching the checkbox.
+	modifyWarnNotify.call(notify);
+});
+
+// The notification is optional, so its fields follow the checkbox.
+function modifyWarnNotify()
+{
+	var disable = !document.getElementById('warn_notify').checked;
+
+	document.getElementById('warn_sub').disabled = disable;
+	document.getElementById('warn_body').disabled = disable;
+	document.getElementById('warn_temp').disabled = disable;
+	document.getElementById('new_template_link').hidden = disable;
+
+	// Disabled rather than hidden, because .button sets display and an author
+	// rule beats the [hidden] one the browser brings.
+	document.getElementById('preview_button').disabled = disable;
+}
+
+// Picking a template drops its body into the message.
+function populateNotifyTemplate()
+{
+	if (this.value == -1)
+		return;
+
+	document.getElementById('warn_body').value = notification_templates[this.value];
+}
+
+// Says what the level being dragged to actually does.
+function updateSlider()
+{
+	// Number(), because both sides are strings otherwise and 100 sorts below
+	// 35 when they are compared as text.
+	var output = this.form.cur_level, level = Number(this.value), effect = '';
+
+	for (var limit in level_effects)
+		if (level >= Number(limit))
+			effect = level_effects[limit];
+
+	output.value = output.dataset.format.replace('{0}', this.value) + ' (' + effect + ')';
+}
+
+// Renders the notification body the way the member will receive it.
+function ajax_getTemplatePreview()
+{
+	var data = new URLSearchParams({
+		item: 'warning_preview',
+		title: document.getElementById('warn_sub').value,
+		body: document.getElementById('warn_body').value,
+		issuing: true
+	});
+
+	fetch(smf_scripturl + '?action=xmlhttp;sa=previews;xml', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'X-SMF-AJAX': 1
+		},
+		credentials: typeof allow_xhjr_credentials !== 'undefined' && allow_xhjr_credentials ? 'include' : 'same-origin',
+		body: data
+	})
+	.then(function (response) {
+		return response.text();
+	})
+	.then(function (text) {
+		var xml = new DOMParser().parseFromString(text, 'application/xml'),
+			errors = xml.querySelectorAll('error'),
+			problems = document.getElementById('profile_error');
+
+		document.getElementById('box_preview').style.display = '';
+		setInnerHTML(document.getElementById('body_preview'), xml.querySelector('body').textContent);
+
+		if (!problems)
+			return;
+
+		problems.style.display = errors.length ? '' : 'none';
+
+		var list = '';
+
+		errors.forEach(function (error) {
+			list += '<li>' + error.textContent + '</li>';
+		});
+
+		setInnerHTML(problems, list === '' ? '' : '<ul class="list_errors">' + list + '</ul>');
+	});
+}
