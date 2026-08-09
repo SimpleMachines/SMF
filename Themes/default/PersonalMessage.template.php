@@ -233,7 +233,7 @@ function template_folder()
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				<div class="floatright">
-					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">
+					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '" class="button you_sure">
 				</div>
 			</div>';
 		}
@@ -735,7 +735,7 @@ function template_subject_list()
 		}
 
 		echo '
-			<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">';
+			<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '" class="button you_sure">';
 	}
 
 	echo '
@@ -839,8 +839,9 @@ function template_search()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', Lang::getTxt('pm_search_choose_label', file: 'PersonalMessage'), '</a>
+						<a href="#" id="advanced_panel_link">', Lang::getTxt('pm_search_choose_label', file: 'PersonalMessage'), '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div">
 					<ul id="search_labels">';
@@ -1097,8 +1098,9 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
+						<strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 					</h4>
+					<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
@@ -1599,7 +1601,7 @@ function template_rules()
 
 	if (!empty(Utils::$context['rules'])) {
 		echo '
-			<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return confirm(\'', Lang::getTxt('pm_js_apply_rules_confirm', file: 'PersonalMessage'), '\');" class="button">', Lang::getTxt('pm_apply_rules', file: 'PersonalMessage'), '</a>';
+			<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" data-confirm="', Lang::getTxt('pm_js_apply_rules_confirm', file: 'PersonalMessage'), '" class="button you_sure">', Lang::getTxt('pm_apply_rules', file: 'PersonalMessage'), '</a>';
 	}
 
 	echo '

@@ -498,11 +498,11 @@ class Search
 		if (Db::$db->num_rows($request) > $this->max_members_to_search) {
 			$this->user_query = '';
 		} else {
-				$searchq_parameters['real_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
+				$this->searchq_parameters['real_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
 				$clauses = [];
 
 				foreach ($possible_users as $k => $v) {
-					$searchq_parameters['name_' . $k] = $v;
+					$this->searchq_parameters['name_' . $k] = $v;
 					$clauses[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
 				}
 

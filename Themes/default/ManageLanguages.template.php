@@ -185,7 +185,7 @@ function template_modify_language_entries()
 	// Allow deleting entries. The default language and en_US can't go.
 	if (Utils::$context['can_delete_language']) {
 		echo '
-				<input type="submit" name="delete_main" value="', Lang::getTxt('delete', file: 'General'), '"', !empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="return confirm(\'', Lang::getTxt('languages_delete_confirm', file: 'ManageSettings'), '\');" class="button">';
+				<input type="submit" name="delete_main" value="', Lang::getTxt('delete', file: 'General'), '"', !empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : '', ' data-confirm="', Lang::getTxt('languages_delete_confirm', file: 'ManageSettings'), '" class="button you_sure">';
 	}
 
 	echo '

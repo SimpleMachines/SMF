@@ -369,6 +369,9 @@ class Post implements ActionInterface, Routable
 		// Set up the fields for the posting form header.
 		$this->setupPostingFields();
 
+		// Set up the checkboxes below the editor.
+		$this->setupPostOptions();
+
 		// Finally, load the template.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Post');
@@ -1199,7 +1202,10 @@ class Post implements ActionInterface, Routable
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
 			Utils::$context['last_modified_name'] = $row['modified_name'];
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General');
+			// The reason is optional, so it needs brackets of its own here.
+			// Concatenation binds tighter than the ternary, so without them the
+			// whole thing is the condition and the note is always empty.
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . (empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General'));
 		}
 
 		// Get the stuff ready for the form.
@@ -1776,7 +1782,7 @@ class Post implements ActionInterface, Routable
 				'sLastNote' => 'draft_lastautosave',
 				'sLastID' => 'id_draft',
 				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
-				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
 			];
 		}
 
@@ -1842,6 +1848,100 @@ class Post implements ActionInterface, Routable
 				'selected' => true,
 			]);
 		}
+	}
+
+	/**
+	 * Sets up the checkboxes that sit below the editor.
+	 *
+	 * Each item in Utils::$context['post_options'] is an array like this:
+	 *
+	 *     [
+	 *         'can_show' => Utils::$context['can_lock'], // required
+	 *         'name' => 'lock',                          // required
+	 *         'id' => 'check_lock',                      // required
+	 *         'checked' => Utils::$context['locked'],    // required
+	 *         'label' => Lang::getTxt('lock_topic'),     // required
+	 *         'value' => '1',                            // optional, defaults to '1'
+	 *         'hidden' => ['lock' => '0'],               // optional
+	 *     ]
+	 *
+	 * An unchecked checkbox submits nothing at all, so anything that can be
+	 * switched back off needs a hidden field of the same name carrying the
+	 * "off" value ahead of it. That is what 'hidden' is for; the fields in it
+	 * are written out immediately before the checkbox.
+	 */
+	protected function setupPostOptions(): void
+	{
+		Utils::$context['post_options'] = [
+			[
+				'can_show' => Utils::$context['can_notify'],
+				'name' => 'notify',
+				'id' => 'check_notify',
+				'checked' => Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'],
+				'label' => Lang::getTxt('notify_replies', file: 'Post'),
+				'hidden' => ['notify' => '0'],
+			],
+			[
+				'can_show' => Utils::$context['can_lock'],
+				'name' => 'lock',
+				'id' => 'check_lock',
+				'checked' => (bool) Utils::$context['locked'],
+				'label' => Lang::getTxt('lock_topic', file: 'Post'),
+				'hidden' => [
+					'already_locked' => Utils::$context['already_locked'],
+					'lock' => '0',
+				],
+			],
+			[
+				'can_show' => true,
+				'name' => 'goback',
+				'id' => 'check_back',
+				'checked' => Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']),
+				'label' => Lang::getTxt('back_to_topic', file: 'Post'),
+			],
+			[
+				'can_show' => Utils::$context['can_sticky'],
+				'name' => 'sticky',
+				'id' => 'check_sticky',
+				'checked' => (bool) Utils::$context['sticky'],
+				'label' => Lang::getTxt('sticky_after_posting', file: 'Post'),
+				'hidden' => [
+					'already_sticky' => Utils::$context['already_sticky'],
+					'sticky' => '0',
+				],
+			],
+			[
+				'can_show' => true,
+				'name' => 'ns',
+				'id' => 'check_smileys',
+				'checked' => empty(Utils::$context['use_smileys']),
+				'label' => Lang::getTxt('dont_use_smileys', file: 'Post'),
+				'value' => 'NS',
+			],
+			[
+				'can_show' => Utils::$context['can_move'],
+				'name' => 'move',
+				'id' => 'check_move',
+				'checked' => !empty(Utils::$context['move']),
+				'label' => Lang::getTxt('move_after_posting', file: 'Post'),
+				'hidden' => ['move' => '0'],
+			],
+			[
+				'can_show' => Utils::$context['can_announce'] && Utils::$context['is_first_post'],
+				'name' => 'announce_topic',
+				'id' => 'check_announce',
+				'checked' => !empty(Utils::$context['announce']),
+				'label' => Lang::getTxt('announce_topic', file: 'Post'),
+			],
+			[
+				'can_show' => !empty(Utils::$context['show_approval']),
+				'name' => 'approve',
+				'id' => 'approve',
+				'checked' => Utils::$context['show_approval'] === 2,
+				'label' => Lang::getTxt('approve_this_post', file: 'Post'),
+				'value' => '2',
+			],
+		];
 	}
 
 	/**

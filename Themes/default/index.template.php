@@ -228,22 +228,16 @@ function template_html_above()
  */
 function template_body_above()
 {
-	// The header holds the forum title on one side and everything to do with
-	// the current user on the other. h1 a is the target for "Go up" links.
+	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
-	<header id="header">
-		<div class="content_wrapper">
-			<h1 class="forumtitle">
-				<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
-			</h1>
-			', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '
-			<div class="user_panel">';
+	<div id="top_section">
+		<div class="inner_wrap content_wrapper">';
 
 	// If the user is logged in, display some things that might be useful.
 	if (!User::$me->is_guest) {
 		// Firstly, the user's menu
 		echo '
-			<ul id="top_info">
+			<ul class="floatleft" id="top_info">
 				<li>
 					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
@@ -297,7 +291,7 @@ function template_body_above()
 		// Some people like to do things the old-fashioned way.
 		if (!empty(Theme::$current->settings['login_main_menu'])) {
 			echo '
-			<ul id="top_info">
+			<ul class="floatleft">
 				<li class="welcome">', Lang::getTxt(
 				Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
 				[
@@ -311,7 +305,7 @@ function template_body_above()
 			</ul>';
 		} else {
 			echo '
-			<ul id="top_info">
+			<ul class="floatleft" id="top_info">
 				<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '
 				</li>
@@ -337,7 +331,7 @@ function template_body_above()
 		}
 	} else { // In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
-			<ul id="top_info" class="welcome">
+			<ul class="floatleft welcome">
 				<li>', Lang::getTxt(
 			'welcome_guest',
 			[
@@ -352,7 +346,7 @@ function template_body_above()
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1) {
 		echo '
-			<form id="languages_form" method="get">
+			<form id="languages_form" method="get" class="floatright">
 				<select id="language_select" name="language" onchange="this.form.submit()">';
 
 		foreach (Utils::$context['languages'] as $language) {
@@ -370,7 +364,7 @@ function template_body_above()
 
 	if (Utils::$context['allow_search']) {
 		echo '
-			<form id="search_form" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
+			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
@@ -420,8 +414,19 @@ function template_body_above()
 	}
 
 	echo '
-			</div><!-- .user_panel -->
-		</div><!-- .content_wrapper -->
+		</div><!-- .inner_wrap -->
+	</div><!-- #top_section -->';
+
+	echo '
+	<header id="header" class="content_wrapper">
+		<h1 class="forumtitle">
+			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
+		</h1>';
+
+	echo '
+		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
+
+	echo '
 	</header>';
 
 	// The menu is a band of its own across the page, with its contents lined up
@@ -507,7 +512,7 @@ function template_body_below()
 			<li class="helplinks">
 				<a href="', Config::$scripturl, '?action=help">', Lang::getTxt('help', file: 'General'), '</a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
 				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '', '
-				<a href="#header">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a>
+				<a href="#top_section">', Lang::getTxt('go_up', file: 'General'), ' &#9650;</a>
 			</li>
 		</ul>';
 

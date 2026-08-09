@@ -1223,6 +1223,22 @@ html[lang="el-GR"] .inline_mod_check {
 }
 
 /* The framing graphics */
+/* The top bar. A band across the page above the header, holding everything to
+/* do with the current user. Same gradient and bottom border as the menu band
+/* under the header; it carries a shadow of its own on top of those. */
+#top_section {
+	background: var(--topsection-bg);
+	border-color: var(--topsection-border-color);
+	border-style: var(--topsection-border-style);
+	border-width: var(--topsection-border-width);
+	box-shadow: var(--topsection-box-shadow);
+	clear: both;
+}
+#top_section::after {
+	content: "";
+	display: block;
+	clear: both;
+}
 #top_info {
 	padding: 5px 0;
 	line-height: 1.3em;
@@ -1255,38 +1271,16 @@ html[lang="el-GR"] .inline_mod_check {
 #languages_form {
 	margin: 0 0 0 10px;
 }
-/* The header. Full width, with its contents lined up with the rest of the
-/* page by the wrapper inside it. */
+/* The logo and slogan. */
 #header {
-	background: var(--header-bg);
-	border-color: var(--header-border-color);
-	border-radius: var(--header-border-radius);
-	border-style: var(--header-border-style);
-	border-width: var(--header-border-width);
-	box-shadow: var(--header-box-shadow);
-	margin: 0;
-	min-height: var(--header-height);
-	padding: .5em .2em;
-}
-#header .content_wrapper {
-	align-items: center;
+	padding: 2px 2px 12px 2px;
 	display: flex;
-	gap: .5em;
-	justify-content: space-between;
-	min-height: var(--header-height);
+	align-items: flex-end;
 }
 #header::after {
 	content: "";
 	display: block;
 	clear: both;
-}
-/* Everything about the current user sits at the end of the header, stacked. */
-.user_panel {
-	align-content: space-between;
-	display: inline-grid;
-	flex: 1;
-	gap: .5em;
-	justify-content: flex-end;
 }
 /* The main title. */
 h1.forumtitle {
@@ -3808,26 +3802,22 @@ form#postmodify .roundframe {
 #post_header img {
 	vertical-align: middle;
 }
-ul.post_options {
-	margin: 0 0 0 12px;
+/* The checkboxes below the editor. Two columns, the same two the floats used to
+/* make, but a grid gets there without needing anything undone for RTL or for
+/* narrow screens. */
+#post_options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2px 1em;
+	margin: 0;
 	padding: 0;
-	overflow: hidden;
+	list-style: none;
 }
-ul.post_options li {
-	margin: 2px 0;
-	width: 49%;
-	float: left;
-}
-#post_additional_options_header {
+#post_options_toggle > summary {
 	margin-top: 0.5em;
+	cursor: pointer;
 }
-#post_additional_options {
-	overflow: hidden;
-}
-#post_additional_options .progress_bar {
-	height: 22px;
-}
-#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+#post_options, #postAttachment, #postAttachment2, #attachment_previews {
 	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
@@ -3963,6 +3953,32 @@ div.cat_bar {
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
+}
+/* Both bars are a row: the heading takes whatever is left, and anything sitting
+/* beside it — a collapse toggle, a link — goes at the end. Deliberately only
+/* when the bar is a div: .title_bar is also put on a <tr>, and turning that into
+/* a flex row would take the table apart. */
+div.cat_bar,
+div.title_bar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+}
+div.cat_bar > h3,
+div.title_bar > h3,
+div.title_bar > h4 {
+	flex: 1;
+}
+/* A category's description belongs under its heading rather than beside it. */
+div.cat_bar > .desc {
+	flex-basis: 100%;
+}
+/* The toggles used to sit inside the heading and take its padding with them. */
+div.cat_bar > .toggle_up,
+div.cat_bar > .toggle_down,
+div.title_bar > .toggle_up,
+div.title_bar > .toggle_down {
+	margin-inline-end: 12px;
 }
 /* Styles for rounded headers. */
 .cat_bar .desc {

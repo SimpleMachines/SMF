@@ -159,9 +159,9 @@ function template_main()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
 					</h4>
+					<span id="advanced_panel_toggle" class="toggle_down" style="display: none;"></span>
 				</div>
 				<div class="flow_auto boardslist" id="advanced_panel_div"', !empty(Utils::$context['boards_check_all']) ? ' style="display: none;"' : '', '>
 					<ul>';
@@ -188,7 +188,7 @@ function template_main()
 
 				if ($next_child_level > $curr_child_level) {
 					echo '
-									<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+									<ul style="margin-inline-start: 2.5ch;">';
 				} else {
 					// Close child board lists until we reach a common level
 					// with the next board.
