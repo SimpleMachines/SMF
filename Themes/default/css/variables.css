@@ -157,6 +157,52 @@
 	--button-text-shadow_active:                      0 0 1px #000;
 	--button-text-transform:                          uppercase;
 
+	/** Posts **/
+	--postbg-border-color:                            #7f7f7f;
+	--postbg-border-style:                            solid;
+	--postbg-border-width:                            1px;
+	--topiccontainer-border-color:                    rgba(0, 0, 0, 0.13);
+	--topiccontainer-border-style:                    solid;
+	--topiccontainer-border-width:                    1px;
+
+	/* The hairline above each section inside a post: the message body, the
+	   signature, the attachments and the custom field blocks all draw it. */
+	--postsection-border-color:                       #bfbfbf;
+	--postsection-border-style:                       solid;
+	--postsection-border-width:                       1px;
+	--postsection-box-shadow:                         0 1px 0 #fff inset;
+
+	/** Posts Awaiting Approval **/
+	--approvebg-bg:                                   #ffeaea;
+	--approvebg-color:                                #222;
+	--approvebg2-bg:                                  #fff2f2;
+	--approvebg2-color:                               #222;
+
+	/** Post Author **/
+	--poster-name-color:                              #c06002;
+	--poster-online-color:                            #c06002;
+
+	/** Post Info Line **/
+	--pagenumber-color:                               #ad6825;
+	--postinfo-link-color:                            #ad6825;
+	--postinfo-modified-color:                        #333;
+	--subjecttitle-link-color:                        #333;
+
+	/** Post Edit History **/
+	--edithistory-bg:                                 #fdfdfd;
+	--edithistory-border-color:                       #ddd;
+	--edithistory-border-radius:                      4px;
+	--edithistory-border-style:                       solid;
+	--edithistory-border-width:                       1px;
+	--edithistory-item-border-color:                  #ddd;
+	--edithistory-item-border-style:                  solid;
+	--edithistory-item-border-width:                  1px;
+
+	/** Bump Notice **/
+	--bumpnotice-border-color:                        #ddd;
+	--bumpnotice-border-style:                        solid;
+	--bumpnotice-border-width:                        1px;
+
 	/** Cat Bar **/
 	--catbar-bg:                                      #557ea0;
 	--catbar-border-color:                            #777;
