@@ -52,10 +52,12 @@ abstract class MaintenanceTemplate
 	</head>
 	<body>
 		<div id="footerfix">
-		<div id="header" class="content_wrapper">
-			<h1 class="forumtitle">', Maintenance::$tool->getScriptName(), '</h1>
-			<img id="smflogo" src="', Maintenance::$theme_url, '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
-		</div>
+		<header id="header">
+			<div class="content_wrapper">
+				<h1 class="forumtitle">', Maintenance::$tool->getScriptName(), '</h1>
+				<img id="smflogo" src="', Maintenance::$theme_url, '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
+			</div>
+		</header>
 		<div id="wrapper" class="content_wrapper">';
 
 		// Have we got a language drop down - if so do it on the first step only.
