@@ -2931,7 +2931,7 @@ function template_profile_signature_modify()
 	echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', Utils::$context['member']['signature'], '</textarea><br>';
+								<textarea class="editor" id="signature" name="signature" rows="5" cols="50"', empty(Utils::$context['signature_limits']['max_length']) ? '' : ' data-max-length="' . (int) Utils::$context['signature_limits']['max_length'] . '"', '>', Utils::$context['member']['signature'], '</textarea><br>';
 
 	// If there is a limit at all!
 	if (!empty(Utils::$context['signature_limits']['max_length'])) {
@@ -2949,18 +2949,7 @@ function template_profile_signature_modify()
 								<span class="smalltext">', Utils::$context['signature_warning'], '</span>';
 	}
 
-	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
-								<script>
-									var maxLength = ', Utils::$context['signature_limits']['max_length'], ';
-
-									$(document).ready(function() {
-										calcCharLeft();
-										$("#preview_button").click(function() {
-											return ajax_getSignaturePreview(true);
-										});
-									});
-								</script>
 							</dd>';
 }
 

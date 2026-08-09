@@ -39,6 +39,35 @@ function disableAutoCompleteNow()
 	}
 }
 
+/*
+ * How long a signature is allowed to be. The template used to write this out
+ * as a global of its own; it comes off the textarea now, so the number only
+ * exists in one place.
+ */
+var maxLength = 0;
+
+// Wires up the signature editor, which is on the Forum Profile page.
+document.addEventListener('DOMContentLoaded', function ()
+{
+	var signature = document.getElementById('signature');
+
+	if (!signature)
+		return;
+
+	maxLength = Number(signature.dataset.maxLength || 0);
+
+	// "input" rather than the old "keyup", so pasting counts too.
+	signature.addEventListener('input', calcCharLeft);
+	calcCharLeft();
+
+	var preview = document.getElementById('preview_button');
+
+	if (preview)
+		preview.addEventListener('click', function () {
+			return ajax_getSignaturePreview(true);
+		});
+});
+
 function calcCharLeft()
 {
 	var oldSignature = "", currentSignature = document.forms.creator.signature.value;
