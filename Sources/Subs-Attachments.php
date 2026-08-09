@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.5
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -1165,9 +1165,12 @@ function getAttachMsgInfo($attachID)
 	}
 
 	$request = $smcFunc['db_query']('', '
-		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
+		SELECT
+			a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board, m.id_member, m.approved, m.poster_time,
+			t.locked AS is_locked, t.id_member_started
 		FROM {db_prefix}attachments AS a
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 		WHERE id_attach = {int:id_attach}
 		LIMIT 1',
 		array(
