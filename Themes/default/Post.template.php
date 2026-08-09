@@ -857,7 +857,7 @@ function template_announcement_send()
 				</div>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" name="b" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
+					<input type="submit" name="cont" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 					<input type="hidden" name="move" value="', Utils::$context['move'], '">
@@ -871,7 +871,7 @@ function template_announcement_send()
 	</div><!-- #announcement -->
 	<br>
 	<script>
-		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ', "autoSubmit", "b");
+		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ');
 	</script>';
 }
 
