@@ -362,6 +362,11 @@ class Post implements ActionInterface, Routable
 		// quotedText.js
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');
 
+		// The poll fieldsets bring their own script along.
+		if (Utils::$context['make_poll']) {
+			Theme::loadJavaScriptFile('post.js', ['defer' => true, 'minimize' => true], 'smf_post');
+		}
+
 		// Knowing the current board ID might be handy.
 		Theme::addInlineJavaScript('
 		var current_board = ' . (empty(Utils::$context['current_board']) ? 'null' : Utils::$context['current_board']) . ';', false);
