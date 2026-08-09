@@ -19,14 +19,6 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * The top part of the outer layer of the boardindex
- */
-function template_boardindex_outer_above()
-{
-	template_newsfader();
-}
-
-/**
  * This shows the newsfader
  */
 function template_newsfader()
@@ -57,7 +49,7 @@ function template_newsfader()
 /**
  * This actually displays the board index
  */
-function template_main()
+function template_boardindex()
 {
 	echo '
 	<div id="boardindex_table" class="boardindex_table">';
@@ -278,14 +270,6 @@ function template_bi_board_children($board)
 				'</p>
 			</div>';
 	}
-}
-
-/**
- * The lower part of the outer layer of the board index
- */
-function template_boardindex_outer_below()
-{
-	template_info_center();
 }
 
 /**
