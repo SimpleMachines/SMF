@@ -188,7 +188,7 @@ function template_main()
 
 				if ($next_child_level > $curr_child_level) {
 					echo '
-									<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+									<ul style="margin-inline-start: 2.5ch;">';
 				} else {
 					// Close child board lists until we reach a common level
 					// with the next board.
