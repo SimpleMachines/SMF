@@ -315,7 +315,9 @@ class Received implements \ArrayAccess
 	 * for future reference.
 	 *
 	 * @param int|array $ids The IDs of one or more personal messages.
-	 * @return array The newly loaded instances of this class.
+	 * @return array The newly loaded instances of this class, keyed first by
+	 *    the PM's ID and then by the recipient's ID. A PM has one of these per
+	 *    person it was sent to.
 	 */
 	public static function loadByPm(int|array $ids): array
 	{
@@ -326,9 +328,7 @@ class Received implements \ArrayAccess
 		// Have we already loaded these?
 		foreach ($ids as $key => $id) {
 			if (isset(self::$loaded[$id])) {
-				foreach (self::$loaded[$id] as $received) {
-					$loaded[$id] = $received;
-				}
+				$loaded[$id] = self::$loaded[$id];
 
 				unset($ids[$key]);
 			}
@@ -358,8 +358,11 @@ class Received implements \ArrayAccess
 			'ids' => $ids,
 		];
 
+		// One row per recipient, so the member has to be part of the key here.
+		// Keying on the PM alone leaves only whichever recipient the database
+		// happened to hand over last.
 		foreach (self::queryData($selects, $params, $joins, $where) as $row) {
-			$loaded[(int) $row['id_pm']] = new self($row);
+			$loaded[(int) $row['id_pm']][(int) $row['id_member']] = new self($row);
 		}
 
 		ksort($loaded);

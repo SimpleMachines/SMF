@@ -108,7 +108,7 @@ class PM implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Data about received copies of this PM.
+	 * Data about received copies of this PM, keyed by the recipient's ID.
 	 */
 	public array $received = [];
 
@@ -229,7 +229,7 @@ class PM implements \ArrayAccess
 	{
 		$this->id = $id;
 		$this->set($props);
-		$this->received = Received::loadByPm($this->id);
+		$this->received = Received::loadByPm($this->id)[$this->id] ?? [];
 		$this->folder = $this->member_from !== User::$me->id ? 'inbox' : 'sent';
 		self::$loaded[$id] = $this;
 	}

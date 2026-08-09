@@ -497,12 +497,18 @@ class PersonalMessage implements ActionInterface, Routable
 		}
 
 		// Are we labeling anything?
+		// Only ever our own copy: the other recipients of a PM keep their own
+		// labels on it, and these are our labels, not theirs.
 		if (!empty($to_label) && $this->folder === 'inbox') {
-			foreach (Received::loadByPm(array_keys($to_label)) as $received) {
-				if ($label_type[$received->id] === 'add') {
-					$received->addLabel($to_label[$received->id]);
-				} elseif ($label_type[$received->id] === 'rem') {
-					$received->removeLabel($to_label[$received->id]);
+			foreach (Received::loadByPm(array_keys($to_label)) as $pm => $recipients) {
+				if (!isset($recipients[User::$me->id])) {
+					continue;
+				}
+
+				if ($label_type[$pm] === 'add') {
+					$recipients[User::$me->id]->addLabel($to_label[$pm]);
+				} elseif ($label_type[$pm] === 'rem') {
+					$recipients[User::$me->id]->removeLabel($to_label[$pm]);
 				}
 			}
 		}
