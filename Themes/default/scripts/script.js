@@ -1257,35 +1257,6 @@ function pollOptions()
 		document.forms.postmodify.poll_hide[2].disabled = false;
 }
 
-function generateDays(offset)
-{
-	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
-
-	var days = 0, selected = 0;
-	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-	var monthLength = [
-		31, 28, 31, 30,
-		31, 30, 31, 31,
-		30, 31, 30, 31
-	];
-	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-		monthLength[1] = 29;
-
-	selected = dayElement.selectedIndex;
-	while (dayElement.options.length)
-		dayElement.options[0] = null;
-
-	days = monthLength[monthElement.value - 1];
-
-	for (i = 1; i <= days; i++)
-		dayElement.options[dayElement.length] = new Option(i, i);
-
-	if (selected < days)
-		dayElement.selectedIndex = selected;
-}
-
 function initSearch()
 {
 	if (document.forms.searchform.search.value.indexOf("%u") != -1)
