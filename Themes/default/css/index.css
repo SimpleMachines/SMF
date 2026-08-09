@@ -3802,26 +3802,22 @@ form#postmodify .roundframe {
 #post_header img {
 	vertical-align: middle;
 }
-ul.post_options {
-	margin: 0 0 0 12px;
+/* The checkboxes below the editor. Two columns, the same two the floats used to
+/* make, but a grid gets there without needing anything undone for RTL or for
+/* narrow screens. */
+#post_options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2px 1em;
+	margin: 0;
 	padding: 0;
-	overflow: hidden;
+	list-style: none;
 }
-ul.post_options li {
-	margin: 2px 0;
-	width: 49%;
-	float: left;
-}
-#post_additional_options_header {
+#post_options_toggle > summary {
 	margin-top: 0.5em;
+	cursor: pointer;
 }
-#post_additional_options {
-	overflow: hidden;
-}
-#post_additional_options .progress_bar {
-	height: 22px;
-}
-#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+#post_options, #postAttachment, #postAttachment2, #attachment_previews {
 	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
