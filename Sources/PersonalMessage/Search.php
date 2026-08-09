@@ -502,7 +502,7 @@ class Search
 				$clauses = [];
 
 				foreach ($possible_users as $k => $v) {
-					this->searchq_parameters['name_' . $k] = $v;
+					$this->searchq_parameters['name_' . $k] = $v;
 					$clauses[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
 				}
 
