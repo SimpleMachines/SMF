@@ -378,4 +378,20 @@
 	--breadcrumb-link-text-shadow_active:             none;
 	--breadcrumb-link-text-shadow_focus:              none;
 	--breadcrumb-link-text-shadow_hover:              none;
+
+	/** Calendar **/
+	--calendar-th-bg:                                 #e7eaef;
+	--calendar-today-bg:                              #fff;
+	--calendar-disabled-bg:                           #eee;
+	--calendar-day-bg_hover:                          rgba(97, 135, 166, 0.2);
+	--calendar-event-bg:                              rgba(30, 245, 20, 0.1);
+	--calendar-event-bg_hover:                        rgba(30, 245, 20, 0.2);
+	--calendar-holiday-bg:                            rgba(23, 110, 245, 0.1);
+	--calendar-holiday-bg_hover:                      rgba(23, 110, 245, 0.2);
+	--calendar-birthday-bg:                           rgba(102, 0, 255, 0.1);
+	--calendar-birthday-bg_hover:                     rgba(153, 51, 255, 0.2);
+	--calendar-link-color:                            #999;
+	--calendar-link-color_hover:                      #555;
+	--calendar-title-link-color:                      #555;
+	--calendar-event-meta-color:                      #777;
 }
