@@ -2978,7 +2978,7 @@ function template_profile_avatar_select()
 
 	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									' . Lang::getTxt('no_avatar', file: 'Profile') . '
 								</label><br>';
@@ -2986,7 +2986,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_server_stored"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('choose_avatar_gallery', file: 'Profile'), '
 								</label><br>';
@@ -2994,7 +2994,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_external"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('my_own_pic', file: 'Profile'), '
 								</label><br>';
@@ -3002,7 +3002,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_upload"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('avatar_will_upload', file: 'Profile'), '
 								</label><br>';
@@ -3010,7 +3010,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::getTxt('use_gravatar', file: 'Profile') . '</label>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 	}
@@ -3022,59 +3022,55 @@ function template_profile_avatar_select()
 	// If users are allowed to choose avatars stored on the server show selection boxes to choice them from.
 	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
-								<div id="avatar_server_stored">
+								<div id="avatar_server_stored" data-avatar-choice="server_stored">
 									<div>
-										<select name="cat" id="cat" size="10" onchange="changeSel(\'\');" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');">';
+										<select name="cat" id="cat" size="10" data-avatardir="', Config::$modSettings['avatar_url'], '/">';
 
-		// This lists all the file categories.
+		// One entry per avatar, with the directories as groups. Nothing here is
+		// nested more than one deep, because that is all the picker can show.
 		foreach (Utils::$context['avatars'] as $avatar) {
-			echo '
-											<option value="', $avatar['filename'] . ($avatar['is_dir'] ? '/' : ''), '"', ($avatar['checked'] ? ' selected' : ''), '>', $avatar['name'], '</option>';
+			if (!empty($avatar['is_dir'])) {
+				echo '
+											<optgroup label="', $avatar['name'], '">';
+
+				foreach ($avatar['files'] as $file) {
+					echo '
+												<option value="', $avatar['filename'], '/', $file['filename'], '"', $file['checked'] ? ' selected' : '', '>', $file['name'], '</option>';
+				}
+
+				echo '
+											</optgroup>';
+			} else {
+				echo '
+											<option value="', $avatar['filename'], '"', $avatar['checked'] ? ' selected' : '', '>', $avatar['name'], '</option>';
+			}
 		}
 
 		echo '
 										</select>
 									</div>
-									<div>
-										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
-									</div>
 									<div class="edit_avatar_img">
 										<img id="avatar" src="', Utils::$context['member']['avatar']['choice'] == 'server_stored' ? Utils::$context['member']['avatar']['href'] : Config::$modSettings['avatar_url'] . '/blank.png', '" alt="">
 									</div>
-									<script>
-										var files = ["' . implode('", "', Utils::$context['avatar_list']) . '"];
-										var avatar = document.getElementById("avatar");
-										var cat = document.getElementById("cat");
-										var selavatar = "' . Utils::$context['avatar_selected'] . '";
-										var avatardir = "' . Config::$modSettings['avatar_url'] . '/";
-										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
-										var file = document.getElementById("file");
-
-										if (avatar.src.indexOf("blank.png") > -1 || selavatar.indexOf("blank.png") == -1)
-											changeSel(selavatar);
-										else
-											previewExternalAvatar(avatar.src)
-
-									</script>
 								</div><!-- #avatar_server_stored -->';
 	}
 
 	// If the user can link to an off server avatar, show them a box to input the address.
 	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
-								<div id="avatar_external">
+								<div id="avatar_external" data-avatar-choice="external">
 									', Utils::$context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt="" class="avatar"></div>' : '', '
 									<div class="smalltext">', Lang::getTxt('avatar_by_url', file: 'Profile'), '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
-									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);"><br>
+									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '"><br>
 								</div>';
 	}
 
 	// If the user is able to upload avatars to the server show them an upload box.
 	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
-								<div id="avatar_upload">
+								<div id="avatar_upload" data-avatar-choice="upload">
 									', Utils::$context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '', '
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
 									', (!empty(Utils::$context['member']['avatar']['id_attach']) ? '<br><input type="hidden" name="id_attach" value="' . Utils::$context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
@@ -3082,7 +3078,7 @@ function template_profile_avatar_select()
 	// if the user is able to use Gravatar avatars show then the image preview
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
-								<div id="avatar_gravatar">
+								<div id="avatar_gravatar" data-avatar-choice="gravatar"', !empty(Config::$modSettings['gravatarAllowExtraEmail']) && (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email'] || str_contains(Utils::$context['member']['avatar']['external'], 'http://') || str_contains(Utils::$context['member']['avatar']['external'], 'https://')) ? ' data-clear-email' : '', '>
 									', Utils::$context['member']['avatar']['choice'] == 'gravatar' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '';
 
 		if (empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
@@ -3105,51 +3101,6 @@ function template_profile_avatar_select()
 	}
 
 	echo '
-								<script>
-									', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'external' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? '' : 'none') . '";' : '', '
-
-									function swap_avatar(type)
-									{
-										switch(type.id)
-										{
-											case "avatar_choice_server_stored":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_external":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_upload":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_none":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_gravatar":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "";' : '', '
-												', !empty(Config::$modSettings['gravatarAllowExtraEmail']) && (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email'] || strstr(Utils::$context['member']['avatar']['external'], 'http://') || strstr(Utils::$context['member']['avatar']['external'], 'https://')) ?
-												'document.getElementById("gravatarEmail").value = "";' : '', '
-												break;
-										}
-									}
-								</script>
 							</dd>';
 }
 

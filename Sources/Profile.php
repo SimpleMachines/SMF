@@ -1218,7 +1218,6 @@ class Profile extends User implements \ArrayAccess
 
 		// Get a list of all the server stored avatars.
 		if ($this->avatar->allow_server_stored) {
-			Utils::$context['avatar_list'] = [];
 			Utils::$context['avatars'] = is_dir(Config::$modSettings['avatar_directory']) ? $this->getAvatars('', 0) : [];
 		} else {
 			Utils::$context['avatars'] = [];
@@ -2607,14 +2606,12 @@ class Profile extends User implements \ArrayAccess
 
 			$result[] = [
 				'filename' => Utils::htmlspecialchars($line),
-				'checked' => $line == Utils::$context['member']['avatar']['server_pic'],
+				// server_pic names the directory too, so a file one level down
+				// has to be compared against the path, not just its own name.
+				'checked' => ($directory === '' ? $line : $directory . '/' . $line) == Utils::$context['member']['avatar']['server_pic'],
 				'name' => Utils::htmlspecialchars(str_replace('_', ' ', $filename)),
 				'is_dir' => false,
 			];
-
-			if ($level == 1) {
-				Utils::$context['avatar_list'][] = $directory . '/' . $line;
-			}
 		}
 
 		return $result;
