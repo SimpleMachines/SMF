@@ -780,12 +780,37 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
-			$props = [
-				'title' => isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : null,
-				'location' => isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : null,
+			$props = [];
+
+			// Only name the ones the request actually gave. Event::$title and
+			// Event::$location are typed string and already default to '', so
+			// handing them a null for "the form has not been filled in yet" is
+			// a fatal rather than an empty field.
+			foreach (['title' => 'evtitle', 'location' => 'event_location'] as $prop => $key) {
+				if (isset($_REQUEST[$key])) {
+					$props[$prop] = Utils::htmlspecialchars(stripslashes($_REQUEST[$key]));
+				}
+			}
+
+			// setRequestedStartAndDuration() insists on being handed a date and
+			// fatals with "invalid_date" when it cannot find one. Nothing
+			// hands it one when this form is merely being opened: the "Post
+			// event" button on a topic is a plain link, so there is no post
+			// data to read. Only ask for the requested values when the request
+			// actually carries some, which is the case when a failed post is
+			// redisplayed, and otherwise let the Event constructor default the
+			// start to now. That is what Calendar::post() does for the
+			// unlinked version of this same form.
+			$requested_date_keys = [
+				'year', 'month', 'day', 'hour', 'minute', 'second',
+				'start_year', 'start_month', 'start_day', 'start_hour', 'start_minute', 'start_second',
+				'start_date', 'start_time', 'start_datetime',
 			];
 
-			Event::setRequestedStartAndDuration($props);
+			if (array_intersect_key($_POST, array_flip($requested_date_keys)) !== []) {
+				Event::setRequestedStartAndDuration($props);
+			}
+
 			Event::setRequestedRRule($props);
 			Utils::$context['event'] = new Event(-1, $props);
 			Event::setRequestedRDatesAndExDates(Utils::$context['event']);
