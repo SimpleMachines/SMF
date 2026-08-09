@@ -6368,7 +6368,7 @@ function make_fetch_safe($url)
 			{
 				return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE);
 			}
-		),
+		)
 	));
 
 	if (empty($resolved_hosts[$parsedurl['host']]))
