@@ -135,17 +135,15 @@ class ExportProfileData extends BackgroundTask
 						</head>
 						<body>
 							<div id="footerfix">
-								<header id="header">
-									<div class="content_wrapper">
-										<h1 class="forumtitle">
-											<a id="top">
-												<xsl:attribute name="href">
-													<xsl:value-of select="$scripturl"/>
-												</xsl:attribute>
-												<xsl:value-of select="@forum-name"/>
-											</a>
-										</h1>
-									</div>
+								<header id="header" class="content_wrapper">
+									<h1 class="forumtitle">
+										<a id="top">
+											<xsl:attribute name="href">
+												<xsl:value-of select="$scripturl"/>
+											</xsl:attribute>
+											<xsl:value-of select="@forum-name"/>
+										</a>
+									</h1>
 								</header>
 								<div id="wrapper" class="content_wrapper">
 									<div id="inner_wrap">

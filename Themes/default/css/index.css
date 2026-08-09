@@ -1223,6 +1223,22 @@ html[lang="el-GR"] .inline_mod_check {
 }
 
 /* The framing graphics */
+/* The top bar. A band across the page above the header, holding everything to
+/* do with the current user. Same gradient and bottom border as the menu band
+/* under the header; it carries a shadow of its own on top of those. */
+#top_section {
+	background: var(--topsection-bg);
+	border-color: var(--topsection-border-color);
+	border-style: var(--topsection-border-style);
+	border-width: var(--topsection-border-width);
+	box-shadow: var(--topsection-box-shadow);
+	clear: both;
+}
+#top_section::after {
+	content: "";
+	display: block;
+	clear: both;
+}
 #top_info {
 	padding: 5px 0;
 	line-height: 1.3em;
@@ -1255,38 +1271,16 @@ html[lang="el-GR"] .inline_mod_check {
 #languages_form {
 	margin: 0 0 0 10px;
 }
-/* The header. Full width, with its contents lined up with the rest of the
-/* page by the wrapper inside it. */
+/* The logo and slogan. */
 #header {
-	background: var(--header-bg);
-	border-color: var(--header-border-color);
-	border-radius: var(--header-border-radius);
-	border-style: var(--header-border-style);
-	border-width: var(--header-border-width);
-	box-shadow: var(--header-box-shadow);
-	margin: 0;
-	min-height: var(--header-height);
-	padding: .5em .2em;
-}
-#header .content_wrapper {
-	align-items: center;
+	padding: 2px 2px 12px 2px;
 	display: flex;
-	gap: .5em;
-	justify-content: space-between;
-	min-height: var(--header-height);
+	align-items: flex-end;
 }
 #header::after {
 	content: "";
 	display: block;
 	clear: both;
-}
-/* Everything about the current user sits at the end of the header, stacked. */
-.user_panel {
-	align-content: space-between;
-	display: inline-grid;
-	flex: 1;
-	gap: .5em;
-	justify-content: flex-end;
 }
 /* The main title. */
 h1.forumtitle {
