@@ -288,8 +288,12 @@ IconList.prototype.onIconsReceived = function (oXMLDoc)
 
 		const img = document.createElement('img');
 		img.src = icon.getAttribute('url');
-		img.alt = icon.getAttribute('name');
-		img.title = icon.firstChild ? icon.firstChild.nodeValue : '';
+		/*
+		 * The icon's name is its text, not an attribute - there has never been
+		 * a name attribute on these. Asking for one gave every icon in the
+		 * picker alt="null".
+		 */
+		img.alt = img.title = icon.firstChild ? icon.firstChild.nodeValue : '';
 		img.style.verticalAlign = 'middle';
 
 		span.appendChild(img);
