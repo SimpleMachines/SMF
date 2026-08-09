@@ -426,14 +426,6 @@ smc_Popup.prototype.setBody = function(data)
 	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
-}
-
 // Replaces the currently selected text with the passed text.
 function replaceText(text, oTextHandle)
 {
