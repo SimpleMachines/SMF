@@ -78,15 +78,6 @@
 	--mainmenu-border-width:                          0 0 1px 0;
 	--mainmenu-box-shadow:                            none;
 
-	/** Header **/
-	--header-bg:                                      #fff;
-	--header-border-color:                            transparent;
-	--header-border-radius:                           0;
-	--header-border-style:                            solid;
-	--header-border-width:                            0;
-	--header-box-shadow:                              none;
-	--header-height:                                  80px;
-
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 

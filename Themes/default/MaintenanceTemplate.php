@@ -52,11 +52,9 @@ abstract class MaintenanceTemplate
 	</head>
 	<body>
 		<div id="footerfix">
-		<header id="header">
-			<div class="content_wrapper">
-				<h1 class="forumtitle">', Maintenance::$tool->getScriptName(), '</h1>
-				<img id="smflogo" src="', Maintenance::$theme_url, '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
-			</div>
+		<header id="header" class="content_wrapper">
+			<h1 class="forumtitle">', Maintenance::$tool->getScriptName(), '</h1>
+			<img id="smflogo" src="', Maintenance::$theme_url, '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</header>
 		<div id="wrapper" class="content_wrapper">';
 
