@@ -54,9 +54,9 @@ function template_email_members()
 				</dl>
 				<div id="advanced_panel_header" class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('advanced', file: 'Admin'), '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_down" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div" class="padding">
 					<dl class="settings">

@@ -629,9 +629,9 @@ function template_browse()
 			<div id="advanced_box">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span id="advanced_panel_toggle" class="floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('package_advanced_button', file: 'Packages'), '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_down" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div" class="windowbg">
 					<p>

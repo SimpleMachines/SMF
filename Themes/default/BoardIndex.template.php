@@ -67,17 +67,17 @@ function template_boardindex()
 		echo '
 		<div class="main_container">
 			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
-				<h3 class="catbg">';
+				<h3 class="catbg">
+					', $category['link'], '
+				</h3>';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse']) {
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
+				<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
 		}
 
-		echo '
-					', $category['link'], '
-				</h3>', !empty($category['description']) ? '
+		echo !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
 			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
@@ -286,9 +286,9 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '</a>
 			</h3>
+			<span class="toggle_up" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 

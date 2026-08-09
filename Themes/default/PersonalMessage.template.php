@@ -839,8 +839,9 @@ function template_search()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', Lang::getTxt('pm_search_choose_label', file: 'PersonalMessage'), '</a>
+						<a href="#" id="advanced_panel_link">', Lang::getTxt('pm_search_choose_label', file: 'PersonalMessage'), '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div">
 					<ul id="search_labels">';
@@ -1097,8 +1098,9 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
+						<strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 					</h4>
+					<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
