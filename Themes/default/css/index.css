@@ -1151,9 +1151,11 @@ html[lang="el-GR"] .inline_mod_check {
 .pagesection .button {
 	color: #346;
 }
+/* .button is listed here for the border and the shadow; it overrides the
+   colour again immediately below, so this one belongs to the quick buttons. */
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
-	color: #222;
+	color: var(--quickbutton-color_hover);
 	border-color: var(--button-border-color_hover);
 	box-shadow: var(--button-box-shadow_hover);
 	text-decoration: none;
@@ -1560,18 +1562,18 @@ ul li.greeting {
 	display: block;
 	height: auto;
 	padding: 0 4px;
-	color: #222;
+	color: var(--quickbutton-color);
 	line-height: 1.375rem;
-	border-radius: 0;
+	border-radius: var(--quickbutton-border-radius);
 }
 .quickbuttons > li:first-child > a {
-	border-radius: 4px 0 0 4px;
+	border-radius: var(--quickbutton-border-radius_first);
 }
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
-	border-radius: 0 4px 4px 0;
+	border-radius: var(--quickbutton-border-radius_last);
 }
 .quickbuttons > li:only-child > a, .inline_mod_check:only-child {
-	border-radius: 4px;
+	border-radius: var(--quickbutton-border-radius_only);
 	margin: 2px;
 	height: 23px;
 }
@@ -1581,7 +1583,7 @@ ul li.greeting {
 	height: auto;
 }
 .moderationbuttons_check:focus {
-	box-shadow: 0 0 4px #499dd8;
+	box-shadow: var(--quickbutton-box-shadow_focus);
 }
 .quick_edit, .post_options {
 	position: relative;
@@ -1594,14 +1596,14 @@ ul li.greeting {
 	right: -1px;
 	z-index: 90;
 	padding: 6px;
-	background: #fff;
+	background: var(--postoptions-bg);
 	font-weight: normal;
 	text-align: left;
-	border: solid 1px #999;
-	border-left: solid 1px #aaa;
-	border-top: solid 1px #bbb;
-	border-radius: 4px 0 4px 4px;
-	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
+	border: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color);
+	border-left: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_left);
+	border-top: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_top);
+	border-radius: var(--postoptions-border-radius);
+	box-shadow: var(--postoptions-box-shadow);
 }
 .post_options:hover ul {
 	display: block;
@@ -1612,11 +1614,11 @@ ul li.greeting {
 	padding: 0 6px;
 	line-height: 2.2em;
 	text-decoration: none;
-	border: 1px solid transparent;
-	border-radius: 3px;
+	border: var(--postoptions-item-border-width) var(--postoptions-item-border-style) var(--postoptions-item-border-color);
+	border-radius: var(--postoptions-item-border-radius);
 }
 .post_options ul a:hover, .post_options ul a:focus {
-	border-color: #c4cbd3;
+	border-color: var(--postoptions-item-border-color_hover);
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {

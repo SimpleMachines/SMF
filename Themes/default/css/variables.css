@@ -157,6 +157,32 @@
 	--button-text-shadow_active:                      0 0 1px #000;
 	--button-text-transform:                          uppercase;
 
+	/** Quick Buttons **/
+	--quickbutton-border-radius:                      0;
+	--quickbutton-border-radius_first:                4px 0 0 4px;
+	--quickbutton-border-radius_last:                 0 4px 4px 0;
+	--quickbutton-border-radius_only:                 4px;
+	--quickbutton-box-shadow_focus:                   0 0 4px #499dd8;
+	--quickbutton-color:                              #222;
+	--quickbutton-color_hover:                        #222;
+
+	/** Post Options Drop Down **/
+	--postoptions-bg:                                 #fff;
+	--postoptions-border-color:                       #999;
+	--postoptions-border-color_left:                  #aaa;
+	--postoptions-border-color_top:                   #bbb;
+	--postoptions-border-radius:                      4px 0 4px 4px;
+	--postoptions-border-style:                       solid;
+	--postoptions-border-width:                       1px;
+	--postoptions-box-shadow:                         2px 3px 3px rgba(0, 0, 0, 0.2);
+
+	/** Post Options Drop Down Items **/
+	--postoptions-item-border-color:                  transparent;
+	--postoptions-item-border-color_hover:            #c4cbd3;
+	--postoptions-item-border-radius:                 3px;
+	--postoptions-item-border-style:                  solid;
+	--postoptions-item-border-width:                  1px;
+
 	/** Cat Bar **/
 	--catbar-bg:                                      #557ea0;
 	--catbar-border-color:                            #777;
