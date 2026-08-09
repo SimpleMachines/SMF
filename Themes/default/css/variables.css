@@ -378,4 +378,34 @@
 	--breadcrumb-link-text-shadow_active:             none;
 	--breadcrumb-link-text-shadow_focus:              none;
 	--breadcrumb-link-text-shadow_hover:              none;
+
+	/** Admin **/
+	--admin-announcement-border-color:                #bf6900;
+	--admin-announcement-link-color:                  #bf6900;
+	--admin-announcement-separator-color:             #ddd;
+	--admin-board-bg_hover:                           #d0e7f8;
+	--admin-board-group-border-color:                 #000;
+	--admin-css-preview-border-color:                 #777;
+	--admin-denyboard-bg_hover:                       #e3e9ec;
+	--admin-edit-history-border-color:                #bbb;
+	--admin-group-legend-bg:                          #eaf1f4;
+	--admin-group-legend-border-color:                #cacdd3;
+	--admin-highlight-bg:                             #d0e7f8;
+	--admin-legend-color:                             #000;
+	--admin-moderation-note-border-color:             #ccc;
+	--admin-package-border-color:                     #cacdd3;
+	--admin-perm-boards-border-color:                 #cacdd3;
+	--admin-perm-custom-bg:                           #c2c6c0;
+	--admin-perm-execute-bg:                          #fdd7af;
+	--admin-perm-groups-bg:                           #fff;
+	--admin-perm-no-change-bg:                        #eee;
+	--admin-perm-read-bg:                             #d1f7bf;
+	--admin-perm-writable-bg:                         #ffbbbb;
+	--admin-recycle-board-bg:                         #dee;
+	--admin-redirect-board-bg:                        #eed;
+	--admin-search-result-border-color:               #ccc;
+	--admin-smiley-border-color_hover:                #71a0c8;
+	--admin-smiley-border-color_selected:             #ffb42d;
+	--admin-table-caption-color:                      #000;
+	--admin-table-grid-border-color:                  #ddd;
 }
