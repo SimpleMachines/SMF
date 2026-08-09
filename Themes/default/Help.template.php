@@ -21,7 +21,19 @@ use SMF\Utils;
  */
 function template_popup()
 {
-	// Since this is a popup of its own we need to start the html, etc.
+	// reqOverlayDiv() asks for this with ';ajax' on the end and shows whatever
+	// comes back inside an overlay on the page it was called from. There is no
+	// window to close in that case, and no use for a document of its own.
+	if (isset($_REQUEST['ajax'])) {
+		echo '
+		<div class="windowbg description">
+			', Utils::$context['help_text'], '
+		</div>';
+
+		return;
+	}
+
+	// Otherwise this really is a window of its own, so it needs the html.
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
