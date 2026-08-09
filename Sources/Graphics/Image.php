@@ -325,7 +325,11 @@ class Image
 		}
 
 		// We don't need to create a thumbnail if one is already embedded.
-		if (\function_exists('exif_thumbnail') && exif_thumbnail($this->source) !== false) {
+		// checkForEmbeddedThumb() answered this when the image was loaded, and
+		// it does so without a warning: exif_thumbnail() emits one for every
+		// format that cannot carry an embedded thumbnail, so asking it here
+		// again put a row in the error log for each PNG anyone uploaded.
+		if ($this->embedded_thumb) {
 			return false;
 		}
 
