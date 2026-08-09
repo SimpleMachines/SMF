@@ -875,17 +875,31 @@ InTopicModeration.prototype.init = function()
 	// Add checkboxes to all the messages.
 	for (var i = 0, n = this.opt.aMessageIds.length; i < n; i++)
 	{
-		// Create the checkbox.
-		var oCheckbox = document.createElement('input');
-		oCheckbox.type = 'checkbox';
-		oCheckbox.className = this.opt.sButtonStrip + '_check';
-		oCheckbox.name = 'msgs[]';
-		oCheckbox.value = this.opt.aMessageIds[i];
-		oCheckbox.onclick = this.handleClick.bind(this, oCheckbox);
-
 		// Append it to the container
 		var oCheckboxContainer = document.getElementById(this.opt.sCheckboxContainerMask + this.opt.aMessageIds[i]);
-		oCheckboxContainer.appendChild(oCheckbox);
+
+		/*
+		 * The topic draws two of these strips - one for the page and one for
+		 * the mobile menu - and they share the containers, so the second
+		 * instance finds a checkbox already sitting here. Take that one and
+		 * listen to it as well, rather than putting a second checkbox beside
+		 * every post.
+		 */
+		var oCheckbox = oCheckboxContainer.querySelector('input[name="msgs[]"]');
+
+		if (!oCheckbox)
+		{
+			// Create the checkbox.
+			oCheckbox = document.createElement('input');
+			oCheckbox.type = 'checkbox';
+			oCheckbox.className = this.opt.sButtonStrip + '_check';
+			oCheckbox.name = 'msgs[]';
+			oCheckbox.value = this.opt.aMessageIds[i];
+
+			oCheckboxContainer.appendChild(oCheckbox);
+		}
+
+		oCheckbox.addEventListener('click', this.handleClick.bind(this, oCheckbox));
 		oCheckboxContainer.style.display = '';
 	}
 
@@ -898,8 +912,8 @@ InTopicModeration.prototype.init = function()
 	else
 	{
 		oButtonStripDisplay = document.createElement('div');
-		oNewDiv.id = this.opt.sButtonStripDisplay;
-		oNewDiv.className = this.opt.sButtonStripClass || 'buttonlist floatbottom';
+		oButtonStripDisplay.id = this.opt.sButtonStripDisplay;
+		oButtonStripDisplay.className = this.opt.sButtonStripClass || 'buttonlist floatbottom';
 
 		oButtonStrip.appendChild(oButtonStripDisplay);
 	}
@@ -936,6 +950,14 @@ InTopicModeration.prototype.init = function()
 				['click', this.handleSubmit.bind(this, 'split')]
 			]
 		});
+
+	/*
+	 * Nothing is selected yet, so put the buttons in the state that says so.
+	 * They used to be built on the first click instead of here, which is why
+	 * nothing hid them to begin with - and pressing one with an empty
+	 * selection submits the form with no msgs[] at all.
+	 */
+	this.updateButtons();
 }
 
 InTopicModeration.prototype.handleClick = function(oCheckbox)
@@ -944,23 +966,28 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 	// Keep stats on how many items were selected.
 	this.iNumSelected += oCheckbox.checked ? 1 : -1;
 
-	// Show the number of messages selected in each of the buttons.
-	if (this.opt.bCanRemove && !this.opt.bUseImageButton)
-	{
-		this.oRemoveButton.innerHTML = this.opt.sRemoveButtonLabel + ' [' + this.iNumSelected + ']';
-		this.oRemoveButton.style.display = this.iNumSelected < 1 ? "none" : "";
-	}
+	this.updateButtons();
+}
 
-	if (this.opt.bCanRestore && !this.opt.bUseImageButton)
-	{
-		this.oRestoreButton.innerHTML = this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']';
-		this.oRestoreButton.style.display = this.iNumSelected < 1 ? "none" : "";
-	}
+// Show the number of messages selected in each of the buttons, and hide them
+// while that number is zero.
+InTopicModeration.prototype.updateButtons = function()
+{
+	var aButtons = [
+		[this.opt.bCanRemove, this.oRemoveButton, this.opt.sRemoveButtonLabel],
+		[this.opt.bCanRestore, this.oRestoreButton, this.opt.sRestoreButtonLabel],
+		[this.opt.bCanSplit, this.oSplitButton, this.opt.sSplitButtonLabel]
+	];
 
-	if (this.opt.bCanSplit && !this.opt.bUseImageButton)
+	for (var i = 0; i < aButtons.length; i++)
 	{
-		this.oSplitButton.innerHTML = this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']';
-		this.oSplitButton.style.display = this.iNumSelected < 1 ? "none" : "";
+		if (!aButtons[i][0] || !aButtons[i][1])
+			continue;
+
+		if (!this.opt.bUseImageButton)
+			aButtons[i][1].innerHTML = aButtons[i][2] + ' [' + this.iNumSelected + ']';
+
+		aButtons[i][1].style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 }
 

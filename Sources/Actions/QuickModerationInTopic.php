@@ -62,6 +62,14 @@ class QuickModerationInTopic implements ActionInterface, Routable
 		// Check the session = get or post.
 		User::$me->checkSession('request');
 
+		// Nothing ticked, nothing to do. Every branch below assumes at least
+		// one message: splitting takes the min() of them, and the other two
+		// hand the list to an {array_int:...}, which will not accept an empty
+		// one.
+		if (empty($this->messages)) {
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . ($_REQUEST['start'] ?? 0));
+		}
+
 		if (isset($_REQUEST['restore_selected'])) {
 			$this->restore();
 		} elseif (isset($_REQUEST['split_selection'])) {
@@ -80,7 +88,7 @@ class QuickModerationInTopic implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		$this->messages = array_map('intval', $_REQUEST['msgs']);
+		$this->messages = array_map('intval', (array) ($_REQUEST['msgs'] ?? []));
 	}
 
 	/**
