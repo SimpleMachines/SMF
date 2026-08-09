@@ -1628,7 +1628,7 @@ ul li.greeting {
 }
 /* Fixes for quickbuttons
    Fix for quote on reply box */
-#post_modify {
+.post_modify {
 	border-radius: 4px;
 }
 
