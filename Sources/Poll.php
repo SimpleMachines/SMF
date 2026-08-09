@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -786,6 +786,7 @@ function EditPoll2()
 	$smcFunc['db_free_result']($request);
 
 	$delete_options = array();
+	require_once($sourcedir . '/Subs-Post.php');
 	foreach ($_POST['options'] as $k => $option)
 	{
 		// Make sure the key is numeric for sanity's sake.
@@ -804,6 +805,7 @@ function EditPoll2()
 
 		// Dress the option up for its big date with the database.
 		$option = $smcFunc['htmlspecialchars']($option);
+		preparsecode($option);
 
 		// If it's already there, update it.  If it's not... add it.
 		if (in_array($k, $choices))

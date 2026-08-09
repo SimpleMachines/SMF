@@ -2137,9 +2137,11 @@ function Post2()
 		$_POST['options'] = empty($_POST['options']) ? array() : htmltrim__recursive($_POST['options']);
 
 		// Get rid of empty ones.
-		foreach ($_POST['options'] as $k => $option)
+		foreach ($_POST['options'] as $k => &$option) {
+			preparsecode($option);
 			if ($option == '')
 				unset($_POST['options'][$k], $_POST['options'][$k]);
+		}
 
 		// What are you going to vote between with one choice?!?
 		if (count($_POST['options']) < 2)
