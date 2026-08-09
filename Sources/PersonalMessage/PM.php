@@ -801,7 +801,7 @@ class PM implements \ArrayAccess
 				'sLastNote' => 'draft_lastautosave',
 				'sLastID' => 'id_draft',
 				'sQueryParams' => 'action=pm;sa=send2',
-				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
 			];
 		}
 
