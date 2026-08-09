@@ -618,10 +618,16 @@ class Themes implements ActionInterface
 				$available_variants = [];
 
 				foreach (Theme::$current->settings['theme_variants'] as $variant) {
-					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
+					// A theme is free to name a variant anything it likes, so an
+					// unknown one has to fall back to its own name. getTxt() hands
+					// back '' rather than null for a string it cannot find, so ??
+					// never fires and the drop-down listed a blank entry instead.
+					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?: $variant;
 				}
 
-				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Themes');
+				// This one lives in Profile.php, where the matching option on the
+				// user's own theme settings page reads it from.
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_variant',
 					'label' => Lang::getTxt('theme_pick_variant', file: 'Themes'),
@@ -636,10 +642,10 @@ class Themes implements ActionInterface
 				$available_modes = [];
 
 				foreach (Theme::$current->settings['theme_colormodes'] as $mode) {
-					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
+					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?: $mode;
 				}
 
-				Utils::$context['options'][] = Lang::getTxt('theme_opt_colormode', file: 'Themes');
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_colormode', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_colormode',
 					'label' => Lang::getTxt('theme_pick_colormode', file: 'Themes'),
