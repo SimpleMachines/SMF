@@ -1875,7 +1875,7 @@ class ServerSideIncludes
 
 			foreach ($return['options'] as $option) {
 				echo '
-					<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
+					<label for="options-', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 			}
 
 			echo '
@@ -1966,7 +1966,7 @@ class ServerSideIncludes
 
 			foreach ($return['options'] as $option) {
 				echo '
-					<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
+					<label for="options-', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 			}
 
 			echo '

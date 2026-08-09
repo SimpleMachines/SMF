@@ -426,7 +426,13 @@ class Poll implements \ArrayAccess
 
 			// Now add it to the poll's contextual theme data.
 			$this->formatted['choices'][$i] = [
-				'id' => 'options-' . $i,
+				// Just the number. Post.php builds this array itself when the
+				// posting form comes back from a preview or an error, and it
+				// has always used the plain number, so the templates prefix
+				// what they need. Handing out 'options-3' here made the same
+				// form emit id="options-options-3" one way round and
+				// id="options-3" the other.
+				'id' => $i,
 				'number' => ++$choice_number,
 				'percent' => $bar,
 				'votes' => $option->votes,
