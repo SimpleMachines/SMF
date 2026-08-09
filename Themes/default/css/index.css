@@ -2679,6 +2679,15 @@ dl {
 	height: 16px;
 }
 
+/* The board picker's title bar is one element now, the summary of a details.
+/* It carries both bar classes, and .titlebg comes later in this file with a
+/* background of its own, so the bar's is named again here. Overflow has to stay
+/* visible as well, or .titlebg clips the disclosure triangle away. */
+#advanced_panel > summary {
+	background: var(--titlebar-bg);
+	cursor: pointer;
+	overflow: visible;
+}
 .boardslist > ul > li {
 	margin: 12px;
 }
