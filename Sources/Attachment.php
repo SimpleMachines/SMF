@@ -501,10 +501,16 @@ class Attachment implements \ArrayAccess
 				'a.*',
 				'COALESCE (m.id_topic, 0) AS id_topic',
 				'COALESCE (m.id_board, 0) AS id_board',
+				'COALESCE (m.id_member, 0) AS id_member',
+				'COALESCE (m.approved, 0) AS approved',
+				'COALESCE (m.poster_time, 0) AS poster_time',
+				'COALESCE (t.locked, 0) AS is_locked',
+				'COALESCE (t.id_member_started, 0) AS id_member_started'
 			];
 
 			$from = '{db_prefix}attachments AS a';
 			$joins = ['LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)'];
+			$joins = ['LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)'];
 			$where = ['a.id_attach IN ({array_int:ids})'];
 			$order = [];
 			$limit = 0;
