@@ -1027,12 +1027,12 @@ a[class^="mobile_generic_menu_"] {
 	min-width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
-	border: solid 1px #999;
-	border-left: solid 1px #bbb;
-	border-top: solid 1px #ccc;
-	border-radius: 4px;
-	box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
-	background: #fff;
+	border: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color);
+	border-left: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color_left);
+	border-top: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color_top);
+	border-radius: var(--submenu-border-radius);
+	box-shadow: var(--submenu-box-shadow);
+	background: var(--submenu-bg);
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -1040,14 +1040,14 @@ a[class^="mobile_generic_menu_"] {
 	padding: 0;
 	width: 17em;
 	font-size: 1em;
-	border-radius: 3px;
-	border: 1px solid transparent;
+	border-radius: var(--submenu-item-border-radius);
+	border: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color);
 }
 /* Necessary to allow highlighting of 1st level while hovering over submenu. */
 .dropmenu li:hover li a, .dropmenu li li a {
-	background: none;
+	background: var(--submenu-item-bg);
 	padding: 0 9px;
-	color: #346;
+	color: var(--submenu-item-color);
 	border: none;
 	line-height: 2.2em;
 }
@@ -1086,10 +1086,10 @@ a[class^="mobile_generic_menu_"] {
 }
 
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover {
-	color: #333;
+	color: var(--submenu-item-color_hover);
 	text-decoration: none;
-	border: 1px solid #cfcfcf;
-	border-top: 1px solid #d4dee6;
+	border: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color_hover);
+	border-top: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color_hover_top);
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li:hover ul {
@@ -1112,7 +1112,7 @@ a[class^="mobile_generic_menu_"] {
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
-	font-weight: bold;
+	font-weight: var(--submenu-item-font-weight_chosen);
 }
 
 /* The extra menu rows for admin sections, etc. */

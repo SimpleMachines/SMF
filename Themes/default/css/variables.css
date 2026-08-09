@@ -85,6 +85,28 @@
 	--mainmenu-border-width:                          0 0 1px 0;
 	--mainmenu-box-shadow:                            none;
 
+	/** Drop Menu Submenus **/
+	--submenu-bg:                                     #fff;
+	--submenu-border-color:                           #999;
+	--submenu-border-color_left:                      #bbb;
+	--submenu-border-color_top:                       #ccc;
+	--submenu-border-radius:                          4px;
+	--submenu-border-style:                           solid;
+	--submenu-border-width:                           1px;
+	--submenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.3);
+
+	/** Drop Menu Submenu Items **/
+	--submenu-item-bg:                                none;
+	--submenu-item-border-color:                      transparent;
+	--submenu-item-border-color_hover:                #cfcfcf;
+	--submenu-item-border-color_hover_top:            #d4dee6;
+	--submenu-item-border-radius:                     3px;
+	--submenu-item-border-style:                      solid;
+	--submenu-item-border-width:                      1px;
+	--submenu-item-color:                             #346;
+	--submenu-item-color_hover:                       #333;
+	--submenu-item-font-weight_chosen:                bold;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
