@@ -191,67 +191,85 @@ function ajax_getSignaturePreview (showPreview)
 	return false;
 }
 
-function changeSel(selected)
+/*
+ * The avatar picker. Which panel is on show follows the radio buttons, and
+ * every panel says which choice it belongs to with data-avatar-choice, so
+ * nothing here has to be told which ones the forum allows.
+ */
+document.addEventListener('DOMContentLoaded', function ()
 {
-	if (cat.selectedIndex == -1)
+	var panels = document.querySelectorAll('[data-avatar-choice]');
+
+	if (!panels.length)
 		return;
 
-	if (cat.options[cat.selectedIndex].value.indexOf("/") > 0)
+	var form = panels[0].closest('form'),
+		choices = form.avatar_choice;
+
+	var showPanel = function () {
+		var chosen = form.avatar_choice.value;
+
+		for (var i = 0; i < panels.length; i++)
+			panels[i].style.display = panels[i].dataset.avatarChoice == chosen ? '' : 'none';
+
+		// Switching to Gravatar throws away an address that came from one of
+		// the other choices, since it would not be an address at all.
+		var gravatar = document.getElementById('avatar_gravatar');
+
+		if (chosen == 'gravatar' && gravatar && 'clearEmail' in gravatar.dataset && document.getElementById('gravatarEmail'))
+			document.getElementById('gravatarEmail').value = '';
+	};
+
+	for (var i = 0; i < choices.length; i++)
+		choices[i].addEventListener('change', showPanel);
+
+	showPanel();
+
+	// Touching anything inside a panel picks that panel's radio, which is what
+	// the onfocus attributes on each field used to do.
+	for (var i = 0; i < panels.length; i++)
+		panels[i].addEventListener('focusin', function () {
+			selectRadioByName(form.avatar_choice, this.dataset.avatarChoice);
+			showPanel();
+		});
+
+	var gallery = document.getElementById('cat');
+
+	if (gallery)
 	{
-		var i;
-		var count = 0;
-
-		file.style.display = "inline";
-		file.disabled = false;
-
-		for (i = file.length; i >= 0; i = i - 1)
-			file.options[i] = null;
-
-		for (i = 0; i < files.length; i++)
-			if (files[i].indexOf(cat.options[cat.selectedIndex].value) == 0)
-			{
-				var filename = files[i].substr(files[i].indexOf("/") + 1);
-				var showFilename = filename.substr(0, filename.lastIndexOf("."));
-				showFilename = showFilename.replace(/[_]/g, " ");
-
-				file.options[count] = new Option(showFilename, files[i]);
-
-				if (filename == selected)
-				{
-					if (file.options.defaultSelected)
-						file.options[count].defaultSelected = true;
-					else
-						file.options[count].selected = true;
-				}
-
-				count++;
-			}
-
-		if (file.selectedIndex == -1 && file.options[0])
-			file.options[0].selected = true;
-
-		showAvatar();
+		gallery.addEventListener('change', showAvatar);
+		showAvatar.call(gallery);
 	}
-	else
-	{
-		file.style.display = "none";
-		file.disabled = true;
-		document.getElementById("avatar").src = avatardir + cat.options[cat.selectedIndex].value;
-		document.getElementById("avatar").style.width = "";
-		document.getElementById("avatar").style.height = "";
-	}
-}
 
+	var external = form.userpicpersonal;
+
+	if (external)
+		external.addEventListener('change', function () {
+			previewExternalAvatar(this.value);
+		});
+
+	var upload = document.getElementById('avatar_upload_box');
+
+	if (upload)
+		upload.addEventListener('change', function () {
+			readfromUpload(this);
+		});
+});
+
+// Shows whichever avatar the gallery is pointing at.
 function showAvatar()
 {
-	if (file.selectedIndex == -1)
+	var chosen = this.options[this.selectedIndex];
+
+	if (!chosen || chosen.value == '')
 		return;
 
-	document.getElementById("avatar").src = avatardir + file.options[file.selectedIndex].value;
-	document.getElementById("avatar").alt = file.options[file.selectedIndex].text;
-	document.getElementById("avatar").alt += file.options[file.selectedIndex].text == size ? "!" : "";
-	document.getElementById("avatar").style.width = "";
-	document.getElementById("avatar").style.height = "";
+	var preview = document.getElementById('avatar');
+
+	preview.src = this.dataset.avatardir + chosen.value;
+	preview.alt = chosen.text;
+	preview.style.width = '';
+	preview.style.height = '';
 }
 
 function previewExternalAvatar(src)
