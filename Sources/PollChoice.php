@@ -136,7 +136,7 @@ class PollChoice implements \ArrayAccess
 				[
 					$this->poll,
 					$this->id,
-					$this->label,
+					Parser::sanitize($this->label),
 				],
 			],
 			[],
@@ -156,7 +156,7 @@ class PollChoice implements \ArrayAccess
 			[
 				'id_poll' => $this->poll,
 				'id_choice' => $this->id,
-				'label' => $this->label,
+				'label' => Parser::sanitize($this->label),
 				'votes' => $this->votes,
 			],
 		);

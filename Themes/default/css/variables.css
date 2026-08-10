@@ -85,6 +85,35 @@
 	--mainmenu-border-width:                          0 0 1px 0;
 	--mainmenu-box-shadow:                            none;
 
+	/** Drop Menu Buttons **/
+	--dropmenu-bg_active:                             linear-gradient(#ffae14, #f5a100);
+	--dropmenu-bg_active_hover:                       orange;
+	--dropmenu-bg_hover:                              #597b9f;
+	--dropmenu-border-color:                          transparent;
+	--dropmenu-border-color_active:                   #f49a3a;
+	--dropmenu-border-color_active_hover:             #f49a3a;
+	--dropmenu-border-color_hover:                    #4a6b8c;
+	--dropmenu-border-radius:                         4px;
+	--dropmenu-border-style:                          solid;
+	--dropmenu-border-width:                          1px;
+	--dropmenu-box-shadow_active_hover:               0 5px 5px rgba(255, 255, 255, 0.2) inset;
+	--dropmenu-box-shadow_hover:                      0 4px 4px rgba(255, 255, 255, 0.1) inset;
+	--dropmenu-color_active:                          #fff;
+	--dropmenu-color_active_hover:                    #444;
+	--dropmenu-color_hover:                           #fff;
+	--dropmenu-font-weight_active:                    bold;
+	--dropmenu-strong-color:                          #333;
+	--dropmenu-text-shadow_active:                    0 0 2px #000;
+	--dropmenu-text-shadow_active_hover:              none;
+	--dropmenu-text-shadow_hover:                     0 0 2px #000;
+
+	/** Drop Menu Notification Counts **/
+	--amt-bg:                                         #6d90ad;
+	--amt-bg_active:                                  rgba(0, 0, 0, 0.2);
+	--amt-border-radius:                              8px;
+	--amt-color:                                      #fff;
+	--amt-color_active:                               inherit;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
@@ -156,6 +185,32 @@
 	--button-font-weight_active:                      bold;
 	--button-text-shadow_active:                      0 0 1px #000;
 	--button-text-transform:                          uppercase;
+
+	/** Quick Buttons **/
+	--quickbutton-border-radius:                      0;
+	--quickbutton-border-radius_first:                4px 0 0 4px;
+	--quickbutton-border-radius_last:                 0 4px 4px 0;
+	--quickbutton-border-radius_only:                 4px;
+	--quickbutton-box-shadow_focus:                   0 0 4px #499dd8;
+	--quickbutton-color:                              #222;
+	--quickbutton-color_hover:                        #222;
+
+	/** Post Options Drop Down **/
+	--postoptions-bg:                                 #fff;
+	--postoptions-border-color:                       #999;
+	--postoptions-border-color_left:                  #aaa;
+	--postoptions-border-color_top:                   #bbb;
+	--postoptions-border-radius:                      4px 0 4px 4px;
+	--postoptions-border-style:                       solid;
+	--postoptions-border-width:                       1px;
+	--postoptions-box-shadow:                         2px 3px 3px rgba(0, 0, 0, 0.2);
+
+	/** Post Options Drop Down Items **/
+	--postoptions-item-border-color:                  transparent;
+	--postoptions-item-border-color_hover:            #c4cbd3;
+	--postoptions-item-border-radius:                 3px;
+	--postoptions-item-border-style:                  solid;
+	--postoptions-item-border-width:                  1px;
 
 	/** Cat Bar **/
 	--catbar-bg:                                      #557ea0;
@@ -293,6 +348,21 @@
 	--code-font-size:                                 0.78rem;
 	--code-height:                                    25em;
 
+	/** BBC Tags **/
+	--bbc-cite-color:                                 #aaa;
+	--bbc-details-border-color:                       #aaa;
+	--bbc-details-border-style:                       dotted;
+	--bbc-details-border-width:                       1px;
+	--bbc-header-color:                               #666;
+	--bbc-spoiler-border-radius:                      3px;
+	--bbc-spoiler-outline-color:                      #7fb0d8;
+	--bbc-spoiler-outline-style:                      solid;
+	--bbc-spoiler-outline-width:                      2px;
+	--bbc-table-border-color:                         #ddd;
+	--bbc-table-border-style:                         solid;
+	--bbc-table-border-width:                         1px;
+	--bbc-tt-bg:                                      rgba(127, 127, 127, 0.15);
+
 	/** BBC Links **/
 	--bbc-link-border-color:                          #a8b6cf;
 	--bbc-link-border-color_hover:                    #346;
@@ -325,6 +395,27 @@
 
 	--popup-content-color:                            #222;
 	--popup-content-line-height:                      1.6em;
+
+	/** Board Index **/
+	/* The hairline the board index draws everywhere: around a board group,
+	   between the stats columns, above a child board list and above the
+	   information line on a message index. */
+	--boardindex-border-color:                        #ddd;
+	--boardindex-border-style:                        solid;
+	--boardindex-border-width:                        1px;
+	--boardindex-subject-color:                       #a85400;
+
+	/** Board Picker Lists **/
+	--boardslist-border-color:                        #c4c4c4;
+	--boardslist-border-color_hover:                  #334466;
+	--boardslist-border-style:                        solid;
+	--boardslist-border-width:                        1px;
+
+	/** Info Center **/
+	--infocenter-row-border-color:                    #eaeaea;
+	--infocenter-row-border-style:                    solid;
+	--infocenter-row-border-width:                    1px;
+	--infocenter-time-color:                          #555;
 
 	/** Search Highlight **/
 	--searchhighlight-color:                          #ff7200;
@@ -378,6 +469,22 @@
 	--breadcrumb-link-text-shadow_active:             none;
 	--breadcrumb-link-text-shadow_focus:              none;
 	--breadcrumb-link-text-shadow_hover:              none;
+
+	/** Calendar **/
+	--calendar-th-bg:                                 #e7eaef;
+	--calendar-today-bg:                              #fff;
+	--calendar-disabled-bg:                           #eee;
+	--calendar-day-bg_hover:                          rgba(97, 135, 166, 0.2);
+	--calendar-event-bg:                              rgba(30, 245, 20, 0.1);
+	--calendar-event-bg_hover:                        rgba(30, 245, 20, 0.2);
+	--calendar-holiday-bg:                            rgba(23, 110, 245, 0.1);
+	--calendar-holiday-bg_hover:                      rgba(23, 110, 245, 0.2);
+	--calendar-birthday-bg:                           rgba(102, 0, 255, 0.1);
+	--calendar-birthday-bg_hover:                     rgba(153, 51, 255, 0.2);
+	--calendar-link-color:                            #999;
+	--calendar-link-color_hover:                      #555;
+	--calendar-title-link-color:                      #555;
+	--calendar-event-meta-color:                      #777;
 
 	/** Admin **/
 	--admin-announcement-border-color:                #bf6900;

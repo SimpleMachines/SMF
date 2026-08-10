@@ -39,6 +39,35 @@ function disableAutoCompleteNow()
 	}
 }
 
+/*
+ * How long a signature is allowed to be. The template used to write this out
+ * as a global of its own; it comes off the textarea now, so the number only
+ * exists in one place.
+ */
+var maxLength = 0;
+
+// Wires up the signature editor, which is on the Forum Profile page.
+document.addEventListener('DOMContentLoaded', function ()
+{
+	var signature = document.getElementById('signature');
+
+	if (!signature)
+		return;
+
+	maxLength = Number(signature.dataset.maxLength || 0);
+
+	// "input" rather than the old "keyup", so pasting counts too.
+	signature.addEventListener('input', calcCharLeft);
+	calcCharLeft();
+
+	var preview = document.getElementById('preview_button');
+
+	if (preview)
+		preview.addEventListener('click', function () {
+			return ajax_getSignaturePreview(true);
+		});
+});
+
 function calcCharLeft()
 {
 	var oldSignature = "", currentSignature = document.forms.creator.signature.value;
@@ -162,67 +191,85 @@ function ajax_getSignaturePreview (showPreview)
 	return false;
 }
 
-function changeSel(selected)
+/*
+ * The avatar picker. Which panel is on show follows the radio buttons, and
+ * every panel says which choice it belongs to with data-avatar-choice, so
+ * nothing here has to be told which ones the forum allows.
+ */
+document.addEventListener('DOMContentLoaded', function ()
 {
-	if (cat.selectedIndex == -1)
+	var panels = document.querySelectorAll('[data-avatar-choice]');
+
+	if (!panels.length)
 		return;
 
-	if (cat.options[cat.selectedIndex].value.indexOf("/") > 0)
+	var form = panels[0].closest('form'),
+		choices = form.avatar_choice;
+
+	var showPanel = function () {
+		var chosen = form.avatar_choice.value;
+
+		for (var i = 0; i < panels.length; i++)
+			panels[i].style.display = panels[i].dataset.avatarChoice == chosen ? '' : 'none';
+
+		// Switching to Gravatar throws away an address that came from one of
+		// the other choices, since it would not be an address at all.
+		var gravatar = document.getElementById('avatar_gravatar');
+
+		if (chosen == 'gravatar' && gravatar && 'clearEmail' in gravatar.dataset && document.getElementById('gravatarEmail'))
+			document.getElementById('gravatarEmail').value = '';
+	};
+
+	for (var i = 0; i < choices.length; i++)
+		choices[i].addEventListener('change', showPanel);
+
+	showPanel();
+
+	// Touching anything inside a panel picks that panel's radio, which is what
+	// the onfocus attributes on each field used to do.
+	for (var i = 0; i < panels.length; i++)
+		panels[i].addEventListener('focusin', function () {
+			selectRadioByName(form.avatar_choice, this.dataset.avatarChoice);
+			showPanel();
+		});
+
+	var gallery = document.getElementById('cat');
+
+	if (gallery)
 	{
-		var i;
-		var count = 0;
-
-		file.style.display = "inline";
-		file.disabled = false;
-
-		for (i = file.length; i >= 0; i = i - 1)
-			file.options[i] = null;
-
-		for (i = 0; i < files.length; i++)
-			if (files[i].indexOf(cat.options[cat.selectedIndex].value) == 0)
-			{
-				var filename = files[i].substr(files[i].indexOf("/") + 1);
-				var showFilename = filename.substr(0, filename.lastIndexOf("."));
-				showFilename = showFilename.replace(/[_]/g, " ");
-
-				file.options[count] = new Option(showFilename, files[i]);
-
-				if (filename == selected)
-				{
-					if (file.options.defaultSelected)
-						file.options[count].defaultSelected = true;
-					else
-						file.options[count].selected = true;
-				}
-
-				count++;
-			}
-
-		if (file.selectedIndex == -1 && file.options[0])
-			file.options[0].selected = true;
-
-		showAvatar();
+		gallery.addEventListener('change', showAvatar);
+		showAvatar.call(gallery);
 	}
-	else
-	{
-		file.style.display = "none";
-		file.disabled = true;
-		document.getElementById("avatar").src = avatardir + cat.options[cat.selectedIndex].value;
-		document.getElementById("avatar").style.width = "";
-		document.getElementById("avatar").style.height = "";
-	}
-}
 
+	var external = form.userpicpersonal;
+
+	if (external)
+		external.addEventListener('change', function () {
+			previewExternalAvatar(this.value);
+		});
+
+	var upload = document.getElementById('avatar_upload_box');
+
+	if (upload)
+		upload.addEventListener('change', function () {
+			readfromUpload(this);
+		});
+});
+
+// Shows whichever avatar the gallery is pointing at.
 function showAvatar()
 {
-	if (file.selectedIndex == -1)
+	var chosen = this.options[this.selectedIndex];
+
+	if (!chosen || chosen.value == '')
 		return;
 
-	document.getElementById("avatar").src = avatardir + file.options[file.selectedIndex].value;
-	document.getElementById("avatar").alt = file.options[file.selectedIndex].text;
-	document.getElementById("avatar").alt += file.options[file.selectedIndex].text == size ? "!" : "";
-	document.getElementById("avatar").style.width = "";
-	document.getElementById("avatar").style.height = "";
+	var preview = document.getElementById('avatar');
+
+	preview.src = this.dataset.avatardir + chosen.value;
+	preview.alt = chosen.text;
+	preview.style.width = '';
+	preview.style.height = '';
 }
 
 function previewExternalAvatar(src)
@@ -313,5 +360,119 @@ function export_download_all(format)
 
 		// Give plenty of time for the download to complete, then clean up.
 		setTimeout(function() { iframe.remove(); }, 30000);
+	});
+}
+
+/*
+ * Everything below belongs to the "issue a warning" page. It used to be
+ * generated into the template, which meant the notification templates were
+ * written out as one JavaScript branch each. They arrive as data now:
+ * notification_templates holds the bodies in the order the select lists them,
+ * level_effects maps each warning level to what it does at that level.
+ */
+document.addEventListener('DOMContentLoaded', function ()
+{
+	var slider = document.getElementById('warning_level');
+
+	// Viewing your own warning level shows the slider and nothing else, so
+	// this half stands on its own.
+	if (slider)
+	{
+		slider.addEventListener('input', updateSlider);
+	}
+
+	var notify = document.getElementById('warn_notify');
+
+	if (!notify)
+		return;
+
+	notify.addEventListener('change', modifyWarnNotify);
+	document.getElementById('warn_temp').addEventListener('change', populateNotifyTemplate);
+	document.getElementById('preview_button').addEventListener('click', ajax_getTemplatePreview);
+
+	// The notification fields start out matching the checkbox.
+	modifyWarnNotify.call(notify);
+});
+
+// The notification is optional, so its fields follow the checkbox.
+function modifyWarnNotify()
+{
+	var disable = !document.getElementById('warn_notify').checked;
+
+	document.getElementById('warn_sub').disabled = disable;
+	document.getElementById('warn_body').disabled = disable;
+	document.getElementById('warn_temp').disabled = disable;
+	document.getElementById('new_template_link').hidden = disable;
+
+	// Disabled rather than hidden, because .button sets display and an author
+	// rule beats the [hidden] one the browser brings.
+	document.getElementById('preview_button').disabled = disable;
+}
+
+// Picking a template drops its body into the message.
+function populateNotifyTemplate()
+{
+	if (this.value == -1)
+		return;
+
+	document.getElementById('warn_body').value = notification_templates[this.value];
+}
+
+// Says what the level being dragged to actually does.
+function updateSlider()
+{
+	// Number(), because both sides are strings otherwise and 100 sorts below
+	// 35 when they are compared as text.
+	var output = this.form.cur_level, level = Number(this.value), effect = '';
+
+	for (var limit in level_effects)
+		if (level >= Number(limit))
+			effect = level_effects[limit];
+
+	output.value = output.dataset.format.replace('{0}', this.value) + ' (' + effect + ')';
+}
+
+// Renders the notification body the way the member will receive it.
+function ajax_getTemplatePreview()
+{
+	var data = new URLSearchParams({
+		item: 'warning_preview',
+		title: document.getElementById('warn_sub').value,
+		body: document.getElementById('warn_body').value,
+		issuing: true
+	});
+
+	fetch(smf_scripturl + '?action=xmlhttp;sa=previews;xml', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'X-SMF-AJAX': 1
+		},
+		credentials: typeof allow_xhjr_credentials !== 'undefined' && allow_xhjr_credentials ? 'include' : 'same-origin',
+		body: data
+	})
+	.then(function (response) {
+		return response.text();
+	})
+	.then(function (text) {
+		var xml = new DOMParser().parseFromString(text, 'application/xml'),
+			errors = xml.querySelectorAll('error'),
+			problems = document.getElementById('profile_error');
+
+		document.getElementById('box_preview').style.display = '';
+		setInnerHTML(document.getElementById('body_preview'), xml.querySelector('body').textContent);
+
+		if (!problems)
+			return;
+
+		problems.style.display = errors.length ? '' : 'none';
+
+		var list = '';
+
+		errors.forEach(function (error) {
+			list += '<li>' + error.textContent + '</li>';
+		});
+
+		setInnerHTML(problems, list === '' ? '' : '<ul class="list_errors">' + list + '</ul>');
 	});
 }
