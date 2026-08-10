@@ -355,7 +355,7 @@ blockquote cite {
 	margin-bottom: 3px;
 }
 blockquote cite::before {
-	color: #aaa;
+	color: var(--bbc-cite-color);
 	font-size: 22px;
 	font-style: normal;
 	content: "\275D";
@@ -386,7 +386,7 @@ blockquote cite::before {
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
-	color: #666;
+	color: var(--bbc-header-color);
 	font-size: 0.9em;
 	padding: 0 2px;
 }
@@ -396,7 +396,7 @@ blockquote cite::before {
 }
 /* Inline code */
 .bbc_tt {
-	background-color: rgba(127, 127, 127, 0.15);
+	background-color: var(--bbc-tt-bg);
 	padding: 0 0.2ch;
 }
 /* Styling for BBC tags */
@@ -416,7 +416,7 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 	border-collapse: collapse;
 }
 .lefttext .bbc_table,
@@ -432,7 +432,7 @@ blockquote cite::before {
 	color: inherit;
 	vertical-align: top;
 	padding: 4px 8px;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 }
 .bbc_list {
 	text-align: start;
@@ -493,7 +493,7 @@ blockquote cite::before {
 	margin: 5px;
 }
 .bbc_details {
-	border: 1px dotted #aaa;
+	border: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 	margin: 5px;
 }
 .bbc_summary {
@@ -502,11 +502,11 @@ blockquote cite::before {
 }
 .bbc_details[open] > .bbc_summary {
 	padding-bottom: 7px;
-	border-bottom: 1px dotted #aaa;
+	border-bottom: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 }
 .bbc_inline_spoiler {
 	cursor: pointer;
-	border-radius: 3px;
+	border-radius: var(--bbc-spoiler-border-radius);
 	background-color: currentcolor;
 	position: relative;
 	transition-property: background-color;
@@ -527,7 +527,7 @@ blockquote cite::before {
 	background-color: transparent;
 }
 .bbc_inline_spoiler > button:focus-visible {
-	outline: 2px solid #7fb0d8;
+	outline: var(--bbc-spoiler-outline-width) var(--bbc-spoiler-outline-style) var(--bbc-spoiler-outline-color);
 }
 .bbc_inline_spoiler > span {
 	/*
@@ -852,54 +852,54 @@ img.sort, .sort {
 .amt {
 	margin-left: 3px;
 	padding: 0 5px;
-	color: #fff;
-	background: #6d90ad;
-	border-radius: 8px;
+	color: var(--amt-color);
+	background: var(--amt-bg);
+	border-radius: var(--amt-border-radius);
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
-	background: rgba(0, 0, 0, 0.2);
-	color: inherit;
+	background: var(--amt-bg_active);
+	color: var(--amt-color_active);
 }
 #top_info .top_menu.visible {
 	display: block;
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
-	color: #333;
+	color: var(--dropmenu-strong-color);
 }
 
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
 	display: block;
-	border: 1px solid transparent;
-	border-radius: 4px;
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color);
+	border-radius: var(--dropmenu-border-radius);
 }
 /* Level 1 active button. */
 .dropmenu a.active, #top_info a.active {
-	color: #fff;
-	font-weight: bold;
-	border-color: #f49a3a;
-	background: linear-gradient(#ffae14, #f5a100);
-	text-shadow: 0 0 2px #000;
+	color: var(--dropmenu-color_active);
+	font-weight: var(--dropmenu-font-weight_active);
+	border-color: var(--dropmenu-border-color_active);
+	background: var(--dropmenu-bg_active);
+	text-shadow: var(--dropmenu-text-shadow_active);
 }
 /* Level 1 hover effects. */
 .dropmenu > li:hover > a, .dropmenu > li > a:focus,
 #top_info > li:hover > a, #top_info > li > a:focus, #top_info > li > a.open {
-	background: #597b9f;
-	border: 1px solid #4a6b8c;
-	color: #fff;
+	background: var(--dropmenu-bg_hover);
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color_hover);
+	color: var(--dropmenu-color_hover);
 	cursor: pointer;
 	text-decoration: none;
-	box-shadow: 0 4px 4px rgba(255, 255, 255, 0.1) inset;
-	text-shadow: 0 0 2px #000;
+	box-shadow: var(--dropmenu-box-shadow_hover);
+	text-shadow: var(--dropmenu-text-shadow_hover);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
-	background: orange;
-	border: 1px solid #f49a3a;
-	color: #444;
-	box-shadow: 0 5px 5px rgba(255, 255, 255, 0.2) inset;
-	text-shadow: none;
+	background: var(--dropmenu-bg_active_hover);
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color_active_hover);
+	color: var(--dropmenu-color_active_hover);
+	box-shadow: var(--dropmenu-box-shadow_active_hover);
+	text-shadow: var(--dropmenu-text-shadow_active_hover);
 }
 
 a.mobile_user_menu,
@@ -1149,9 +1149,11 @@ html[lang="el-GR"] .inline_mod_check {
 .pagesection .button {
 	color: #346;
 }
+/* .button is listed here for the border and the shadow; it overrides the
+   colour again immediately below, so this one belongs to the quick buttons. */
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
-	color: #222;
+	color: var(--quickbutton-color_hover);
 	border-color: var(--button-border-color_hover);
 	box-shadow: var(--button-box-shadow_hover);
 	text-decoration: none;
@@ -1558,18 +1560,18 @@ ul li.greeting {
 	display: block;
 	height: auto;
 	padding: 0 4px;
-	color: #222;
+	color: var(--quickbutton-color);
 	line-height: 1.375rem;
-	border-radius: 0;
+	border-radius: var(--quickbutton-border-radius);
 }
 .quickbuttons > li:first-child > a {
-	border-radius: 4px 0 0 4px;
+	border-radius: var(--quickbutton-border-radius_first);
 }
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
-	border-radius: 0 4px 4px 0;
+	border-radius: var(--quickbutton-border-radius_last);
 }
 .quickbuttons > li:only-child > a, .inline_mod_check:only-child {
-	border-radius: 4px;
+	border-radius: var(--quickbutton-border-radius_only);
 	margin: 2px;
 	height: 23px;
 }
@@ -1579,7 +1581,7 @@ ul li.greeting {
 	height: auto;
 }
 .moderationbuttons_check:focus {
-	box-shadow: 0 0 4px #499dd8;
+	box-shadow: var(--quickbutton-box-shadow_focus);
 }
 .quick_edit, .post_options {
 	position: relative;
@@ -1592,14 +1594,14 @@ ul li.greeting {
 	right: -1px;
 	z-index: 90;
 	padding: 6px;
-	background: #fff;
+	background: var(--postoptions-bg);
 	font-weight: normal;
 	text-align: left;
-	border: solid 1px #999;
-	border-left: solid 1px #aaa;
-	border-top: solid 1px #bbb;
-	border-radius: 4px 0 4px 4px;
-	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
+	border: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color);
+	border-left: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_left);
+	border-top: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_top);
+	border-radius: var(--postoptions-border-radius);
+	box-shadow: var(--postoptions-box-shadow);
 }
 .post_options:hover ul {
 	display: block;
@@ -1610,11 +1612,11 @@ ul li.greeting {
 	padding: 0 6px;
 	line-height: 2.2em;
 	text-decoration: none;
-	border: 1px solid transparent;
-	border-radius: 3px;
+	border: var(--postoptions-item-border-width) var(--postoptions-item-border-style) var(--postoptions-item-border-color);
+	border-radius: var(--postoptions-item-border-radius);
 }
 .post_options ul a:hover, .post_options ul a:focus {
-	border-color: #c4cbd3;
+	border-color: var(--postoptions-item-border-color_hover);
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
@@ -2677,6 +2679,15 @@ dl {
 	height: 16px;
 }
 
+/* The board picker's title bar is one element now, the summary of a details.
+/* It carries both bar classes, and .titlebg comes later in this file with a
+/* background of its own, so the bar's is named again here. Overflow has to stay
+/* visible as well, or .titlebg clips the disclosure triangle away. */
+#advanced_panel > summary {
+	background: var(--titlebar-bg);
+	cursor: pointer;
+	overflow: visible;
+}
 .boardslist > ul > li {
 	margin: 12px;
 }
@@ -2691,13 +2702,13 @@ dl {
 }
 .boardslist a {
 	font-weight: bold;
-	border-bottom: 1px solid #c4c4c4;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color);
 	display: block;
 	margin-bottom: 0.5em;
 }
 .boardslist a:hover {
 	text-decoration: none;
-	border-bottom: 1px solid #334466;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color_hover);
 }
 .boardslist label {
 	display: inline-block;
@@ -3271,8 +3282,8 @@ h3 .collapse {
 	padding: 13px 10px 10px;
 }
 .boardindex_table .board_stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	border-left: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
+	border-right: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .info {
 	overflow: hidden;
@@ -3283,7 +3294,7 @@ h3 .collapse {
 .info .subject {
 	font-weight: 600;
 	font-size: 1.1em;
-	color: #a85400;
+	color: var(--boardindex-subject-color);
 }
 .board_stats {
 	width: 15%;
@@ -3305,14 +3316,14 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	border: 1px solid #ddd;
+	border: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	margin: 0 0 3px 0;
 	display: flex;
 	flex-wrap: wrap;
 }
 /* Child boards */
 .children {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	padding: 5px;
 	width: 100%;
 }
@@ -3339,7 +3350,7 @@ span.postby {
 	clear: both;
 }
 #info_center .sub_bar {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
@@ -3358,7 +3369,7 @@ span.postby {
 	padding: 0 4px 0 0;
 }
 #ic_recentposts td {
-	border-top: 1px solid #eaeaea;
+	border-top: var(--infocenter-row-border-width) var(--infocenter-row-border-style) var(--infocenter-row-border-color);
 	padding: 0 4px 0 0;
 	vertical-align: top;
 }
@@ -3378,7 +3389,7 @@ span.postby {
 	width: 25%;
 }
 #ic_recentposts .recenttime strong {
-	color: #555;
+	color: var(--infocenter-time-color);
 }
 #ic_recentposts .windowbg {
 	background: none;
@@ -4098,7 +4109,7 @@ p.information img {
 }
 #topic_icons .information,
 #messageindex .information {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .topic_pages {
 	font-size: 0.75em;

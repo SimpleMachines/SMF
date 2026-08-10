@@ -426,14 +426,6 @@ smc_Popup.prototype.setBody = function(data)
 	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
-}
-
 // Replaces the currently selected text with the passed text.
 function replaceText(text, oTextHandle)
 {
@@ -1241,20 +1233,6 @@ function expandThumb(thumbID)
 	link.style.height = tmp_height;
 
 	return false;
-}
-
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
 }
 
 function generateDays(offset)
