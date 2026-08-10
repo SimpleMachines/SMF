@@ -2459,8 +2459,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$extraParams, &$xmlActions));
 
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
-		(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
-		(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
+		(isset($context['current_action'], $simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
+		(isset($context['current_action'], $simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
 	// See if theres any extra param to check.
 	$requiresXML = false;
