@@ -2414,52 +2414,12 @@ function template_issueWarning()
 {
 	template_load_warning_variables();
 
+	// The bodies of the notification templates and the text for each warning
+	// level. profile.js does the rest; all it needs from here is the data.
 	echo '
 	<script>
-		// Disable notification boxes as required.
-		function modifyWarnNotify()
-		{
-			disable = !document.getElementById(\'warn_notify\').checked;
-			document.getElementById(\'warn_sub\').disabled = disable;
-			document.getElementById(\'warn_body\').disabled = disable;
-			document.getElementById(\'warn_temp\').disabled = disable;
-			document.getElementById(\'new_template_link\').style.display = disable ? \'none\' : \'\';
-			document.getElementById(\'preview_button\').style.display = disable ? \'none\' : \'\';
-		}
-
-		// Warn template.
-		function populateNotifyTemplate()
-		{
-			index = document.getElementById(\'warn_temp\').value;
-			if (index == -1)
-				return false;
-
-			// Otherwise see what we can do...';
-
-	foreach (Utils::$context['notification_templates'] as $k => $type) {
-		echo '
-			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = ', Utils::escapeJavaScript($type['body']), ';';
-	}
-
-	echo '
-		}
-
-		function updateSlider(slideAmount)
-		{
-			// Also set the right effect.
-			effectText = "";';
-
-	foreach (Utils::$context['level_effects'] as $limit => $text) {
-		echo '
-			if (slideAmount >= ', $limit, ')
-				effectText = "', $text, '";';
-	}
-
-	echo '
-			let percent_format = "', Lang::getTxt('percent_format', file: 'General'), '";
-			setInnerHTML(document.getElementById(\'cur_level_div\'), percent_format.replace("{0}", slideAmount) + \' (\' + effectText + \')\');
-		}
+		var notification_templates = ', json_encode(array_column(Utils::$context['notification_templates'], 'body'), JSON_UNESCAPED_SLASHES), ';
+		var level_effects = ', json_encode(Utils::$context['level_effects'], JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT), ';
 	</script>';
 
 	echo '
@@ -2503,9 +2463,9 @@ function template_issueWarning()
 	echo '
 				</dt>
 				<dd>
-					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> ', Lang::formatText('{0, number, :: percent}', [100]), '
+					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
+						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <output name="cur_level" for="warning_level" data-format="', Lang::getTxt('percent_format', file: 'General'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</output>
 					</div>
 				</dd>';
 
@@ -2536,7 +2496,7 @@ function template_issueWarning()
 					<strong><label for="warn_notify">', Lang::getTxt('profile_warning_notify', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<input type="checkbox" name="warn_notify" id="warn_notify" onclick="modifyWarnNotify();"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
+					<input type="checkbox" name="warn_notify" id="warn_notify"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
 				</dd>
 				<dt>
 					<strong><label for="warn_sub">', Lang::getTxt('profile_warning_notify_subject', file: 'Profile'), '</label></strong>
@@ -2548,7 +2508,7 @@ function template_issueWarning()
 					<strong><label for="warn_temp">', Lang::getTxt('profile_warning_notify_body', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();">
+					<select name="warn_temp" id="warn_temp" disabled>
 						<option value="-1">', Lang::getTxt('profile_warning_notify_template', file: 'Profile'), '</option>
 						<option value="-1" disabled>------------------------------</option>';
 
@@ -2559,7 +2519,7 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span id="new_template_link" style="display: none;"><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '</a></span>
+					<span id="new_template_link" hidden><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '</a></span>
 					<br>
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', Utils::$context['warning_data']['notify_body'], '</textarea>
 				</dd>';
@@ -2583,60 +2543,6 @@ function template_issueWarning()
 
 	// Previous warnings?
 	template_show_list('view_warnings');
-
-	echo '
-	<script>';
-
-	if (!Profile::$member->is_me) {
-		echo '
-		modifyWarnNotify();
-		$(document).ready(function() {
-			$("#preview_button").click(function() {
-				return ajax_getTemplatePreview();
-			});
-		});
-
-		function ajax_getTemplatePreview ()
-		{
-			$.ajax({
-				type: "POST",
-				headers: {
-					"X-SMF-AJAX": 1
-				},
-				xhrFields: {
-					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-				},
-				url: "' . Config::$scripturl . '?action=xmlhttp;sa=previews;xml",
-				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
-				context: document.body,
-				success: function(request){
-					$("#box_preview").css({display:""});
-					$("#body_preview").html($(request).find(\'body\').text());
-					if ($(request).find("error").text() != \'\')
-					{
-						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors">\';
-						var errors = $(request).find(\'error\').each(function() {
-							errors_html += \'<li>\' + $(this).text() + \'</li>\';
-						});
-						errors_html += \'</ul>\';
-
-						$("#profile_error").html(errors_html);
-					}
-					else
-					{
-						$("#profile_error").css({display:"none"});
-						$("#error_list").html(\'\');
-					}
-				return false;
-				},
-			});
-			return false;
-		}';
-	}
-
-	echo '
-	</script>';
 }
 
 /**
