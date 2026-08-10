@@ -5,49 +5,66 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 	this.refreshMainPassword = refreshMainPassword;
 	this.refreshVerifyPassword = refreshVerifyPassword;
 
-	var verificationFields = new Array();
-	var verificationFieldLength = 0;
-	var textStrings = regTextStrings ? regTextStrings : new Array();
-	var passwordLevel = passwordDifficultyLevel ? passwordDifficultyLevel : 0;
+	var verificationFields = {};
+	var reservedFieldCount = 0;
+	var textStrings = regTextStrings || {};
+	var passwordLevel = passwordDifficultyLevel || 0;
 
 	// Setup all the fields!
 	autoSetup(formID);
 
 	// This is a field which requires some form of verification check.
-	function addVerificationField(fieldType, fieldID)
+	function addVerificationField(fieldType, inputHandle)
 	{
-		// Check the field exists.
-		if (!document.getElementById(fieldID))
-			return;
-
-		// Get the handles.
-		var inputHandle = document.getElementById(fieldID);
-		var imageHandle = document.getElementById(fieldID + '_img') ? document.getElementById(fieldID + '_img') : false;
-		var divHandle = document.getElementById(fieldID + '_div') ? document.getElementById(fieldID + '_div') : false;
-
 		// What is the event handler?
-		var eventHandler = false;
-		if (fieldType == 'pwmain')
+		var eventHandler;
+
+		if (fieldType == 'pwmain' || fieldType == 'reserved')
 			eventHandler = refreshMainPassword;
 		else if (fieldType == 'pwverify')
 			eventHandler = refreshVerifyPassword;
 		else if (fieldType == 'username')
 			eventHandler = refreshUsername;
-		else if (fieldType == 'reserved')
-			eventHandler = refreshMainPassword;
+
+		/*
+		 * A reserved field is only something the password may not contain - the
+		 * email address, say - so it has nothing of its own to report. The other
+		 * three each show an icon, which the templates used to write out hidden
+		 * and which nothing outside this file ever addressed. Build it here.
+		 */
+		var iconHandle;
+
+		if (fieldType != 'reserved')
+		{
+			iconHandle = document.createElement('span');
+			iconHandle.className = 'main_icons';
+
+			// The username icon doubles as the button that asks the server.
+			if (fieldType == 'username')
+			{
+				var linkHandle = document.createElement('a');
+				linkHandle.href = '#';
+				linkHandle.appendChild(iconHandle);
+				linkHandle.addEventListener('click', function (e) {
+					e.preventDefault();
+					checkUsername(false);
+				}, false);
+
+				inputHandle.after(linkHandle);
+			}
+			else
+				inputHandle.after(iconHandle);
+		}
 
 		// Store this field.
-		var vFieldIndex = fieldType == 'reserved' ? fieldType + verificationFieldLength : fieldType;
-		verificationFields[vFieldIndex] = Array(6);
-		verificationFields[vFieldIndex][0] = fieldID;
-		verificationFields[vFieldIndex][1] = inputHandle;
-		verificationFields[vFieldIndex][2] = imageHandle;
-		verificationFields[vFieldIndex][3] = divHandle;
-		verificationFields[vFieldIndex][4] = fieldType;
-		verificationFields[vFieldIndex][5] = inputHandle.className;
+		var vFieldIndex = fieldType == 'reserved' ? fieldType + reservedFieldCount++ : fieldType;
 
-		// Keep a count to it!
-		verificationFieldLength++;
+		verificationFields[vFieldIndex] = {
+			type: fieldType,
+			input: inputHandle,
+			icon: iconHandle,
+			className: inputHandle.className
+		};
 
 		// Step to it!
 		if (eventHandler)
@@ -56,72 +73,67 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 			eventHandler();
 
 			// Username will auto check on blur!
-			inputHandle.addEventListener('blur', autoCheckUsername, false);
+			if (fieldType == 'username')
+				inputHandle.addEventListener('blur', autoCheckUsername, false);
 		}
-
-		// Make the div visible!
-		if (divHandle)
-			divHandle.style.display = '';
-	}
-
-	// A button to trigger a username search?
-	function addUsernameSearchTrigger(elementID)
-	{
-		var buttonHandle = document.getElementById(elementID);
-
-		// Attach the event to this element.
-		buttonHandle.addEventListener('click', checkUsername, false);
 	}
 
 	// This function will automatically pick up all the necessary verification fields and initialise their visual status.
 	function autoSetup(formID)
 	{
-		if (!document.getElementById(formID))
+		var formHandle = document.getElementById(formID);
+
+		if (!formHandle)
 			return false;
 
-		var curElement, curType;
-		for (var i = 0, n = document.getElementById(formID).elements.length; i < n; i++)
+		for (var i = 0, n = formHandle.elements.length; i < n; i++)
 		{
-			curElement = document.getElementById(formID).elements[i];
+			var curElement = formHandle.elements[i];
 
-			// Does the ID contain the keyword 'autov'?
-			if (curElement.id.indexOf('autov') != -1 && (curElement.type == 'text' || curElement.type == 'password'))
-			{
-				// This is probably it - but does it contain a field type?
-				curType = 0;
-				// Username can only be done with XML.
-				if (curElement.id.indexOf('username') != -1 && window.XMLHttpRequest)
-					curType = 'username';
-				else if (curElement.id.indexOf('pwmain') != -1)
-					curType = 'pwmain';
-				else if (curElement.id.indexOf('pwverify') != -1)
-					curType = 'pwverify';
-				// This means this field is reserved and cannot be contained in the password!
-				else if (curElement.id.indexOf('reserve') != -1)
-					curType = 'reserved';
+			// The field says what it is, in data-autov.
+			var curType = curElement.dataset.autov;
 
-				// If we're happy let's add this element!
-				if (curType)
-					addVerificationField(curType, curElement.id);
+			if (!curType || (curElement.type != 'text' && curElement.type != 'password' && curElement.type != 'email'))
+				continue;
 
-				// If this is the username do we also have a button to find the user?
-				if (curType == 'username' && document.getElementById(curElement.id + '_link'))
-				{
-					addUsernameSearchTrigger(curElement.id + '_link');
-				}
-			}
+			// A reserved field is one the password may not contain.
+			if (curType.indexOf('reserve') === 0)
+				curType = 'reserved';
+
+			addVerificationField(curType, curElement);
 		}
 
 		return true;
 	}
 
 	// What is the password state?
-	function refreshMainPassword(called_from_verify)
+	function refreshMainPassword()
 	{
 		if (!verificationFields['pwmain'])
 			return false;
 
-		var curPass = verificationFields['pwmain'][1].value;
+		var curPass = verificationFields['pwmain'].input.value;
+		var stringIndex = passwordProblem(curPass);
+		var isValid = stringIndex == '';
+
+		setVerificationImage(verificationFields['pwmain'], isValid, textStrings[isValid ? 'password_valid' : stringIndex]);
+
+		// As this has changed the verification one may have too!
+		if (verificationFields['pwverify'])
+			refreshVerifyPassword();
+
+		return isValid;
+	}
+
+	/*
+	 * Which of the password rules this password breaks, or an empty string if it
+	 * breaks none. Kept apart from refreshMainPassword() so that the verify
+	 * field can ask the same question without drawing the main field's icon: it
+	 * used to do that by calling refreshMainPassword() with a flag that stopped
+	 * the two from calling each other forever.
+	 */
+	function passwordProblem(curPass)
+	{
 		var stringIndex = '';
 
 		// Is it a valid length?
@@ -132,13 +144,13 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 		if (passwordLevel >= 1)
 		{
 			// If there is a username check it's not in the password!
-			if (verificationFields['username'] && verificationFields['username'][1].value && curPass.indexOf(verificationFields['username'][1].value) != -1)
+			if (verificationFields['username'] && verificationFields['username'].input.value && curPass.indexOf(verificationFields['username'].input.value) != -1)
 				stringIndex = 'password_reserved';
 
 			// Any reserved fields?
 			for (var i in verificationFields)
 			{
-				if (verificationFields[i][4] == 'reserved' && verificationFields[i][1].value && curPass.indexOf(verificationFields[i][1].value) != -1)
+				if (verificationFields[i].type == 'reserved' && verificationFields[i].input.value && curPass.indexOf(verificationFields[i].input.value) != -1)
 					stringIndex = 'password_reserved';
 			}
 
@@ -152,33 +164,21 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 			}
 		}
 
-		var isValid = stringIndex == '';
-		if (stringIndex == '')
-			stringIndex = 'password_valid';
-
-		// Set the image.
-		setVerificationImage(verificationFields['pwmain'][0], isValid, textStrings[stringIndex] ? textStrings[stringIndex] : '');
-		verificationFields['pwmain'][1].className = verificationFields['pwmain'][5] + ' ' + (isValid ? 'valid_input' : 'invalid_input');
-
-		// As this has changed the verification one may have too!
-		if (verificationFields['pwverify'] && !called_from_verify)
-			refreshVerifyPassword();
-
-		return isValid;
+		return stringIndex;
 	}
 
 	// Check that the verification password matches the main one!
 	function refreshVerifyPassword()
 	{
 		// Can't do anything without something to check again!
-		if (!verificationFields['pwmain'])
+		if (!verificationFields['pwmain'] || !verificationFields['pwverify'])
 			return false;
 
 		// Check and set valid status!
-		var isValid = verificationFields['pwmain'][1].value == verificationFields['pwverify'][1].value && refreshMainPassword(true);
-		var alt = textStrings[isValid == 1 ? 'password_valid' : 'password_no_match'] ? textStrings[isValid == 1 ? 'password_valid' : 'password_no_match'] : '';
-		setVerificationImage(verificationFields['pwverify'][0], isValid, alt);
-		verificationFields['pwverify'][1].className = verificationFields['pwverify'][5] + ' ' + (isValid ? 'valid_input' : 'invalid_input');
+		var curPass = verificationFields['pwmain'].input.value;
+		var isValid = curPass == verificationFields['pwverify'].input.value && passwordProblem(curPass) == '';
+
+		setVerificationImage(verificationFields['pwverify'], isValid, textStrings[isValid ? 'password_valid' : 'password_no_match']);
 
 		return true;
 	}
@@ -189,12 +189,7 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 		if (!verificationFields['username'])
 			return false;
 
-		// Restore the class name.
-		if (verificationFields['username'][1].className)
-			verificationFields['username'][1].className = verificationFields['username'][5];
-		// Check the image is correct.
-		var alt = textStrings['username_check'] ? textStrings['username_check'] : '';
-		setVerificationImage(verificationFields['username'][0], 'check', alt);
+		setVerificationImage(verificationFields['username'], 'check', textStrings['username_check']);
 
 		// Check the password is still OK.
 		refreshMainPassword();
@@ -215,7 +210,8 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 			return false;
 
 		// Get the username and do nothing without one!
-		var curUsername = verificationFields['username'][1].value;
+		var curUsername = verificationFields['username'].input.value;
+
 		if (!curUsername)
 			return false;
 
@@ -223,7 +219,7 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 			ajax_indicator(true);
 
 		// Request a search on that username.
-		checkName = curUsername.php_to8bit().php_urlencode();
+		var checkName = curUsername.php_to8bit().php_urlencode();
 		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=signup;sa=usernamecheck;xml;username=' + checkName, checkUsernameCallback);
 
 		return true;
@@ -232,33 +228,37 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 	// Callback for getting the username data.
 	function checkUsernameCallback(XMLDoc)
 	{
-		if (XMLDoc.getElementsByTagName("username"))
-			isValid = XMLDoc.getElementsByTagName("username")[0].getAttribute("valid");
-		else
-			isValid = true;
+		var tags = XMLDoc ? XMLDoc.getElementsByTagName('username') : null;
 
-		// What to alt?
-		var alt = textStrings[isValid == 1 ? 'username_valid' : 'username_invalid'] ? textStrings[isValid == 1 ? 'username_valid' : 'username_invalid'] : '';
+		// No answer we can read is not the same as "that name is fine".
+		if (!tags || !tags.length)
+			return;
 
-		verificationFields['username'][1].className = verificationFields['username'][5] + ' ' + (isValid == 1 ? 'valid_input' : 'invalid_input');
-		setVerificationImage(verificationFields['username'][0], isValid == 1, alt);
+		var isValid = tags[0].getAttribute('valid') == 1;
+
+		setVerificationImage(verificationFields['username'], isValid, textStrings[isValid ? 'username_valid' : 'username_invalid']);
 
 		ajax_indicator(false);
 	}
 
-	// Set the image to be the correct type.
-	function setVerificationImage(fieldID, imageIcon, alt)
+	// Set the icon beside a field to say how it is doing.
+	function setVerificationImage(field, state, alt)
 	{
-		if (!fieldID)
+		if (!field || !field.icon)
 			return false;
+
 		if (!alt)
 			alt = '*';
 
-		$('#' + fieldID + '_img').removeClass('valid check invalid').attr('alt', alt).attr('title', alt);
-		if (imageIcon)
-			$('#' + fieldID + '_img').addClass(imageIcon == 'check' ? 'check' : 'valid');
-		else
-			$('#' + fieldID + '_img').addClass('invalid');
+		field.icon.className = 'main_icons ' + (state === 'check' ? 'check' : (state ? 'valid' : 'invalid'));
+		field.icon.title = alt;
+
+		/*
+		 * 'check' means "not asked yet", which is the username field before
+		 * anything has been typed into it. That is not a verdict, so leave the
+		 * field itself looking the way the stylesheet drew it.
+		 */
+		field.input.className = state === 'check' ? field.className : field.className + ' ' + (state ? 'valid_input' : 'invalid_input');
 
 		return true;
 	}
