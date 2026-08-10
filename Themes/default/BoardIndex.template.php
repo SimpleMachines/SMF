@@ -82,42 +82,7 @@ function template_boardindex()
 			</div>
 			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
 
-		/* Each board in each category's boards has:
-		new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
-		children (see below.), link_children (easier to use.), children_new (are they new?),
-		topics (# of), posts (# of), link, href, and last_post. (see below.) */
-		foreach ($category['boards'] as $board) {
-			echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
-					<div class="board_icon">
-						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
-					</div>
-					<div class="info">
-						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
-					</div><!-- .info -->';
-
-			// Show some basic information about the number of posts, etc.
-			echo '
-					<div class="board_stats">
-						', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
-					</div>';
-
-			// Show the last post if there is one.
-			echo'
-					<div class="lastpost">
-						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
-					</div>';
-
-			// Won't somebody think of the children!
-			if (function_exists('template_bi_' . $board['type'] . '_children')) {
-				call_user_func('template_bi_' . $board['type'] . '_children', $board);
-			} else {
-			template_bi_board_children($board);
-			}
-
-			echo '
-				</div><!-- #board_[id] -->';
-		}
+		template_bi_board_list($category['boards']);
 
 		echo '
 			</div><!-- #category_[id]_boards -->
@@ -133,6 +98,56 @@ function template_boardindex()
 	<div class="mark_read">
 		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '
 	</div>';
+	}
+}
+
+/**
+ * Outputs a list of boards, each one drawn by the template_bi_* helpers below.
+ *
+ * The board index calls this once per category, and the message index calls it
+ * for the child boards of the board being viewed. Both used to carry their own
+ * copy of this loop.
+ *
+ * Each board has: new (is it new?), id, name, description, moderators (see
+ * below), link_moderators (just a list.), children (see below.), link_children
+ * (easier to use.), children_new (are they new?), topics (# of), posts (# of),
+ * link, href, and last_post. (see below.)
+ *
+ * @param array $boards The boards to draw, in the order they go in.
+ */
+function template_bi_board_list(array $boards): void
+{
+	foreach ($boards as $board) {
+		echo '
+				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+					<div class="board_icon">
+						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
+					</div>
+					<div class="info">
+						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
+					</div><!-- .info -->';
+
+		// Show some basic information about the number of posts, etc.
+		echo '
+					<div class="board_stats">
+						', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
+					</div>';
+
+		// Show the last post if there is one.
+		echo '
+					<div class="lastpost">
+						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+					</div>';
+
+		// Won't somebody think of the children!
+		if (function_exists('template_bi_' . $board['type'] . '_children')) {
+			call_user_func('template_bi_' . $board['type'] . '_children', $board);
+		} else {
+			template_bi_board_children($board);
+		}
+
+		echo '
+				</div><!-- #board_[id] -->';
 	}
 }
 

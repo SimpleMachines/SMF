@@ -216,6 +216,18 @@ function template_delete_subscription()
  */
 function template_modify_user_subscription()
 {
+	// The year lists below have to reach whatever dates this subscription
+	// already carries, however far out they are, and leave room to pick
+	// something new either side of today.
+	$years = [
+		Utils::$context['sub']['start']['year'],
+		Utils::$context['sub']['end']['year'],
+		(int) date('Y'),
+	];
+
+	$first_year = min($years) - 10;
+	$last_year = max($years) + 10;
+
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', Utils::$context['sub_id'], ';lid=', Utils::$context['log_id'], '" method="post">
 		<div class="cat_bar">
@@ -261,7 +273,7 @@ function template_modify_user_subscription()
 				<select name="year" id="year">';
 
 	// Show a list of all the years we allow...
-	for ($year = 2005; $year <= 2030; $year++) {
+	for ($year = $first_year; $year <= $last_year; $year++) {
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['start']['year'] ? ' selected' : '', '>', $year, '</option>';
 	}
@@ -298,7 +310,7 @@ function template_modify_user_subscription()
 				<select name="yearend" id="yearend">';
 
 	// Show a list of all the years we allow...
-	for ($year = 2005; $year <= 2030; $year++) {
+	for ($year = $first_year; $year <= $last_year; $year++) {
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['end']['year'] ? ' selected' : '', '>', $year, '</option>';
 	}
