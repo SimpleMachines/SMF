@@ -245,13 +245,24 @@ class Register2 extends Register
 			unset($_POST['lngfile']);
 		}
 
+		/*
+		 * Has something vouched for them already? An identity provider they
+		 * came back from, or a passkey they made while filling this in. Either
+		 * way the form did not ask for a password, so whatever is posted under
+		 * that name is ignored rather than half believed.
+		 */
+		$identity = AuthExternal::pendingIdentity();
+		$passkey = Passkey::pendingSignUp();
+		$passwordless = $identity !== null || $passkey !== null;
+
 		// Set the options needed for registration.
 		$reg_options = [
 			'interface' => 'guest',
 			'username' => !empty($_POST['user']) ? $_POST['user'] : '',
 			'email' => !empty($_POST['email']) ? $_POST['email'] : '',
-			'password' => !empty($_POST['passwrd1']) ? $_POST['passwrd1'] : '',
-			'password_check' => !empty($_POST['passwrd2']) ? $_POST['passwrd2'] : '',
+			'password' => $passwordless || empty($_POST['passwrd1']) ? '' : $_POST['passwrd1'],
+			'password_check' => $passwordless || empty($_POST['passwrd2']) ? '' : $_POST['passwrd2'],
+			'passwordless' => $passwordless,
 			'check_reserved_name' => true,
 			'check_password_strength' => true,
 			'check_email_ban' => true,
@@ -395,17 +406,33 @@ class Register2 extends Register
 		 * register all over again. The account went through the ordinary sign up
 		 * rules to get here, which is the whole point of sending them this way.
 		 */
-		if (!empty($_SESSION['authext_pending']['subject']) && $_SESSION['authext_pending']['created'] > time() - 3600) {
+		if ($identity !== null) {
 			Credential::add(
 				$member_id,
 				Credential::TYPE_OIDC,
-				(int) $_SESSION['authext_pending']['provider'],
-				$_SESSION['authext_pending']['subject'],
-				(string) ($_SESSION['authext_pending']['email'] ?? ''),
+				(int) $identity['provider'],
+				(string) $identity['subject'],
+				(string) ($identity['title'] ?? '') . ' (' . (string) (($identity['email'] ?? '') ?: $identity['subject']) . ')',
 			);
 		}
 
-		unset($_SESSION['authext_pending']);
+		/*
+		 * Or did they make a passkey on the way through? It has been waiting in
+		 * the session since the ceremony, because until this moment there was no
+		 * account for it to belong to.
+		 */
+		if ($passkey !== null) {
+			Credential::add(
+				$member_id,
+				Credential::TYPE_WEBAUTHN,
+				0,
+				(string) $passkey['identifier'],
+				Lang::getTxt('passkey_default_title', file: 'Profile'),
+				(string) $passkey['secret_data'],
+			);
+		}
+
+		unset($_SESSION['authext_pending'], $_SESSION['webauthn_signup']);
 
 		// Do our spam protection now.
 		Security::spamProtection('register');
@@ -465,6 +492,10 @@ class Register2 extends Register
 	 * The function will adjust member statistics.
 	 * If an error is detected will fatal error on all errors unless return_errors is true.
 	 *
+	 * Set the 'passwordless' option to create an account with no password at
+	 * all, for when the caller has arranged some other way for the member to
+	 * prove who they are and has already checked it.
+	 *
 	 * @param array $reg_options An array of registration options
 	 * @param bool $return_errors Whether to return the errors
 	 * @return int|array The ID of the newly registered user or an array of error info if $return_errors is true
@@ -473,6 +504,14 @@ class Register2 extends Register
 	{
 		// Put any errors in here.
 		$reg_errors = [];
+
+		/*
+		 * An account that will have no password at all, because something else
+		 * vouches for whoever owns it. Only a caller that has already arranged
+		 * that asks for it -- it is never taken from the request, since an
+		 * account nobody can sign in to is not one to create by accident.
+		 */
+		$passwordless = !empty($reg_options['passwordless']);
 
 		// Registration from the admin center, let them sweat a little more.
 		if ($reg_options['interface'] == 'admin') {
@@ -517,17 +556,17 @@ class Register2 extends Register
 		}
 
 		// If you haven't put in a password generate one.
-		if ($reg_options['interface'] == 'admin' && $reg_options['password'] == '') {
+		if (!$passwordless && $reg_options['interface'] == 'admin' && $reg_options['password'] == '') {
 			$reg_options['password'] = Security::generatePassword();
 			$reg_options['password_check'] = $reg_options['password'];
 		}
 		// Does the first password match the second?
-		elseif ($reg_options['password'] != $reg_options['password_check']) {
+		elseif (!$passwordless && $reg_options['password'] != $reg_options['password_check']) {
 			$reg_errors[] = ['lang', 'passwords_dont_match'];
 		}
 
 		// That's kind of easy to guess...
-		if ($reg_options['password'] == '') {
+		if (!$passwordless && $reg_options['password'] == '') {
 			$reg_errors[] = ['lang', 'no_password'];
 		}
 
@@ -639,7 +678,9 @@ class Register2 extends Register
 		$reg_options['register_vars'] = [
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
-			'passwd' => Security::hashPassword($reg_options['password']),
+			// Nothing hashes to an empty string, so this is a value no password
+			// can ever match. See SMF\User::hasUsablePassword().
+			'passwd' => $passwordless ? '' : Security::hashPassword($reg_options['password']),
 			'password_salt' => bin2hex(random_bytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),

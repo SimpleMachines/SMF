@@ -258,6 +258,7 @@ class Authentication implements ActionInterface
 	{
 		$config_vars = [
 			['check', 'webauthn_enabled', 'subtext' => Lang::getTxt('webauthn_enabled_subtext', file: 'ManageSettings'), 'disabled' => !Server::isAvailable()],
+			['check', 'webauthn_allow_signup', 'subtext' => Lang::getTxt('webauthn_allow_signup_subtext', file: 'ManageSettings'), 'disabled' => !Server::isAvailable()],
 			['check', 'webauthn_allow_unverified', 'subtext' => Lang::getTxt('webauthn_allow_unverified_subtext', file: 'ManageSettings'), 'disabled' => !Server::isAvailable()],
 		];
 

@@ -41,6 +41,20 @@ class Passkey implements ActionInterface
 {
 	use ActionTrait;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * How long a passkey waits for the sign up form to be finished, in seconds.
+	 *
+	 * Generous, because the form it is waiting on may take several attempts to
+	 * get past: a name that is taken, a verification code that was misread, a
+	 * required custom field left blank. Making the member produce another
+	 * passkey each time would leave a trail of dead ones on their device.
+	 */
+	public const SIGNUP_LIFETIME = 3600;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -67,6 +81,8 @@ class Passkey implements ActionInterface
 		'register' => 'register',
 		'loginoptions' => 'loginOptions',
 		'login' => 'login',
+		'signupoptions' => 'signupOptions',
+		'signup' => 'signup',
 	];
 
 	/****************
@@ -128,12 +144,23 @@ class Passkey implements ActionInterface
 		 * from the first.
 		 */
 		$exclude = [];
+		$handle = null;
 
 		foreach (Credential::listFor(User::$me->id, Credential::TYPE_WEBAUTHN) as $credential) {
 			$stored = $this->secretData($credential);
 
 			if ($stored['id'] !== '') {
 				$exclude[] = $stored['id'];
+			}
+
+			/*
+			 * A passkey made during sign up was given a random handle, because
+			 * there was no member ID to derive one from yet. Keep using it, so
+			 * that this key joins the account the browser already knows about
+			 * instead of appearing as a second one with the same name.
+			 */
+			if ($stored['user_handle'] !== '') {
+				$handle = Server::base64UrlDecode($stored['user_handle']);
 			}
 		}
 
@@ -143,6 +170,7 @@ class Passkey implements ActionInterface
 				User::$me->username,
 				User::$me->name,
 				$exclude,
+				$handle,
 			),
 		]);
 	}
@@ -189,13 +217,7 @@ class Passkey implements ActionInterface
 			0,
 			$identifier,
 			Utils::entitySubstr($title, 0, 80),
-			Utils::jsonEncode([
-				'id' => Server::base64UrlEncode($credential['id']),
-				'key' => $credential['key'],
-				'algorithm' => $credential['algorithm'],
-				'sign_count' => $credential['sign_count'],
-				'aaguid' => $credential['aaguid'],
-			]),
+			$this->keepFrom($credential),
 		);
 
 		$this->respond([
@@ -265,6 +287,83 @@ class Passkey implements ActionInterface
 		$this->respond(['redirect' => $this->finishSignIn((int) $credential['id_member'])]);
 	}
 
+	/**
+	 * Hands the browser what it needs to make a passkey for an account that
+	 * does not exist yet.
+	 */
+	public function signupOptions(): void
+	{
+		$this->checkSignUpAllowed();
+
+		/*
+		 * An authenticator shows this name to whoever is holding it, and stores
+		 * it forever, so it is worth having before the key is made rather than
+		 * putting a placeholder on the member's phone for good. The sign up form
+		 * has the field; the script sends whatever is in it.
+		 */
+		$username = Utils::htmlTrim(Utils::htmlspecialchars((string) ($_POST['user'] ?? '')));
+
+		if ($username === '') {
+			$this->fail('passkey sign up with no username', 'passkey_signup_needs_username');
+		}
+
+		/*
+		 * There is no member to derive a handle from, so one is invented. It
+		 * goes into the session alongside the challenge, which is where the
+		 * answer to this ceremony picks it up again; from there it is stored
+		 * with the credential, and every passkey the member adds later reuses
+		 * it. See self::registerOptions().
+		 */
+		$this->respond([
+			'options' => Server::creationOptions(
+				0,
+				$username,
+				$username,
+				[],
+				random_bytes(32),
+			),
+		]);
+	}
+
+	/**
+	 * Holds on to a passkey until the account it belongs to has been created.
+	 *
+	 * Nothing is written to the database here. The member has not agreed to
+	 * anything yet, has not been approved, and may never finish the form; the
+	 * credential waits in the session until Register2 says an account exists to
+	 * attach it to, and is forgotten along with the session if it does not.
+	 */
+	public function signup(): void
+	{
+		$this->checkSignUpAllowed();
+
+		try {
+			$credential = Server::verifyCreation($this->credentialResponse());
+		} catch (WebAuthnException $e) {
+			$this->fail('sign up refused: ' . $e->getMessage(), 'passkey_register_failed');
+		}
+
+		// This challenge was issued to somebody registering a key on an account
+		// they were already signed in to, and it is not that route's answer.
+		if ($credential['member'] !== 0) {
+			$this->fail('sign up answered a challenge issued to member ' . $credential['member'], 'passkey_register_failed');
+		}
+
+		$identifier = self::identifier($credential['id']);
+
+		if (Credential::find(Credential::TYPE_WEBAUTHN, 0, $identifier) !== null) {
+			$this->fail('credential is already registered', 'passkey_already_registered');
+		}
+
+		$_SESSION['webauthn_signup'] = [
+			'identifier' => $identifier,
+			'secret_data' => $this->keepFrom($credential),
+			'created' => time(),
+		];
+
+		$this->respond(['ready' => true]);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -286,6 +385,44 @@ class Passkey implements ActionInterface
 		return hash('sha256', $raw_id);
 	}
 
+	/**
+	 * Whether somebody with no account here may make one with a passkey.
+	 *
+	 * This is a separate choice from letting members add a passkey to an
+	 * account they already have. An account made this way has no password at
+	 * all, so the member's only way back in is the device holding the key, and
+	 * an admin should decide that rather than inherit it from turning passkeys
+	 * on.
+	 *
+	 * @return bool Whether to offer it on the sign up form.
+	 */
+	public static function isSignUpAllowed(): bool
+	{
+		return Server::isEnabled()
+			&& !empty(Config::$modSettings['webauthn_allow_signup'])
+			&& (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3);
+	}
+
+	/**
+	 * The passkey somebody made while filling in the sign up form, if any.
+	 *
+	 * @return ?array The pending credential, or null if there is not one.
+	 */
+	public static function pendingSignUp(): ?array
+	{
+		$pending = $_SESSION['webauthn_signup'] ?? null;
+
+		if (
+			!\is_array($pending)
+			|| empty($pending['identifier'])
+			|| ($pending['created'] ?? 0) < time() - self::SIGNUP_LIFETIME
+		) {
+			return null;
+		}
+
+		return $pending;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -297,6 +434,22 @@ class Passkey implements ActionInterface
 	{
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
+	}
+
+	/**
+	 * Stops unless this request may create an account with a passkey.
+	 */
+	protected function checkSignUpAllowed(): void
+	{
+		if (!self::isSignUpAllowed()) {
+			$this->fail('passkey sign up is not enabled on this forum', 'passkey_signup_unavailable');
+		}
+
+		// Somebody with an account uses the profile page to add a passkey. This
+		// route makes an account, which they do not need a second of.
+		if (!User::$me->is_guest) {
+			$this->fail('member ' . User::$me->id . ' tried to sign up again', 'passkey_signup_unavailable');
 		}
 	}
 
@@ -336,7 +489,26 @@ class Passkey implements ActionInterface
 			'algorithm' => (int) ($stored['algorithm'] ?? 0),
 			'sign_count' => (int) ($stored['sign_count'] ?? 0),
 			'aaguid' => (string) ($stored['aaguid'] ?? ''),
+			'user_handle' => (string) ($stored['user_handle'] ?? ''),
 		];
+	}
+
+	/**
+	 * Picks out the parts of a new credential that are worth storing.
+	 *
+	 * @param array $credential What SMF\WebAuthn\Server made of the ceremony.
+	 * @return string The secret_data column's new contents.
+	 */
+	protected function keepFrom(array $credential): string
+	{
+		return Utils::jsonEncode([
+			'id' => Server::base64UrlEncode($credential['id']),
+			'key' => $credential['key'],
+			'algorithm' => $credential['algorithm'],
+			'sign_count' => $credential['sign_count'],
+			'aaguid' => $credential['aaguid'],
+			'user_handle' => Server::base64UrlEncode($credential['user_handle']),
+		]);
 	}
 
 	/**

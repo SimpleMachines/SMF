@@ -136,19 +136,25 @@ class Server
 	 * The challenge is remembered in the session, since the answer has to be
 	 * matched against the question we actually asked and nothing else.
 	 *
-	 * @param int $id_member Who is registering.
+	 * @param int $id_member Who is registering, or 0 if they have no account yet.
 	 * @param string $username What to call them on their authenticator.
 	 * @param string $display_name What to show them there.
 	 * @param array $exclude Credential IDs they have already registered.
+	 * @param ?string $handle How to identify them to their authenticator, for
+	 *    when self::userHandle() cannot say: either because there is no member
+	 *    to derive it from yet, or because they already have a handle that this
+	 *    credential should join rather than sit beside.
 	 * @return array The options, ready to be sent as JSON.
 	 */
-	public static function creationOptions(int $id_member, string $username, string $display_name, array $exclude = []): array
+	public static function creationOptions(int $id_member, string $username, string $display_name, array $exclude = [], ?string $handle = null): array
 	{
 		$challenge = random_bytes(self::CHALLENGE_LENGTH);
+		$handle ??= self::userHandle($id_member);
 
 		$_SESSION['webauthn_register'] = [
 			'challenge' => $challenge,
 			'member' => $id_member,
+			'handle' => $handle,
 			'created' => time(),
 		];
 
@@ -159,7 +165,7 @@ class Server
 				'name' => Config::$mbname,
 			],
 			'user' => [
-				'id' => self::base64UrlEncode(self::userHandle($id_member)),
+				'id' => self::base64UrlEncode($handle),
 				'name' => $username,
 				'displayName' => $display_name,
 			],
@@ -197,7 +203,8 @@ class Server
 	 *
 	 * @param array $response What the browser sent back.
 	 * @throws \SMF\WebAuthn\WebAuthnException If anything is not as it should be.
-	 * @return array The credential: its ID, key, sign count and authenticator.
+	 * @return array The credential: its ID, key, sign count, authenticator, and
+	 *    who we were talking to when we asked for it.
 	 */
 	public static function verifyCreation(array $response): array
 	{
@@ -229,6 +236,7 @@ class Server
 			'aaguid' => bin2hex($data->aaguid),
 			'user_verified' => $data->userVerified(),
 			'member' => (int) $expected['member'],
+			'user_handle' => (string) ($expected['handle'] ?? ''),
 		];
 	}
 
@@ -322,6 +330,11 @@ class Server
 	 * into it. The specification is explicit that this must not be something
 	 * like a username or an email address, since authenticators may show it and
 	 * it is readable by anyone holding the device.
+	 *
+	 * A credential made before the account existed cannot use this, because
+	 * there was no ID to derive it from; that one carries a random handle
+	 * instead, which every later credential for the same member then reuses so
+	 * that the browser still sees one account rather than several.
 	 *
 	 * @param int $id_member The member.
 	 * @return string 32 opaque bytes.

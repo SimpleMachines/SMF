@@ -85,7 +85,7 @@ function template_registration_form()
 				return true;
 			}
 
-			var currentAuthMethod = \'passwd\';
+			var currentAuthMethod = \'', empty(Utils::$context['registration_passwordless']) ? 'passwd' : 'vouched', '\';
 		</script>';
 
 	// Any errors?
@@ -127,7 +127,21 @@ function template_registration_form()
 						<dd>
 							<input type="email" name="email" id="reg_email" data-autov="reserve1" size="50" value="', Utils::$context['email'] ?? '', '">
 						</dd>
-					</dl>
+					</dl>';
+
+	/*
+	 * Something has already vouched for them, so there is no password to
+	 * choose. Say what will be signing them in instead, since a sign up form
+	 * with no password box on it is otherwise a puzzle.
+	 */
+	if (!empty(Utils::$context['registration_passwordless'])) {
+		echo '
+					<dl class="register_form" id="passwordless_group">
+						<dt><strong>', Lang::getTxt('registration_signing_in', file: 'Login'), '</strong></dt>
+						<dd>', !empty(Utils::$context['registration_passkey_ready']) ? Lang::getTxt('registration_signing_in_passkey', file: 'Login') : Lang::getTxt('registration_signing_in_provider', ['provider' => Utils::$context['registration_vouched_by']], file: 'Login'), '</dd>
+					</dl>';
+	} else {
+		echo '
 					<dl class="register_form" id="password1_group">
 						<dt><strong><label for="reg_pwmain">', Lang::getTxt('choose_pass', file: 'General'), '</label></strong></dt>
 						<dd>
@@ -141,7 +155,28 @@ function template_registration_form()
 						<dd>
 							<input type="password" name="passwrd2" id="reg_pwverify" data-autov="pwverify" size="50">
 						</dd>
-					</dl>
+					</dl>';
+	}
+
+	/*
+	 * The passkey offer is hidden until the script has decided this browser can
+	 * do it. Nothing is lost if it cannot: the password boxes above are still
+	 * there, and they are what the form falls back to.
+	 */
+	if (!empty(Utils::$context['offer_passkey_signup'])) {
+		echo '
+					<dl class="register_form" id="passkey_signup_group" style="display: none;">
+						<dt>
+							<strong>', Lang::getTxt('passkey_signup', file: 'Login'), '</strong>
+							<span class="smalltext">', Lang::getTxt('passkey_signup_desc', file: 'Login'), '</span>
+						</dt>
+						<dd id="passkey_signup">
+							<button type="button" class="button" id="passkey_signup_button">', Lang::getTxt('passkey_signup_button', file: 'Login'), '</button>
+						</dd>
+					</dl>';
+	}
+
+	echo '
 					<dl class="register_form" id="notify_announcements">
 						<dt>
 							<strong><label for="notify_announcements">', Lang::getTxt('notify_announcements', file: 'General'), '</label></strong>
@@ -336,6 +371,22 @@ function template_registration_form()
 			};
 			var verificationHandle = new smfRegister("registration", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 		</script>';
+
+	// Everything the passkey script needs to decide whether to offer itself.
+	if (!empty(Utils::$context['offer_passkey_signup'])) {
+		echo '
+		<script>
+			var smf_passkey_signup = {
+				group: "passkey_signup_group",
+				container: "passkey_signup",
+				button: "passkey_signup_button",
+				field: "smf_autov_username",
+				hide: ["password1_group", "password2_group"],
+				done: ', Utils::escapeJavaScript(Lang::getTxt('passkey_signup_done', file: 'Login')), ',
+				failed: ', Utils::escapeJavaScript(Lang::getTxt('passkey_signup_failed', file: 'Login')), '
+			};
+		</script>';
+	}
 }
 
 /**
