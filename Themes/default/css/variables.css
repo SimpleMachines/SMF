@@ -85,6 +85,35 @@
 	--mainmenu-border-width:                          0 0 1px 0;
 	--mainmenu-box-shadow:                            none;
 
+	/** Drop Menu Buttons **/
+	--dropmenu-bg_active:                             linear-gradient(#ffae14, #f5a100);
+	--dropmenu-bg_active_hover:                       orange;
+	--dropmenu-bg_hover:                              #597b9f;
+	--dropmenu-border-color:                          transparent;
+	--dropmenu-border-color_active:                   #f49a3a;
+	--dropmenu-border-color_active_hover:             #f49a3a;
+	--dropmenu-border-color_hover:                    #4a6b8c;
+	--dropmenu-border-radius:                         4px;
+	--dropmenu-border-style:                          solid;
+	--dropmenu-border-width:                          1px;
+	--dropmenu-box-shadow_active_hover:               0 5px 5px rgba(255, 255, 255, 0.2) inset;
+	--dropmenu-box-shadow_hover:                      0 4px 4px rgba(255, 255, 255, 0.1) inset;
+	--dropmenu-color_active:                          #fff;
+	--dropmenu-color_active_hover:                    #444;
+	--dropmenu-color_hover:                           #fff;
+	--dropmenu-font-weight_active:                    bold;
+	--dropmenu-strong-color:                          #333;
+	--dropmenu-text-shadow_active:                    0 0 2px #000;
+	--dropmenu-text-shadow_active_hover:              none;
+	--dropmenu-text-shadow_hover:                     0 0 2px #000;
+
+	/** Drop Menu Notification Counts **/
+	--amt-bg:                                         #6d90ad;
+	--amt-bg_active:                                  rgba(0, 0, 0, 0.2);
+	--amt-border-radius:                              8px;
+	--amt-color:                                      #fff;
+	--amt-color_active:                               inherit;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
