@@ -521,3 +521,14 @@ $txt['authentication_test_ok'] = 'The provider answered and its endpoints look u
 $txt['authentication_test_failed'] = 'Could not read anything usable from this provider.';
 $txt['authentication_delete_confirm'] = 'Remove this provider? Anyone who signs in with it will have to use their password instead.';
 $txt['authentication_needs_title_and_issuer'] = 'A provider needs at least a name and an issuer URL.';
+
+// Passkeys.
+$txt['authentication_area'] = 'Authentication';
+$txt['passkey_settings'] = 'Passkeys';
+$txt['passkey_settings_desc'] = 'Passkeys let members sign in with the fingerprint reader, face scan, PIN or security key that unlocks their device, instead of a password.';
+$txt['passkey_settings_rp_id'] = 'Passkeys registered here will be tied to <strong>{rp_id}</strong>, taken from the forum URL. Changing the forum\'s domain later will stop every passkey working, and there is no way to move them.';
+$txt['passkey_settings_no_openssl'] = 'Passkeys need PHP\'s openssl extension, which is not installed. Nothing on this page will have any effect until it is.';
+$txt['webauthn_enabled'] = 'Allow passkeys';
+$txt['webauthn_enabled_subtext'] = 'Members can add passkeys from their profile, and sign in with one instead of a password.';
+$txt['webauthn_allow_unverified'] = 'Accept devices that do not check who is using them';
+$txt['webauthn_allow_unverified_subtext'] = 'By default a passkey only counts once the device has asked for a PIN, fingerprint or face scan. Turning this on accepts mere possession of the device instead, which means anyone holding it can sign in.';

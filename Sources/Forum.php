@@ -203,6 +203,9 @@ class Forum
 		'notifytopic' => [
 			'', Actions\NotifyTopic::class,
 		],
+		'passkey' => [
+			'', Actions\Passkey::class,
+		],
 		'pm' => [
 			'', Actions\PersonalMessage::class,
 		],

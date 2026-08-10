@@ -188,3 +188,12 @@ $txt['authext_declined'] = 'The sign in was cancelled.';
 $txt['authext_provider_unavailable'] = 'That sign in method is not available right now.';
 $txt['authext_no_account'] = 'There is no account here for that sign in, and this provider is not allowed to create one.';
 $txt['authext_not_activated'] = 'That account is not activated yet.';
+
+// Passkeys.
+$txt['passkey_login'] = 'Sign in with a passkey';
+$txt['passkey_unavailable'] = 'Passkeys are not available on this forum.';
+$txt['passkey_not_logged_in'] = 'You have to be signed in to add a passkey.';
+$txt['passkey_register_failed'] = 'That passkey could not be added.';
+$txt['passkey_already_registered'] = 'That passkey has already been added to an account here.';
+$txt['passkey_login_failed'] = 'That passkey could not sign you in.';
+$txt['passkey_not_activated'] = 'That account is not activated yet.';

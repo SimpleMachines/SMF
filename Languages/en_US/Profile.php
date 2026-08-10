@@ -691,3 +691,18 @@ $txt['linked_accounts_unlinked'] = 'That account is no longer linked.';
 $txt['linked_accounts_last_one'] = 'That is the only way you can sign in, so it cannot be unlinked. Set a password first.';
 $txt['linked_accounts_only_way_in'] = 'Your only way to sign in';
 $txt['linked_accounts_unknown_provider'] = 'Provider no longer configured';
+
+// Passkeys.
+$txt['passkeys'] = 'Passkeys';
+$txt['passkeys_desc'] = 'Passkeys let you sign in with the fingerprint reader, face scan, PIN or security key you already use to unlock your device. There is no password to remember, and a passkey cannot be used on a site pretending to be this one.';
+$txt['passkeys_none'] = 'You have not added any passkeys yet.';
+$txt['passkeys_name'] = 'Name';
+$txt['passkeys_name_desc'] = 'Something to tell this passkey apart from the others, such as the device it lives on.';
+$txt['passkeys_added'] = 'Added';
+$txt['passkeys_last_used'] = 'Last used';
+$txt['passkeys_remove'] = 'Remove';
+$txt['passkeys_add'] = 'Add a passkey';
+$txt['passkey_added'] = 'That passkey is ready to use.';
+$txt['passkey_default_title'] = 'Passkey';
+$txt['passkey_last_one'] = 'That is the only way you can sign in, so it cannot be removed. Set a password first.';
+$txt['passkey_only_way_in'] = 'Your only way to sign in';

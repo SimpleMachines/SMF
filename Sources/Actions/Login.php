@@ -22,6 +22,7 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebAuthn\Server;
 
 /**
  * Shows the login form.
@@ -77,6 +78,18 @@ class Login extends Login2
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = false;
 		Utils::$context['authentication_methods'] = parent::getAuthenticationMethods();
+
+		/*
+		 * Nothing is rendered for passkeys here. The button only works with
+		 * scripting, and only on a browser that has the API at all, so the
+		 * script puts it on the page once it knows both are true rather than
+		 * leaving a dead button for everyone else.
+		 */
+		Utils::$context['offer_passkeys'] = Server::isEnabled();
+
+		if (Utils::$context['offer_passkeys']) {
+			Theme::loadJavaScriptFile('webauthn.js', ['defer' => true, 'minimize' => true], 'smf_webauthn');
+		}
 
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
