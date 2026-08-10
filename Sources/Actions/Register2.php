@@ -573,7 +573,12 @@ class Register2 extends Register
 				1 = The text/index.
 				2 = Whether to log.
 				3 = sprintf data if necessary. */
-			$message = Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
+			// A 'done' error carries its own words - the password strength
+			// feedback and "that name is already in use" are both built as
+			// sentences rather than keys. Looking them up in Errors finds
+			// nothing and getTxt() hands back an empty string, which is what
+			// the registration form was printing: a bullet with no text in it.
+			$message = ($error[0] ?? 'lang') === 'done' ? $error[1] : Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {
