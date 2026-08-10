@@ -1235,20 +1235,6 @@ function expandThumb(thumbID)
 	return false;
 }
 
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
-}
-
 function generateDays(offset)
 {
 	// Work around JavaScript's lack of support for default values...
