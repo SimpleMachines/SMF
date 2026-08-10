@@ -270,7 +270,7 @@ function template_modify_user_subscription()
 			</dl>
 			<fieldset>
 				<legend>', Lang::getTxt('start_date_and_time', file: 'ManagePaid'), '</legend>
-				<select name="year" id="year" onchange="generateDays();">';
+				<select name="year" id="year">';
 
 	// Show a list of all the years we allow...
 	for ($year = $first_year; $year <= $last_year; $year++) {
@@ -280,7 +280,7 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				<select name="month" id="month" onchange="generateDays();">';
+				<select name="month" id="month">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++) {
@@ -307,7 +307,7 @@ function template_modify_user_subscription()
 			</fieldset>
 			<fieldset>
 				<legend>', Lang::getTxt('end_date_and_time', file: 'ManagePaid'), '</legend>
-				<select name="yearend" id="yearend" onchange="generateDays(\'end\');">';
+				<select name="yearend" id="yearend">';
 
 	// Show a list of all the years we allow...
 	for ($year = $first_year; $year <= $last_year; $year++) {
@@ -317,7 +317,7 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				<select name="monthend" id="monthend" onchange="generateDays(\'end\');">';
+				<select name="monthend" id="monthend">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++) {

@@ -866,6 +866,10 @@ class Subscriptions implements ActionInterface
 		Utils::$context['sub_template'] = 'modify_user_subscription';
 		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['action_type'] . '_subscriber', file: 'ManagePaid');
 
+		// Keeps the day drop-downs in step with the month and year beside them.
+		// This is the only page that has any use for it.
+		Theme::loadJavaScriptFile('paidsubs.js', ['defer' => true, 'minimize' => true], 'smf_paidsubs');
+
 		// If we haven't been passed the subscription ID get it.
 		if (Utils::$context['log_id'] && !Utils::$context['sub_id']) {
 			$request = Db::$db->query(
