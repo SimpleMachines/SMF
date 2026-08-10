@@ -1452,7 +1452,6 @@ class Profile extends User implements \ArrayAccess
 		// Some spicy JS.
 		Theme::addInlineJavaScript('
 		var form_handle = document.forms.creator;
-		createEventListener(form_handle);
 		' . (!empty(Utils::$context['require_password']) ? '
 		form_handle.addEventListener("submit", function(event)
 		{
