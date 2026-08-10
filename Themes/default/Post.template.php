@@ -37,28 +37,6 @@ function template_main()
 	echo '
 			var icon_urls = ', json_encode(array_column(Utils::$context['icons'], 'url', 'value'), JSON_UNESCAPED_SLASHES), ';';
 
-	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
-	if (Utils::$context['make_poll']) {
-		echo '
-			var pollOptionNum = 0;
-			var pollOptionId = ', Utils::$context['last_choice_id'], ';
-			function addPollOption()
-			{
-				if (pollOptionNum == 0)
-				{
-					for (var i = 0, n = document.forms.postmodify.elements.length; i < n; i++)
-						if (document.forms.postmodify.elements[i].id.substr(0, 8) == \'options-\')
-						{
-							pollOptionNum++;
-						}
-				}
-				pollOptionNum++
-				pollOptionId++
-
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999], file: 'Post'), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
-			}';
-	}
-
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if (Utils::$context['make_event']) {
 		echo '
@@ -162,7 +140,7 @@ function template_main()
 					<div id="edit_poll">
 						<fieldset id="poll_main">
 							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
-							<dl class="settings poll_options">
+							<dl class="settings poll_options" id="poll_choices" data-more-txt="', Lang::getTxt('poll_add_option', file: 'Post'), '" data-option-txt="', Lang::getTxt('option_number', [999], file: 'Post'), '">
 								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
 									<input type="text" name="question" value="', Utils::$context['question'] ?? '', '" size="80">
@@ -179,10 +157,9 @@ function template_main()
 								</dd>';
 		}
 
+		// poll.js puts the "add option" button here, after the list it appends to.
 		echo '
-								<p id="pollMoreOptions"></p>
 							</dl>
-							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::getTxt('poll_add_option', file: 'Post'), ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">
 							<legend>', Lang::getTxt('poll_options', file: 'Post'), '</legend>
@@ -198,7 +175,7 @@ function template_main()
 									<em class="smalltext">', Lang::getTxt('poll_run_limit', file: 'Post'), '</em>
 								</dt>
 								<dd>
-									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
+									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '">
 								</dd>
 								<dt>
 									<label for="poll_change_vote">', Lang::getTxt('poll_do_change_vote', file: 'Post'), '</label>

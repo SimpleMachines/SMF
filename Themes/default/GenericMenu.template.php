@@ -152,14 +152,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 	if (!empty($tab_context['title'])) {
 		echo '
-					<div class="cat_bar">';
-
-		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
-		if (function_exists('template_admin_quick_search')) {
-			template_admin_quick_search();
-		}
-
-		echo '
+					<div class="cat_bar">
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
@@ -235,7 +228,17 @@ function template_generic_menu_tabs(&$menu_context)
 		}
 
 		echo '
-						</h3>
+						</h3>';
+
+		// The function is in Admin.template.php, but since this template is used
+		// elsewhere too better check if the function is available. It goes after
+		// the heading: .cat_bar is a flex row, so the search box lands at the end
+		// of it by being last, not by floating.
+		if (function_exists('template_admin_quick_search')) {
+			template_admin_quick_search();
+		}
+
+		echo '
 					</div><!-- .cat_bar -->';
 	}
 
