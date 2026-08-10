@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\Actions\MessageIndex;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
+use SMF\Authentication\StepUp;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -1807,9 +1808,7 @@ class ACP implements ActionInterface, Routable
 		Theme::loadTemplate('Login');
 
 		// Validate what type of session check this is.
-		$types = [];
-		IntegrationHook::call('integrate_validateSession', [&$types]);
-		$type = \in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+		$type = \in_array($type, StepUp::purposes(), true) ? $type : StepUp::FOR_ADMIN;
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
@@ -1849,6 +1848,25 @@ class ACP implements ActionInterface, Routable
 
 		// The type of action.
 		Utils::$context['sessionCheckType'] = $type;
+
+		/*
+		 * What this member can actually answer with. A password is no longer the
+		 * only one, and for some accounts it is not one at all, so the form is
+		 * built from what they have rather than from what SMF used to assume.
+		 */
+		Utils::$context['stepup_methods'] = StepUp::methods();
+
+		/*
+		 * Where to come back to. A ceremony or a trip to a provider leaves this
+		 * page entirely, so the URL that was interrupted has to survive it --
+		 * and the post data cannot, which is why anything reached this way is a
+		 * plain link back rather than a resubmission.
+		 */
+		Utils::$context['stepup_return'] = Config::$scripturl . Utils::$context['get_data'];
+
+		if (Utils::$context['stepup_methods']['passkey']) {
+			Theme::loadJavaScriptFile('webauthn.js', ['defer' => true, 'minimize' => true], 'smf_webauthn');
+		}
 
 		Utils::obExit();
 

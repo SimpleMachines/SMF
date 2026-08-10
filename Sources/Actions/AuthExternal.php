@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Authentication\Credential;
 use SMF\Authentication\OidcClient;
 use SMF\Authentication\Provider;
+use SMF\Authentication\StepUp;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -75,6 +76,7 @@ class AuthExternal implements ActionInterface
 		'callback' => 'callback',
 		'link' => 'link',
 		'unlink' => 'unlink',
+		'reauth' => 'reauth',
 	];
 
 	/****************
@@ -135,6 +137,42 @@ class AuthExternal implements ActionInterface
 	}
 
 	/**
+	 * Sends a member who is already signed in back to their provider, to prove
+	 * they are still the person who signed in.
+	 */
+	public function reauth(): void
+	{
+		User::$me->kickIfGuest();
+		User::$me->checkSession('get');
+
+		$provider = $this->loadProvider();
+
+		// It has to be a provider they have actually linked. Signing in at one
+		// they have not says somebody owns an account over there, and nothing
+		// whatever about who is sitting at this browser.
+		if (!Credential::has(Credential::TYPE_OIDC, $provider->id, User::$me->id)) {
+			$this->fail('member ' . User::$me->id . ' has not linked provider ' . $provider->id, 'authext_reauth_not_linked');
+		}
+
+		$client = new OidcClient($provider);
+		$begun = $client->beginAuthorization('', true);
+
+		if ($begun === null) {
+			$this->fail($client->error, 'authext_provider_unavailable');
+		}
+
+		// The callback reads these, and does something quite different with
+		// what comes back than it would for an ordinary sign in.
+		$begun['state']['purpose'] = StepUp::requestedPurpose();
+		$begun['state']['reauth_for'] = User::$me->id;
+		$begun['state']['reauth_return'] = StepUp::requestedReturn();
+
+		$_SESSION['authext'] = $begun['state'];
+
+		Utils::redirectexit($begun['url']);
+	}
+
+	/**
 	 * Handles the member coming back from the identity provider.
 	 */
 	public function callback(): void
@@ -179,6 +217,16 @@ class AuthExternal implements ActionInterface
 		$subject = (string) $claims['sub'];
 
 		/*
+		 * This was not a sign in at all: somebody already signed in was sent back
+		 * to their provider to prove they are still there. It answers on its own
+		 * and stops, because none of what follows should happen -- nothing is
+		 * linked, nobody is logged in, and no account is created.
+		 */
+		if (!empty($state['reauth_for'])) {
+			$this->finishReauth($provider, $subject, $state);
+		}
+
+		/*
 		 * MOD AUTHORS: last chance to decide who this is. Set $id_member to
 		 * take over the decision entirely; leave it alone to let SMF work it
 		 * out from the rules below.
@@ -220,6 +268,7 @@ class AuthExternal implements ActionInterface
 	{
 		User::$me->kickIfGuest();
 		User::$me->checkSession('get');
+		User::$me->validateSession(StepUp::FOR_CREDENTIALS);
 
 		$this->start();
 	}
@@ -231,6 +280,7 @@ class AuthExternal implements ActionInterface
 	{
 		User::$me->kickIfGuest();
 		User::$me->checkSession('get');
+		User::$me->validateSession(StepUp::FOR_CREDENTIALS);
 
 		$removed = Credential::remove(
 			(int) ($_REQUEST['cred'] ?? 0),
@@ -367,6 +417,40 @@ class AuthExternal implements ActionInterface
 		];
 
 		Utils::redirectexit('action=signup');
+	}
+
+	/**
+	 * Finishes a member proving, at their provider, that they are still there.
+	 *
+	 * @param \SMF\Authentication\Provider $provider Who vouched for them.
+	 * @param string $subject The provider's ID for whoever just signed in there.
+	 * @param array $state What we remembered when we sent them off.
+	 */
+	protected function finishReauth(Provider $provider, string $subject, array $state): void
+	{
+		/*
+		 * The member has to be the same one throughout. Being signed out and
+		 * back in as somebody else while the provider's page was open would
+		 * otherwise leave the second account holding the first one's proof.
+		 */
+		if (User::$me->is_guest || User::$me->id !== (int) $state['reauth_for']) {
+			$this->fail('proof was begun by member ' . $state['reauth_for'] . ', who is no longer the one asking', 'authext_reauth_failed');
+		}
+
+		/*
+		 * And the account at the provider has to be the one linked here. Any
+		 * other account there proves somebody can sign in over there, which is
+		 * not the question that was asked.
+		 */
+		if (Credential::findMember(Credential::TYPE_OIDC, $provider->id, $subject) !== User::$me->id) {
+			$this->fail('member ' . User::$me->id . ' proved themselves as somebody else at provider ' . $provider->id, 'authext_reauth_failed');
+		}
+
+		Credential::touch(Credential::TYPE_OIDC, $provider->id, $subject);
+
+		StepUp::stamp((string) ($state['purpose'] ?? StepUp::FOR_CREDENTIALS));
+
+		Utils::redirectexit((string) ($state['reauth_return'] ?? Config::$scripturl));
 	}
 
 	/**
