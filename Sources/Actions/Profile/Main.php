@@ -36,6 +36,7 @@ use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebAuthn\Server;
 
 /**
  * This class has the primary job of showing and editing people's profiles.
@@ -345,6 +346,16 @@ class Main implements ActionInterface, Routable
 					'label' => 'linked_accounts',
 					'function' => __NAMESPACE__ . '\\LinkedAccounts::call',
 					'sub_template' => 'linked_accounts',
+					'enabled' => true,
+					'permission' => [
+						'own' => ['profile_password_own'],
+						'any' => ['profile_password_any'],
+					],
+				],
+				'passkeys' => [
+					'label' => 'passkeys',
+					'function' => __NAMESPACE__ . '\\Passkeys::call',
+					'sub_template' => 'passkeys',
 					'enabled' => true,
 					'permission' => [
 						'own' => ['profile_password_own'],
@@ -933,6 +944,8 @@ class Main implements ActionInterface, Routable
 
 		// No point offering this when nobody has set up a provider to link to.
 		$this->profile_areas['edit_profile']['areas']['linkedaccounts']['enabled'] = Provider::loadAll(true) !== [];
+
+		$this->profile_areas['edit_profile']['areas']['passkeys']['enabled'] = Server::isEnabled();
 
 		$this->profile_areas['edit_profile']['areas']['ignoreboards']['enabled'] = !empty(Config::$modSettings['allow_ignore_boards']);
 
