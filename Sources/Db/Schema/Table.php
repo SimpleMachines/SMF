@@ -563,7 +563,12 @@ abstract class Table
 			}
 		}
 
-		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => '\\n']);
+		// The language string spells the separators as the two characters
+		// backslash and n, because 2.1 fed this list to an SQL literal and let
+		// the database turn them into newlines. Nothing does that here - the
+		// value goes in as a query parameter - so do it now, or the entire list
+		// is stored as one name that nobody would ever type.
+		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => "\n", '\\n' => "\n"]);
 
 		// Replace any placeholders in the initial data.
 		foreach ($this->initial_data as &$row) {

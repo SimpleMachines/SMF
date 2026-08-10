@@ -242,7 +242,12 @@ class SpoofDetector
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
-		$reserved_names = explode("\n", Config::$modSettings['reserveNames']);
+		// A forum installed before the seeding was fixed has the separators as
+		// the two characters backslash and n rather than newlines, so take
+		// either. The admin page has always had its own str_replace for the
+		// same reason, which is why the list looked right there while nothing
+		// on it was ever reserved.
+		$reserved_names = preg_split('~\R|\\\\n~', Config::$modSettings['reserveNames']);
 
 		// Check each name in the list...
 		foreach ($reserved_names as $reserved) {
