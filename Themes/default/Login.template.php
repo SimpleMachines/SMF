@@ -399,13 +399,22 @@ function template_admin_login()
 				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
 	}
 
-	echo '
+	// A member who signs in some other way has no password to be asked for.
+	// Anything that renders this form without saying gets the old behaviour.
+	if (!isset(Utils::$context['stepup_methods']['password']) || !empty(Utils::$context['stepup_methods']['password'])) {
+		echo '
 				<strong>', Lang::getTxt('password', file: 'General'), '</strong>
 				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" size="24">
 				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">
 				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">';
+	} else {
+		echo '
+				<p>', Lang::getTxt('stepup_no_password', file: 'Login'), '</p>
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">';
+	}
 
 	// Make sure to output all the old post data.
 	echo Utils::$context['post_data'], '
@@ -414,11 +423,58 @@ function template_admin_login()
 		<input type="hidden" name="', Utils::$context['sessionCheckType'], '_hash_pass" value="">
 	</form>';
 
-	// Focus on the password box.
-	echo '
+	template_stepup_alternatives();
+
+	// Focus on the password box, if there is one to focus on.
+	if (!isset(Utils::$context['stepup_methods']['password']) || !empty(Utils::$context['stepup_methods']['password'])) {
+		echo '
 	<script>
 		document.forms.frmLogin.', Utils::$context['sessionCheckType'], '_pass.focus();
 	</script>';
+	}
+}
+
+/**
+ * The other ways a member can prove they are still themselves.
+ *
+ * These leave the page entirely -- a passkey ceremony, or a trip to an identity
+ * provider -- so they sit outside the form rather than in it, and each carries
+ * the URL that was interrupted so the member lands back where they started.
+ */
+function template_stepup_alternatives()
+{
+	$methods = Utils::$context['stepup_methods'] ?? [];
+
+	if (empty($methods['passkey']) && empty($methods['providers'])) {
+		return;
+	}
+
+	echo '
+		<div class="centertext login_alternatives" id="stepup_alternatives">
+			<p class="smalltext">', Lang::getTxt('stepup_alternatives', file: 'Login'), '</p>';
+
+	foreach ($methods['providers'] ?? [] as $provider) {
+		echo '
+			<a class="button login_with_provider', $provider->id, '" href="', Config::$scripturl, '?action=authext;sa=reauth;provider=', $provider->id, ';purpose=', Utils::$context['sessionCheckType'], ';return_to=', urlencode(Utils::$context['stepup_return'] ?? ''), ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Utils::htmlspecialchars($provider->title), '</a>';
+	}
+
+	echo '
+		</div><!-- #stepup_alternatives -->';
+
+	// As on the login form, the passkey button is added by the script once it
+	// knows this browser can actually do it.
+	if (!empty($methods['passkey'])) {
+		echo '
+		<script>
+			var smf_passkey_reauth = {
+				container: "stepup_alternatives",
+				purpose: ', Utils::escapeJavaScript(Utils::$context['sessionCheckType']), ',
+				return_to: ', Utils::escapeJavaScript(Utils::$context['stepup_return'] ?? ''), ',
+				label: ', Utils::escapeJavaScript(Lang::getTxt('stepup_with_passkey', file: 'Login')), ',
+				failed: ', Utils::escapeJavaScript(Lang::getTxt('passkey_reauth_failed', file: 'Login')), '
+			};
+		</script>';
+	}
 }
 
 /**

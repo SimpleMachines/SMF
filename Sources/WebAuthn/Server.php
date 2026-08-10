@@ -244,14 +244,19 @@ class Server
 	 * Builds what the browser needs to sign in.
 	 *
 	 * @param array $allowed Credential IDs to accept, or none for any of them.
+	 * @param string $purpose What answering this is meant to achieve. An
+	 *    assertion answers the question it was asked and no other: one produced
+	 *    to sign in must not double as proof for something a signed in member is
+	 *    about to do, and the reverse.
 	 * @return array The options, ready to be sent as JSON.
 	 */
-	public static function requestOptions(array $allowed = []): array
+	public static function requestOptions(array $allowed = [], string $purpose = 'login'): array
 	{
 		$challenge = random_bytes(self::CHALLENGE_LENGTH);
 
 		$_SESSION['webauthn_login'] = [
 			'challenge' => $challenge,
+			'purpose' => $purpose,
 			'created' => time(),
 		];
 
@@ -273,13 +278,18 @@ class Server
 	 * @param array $response What the browser sent back.
 	 * @param string $pem The credential's public key.
 	 * @param int $sign_count What the sign count was last time.
+	 * @param string $purpose What this assertion has to have been asked for.
 	 * @throws \SMF\WebAuthn\WebAuthnException If anything is not as it should be.
 	 * @return array What was learned: the new sign count, and whether the
 	 *    authenticator verified who was using it.
 	 */
-	public static function verifyAssertion(array $response, string $pem, int $sign_count): array
+	public static function verifyAssertion(array $response, string $pem, int $sign_count, string $purpose = 'login'): array
 	{
 		$expected = self::takeChallenge('webauthn_login');
+
+		if (($expected['purpose'] ?? 'login') !== $purpose) {
+			throw new WebAuthnException('assertion answers a challenge issued for ' . ($expected['purpose'] ?? 'login') . ', not ' . $purpose);
+		}
 
 		$data = new AuthenticatorData(self::decodeField($response, 'authenticatorData'));
 

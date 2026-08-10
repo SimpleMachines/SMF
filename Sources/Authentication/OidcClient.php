@@ -128,10 +128,12 @@ class OidcClient
 	 * Builds the URL to send the member to, and the state to remember.
 	 *
 	 * @param string $return_to Where to put them once they are back.
+	 * @param bool $force_login Whether the provider must challenge them again
+	 *    rather than answering out of a session it already has.
 	 * @return ?array The 'url' to send them to and the 'state' to stash in the
 	 *    session, or null if we could not work out where to send them.
 	 */
-	public function beginAuthorization(string $return_to = ''): ?array
+	public function beginAuthorization(string $return_to = '', bool $force_login = false): ?array
 	{
 		$document = $this->discover();
 
@@ -162,6 +164,17 @@ class OidcClient
 			'code_challenge' => self::base64UrlEncode(hash('sha256', $verifier, true)),
 			'code_challenge_method' => 'S256',
 		];
+
+		/*
+		 * Asking somebody to prove who they are is worthless if the provider
+		 * answers out of the session it already has: they would prove only that
+		 * they signed in there at some point, which we knew. This is the request
+		 * that says "challenge them again, now" (OIDC Core 3.1.2.1).
+		 */
+		if ($force_login) {
+			$query['prompt'] = 'login';
+			$query['max_age'] = 0;
+		}
 
 		return [
 			'url' => $document['authorization_endpoint']

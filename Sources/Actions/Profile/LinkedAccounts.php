@@ -19,8 +19,10 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Authentication\Credential;
 use SMF\Authentication\Provider;
+use SMF\Authentication\StepUp;
 use SMF\Lang;
 use SMF\Profile;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -40,6 +42,14 @@ class LinkedAccounts implements ActionInterface
 	public function execute(): void
 	{
 		$member = Profile::$member;
+
+		/*
+		 * Linking a provider adds a way into the account that outlives the
+		 * session it was added from, and a password change does not revoke it.
+		 * So this page asks who you are again before it will do anything, the
+		 * same way turning a second factor off does.
+		 */
+		User::$me->validateSession(StepUp::FOR_CREDENTIALS);
 
 		Utils::$context['sub_template'] = 'linked_accounts';
 		Utils::$context['page_title'] = Lang::getTxt('linked_accounts', file: 'Profile');

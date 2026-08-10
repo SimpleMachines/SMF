@@ -112,6 +112,41 @@ class Credential
 	}
 
 	/**
+	 * Whether a member signs in with anything from this issuer.
+	 *
+	 * Not the same question as self::findMember(), which asks who a particular
+	 * credential belongs to. This asks whether a member we already have in mind
+	 * has one at all, which is what decides whether sending them there proves
+	 * anything about them.
+	 *
+	 * @param string $type One of this class's TYPE_ constants.
+	 * @param int $id_provider Which provider it came from, or 0.
+	 * @param int $id_member The member to ask about.
+	 * @return bool Whether they have one.
+	 */
+	public static function has(string $type, int $id_provider, int $id_member): bool
+	{
+		$request = Db::$db->query(
+			'SELECT id_auth
+			FROM {db_prefix}member_auth
+			WHERE type = {string:type}
+				AND id_provider = {int:provider}
+				AND id_member = {int:member}
+			LIMIT 1',
+			[
+				'type' => $type,
+				'provider' => $id_provider,
+				'member' => $id_member,
+			],
+		);
+
+		$found = Db::$db->num_rows($request) > 0;
+		Db::$db->free_result($request);
+
+		return $found;
+	}
+
+	/**
 	 * Fetches one credential, with everything that was kept alongside it.
 	 *
 	 * @param string $type One of this class's TYPE_ constants.
