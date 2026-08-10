@@ -29,7 +29,16 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', Utils::$context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="UTF-8">';
+				<form class="login" action="', Utils::$context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="UTF-8"';
+
+	// A plain submit is enough when the response is going to come back to the
+	// page it was sent from. Anywhere else, login.js has to take the form over,
+	// and this attribute is how it knows to.
+	if (!empty(Utils::$context['from_ajax']) && (empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], ['same', 'subdomain']))) {
+		echo ' data-ajax-login="', Utils::$context['valid_cors_found'] ?? '', '"';
+	}
+
+	echo '>';
 
 	// Did they make a mistake last time?
 	if (!empty(Utils::$context['login_errors'])) {
@@ -94,64 +103,6 @@ function template_login()
 						setTimeout(function() {
 							document.getElementById("', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', isset(Utils::$context['default_username']) && Utils::$context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
-
-	if (!empty(Utils::$context['from_ajax']) && ((empty(Config::$modSettings['allow_cors']) || empty(Config::$modSettings['allow_cors_credentials']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], ['same', 'subsite'])))) {
-		echo '
-						form = $("#frmLogin");
-						form.submit(function(e) {
-							e.preventDefault();
-							e.stopPropagation();
-
-							$.ajax({
-								url: form.prop("action") + (form.prop("action").indexOf("?") !== -1 ? ";" : "?") + "ajax",
-								method: "POST",
-								headers: {
-									"X-SMF-AJAX": 1
-								},
-								xhrFields: {
-									withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-								},
-								data: form.serialize(),
-								success: function(data) {';
-
-
-		// While a nice action is to replace the document body after a login, this may fail on CORS requests because the action may not be redirected back to the page they started the login process from.  So for these cases, we simply just reload the page.
-		if (empty(Utils::$context['valid_cors_found']) || Utils::$context['valid_cors_found'] == 'same') {
-			echo '
-									if (data.indexOf("<bo" + "dy") > -1) {
-										document.open();
-										document.write(data);
-										document.close();
-									}
-									else
-										form.parent().html($(data).find(".roundframe").html());';
-		} else {
-		echo '
-									if ($(data).find(".roundframe").length > 0 && $(data).find("body").length == 0) {
-										form.parent().html($(data).find(".roundframe").html());
-									}
-									else {
-										window.location.reload();
-									';
-		}
-
-		echo '
-								},
-								error: function(xhr) {
-									var data = xhr.responseText;
-									if (data.indexOf("<bo" + "dy") > -1) {
-										document.open();
-										document.write(data);
-										document.close();
-									}
-									else
-										form.parent().html($(data).filter("#fatal_error").html());
-								}
-							});
-
-							return false;
-						});';
-	}
 
 	echo '
 					</script>

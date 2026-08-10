@@ -769,7 +769,6 @@ function template_search()
 				<dd>
 					<input type="search" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' size="40">
 					<script>
-						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
 					</script>
 				</dd>
