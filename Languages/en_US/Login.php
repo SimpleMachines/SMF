@@ -197,3 +197,15 @@ $txt['passkey_register_failed'] = 'That passkey could not be added.';
 $txt['passkey_already_registered'] = 'That passkey has already been added to an account here.';
 $txt['passkey_login_failed'] = 'That passkey could not sign you in.';
 $txt['passkey_not_activated'] = 'That account is not activated yet.';
+
+// Signing up without a password.
+$txt['registration_signing_in'] = 'Signing in';
+$txt['registration_signing_in_passkey'] = 'Your passkey is ready. Once this account exists, that is what will sign you in, so there is no password to choose.';
+$txt['registration_signing_in_provider'] = '{provider} has already told us who you are, so there is no password to choose. That is what will sign you in from now on.';
+$txt['passkey_signup'] = 'Use a passkey instead';
+$txt['passkey_signup_desc'] = 'Use the fingerprint reader, face scan, PIN or security key that unlocks this device instead of choosing a password.';
+$txt['passkey_signup_button'] = 'Create a passkey';
+$txt['passkey_signup_done'] = 'Your passkey is ready. Finish signing up below to start using it.';
+$txt['passkey_signup_failed'] = 'That passkey could not be created.';
+$txt['passkey_signup_unavailable'] = 'Signing up with a passkey is not available on this forum.';
+$txt['passkey_signup_needs_username'] = 'Choose a username first, so your device knows what to call this account.';

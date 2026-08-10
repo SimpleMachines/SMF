@@ -214,6 +214,101 @@ var smf_passkey = {
 		});
 	},
 
+	/*
+	 * Makes a passkey for an account that does not exist yet. The forum holds
+	 * on to it until the sign up form has been submitted and accepted, so
+	 * nothing here is final until the member has finished registering.
+	 */
+	signUp: function (config)
+	{
+		var field = document.getElementById(config.field);
+
+		return smf_passkey.post("signupoptions", {user: field ? field.value : ""}).then(function (answer)
+		{
+			return navigator.credentials.create({publicKey: smf_passkey.prepare(answer.options)});
+		}).then(function (credential)
+		{
+			return smf_passkey.post("signup", smf_passkey.flatten(credential));
+		});
+	},
+
+	/*
+	 * Offers to make one on the sign up form. The password boxes stay where
+	 * they are until there is a passkey to put in their place, so somebody who
+	 * changes their mind, or whose authenticator refuses, still has the form
+	 * they started with.
+	 */
+	offerSignUp: function (config)
+	{
+		var group = document.getElementById(config.group),
+			container = document.getElementById(config.container),
+			button = document.getElementById(config.button);
+
+		if (!smf_passkey.isSupported() || !group || !container || !button)
+			return;
+
+		group.style.display = "";
+
+		button.addEventListener("click", function ()
+		{
+			button.disabled = true;
+
+			smf_passkey.signUp(config).then(function ()
+			{
+				smf_passkey.usePasskeyInstead(config, container, button);
+			}).catch(function (error)
+			{
+				button.disabled = false;
+				smf_passkey.complain(container, config.failed, error);
+			});
+		});
+	},
+
+	// Takes the password boxes off the form, now that there is a passkey.
+	usePasskeyInstead: function (config, container, button)
+	{
+		config.hide.forEach(function (id)
+		{
+			var hidden = document.getElementById(id);
+
+			if (!hidden)
+				return;
+
+			hidden.style.display = "none";
+
+			/*
+			 * A disabled field is not submitted, so the empty boxes cannot
+			 * arrive looking like a password somebody meant to set. The forum
+			 * ignores them either way; this is so the browser stops offering to
+			 * remember a password that does not exist.
+			 */
+			Array.prototype.forEach.call(hidden.getElementsByTagName("input"), function (input)
+			{
+				input.value = "";
+				input.disabled = true;
+			});
+		});
+
+		// The form's own submit check compares the two boxes unless this says
+		// they are not in use.
+		window.currentAuthMethod = "vouched";
+
+		button.style.display = "none";
+
+		// Reuse whatever an earlier attempt complained in, so a message about a
+		// passkey that failed is not left sitting under one that worked.
+		var box = container.querySelector(".passkey_error");
+
+		if (!box)
+		{
+			box = document.createElement("div");
+			container.appendChild(box);
+		}
+
+		box.className = "infobox";
+		box.textContent = config.done;
+	},
+
 	// Puts the passkey button on the profile page, once we know it will work.
 	offerRegistration: function (config)
 	{
@@ -264,3 +359,6 @@ if (typeof smf_passkey_login !== "undefined")
 
 if (typeof smf_passkey_manage !== "undefined")
 	smf_passkey.offerRegistration(smf_passkey_manage);
+
+if (typeof smf_passkey_signup !== "undefined")
+	smf_passkey.offerSignUp(smf_passkey_signup);

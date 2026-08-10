@@ -36,6 +36,19 @@ class AuthExternal implements ActionInterface
 {
 	use ActionTrait;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * How long an identity waits for the sign up form to be finished, in
+	 * seconds.
+	 *
+	 * The provider has already said who this is, so the wait is only about how
+	 * long the form itself may take, and the form can take a few goes.
+	 */
+	public const PENDING_LIFETIME = 3600;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -228,6 +241,35 @@ class AuthExternal implements ActionInterface
 		Utils::redirectexit('action=profile;area=linkedaccounts;' . ($removed ? 'unlinked' : 'lastone'));
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * The identity a provider vouched for while somebody was signing up.
+	 *
+	 * A provider saying who somebody is does not make them a member here: they
+	 * still have to go through the sign up form, agreement and all. This is
+	 * what is remembered in the meantime, so the form knows they have already
+	 * been vouched for and does not ask them to invent a password as well.
+	 *
+	 * @return ?array The pending identity, or null if there is not one.
+	 */
+	public static function pendingIdentity(): ?array
+	{
+		$pending = $_SESSION['authext_pending'] ?? null;
+
+		if (
+			!\is_array($pending)
+			|| empty($pending['subject'])
+			|| ($pending['created'] ?? 0) < time() - self::PENDING_LIFETIME
+		) {
+			return null;
+		}
+
+		return $pending;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -302,6 +344,13 @@ class AuthExternal implements ActionInterface
 			$this->fail('no account for ' . $subject . ' and registration is off', 'authext_no_account');
 		}
 
+		// The forum is not taking new members at all, whatever the provider is
+		// allowed to do. Say so here rather than sending them to a form that
+		// will only tell them the same thing less helpfully.
+		if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 3) {
+			$this->fail('no account for ' . $subject . ' and registration is disabled', 'authext_no_account');
+		}
+
 		/*
 		 * Hand over to the normal sign up form rather than creating an account
 		 * behind the member's back: registration here still means the agreement,
@@ -310,6 +359,7 @@ class AuthExternal implements ActionInterface
 		 */
 		$_SESSION['authext_pending'] = [
 			'provider' => $provider->id,
+			'title' => $provider->title,
 			'subject' => $subject,
 			'email' => $email,
 			'name' => (string) ($claims['preferred_username'] ?? $claims['name'] ?? ''),

@@ -326,9 +326,31 @@ class Register implements ActionInterface, Routable
 			Utils::$context['visual_verification'] = false;
 		}
 
+		/*
+		 * Something may have vouched for whoever is filling this in already: an
+		 * identity provider they have just come back from, or a passkey they
+		 * made a moment ago. Either way there is no password to ask them for,
+		 * and the form says how they will be signing in instead.
+		 */
+		$identity = AuthExternal::pendingIdentity();
+		$passkey = Passkey::pendingSignUp();
+
+		Utils::$context['registration_passwordless'] = $identity !== null || $passkey !== null;
+		Utils::$context['registration_passkey_ready'] = $passkey !== null;
+		Utils::$context['registration_vouched_by'] = $identity === null ? '' : Utils::htmlspecialchars((string) ($identity['title'] ?? ''));
+
+		// Nothing is printed for the passkey button here. It needs an API this
+		// browser may not have, so the script decides whether to offer it, the
+		// same way it does on the login form.
+		Utils::$context['offer_passkey_signup'] = !Utils::$context['registration_passwordless'] && Passkey::isSignUpAllowed();
+
+		if (Utils::$context['offer_passkey_signup']) {
+			Theme::loadJavaScriptFile('webauthn.js', ['defer' => true, 'minimize' => true], 'smf_webauthn');
+		}
+
 		Utils::$context += [
-			'username' => isset($_POST['user']) ? Utils::htmlspecialchars($_POST['user']) : '',
-			'email' => isset($_POST['email']) ? Utils::htmlspecialchars($_POST['email']) : '',
+			'username' => isset($_POST['user']) ? Utils::htmlspecialchars($_POST['user']) : ($identity === null ? '' : Utils::htmlspecialchars((string) $identity['name'])),
+			'email' => isset($_POST['email']) ? Utils::htmlspecialchars($_POST['email']) : ($identity === null ? '' : Utils::htmlspecialchars((string) $identity['email'])),
 			'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 		];
 
