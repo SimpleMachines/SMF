@@ -559,6 +559,25 @@
 	--onoff-border-color_off:                         #969292;
 	--onoff-border-color_on:                          #74d246;
 
+	/** Personal Message Capacity Bar **/
+	--capacitybar-bg:                                 #f0f4f7;
+	--capacitybar-border-color:                       #adadad;
+	--capacitybar-border-style:                       solid;
+	--capacitybar-border-width:                       1px;
+	--capacitybar-inner-bg_empty:                     #a6d69d;
+	--capacitybar-inner-bg_filled:                    #eea800;
+	--capacitybar-inner-bg_full:                      #f10909;
+
+	/** Personal Messages **/
+	--pmrules-label-color:                            #333;
+	--unreadpm-bg:                                    #cfc;
+
+	/* The unread message and alert lists in the user menu. */
+	--notifylist-border-color:                        #ddd;
+	--notifylist-border-style:                        solid;
+	--notifylist-border-width:                        1px;
+	--notifylist-item-bg_hover:                       #eee;
+
 	/** Search Highlight **/
 	--searchhighlight-color:                          #ff7200;
 	--searchhighlight-font-size:                      1.1em;
