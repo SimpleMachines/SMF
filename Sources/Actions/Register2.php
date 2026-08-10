@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\Authentication\Credential;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -387,6 +388,24 @@ class Register2 extends Register
 		}
 
 		/* @var int $member_id */
+
+		/*
+		 * Did an identity provider send them here to sign up? Attach it now, so
+		 * the next time they arrive they are recognised rather than asked to
+		 * register all over again. The account went through the ordinary sign up
+		 * rules to get here, which is the whole point of sending them this way.
+		 */
+		if (!empty($_SESSION['authext_pending']['subject']) && $_SESSION['authext_pending']['created'] > time() - 3600) {
+			Credential::add(
+				$member_id,
+				Credential::TYPE_OIDC,
+				(int) $_SESSION['authext_pending']['provider'],
+				$_SESSION['authext_pending']['subject'],
+				(string) ($_SESSION['authext_pending']['email'] ?? ''),
+			);
+		}
+
+		unset($_SESSION['authext_pending']);
 
 		// Do our spam protection now.
 		Security::spamProtection('register');

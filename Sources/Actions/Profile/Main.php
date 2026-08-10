@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Authentication\Provider;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -334,6 +335,16 @@ class Main implements ActionInterface, Routable
 					'enabled' => true,
 					'hidden' => true,
 					'select' => 'account',
+					'permission' => [
+						'own' => ['profile_password_own'],
+						'any' => ['profile_password_any'],
+					],
+				],
+				'linkedaccounts' => [
+					'label' => 'linked_accounts',
+					'function' => __NAMESPACE__ . '\\LinkedAccounts::call',
+					'sub_template' => 'linked_accounts',
+					'enabled' => true,
 					'permission' => [
 						'own' => ['profile_password_own'],
 						'any' => ['profile_password_any'],
@@ -918,6 +929,9 @@ class Main implements ActionInterface, Routable
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
 		$this->profile_areas['edit_profile']['areas']['tfadisable']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
+
+		// No point offering this when nobody has set up a provider to link to.
+		$this->profile_areas['edit_profile']['areas']['linkedaccounts']['enabled'] = Provider::loadAll(true) !== [];
 
 		$this->profile_areas['edit_profile']['areas']['ignoreboards']['enabled'] = !empty(Config::$modSettings['allow_ignore_boards']);
 

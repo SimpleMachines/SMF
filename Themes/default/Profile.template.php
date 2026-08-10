@@ -17,6 +17,7 @@ use SMF\Lang;
 use SMF\Profile;
 use SMF\Security;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
@@ -3433,4 +3434,94 @@ function template_export_profile_data()
 				</div>
 			</form>
 		</div><!-- .windowbg -->';
+}
+
+/**
+ * Lists the identity providers this member can sign in with.
+ */
+function template_linked_accounts()
+{
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('linked_accounts', file: 'Profile'), '</h3>
+		</div>
+		<div class="information">
+			', Lang::getTxt('linked_accounts_desc', file: 'Profile'), '
+		</div>';
+
+	if (isset($_GET['linked'])) {
+		echo '
+		<div class="infobox">', Lang::getTxt('linked_accounts_linked', file: 'Profile'), '</div>';
+	} elseif (isset($_GET['unlinked'])) {
+		echo '
+		<div class="infobox">', Lang::getTxt('linked_accounts_unlinked', file: 'Profile'), '</div>';
+	} elseif (isset($_GET['lastone'])) {
+		echo '
+		<div class="errorbox">', Lang::getTxt('linked_accounts_last_one', file: 'Profile'), '</div>';
+	}
+
+	if (empty(Utils::$context['linked_accounts'])) {
+		echo '
+		<div class="windowbg">
+			<p>', Lang::getTxt('linked_accounts_none', file: 'Profile'), '</p>
+		</div>';
+	} else {
+		echo '
+		<table class="table_grid">
+			<thead>
+				<tr class="title_bar">
+					<th class="lefttext">', Lang::getTxt('linked_accounts_provider', file: 'Profile'), '</th>
+					<th class="lefttext">', Lang::getTxt('linked_accounts_added', file: 'Profile'), '</th>
+					<th class="lefttext">', Lang::getTxt('linked_accounts_last_used', file: 'Profile'), '</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>';
+
+		foreach (Utils::$context['linked_accounts'] as $account) {
+			echo '
+				<tr class="windowbg">
+					<td>
+						', Utils::htmlspecialchars($account['provider']), '
+						<br><span class="smalltext">', Utils::htmlspecialchars($account['title']), '</span>
+					</td>
+					<td>', Time::create('@' . $account['date_created'])->format(null, false), '</td>
+					<td>', empty($account['date_last_used']) ? Lang::getTxt('never', file: 'General') : Time::create('@' . $account['date_last_used'])->format(null, false), '</td>
+					<td class="righttext">';
+
+			if (Utils::$context['can_manage'] && !Utils::$context['is_only_way_in']) {
+				echo '
+						<a class="button" href="', Config::$scripturl, '?action=authext;sa=unlink;cred=', $account['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('linked_accounts_unlink', file: 'Profile'), '</a>';
+			} elseif (Utils::$context['can_manage']) {
+				echo '
+						<span class="smalltext">', Lang::getTxt('linked_accounts_only_way_in', file: 'Profile'), '</span>';
+			}
+
+			echo '
+					</td>
+				</tr>';
+		}
+
+		echo '
+			</tbody>
+		</table>';
+	}
+
+	if (Utils::$context['can_manage'] && !empty(Utils::$context['available_providers'])) {
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('linked_accounts_add', file: 'Profile'), '</h3>
+		</div>
+		<div class="windowbg">
+			<p>';
+
+		foreach (Utils::$context['available_providers'] as $provider) {
+			echo '
+				<a class="button" href="', Config::$scripturl, '?action=authext;sa=link;provider=', $provider->id, ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Utils::htmlspecialchars($provider->title), '</a>';
+		}
+
+		echo '
+			</p>
+		</div>';
+	}
 }

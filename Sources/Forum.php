@@ -90,6 +90,9 @@ class Forum
 		'attachapprove' => [
 			'', Actions\AttachmentApprove::class,
 		],
+		'authext' => [
+			'', Actions\AuthExternal::class,
+		],
 		'boardindex' => [
 			'', Actions\BoardIndex::class,
 		],
