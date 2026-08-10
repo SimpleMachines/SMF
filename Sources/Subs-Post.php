@@ -478,8 +478,11 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 	if ($hasEqualSign && $embeddedUrl)
 	{
-		$quoted = preg_match('~\[(' . $myTag . ')=&quot;~', $message);
-		preg_match_all('~\[(' . $myTag . ')=' . ($quoted ? '&quot;(.*?)&quot;' : '([^\]]*?)') . '\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
+		preg_match_all('~\[(' . $myTag . ')=(&quot;(?:[^&]|&(?!quot;))*?&quot;|[^\]]*?)\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
+
+		foreach ($matches[2] as $key => $match) {
+			$matches[2][$key] = preg_replace('/^&quot;|&quot;$/', '', $match);
+		}
 	}
 	elseif ($hasEqualSign)
 		preg_match_all('~\[(' . $myTag . ')=([^\]]*?)\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
