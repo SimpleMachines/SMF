@@ -809,8 +809,8 @@ img.sort, .sort {
 }
 
 .postbg {
-	border-left: 1px solid #7f7f7f;
-	border-right: 1px solid #7f7f7f;
+	border-left: var(--postbg-border-width) var(--postbg-border-style) var(--postbg-border-color);
+	border-right: var(--postbg-border-width) var(--postbg-border-style) var(--postbg-border-color);
 }
 
 /* Styles used by the auto suggest control.
@@ -3208,12 +3208,12 @@ tr.windowbg {
 
 /* Colors for background of posts requiring approval */
 .approvebg {
-	color: #222;
-	background: #ffeaea;
+	color: var(--approvebg-color);
+	background: var(--approvebg-bg);
 }
 .approvebg2 {
-	color: #222;
-	background: #fff2f2;
+	color: var(--approvebg2-color);
+	background: var(--approvebg2-bg);
 }
 
 div#manage_boards dl dd textarea[name=desc] {
@@ -3440,7 +3440,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid rgba(0, 0, 0, 0.13);
+	border: var(--topiccontainer-border-width) var(--topiccontainer-border-style) var(--topiccontainer-border-color);
 	border-top: none;
 	display: flex;
 	box-shadow: none;
@@ -3592,7 +3592,7 @@ div#pollmoderation {
 .poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li h4 a, .poster h4 a:focus {
 	margin: 0;
 	padding: 0;
-	color: #c06002;
+	color: var(--poster-name-color);
 }
 
 .poster .profile .profile_icons li, .poster .im_icons li {
@@ -3613,7 +3613,7 @@ div#pollmoderation {
 	margin: 3px 10px;
 }
 .poster li.poster_online a {
-	color: #c06002;
+	color: var(--poster-online-color);
 	line-height: 1.6em;
 }
 .poster li.poster_online:hover, .poster li.poster_online:hover a {
@@ -3664,13 +3664,13 @@ img.avatar {
 	display: block;
 }
 .keyinfo .postinfo a, .keyinfo .postinfo a strong {
-	color: #ad6825;
+	color: var(--postinfo-link-color);
 }
 .keyinfo .postinfo .spacer {
 	flex: 1 1 auto;
 }
 .keyinfo .postinfo .modified {
-	color: #333;
+	color: var(--postinfo-modified-color);
 	font-weight: normal;
 	font-style: italic;
 	padding: 2px 4px 0 4px;
@@ -3682,9 +3682,9 @@ img.avatar {
 	position: absolute;
 	right: 0;
 	top: 2em;
-	background: #fdfdfd;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	background: var(--edithistory-bg);
+	border: var(--edithistory-border-width) var(--edithistory-border-style) var(--edithistory-border-color);
+	border-radius: var(--edithistory-border-radius);
 	padding: 1em;
 	min-width: 18.2em;
 	font-weight: normal;
@@ -3692,14 +3692,14 @@ img.avatar {
 .edit_history_list li {
 	margin-top: 0.5em;
 	padding-top: 0.5em;
-	border-top: 1px solid #ddd;
+	border-top: var(--edithistory-item-border-width) var(--edithistory-item-border-style) var(--edithistory-item-border-color);
 }
 .bump_notice {
 	display: block;
 	margin-top: 1em;
 	padding: 0.5em 0;
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
+	border-top: var(--bumpnotice-border-width) var(--bumpnotice-border-style) var(--bumpnotice-border-color);
+	border-bottom: var(--bumpnotice-border-width) var(--bumpnotice-border-style) var(--bumpnotice-border-color);
 	text-align: center;
 	font-style: italic;
 }
@@ -3714,14 +3714,14 @@ img.avatar {
 }
 .subject_title a {
 	font-size: 0.9em;
-	color: #333;
+	color: var(--subjecttitle-link-color);
 	font-weight: bold;
 }
 .subject_hidden a {
 	display: none;
 }
 .page_number {
-	color: #ad6825;
+	color: var(--pagenumber-color);
 	font-weight: bold;
 	padding: 4px 0 0 4px;
 	line-height: 1.5em;
@@ -3729,8 +3729,8 @@ img.avatar {
 .inner {
 	padding: 7px 8px 2px 2px;
 	margin: 0;
-	border-top: 1px solid #bfbfbf;
-	box-shadow: 0 1px 0 #fff inset;
+	border-top: var(--postsection-border-width) var(--postsection-border-style) var(--postsection-border-color);
+	box-shadow: var(--postsection-box-shadow);
 	min-height: 85px;
 	word-wrap: break-word; /* IE fallback */
 	overflow-wrap: break-word;
@@ -3895,8 +3895,8 @@ form#postmodify .roundframe {
 	overflow: auto;
 	clear: right;
 	padding: 12px 0 3px 0;
-	border-top: 1px solid #bfbfbf;
-	box-shadow: 0 1px 0 #fff inset;
+	border-top: var(--postsection-border-width) var(--postsection-border-style) var(--postsection-border-color);
+	box-shadow: var(--postsection-box-shadow);
 	line-height: 1.4em;
 	font-size: 0.9em;
 }
