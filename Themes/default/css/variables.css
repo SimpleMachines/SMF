@@ -114,6 +114,28 @@
 	--amt-color:                                      #fff;
 	--amt-color_active:                               inherit;
 
+	/** Drop Menu Submenus **/
+	--submenu-bg:                                     #fff;
+	--submenu-border-color:                           #999;
+	--submenu-border-color_left:                      #bbb;
+	--submenu-border-color_top:                       #ccc;
+	--submenu-border-radius:                          4px;
+	--submenu-border-style:                           solid;
+	--submenu-border-width:                           1px;
+	--submenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.3);
+
+	/** Drop Menu Submenu Items **/
+	--submenu-item-bg:                                none;
+	--submenu-item-border-color:                      transparent;
+	--submenu-item-border-color_hover:                #cfcfcf;
+	--submenu-item-border-color_hover_top:            #d4dee6;
+	--submenu-item-border-radius:                     3px;
+	--submenu-item-border-style:                      solid;
+	--submenu-item-border-width:                      1px;
+	--submenu-item-color:                             #346;
+	--submenu-item-color_hover:                       #333;
+	--submenu-item-font-weight_chosen:                bold;
+
 	/** HTML **/
 	--html-bg:                                        #3e5a78;
 
@@ -211,6 +233,52 @@
 	--postoptions-item-border-radius:                 3px;
 	--postoptions-item-border-style:                  solid;
 	--postoptions-item-border-width:                  1px;
+
+	/** Posts **/
+	--postbg-border-color:                            #7f7f7f;
+	--postbg-border-style:                            solid;
+	--postbg-border-width:                            1px;
+	--topiccontainer-border-color:                    rgba(0, 0, 0, 0.13);
+	--topiccontainer-border-style:                    solid;
+	--topiccontainer-border-width:                    1px;
+
+	/* The hairline above each section inside a post: the message body, the
+	   signature, the attachments and the custom field blocks all draw it. */
+	--postsection-border-color:                       #bfbfbf;
+	--postsection-border-style:                       solid;
+	--postsection-border-width:                       1px;
+	--postsection-box-shadow:                         0 1px 0 #fff inset;
+
+	/** Posts Awaiting Approval **/
+	--approvebg-bg:                                   #ffeaea;
+	--approvebg-color:                                #222;
+	--approvebg2-bg:                                  #fff2f2;
+	--approvebg2-color:                               #222;
+
+	/** Post Author **/
+	--poster-name-color:                              #c06002;
+	--poster-online-color:                            #c06002;
+
+	/** Post Info Line **/
+	--pagenumber-color:                               #ad6825;
+	--postinfo-link-color:                            #ad6825;
+	--postinfo-modified-color:                        #333;
+	--subjecttitle-link-color:                        #333;
+
+	/** Post Edit History **/
+	--edithistory-bg:                                 #fdfdfd;
+	--edithistory-border-color:                       #ddd;
+	--edithistory-border-radius:                      4px;
+	--edithistory-border-style:                       solid;
+	--edithistory-border-width:                       1px;
+	--edithistory-item-border-color:                  #ddd;
+	--edithistory-item-border-style:                  solid;
+	--edithistory-item-border-width:                  1px;
+
+	/** Bump Notice **/
+	--bumpnotice-border-color:                        #ddd;
+	--bumpnotice-border-style:                        solid;
+	--bumpnotice-border-width:                        1px;
 
 	/** Cat Bar **/
 	--catbar-bg:                                      #557ea0;
@@ -417,6 +485,51 @@
 	--infocenter-row-border-width:                    1px;
 	--infocenter-time-color:                          #555;
 
+	/** Help Pages **/
+	--helpmain-border-color:                          #ddd;
+	--helpmain-border-radius:                         7px;
+	--helpmain-border-style:                          solid;
+	--helpmain-border-width:                          1px;
+	--helpmain-box-shadow:                            0 -2px 2px rgba(0, 0, 0, 0.1);
+
+	/** Tooltips **/
+	--tooltip-bg:                                     #fff;
+	--tooltip-border-color:                           #aaa;
+	--tooltip-border-radius:                          4px;
+	--tooltip-border-style:                           solid;
+	--tooltip-border-width:                           1px;
+	--tooltip-box-shadow:                             1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
+	--tooltip-color:                                  #333;
+
+	/** Popup Content **/
+	--popup-content-border-color:                     #bbb;
+	--popup-content-border-color_bottom:              #ddd;
+	--popup-content-border-style:                     solid;
+	--popup-content-border-width:                     1px;
+
+	/** Generic Lists **/
+	--listgrid-border-color:                          #aaa;
+	--listgrid-border-style:                          solid;
+	--listgrid-border-width:                          1px;
+
+	/** Alternating Rows **/
+	--alternative-bg:                                 #f2f2f2;
+	--alternative2-bg:                                #e8edf0;
+	--stripes-bg_even:                                #f2f2f2;
+	--stripes-bg_odd:                                 #f0f4f7;
+
+	/** Two Factor Authentication Code **/
+	--tfacode-bg:                                     #d0e7f8;
+
+	/** Backtraces **/
+	--backtrace-border-color:                         #ddd;
+	--backtrace-border-style:                         solid;
+	--backtrace-border-width:                         1px;
+
+	/** Diff Output **/
+	--diff-bg_added:                                  rgba(0, 255, 0, 0.35);
+	--diff-bg_removed:                                rgba(255, 0, 0, 0.35);
+
 	/** Collapse and Expand Toggles **/
 	--toggle-bg:                                      #f7f7f7;
 	--toggle-bg_hover:                                #bfd4e7;
@@ -514,4 +627,34 @@
 	--calendar-link-color_hover:                      #555;
 	--calendar-title-link-color:                      #555;
 	--calendar-event-meta-color:                      #777;
+
+	/** Admin **/
+	--admin-announcement-border-color:                #bf6900;
+	--admin-announcement-link-color:                  #bf6900;
+	--admin-announcement-separator-color:             #ddd;
+	--admin-board-bg_hover:                           #d0e7f8;
+	--admin-board-group-border-color:                 #000;
+	--admin-css-preview-border-color:                 #777;
+	--admin-denyboard-bg_hover:                       #e3e9ec;
+	--admin-edit-history-border-color:                #bbb;
+	--admin-group-legend-bg:                          #eaf1f4;
+	--admin-group-legend-border-color:                #cacdd3;
+	--admin-highlight-bg:                             #d0e7f8;
+	--admin-legend-color:                             #000;
+	--admin-moderation-note-border-color:             #ccc;
+	--admin-package-border-color:                     #cacdd3;
+	--admin-perm-boards-border-color:                 #cacdd3;
+	--admin-perm-custom-bg:                           #c2c6c0;
+	--admin-perm-execute-bg:                          #fdd7af;
+	--admin-perm-groups-bg:                           #fff;
+	--admin-perm-no-change-bg:                        #eee;
+	--admin-perm-read-bg:                             #d1f7bf;
+	--admin-perm-writable-bg:                         #ffbbbb;
+	--admin-recycle-board-bg:                         #dee;
+	--admin-redirect-board-bg:                        #eed;
+	--admin-search-result-border-color:               #ccc;
+	--admin-smiley-border-color_hover:                #71a0c8;
+	--admin-smiley-border-color_selected:             #ffb42d;
+	--admin-table-caption-color:                      #000;
+	--admin-table-grid-border-color:                  #ddd;
 }
