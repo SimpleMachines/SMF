@@ -872,20 +872,27 @@ function InTopicModeration(oOptions)
 
 InTopicModeration.prototype.init = function()
 {
+	/*
+	 * The topic draws two of these strips - one for the page and one for the
+	 * mobile menu - and they share the containers, so the second instance
+	 * finds the checkboxes the first one already made. Collect those once,
+	 * under the message id each one carries, and listen to them as well
+	 * rather than putting a second checkbox beside every post. This file is
+	 * the only thing that emits a msgs[] input, so there is nothing else on
+	 * the page for this to pick up.
+	 */
+	var oExisting = {};
+	var aCheckboxes = document.querySelectorAll('input[name="msgs[]"]');
+
+	for (var j = 0, m = aCheckboxes.length; j < m; j++)
+		oExisting[aCheckboxes[j].value] = aCheckboxes[j];
+
 	// Add checkboxes to all the messages.
 	for (var i = 0, n = this.opt.aMessageIds.length; i < n; i++)
 	{
 		// Append it to the container
 		var oCheckboxContainer = document.getElementById(this.opt.sCheckboxContainerMask + this.opt.aMessageIds[i]);
-
-		/*
-		 * The topic draws two of these strips - one for the page and one for
-		 * the mobile menu - and they share the containers, so the second
-		 * instance finds a checkbox already sitting here. Take that one and
-		 * listen to it as well, rather than putting a second checkbox beside
-		 * every post.
-		 */
-		var oCheckbox = oCheckboxContainer.querySelector('input[name="msgs[]"]');
+		var oCheckbox = oExisting[this.opt.aMessageIds[i]];
 
 		if (!oCheckbox)
 		{
