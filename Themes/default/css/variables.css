@@ -439,6 +439,51 @@
 	--infocenter-row-border-width:                    1px;
 	--infocenter-time-color:                          #555;
 
+	/** Help Pages **/
+	--helpmain-border-color:                          #ddd;
+	--helpmain-border-radius:                         7px;
+	--helpmain-border-style:                          solid;
+	--helpmain-border-width:                          1px;
+	--helpmain-box-shadow:                            0 -2px 2px rgba(0, 0, 0, 0.1);
+
+	/** Tooltips **/
+	--tooltip-bg:                                     #fff;
+	--tooltip-border-color:                           #aaa;
+	--tooltip-border-radius:                          4px;
+	--tooltip-border-style:                           solid;
+	--tooltip-border-width:                           1px;
+	--tooltip-box-shadow:                             1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
+	--tooltip-color:                                  #333;
+
+	/** Popup Content **/
+	--popup-content-border-color:                     #bbb;
+	--popup-content-border-color_bottom:              #ddd;
+	--popup-content-border-style:                     solid;
+	--popup-content-border-width:                     1px;
+
+	/** Generic Lists **/
+	--listgrid-border-color:                          #aaa;
+	--listgrid-border-style:                          solid;
+	--listgrid-border-width:                          1px;
+
+	/** Alternating Rows **/
+	--alternative-bg:                                 #f2f2f2;
+	--alternative2-bg:                                #e8edf0;
+	--stripes-bg_even:                                #f2f2f2;
+	--stripes-bg_odd:                                 #f0f4f7;
+
+	/** Two Factor Authentication Code **/
+	--tfacode-bg:                                     #d0e7f8;
+
+	/** Backtraces **/
+	--backtrace-border-color:                         #ddd;
+	--backtrace-border-style:                         solid;
+	--backtrace-border-width:                         1px;
+
+	/** Diff Output **/
+	--diff-bg_added:                                  rgba(0, 255, 0, 0.35);
+	--diff-bg_removed:                                rgba(255, 0, 0, 0.35);
+
 	/** Search Highlight **/
 	--searchhighlight-color:                          #ff7200;
 	--searchhighlight-font-size:                      1.1em;

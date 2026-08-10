@@ -3011,9 +3011,9 @@ dl.addrules dt.floatleft {
 #helpmain {
 	margin: 12px 0 0 0;
 	padding: 8px 20px 12px 20px;
-	border: 1px solid #ddd;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	border: var(--helpmain-border-width) var(--helpmain-border-style) var(--helpmain-border-color);
+	border-radius: var(--helpmain-border-radius);
+	box-shadow: var(--helpmain-box-shadow);
 	overflow: auto;
 }
 #helpmain p {
@@ -3041,11 +3041,11 @@ dl.addrules dt.floatleft {
 	overflow-wrap: break-word;
 	max-width: 350px;
 	padding: 6px 9px;
-	color: #333;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 4px;
-	box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
+	color: var(--tooltip-color);
+	background: var(--tooltip-bg);
+	border: var(--tooltip-border-width) var(--tooltip-border-style) var(--tooltip-border-color);
+	border-radius: var(--tooltip-border-radius);
+	box-shadow: var(--tooltip-box-shadow);
 }
 
 /* Styles for popup windows */
@@ -3097,8 +3097,8 @@ dl.addrules dt.floatleft {
 	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
-	border: 1px solid #bbb;
-	border-bottom: 1px solid #ddd;
+	border: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color);
+	border-bottom: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color_bottom);
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
 }
@@ -3184,7 +3184,7 @@ tr.windowbg:hover {
 	border-radius: 0;
 }
 .generic_list_wrapper table.table_grid {
-	border-bottom: 1px solid #aaa;
+	border-bottom: var(--listgrid-border-width) var(--listgrid-border-style) var(--listgrid-border-color);
 }
 
 div#editlang_desc {
@@ -4323,16 +4323,16 @@ h3.profile_hd::before,
 
 /* Alternating colors */
 .stripes:nth-of-type(even) {
-	background-color: #f2f2f2;
+	background-color: var(--stripes-bg_even);
 }
 .stripes:nth-of-type(odd) {
-	background-color: #f0f4f7;
+	background-color: var(--stripes-bg_odd);
 }
 .alternative {
-	background-color: #f2f2f2;
+	background-color: var(--alternative-bg);
 }
 .alternative2 {
-	background-color: #e8edf0;
+	background-color: var(--alternative2-bg);
 }
 
 .centerbox {
@@ -4411,7 +4411,7 @@ input[name="attachBBC"] {
 
 /* Two-Factor Auth code container */
 .tfacode {
-	background: #d0e7f8;
+	background: var(--tfacode-bg);
 	padding: 5px;
 	display: inline-block;
 }
@@ -4494,7 +4494,7 @@ tr[id^='list_news_lists_'] textarea {
 
 .backtrace:not(:last-child) {
 	padding-bottom: 0.5em;
-	border-bottom: 1px solid #ddd;
+	border-bottom: var(--backtrace-border-width) var(--backtrace-border-style) var(--backtrace-border-color);
 	margin-bottom: 0.5em;
 }
 
@@ -4521,10 +4521,10 @@ img.theme_thumbnail {
 
 /* Diff output styling */
 del.diff {
-	background: rgba(255, 0, 0, 0.35);
+	background: var(--diff-bg_removed);
 }
 ins.diff {
-	background: rgba(0, 255, 0, 0.35);
+	background: var(--diff-bg_added);
 }
 .diff:has(
 	address, article, aside, blockquote, caption, center, col, colgroup, dd,
