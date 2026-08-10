@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -32,6 +34,21 @@ class CreateMemberAuth extends MigrationBase
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * Nothing to do if the table is already there, so a re-run says "skipped".
+	 *
+	 * Note this compares against Config::$db_prefix rather than Db::$db->prefix.
+	 * The latter is database qualified, e.g. `smf`.smf_, while list_tables()
+	 * reports bare names, so it would never match. That mismatch is also why
+	 * Table::exists() cannot be used here.
+	 */
+	public function isCandidate(): bool
+	{
+		$member_auth = new Schema\v3_0\MemberAuth();
+
+		return !\in_array(Config::$db_prefix . $member_auth->name, Db::$db->list_tables());
+	}
 
 	/**
 	 *
