@@ -2693,13 +2693,13 @@ dl {
 }
 .boardslist a {
 	font-weight: bold;
-	border-bottom: 1px solid #c4c4c4;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color);
 	display: block;
 	margin-bottom: 0.5em;
 }
 .boardslist a:hover {
 	text-decoration: none;
-	border-bottom: 1px solid #334466;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color_hover);
 }
 .boardslist label {
 	display: inline-block;
@@ -3273,8 +3273,8 @@ h3 .collapse {
 	padding: 13px 10px 10px;
 }
 .boardindex_table .board_stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	border-left: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
+	border-right: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .info {
 	overflow: hidden;
@@ -3285,7 +3285,7 @@ h3 .collapse {
 .info .subject {
 	font-weight: 600;
 	font-size: 1.1em;
-	color: #a85400;
+	color: var(--boardindex-subject-color);
 }
 .board_stats {
 	width: 15%;
@@ -3307,14 +3307,14 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	border: 1px solid #ddd;
+	border: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	margin: 0 0 3px 0;
 	display: flex;
 	flex-wrap: wrap;
 }
 /* Child boards */
 .children {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	padding: 5px;
 	width: 100%;
 }
@@ -3341,7 +3341,7 @@ span.postby {
 	clear: both;
 }
 #info_center .sub_bar {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
@@ -3360,7 +3360,7 @@ span.postby {
 	padding: 0 4px 0 0;
 }
 #ic_recentposts td {
-	border-top: 1px solid #eaeaea;
+	border-top: var(--infocenter-row-border-width) var(--infocenter-row-border-style) var(--infocenter-row-border-color);
 	padding: 0 4px 0 0;
 	vertical-align: top;
 }
@@ -3380,7 +3380,7 @@ span.postby {
 	width: 25%;
 }
 #ic_recentposts .recenttime strong {
-	color: #555;
+	color: var(--infocenter-time-color);
 }
 #ic_recentposts .windowbg {
 	background: none;
@@ -4100,7 +4100,7 @@ p.information img {
 }
 #topic_icons .information,
 #messageindex .information {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .topic_pages {
 	font-size: 0.75em;
