@@ -76,7 +76,7 @@ function template_registration_form()
 		<script>
 			function verifyAgree()
 			{
-				if (currentAuthMethod == \'passwd\' && document.forms.registration.smf_autov_pwmain.value != document.forms.registration.smf_autov_pwverify.value)
+				if (currentAuthMethod == \'passwd\' && document.forms.registration.passwrd1.value != document.forms.registration.passwrd2.value)
 				{
 					alert("', Lang::getTxt('register_passwords_differ_js', file: 'Login'), '");
 					return false;
@@ -118,39 +118,28 @@ function template_registration_form()
 				<fieldset>
 					<dl class="register_form">
 						<dt>
-							<strong><label for="smf_autov_username">', Lang::getTxt('username', file: 'General'), '</label></strong>
+							<strong><label for="reg_username">', Lang::getTxt('username', file: 'General'), '</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="user" id="smf_autov_username" size="50" maxlength="25" value="', Utils::$context['username'] ?? '', '">
-							<span id="smf_autov_username_div" style="display: none;">
-								<a id="smf_autov_username_link" href="#">
-									<span id="smf_autov_username_img" class="main_icons check"></span>
-								</a>
-							</span>
+							<input type="text" name="user" id="reg_username" data-autov="username" size="50" maxlength="25" value="', Utils::$context['username'] ?? '', '">
 						</dd>
-						<dt><strong><label for="smf_autov_reserve1">', Lang::getTxt('user_email_address', file: 'General'), '</label></strong></dt>
+						<dt><strong><label for="reg_email">', Lang::getTxt('user_email_address', file: 'General'), '</label></strong></dt>
 						<dd>
-							<input type="email" name="email" id="smf_autov_reserve1" size="50" value="', Utils::$context['email'] ?? '', '">
+							<input type="email" name="email" id="reg_email" data-autov="reserve1" size="50" value="', Utils::$context['email'] ?? '', '">
 						</dd>
 					</dl>
 					<dl class="register_form" id="password1_group">
-						<dt><strong><label for="smf_autov_pwmain">', Lang::getTxt('choose_pass', file: 'General'), '</label></strong></dt>
+						<dt><strong><label for="reg_pwmain">', Lang::getTxt('choose_pass', file: 'General'), '</label></strong></dt>
 						<dd>
-							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50">
-							<span id="smf_autov_pwmain_div" style="display: none;">
-								<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
-							</span>
+							<input type="password" name="passwrd1" id="reg_pwmain" data-autov="pwmain" size="50">
 						</dd>
 					</dl>
 					<dl class="register_form" id="password2_group">
 						<dt>
-							<strong><label for="smf_autov_pwverify">', Lang::getTxt('verify_pass', file: 'General'), '</label></strong>
+							<strong><label for="reg_pwverify">', Lang::getTxt('verify_pass', file: 'General'), '</label></strong>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50">
-							<span id="smf_autov_pwverify_div" style="display: none;">
-								<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
-							</span>
+							<input type="password" name="passwrd2" id="reg_pwverify" data-autov="pwverify" size="50">
 						</dd>
 					</dl>
 					<dl class="register_form" id="notify_announcements">

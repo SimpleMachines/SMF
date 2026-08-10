@@ -106,17 +106,11 @@ function template_set_password()
 				<dl>
 					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
-						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
-						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
-						</span>
+						<input type="password" name="passwrd1" data-autov="pwmain" size="22">
 					</dd>
 					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
-						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
-						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="main_icons invalid"></span>
-						</span>
+						<input type="password" name="passwrd2" data-autov="pwverify" size="22">
 					</dd>
 				</dl>
 				<p class="align_center">
@@ -162,17 +156,11 @@ function template_ask()
 					<dd><input type="text" name="secret_answer" size="22"></dd>
 					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
-						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
-						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
-						</span>
+						<input type="password" name="passwrd1" data-autov="pwmain" size="22">
 					</dd>
 					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
-						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
-						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
-						</span>
+						<input type="password" name="passwrd2" data-autov="pwverify" size="22">
 					</dd>
 				</dl>
 				<div class="auto_flow">
