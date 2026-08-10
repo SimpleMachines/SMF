@@ -355,7 +355,7 @@ blockquote cite {
 	margin-bottom: 3px;
 }
 blockquote cite::before {
-	color: #aaa;
+	color: var(--bbc-cite-color);
 	font-size: 22px;
 	font-style: normal;
 	content: "\275D";
@@ -386,7 +386,7 @@ blockquote cite::before {
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
-	color: #666;
+	color: var(--bbc-header-color);
 	font-size: 0.9em;
 	padding: 0 2px;
 }
@@ -396,7 +396,7 @@ blockquote cite::before {
 }
 /* Inline code */
 .bbc_tt {
-	background-color: rgba(127, 127, 127, 0.15);
+	background-color: var(--bbc-tt-bg);
 	padding: 0 0.2ch;
 }
 /* Styling for BBC tags */
@@ -416,7 +416,7 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 	border-collapse: collapse;
 }
 .lefttext .bbc_table,
@@ -432,7 +432,7 @@ blockquote cite::before {
 	color: inherit;
 	vertical-align: top;
 	padding: 4px 8px;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 }
 .bbc_list {
 	text-align: start;
@@ -493,7 +493,7 @@ blockquote cite::before {
 	margin: 5px;
 }
 .bbc_details {
-	border: 1px dotted #aaa;
+	border: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 	margin: 5px;
 }
 .bbc_summary {
@@ -502,11 +502,11 @@ blockquote cite::before {
 }
 .bbc_details[open] > .bbc_summary {
 	padding-bottom: 7px;
-	border-bottom: 1px dotted #aaa;
+	border-bottom: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 }
 .bbc_inline_spoiler {
 	cursor: pointer;
-	border-radius: 3px;
+	border-radius: var(--bbc-spoiler-border-radius);
 	background-color: currentcolor;
 	position: relative;
 	transition-property: background-color;
@@ -527,7 +527,7 @@ blockquote cite::before {
 	background-color: transparent;
 }
 .bbc_inline_spoiler > button:focus-visible {
-	outline: 2px solid #7fb0d8;
+	outline: var(--bbc-spoiler-outline-width) var(--bbc-spoiler-outline-style) var(--bbc-spoiler-outline-color);
 }
 .bbc_inline_spoiler > span {
 	/*

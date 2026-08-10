@@ -319,6 +319,21 @@
 	--code-font-size:                                 0.78rem;
 	--code-height:                                    25em;
 
+	/** BBC Tags **/
+	--bbc-cite-color:                                 #aaa;
+	--bbc-details-border-color:                       #aaa;
+	--bbc-details-border-style:                       dotted;
+	--bbc-details-border-width:                       1px;
+	--bbc-header-color:                               #666;
+	--bbc-spoiler-border-radius:                      3px;
+	--bbc-spoiler-outline-color:                      #7fb0d8;
+	--bbc-spoiler-outline-style:                      solid;
+	--bbc-spoiler-outline-width:                      2px;
+	--bbc-table-border-color:                         #ddd;
+	--bbc-table-border-style:                         solid;
+	--bbc-table-border-width:                         1px;
+	--bbc-tt-bg:                                      rgba(127, 127, 127, 0.15);
+
 	/** BBC Links **/
 	--bbc-link-border-color:                          #a8b6cf;
 	--bbc-link-border-color_hover:                    #346;
