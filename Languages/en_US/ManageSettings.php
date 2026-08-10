@@ -530,5 +530,7 @@ $txt['passkey_settings_rp_id'] = 'Passkeys registered here will be tied to <stro
 $txt['passkey_settings_no_openssl'] = 'Passkeys need PHP\'s openssl extension, which is not installed. Nothing on this page will have any effect until it is.';
 $txt['webauthn_enabled'] = 'Allow passkeys';
 $txt['webauthn_enabled_subtext'] = 'Members can add passkeys from their profile, and sign in with one instead of a password.';
+$txt['webauthn_allow_signup'] = 'Allow signing up with a passkey';
+$txt['webauthn_allow_signup_subtext'] = 'New members can create an account with a passkey instead of a password, still subject to the agreement, approval and age rules. An account made this way has no password at all, so losing the device it was made on means recovering the account by email.';
 $txt['webauthn_allow_unverified'] = 'Accept devices that do not check who is using them';
 $txt['webauthn_allow_unverified_subtext'] = 'By default a passkey only counts once the device has asked for a PIN, fingerprint or face scan. Turning this on accepts mere possession of the device instead, which means anyone holding it can sign in.';
