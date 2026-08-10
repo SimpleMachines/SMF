@@ -2914,6 +2914,16 @@ class User implements \ArrayAccess
 			self::$me->verifyPassword();
 			self::$me->verifyTfa();
 
+			/*
+			 * Either of those can decide this is a guest after all, and the
+			 * guest's data has not been loaded: the call above asked only for
+			 * the member they claimed to be. Everything below here reads
+			 * self::$profiles[0], so load it now that we know we need it.
+			 */
+			if (empty(self::$my_id) && !isset(self::$profiles[0])) {
+				self::loadUserData([0], self::LOAD_BY_ID, UserDataset::Minimal);
+			}
+
 			// At this point, we know the user ID for sure.
 			self::$me->id = self::$my_id;
 			self::$cookie_id = self::$my_id;
