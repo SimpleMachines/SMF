@@ -19,6 +19,7 @@ use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
 use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
+use SMF\Authentication\StepUp;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\v3_0\Members as MembersTable;
@@ -2301,58 +2302,36 @@ class User implements \ArrayAccess
 		$this->kickIfGuest();
 
 		// Validate what type of session check this is.
-		$types = [];
-		IntegrationHook::call('integrate_validateSession', [&$types]);
-		$type = \in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+		$type = \in_array($type, StepUp::purposes(), true) ? $type : StepUp::FOR_ADMIN;
 
-		// If we're using XML give an additional ten minutes grace as an admin
-		// can't log on in XML mode.
-		$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
-
-		if (empty($force)) {
-			// Is the security option off?
-			if (!empty(Config::$modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')])) {
-				return null;
-			}
-
-			// Or are they already logged in? Moderator or admin session is need for this area.
-			if (
-				(
-					!empty($_SESSION[$type . '_time'])
-					&& $_SESSION[$type . '_time'] + $refreshTime >= time()
-				)
-				|| (
-					!empty($_SESSION['admin_time'])
-					&& $_SESSION['admin_time'] + $refreshTime >= time()
-				)
-			) {
-				return null;
-			}
+		// Is the check switched off, or have they answered recently enough?
+		if (empty($force) && StepUp::isSatisfied($type)) {
+			return null;
 		}
 
 		/*
-		 * If this member has no password, asking them to retype it is not going
-		 * to work, and the prompt below would lock them out of the admin and
-		 * moderation areas entirely.
-		 *
-		 * MOD AUTHORS: if you let members sign in without a password, you must
-		 * implement this hook as well, and re-verify them however they signed in
-		 * originally. Return true once you are satisfied it is really them.
-		 * Nothing in SMF itself creates a member without a password, so this
-		 * hook is never reached on a stock install.
+		 * MOD AUTHORS: an escape hatch for a way of proving who somebody is that
+		 * SMF knows nothing about. Return true once you are satisfied it really
+		 * is them, and they are let through as if they had typed the password.
 		 */
-		if (!$this->hasUsablePassword()) {
-			if (\in_array(true, IntegrationHook::call('integrate_reauthenticate', [$type, $this->id]), true)) {
-				$_SESSION[$type . '_time'] = time();
+		if (\in_array(true, IntegrationHook::call('integrate_reauthenticate', [$type, $this->id]), true)) {
+			StepUp::stamp($type);
 
-				unset($_SESSION['request_referer']);
+			return null;
+		}
 
-				return null;
-			}
+		/*
+		 * Nothing this member has can answer the question. That is not their
+		 * fault and there is nothing they can do about it from here, so say so
+		 * plainly rather than showing a password box to somebody who has no
+		 * password and letting them guess at why it never works.
+		 */
+		if (!StepUp::isPossible()) {
+			ErrorHandler::fatalLang('stepup_no_method', false);
 		}
 
 		// Posting the password... check it.
-		if (isset($_POST[$type . '_pass'])) {
+		if (isset($_POST[$type . '_pass']) && $this->hasUsablePassword()) {
 			// Check to ensure we're forcing SSL for authentication
 			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required');
@@ -2364,9 +2343,7 @@ class User implements \ArrayAccess
 
 			// Password correct?
 			if ($good_password || Security::hashVerifyPassword($_POST[$type . '_pass'], $this->passwd)) {
-				$_SESSION[$type . '_time'] = time();
-
-				unset($_SESSION['request_referer']);
+				StepUp::stamp($type);
 
 				return null;
 			}

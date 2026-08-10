@@ -209,3 +209,13 @@ $txt['passkey_signup_done'] = 'Your passkey is ready. Finish signing up below to
 $txt['passkey_signup_failed'] = 'That passkey could not be created.';
 $txt['passkey_signup_unavailable'] = 'Signing up with a passkey is not available on this forum.';
 $txt['passkey_signup_needs_username'] = 'Choose a username first, so your device knows what to call this account.';
+
+// Proving, again, that you are still you.
+$txt['stepup_alternatives'] = 'Or prove it another way:';
+$txt['stepup_with_passkey'] = 'Use my passkey';
+$txt['stepup_no_password'] = 'This account signs in without a password, so use one of the methods below.';
+$txt['stepup_required'] = 'Please confirm who you are before changing how you sign in.';
+$txt['passkey_reauth_none'] = 'There is no passkey on this account to confirm with.';
+$txt['passkey_reauth_failed'] = 'That passkey did not confirm who you are.';
+$txt['authext_reauth_not_linked'] = 'That account is not linked to yours, so it cannot confirm who you are.';
+$txt['authext_reauth_failed'] = 'That sign in did not confirm who you are.';

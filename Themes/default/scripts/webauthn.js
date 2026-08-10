@@ -333,6 +333,58 @@ var smf_passkey = {
 		});
 	},
 
+	/*
+	 * Proves, again, that the member sitting here is the one who signed in.
+	 * Nobody is being signed in or out by this; the forum just notes how
+	 * recently it was done, and lets them get on with what they were doing.
+	 */
+	reauth: function (config)
+	{
+		var data = {purpose: config.purpose, return_to: config.return_to};
+
+		return smf_passkey.post("reauthoptions", data).then(function (answer)
+		{
+			return navigator.credentials.get({publicKey: smf_passkey.prepare(answer.options)});
+		}).then(function (credential)
+		{
+			var sending = smf_passkey.flatten(credential);
+			sending.purpose = config.purpose;
+			sending.return_to = config.return_to;
+
+			return smf_passkey.post("reauth", sending);
+		}).then(function (answer)
+		{
+			window.location.href = answer.redirect;
+		});
+	},
+
+	// Offers it wherever the forum has stopped to ask.
+	offerReauth: function (config)
+	{
+		var container = document.getElementById(config.container);
+
+		if (!smf_passkey.isSupported() || !container)
+			return;
+
+		var button = document.createElement("button");
+		button.type = "button";
+		button.className = "button login_with_passkey";
+		button.textContent = config.label;
+
+		button.addEventListener("click", function ()
+		{
+			button.disabled = true;
+
+			smf_passkey.reauth(config).catch(function (error)
+			{
+				button.disabled = false;
+				smf_passkey.complain(container, config.failed, error);
+			});
+		});
+
+		container.appendChild(button);
+	},
+
 	// Says that something went wrong, where the member is already looking.
 	complain: function (container, message, error)
 	{
@@ -362,3 +414,6 @@ if (typeof smf_passkey_manage !== "undefined")
 
 if (typeof smf_passkey_signup !== "undefined")
 	smf_passkey.offerSignUp(smf_passkey_signup);
+
+if (typeof smf_passkey_reauth !== "undefined")
+	smf_passkey.offerReauth(smf_passkey_reauth);

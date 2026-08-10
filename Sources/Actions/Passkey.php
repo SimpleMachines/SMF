@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Authentication\Credential;
+use SMF\Authentication\StepUp;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
@@ -83,6 +84,8 @@ class Passkey implements ActionInterface
 		'login' => 'login',
 		'signupoptions' => 'signupOptions',
 		'signup' => 'signup',
+		'reauthoptions' => 'reauthOptions',
+		'reauth' => 'reauth',
 	];
 
 	/****************
@@ -137,6 +140,8 @@ class Passkey implements ActionInterface
 			$this->fail('guest asked to register a passkey', 'passkey_not_logged_in');
 		}
 
+		$this->checkRecentlyProved();
+
 		/*
 		 * Anything already registered goes in the exclusion list, so that an
 		 * authenticator the member is holding says "you already did this" rather
@@ -183,6 +188,8 @@ class Passkey implements ActionInterface
 		if (User::$me->is_guest) {
 			$this->fail('guest tried to register a passkey', 'passkey_not_logged_in');
 		}
+
+		$this->checkRecentlyProved();
 
 		try {
 			$credential = Server::verifyCreation($this->credentialResponse());
@@ -364,6 +371,86 @@ class Passkey implements ActionInterface
 		$this->respond(['ready' => true]);
 	}
 
+	/**
+	 * Hands the browser what it needs to prove, again, that this is still them.
+	 */
+	public function reauthOptions(): void
+	{
+		if (User::$me->is_guest) {
+			$this->fail('guest asked to prove who they are', 'passkey_not_logged_in');
+		}
+
+		/*
+		 * Unlike signing in, this names the credentials that will do: we already
+		 * know who is meant to be sitting here, and an assertion from somebody
+		 * else's passkey proves nothing about them. The browser is told, so it
+		 * offers the right key rather than one that will be refused.
+		 */
+		$allowed = [];
+
+		foreach (Credential::listFor(User::$me->id, Credential::TYPE_WEBAUTHN) as $credential) {
+			$stored = $this->secretData($credential);
+
+			if ($stored['id'] !== '') {
+				$allowed[] = $stored['id'];
+			}
+		}
+
+		if ($allowed === []) {
+			$this->fail('member ' . User::$me->id . ' has no passkey to prove anything with', 'passkey_reauth_none');
+		}
+
+		$this->respond(['options' => Server::requestOptions($allowed, StepUp::requestedPurpose())]);
+	}
+
+	/**
+	 * Accepts the proof, and notes how recently it was given.
+	 */
+	public function reauth(): void
+	{
+		if (User::$me->is_guest) {
+			$this->fail('guest tried to prove who they are', 'passkey_not_logged_in');
+		}
+
+		$purpose = StepUp::requestedPurpose();
+
+		$raw_id = Server::base64UrlDecode((string) ($_POST['rawId'] ?? ''));
+
+		$credential = $raw_id === '' ? null : Credential::find(Credential::TYPE_WEBAUTHN, 0, self::identifier($raw_id));
+
+		/*
+		 * The passkey has to be one of theirs. Without this, anybody holding a
+		 * passkey for any account here could satisfy the check for whichever
+		 * account they happened to be signed in to.
+		 */
+		if ($credential === null || (int) $credential['id_member'] !== User::$me->id) {
+			$this->fail('passkey does not belong to member ' . User::$me->id, 'passkey_reauth_failed');
+		}
+
+		$stored = $this->secretData($credential);
+
+		try {
+			$result = Server::verifyAssertion($this->credentialResponse(), $stored['key'], $stored['sign_count'], $purpose);
+		} catch (WebAuthnException $e) {
+			$this->fail('proof refused: ' . $e->getMessage(), 'passkey_reauth_failed');
+		}
+
+		if (Server::signCountWentBackwards($stored['sign_count'], $result['sign_count'])) {
+			ErrorHandler::log(
+				'Passkey sign count for member ' . $credential['id_member'] . ' went from ' . $stored['sign_count'] . ' to ' . $result['sign_count'] . ', which may mean the credential has been cloned.',
+				'general',
+			);
+		}
+
+		$stored['sign_count'] = $result['sign_count'];
+		Credential::setSecretData((int) $credential['id_auth'], Utils::jsonEncode($stored));
+		Credential::touch(Credential::TYPE_WEBAUTHN, 0, $credential['identifier']);
+
+		StepUp::stamp($purpose);
+
+		$this->respond(['redirect' => StepUp::requestedReturn()]);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -434,6 +521,20 @@ class Passkey implements ActionInterface
 	{
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
+		}
+	}
+
+	/**
+	 * Stops unless the member proved who they are recently enough.
+	 *
+	 * The profile page asks before it renders, so a browser that got its
+	 * settings from that page has already been through this. Checking again
+	 * here is for the request that did not come from that page at all.
+	 */
+	protected function checkRecentlyProved(): void
+	{
+		if (!StepUp::isSatisfied(StepUp::FOR_CREDENTIALS)) {
+			$this->fail('member ' . User::$me->id . ' has not proved who they are recently enough', 'stepup_required');
 		}
 	}
 
