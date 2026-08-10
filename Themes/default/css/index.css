@@ -553,16 +553,14 @@ a img {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
+	background: var(--toggle-bg) url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
 	overflow: hidden;
 	content: "";
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
-	border: 1px solid #c5c5c5;
-	border-radius: 3px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .2),
-		0 1px 1px #fff inset,
-		0 -5px 4px rgba(0,0,0,.1) inset;
+	border: var(--toggle-border-width) var(--toggle-border-style) var(--toggle-border-color);
+	border-radius: var(--toggle-border-radius);
+	box-shadow: var(--toggle-box-shadow);
 	transition: background-color 0.25s;
 }
 .toggle_down::before {
@@ -570,8 +568,8 @@ a img {
 }
 
 .toggle_up:hover:before, .toggle_down:hover:before {
-	background-color: #bfd4e7;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+	background-color: var(--toggle-bg_hover);
+	box-shadow: var(--toggle-box-shadow_hover);
 	transition: background-color 0.25s;
 }
 
@@ -4132,28 +4130,28 @@ p.information img {
 	cursor: pointer;
 }
 .icon_list_box:hover {
-	background: #ffffff;
-	border: 1px solid #adadad;
+	background: var(--iconlist-bg);
+	border: var(--iconlist-border-width) var(--iconlist-border-style) var(--iconlist-border-color);
 	padding: 2px;
 }
 .icon_list_container {
 	position: absolute;
 	cursor: pointer;
-	background: #ffffff;
-	border: 1px solid #adadad;
+	background: var(--iconlist-bg);
+	border: var(--iconlist-border-width) var(--iconlist-border-style) var(--iconlist-border-color);
 	padding: 6px 0;
 	z-index: 1000;
 }
 .icon_list_item {
 	padding: 2px 3px;
 	line-height: 20px;
-	border: 1px solid #ffffff;
+	border: var(--iconlist-item-border-width) var(--iconlist-item-border-style) var(--iconlist-item-border-color);
 	background: transparent;
 	display: inline-block;
 }
 .icon_list_item:hover {
-	background: #e0e0f0;
-	border: 1px dotted gray;
+	background: var(--iconlist-item-bg_hover);
+	border: var(--iconlist-item-border-width_hover) var(--iconlist-item-border-style_hover) var(--iconlist-item-border-color_hover);
 }
 
 /* On/Off Icons (User) */
@@ -4166,12 +4164,12 @@ p.information img {
 	vertical-align: middle;
 }
 .on {
-	background: #89e75a;
-	border-color: #74d246;
+	background: var(--onoff-bg_on);
+	border-color: var(--onoff-border-color_on);
 }
 .off {
-	background: #a7a2a2;
-	border-color: #969292;
+	background: var(--onoff-bg_off);
+	border-color: var(--onoff-border-color_off);
 }
 #userstatus .smalltext {
 	margin: 0 0 0 5px !important;
