@@ -181,3 +181,10 @@ $txt['registration_policy_missing'] = 'The privacy policy is either missing or e
 $txt['logout_confirm'] = 'Are you sure you want to log out?';
 $txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
 $txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
+
+// External authentication.
+$txt['authext_failed'] = 'That sign in could not be completed. Please try again.';
+$txt['authext_declined'] = 'The sign in was cancelled.';
+$txt['authext_provider_unavailable'] = 'That sign in method is not available right now.';
+$txt['authext_no_account'] = 'There is no account here for that sign in, and this provider is not allowed to create one.';
+$txt['authext_not_activated'] = 'That account is not activated yet.';

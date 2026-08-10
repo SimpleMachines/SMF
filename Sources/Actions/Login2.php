@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\Authentication\Provider;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -445,6 +446,18 @@ class Login2 implements ActionInterface, Routable
 	public static function getAuthenticationMethods(): array
 	{
 		$methods = [];
+
+		foreach (Provider::loadAll(true) as $provider) {
+			if (!$provider->isUsable()) {
+				continue;
+			}
+
+			$methods['provider' . $provider->id] = [
+				'id' => 'provider' . $provider->id,
+				'title' => Utils::htmlspecialchars($provider->title),
+				'url' => Config::$scripturl . '?action=authext;sa=start;provider=' . $provider->id,
+			];
+		}
 
 		/*
 		 * MOD AUTHORS: Add your sign in method here to have it offered on the
