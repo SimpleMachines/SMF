@@ -19,13 +19,16 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Authentication\OidcClient;
 use SMF\Authentication\Provider;
+use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebAuthn\Server;
 
 /**
  * Lets the admin set up the identity providers members can sign in with.
@@ -61,6 +64,7 @@ class Authentication implements ActionInterface
 		'save' => 'save',
 		'delete' => 'delete',
 		'test' => 'test',
+		'passkeys' => 'passkeys',
 	];
 
 	/****************
@@ -76,11 +80,13 @@ class Authentication implements ActionInterface
 
 		Theme::loadTemplate('Authentication');
 
-		Utils::$context['page_title'] = Lang::getTxt('authentication_providers', file: 'ManageSettings');
+		$about = $this->subaction === 'passkeys' ? 'passkey_settings' : 'authentication_providers';
+
+		Utils::$context['page_title'] = Lang::getTxt($about, file: 'ManageSettings');
 
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::getTxt('authentication_providers', file: 'ManageSettings'),
-			'description' => Lang::getTxt('authentication_providers_desc', file: 'ManageSettings'),
+			'title' => Lang::getTxt($about, file: 'ManageSettings'),
+			'description' => Lang::getTxt($about . '_desc', file: 'ManageSettings'),
 		];
 
 		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -182,6 +188,38 @@ class Authentication implements ActionInterface
 	}
 
 	/**
+	 * Settings for passkeys.
+	 */
+	public function passkeys(): void
+	{
+		$config_vars = self::passkeyConfigVars();
+
+		Utils::$context['sub_template'] = 'show_settings';
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=authentication;save;sa=passkeys';
+		Utils::$context['settings_title'] = Lang::getTxt('passkey_settings', file: 'ManageSettings');
+
+		/*
+		 * openssl is the one thing here that cannot be turned on from this page,
+		 * so say so rather than letting the admin tick a box that will never do
+		 * anything. Everything else about passkeys is a choice; this is not.
+		 */
+		Utils::$context['settings_message'] = Server::isAvailable()
+			? Lang::getTxt('passkey_settings_rp_id', ['rp_id' => Server::relyingPartyId()], file: 'ManageSettings')
+			: Lang::getTxt('passkey_settings_no_openssl', file: 'ManageSettings');
+
+		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
+			ACP::saveDBSettings($config_vars);
+			$_SESSION['adm-save'] = true;
+
+			Utils::redirectexit('action=admin;area=authentication;sa=passkeys;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		}
+
+		ACP::prepareDBSettingContext($config_vars);
+	}
+
+	/**
 	 * Fetches the discovery document, so the admin can see it working.
 	 */
 	public function test(): void
@@ -205,6 +243,27 @@ class Authentication implements ActionInterface
 			'token_endpoint' => $document['token_endpoint'] ?? '',
 			'userinfo_endpoint' => $document['userinfo_endpoint'] ?? '',
 		];
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * The settings that govern passkeys.
+	 *
+	 * @return array The config variables.
+	 */
+	public static function passkeyConfigVars(): array
+	{
+		$config_vars = [
+			['check', 'webauthn_enabled', 'subtext' => Lang::getTxt('webauthn_enabled_subtext', file: 'ManageSettings'), 'disabled' => !Server::isAvailable()],
+			['check', 'webauthn_allow_unverified', 'subtext' => Lang::getTxt('webauthn_allow_unverified_subtext', file: 'ManageSettings'), 'disabled' => !Server::isAvailable()],
+		];
+
+		IntegrationHook::call('integrate_passkey_settings', [&$config_vars]);
+
+		return $config_vars;
 	}
 
 	/******************

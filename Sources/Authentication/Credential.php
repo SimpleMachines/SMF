@@ -31,6 +31,11 @@ class Credential
 	 */
 	public const TYPE_OIDC = 'oidc';
 
+	/**
+	 * Passkeys, held by the member's own device.
+	 */
+	public const TYPE_WEBAUTHN = 'webauthn';
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -107,6 +112,55 @@ class Credential
 	}
 
 	/**
+	 * Fetches one credential, with everything that was kept alongside it.
+	 *
+	 * @param string $type One of this class's TYPE_ constants.
+	 * @param int $id_provider Which provider it came from, or 0.
+	 * @param string $identifier What the issuer calls this credential.
+	 * @return ?array The row, or null if nobody has claimed it.
+	 */
+	public static function find(string $type, int $id_provider, string $identifier): ?array
+	{
+		$request = Db::$db->query(
+			'SELECT id_auth, id_member, type, id_provider, identifier, secret_data, title, date_created, date_last_used
+			FROM {db_prefix}member_auth
+			WHERE type = {string:type}
+				AND id_provider = {int:provider}
+				AND identifier = {string:identifier}
+			LIMIT 1',
+			[
+				'type' => $type,
+				'provider' => $id_provider,
+				'identifier' => $identifier,
+			],
+		);
+
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
+
+		return $row === false || $row === null ? null : $row;
+	}
+
+	/**
+	 * Replaces what was kept alongside a credential.
+	 *
+	 * @param int $id_auth The credential to update.
+	 * @param string $secret_data What to keep instead.
+	 */
+	public static function setSecretData(int $id_auth, string $secret_data): void
+	{
+		Db::$db->query(
+			'UPDATE {db_prefix}member_auth
+			SET secret_data = {string:secret_data}
+			WHERE id_auth = {int:id}',
+			[
+				'secret_data' => $secret_data,
+				'id' => $id_auth,
+			],
+		);
+	}
+
+	/**
 	 * Lists what a member can sign in with.
 	 *
 	 * @param int $id_member The member.
@@ -118,7 +172,7 @@ class Credential
 		$credentials = [];
 
 		$request = Db::$db->query(
-			'SELECT id_auth, id_member, type, id_provider, identifier, title, date_created, date_last_used
+			'SELECT id_auth, id_member, type, id_provider, identifier, secret_data, title, date_created, date_last_used
 			FROM {db_prefix}member_auth
 			WHERE id_member = {int:member}' . ($type === null ? '' : '
 				AND type = {string:type}') . '

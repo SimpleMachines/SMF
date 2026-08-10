@@ -602,9 +602,17 @@ class ACP implements ActionInterface, Routable
 					],
 				],
 				'authentication' => [
-					'label' => 'authentication_providers',
+					'label' => 'authentication_area',
 					'function' => __NAMESPACE__ . '\\Authentication::call',
 					'icon' => 'security',
+					'subsections' => [
+						'list' => [
+							'label' => 'authentication_providers',
+						],
+						'passkeys' => [
+							'label' => 'passkey_settings',
+						],
+					],
 				],
 				'maintain' => [
 					'label' => 'maintain_title',

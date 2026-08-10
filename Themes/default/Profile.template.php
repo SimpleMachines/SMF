@@ -3525,3 +3525,101 @@ function template_linked_accounts()
 		</div>';
 	}
 }
+
+/**
+ * Lists the passkeys this member can sign in with.
+ */
+function template_passkeys()
+{
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('passkeys', file: 'Profile'), '</h3>
+		</div>
+		<div class="information">
+			', Lang::getTxt('passkeys_desc', file: 'Profile'), '
+		</div>';
+
+	if (!empty(Utils::$context['passkey_added'])) {
+		echo '
+		<div class="infobox">', Lang::getTxt('passkey_added', file: 'Profile'), '</div>';
+	}
+
+	if (!empty(Utils::$context['passkey_error'])) {
+		echo '
+		<div class="errorbox">', Utils::$context['passkey_error'], '</div>';
+	}
+
+	if (empty(Utils::$context['passkeys'])) {
+		echo '
+		<div class="windowbg">
+			<p>', Lang::getTxt('passkeys_none', file: 'Profile'), '</p>
+		</div>';
+	} else {
+		echo '
+		<table class="table_grid">
+			<thead>
+				<tr class="title_bar">
+					<th class="lefttext">', Lang::getTxt('passkeys_name', file: 'Profile'), '</th>
+					<th class="lefttext">', Lang::getTxt('passkeys_added', file: 'Profile'), '</th>
+					<th class="lefttext">', Lang::getTxt('passkeys_last_used', file: 'Profile'), '</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>';
+
+		foreach (Utils::$context['passkeys'] as $passkey) {
+			echo '
+				<tr class="windowbg">
+					<td>', Utils::htmlspecialchars($passkey['title']), '</td>
+					<td>', Time::create('@' . $passkey['date_created'])->format(null, false), '</td>
+					<td>', empty($passkey['date_last_used']) ? Lang::getTxt('never', file: 'General') : Time::create('@' . $passkey['date_last_used'])->format(null, false), '</td>
+					<td class="righttext">';
+
+			if (Utils::$context['can_manage'] && !Utils::$context['is_only_way_in']) {
+				echo '
+						<a class="button" href="', Config::$scripturl, '?action=profile;area=passkeys;delete=', $passkey['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('passkeys_remove', file: 'Profile'), '</a>';
+			} elseif (Utils::$context['can_manage']) {
+				echo '
+						<span class="smalltext">', Lang::getTxt('passkey_only_way_in', file: 'Profile'), '</span>';
+			}
+
+			echo '
+					</td>
+				</tr>';
+		}
+
+		echo '
+			</tbody>
+		</table>';
+	}
+
+	// Hidden until the script has decided this browser can actually do it.
+	if (!empty(Utils::$context['can_manage'])) {
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('passkeys_add', file: 'Profile'), '</h3>
+		</div>
+		<div class="windowbg" id="add_passkey" style="display: none">
+			<dl class="settings">
+				<dt>
+					<strong>', Lang::getTxt('passkeys_name', file: 'Profile'), '</strong>
+					<br><span class="smalltext">', Lang::getTxt('passkeys_name_desc', file: 'Profile'), '</span>
+				</dt>
+				<dd>
+					<input type="text" id="passkey_title" maxlength="80" size="30">
+				</dd>
+			</dl>
+			<div class="righttext">
+				<button type="button" id="add_passkey_button" class="button">', Lang::getTxt('passkeys_add', file: 'Profile'), '</button>
+			</div>
+		</div>
+		<script>
+			var smf_passkey_manage = {
+				container: "add_passkey",
+				button: "add_passkey_button",
+				field: "passkey_title",
+				failed: ', Utils::escapeJavaScript(Lang::getTxt('passkey_register_failed', file: 'Login')), '
+			};
+		</script>';
+	}
+}
