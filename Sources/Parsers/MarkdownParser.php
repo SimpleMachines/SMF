@@ -336,6 +336,9 @@ class MarkdownParser extends Parser
 	 * Defines all the recognized block level element types.
 	 *
 	 * The order of items in this array matters. Don't change it.
+	 *
+	 * MOD AUTHORS: If you want to add support for a Markdown extension, you can
+	 * add custom block types to this array via the integrate_markdown hook.
 	 */
 	protected array $block_types = [
 		'blank' => [
@@ -563,10 +566,63 @@ class MarkdownParser extends Parser
 	/**
 	 * @var array
 	 *
+	 * Inline parsing happens in two passes, which is why there are two elements
+	 * in this array, one for the first pass and another for second pass.
+	 *
+	 * Within the sub-array for each pass, keys are Markdown syntax characters
+	 * and values are names of callbacks to call when those characters are
+	 * encountered. The named callbacks can be methods in this class or anything
+	 * else that can be resolved by SMF\Utils::getCallable().
+	 *
+	 * The callbacks must accept the following parameters:
+	 *
+	 *    array  $content       The content nodes of the paragraph being parsed.
+	 *    int    $c             The key of the current node in $content.
+	 *    array  $chars         The characters in the current content node.
+	 *    int    &$i            The key of the current character in $chars.
+	 *    string &$new_string   Temporary string that is actively being built
+	 *                          and will eventually be incorporated into a node
+	 *                          within $new_content.
+	 *    array  &$new_content  Collection of nodes that will ultimately replace
+	 *                          the content of the paragraph.
+	 *    bool   &$escaped      Whether the current character is escaped and
+	 *                          should thus be treated as a literal rather than
+	 *                          as a syntax character.
+	 *
+	 * Many of these parameters are passed by reference because callbacks are
+	 * expected to manipulate them.
+	 *
+	 * MOD AUTHORS: If you want to add support for a Markdown extension, you can
+	 * add custom inline types to this array via the integrate_markdown hook.
+	 */
+	protected array $inline_types = [
+		1 => [
+			// Inline code spans.
+			'`' => 'parseCharBacktick',
+			// HTML tags and `<http://example.com>` links.
+			'<' => 'parseCharLessThan',
+		],
+		2 => [
+			// Newlines.
+			"\n" => 'parseCharNewline',
+			// Emphasis and strikethrough.
+			'*' => 'parseCharEmph',
+			'_' => 'parseCharEmph',
+			'~' => 'parseCharEmph',
+			// Images and links.
+			'!' => 'parseCharExclamationPoint',
+			'[' => 'parseCharLeftSquareBracket',
+			']' => 'parseCharRightSquareBracket',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Defines the methods used to render different element types.
 	 *
-	 * This info is separate from $this->block_types because it includes info
-	 * about how to render both block elements and inline elements.
+	 * MOD AUTHORS: If you want to add support for a Markdown extension, you can
+	 * add rendering instructions to this array via the integrate_markdown hook.
 	 */
 	protected array $render_methods = [
 		'fenced_code' => 'renderCodeBlock',
@@ -640,7 +696,14 @@ class MarkdownParser extends Parser
 	/**
 	 * @var int
 	 *
-	 * Tracks whether a code block is currently open.
+	 * Tracks whether a code block or inline code span is currently open.
+	 *
+	 * Possible values and their meanings:
+	 *
+	 *  0 => Not in code.
+	 *  1 => In an indented code block.
+	 *  2 => In a fenced code block.
+	 *  3 => In an inline code span.
 	 */
 	private int $in_code = 0;
 
@@ -654,7 +717,8 @@ class MarkdownParser extends Parser
 	/**
 	 * @var string
 	 *
-	 * For fenced code blocks, the string of the opening code fence.
+	 * For fenced code blocks and inline code spans, the string of the opening
+	 * code fence.
 	 */
 	private string $opening_fence = '';
 
@@ -733,7 +797,26 @@ class MarkdownParser extends Parser
 		$this->output_type = $output_type;
 
 		// Maybe a mod wants to add a Markdown extension or something?
-		IntegrationHook::call('integrate_markdown', [&$this->block_types, &$this->render_methods]);
+		$custom_block_types = [];
+		$custom_inline_types = [];
+		$custom_render_methods = [];
+
+		IntegrationHook::call('integrate_markdown', [&$custom_block_types, &$custom_inline_types, &$custom_render_methods]);
+
+		if (!empty($custom_block_types)) {
+			$p = $this->block_types['p'];
+			unset($this->block_types['p']);
+			$this->block_types += $custom_block_types;
+			$this->block_types['p'] = $p;
+		}
+
+		if (!empty($custom_inline_types)) {
+			$this->inline_types[2] += $custom_inline_types;
+		}
+
+		if (!empty($custom_render_methods)) {
+			$this->render_methods += $custom_render_methods;
+		}
 	}
 
 	/**
@@ -2231,141 +2314,51 @@ class MarkdownParser extends Parser
 	/**
 	 * Parses inline code spans, HTML tags, and `<http://example.com>` links.
 	 *
+	 * The incoming $content is assumed to be an array of strings.
+	 * The returned array is a mix of strings and structured content nodes.
+	 *
 	 * @param array $content The content of a paragraph or heading block.
+	 * @return array Updated content array.
 	 */
 	protected function parseInlineFirstPass(array $content): array
 	{
 		$new_content = [];
 
-		$string = implode("\n", $content);
-		$chars = mb_str_split($string);
+		// During the first pass, we handle $content as one big blob.
+		$chars = mb_str_split(implode("\n", $content));
+		$c = 0;
 
 		$escaped = false;
-		$in_code = false;
-		$code_delim = '';
-		$string_part = '';
+		$new_string = '';
+		$this->in_code = 0;
+		$this->opening_fence = '';
 
 		for ($i = 0; $i < \count($chars); $i++) {
-			$char = $chars[$i];
+			if ($chars[$i] === '\\') {
+				$escaped = true;
+			} elseif (isset($this->inline_types[1][$chars[$i]])) {
+				if (\is_string($this->inline_types[1][$chars[$i]])) {
+					$this->inline_types[1][$chars[$i]] = $this->getMethod($this->inline_types[1][$chars[$i]]);
+				}
 
-			switch ($char) {
-				case '\\':
-					$escaped = true;
-					break;
-
-				// Starting or ending an inline code span.
-				case '`':
-					if ($escaped) {
-						$string_part .= $char;
-						$escaped = false;
-						break;
+				if (\is_callable($this->inline_types[1][$chars[$i]])) {
+					$this->inline_types[1][$chars[$i]]($content, $c, $chars, $i, $new_string, $new_content, $escaped);
+				}
+			} else {
+				if ($escaped) {
+					if (!\in_array($chars[$i], self::ESCAPEABLE)) {
+						$new_string .= '\\';
 					}
 
-					if (!$in_code) {
-						$code_delim .= '`';
+					$escaped = false;
+				}
 
-						while (isset($chars[$i + 1]) && $chars[$i + 1] === '`') {
-							$code_delim .= '`';
-							$i++;
-						}
-
-						$in_code = true;
-						$new_content[] = $string_part;
-						$string_part = '';
-					} else {
-						$temp = '`';
-						$temp_i = $i;
-
-						while (isset($chars[$temp_i + 1]) && $chars[++$temp_i] === '`') {
-							$temp .= '`';
-						}
-
-						if ($temp === $code_delim) {
-							$i = $temp_i - 1;
-							$in_code = false;
-
-							if ($string_part !== '') {
-								$new_content[] = [
-									'type' => 'code',
-									'properties' => [],
-									'content' => [$string_part],
-								];
-							}
-
-							$string_part = '';
-						}
-					}
-					break;
-
-				// Possibly starting an inline "autolink" or HTML tag.
-				case '<':
-					if ($escaped) {
-						$string_part .= $char;
-						$escaped = false;
-						break;
-					}
-
-					$new_content[] = $string_part;
-					$string_part = '';
-
-					$temp_string = '';
-					$orig_i = $i;
-
-					while (isset($chars[$i + 1]) && $chars[$i + 1] !== '>') {
-						$temp_string .= $chars[++$i];
-					}
-
-					// Is this a URI?
-					$urls = Autolinker::load()->detectUrls($temp_string);
-
-					if ($urls === [$temp_string]) {
-						$new_content[] = [
-							'type' => 'link',
-							'properties' => [
-								'url' => $temp_string,
-							],
-							'content' => [$temp_string],
-						];
-
-						$i++;
-
-						break;
-					}
-
-					// Is this an HTML tag?
-					if (preg_match('~' . self::REGEX_HTML_TAG . '~u', '<' . $temp_string . '>')) {
-						$new_content[] = [
-							'type' => 'html',
-							'properties' => [],
-							'content' => ['<' . $temp_string . '>'],
-						];
-
-						$i++;
-
-						break;
-					}
-
-					// If we get here, it's just a regular string.
-					$string_part .= '<';
-					$i = $orig_i;
-					break;
-
-				default:
-					if ($escaped) {
-						if (!\in_array($char, self::ESCAPEABLE)) {
-							$string_part .= '\\';
-						}
-
-						$escaped = false;
-					}
-
-					$string_part .= $char;
-					break;
+				$new_string .= $chars[$i];
 			}
 		}
 
-		if ($string_part !== '') {
-			$new_content[] = $string_part;
+		if ($new_string !== '') {
+			$new_content[] = $new_string;
 		}
 
 		// Amalgamate contiguous plain strings.
@@ -2378,7 +2371,11 @@ class MarkdownParser extends Parser
 	/**
 	 * Parses all other types of inline Markdown syntax.
 	 *
+	 * The incoming $content is a mix of strings and structured content nodes.
+	 * The returned array is also a mix of strings and structured content nodes.
+	 *
 	 * @param array $content The content of a paragraph or heading block.
+	 * @return array Updated content array.
 	 */
 	protected function parseInlineSecondPass(array $content): array
 	{
@@ -2386,6 +2383,7 @@ class MarkdownParser extends Parser
 
 		$last_c = array_key_last($content);
 
+		// During the second pass, we handle each $content element separately.
 		foreach ($content as $c => $string) {
 			if (!\is_string($string)) {
 				$new_content[] = $string;
@@ -2393,249 +2391,36 @@ class MarkdownParser extends Parser
 			}
 
 			$chars = mb_str_split($string);
-			$last_i = array_key_last($chars);
 
 			$escaped = false;
-			$string_part = '';
+			$new_string = '';
 
 			for ($i = 0; $i < \count($chars); $i++) {
-				$char = $chars[$i];
+				if ($chars[$i] === '\\') {
+					$escaped = true;
+				} elseif (isset($this->inline_types[2][$chars[$i]])) {
+					if (\is_string($this->inline_types[2][$chars[$i]])) {
+						$this->inline_types[2][$chars[$i]] = $this->getMethod($this->inline_types[2][$chars[$i]]);
+					}
 
-				switch ($char) {
-					case '\\':
-						$escaped = true;
-						break;
-
-					case "\n":
-						// Don't create hard line breaks at the end of a block.
-						if ($c === $last_c && $i === $last_i) {
-							$string_part .= $char;
-						}
-						// Hard line break via an escaped newline.
-						elseif ($escaped) {
-							if ($string_part !== '') {
-								$new_content[] = $string_part;
-								$string_part = '';
-							}
-
-							$new_content[] = [
-								'type' => 'html',
-								'properties' => [],
-								'content' => ['<br>'],
-							];
-
-							$escaped = false;
-
-							while (isset($chars[$i + 1]) && $chars[$i + 1] === ' ') {
-								$i++;
-							}
-						}
-						// Hard line break via two or more spaces and then a newline.
-						elseif ($i > 2 && $chars[$i - 1] === ' ' && $chars[$i - 2] === ' ') {
-							if ($string_part !== '') {
-								$new_content[] = Utils::htmlTrimRight($string_part);
-								$string_part = '';
-							}
-
-							$new_content[] = [
-								'type' => 'html',
-								'properties' => [],
-								'content' => ['<br>'],
-							];
-
-							while (isset($chars[$i + 1]) && $chars[$i + 1] === ' ') {
-								$i++;
-							}
-						}
-						// Nothing special.
-						else {
-							$string_part .= $char;
-						}
-						break;
-
-					case '*':
-					case '_':
-					case '~':
-						if ($escaped) {
-							$string_part .= $char;
-							$escaped = false;
-							break;
+					if (\is_callable($this->inline_types[2][$chars[$i]])) {
+						$this->inline_types[2][$chars[$i]]($content, $c, $chars, $i, $new_string, $new_content, $escaped);
+					}
+				} else {
+					if ($escaped) {
+						if (!\in_array($chars[$i], self::ESCAPEABLE)) {
+							$new_string .= '\\';
 						}
 
-						if ($string_part !== '') {
-							$new_content[] = $string_part;
-						}
+						$escaped = false;
+					}
 
-						$string_part = $char;
-
-						$start = $i;
-
-						while (isset($chars[$i + 1]) && $chars[$i + 1] === $char) {
-							$string_part .= $char;
-							$i++;
-						}
-
-						// We need more info to make decisions about this run of delimiter chars.
-						if (isset($chars[$start - 1])) {
-							$prev_char = $chars[$start - 1];
-						} elseif (!isset($content[$c - 1])) {
-							$prev_char = ' ';
-						} else {
-							$temp = $content[$c - 1];
-
-							while (isset($temp[array_key_last($temp)]['content'])) {
-								$temp = $temp[array_key_last($temp)]['content'];
-							}
-
-							if (\is_string(end($temp['content']))) {
-								$prev_char = mb_substr(end($temp['content']), -1);
-							} else {
-								$prev_char = ' ';
-							}
-						}
-
-						if (isset($chars[$i + 1])) {
-							$next_char = $chars[$i + 1];
-						} elseif (!isset($content[$c + 1])) {
-							$next_char = ' ';
-						} else {
-							$temp = $content[$c + 1];
-
-							while (isset($temp[0]['content'])) {
-								$temp = $temp[0]['content'];
-							}
-
-							if (\is_string(reset($temp['content']))) {
-								$next_char = mb_substr(reset($temp['content']), 0, 1);
-							} else {
-								$next_char = ' ';
-							}
-						}
-
-						$prev_is_space = preg_match('/\s/u', $prev_char);
-						$prev_is_punct = $prev_is_space ? false : preg_match('/\pP/u', $prev_char);
-
-						$next_is_space = preg_match('/\s/u', $next_char);
-						$next_is_punct = $next_is_space ? false : preg_match('/\pP/u', $next_char);
-
-						$left_flanking = !$next_is_space && (!$next_is_punct || $prev_is_space || $prev_is_punct);
-						$right_flanking = !$prev_is_space && (!$prev_is_punct || $next_is_space || $next_is_punct);
-
-						$can_open = $left_flanking && ($char === '*' || !$right_flanking || $prev_is_punct);
-						$can_close = $right_flanking && ($char === '*' || !$left_flanking || $next_is_punct);
-
-						$length = \strlen($string_part);
-
-						// Max length of strikethrough delimiter is two chars.
-						if ($char === '~' && $length > 2) {
-							$new_content[array_key_last($new_content)] .= $string_part;
-							$string_part = '';
-							break;
-						}
-
-						// Add a node for this delimiter run.
-						$new_content[] = [
-							'type' => $char,
-							'properties' => [
-								'length' => $length,
-								'active' => true,
-								'can_open' => $can_open,
-								'can_close' => $can_close,
-								'position' => $i,
-							],
-							'content' => $string_part,
-						];
-
-						$string_part = '';
-
-						break;
-
-					case '!':
-						if ($escaped || ($chars[$i + 1] ?? '') !== '[') {
-							$string_part .= $char;
-							$escaped = false;
-							break;
-						}
-
-						$i++;
-
-						if ($string_part !== '') {
-							$new_content[] = $string_part;
-							$string_part = '';
-						}
-
-						$new_content[] = [
-							'type' => '![',
-							'properties' => [
-								'length' => 2,
-								'active' => true,
-								'can_open' => true,
-								'can_close' => false,
-								'position' => $i,
-							],
-							'content' => '![',
-						];
-
-						break;
-
-					case '[':
-						if ($escaped) {
-							$string_part .= '[';
-							$escaped = false;
-							break;
-						}
-
-						if ($string_part !== '') {
-							$new_content[] = $string_part;
-							$string_part = '';
-						}
-
-						$new_content[] = [
-							'type' => '[',
-							'properties' => [
-								'length' => 1,
-								'active' => true,
-								'can_open' => true,
-								'can_close' => false,
-								'position' => $i,
-							],
-							'content' => '[',
-						];
-
-						break;
-
-					case ']':
-						if ($escaped) {
-							$string_part .= ']';
-							$escaped = false;
-							break;
-						}
-
-						if ($string_part !== '') {
-							$new_content[] = $string_part;
-							$string_part = '';
-						}
-
-						$this->parseLink($chars, $i, $new_content);
-
-						break;
-
-					default:
-						if ($escaped) {
-							if (!\in_array($char, self::ESCAPEABLE)) {
-								$string_part .= '\\';
-							}
-
-							$escaped = false;
-						}
-
-						$string_part .= $char;
-						break;
+					$new_string .= $chars[$i];
 				}
 			}
 
-			if ($string_part !== '') {
-				$new_content[] = $string_part;
+			if ($new_string !== '') {
+				$new_content[] = $new_string;
 			}
 		}
 
@@ -2672,6 +2457,506 @@ class MarkdownParser extends Parser
 		}
 
 		return $new_content;
+	}
+
+	/**
+	 * Callback used during inline parsing when a '`' character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharBacktick(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== '`') {
+			return;
+		}
+
+		if ($escaped) {
+			$new_string .= $chars[$i];
+			$escaped = false;
+
+			return;
+		}
+
+		if ($this->in_code !== 3) {
+			$this->opening_fence .= '`';
+
+			while (isset($chars[$i + 1]) && $chars[$i + 1] === '`') {
+				$this->opening_fence .= '`';
+				$i++;
+			}
+
+			$this->in_code = 3;
+			$new_content[] = $new_string;
+			$new_string = '';
+		} else {
+			$temp = '`';
+			$temp_i = $i;
+
+			while (isset($chars[$temp_i + 1]) && $chars[++$temp_i] === '`') {
+				$temp .= '`';
+			}
+
+			if ($temp === $this->opening_fence) {
+				$i = $temp_i - 1;
+				$this->in_code = 0;
+
+				if ($new_string !== '') {
+					$new_content[] = [
+						'type' => 'code',
+						'properties' => [],
+						'content' => [$new_string],
+					];
+				}
+
+				$new_string = '';
+			}
+		}
+	}
+
+	/**
+	 * Callback used during inline parsing when a '<' character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharLessThan(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== '<') {
+			return;
+		}
+
+		if ($escaped) {
+			$new_string .= $chars[$i];
+			$escaped = false;
+
+			return;
+		}
+
+		$new_content[] = $new_string;
+		$new_string = '';
+
+		$temp_string = '';
+		$orig_i = $i;
+
+		while (isset($chars[$i + 1]) && $chars[$i + 1] !== '>') {
+			$temp_string .= $chars[++$i];
+		}
+
+		// Is this a URI?
+		$urls = Autolinker::load()->detectUrls($temp_string);
+
+		if ($urls === [$temp_string]) {
+			$new_content[] = [
+				'type' => 'link',
+				'properties' => [
+					'url' => $temp_string,
+				],
+				'content' => [$temp_string],
+			];
+
+			$i++;
+
+			return;
+		}
+
+		// Is this an HTML tag?
+		if (preg_match('~' . self::REGEX_HTML_TAG . '~u', '<' . $temp_string . '>')) {
+			$new_content[] = [
+				'type' => 'html',
+				'properties' => [],
+				'content' => ['<' . $temp_string . '>'],
+			];
+
+			$i++;
+
+			return;
+		}
+
+		// If we get here, it's just a regular string.
+		$new_string .= '<';
+		$i = $orig_i;
+	}
+
+	/**
+	 * Callback used during inline parsing when a "\n" character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharNewline(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== "\n") {
+			return;
+		}
+
+		// Don't create hard line breaks at the end of a block.
+		if ($c === array_key_last($content) && $i === array_key_last($chars)) {
+			$new_string .= $chars[$i];
+
+			return;
+		}
+
+		// Hard line break via an escaped newline.
+		if ($escaped) {
+			if ($new_string !== '') {
+				$new_content[] = $new_string;
+				$new_string = '';
+			}
+
+			$new_content[] = [
+				'type' => 'html',
+				'properties' => [],
+				'content' => ['<br>'],
+			];
+
+			$escaped = false;
+
+			while (isset($chars[$i + 1]) && $chars[$i + 1] === ' ') {
+				$i++;
+			}
+
+			return;
+		}
+
+		// Hard line break via two or more spaces and then a newline.
+		if ($i > 2 && $chars[$i - 1] === ' ' && $chars[$i - 2] === ' ') {
+			if ($new_string !== '') {
+				$new_content[] = Utils::htmlTrimRight($new_string);
+				$new_string = '';
+			}
+
+			$new_content[] = [
+				'type' => 'html',
+				'properties' => [],
+				'content' => ['<br>'],
+			];
+
+			while (isset($chars[$i + 1]) && $chars[$i + 1] === ' ') {
+				$i++;
+			}
+
+			return;
+		}
+
+		// Nothing special.
+		$new_string .= $chars[$i];
+	}
+
+	/**
+	 * Callback used during inline parsing when a '*', '_', or '~'
+	 * character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharEmph(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if (!\in_array($chars[$i], ['*', '_', '~'])) {
+			return;
+		}
+
+		if ($escaped) {
+			$new_string .= $chars[$i];
+			$escaped = false;
+
+			return;
+		}
+
+		if ($new_string !== '') {
+			$new_content[] = $new_string;
+		}
+
+		$new_string = $chars[$i];
+
+		$start = $i;
+
+		while (isset($chars[$i + 1]) && $chars[$i + 1] === $chars[$i]) {
+			$new_string .= $chars[$i];
+			$i++;
+		}
+
+		// We need more info to make decisions about this run of delimiter chars.
+		if (isset($chars[$start - 1])) {
+			$prev_char = $chars[$start - 1];
+		} elseif (!isset($content[$c - 1])) {
+			$prev_char = ' ';
+		} else {
+			$temp = $content[$c - 1];
+
+			while (isset($temp[array_key_last($temp)]['content'])) {
+				$temp = $temp[array_key_last($temp)]['content'];
+			}
+
+			if (\is_string(end($temp['content']))) {
+				$prev_char = mb_substr(end($temp['content']), -1);
+			} else {
+				$prev_char = ' ';
+			}
+		}
+
+		if (isset($chars[$i + 1])) {
+			$next_char = $chars[$i + 1];
+		} elseif (!isset($content[$c + 1])) {
+			$next_char = ' ';
+		} else {
+			$temp = $content[$c + 1];
+
+			while (isset($temp[0]['content'])) {
+				$temp = $temp[0]['content'];
+			}
+
+			if (\is_string(reset($temp['content']))) {
+				$next_char = mb_substr(reset($temp['content']), 0, 1);
+			} else {
+				$next_char = ' ';
+			}
+		}
+
+		$prev_is_space = preg_match('/\s/u', $prev_char);
+		$prev_is_punct = $prev_is_space ? false : preg_match('/\pP/u', $prev_char);
+
+		$next_is_space = preg_match('/\s/u', $next_char);
+		$next_is_punct = $next_is_space ? false : preg_match('/\pP/u', $next_char);
+
+		$left_flanking = !$next_is_space && (!$next_is_punct || $prev_is_space || $prev_is_punct);
+		$right_flanking = !$prev_is_space && (!$prev_is_punct || $next_is_space || $next_is_punct);
+
+		$can_open = $left_flanking && ($chars[$i] === '*' || !$right_flanking || $prev_is_punct);
+		$can_close = $right_flanking && ($chars[$i] === '*' || !$left_flanking || $next_is_punct);
+
+		$length = \strlen($new_string);
+
+		// Max length of strikethrough delimiter is two chars.
+		if ($chars[$i] === '~' && $length > 2) {
+			$new_content[array_key_last($new_content)] .= $new_string;
+			$new_string = '';
+
+			return;
+		}
+
+		// Add a node for this delimiter run.
+		$new_content[] = [
+			'type' => $chars[$i],
+			'properties' => [
+				'length' => $length,
+				'active' => true,
+				'can_open' => $can_open,
+				'can_close' => $can_close,
+				'position' => $i,
+			],
+			'content' => $new_string,
+		];
+
+		$new_string = '';
+	}
+
+	/**
+	 * Callback used during inline parsing when a '!' character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharExclamationPoint(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== '!') {
+			return;
+		}
+
+		if ($escaped || ($chars[$i + 1] ?? '') !== '[') {
+			$new_string .= $chars[$i];
+			$escaped = false;
+
+			return;
+		}
+
+		$i++;
+
+		if ($new_string !== '') {
+			$new_content[] = $new_string;
+			$new_string = '';
+		}
+
+		$new_content[] = [
+			'type' => '![',
+			'properties' => [
+				'length' => 2,
+				'active' => true,
+				'can_open' => true,
+				'can_close' => false,
+				'position' => $i,
+			],
+			'content' => '![',
+		];
+	}
+
+	/**
+	 * Callback used during inline parsing when a '[' character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharLeftSquareBracket(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== '[') {
+			return;
+		}
+
+		if ($escaped) {
+			$new_string .= '[';
+			$escaped = false;
+
+			return;
+		}
+
+		if ($new_string !== '') {
+			$new_content[] = $new_string;
+			$new_string = '';
+		}
+
+		$new_content[] = [
+			'type' => '[',
+			'properties' => [
+				'length' => 1,
+				'active' => true,
+				'can_open' => true,
+				'can_close' => false,
+				'position' => $i,
+			],
+			'content' => '[',
+		];
+	}
+
+	/**
+	 * Callback used during inline parsing when a ']' character is encountered.
+	 *
+	 * @param array $content The content nodes of the paragraph being parsed.
+	 * @param int $c The key of the current node in $content.
+	 * @param array $chars The characters in the current content node.
+	 * @param int &$i The key of the current character in $chars.
+	 * @param string &$new_string Temporary string that is actively being built
+	 *    and will eventually be incorporated into a node within $new_content.
+	 * @param array &$new_content Collection of nodes that will ultimately
+	 *    replace the content of the paragraph.
+	 * @param bool &$escaped Whether the current character is escaped and should
+	 *    thus be treated as a literal rather than as a syntax character.
+	 */
+	protected function parseCharRightSquareBracket(
+		array $content,
+		int $c,
+		array $chars,
+		int &$i,
+		string &$new_string,
+		array &$new_content,
+		bool &$escaped,
+	): void {
+		if ($chars[$i] !== ']') {
+			return;
+		}
+
+		if ($escaped) {
+			$new_string .= ']';
+			$escaped = false;
+
+			return;
+		}
+
+		if ($new_string !== '') {
+			$new_content[] = $new_string;
+			$new_string = '';
+		}
+
+		$this->parseLink($chars, $i, $new_content);
 	}
 
 	/**
@@ -4105,17 +4390,19 @@ class MarkdownParser extends Parser
 
 		$method = ltrim($method, '!');
 
-		if (!method_exists($this, $method)) {
+		$method = method_exists($this, $method) ? $this->{$method}(...) : Utils::getCallable($method, true);
+
+		if ($method === false) {
 			return false;
 		}
 
 		if ($not) {
 			return function (...$args) use ($method) {
-				return !($this->$method(...$args));
+				return !$method(...$args);
 			};
-		} else {
-			return [$this, $method];
 		}
+
+		return $method;
 	}
 
 	/**
