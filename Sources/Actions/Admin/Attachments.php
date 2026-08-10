@@ -112,9 +112,7 @@ class Attachments implements ActionInterface
 		var storing_type = document.getElementById(\'automanage_attachments\');
 		var base_dir = document.getElementById(\'use_subdirectories_for_attachments\');
 
-		createEventListener(storing_type)
 		storing_type.addEventListener("change", toggleSubDir, false);
-		createEventListener(base_dir)
 		base_dir.addEventListener("change", toggleSubDir, false);
 		toggleSubDir();';
 
