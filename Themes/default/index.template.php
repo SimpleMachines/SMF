@@ -64,7 +64,7 @@ function template_init()
 	 * theme with dark mode. This means the index.css file should
 	 * always contain the light colors.
 	 */
-	Theme::$current->settings['has_dark_mode'] = false;
+	Theme::$current->settings['has_dark_mode'] = true;
 
 	/*
 	 * Define the theme variants. Each variant has its own CSS file.
