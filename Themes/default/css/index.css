@@ -150,7 +150,7 @@ strong, .strong {
 	color: var(--strong-color);
 }
 .cat_bar strong {
-	color: #fff;
+	color: var(--catbar-strong-color);
 }
 em, .em {
 	font-style: italic;
@@ -238,14 +238,14 @@ body#help_popup {
 	position: relative;
 	top: -2px;
 	padding: 0 4px;
-	background: linear-gradient(#f97b00,#884d00);
-	color: #fff;
+	background: var(--newposts-bg);
+	color: var(--newposts-color);
 	font: 9px/15px verdana, sans-serif;
 	border-radius: 2px;
 	opacity: 0.8;
 }
 a.new_posts:visited {
-	color: #fff;
+	color: var(--newposts-color);
 }
 .new_posts:hover, .new_posts:focus {
 	text-decoration: none;
@@ -626,7 +626,7 @@ strong[id^='child_list_']::after {
 }
 .current_page {
 	padding: 0 4px 0 2px;
-	color: #b46100;
+	color: var(--currentpage-color);
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
@@ -646,15 +646,15 @@ strong[id^='child_list_']::after {
 
 /* Calendar colors for birthdays, events and holidays */
 .birthday {
-	color: #920ac4;
+	color: var(--birthday-color);
 }
 
 .event {
-	color: #078907;
+	color: var(--event-color);
 }
 
 .holiday > span.label {
-	color: #025dff;
+	color: var(--holiday-color);
 }
 .holiday_wrapper > span:first-of-type::before {
 	content: '(';
@@ -671,11 +671,11 @@ strong[id^='child_list_']::after {
 }
 
 .warn_moderate {
-	color: #ffa500;
+	color: var(--warnmoderate-color);
 }
 
 .warn_watch, .success {
-	color: green;
+	color: var(--success-color);
 }
 
 a.moderation_link, a.moderation_link:visited {
@@ -818,17 +818,17 @@ img.sort, .sort {
 	visibility: hidden;
 	border-radius: 3px;
 	outline: none !important;
-	border: 1px solid #bbb;
+	border: 1px solid var(--autosuggest-border-color);
 	z-index: 100;
 }
 .auto_suggest_item {
-	background: #ddd;
+	background: var(--autosuggest-item-bg);
 	padding: 1px 4px;
 }
 .auto_suggest_item_hover {
-	background: #888;
+	background: var(--autosuggest-item-bg_hover);
 	cursor: pointer;
-	color: #eee;
+	color: var(--autosuggest-item-color_hover);
 	padding: 1px 4px;
 }
 
@@ -1147,7 +1147,7 @@ html[lang="el-GR"] .inline_mod_check {
 	text-transform: capitalize;
 }
 .pagesection .button {
-	color: #346;
+	color: var(--pagesection-button-color);
 }
 /* .button is listed here for the border and the shadow; it overrides the
    colour again immediately below, so this one belongs to the quick buttons. */
@@ -1207,10 +1207,10 @@ html[lang="el-GR"] .inline_mod_check {
 /* Box-shadow only on this one. */
 #wrapper {
 	clear: both;
-	background: #fff;
-	border: 1px solid #b8b8b8;
+	background: var(--wrapper-bg);
+	border: 1px solid var(--wrapper-border-color);
 	border-radius: 8px;
-	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.14);
+	box-shadow: var(--wrapper-box-shadow);
 }
 
 /* Set maximum width limit for content.
@@ -1291,7 +1291,7 @@ h1.forumtitle {
 	flex: 1 1 auto;
 }
 h1.forumtitle a {
-	color: #a85400;
+	color: var(--forumtitle-link-color);
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 }
 /* Float these items to the right */
@@ -1910,16 +1910,16 @@ dl.register_form dd {
 .coppa_contact {
 	padding: 4px;
 	width: 32ex;
-	background: #fff;
-	color: #222;
+	background: var(--coppa-bg);
+	color: var(--coppa-color);
 	margin-left: 5ex;
-	border: 1px solid #222;
+	border: 1px solid var(--coppa-border-color);
 }
 .valid_input {
-	background: #f5fff0;
+	background: var(--input-bg_valid);
 }
 .invalid_input {
-	background: #fff0f0;
+	background: var(--input-bg_invalid);
 }
 
 /* Styles for maintenance mode.
@@ -1950,7 +1950,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 .errorfile_table {
-	background: #f0f4f7;
+	background: var(--errorfile-bg);
 	border-collapse: collapse;
 }
 .errorfile_table .file_line {
@@ -1962,7 +1962,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	border-top: 1px solid rgba(0, 0, 0, 0.2);
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	border-width: 1px 0 1px 1px;
-	background: rgba(245, 141, 15, 0.2);
+	background: var(--errorfile-bg_current);
 }
 
 .generic_menu {
@@ -2546,7 +2546,7 @@ dl {
 	width: 35%;
 	margin: 0 0 3px 0;
 	font-weight: bold;
-	color: #444;
+	color: var(--profile-dt-color);
 }
 #detailedinfo dd, #tracking dd {
 	width: 65%;
@@ -2590,10 +2590,10 @@ dl {
 }
 .activity_stats li span {
 	display: block;
-	border: 1px solid #666;
+	border: 1px solid var(--activitystats-border-color);
 	border-left: none;
 	border-right: none;
-	background: #eee;
+	background: var(--activitystats-bg);
 }
 .activity_stats li.last span {
 	border-right: none;
@@ -2629,7 +2629,7 @@ dl {
 	padding: 5px 6px 1px 2px;
 	font-size: 2.2em;
 	font-weight: bold;
-	color: #3f3f3f;
+	color: var(--counter-color);
 	float: left;
 }
 .topic_details {
@@ -2640,7 +2640,7 @@ dl {
 }
 .list_posts {
 	border-top: 1px solid #ddd;
-	box-shadow: 0 1px 0 #fff inset;
+	box-shadow: var(--listposts-box-shadow);
 	padding-top: 1em;
 	margin-top: 1em;
 	margin-bottom: 1em;
@@ -2742,7 +2742,7 @@ dl {
 	float: left;
 }
 #pick_theme .selected {
-	background: #cddbe6;
+	background: var(--picktheme-selected-bg);
 }
 
 /* Signature preview */
@@ -2768,16 +2768,16 @@ dl {
 	max-width: 250px;
 }
 .warning_level.none .bar {
-	background-color: #75da41;
+	background-color: var(--warninglevel-bg_none);
 }
 .warning_level.watched .bar {
-	background-color: #ffd800;
+	background-color: var(--warninglevel-bg_watched);
 }
 .warning_level.moderated .bar {
-	background-color: orange;
+	background-color: var(--warninglevel-bg_moderated);
 }
 .warning_level.muted .bar {
-	background-color: #f45d4c;
+	background-color: var(--warninglevel-bg_muted);
 }
 
 /* Styles for the statistics center.
@@ -3098,7 +3098,7 @@ dl.addrules dt.floatleft {
 	border: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color);
 	border-bottom: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color_bottom);
 	border-radius: 6px 6px 2px 2px;
-	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
+	box-shadow: var(--popup-content-box-shadow);
 }
 .popup_window.large .popup_content {
 	max-height: 80vh;
@@ -3840,8 +3840,8 @@ form#postmodify .roundframe {
 	font-weight: bold;
 }
 #post_draft_options {
-	background: #fdfdfd;
-	border: 1px solid #aaa;
+	background: var(--draftoptions-bg);
+	border: 1px solid var(--draftoptions-border-color);
 	border-left: 1px solid #bbb;
 	border-top: none;
 	border-radius: 0 0 4px 4px;
@@ -3856,7 +3856,7 @@ form#postmodify .roundframe {
 	border-top: none; /* Some people are OCD, like me. :P */
 }
 #post_draft_options .settings strong {
-	color: #555;
+	color: var(--draftoptions-strong-color);
 }
 #post_confirm_buttons {
 	display: flex;
@@ -3934,16 +3934,16 @@ form#postmodify .roundframe {
 	border-spacing: 1px;
 }
 .errorfile_table td {
-	background: #fbfbfb;
+	background: var(--errorfile-line-bg);
 }
 .errorfile_table .current {
-	background: #fbc6c6;
+	background: var(--errorfile-line-bg_current);
 }
 .errorfile_table .file_line.current {
-	background: #fb9090;
+	background: var(--errorfile-fileline-bg_current);
 }
 .errorfile_table .file_line {
-	background: #ececec;
+	background: var(--errorfile-fileline-bg);
 }
 
 /* General Classes */
@@ -4053,7 +4053,7 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
-	color: #555;
+	color: var(--titlebg-color);
 	font-family: "Tahoma", sans-serif;
 	font-weight: bold;
 	overflow: hidden;
@@ -4062,7 +4062,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 .titlebg a, .subbg a {
 	background: none;
-	color: #555;
+	color: var(--titlebg-link-color);
 	text-decoration: none;
 }
 .title_bar + .windowbg, .title_bar + .roundframe {
@@ -4232,18 +4232,18 @@ h3.profile_hd::before,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
-	background: #fff; /* fallback for some browsers */
-	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
+	background: var(--raised-bg); /* fallback for some browsers */
+	background-image: var(--raised-bg-image);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, #search_form .button:hover, .quickbuttons li:hover {
-	background: #fff;
-	background-image: linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
+	background: var(--raised-bg_hover);
+	background-image: var(--raised-bg-image_hover);
 }
 /* If it fits I sits... */
 .navigate_section ul, .popup_content, .up_contain {
-	background: #fff;
-	background-image: linear-gradient(to bottom, #fff 0%, #f1f3f5 95%);
+	background: var(--overlay-bg);
+	background-image: var(--overlay-bg-image);
 }
 
 /* Topic/Board follow-alert menu */
@@ -4259,7 +4259,7 @@ h3.profile_hd::before,
 }
 .dropmenu .viewport .overview a:hover,
 .dropmenu .viewport .overview a:focus {
-	border-color: #ddd;
+	border-color: var(--dropmenu-border-color_focus);
 }
 .dropmenu .viewport .overview span {
 	font-size: 0.9em;
@@ -4271,7 +4271,7 @@ h3.profile_hd::before,
 	margin: -7px 0 15px 0;
 }
 #display_head p {
-	color: #959595;
+	color: var(--displayhead-color);
 }
 #display_head span {
 	margin: -4px 0 0 0;
@@ -4298,13 +4298,13 @@ h3.profile_hd::before,
 /* Messages that somehow need to attract the attention. */
 .red, .meaction,
 .error, .alert, .warn_mute {
-	color: red;
+	color: var(--error-color);
 }
 .blue {
-	color: blue;
+	color: var(--blue-color);
 }
 .green {
-	color: green;
+	color: var(--green-color);
 }
 
 /* Adding some classes for generic usage and JS rules */
@@ -4486,7 +4486,7 @@ tr[id^='list_news_lists_'] textarea {
 }
 .videocontainer video {
 	object-fit: contain;
-	background: black;
+	background: var(--video-bg);
 	max-width: 100%;
 }
 
