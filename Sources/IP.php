@@ -385,8 +385,8 @@ class IP implements \Stringable
 			// It works best to split on the range marker and then figure out the parts.
 			list($range[0], $range[1]) = explode('-', $addr);
 
-			$valid_low = filter_var(strtr($range[0], ['*' => $min]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
-			$valid_high = filter_var(strtr($range[1], ['*' => $max]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+			$valid_low = filter_var(strtr($range[0], ['*' => $min]), FILTER_VALIDATE_IP) !== false;
+			$valid_high = filter_var(strtr($range[1], ['*' => $max]), FILTER_VALIDATE_IP) !== false;
 
 			// Range marker is between two valid IP addresses.
 			if ($valid_low && $valid_high) {
