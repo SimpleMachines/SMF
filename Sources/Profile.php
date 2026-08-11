@@ -2347,7 +2347,7 @@ class Profile extends User implements \ArrayAccess
 
 					if (
 						$cf_def['mask'] == 'nohtml'
-						&& preg_match('~' . Parsers\MarkdownParser::REGEX_HTML_TAG . '~u', $value)
+						&& $value !== strip_tags($value)
 					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
