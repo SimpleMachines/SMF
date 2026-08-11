@@ -4229,6 +4229,10 @@ function url_image_size($url)
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
+	if (($url = make_fetch_safe($url)) == null) {
+		return false;
+	}
+
 	// Can we pull this from the cache... please please?
 	if (($temp = cache_get_data('url_image_size-' . md5($url), 240)) !== null)
 		return $temp;
