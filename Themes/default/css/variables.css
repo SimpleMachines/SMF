@@ -782,6 +782,10 @@
 	--editor-dropdown-link-bg_hover:                  #eee;
 	--editor-dropdown-link-color:                     #222;
 	--editor-icon-filter:                             none;
+	--editor-grip-border-color:                       #bbb;
+	--editor-group-border-color:                      #aaa;
+	--editor-icon-fill:                               #111;
+	--editor-icon-fill_disabled:                      #888;
 	--editor-grip-bg:                                 linear-gradient(#0000 0, #bbb 2px, #0000 3px, #bbb 5px, #0000 6px, #bbb 8px, #0000 9px);
 	--editor-group-bg:                                #ddd;
 	--editor-popup-bg:                                #568d;

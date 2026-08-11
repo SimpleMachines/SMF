@@ -485,6 +485,10 @@
 	--editor-dropdown-label-color:                    var(--dark-ink);
 	--editor-dropdown-link-bg_hover:                  hsl(var(--primary-color-hue), 25%, 26%);
 	--editor-dropdown-link-color:                     var(--dark-ink-bright);
+	--editor-grip-border-color:                       var(--dark-line);
+	--editor-group-border-color:                      var(--dark-line);
+	--editor-icon-fill:                               var(--dark-ink);
+	--editor-icon-fill_disabled:                      var(--dark-ink-dim);
 	--editor-grip-bg:                                 linear-gradient(#0000 0, hsl(var(--primary-color-hue), 10%, 40%) 2px, #0000 3px, hsl(var(--primary-color-hue), 10%, 40%) 5px, #0000 6px, hsl(var(--primary-color-hue), 10%, 40%) 8px, #0000 9px);
 	/* The sprite is a mix: most icons are near-black line art, but a few carry
 	/* their own colour - the YouTube mark, the coloured letters. Inverting alone
