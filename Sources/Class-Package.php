@@ -999,6 +999,12 @@ class ftp_connection
 			return false;
 		}
 
+		// Let's just double check that...
+		if (make_url_safe('ftp://' . $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4] . ':' . ($match[5] * 256 + $match[6])) === null) {
+			$this->error = 'bad_server';
+			return false;
+		}
+
 		// This is pretty simple - store it for later use ;).
 		$this->pasv = array('ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]);
 
