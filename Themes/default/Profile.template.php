@@ -1953,7 +1953,7 @@ function template_alert_configuration()
 	if (!empty(Config::$modSettings['enable_ajax_alerts'])) {
 		echo '
 					<dt>
-						<label for="notify_send_body">', Lang::getTxt('notify_alert_timeout', file: 'Profile'), '</label>
+						<label for="notify_alert_timeout">', Lang::getTxt('notify_alert_timeout', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" max="127" value="', Utils::$context['member']['alert_timeout'], '">

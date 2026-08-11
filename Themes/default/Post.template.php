@@ -305,12 +305,10 @@ function template_main()
 											<a data-dz-remove class="main_icons delete floatright cancel"></a>
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">
-													<label for="attached_BBC_width">', Lang::getTxt('attached_insert_width', file: 'Post'), '</label>
-													<input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
+													<label><span>', Lang::getTxt('attached_insert_width', file: 'Post'), '</span> <input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '"></label>
 												</div>
 												<div class="attached_BBC_height">
-													<label for="attached_BBC_height">', Lang::getTxt('attached_insert_height', file: 'Post'), '</label>
-													<input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
+													<label><span>', Lang::getTxt('attached_insert_height', file: 'Post'), '</span> <input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '"></label>
 												</div>
 											</div>
 										</div>

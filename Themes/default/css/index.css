@@ -4377,7 +4377,11 @@ input[name="attachBBC"] {
 .attachment_info .progress_bar {
 	margin: 6px 0;
 }
-.attached_BBC_width_height label {
+/* The width the two captions are held to is what lines their inputs up. It sits
+   on the caption rather than the label because the label now wraps its input:
+   an id cannot associate them here, since this block is a template that gets
+   cloned once per attached file and every copy would carry the same one. */
+.attached_BBC_width_height label > span {
 	min-width: 100px;
 	display: inline-block;
 }
