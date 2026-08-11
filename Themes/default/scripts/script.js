@@ -426,14 +426,6 @@ smc_Popup.prototype.setBody = function(data)
 	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
-}
-
 // Replaces the currently selected text with the passed text.
 function replaceText(text, oTextHandle)
 {
@@ -1241,49 +1233,6 @@ function expandThumb(thumbID)
 	link.style.height = tmp_height;
 
 	return false;
-}
-
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
-}
-
-function generateDays(offset)
-{
-	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
-
-	var days = 0, selected = 0;
-	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-	var monthLength = [
-		31, 28, 31, 30,
-		31, 30, 31, 31,
-		30, 31, 30, 31
-	];
-	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-		monthLength[1] = 29;
-
-	selected = dayElement.selectedIndex;
-	while (dayElement.options.length)
-		dayElement.options[0] = null;
-
-	days = monthLength[monthElement.value - 1];
-
-	for (i = 1; i <= days; i++)
-		dayElement.options[dayElement.length] = new Option(i, i);
-
-	if (selected < days)
-		dayElement.selectedIndex = selected;
 }
 
 function initSearch()

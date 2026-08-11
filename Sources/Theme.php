@@ -1096,6 +1096,12 @@ class Theme
 				self::loadJavaScriptFile('alerts.js', ['minimize' => true], 'smf_alerts');
 			}
 		}
+		// A guest gets a login button, which opens the login form in an overlay.
+		// That form arrives without any template layers, so it cannot bring its
+		// own script with it and has to find login.js already here.
+		else {
+			self::loadJavaScriptFile('login.js', ['defer' => true, 'minimize' => true], 'smf_login');
+		}
 
 		// All the buttons we can possibly want and then some.
 		// Try pulling the final list of buttons from cache first.

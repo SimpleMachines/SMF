@@ -1159,10 +1159,21 @@ sceditor.formats.bbcode.set(
 		html: '<ul>{0}</ul>',
 		format(element, content) {
 			const type = element.getAttribute('type') || element.style.listStyleType;
-			if (type == 'disc')
+			if (!type) {
+				type = 'disc';
+			}
+
+			// Detect whether this list is nested inside another list.
+			const parent = element.parentNode;
+			const parentIsList = parent && parent.nodeName &&
+				(parent.nodeName === 'UL' || parent.nodeName === 'OL');
+
+			// Emit plain [list] only for top-level lists that have the default 'disc' type.
+			if (type === 'disc' && !parentIsList) {
 				return '[list]' + content + '[/list]';
-			else
-				return '[list type=' + type + ']' + content + '[/list]';
+			}
+
+			return '[list type=' + type + ']' + content + '[/list]';
 		}
 	}
 ).set(
@@ -1175,8 +1186,19 @@ sceditor.formats.bbcode.set(
 		html: '<ol>{0}</ol>',
 		format(element, content) {
 			const type = element.getAttribute('type') || element.style.listStyleType;
-			if (type == 'none')
+			if (!type || type === 'none') {
 				type = 'decimal';
+			}
+
+			// Detect whether this list is nested inside another list.
+			const parent = element.parentNode;
+			const parentIsList = parent && parent.nodeName &&
+				(parent.nodeName === 'UL' || parent.nodeName === 'OL');
+
+			// Emit plain [list] only for top-level ordered lists with default 'decimal' type.
+			if (type === 'decimal' && !parentIsList) {
+				return '[list]' + content + '[/list]';
+			}
 
 			return '[list type=' + type + ']' + content + '[/list]';
 		}
