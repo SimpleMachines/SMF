@@ -286,10 +286,14 @@ class TimeInterval extends \DateInterval implements \Stringable
 	 * Formats the interval as a human-readable string in the current user's
 	 * language.
 	 *
-	 * @param array $format_chars Properties to include in the output.
-	 *    Allowed values in this array: 'y', 'm', 'd', 'h', 'i', 's', 'f', 'a'.
-	 *    Note that when 'f' is included, it will always be combined with 's' in
-	 *    order to produce a single float value in the output.
+	 * @param array $format_chars Units to include in the output.
+	 *    Allowed values in this array: 'y', 'm', 'd', 'a', 'h', 'i', 's', 'f'.
+	 *    When 'f' is requested, it will always be combined with 's' in order to
+	 *    produce a single float value in the output.
+	 *    If 'a' is requested but $this->days is false, then 'y', 'm', 'd' will
+	 *    be used instead.
+	 *    The order of characters in this array is irrelevant. The requested
+	 *    units will always be ordered from largest to smallest in the output.
 	 * @return string A human-readable string.
 	 */
 	public function localize(array $format_chars = ['y', 'm', 'd']): string
@@ -314,9 +318,9 @@ class TimeInterval extends \DateInterval implements \Stringable
 			));
 		}
 
-		foreach ($format_chars as $c) {
+		foreach ($txt_keys as $c => $k) {
 			// Don't include a bunch of useless "0 <unit>" substrings.
-			if (empty($this->{$c}) || !isset($txt_keys[$c])) {
+			if (empty($this->{$c}) || !\in_array($c, $format_chars)) {
 				continue;
 			}
 
@@ -344,9 +348,10 @@ class TimeInterval extends \DateInterval implements \Stringable
 		// If all requested properties were empty, output a single "0 <unit>"
 		// for the smallest unit requested.
 		if (empty($result)) {
-			foreach ($txt_keys as $c => $k) {
+			foreach (array_reverse($txt_keys) as $c => $k) {
 				if (\in_array($c, $format_chars)) {
 					$result = [Lang::getTxt($txt_keys[$c], [0], file: 'General')];
+					break;
 				}
 			}
 		}
