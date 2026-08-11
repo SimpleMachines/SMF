@@ -194,7 +194,7 @@ class Boards implements ActionInterface
 					if (!isset(Utils::$context['categories'][$catid]['move_link'])) {
 						Utils::$context['categories'][$catid]['move_link'] = [
 							'child_level' => 0,
-							'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
+							'label' => Lang::getTxt('mboards_order_before', ['name' => Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 						];
 					}
@@ -203,13 +203,13 @@ class Boards implements ActionInterface
 						Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = [
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level,
-								'label' => Lang::getTxt('mboards_order_after', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
+								'label' => Lang::getTxt('mboards_order_after', ['name' => Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 								'class' => Board::$loaded[$boardid]->child_level > 0 ? 'above' : 'below',
 							],
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level + 1,
-								'label' => Lang::getTxt('mboards_order_child_of', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
+								'label' => Lang::getTxt('mboards_order_child_of', ['name' => Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 								'class' => 'here',
 							],
@@ -245,7 +245,7 @@ class Boards implements ActionInterface
 				if (empty(Category::$boardList[$catid])) {
 					Utils::$context['categories'][$catid]['move_link'] = [
 						'child_level' => 0,
-						'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars($tree->name)], file: 'ManageBoards'),
+						'label' => Lang::getTxt('mboards_order_before', ['name' => Utils::htmlspecialchars($tree->name)], file: 'ManageBoards'),
 						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 					];
 				}
