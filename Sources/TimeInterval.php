@@ -168,7 +168,16 @@ class TimeInterval extends \DateInterval implements \Stringable
 	 */
 	public function format(string $format): string
 	{
-		return $this->base->format($format);
+		if (
+			str_contains($format, '%a')
+			&& $this->days === false
+			&& $this->y === 0
+			&& $this->m === 0
+		) {
+			$format = str_replace('%a', '%d', $format);
+		}
+
+		return parent::format($format);
 	}
 
 	/**
@@ -297,6 +306,13 @@ class TimeInterval extends \DateInterval implements \Stringable
 			's' => 'number_of_seconds',
 			'f' => 'number_of_seconds',
 		];
+
+		if (\in_array('a', $format_chars) && !\is_int($this->days)) {
+			$format_chars = array_unique(array_merge(
+				['y', 'm', 'd'],
+				array_diff($format_chars, ['a']),
+			));
+		}
 
 		foreach ($format_chars as $c) {
 			// Don't include a bunch of useless "0 <unit>" substrings.
