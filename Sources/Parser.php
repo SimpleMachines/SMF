@@ -1261,9 +1261,11 @@ abstract class Parser
 		$replaces = [];
 
 		if ($has_equal_sign && $embedded_url) {
-			$quoted = preg_match('~\[(' . $tag . ')=&quot;~', $message);
+			preg_match_all('~\[(' . $tag . ')=(&quot;(?:[^&]|&(?!quot;))*?&quot;|[^\]]*?)\](?:(.+?)\[/(' . $tag . ')\])?~is', $message, $matches);
 
-			preg_match_all('~\[(' . $tag . ')=' . ($quoted ? '&quot;(.*?)&quot;' : '([^\]]*?)') . '\](?:(.+?)\[/(' . $tag . ')\])?~is', $message, $matches);
+			foreach ($matches[2] as $key => $match) {
+				$matches[2][$key] = preg_replace('/^&quot;|&quot;$/', '', $match);
+			}
 		} elseif ($has_equal_sign) {
 			preg_match_all('~\[(' . $tag . ')=([^\]]*?)\](?:(.+?)\[/(' . $tag . ')\])?~is', $message, $matches);
 		} else {

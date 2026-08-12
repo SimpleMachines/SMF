@@ -947,15 +947,14 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		// If we can view unapproved messages and there are some build up a list.
 		if (User::$me->allowedTo('approve_posts') && (Board::$info->unapproved_topics || Board::$info->unapproved_posts)) {
-			$untopics = Board::$info->unapproved_topics ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . Board::$info->id . '">' . Board::$info->unapproved_topics . '</a>' : 0;
-
-			$unposts = Board::$info->unapproved_posts ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . Board::$info->id . '">' . (Board::$info->unapproved_posts - Board::$info->unapproved_topics) . '</a>' : 0;
-
+			// Both of these are plural arguments in the string, so they have to
+			// arrive as numbers. Wrapping them in a link first gets them read as
+			// zero, and the string already carries a link of its own.
 			Utils::$context['unapproved_posts_message'] = Lang::getTxt(
 				'there_are_unapproved_topics',
 				[
-					'topics' => $untopics,
-					'posts' => $unposts,
+					'topics' => Board::$info->unapproved_topics,
+					'posts' => Board::$info->unapproved_posts - Board::$info->unapproved_topics,
 					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
 				],
 				file: 'General',

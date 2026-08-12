@@ -1184,6 +1184,26 @@ function attachBbCodeEvents(parent)
 	});
 }
 
+/*
+ * Shows or hides the content of an inline spoiler tag. The content is hidden
+ * in the stylesheet and only the 'revealed' class brings it back, so with
+ * nothing listening a reader can click a spoiler all day and never open it.
+ *
+ * Delegated from the document rather than attached to each spoiler, because a
+ * post can arrive after the page does - a preview, a quoted post, a personal
+ * message read in the popup - and a listener bound at load time never sees
+ * those. The span holds a button so that assistive technology and the keyboard
+ * have something to press; closest() answers for the button and the span
+ * alike, so both routes end up toggling the one element the CSS looks at.
+ */
+document.addEventListener('click', function (event)
+{
+	var spoiler = event.target.closest('.bbc_inline_spoiler');
+
+	if (spoiler)
+		spoiler.classList.toggle('revealed');
+});
+
 // A function used to clean the attachments on post page
 function cleanFileInput(idElement)
 {

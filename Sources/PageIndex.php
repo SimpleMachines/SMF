@@ -265,7 +265,14 @@ class PageIndex implements \Stringable
 		// property values, which may have changed after initial construction.
 
 		// Ensure $this->start is still good, just in case someone changed it.
+		// fixStart() also records whether the value it was handed was negative,
+		// and the constructor has already clamped that to 0 by now, so letting
+		// it answer again on its own would always say "valid" and throw away
+		// what the caller actually passed. Only a start that has gone negative
+		// since can add to the verdict, never take it away.
+		$was_invalid = $this->start_invalid;
 		$this->start = $this->fixStart($this->start);
+		$this->start_invalid = $this->start_invalid || $was_invalid;
 
 		// Set some other internal values we'll need below.
 		$this->last_page_value = ($this->num_items - 1) - ($this->num_items - 1) % $this->num_per_page;
