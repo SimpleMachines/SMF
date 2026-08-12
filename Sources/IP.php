@@ -230,7 +230,7 @@ class IP implements \Stringable
 
 		// If all attempts failed, use the IP address.
 		if (empty($host)) {
-			$host = $this->ip;
+			$host = $this->isValid(FILTER_FLAG_IPV6) ? '[' . $this->ip . ']' : $this->ip;
 		}
 
 		// Set it.
