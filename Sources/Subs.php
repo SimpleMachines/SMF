@@ -4034,7 +4034,7 @@ function get_proxied_url($url)
 		return $url;
 
 	// Don't proxy URLs whose hosts are private or reserved IP addresses
-	if (filter_var($parsedurl['host'], FILTER_VALIDATE_IP) !== false && filter_var($parsedurl['host'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE) === false)
+	if (filter_var(trim($parsedurl['host'], '[]'), FILTER_VALIDATE_IP) !== false && filter_var(trim($parsedurl['host'], '[]'), FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE) === false)
 		return $url;
 
 	// Don't proxy URLs with domains that aren't part of public DNS
