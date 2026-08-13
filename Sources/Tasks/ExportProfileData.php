@@ -961,7 +961,6 @@ class ExportProfileData extends BackgroundTask
 			'parser_cache' => 'parser_cache',
 			'pre_parsebbc' => \in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
 			'post_parsebbc' => 'post_parsebbc',
-			'bbc_codes' => 'bbc_codes',
 			'post_parseAttachBBC' => 'post_parseAttachBBC',
 			'attach_bbc_validate' => 'attach_bbc_validate',
 		];
@@ -1073,20 +1072,6 @@ class ExportProfileData extends BackgroundTask
 		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
 			if (isset(self::$real_modSettings[$var])) {
 				Config::$modSettings[$var] = self::$real_modSettings[$var];
-			}
-		}
-	}
-
-	/**
-	 * Adjusts certain BBCodes for the special case of exports.
-	 */
-	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
-	{
-		foreach ($codes as &$code) {
-			// The "Select" and "Expand" buttons are built by JavaScript from these attributes,
-			// and an export has no JavaScript, so drop them.
-			if ($code['tag'] === 'code') {
-				$code['content'] = preg_replace('~ data-(?:select|shrink|expand)-txt="[^"]*"~', '', $code['content']);
 			}
 		}
 	}
