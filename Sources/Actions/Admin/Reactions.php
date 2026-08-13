@@ -61,6 +61,10 @@ class Reactions implements ActionInterface
 		'settings' => 'settings',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
@@ -294,10 +298,6 @@ class Reactions implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/*****************
-	 * Public methods
-	 *****************/
 
 	/**
 	 * Handles modifying reactions settings
