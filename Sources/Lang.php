@@ -141,13 +141,6 @@ class Lang
 	public static array $helptxt = [];
 
 	/**
-	 * @var array
-	 *
-	 * Language file directories.
-	 */
-	public static array $dirs = [];
-
-	/**
 	 * @var string
 	 *
 	 * Decimal separator to use in Lang::numberFormat.
@@ -180,6 +173,13 @@ class Lang
 			'forum_copyright' => 'forum_copyright',
 		],
 	];
+
+	/**
+	 * @var array
+	 *
+	 * Language file directories.
+	 */
+	private static array $dirs = [];
 
 	/**
 	 * @var array
@@ -464,9 +464,12 @@ class Lang
 		}
 
 		if (!empty($custom_dirs)) {
-			self::$dirs = array_merge($custom_dirs, self::$dirs);
+			self::$dirs = array_merge(
+				array_map(fn($dir) => Sapi::canonicalPath($dir), $custom_dirs),
+				self::$dirs,
+			);
 		} else {
-			self::$dirs[] = Config::$languagesdir;
+			self::$dirs[] = Sapi::canonicalPath(Config::$languagesdir);
 
 			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
@@ -475,7 +478,7 @@ class Lang
 
 			foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
 				if (isset(Theme::$current->settings[$var])) {
-					self::$dirs[] = Theme::$current->settings[$var] . '/languages';
+					self::$dirs[] = Sapi::canonicalPath(Theme::$current->settings[$var] . '/languages');
 				}
 			}
 
