@@ -1339,6 +1339,7 @@ class Alert implements \ArrayAccess
 
 		IntegrationHook::call('integrate_alert_icon', [&$this->icon, (array) $this]);
 	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
