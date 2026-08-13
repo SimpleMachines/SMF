@@ -117,7 +117,6 @@ class Help implements ActionInterface, Routable
 		Utils::$context['sub_template'] = 'manual';
 	}
 
-
 	/******************
 	 * Internal methods
 	 ******************/
