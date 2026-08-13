@@ -7,6 +7,7 @@ namespace SMF\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use SMF\Config;
 use SMF\Url;
 
 #[CoversClass(Url::class)]
@@ -103,10 +104,36 @@ class UrlTest extends TestCase
 		$this->assertTrue((new Url('DATA:image/png;base64,AAAA'))->isScheme('data'));
 	}
 
+	public function testAnIPv6HostIsWrittenInBrackets(): void
+	{
+		// The brackets are part of the authority, not part of the address, so
+		// the host comes back with them still on it. Anything wanting to treat
+		// the host as an address has to take them off first, which is what
+		// proxied() was not doing.
+		$this->assertSame('[2001:db8::1]', (new Url('http://[2001:db8::1]/pic.png'))->host);
+	}
+
 	#[DataProvider('validityProvider')]
 	public function testValidity(string $input, bool $expected): void
 	{
 		$this->assertSame($expected, (new Url($input))->isValid());
+	}
+
+	#[DataProvider('proxiedProvider')]
+	public function testProxiedLeavesUnroutableHostsAlone(string $url, bool $expected): void
+	{
+		$this->withProxySettings(function () use ($url, $expected): void {
+			$proxied = (string) Url::create($url)->proxied();
+
+			if ($expected) {
+				$this->assertStringStartsWith(
+					'https://forum.test-site.com/forum/proxy.php?request=',
+					$proxied,
+				);
+			} else {
+				$this->assertSame($url, $proxied);
+			}
+		});
 	}
 
 	/***********************
@@ -124,5 +151,66 @@ class UrlTest extends TestCase
 			'bare word' => ['notaurl', false],
 			'empty' => ['', false],
 		];
+	}
+
+	/**
+	 * The point of the proxy is to serve an http image over https without
+	 * telling the person's browser to go and fetch it. Sending it at a host
+	 * only the server can reach turns it into a request the server makes on
+	 * behalf of whoever pasted the address, which is the shape of an SSRF, so
+	 * the private and reserved ranges are excluded.
+	 *
+	 * @return array<string, array{string, bool}>
+	 */
+	public static function proxiedProvider(): array
+	{
+		return [
+			// The IPv6 cases are the ones that regressed: filter_var() does not
+			// accept an address in brackets, so every one of these read as a
+			// name rather than an address and went to the proxy.
+			'ipv6 private' => ['http://[fd00::1]/pic.png', false],
+			'ipv6 loopback' => ['http://[::1]/pic.png', false],
+			'ipv6 documentation' => ['http://[2001:db8::1]/pic.png', false],
+			'ipv6 global' => ['http://[2606:4700:4700::1111]/pic.png', true],
+
+			// The IPv4 side is the control: it was already right and stays right.
+			'ipv4 private' => ['http://10.0.0.1/pic.png', false],
+			'ipv4 loopback' => ['http://127.0.0.1/pic.png', false],
+			'ipv4 global' => ['http://93.184.216.34/pic.png', true],
+		];
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Runs $test with the image proxy switched on, then puts the settings back.
+	 *
+	 * These are typed statics with no default, so they start out uninitialised
+	 * and there is no way to put them back into that state. Restoring the
+	 * disabled state is the nearest thing: it is what Config::load() writes
+	 * when the proxy is off, and every check on the way in asks empty(), which
+	 * reads an uninitialised property and a false one alike.
+	 *
+	 * @param callable $test The assertions to run.
+	 */
+	protected function withProxySettings(callable $test): void
+	{
+		$enabled = Config::$image_proxy_enabled ?? false;
+		$secret = Config::$image_proxy_secret ?? '';
+		$boardurl = Config::$boardurl ?? '';
+
+		Config::$image_proxy_enabled = true;
+		Config::$image_proxy_secret = 'smfisawesome';
+		Config::$boardurl = 'https://forum.test-site.com/forum';
+
+		try {
+			$test();
+		} finally {
+			Config::$image_proxy_enabled = $enabled;
+			Config::$image_proxy_secret = $secret;
+			Config::$boardurl = $boardurl;
+		}
 	}
 }
