@@ -280,109 +280,28 @@ class Lang
 			// Flip this around.
 			$attempts = array_reverse($attempts);
 
-			foreach ($attempts as $k => $file) {
-				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
-					// Include it!
-					// {DIR} / {locale} / {file} .php
-					require Sapi::canonicalPath($file[0] . '/' . $file[2] . '/' . $file[1] . '.php');
+			foreach ($attempts as $attempt) {
+				$found = self::attemptToLoadFile(
+					$attempt,
+					implode(DIRECTORY_SEPARATOR, [$attempt[0], $attempt[2], $attempt[1] . '.php']),
+					$force_reload,
+				);
 
-					// Note that we found it.
-					$found = true;
-
-					// Keep track of what we're up to, soldier.
-					if (DebugUtils::isDebugEnabled()) {
-						DebugUtils::addDebugSource(
-							lang_key: 'language_files',
-							key: implode('|', $file),
-							value: Sapi::canonicalPath((Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[2] . '/' . $file[1] . '.php'),
-						);
-					}
-
-					// Load the strings into our properties.
-					foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
-						if (!isset(${$var})) {
-							continue;
-						}
-
-						foreach (${$var} as $key => $value) {
-							// Never overwrite strings that were set via self::setTxt()
-							if ((self::$loaded_keys[$var][$key]['file'] ?? '') === 'setTxt') {
-								continue;
-							}
-
-							// Don't overwrite strings from Modifications or ThemeStrings
-							// unless $force_reload is true.
-							if (
-								!$force_reload
-								&& \array_key_exists($key, self::$loaded_keys[$var] ?? [])
-								&& self::$loaded_keys[$var][$key]['file'] !== $file[1]
-								&& (
-									// Modifications takes precedence over all others.
-									self::$loaded_keys[$var][$key]['file'] === 'Modifications'
-									// ThemeStrings takes precedence over all except Modifications.
-									|| (
-										self::$loaded_keys[$var][$key]['file'] === 'ThemeStrings'
-										&& $file[1] !== 'Modifications'
-									)
-								)
-							) {
-								continue;
-							}
-
-							// Add the string to the appropriate array.
-							self::${$var}[$key] = $value;
-
-							// Keep track of where this string came from.
-							self::$loaded_keys[$var][$key] = [
-								'file' => $file[1],
-								'lang' => $file[2],
-							];
-						}
-
-						unset(${$var});
-					}
-
-					// Did this file define the $forum_copyright?
-					if (!empty($forum_copyright)) {
-						self::$localized_copyright[$file[2]] = $forum_copyright;
-
-						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[Config::$language] ?? (self::$localized_copyright['en_US'] ?? ''));
-
-						unset($forum_copyright);
-					}
-
-					// setlocale is required for basename() & pathinfo() to work properly on the selected language
-					if (!empty(self::$txt['lang_locale'])) {
-						if (str_contains(self::$txt['lang_locale'], '.')) {
-							$locale_variants = self::$txt['lang_locale'];
-						} else {
-							$locale_variants = array_unique(
-								[
-									self::$txt['lang_locale'] . '.UTF-8',
-									self::$txt['lang_locale'] . '.UTF8',
-									self::$txt['lang_locale'] . '.utf-8',
-									self::$txt['lang_locale'] . '.utf8',
-									self::$txt['lang_locale'],
-								],
-							);
-						}
-
-						setlocale(LC_CTYPE, $locale_variants);
-					}
-
-					if (isset(self::$txt['lang_rtl'])) {
-						Utils::$context['right_to_left'] = !empty(self::$txt['lang_rtl']);
-					}
+				if ($found) {
+					break;
 				}
 			}
 
-			/*
-			 * Legacy language calls.
-			 * Under normal conditions, we stop once we find it through the locale lookup.
-			 * Modifications is a special case in which we allow it to be checked everywhere.
-			 */
-			if ((!$found || str_contains($filename, 'Modifications') || str_contains($filename, 'ThemeStrings')) && Config::$backward_compatibility) {
-				$found = self::loadOld($attempts) || $found;
+			// Legacy language calls.
+			if (
+				!empty(Config::$backward_compatibility)
+				&& (
+					!$found
+					|| str_contains($filename, 'Modifications')
+					|| str_contains($filename, 'ThemeStrings')
+				)
+			) {
+				$found = self::loadOld($attempts, $force_reload) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
@@ -1022,68 +941,35 @@ class Lang
 	 * Do not rely on this method to exist in future versions!
 	 *
 	 * @deprecated 3.0 Only used to support compatibility with old name formats.
+	 *
 	 * @param array $attempts The attempts to be made; see self::load().
+	 * @param bool $force_reload Whether to load the file again if it's already
+	 *    loaded.
 	 * @return bool Whether we loaded anything or not.
 	 */
-	public static function loadOld(array $attempts): bool
+	public static function loadOld(array $attempts, bool $force_reload): bool
 	{
 		if (empty($attempts)) {
 			return false;
 		}
 
-		$locale_to_lang = array_flip(self::LANG_TO_LOCALE);
+		foreach ($attempts as $attempt) {
+			if (!\in_array($attempt[2], self::LANG_TO_LOCALE)) {
+				continue;
+			}
 
-		$found = false;
+			$found = self::attemptToLoadFile(
+				$attempt,
+				$attempt[0] . DIRECTORY_SEPARATOR . $attempt[1] . '.' . array_search($attempt[2], self::LANG_TO_LOCALE) . '.php',
+				$force_reload,
+			);
 
-		/**
-		 * $file = [
-		 *    0 => Directory
-		 *    1 => File
-		 *    2 => Locale
-		 * ]
-		 */
-		foreach ($attempts as $k => $file) {
-			$oldLanguage = $locale_to_lang[$file[2]] ?? false;
-
-			if ($oldLanguage !== false && file_exists($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php')) {
-				require Sapi::canonicalPath($file[0] . '/' . $file[1] . '.' . $oldLanguage . '.php');
-
-				// Note that we found it.
-				$found = true;
-
-				// Load the strings into our properties.
-				foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
-					if (!isset(${$var})) {
-						continue;
-					}
-
-					// Add the strings to the appropriate array.
-					self::${$var} = array_merge(self::${$var}, ${$var});
-
-					// Keep track of where these strings came from.
-					self::$loaded_keys[$var] = array_merge(
-						self::$loaded_keys[$var] ?? [],
-						array_combine(
-							array_keys(${$var}),
-							array_fill(0, \count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
-						),
-					);
-
-					unset(${$var});
-				}
-
-				// Keep track of what we're up to, soldier.
-				if (DebugUtils::isDebugEnabled()) {
-					DebugUtils::addDebugSource(
-						lang_key: 'language_files',
-						key: implode('|', $file),
-						value: (Config::$languagesdir == $file[0] ? basename($file[0]) : ltrim(str_replace(array_map('dirname', self::$dirs), '', $file[0]), '/')) . '/' . $file[1] . '.' . $oldLanguage . '.php',
-					);
-				}
+			if ($found) {
+				return true;
 			}
 		}
 
-		return $found;
+		return false;
 	}
 
 	/*************************
@@ -1175,6 +1061,121 @@ class Lang
 
 			return;
 		}
+	}
+
+	/**
+	 * Attempts to load a language file and read its contents into our strings.
+	 *
+	 * @param array $attempt Info about this attempt to load a language file.
+	 * @param string $path Full path to the language file.
+	 * @param bool $force_reload Whether to ovewrite strings from Modifications
+	 *    and ThemeStrings with strings from this file in the event of conflict.
+	 *    Default: false.
+	 * @return bool Whether the language file was loaded successfully.
+	 */
+	private static function attemptToLoadFile(array $attempt, string $path, bool $force_reload = false): bool
+	{
+		$path = Sapi::canonicalPath($path);
+
+		if (!is_file($path) || !is_readable($path)) {
+			return false;
+		}
+
+		require $path;
+
+		// Keep track of what we're up to, soldier.
+		if (DebugUtils::isDebugEnabled()) {
+			foreach (self::$dirs as $dir) {
+				if (str_starts_with($path, $dir)) {
+					$path = basename($dir) . substr($path, \strlen($dir));
+					break;
+				}
+			}
+
+			DebugUtils::addDebugSource(
+				lang_key: 'language_files',
+				key: implode('|', $attempt),
+				value: $path,
+			);
+		}
+
+		// Load the strings into our properties.
+		foreach (['txt', 'txtBirthdayEmails', 'tztxt', 'editortxt', 'helptxt'] as $var) {
+			if (!isset(${$var})) {
+				continue;
+			}
+
+			foreach (${$var} as $key => $value) {
+				// Never overwrite strings that were set via self::setTxt()
+				if ((self::$loaded_keys[$var][$key]['file'] ?? '') === 'setTxt') {
+					continue;
+				}
+
+				// Don't overwrite strings from Modifications or ThemeStrings
+				// unless $force_reload is true.
+				if (
+					!$force_reload
+					&& \array_key_exists($key, self::$loaded_keys[$var] ?? [])
+					&& self::$loaded_keys[$var][$key]['file'] !== $attempt[1]
+					&& (
+						// Modifications takes precedence over all others.
+						self::$loaded_keys[$var][$key]['file'] === 'Modifications'
+						// ThemeStrings takes precedence over all except Modifications.
+						|| (
+							self::$loaded_keys[$var][$key]['file'] === 'ThemeStrings'
+							&& $attempt[1] !== 'Modifications'
+						)
+					)
+				) {
+					continue;
+				}
+
+				// Add the string to the appropriate array.
+				self::${$var}[$key] = $value;
+
+				// Keep track of where this string came from.
+				self::$loaded_keys[$var][$key] = [
+					'file' => $attempt[1],
+					'lang' => $attempt[2],
+				];
+			}
+
+			unset(${$var});
+		}
+
+		// Did this file define the $forum_copyright?
+		if (!empty($forum_copyright)) {
+			self::$localized_copyright[$attempt[2]] = $forum_copyright;
+
+			self::$forum_copyright = self::$localized_copyright[$attempt[2]] ?? (self::$localized_copyright[Config::$language] ?? (self::$localized_copyright['en_US'] ?? ''));
+
+			unset($forum_copyright);
+		}
+
+		// setlocale is required for basename() & pathinfo() to work properly on the selected language
+		if (!empty(self::$txt['lang_locale'])) {
+			if (str_contains(self::$txt['lang_locale'], '.')) {
+				$locale_variants = self::$txt['lang_locale'];
+			} else {
+				$locale_variants = array_unique(
+					[
+						self::$txt['lang_locale'] . '.UTF-8',
+						self::$txt['lang_locale'] . '.UTF8',
+						self::$txt['lang_locale'] . '.utf-8',
+						self::$txt['lang_locale'] . '.utf8',
+						self::$txt['lang_locale'],
+					],
+				);
+			}
+
+			setlocale(LC_CTYPE, $locale_variants);
+		}
+
+		if (isset(self::$txt['lang_rtl'])) {
+			Utils::$context['right_to_left'] = !empty(self::$txt['lang_rtl']);
+		}
+
+		return true;
 	}
 }
 
