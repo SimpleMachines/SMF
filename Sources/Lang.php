@@ -212,6 +212,20 @@ class Lang
 	 */
 	private static array $localized_copyright = [];
 
+	/**
+	 * @var array
+	 *
+	 * Regular expressions to match any censored words.
+	 */
+	private static array $censor_vulgar;
+
+	/**
+	 * @var array
+	 *
+	 * Replacements for the censored words.
+	 */
+	private static array $censor_proper;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -695,8 +709,6 @@ class Lang
 	 */
 	public static function censorText(string &$text, bool $force = false): string
 	{
-		static $censor_vulgar = null, $censor_proper;
-
 		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !\is_string($text) || trim($text) === '') {
 			return $text;
 		}
@@ -705,68 +717,75 @@ class Lang
 
 		// Let SpoofDetector help us detect attempts to bypass the word censor.
 		// This method will temporarily append additional content to the censor
-		// settings if it detects an attempt to bypass the word censor.
+		// settings if it detects an attempt to bypass the word censor, so we
+		// need to unset self::$censor_vulgar in order to force a reload.
 		if (Unicode\SpoofDetector::enhanceWordCensor($text)) {
-			$censor_vulgar = null;
+			unset(self::$censor_vulgar);
 		}
 
 		// If they haven't yet been loaded, load them.
-		if ($censor_vulgar == null) {
-			$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
-			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
+		if (!isset(self::$censor_vulgar)) {
+			self::$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
+			self::$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
+
+			self::$censor_proper = array_pad(
+				self::$censor_proper,
+				\count(self::$censor_vulgar),
+				"\u{2022}\u{2022}\u{2022}\u{2022}",
+			);
 
 			// Quote them for use in regular expressions.
-			for ($i = 0, $n = \count($censor_vulgar); $i < $n; $i++) {
+			for ($i = 0, $n = \count(self::$censor_vulgar); $i < $n; $i++) {
 				// If a word is replaced with itself, just leave it as it is.
 				// Why would the admin replace a word with itself, you ask?
 				// If the spoof detector incorrectly censors an allowed word
 				// because it happens to be visually confusable with a banned
 				// word, the admin can create an entry to replace the allowed
 				// word with itself in order to override the spoof detector.
-				if ($censor_vulgar[$i] === $censor_proper[$i]) {
-					$censor_proper[$i] = '$0';
+				if (self::$censor_vulgar[$i] === self::$censor_proper[$i]) {
+					self::$censor_proper[$i] = '$0';
 				}
 
-				$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote($censor_vulgar[$i], '/'));
+				self::$censor_vulgar[$i] = str_replace(['\\\\\\*', '\\*', '&', '\''], ['[*]', '[^\\s]*?', '&amp;', '&#039;'], preg_quote(self::$censor_vulgar[$i], '/'));
 
 				if (!empty(Config::$modSettings['censorWholeWord'])) {
 					// Use the faster \b if we can, or something more complex if we can't
-					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : '(?<![\p{L}\p{M}\p{N}_])';
-					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : '(?![\p{L}\p{M}\p{N}_])';
+					$boundary_before = preg_match('/^\w/', self::$censor_vulgar[$i]) ? '\b' : '(?<![\p{L}\p{M}\p{N}_])';
+					$boundary_after = preg_match('/\w$/', self::$censor_vulgar[$i]) ? '\b' : '(?![\p{L}\p{M}\p{N}_])';
 				} else {
 					$boundary_before = $boundary_after = '';
 				}
 
-				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/u' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i');
+				self::$censor_vulgar[$i] = '/' . $boundary_before . self::$censor_vulgar[$i] . $boundary_after . '/u' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i');
 			}
 		}
 
 		// Censoring isn't so very complicated :P.
-		foreach ($censor_vulgar as $i => $pattern) {
+		foreach (self::$censor_vulgar as $i => $pattern) {
 			$text = preg_replace_callback(
 				$pattern,
-				function ($matches) use ($censor_proper, $i) {
+				function ($matches) use ($i) {
 					// Special case to return the original word unchanged.
-					if ($censor_proper[$i] === '$0') {
+					if (self::$censor_proper[$i] === '$0') {
 						return $matches[0];
 					}
 
 					// If the replacement contains any letters, try to match case.
-					if (preg_match('/\p{L}/u', $censor_proper[$i])) {
+					if (preg_match('/\p{L}/u', self::$censor_proper[$i])) {
 						// If original was all uppercase, return uppercase.
 						if (Utils::strtoupper($matches[0]) === $matches[0]) {
-							return Utils::strtoupper($censor_proper[$i]);
+							return Utils::strtoupper(self::$censor_proper[$i]);
 						}
 
 						// If original started with a capital letter, return with a capital letter.
 						$first_vulgar_char = Utils::entitySubstr($matches[0], 0, 1);
 
 						if (Utils::ucfirst($first_vulgar_char) === $first_vulgar_char) {
-							return Utils::ucfirst($censor_proper[$i]);
+							return Utils::ucfirst(self::$censor_proper[$i]);
 						}
 					}
 
-					return $censor_proper[$i];
+					return self::$censor_proper[$i];
 				},
 				$text,
 			);
