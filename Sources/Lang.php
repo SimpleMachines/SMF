@@ -246,8 +246,12 @@ class Lang
 	 *    loaded.
 	 * @return string The language actually loaded.
 	 */
-	public static function load(string $filename, string $lang = '', bool $fatal = true, bool $force_reload = false): string
-	{
+	public static function load(
+		string $filename,
+		string $lang = '',
+		bool $fatal = true,
+		bool $force_reload = false,
+	): string {
 		// Default to the user's language.
 		if ($lang == '') {
 			$lang = User::$me->language ?? Config::$language;
@@ -265,7 +269,11 @@ class Lang
 			}
 
 			// Don't repeat this unnecessarily.
-			if (!$force_reload && isset(self::$already_loaded[$name]) && self::$already_loaded[$name] == $lang) {
+			if (
+				!$force_reload
+				&& isset(self::$already_loaded[$name])
+				&& self::$already_loaded[$name] === $lang
+			) {
 				continue;
 			}
 
@@ -347,7 +355,7 @@ class Lang
 				self::$forum_copyright = $class_vars['forum_copyright'];
 			}
 
-			// For the sake of backward compatibility
+			// For the sake of backward compatibility.
 			if (!empty(self::$txt['emails'])) {
 				foreach (self::$txt['emails'] as $key => $value) {
 					self::$txt[$key . '_subject'] = $value['subject'];
@@ -356,10 +364,11 @@ class Lang
 				self::$txt['emails'] = [];
 			}
 
-			// For sake of backward compatibility: $birthdayEmails is supposed to be
-			// empty in a normal install. If it isn't it means the forum is using
-			// something "old" (it may be the translation, it may be a mod) and this
-			// code (like the piece above) takes care of converting it to the new format
+			// For sake of backward compatibility: $birthdayEmails is supposed
+			// to be empty in a normal install. If it isn't it means the forum
+			// is using something "old" (it may be the translation, it may be a
+			// mod) and this code (like the piece above) takes care of
+			// converting it to the new format.
 			if (!empty($birthdayEmails)) {
 				foreach ($birthdayEmails as $key => $value) {
 					self::$txtBirthdayEmails[$key . '_subject'] = $value['subject'];
@@ -393,7 +402,10 @@ class Lang
 	{
 		// We only accept real directories.
 		if (!empty($custom_dirs)) {
-			$custom_dirs = array_filter(array_map('realpath', (array) $custom_dirs), 'is_dir');
+			$custom_dirs = array_filter(
+				array_map('realpath', (array) $custom_dirs),
+				'is_dir',
+			);
 		}
 
 		if (!empty($custom_dirs)) {
@@ -404,7 +416,8 @@ class Lang
 		} else {
 			self::$dirs[] = Sapi::canonicalPath(Config::$languagesdir);
 
-			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
+			// Make sure we have Theme::$current->settings - if not we're in
+			// trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
 				Theme::loadEssential(false);
 			}
@@ -431,7 +444,16 @@ class Lang
 	public static function get(bool $use_cache = true): array
 	{
 		// Either we don't use the cache, or its expired.
-		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null) {
+		if (
+			!$use_cache
+			|| empty(CacheApi::$enable)
+			|| null == (
+				Utils::$context['languages'] = CacheApi::get(
+					'known_languages',
+					CacheApi::$enable > 1 ? 86400 : 3600,
+				)
+			)
+		) {
 			// Special case during install.
 			if (\defined('SMF_INSTALLING')) {
 				$language_directories = [Config::$languagesdir];
@@ -447,7 +469,10 @@ class Lang
 					Theme::$current->settings['default_theme_dir'] . '/languages',
 				];
 
-				if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']) {
+				if (
+					!empty(Theme::$current->settings['actual_theme_dir'])
+					&& Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']
+				) {
 					$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
 				}
 
@@ -470,7 +495,10 @@ class Lang
 
 				while ($entry = $dir->read()) {
 					// Languages are in a sub directory.
-					if (!is_dir($language_dir . '/' . $entry) || !file_exists($language_dir . '/' . $entry . '/General.php')) {
+					if (
+						!is_dir($language_dir . '/' . $entry)
+						|| !file_exists($language_dir . '/' . $entry . '/General.php')
+					) {
 						continue;
 					}
 
@@ -484,16 +512,24 @@ class Lang
 								continue;
 							}
 
-							preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+							preg_match(
+								'~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~',
+								$line,
+								$matches,
+							);
 
 							// Set the language's name.
-							if (!empty($matchNative) && !empty($matchNative[1])) {
-								// Don't mislabel the language if the translator missed this one.
-								if ($entry !== 'en_US' && $matchNative[1] === 'English (US)') {
+							if (!empty($matches) && !empty($matches[1])) {
+								// Don't mislabel the language if the translator
+								// forgot to translate this one.
+								if (
+									$entry !== 'en_US'
+									&& $matches[1] === 'English (US)'
+								) {
 									break;
 								}
 
-								$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+								$lang = Utils::htmlspecialcharsDecode($matches[1]);
 
 								break;
 							}
@@ -504,7 +540,7 @@ class Lang
 
 					// Build this language entry.
 					Utils::$context['languages'][$entry] = [
-						'name' => $langName ?? $entry,
+						'name' => $lang ?? $entry,
 						'selected' => false,
 						'filename' => $entry,
 						'location' => Sapi::canonicalPath($language_dir . '/' . $entry . '/General.php'),
@@ -515,7 +551,11 @@ class Lang
 
 			// Let's cash in on this deal.
 			if (!empty(CacheApi::$enable)) {
-				CacheApi::put('known_languages', Utils::$context['languages'], !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
+				CacheApi::put(
+					'known_languages',
+					Utils::$context['languages'],
+					CacheApi::$enable > 1 ? 86400 : 3600,
+				);
 			}
 		}
 
@@ -551,7 +591,7 @@ class Lang
 		$target = &self::${$var};
 
 		// Drill down to the specified key.
-		foreach ((array) $txt_key as $key) {
+		foreach ($txt_key as $key) {
 			if (isset($target[$key])) {
 				$target = &$target[$key];
 			} else {
@@ -594,11 +634,11 @@ class Lang
 
 		// Drill down to the specified key.
 		foreach ($txt_key as $depth => $key) {
-			if (isset($target[(string) $key])) {
-				$target = &$target[(string) $key];
+			if (isset($target[$key])) {
+				$target = &$target[$key];
 			} else {
-				$target[(string) $key] = $depth === array_key_last($txt_key) ? '' : [];
-				$target = &$target[(string) $key];
+				$target[$key] = $depth === array_key_last($txt_key) ? '' : [];
+				$target = &$target[$key];
 			}
 		}
 
@@ -709,7 +749,15 @@ class Lang
 	 */
 	public static function censorText(string &$text, bool $force = false): string
 	{
-		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !\is_string($text) || trim($text) === '') {
+		if (
+			(
+				!empty(Theme::$current->options['show_no_censored'])
+				&& !empty(Config::$modSettings['allow_no_censored'])
+				&& !$force
+			)
+			|| empty(Config::$modSettings['censor_vulgar'])
+			|| trim($text) === ''
+		) {
 			return $text;
 		}
 
@@ -868,8 +916,8 @@ class Lang
 	 * current locale to format the number.
 	 *
 	 * @param int|float|string $number A number.
-	 * @param int|null $decimals If set, will use the specified number of decimal
-	 *    places. Otherwise, it's automatically determined.
+	 * @param int|null $decimals If set, will use the specified number of
+	 *    decimal places. Otherwise, it's automatically determined.
 	 * @return string A formatted number
 	 */
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
