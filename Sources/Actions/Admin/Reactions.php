@@ -49,7 +49,6 @@ class Reactions implements ActionInterface
 	 */
 	public string $subaction = 'settings';
 
-
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -61,10 +60,6 @@ class Reactions implements ActionInterface
 		'edit' => 'editreactions',
 		'settings' => 'settings',
 	];
-
-	/****************
-	 * Public methods
-	 ****************/
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -353,7 +348,6 @@ class Reactions implements ActionInterface
 
 		return $config_vars;
 	}
-
 
 	/******************
 	 * Internal methods
