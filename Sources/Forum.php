@@ -742,6 +742,16 @@ class Forum
 		Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
 		Utils::$context['description'] = &Config::$mmessage;
 		Utils::$context['page_title'] = Lang::getTxt('maintain_mode', file: 'Login');
+
+		// And that is as far as this request goes. 2.1 made this the action, so
+		// nothing else ever ran; here it is a step before one, and returning
+		// hands the request straight back to the action we just decided must
+		// not happen. Every side effect of it still happens, and whatever it
+		// puts in 'sub_template' or 'sub_templates' takes the page back.
+		Utils::obExit();
+
+		// We should never reach this point, but just in case...
+		die('No direct access...');
 	}
 
 	/**

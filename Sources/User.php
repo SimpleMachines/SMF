@@ -2215,7 +2215,7 @@ class User implements \ArrayAccess
 				} else {
 					$message .= '<br>' . Lang::getTxt(
 						'your_ban_expires',
-						[Time::create('@' . $bans['expire_time'])->format(null, false)],
+						['datetime' => Time::create('@' . $bans['expire_time'])->format(null, false)],
 						file: 'General',
 					);
 				}

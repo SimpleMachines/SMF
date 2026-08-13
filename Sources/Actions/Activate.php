@@ -251,6 +251,13 @@ class Activate implements ActionInterface, Routable
 		// Load the member.
 		$this->loadMember();
 
+		// Nobody by that name or id. execute() shows the form that asks for
+		// one, but only if it gets that far: the check below reads $this->member
+		// first, and loadMember() leaves it unassigned when it finds nothing.
+		if (!isset($this->member)) {
+			return;
+		}
+
 		// Already activated, so redirect to the login screen.
 		if (!\in_array((int) $this->member->is_activated, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
 			Utils::redirectexit('action=login');

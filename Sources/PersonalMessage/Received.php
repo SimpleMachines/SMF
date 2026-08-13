@@ -343,7 +343,7 @@ class Received implements \ArrayAccess
 		// We have new ones that we need to load.
 		$selects = [
 			'pmr.*',
-			'COALESCE(mem.real_name, "") AS real_name',
+			'COALESCE(mem.real_name, {string:blank_string}) AS real_name',
 		];
 
 		$joins = [
@@ -356,6 +356,7 @@ class Received implements \ArrayAccess
 
 		$params = [
 			'ids' => $ids,
+			'blank_string' => '',
 		];
 
 		foreach (self::queryData($selects, $params, $joins, $where) as $row) {

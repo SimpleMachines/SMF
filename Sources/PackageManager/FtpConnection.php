@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\PackageManager;
 
+use SMF\Url;
+use SMF\WebFetch\WebFetchApi;
+
 /**
  * Class FtpConnection
  * Simple FTP protocol implementation.
@@ -296,6 +299,13 @@ class FtpConnection
 		// Snatch the IP and port information, or die horribly trying...
 		if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0) {
 			$this->error = 'bad_response';
+
+			return false;
+		}
+
+		// Let's just double check that...
+		if (!(WebFetchApi::makeSafe(new Url('ftp://' . $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4] . ':' . ($match[5] * 256 + $match[6]))) instanceof Url)) {
+			$this->error = 'bad_server';
 
 			return false;
 		}

@@ -426,14 +426,6 @@ smc_Popup.prototype.setBody = function(data)
 	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
-}
-
 // Replaces the currently selected text with the passed text.
 function replaceText(text, oTextHandle)
 {
@@ -1192,6 +1184,26 @@ function attachBbCodeEvents(parent)
 	});
 }
 
+/*
+ * Shows or hides the content of an inline spoiler tag. The content is hidden
+ * in the stylesheet and only the 'revealed' class brings it back, so with
+ * nothing listening a reader can click a spoiler all day and never open it.
+ *
+ * Delegated from the document rather than attached to each spoiler, because a
+ * post can arrive after the page does - a preview, a quoted post, a personal
+ * message read in the popup - and a listener bound at load time never sees
+ * those. The span holds a button so that assistive technology and the keyboard
+ * have something to press; closest() answers for the button and the span
+ * alike, so both routes end up toggling the one element the CSS looks at.
+ */
+document.addEventListener('click', function (event)
+{
+	var spoiler = event.target.closest('.bbc_inline_spoiler');
+
+	if (spoiler)
+		spoiler.classList.toggle('revealed');
+});
+
 // A function used to clean the attachments on post page
 function cleanFileInput(idElement)
 {
@@ -1241,49 +1253,6 @@ function expandThumb(thumbID)
 	link.style.height = tmp_height;
 
 	return false;
-}
-
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
-}
-
-function generateDays(offset)
-{
-	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
-
-	var days = 0, selected = 0;
-	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-	var monthLength = [
-		31, 28, 31, 30,
-		31, 30, 31, 31,
-		30, 31, 30, 31
-	];
-	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-		monthLength[1] = 29;
-
-	selected = dayElement.selectedIndex;
-	while (dayElement.options.length)
-		dayElement.options[0] = null;
-
-	days = monthLength[monthElement.value - 1];
-
-	for (i = 1; i <= days; i++)
-		dayElement.options[dayElement.length] = new Option(i, i);
-
-	if (selected < days)
-		dayElement.selectedIndex = selected;
 }
 
 function initSearch()

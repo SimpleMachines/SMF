@@ -771,11 +771,15 @@ function template_pick()
 		}
 
 		echo '
-		</div>
+		</div>';
+	}
+
+	// One set of these for the form, not one per pass of the loop above.
+	echo '
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		<input type="hidden" name="', Utils::$context['pick-th_token_var'], '" value="', Utils::$context['pick-th_token'], '">
-		<input type="hidden" name="u" value="', Utils::$context['current_member'], '">';
-	}
+		<input type="hidden" name="u" value="', Utils::$context['current_member'], '">
+	</form>';
 }
 
 /**

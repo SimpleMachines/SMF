@@ -27,7 +27,7 @@ function template_main()
 	if (!empty(Utils::$context['agreement'])) {
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('agreement' . (!empty(Utils::$context['can_accept_agreement']) ? '_updated' : ''), file: 'General+Agreement'), '</h3>
+			<h3 class="catbg">', Lang::getTxt(!empty(Utils::$context['can_accept_agreement']) ? 'agreement_updated' : 'registration_agreement', file: 'General+Agreement'), '</h3>
 		</div>';
 
 		if (!empty(Utils::$context['can_accept_agreement'])) {

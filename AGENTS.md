@@ -219,3 +219,22 @@ than shown, especially anything in a background task.
 - Language strings live in `Languages/en_US/`; never hard-code user-facing text.
 - Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`.
 - `Settings.php` is local configuration and is not committed.
+
+### CSS naming
+
+`php-cs-fixer` does not look at CSS, so nothing here is enforced automatically.
+Reviewers do ask for it, so get it right the first time.
+
+- **Class names are `snake_case`**, not kebab-case: `inner_wrap`, `navigate_section`,
+  `content_wrapper`. In `Themes/default/css/index.css` this holds for 389 of the 392
+  class selectors, and the three exceptions are all owned by third-party code
+  (`.sceditor-container`, `.dz-image-preview`, `.g-recaptcha`), so they are not a
+  precedent for new classes.
+- **Custom properties are `kebab-case`**: `--body-bg`, `--primary-color-500`. Do not
+  "correct" these to snake_case; the rule above is about class names only.
+- The one place an underscore belongs in a custom property is a **variant suffix**
+  appended to an otherwise kebab-case name, as `--component-property_variant`. The
+  variant is usually a state (`--input-bg_hover`, `--button-border-color_active`, also
+  `_focus` and `_disabled`), but the same slot carries other modifiers where a component
+  needs them (`--progressbar-inner-bg_green`, `--genericbar-inner-box-shadow_vertical`).
+  37 of the 246 custom properties use a suffix; the rest are plain kebab-case.

@@ -54,9 +54,9 @@ function template_email_members()
 				</dl>
 				<div id="advanced_panel_header" class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', Lang::getTxt('advanced', file: 'Admin'), '</a>
 					</h3>
+					<span id="advanced_panel_toggle" class="toggle_down" style="display: none;"></span>
 				</div>
 				<div id="advanced_panel_div" class="padding">
 					<dl class="settings">
@@ -392,7 +392,7 @@ function template_email_members_send()
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
-				<input type="submit" name="b" value="', Lang::getTxt('email_continue', file: 'Admin'), '" class="button">
+				<input type="submit" name="cont" value="', Lang::getTxt('email_continue', file: 'Admin'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="subject" value="', Utils::$context['subject'], '">
 				<input type="hidden" name="message" value="', Utils::$context['message'], '">
@@ -413,9 +413,9 @@ function template_email_members_send()
 			</div><!-- .windowbg -->
 		</form>
 
-	<script>
-			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('email_continue', file: 'Admin')), ', "autoSubmit", "b");
-	</script>';
+		<script>
+			doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('email_continue', file: 'Admin')), ');
+		</script>';
 }
 
 /**
