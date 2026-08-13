@@ -302,9 +302,9 @@ class Url implements \Stringable
 	/**
 	 * Performs Unicode normalization on the URL.
 	 *
-	 * Internally calls $this->sanitize(), then performs Unicode normalization on the
-	 * URL as a whole, using NFKC normalization for the domain name (see RFC 3491)
-	 * and NFC normalization for the rest.
+	 * Internally calls $this->sanitize(), then performs Unicode normalization
+	 * on the URL as a whole, using NFKC normalization for the domain name (see
+	 * RFC 3491) and NFC normalization for the rest.
 	 *
 	 * @return self A reference to this object for method chaining.
 	 */
@@ -407,7 +407,8 @@ class Url implements \Stringable
 	 * characters (a.k.a. IRIs)
 	 *
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|bool Same as parse_url(), but with
+	 *    unmangled Unicode.
 	 */
 	public function parse(int $component = -1): string|int|array|bool|null
 	{
@@ -490,8 +491,8 @@ class Url implements \Stringable
 			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $proxied->host)
 			// Don't proxy URLs whose hosts are private or reserved IP addresses.
 			|| (
-				filter_var($proxied->host, FILTER_VALIDATE_IP) !== false
-				&& filter_var($proxied->host, FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) === false
+				filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP) !== false
+				&& filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) === false
 			)
 		) {
 			return $proxied;
@@ -591,8 +592,8 @@ class Url implements \Stringable
 	public function redirectsToHttps(): bool
 	{
 		// Ask for the headers for the passed URL, but via HTTP.
-		// Need to add the trailing slash for empty paths, or it puts it there and
-		// thinks there's a redirect when there isn't.
+		// Need to add the trailing slash for empty paths, or it puts it there
+		// and thinks there's a redirect when there isn't.
 		$http_url = 'http://' . $this->host . (empty($this->path) ? '/' : $this->path);
 
 		$headers = @get_headers($http_url);
@@ -681,21 +682,22 @@ class Url implements \Stringable
 	 * The optimized regex is stored in Config::$modSettings['tld_regex'].
 	 *
 	 * To update the stored version of the regex to use the latest list of valid
-	 * TLDs from iana.org, set the $update parameter to true. Updating can take some
-	 * time, based on network connectivity, so it should normally only be done by
-	 * calling this function from a background or scheduled task.
+	 * TLDs from iana.org, set the $update parameter to true. Updating can take
+	 * some time, based on network connectivity, so it should normally only be
+	 * done by calling this function from a background or scheduled task.
 	 *
-	 * If $update is not true, but the regex is missing or invalid, the regex will
-	 * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
-	 * overwritten on the next scheduled update.
+	 * If $update is not true, but the regex is missing or invalid, the regex
+	 * will be regenerated from a hard-coded list of TLDs. This regenerated
+	 * regex will be overwritten on the next scheduled update.
 	 *
-	 * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
+	 * @param bool $update If true, fetch and process the latest official list
+	 *    of TLDs from iana.org.
 	 */
 	public static function setTldRegex(bool $update = false): void
 	{
 		static $done = false;
 
-		// If we don't need to do anything, don't
+		// If we don't need to do anything, don't.
 		if (!$update && $done) {
 			return;
 		}
@@ -723,14 +725,14 @@ class Url implements \Stringable
 				$tlds = [];
 			}
 		}
-		// If we aren't updating and the regex is valid, we're done
+		// If we aren't updating and the regex is valid, we're done.
 		elseif (!empty(Config::$modSettings['tld_regex']) && @preg_match('~' . Config::$modSettings['tld_regex'] . '~', '') !== false) {
 			$done = true;
 
 			return;
 		}
 
-		// If we successfully got an update, process the list into an array
+		// If we successfully got an update, process the list into an array.
 		if (!empty($tlds)) {
 			// Clean $tlds and convert it to an array
 			$tlds = array_filter(
@@ -742,7 +744,7 @@ class Url implements \Stringable
 				},
 			);
 
-			// Convert Punycode to Unicode
+			// Convert Punycode to Unicode.
 			if (!\function_exists('idn_to_utf8')) {
 				require_once Sapi::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
 			}
@@ -751,11 +753,13 @@ class Url implements \Stringable
 				$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 			}
 		}
-		// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
+		// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule
+		// a background update.
 		else {
 			$tlds = array_merge(self::$basic_tlds, self::$cc_tlds);
 
-			// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
+			// Schedule a background update, unless civilization has collapsed
+			// and/or we are having connectivity issues.
 			if (empty($postapocalypticNightmare)) {
 				Db::$db->insert(
 					'insert',
@@ -777,10 +781,11 @@ class Url implements \Stringable
 			}
 		}
 
-		// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+		// Tack on some "special use domain names" that aren't in DNS but may
+		// possibly resolve.
 		$tlds = array_merge($tlds, self::$special_use_tlds);
 
-		// Get an optimized regex to match all the TLDs
+		// Get an optimized regex to match all the TLDs.
 		$tld_regex = Utils::buildRegex($tlds);
 
 		// Remember the new regex in Config::$modSettings
@@ -791,7 +796,7 @@ class Url implements \Stringable
 			Autolinker::createJavaScriptFile(true);
 		}
 
-		// Redundant repetition is redundant
+		// Redundant repetition is redundant.
 		$done = true;
 	}
 
@@ -800,8 +805,8 @@ class Url implements \Stringable
 	 ******************/
 
 	/**
-	 * Checks whether $this->url contains only ASCII characters.
-	 * Sets the value of $this->is_ascii to the result.
+	 * Checks whether $this->url contains only ASCII characters and sets the
+	 * value of $this->is_ascii to the result.
 	 */
 	protected function checkIfAscii(): void
 	{
