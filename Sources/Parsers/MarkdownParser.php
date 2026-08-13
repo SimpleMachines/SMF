@@ -774,9 +774,9 @@ class MarkdownParser extends Parser
 		if ($from_bbcode_parser) {
 			$input_replacements = [
 				// Protect the content of certain tags.
-				'/(<code\b[^>]*>)((?>\X(?!<code\b[^>]*>)|(?R))*)(<\/code>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
-
 				'/(<pre\b[^>]*>)((?>\X(?!<pre\b[^>]*>)|(?R))*)(<\/pre>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
+
+				'/(<code\b[^>]*>)((?>\X(?!<code\b[^>]*>)|(?R))*)(<\/code>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
 
 				'/(<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)((?>\X(?!<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)|(?R))*)(<\/div>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
 
