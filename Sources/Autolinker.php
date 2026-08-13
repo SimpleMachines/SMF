@@ -206,7 +206,6 @@ class Autolinker
 	 */
 	protected string $js_email_regex;
 
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
