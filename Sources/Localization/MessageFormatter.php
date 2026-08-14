@@ -252,9 +252,6 @@ class MessageFormatter
 		];
 
 		foreach ($args as $arg => $value) {
-			// A Stringable is as good as a string here, but it would be thrown
-			// away by the is_scalar() filter below, and an argument that never
-			// arrives leaves its placeholder sitting in the output.
 			if ($value instanceof \Stringable) {
 				$value = $args[$arg] = (string) $value;
 			}
