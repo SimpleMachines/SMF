@@ -724,11 +724,6 @@ class Feed implements ActionInterface, Routable
 		$done = false;
 		$loops = 0;
 
-		// A feed for the whole forum has no current board, and Board::$info is
-		// typed with no default, so it cannot be read at all until something
-		// sets it. The query only uses this when there is a board.
-		$current_board = isset(Board::$info) ? Board::$info->id : 0;
-
 		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
 			$request = Db::$db->query(
@@ -750,7 +745,7 @@ class Feed implements ActionInterface, Routable
 				ORDER BY t.id_first_msg {raw:ascdesc}
 				LIMIT {int:limit}',
 				[
-					'current_board' => $current_board,
+					'current_board' => isset(Board::$info) ? Board::$info->id : 0,
 					'is_approved' => 1,
 					'limit' => $this->limit,
 					'optimize_msg' => $optimize_msg,
