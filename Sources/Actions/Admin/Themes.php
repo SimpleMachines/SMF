@@ -621,7 +621,7 @@ class Themes implements ActionInterface
 					$available_variants[$variant] = Lang::getTxt('variant_' . $variant, file: 'Themes') ?? $variant;
 				}
 
-				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Themes');
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_variant',
 					'label' => Lang::getTxt('theme_pick_variant', file: 'Themes'),
@@ -639,7 +639,7 @@ class Themes implements ActionInterface
 					$available_modes[$mode] = Lang::getTxt('colormode_' . $mode, file: 'Themes') ?? $mode;
 				}
 
-				Utils::$context['options'][] = Lang::getTxt('theme_opt_colormode', file: 'Themes');
+				Utils::$context['options'][] = Lang::getTxt('theme_opt_colormode', file: 'Profile');
 				Utils::$context['options'][] = [
 					'id' => 'theme_colormode',
 					'label' => Lang::getTxt('theme_pick_colormode', file: 'Themes'),

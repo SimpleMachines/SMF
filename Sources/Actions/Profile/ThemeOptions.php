@@ -60,7 +60,7 @@ class ThemeOptions implements ActionInterface
 				Utils::$context['additional_options'][] = Lang::getTxt('theme_opt_variant', file: 'Profile');
 				Utils::$context['additional_options'][] = [
 					'id' => 'theme_variant',
-					'label' => Lang::getTxt('theme_pick_variant', file: 'THemes'),
+					'label' => Lang::getTxt('theme_pick_variant', file: 'Themes'),
 					'options' => $available_variants,
 					'default' => isset(Theme::$current->settings['default_variant']) && !empty(Theme::$current->settings['default_variant']) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0],
 					'enabled' => !empty(Theme::$current->settings['theme_variants']),

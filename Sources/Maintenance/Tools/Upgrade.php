@@ -795,7 +795,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 		) {
 			if (!SecurityToken::validate('login', 'post', false)) {
-				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Maintenance');
+				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Errors');
 				Maintenance::$context += SecurityToken::create('login');
 
 				return false;
