@@ -2824,25 +2824,25 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// column and replaces them with references to the new column.
 		if (
 			str_contains($db_string, 'count_posts')
-			&& preg_match('/\b' . preg_quote($this->prefix) . 'boards\b(?:\s+AS\s+(\w+))?/i', $db_string, $matches)
+			&& preg_match('/\b' . preg_quote(Config::$db_prefix) . 'boards\b(?:\s+AS\s+(\w+))?/i', $db_string, $matches)
 		) {
-			$old_col = (!empty($matches[1]) ? $matches[1] . '.' : '') . 'count_posts';
+			$old_col = (!empty($matches[1]) ? '(?:' . $matches[1] . '\.)?' : '') . 'count_posts';
 			$new_col = (!empty($matches[1]) ? $matches[1] . '.' : '') . 'posts_count';
 
 			$db_string = preg_replace_callback_array(
 				[
-					'/\b' . $old_col . '\s*(!=|<(?:=|>)?|=|>=?)\s*([01])\b/' => function ($m) {
+					'/(?<![\w.])' . $old_col . '\s*(!=|<(?:=|>)?|=|>=?)\s*([01])\b/' => function ($m) use ($new_col) {
 						$m[1] = match ($m[1]) {
 							'>' => '<',
 							'>=' => '<=',
 							'<' => '>',
-							'>=' => '<=',
+							'<=' => '>=',
 							default => $m[1],
 						};
 
 						return $new_col . ' ' . $m[1] . ' ' . ((int) !$m[2]);
 					},
-					'/\b' . $old_col . '\b/' => fn($m) => $new_col,
+					'/(?<![\w.])' . $old_col . '\b/' => fn($m) => $new_col,
 				],
 				$db_string,
 			);
