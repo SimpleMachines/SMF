@@ -1002,6 +1002,10 @@ class Lang
 		return self::LANG_TO_LOCALE[$lang] ?? null;
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * A backward compatibility method for loading language files with old names.
 	 * This is used to support backward compatibility with mods from SMF 2.1.
@@ -1014,7 +1018,7 @@ class Lang
 	 *    loaded.
 	 * @return bool Whether we loaded anything or not.
 	 */
-	public static function loadOld(array $attempts, bool $force_reload): bool
+	private static function loadOld(array $attempts, bool $force_reload): bool
 	{
 		if (empty($attempts)) {
 			return false;
@@ -1038,10 +1042,6 @@ class Lang
 
 		return false;
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
 
 	/**
 	 * Helper for Lang::txtExists() and Lang::getTxt() that handles loading the
