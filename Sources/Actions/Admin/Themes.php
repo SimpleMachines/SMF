@@ -2233,9 +2233,9 @@ class Themes implements ActionInterface
 				$size = filesize($path . '/' . $entry);
 
 				if ($size > 2048 || $size == 1024) {
-					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024, 2)], file: 'General');
+					$size = Lang::getTxt('size_kilobyte', [round($size / 1024, 2)], file: 'General');
 				} else {
-					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)], file: 'General');
+					$size = Lang::getTxt('size_byte', [$size], file: 'General');
 				}
 
 				$list2[] = [
