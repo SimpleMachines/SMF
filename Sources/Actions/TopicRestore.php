@@ -329,7 +329,9 @@ class TopicRestore implements ActionInterface, Routable
 			// Lets get the members that need their post count restored.
 			$members = User::loadCustom(
 				query_customizations: [
-					'joins' => ['{db_prefix}messages AS m ON (m.id_member = mem.id_member)'],
+					'joins' => [
+						'INNER JOIN {db_prefix}messages AS m ON (m.id_member = mem.id_member)',
+					],
 					'where' => [
 						'm.id_msg IN ({array_int:messages})',
 						'm.approved = {int:is_approved}',
