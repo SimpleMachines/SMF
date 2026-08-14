@@ -283,6 +283,20 @@ class ErrorHandlerService
 
 		// Leave out the call to this method.
 		array_splice($backtrace, 0, 1);
+
+		// Never log call arguments or bound objects.
+		//
+		// The backtraces we collect ourselves already omit the arguments, but a
+		// backtrace handed to us by an exception keeps both, and neither is
+		// safe to encode. Arguments can hold whatever the member submitted,
+		// including their password, and reading a property of a bound object
+		// can throw, which would turn an error we were merely logging into an
+		// uncaught fatal.
+		foreach ($backtrace as &$frame) {
+			unset($frame['args'], $frame['object']);
+		}
+		unset($frame);
+
 		$backtrace = Utils::jsonEncode($backtrace);
 
 		// Don't log the same error countless times, as we can get in a cycle of depression...
