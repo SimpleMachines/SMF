@@ -2165,8 +2165,6 @@ class Group implements \ArrayAccess
 				AND min_posts != {int:min_posts}',
 			[
 				'min_posts' => -1,
-				// The keys are the group IDs; the values are post counts, which
-				// are not what id_group is being compared against.
 				'known_post_groups' => !empty(self::$post_groups) ? array_keys(self::$post_groups) : [self::NONE],
 			],
 		);
