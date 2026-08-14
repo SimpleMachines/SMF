@@ -4508,11 +4508,11 @@ function setMemoryLimit($needed, $in_use = false)
 function memoryReturnBytes($val)
 {
 	if (is_integer($val))
-		return $val;
+		return $val < 0 ? PHP_INT_MAX : $val;
 
 	// Separate the number from the designator
 	$val = trim($val);
-	$num = intval(substr($val, 0, strlen($val) - 1));
+	$num = (int) $val;
 	$last = strtolower(substr($val, -1));
 
 	// convert to bytes
@@ -4525,7 +4525,7 @@ function memoryReturnBytes($val)
 		case 'k':
 			$num *= 1024;
 	}
-	return $num;
+	return $num < 0 ? PHP_INT_MAX : $num;
 }
 
 /**
