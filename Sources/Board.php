@@ -2669,7 +2669,7 @@ class Board implements \ArrayAccess, Routable
 			// Old mods would have expected $params['count_posts'], which had
 			// an inverted value (i.e. 0 = true, 1 = false).
 			if (!empty(Config::$backward_compatibility)) {
-				$params['count_posts'] = (int) !$this->posts_count;
+				$params['count_posts'] = $count_posts = (int) !$this->posts_count;
 			}
 
 			// Do any hooks want to add or adjust anything?
@@ -2677,7 +2677,15 @@ class Board implements \ArrayAccess, Routable
 
 			// Clean up the backward compatibility changes.
 			if (!empty(Config::$backward_compatibility)) {
-				$params['posts_count'] = (int) empty($params['count_posts']);
+				// If posts_count did not change, but count_posts did, then
+				// sync the change to count_posts back to posts_count.
+				if (
+					(int) $params['posts_count'] === (int) $this->posts_count
+					&& (int) $params['count_posts'] !== (int) $count_posts
+				) {
+					$params['posts_count'] = (int) empty($params['count_posts']);
+				}
+
 				unset($params['count_posts']);
 			}
 		}
