@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class AlertsObsolete extends MigrationBase
@@ -104,17 +105,33 @@ class AlertsObsolete extends MigrationBase
 
 		$this->handleTimeout();
 
-		$this->query(
-			'UPDATE {db_prefix}user_alerts AS a
-			JOIN {db_prefix}attachments AS f
-				ON (f.id_attach = a.content_id)
-			SET
-				a.content_type = {literal:msg},
-				a.content_action = {literal:unapproved_attachment},
-				a.content_id = f.id_msg
-			WHERE content_type = {literal:unapproved}
-				AND content_action = {literal:attachment}',
-			[],
+		Db::$db->update_from(
+			table: [
+				'name' => '{db_prefix}user_alerts',
+				'alias' => 'a',
+			],
+			from_tables: [
+				[
+					'name' => '{db_prefix}attachments',
+					'alias' => 'f',
+					'condition' => 'f.id_attach = a.content_id',
+				],
+			],
+			set: implode(', ', [
+				'a.content_type = {string:new_type}',
+				'a.content_action = {string:new_action}',
+				'a.content_id = f.id_msg',
+			]),
+			where: implode(' AND ', [
+				'content_type = {string:old_type}',
+				'content_action = {string:old_action}',
+			]),
+			db_values: [
+				'new_type' => 'msg',
+				'new_action' => 'unapproved_attachment',
+				'old_type' => 'unapproved',
+				'old_action' => 'attachment',
+			],
 		);
 
 		$this->handleTimeout();
