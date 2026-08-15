@@ -2194,12 +2194,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$columns[$k] = trim($v);
 			}
 
-			// Fix up the name to be consistent cross databases
-			if (str_ends_with($row['name'], '_pkey') && $row['is_primary'] == 1) {
-				$row['name'] = 'PRIMARY';
-			} else {
-				$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
-			}
+			$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
 
 			if (!$detail) {
 				$indexes[] = $row['name'];
