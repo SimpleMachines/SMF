@@ -1,0 +1,203 @@
+# Skip file-based labeling if more than 300 files changed
+max-files-changed: 300
+
+# These labels will be skipped if > 300 files changed
+Administrative:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Admin/**', 'Theme/default/Admin.template.php']
+
+Anti-spam:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Admin/Anti-spam.php', 'Sources/AntiSpam/**']
+
+Attachments:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Attach**']
+
+"Background tasks"
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/TaskRunner.php', 'Sources/Tasks/**', 'cron.php']
+
+"Backward compatibility"
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Subs-Compat.php']
+
+Boards:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Board**', 'Sources/Actions/Board**', 'Sources/Actions/Admin/Board**', 'THemes/defalt/Board**']
+
+Caching:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Cache/**']
+
+Calendar:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Calendar/**', 'Sources/Time**']
+
+Captcha:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/ReCaptcha/**']
+
+"Charset/Encoding"
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Unicode/**']
+
+Database:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Db/**']
+
+Drafts:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Draft**']
+
+Editor:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Editor**']
+
+Exports:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Profile/Export**']
+
+"External data":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/WebFetch**']
+
+github_actions:
+  - changed-files:
+    - any-glob-to-any-file: ['.github_actions/workflows/**']
+
+Hooks:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Integration**']
+
+Installer:
+  - changed-files:
+    - any-glob-to-any-file: ['other/install.php', 'Sources/Maintenance/Tools/Install**', 'Sources/Db/Schema/**']
+
+JavaScript:
+  - changed-files:
+    - any-glob-to-any-file: ['**.js']
+
+Localization:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Lang**', 'Sources/Actions/Admin/Lang**', 'Languages/**', 'Sources/Localization/**']
+
+Logging:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Error**', 'Sources/Log**', 'Sources/Actions/Admin/Log**', 'Sources/Actions/Moderation/Log**']
+
+"Login Sessions":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Session**']
+
+Mail:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Mail**']
+
+Membergroups:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Group**', 'Sources/Actions/Admin/Membegroups.php', 'Sources/Actions/Moderation/Group**']
+
+Mentions:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Mentions**']
+
+Moderation:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Moderation**', 'Sources/Actions/QuickModeration**', 'Sources/Actions/TopicMove**', 'Sources/Actions/TopicLock**', 'Sources/Actions/TopicMerge**', 'Sources/Actions/TopicRemove**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/TopicSticky**', 'Sources/Actions/TopicSplit**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/ReportToMod**']
+
+MySQL:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Db/APIs/MySQL**']
+
+Navigation:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Routable**', 'Sources/Action*.php']
+
+Notifications:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Notify**', 'Sources/Actions/Profile/Notification**']
+
+"Package Manager":
+  - changed-files:
+    - any-glob-to-any-file: ['Packages/**', 'Sources/Actions/Admin/Package**', 'Sources/PackageManager/**']
+
+"Paid Subs":
+  - changed-files:
+    - any-glob-to-any-file: ['subscriptions.php', 'Sources/Subscriptions**', 'Sources/Actions/Admin/Subscriptions**', 'Sources/Actions/Profile/PaidSubs**']
+
+"Parsers (BBC/Markdown)":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Parser**', 'Sources/Parsers/**', 'Sources/BBCode/**']
+
+Permissions:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Permissions/**', 'Sources/Actions/Admin/Permissions**']
+
+PM:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/PersonalMessage/**', 'Sources/Actions/PersonalMessage**']
+
+Polls:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Poll**']
+
+PostgreSQL:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Db/APIs/PostgreSQL**']
+
+Posting:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Post**']
+
+Proxy:
+  - changed-files:
+    - any-glob-to-any-file: ['proxy.php', 'Sources/ProxyServer.php']
+
+Registration:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actins/Register**']
+
+"Scheduled Tasks":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/TaskRunner.php', 'Sources/Tasks/**', 'cron.php']
+
+Search:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Search/**', 'Sources/Actions/Search**', 'Sources/Actions/Admin/Search**']
+
+"Server settings":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Admin/Server**']
+
+Smileys:
+  - changed-files:
+    - any-glob-to-any-file: ['Smileys/**', 'Sources/Parsers/SmileyParser.php', 'Sources/ActionAdmin/Smileys.php']
+
+Subscriptions:
+  - changed-files:
+    - any-glob-to-any-file: ['subscriptions.php', 'Sources/Subscriptions**', 'Sources/Actions/Admin/Subscriptions**', 'Sources/Actions/Profile/PaidSubs**']
+
+Theme:
+  - changed-files:
+    - any-glob-to-any-file: ['Themes/default/**']
+
+Topics:
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Topic.php', 'Sources/Actions/Topic**']
+
+Upgrader:
+  - changed-files:
+    - any-glob-to-any-file: ['other/upgrade.php', 'Sources/Maintenance/Tools/Upgrade**', 'Sources/Maintenance/Cleanup/**', 'Sources/Maintenance/Migration/**']
+
+"User settings":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/User**', 'Sources/Actions/Profile/**']
+
+"Visual verification":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/ReCaptcha/**']
+
+"Web feeds":
+  - changed-files:
+    - any-glob-to-any-file: ['Sources/Actions/Xml**']
