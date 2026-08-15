@@ -1709,6 +1709,18 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
+			// In PostgreSQL SET DEFAULT does not backfill existing rows, so do it manually.
+			if ($default !== 'NULL' && isset($column_info['not_null'])) {
+				$this->query(
+					'UPDATE ' . $short_table_name . '
+					SET ' . $column_info['name'] . ' = ' . $default . '
+					WHERE ' . $column_info['name'] . ' IS NULL',
+					[
+						'security_override' => true,
+					],
+				);
+			}
 		}
 
 		// Is it null - or otherwise?
