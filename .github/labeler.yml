@@ -200,4 +200,4 @@ Upgrader:
 
 "Web feeds":
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actions/Xml**']
+    - any-glob-to-any-file: ['Sources/Actions/Feed**']
