@@ -1455,9 +1455,12 @@ class Maintenance implements ActionInterface
 				'SELECT COUNT(DISTINCT m.id_member)
 				FROM {db_prefix}messages AS m
 				JOIN {db_prefix}boards AS b on m.id_board = b.id_board
-				WHERE m.id_member != 0
-					AND b.posts_count = 1',
+				WHERE m.id_member != {int:zero}
+					AND b.posts_count = {int:one}
+					AND m.approved = {int:one}',
 				[
+					'zero' => 0,
+					'one' => 1,
 				],
 			);
 
@@ -1474,7 +1477,8 @@ class Maintenance implements ActionInterface
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 			WHERE m.id_member != {int:zero}
-				AND b.posts_count != {int:zero}
+				AND b.posts_count = {int:one}
+				AND m.approved = {int:one}
 				' . (!empty(Config::$modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 			GROUP BY m.id_member
 			LIMIT {int:start}, {int:number}',
@@ -1483,6 +1487,7 @@ class Maintenance implements ActionInterface
 				'number' => $increment,
 				'recycle' => Config::$modSettings['recycle_board'],
 				'zero' => 0,
+				'one' => 1,
 			],
 		);
 		$total_rows = Db::$db->num_rows($request);
@@ -1492,11 +1497,8 @@ class Maintenance implements ActionInterface
 			Db::$db->query(
 				'UPDATE {db_prefix}members
 				SET posts = {int:posts}
-				WHERE id_member = {int:row}',
-				[
-					'row' => $row['id_member'],
-					'posts' => $row['posts'],
-				],
+				WHERE id_member = {int:id_member}',
+				$row,
 			);
 		}
 		Db::$db->free_result($request);
@@ -1518,26 +1520,26 @@ class Maintenance implements ActionInterface
 		// final steps ... made more difficult since we don't yet support sub-selects on joins
 		// place all members who have posts in the message table in a temp table
 		$createTemporary = Db::$db->query(
-			'CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts (
-				id_member mediumint(8) unsigned NOT NULL default {string:string_zero},
-				PRIMARY KEY (id_member)
-			)
+			'CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts AS
 			SELECT m.id_member
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 			WHERE m.id_member != {int:zero}
-				AND b.posts_count != {int:zero}
+				AND b.posts_count = {int:one}
+				AND m.approved = {int:one}
 				' . (!empty(Config::$modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 			GROUP BY m.id_member',
 			[
 				'zero' => 0,
-				'string_zero' => '0',
+				'one' => 1,
 				'db_error_skip' => true,
 				'recycle' => !empty(Config::$modSettings['recycle_board']) ? Config::$modSettings['recycle_board'] : 0,
 			],
 		) !== false;
 
 		if ($createTemporary) {
+			Db::$db->add_index('{db_prefix}tmp_maint_recountposts', ['type' => 'primary', 'columns' => ['id_member']]);
+
 			// outer join the members table on the temporary table finding the members that have a post count but no posts in the message table
 			$request = Db::$db->query(
 				'SELECT mem.id_member, mem.posts
@@ -1556,9 +1558,9 @@ class Maintenance implements ActionInterface
 				Db::$db->query(
 					'UPDATE {db_prefix}members
 					SET posts = {int:zero}
-					WHERE id_member = {int:row}',
+					WHERE id_member = {int:id_member}',
 					[
-						'row' => $row['id_member'],
+						'id_member' => $row['id_member'],
 						'zero' => 0,
 					],
 				);
