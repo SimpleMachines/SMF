@@ -8,7 +8,7 @@ Administrative:
 
 Anti-spam:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actions/Admin/Anti-spam.php', 'Sources/AntiSpam/**']
+    - any-glob-to-any-file: ['Sources/Actions/Admin/Anti-spam.php', 'Sources/AntiSpam/**', 'Sources/ReCaptcha/**']
 
 Attachments:
   - changed-files:
@@ -33,10 +33,6 @@ Caching:
 Calendar:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Calendar/**', 'Sources/Time**']
-
-Captcha:
-  - changed-files:
-    - any-glob-to-any-file: ['Sources/ReCaptcha/**']
 
 "Charset/Encoding"
   - changed-files:
@@ -122,10 +118,6 @@ Notifications:
   - changed-files:
     - any-glob-to-any-file: ['Packages/**', 'Sources/Actions/Admin/Package**', 'Sources/PackageManager/**']
 
-"Paid Subs":
-  - changed-files:
-    - any-glob-to-any-file: ['subscriptions.php', 'Sources/Subscriptions**', 'Sources/Actions/Admin/Subscriptions**', 'Sources/Actions/Profile/PaidSubs**']
-
 "Parsers (BBC/Markdown)":
   - changed-files:
     - any-glob-to-any-file: ['Sources/Parser**', 'Sources/Parsers/**', 'Sources/BBCode/**']
@@ -193,10 +185,6 @@ Upgrader:
 "User settings":
   - changed-files:
     - any-glob-to-any-file: ['Sources/User**', 'Sources/Actions/Profile/**']
-
-"Visual verification":
-  - changed-files:
-    - any-glob-to-any-file: ['Sources/ReCaptcha/**']
 
 "Web feeds":
   - changed-files:
