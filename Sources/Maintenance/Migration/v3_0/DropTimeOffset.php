@@ -67,7 +67,7 @@ class DropTimeOffset extends MigrationBase
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (isset($offsets[$row['offset']])) {
+			if (isset($offsets[$row['time_offset']])) {
 				continue;
 			}
 
@@ -83,7 +83,7 @@ class DropTimeOffset extends MigrationBase
 				}
 			}
 
-			$offsets[$row['offset']] = \is_string($tzid) ? $tzid : $forum_tzid;
+			$offsets[$row['time_offset']] = \is_string($tzid) ? $tzid : $forum_tzid;
 		}
 
 		Db::$db->free_result($request);
