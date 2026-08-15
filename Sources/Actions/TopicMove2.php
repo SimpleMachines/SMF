@@ -221,25 +221,14 @@ class TopicMove2 implements ActionInterface, Routable
 
 			$posterOptions = [
 				'id' => User::$me->id,
-				'update_post_count' => !empty($pcounter),
+				'update_post_count' => (bool) Board::$info->posts_count,
 			];
 
 			Msg::create($msgOptions, $topicOptions, $posterOptions);
 		}
 
-		$request = Db::$db->query(
-			'SELECT posts_count
-			FROM {db_prefix}boards
-			WHERE id_board = {int:current_board}
-			LIMIT 1',
-			[
-				'current_board' => Board::$info->id,
-			],
-		);
-		list($pcounter_from) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		if ($pcounter_from != $pcounter) {
+		// If one of the boards counts posts and the other doesn't, we have more work to do.
+		if (Board::$info->posts_count != $pcounter) {
 			$posters = [];
 
 			$request = Db::$db->query(
@@ -259,7 +248,7 @@ class TopicMove2 implements ActionInterface, Routable
 				}
 
 				// The board we're moving from counted posts, but not to.
-				if (!empty($pcounter_from)) {
+				if (Board::$info->posts_count) {
 					$posters[$row['id_member']]--;
 				}
 				// The reverse: from didn't, to did.
