@@ -2831,6 +2831,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			$db_string = preg_replace_callback_array(
 				[
+					'/(\bSELECT\b(?:.(?!\bFROM\b))*)((?<![\w.])' . $old_col . '\b)/s' => fn($m) => $m[1] . $new_col . ', (1 - ' . $new_col . ') AS ' . md5('count_posts'),
 					'/(?<![\w.])' . $old_col . '\s*(!=|<(?:=|>)?|=|>=?)\s*([01])\b/' => function ($m) use ($new_col) {
 						$m[1] = match ($m[1]) {
 							'>' => '<',
@@ -2843,6 +2844,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						return $new_col . ' ' . $m[1] . ' ' . ((int) !$m[2]);
 					},
 					'/(?<![\w.])' . $old_col . '\b/' => fn($m) => $new_col,
+					'/' . md5('count_posts') . '/' => fn($m) => 'count_posts',
 				],
 				$db_string,
 			);
