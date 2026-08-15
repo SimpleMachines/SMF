@@ -740,7 +740,7 @@ class QuickModeration implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			if (!empty($topicRecounts)) {
-				$members = [];
+				$adjustments = [];
 
 				// Get all the members who have posted in the moved topics.
 				$request = Db::$db->query(
@@ -754,22 +754,22 @@ class QuickModeration implements ActionInterface, Routable
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (!isset($members[$row['id_member']])) {
-						$members[(int) $row['id_member']] = 0;
+					if (!isset($adjustments[$row['id_member']])) {
+						$adjustments[(int) $row['id_member']] = 0;
 					}
 
 					if ($topicRecounts[(int) $row['id_topic']] === '+') {
-						$members[(int) $row['id_member']]++;
+						$adjustments[(int) $row['id_member']]++;
 					} else {
-						$members[(int) $row['id_member']]--;
+						$adjustments[(int) $row['id_member']]--;
 					}
-
-					$members[(int) $row['id_member']] = max(0, $members[(int) $row['id_member']]);
 				}
 				Db::$db->free_result($request);
 
 				// And now update the member's post counts.
-				foreach ($members as $id => $post_adj) {
+				$members = [];
+
+				foreach ($adjustments as $id => $post_adj) {
 					$members[$id] = current(User::load($id, dataset: UserDataset::Minimal));
 
 					if ($members[$id] instanceof User) {
