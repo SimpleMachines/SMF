@@ -433,23 +433,45 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 		if ($method == 'replace' || $method == 'ignore') {
-			$key_str = implode(',', $keys);
-			$col_str = '';
-			$count = 0;
+			// The columns in an ON CONFLICT statement must exactly match the columns
+			// of some primary or unique index.
+			$possibly_conflicting_columns = [];
+			$column_names = array_keys($columns);
 
-			// Make a list of the non-pk fields.
-			foreach ($columns as $columnName => $type) {
-				if (!\in_array($columnName, $keys) && ($method == 'replace')) {
-					$col_str .= ($count > 0 ? ',' : '');
-					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
-					$count++;
+			foreach ($this->list_indexes($table, true) as $index) {
+				if (
+					// Skip if not a primary or unique index.
+					!\in_array($index['type'], ['primary', 'unique'])
+					// Skip if some of the columns in this index are not being inserted into.
+					|| array_intersect($index['columns'], $column_names) !== $index['columns']
+					// Prefer the primary index over others.
+					|| ($index['type'] !== 'primary' && !empty($possibly_conflicting_columns))
+				) {
+					continue;
 				}
+
+				$possibly_conflicting_columns = $index['columns'];
 			}
 
-			if ($method == 'replace') {
-				$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
-			} else {
-				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+			if (!empty($possibly_conflicting_columns)) {
+				$key_str = implode(',', $possibly_conflicting_columns);
+				$col_str = '';
+				$count = 0;
+
+				// Make a list of the non-pk fields.
+				foreach ($columns as $column_name => $type) {
+					if (!\in_array($column_name, $keys) && ($method == 'replace')) {
+						$col_str .= ($count > 0 ? ',' : '');
+						$col_str .= $column_name . ' = EXCLUDED.' . $column_name;
+						$count++;
+					}
+				}
+
+				if ($method == 'replace') {
+					$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+				} else {
+					$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+				}
 			}
 		}
 
