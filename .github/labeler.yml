@@ -24,7 +24,7 @@ Attachments:
 
 Boards:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Board**', 'Sources/Actions/Board**', 'Sources/Actions/Admin/Board**', 'THemes/defalt/Board**']
+    - any-glob-to-any-file: ['Sources/Board**', 'Sources/Actions/Board**', 'Sources/Actions/Admin/Board**', 'Themes/defalt/Board**']
 
 Caching:
   - changed-files:
