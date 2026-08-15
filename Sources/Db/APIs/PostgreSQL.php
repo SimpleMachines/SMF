@@ -1711,7 +1711,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			// In PostgreSQL SET DEFAULT does not backfill existing rows, so do it manually.
-			if ($default !== 'NULL' && isset($column_info['not_null'])) {
+			if ($default !== 'NULL' && !empty($column_info['not_null'])) {
 				$this->query(
 					'UPDATE ' . $short_table_name . '
 					SET ' . $column_info['name'] . ' = ' . $default . '
@@ -1725,7 +1725,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Is it null - or otherwise?
 		// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
-		if (isset($column_info['not_null'])) {
+		if (!empty($column_info['not_null'])) {
 			$action = 'SET NOT NULL';
 		} else {
 			$action = 'DROP NOT NULL';
