@@ -56,7 +56,7 @@ Editor:
 
 Exports:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actions/Profile/Export**']
+    - any-glob-to-any-file: ['Sources/Actions/Profile/Export**', 'Sources/Tasks/ExportProfileData**']
 
 "External data":
   - changed-files:
