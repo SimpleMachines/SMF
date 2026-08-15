@@ -14,11 +14,11 @@ Attachments:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Actions/Attach**']
 
-"Background tasks"
+"Background tasks":
   - changed-files:
     - any-glob-to-any-file: ['Sources/TaskRunner.php', 'Sources/Tasks/**', 'cron.php']
 
-"Backward compatibility"
+"Backward compatibility":
   - changed-files:
     - any-glob-to-any-file: ['Sources/Subs-Compat.php']
 
@@ -34,7 +34,7 @@ Calendar:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Calendar/**', 'Sources/Time**']
 
-"Charset/Encoding"
+"Charset/Encoding":
   - changed-files:
     - any-glob-to-any-file: ['Sources/Unicode/**']
 
