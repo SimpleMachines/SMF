@@ -463,13 +463,22 @@ abstract class Table
 				continue;
 			}
 
+			// There's no need to rename the primary key.
+			if ($index->type === 'primary' && $existing_index['type'] === 'primary') {
+				return true;
+			}
+
 			// If the name is already the same, there's nothing to do.
 			if ($index->name === $existing_index['name']) {
 				return true;
 			}
 
 			// Do the rename.
-			return Db::$db->rename_index('{db_prefix}' . $this->name, $existing_index['name'], $index->name);
+			return Db::$db->rename_index(
+				table_name: '{db_prefix}' . $this->name,
+				old_name: $existing_index['name'],
+				new_name: $index->name,
+			);
 		}
 
 		// No matching index was found.
