@@ -189,8 +189,13 @@ function read_mysql(string $host, int $port, string $db, string $user, string $p
 
 	$tables = [];
 
+	// ROW_FORMAT is here because it is not decoration: COMPACT caps an index
+	// key at 767 bytes where DYNAMIC allows 3072, so a table left in the older
+	// format is a table where half of SMF's indexes cannot be created at their
+	// full width. AUTO_INCREMENT is deliberately not here -- it counts rows,
+	// and differs between any two databases that have been used differently.
 	$rows = query_mysql($link, '
-		SELECT TABLE_NAME, ENGINE, TABLE_COLLATION
+		SELECT TABLE_NAME, ENGINE, TABLE_COLLATION, ROW_FORMAT
 		FROM information_schema.TABLES
 		WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = \'BASE TABLE\'', [$db]);
 
@@ -199,15 +204,22 @@ function read_mysql(string $host, int $port, string $db, string $user, string $p
 			'attributes' => [
 				'engine' => (string) $row['ENGINE'],
 				'collation' => (string) $row['TABLE_COLLATION'],
+				'row_format' => (string) $row['ROW_FORMAT'],
 			],
 			'columns' => [],
 			'indexes' => [],
 		];
 	}
 
+	// GENERATION_EXPRESSION because EXTRA says only that a column is generated,
+	// never what from. messages.modified_time and its two neighbours are STORED
+	// columns read out of the edit_history JSON, and a wrong path in one of
+	// them produces a column that is the right type and quietly the wrong
+	// value -- which is the failure this is least able to afford missing.
 	$rows = query_mysql($link, '
 		SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_TYPE,
-			IS_NULLABLE, COLUMN_DEFAULT, EXTRA, COLLATION_NAME
+			IS_NULLABLE, COLUMN_DEFAULT, EXTRA, COLLATION_NAME,
+			GENERATION_EXPRESSION
 		FROM information_schema.COLUMNS
 		WHERE TABLE_SCHEMA = ?
 		ORDER BY TABLE_NAME, ORDINAL_POSITION', [$db]);
@@ -228,6 +240,7 @@ function read_mysql(string $host, int $port, string $db, string $user, string $p
 			// auto_increment lives here, and so does ON UPDATE.
 			'extra' => (string) $row['EXTRA'],
 			'collation' => $row['COLLATION_NAME'],
+			'generated' => (string) $row['GENERATION_EXPRESSION'],
 			'position' => (int) $row['ORDINAL_POSITION'],
 		];
 	}
@@ -317,7 +330,7 @@ function read_postgresql(string $host, int $port, string $db, string $user, stri
 	$rows = query_postgresql($link, '
 		SELECT table_name, column_name, ordinal_position, data_type,
 			character_maximum_length, numeric_precision, numeric_scale,
-			is_nullable, column_default
+			is_nullable, column_default, generation_expression
 		FROM information_schema.columns
 		WHERE table_schema = \'public\'
 		ORDER BY table_name, ordinal_position', []);
@@ -339,6 +352,9 @@ function read_postgresql(string $host, int $port, string $db, string $user, stri
 			// that a column that lost its sequence reads the same way on both.
 			'extra' => $default !== null && str_starts_with($default, 'nextval(') ? 'auto_increment' : '',
 			'collation' => null,
+			// PostgreSQL has generated columns too, and SMF uses none of them
+			// here; reading the column keeps both engines the same shape.
+			'generated' => (string) ($row['generation_expression'] ?? ''),
 			'position' => (int) $row['ordinal_position'],
 		];
 	}
@@ -740,6 +756,7 @@ function describe_column(array $column): string
 		$column['nullable'] ? 'NULL' : 'NOT NULL',
 		$column['default'] === null ? '' : 'DEFAULT ' . $column['default'],
 		$column['extra'],
+		empty($column['generated']) ? '' : 'AS (' . $column['generated'] . ')',
 		$column['collation'] === null ? '' : 'COLLATE ' . $column['collation'],
 	]));
 }
