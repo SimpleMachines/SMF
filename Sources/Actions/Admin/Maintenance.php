@@ -1519,6 +1519,8 @@ class Maintenance implements ActionInterface
 
 		// final steps ... made more difficult since we don't yet support sub-selects on joins
 		// place all members who have posts in the message table in a temp table
+		Db::$db->query('DROP TABLE IF EXISTS {db_prefix}tmp_maint_recountposts');
+
 		$createTemporary = Db::$db->query(
 			'CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts AS
 			SELECT m.id_member
