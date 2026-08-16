@@ -271,6 +271,54 @@ never need to restart for a PHP change.
 To reinstall from scratch: `.docker/install-forum.sh --engine mysql --force`.
 To wipe everything including the volumes: `docker compose down -v`.
 
+## Comparing an upgrade against a fresh install
+
+The installer builds the schema from `Sources/Db/Schema/v3_0/` in one go. The
+upgrader arrives at the same place through a hundred-odd migrations applied to
+whatever 2.1 left behind. They are meant to converge, and nothing checks that
+they do:
+
+```bash
+.docker/compare-upgrade.sh --engine mysql --baseline path/to/a-2.1-dump.sql
+```
+
+That empties the database, loads the dump, upgrades it, reads the schema,
+reinstalls from scratch, reads that too, and reports every place the two
+disagree — a column of the wrong type, an index that was never created, a
+primary key quietly dropped. It ends with the fresh install in place, and takes
+five to ten minutes.
+
+`--baseline` takes any SQL dump of a 2.1 database. A dump of a real forum is
+the better test; the [2.1 development environment][baseline] builds a synthetic
+one designed to hold something in every table an upgrade touches, which is
+useful when you have no real forum to hand.
+
+Two kinds of difference are reported but do not fail the run, because a real
+forum always has some: the contents of `settings`, and the order columns sit in
+within a table. Everything else is a schema difference and sets the exit code.
+
+If the upgrade does not reach the end, the script stops there and says so
+rather than comparing anyway. A half-upgraded database differs from a fresh
+install in hundreds of places, all of them the honest consequence of the
+migrations that never ran, and none of them worth reading.
+
+The tool underneath is usable on its own, against any two SMF databases on the
+same engine — two forums you already have, or the same forum before and after
+something you are testing:
+
+```bash
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > before.json
+# ... do the thing ...
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > after.json
+docker compose exec web php .docker/schema-tool.php diff before.json after.json
+```
+
+It talks to the database directly rather than through SMF, so it works on a
+database SMF would refuse to run on — which is usually the one you want to look
+at.
+
+[baseline]: https://github.com/SimpleMachines/SMF/pull/9330
+
 ## Debugging SQL with the PostgreSQL log
 
 The `postgres` log is the best tool in the stack for tracking down a broken
@@ -345,4 +393,6 @@ compose.yaml                     the stack
 .docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
 .docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
 .docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
+.docker/compare-upgrade.sh       upgrade a 2.1 dump, install 3.0, diff the two
+.docker/schema-tool.php          read a database's shape, and compare readings
 ```
