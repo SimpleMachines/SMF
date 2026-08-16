@@ -79,38 +79,7 @@ function template_main()
 			<h3 class="catbg">', Lang::getTxt('sub_boards', file: 'General'), '</h3>
 		</div>';
 
-		foreach (Utils::$context['boards'] as $board) {
-			echo '
-		<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
-			<div class="board_icon">
-				', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
-			</div>
-			<div class="info">
-				', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
-			</div><!-- .info -->';
-
-			// Show some basic information about the number of posts, etc.
-			echo '
-			<div class="board_stats">
-				', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
-			</div>';
-
-			// Show the last post if there is one.
-			echo '
-			<div class="lastpost">
-				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
-			</div>';
-
-			// Won't somebody think of the children!
-			if (function_exists('template_bi_' . $board['type'] . '_children')) {
-				call_user_func('template_bi_' . $board['type'] . '_children', $board);
-			} else {
-			template_bi_board_children($board);
-			}
-
-				echo '
-		</div><!-- #board_[id] -->';
-		}
+		template_bi_board_list(Utils::$context['boards']);
 
 		echo '
 	</div><!-- #board_[current_board]_childboards -->';
@@ -209,7 +178,7 @@ function template_main()
 						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 					</div>
 					<div class="info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_block', '">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'data-msg-id="' . $topic['first_post']['id'] : ''), '">';
+						<div', !empty($topic['quick_mod']['modify']) ? ' data-msg-id="' . $topic['first_post']['id'] . '"' : '', '>';
 
 			// Now we handle the icons
 			echo '
@@ -341,12 +310,12 @@ function template_main()
 
 		echo '
 	<div class="pagesection">
-		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 		', Utils::$context['menu_separator'], '
 		<div class="pagelinks floatleft">
 			<a href="#main_content_section" class="button" id="bot">', Lang::getTxt('go_up', file: 'General'), '</a>
 			', Utils::$context['page_index'], '
-		</div>';
+		</div>
+		', template_button_strip(Utils::$context['normal_buttons'], 'right');
 
 		// Mobile action buttons (bottom)
 		if (!empty(Utils::$context['normal_buttons'])) {
@@ -407,142 +376,6 @@ function template_main()
 			', template_button_strip(Utils::$context['normal_buttons']), '
 		</div>
 	</div>';
-}
-
-/**
- * Outputs the board icon for a standard board.
- *
- * @param array $board Current board information.
- */
-function template_bi_board_icon($board)
-{
-	echo '
-		<a href="', (User::$me->is_guest ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
-}
-
-/**
- * Outputs the board icon for a redirect.
- *
- * @param array $board Current board information.
- */
-function template_bi_redirect_icon($board)
-{
-	echo '
-		<a href="', $board['href'], '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
-}
-
-/**
- * Outputs the board info for a standard board or redirect.
- *
- * @param array $board Current board information.
- */
-function template_bi_board_info($board)
-{
-	echo '
-		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
-			', $board['name'], '
-		</a>';
-
-	// Has it outstanding posts for approval?
-	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics'])) {
-		echo '
-		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board, file: 'General'), '" class="moderation_link amt">!</a>';
-	}
-
-	echo '
-		<div class="board_description">', $board['description'], '</div>';
-
-	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
-	if (!empty($board['moderators']) || !empty($board['moderator_groups'])) {
-		echo '
-		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])], file: 'General'), '</p>';
-	}
-}
-
-/**
- * Outputs the board stats for a standard board.
- *
- * @param array $board Current board information.
- */
-function template_bi_board_stats($board)
-{
-	echo '
-		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts], file: 'General'), '<br>', Lang::getTxt('number_of_topics', [$board->topics], file: 'General'), '
-		</p>';
-}
-
-/**
- * Outputs the board stats for a redirect.
- *
- * @param array $board Current board information.
- */
-function template_bi_redirect_stats($board)
-{
-	echo '
-		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts], file: 'General'), '
-		</p>';
-}
-
-/**
- * Outputs the board lastposts for a standard board or a redirect.
- * When on a mobile device, this may be hidden if no last post exists.
- *
- * @param array $board Current board information.
- */
-function template_bi_board_lastpost($board)
-{
-	if (!empty($board['last_post']['id'])) {
-		echo '
-			<p>', $board['last_post']['last_post_message'], '</p>';
-	}
-}
-
-/**
- * Outputs the board children for a standard board.
- *
- * @param array $board Current board information.
- */
-function template_bi_board_children($board)
-{
-	// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
-	if (!empty($board['children'])) {
-		// Sort the links into an array with new boards bold so it can be imploded.
-		$children = [];
-
-		/* Each child in each board's children has:
-			id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
-		foreach ($board['children'] as $child) {
-			if (!$child['is_redirect']) {
-				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '">' . $child['name'] . '</a>';
-			} else {
-			$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']], file: 'General') . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
-			}
-
-			// Has it posts awaiting approval?
-			if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics'])) {
-				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child, file: 'General') . '" class="moderation_link amt">!</a>';
-			}
-
-			$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
-		}
-
-		echo '
-			<div id="board_', $board['id'], '_children" class="children">
-				<p>',
-				Lang::getTxt(
-					'sub_boards_list',
-					[
-						'id' => 'child_list_' . $board['id'],
-						'num' => count($children),
-						'list' => implode(' ', $children),
-					],
-					file: 'General',
-				),
-				'</p>
-			</div>';
-	}
 }
 
 /**

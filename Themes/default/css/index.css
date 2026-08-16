@@ -355,7 +355,7 @@ blockquote cite {
 	margin-bottom: 3px;
 }
 blockquote cite::before {
-	color: #aaa;
+	color: var(--bbc-cite-color);
 	font-size: 22px;
 	font-style: normal;
 	content: "\275D";
@@ -386,7 +386,7 @@ blockquote cite::before {
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
-	color: #666;
+	color: var(--bbc-header-color);
 	font-size: 0.9em;
 	padding: 0 2px;
 }
@@ -396,7 +396,7 @@ blockquote cite::before {
 }
 /* Inline code */
 .bbc_tt {
-	background-color: rgba(127, 127, 127, 0.15);
+	background-color: var(--bbc-tt-bg);
 	padding: 0 0.2ch;
 }
 /* Styling for BBC tags */
@@ -416,7 +416,7 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 	border-collapse: collapse;
 }
 .lefttext .bbc_table,
@@ -432,7 +432,7 @@ blockquote cite::before {
 	color: inherit;
 	vertical-align: top;
 	padding: 4px 8px;
-	border: 1px solid #ddd;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 }
 .bbc_list {
 	text-align: start;
@@ -493,7 +493,7 @@ blockquote cite::before {
 	margin: 5px;
 }
 .bbc_details {
-	border: 1px dotted #aaa;
+	border: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 	margin: 5px;
 }
 .bbc_summary {
@@ -502,11 +502,11 @@ blockquote cite::before {
 }
 .bbc_details[open] > .bbc_summary {
 	padding-bottom: 7px;
-	border-bottom: 1px dotted #aaa;
+	border-bottom: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 }
 .bbc_inline_spoiler {
 	cursor: pointer;
-	border-radius: 3px;
+	border-radius: var(--bbc-spoiler-border-radius);
 	background-color: currentcolor;
 	position: relative;
 	transition-property: background-color;
@@ -527,7 +527,7 @@ blockquote cite::before {
 	background-color: transparent;
 }
 .bbc_inline_spoiler > button:focus-visible {
-	outline: 2px solid #7fb0d8;
+	outline: var(--bbc-spoiler-outline-width) var(--bbc-spoiler-outline-style) var(--bbc-spoiler-outline-color);
 }
 .bbc_inline_spoiler > span {
 	/*
@@ -553,16 +553,14 @@ a img {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
+	background: var(--toggle-bg) url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
 	overflow: hidden;
 	content: "";
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
-	border: 1px solid #c5c5c5;
-	border-radius: 3px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .2),
-		0 1px 1px #fff inset,
-		0 -5px 4px rgba(0,0,0,.1) inset;
+	border: var(--toggle-border-width) var(--toggle-border-style) var(--toggle-border-color);
+	border-radius: var(--toggle-border-radius);
+	box-shadow: var(--toggle-box-shadow);
 	transition: background-color 0.25s;
 }
 .toggle_down::before {
@@ -570,8 +568,8 @@ a img {
 }
 
 .toggle_up:hover:before, .toggle_down:hover:before {
-	background-color: #bfd4e7;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+	background-color: var(--toggle-bg_hover);
+	box-shadow: var(--toggle-box-shadow_hover);
 	transition: background-color 0.25s;
 }
 
@@ -809,8 +807,8 @@ img.sort, .sort {
 }
 
 .postbg {
-	border-left: 1px solid #7f7f7f;
-	border-right: 1px solid #7f7f7f;
+	border-left: var(--postbg-border-width) var(--postbg-border-style) var(--postbg-border-color);
+	border-right: var(--postbg-border-width) var(--postbg-border-style) var(--postbg-border-color);
 }
 
 /* Styles used by the auto suggest control.
@@ -854,54 +852,54 @@ img.sort, .sort {
 .amt {
 	margin-left: 3px;
 	padding: 0 5px;
-	color: #fff;
-	background: #6d90ad;
-	border-radius: 8px;
+	color: var(--amt-color);
+	background: var(--amt-bg);
+	border-radius: var(--amt-border-radius);
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
-	background: rgba(0, 0, 0, 0.2);
-	color: inherit;
+	background: var(--amt-bg_active);
+	color: var(--amt-color_active);
 }
 #top_info .top_menu.visible {
 	display: block;
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
-	color: #333;
+	color: var(--dropmenu-strong-color);
 }
 
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
 	display: block;
-	border: 1px solid transparent;
-	border-radius: 4px;
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color);
+	border-radius: var(--dropmenu-border-radius);
 }
 /* Level 1 active button. */
 .dropmenu a.active, #top_info a.active {
-	color: #fff;
-	font-weight: bold;
-	border-color: #f49a3a;
-	background: linear-gradient(#ffae14, #f5a100);
-	text-shadow: 0 0 2px #000;
+	color: var(--dropmenu-color_active);
+	font-weight: var(--dropmenu-font-weight_active);
+	border-color: var(--dropmenu-border-color_active);
+	background: var(--dropmenu-bg_active);
+	text-shadow: var(--dropmenu-text-shadow_active);
 }
 /* Level 1 hover effects. */
 .dropmenu > li:hover > a, .dropmenu > li > a:focus,
 #top_info > li:hover > a, #top_info > li > a:focus, #top_info > li > a.open {
-	background: #597b9f;
-	border: 1px solid #4a6b8c;
-	color: #fff;
+	background: var(--dropmenu-bg_hover);
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color_hover);
+	color: var(--dropmenu-color_hover);
 	cursor: pointer;
 	text-decoration: none;
-	box-shadow: 0 4px 4px rgba(255, 255, 255, 0.1) inset;
-	text-shadow: 0 0 2px #000;
+	box-shadow: var(--dropmenu-box-shadow_hover);
+	text-shadow: var(--dropmenu-text-shadow_hover);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
-	background: orange;
-	border: 1px solid #f49a3a;
-	color: #444;
-	box-shadow: 0 5px 5px rgba(255, 255, 255, 0.2) inset;
-	text-shadow: none;
+	background: var(--dropmenu-bg_active_hover);
+	border: var(--dropmenu-border-width) var(--dropmenu-border-style) var(--dropmenu-border-color_active_hover);
+	color: var(--dropmenu-color_active_hover);
+	box-shadow: var(--dropmenu-box-shadow_active_hover);
+	text-shadow: var(--dropmenu-text-shadow_active_hover);
 }
 
 a.mobile_user_menu,
@@ -909,7 +907,13 @@ a[class^="mobile_generic_menu_"] {
 	display: none;
 }
 
+/* A band of its own across the page, under the header. */
 #main_menu {
+	background: var(--mainmenu-bg);
+	border-color: var(--mainmenu-border-color);
+	border-style: var(--mainmenu-border-style);
+	border-width: var(--mainmenu-border-width);
+	box-shadow: var(--mainmenu-box-shadow);
 	margin: 0 0 4px 0;
 }
 
@@ -950,17 +954,17 @@ a[class^="mobile_generic_menu_"] {
 }
 .pm_unread, .alerts_unread {
 	margin-top: 5px;
-	border-top: 1px solid #ddd;
+	border-top: var(--notifylist-border-width) var(--notifylist-border-style) var(--notifylist-border-color);
 }
 .unread_notify {
-	border-bottom: 1px solid #ddd;
+	border-bottom: var(--notifylist-border-width) var(--notifylist-border-style) var(--notifylist-border-color);
 }
 .no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
 .unread_notify:hover {
-	background: #eee;
+	background: var(--notifylist-item-bg_hover);
 	text-decoration: none;
 }
 .unread_notify:last-child {
@@ -1021,12 +1025,12 @@ a[class^="mobile_generic_menu_"] {
 	min-width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
-	border: solid 1px #999;
-	border-left: solid 1px #bbb;
-	border-top: solid 1px #ccc;
-	border-radius: 4px;
-	box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
-	background: #fff;
+	border: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color);
+	border-left: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color_left);
+	border-top: var(--submenu-border-style) var(--submenu-border-width) var(--submenu-border-color_top);
+	border-radius: var(--submenu-border-radius);
+	box-shadow: var(--submenu-box-shadow);
+	background: var(--submenu-bg);
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -1034,14 +1038,14 @@ a[class^="mobile_generic_menu_"] {
 	padding: 0;
 	width: 17em;
 	font-size: 1em;
-	border-radius: 3px;
-	border: 1px solid transparent;
+	border-radius: var(--submenu-item-border-radius);
+	border: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color);
 }
 /* Necessary to allow highlighting of 1st level while hovering over submenu. */
 .dropmenu li:hover li a, .dropmenu li li a {
-	background: none;
+	background: var(--submenu-item-bg);
 	padding: 0 9px;
-	color: #346;
+	color: var(--submenu-item-color);
 	border: none;
 	line-height: 2.2em;
 }
@@ -1080,10 +1084,10 @@ a[class^="mobile_generic_menu_"] {
 }
 
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover {
-	color: #333;
+	color: var(--submenu-item-color_hover);
 	text-decoration: none;
-	border: 1px solid #cfcfcf;
-	border-top: 1px solid #d4dee6;
+	border: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color_hover);
+	border-top: var(--submenu-item-border-width) var(--submenu-item-border-style) var(--submenu-item-border-color_hover_top);
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li:hover ul {
@@ -1106,7 +1110,7 @@ a[class^="mobile_generic_menu_"] {
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
-	font-weight: bold;
+	font-weight: var(--submenu-item-font-weight_chosen);
 }
 
 /* The extra menu rows for admin sections, etc. */
@@ -1145,9 +1149,11 @@ html[lang="el-GR"] .inline_mod_check {
 .pagesection .button {
 	color: #346;
 }
+/* .button is listed here for the border and the shadow; it overrides the
+   colour again immediately below, so this one belongs to the quick buttons. */
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
-	color: #222;
+	color: var(--quickbutton-color_hover);
 	border-color: var(--button-border-color_hover);
 	box-shadow: var(--button-box-shadow_hover);
 	text-decoration: none;
@@ -1207,19 +1213,25 @@ html[lang="el-GR"] .inline_mod_check {
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.14);
 }
 
-/* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
-	max-width: 1200px;
+/* Set maximum width limit for content.
+/* Anything that should line up with the rest of the page gets this class,
+/* rather than each wrapper being named individually in the selector. */
+.content_wrapper {
+	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
 }
 
 /* The framing graphics */
-/* The top bar. */
+/* The top bar. A band across the page above the header, holding everything to
+/* do with the current user. Same gradient and bottom border as the menu band
+/* under the header; it carries a shadow of its own on top of those. */
 #top_section {
-	border-bottom: 1px solid #bbb;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-	background: #fff;
+	background: var(--topsection-bg);
+	border-color: var(--topsection-border-color);
+	border-style: var(--topsection-border-style);
+	border-width: var(--topsection-border-width);
+	box-shadow: var(--topsection-box-shadow);
 	clear: both;
 }
 #top_section::after {
@@ -1232,10 +1244,12 @@ html[lang="el-GR"] .inline_mod_check {
 	line-height: 1.3em;
 	max-width: 100%;
 }
+/* These hang off #top_info, which is positioned. It sits at the end of the
+/* header, so they have to open towards the start or they run off the edge
+/* of the screen on a narrow window. */
 #pm_menu, #alerts_menu, #profile_menu {
-	left: 0;
-	right: 0;
-	padding-right: 10px;
+	inset-inline: auto 0;
+	padding-inline-end: 10px;
 }
 #profile_menu_top > img.avatar {
 	height: 18px;
@@ -1296,25 +1310,15 @@ img#smflogo {
 }
 /*
 /* The user info, news, etc.*/
-#upper_section {
-	padding: 2px 2px 0 2px;
-}
-#inner_section {
-	padding: 12px 10px 2px 10px;
-	border-radius: 6px 6px 0 0;
-}
-#inner_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-/* The upper_section, float the two each way */
+/* The clock and the news line, one at each end. The padding was on the
+/* section that used to wrap this. */
 #inner_wrap {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid #bbb;
 	margin-bottom: 12px;
+	padding: 12px 10px 2px 10px;
 }
 .user {
 	padding: 0 4px 8px 4px;
@@ -1364,50 +1368,91 @@ ul li.greeting {
 
 /* The navigation list (i.e. linktree) */
 .navigate_section {
-	padding: 3px 0 0 0;
-	float: left;
-	width: 100%;
-}
-#main_content_section .navigate_section {
-	margin: 4px 0 0 0;
+	background: var(--navigatesection-bg);
+	border-color: var(--navigatesection-border-color);
+	border-radius: var(--navigatesection-border-radius);
+	border-style: var(--navigatesection-border-style);
+	border-width: var(--navigatesection-border-width);
+	box-shadow: var(--navigatesection-box-shadow);
+	margin-block: .5em .75em;
+	margin-inline: 10px;
 	padding: 0;
 }
-.navigate_section ul {
-	margin: 4px 0 0 0;
-	padding: 0 10px;
+.navigate_section ol {
+	align-items: center;
+	background: var(--breadcrumb-bg);
+	border-color: var(--breadcrumb-border-color);
+	border-radius: var(--breadcrumb-border-radius);
+	border-style: var(--breadcrumb-border-style);
+	border-width: var(--breadcrumb-border-width);
+	box-shadow: var(--breadcrumb-box-shadow);
+	color: var(--breadcrumb-color);
+	display: flex;
+	flex-wrap: wrap;
+	font-family: var(--breadcrumb-font-family);
+	font-size: var(--breadcrumb-font-size);
+	margin: 0;
+	padding: .75em;
+}
+.navigate_section li {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .25em .15em;
+}
+.navigate_section a {
+	color: var(--breadcrumb-link-color);
+}
+.navigate_section a:hover {
+	color: var(--breadcrumb-link-color_hover);
+}
+.navigate_section a:focus {
+	color: var(--breadcrumb-link-color_focus);
+}
+.navigate_section li > a {
+	align-items: center;
+	display: inline-flex;
+	font-weight: var(--breadcrumb-link-font-weight);
+	gap: 0 .25em;
+	line-height: var(--breadcrumb-link-line-height);
+	padding: .2em;
+	text-decoration: var(--breadcrumb-link-text-decoration);
+	text-shadow: var(--breadcrumb-link-text-shadow);
+}
+.navigate_section li > a:hover {
+	font-weight: var(--breadcrumb-link-font-weight_hover);
+	text-decoration: var(--breadcrumb-link-text-decoration_hover);
+	text-shadow: var(--breadcrumb-link-text-shadow_hover);
+}
+.navigate_section li > a:focus {
+	font-weight: var(--breadcrumb-link-font-weight_focus);
+	text-decoration: var(--breadcrumb-link-text-decoration_focus);
+	text-shadow: var(--breadcrumb-link-text-shadow_focus);
+}
+/* The page you are on, which is the last crumb unless it is the only one. */
+.navigate_section li:last-child:not(:first-child) > a {
+	color: var(--breadcrumb-link-color_active);
+	font-weight: var(--breadcrumb-link-font-weight_active);
+	text-decoration: var(--breadcrumb-link-text-decoration_active);
+	text-shadow: var(--breadcrumb-link-text-shadow_active);
+}
+.navigate_section li > a + span {
 	font-size: 0.9em;
-	overflow: hidden;
-	border: 1px solid #ddd;
-	border-radius: 2px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.08);
 }
-.navigate_section ul li {
-	float: left;
-	padding-bottom: 3px;
-	line-height: 1.1em;
-	color: #444;
-	text-shadow: 1px 1px 0 #fff;
+.navigate_section span.board_moderators {
+	align-items: center;
+	display: inline-flex;
 }
-.navigate_section ul li a, .navigate_section ul li em {
-	padding: 4px 0 4px;
-	margin-top: -4px;
-	display: inline-block;
+.navigate_section span.board_moderators a {
+	padding-inline-start: 0.25em;
 }
-.navigate_section ul li span {
-	display: inline-block;
-	margin-top: 8px;
-}
-.navigate_section ul li .dividers {
-	color: #3f6b8c;
-	font: 83.33%/150% Arial, sans-serif;
-	padding: 0 2px 0 6px;
-}
-.navigate_section ul li .board_moderators a {
-	padding: 4px 0;
-}
-
-.navigate_section a:hover span {
-	text-decoration: underline;
+.navigate_section ol li .dividers {
+	color: var(--breadcrumb-divider-color);
+	font-family: var(--breadcrumb-divider-font-family);
+	font-size: var(--breadcrumb-divider-font-size);
+	line-height: var(--breadcrumb-divider-line-height);
+	margin: 0;
+	padding: 0 .4em;
 }
 
 /* The content section */
@@ -1426,15 +1471,51 @@ ul li.greeting {
 /* Footer is now full-width by default. */
 /* The footer with copyright links etc. */
 #footer {
-	margin: 4em 0 0 0;
-	padding: 10px 0;
-	background: #3e5a78;
-	border-top: 3px solid #b2b6bd;
+	background: var(--footer-bg);
+	border-color: var(--footer-border-color);
+	border-style: var(--footer-border-style);
+	border-width: var(--footer-border-width);
+	box-shadow: var(--footer-box-shadow);
+	color: var(--footer-color);
 	flex: none;
+	font-size: var(--footer-font-size);
+	margin: 4em 0 0 0;
+	min-height: var(--footer-height);
+	padding: 10px 0;
 }
-#footer li, #footer p, #footer a {
-	font-size: 0.9em;
-	color: #fff;
+#footer li, #footer p {
+	color: var(--footer-color);
+}
+#footer a {
+	color: var(--footer-link-color);
+	font-weight: var(--footer-link-font-weight);
+	text-decoration: var(--footer-link-text-decoration);
+	text-shadow: var(--footer-link-text-shadow);
+}
+#footer a:hover {
+	color: var(--footer-link-color_hover);
+	font-weight: var(--footer-link-font-weight_hover);
+	text-decoration: var(--footer-link-text-decoration_hover);
+	text-shadow: var(--footer-link-text-shadow_hover);
+}
+#footer a:focus {
+	color: var(--footer-link-color_focus);
+	font-weight: var(--footer-link-font-weight_focus);
+	text-decoration: var(--footer-link-text-decoration_focus);
+	text-shadow: var(--footer-link-text-shadow_focus);
+}
+/* Copyright at one end, help links at the other. */
+#footer ul {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25em .25em;
+	justify-content: space-between;
+}
+#footer li.helplinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75em;
 }
 #footer li.copyright {
 	display: block;
@@ -1479,18 +1560,18 @@ ul li.greeting {
 	display: block;
 	height: auto;
 	padding: 0 4px;
-	color: #222;
+	color: var(--quickbutton-color);
 	line-height: 1.375rem;
-	border-radius: 0;
+	border-radius: var(--quickbutton-border-radius);
 }
 .quickbuttons > li:first-child > a {
-	border-radius: 4px 0 0 4px;
+	border-radius: var(--quickbutton-border-radius_first);
 }
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
-	border-radius: 0 4px 4px 0;
+	border-radius: var(--quickbutton-border-radius_last);
 }
 .quickbuttons > li:only-child > a, .inline_mod_check:only-child {
-	border-radius: 4px;
+	border-radius: var(--quickbutton-border-radius_only);
 	margin: 2px;
 	height: 23px;
 }
@@ -1500,7 +1581,7 @@ ul li.greeting {
 	height: auto;
 }
 .moderationbuttons_check:focus {
-	box-shadow: 0 0 4px #499dd8;
+	box-shadow: var(--quickbutton-box-shadow_focus);
 }
 .quick_edit, .post_options {
 	position: relative;
@@ -1513,14 +1594,14 @@ ul li.greeting {
 	right: -1px;
 	z-index: 90;
 	padding: 6px;
-	background: #fff;
+	background: var(--postoptions-bg);
 	font-weight: normal;
 	text-align: left;
-	border: solid 1px #999;
-	border-left: solid 1px #aaa;
-	border-top: solid 1px #bbb;
-	border-radius: 4px 0 4px 4px;
-	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
+	border: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color);
+	border-left: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_left);
+	border-top: var(--postoptions-border-style) var(--postoptions-border-width) var(--postoptions-border-color_top);
+	border-radius: var(--postoptions-border-radius);
+	box-shadow: var(--postoptions-box-shadow);
 }
 .post_options:hover ul {
 	display: block;
@@ -1531,11 +1612,11 @@ ul li.greeting {
 	padding: 0 6px;
 	line-height: 2.2em;
 	text-decoration: none;
-	border: 1px solid transparent;
-	border-radius: 3px;
+	border: var(--postoptions-item-border-width) var(--postoptions-item-border-style) var(--postoptions-item-border-color);
+	border-radius: var(--postoptions-item-border-radius);
 }
 .post_options ul a:hover, .post_options ul a:focus {
-	border-color: #c4cbd3;
+	border-color: var(--postoptions-item-border-color_hover);
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
@@ -2598,6 +2679,15 @@ dl {
 	height: 16px;
 }
 
+/* The board picker's title bar is one element now, the summary of a details.
+/* It carries both bar classes, and .titlebg comes later in this file with a
+/* background of its own, so the bar's is named again here. Overflow has to stay
+/* visible as well, or .titlebg clips the disclosure triangle away. */
+#advanced_panel > summary {
+	background: var(--titlebar-bg);
+	cursor: pointer;
+	overflow: visible;
+}
 .boardslist > ul > li {
 	margin: 12px;
 }
@@ -2612,13 +2702,13 @@ dl {
 }
 .boardslist a {
 	font-weight: bold;
-	border-bottom: 1px solid #c4c4c4;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color);
 	display: block;
 	margin-bottom: 0.5em;
 }
 .boardslist a:hover {
 	text-decoration: none;
-	border-bottom: 1px solid #334466;
+	border-bottom: var(--boardslist-border-width) var(--boardslist-border-style) var(--boardslist-border-color_hover);
 }
 .boardslist label {
 	display: inline-block;
@@ -2753,26 +2843,26 @@ dl.stats {
 	padding: 0 12px 0 0;
 }
 #personal_messages .capacity_bar {
-	background: #f0f4f7;
+	background: var(--capacitybar-bg);
 	display: block;
 	margin: 6px 0 0 12px;
 	height: 12px;
-	border: 1px solid #adadad;
+	border: var(--capacitybar-border-width) var(--capacitybar-border-style) var(--capacitybar-border-color);
 	width: 10em;
 }
 #personal_messages .capacity_bar span {
-	border-right: 1px solid #adadad;
+	border-right: var(--capacitybar-border-width) var(--capacitybar-border-style) var(--capacitybar-border-color);
 	display: block;
 	height: 12px;
 }
 #personal_messages .capacity_bar span.empty {
-	background: #a6d69d;
+	background: var(--capacitybar-inner-bg_empty);
 }
 #personal_messages .capacity_bar span.filled {
-	background: #eea800;
+	background: var(--capacitybar-inner-bg_filled);
 }
 #personal_messages .capacity_bar span.full {
-	background: #f10909;
+	background: var(--capacitybar-inner-bg_full);
 }
 #personal_messages .reportlinks {
 	padding: 6px 1.3em;
@@ -2788,7 +2878,7 @@ dl.stats {
 }
 dl.addrules dt.floatleft {
 	width: 15em;
-	color: #333;
+	color: var(--pmrules-label-color);
 	padding: 0 15px 6px 15px;
 }
 #addrule fieldset {
@@ -2799,7 +2889,7 @@ dl.addrules dt.floatleft {
 	margin-right: 10px;
 }
 .unread_pm {
-	background: #cfc;
+	background: var(--unreadpm-bg);
 }
 /* Styles for the show alerts section.
 ------------------------------------------------- */
@@ -2919,9 +3009,9 @@ dl.addrules dt.floatleft {
 #helpmain {
 	margin: 12px 0 0 0;
 	padding: 8px 20px 12px 20px;
-	border: 1px solid #ddd;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
+	border: var(--helpmain-border-width) var(--helpmain-border-style) var(--helpmain-border-color);
+	border-radius: var(--helpmain-border-radius);
+	box-shadow: var(--helpmain-box-shadow);
 	overflow: auto;
 }
 #helpmain p {
@@ -2949,11 +3039,11 @@ dl.addrules dt.floatleft {
 	overflow-wrap: break-word;
 	max-width: 350px;
 	padding: 6px 9px;
-	color: #333;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 4px;
-	box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
+	color: var(--tooltip-color);
+	background: var(--tooltip-bg);
+	border: var(--tooltip-border-width) var(--tooltip-border-style) var(--tooltip-border-color);
+	border-radius: var(--tooltip-border-radius);
+	box-shadow: var(--tooltip-box-shadow);
 }
 
 /* Styles for popup windows */
@@ -3005,8 +3095,8 @@ dl.addrules dt.floatleft {
 	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
-	border: 1px solid #bbb;
-	border-bottom: 1px solid #ddd;
+	border: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color);
+	border-bottom: var(--popup-content-border-width) var(--popup-content-border-style) var(--popup-content-border-color_bottom);
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
 }
@@ -3092,7 +3182,7 @@ tr.windowbg:hover {
 	border-radius: 0;
 }
 .generic_list_wrapper table.table_grid {
-	border-bottom: 1px solid #aaa;
+	border-bottom: var(--listgrid-border-width) var(--listgrid-border-style) var(--listgrid-border-color);
 }
 
 div#editlang_desc {
@@ -3116,12 +3206,12 @@ tr.windowbg {
 
 /* Colors for background of posts requiring approval */
 .approvebg {
-	color: #222;
-	background: #ffeaea;
+	color: var(--approvebg-color);
+	background: var(--approvebg-bg);
 }
 .approvebg2 {
-	color: #222;
-	background: #fff2f2;
+	color: var(--approvebg2-color);
+	background: var(--approvebg2-bg);
 }
 
 div#manage_boards dl dd textarea[name=desc] {
@@ -3192,8 +3282,8 @@ h3 .collapse {
 	padding: 13px 10px 10px;
 }
 .boardindex_table .board_stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	border-left: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
+	border-right: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .info {
 	overflow: hidden;
@@ -3204,7 +3294,7 @@ h3 .collapse {
 .info .subject {
 	font-weight: 600;
 	font-size: 1.1em;
-	color: #a85400;
+	color: var(--boardindex-subject-color);
 }
 .board_stats {
 	width: 15%;
@@ -3226,14 +3316,14 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	border: 1px solid #ddd;
+	border: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	margin: 0 0 3px 0;
 	display: flex;
 	flex-wrap: wrap;
 }
 /* Child boards */
 .children {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 	padding: 5px;
 	width: 100%;
 }
@@ -3260,7 +3350,7 @@ span.postby {
 	clear: both;
 }
 #info_center .sub_bar {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
@@ -3279,7 +3369,7 @@ span.postby {
 	padding: 0 4px 0 0;
 }
 #ic_recentposts td {
-	border-top: 1px solid #eaeaea;
+	border-top: var(--infocenter-row-border-width) var(--infocenter-row-border-style) var(--infocenter-row-border-color);
 	padding: 0 4px 0 0;
 	vertical-align: top;
 }
@@ -3299,7 +3389,7 @@ span.postby {
 	width: 25%;
 }
 #ic_recentposts .recenttime strong {
-	color: #555;
+	color: var(--infocenter-time-color);
 }
 #ic_recentposts .windowbg {
 	background: none;
@@ -3348,7 +3438,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid rgba(0, 0, 0, 0.13);
+	border: var(--topiccontainer-border-width) var(--topiccontainer-border-style) var(--topiccontainer-border-color);
 	border-top: none;
 	display: flex;
 	box-shadow: none;
@@ -3500,7 +3590,7 @@ div#pollmoderation {
 .poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li h4 a, .poster h4 a:focus {
 	margin: 0;
 	padding: 0;
-	color: #c06002;
+	color: var(--poster-name-color);
 }
 
 .poster .profile .profile_icons li, .poster .im_icons li {
@@ -3521,7 +3611,7 @@ div#pollmoderation {
 	margin: 3px 10px;
 }
 .poster li.poster_online a {
-	color: #c06002;
+	color: var(--poster-online-color);
 	line-height: 1.6em;
 }
 .poster li.poster_online:hover, .poster li.poster_online:hover a {
@@ -3572,13 +3662,13 @@ img.avatar {
 	display: block;
 }
 .keyinfo .postinfo a, .keyinfo .postinfo a strong {
-	color: #ad6825;
+	color: var(--postinfo-link-color);
 }
 .keyinfo .postinfo .spacer {
 	flex: 1 1 auto;
 }
 .keyinfo .postinfo .modified {
-	color: #333;
+	color: var(--postinfo-modified-color);
 	font-weight: normal;
 	font-style: italic;
 	padding: 2px 4px 0 4px;
@@ -3590,9 +3680,9 @@ img.avatar {
 	position: absolute;
 	right: 0;
 	top: 2em;
-	background: #fdfdfd;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	background: var(--edithistory-bg);
+	border: var(--edithistory-border-width) var(--edithistory-border-style) var(--edithistory-border-color);
+	border-radius: var(--edithistory-border-radius);
 	padding: 1em;
 	min-width: 18.2em;
 	font-weight: normal;
@@ -3600,14 +3690,14 @@ img.avatar {
 .edit_history_list li {
 	margin-top: 0.5em;
 	padding-top: 0.5em;
-	border-top: 1px solid #ddd;
+	border-top: var(--edithistory-item-border-width) var(--edithistory-item-border-style) var(--edithistory-item-border-color);
 }
 .bump_notice {
 	display: block;
 	margin-top: 1em;
 	padding: 0.5em 0;
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
+	border-top: var(--bumpnotice-border-width) var(--bumpnotice-border-style) var(--bumpnotice-border-color);
+	border-bottom: var(--bumpnotice-border-width) var(--bumpnotice-border-style) var(--bumpnotice-border-color);
 	text-align: center;
 	font-style: italic;
 }
@@ -3622,14 +3712,14 @@ img.avatar {
 }
 .subject_title a {
 	font-size: 0.9em;
-	color: #333;
+	color: var(--subjecttitle-link-color);
 	font-weight: bold;
 }
 .subject_hidden a {
 	display: none;
 }
 .page_number {
-	color: #ad6825;
+	color: var(--pagenumber-color);
 	font-weight: bold;
 	padding: 4px 0 0 4px;
 	line-height: 1.5em;
@@ -3637,8 +3727,8 @@ img.avatar {
 .inner {
 	padding: 7px 8px 2px 2px;
 	margin: 0;
-	border-top: 1px solid #bfbfbf;
-	box-shadow: 0 1px 0 #fff inset;
+	border-top: var(--postsection-border-width) var(--postsection-border-style) var(--postsection-border-color);
+	box-shadow: var(--postsection-box-shadow);
 	min-height: 85px;
 	word-wrap: break-word; /* IE fallback */
 	overflow-wrap: break-word;
@@ -3721,26 +3811,22 @@ form#postmodify .roundframe {
 #post_header img {
 	vertical-align: middle;
 }
-ul.post_options {
-	margin: 0 0 0 12px;
+/* The checkboxes below the editor. Two columns, the same two the floats used to
+/* make, but a grid gets there without needing anything undone for RTL or for
+/* narrow screens. */
+#post_options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2px 1em;
+	margin: 0;
 	padding: 0;
-	overflow: hidden;
+	list-style: none;
 }
-ul.post_options li {
-	margin: 2px 0;
-	width: 49%;
-	float: left;
-}
-#post_additional_options_header {
+#post_options_toggle > summary {
 	margin-top: 0.5em;
+	cursor: pointer;
 }
-#post_additional_options {
-	overflow: hidden;
-}
-#post_additional_options .progress_bar {
-	height: 22px;
-}
-#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+#post_options, #postAttachment, #postAttachment2, #attachment_previews {
 	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
@@ -3807,8 +3893,8 @@ ul.post_options li {
 	overflow: auto;
 	clear: right;
 	padding: 12px 0 3px 0;
-	border-top: 1px solid #bfbfbf;
-	box-shadow: 0 1px 0 #fff inset;
+	border-top: var(--postsection-border-width) var(--postsection-border-style) var(--postsection-border-color);
+	box-shadow: var(--postsection-box-shadow);
 	line-height: 1.4em;
 	font-size: 0.9em;
 }
@@ -3876,6 +3962,32 @@ div.cat_bar {
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
+}
+/* Both bars are a row: the heading takes whatever is left, and anything sitting
+/* beside it — a collapse toggle, a link — goes at the end. Deliberately only
+/* when the bar is a div: .title_bar is also put on a <tr>, and turning that into
+/* a flex row would take the table apart. */
+div.cat_bar,
+div.title_bar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+}
+div.cat_bar > h3,
+div.title_bar > h3,
+div.title_bar > h4 {
+	flex: 1;
+}
+/* A category's description belongs under its heading rather than beside it. */
+div.cat_bar > .desc {
+	flex-basis: 100%;
+}
+/* The toggles used to sit inside the heading and take its padding with them. */
+div.cat_bar > .toggle_up,
+div.cat_bar > .toggle_down,
+div.title_bar > .toggle_up,
+div.title_bar > .toggle_down {
+	margin-inline-end: 12px;
 }
 /* Styles for rounded headers. */
 .cat_bar .desc {
@@ -3997,7 +4109,7 @@ p.information img {
 }
 #topic_icons .information,
 #messageindex .information {
-	border-top: 1px solid #ddd;
+	border-top: var(--boardindex-border-width) var(--boardindex-border-style) var(--boardindex-border-color);
 }
 .topic_pages {
 	font-size: 0.75em;
@@ -4018,28 +4130,28 @@ p.information img {
 	cursor: pointer;
 }
 .icon_list_box:hover {
-	background: #ffffff;
-	border: 1px solid #adadad;
+	background: var(--iconlist-bg);
+	border: var(--iconlist-border-width) var(--iconlist-border-style) var(--iconlist-border-color);
 	padding: 2px;
 }
 .icon_list_container {
 	position: absolute;
 	cursor: pointer;
-	background: #ffffff;
-	border: 1px solid #adadad;
+	background: var(--iconlist-bg);
+	border: var(--iconlist-border-width) var(--iconlist-border-style) var(--iconlist-border-color);
 	padding: 6px 0;
 	z-index: 1000;
 }
 .icon_list_item {
 	padding: 2px 3px;
 	line-height: 20px;
-	border: 1px solid #ffffff;
+	border: var(--iconlist-item-border-width) var(--iconlist-item-border-style) var(--iconlist-item-border-color);
 	background: transparent;
 	display: inline-block;
 }
 .icon_list_item:hover {
-	background: #e0e0f0;
-	border: 1px dotted gray;
+	background: var(--iconlist-item-bg_hover);
+	border: var(--iconlist-item-border-width_hover) var(--iconlist-item-border-style_hover) var(--iconlist-item-border-color_hover);
 }
 
 /* On/Off Icons (User) */
@@ -4052,12 +4164,12 @@ p.information img {
 	vertical-align: middle;
 }
 .on {
-	background: #89e75a;
-	border-color: #74d246;
+	background: var(--onoff-bg_on);
+	border-color: var(--onoff-border-color_on);
 }
 .off {
-	background: #a7a2a2;
-	border-color: #969292;
+	background: var(--onoff-bg_off);
+	border-color: var(--onoff-border-color_off);
 }
 #userstatus .smalltext {
 	margin: 0 0 0 5px !important;
@@ -4116,9 +4228,9 @@ h3.profile_hd::before,
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .quickbuttons > li,
+.quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
-.inline_mod_check, .popup_window, #inner_section, .post_options ul,
+.inline_mod_check, .popup_window, .post_options ul,
 .post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
@@ -4209,16 +4321,16 @@ h3.profile_hd::before,
 
 /* Alternating colors */
 .stripes:nth-of-type(even) {
-	background-color: #f2f2f2;
+	background-color: var(--stripes-bg_even);
 }
 .stripes:nth-of-type(odd) {
-	background-color: #f0f4f7;
+	background-color: var(--stripes-bg_odd);
 }
 .alternative {
-	background-color: #f2f2f2;
+	background-color: var(--alternative-bg);
 }
 .alternative2 {
-	background-color: #e8edf0;
+	background-color: var(--alternative2-bg);
 }
 
 .centerbox {
@@ -4297,7 +4409,7 @@ input[name="attachBBC"] {
 
 /* Two-Factor Auth code container */
 .tfacode {
-	background: #d0e7f8;
+	background: var(--tfacode-bg);
 	padding: 5px;
 	display: inline-block;
 }
@@ -4380,7 +4492,7 @@ tr[id^='list_news_lists_'] textarea {
 
 .backtrace:not(:last-child) {
 	padding-bottom: 0.5em;
-	border-bottom: 1px solid #ddd;
+	border-bottom: var(--backtrace-border-width) var(--backtrace-border-style) var(--backtrace-border-color);
 	margin-bottom: 0.5em;
 }
 
@@ -4407,10 +4519,10 @@ img.theme_thumbnail {
 
 /* Diff output styling */
 del.diff {
-	background: rgba(255, 0, 0, 0.35);
+	background: var(--diff-bg_removed);
 }
 ins.diff {
-	background: rgba(0, 255, 0, 0.35);
+	background: var(--diff-bg_added);
 }
 .diff:has(
 	address, article, aside, blockquote, caption, center, col, colgroup, dd,

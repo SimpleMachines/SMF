@@ -166,7 +166,7 @@ class TopicRestore implements ActionInterface, Routable
 
 				// Move the posts back then!
 				if (isset($previous_topics[$topic])) {
-					self::mergePosts(array_keys($data['msgs']), $data['current_topic'], $topic);
+					self::mergePosts(array_keys($data['msgs']), (int) $data['current_topic'], (int) $topic);
 					// Log em.
 					Logging::logAction('restore_posts', ['topic' => $topic, 'subject' => $previous_topics[$topic]['subject'], 'board' => empty($data['previous_board']) ? $data['possible_prev_board'] : $data['previous_board']]);
 					$messages = array_merge(array_keys($data['msgs']), $messages);
@@ -329,7 +329,9 @@ class TopicRestore implements ActionInterface, Routable
 			// Lets get the members that need their post count restored.
 			$members = User::loadCustom(
 				query_customizations: [
-					'joins' => ['{db_prefix}messages AS m ON (m.id_member = mem.id_member)'],
+					'joins' => [
+						'INNER JOIN {db_prefix}messages AS m ON (m.id_member = mem.id_member)',
+					],
 					'where' => [
 						'm.id_msg IN ({array_int:messages})',
 						'm.approved = {int:is_approved}',

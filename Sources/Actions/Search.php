@@ -166,7 +166,7 @@ class Search implements ActionInterface, Routable
 				if ($search_error == 'string_too_long') {
 					Lang::setTxt(
 						'error_string_too_long',
-						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Errors'),
+						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Search'),
 					);
 				}
 

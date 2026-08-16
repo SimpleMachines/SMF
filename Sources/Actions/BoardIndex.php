@@ -36,7 +36,8 @@ use SMF\Utils;
 /**
  * This class shows the board index.
  *
- * It uses the BoardIndex template, and main sub template.
+ * It uses the BoardIndex template, and the newsfader, boardindex and
+ * info_center sub templates.
  * It updates most of the online statistics.
  *
  * Although this class is not accessed using an ?action=... URL query, it
@@ -57,7 +58,15 @@ class BoardIndex implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate('BoardIndex');
-		Utils::$context['template_layers'][] = 'boardindex_outer';
+
+		// The three parts of this page are siblings, not a wrapper around a
+		// middle. Naming them is clearer than a layer whose _above and _below
+		// halves each call one of them.
+		Utils::$context['sub_templates'] = [
+			'newsfader',
+			'boardindex',
+			'info_center',
+		];
 
 		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']], file: 'General');
 

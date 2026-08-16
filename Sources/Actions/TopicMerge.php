@@ -208,6 +208,14 @@ class TopicMerge implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
+		// Everything below looks for the source topic in the current board, and
+		// pages the target list relative to it, so there has to be one.
+		// Board::$info is typed with no default, so reading it without a board
+		// is an uncaught error rather than an empty value.
+		if (!isset(Board::$info)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
 		$_GET['from'] = (int) $_GET['from'];
 
 		$_REQUEST['targetboard'] = isset($_REQUEST['targetboard']) ? (int) $_REQUEST['targetboard'] : Board::$info->id;

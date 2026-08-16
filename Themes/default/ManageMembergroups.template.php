@@ -488,13 +488,13 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 		foreach ($category['boards'] as $board) {
 			if (empty(Config::$modSettings['deny_boards_access'])) {
 				echo '
-											<li class="board" style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ' ', $board['child_level'], 'em;">
+											<li class="board" style="margin-inline-start: ', $board['child_level'], 'em;">
 												<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="brd', $board['id'], '">', $board['name'], '</label>
 											</li>';
 			} else {
 			echo '
 											<li class="board clear">
-												<span style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
+												<span style="margin-inline-start: ', $board['child_level'], 'em;">', $board['name'], ': </span>
 												<span class="floatright">
 													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', Lang::getTxt('permissions_option_on', file: 'ManagePermissions'), '</label>
 													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', Lang::getTxt('permissions_option_off', file: 'ManagePermissions'), '</label>

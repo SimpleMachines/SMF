@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
+use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class DropTimeOffset extends MigrationBase

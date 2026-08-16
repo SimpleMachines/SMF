@@ -761,9 +761,6 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public function clock(): void
 	{
-		Utils::$context['onimg'] = Theme::$current->settings['images_url'] . '/bbc/bbc_hoverbg.png';
-		Utils::$context['offimg'] = Theme::$current->settings['images_url'] . '/bbc/bbc_bg.png';
-
 		Utils::$context['page_title'] = 'Anyone know what time it is?';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar',
@@ -779,6 +776,11 @@ class Calendar implements ActionInterface, Routable
 		$bcd = !isset($_REQUEST['rb']) && !isset($_REQUEST['omfg']) && !isset($_REQUEST['time']);
 
 		Theme::loadTemplate('Calendar');
+
+		// The lamps are drawn by calendar.css and lit by calendar.js. Neither is
+		// loaded for us, because clock() is not reached through show().
+		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
+		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		if ($bcd) {
 			Utils::$context['sub_template'] = 'bcd';
@@ -796,6 +798,11 @@ class Calendar implements ActionInterface, Routable
 			Utils::$context['sub_template'] = 'thetime';
 			$_REQUEST['time'] = $_REQUEST['time'] == '' ? 'now' : $_REQUEST['time'];
 			$time = getdate($_REQUEST['time'] == 'now' ? time() : (int) $_REQUEST['time']);
+
+			// Only seven lamps for the year, so show it the way the OMFG clock
+			// does. The full year saturates them all and says nothing.
+			$time['year'] %= 100;
+
 			Utils::$context['linktree'][] = ['url' => Config::$scripturl . '?action=calendar;sa=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time'];
 			Utils::$context['clockicons'] = [
 				'year' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(6, 0)), false),

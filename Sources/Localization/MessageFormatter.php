@@ -252,6 +252,10 @@ class MessageFormatter
 		];
 
 		foreach ($args as $arg => $value) {
+			if ($value instanceof \Stringable) {
+				$value = $args[$arg] = (string) $value;
+			}
+
 			if (!\is_string($value)) {
 				continue;
 			}

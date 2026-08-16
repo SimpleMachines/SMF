@@ -35,6 +35,7 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -1315,7 +1316,7 @@ class Display implements ActionInterface, Routable
 				'sLastNote' => 'draft_lastautosave',
 				'sLastID' => 'id_draft',
 				'sQueryParams' => 'action=post2;board=' . (Board::$info->id ?? 0),
-				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
 			];
 		}
 

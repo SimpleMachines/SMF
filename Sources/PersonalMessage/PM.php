@@ -327,7 +327,13 @@ class PM implements \ArrayAccess
 
 		$label_ids = array_diff(array_keys($labels), [-1]);
 
-		$href = Config::$scripturl . '?action=pm;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 && !empty($label_ids) && \in_array(Utils::$context['current_label_id'], $label_ids) ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmid=' . $this->id . '#msg' . $this->id;
+		// Every link below stays in the folder the member is looking at.
+		// $this->folder is worked out from who sent the PM, which answers
+		// 'sent' for one you sent yourself, or to a list you are on, even while
+		// you are reading it in your inbox.
+		$folder = Utils::$context['folder'] ?? $this->folder;
+
+		$href = Config::$scripturl . '?action=pm;f=' . $folder . (Utils::$context['current_label_id'] != -1 && !empty($label_ids) && \in_array(Utils::$context['current_label_id'], $label_ids) ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmid=' . $this->id . '#msg' . $this->id;
 
 		$number_recipients = \count($recipients['to']);
 
@@ -356,25 +362,25 @@ class PM implements \ArrayAccess
 			'quickbuttons' => [
 				'reply_to_all' => [
 					'label' => Lang::getTxt('reply_to_all', file: 'PersonalMessage'),
-					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ($this->member_from != User::$me->id ? ';quote' : '') . ';u=all',
+					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ($this->member_from != User::$me->id ? ';quote' : '') . ';u=all',
 					'icon' => 'reply_all_button',
 					'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && ($number_recipients > 1 || $this->member_from == User::$me->id),
 				],
 				'reply' => [
 					'label' => Lang::getTxt('reply', file: 'General'),
-					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';u=' . $this->member_from,
+					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';u=' . $this->member_from,
 					'icon' => 'reply_button',
 					'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && $this->member_from != User::$me->id,
 				],
 				'quote' => [
 					'label' => Lang::getTxt('quote_action', file: 'General'),
-					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';quote' . ($number_recipients > 1 || $this->member_from == User::$me->id ? ';u=all' : (!$author['is_guest'] ? ';u=' . $this->member_from : '')),
+					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';quote' . ($number_recipients > 1 || $this->member_from == User::$me->id ? ';u=all' : (!$author['is_guest'] ? ';u=' . $this->member_from : '')),
 					'icon' => 'quote',
 					'show' => Utils::$context['can_send_pm'],
 				],
 				'delete' => [
 					'label' => Lang::getTxt('delete', file: 'General'),
-					'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $this->id . '%5D=delete;f=' . $this->folder . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+					'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $this->id . '%5D=delete;f=' . $folder . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'javascript' => 'data-confirm="' . Utils::escapeJavaScript(Lang::getTxt('remove_message_question', file: 'General')) . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
@@ -801,7 +807,7 @@ class PM implements \ArrayAccess
 				'sLastNote' => 'draft_lastautosave',
 				'sLastID' => 'id_draft',
 				'sQueryParams' => 'action=pm;sa=send2',
-				'iFreq' => empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000,
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
 			];
 		}
 
