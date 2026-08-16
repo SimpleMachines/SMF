@@ -27,11 +27,6 @@ class TimeIntervalTest extends TestCase
 		$this->assertSame('PT30M', (string) new TimeInterval('PT30M'));
 	}
 
-	public function testStringifyingIsStableAcrossARoundTrip(): void
-	{
-		$this->assertSame('PT30M', (string) new TimeInterval('PT30M'));
-	}
-
 	public function testAZeroUnitIsDroppedOnTheWayBackOut(): void
 	{
 		// This used to be the canonical form: the class populated days for a

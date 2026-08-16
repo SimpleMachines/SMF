@@ -45,6 +45,37 @@ This appends `Signed-off-by: Name <email>`, which `check-signed-off.php` looks f
 php ./vendor/simplemachines/build-tools/check-signed-off.php; echo $?
 ```
 
+## Reporting bugs
+
+Issue reports come from `.github/ISSUE_TEMPLATE/standard_bug.yml`, which asks for steps to
+reproduce, the expected and the actual result, and the versions involved. Two things about
+them are easy to get wrong when the report is written by an agent that has just swept an
+area and has several findings in hand.
+
+- **One bug per report.** A sweep that turns up five defects files five reports, not one
+  with a list in it. This was asked for directly, on #9520:
+
+  > For future reference for AI agents: don't report two or more unrelated bugs in a
+  > single issue report.
+
+  The reason is what happens afterwards. An issue is closed by the pull request that
+  fixes it, so a report carrying several unrelated bugs can never close honestly: either
+  it shuts while some of what it describes is still broken, or it stays open long after
+  the part somebody cared about is done. Splitting them also lets each one be picked up,
+  labelled and argued about on its own. Where the findings really are related, file them
+  separately and link them to each other.
+
+- **Check whether a fix is already open before filing.** Searching pull request titles is
+  not enough, because the fix often lives in a pull request that is about something else
+  entirely. Search by the file instead:
+
+  ```bash
+  gh api "repos/SimpleMachines/SMF/pulls/<number>/files" --paginate --jq '.[].filename'
+  ```
+
+  Half of #9520 turned out to be fixed already by #9344, which is titled as a testing
+  change and gives no hint that it touches the installer bug in question.
+
 ## Code style
 
 Run this before every commit; it is what CI checks:
