@@ -9,4 +9,8 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d #v6
+      - name: Clone repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
+
+      - name: Add labels
+        uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d #v6
