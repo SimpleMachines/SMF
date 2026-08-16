@@ -2360,7 +2360,7 @@ class Msg implements \ArrayAccess, Routable
 	 * @param array $params Parameters to substitute into query text.
 	 * @param array $joins Zero or more *complete* JOIN clauses.
 	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
-	 *    Note that 'FROM {db_prefix}boards AS b' is always part of the query.
+	 *    Note that 'FROM {db_prefix}messages AS m' is always part of the query.
 	 * @param array $where Zero or more conditions for the WHERE clause.
 	 *    Conditions will be placed in parentheses and concatenated with AND.
 	 *    If this is left empty, no WHERE clause will be used.
