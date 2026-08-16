@@ -23,15 +23,17 @@ class TimeIntervalTest extends TestCase
 	public function testTimeOnlyDurationsKeepTheirTimeDesignator(): void
 	{
 		// The point here is the 'T': without it, the 'M' would read as months
-		// rather than minutes. The leading 'P0D' comes along for the ride
-		// because this class, unlike \DateInterval, populates days for a
-		// duration that names no years or months.
-		$this->assertSame('P0DT30M', (string) new TimeInterval('PT30M'));
+		// rather than minutes.
+		$this->assertSame('PT30M', (string) new TimeInterval('PT30M'));
 	}
 
-	public function testStringifyingIsStableAcrossARoundTrip(): void
+	public function testARedundantZeroDayIsNotWrittenBackOut(): void
 	{
-		$this->assertSame('P0DT30M', (string) new TimeInterval('P0DT30M'));
+		// This used to answer 'P0DT30M', because the class populated days for a
+		// duration naming no years or months and then always wrote them. Since
+		// it went back to \DateInterval's constructor, days stays false for
+		// anything built from a string and the zero component is not invented.
+		$this->assertSame('PT30M', (string) new TimeInterval('P0DT30M'));
 	}
 
 	public function testItCanBeBuiltFromAPlainDateInterval(): void
