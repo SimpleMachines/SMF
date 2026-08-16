@@ -2309,6 +2309,7 @@ class MarkdownParser extends Parser
 					$string_part = '';
 
 					$temp_string = '';
+					$orig_i = $i;
 
 					while (isset($chars[$i + 1]) && $chars[$i + 1] !== '>') {
 						$temp_string .= $chars[++$i];
@@ -2345,7 +2346,8 @@ class MarkdownParser extends Parser
 					}
 
 					// If we get here, it's just a regular string.
-					$string_part .= '<' . $temp_string;
+					$string_part .= '<';
+					$i = $orig_i;
 					break;
 
 				default:
@@ -3307,7 +3309,7 @@ class MarkdownParser extends Parser
 					return;
 				}
 
-				$ordered_styles = ['decimal', 'lower-roman', 'lower-alpha'];
+				$ordered_styles = ['decimal', 'lower-alpha', 'lower-roman'];
 				$unordered_styles = ['disc', 'circle', 'square'];
 
 				$style_type = $element['properties']['ordered'] ? $ordered_styles[$nesting_level % 3] : $unordered_styles[$nesting_level % 3];
@@ -3545,12 +3547,6 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code->tag === 'h' . $element['properties']['level']) {
-						break;
-					}
-				}
-
 				$this->rendered .= $code->after;
 				$this->rendered .= "\n";
 				break;
@@ -3809,7 +3805,7 @@ class MarkdownParser extends Parser
 				}
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code->tag === $bbc && $code->type === 'unparsed_equals') {
+					if ($code->tag === $bbc && $code->type === BBCode::TYPE_UNPARSED_EQUALS) {
 						break;
 					}
 				}
