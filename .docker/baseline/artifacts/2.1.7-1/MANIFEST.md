@@ -101,15 +101,15 @@ values for a throwaway forum and must never be reused.
 
 ### Profile: small
 
-**mysql** -- PHP 8.2.32, MySQL 8.4.11, generated 2026-07-30T19:51:43+00:00
+**mysql** -- PHP 8.2.33, MySQL 8.4.11, generated 2026-08-16T06:06:26+00:00
 
-- `mysql.sql` 7.8 MB, sha256 `48b213c7547ff5ae...`
-- `files-mysql.tgz` 1 KB, sha256 `acf83c4189a84b39...`
+- `mysql.sql` 7.7 MB, sha256 `d3f927cc11580c26...`
+- `files-mysql.tgz` 1 KB, sha256 `2185fee33e933d8e...`
 
-**postgresql** -- PHP 8.2.32, PostgreSQL 17.10, generated 2026-07-30T19:55:31+00:00
+**postgresql** -- PHP 8.2.33, PostgreSQL 17.10, generated 2026-08-16T06:10:03+00:00
 
-- `postgres.sql` 7.2 MB, sha256 `161bbf37646e9a3d...`
-- `files-postgresql.tgz` 1 KB, sha256 `2852ebe385129f8d...`
+- `postgres.sql` 7.2 MB, sha256 `869eae0a9eebe768...`
+- `files-postgresql.tgz` 1 KB, sha256 `7f479c3d8fdc3fbb...`
 
 <details><summary>Row counts</summary>
 
@@ -133,7 +133,7 @@ values for a throwaway forum and must never be reused.
 | log_polls | 24 |
 | log_reported | 3 |
 | log_reported_comments | 6 |
-| log_search_subjects | 4207 |
+| log_search_subjects | 4187 |
 | log_spider_hits | 5 |
 | mail_queue | 2 |
 | membergroups | 24 |
@@ -154,7 +154,7 @@ values for a throwaway forum and must never be reused.
 | settings | 230 |
 | smileys | 22 |
 | themes | 136 |
-| topics | 1187 |
+| topics | 1200 |
 | user_drafts | 5 |
 | user_likes | 30 |
 

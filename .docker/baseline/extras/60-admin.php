@@ -18,9 +18,9 @@
  * Exercises: Ipv6BanItem, Ipv6LogBanned, PackageManager, IdxLogPackages,
  * RemoveKarma, MembersTimezone, MembersTfaSecret,
  * MembersTfaBackup, MemberGroupsTfaRequired, CreateLogGroupRequests,
- * VerificationQuestions, MailQueue, ModeratorGroups, v3_0\PackageVersion,
- * v3_0\MailType, v3_0\RemoveCookieTime, v3_0\DropModPrefs,
- * v3_0\DropTimeOffset.
+ * VerificationQuestions, MailQueue, ModeratorGroups, v2_1\SettingsUpdate,
+ * v3_0\PackageVersion, v3_0\MailType, v3_0\RemoveCookieTime,
+ * v3_0\DropModPrefs, v3_0\DropTimeOffset.
  *
  * Simple Machines Forum (SMF)
  *
@@ -161,39 +161,114 @@ else
 		'cookieTime' => '3153600',
 		// v3_0\DropModPrefs
 		'enable_mod_prefs' => '1',
-		// v3_0\DropTimeOffset
+		// v2_1\SettingsUpdate converts this one into default_timezone and then
+		// removes it. A 2.1 forum that came up from 2.0 no longer has it, since
+		// 2.1's own upgrade did that conversion at the time; seeding it here is
+		// what gives that branch of the migration anything to convert.
 		'time_offset' => '2',
+		// The forum's own time zone, and deliberately not UTC and not any of
+		// the member zones set below. If the forum default matched what the
+		// members hold, an upgrade that wrongly overwrote a member's timezone
+		// with it would leave the table looking exactly as it should.
+		'default_timezone' => 'Europe/Berlin',
 	));
 
-	$made['settings'] = 12;
+	$made['settings'] = 13;
 
 	// --------------------------------------------------------- member columns
-	// Non-zero time offsets and missing timezones: two columns 3.0 either drops
-	// or fills in, both needing a non-default value to be worth migrating.
+	// Time offsets and time zones. 2.1 carried both: an offset in hours away
+	// from forum time, kept from 2.0, and a zone identifier added in 2.1.
+	// v3_0\DropTimeOffset converts the first into the second and then drops the
+	// column, but only for members who have no zone of their own.
+	//
+	// Nobody is in that state by accident. registerMember() stamps the forum
+	// default on every account it creates, so on a forum installed as 2.1 the
+	// migration has nothing to do; the members it is written for are the ones
+	// carried up from 2.0, where the upgrade added the column with a default of
+	// '' and never filled a single row in. That is the population below.
+	//
+	// Two groups, and the split between them is the whole point:
+	//
+	//  - No zone, over five distinct offsets. The migration builds one CASE
+	//    branch per distinct offset, so a single value would only ever prove
+	//    that one branch can be built. These five take three different routes
+	//    through it as well: a whole number of hours becomes an Etc/GMT zone,
+	//    the half hour cannot and falls through to timezone_name_from_abbr(),
+	//    and +14 lands outside the range Etc/GMT covers however the forum's own
+	//    offset moves it, so only the fallback to the forum default can catch
+	//    it. Two members apiece, so a branch that matches one row and misses
+	//    its twin is not silently a pass.
+	//  - A zone of their own, and a non-zero offset next to it that the
+	//    migration has to ignore. None of these is the forum default, so an
+	//    upgrade that overwrote them would show as a change; if they all held
+	//    the default, the wrong answer and the right one would be identical.
+	//
 	// (There is no hide_email here -- that column belongs to SMF 2.0, and the
 	// migration named after it only fires on an older upgrade path.)
 	$offset_members = array_slice($members, 0, 20);
 
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}members
-		SET time_offset = {float:offset}
-		WHERE id_member IN ({array_int:members})',
-		array('offset' => 3, 'members' => array_slice($offset_members, 0, 10))
+	// Offsets, not an offset => members map: PHP would quietly turn a key of
+	// 5.5 into 5 and the half hour would vanish before it reached the database.
+	$offset_groups = array(
+		array(0, array_slice($offset_members, 0, 2)),
+		array(-3, array_slice($offset_members, 2, 2)),
+		array(2, array_slice($offset_members, 4, 2)),
+		array(5.5, array_slice($offset_members, 6, 2)),
+		array(14, array_slice($offset_members, 8, 2)),
 	);
 
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}members
-		SET time_offset = {float:offset}
-		WHERE id_member IN ({array_int:members})',
-		array('offset' => -3, 'members' => array_slice($offset_members, 10, 10))
-	);
+	$no_timezone = array();
+
+	foreach ($offset_groups as $group)
+	{
+		list ($offset, $ids) = $group;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}members
+			SET time_offset = {float:offset}
+			WHERE id_member IN ({array_int:members})',
+			array('offset' => $offset, 'members' => $ids)
+		);
+
+		$no_timezone = array_merge($no_timezone, $ids);
+	}
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}members
 		SET timezone = {string:timezone}
 		WHERE id_member IN ({array_int:members})',
-		array('timezone' => '', 'members' => array_slice($members, 0, 5))
+		array('timezone' => '', 'members' => $no_timezone)
 	);
+
+	// The other half: a zone each, and the offset a member in that zone really
+	// would have had, counted from the forum's own +1. Everyone else on the
+	// forum is still on the UTC it was installed with, which is not the default
+	// either, so no member anywhere holds the value an overwrite would write.
+	$zoned_members = array(
+		array('America/New_York', -6),
+		array('America/Sao_Paulo', -4),
+		array('Asia/Kolkata', 4.5),
+		array('Australia/Adelaide', 8.5),
+		array('Pacific/Auckland', 11),
+	);
+
+	foreach ($zoned_members as $index => $zone)
+	{
+		list ($tzid, $offset) = $zone;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}members
+			SET
+				timezone = {string:timezone},
+				time_offset = {float:offset}
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'timezone' => $tzid,
+				'offset' => $offset,
+				'members' => array_slice($offset_members, 10 + ($index * 2), 2),
+			)
+		);
+	}
 
 	// Two-factor authentication, on members and on a group that requires it.
 	$smcFunc['db_query']('', '

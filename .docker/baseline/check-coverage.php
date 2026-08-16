@@ -432,6 +432,37 @@ baseline_check(
 	'>0'
 );
 
+// DropTimeOffset builds one CASE branch per distinct offset among those
+// members, so a single offset would leave everything past the first branch
+// unproven, and a whole number of hours takes a different route through that
+// migration than a half hour does.
+baseline_check(
+	'and they cover several distinct offsets',
+	baseline_scalar('SELECT COUNT(DISTINCT time_offset) FROM {db_prefix}members WHERE timezone = {string:empty}', array('empty' => '')),
+	5
+);
+
+baseline_check(
+	'including an offset that is not a whole hour',
+	baseline_scalar('SELECT COUNT(*) FROM {db_prefix}members WHERE timezone = {string:empty} AND time_offset <> FLOOR(time_offset)', array('empty' => '')),
+	'>0'
+);
+
+// The members who do have a zone are the ones that migration has to leave
+// alone, which is only visible while what they hold differs from what an
+// upgrade would write over them.
+baseline_check(
+	'members hold zones the forum default is not',
+	baseline_scalar('SELECT COUNT(DISTINCT timezone) FROM {db_prefix}members WHERE timezone NOT IN ({string:empty}, {string:forum_default})', array('empty' => '', 'forum_default' => 'Europe/Berlin')),
+	'>1'
+);
+
+baseline_check(
+	'the forum default timezone is neither empty nor UTC',
+	baseline_setting('default_timezone'),
+	'Europe/Berlin'
+);
+
 baseline_check(
 	'two-factor secrets are set',
 	baseline_scalar('SELECT COUNT(*) FROM {db_prefix}members WHERE tfa_secret <> {string:empty} AND tfa_backup <> {string:empty}', array('empty' => '')),
