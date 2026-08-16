@@ -595,7 +595,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// PostgreSQL doesn't like prefixes on the columns to be set.
 		$set = preg_replace('~\b' . $table['alias'] . '\.\b~', '', $set);
 
-		return $this->query(
+		$result = $this->query(
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 			SET ' . $set . '
 			FROM ' . implode(', ', $from) . (!empty($where) ? '
@@ -603,6 +603,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$db_values,
 			$connection,
 		);
+
+		return $result !== false;
 	}
 
 	/**

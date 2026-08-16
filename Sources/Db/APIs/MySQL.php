@@ -590,7 +590,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		return $this->query(
+		$result = $this->query(
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 				' . implode('
 				', $joins) . '
@@ -599,6 +599,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$db_values,
 			$connection,
 		);
+
+		return $result !== false;
 	}
 
 	/**
