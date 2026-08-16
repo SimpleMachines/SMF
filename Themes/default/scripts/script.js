@@ -426,14 +426,6 @@ smc_Popup.prototype.setBody = function(data)
 	document.getElementById(this.popup_id).querySelector('.popup_content').innerHTML = data;
 }
 
-// Remember the current position.
-function storeCaret(oTextHandle)
-{
-	// Only bother if it will be useful.
-	if ('createTextRange' in oTextHandle)
-		oTextHandle.caretPos = document.selection.createRange().duplicate();
-}
-
 // Replaces the currently selected text with the passed text.
 function replaceText(text, oTextHandle)
 {
@@ -1144,46 +1136,73 @@ function addLoadEvent(fNewOnload)
 		aOnloadEvents[aOnloadEvents.length] = fNewOnload;
 }
 
-// Get the text in a code tag.
-function smfSelectText(oCurElement, bActOnElement)
+/*
+ * Adds the "Select" and "Expand" buttons to every code block inside `parent`.
+ * The button labels travel with the markup, in the data attributes emitted by
+ * the code BBCode.
+ */
+function attachBbCodeEvents(parent)
 {
-	// The place we're looking for is one div up, and next door - if it's auto detect.
-	if (typeof(bActOnElement) == 'boolean' && bActOnElement)
-		var oCodeArea = document.getElementById(oCurElement);
-	else
-		var oCodeArea = oCurElement.parentNode.nextSibling;
-
-	if (typeof(oCodeArea) != 'object' || oCodeArea == null)
-		return false;
-
-	// Start off with my favourite, internet explorer.
-	if ('createTextRange' in document.body)
+	parent.querySelectorAll('.bbc_code').forEach(function (item)
 	{
-		var oCurRange = document.body.createTextRange();
-		oCurRange.moveToElementText(oCodeArea);
-		oCurRange.select();
-	}
-	// Firefox at el.
-	else if (window.getSelection)
-	{
-		var oCurSelection = window.getSelection();
-		// Safari is special!
-		if (oCurSelection.setBaseAndExtent)
-		{
-			oCurSelection.setBaseAndExtent(oCodeArea, 0, oCodeArea, oCodeArea.childNodes.length);
-		}
-		else
-		{
-			var curRange = document.createRange();
-			curRange.selectNodeContents(oCodeArea);
+		var header = item.previousElementSibling;
 
-			oCurSelection.removeAllRanges();
-			oCurSelection.addRange(curRange);
-		}
-	}
+		if (!header || !header.classList.contains('codeheader'))
+			return;
 
-	return false;
+		var selectText = item.dataset.selectTxt;
+		var expandText = item.dataset.expandTxt;
+		var shrinkText = item.dataset.shrinkTxt;
+
+		if (selectText)
+		{
+			var selectButton = document.createElement('button');
+			selectButton.textContent = selectText;
+			selectButton.type = 'button';
+			selectButton.className = 'reset link';
+			selectButton.addEventListener('click', function ()
+			{
+				window.getSelection().selectAllChildren(item);
+			});
+			header.append(' [', selectButton, ']');
+		}
+
+		// Only offer to expand a code block that is actually taller than its maximum height.
+		if (expandText && item.clientHeight < item.scrollHeight)
+		{
+			var expandButton = document.createElement('button');
+			expandButton.textContent = expandText;
+			expandButton.type = 'button';
+			expandButton.className = 'reset link';
+			expandButton.addEventListener('click', function ()
+			{
+				item.classList.toggle('expand_code');
+				this.textContent = item.classList.contains('expand_code') ? shrinkText : expandText;
+			});
+			header.append(' [', expandButton, ']');
+		}
+	});
 }
+
+/*
+ * Shows or hides the content of an inline spoiler tag. The content is hidden
+ * in the stylesheet and only the 'revealed' class brings it back, so with
+ * nothing listening a reader can click a spoiler all day and never open it.
+ *
+ * Delegated from the document rather than attached to each spoiler, because a
+ * post can arrive after the page does - a preview, a quoted post, a personal
+ * message read in the popup - and a listener bound at load time never sees
+ * those. The span holds a button so that assistive technology and the keyboard
+ * have something to press; closest() answers for the button and the span
+ * alike, so both routes end up toggling the one element the CSS looks at.
+ */
+document.addEventListener('click', function (event)
+{
+	var spoiler = event.target.closest('.bbc_inline_spoiler');
+
+	if (spoiler)
+		spoiler.classList.toggle('revealed');
+});
 
 // A function used to clean the attachments on post page
 function cleanFileInput(idElement)
@@ -1234,49 +1253,6 @@ function expandThumb(thumbID)
 	link.style.height = tmp_height;
 
 	return false;
-}
-
-function pollOptions()
-{
-	var expire_time = document.getElementById('poll_expire');
-
-	if (isEmptyText(expire_time) || expire_time.value == 0)
-	{
-		document.forms.postmodify.poll_hide[2].disabled = true;
-		if (document.forms.postmodify.poll_hide[2].checked)
-			document.forms.postmodify.poll_hide[1].checked = true;
-	}
-	else
-		document.forms.postmodify.poll_hide[2].disabled = false;
-}
-
-function generateDays(offset)
-{
-	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
-
-	var days = 0, selected = 0;
-	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-	var monthLength = [
-		31, 28, 31, 30,
-		31, 30, 31, 31,
-		30, 31, 30, 31
-	];
-	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-		monthLength[1] = 29;
-
-	selected = dayElement.selectedIndex;
-	while (dayElement.options.length)
-		dayElement.options[0] = null;
-
-	days = monthLength[monthElement.value - 1];
-
-	for (i = 1; i <= days; i++)
-		dayElement.options[dayElement.length] = new Option(i, i);
-
-	if (selected < days)
-		dayElement.selectedIndex = selected;
 }
 
 function initSearch()
@@ -1448,39 +1424,8 @@ $(function() {
 		return result;
 	});
 
-	// Generic event for smfSelectText()
-	$('.smf_select_text').on('click', function(e) {
-		e.preventDefault();
-
-		// Do you want to target yourself?
-		var actOnElement = $(this).attr('data-actonelement');
-
-		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
-	});
-
-	// Show the Expand bbc button if needed
-	$('.bbc_code').each(function(index, item) {
-		if($(item).css('max-height') == 'none')
-			return;
-
-		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
-			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
-	});
-	// Expand or Shrink the code bbc area
-	$('.smf_expand_code').on('click', function(e) {
-		e.preventDefault();
-
-		var oCodeArea = this.parentNode.nextSibling;
-
-		if(oCodeArea.classList.contains('expand_code')) {
-			$(oCodeArea).removeClass('expand_code');
-			$(this).html($(this).attr('data-expand-txt'));
-		}
-		else {
-			$(oCodeArea).addClass('expand_code');
-			$(this).html($(this).attr('data-shrink-txt'));
-		}
-	});
+	// Add the "Select" and "Expand" buttons to the code blocks.
+	attachBbCodeEvents(document);
 
 	// Expand quotes
 	if ((typeof(smf_quote_expand) != 'undefined') && (smf_quote_expand > 0))
@@ -1604,13 +1549,14 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 			if (textFields[i] in document.forms.postmodify)
 			{
 				// Handle the WYSIWYG editor.
-				var e = $('#' + this.opts.sPostBoxContainerID).get(0);
+				var e = document.getElementById(this.opts.sPostBoxContainerID);
+				var oEditor = e ? sceditor.instance(e) : undefined;
 
 				// After moving this from Post template, html() stopped working in all cases.
-				if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined && typeof sceditor.instance(e).getText().html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html().php_to8bit().php_urlencode();
-				else if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined)
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().php_to8bit().php_urlencode();
+				if (textFields[i] == this.opts.sPostBoxContainerID && oEditor != undefined && typeof oEditor.val().html !== 'undefined')
+					x[x.length] = textFields[i] + '=' + oEditor.val().html().php_to8bit().php_urlencode();
+				else if (textFields[i] == this.opts.sPostBoxContainerID && oEditor != undefined)
+					x[x.length] = textFields[i] + '=' + oEditor.val().php_to8bit().php_urlencode();
 				else if (typeof document.forms.postmodify[textFields[i]].value.html !== 'undefined')
 					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html().php_to8bit().php_urlencode();
 				else
@@ -1669,14 +1615,7 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 			bodyText += preview.getElementsByTagName('body')[0].childNodes[i].nodeValue;
 
 	setInnerHTML(document.getElementById(this.opts.sPreviewBodyContainerID), bodyText);
-	$('#' + this.opts.sPreviewBodyContainerID + ' .smf_select_text').on('click', function(e) {
-		e.preventDefault();
-
-		// Do you want to target yourself?
-		var actOnElement = $(this).attr('data-actonelement');
-
-		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
-	});
+	attachBbCodeEvents(document.getElementById(this.opts.sPreviewBodyContainerID));
 	document.getElementById(this.opts.sPreviewBodyContainerID).className = 'windowbg';
 
 	// Show a list of errors (if any).

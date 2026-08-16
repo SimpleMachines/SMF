@@ -157,14 +157,10 @@ function template_main()
 		echo '
 		<fieldset class="flow_hidden">
 			<div class="roundframe alt">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
-						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
-					</h4>
-				</div>
-				<div class="flow_auto boardslist" id="advanced_panel_div"', !empty(Utils::$context['boards_check_all']) ? ' style="display: none;"' : '', '>
-					<ul>';
+				<details id="advanced_panel"', !empty(Utils::$context['boards_check_all']) ? '' : ' open', '>
+					<summary class="title_bar titlebg">', Lang::getTxt('choose_board', file: 'Search'), '</summary>
+					<div class="flow_auto boardslist">
+						<ul>';
 
 		foreach (Utils::$context['categories'] as $category) {
 			echo '
@@ -188,7 +184,7 @@ function template_main()
 
 				if ($next_child_level > $curr_child_level) {
 					echo '
-									<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+									<ul style="margin-inline-start: 2.5ch;">';
 				} else {
 					// Close child board lists until we reach a common level
 					// with the next board.
@@ -209,8 +205,9 @@ function template_main()
 		}
 
 		echo '
-					</ul>
-				</div><!-- #advanced_panel_div -->
+						</ul>
+					</div>
+				</details>
 				<br class="clear">
 				<div class="padding">
 					<input type="checkbox" name="all" id="check_all" value=""', !empty(Utils::$context['boards_check_all']) ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
@@ -219,31 +216,6 @@ function template_main()
 				</div>
 			</div><!-- .roundframe -->
 		</fieldset>';
-
-		echo '
-		<script>
-			var oAdvancedPanelToggle = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', !empty(Utils::$context['boards_check_all']) ? 'true' : 'false', ',
-				aSwappableContainers: [
-					\'advanced_panel_div\'
-				],
-				aSwapImages: [
-					{
-						sId: \'advanced_panel_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
-					}
-				],
-				aSwapLinks: [
-					{
-						sId: \'advanced_panel_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), '
-					}
-				]
-			});
-		</script>';
 	}
 
 	echo '

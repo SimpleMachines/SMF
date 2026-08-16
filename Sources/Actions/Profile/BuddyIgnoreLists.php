@@ -222,7 +222,7 @@ class BuddyIgnoreLists implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Get all the user's "buddies"...
-		$buddies = User::loadCustom(
+		$buddies = Profile::$member->buddies === [] ? [] : User::loadCustom(
 			[
 				'where' => ['mem.id_member IN ({array_int:buddy_list})'],
 				'order' => ['mem.real_name'],
@@ -375,7 +375,7 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 
 		// Initialise the list of members we're ignoring.
-		$ignored = User::loadCustom(
+		$ignored = Profile::$member->ignoreusers === [] ? [] : User::loadCustom(
 			[
 				'where' => ['mem.id_member IN ({array_int:ignore_list})'],
 				'order' => ['mem.real_name'],

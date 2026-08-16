@@ -180,7 +180,9 @@ class Post2 extends Post
 		$this->submitAttachments();
 
 		// Replies to unapproved topics are unapproved by default (but not for moderators)
-		if (empty(Topic::$info->is_approved) && !$this->can_approve) {
+		// There is no topic yet when starting a new one, so Topic::$info is null
+		// in that case and must not be mistaken for an unapproved topic.
+		if ($this->intent !== self::INTENT_NEW_TOPIC && empty(Topic::$info->is_approved) && !$this->can_approve) {
 			$this->becomes_approved = false;
 
 			// Set a nice session var...
@@ -982,6 +984,10 @@ class Post2 extends Post
 		}
 
 		$this->existing_msg = current($msgs);
+
+		if ($this->existing_msg->id_topic !== Topic::$topic_id || $this->existing_msg->id_board !== Board::$board_id) {
+			ErrorHandler::fatalLang('cant_find_messages', false);
+		}
 
 		if (!empty(Topic::$info->is_locked) && !User::$me->allowedTo('moderate_board')) {
 			ErrorHandler::fatalLang('topic_locked', false);

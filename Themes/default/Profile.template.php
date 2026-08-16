@@ -2170,7 +2170,7 @@ function template_groupMembership()
 
 			if (Utils::$context['can_edit_primary']) {
 				echo '
-					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', '>';
+					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', $group['can_be_primary'] ? '' : ' disabled', '>';
 			}
 
 			echo '
@@ -2221,30 +2221,6 @@ function template_groupMembership()
 			}
 		}
 
-		// Javascript for the selector stuff.
-		echo '
-				<script>
-					var prevClass = "";
-					var prevDiv = "";
-					function highlightSelected(box)
-					{
-						if (prevClass != "")
-						{
-							prevDiv.className = prevClass;
-						}
-						prevDiv = document.getElementById(box);
-						prevClass = prevDiv.className;
-
-						prevDiv.className = "windowbg";
-					}';
-
-		if (isset(Utils::$context['groups']['member'][Utils::$context['primary_group']])) {
-			echo '
-					highlightSelected("primdiv_' . Utils::$context['primary_group'] . '");';
-		}
-
-		echo '
-				</script>';
 	}
 
 	echo '
@@ -2301,7 +2277,7 @@ function template_ignoreboards()
 
 			if ($next_child_level > $curr_child_level) {
 				echo '
-								<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+								<ul style="margin-inline-start: 2.5ch;">';
 			} else {
 				// Close child board lists until we reach a common level
 				// with the next board.
@@ -2414,52 +2390,12 @@ function template_issueWarning()
 {
 	template_load_warning_variables();
 
+	// The bodies of the notification templates and the text for each warning
+	// level. profile.js does the rest; all it needs from here is the data.
 	echo '
 	<script>
-		// Disable notification boxes as required.
-		function modifyWarnNotify()
-		{
-			disable = !document.getElementById(\'warn_notify\').checked;
-			document.getElementById(\'warn_sub\').disabled = disable;
-			document.getElementById(\'warn_body\').disabled = disable;
-			document.getElementById(\'warn_temp\').disabled = disable;
-			document.getElementById(\'new_template_link\').style.display = disable ? \'none\' : \'\';
-			document.getElementById(\'preview_button\').style.display = disable ? \'none\' : \'\';
-		}
-
-		// Warn template.
-		function populateNotifyTemplate()
-		{
-			index = document.getElementById(\'warn_temp\').value;
-			if (index == -1)
-				return false;
-
-			// Otherwise see what we can do...';
-
-	foreach (Utils::$context['notification_templates'] as $k => $type) {
-		echo '
-			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = ', Utils::escapeJavaScript($type['body']), ';';
-	}
-
-	echo '
-		}
-
-		function updateSlider(slideAmount)
-		{
-			// Also set the right effect.
-			effectText = "";';
-
-	foreach (Utils::$context['level_effects'] as $limit => $text) {
-		echo '
-			if (slideAmount >= ', $limit, ')
-				effectText = "', $text, '";';
-	}
-
-	echo '
-			let percent_format = "', Lang::getTxt('percent_format', file: 'General'), '";
-			setInnerHTML(document.getElementById(\'cur_level_div\'), percent_format.replace("{0}", slideAmount) + \' (\' + effectText + \')\');
-		}
+		var notification_templates = ', json_encode(array_column(Utils::$context['notification_templates'], 'body'), JSON_UNESCAPED_SLASHES), ';
+		var level_effects = ', json_encode(Utils::$context['level_effects'], JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT), ';
 	</script>';
 
 	echo '
@@ -2503,9 +2439,9 @@ function template_issueWarning()
 	echo '
 				</dt>
 				<dd>
-					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> ', Lang::formatText('{0, number, :: percent}', [100]), '
+					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
+						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <output name="cur_level" for="warning_level" data-format="', Lang::getTxt('percent_format', file: 'General'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</output>
 					</div>
 				</dd>';
 
@@ -2536,7 +2472,7 @@ function template_issueWarning()
 					<strong><label for="warn_notify">', Lang::getTxt('profile_warning_notify', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<input type="checkbox" name="warn_notify" id="warn_notify" onclick="modifyWarnNotify();"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
+					<input type="checkbox" name="warn_notify" id="warn_notify"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
 				</dd>
 				<dt>
 					<strong><label for="warn_sub">', Lang::getTxt('profile_warning_notify_subject', file: 'Profile'), '</label></strong>
@@ -2548,7 +2484,7 @@ function template_issueWarning()
 					<strong><label for="warn_temp">', Lang::getTxt('profile_warning_notify_body', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();">
+					<select name="warn_temp" id="warn_temp" disabled>
 						<option value="-1">', Lang::getTxt('profile_warning_notify_template', file: 'Profile'), '</option>
 						<option value="-1" disabled>------------------------------</option>';
 
@@ -2559,7 +2495,7 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span id="new_template_link" style="display: none;"><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '</a></span>
+					<span id="new_template_link" hidden><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '</a></span>
 					<br>
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', Utils::$context['warning_data']['notify_body'], '</textarea>
 				</dd>';
@@ -2583,60 +2519,6 @@ function template_issueWarning()
 
 	// Previous warnings?
 	template_show_list('view_warnings');
-
-	echo '
-	<script>';
-
-	if (!Profile::$member->is_me) {
-		echo '
-		modifyWarnNotify();
-		$(document).ready(function() {
-			$("#preview_button").click(function() {
-				return ajax_getTemplatePreview();
-			});
-		});
-
-		function ajax_getTemplatePreview ()
-		{
-			$.ajax({
-				type: "POST",
-				headers: {
-					"X-SMF-AJAX": 1
-				},
-				xhrFields: {
-					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-				},
-				url: "' . Config::$scripturl . '?action=xmlhttp;sa=previews;xml",
-				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
-				context: document.body,
-				success: function(request){
-					$("#box_preview").css({display:""});
-					$("#body_preview").html($(request).find(\'body\').text());
-					if ($(request).find("error").text() != \'\')
-					{
-						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors">\';
-						var errors = $(request).find(\'error\').each(function() {
-							errors_html += \'<li>\' + $(this).text() + \'</li>\';
-						});
-						errors_html += \'</ul>\';
-
-						$("#profile_error").html(errors_html);
-					}
-					else
-					{
-						$("#profile_error").css({display:"none"});
-						$("#error_list").html(\'\');
-					}
-				return false;
-				},
-			});
-			return false;
-		}';
-	}
-
-	echo '
-	</script>';
 }
 
 /**
@@ -2931,7 +2813,7 @@ function template_profile_signature_modify()
 	echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', Utils::$context['member']['signature'], '</textarea><br>';
+								<textarea class="editor" id="signature" name="signature" rows="5" cols="50"', empty(Utils::$context['signature_limits']['max_length']) ? '' : ' data-max-length="' . (int) Utils::$context['signature_limits']['max_length'] . '"', '>', Utils::$context['member']['signature'], '</textarea><br>';
 
 	// If there is a limit at all!
 	if (!empty(Utils::$context['signature_limits']['max_length'])) {
@@ -2949,18 +2831,7 @@ function template_profile_signature_modify()
 								<span class="smalltext">', Utils::$context['signature_warning'], '</span>';
 	}
 
-	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
-								<script>
-									var maxLength = ', Utils::$context['signature_limits']['max_length'], ';
-
-									$(document).ready(function() {
-										calcCharLeft();
-										$("#preview_button").click(function() {
-											return ajax_getSignaturePreview(true);
-										});
-									});
-								</script>
 							</dd>';
 }
 
@@ -2978,7 +2849,7 @@ function template_profile_avatar_select()
 
 	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									' . Lang::getTxt('no_avatar', file: 'Profile') . '
 								</label><br>';
@@ -2986,7 +2857,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_server_stored"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('choose_avatar_gallery', file: 'Profile'), '
 								</label><br>';
@@ -2994,7 +2865,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_external"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('my_own_pic', file: 'Profile'), '
 								</label><br>';
@@ -3002,7 +2873,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_upload"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', Lang::getTxt('avatar_will_upload', file: 'Profile'), '
 								</label><br>';
@@ -3010,7 +2881,7 @@ function template_profile_avatar_select()
 
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
+								<input type="radio" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::getTxt('use_gravatar', file: 'Profile') . '</label>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 	}
@@ -3022,59 +2893,55 @@ function template_profile_avatar_select()
 	// If users are allowed to choose avatars stored on the server show selection boxes to choice them from.
 	if (!empty(Utils::$context['member']['avatar']['allow_server_stored'])) {
 		echo '
-								<div id="avatar_server_stored">
+								<div id="avatar_server_stored" data-avatar-choice="server_stored">
 									<div>
-										<select name="cat" id="cat" size="10" onchange="changeSel(\'\');" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');">';
+										<select name="cat" id="cat" size="10" data-avatardir="', Config::$modSettings['avatar_url'], '/">';
 
-		// This lists all the file categories.
+		// One entry per avatar, with the directories as groups. Nothing here is
+		// nested more than one deep, because that is all the picker can show.
 		foreach (Utils::$context['avatars'] as $avatar) {
-			echo '
-											<option value="', $avatar['filename'] . ($avatar['is_dir'] ? '/' : ''), '"', ($avatar['checked'] ? ' selected' : ''), '>', $avatar['name'], '</option>';
+			if (!empty($avatar['is_dir'])) {
+				echo '
+											<optgroup label="', $avatar['name'], '">';
+
+				foreach ($avatar['files'] as $file) {
+					echo '
+												<option value="', $avatar['filename'], '/', $file['filename'], '"', $file['checked'] ? ' selected' : '', '>', $file['name'], '</option>';
+				}
+
+				echo '
+											</optgroup>';
+			} else {
+				echo '
+											<option value="', $avatar['filename'], '"', $avatar['checked'] ? ' selected' : '', '>', $avatar['name'], '</option>';
+			}
 		}
 
 		echo '
 										</select>
 									</div>
-									<div>
-										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
-									</div>
 									<div class="edit_avatar_img">
 										<img id="avatar" src="', Utils::$context['member']['avatar']['choice'] == 'server_stored' ? Utils::$context['member']['avatar']['href'] : Config::$modSettings['avatar_url'] . '/blank.png', '" alt="">
 									</div>
-									<script>
-										var files = ["' . implode('", "', Utils::$context['avatar_list']) . '"];
-										var avatar = document.getElementById("avatar");
-										var cat = document.getElementById("cat");
-										var selavatar = "' . Utils::$context['avatar_selected'] . '";
-										var avatardir = "' . Config::$modSettings['avatar_url'] . '/";
-										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
-										var file = document.getElementById("file");
-
-										if (avatar.src.indexOf("blank.png") > -1 || selavatar.indexOf("blank.png") == -1)
-											changeSel(selavatar);
-										else
-											previewExternalAvatar(avatar.src)
-
-									</script>
 								</div><!-- #avatar_server_stored -->';
 	}
 
 	// If the user can link to an off server avatar, show them a box to input the address.
 	if (!empty(Utils::$context['member']['avatar']['allow_external'])) {
 		echo '
-								<div id="avatar_external">
+								<div id="avatar_external" data-avatar-choice="external">
 									', Utils::$context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt="" class="avatar"></div>' : '', '
 									<div class="smalltext">', Lang::getTxt('avatar_by_url', file: 'Profile'), '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
-									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);"><br>
+									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '"><br>
 								</div>';
 	}
 
 	// If the user is able to upload avatars to the server show them an upload box.
 	if (!empty(Utils::$context['member']['avatar']['allow_upload'])) {
 		echo '
-								<div id="avatar_upload">
+								<div id="avatar_upload" data-avatar-choice="upload">
 									', Utils::$context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '', '
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
 									', (!empty(Utils::$context['member']['avatar']['id_attach']) ? '<br><input type="hidden" name="id_attach" value="' . Utils::$context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
@@ -3082,7 +2949,7 @@ function template_profile_avatar_select()
 	// if the user is able to use Gravatar avatars show then the image preview
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar'])) {
 		echo '
-								<div id="avatar_gravatar">
+								<div id="avatar_gravatar" data-avatar-choice="gravatar"', !empty(Config::$modSettings['gravatarAllowExtraEmail']) && (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email'] || str_contains(Utils::$context['member']['avatar']['external'], 'http://') || str_contains(Utils::$context['member']['avatar']['external'], 'https://')) ? ' data-clear-email' : '', '>
 									', Utils::$context['member']['avatar']['choice'] == 'gravatar' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '';
 
 		if (empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
@@ -3105,51 +2972,6 @@ function template_profile_avatar_select()
 	}
 
 	echo '
-								<script>
-									', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'external' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? '' : 'none') . '";' : '', '
-									', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? '' : 'none') . '";' : '', '
-
-									function swap_avatar(type)
-									{
-										switch(type.id)
-										{
-											case "avatar_choice_server_stored":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_external":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_upload":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_none":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "none";' : '', '
-												break;
-											case "avatar_choice_gravatar":
-												', !empty(Utils::$context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
-												', !empty(Utils::$context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "";' : '', '
-												', !empty(Config::$modSettings['gravatarAllowExtraEmail']) && (Utils::$context['member']['avatar']['external'] == Utils::$context['member']['email'] || strstr(Utils::$context['member']['avatar']['external'], 'http://') || strstr(Utils::$context['member']['avatar']['external'], 'https://')) ?
-												'document.getElementById("gravatarEmail").value = "";' : '', '
-												break;
-										}
-									}
-								</script>
 							</dd>';
 }
 

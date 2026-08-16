@@ -1159,10 +1159,21 @@ sceditor.formats.bbcode.set(
 		html: '<ul>{0}</ul>',
 		format(element, content) {
 			const type = element.getAttribute('type') || element.style.listStyleType;
-			if (type == 'disc')
+			if (!type) {
+				type = 'disc';
+			}
+
+			// Detect whether this list is nested inside another list.
+			const parent = element.parentNode;
+			const parentIsList = parent && parent.nodeName &&
+				(parent.nodeName === 'UL' || parent.nodeName === 'OL');
+
+			// Emit plain [list] only for top-level lists that have the default 'disc' type.
+			if (type === 'disc' && !parentIsList) {
 				return '[list]' + content + '[/list]';
-			else
-				return '[list type=' + type + ']' + content + '[/list]';
+			}
+
+			return '[list type=' + type + ']' + content + '[/list]';
 		}
 	}
 ).set(
@@ -1175,8 +1186,19 @@ sceditor.formats.bbcode.set(
 		html: '<ol>{0}</ol>',
 		format(element, content) {
 			const type = element.getAttribute('type') || element.style.listStyleType;
-			if (type == 'none')
+			if (!type || type === 'none') {
 				type = 'decimal';
+			}
+
+			// Detect whether this list is nested inside another list.
+			const parent = element.parentNode;
+			const parentIsList = parent && parent.nodeName &&
+				(parent.nodeName === 'UL' || parent.nodeName === 'OL');
+
+			// Emit plain [list] only for top-level ordered lists with default 'decimal' type.
+			if (type === 'decimal' && !parentIsList) {
+				return '[list]' + content + '[/list]';
+			}
 
 			return '[list type=' + type + ']' + content + '[/list]';
 		}
@@ -1529,23 +1551,28 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
-			code: null
+			code: null,
+			pre: {
+				class: 'bbc_code'
+			}
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			var
-				dom = sceditor.dom,
-				attr = dom.attr,
-				title = attr(element, 'data-title'),
-				from = title ?' =' + title : '';
+			// The <pre> is only a wrapper; the inner <code> carries the title.
+			if (element.tagName === 'PRE')
+				return content;
 
-			return '[code' + from + ']' + "\n" + content.replace('&#91;', '[') + "\n" + '[/code]';
+			const title = sceditor.dom.attr(element, 'data-title');
+			const from = title ? ' =' + title : '';
+
+			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
 		html(element, {defaultattr}, content) {
 			const from = defaultattr ? ' data-title="' + defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>').replace(/^<br[^>]*>/, '').replace(/<br[^>]*>$/, '') + '</code>'
+			// A <pre> preserves the whitespace itself, so the line breaks no longer need trimming.
+			return '<pre class="bbc_code"><code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code></pre>';
 		}
 	}
 ).set(

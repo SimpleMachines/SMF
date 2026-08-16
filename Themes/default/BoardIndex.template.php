@@ -19,14 +19,6 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * The top part of the outer layer of the boardindex
- */
-function template_boardindex_outer_above()
-{
-	template_newsfader();
-}
-
-/**
  * This shows the newsfader
  */
 function template_newsfader()
@@ -57,7 +49,7 @@ function template_newsfader()
 /**
  * This actually displays the board index
  */
-function template_main()
+function template_boardindex()
 {
 	echo '
 	<div id="boardindex_table" class="boardindex_table">';
@@ -75,57 +67,22 @@ function template_main()
 		echo '
 		<div class="main_container">
 			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
-				<h3 class="catbg">';
+				<h3 class="catbg">
+					', $category['link'], '
+				</h3>';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse']) {
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
+				<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', Lang::getTxt(!$category['is_collapsed'] ? 'hide_category' : 'show_category', file: 'General'), '" style="display: none;"></span>';
 		}
 
-		echo '
-					', $category['link'], '
-				</h3>', !empty($category['description']) ? '
+		echo !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
 			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
 
-		/* Each board in each category's boards has:
-		new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
-		children (see below.), link_children (easier to use.), children_new (are they new?),
-		topics (# of), posts (# of), link, href, and last_post. (see below.) */
-		foreach ($category['boards'] as $board) {
-			echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
-					<div class="board_icon">
-						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
-					</div>
-					<div class="info">
-						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
-					</div><!-- .info -->';
-
-			// Show some basic information about the number of posts, etc.
-			echo '
-					<div class="board_stats">
-						', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
-					</div>';
-
-			// Show the last post if there is one.
-			echo'
-					<div class="lastpost">
-						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
-					</div>';
-
-			// Won't somebody think of the children!
-			if (function_exists('template_bi_' . $board['type'] . '_children')) {
-				call_user_func('template_bi_' . $board['type'] . '_children', $board);
-			} else {
-			template_bi_board_children($board);
-			}
-
-			echo '
-				</div><!-- #board_[id] -->';
-		}
+		template_bi_board_list($category['boards']);
 
 		echo '
 			</div><!-- #category_[id]_boards -->
@@ -141,6 +98,56 @@ function template_main()
 	<div class="mark_read">
 		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '
 	</div>';
+	}
+}
+
+/**
+ * Outputs a list of boards, each one drawn by the template_bi_* helpers below.
+ *
+ * The board index calls this once per category, and the message index calls it
+ * for the child boards of the board being viewed. Both used to carry their own
+ * copy of this loop.
+ *
+ * Each board has: new (is it new?), id, name, description, moderators (see
+ * below), link_moderators (just a list.), children (see below.), link_children
+ * (easier to use.), children_new (are they new?), topics (# of), posts (# of),
+ * link, href, and last_post. (see below.)
+ *
+ * @param array $boards The boards to draw, in the order they go in.
+ */
+function template_bi_board_list(array $boards): void
+{
+	foreach ($boards as $board) {
+		echo '
+				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+					<div class="board_icon">
+						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
+					</div>
+					<div class="info">
+						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
+					</div><!-- .info -->';
+
+		// Show some basic information about the number of posts, etc.
+		echo '
+					<div class="board_stats">
+						', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
+					</div>';
+
+		// Show the last post if there is one.
+		echo '
+					<div class="lastpost">
+						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+					</div>';
+
+		// Won't somebody think of the children!
+		if (function_exists('template_bi_' . $board['type'] . '_children')) {
+			call_user_func('template_bi_' . $board['type'] . '_children', $board);
+		} else {
+			template_bi_board_children($board);
+		}
+
+		echo '
+				</div><!-- #board_[id] -->';
 	}
 }
 
@@ -181,7 +188,7 @@ function template_bi_board_info($board)
 	// Has it outstanding posts for approval?
 	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics'])) {
 		echo '
-		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board, file: 'General'), '" class="moderation_link amt">!</a>';
+		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', ['unapproved_topics' => $board['unapproved_topics'], 'unapproved_posts' => $board['unapproved_posts']], file: 'General'), '" class="moderation_link amt">!</a>';
 	}
 
 	echo '
@@ -281,14 +288,6 @@ function template_bi_board_children($board)
 }
 
 /**
- * The lower part of the outer layer of the board index
- */
-function template_boardindex_outer_below()
-{
-	template_info_center();
-}
-
-/**
  * Displays the info center
  */
 function template_info_center()
@@ -302,9 +301,9 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'General'), '</a>
 			</h3>
+			<span class="toggle_up" id="upshrink_ic" title="', Lang::getTxt('hide_infocenter', file: 'General'), '" style="display: none;"></span>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 

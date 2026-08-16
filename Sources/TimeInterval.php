@@ -27,9 +27,10 @@ class TimeInterval extends \DateInterval implements \Stringable
 	/**
 	 * Constructor.
 	 *
-	 * Like \DateInterval::__construct(), except that it can accept fractional
-	 * values for whatever the smallest unit is. In other words, it supports the
-	 * complete spec for ISO 8601 durations, not just a subset of the spec.
+	 * Like \DateInterval::__construct(), except that this accepts fractional
+	 * values for whatever the smallest unit in $duration is. In other words,
+	 * this class supports the complete spec for ISO 8601 durations, not just
+	 * a subset of the spec.
 	 *
 	 * @param string $duration An ISO 8601 duration string.
 	 */
@@ -145,12 +146,38 @@ class TimeInterval extends \DateInterval implements \Stringable
 				}
 			}
 
+			$duration = rtrim($duration, 'PT');
+
+			if ($duration === '') {
+				$duration = 'PT0S';
+			}
+
 			// Construct.
-			parent::__construct(rtrim($duration, 'PT'));
+			parent::__construct($duration);
 
 			// Finally, set the fractional value.
 			$this->{$frac['prop']} += $frac['value'];
 		}
+	}
+
+	/**
+	 * Formats the object as a string.
+	 *
+	 * @param string $format The format string.
+	 * @return string The formatted value.
+	 */
+	public function format(string $format): string
+	{
+		if (
+			str_contains($format, '%a')
+			&& $this->days === false
+			&& $this->y === 0
+			&& $this->m === 0
+		) {
+			$format = str_replace('%a', '%d', $format);
+		}
+
+		return parent::format($format);
 	}
 
 	/**
@@ -163,13 +190,23 @@ class TimeInterval extends \DateInterval implements \Stringable
 	{
 		$format = 'P';
 
-		foreach (['y', 'm', 'd', 'h', 'i', 's'] as $prop) {
-			if ($prop === 'h') {
-				$format .= 'T';
-			}
+		if ($this->days !== false) {
+			$format .= '%aDT';
 
-			if (!empty($this->{$prop}) || ($prop === 's' && !empty($this->f))) {
-				$format .= '%' . $prop . ($prop === 'i' ? 'M' : strtoupper($prop));
+			foreach (['h', 'i', 's'] as $prop) {
+				if (!empty($this->{$prop}) || ($prop === 's' && !empty($this->f))) {
+					$format .= '%' . $prop . ($prop === 'i' ? 'M' : strtoupper($prop));
+				}
+			}
+		} else {
+			foreach (['y', 'm', 'd', 'h', 'i', 's'] as $prop) {
+				if ($prop === 'h') {
+					$format .= 'T';
+				}
+
+				if (!empty($this->{$prop}) || ($prop === 's' && !empty($this->f))) {
+					$format .= '%' . $prop . ($prop === 'i' ? 'M' : strtoupper($prop));
+				}
 			}
 		}
 
@@ -196,16 +233,27 @@ class TimeInterval extends \DateInterval implements \Stringable
 	{
 		$result = [];
 
-		$props = [
-			'invert' => null,
-			'y' => 'years',
-			'm' => 'months',
-			'd' => 'days',
-			'h' => 'hours',
-			'i' => 'minutes',
-			's' => 'seconds',
-			'f' => 'microseconds',
-		];
+		if ($this->days !== false) {
+			$props = [
+				'invert' => null,
+				'days' => 'day',
+				'h' => 'hour',
+				'i' => 'minute',
+				's' => 'second',
+				'f' => 'microsecond',
+			];
+		} else {
+			$props = [
+				'invert' => null,
+				'y' => 'year',
+				'm' => 'month',
+				'd' => 'day',
+				'h' => 'hour',
+				'i' => 'minute',
+				's' => 'second',
+				'f' => 'microsecond',
+			];
+		}
 
 		foreach ($props as $prop => $string) {
 			if (empty($this->{$prop})) {
@@ -217,8 +265,12 @@ class TimeInterval extends \DateInterval implements \Stringable
 					$result[] = '-';
 					break;
 
+				case 'days':
+					$result[] = $this->format('%a') . ' ' . $string . ($this->format('%a') > 1 ? 's' : '');
+					break;
+
 				default:
-					$result[] = $this->format('%' . $prop) . ' ' . $string;
+					$result[] = $this->format('%' . $prop) . ' ' . $string . ($this->format('%' . $prop) > 1 ? 's' : '');
 					break;
 			}
 		}
@@ -234,10 +286,14 @@ class TimeInterval extends \DateInterval implements \Stringable
 	 * Formats the interval as a human-readable string in the current user's
 	 * language.
 	 *
-	 * @param array $format_chars Properties to include in the output.
-	 *    Allowed values in this array: 'y', 'm', 'd', 'h', 'i', 's', 'f', 'a'.
-	 *    Note that when 'f' is included, it will always be combined with 's' in
-	 *    order to produce a single float value in the output.
+	 * @param array $format_chars Units to include in the output.
+	 *    Allowed values in this array: 'y', 'm', 'd', 'a', 'h', 'i', 's', 'f'.
+	 *    When 'f' is requested, it will always be combined with 's' in order to
+	 *    produce a single float value in the output.
+	 *    If 'a' is requested but $this->days is false, then 'y', 'm', 'd' will
+	 *    be used instead.
+	 *    The order of characters in this array is irrelevant. The requested
+	 *    units will always be ordered from largest to smallest in the output.
 	 * @return string A human-readable string.
 	 */
 	public function localize(array $format_chars = ['y', 'm', 'd']): string
@@ -255,9 +311,16 @@ class TimeInterval extends \DateInterval implements \Stringable
 			'f' => 'number_of_seconds',
 		];
 
-		foreach ($format_chars as $c) {
+		if (\in_array('a', $format_chars) && !\is_int($this->days)) {
+			$format_chars = array_unique(array_merge(
+				['y', 'm', 'd'],
+				array_diff($format_chars, ['a']),
+			));
+		}
+
+		foreach ($txt_keys as $c => $k) {
 			// Don't include a bunch of useless "0 <unit>" substrings.
-			if (empty($this->{$c}) || !isset($txt_keys[$c])) {
+			if (empty($this->{$c}) || !\in_array($c, $format_chars)) {
 				continue;
 			}
 
@@ -285,9 +348,10 @@ class TimeInterval extends \DateInterval implements \Stringable
 		// If all requested properties were empty, output a single "0 <unit>"
 		// for the smallest unit requested.
 		if (empty($result)) {
-			foreach ($txt_keys as $c => $k) {
+			foreach (array_reverse($txt_keys) as $c => $k) {
 				if (\in_array($c, $format_chars)) {
 					$result = [Lang::getTxt($txt_keys[$c], [0], file: 'General')];
+					break;
 				}
 			}
 		}
@@ -324,17 +388,35 @@ class TimeInterval extends \DateInterval implements \Stringable
 	/**
 	 * Convert a \DateInterval object into a TimeInterval object.
 	 *
-	 * @param \DateInterval $object A \DateInterval object.
+	 * @param \DateInterval $interval A \DateInterval object.
 	 * @return TimeInterval A TimeInterval object.
 	 */
-	public static function createFromDateInterval(\DateInterval $object): static
+	public static function createFromDateInterval(\DateInterval $interval): static
 	{
-		$new = new TimeInterval('P0D');
+		return new self($interval->format('P' . ($interval->days !== false ? '%aD' : '%yY%mM%dD') . 'T%hH%iM%s.%FS'));
+	}
 
-		foreach (['y', 'm', 'd', 'h', 'i', 's', 'f', 'invert'] as $prop) {
-			$new->{$prop} = $object->{$prop};
+	/**
+	 * Creates a TimeInterval object from the relative parts of a string that
+	 * can be parsed by strtotime().
+	 *
+	 * @param string $datetime A string that can be parsed by strtotime().
+	 * @return TimeInterval A TimeInterval object.
+	 */
+	public static function createFromDateString(string $datetime): static
+	{
+		// Create the basic \DateInterval.
+		$interval = parent::createFromDateString($datetime);
+
+		// \DateInterval::createFromDateString() doesn't populate the $days
+		// property. But since $datetime must contain relative date values,
+		// we may be able coerce it into one that does have a value for $days.
+		// This only works reliably if the year and month values are empty.
+		if ($interval->format('%y') === '0' && $interval->format('%m') === '0') {
+			$now = new \DateTimeImmutable();
+			$interval = $now->diff($now->add($interval));
 		}
 
-		return $new;
+		return self::createFromDateInterval($interval);
 	}
 }

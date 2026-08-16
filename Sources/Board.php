@@ -937,6 +937,20 @@ class Board implements \ArrayAccess, Routable
 			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
 		}
 
+		/*
+		 * The current board already has an object, and it is the one Board::$info
+		 * points at, so put that one back rather than building a second object
+		 * claiming to be the same board. Something dropping the current board from
+		 * the loaded list is not unusual: Category::getTree() unsets each board it
+		 * is about to rebuild from the row it just read. The constructor cannot
+		 * rebuild this one - it takes the "load the current board" path, finds
+		 * Board::$info already set, and returns having assigned nothing at all,
+		 * leaving an object whose typed $id throws the moment anything reads it.
+		 */
+		if (isset($id, self::$info) && $id === self::$board_id && !isset(self::$loaded[$id])) {
+			self::$loaded[$id] = self::$info;
+		}
+
 		if (!isset($id, self::$loaded[$id])) {
 			new self($id, $props);
 		} else {

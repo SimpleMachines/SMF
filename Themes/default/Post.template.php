@@ -37,28 +37,6 @@ function template_main()
 	echo '
 			var icon_urls = ', json_encode(array_column(Utils::$context['icons'], 'url', 'value'), JSON_UNESCAPED_SLASHES), ';';
 
-	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
-	if (Utils::$context['make_poll']) {
-		echo '
-			var pollOptionNum = 0;
-			var pollOptionId = ', Utils::$context['last_choice_id'], ';
-			function addPollOption()
-			{
-				if (pollOptionNum == 0)
-				{
-					for (var i = 0, n = document.forms.postmodify.elements.length; i < n; i++)
-						if (document.forms.postmodify.elements[i].id.substr(0, 8) == \'options-\')
-						{
-							pollOptionNum++;
-						}
-				}
-				pollOptionNum++
-				pollOptionId++
-
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999], file: 'Post'), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
-			}';
-	}
-
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if (Utils::$context['make_event']) {
 		echo '
@@ -162,7 +140,7 @@ function template_main()
 					<div id="edit_poll">
 						<fieldset id="poll_main">
 							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
-							<dl class="settings poll_options">
+							<dl class="settings poll_options" id="poll_choices" data-more-txt="', Lang::getTxt('poll_add_option', file: 'Post'), '" data-option-txt="', Lang::getTxt('option_number', [999], file: 'Post'), '">
 								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
 									<input type="text" name="question" value="', Utils::$context['question'] ?? '', '" size="80">
@@ -179,10 +157,9 @@ function template_main()
 								</dd>';
 		}
 
+		// poll.js puts the "add option" button here, after the list it appends to.
 		echo '
-								<p id="pollMoreOptions"></p>
 							</dl>
-							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::getTxt('poll_add_option', file: 'Post'), ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">
 							<legend>', Lang::getTxt('poll_options', file: 'Post'), '</legend>
@@ -198,7 +175,7 @@ function template_main()
 									<em class="smalltext">', Lang::getTxt('poll_run_limit', file: 'Post'), '</em>
 								</dt>
 								<dd>
-									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
+									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '">
 								</dd>
 								<dt>
 									<label for="poll_change_vote">', Lang::getTxt('poll_do_change_vote', file: 'Post'), '</label>
@@ -375,42 +352,32 @@ function template_main()
 					</div>';
 	}
 
-	// If the admin has enabled the hiding of the additional options - show a link and image for it.
+	// If the admin has enabled the hiding of the additional options, fold them
+	// away behind a disclosure triangle. A details element remembers nothing by
+	// itself, so the script further down copies its state into the hidden
+	// additional_options field that gets posted back.
 	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
 		echo '
-					<div id="post_additional_options_header">
-						<strong><a href="#" id="postMoreExpandLink"> ', Lang::getTxt('post_additionalopt', file: 'Post'), '</a></strong>
-					</div>';
+					<details id="post_options_toggle"', Utils::$context['show_additional_options'] ? ' open' : '', '>
+						<summary>', Lang::getTxt('post_additionalopt', file: 'Post'), '</summary>';
 	}
 
-	echo '
-					<div id="post_additional_options">';
-
 	// Display the checkboxes for all the standard options - if they are available to the user!
-	echo '
-						<div id="post_settings" class="smalltext">
-							<ul class="post_options">
-								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('notify_replies', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . Utils::$context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . (Utils::$context['locked'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('lock_topic', file: 'Post') . '</label></li>' : '', '
-								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('back_to_topic', file: 'Post') . '</label></li>
-								', Utils::$context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . Utils::$context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . (Utils::$context['sticky'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('sticky_after_posting', file: 'Post') . '</label></li>' : '', '
-								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', Utils::$context['use_smileys'] ? '' : ' checked', ' value="NS"> ', Lang::getTxt('dont_use_smileys', file: 'Post'), '</label></li>', '
-								', Utils::$context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty(Utils::$context['move']) ? ' checked" ' : '') . '> ' . Lang::getTxt('move_after_posting', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['can_announce'] && Utils::$context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty(Utils::$context['announce']) ? ' checked' : '') . '> ' . Lang::getTxt('announce_topic', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . (Utils::$context['show_approval'] === 2 ? ' checked' : '') . '> ' . Lang::getTxt('approve_this_post', file: 'Post') . '</label></li>' : '', '
-							</ul>
-						</div><!-- #post_settings -->';
+	template_post_options(Utils::$context['post_options']);
 
-	echo '
-					</div><!-- #post_additional_options -->';
+	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
+		echo '
+					</details>';
+	}
 
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty(Theme::$current->options['drafts_show_saved_enabled'])) {
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
-							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
+							<strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 						</h4>
+						<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 					</div>
 					<div id="post_draft_options">
 						<dl class="settings">
@@ -513,35 +480,12 @@ function template_main()
 	echo '
 			});';
 
-	// Code for showing and hiding additional options.
+	// Remember whether the additional options were left open, so the next post
+	// form comes back the same way round.
 	if (!empty(Config::$modSettings['additional_options_collapsable'])) {
 		echo '
-			var oSwapAdditionalOptions = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', Utils::$context['show_additional_options'] ? 'false' : 'true', ',
-				funcOnBeforeCollapse: function () {
-					document.getElementById(\'additional_options\').value = \'0\';
-				},
-				funcOnBeforeExpand: function () {
-					document.getElementById(\'additional_options\').value = \'1\';
-				},
-				aSwappableContainers: [
-					\'post_additional_options\',
-				],
-				aSwapImages: [
-					{
-						sId: \'postMoreExpandLink\',
-						altExpanded: \'-\',
-						altCollapsed: \'+\'
-					}
-				],
-				aSwapLinks: [
-					{
-						sId: \'postMoreExpandLink\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), '
-					}
-				]
+			document.getElementById(\'post_options_toggle\').addEventListener(\'toggle\', function () {
+				document.getElementById(\'additional_options\').value = this.open ? \'1\' : \'0\';
 			});';
 	}
 
@@ -573,7 +517,6 @@ function template_main()
 
 	echo '
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 		</script>';
 
 	// If the user is replying to a topic show the previous posts.
@@ -666,6 +609,45 @@ function template_main()
 			}
 		</script>';
 	}
+}
+
+/**
+ * Draws the checkboxes that sit below the editor on the posting form.
+ *
+ * See Post::setupPostOptions() for what each option looks like. Anything an
+ * option lists under 'hidden' is written out just before its checkbox, because
+ * a checkbox that is not ticked submits nothing at all and the hidden field of
+ * the same name is what carries the "off" value.
+ *
+ * @param array $post_options The options to draw, in the order they go in.
+ */
+function template_post_options(array $post_options): void
+{
+	echo '
+					<ul id="post_options" class="smalltext">';
+
+	foreach ($post_options as $option) {
+		if (!$option['can_show']) {
+			continue;
+		}
+
+		echo '
+						<li>';
+
+		foreach ($option['hidden'] ?? [] as $hidden_name => $hidden_value) {
+			echo '
+							<input type="hidden" name="', $hidden_name, '" value="', $hidden_value, '">';
+		}
+
+		echo '
+							<label for="', $option['id'], '">
+								<input type="checkbox" name="', $option['name'], '" id="', $option['id'], '" value="', $option['value'] ?? '1', '"', $option['checked'] ? ' checked' : '', '> ', $option['label'], '
+							</label>
+						</li>';
+	}
+
+	echo '
+					</ul><!-- #post_options -->';
 }
 
 /**
@@ -858,7 +840,7 @@ function template_announcement_send()
 				</div>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" name="b" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
+					<input type="submit" name="cont" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 					<input type="hidden" name="move" value="', Utils::$context['move'], '">
@@ -872,7 +854,7 @@ function template_announcement_send()
 	</div><!-- #announcement -->
 	<br>
 	<script>
-		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ', "autoSubmit", "b");
+		doAutoSubmit(2, ', Utils::escapeJavaScript(Lang::getTxt('announce_continue', file: 'Post')), ');
 	</script>';
 }
 

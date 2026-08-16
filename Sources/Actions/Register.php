@@ -347,9 +347,18 @@ class Register implements ActionInterface, Routable
 	 */
 	public function checkUsername(): void
 	{
-		// Who are you again?
-		if (empty($_COOKIE) || empty($_COOKIE[Config::$cookiename]) || empty($_SERVER['HTTP_REFERER']) || stripos($_SERVER['HTTP_REFERER'], Config::$scripturl) !== 0) {
+		/*
+		 * Who are you again? Somebody with a session, who got here from a page
+		 * of ours. Config::$cookiename is the login cookie, and the person
+		 * filling in the registration form has not got one by definition, so
+		 * asking for it turns everybody this is for away.
+		 */
+		if (empty($_COOKIE) || empty($_SERVER['HTTP_REFERER']) || stripos($_SERVER['HTTP_REFERER'], Config::$scripturl) !== 0) {
+			// And that is the whole answer. Carrying on would send the status
+			// and then the very thing it was refusing.
 			Utils::sendHttpStatus(403);
+
+			Utils::obExit(false);
 		}
 
 		// This is XML!
@@ -362,6 +371,7 @@ class Register implements ActionInterface, Routable
 		Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 
 		$errors = Security::validateUsername(0, Utils::$context['checked_username'], true);
+		Utils::$context['checked_username'] = Utils::htmlspecialchars(Utils::$context['checked_username']);
 
 		Utils::$context['valid_username'] = empty($errors);
 	}

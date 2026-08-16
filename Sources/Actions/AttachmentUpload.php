@@ -167,7 +167,28 @@ class AttachmentUpload implements ActionInterface, Routable
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
-		if (!$attachID || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID]))) {
+		if (checkSession('get', '', false) !== '' || $attachID === 0) {
+			$this->setResponse([
+				'text' => 'attached_file_deleted_error',
+				'type' => 'error',
+				'data' => false,
+			]);
+
+			return;
+		}
+
+		$msgInfo = Attachment::getAttachMsgInfo($attachID);
+
+		$can_modify = false;
+
+		if ($msgInfo !== [] && $msgInfo['msg'] > 0) {
+			$can_modify = $msgInfo !== [] && !User::$me->is_guest && (!$msgInfo['is_locked'] || allowedTo('moderate_board')) && (allowedTo('modify_any') || (allowedTo('modify_replies') && $msgInfo['id_member_started'] == User::$me->id) || (allowedTo('modify_own') && $msgInfo['id_member'] == User::$me->id && (empty($modSettings['edit_disable_time']) || !$msgInfo['approved'] || $msgInfo['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time())));
+		} elseif ($msgInfo !== [] && $msgInfo['msg'] == 0) {
+			$can_modify = !empty($_SESSION['already_attached']) && isset($_SESSION['already_attached'][$attachID]);
+		}
+
+		// Need something to work with.
+		if (!$can_modify) {
 			$this->setResponse([
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',

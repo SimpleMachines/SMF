@@ -39,8 +39,7 @@ function template_control_richedit(string $editor_id, bool|string|null $smiley_c
 	$editor_context = Editor::$loaded[$editor_id];
 
 	echo '
-		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
-		<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
+		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
 		<script>
 			document.addEventListener("DOMContentLoaded", function () {
@@ -90,18 +89,7 @@ function template_control_richedit_buttons(string $editor_id): void
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="', Theme::$current->settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave"></span>
-		</span>
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_draft\',
-				sSceditorID: \'', $editor_id, '\',
-				sType: \'post\',
-				bPM: ', isset(Utils::$context['drafts_type']) && Utils::$context['drafts_type'] === 'pm' ? 'true' : 'false', ',
-				iBoard: ', (Utils::$context['current_board'] ?? 0), ',
-				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
-			});
-		</script>';
+		</span>';
 	}
 }
 

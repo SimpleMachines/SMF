@@ -745,7 +745,7 @@ class Feed implements ActionInterface, Routable
 				ORDER BY t.id_first_msg {raw:ascdesc}
 				LIMIT {int:limit}',
 				[
-					'current_board' => Board::$info->id,
+					'current_board' => isset(Board::$info) ? Board::$info->id : 0,
 					'is_approved' => 1,
 					'limit' => $this->limit,
 					'optimize_msg' => $optimize_msg,

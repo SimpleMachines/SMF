@@ -76,9 +76,9 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Cache for the results of self::isFetchSafe()
+	 * Cache for the results of self::makeSafe()
 	 */
-	private static array $safe_hosts = [];
+	private static array $resolved_hosts = [];
 
 	/****************
 	 * Public methods
@@ -137,7 +137,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 
 		// SSRF guard: refuse loopback/private/link-local/reserved targets and
 		// non-fetchable schemes before any connection is attempted.
-		if (!self::isFetchSafe($url)) {
+		if (($url = WebFetchApi::makeSafe($url)) === null) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return false;
@@ -146,7 +146,8 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		// No scheme? No data for you!
 		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
-			$data = false;
+
+			return false;
 		}
 
 		if (isset(self::$still_alive[(string) $url])) {
@@ -193,7 +194,9 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	}
 
 	/**
-	 * Decides whether a URL is safe to fetch from the server.
+	 * Checks whether a URL is safe to fetch from the server, and then returns
+	 * either a version of the URL where the host has been resolved to a literal
+	 * IP address, or else null if the URL was unsafe to fetch.
 	 *
 	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
 	 * host resolves (or is) a non-global IP address: loopback, private,
@@ -207,64 +210,62 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 *    If empty, all schemes that have handlers are allowed. Otherwise, only
 	 *    URLs using the one of the specified schemes will be allowed.
 	 *    Default: []
-	 * @return bool True if the URL is safe to fetch, false otherwise.
+	 * @return ?Url A version of $url where the host has been resolved to a
+	 *    literal IP address, or else null if the URL was unsafe to fetch.
 	 */
-	public static function isFetchSafe(Url $url, array $allowed_schemes = []): bool
+	public static function makeSafe(Url $url, array $allowed_schemes = []): ?Url
 	{
-		// Only known fetchable schemes.
+		$url->toAscii();
+
 		if (
+			// Only known fetchable schemes.
 			empty($url->scheme)
 			|| !isset(self::$scheme_handlers[$url->scheme])
 			|| (!empty($allowed_schemes) && !\in_array($url->scheme, $allowed_schemes))
-		) {
-			return false;
-		}
-
-		if (
 			// Must have a host.
-			empty($url->host)
+			|| empty($url->host)
 			// Reject reserved TLDs, since they are never in public DNS.
 			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $url->host)
 		) {
-			return false;
+			return null;
 		}
 
 		// Avoid unnecessary repetition.
-		if (isset(self::$safe_hosts[$url->host])) {
-			return self::$safe_hosts[$url->host];
-		}
-
-		// Resolve the host to its address(es). A literal IP resolves to itself.
-		$ips = [];
-
-		if (filter_var($url->host, FILTER_VALIDATE_IP) !== false) {
-			$ips[] = $url->host;
-		} else {
-			$records = @dns_get_record($url->host, DNS_A | DNS_AAAA);
-
-			foreach ((array) $records as $record) {
-				if (!empty($record['ip'])) {
-					$ips[] = $record['ip'];
-				}
-
-				if (!empty($record['ipv6'])) {
-					$ips[] = $record['ipv6'];
-				}
+		if (isset(self::$resolved_hosts[$url->host])) {
+			if (empty(self::$resolved_hosts[$url->host])) {
+				return null;
 			}
+
+			return new Url(
+				preg_replace(
+					'/' . preg_quote($url->host) . '/',
+					self::$resolved_hosts[$url->host][0],
+					(string) $url,
+					1,
+				),
+			);
 		}
 
-		if (
-			// Couldn't resolve to anything: refuse rather than guess.
-			$ips === []
-			// EVERY resolved address must be a global, public, unicast IP.
-			|| $ips !== array_filter($ips, fn($ip) => IP::create($ip)->isValid(FILTER_FLAG_GLOBAL_RANGE))
-		) {
-			self::$safe_hosts[$url->host] = false;
+		self::$resolved_hosts[$url->host] = array_values(array_map(
+			fn($ip) => $ip->isValid(FILTER_FLAG_IPV6) ? '[' . (string) $ip . ']' : (string) $ip,
+			array_filter(
+				$url->getIPs(),
+				fn($ip) => $ip->isValid(FILTER_FLAG_GLOBAL_RANGE),
+			),
+		));
+
+		if (empty(self::$resolved_hosts[$url->host])) {
+			return null;
 		}
 
-		self::$safe_hosts[$url->host] ??= true;
-
-		return self::$safe_hosts[$url->host];
+		return new Url(
+			preg_replace(
+				'/' . preg_quote($url->host) . '/',
+				self::$resolved_hosts[$url->host][0],
+				(string) $url,
+				1,
+			),
+		);
 	}
 
 	/******************

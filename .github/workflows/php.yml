@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf #4.2.2
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -45,7 +45,7 @@ jobs:
 
     name: PHP ${{ matrix.php }} Syntax Check
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
     - name: Get PHP version
       id: php-version
@@ -55,7 +55,7 @@ jobs:
         echo "version=${PHP_VERSION}" >> $GITHUB_OUTPUT
 
     - name: Setup PHP ${{ matrix.php }}
-      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 #2.32.0
+      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 #2.37.2
       if: ${{ matrix.php != steps.php-version.outputs.version }}
       with:
         php-version: ${{ matrix.php }}
@@ -63,7 +63,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf #4.2.2
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -79,6 +79,6 @@ jobs:
 
     - name: Check PHP syntax errors
       if: ${{ matrix.php != 8 }}
-      uses: overtrue/phplint@e2ebdbac93fa6ffe45d724e350f77df34c1f8fb4 #9.6.2
+      uses: overtrue/phplint@f9d3fb3c6b6af49fce0fa8d712da1c38da41fe65 #9.7.2
       with:
         options: --exclude .git --exclude vendor
