@@ -1382,8 +1382,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
-		$cols = $this->list_columns($table_name, true);
-
 		foreach ($index_info['columns'] as &$c) {
 			if (\is_array($c)) {
 				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
