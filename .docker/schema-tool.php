@@ -270,7 +270,7 @@ function read_mysql(string $host, int $port, string $db, string $user, string $p
 
 	$link->close();
 
-	return finish($tables, $settings, []);
+	return finish($tables, $settings, [], []);
 }
 
 /**
@@ -347,15 +347,21 @@ function read_postgresql(string $host, int $port, string $db, string $user, stri
 	// order; indkey is an int2vector, and reading it any other way sorts the
 	// columns alphabetically, which would make (id_group, id_board) and
 	// (id_board, id_group) look like the same index. They are not.
+	//
+	// pg_get_indexdef() per key rather than a join to pg_attribute, because an
+	// index on an expression stores 0 in indkey and has no pg_attribute row to
+	// join to. Joining loses those keys, and an index every one of whose keys
+	// is an expression disappears entirely -- which is three of them on a
+	// stock install, idx_member_name_low and idx_real_name_low among them.
 	$rows = query_postgresql($link, '
 		SELECT c.relname AS table_name, i.relname AS index_name,
-			ix.indisunique, ix.indisprimary, a.attname
+			ix.indisunique, ix.indisprimary,
+			pg_get_indexdef(ix.indexrelid, k.ord::int, true) AS keydef
 		FROM pg_index AS ix
 			INNER JOIN pg_class AS c ON (c.oid = ix.indrelid)
 			INNER JOIN pg_class AS i ON (i.oid = ix.indexrelid)
 			INNER JOIN pg_namespace AS n ON (n.oid = c.relnamespace)
 			CROSS JOIN LATERAL unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord)
-			INNER JOIN pg_attribute AS a ON (a.attrelid = c.oid AND a.attnum = k.attnum)
 		WHERE n.nspname = \'public\'
 		ORDER BY c.relname, i.relname, k.ord', []);
 
@@ -374,7 +380,22 @@ function read_postgresql(string $host, int $port, string $db, string $user, stri
 			'columns' => [],
 		];
 
-		$tables[$table]['indexes'][$index]['columns'][] = $row['attname'];
+		$tables[$table]['indexes'][$index]['columns'][] = $row['keydef'];
+	}
+
+	// SMF's compatibility layer: find_in_set(), instr(), from_unixtime() and
+	// the rest of the MySQL shims, plus the group_concat aggregate. A query
+	// naming one of these fails outright if the install never created it, so
+	// they belong in the reading as much as the tables do.
+	$routines = [];
+
+	foreach (query_postgresql($link, '
+		SELECT p.proname || \'(\' || pg_get_function_arguments(p.oid) || \')\' AS signature
+		FROM pg_proc AS p
+			INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+		WHERE n.nspname = \'public\'
+		ORDER BY signature', []) as $row) {
+		$routines[] = $row['signature'];
 	}
 
 	$sequences = [];
@@ -397,7 +418,7 @@ function read_postgresql(string $host, int $port, string $db, string $user, stri
 
 	pg_close($link);
 
-	return finish($tables, $settings, $sequences);
+	return finish($tables, $settings, $sequences, $routines);
 }
 
 /**
@@ -432,7 +453,7 @@ function postgresql_type(array $row): string
  * @param array $sequences
  * @return array
  */
-function finish(array $tables, array $settings, array $sequences): array
+function finish(array $tables, array $settings, array $sequences, array $routines): array
 {
 	ksort($tables);
 	sort($settings);
@@ -445,6 +466,7 @@ function finish(array $tables, array $settings, array $sequences): array
 	return [
 		'tables' => $tables,
 		'sequences' => $sequences,
+		'routines' => $routines,
 		'settings' => $settings,
 	];
 }
@@ -534,6 +556,7 @@ function cmd_diff(array $files): int
 
 	if ($a['engine'] === 'postgresql') {
 		compare_lists('Sequences', $a['sequences'], $b['sequences'], $right, $schema);
+		compare_lists('Functions', $a['routines'] ?? [], $b['routines'] ?? [], $right, $schema);
 	}
 
 	compare_lists('Settings', $a['settings'], $b['settings'], $right, $aside);

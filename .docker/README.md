@@ -302,6 +302,16 @@ rather than comparing anyway. A half-upgraded database differs from a fresh
 install in hundreds of places, all of them the honest consequence of the
 migrations that never ran, and none of them worth reading.
 
+On PostgreSQL the reading also covers sequences and the compatibility functions
+SMF installs — `find_in_set()`, `instr()`, the `group_concat` aggregate and the
+rest. A query naming one of those fails outright when it is not there, so a
+missing function counts as a schema difference like a missing column does.
+
+The reading was checked against `pg_dump --schema-only` of the same database:
+72 tables, 113 indexes, 69 primary keys, 41 sequences and 19 functions, the
+same on both sides. The only things `pg_dump` reports that this does not are
+the `public` schema itself and the comment on it.
+
 The tool underneath is usable on its own, against any two SMF databases on the
 same engine — two forums you already have, or the same forum before and after
 something you are testing:
