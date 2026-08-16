@@ -698,7 +698,7 @@ class Category implements \ArrayAccess
 			'COALESCE(b.id_board, 0) AS id_board', 'b.name', 'b.description',
 			'b.id_parent', 'b.child_level', 'b.board_order', 'b.redirect',
 			'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
-			'b.id_theme', 'b.override_theme', 'b.count_posts', 'b.num_posts',
+			'b.id_theme', 'b.override_theme', 'b.posts_count', 'b.num_posts',
 			'b.num_topics', 'c.id_cat', 'c.cat_order', 'c.can_collapse',
 			'c.name AS cat_name', 'c.description AS cat_desc',
 		];

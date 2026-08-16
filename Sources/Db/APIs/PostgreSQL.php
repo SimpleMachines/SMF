@@ -326,6 +326,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
+		$db_string = $this->backcompatQuoteFixes($db_string);
+
 		return $db_string;
 	}
 
@@ -462,6 +464,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$returning = ' RETURNING ' . $keys[0];
 			$with_returning = true;
 		}
+
+		// Apply any adjustments needed for backward compatibility.
+		[$columns, $data, $keys] = $this->backcompatInsertFixes($table, $columns, $data, $keys);
 
 		if (!empty($data)) {
 			// Create the mold for a single row insert.
@@ -1377,8 +1382,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
-		$cols = $this->list_columns($table_name, true);
-
 		foreach ($index_info['columns'] as &$c) {
 			if (\is_array($c)) {
 				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
@@ -2795,6 +2798,103 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// We reached a impossible location, but static anlaysis doesnt know that.
 		throw new \Exception();
+	}
+
+	/**
+	 * Helper for $this->quote() that makes any changes to the query string that
+	 * might be required for backward compatibility support.
+	 *
+	 * Assumes $db_string has already been processed by replacement_callback().
+	 *
+	 * @param string $db_string The database query string.
+	 * @return string Possibly modified version of $db_string.
+	 */
+	protected function backcompatQuoteFixes(string $db_string): string
+	{
+		if (empty(Config::$backward_compatibility)) {
+			return $db_string;
+		}
+
+		// Prior to SMF 3.0, the boards table contained a 'count_posts' column
+		// that used inverted logic (i.e. 0 = true, 1 = false). That column was
+		// replaced in 3.0 with a 'posts_count' column that uses normal logic
+		// (i.e. 0 = false, 1 = true). This code detects references to the old
+		// column and replaces them with references to the new column.
+		if (
+			str_contains($db_string, 'count_posts')
+			&& preg_match('/\b' . preg_quote(Config::$db_prefix) . 'boards\b(?:\s+AS\s+(\w+))?/i', $db_string, $matches)
+		) {
+			$old_col = (!empty($matches[1]) ? '(?:' . $matches[1] . '\.)?' : '') . 'count_posts';
+			$new_col = (!empty($matches[1]) ? $matches[1] . '.' : '') . 'posts_count';
+
+			$db_string = preg_replace_callback_array(
+				[
+					'/(\bSELECT\b(?:.(?!\bFROM\b))*)((?<![\w.])' . $old_col . '\b)/s' => fn($m) => $m[1] . $new_col . ', (1 - ' . $new_col . ') AS ' . md5('count_posts'),
+					'/(?<![\w.])' . $old_col . '\s*(!=|<(?:=|>)?|=|>=?)\s*([01])\b/' => function ($m) use ($new_col) {
+						$m[1] = match ($m[1]) {
+							'>' => '<',
+							'>=' => '<=',
+							'<' => '>',
+							'<=' => '>=',
+							default => $m[1],
+						};
+
+						return $new_col . ' ' . $m[1] . ' ' . ((int) !$m[2]);
+					},
+					'/(?<![\w.])' . $old_col . '\b/' => fn($m) => $new_col,
+					'/' . md5('count_posts') . '/' => fn($m) => 'count_posts',
+				],
+				$db_string,
+			);
+		}
+
+		return $db_string;
+	}
+
+	/**
+	 * Helper for $this->insert() that makes any changes to the columns, data,
+	 * and/or keys that might be required for backward compatibility support.
+	 *
+	 * @param string $table The table.
+	 * @param array $columns Array of the columns we're inserting the data into.
+	 *    Should contain 'column' => 'datatype' pairs.
+	 * @param array $data Rows of data to insert. Each element of $data must
+	 *    be an array of values corresponding to $columns.
+	 * @param array $keys The keys for the table.
+	 * @return array Updated versions $columns, $data, and $keys.
+	 */
+	protected function backcompatInsertFixes(string $table, array $columns, array $data, array $keys): array
+	{
+		if (empty(Config::$backward_compatibility)) {
+			return [$columns, $data, $keys];
+		}
+
+		// Prior to SMF 3.0, the boards table contained a 'count_posts' column
+		// that used inverted logic (i.e. 0 = true, 1 = false). That column was
+		// replaced in 3.0 with a 'posts_count' column that uses normal logic
+		// (i.e. 0 = false, 1 = true). This code detects references to the old
+		// column and replaces them with references to the new column.
+		if ($table === $this->prefix . 'boards') {
+			if (isset($columns['count_posts'])) {
+				$pos = array_search('count_posts', array_keys($columns));
+
+				foreach ($data as $row_num => $row) {
+					$data[$row_num][$pos] = (int) !$row[$pos];
+				}
+
+				$columns = array_merge(
+					\array_slice($columns, 0, $pos),
+					['posts_count' => 'int'],
+					\array_slice($columns, $pos + 1),
+				);
+			}
+
+			if (\in_array('count_posts', $keys)) {
+				$keys[array_search('count_posts', $keys)] = 'posts_count';
+			}
+		}
+
+		return [$columns, $data, $keys];
 	}
 
 	/**

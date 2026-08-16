@@ -89,7 +89,7 @@ interface DatabaseApiInterface
 	 * returns the resulting IDs.
 	 *
 	 * @param string $method INSERT or REPLACE.
-	 * @param string $table The table (only used for Postgres).
+	 * @param string $table The table.
 	 * @param array $columns Array of the columns we're inserting the data into.
 	 *    Should contain 'column' => 'datatype' pairs.
 	 * @param array $data Rows of data to insert. Each element of $data must
