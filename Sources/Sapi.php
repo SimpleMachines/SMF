@@ -334,19 +334,28 @@ class Sapi
 	/**
 	 * Helper function to convert memory string settings to bytes
 	 *
-	 * @param string $val The byte string, like '256M' or '1G'.
+	 * The shorthand notation PHP accepts for these settings is optional, so the
+	 * value may be a plain byte count with no designator at all.
+	 *
+	 * A negative value means there is no limit, which is reported as PHP_INT_MAX
+	 * so that callers comparing it against an amount of memory they need do not
+	 * have to special case it.
+	 *
+	 * @param string $val The byte string, like '256M', '1G' or '2097152'.
 	 * @return int The string converted to a proper integer in bytes.
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (\is_integer($val)) {
-			return (int) $val;
+		$val = trim($val);
+
+		// No limit at all.
+		if ((int) $val < 0) {
+			return PHP_INT_MAX;
 		}
 
-		// Separate the number from the designator.
-		$val = trim($val);
-		$num = \intval(substr($val, 0, \strlen($val) - 1));
+		// Separate the number from the designator, if there is one.
 		$last = strtolower(substr($val, -1));
+		$num = \in_array($last, ['g', 'm', 'k'], true) ? (int) substr($val, 0, -1) : (int) $val;
 
 		// Convert to bytes.
 		switch ($last) {

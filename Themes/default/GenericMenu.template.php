@@ -152,14 +152,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 	if (!empty($tab_context['title'])) {
 		echo '
-					<div class="cat_bar">';
-
-		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
-		if (function_exists('template_admin_quick_search')) {
-			template_admin_quick_search();
-		}
-
-		echo '
+					<div class="cat_bar">
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
@@ -235,7 +228,17 @@ function template_generic_menu_tabs(&$menu_context)
 		}
 
 		echo '
-						</h3>
+						</h3>';
+
+		// The function is in Admin.template.php, but since this template is used
+		// elsewhere too better check if the function is available. It goes after
+		// the heading: .cat_bar is a flex row, so the search box lands at the end
+		// of it by being last, not by floating.
+		if (function_exists('template_admin_quick_search')) {
+			template_admin_quick_search();
+		}
+
+		echo '
 					</div><!-- .cat_bar -->';
 	}
 
@@ -248,18 +251,31 @@ function template_generic_menu_tabs(&$menu_context)
 	}
 
 	// Print out all the items in this tab (if any).
-	if (!empty(Utils::$context['tabs'])) {
+	// What gets drawn below is $tab_context['tabs'], and that is only assembled
+	// above when this menu has a title of its own. Utils::$context['tabs'] is
+	// set as a side effect of drawing the menu, so it can be full while this
+	// one is still empty, which produced an empty menu on those pages.
+	// Labels arrive from the loop above, and it only runs over the areas the
+	// menu itself knows about, so a page that forces tabs of its own can leave
+	// some without one. Those cannot be drawn, so they do not count towards
+	// having anything to draw either. Same treatment the areas above get.
+	$drawable_tabs = array_filter(
+		$tab_context['tabs'] ?? [],
+		fn($tab) => empty($tab['disabled']) && !empty($tab['label']),
+	);
+
+	if (!empty($drawable_tabs)) {
 		// The admin tabs.
 		echo '
 					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
 						<span class="menu_icon"></span>
-						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '</span>
+						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General'), '</span>
 					</a>
 					<div id="adm_submenus">
 						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
-									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '
+									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General'), '
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 								</div>';
 
@@ -267,11 +283,7 @@ function template_generic_menu_tabs(&$menu_context)
 								<div class="generic_menu">
 									<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
 
-		foreach ($tab_context['tabs'] as $sa => $tab) {
-			if (!empty($tab['disabled'])) {
-				continue;
-			}
-
+		foreach ($drawable_tabs as $sa => $tab) {
 			if (!empty($tab['is_selected'])) {
 				echo '
 										<li>

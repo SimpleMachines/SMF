@@ -111,7 +111,7 @@ class TopicSplit implements ActionInterface, Routable
 		User::$me->isAllowedTo('split_any');
 
 		// Load up the "dependencies" - the template and getMsgMemberID().
-		Theme::loadTemplate(!isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
+		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
 
 		$call = \is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
@@ -299,7 +299,7 @@ class TopicSplit implements ActionInterface, Routable
 		Utils::$context['sub_template'] = isset($_REQUEST['xml']) ? 'split' : 'select';
 
 		// Are we using a custom messages per page?
-		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		Utils::$context['messages_per_page'] = (int) (empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages']);
 
 		// Get the message ID's from before the move.
 		if (isset($_REQUEST['xml'])) {
@@ -412,7 +412,7 @@ class TopicSplit implements ActionInterface, Routable
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			Utils::$context[empty($row['is_selected']) || $row['is_selected'] == 'f' ? 'not_selected' : 'selected']['num_messages'] = $row['num_messages'];
+			Utils::$context[empty($row['is_selected']) || $row['is_selected'] == 'f' ? 'not_selected' : 'selected']['num_messages'] = (int) $row['num_messages'];
 		}
 		Db::$db->free_result($request);
 
@@ -648,8 +648,8 @@ class TopicSplit implements ActionInterface, Routable
 			ErrorHandler::fatalLang('selected_all_posts', false);
 		}
 
-		$split1_first_msg = null;
-		$split1_last_msg = null;
+		$split1_first_msg = 0;
+		$split1_last_msg = 0;
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Get the right first and last message dependent on approved state...
@@ -696,6 +696,13 @@ class TopicSplit implements ActionInterface, Routable
 				'id_topic' => $split1_ID_TOPIC,
 			],
 		);
+
+		// Nothing comes back if the messages have already been moved elsewhere,
+		// which is what a resubmitted split looks like. Start these at 0 so the
+		// sanity check below is what answers that, rather than the two
+		// getMsgMemberID() calls that come before it.
+		$split2_first_msg = 0;
+		$split2_last_msg = 0;
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// As before get the right first and last message dependent on approved state...

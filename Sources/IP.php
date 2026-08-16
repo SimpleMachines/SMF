@@ -64,16 +64,18 @@ class IP implements \Stringable
 	 ****************************/
 
 	/**
+	 * @var IP|string|null
+
 	 * IP of the current user. Typically filled with $_SERVER['REMOTE_ADDR']
 	 * or a IP supplied by a reverse proxy.
-	 * @var IP|string|null
 	 */
 	private static ?string $user_ip = null;
 
 	/**
+	 * @var IP|string|null
+
 	 * The alternative IP of a user. Typically filled with $_SERVER['REMOTE_ADDR']
 	 * Used to check the IP in cases where a reverse proxy supplied us the main ip.
-	 * @var IP|string|null
 	 */
 	private static ?string $user_ip_alternative = null;
 
@@ -230,7 +232,7 @@ class IP implements \Stringable
 
 		// If all attempts failed, use the IP address.
 		if (empty($host)) {
-			$host = $this->ip;
+			$host = $this->isValid(FILTER_FLAG_IPV6) ? '[' . $this->ip . ']' : $this->ip;
 		}
 
 		// Set it.
@@ -256,38 +258,44 @@ class IP implements \Stringable
 		$ip_address = $this->ip;
 
 		// v6?
-		if ((str_contains($cidr_network, ':'))) {
-			if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+		if (str_contains($cidr_network, ':')) {
+			if (
+				!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)
+				|| !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)
+			) {
 				return false;
 			}
 
 			$ip_address = inet_pton($ip_address);
 			$cidr_network = inet_pton($cidr_network);
-			$binMask = str_repeat('f', (int) $cidr_subnetmask / 4);
+			$bin_mask = str_repeat('f', (int) $cidr_subnetmask / 4);
 
 			switch ($cidr_subnetmask % 4) {
 				case 0:
 					break;
 
 				case 1:
-					$binMask .= '8';
+					$bin_mask .= '8';
 					break;
 
 				case 2:
-					$binMask .= 'c';
+					$bin_mask .= 'c';
 					break;
 
 				case 3:
-					$binMask .= 'e';
+					$bin_mask .= 'e';
 					break;
 			}
-			$binMask = str_pad($binMask, 32, '0');
-			$binMask = pack('H*', $binMask);
 
-			return ($ip_address & $binMask) == $cidr_network;
+			$bin_mask = str_pad($bin_mask, 32, '0');
+			$bin_mask = pack('H*', $bin_mask);
+		} else {
+			$ip_address = ip2long($ip_address);
+			$cidr_network = ip2long($cidr_network);
+			$bin_mask = ~((1 << (32 - $cidr_subnetmask)) - 1);
 		}
 
-		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+		return ($ip_address & $bin_mask) == $cidr_network;
 	}
 
 	/***********************
@@ -385,8 +393,8 @@ class IP implements \Stringable
 			// It works best to split on the range marker and then figure out the parts.
 			list($range[0], $range[1]) = explode('-', $addr);
 
-			$valid_low = filter_var(strtr($range[0], ['*' => $min]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
-			$valid_high = filter_var(strtr($range[1], ['*' => $max]), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+			$valid_low = filter_var(strtr($range[0], ['*' => $min]), FILTER_VALIDATE_IP) !== false;
+			$valid_high = filter_var(strtr($range[1], ['*' => $max]), FILTER_VALIDATE_IP) !== false;
 
 			// Range marker is between two valid IP addresses.
 			if ($valid_low && $valid_high) {

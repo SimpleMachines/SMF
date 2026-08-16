@@ -2186,7 +2186,11 @@ class User implements \ArrayAccess
 				$_GET['action'] = '';
 				$_GET['board'] = '';
 				$_GET['topic'] = '';
-				unset(Topic::$topic_id, Topic::$info, Board::$board_id, Board::$info);
+				// These are static, so they have to be cleared, not unset.
+				Topic::$topic_id = null;
+				Topic::$info = null;
+				Board::$board_id = null;
+				Board::$info = null;
 
 				$this->logOnline(true);
 			}
@@ -2215,7 +2219,7 @@ class User implements \ArrayAccess
 				} else {
 					$message .= '<br>' . Lang::getTxt(
 						'your_ban_expires',
-						[Time::create('@' . $bans['expire_time'])->format(null, false)],
+						['datetime' => Time::create('@' . $bans['expire_time'])->format(null, false)],
 						file: 'General',
 					);
 				}
