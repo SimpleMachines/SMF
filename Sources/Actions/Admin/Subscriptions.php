@@ -495,7 +495,7 @@ class Subscriptions implements ActionInterface
 						'mem.additional_groups',
 					],
 					'joins' => [
-						'{db_prefix}log_subscribed AS ls ON (ls.id_member = mem.id_member)',
+						'INNER JOIN {db_prefix}log_subscribed AS ls ON (ls.id_member = mem.id_member)',
 					],
 					'where' => [
 						'ls.id_subscribe = {int:current_subscription}',

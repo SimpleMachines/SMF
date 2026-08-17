@@ -1517,11 +1517,11 @@ class Topic implements \ArrayAccess, Routable
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 				WHERE m.id_topic IN ({array_int:topics})' . (!empty($recycle_board) ? '
 					AND m.id_board != {int:recycled_board}' : '') . '
-					AND b.count_posts = {int:do_count_posts}
+					AND b.posts_count = {int:do_count_posts}
 					AND m.approved = {int:is_approved}
 				GROUP BY m.id_member',
 				[
-					'do_count_posts' => 0,
+					'do_count_posts' => 1,
 					'recycled_board' => $recycle_board,
 					'topics' => $topics,
 					'is_approved' => 1,

@@ -671,7 +671,7 @@ class QuickModeration implements ActionInterface, Routable
 		$countPosts = [];
 
 		$request = Db::$db->query(
-			'SELECT t.id_topic, t.id_board, b.count_posts
+			'SELECT t.id_topic, t.id_board, b.posts_count
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('move_any') ? '
@@ -692,7 +692,7 @@ class QuickModeration implements ActionInterface, Routable
 			}
 
 			// Does this topic's board count the posts or not?
-			$countPosts[(int) $row['id_topic']] = empty($row['count_posts']);
+			$countPosts[(int) $row['id_topic']] = !empty($row['posts_count']);
 
 			if (!isset($moveTos[$to])) {
 				$moveTos[$to] = [];
@@ -716,7 +716,7 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($moveTos)) {
 			$topicRecounts = [];
 			$request = Db::$db->query(
-				'SELECT id_board, count_posts
+				'SELECT id_board, posts_count
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:move_boards})',
 				[
@@ -725,7 +725,7 @@ class QuickModeration implements ActionInterface, Routable
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				$cp = empty($row['count_posts']);
+				$cp = !empty($row['posts_count']);
 
 				// Go through all the topics that are being moved to this board.
 				foreach ($moveTos[(int) $row['id_board']] as $topic) {
@@ -740,7 +740,7 @@ class QuickModeration implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			if (!empty($topicRecounts)) {
-				$members = [];
+				$adjustments = [];
 
 				// Get all the members who have posted in the moved topics.
 				$request = Db::$db->query(
@@ -754,22 +754,22 @@ class QuickModeration implements ActionInterface, Routable
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (!isset($members[$row['id_member']])) {
-						$members[(int) $row['id_member']] = 0;
+					if (!isset($adjustments[$row['id_member']])) {
+						$adjustments[(int) $row['id_member']] = 0;
 					}
 
 					if ($topicRecounts[(int) $row['id_topic']] === '+') {
-						$members[(int) $row['id_member']]++;
+						$adjustments[(int) $row['id_member']]++;
 					} else {
-						$members[(int) $row['id_member']]--;
+						$adjustments[(int) $row['id_member']]--;
 					}
-
-					$members[(int) $row['id_member']] = max(0, $members[(int) $row['id_member']]);
 				}
 				Db::$db->free_result($request);
 
 				// And now update the member's post counts.
-				foreach ($members as $id => $post_adj) {
+				$members = [];
+
+				foreach ($adjustments as $id => $post_adj) {
 					$members[$id] = current(User::load($id, dataset: UserDataset::Minimal));
 
 					if ($members[$id] instanceof User) {

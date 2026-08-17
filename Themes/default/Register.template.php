@@ -652,7 +652,7 @@ function template_edit_agreement()
 						<a href="" onclick="return false;" class="modified">', Utils::$context['agreement_info'], '</a>
 						<div id="edit_history_list_' . Utils::$context['current_agreement'] . '" class="edit_history_list">
 							<div class="edit_history_count">
-								' . Lang::getTxt('edit_history_count', [count(Utils::$context['agreement_history'])], file: 'Agreement') . '
+								' . Lang::getTxt('edit_history_count', [count(Utils::$context['agreement_history'])], file: 'General') . '
 							</div>
 							<ol>';
 
@@ -795,7 +795,7 @@ function template_edit_privacy_policy()
 					<a href="" onclick="return false;" class="modified">', Utils::$context['privacy_policy_info'], '</a>
 					<div id="edit_history_list_' . Utils::$context['current_policy_lang'] . '" class="edit_history_list">
 						<div class="edit_history_count">
-							' . Lang::getTxt('edit_history_count', [count(Utils::$context['privacy_policy_history'])], file: 'Agreement') . '
+							' . Lang::getTxt('edit_history_count', [count(Utils::$context['privacy_policy_history'])], file: 'General') . '
 						</div>
 						<ol>';
 

@@ -72,7 +72,7 @@ class TopicRestore implements ActionInterface, Routable
 			// Get the id_previous_board and id_previous_topic.
 			$request = Db::$db->query(
 				'SELECT m.id_topic, m.id_msg, m.id_board, m.subject, m.id_member, t.id_previous_board, t.id_previous_topic,
-					t.id_first_msg, b.count_posts, COALESCE(pt.id_board, 0) AS possible_prev_board
+					t.id_first_msg, b.posts_count, COALESCE(pt.id_board, 0) AS possible_prev_board
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -106,7 +106,7 @@ class TopicRestore implements ActionInterface, Routable
 				if (empty($actioned_messages[$row['id_previous_topic']])) {
 					$actioned_messages[$row['id_previous_topic']] = [
 						'msgs' => [],
-						'count_posts' => $row['count_posts'],
+						'posts_count' => $row['posts_count'],
 						'subject' => $row['subject'],
 						'previous_board' => $row['id_previous_board'],
 						'possible_prev_board' => $row['possible_prev_board'],
@@ -166,7 +166,7 @@ class TopicRestore implements ActionInterface, Routable
 
 				// Move the posts back then!
 				if (isset($previous_topics[$topic])) {
-					self::mergePosts(array_keys($data['msgs']), $data['current_topic'], $topic);
+					self::mergePosts(array_keys($data['msgs']), (int) $data['current_topic'], (int) $topic);
 					// Log em.
 					Logging::logAction('restore_posts', ['topic' => $topic, 'subject' => $previous_topics[$topic]['subject'], 'board' => empty($data['previous_board']) ? $data['possible_prev_board'] : $data['previous_board']]);
 					$messages = array_merge(array_keys($data['msgs']), $messages);
@@ -212,17 +212,17 @@ class TopicRestore implements ActionInterface, Routable
 
 				// Lets see if the board that we are returning to has post count enabled.
 				$request2 = Db::$db->query(
-					'SELECT count_posts
+					'SELECT posts_count
 					FROM {db_prefix}boards
 					WHERE id_board = {int:board}',
 					[
 						'board' => $row['id_previous_board'],
 					],
 				);
-				list($count_posts) = Db::$db->fetch_row($request2);
+				list($posts_count) = Db::$db->fetch_row($request2);
 				Db::$db->free_result($request2);
 
-				if (empty($count_posts)) {
+				if (!empty($posts_count)) {
 					$members = [];
 
 					// Lets get the members that need their post count restored.
@@ -313,7 +313,7 @@ class TopicRestore implements ActionInterface, Routable
 
 		// Get some target topic and board stats.
 		$request = Db::$db->query(
-			'SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts, b.count_posts
+			'SELECT t.id_board, t.id_first_msg, t.num_replies, t.unapproved_posts, b.posts_count
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:target_topic}',
@@ -321,15 +321,17 @@ class TopicRestore implements ActionInterface, Routable
 				'target_topic' => $target_topic,
 			],
 		);
-		list($target_board, $target_first_msg, $target_replies, $target_unapproved_posts, $count_posts) = Db::$db->fetch_row($request);
+		list($target_board, $target_first_msg, $target_replies, $target_unapproved_posts, $posts_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Lets see if the board that we are returning to has post count enabled.
-		if (empty($count_posts)) {
+		if (!empty($posts_count)) {
 			// Lets get the members that need their post count restored.
 			$members = User::loadCustom(
 				query_customizations: [
-					'joins' => ['{db_prefix}messages AS m ON (m.id_member = mem.id_member)'],
+					'joins' => [
+						'INNER JOIN {db_prefix}messages AS m ON (m.id_member = mem.id_member)',
+					],
 					'where' => [
 						'm.id_msg IN ({array_int:messages})',
 						'm.approved = {int:is_approved}',

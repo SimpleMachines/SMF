@@ -148,11 +148,11 @@ class Boards extends Table
 				not_null: true,
 				default: 0,
 			),
-			'count_posts' => new Column(
-				name: 'count_posts',
+			'posts_count' => new Column(
+				name: 'posts_count',
 				type: 'tinyint',
 				not_null: true,
-				default: 0,
+				default: 1,
 			),
 			'id_theme' => new Column(
 				name: 'id_theme',

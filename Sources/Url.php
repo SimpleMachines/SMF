@@ -636,7 +636,15 @@ class Url implements \Stringable
 	 */
 	public function isScheme(string|array $scheme): bool
 	{
-		return !empty($this->scheme) && \in_array($this->scheme, array_map('strval', (array) $scheme));
+		if (empty($this->scheme)) {
+			return false;
+		}
+
+		return \in_array(
+			strtolower($this->scheme),
+			array_map(fn($s) => strtolower((string) $s), (array) $scheme),
+			true,
+		);
 	}
 
 	/**

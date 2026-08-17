@@ -180,6 +180,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
 			Migration\v3_0\PermissionChanges::class,
+			Migration\v3_0\BoardPostsCount::class,
 		],
 	];
 
@@ -795,7 +796,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 		) {
 			if (!SecurityToken::validate('login', 'post', false)) {
-				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Maintenance');
+				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Errors');
 				Maintenance::$context += SecurityToken::create('login');
 
 				return false;
