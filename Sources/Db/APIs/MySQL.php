@@ -2278,6 +2278,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
+		// The list_indexes() method will report the name of the primary key as
+		// 'primary' on MySQL and 'pkey' on PostgreSQL. If we were handed the
+		// name for the wrong database engine, fix it.
+		if ($index_name === 'pkey') {
+			$index_name = 'primary';
+		}
+
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 

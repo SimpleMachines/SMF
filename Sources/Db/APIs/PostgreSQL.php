@@ -2279,37 +2279,39 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 
+		// The list_indexes() method will report the name of the primary key as
+		// 'primary' on MySQL and 'pkey' on PostgreSQL. If we were handed the
+		// name for the wrong database engine, fix it.
+		if ($index_name === 'primary') {
+			$index_name = 'pkey';
+		}
+
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
-		// Do not add the table name to the index if it is already there.
-		if ($index_name != 'primary' && str_contains($index_name, $real_table_name)) {
-			$index_name = str_replace($real_table_name . '_', '', $index_name);
-		}
+		// The list_indexes() method removes the table name from the names of
+		// the indexes, so make sure to do the same to $index_name.
+		$index_name = str_replace($real_table_name . '_', '', $index_name);
 
 		foreach ($indexes as $index) {
-			// If the name is primary we want the primary key!
-			if ($index['type'] == 'primary' && $index_name == 'primary') {
-				// Dropping primary key?
-				$result = $this->query(
-					'ALTER TABLE ' . $real_table_name . '
-					DROP CONSTRAINT ' . $index['name'],
-					[
-						'security_override' => true,
-					],
-				);
+			if ($index['name'] === $index_name) {
+				if ($index['type'] == 'primary') {
+					$result = $this->query(
+						'ALTER TABLE ' . $real_table_name . '
+						DROP CONSTRAINT ' . $real_table_name . '_' . $index['name'],
+						[
+							'security_override' => true,
+						],
+					);
+				} else {
+					$result = $this->query(
+						'DROP INDEX ' . $real_table_name . '_' . $index['name'],
+						[
+							'security_override' => true,
+						],
+					);
 
-				return $result !== false;
-			}
-
-			if ($index['name'] == $index_name) {
-				// Drop the bugger...
-				$result = $this->query(
-					'DROP INDEX ' . $real_table_name . '_' . $index_name,
-					[
-						'security_override' => true,
-					],
-				);
+				}
 
 				return $result !== false;
 			}
