@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\WebFetch\APIs;
 
+use SMF\IP;
 use SMF\Lang;
 use SMF\Url;
 use SMF\WebFetch\WebFetchApi;
@@ -247,7 +248,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (($url = WebFetchApi::makeSafe($url, ['http', 'https'])) === null) {
+		if (!$url->isFetchSafe(['http', 'https'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;
@@ -283,6 +284,12 @@ class CurlFetcher extends WebFetchApi
 	public function result(?string $area = null): mixed
 	{
 		$max_result = \count($this->response) - 1;
+
+		// Nothing was recorded, because the request was refused before we ever
+		// got as far as making it.
+		if ($max_result < 0) {
+			return null;
+		}
 
 		// Just return a specified area or the entire result?
 		if (empty($area)) {
@@ -436,7 +443,7 @@ class CurlFetcher extends WebFetchApi
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (WebFetchApi::makeSafe($target_url) === null) {
+		if (!$target_url->isFetchSafe(['http', 'https'])) {
 			if (isset($this->response[$this->current_redirect - 1])) {
 				$this->response[$this->current_redirect - 1]['success'] = false;
 			}
