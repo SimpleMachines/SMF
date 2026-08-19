@@ -144,6 +144,11 @@ class curl_fetch_web_data
 	 */
 	public function get_url_data($url, $post_data = array())
 	{
+		if (!is_fetch_safe($url, ['http', 'https'])) {
+			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+			return $this;
+		}
+
 		// POSTing some data perhaps?
 		if (!empty($post_data) && is_array($post_data))
 			$this->post_data = $this->build_post_data($post_data);
@@ -174,6 +179,30 @@ class curl_fetch_web_data
 		else
 			$this->options[CURLOPT_URL] = $url;
 
+		$parsedurl = parse_iri($url);
+
+		// Pin the connection to an address that we already vetted. The URL
+		// keeps its host name, so SNI, the Host header and the certificate
+		// check all still see the real name; curl just isn't allowed to ask
+		// the resolver a second time and get a different answer.
+		if (filter_var(trim($parsedurl['host'], '[]'), FILTER_VALIDATE_IP) === false)
+		{
+			$ips = get_ips_for_url($url);
+
+			// Listing several addresses in one entry needs curl 7.59.0.
+			if (version_compare(curl_version()['version'], '7.59.0', '<'))
+			{
+				$ips = \array_slice($ips, 0, 1);
+			}
+
+			if ($ips !== [])
+			{
+				$port = !empty($parsedurl['port']) ? $parsedurl['port'] : ($parsedurl['scheme'] === 'https' ? 443 : 80);
+
+				$this->options[CURLOPT_RESOLVE] = array($parsedurl['host'] . ':' . $parsedurl['port'] . ':' . implode(',', $ips));
+			}
+		}
+
 		// if we have not already been redirected, set it up so we can if needed
 		if (!$redirect)
 		{
@@ -188,9 +217,19 @@ class curl_fetch_web_data
 
 		// Get what was returned
 		$curl_info = curl_getinfo($cr);
-		$curl_content = curl_multi_getcontent($cr);
+
+		// Double check that we connected to the expected IP.
+		if ($curl_info['primary_ip'] !== '' && !url_resolves_to($url, trim($curl_info['primary_ip'], '[]')))
+		{
+			$this->response[$this->current_redirect]['success'] = false;
+			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+			return;
+		}
+
 		$url = $curl_info['url']; // Last effective URL
 		$http_code = $curl_info['http_code']; // Last HTTP code
+
+		$curl_content = curl_multi_getcontent($cr);
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
@@ -342,7 +381,7 @@ class curl_fetch_web_data
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (($target_url = make_fetch_safe($target_url)) === null)
+		if (!is_fetch_safe($target_url))
 		{
 			if (isset($this->response[$this->current_redirect - 1]))
 				$this->response[$this->current_redirect - 1]['success'] = false;
