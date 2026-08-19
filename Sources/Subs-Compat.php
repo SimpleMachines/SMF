@@ -4005,9 +4005,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	}
 
 	/**
-	 * Checks whether a URL is safe to fetch from the server, and then returns
-	 * either a version of the URL where the host has been resolved to a literal
-	 * IP address, or else null if the URL was unsafe to fetch.
+	 * Checks whether a URL is safe to fetch from the server.
 	 *
 	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
 	 * host resolves (or is) a non-global IP address: loopback, private,
@@ -4017,12 +4015,37 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 * is also re-applied to each redirect target by the fetchers.
 	 *
 	 * @param string $url The URL to check.
-	 * @return string|null A version of $url where the host has been resolved to
-	 *    a literal IP address, or else null if the URL was unsafe to fetch.
+	 * @return bool Whether the URL is safe to fetch.
 	 */
-	function make_fetch_safe($url)
+	function is_fetch_safe($url)
 	{
-		return SMF\WebFetch\WebFetchApi::makeSafe($url);
+		return SMF\Url::create($url)->isFetchSafe([]);
+	}
+
+	/**
+	 * Looks up the IP address(es) that the given URL's host resolves to.
+	 *
+	 * @param string $url The URL
+	 * @return array The IP address(es).
+	 */
+	function get_ips_for_url($url)
+	{
+		return SMF\Url::create($url)->getIPs();
+	}
+
+	/**
+	 * Checks whether the given URL resolves to the given IP address.
+	 *
+	 * If the URL resolves to multiple IP addresses, this function returns true
+	 * if any of those IP addresses are the given one.
+	 *
+	 * @param string $url The URL
+	 * @param string $ip The IP address.
+	 * @return bool Whether this URL resolves to the given IP address.
+	 */
+	function url_resolves_to($url, $ip)
+	{
+		return SMF\Url::create($url)->resolvesTo(SMF\IP::create($ip));
 	}
 
 	/**

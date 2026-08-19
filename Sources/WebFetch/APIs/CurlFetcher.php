@@ -247,7 +247,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Umm, this shouldn't happen?
-		if (($url = WebFetchApi::makeSafe($url, ['http', 'https'])) === null) {
+		if (!$url->isFetchSafe(['http', 'https'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;

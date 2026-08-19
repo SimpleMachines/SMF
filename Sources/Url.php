@@ -162,6 +162,13 @@ class Url implements \Stringable
 	 */
 	protected $is_ascii;
 
+	/**
+	 * @var array
+	 *
+	 * Cache for $this->getIPs()
+	 */
+	protected array $ips;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -526,26 +533,102 @@ class Url implements \Stringable
 	 */
 	public function getIPs(): array
 	{
+		if (isset($this->ips)) {
+			return $this->ips;
+		}
+
+		$is_ascii = $this->is_ascii;
+
+		$this->toAscii();
+
 		// Resolve the host to its address(es). A literal IP resolves to itself.
-		$ips = [];
+		$this->ips = [];
 
 		if (filter_var(trim($this->host, '[]'), FILTER_VALIDATE_IP)) {
-			$ips[] = new IP(trim($this->host, '[]'));
+			$this->ips[] = new IP(trim($this->host, '[]'));
 		} else {
 			$records = @dns_get_record($this->host, DNS_A | DNS_AAAA);
 
 			foreach ((array) $records as $record) {
 				if (!empty($record['ip'])) {
-					$ips[] = new IP($record['ip']);
+					$this->ips[] = new IP($record['ip']);
 				}
 
 				if (!empty($record['ipv6'])) {
-					$ips[] = new IP($record['ipv6']);
+					$this->ips[] = new IP($record['ipv6']);
 				}
 			}
 		}
 
-		return $ips;
+		if (!$is_ascii) {
+			$this->toUtf8();
+		}
+
+		return $this->ips;
+	}
+
+	/**
+	 * Checks whether this URL resolves to the given IP address.
+	 *
+	 * If this URL resolves to multiple IP addresses, this method returns true
+	 * if any of those I{ addresses are the given one.
+	 *
+	 * @param \SMF\IP $ip The IP address to check
+	 * @return bool
+	 */
+	public function resolvesTo(IP $ip): bool
+	{
+		foreach ($this->getIPs() as $known_ip) {
+			if ($ip == $known_ip) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks whether it is safe for the server to fetch this URL.
+	 *
+	 * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
+	 * host resolves to (or is) a non-global IP address: loopback, private,
+	 * link-local (incl. 169.254.0.0/16 cloud metadata), or other reserved
+	 * ranges.
+	 *
+	 * @param array $allowed_schemes The URL schemes that the WebFetchApi is
+	 *    willing to use when fetching the content of this URL.
+	 * @return bool Whether this URL is safe to fetch.
+	 */
+	public function isFetchSafe(array $allowed_schemes): bool
+	{
+		$is_ascii = $this->is_ascii;
+
+		$this->toAscii();
+
+		if (
+			// Only known fetchable schemes.
+			empty($url->scheme)
+			|| !\in_array($url->scheme, $allowed_schemes)
+			// Must have a host.
+			|| empty($url->host)
+			// Reject reserved TLDs, since they are never in public DNS.
+			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $url->host)
+		) {
+			$is_safe = false;
+		} else {
+			$ips = $this->getIPs();
+
+			$is_safe = $ips === array_filter(
+				$ips,
+				fn($ip) => $ip->isValid(FILTER_FLAG_GLOBAL_RANGE),
+			);
+		}
+
+		if (!$is_ascii) {
+			$this->toUtf8();
+		}
+
+		return $is_safe;
 	}
 
 	/**

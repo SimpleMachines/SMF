@@ -115,7 +115,7 @@ class FtpFetcher extends WebFetchApi
 		$url->normalize()->toAscii();
 
 		// Umm, this shouldn't happen?
-		if (empty($url->scheme) || !\in_array($url->scheme, ['ftp', 'ftps'])) {
+		if (!$url->isFetchSafe(['ftp', 'ftps'])) {
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
 			return $this;

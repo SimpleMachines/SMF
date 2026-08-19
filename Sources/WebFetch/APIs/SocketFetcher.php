@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\WebFetch\APIs;
 
+use SMF\IP;
 use SMF\Lang;
 use SMF\Url;
 use SMF\WebFetch\WebFetchApi;
@@ -171,7 +172,7 @@ class SocketFetcher extends WebFetchApi
 		$url->normalize()->toAscii();
 
 		// Umm, this shouldn't happen?
-		if (($url = WebFetchApi::makeSafe($url, ['http', 'https'])) === null) {
+		if (!$url->isFetchSafe(['http', 'https'])) {
 			$this->closeConnection();
 
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
@@ -263,8 +264,7 @@ class SocketFetcher extends WebFetchApi
 				return $this;
 			}
 
-			// Close if it moved to a different host. (The redirect target is
-			// re-validated by the makeSafe() guard on the request() re-entry.)
+			// Close if it moved to a different host.
 			if ($location->host !== $url->host) {
 				$this->closeConnection();
 			}
