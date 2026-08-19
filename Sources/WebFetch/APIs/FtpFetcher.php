@@ -112,7 +112,7 @@ class FtpFetcher extends WebFetchApi
 			$url = new Url($url, true);
 		}
 
-		$url->toAscii();
+		$url->normalize()->toAscii();
 
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !\in_array($url->scheme, ['ftp', 'ftps'])) {

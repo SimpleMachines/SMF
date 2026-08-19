@@ -229,7 +229,7 @@ class CurlFetcher extends WebFetchApi
 			$url = new Url($url, true);
 		}
 
-		$url->toAscii();
+		$url->normalize()->toAscii();
 
 		// If we can't do it, bail out.
 		if (!\function_exists('curl_init')) {

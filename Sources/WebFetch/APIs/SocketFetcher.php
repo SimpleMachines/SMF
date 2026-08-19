@@ -168,7 +168,7 @@ class SocketFetcher extends WebFetchApi
 			$url = new Url($url, true);
 		}
 
-		$url->toAscii();
+		$url->normalize()->toAscii();
 
 		// Umm, this shouldn't happen?
 		if (($url = WebFetchApi::makeSafe($url, ['http', 'https'])) === null) {

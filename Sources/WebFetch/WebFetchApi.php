@@ -133,7 +133,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			$url = Url::create($url, true)->validate();
 		}
 
-		$url->toAscii();
+		$url->normalize()->toAscii();
 
 		// SSRF guard: refuse loopback/private/link-local/reserved targets and
 		// non-fetchable schemes before any connection is attempted.
