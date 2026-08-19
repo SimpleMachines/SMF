@@ -391,6 +391,12 @@ class SocketFetcher extends WebFetchApi
 	{
 		$max_result = \count($this->response) - 1;
 
+		// Nothing was recorded, because the request was refused before we ever
+		// got as far as making it.
+		if ($max_result < 0) {
+			return null;
+		}
+
 		// Just return a specified area or the entire result?
 		if (\is_null($area)) {
 			return $this->response[$max_result];

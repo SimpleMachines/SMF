@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\WebFetch\APIs;
 
+use SMF\IP;
 use SMF\Lang;
 use SMF\Url;
 use SMF\WebFetch\WebFetchApi;
@@ -284,6 +285,12 @@ class CurlFetcher extends WebFetchApi
 	{
 		$max_result = \count($this->response) - 1;
 
+		// Nothing was recorded, because the request was refused before we ever
+		// got as far as making it.
+		if ($max_result < 0) {
+			return null;
+		}
+
 		// Just return a specified area or the entire result?
 		if (empty($area)) {
 			return $this->response[$max_result];
@@ -336,6 +343,25 @@ class CurlFetcher extends WebFetchApi
 
 		$this->options[CURLOPT_URL] = (string) $url;
 
+		// Pin the connection to an address that we already vetted. The URL
+		// keeps its host name, so SNI, the Host header and the certificate
+		// check all still see the real name; curl just isn't allowed to ask
+		// the resolver a second time and get a different answer.
+		if (filter_var(trim($url->host, '[]'), FILTER_VALIDATE_IP) === false) {
+			$ips = array_map(fn($ip) => (string) $ip, $url->getIPs());
+
+			// Listing several addresses in one entry needs curl 7.59.0.
+			if (version_compare(curl_version()['version'], '7.59.0', '<')) {
+				$ips = \array_slice($ips, 0, 1);
+			}
+
+			if ($ips !== []) {
+				$port = !empty($url->port) ? $url->port : ($url->scheme === 'https' ? 443 : 80);
+
+				$this->options[CURLOPT_RESOLVE] = [$url->host . ':' . $port . ':' . implode(',', $ips)];
+			}
+		}
+
 		// If we have not already been redirected, set it up so we can if needed.
 		if (!$redirect) {
 			$this->current_redirect = 1;
@@ -350,9 +376,22 @@ class CurlFetcher extends WebFetchApi
 		// Get what was returned.
 		$curl_info = curl_getinfo($cr);
 
-		// Double check that we connected to the expected IP.
-		if (!$url->resolvesTo(new IP(trim($curl_info['primary_ip'], '[]')))) {
-			$this->response[$this->current_redirect]['success'] = false;
+		// Double check the address we actually connected to, in case this build
+		// of curl ignored CURLOPT_RESOLVE. An empty value means we never got a
+		// connection at all, which the normal error handling below reports.
+		if (
+			$curl_info['primary_ip'] !== ''
+			&& !$url->resolvesTo(new IP(trim($curl_info['primary_ip'], '[]')))
+		) {
+			$this->response[] = [
+				'url' => (string) $url,
+				'success' => false,
+				'code' => null,
+				'error' => null,
+				'headers' => [],
+				'body' => null,
+				'size' => 0,
+			];
 
 			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 
@@ -451,7 +490,7 @@ class CurlFetcher extends WebFetchApi
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (WebFetchApi::makeSafe($target_url) === null) {
+		if (!$target_url->isFetchSafe(['http', 'https'])) {
 			if (isset($this->response[$this->current_redirect - 1])) {
 				$this->response[$this->current_redirect - 1]['success'] = false;
 			}

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\PackageManager;
 
+use SMF\IP;
+
 /**
  * Class FtpConnection
  * Simple FTP protocol implementation.
@@ -300,8 +302,20 @@ class FtpConnection
 			return false;
 		}
 
+		$pasv_ip = $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4];
+
+		// The server told us where to connect next, so don't take its word for
+		// it. An FTP bounce points that at something on the local network.
+		// FtpFetcher checks this too, but the package manager and the
+		// maintenance tools use this class directly.
+		if (!(new IP($pasv_ip))->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
+			$this->error = 'bad_server';
+
+			return false;
+		}
+
 		// This is pretty simple - store it for later use ;).
-		$this->pasv = ['ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]];
+		$this->pasv = ['ip' => $pasv_ip, 'port' => $match[5] * 256 + $match[6]];
 
 		return true;
 	}

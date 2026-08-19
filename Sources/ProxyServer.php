@@ -140,7 +140,7 @@ class ProxyServer
 			// Don't proxy our own resources.
 			|| $request->host === Url::create(Config::$boardurl)->host
 			// SSRF protection: don't proxy localhost, private or reserved IPs, etc.
-			|| $request->isFetchSafe(['http', 'https'])
+			|| !$request->isFetchSafe(['http', 'https'])
 		) {
 			return false;
 		}

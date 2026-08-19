@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\WebFetch\APIs;
 
 use SMF\Config;
+use SMF\IP;
 use SMF\Lang;
 use SMF\PackageManager\FtpConnection;
 use SMF\Url;
