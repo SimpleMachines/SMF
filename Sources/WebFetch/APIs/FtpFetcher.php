@@ -161,6 +161,23 @@ class FtpFetcher extends WebFetchApi
 			return $this;
 		}
 
+		// Double check that we connected to the expected IP and port.
+		// If the connection was successful, name will be "<IP address>:<port>"
+		$socket_name = @stream_socket_get_name($fp, true);
+
+		if (
+			!\is_string($socket_name)
+			|| !str_ends_with($socket_name, ':' . $ftp->pasv['port'])
+			|| $ftp->pasv['ip'] != substr($socket_name, 0, -\strlen(':' . $ftp->pasv['port']))
+			|| !$url->resolvesTo(new IP($ftp->pasv['ip']))
+		) {
+			fclose($fp);
+
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
+
+			return $this;
+		}
+
 		// The server should now say something in acknowledgement.
 		$ftp->check_response(150);
 		$this->response[0]['code'] = substr($ftp->last_message, 0, 3);
