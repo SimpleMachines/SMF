@@ -169,6 +169,17 @@ class Url implements \Stringable
 	 */
 	protected array $ips;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Cache of the IP addresses that hosts resolved to during this request.
+	 */
+	protected static array $resolved_hosts = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -429,6 +440,10 @@ class Url implements \Stringable
 
 		$parsed = parse_url($url);
 
+		// The host may be about to change, so the addresses we resolved for the
+		// old one no longer describe this URL.
+		unset($this->ips);
+
 		foreach (['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'] as $prop) {
 			// Clear out any old value.
 			unset($this->{$prop});
@@ -495,7 +510,12 @@ class Url implements \Stringable
 			|| empty($proxied->host)
 			|| empty($proxied->path)
 			// Don't proxy URLs with domains that aren't part of public DNS.
-			|| !$proxied->isFetchSafe()
+			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $proxied->host)
+			// Don't proxy URLs whose hosts are private or reserved IP addresses.
+			|| (
+				filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP) !== false
+				&& filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) === false
+			)
 		) {
 			return $proxied;
 		}
@@ -536,6 +556,17 @@ class Url implements \Stringable
 
 		$this->toAscii();
 
+		// Someone else already asked about this host during this request.
+		if (isset(self::$resolved_hosts[$this->host])) {
+			$this->ips = self::$resolved_hosts[$this->host];
+
+			if (!$is_ascii) {
+				$this->toUtf8();
+			}
+
+			return $this->ips;
+		}
+
 		// Resolve the host to its address(es). A literal IP resolves to itself.
 		$this->ips = [];
 
@@ -555,6 +586,12 @@ class Url implements \Stringable
 			}
 		}
 
+		// Remember it. Besides saving lookups, this is what makes the
+		// post-connection checks in the WebFetch APIs meaningful: they compare
+		// against what the host resolved to *before* we connected, so a DNS
+		// rebinding attack can't answer differently the second time around.
+		self::$resolved_hosts[$this->host] = $this->ips;
+
 		if (!$is_ascii) {
 			$this->toUtf8();
 		}
@@ -566,15 +603,18 @@ class Url implements \Stringable
 	 * Checks whether this URL resolves to the given IP address.
 	 *
 	 * If this URL resolves to multiple IP addresses, this method returns true
-	 * if any of those I{ addresses are the given one.
+	 * if any of those IP addresses are the given one.
 	 *
 	 * @param \SMF\IP $ip The IP address to check
 	 * @return bool
 	 */
 	public function resolvesTo(IP $ip): bool
 	{
+		// Compare the addresses themselves. A loose comparison of the objects
+		// would also weigh IP::$host, which either side may have populated
+		// with a reverse lookup.
 		foreach ($this->getIPs() as $known_ip) {
-			if ($ip == $known_ip) {
+			if ((string) $ip === (string) $known_ip) {
 				return true;
 			}
 		}
@@ -591,29 +631,36 @@ class Url implements \Stringable
 	 * ranges.
 	 *
 	 * @param array $allowed_schemes The URL schemes that the WebFetchApi is
-	 *    willing to use when fetching the content of this URL.
+	 *    willing to use when fetching the content of this URL. If empty, any
+	 *    scheme that the WebFetchApi has a handler for is allowed.
+	 *    Default: []
 	 * @return bool Whether this URL is safe to fetch.
 	 */
-	public function isFetchSafe(array $allowed_schemes): bool
+	public function isFetchSafe(array $allowed_schemes = []): bool
 	{
+		$allowed_schemes = $allowed_schemes === [] ? array_keys(WebFetchApi::$scheme_handlers) : $allowed_schemes;
+
 		$is_ascii = $this->is_ascii;
 
 		$this->toAscii();
 
 		if (
 			// Only known fetchable schemes.
-			empty($url->scheme)
-			|| !\in_array($url->scheme, $allowed_schemes)
+			empty($this->scheme)
+			|| !\in_array($this->scheme, $allowed_schemes)
 			// Must have a host.
-			|| empty($url->host)
+			|| empty($this->host)
 			// Reject reserved TLDs, since they are never in public DNS.
-			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $url->host)
+			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $this->host)
 		) {
 			$is_safe = false;
 		} else {
 			$ips = $this->getIPs();
 
-			$is_safe = $ips === array_filter(
+			// A host that resolves to nothing is not safe. We cannot know what
+			// the connection would actually reach, and dns_get_record() never
+			// sees names that only exist in the system's hosts file.
+			$is_safe = $ips !== [] && $ips === array_filter(
 				$ips,
 				fn($ip) => $ip->isValid(FILTER_FLAG_GLOBAL_RANGE),
 			);
