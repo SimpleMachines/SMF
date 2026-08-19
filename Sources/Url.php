@@ -495,12 +495,7 @@ class Url implements \Stringable
 			|| empty($proxied->host)
 			|| empty($proxied->path)
 			// Don't proxy URLs with domains that aren't part of public DNS.
-			|| preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $proxied->host)
-			// Don't proxy URLs whose hosts are private or reserved IP addresses.
-			|| (
-				filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP) !== false
-				&& filter_var(trim($proxied->host, '[]'), FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) === false
-			)
+			|| !$proxied->isFetchSafe()
 		) {
 			return $proxied;
 		}
