@@ -4019,7 +4019,26 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function is_fetch_safe($url)
 	{
-		return SMF\Url::create($url)->isFetchSafe([]);
+		return SMF\Url::create($url)->isFetchSafe();
+	}
+
+	/**
+	 * Checks whether a URL is safe to fetch from the server.
+	 *
+	 * In SMF 2.1 this returned a version of the URL where the host had been
+	 * replaced with a literal IP address. It no longer does that, because it
+	 * broke every host that needs SNI or name-based virtual hosting, and it
+	 * defeated certificate validation as well. The URL now comes back exactly
+	 * as it went in, and the fetchers pin the connection to a vetted address
+	 * themselves. Use is_fetch_safe() instead.
+	 *
+	 * @deprecated 3.0
+	 * @param string $url The URL to check.
+	 * @return ?string $url if it is safe to fetch, or null if it is not.
+	 */
+	function make_fetch_safe($url)
+	{
+		return SMF\Url::create($url)->isFetchSafe() ? $url : null;
 	}
 
 	/**
