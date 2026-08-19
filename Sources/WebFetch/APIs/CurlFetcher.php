@@ -349,9 +349,20 @@ class CurlFetcher extends WebFetchApi
 
 		// Get what was returned.
 		$curl_info = curl_getinfo($cr);
-		$curl_content = curl_multi_getcontent($cr);
+
+		// Double check that we connected to the expected IP.
+		if (!$url->resolvesTo(new IP(trim($curl_info['primary_ip'], '[]')))) {
+			$this->response[$this->current_redirect]['success'] = false;
+
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
+
+			return;
+		}
+
 		$url = new Url($curl_info['url']); // Last effective URL
 		$http_code = (string) $curl_info['http_code']; // Last HTTP code
+
+		$curl_content = curl_multi_getcontent($cr);
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
@@ -367,7 +378,11 @@ class CurlFetcher extends WebFetchApi
 		];
 
 		// If this a redirect with a location header and we have not given up, then do it again.
-		if (preg_match('~30[127]~i', $http_code) === 1 && $this->headers['location'] != '' && $this->current_redirect <= $this->max_redirect) {
+		if (
+			preg_match('~30[127]~i', $http_code)
+			&& $this->headers['location'] != ''
+			&& $this->current_redirect <= $this->max_redirect
+		) {
 			$this->current_redirect++;
 			$header_location = $this->getRedirectUrl($url, $this->headers['location']);
 			$this->redirect($header_location, $url);

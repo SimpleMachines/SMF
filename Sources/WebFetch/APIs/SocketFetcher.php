@@ -214,6 +214,22 @@ class SocketFetcher extends WebFetchApi
 			return $this;
 		}
 
+		// Double check that we connected to the expected IP and port.
+		// If the connection was successful, name will be "<IP address>:<port>"
+		$socket_name = @stream_socket_get_name($this->fp, true);
+
+		if (
+			!\is_string($socket_name)
+			|| !str_ends_with($socket_name, ':' . $this->port)
+			|| !$url->resolvesTo(new IP(trim(substr($socket_name, 0, -\strlen(':' . $this->port)), '[]')))
+		) {
+			$this->closeConnection();
+
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
+
+			return $this;
+		}
+
 		// I want this, from there, and I may or may not bother you for more later.
 		if (empty($post_data)) {
 			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . $this->line_break) || throw new \Exception('Failed to write to socket');
