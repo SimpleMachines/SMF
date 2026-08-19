@@ -266,7 +266,7 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		$this->setOptions();
-		$this->sendRequest(str_replace(' ', '%20', \strval($url)));
+		$this->sendRequest($url);
 
 		return $this;
 	}
@@ -324,17 +324,17 @@ class CurlFetcher extends WebFetchApi
 	 *  - Detects 301, 302, 307 codes and will redirect to the given response
 	 *    header location.
 	 *
-	 * @param string $url The site to fetch.
+	 * @param Url $url The site to fetch.
 	 * @param bool $redirect Whether or not this was a redirect request.
 	 */
-	private function sendRequest(string $url, bool $redirect = false): void
+	private function sendRequest(Url $url, bool $redirect = false): void
 	{
 		// We do have a url, I hope.
-		if ($url == '') {
+		if ((string) $url == '') {
 			return;
 		}
 
-		$this->options[CURLOPT_URL] = $url;
+		$this->options[CURLOPT_URL] = (string) $url;
 
 		// If we have not already been redirected, set it up so we can if needed.
 		if (!$redirect) {
@@ -350,14 +350,14 @@ class CurlFetcher extends WebFetchApi
 		// Get what was returned.
 		$curl_info = curl_getinfo($cr);
 		$curl_content = curl_multi_getcontent($cr);
-		$url = $curl_info['url']; // Last effective URL
+		$url = new Url($curl_info['url']); // Last effective URL
 		$http_code = (string) $curl_info['http_code']; // Last HTTP code
 		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
 		// Store this loop's data, someone may want all of these. :O
 		$this->response[] = [
-			'url' => $url,
+			'url' => (string) $url,
 			'success' => $error === false && $body !== false,
 			'code' => $http_code,
 			'error' => $error,
@@ -377,24 +377,23 @@ class CurlFetcher extends WebFetchApi
 	/**
 	 * Used if being redirected to ensure we have a fully qualified address.
 	 *
-	 * @param string $last_url The URL we went to.
+	 * @param Url $last_url The URL we went to.
 	 * @param string $new_url The URL we were redirected to.
-	 * @return string The new URL that was in the HTTP header.
+	 * @return Url The new URL that was in the HTTP header.
 	 */
-	private function getRedirectUrl(string $last_url = '', string $new_url = ''): string
+	private function getRedirectUrl(Url $last_url, string $new_url): Url
 	{
-		// Get the elements for these urls.
-		$last_url_parse = parse_url($last_url);
+		// Get the elements for the new URL.
 		$new_url_parse = parse_url($new_url);
 
 		// Redirect headers are often incomplete or relative so we need to make sure they are fully qualified.
-		$new_url_parse['scheme'] = $new_url_parse['scheme'] ?? $last_url_parse['scheme'];
-		$new_url_parse['host'] = $new_url_parse['host'] ?? $last_url_parse['host'];
-		$new_url_parse['path'] = $new_url_parse['path'] ?? $last_url_parse['path'];
+		$new_url_parse['scheme'] = $new_url_parse['scheme'] ?? $last_url->scheme;
+		$new_url_parse['host'] = $new_url_parse['host'] ?? $last_url->host;
+		$new_url_parse['path'] = $new_url_parse['path'] ?? $last_url->path;
 		$new_url_parse['query'] = $new_url_parse['query'] ?? '';
 
 		// Build the new URL that was in the http header.
-		return $new_url_parse['scheme'] . '://' . $new_url_parse['host'] . $new_url_parse['path'] . (!empty($new_url_parse['query']) ? '?' . $new_url_parse['query'] : '');
+		return new URL($new_url_parse['scheme'] . '://' . $new_url_parse['host'] . $new_url_parse['path'] . (!empty($new_url_parse['query']) ? '?' . $new_url_parse['query'] : ''));
 	}
 
 	/**
@@ -433,11 +432,11 @@ class CurlFetcher extends WebFetchApi
 	 * @param string $target_url The URL we want to redirect to.
 	 * @param string $referrer_url The URL that we're redirecting from.
 	 */
-	private function redirect(string $target_url, string $referrer_url): void
+	private function redirect(Url $target_url, Url $referrer_url): void
 	{
 		// SSRF guard: re-validate the redirect target before following it, so a
 		// 302 -> http://127.0.0.1/ (or link-local cloud metadata) is refused.
-		if (WebFetchApi::makeSafe(Url::create($target_url, true)) === null) {
+		if (WebFetchApi::makeSafe($target_url) === null) {
 			if (isset($this->response[$this->current_redirect - 1])) {
 				$this->response[$this->current_redirect - 1]['success'] = false;
 			}
@@ -447,7 +446,7 @@ class CurlFetcher extends WebFetchApi
 
 		// No, no, I last saw that over there... really, 301, 302, 307
 		$this->setOptions();
-		$this->options[CURLOPT_REFERER] = $referrer_url;
+		$this->options[CURLOPT_REFERER] = (string) $referrer_url;
 		$this->sendRequest($target_url, true);
 	}
 
