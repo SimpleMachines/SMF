@@ -4229,7 +4229,7 @@ function url_image_size($url)
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
-	if (($url = make_fetch_safe($url)) == null) {
+	if (!is_fetch_safe($url)) {
 		return false;
 	}
 
@@ -4259,6 +4259,18 @@ function url_image_size($url)
 		// Successful?  Continue...
 		if ($fp != false)
 		{
+			// Double check that we connected to the expected IP and port.
+			// If the connection was successful, name will be "<IP address>:<port>"
+			$socket_name = @stream_socket_get_name($fp, true);
+
+			if (!is_string($socket_name) || substr($socket_name, -3) !== ':80' || !is_fetch_safe('http://' . $socket_name))
+			{
+				fclose($fp);
+				loadLanguage('Errors');
+				trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+				return false;
+			}
+
 			// Send the HEAD request (since we don't have to worry about chunked, HTTP/1.1 is fine here.)
 			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'user-agent: '. SMF_USER_AGENT . "\r\n" . 'Connection: close' . "\r\n\r\n");
 
@@ -6128,16 +6140,18 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	global $webmaster_email, $sourcedir, $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
+	$url = iri_to_url(normalize_iri($url));
+
 	// SSRF guard: refuse loopback/private/link-local/reserved targets and
 	// non-fetchable schemes before any connection is attempted.
-	if (($url = make_fetch_safe($url)) === null)
+	if (!is_fetch_safe($url))
 	{
 		loadLanguage('Errors');
 		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 		return false;
 	}
 
-	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
+	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
 
 	// No scheme? No data for you!
 	if (empty($match[1]))
@@ -6161,6 +6175,18 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		$fp = @fsockopen($ftp->pasv['ip'], $ftp->pasv['port'], $err, $err, 5);
 		if (!$fp)
 			return false;
+
+		// Double check that we connected to the expected IP and port.
+		// If the connection was successful, name will be "<IP address>:<port>"
+		$socket_name = @stream_socket_get_name($fp, true);
+
+		if (!\is_string($socket_name) || !str_ends_with($socket_name, ':' . $ftp->pasv['port']) || $ftp->pasv['ip'] !== substr($socket_name, 0, -\strlen(':' . $ftp->pasv['port'])) || !url_resolves_to($url, $ftp->pasv['ip']))
+		{
+			fclose($fp);
+			loadLanguage('Errors');
+			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+			return false;
+		}
 
 		// The server should now say something in acknowledgement.
 		$ftp->check_response(150);
@@ -6188,6 +6214,18 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		}
 		if (!empty($fp))
 		{
+			// Double check that we connected to the expected IP and port.
+			// If the connection was successful, name will be "<IP address>:<port>"
+			$socket_name = @stream_socket_get_name($fp, true);
+
+			if (!is_string($socket_name) || substr($socket_name, ($match[2] ? -4 : -3)) !== ($match[2] ? ':443' : ':80') || !url_resolves_to($url, substr($socket_name, 0, ($match[2] ? -4 : -3))))
+			{
+				fclose($fp);
+				loadLanguage('Errors');
+				trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+				return false;
+			}
+
 			if ($keep_alive)
 			{
 				$keep_alive_dom = $match[3];
@@ -6306,9 +6344,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 }
 
 /**
- * Checks whether a URL is safe to fetch from the server, and then returns
- * either a version of the URL where the host has been resolved to a literal
- * IP address, or else null if the URL was unsafe to fetch.
+ * Checks whether a URL is safe to fetch from the server.
  *
  * Rejects URLs whose scheme is not in the fetchable set, and URLs whose
  * host resolves (or is) a non-global IP address: loopback, private,
@@ -6318,67 +6354,102 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
  * also re-applied to each redirect target by the fetchers.
  *
  * @param string $url The URL to check.
- * @return string|null A version of $url where the host has been resolved to a
- *    literal IP address, or else null if the URL was unsafe to fetch.
+ * @return bool True if the URL is safe to fetch, false otherwise.
  */
-function make_fetch_safe($url)
+function is_fetch_safe($url)
 {
-	static $resolved_hosts = array();
+	if (!is_string($url))
+		return false;
 
-	$url = iri_to_url($url);
-	$parsedurl = parse_iri($url);
+	$parsedurl = parse_iri(iri_to_url($url));
 
-	if (empty($parsedurl['scheme']) || !in_array($parsedurl['scheme'], array('http', 'https', 'ftp', 'ftps')) || empty($parsedurl['host']) || preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $parsedurl['host']))
-		return null;
-
-	// Avoid unnecessary repetition.
-	if (isset($resolved_hosts[$parsedurl['host']]))
+	if (empty($parsedurl['scheme']) || !\in_array($parsedurl['scheme'], array('http', 'https', 'ftp', 'ftps')) || empty($parsedurl['host']) || preg_match('/\b(?' . '>example|local(?' . '>host)?|onion|test|alt|in(?' . '>ternal|valid))$/', $parsedurl['host']))
 	{
-		if (empty($resolved_hosts[$parsedurl['host']]))
-			return null;
-
-		return preg_replace('/' . preg_quote($parsedurl['host']) . '/', $resolved_hosts[$parsedurl['host']][0], $url, 1);
-	}
-
-	// Resolve the host to its address(es). A literal IP resolves to itself.
-	$ips = array();
-
-	if (filter_var(trim($parsedurl['host'], '[]'), FILTER_VALIDATE_IP) !== false)
-	{
-		$ips[] = trim($parsedurl['host'], '[]');
+		$is_safe = false;
 	}
 	else
 	{
-		$records = @dns_get_record($parsedurl['host'], DNS_A | DNS_AAAA);
+		$ips = get_ips_for_url($url);
 
-		foreach ((array) $records as $record)
-		{
-			if (!empty($record['ip']))
-				$ips[] = $record['ip'];
-
-			if (!empty($record['ipv6']))
-				$ips[] = $record['ipv6'];
-		}
-	}
-
-	$resolved_hosts[$parsedurl['host']] = array_values(array_map(
-		function ($ip)
-		{
-			return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) ? '[' . $ip . ']' : $ip;
-		},
-		array_filter(
+		$is_safe = $ips !== array() && $ips === array_filter(
 			$ips,
 			function ($ip)
 			{
 				return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE);
 			}
-		)
-	));
+		);
+	}
 
-	if (empty($resolved_hosts[$parsedurl['host']]))
-		return null;
+	return $is_safe;
+}
 
-	return preg_replace('/' . preg_quote($parsedurl['host']) . '/', $resolved_hosts[$parsedurl['host']][0], $url, 1);
+/**
+ * Looks up the IP address(es) that the given URL's host resolves to.
+ *
+ * @param string $url The URL
+ * @return array The IP address(es).
+ */
+function get_ips_for_url($url)
+{
+	static $ips = array();
+
+	if (!is_string($url))
+		return [];
+
+	$host = parse_url(iri_to_url($url), PHP_URL_HOST);
+
+	if (isset($ips[$host])) {
+		return $ips[$host];
+	}
+
+	$ips[$host] = array();
+
+	// Resolve the host to its address(es). A literal IP resolves to itself.
+	if (filter_var(trim($host, '[]'), FILTER_VALIDATE_IP) !== false)
+	{
+		$ips[$host][] = trim($host, '[]');
+	}
+	else
+	{
+		$records = @dns_get_record($host, DNS_A | DNS_AAAA);
+
+		foreach ((array) $records as $record)
+		{
+			if (!empty($record['ip']))
+				$ips[$host][] = $record['ip'];
+
+			if (!empty($record['ipv6']))
+				$ips[$host][] = $record['ipv6'];
+		}
+	}
+
+	return $ips[$host];
+}
+
+/**
+ * Checks whether the given URL resolves to the given IP address.
+ *
+ * If the URL resolves to multiple IP addresses, this function returns true
+ * if any of those IP addresses are the given one.
+ *
+ * @param string $url The URL
+ * @param string $ip The IP address.
+ * @return bool Whether this URL resolves to the given IP address.
+ */
+function url_resolves_to($url, $ip)
+{
+	if (!is_string($url) || !is_string($ip))
+		return false;
+
+	$ip = trim($ip, '[]');
+
+	foreach (get_ips_for_url($url) as $known_ip)
+	{
+		if ($ip == $known_ip)
+			return true;
+	}
+
+	return false;
 }
 
 /**

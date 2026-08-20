@@ -139,7 +139,7 @@ class ProxyServer
 			// Don't proxy our own resources.
 			|| parse_url($request, PHP_URL_HOST) === parse_url($boardurl, PHP_URL_HOST)
 			// SSRF protection: don't proxy localhost, private or reserved IPs, etc.
-			|| ($request = make_fetch_safe($request)) === null
+			|| !is_fetch_safe($request)
 		) {
 			return false;
 		}
