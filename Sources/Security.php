@@ -99,7 +99,7 @@ class Security
 	/**
 	 * Checks whether the password is the correct one for the given member.
 	 *
-	 * @param string $password The password to check.
+	 * @param string $password The plain text password to check.
 	 * @param User $member The member whose password we are checking.
 	 * @param int $allowed_fallbacks Which fallbacks to check.
 	 *    Must be a bitmask of this class's PASSWORD_FALLBACK_* constants.
@@ -108,6 +108,7 @@ class Security
 	 * @return bool Whether the password is correct.
 	 */
 	public static function checkPassword(
+		#[\SensitiveParameter]
 		string $password,
 		User $member,
 		int $allowed_fallbacks,
@@ -128,14 +129,17 @@ class Security
 	}
 
 	/**
-	 * Hashes the user's password
+	 * Hashes the user's password.
 	 *
-	 * @param string $password The unhashed password
-	 * @param int|null $cost The cost
-	 * @return string The hashed password
+	 * @param string $password The plain text password.
+	 * @param int|null $cost The cost.
+	 * @return string The hashed password.
 	 */
-	public static function hashPassword(string $password, ?int $cost = null): string
-	{
+	public static function hashPassword(
+		#[\SensitiveParameter]
+		string $password,
+		?int $cost = null,
+	): string {
 		$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
 		return password_hash($password, PASSWORD_BCRYPT, ['cost' => $cost]);
@@ -144,20 +148,23 @@ class Security
 	/**
 	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $password The password
-	 * @param string $hash The hashed string
-	 * @return bool Whether the hashed password matches the string
+	 * @param string $password The plain text password.
+	 * @param string $hash The hashed string.
+	 * @return bool Whether the hashed password matches the string.
 	 */
-	public static function hashVerifyPassword(string $password, string $hash): bool
-	{
+	public static function hashVerifyPassword(
+		#[\SensitiveParameter]
+		string $password,
+		string $hash,
+	): bool {
 		return password_verify($password, $hash);
 	}
 
 	/**
-	 * Benchmarks the server to figure out an appropriate cost factor (minimum 9)
+	 * Benchmarks the server to figure out an appropriate cost factor.
 	 *
-	 * @param float $hashTime Time to target, in seconds
-	 * @return int The cost
+	 * @param float $hashTime Time to target, in seconds.
+	 * @return int The cost.
 	 */
 	public static function hashBenchmark(float $hashTime = 0.2): int
 	{
@@ -224,8 +231,12 @@ class Security
 	 *    part of the password (email address, username, etc.)
 	 * @return null|string Null if valid or a string indicating the problem.
 	 */
-	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
+	public static function validatePassword(
+		#[\SensitiveParameter]
+		string $password,
+		string $username,
+		array $restrict_in = [],
+	): ?string {
 		// Perform basic requirements first.
 		if (Utils::entityStrlen($password) < self::minimumPasswordLength()) {
 			return 'short';
@@ -1250,8 +1261,12 @@ class Security
 	 *    Must be a bitmask of this class's PASSWORD_FALLBACK_* constants.
 	 * @return bool Whether the supplied password was correct.
 	 */
-	protected static function checkPasswordFallbacks(string $password, User $member, int $allowed_fallbacks): bool
-	{
+	protected static function checkPasswordFallbacks(
+		#[\SensitiveParameter]
+		string $password,
+		User $member,
+		int $allowed_fallbacks,
+	): bool {
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];
 
@@ -1398,8 +1413,11 @@ class Security
 	 * @param string $passwd_hash The hashed password stored in the database.
 	 * @return ?string The hashed version of $passwd.
 	 */
-	protected static function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
-	{
+	protected static function phpBB3_password_check(
+		#[\SensitiveParameter]
+		string $passwd,
+		string $passwd_hash,
+	): ?string {
 		// Too long or too short?
 		if (\strlen($passwd_hash) != 34) {
 			return null;
