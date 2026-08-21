@@ -1409,7 +1409,12 @@ class Security
 		}
 
 		// Did anything match?
-		return \in_array($member->passwd, $other_passwords);
+		// Check all options with hash_equals() to prevent timing attacks.
+		foreach ($other_passwords as $other_password) {
+			$is_correct = ($is_correct ?? 0) | hash_equals($member->passwd, $other_password);
+		}
+
+		return (bool) $is_correct;
 	}
 
 	/**
