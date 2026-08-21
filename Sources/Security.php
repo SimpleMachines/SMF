@@ -105,6 +105,10 @@ class Security
 	 *    Must be a bitmask of this class's PASSWORD_FALLBACK_* constants.
 	 * @param bool $flood_check Whether to check for flooding attempts.
 	 *    Default: true
+	 * @param bool $update Whether to update the member's stored password if
+	 *    the given password is correct but the stored password uses the wrong
+	 *    encryption algorithm. This should almost always be set to true.
+	 *    Default: true
 	 * @return bool Whether the password is correct.
 	 */
 	public static function checkPassword(
@@ -113,6 +117,7 @@ class Security
 		User $member,
 		int $allowed_fallbacks,
 		bool $flood_check = true,
+		bool $update = true,
 	): bool {
 		if (self::hashVerifyPassword($password, $member->passwd)) {
 			return true;
@@ -124,8 +129,19 @@ class Security
 		}
 
 		// If the forum was recently upgraded, password might be encrypted
-		// using a different algorithm. If so, fix it. Otherwise, bail out.
-		return self::checkPasswordFallbacks($password, $member, $allowed_fallbacks);
+		// using a different algorithm.
+		$is_correct = self::checkPasswordFallbacks($password, $member, $allowed_fallbacks);
+
+		// Whichever encryption it was using, let's make it use SMF's now ;).
+		if ($is_correct && $update) {
+			$member->passwd = self::hashPassword($password);
+			$member->password_salt = bin2hex(random_bytes(16));
+			$member->passwd_flood = '';
+
+			$member->save();
+		}
+
+		return $is_correct;
 	}
 
 	/**
@@ -1310,6 +1326,7 @@ class Security
 			$other_passwords[] = hash_hmac('md5', $password, strtolower($member->username));
 		}
 
+		// Other forum software packages, for the case of conversions.
 		if (
 			$allowed_fallbacks & self::PASSWORD_FALLBACK_OTHER
 			&& !empty(Config::$modSettings['enable_password_conversion'])
@@ -1391,19 +1408,8 @@ class Security
 			IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
 		}
 
-		// Whichever encryption it was using, let's make it use SMF's now ;).
-		if (\in_array($member->passwd, $other_passwords)) {
-			$member->passwd = self::hashPassword($password);
-			$member->password_salt = bin2hex(random_bytes(16));
-			$member->passwd_flood = '';
-
-			$member->save();
-
-			return true;
-		}
-
-		// Okay, they for sure didn't enter the password!
-		return false;
+		// Did anything match?
+		return \in_array($member->passwd, $other_passwords);
 	}
 
 	/**
