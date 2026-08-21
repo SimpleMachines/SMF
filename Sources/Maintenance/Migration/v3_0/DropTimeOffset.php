@@ -94,6 +94,8 @@ class DropTimeOffset extends MigrationBase
 			$params = [];
 
 			foreach ($offsets as $offset => $tzid) {
+				$offset = (string) $offset;
+
 				$set .= ' WHEN time_offset = {float:' . md5($offset) . '} THEN {string:' . md5($tzid) . '}';
 
 				$params[md5($offset)] = $offset;
