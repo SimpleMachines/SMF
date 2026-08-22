@@ -39,28 +39,64 @@ class RemoveTempAttachments extends ScheduledTask
 	public function execute(): bool
 	{
 		// We need to know where this thing is going.
-		if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
-			if (!\is_array(Config::$modSettings['attachmentUploadDir'])) {
-				Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
-			}
+		if (!isset(Config::$modSettings['attachmentUploadDir'])) {
+			$this->error(null);
 
-			// Just use the current path for temp files.
-			$attach_dirs = Config::$modSettings['attachmentUploadDir'];
-		} else {
-			$attach_dirs = [Config::$modSettings['attachmentUploadDir']];
+			return true;
 		}
 
+		// Is it a simple file path?
+		if (
+			!\is_array(Config::$modSettings['attachmentUploadDir'])
+			&& is_dir(Config::$modSettings['attachmentUploadDir'])
+		) {
+			$attach_dirs = [1 => Config::$modSettings['attachmentUploadDir']];
+		}
+		// Is it an array of file paths?
+		elseif (\is_array(Config::$modSettings['attachmentUploadDir'])) {
+			$attach_dirs = Config::$modSettings['attachmentUploadDir'];
+		}
+		// Is it a JSON string?
+		elseif (
+			\is_array(
+				@Utils::jsonDecode(
+					Config::$modSettings['attachmentUploadDir'],
+					associative: true,
+					should_log: false,
+				),
+			)
+		) {
+			$attach_dirs = Utils::jsonDecode(
+				Config::$modSettings['attachmentUploadDir'],
+				associative: true,
+				should_log: false,
+			);
+		}
+		// Is it a serialized string?
+		elseif (
+			\is_array(
+				@Utils::safeUnserialize(
+					Config::$modSettings['attachmentUploadDir'],
+				),
+			)
+		) {
+			$attach_dirs = Utils::safeUnserialize(Config::$modSettings['attachmentUploadDir']);
+		}
+		// Invalid.
+		else {
+			$this->error(Config::$modSettings['attachmentUploadDir']);
+
+			return true;
+		}
+
+		// Now that we have all our attachment directories, clean them.
 		foreach ($attach_dirs as $attach_dir) {
 			$dir = @opendir($attach_dir);
 
 			if (!$dir) {
-				Theme::loadEssential();
+				$this->error($attach_dir);
 
-				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post');
-
-				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post'), 'critical');
-
-				return true;
+				continue;
 			}
 
 			while ($file = readdir($dir)) {
@@ -80,5 +116,37 @@ class RemoveTempAttachments extends ScheduledTask
 		}
 
 		return true;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * undocumented method
+	 *
+	 * @param ?string $attach_dir
+	 */
+	private function error(?string $attach_dir): void
+	{
+		Theme::loadEssential();
+
+		if ($attach_dir === null) {
+			$error_message = Lang::getTxt(
+				'attach_directory_admin_warning',
+				['attach_dir' => 'null'],
+				file: 'Post',
+			);
+		} else {
+			$error_message = Lang::getTxt(
+				'cant_access_upload_path',
+				['path' => $attach_dir],
+				file: 'Post',
+			);
+		}
+
+		Utils::$context['scheduled_errors']['remove_temp_attachments'][] = $error_message;
+
+		ErrorHandler::log($error_message, 'critical');
 	}
 }
