@@ -460,14 +460,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				// Make a list of the non-pk fields.
 				foreach ($columns as $column_name => $type) {
-					if (!\in_array($column_name, $keys) && ($method == 'replace')) {
+					if (
+						!\in_array($column_name, $possibly_conflicting_columns)
+						&& $method == 'replace'
+					) {
 						$col_str .= ($count > 0 ? ',' : '');
 						$col_str .= $column_name . ' = EXCLUDED.' . $column_name;
 						$count++;
 					}
 				}
 
-				if ($method == 'replace') {
+				if ($method == 'replace' && !empty($col_str)) {
 					$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
 				} else {
 					$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
