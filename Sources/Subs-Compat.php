@@ -1340,7 +1340,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
-	 * @param string &mime_type Will be set to the detected MIME type.
+	 * @param string &$mime_type Will be set to the detected MIME type.
 	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
 	 */
 	function check_mime_type(string $data, string $type_pattern, bool $is_path = false, ?string &$mime_type = ''): int
@@ -6418,7 +6418,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	function ModifyProfile(array $post_errors = []): void
 	{
 		$obj = SMF\Actions\Profile\Main::load();
-		$obj->save_errors = $post_errors;
+		SMF\Profile::$member->save_errors = $post_errors;
 		$obj->execute();
 	}
 
