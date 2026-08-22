@@ -2216,9 +2216,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			foreach ($columns as $k => $v) {
-				$columns[$k] = trim($v);
+				// Remove the opclass suffix, if present.
+				$columns[$k] = preg_replace('/\s+\w+_ops$/', '', trim($v));
 			}
 
+			// We only want the basic column name.
 			$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
 
 			if (!$detail) {
