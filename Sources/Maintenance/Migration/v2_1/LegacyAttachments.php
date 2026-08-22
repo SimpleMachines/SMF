@@ -68,12 +68,6 @@ class LegacyAttachments extends MigrationBase
 		$custom_av_dir = $this->checkCustomAvatarDirectory();
 		Maintenance::$total_items = $this->getTotalAttachments();
 
-		// We may be using multiple attachment directories.
-		if (!empty(Config::$modSettings['currentAttachmentUploadDir']) && !\is_array(Config::$modSettings['attachmentUploadDir']) && empty(Config::$modSettings['json_done'])) {
-			Config::$modSettings['attachmentUploadDir'] = @unserialize(Config::$modSettings['attachmentUploadDir']);
-		}
-
-
 		$is_done = false;
 
 		while (!$is_done) {
