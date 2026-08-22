@@ -4731,10 +4731,9 @@ class User implements \ArrayAccess
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
-		// This is what a guest's variables should be.
-		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
-			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
-			self::$profiles[0]['dataset'] = UserDataset::Basic;
+		// Ensure the guest profile has been loaded.
+		if (!isset(self::$profiles[0])) {
+			self::loadUserData([0]);
 		}
 
 		// If they gave us a bad cookie, discard it.
@@ -5303,6 +5302,7 @@ class User implements \ArrayAccess
 				};
 			}
 
+			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
 			self::$profiles[0]['dataset'] = UserDataset::Minimal;
 
 			$loaded_ids[] = 0;
