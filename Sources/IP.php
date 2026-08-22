@@ -187,6 +187,28 @@ class IP implements \Stringable
 	}
 
 	/**
+	 * If ipv4 has been passed inside ipv6, using ::ffff:ipv4 format, pluck the ipv4 out of there.
+	 * We'd rather use the real ipv4 for display & for lookups, etc.
+	 * Consistently trim before usage. ipv6 is sometimes enclosed in square brackets (to clarify port vs ip).
+	 *
+	 * @return string $ip
+	 */
+	public function simplified()
+	{
+		return $this->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $this->ip) : (string) $this->ip;
+	}
+
+	/**
+	 * Checks if an IP matches an expected localhost IP, for locally hosted proxies.
+	 * Note: FILTER_FLAG_GLOBAL_RANGE may be more helpful here (see RFC6890), but it's only supported in PHP 8.2+
+	 *
+	 */
+	public function isLocalhostIP(): bool
+	{
+		return filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE) === false;
+	}
+
+	/**
 	 * Tries to finds the name of the host that corresponds to this IP address.
 	 *
 	 * @param int $timeout Milliseconds until timeout. Set to 0 for no timeout.
@@ -253,49 +275,51 @@ class IP implements \Stringable
 	 */
 	public function matchToCIDR(string $cidr_address): bool
 	{
-		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
+		// Validate the CIDR, skip if bogus
+		$addr_split = explode('/', $cidr_address);
+		$cidr_network = $addr_split[0];
 
-		$ip_address = $this->ip;
+		if (!isValidIP($cidr_network)) {
+			return false;
+		}
+		$cidr_network_packed = inet_pton($cidr_network);
+		$ip_address_packed = inet_pton($this->ip);
 
-		// v6?
-		if (str_contains($cidr_network, ':')) {
-			if (
-				!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)
-				|| !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)
-			) {
-				return false;
-			}
-
-			$ip_address = inet_pton($ip_address);
-			$cidr_network = inet_pton($cidr_network);
-			$bin_mask = str_repeat('f', (int) $cidr_subnetmask / 4);
-
-			switch ($cidr_subnetmask % 4) {
-				case 0:
-					break;
-
-				case 1:
-					$bin_mask .= '8';
-					break;
-
-				case 2:
-					$bin_mask .= 'c';
-					break;
-
-				case 3:
-					$bin_mask .= 'e';
-					break;
-			}
-
-			$bin_mask = str_pad($bin_mask, 32, '0');
-			$bin_mask = pack('H*', $bin_mask);
-		} else {
-			$ip_address = ip2long($ip_address);
-			$cidr_network = ip2long($cidr_network);
-			$bin_mask = ~((1 << (32 - $cidr_subnetmask)) - 1);
+		// Can't find an ipv4 in ipv6 CIDRs & vice-versa...
+		if (\strlen($cidr_network_packed) !== \strlen($ip_address_packed)) {
+			return false;
 		}
 
-		return ($ip_address & $bin_mask) == $cidr_network;
+		// Prefix must make sense if provided...
+		$bits = \strlen($cidr_network_packed) * 8;
+		$single_ip = !isset($addr_split[1]);
+
+		if (!$single_ip) {
+			$cidr_subnetmask = (int) $addr_split[1];
+
+			if (!is_numeric($addr_split[1]) || $cidr_subnetmask < 0 || $cidr_subnetmask > $bits) {
+				return false;
+			}
+		}
+
+		// Now build the range to check against...
+		if ($single_ip) {
+			$cidr_from = $cidr_network_packed;
+			$cidr_to = $cidr_network_packed;
+		} else {
+			$bin_mask = str_repeat('1', $cidr_subnetmask) . str_repeat('0', $bits - $cidr_subnetmask);
+			$bin_chunks = str_split($bin_mask, 8);
+			$chr_mask = '';
+
+			foreach ($bin_chunks as $chunk) {
+				$chr_mask .= \chr(bindec($chunk));
+			}
+			$cidr_from = $cidr_network_packed & $chr_mask;
+			$cidr_to = $cidr_network_packed | ~$chr_mask;
+		}
+
+		// strcmp is binary safe...
+		return ((strcmp($ip_address_packed, $cidr_from) > -1) && (strcmp($ip_address_packed, $cidr_to) < 1));
 	}
 
 	/***********************
@@ -526,6 +550,10 @@ class IP implements \Stringable
 	/**
 	 * Determines the IP of the current user.
 	 *
+	 * Users can use SMF's proxy configs if desired.  Normally, it is suggested folks use
+	 * mod_remoteip, which straightens out proxy vs user IPs.  If mod_remoteip is not
+	 * available at your host, or doesn't meet your needs, this SMF function may help.
+	 *
 	 * What it does:
 	 * - Checks REMOTE_ADDR exists
 	 * - If proxy detection is enabled, parses headers to find a valid header.
@@ -545,14 +573,32 @@ class IP implements \Stringable
 		}
 
 		$remote_addr = new self($_SERVER['REMOTE_ADDR']);
+		$valid_sender = false;
 
 		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
 		if (!isset(Config::$modSettings['proxy_ip_header'])) {
 			Config::$modSettings['proxy_ip_header'] = 'autodetect';
 		}
 
+		// Proxy config? Step 1: Check if IP passed is a valid server...
+		if (!empty(Config::$modSettings['proxy_ip_servers'])) {
+			foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
+				if (
+					$proxy == $_SERVER['REMOTE_ADDR']
+					|| $remote_addr->matchToCIDR($proxy)
+				) {
+					$valid_sender = true;
+					break;
+				}
+			}
+		}
+		// If a list of proxy ip servers has not been provided, we will assume its a valid sender if its from a localhost IP.
+		else {
+			$valid_sender = $remote_addr->isLocalhostIP();
+		}
+
 		// Which headers are we going to check for Reverse Proxy IP headers?
-		if (Config::$modSettings['proxy_ip_header'] == 'disabled') {
+		if (!$valid_sender || Config::$modSettings['proxy_ip_header'] == 'disabled') {
 			$reverseIPheaders = [];
 		} elseif (Config::$modSettings['proxy_ip_header'] == 'autodetect') {
 			$reverseIPheaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'];
@@ -563,45 +609,30 @@ class IP implements \Stringable
 		// Find the user's IP address. (but don't let it give you 'unknown'!)
 		foreach ($reverseIPheaders as $proxyIPheader) {
 			// Ignore if this is not set.
-			if (!isset($_SERVER[$proxyIPheader])) {
+			if (empty($_SERVER[$proxyIPheader])) {
 				continue;
 			}
 
-			if (!empty(Config::$modSettings['proxy_ip_servers'])) {
-				$valid_sender = false;
-
-				foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-					if (
-						$proxy == $_SERVER['REMOTE_ADDR']
-						|| $remote_addr->matchToCIDR($proxy)
-					) {
-						$valid_sender = true;
-						break;
-					}
-				}
-
-				if (!$valid_sender) {
-					continue;
-				}
-			}
-
+			// Break out each IP in order from first to last, trim it and set as a reference to this object.
 			$ips = array_map(
 				fn($ip) => new self($ip),
 				array_map(
 					'trim',
-					array_reverse(explode(',', $_SERVER[$proxyIPheader])),
+					explode(',', $_SERVER[$proxyIPheader]),
 				),
 			);
 
+			// Check each IP is a valid public IP.
 			foreach ($ips as $ip) {
 				if ($ip->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
-					static::$user_ip = $ip->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $ip) : (string) $ip;
+					// If this IP is a IPv4 stuffed into a IPv6, rip out the IPv4.
+					static::$user_ip = $ip->simplified();
 				}
 			}
 
 			// If both IPs are private, then I guess that's all we've got.
 			if (!isset(static::$user_ip) && !$remote_addr->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
-				static::$user_ip = $ips[0]->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $ips[0]) : (string) $ips[0];
+					static::$user_ip = $ip->simplified();
 			}
 		}
 
