@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
+use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
 use SMF\Profile;
 use SMF\Theme;
@@ -131,7 +132,7 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
+			if (!Permission::exists($row['permission'])) {
 				continue;
 			}
 
@@ -200,7 +201,7 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
+			if (!Permission::exists($row['permission'])) {
 				continue;
 			}
 
