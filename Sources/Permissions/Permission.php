@@ -357,6 +357,17 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'never_guests' => true,
 		],
+		// Deprecated, but retained in case the admin kept the karma data during
+		// an upgrade. If a modification wants to restore the karma feature, it
+		// should use the integrate_permissions_list hook to set the 'hidden'
+		// property of this permission to false.
+		'karma_edit' => [
+			'view_group' => 'profile',
+			'scope' => 'global',
+			'hidden' => true,
+			'never_guests' => true,
+			'never_banned' => true,
+		],
 		'likes_like' => [
 			'view_group' => 'likes',
 			'scope' => 'global',
