@@ -637,7 +637,7 @@ class IP implements \Stringable
 				if ($ip->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
 					// If this IP is a IPv4 stuffed into a IPv6, rip out the IPv4.
 					static::$user_ip = $ip->simplified();
-					break;
+					break 2;
 				}
 			}
 		}
