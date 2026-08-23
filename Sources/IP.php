@@ -629,16 +629,13 @@ class IP implements \Stringable
 			);
 
 			// Check each IP is a valid public IP.
+			// It may be a comma separated list.  We are only interested in the first one, per RFC 7239..
 			foreach ($ips as $ip) {
 				if ($ip->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
 					// If this IP is a IPv4 stuffed into a IPv6, rip out the IPv4.
 					static::$user_ip = $ip->simplified();
+					break;
 				}
-			}
-
-			// If both IPs are private, then I guess that's all we've got.
-			if (!isset(static::$user_ip) && !$remote_addr->isValid(FILTER_FLAG_GLOBAL_RANGE)) {
-					static::$user_ip = $ip->simplified();
 			}
 		}
 
