@@ -2489,136 +2489,10 @@ dl {
 	overflow: auto;
 }
 
-/* The basic user info on the left */
-#basicinfo {
-	width: 20%;
-	float: left;
-}
-#detailedinfo {
-	width: 79.5%;
-	float: right;
-}
-#basicinfo > * {
-	margin-bottom: 3px;
-}
-#basicinfo h4 {
-	font-size: 1.4em;
-	font-weight: normal;
-	-webkit-hyphens: auto;
-	-ms-hyphens: auto;
-	hyphens: auto;
-	word-wrap: break-word; /* IE fallback */
-	overflow-wrap: break-word;
-}
-#basicinfo h4 span.position {
-	font-size: 0.8em;
-	display: block;
-}
 #basicinfo img.avatar, dl.settings img.avatar {
 	display: block;
 	max-width: 160px;
 	height: auto !important;
-}
-#basicinfo ul {
-	list-style-type: none;
-}
-#basicinfo .icon_fields li {
-	display: block;
-	float: left;
-	margin-right: 5px;
-	height: 20px;
-}
-#basicinfo #userstatus {
-	display: block;
-	clear: both;
-}
-#basicinfo #userstatus img {
-	vertical-align: middle;
-}
-#detailedinfo dl, #tracking dl {
-	clear: right;
-	overflow: auto;
-	margin: 0 0 18px 0;
-	padding: 0 0 15px 0;
-	border-bottom: 1px #ccc solid;
-}
-#detailedinfo dt, #tracking dt {
-	width: 35%;
-	margin: 0 0 3px 0;
-	font-weight: bold;
-	color: var(--profile-dt-color);
-}
-#detailedinfo dd, #tracking dd {
-	width: 65%;
-	float: left;
-	margin: 0 0 3px 0;
-}
-#detailedinfo dl.settings:last-of-type {
-	border-bottom: 0;
-}
-#detailedinfo dt.clear {
-	width: 100%;
-}
-#personal_picture {
-	display: block;
-	margin-bottom: 4px;
-}
-#avatar_server_stored div {
-	float: left;
-}
-#avatar_upload {
-	overflow: auto;
-}
-#smileypr {
-	margin-left: 10px;
-}
-.edit_avatar_img {
-	margin: 0 0 1em;
-}
-
-/* Activity by time */
-#activitytime {
-	margin: 6px 0;
-}
-.activity_stats {
-	margin: 10px 0;
-}
-.activity_stats li {
-	width: 4.16%;
-	float: left;
-	text-align: center;
-}
-.activity_stats li span {
-	display: block;
-	border: 1px solid var(--activitystats-border-color);
-	border-left: none;
-	border-right: none;
-	background: var(--activitystats-bg);
-}
-.activity_stats li.last span {
-	border-right: none;
-}
-.activity_stats li .generic_bar {
-	height: 100px;
-	border-bottom: none;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-	margin: 0 auto;
-}
-.activity_stats li .generic_bar span {
-	position: absolute;
-	top: -1000em;
-	left: -1000em;
-}
-
-.profile_pie {
-	background: url(../images/stats_pie.png);
-	background-size: auto 20px;
-	float: left;
-	height: 20px;
-	width: 20px;
-	margin: 0 12px 0 0;
-	text-indent: -1000em;
 }
 
 /* View posts */
@@ -2659,10 +2533,6 @@ dl {
 	height: auto !important;
 	height: 80px;
 }
-.topic .mod_icons {
-	text-align: right;
-	margin-right: 12px;
-}
 
 #creator dt {
 	width: 40%;
@@ -2673,10 +2543,6 @@ dl {
 }
 .centericon {
 	vertical-align: middle;
-}
-.sizefix {
-	width: 16px;
-	height: 16px;
 }
 
 /* The board picker's title bar is one element now, the summary of a details.
@@ -2743,41 +2609,6 @@ dl {
 }
 #pick_theme .selected {
 	background: var(--picktheme-selected-bg);
-}
-
-/* Signature preview */
-
-#preview_signature, #preview_signature_display {
-	width: 100%;
-	overflow: hidden;
-}
-
-/* Issue a warning */
-#warn_body {
-	width: 100%;
-	font-size: 0.9em;
-}
-#warn_temp {
-	font-size: smaller;
-}
-
-/* Warning level bar */
-.warning_level {
-	text-align: center;
-	font-weight: bold;
-	max-width: 250px;
-}
-.warning_level.none .bar {
-	background-color: var(--warninglevel-bg_none);
-}
-.warning_level.watched .bar {
-	background-color: var(--warninglevel-bg_watched);
-}
-.warning_level.moderated .bar {
-	background-color: var(--warninglevel-bg_moderated);
-}
-.warning_level.muted .bar {
-	background-color: var(--warninglevel-bg_muted);
 }
 
 /* Styles for the statistics center.
