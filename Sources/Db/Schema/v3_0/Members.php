@@ -250,7 +250,7 @@ class Members extends Table
 			'validation_code' => new Column(
 				name: 'validation_code',
 				type: 'varchar',
-				size: 10,
+				size: 32,
 				not_null: true,
 				default: '',
 			),
