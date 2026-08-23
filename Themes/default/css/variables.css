@@ -765,4 +765,31 @@
 
 	/** Embedded Video **/
 	--video-bg:                                       black;
+
+	/** Editor **/
+	--editor-border-color:                            #bbb;
+	--editor-button-bg_active:                        #fff;
+	--editor-button-bg_pressed:                       #fff;
+	--editor-button-box-shadow_active:                inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+	--editor-button-box-shadow_pressed:               inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
+	--editor-dnd-bg:                                  rgba(255, 255, 255, 0.2);
+	--editor-dnd-border-color:                        #aaa;
+	--editor-dnd-color:                               #aaa;
+	--editor-dropdown-bg:                             #fff;
+	--editor-dropdown-border-color:                   #ccc;
+	--editor-dropdown-box-shadow:                     1px 2px 4px rgba(0, 0, 0, 0.2);
+	--editor-dropdown-label-color:                    #3c3c3c;
+	--editor-dropdown-link-bg_hover:                  #eee;
+	--editor-dropdown-link-color:                     #222;
+	--editor-icon-filter:                             none;
+	--editor-grip-border-color:                       #bbb;
+	--editor-group-border-color:                      #aaa;
+	--editor-icon-fill:                               #111;
+	--editor-icon-fill_disabled:                      #888;
+	--editor-grip-bg:                                 linear-gradient(#0000 0, #bbb 2px, #0000 3px, #bbb 5px, #0000 6px, #bbb 8px, #0000 9px);
+	--editor-group-bg:                                #ddd;
+	--editor-popup-bg:                                #568d;
+	--editor-popup-container-bg:                      #f5f5f5;
+	--editor-tablegrid-bg_active:                     #85a1b7;
+	--editor-tablegrid-border-color:                  #85a1b7;
 }

@@ -464,6 +464,44 @@
 	--overlay-bg:                                     var(--dark-bg-3);
 	--overlay-bg-image:                               linear-gradient(to bottom, hsl(var(--primary-color-hue), 14%, 20%) 0%, hsl(var(--primary-color-hue), 14%, 17%) 95%);
 
+	/* The editor's chrome only. The surface you actually type on lives in an
+	/* iframe with its own document and its own stylesheet, which has no tokens
+	/* in scope, so it is not reachable from here and is left for its own change.
+	/* That surface is only shown to members who have turned the rich editor on;
+	/* the default is the source view, which is an ordinary textarea on this
+	/* page and does follow the mode. */
+	/** Editor **/
+	--editor-border-color:                            var(--dark-line-strong);
+	--editor-button-bg_active:                        hsl(var(--primary-color-hue), 20%, 26%);
+	--editor-button-bg_pressed:                       hsl(var(--primary-color-hue), 20%, 30%);
+	--editor-button-box-shadow_active:                inset 1px 1px 0 rgba(0, 0, 0, 0.5), inset -1px 0 rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+	--editor-button-box-shadow_pressed:               inset 1px 1px 0 rgba(0, 0, 0, 0.5), inset -1px 0 rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(0, 0, 0, 0.5);
+	--editor-dnd-bg:                                  rgba(255, 255, 255, 0.08);
+	--editor-dnd-border-color:                        var(--dark-line-strong);
+	--editor-dnd-color:                               var(--dark-ink-dim);
+	--editor-dropdown-bg:                             var(--dark-bg-3);
+	--editor-dropdown-border-color:                   var(--dark-line-strong);
+	--editor-dropdown-box-shadow:                     1px 2px 4px rgba(0, 0, 0, 0.5);
+	--editor-dropdown-label-color:                    var(--dark-ink);
+	--editor-dropdown-link-bg_hover:                  hsl(var(--primary-color-hue), 25%, 26%);
+	--editor-dropdown-link-color:                     var(--dark-ink-bright);
+	--editor-grip-border-color:                       var(--dark-line);
+	--editor-group-border-color:                      var(--dark-line);
+	--editor-icon-fill:                               var(--dark-ink);
+	--editor-icon-fill_disabled:                      var(--dark-ink-dim);
+	--editor-grip-bg:                                 linear-gradient(#0000 0, hsl(var(--primary-color-hue), 10%, 40%) 2px, #0000 3px, hsl(var(--primary-color-hue), 10%, 40%) 5px, #0000 6px, hsl(var(--primary-color-hue), 10%, 40%) 8px, #0000 9px);
+	/* The sprite is a mix: most icons are near-black line art, but a few carry
+	/* their own colour - the YouTube mark, the coloured letters. Inverting alone
+	/* would light the line art and wreck those, so the hue rotation puts the
+	/* coloured ones back roughly where they started while the greys, which have
+	/* no hue to rotate, stay inverted. */
+	--editor-icon-filter:                             invert(1) hue-rotate(180deg);
+	--editor-group-bg:                                var(--dark-bg-3);
+	--editor-popup-bg:                                rgba(0, 0, 0, 0.65);
+	--editor-popup-container-bg:                      var(--dark-bg-3);
+	--editor-tablegrid-bg_active:                     hsl(var(--primary-color-hue), 40%, 45%);
+	--editor-tablegrid-border-color:                  var(--dark-line-strong);
+
 	/** Auto Suggest **/
 	--autosuggest-border-color:                       var(--dark-line-strong);
 	--autosuggest-item-bg:                            var(--dark-bg-3);
