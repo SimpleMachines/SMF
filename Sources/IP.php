@@ -209,9 +209,9 @@ class IP implements \Stringable
 	 * Note: FILTER_FLAG_GLOBAL_RANGE may be more helpful here (see RFC6890), but it's only supported in PHP 8.2+
 	 *
 	 */
-	public function isLocalhostIP(): bool
+	public function isPrivate(): bool
 	{
-		return filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE) === false;
+		return $this->isValid() && !$this->isValid(FILTER_FLAG_GLOBAL_RANGE);
 	}
 
 	/**
@@ -600,7 +600,7 @@ class IP implements \Stringable
 		}
 		// If a list of proxy ip servers has not been provided, we will assume its a valid sender if its from a localhost IP.
 		else {
-			$valid_sender = $remote_addr->isLocalhostIP();
+			$valid_sender = $remote_addr->isPrivate();
 		}
 
 		// Which headers are we going to check for Reverse Proxy IP headers?

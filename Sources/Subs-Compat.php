@@ -10299,7 +10299,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function valid_localhost_ip($ip)
 	{
-		return (new SMF\IP($ip))->isLocalhostIP();
+		return (new SMF\IP($ip))->isPrivate();
 	}
 
 	/**
