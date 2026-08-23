@@ -1004,7 +1004,7 @@ function template_editIgnoreList()
 		<div class="information">
 			<dl class="settings">
 				<dt>
-					<label for="new_buddy"><strong>', Lang::getTxt('who_member', file: 'General'), '</strong></label>
+					<label for="new_ignore"><strong>', Lang::getTxt('who_member', file: 'General'), '</strong></label>
 				</dt>
 				<dd>
 					<input type="text" name="new_ignore" id="new_ignore" size="30">
@@ -1107,7 +1107,7 @@ function template_trackIP()
 						<label for="searchip"><strong>', Lang::getTxt('enter_ip', file: 'Profile'), '</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="searchip" value="', Utils::$context['ip'], '">
+						<input type="text" name="searchip" id="searchip" value="', Utils::$context['ip'], '">
 					</dd>
 				</dl>
 				<input type="submit" value="', Lang::getTxt('trackIP', file: 'Profile'), '" class="button">
