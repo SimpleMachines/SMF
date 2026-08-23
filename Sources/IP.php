@@ -218,6 +218,29 @@ class IP implements \Stringable
 	}
 
 	/**
+	 * Checks if the IP is in our registered list of Proxy IP server
+	 *
+	 * @return bool True if found, false otherwise
+	 */
+	public function isRegisteredProxyServer(): bool
+	{
+		if (empty(Config::$modSettings['proxy_ip_servers'])) {
+			return false;
+		}
+
+		foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
+			if (
+				$proxy == $this->ip
+				|| $this->matchToCIDR($proxy)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Tries to finds the name of the host that corresponds to this IP address.
 	 *
 	 * @param int $timeout Milliseconds until timeout. Set to 0 for no timeout.
@@ -590,21 +613,10 @@ class IP implements \Stringable
 		}
 
 		// Proxy config? Step 1: Check if IP passed is a valid server...
-		if (!empty(Config::$modSettings['proxy_ip_servers'])) {
-			foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-				if (
-					$proxy == $_SERVER['REMOTE_ADDR']
-					|| $remote_addr->matchToCIDR($proxy)
-				) {
-					$valid_sender = true;
-					break;
-				}
-			}
-		}
+		$valid_sender = (new IP($_SERVER['REMOTE_ADDR']))->isRegisteredProxyServer();
+
 		// If a list of proxy ip servers has not been provided, we will assume its a valid sender if its from a localhost IP.
-		else {
-			$valid_sender = $remote_addr->isPrivate();
-		}
+		$valid_sender ??= $remote_addr->isPrivate();
 
 		// Which headers are we going to check for Reverse Proxy IP headers?
 		if (!$valid_sender || Config::$modSettings['proxy_ip_header'] == 'disabled') {
