@@ -532,6 +532,8 @@ class IP implements \Stringable
 	 * - If proxy IP filtering is setup, validates IP is in acceptable ranges
 	 * 		- Single IP or CIDR notation allowed.
 	 * - If a valid match is found return.
+	 *
+	 * @return string IP address of the user.
 	 */
 	public static function getUserIP(): string
 	{
@@ -613,8 +615,10 @@ class IP implements \Stringable
 
 	/**
 	 * Determines the Alternative IP of the current user.
+	 * This is typically the connecting IP provided by the server.
+	 * In cases of reverse proxies, this will be the reverse proxy server, not the users IP.
 	 *
-	 * Returns BAN_CHECK_IP if set, otherwise REMOTE_ADDR.
+	 * @return string The proxy server IP if set, otherwise REMOTE_ADDR.
 	 */
 	public static function getUserIPAlternative(): string
 	{
