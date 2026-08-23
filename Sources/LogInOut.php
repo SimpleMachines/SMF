@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl, $user_info, $modSettings;
+	global $txt, $context, $scripturl, $user_info, $modSettings, $smcFunc;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
@@ -72,7 +72,7 @@ function Login()
 
 	// Get the template ready.... not really much else to do.
 	$context['page_title'] = $txt['login'];
-	$context['default_username'] = &$_REQUEST['u'];
+	$context['default_username'] = $smcFunc['htmlspecialchars']($_REQUEST['u'] ?? '');
 	$context['default_password'] = '';
 	$context['never_expire'] = false;
 
