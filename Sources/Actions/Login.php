@@ -73,7 +73,7 @@ class Login extends Login2
 
 		// Get the template ready.... not really much else to do.
 		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
-		Utils::$context['default_username'] = &$_REQUEST['u'];
+		Utils::$context['default_username'] = Utils::htmlspecialchars($_REQUEST['u'] ?? '');
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = false;
 
