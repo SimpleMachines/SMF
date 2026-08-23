@@ -89,11 +89,17 @@ class IP implements \Stringable
 	 * If the passed string is not a valid IP address, it will be set to ''.
 	 *
 	 * @param ?string|self $ip The IP address in either string or binary form.
+	 * @param bool $clean Perform cleanups to the IP prior to parsing.
 	 */
-	public function __construct(self|string|null $ip)
+	public function __construct(self|string|null $ip, bool $clean = false)
 	{
 		if ($ip instanceof self) {
 			$ip = (string) $ip;
+		}
+
+		// When we are passing user provided input, we should perform cleanups to try and make sense of it.
+		if ($clean) {
+			$ip = $this->clean($ip);
 		}
 
 		// Is it in a valid IPv4 string?
@@ -277,12 +283,12 @@ class IP implements \Stringable
 	{
 		// Validate the CIDR, skip if bogus
 		$addr_split = explode('/', $cidr_address);
-		$cidr_network = $addr_split[0];
+		$cidr_network = new self($addr_split[0]);
 
-		if (!isValidIP($cidr_network)) {
+		if (!$cidr_network->isValid()) {
 			return false;
 		}
-		$cidr_network_packed = inet_pton($cidr_network);
+		$cidr_network_packed = inet_pton((string) $cidr_network);
 		$ip_address_packed = inet_pton($this->ip);
 
 		// Can't find an ipv4 in ipv6 CIDRs & vice-versa...
@@ -818,5 +824,16 @@ class IP implements \Stringable
 		$query .= "\0\0\x0C\0\1";
 
 		return $query;
+	}
+
+	/**
+	 * Performs cleanup logic on a string that may be a IP.
+	 *
+	 * @param string $raw A raw string which may contain a IP
+	 * @return string The cleaned value.
+	 */
+	private function clean($raw): string
+	{
+		return trim(trim($raw), '[]');
 	}
 }
