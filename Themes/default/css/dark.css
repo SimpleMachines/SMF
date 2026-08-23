@@ -27,7 +27,9 @@
 /* agree those values first and then check that each component reached for the
 /* right one. */
 :root[data-mode="dark"],
-:root[data-mode="system"] {
+:root[data-mode="system"],
+body[contenteditable="true"][data-mode="dark"],
+body[contenteditable="true"][data-mode="system"] {
 
 	/* The surfaces, from the page behind everything up to the topmost thing
 	/* that floats above it, then the two hairline weights, the three text

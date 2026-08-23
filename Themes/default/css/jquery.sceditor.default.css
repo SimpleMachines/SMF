@@ -10,9 +10,12 @@ html {
 }
 body {
 	flex: 1;
-	color: #111;
+	/* color: #111;
 	background: #fff;
-	font: 13px / 1.5 Verdana, Arial, Helvetica, sans-serif;
+	font: 13px / 1.5 Verdana, Arial, Helvetica, sans-serif; */
+	background: var(--body-bg);
+	font: var(--body-font-size)/150% var(--body-font-family);
+	color: var(--body-color);
 }
 
 ul, ol {
@@ -23,7 +26,7 @@ ul, ol {
 }
 
 table, td {
-	border: 1px dotted #000;
+	border: var(--bbc-table-border-width) var(--bbc-table-border-style) var(--bbc-table-border-color);
 	empty-cells: show;
 	min-width: 0.5ch;
 }
@@ -46,15 +49,18 @@ table td {
 .bbc_code {
 	margin-top: 1.5em;
 	position: relative;
-	background: #eee;
-	border: 1px solid #aaa;
+	background: var(--code-bg);
+	border-color: var(--code-border-color);
+	border-style: var(--code-border-style);
+	border-width: var(--code-border-width);
+	border-radius: var(--code-border-radius);
 	white-space: pre-wrap;
 	padding: .25em;
 	display: block;
 }
 
 span.phpcode, font[face=monospace] {
-	background-color: rgba(127, 127, 127, 0.25);
+	background: var(--code-bg);
 	padding: 0 0.2ch;
 	display: inline;
 }
@@ -62,21 +68,21 @@ span.phpcode, font[face=monospace] {
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
-	font-size: small;
-	border: 1px solid #d6dfe2;
-	border-left: 2px solid #aaa;
-	border-right: 2px solid #aaa;
-	background-color: #e0e6f6;
+	background-color: var(--quote-bg);
+	font-size: var(--quote-font-size);
+	border-color: var(--quote-border-color);
+	border-style: var(--quote-border-style);
+	border-width: var(--quote-border-width);
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid #aaa;
+	border-bottom: var(--quote-cite-border-width) var(--quote-cite-border-style) var(--quote-cite-border-color);
 	font-size: 0.9em;
 	margin-bottom: 0.5em;
 }
 
 blockquote cite::before {
-	color: #aaa;
+	color: var(--bbc-cite-color);
 	font-size: 22px;
 	font-style: normal;
 	content: '\275D';
@@ -157,7 +163,7 @@ img {
 }
 
 .bbc_details {
-	border: 1px dotted #aaa;
+	border: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 }
 .bbc_summary,
 .bbc_details_content {
@@ -165,8 +171,8 @@ img {
 }
 .bbc_details[open] .bbc_summary {
     padding-bottom: 5px;
-	border-bottom: 1px dotted #aaa;
+	border-bottom: var(--bbc-details-border-width) var(--bbc-details-border-style) var(--bbc-details-border-color);
 }
 .bbc_inline_spoiler {
-	outline: 2px dashed #aaa;
+	outline: var(--bbc-spoiler-outline-width) var(--bbc-spoiler-outline-style) var(--bbc-spoiler-outline-color);
 }

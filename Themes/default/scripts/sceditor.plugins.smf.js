@@ -308,6 +308,24 @@
 							css += rule.cssText;
 						}
 					}
+				} else if (sheet.href?.includes('/dark')) {
+					const currentMode = document.documentElement.getAttribute('data-mode') ?? 'system';
+					const runningDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+
+					// If we are forcing dark mode or have it running on system, copy the rules.
+					if (currentMode === "dark" || (currentMode === "system" && runningDarkMode)) {
+						for (const rule of sheet.cssRules) {
+							css += rule.cssText;
+						}
+						iframe.contentDocument.body.setAttribute('data-mode', currentMode === "dark" || runningDarkMode.matches ? 'dark' : 'light');
+
+						// Attach a listener to see if we switch from dark to light mode.
+						if (currentMode === "system") {
+							runningDarkMode.addEventListener('change', e => {
+								iframe.contentDocument.body.setAttribute('data-mode', runningDarkMode.matches ? 'dark' : 'light');
+							});
+						}
+					}
 				}
 			}
 			el.innerHTML = css;
