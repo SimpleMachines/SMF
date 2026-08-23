@@ -1614,9 +1614,11 @@ class Config
 					// match the opening quotation mark...
 					'(?P<quote_s>["\'])' .
 					// then any number of other characters or escaped quotation marks...
-					'(?:.(?!(?P>quote_s))|\\\(?=(?P>quote_s)))*.?' .
+					// (a back reference, not a subroutine call: the value itself can
+					// contain the other sort of quotation mark, and often does)
+					'(?:.(?!(?P=quote_s))|\\\(?=(?P=quote_s)))*.?' .
 					// then the closing quotation mark.
-					'(?P>quote_s)' .
+					'(?P=quote_s)' .
 					// Maybe there's a second string concatenated to this one.
 					'(?:\s*\.\s*)*' .
 				')+',
