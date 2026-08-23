@@ -199,15 +199,18 @@ class IP implements \Stringable
 	 *
 	 * @return string $ip
 	 */
-	public function simplified()
+	public function simplified(): string
 	{
 		return $this->is4in6() ? preg_replace('/^.*:(\d+\.\d+\.\d+\.\d+)$/', '$1', (string) $this->ip) : (string) $this->ip;
 	}
 
 	/**
 	 * Checks if an IP matches an expected localhost IP, for locally hosted proxies.
-	 * Note: FILTER_FLAG_GLOBAL_RANGE may be more helpful here (see RFC6890), but it's only supported in PHP 8.2+
+	 * Note: FILTER_FLAG_GLOBAL_RANGE is used, see RFC6890 for more information.
+	 * IPv4: https://www.iana.org/assignments/iana-ipv4-special-registry
+	 * IPv6: https://www.iana.org/assignments/iana-ipv6-special-registry
 	 *
+	 * @return bool True if the IP is a private space IP per the specification
 	 */
 	public function isPrivate(): bool
 	{
