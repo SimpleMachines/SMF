@@ -135,6 +135,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected $connect_errno;
 
+	/**
+	 * @var array
+	 *
+	 * Cache for list_indexes() method.
+	 */
+	private array $index_cache = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -1387,6 +1394,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->change_column($table_name, $column_info['name'], $column_info);
 		}
 
+		unset($this->index_cache[$short_table_name]);
+
 		return $result !== false;
 	}
 
@@ -1461,6 +1470,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		}
+
+		unset($this->index_cache[$parsed_table_name]);
 
 		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
@@ -1764,6 +1775,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
+		unset($this->index_cache[$short_table_name]);
+
 		return true;
 	}
 
@@ -1787,6 +1800,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		}
+
+		unset($this->index_cache[$parsed_table_name]);
 
 		return $result !== false;
 	}
@@ -1837,6 +1852,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return $if_exists == 'ignore';
 			}
 		}
+
+		unset($this->index_cache[$short_table_name]);
 
 		// If we've got this far - good news - no table exists. We can build our own!
 		if (!$db_trans) {
@@ -2021,6 +2038,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$tables = $this->list_tables($database);
 
 		if (\in_array($full_table_name, $tables)) {
+			unset($this->index_cache[$short_table_name]);
+
 			// We can then drop the table.
 			$this->transaction('begin');
 
@@ -2089,6 +2108,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		) {
 			return false;
 		}
+
+		unset($this->index_cache[$short_old_name]);
 
 		$result = $this->query(
 			'ALTER TABLE ' . $short_old_name . ' RENAME TO ' . $short_new_name,
@@ -2188,6 +2209,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
+		if (isset($this->index_cache[$parsed_table_name][$detail ? 'detail' : 'simple'])) {
+			return $this->index_cache[$parsed_table_name][$detail ? 'detail' : 'simple'];
+		}
+
 		$result = $this->query(
 			'SELECT CASE WHEN i.indisprimary THEN 1 ELSE 0 END AS is_primary,
 				CASE WHEN i.indisunique THEN 1 ELSE 0 END AS is_unique,
@@ -2233,7 +2258,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				];
 			}
 		}
+
 		$this->free_result($result);
+
+		if ($detail) {
+			$this->index_cache[$parsed_table_name]['detail'] = $indexes;
+			$this->index_cache[$parsed_table_name]['simple'] = array_keys($indexes);
+		} else {
+			$this->index_cache[$parsed_table_name]['simple'] = $indexes;
+		}
 
 		return $indexes;
 	}
@@ -2244,6 +2277,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function remove_column(string $table_name, string $column_name, array $parameters = [], string $error = 'fatal'): bool
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
+
+		unset($this->index_cache[$short_table_name]);
 
 		// Does it exist?
 		$columns = $this->list_columns($table_name, true);
@@ -2283,6 +2318,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+
+		unset($this->index_cache[$parsed_table_name]);
 
 		// The list_indexes() method will report the name of the primary key as
 		// 'primary' on MySQL and 'pkey' on PostgreSQL. If we were handed the
