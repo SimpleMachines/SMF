@@ -10,9 +10,6 @@ html {
 }
 body {
 	flex: 1;
-	/* color: #111;
-	background: #fff;
-	font: 13px / 1.5 Verdana, Arial, Helvetica, sans-serif; */
 	background: var(--body-bg);
 	font: var(--body-font-size)/150% var(--body-font-family);
 	color: var(--body-color);
