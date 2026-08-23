@@ -66,7 +66,7 @@
 	overflow: auto;
 	margin: 0 0 18px 0;
 	padding: 0 0 15px 0;
-	border-bottom: 1px #ccc solid;
+	border-bottom: 1px var(--detailedinfo-border-color) solid;
 }
 
 #detailedinfo dt, #tracking dt {

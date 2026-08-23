@@ -201,7 +201,7 @@ ul.quickbuttons li {
 }
 .buttonrow .button:first-child {
 	border-radius: 0;
-	border-right: 1px solid #ccc;
+	border-right: 1px solid var(--buttonrow-border-color);
 }
 
 .post_verification #verification_control {

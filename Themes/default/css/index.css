@@ -1292,7 +1292,7 @@ h1.forumtitle {
 }
 h1.forumtitle a {
 	color: var(--forumtitle-link-color);
-	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+	text-shadow: var(--forumtitle-link-text-shadow);
 }
 /* Float these items to the right */
 #siteslogan, img#smflogo {
@@ -1316,7 +1316,7 @@ img#smflogo {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-bottom: 1px solid #bbb;
+	border-bottom: 1px solid var(--innerwrap-border-color);
 	margin-bottom: 12px;
 	padding: 12px 10px 2px 10px;
 }
@@ -1959,8 +1959,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 .errorfile_table td.current {
 	font-weight: bold;
-	border-top: 1px solid rgba(0, 0, 0, 0.2);
-	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	border-top: 1px solid var(--errorfile-current-border-color);
+	border-bottom: 1px solid var(--errorfile-current-border-color);
 	border-width: 1px 0 1px 1px;
 	background: var(--errorfile-bg_current);
 }
@@ -2513,7 +2513,7 @@ dl {
 	margin-left: 25px;
 }
 .list_posts {
-	border-top: 1px solid #ddd;
+	border-top: 1px solid var(--listposts-border-color);
 	box-shadow: var(--listposts-box-shadow);
 	padding-top: 1em;
 	margin-top: 1em;
@@ -3673,13 +3673,13 @@ form#postmodify .roundframe {
 #post_draft_options {
 	background: var(--draftoptions-bg);
 	border: 1px solid var(--draftoptions-border-color);
-	border-left: 1px solid #bbb;
+	border-left: 1px solid var(--draftoptions-border-color_left);
 	border-top: none;
 	border-radius: 0 0 4px 4px;
 }
 #post_draft_options .settings dd, #post_draft_options .settings dt {
 	width: 50%;
-	border-top: 1px solid #e4e4e4;
+	border-top: 1px solid var(--draftoptions-item-border-color);
 	padding: 5px 10px;
 	margin: 0;
 }

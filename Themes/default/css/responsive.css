@@ -72,7 +72,7 @@
 		margin: 0 auto;
 	}
 	#mobile_action .notify_dropdown a {
-		border-bottom: 1px solid #999;
+		border-bottom: 1px solid var(--mobileaction-item-border-color);
 	}
 	#mobile_action .notify_dropdown a:last-of-type {
 		border-bottom: none;
@@ -194,7 +194,7 @@
 		min-height: 2em;
 	}
 	.up_contain .lastpost {
-		border-top: 1px solid #ddd;
+		border-top: 1px solid var(--upcontain-lastpost-border-color);
 		min-height: initial;
 	}
 	.lastpost p {

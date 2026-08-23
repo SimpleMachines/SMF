@@ -792,4 +792,46 @@
 	--editor-popup-container-bg:                      #f5f5f5;
 	--editor-tablegrid-bg_active:                     #85a1b7;
 	--editor-tablegrid-border-color:                  #85a1b7;
+
+	/* Borders written as a shorthand rather than as a -color property, so
+	/* the sweep that tokenised the rest of the theme did not see them. */
+	/** Shorthand Borders **/
+	--attachment-dropzone-border-color_hover:         #557ea0;
+	--attachment-item-border-color:                   #ddd;
+	--buttonrow-border-color:                         #ccc;
+	--calendar-weeklist-border-color:                 #fff;
+	--detailedinfo-border-color:                      #ccc;
+	--draftoptions-border-color_left:                 #bbb;
+	--draftoptions-item-border-color:                 #e4e4e4;
+	--errorfile-current-border-color:                 rgba(0, 0, 0, 0.2);
+	--forumtitle-link-text-shadow:                    1px 1px 1px rgba(0, 0, 0, 0.3);
+	--innerwrap-border-color:                         #bbb;
+	--listposts-border-color:                         #ddd;
+	--mobileaction-item-border-color:                 #999;
+	--upcontain-lastpost-border-color:                #ddd;
+
+	/* atwho.css already gives each of these a fallback, so the mentions list
+	/* has never looked wrong. But a token that is never declared cannot be
+	/* overridden either, which is what kept the list light in dark mode. Each
+	/* value here is the fallback it is declared from. */
+	/** Mentions **/
+	--mentions-bg:                                    #fff;
+	--mentions-border-color:                          hsl(0, 0%, 85%);
+	--mentions-border-radius:                         1px;
+	--mentions-border-style:                          solid;
+	--mentions-border-width:                          1px;
+	--mentions-box-shadow:                            0 0 5px rgba(0, 0, 0, 0.1);
+	--mentions-item-bg:                               #f2f2f2;
+	--mentions-item-bg_current:                       hsl(225, 100%, 60%);
+	--mentions-item-border-color:                     hsl(0, 0%, 85%);
+	--mentions-item-border-style:                     solid;
+	--mentions-item-border-width:                     0 0 1px;
+	--mentions-item-color:                            hsl(0, 0%, 20%);
+	--mentions-item-color_current:                    #fff;
+	--mentions-item-cursor:                           pointer;
+	--mentions-item-font-size:                        .95em;
+	--mentions-item-font-size_current:                .95em;
+	--mentions-item-font-weight:                      normal;
+	--mentions-item-font-weight_current:              normal;
+	--mentions-width:                                 120px;
 }
