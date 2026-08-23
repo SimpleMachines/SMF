@@ -2147,7 +2147,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_db_error(): void
 	{
-		SMF\ErrorHandler::displayDbError();
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->displayDbError();
 	}
 
 	/**
@@ -2158,7 +2160,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_loadavg_error(): void
 	{
-		SMF\ErrorHandler::displayLoadAvgError();
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->displayLoadAvgError();
 	}
 
 	/**
@@ -2169,7 +2173,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_maintenance_message(): void
 	{
-		SMF\ErrorHandler::displayMaintenanceMessage();
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->displayMaintenanceMessage();
 	}
 
 	/**
@@ -2667,7 +2673,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function fatal_error(string $error, string|bool $log = 'general', int $status = 500): void
 	{
-		SMF\ErrorHandler::fatal($error, $log, $status);
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->fatal($error, $log, $status);
 	}
 
 	/**
@@ -2687,7 +2695,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function fatal_lang_error(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
 	{
-		SMF\ErrorHandler::fatalLang($error, $log, $sprintf, $status);
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->fatalLang($error, $log, $sprintf, $status);
 	}
 
 	/**
@@ -4163,13 +4173,19 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		// You're in biiig trouble!
 		if (($bans['cannot_access']['email_address'] ?? null) == $email) {
 			SMF\Logging::logBan($bans['cannot_access']['ids']);
-			SMF\ErrorHandler::fatal(SMF\Lang::getTxt('your_ban', ['name' => SMF\Lang::getTxt('guest_title', file: 'General')]) . ($bans['cannot_access']['reason'] ?? ''), false, 403);
+
+			/** @var ?SMF\Services\ErrorHandlerService */
+			$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+			$svc->fatal(SMF\Lang::getTxt('your_ban', ['name' => SMF\Lang::getTxt('guest_title', file: 'General')]) . ($bans['cannot_access']['reason'] ?? ''), false, 403);
 		}
 
 		// Log this ban for future reference.
 		if (!empty($bans[$restriction]) && $bans[$restriction]['email_address'] == $email) {
 			SMF\Logging::logBan($bans[$restriction]['ids'], $email);
-			SMF\ErrorHandler::fatal($error . ($bans[$restriction]['reason'] ?? ''), false, 403);
+
+			/** @var ?SMF\Services\ErrorHandlerService */
+			$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+			$svc->fatal($error . ($bans[$restriction]['reason'] ?? ''), false, 403);
 		}
 	}
 
@@ -4818,7 +4834,10 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		string $file = '',
 		int $line = 0,
 	): string {
-		return SMF\ErrorHandler::log(
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+
+		return $svc->log(
 			$error_message,
 			$error_type,
 			$file,
@@ -8008,6 +8027,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	/**
 	 * Outputs each member name on its own line.
 	 * - used by javascript to find members matching the request.
+	 *
+	 * @suppress PHP6406, We call a deprecated method here for backwards compatibility only.
 	 */
 	function RequestMembers(): void
 	{
@@ -8991,7 +9012,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function smf_error_handler(int $error_level, string $error_string, string $file, int $line): void
 	{
-		SMF\ErrorHandler::call($error_level, $error_string, $file, $line);
+		/** @var ?SMF\Services\ErrorHandlerService */
+		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		$svc->call($error_level, $error_string, $file, $line);
 	}
 
 	/**
@@ -9472,6 +9495,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	/**
 	 * Chops a string into words and prepares them to be inserted into (or searched from) the database.
 	 *
+	 * @suppress PHP6406, We call a deprecated method here for backwards compatibility only.
 	 * @param string $string The text to split into words
 	 * @param int|null $max_length The maximum number of characters per word
 	 * @param bool $encrypt Whether to encrypt the results
@@ -9937,6 +9961,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 *
 	 * if the member's post number is updated, updates their post groups.
 	 *
+	 * @suppress PHP6406, We call a deprecated method here for backwards compatibility only.
 	 * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
 	 * @param array $data The info to update for the members
 	 */
