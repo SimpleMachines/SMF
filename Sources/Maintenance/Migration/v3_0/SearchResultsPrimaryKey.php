@@ -48,9 +48,17 @@ class SearchResultsPrimaryKey extends MigrationBase
 		$table = new Schema\v3_0\LogSearchResults();
 		$existing_structure = $table->getCurrentStructure();
 
-		$idx = $existing_structure['indexes']['primary'] ?? null;
+		foreach ($existing_structure['indexes'] as $idx) {
+			if ($idx['type'] === 'primary') {
+				break;
+			}
+		}
 
-		return $idx == null || array_intersect($idx['columns'], self::$columns) !== [];
+		return (
+			!isset($idx)
+			|| $idx['type'] !== 'primary'
+			|| $idx['columns'] !== self::$columns
+		);
 	}
 
 	/**
@@ -63,7 +71,10 @@ class SearchResultsPrimaryKey extends MigrationBase
 
 		$this->handleTimeout();
 
-		Db::$db->add_index('{db_prefix}' . $table->name, ['type' => 'primary', 'columns' => self::$columns]);
+		Db::$db->add_index(
+			'{db_prefix}' . $table->name,
+			['type' => 'primary', 'columns' => self::$columns],
+		);
 
 		return true;
 	}
