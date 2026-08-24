@@ -1296,7 +1296,18 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function wordBoundaryWrapper(string $str): string
 	{
-		return \sprintf(Db::$db->supports_pcre ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
+		// PCRE and ICU use `\b` as the word boundary.
+		if (Db::$db->regex_pcre || Db::$db->regex_icu) {
+			return \sprintf('\\b%s\\b', $str);
+		}
+
+		// TCL uses `\y` as the word boundary.
+		if (Db::$db->regex_tcl) {
+			return \sprintf('\\y%s\\y', $str);
+		}
+
+		// We should never get here, but just in case...
+		return $str;
 	}
 
 	/**
