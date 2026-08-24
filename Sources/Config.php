@@ -1289,9 +1289,12 @@ class Config
 			return;
 		}
 
-		// Go check if there is any setting to be removed.
-		$to_remove = array_filter($change_array, fn($setting) => $setting === null);
-		$change_array = array_diff_key($change_array, $to_remove);
+		// Go check if there is any setting to be removed. The names are what we
+		// want here, not the nulls they are set to: {array_string:remove}
+		// binds the values, so handing it the whole array asks the database to
+		// delete every setting called ''.
+		$to_remove = array_keys($change_array, null, true);
+		$change_array = array_diff_key($change_array, array_flip($to_remove));
 
 		// Proceed with the deletion.
 		if (!empty($to_remove)) {
@@ -1302,6 +1305,15 @@ class Config
 					'remove' => $to_remove,
 				],
 			);
+
+			// The copy we are holding and the cached one both have to lose them
+			// as well. Otherwise the setting is still here for the rest of this
+			// request, and back again on the next one.
+			foreach ($to_remove as $variable) {
+				unset(self::$modSettings[$variable]);
+			}
+
+			Cache\CacheApi::put('modSettings', null, 90);
 		}
 
 		// In some cases, this may be better and faster, but for large sets we don't want so many UPDATEs.
@@ -1602,9 +1614,11 @@ class Config
 					// match the opening quotation mark...
 					'(?P<quote_s>["\'])' .
 					// then any number of other characters or escaped quotation marks...
-					'(?:.(?!(?P>quote_s))|\\\(?=(?P>quote_s)))*.?' .
+					// (a back reference, not a subroutine call: the value itself can
+					// contain the other sort of quotation mark, and often does)
+					'(?:.(?!(?P=quote_s))|\\\(?=(?P=quote_s)))*.?' .
 					// then the closing quotation mark.
-					'(?P>quote_s)' .
+					'(?P=quote_s)' .
 					// Maybe there's a second string concatenated to this one.
 					'(?:\s*\.\s*)*' .
 				')+',

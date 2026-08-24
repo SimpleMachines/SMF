@@ -174,6 +174,36 @@ touches `User::$me` or `Db::$db` needs a real request or fixtures.
 - **Deprecated compatibility layer**: `Sources/Subs-Compat.php` holds the old procedural
   API. It often shows the guard clauses the modern class methods should have; useful when
   tracking down a missing check.
+- **`release-2.1` is not the same thing as released 2.1.** `Subs-Compat.php` exists to keep
+  names that mods actually call working, and a mod can only call what shipped. Something
+  added to the `release-2.1` branch after the last tag is not public API yet and does not
+  need a shim, so check the tags rather than the branch:
+
+  ```bash
+  latest=$(git tag -l 'v2.1*' | sort -V | tail -1)
+  git grep 'function the_name' "$latest" -- Sources/
+  ```
+
+  This was asked for directly, on #9535:
+
+  > `make_fetch_safe()` never appeared in any released version of SMF 2.1 and never will,
+  > so it doesnt need to be preserved in Subs-Compat.php
+
+- **A removed check is not automatically a regression.** Some guards come out because they
+  were wrong, so work out what the code is *for* before arguing one back in. The case that
+  prompted this was `FtpConnection::passive()`, which had grown a check that the PASV
+  address was globally routable. That reads like SSRF protection, and taken on its own it
+  is. But `FtpConnection` is what the Package Manager uses to reach an FTP server the admin
+  nominated, which is very often on the LAN or on localhost, so the check broke the ordinary
+  case. From the same comment on #9535:
+
+  > It was a mistake to check for global IP addresses in `FtpConnection::passive()`, which
+  > is why that has been undone in this PR. When FtpConnection is used by the Package
+  > Manager, connecting to local IP addresses is commonly needed and intended. The check
+  > for global IP addresses only belongs in FtpFetcher, not FtpConnection.
+
+  The general shape: a class that fetches from the open web and a class that talks to
+  infrastructure the admin configured want opposite defaults. Put the check on the fetcher.
 
 ## Conventions to follow
 

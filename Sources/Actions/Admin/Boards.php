@@ -458,7 +458,7 @@ class Boards implements ActionInterface
 				'is_new' => true,
 				'name' => Lang::getTxt('mboards_new_board_name', file: 'ManageBoards'),
 				'description' => '',
-				'count_posts' => true,
+				'posts_count' => true,
 				'posts' => 0,
 				'topics' => 0,
 				'theme' => 0,

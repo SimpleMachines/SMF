@@ -264,7 +264,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Needs to at least meet our miniumn version.
 		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
-			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => PHP_MIN_VERSION], file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => Maintenance::PHP_MIN_VERSION], file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -1282,9 +1282,6 @@ class Install extends ToolsBase implements ToolsInterface
 		if (isset(Config::$modSettings['recycle_board'])) {
 			(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
-			// We've just installed!
-			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
-
 			User::$me->ip = IP::getUserIP();
 
 			Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
@@ -1435,10 +1432,19 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function saveProgress(): bool
 	{
-		return $this->updateSettingsFile(['maintenance_tool_progress' => json_encode([
-			'started' => $this->time_started,
-			'debug' => $this->debug,
-		])]);
+		// Once we are done there is no progress left to track, and leaving a
+		// value here would tell SMF that an install is still in progress. That
+		// would stop background tasks from ever running on the new forum.
+		if (Maintenance::$overall_percent < 100) {
+			$data = json_encode([
+				'started' => $this->time_started,
+				'debug' => $this->debug,
+			]);
+		} else {
+			$data = '';
+		}
+
+		return $this->updateSettingsFile(['maintenance_tool_progress' => $data]);
 	}
 
 	/**

@@ -8,24 +8,28 @@
  *	https://opensource.org/licenses/mit-license.php
  */
 .sceditor-grip {
-	border-top: 1px solid #bbb;
+	border-top: 1px solid var(--editor-grip-border-color);
 	cursor: s-resize;
 	padding-block: 4px;
 	text-align: center;
 	line-height: 0;
 }
 .sceditor-grip::before {
-	background: linear-gradient(#0000 0, #bbb 2px, #0000 3px, #bbb 5px, #0000 6px, #bbb 8px, #0000 9px);
+	background: var(--editor-grip-bg);
 	content: "";
 	display: inline-block;
 	height: 9px;
 	width: 64px;
 }
+/* Every toolbar icon is cut from one raster sprite, so none of them can be
+   recoloured the way an icon font or an SVG could. The filter is the only lever
+   a colour mode has over them; it is `none` here and stays that way. */
 .sceditor-button div {
 	background-image: url("../images/icons/editor_sprite.png");
 	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
+	filter: var(--editor-icon-filter);
 }
 .sceditor-button-youtube div {
 	background-position: 0px 0px;
@@ -152,7 +156,7 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	border: 1px solid #bbb;
+	border: 1px solid var(--editor-border-color);
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
@@ -171,12 +175,12 @@ div.sceditor-dnd-cover {
 	left: 0;
 	bottom: 0;
 	right: 0;
-	background: rgba(255, 255, 255, 0.2);
-	border: 5px dashed #aaa;
+	background: var(--editor-dnd-bg);
+	border: 5px dashed var(--editor-dnd-border-color);
 	z-index: 200;
 	font-size: 2em;
 	text-align: center;
-	color: #aaa;
+	color: var(--editor-dnd-color);
 }
 div.sceditor-dnd-cover p {
 	position: relative;
@@ -215,11 +219,11 @@ body.sceditor-maximize {
 }
 .sceditor-dropdown {
 	position: absolute;
-	border: 1px solid #ccc;
-	background: #fff;
+	border: 1px solid var(--editor-dropdown-border-color);
+	background: var(--editor-dropdown-bg);
 	z-index: 4000;
 	border-radius: 2px;
-	box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--editor-dropdown-box-shadow);
 }
 .sceditor-dropdown:not(.sceditor-font-picker, .sceditor-item-picker) > div {
 	display: grid; 
@@ -238,15 +242,15 @@ body.sceditor-maximize {
 }
 .sceditor-dropdown label {
 	display: block;
-	color: #3c3c3c;
+	color: var(--editor-dropdown-label-color);
 	padding: 4px 0;
 }
 .sceditor-dropdown a:hover {
-	background: #eee;
+	background: var(--editor-dropdown-link-bg_hover);
 	text-decoration: none;
 }
 .sceditor-dropdown a {
-	color: #222;
+	color: var(--editor-dropdown-link-color);
 	display: block;
 	line-height: 1;
 	padding: 7px 10px;
@@ -269,10 +273,10 @@ body.sceditor-maximize {
 }
 .sceditor-group {
 	display: inline-block;
-	background: #ddd;
+	background: var(--editor-group-bg);
 	padding: 1px 2px;
 	margin: 2px 4px;
-	border-bottom: 1px solid #aaa;
+	border-bottom: 1px solid var(--editor-group-border-color);
 	border-radius: 3px;
 }
 .sceditor-button {
@@ -287,13 +291,13 @@ body.sceditor-maximize {
 .sceditor-button:not(.disabled):hover,
 .sceditor-button:active,
 .sceditor-button.active {
-	background: #fff;
-	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+	background: var(--editor-button-bg_active);
+	box-shadow: var(--editor-button-box-shadow_active);
 }
 
 .sceditor-button:active {
-	background: #fff;
-	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
+	background: var(--editor-button-bg_pressed);
+	box-shadow: var(--editor-button-box-shadow_pressed);
 }
 .sceditor-button.disabled {
 	cursor: default;
@@ -303,12 +307,12 @@ body.sceditor-maximize {
 	height: 16px;
 	width: 16px;
 	margin: 2px 0;
-	fill: #111;
+	fill: var(--editor-icon-fill);
 	pointer-events: none;
 	line-height: 1;
 }
 .sceditor-button.disabled svg {
-	fill: #888;
+	fill: var(--editor-icon-fill_disabled);
 }
 .sceditor-button div {
 	margin: 2px 0;
@@ -401,14 +405,14 @@ body.sceditor-maximize {
 }
 .sceditor-insert-table-grid span {
 	opacity: 0.5;
-	border: 1px solid #85a1b7;
+	border: 1px solid var(--editor-tablegrid-border-color);
 }
 .sceditor-insert-table-grid .active {
-	background: #85a1b7;
+	background: var(--editor-tablegrid-bg_active);
 }
 
 #popup {
-	background: #568d;
+	background: var(--editor-popup-bg);
 	height: 100%;
 	width: 100%;
 	position: fixed;
@@ -426,7 +430,7 @@ body.sceditor-maximize {
 	transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
 }
 #popup-container {
-	background: #f5f5f5;
+	background: var(--editor-popup-container-bg);
 	border-radius: 0.4em;
 	margin: 0 auto;
 	padding: 1rem;

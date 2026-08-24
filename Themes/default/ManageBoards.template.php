@@ -522,7 +522,7 @@ function template_modify_board()
 							<span class="smalltext">', Lang::getTxt('mboards_count_posts_desc', file: 'ManageBoards'), '</span><br>
 						</dt>
 						<dd>
-							<input type="checkbox" name="count"', Utils::$context['board']['count_posts'] ? ' checked' : '', '>
+							<input type="checkbox" name="count"', Utils::$context['board']['posts_count'] ? ' checked' : '', '>
 						</dd>
 					</dl>
 				</div>';

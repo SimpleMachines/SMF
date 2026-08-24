@@ -675,6 +675,7 @@ class Main implements ActionInterface, Routable
 
 		Utils::$context['template_layers'][] = 'profile';
 
+		Theme::loadCSSFile('profile.css', ['minimize' => true, 'order_pos' => 2], 'smf_profile');
 		Theme::loadJavaScriptFile('profile.js', ['defer' => false, 'minimize' => true], 'smf_profile');
 
 		// Right - are we saving - if so let's save the old data first.

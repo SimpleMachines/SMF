@@ -220,6 +220,8 @@ class Theme
 
 		$this->loadCss();
 
+		$this->loadMode();
+
 		$this->loadVariant();
 
 		Utils::$context['tabindex'] = 1;
@@ -2208,7 +2210,7 @@ class Theme
 						'replace',
 						'{db_prefix}themes',
 						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-						[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']],
+						[[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']]],
 						['id_theme', 'id_member', 'variable'],
 					);
 				}
@@ -2224,7 +2226,15 @@ class Theme
 				Utils::$context['theme_colormode'] = !empty($this->settings['default_colormode']) && \in_array($this->settings['default_colormode'], $this->settings['theme_colormodes']) ? $this->settings['default_colormode'] : $this->settings['theme_colormodes'][0];
 			}
 
-			self::loadCSSFile('dark.css', ['order_pos' => 2, 'attributes' => (Utils::$context['theme_colormode'] == 'system' ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
+			// In 'system' mode the media attribute is the whole mechanism: it is
+			// what asks the browser rather than the member. But attributes are
+			// only printed for files served on their own - a file folded into
+			// the minified bundle loses them - so this is the one mode that has
+			// to stay out of it. The other two carry no attribute and bundle as
+			// usual, which also lets them share one cached file.
+			$system_mode = Utils::$context['theme_colormode'] == 'system';
+
+			self::loadCSSFile('dark.css', ['minimize' => !$system_mode, 'order_pos' => 2, 'attributes' => ($system_mode ? ['media' => '(prefers-color-scheme: dark)'] : [])], 'smf_dark');
 		}
 	}
 
