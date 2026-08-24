@@ -88,6 +88,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public bool $regex_tcl = true;
 
+	/**
+	 *
+	 */
+	public bool $regex_posix = true;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -2620,12 +2625,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		if ($this->get_vendor() === 'MariaDB') {
 			$this->regex_pcre = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '10.0.5', '>=');
-
-			$this->regex_tcl = !$this->regex_pcre;
 		} else {
 			$this->regex_icu = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '8.0.4', '>=');
-
-			$this->regex_tcl = !$this->regex_icu;
 		}
 
 		$this->character_set = strtolower($this->detect_charset('messages', 'body'));

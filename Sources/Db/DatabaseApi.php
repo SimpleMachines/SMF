@@ -112,6 +112,13 @@ abstract class DatabaseApi
 	public bool $regex_tcl;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether the database supports POSIX regular expressions.
+	 */
+	public bool $regex_posix;
+
+	/**
 	 * @var string
 	 *
 	 * Local copy of Config::$db_server.
