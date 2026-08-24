@@ -24,11 +24,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversNothing]
 class GuestPagesTest extends HttpTestCase
 {
-	#[DataProvider('guestPages')]
 	/****************
 	 * Public methods
 	 ****************/
 
+	#[DataProvider('guestPages')]
 	public function testThePageLoadsAndLogsNothing(string $path, string $name): void
 	{
 		$response = $this->fetch($path);
