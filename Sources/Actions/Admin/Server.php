@@ -23,7 +23,6 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
-use SMF\IP;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Sapi;
