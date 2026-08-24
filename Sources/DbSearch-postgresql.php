@@ -35,7 +35,7 @@ function db_search_init()
 	db_extend();
 
 	$smcFunc['db_support_ignore'] = true;
-	$smcFunc['db_supports_pcre'] = true;
+	$smcFunc['db_supports_pcre'] = false;
 }
 
 /**
