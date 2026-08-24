@@ -21,6 +21,7 @@ attachments/
 !/attachments/.htaccess
 !/attachments/index.php
 /upgrade.php
+/install.php
 Themes/default/css/minified*.css
 Themes/default/scripts/minified*.js
 Themes/default/scripts/minified_deferred*.js
@@ -71,6 +72,12 @@ ehthumbs.db
 Thumbs.db
 *.lnk
 ._*
+
+# Local dev environment #
+##########################
+/.env
+/compose.override.yaml
+/compose.override.yml
 
 # Test / Private files #
 ########################
