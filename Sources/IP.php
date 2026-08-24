@@ -79,6 +79,13 @@ class IP implements \Stringable
 	 */
 	private static ?string $user_ip_alternative = null;
 
+	/**
+	 * @var string[]
+	 *
+	 * Container of all registered proxy servers.
+	 */
+	private static array $registered_proxy_servers = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -228,11 +235,13 @@ class IP implements \Stringable
 			return false;
 		}
 
-		foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy) {
-			if (
-				$proxy == $this->ip
-				|| $this->matchToCIDR($proxy)
-			) {
+		// We may call this function multiple times, lets hold onto the initialization logic.
+		if (empty(static::$registered_proxy_servers)) {
+			static::$registered_proxy_servers = array_map('trim', explode(',', Config::$modSettings['proxy_ip_servers']));
+		}
+
+		foreach (static::$registered_proxy_servers as $proxy) {
+			if ($proxy == $this->ip || $this->matchToCIDR($proxy)) {
 				return true;
 			}
 		}
