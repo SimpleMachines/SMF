@@ -1306,6 +1306,11 @@ abstract class SearchApi implements SearchApiInterface
 			return \sprintf('\\y%s\\y', $str);
 		}
 
+		// POSIX uses `[[:<:]]` and `[[:>:]]` as the word boundaries.
+		if (Db::$db->regex_posix) {
+			return \sprintf('[[:<:]]%s[[:>:]]', $str);
+		}
+
 		// We should never get here, but just in case...
 		return $str;
 	}

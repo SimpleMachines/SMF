@@ -75,6 +75,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public bool $regex_tcl = true;
 
+	/**
+	 *
+	 */
+	public bool $regex_posix = true;
+
 	/*********************
 	 * Internal properties
 	 *********************/
