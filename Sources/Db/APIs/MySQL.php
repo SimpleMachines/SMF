@@ -61,9 +61,32 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public bool $support_ignore = true;
 
 	/**
+	 * @var bool
 	 *
+	 * Whether the database supports ICU regular expressions.
+	 *
+	 * Will be set to true at runtime for MySQL 8.0.4 and higher.
 	 */
-	public bool $supports_pcre = false;
+	public bool $regex_icu = false;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database supports PCRE regular expressions.
+	 *
+	 * Will be set to true at runtime for MariaDB 10.0.5 and higher.
+	 */
+	public bool $regex_pcre = false;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database supports TCL regular expressions.
+	 *
+	 * Will be set to false at runtime for MySQL 8.0.4 and higher and for
+	 * MariaDB 10.0.5 and higher.
+	 */
+	public bool $regex_tcl = true;
 
 	/*********************
 	 * Internal properties
@@ -2595,8 +2618,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			self::$db_connection = $this->connection;
 		}
 
-		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
+		if ($this->get_vendor() === 'MariaDB') {
+			$this->regex_pcre = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '10.0.5', '>=');
+
+			$this->regex_tcl = !$this->regex_pcre;
+		} else {
+			$this->regex_icu = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '8.0.4', '>=');
+
+			$this->regex_tcl = !$this->regex_icu;
+		}
 
 		$this->character_set = strtolower($this->detect_charset('messages', 'body'));
 		$this->mb4 = $this->character_set === 'utf8mb4';

@@ -93,10 +93,23 @@ abstract class DatabaseApi
 	/**
 	 * @var bool
 	 *
-	 * Whether the database supports PCRE regular expressions.
-	 * Always true for PostgreSQL. Depends on version for MySQL.
+	 * Whether the database supports ICU regular expressions.
 	 */
-	public bool $supports_pcre;
+	public bool $regex_icu;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database supports PCRE regular expressions.
+	 */
+	public bool $regex_pcre;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database supports TCL regular expressions.
+	 */
+	public bool $regex_tcl;
 
 	/**
 	 * @var string
@@ -323,7 +336,7 @@ abstract class DatabaseApi
 	 ****************/
 
 	/**
-	 * Protected constructor to prevent multiple instances.
+	 * Constructor.
 	 */
 	public function __construct()
 	{
@@ -605,8 +618,14 @@ abstract class DatabaseApi
 			'db_case_sensitive' => &$this->case_sensitive,
 			'db_mb4' => &$this->mb4,
 			'db_support_ignore' => &$this->support_ignore,
-			'db_supports_pcre' => &$this->supports_pcre,
 		];
+
+		// Previous versions of SMF didn't distinguish between PCRE vs. ICU regex support.
+		if ($this->regex_icu) {
+			Utils::$smcFunc['db_supports_pcre'] = &$this->regex_icu;
+		} else {
+			Utils::$smcFunc['db_supports_pcre'] = &$this->regex_pcre;
+		}
 
 		// Methods to export.
 		$methods = [
