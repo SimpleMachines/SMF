@@ -622,10 +622,12 @@ class IP implements \Stringable
 		}
 
 		// Proxy config? Step 1: Check if IP passed is a valid server...
-		$valid_sender = (new IP($_SERVER['REMOTE_ADDR']))->isRegisteredProxyServer();
-
-		// If a list of proxy ip servers has not been provided, we will assume its a valid sender if its from a localhost IP.
-		$valid_sender ??= $remote_addr->isPrivate();
+		if (!empty(Config::$modSettings['proxy_ip_servers'])) {
+			$valid_sender = (new IP($_SERVER['REMOTE_ADDR']))->isRegisteredProxyServer();
+		} else {
+			// If a list of proxy ip servers has not been provided, we will assume its a valid sender if its from a localhost IP.
+			$valid_sender ??= $remote_addr->isPrivate();
+		}
 
 		// Which headers are we going to check for Reverse Proxy IP headers?
 		if (!$valid_sender || Config::$modSettings['proxy_ip_header'] == 'disabled') {

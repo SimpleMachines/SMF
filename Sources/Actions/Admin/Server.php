@@ -1116,7 +1116,7 @@ class Server implements ActionInterface
 				$proxy_server_ips = explode(',', $_POST['proxy_ip_servers']);
 
 				foreach ($proxy_server_ips as &$ip) {
-					$ip = (new IP($ip, true)->simplified());
+					$ip = trim($ip);
 				}
 
 				$_POST['proxy_ip_servers'] = implode(',', $proxy_server_ips);
