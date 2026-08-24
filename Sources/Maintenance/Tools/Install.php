@@ -1252,9 +1252,6 @@ class Install extends ToolsBase implements ToolsInterface
 		if (isset(Config::$modSettings['recycle_board'])) {
 			(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
-			// We've just installed!
-			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
-
 			User::$me->ip = IP::getUserIP();
 
 			Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
