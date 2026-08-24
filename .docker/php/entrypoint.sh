@@ -72,7 +72,6 @@ if [ ! -f "$BOARD_DIR/Settings.php" ]; then
 		-e "s|^\$db_user = 'root';|\$db_user = '${SMF_DB_USER}';|" \
 		-e "s|^\$db_passwd = '';|\$db_passwd = '${SMF_DB_PASSWD}';|" \
 		-e "s|^\$boardurl = 'http://127.0.0.1/smf';|\$boardurl = '${SMF_BOARDURL}';|" \
-		-e "s|^\$mbname = 'My Community';|\$mbname = 'SMF Dev';|" \
 		"$BOARD_DIR/other/Settings.php" > "$BOARD_DIR/Settings.php"
 
 	cp "$BOARD_DIR/other/install.php" "$BOARD_DIR/install.php"
