@@ -79,14 +79,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public bool $regex_pcre = false;
 
 	/**
-	 * @var bool
 	 *
-	 * Whether the database supports TCL regular expressions.
-	 *
-	 * Will be set to false at runtime for MySQL 8.0.4 and higher and for
-	 * MariaDB 10.0.5 and higher.
 	 */
-	public bool $regex_tcl = true;
+	public bool $regex_tcl = false;
 
 	/**
 	 *
