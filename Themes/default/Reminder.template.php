@@ -30,8 +30,8 @@ function template_main()
 			<div class="roundframe">
 				<p class="smalltext centertext">', Lang::getTxt('password_reminder_desc', file: 'Profile'), '</p>
 				<dl>
-					<dt>', Lang::getTxt('user_email', file: 'Profile'), '</dt>
-					<dd><input type="text" name="user" size="30"></dd>
+					<dt><label for="user">', Lang::getTxt('user_email', file: 'Profile'), '</label></dt>
+					<dd><input type="text" name="user" id="user" size="30"></dd>
 				</dl>
 				<input type="submit" value="', Lang::getTxt('reminder_continue', file: 'Profile'), '" class="button">
 				<br class="clear">

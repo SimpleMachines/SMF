@@ -67,8 +67,8 @@ function template_mailtest()
 		</div>
 		<div class="windowbg">
 				<dl id="post_header">
-					<dt><span id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</span></dt>
-					<dd><input type="text" name="subject" size="80" maxlength="80"></dd>
+					<dt><label for="subject" id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</label></dt>
+					<dd><input type="text" name="subject" id="subject" size="80" maxlength="80"></dd>
 				</dl>
 				<textarea class="editor" name="message" rows="5" cols="200"></textarea>
 				<dl id="post_footer">

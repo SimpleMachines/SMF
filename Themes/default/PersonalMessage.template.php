@@ -1051,7 +1051,7 @@ function template_send()
 	// To and bcc. Include a button to search for members.
 	echo '
 					<dt>
-						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', trim(Lang::getTxt('pm_to', ['list' => ''], file: 'PersonalMessage')), '</span>
+						<label', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_to']) ? ' class="error"' : ''), ' for="to_control" id="caption_to">', trim(Lang::getTxt('pm_to', ['list' => ''], file: 'PersonalMessage')), '</label>
 					</dt>';
 
 	// Autosuggest will be added by the JavaScript later on.
@@ -1073,7 +1073,7 @@ function template_send()
 	// This BCC row will be hidden by default if JavaScript is enabled.
 	echo '
 					<dt  class="clear_left" id="bcc_div">
-						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', trim(Lang::getTxt('pm_bcc', ['list' => ''], file: 'PersonalMessage')), '</span>
+						<label', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' for="bcc_control" id="caption_bbc">', trim(Lang::getTxt('pm_bcc', ['list' => ''], file: 'PersonalMessage')), '</label>
 					</dt>
 					<dd id="bcc_div2">
 						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" size="20">
@@ -1083,10 +1083,10 @@ function template_send()
 	// The subject of the PM.
 	echo '
 					<dt class="clear_left">
-						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</span>
+						<label', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</label>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" name="subject" id="subject" value="', Utils::$context['subject'], '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>';
 
