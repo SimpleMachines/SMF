@@ -834,4 +834,22 @@
 	--mentions-item-font-weight:                      normal;
 	--mentions-item-font-weight_current:              normal;
 	--mentions-width:                                 120px;
+
+	/* The surface inside the editor, which is a document of its own. The
+	/* sceditor plugin copies these into it; see signalReady(). */
+	/** Editor Content **/
+	--editor-content-bg:                              #fff;
+	--editor-content-cite-border-color:               #aaa;
+	--editor-content-cite-color:                      #aaa;
+	--editor-content-code-bg:                         #eee;
+	--editor-content-code-border-color:               #aaa;
+	--editor-content-color:                           #111;
+	--editor-content-details-border-color:            #aaa;
+	--editor-content-float-border-color:              #aaa;
+	--editor-content-quote-bg:                        #e0e6f6;
+	--editor-content-quote-border-color:              #d6dfe2;
+	--editor-content-quote-border-color_side:         #aaa;
+	--editor-content-spoiler-outline-color:           #aaa;
+	--editor-content-table-border-color:              #000;
+	--editor-content-tt-bg:                           rgba(127, 127, 127, 0.25);
 }

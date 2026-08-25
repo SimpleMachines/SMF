@@ -538,6 +538,22 @@
 	/** Theme Picker **/
 	--picktheme-selected-bg:                          hsl(var(--primary-color-hue), 28%, 24%);
 
+	/** Editor Content **/
+	--editor-content-bg:                              hsl(var(--primary-color-hue), 16%, 14%);
+	--editor-content-cite-border-color:               var(--dark-line);
+	--editor-content-cite-color:                      var(--dark-ink-dim);
+	--editor-content-code-bg:                         hsl(var(--primary-color-hue), 14%, 11%);
+	--editor-content-code-border-color:               var(--dark-line-strong);
+	--editor-content-color:                           var(--dark-ink);
+	--editor-content-details-border-color:            var(--dark-line-strong);
+	--editor-content-float-border-color:              var(--dark-line-strong);
+	--editor-content-quote-bg:                        hsl(var(--primary-color-hue), 20%, 17%);
+	--editor-content-quote-border-color:              hsl(var(--primary-color-hue), 12%, 24%);
+	--editor-content-quote-border-color_side:         hsl(var(--primary-color-hue), 12%, 32%);
+	--editor-content-spoiler-outline-color:           hsl(var(--primary-color-hue), 45%, 55%);
+	--editor-content-table-border-color:              var(--dark-line-strong);
+	--editor-content-tt-bg:                           rgba(255, 255, 255, 0.12);
+
 	/** Mentions **/
 	--mentions-bg:                                    var(--dark-bg-3);
 	--mentions-border-color:                          var(--dark-line-strong);

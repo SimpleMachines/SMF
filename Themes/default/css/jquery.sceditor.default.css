@@ -10,8 +10,8 @@ html {
 }
 body {
 	flex: 1;
-	color: #111;
-	background: #fff;
+	color: var(--editor-content-color);
+	background: var(--editor-content-bg);
 	font: 13px / 1.5 Verdana, Arial, Helvetica, sans-serif;
 }
 
@@ -23,7 +23,7 @@ ul, ol {
 }
 
 table, td {
-	border: 1px dotted #000;
+	border: 1px dotted var(--editor-content-table-border-color);
 	empty-cells: show;
 	min-width: 0.5ch;
 }
@@ -46,15 +46,15 @@ table td {
 .bbc_code {
 	margin-top: 1.5em;
 	position: relative;
-	background: #eee;
-	border: 1px solid #aaa;
+	background: var(--editor-content-code-bg);
+	border: 1px solid var(--editor-content-code-border-color);
 	white-space: pre-wrap;
 	padding: .25em;
 	display: block;
 }
 
 span.phpcode, font[face=monospace] {
-	background-color: rgba(127, 127, 127, 0.25);
+	background-color: var(--editor-content-tt-bg);
 	padding: 0 0.2ch;
 	display: inline;
 }
@@ -63,20 +63,20 @@ blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
 	font-size: small;
-	border: 1px solid #d6dfe2;
-	border-left: 2px solid #aaa;
-	border-right: 2px solid #aaa;
-	background-color: #e0e6f6;
+	border: 1px solid var(--editor-content-quote-border-color);
+	border-left: 2px solid var(--editor-content-quote-border-color_side);
+	border-right: 2px solid var(--editor-content-quote-border-color_side);
+	background-color: var(--editor-content-quote-bg);
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid #aaa;
+	border-bottom: 1px solid var(--editor-content-cite-border-color);
 	font-size: 0.9em;
 	margin-bottom: 0.5em;
 }
 
 blockquote cite::before {
-	color: #aaa;
+	color: var(--editor-content-cite-color);
 	font-size: 22px;
 	font-style: normal;
 	content: '\275D';
@@ -135,7 +135,7 @@ img {
 
 .floatleft, .floatright {
 	max-width: 45%;
-	border: 1px dashed #aaa;
+	border: 1px dashed var(--editor-content-float-border-color);
 	padding: 1px;
 	min-height: 1em;
 }
@@ -157,7 +157,7 @@ img {
 }
 
 .bbc_details {
-	border: 1px dotted #aaa;
+	border: 1px dotted var(--editor-content-details-border-color);
 }
 .bbc_summary,
 .bbc_details_content {
@@ -165,8 +165,8 @@ img {
 }
 .bbc_details[open] .bbc_summary {
     padding-bottom: 5px;
-	border-bottom: 1px dotted #aaa;
+	border-bottom: 1px dotted var(--editor-content-details-border-color);
 }
 .bbc_inline_spoiler {
-	outline: 2px dashed #aaa;
+	outline: 2px dashed var(--editor-content-spoiler-outline-color);
 }
