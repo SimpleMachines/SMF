@@ -8,8 +8,8 @@
 	margin: 0 0 0 1%;
 }
 #main_grid table.weeklist td.windowbg {
-	border-left: 2px solid #fff;
-	border-bottom: 2px solid #fff;
+	border-left: 2px solid var(--calendar-weeklist-border-color);
+	border-bottom: 2px solid var(--calendar-weeklist-border-color);
 }
 #main_grid img.calendar_icon {
 	float: right;
@@ -18,6 +18,6 @@
 #main_grid table.weeklist td.weekdays {
 	text-align: left;
 	vertical-align: middle;
-	border-right: 2px solid #fff;
-	border-bottom: 2px solid #fff;
+	border-right: 2px solid var(--calendar-weeklist-border-color);
+	border-bottom: 2px solid var(--calendar-weeklist-border-color);
 }

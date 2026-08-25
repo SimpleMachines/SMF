@@ -538,6 +538,29 @@
 	/** Theme Picker **/
 	--picktheme-selected-bg:                          hsl(var(--primary-color-hue), 28%, 24%);
 
+	/** Mentions **/
+	--mentions-bg:                                    var(--dark-bg-3);
+	--mentions-border-color:                          var(--dark-line-strong);
+	--mentions-box-shadow:                            0 0 5px rgba(0, 0, 0, 0.5);
+	--mentions-item-bg:                               var(--dark-bg-2);
+	--mentions-item-bg_current:                       hsl(225, 55%, 42%);
+	--mentions-item-border-color:                     var(--dark-line);
+	--mentions-item-color:                            var(--dark-ink);
+
+	/** Shorthand Borders **/
+	--attachment-dropzone-border-color_hover:         hsl(var(--primary-color-hue), 45%, 55%);
+	--attachment-item-border-color:                   var(--dark-line);
+	--buttonrow-border-color:                         var(--dark-line);
+	--calendar-weeklist-border-color:                 var(--dark-bg-1);
+	--detailedinfo-border-color:                      var(--dark-line);
+	--draftoptions-border-color_left:                 var(--dark-line-strong);
+	--draftoptions-item-border-color:                 var(--dark-line);
+	--errorfile-current-border-color:                 rgba(255, 255, 255, 0.2);
+	--innerwrap-border-color:                         var(--dark-line);
+	--listposts-border-color:                         var(--dark-line);
+	--mobileaction-item-border-color:                 var(--dark-line);
+	--upcontain-lastpost-border-color:                var(--dark-line);
+
 	/** Admin **/
 	/* The permission grid is the one place a background alone carries the
 	/* meaning - deny, allow, custom, unchanged - so those six keep their hues

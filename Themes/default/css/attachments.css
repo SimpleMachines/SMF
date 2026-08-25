@@ -51,8 +51,8 @@ div#post_attachments_area.roundframe {
 	box-shadow: none;
 }
 #post_attachments_area #postAttachment .attached {
-	border-right: 1px dotted #ddd;
-	border-top: 1px dotted #ddd;
+	border-right: 1px dotted var(--attachment-item-border-color);
+	border-top: 1px dotted var(--attachment-item-border-color);
 	padding-top: 9px;
 	width: 200px;
 	position: relative;
@@ -173,7 +173,7 @@ div#post_attachments_area.roundframe {
 	min-height: initial;
 }
 #post_attachments_area #attachment_upload.dz-drag-hover {
-	border-color: #557ea0;
+	border-color: var(--attachment-dropzone-border-color_hover);
 }
 #post_attachments_area .dz-clickable {
 	cursor: pointer;
