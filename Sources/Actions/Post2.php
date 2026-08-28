@@ -759,7 +759,7 @@ class Post2 extends Post
 				)
 			)
 		) {
-			$verifier = new Verifier(['id' => 'post']);
+			$verifier = new Verifier(['id' => 'post'], true);
 			$this->errors = array_merge($this->errors, $verifier->errors);
 		}
 	}

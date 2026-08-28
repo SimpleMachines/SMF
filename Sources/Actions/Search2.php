@@ -444,7 +444,7 @@ class Search2 implements ActionInterface, Routable
 	{
 		// Do we have captcha enabled?
 		if (User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != SearchApi::$loadedApi->params['search'])) {
-			$verifier = new Verifier(['id' => 'search']);
+			$verifier = new Verifier(['id' => 'search'], true);
 
 			if (!empty($verifier->errors)) {
 				foreach ($verifier->errors as $error) {
