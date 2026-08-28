@@ -218,7 +218,7 @@ function is_not_banned($forceCheck = false)
 				'cannot_post',
 				'cannot_register',
 			);
-			$request = $smcFunc['db_query']('', '
+			$request = $smcFunc['db_query']('ban_like', '
 				SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
 					bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 				FROM {db_prefix}ban_items AS bi

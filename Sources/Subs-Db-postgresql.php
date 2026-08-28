@@ -356,6 +356,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'random_mail' => array(
 			'~ORDER BY RAND\(\)~' => 'ORDER BY RANDOM()',
 		),
+		'ban_like' => array(
+			'/\bLIKE\b/' => 'ILIKE',
+		),
 	);
 
 	// Special optimizer Hints

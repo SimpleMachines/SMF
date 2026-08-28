@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.7
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -596,10 +596,11 @@ function registerMember(&$regOptions, $return_errors = false)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}members
-		WHERE email_address = {string:email_address}
-			OR email_address = {string:username}
+		WHERE {raw:email_address_field} = {string:email_address}
+			OR {raw:email_address_field} = {string:username}
 		LIMIT 1',
 		array(
+			'email_address_field' => Db::$db->case_sensitive ? 'LOWER(email_address)' : 'email_address',
 			'email_address' => $regOptions['email'],
 			'username' => $regOptions['username'],
 		)
