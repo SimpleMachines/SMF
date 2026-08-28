@@ -199,7 +199,7 @@ class curl_fetch_web_data
 			{
 				$port = !empty($parsedurl['port']) ? $parsedurl['port'] : ($parsedurl['scheme'] === 'https' ? 443 : 80);
 
-				$this->options[CURLOPT_RESOLVE] = array($parsedurl['host'] . ':' . $parsedurl['port'] . ':' . implode(',', $ips));
+				$this->options[CURLOPT_RESOLVE] = array($parsedurl['host'] . ':' . $port . ':' . implode(',', $ips));
 			}
 		}
 
