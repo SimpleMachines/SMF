@@ -808,6 +808,56 @@ class Maintenance
 	 */
 	public static function exit(bool $fallthrough = false): void
 	{
+		// On the command line there is no template to render, so everything the
+		// tool wanted to tell us has nowhere to go: a scripted install that died
+		// on step three looks exactly like one that finished. Put the problems on
+		// stderr and leave a non-zero status behind instead.
+		//
+		// A step that simply needs more input sets neither of these, so pausing
+		// part way through is still a success -- the installer is meant to be
+		// called more than once.
+		if ($fallthrough && Sapi::isCLI()) {
+			foreach (self::$warnings as $warning) {
+				fwrite(STDERR, 'warning: ' . self::plainText($warning) . "\n");
+			}
+
+			$problems = self::$errors;
+
+			if (self::$fatal_error !== '') {
+				array_unshift($problems, self::$fatal_error);
+			}
+
+			if ($problems !== []) {
+				foreach ($problems as $problem) {
+					fwrite(STDERR, 'error: ' . self::plainText($problem) . "\n");
+				}
+
+				exit(1);
+			}
+
+			// Nothing went wrong, but we may not be finished either: a step can
+			// stop because it wanted input it was not given. Say which one, so
+			// a script that has to be run more than once can tell where it got
+			// to. The step numbers its own id from one, which is what every
+			// other line of output uses.
+			//
+			// The last step is excluded on purpose. Tools end by returning false
+			// from it so that the web flow stops and renders its "all done"
+			// template, which means reaching it is success, not a pause.
+			$steps = isset(self::$tool) ? self::$tool->getSteps() : [];
+
+			if (isset($steps[self::getCurrentStep()]) && self::getCurrentStep() < \count($steps) - 1) {
+				$stopped = $steps[self::getCurrentStep()];
+
+				fwrite(
+					STDERR,
+					'stopped at step ' . $stopped->getId()
+					. ' of ' . \count($steps)
+					. ' (' . $stopped->getName() . ")\n",
+				);
+			}
+		}
+
 		// We usually dump our templates out.
 		if (!$fallthrough) {
 			// Send character set.
@@ -919,5 +969,21 @@ class Maintenance
 	private static function setCurrentStep(?int $step = null): void
 	{
 		$_GET['step'] = $step ?? (self::getCurrentStep() + 1);
+	}
+
+	/**
+	 * Flattens one of our messages into something worth reading in a terminal.
+	 *
+	 * The steps build these for a browser, so they arrive carrying markup: the
+	 * database errors in particular wrap the driver's own message in a div.
+	 *
+	 * @param string $message The message, as the step wrote it.
+	 * @return string The same message, without the markup.
+	 */
+	private static function plainText(string $message): string
+	{
+		$message = preg_replace('~<br\s*/?>~i', "\n", $message) ?? $message;
+
+		return trim(html_entity_decode(strip_tags($message), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 	}
 }

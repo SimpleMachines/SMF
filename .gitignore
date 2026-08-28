@@ -78,6 +78,10 @@ Thumbs.db
 /.env
 /compose.override.yaml
 /compose.override.yml
+# One saved Settings.php per engine, so use-engine.sh can switch between two
+# installs without reinstalling. Generated secrets and a machine-specific
+# board URL: local to whoever ran the installer.
+/.docker/settings/
 
 # Test / Private files #
 ########################
