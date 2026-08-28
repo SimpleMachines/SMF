@@ -4260,7 +4260,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		}
 
 		// If this is their old primary, can we change it?
-		if ($row['id_group'] == $old_profile['id_group'] && ($row['group_type'] > 1 || $context['can_manage_membergroups']) && $canChangePrimary !== false)
+		if ($row['id_group'] == $old_profile['id_group'] && ($row['group_type'] > 1 || $context['can_manage_membergroups']) && $canChangePrimary !== false && isset($addGroups[$row['id_group']]))
 			$canChangePrimary = 1;
 
 		// If we are not doing a force primary move, don't do it automatically if current primary is not 0.
