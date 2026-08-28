@@ -16,9 +16,11 @@
 	"prefer-stable": true,
 	"require-dev": {
 		"simplemachines/build-tools": "dev-release-3.0",
-		"friendsofphp/php-cs-fixer": "^3.95"
+		"friendsofphp/php-cs-fixer": "^3.95",
+		"phpunit/phpunit": "^13.1"
 	},
 	"scripts": {
+		"test": "phpunit --no-coverage",
 		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
 		"lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
 		"post-install-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
