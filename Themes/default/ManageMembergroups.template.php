@@ -73,7 +73,7 @@ function template_new_group()
 	if (Utils::$context['post_group'] || Utils::$context['undefined_group']) {
 		echo '
 					<dt id="min_posts_text">
-						<strong>', Lang::getTxt('membergroups_min_posts', file: 'ManageMembers'), '</strong>
+						<label for="min_posts_input"><strong>', Lang::getTxt('membergroups_min_posts', file: 'ManageMembers'), '</strong></label>
 					</dt>
 					<dd>
 						<input type="number" name="min_posts" id="min_posts_input" size="5">

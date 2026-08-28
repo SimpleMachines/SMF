@@ -2735,11 +2735,11 @@ function template_profile_group_manage()
 {
 	echo '
 							<dt>
-								<strong>', Lang::getTxt('primary_membergroup', file: 'Profile'), '</strong><br>
+								<label for="id_group"><strong>', Lang::getTxt('primary_membergroup', file: 'Profile'), '</strong></label><br>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', Lang::getTxt('moderator_why_missing', file: 'Profile'), '</a></span>
 							</dt>
 							<dd>
-								<select name="id_group" ', (Profile::$member->is_me && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
+								<select name="id_group" id="id_group" ', (Profile::$member->is_me && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
 
 	// Fill the select box with all primary member groups that can be assigned to a member.
 	foreach (Utils::$context['member_groups'] as $member_group) {
@@ -2801,7 +2801,7 @@ function template_profile_signature_modify()
 							</dd>
 
 							<dt>
-								<strong>', Lang::getTxt('signature', file: 'Profile'), '</strong><br>
+								<label for="signature"><strong>', Lang::getTxt('signature', file: 'Profile'), '</strong></label><br>
 								<span class="smalltext">', Lang::getTxt('sig_info', file: 'Profile'), '</span><br>
 								<br>';
 
