@@ -124,7 +124,7 @@ class Mail
 		}
 
 		// Get rid of entities.
-		$subject = Utils::htmlspecialcharsDecode($subject);
+		$subject = strtr(Utils::htmlspecialcharsDecode($subject), ["\r" => '', "\n" => '']);
 		// Make the message use the proper line breaks.
 		$message = str_replace(["\r", "\n"], ['', $line_break], $message);
 
@@ -378,6 +378,12 @@ class Mail
 			return false;
 		}
 
+		$agent = MailAgent::load();
+
+		if ($agent === false || !$agent->connect()) {
+			return false;
+		}
+
 		// By default move the next sending on by 10 seconds, and require an affected row.
 		if (!$override_limit) {
 			$delay = max(TaskRunner::MAX_CRON_TIME, (int) (Config::$modSettings['mail_queue_delay'] ?? 10));
@@ -492,23 +498,7 @@ class Mail
 		$failed_emails = [];
 
 		foreach ($emails as $email) {
-			if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {
-				$email['subject'] = strtr($email['subject'], ["\r" => '', "\n" => '']);
-
-				if (!empty(Config::$modSettings['mail_strip_carriage'])) {
-					$email['body'] = strtr($email['body'], ["\r" => '']);
-					$email['headers'] = strtr($email['headers'], ["\r" => '']);
-				}
-
-				// No point logging a specific error here, as we have no language. PHP error is helpful anyway...
-				$result = mail(strtr($email['to'], ["\r" => '', "\n" => '']), $email['subject'], $email['body'], $email['headers']);
-
-				// Try to stop a timeout, this would be bad...
-				Sapi::setTimeLimit(300);
-				Sapi::resetTimeout();
-			} else {
-				$result = self::sendSmtp([$email['to']], $email['subject'], $email['body'], $email['headers']);
-			}
+			$result = $agent->send($to, $subject, $message, $headers);
 
 			// Old emails should expire
 			if (!$result && $email['tries'] >= self::MAX_TRIES) {
@@ -532,6 +522,8 @@ class Mail
 				];
 			}
 		}
+
+		$agent->disconnect();
 
 		// Any emails that didn't send?
 		if (!empty($failed_emails)) {
@@ -653,265 +645,6 @@ class Mail
 		}
 
 		return ['UTF-8', $string, '7bit'];
-	}
-
-	/**
-	 * Sends mail, like mail() but over SMTP.
-	 * It expects no slashes or entities.
-	 *
-	 * @internal
-	 *
-	 * @param array $mail_to_array Array of strings (email addresses)
-	 * @param string $subject Email subject
-	 * @param string $message Email message
-	 * @param string $headers Email headers
-	 * @return bool Whether it sent or not.
-	 */
-	public static function sendSmtp(array $mail_to_array, string $subject, string $message, string $headers): bool
-	{
-		static $helo;
-
-		Config::$modSettings['smtp_host'] = trim(Config::$modSettings['smtp_host']);
-
-		// Try POP3 before SMTP?
-		// @todo There's no interface for this yet.
-		if (Config::$modSettings['mail_type'] == 3 && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
-			$socket = fsockopen(Config::$modSettings['smtp_host'], 110, $errno, $errstr, 2);
-
-			if (!$socket && (str_starts_with(Config::$modSettings['smtp_host'], 'smtp.') || str_starts_with(Config::$modSettings['smtp_host'], 'ssl://smtp.'))) {
-				$socket = fsockopen(strtr(Config::$modSettings['smtp_host'], ['smtp.' => 'pop.']), 110, $errno, $errstr, 2);
-			}
-
-			if ($socket) {
-				fgets($socket, 256);
-				fputs($socket, 'USER ' . Config::$modSettings['smtp_username'] . "\r\n");
-				fgets($socket, 256);
-				fputs($socket, 'PASS ' . base64_decode(Config::$modSettings['smtp_password']) . "\r\n");
-				fgets($socket, 256);
-				fputs($socket, 'QUIT' . "\r\n");
-
-				fclose($socket);
-			}
-		}
-
-		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
-		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : (int) Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
-			// Maybe we can still save this?  The port might be wrong.
-			if (str_starts_with(Config::$modSettings['smtp_host'], 'ssl:') && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
-				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
-				if (!str_starts_with(Config::$modSettings['smtp_host'], 'ssl://')) {
-					Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
-				}
-
-				if ($socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3)) {
-					ErrorHandler::log(Lang::getTxt('smtp_port_ssl', file: 'General'));
-				}
-			}
-
-			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
-			if (!$socket) {
-				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr], file: 'General'));
-
-				return false;
-			}
-		}
-
-		// Wait for a response of 220, without "-" continuer.
-		if (!self::serverParse(null, $socket, '220')) {
-			return false;
-		}
-
-		// Try to determine the server's fully qualified domain name
-		// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
-		if (empty($helo)) {
-			// See if we can get the domain name from the host itself
-			if (\function_exists('gethostname')) {
-				$helo = gethostname();
-			} elseif (\function_exists('php_uname')) {
-				$helo = php_uname('n');
-			}
-
-			// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
-			if (
-				empty($helo)
-				|| !str_contains($helo, '.')
-				|| substr_compare($helo, '.local', -6) === 0
-				|| (
-					!empty(Config::$modSettings['tld_regex'])
-					&& !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
-				)
-			) {
-				$url = new Url(Config::$boardurl);
-				$helo = $url->host;
-			}
-
-			// This is one of those situations where 'www.' is undesirable
-			if (str_starts_with($helo, 'www.')) {
-				$helo = substr($helo, 4);
-			}
-
-			if (!\function_exists('idn_to_ascii')) {
-				require_once Sapi::canonicalPath(Config::$sourcedir . '/Subs-Compat.php');
-			}
-
-			$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-		}
-
-		// SMTP = 1, SMTP - STARTTLS = 2
-		if (\in_array(Config::$modSettings['mail_type'], [1, 2]) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
-			// EHLO could be understood to mean encrypted hello...
-			if (self::serverParse('EHLO ' . $helo, $socket, null, $response) == '250') {
-				// Are we using STARTTLS and does the server support STARTTLS?
-				if (Config::$modSettings['mail_type'] == 2 && preg_match('~250( |-)STARTTLS~mi', $response)) {
-					// Send STARTTLS to enable encryption
-					if (!self::serverParse('STARTTLS', $socket, '220')) {
-						return false;
-					}
-					// Enable the encryption
-					// php 5.6+ fix
-					$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
-
-					if (\defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
-					}
-
-					if (!@stream_socket_enable_crypto($socket, true, $crypto_method)) {
-						return false;
-					}
-
-					// Send the EHLO command again
-					if (!self::serverParse('EHLO ' . $helo, $socket, null) == '250') {
-						return false;
-					}
-				}
-
-				if (!self::serverParse('AUTH LOGIN', $socket, '334')) {
-					return false;
-				}
-
-				// Send the username and password, encoded.
-				if (!self::serverParse(base64_encode(Config::$modSettings['smtp_username']), $socket, '334')) {
-					return false;
-				}
-
-				// The password is already encoded ;)
-				if (!self::serverParse(Config::$modSettings['smtp_password'], $socket, '235')) {
-					return false;
-				}
-			} elseif (!self::serverParse('HELO ' . $helo, $socket, '250')) {
-				return false;
-			}
-		} else {
-			// Just say "helo".
-			if (!self::serverParse('HELO ' . $helo, $socket, '250')) {
-				return false;
-			}
-		}
-
-		// Fix the message for any lines beginning with a period! (the first is ignored, you see.)
-		$message = strtr($message, ["\r\n" . '.' => "\r\n" . '..']);
-
-		// !! Theoretically, we should be able to just loop the RCPT TO.
-		$mail_to_array = array_values($mail_to_array);
-
-		foreach ($mail_to_array as $i => $mail_to) {
-			// Reset the connection to send another email.
-			if ($i != 0) {
-				if (!self::serverParse('RSET', $socket, '250')) {
-					return false;
-				}
-			}
-
-			// From, to, and then start the data...
-			if (!self::serverParse('MAIL FROM: <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>', $socket, '250')) {
-				return false;
-			}
-
-			if (!self::serverParse('RCPT TO: <' . $mail_to . '>', $socket, '250')) {
-				return false;
-			}
-
-			if (!self::serverParse('DATA', $socket, '354')) {
-				return false;
-			}
-			fputs($socket, 'Subject: ' . $subject . "\r\n");
-
-			if (\strlen($mail_to) > 0) {
-				fputs($socket, 'To: <' . $mail_to . '>' . "\r\n");
-			}
-			fputs($socket, $headers . "\r\n\r\n");
-			fputs($socket, $message . "\r\n");
-
-			// Send a ., or in other words "end of data".
-			if (!self::serverParse('.', $socket, '250')) {
-				return false;
-			}
-
-			// Almost done, almost done... don't stop me just yet!
-			Sapi::setTimeLimit(300);
-			Sapi::resetTimeout();
-		}
-		fputs($socket, 'QUIT' . "\r\n");
-		fclose($socket);
-
-		return true;
-	}
-
-	/**
-	 * Parse a message to the SMTP server.
-	 * Sends the specified message to the server, and checks for the
-	 * expected response.
-	 *
-	 * @internal
-	 *
-	 * @param ?string $message The message to send
-	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
-	 * @param ?string $code The expected response code
-	 * @param string $response The response from the SMTP server
-	 * @return bool|string Whether it responded as such. Otherwise the response code is returned.
-	 */
-	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
-	{
-		if ($message !== null) {
-			fputs($socket, $message . "\r\n");
-		}
-
-		// No response yet.
-		$server_response = '';
-
-		while (substr($server_response, 3, 1) != ' ') {
-			if (!($server_response = fgets($socket, 256))) {
-				// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-				ErrorHandler::log(Lang::getTxt('smtp_bad_response', file: 'General'));
-
-				return false;
-			}
-
-			$response .= $server_response;
-		}
-
-		if ($code === null) {
-			return substr($server_response, 0, 3);
-		}
-
-		$response_code = (int) substr($server_response, 0, 3);
-
-		if ($response_code != $code) {
-			// Ignoreable errors that we can't fix should not be logged.
-			/*
-			 * 550 - cPanel rejected sending due to DNS issues
-			 * 450 - DNS Routing issues
-			 * 451 - cPanel "Temporary local problem - please try later"
-			 */
-			if ($response_code < 500 && !\in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response], file: 'General'));
-			}
-
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
