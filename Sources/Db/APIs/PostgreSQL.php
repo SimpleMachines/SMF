@@ -174,6 +174,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			'profile_board_stats' => [
 				'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 			],
+			'ban_like' => [
+				'/\bLIKE\b/' => 'ILIKE',
+			],
 		];
 
 		// Special optimizer Hints

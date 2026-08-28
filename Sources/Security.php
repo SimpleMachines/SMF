@@ -471,6 +471,7 @@ class Security
 				WHERE
 					(' . implode(' OR ', $ban_query) . ')',
 				$ban_query_vars,
+				identifier: 'ban_like',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
