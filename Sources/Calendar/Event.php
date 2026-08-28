@@ -808,10 +808,10 @@ class Event implements \ArrayAccess
 		$filecontents = [];
 		$filecontents[] = 'BEGIN:VEVENT';
 
-		$filecontents[] = 'SUMMARY:' . $this->title;
+		$filecontents[] = 'SUMMARY:' . $this->stripControlChars($this->title);
 
 		if (!empty($this->location)) {
-			$filecontents[] = 'LOCATION:' . str_replace(',', '\\,', $this->location);
+			$filecontents[] = 'LOCATION:' . $this->stripControlChars($this->location, [',' => '\\,', ';' => '\;', '\\\\' => '\\', "\r" => '', "\n" => '']);
 		}
 
 		if (!empty($this->topic)) {
@@ -2484,6 +2484,17 @@ class Event implements \ArrayAccess
 		}
 
 		return new EventOccurrence($this->id, $props);
+	}
+
+	/**
+	 * Removes Excess tags
+	 * @param string $raw
+	 * @param array $tags
+	 * @return string
+	 */
+	protected function stripControlChars(string $raw, array $tags = ["\r" => '', "\n" => '']): string
+	{
+		return strtr($raw, $tags);
 	}
 
 	/*************************
