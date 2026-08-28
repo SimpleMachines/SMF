@@ -524,7 +524,7 @@ class ReportToMod implements ActionInterface, Routable
 		$user = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		$user_name = Utils::htmlspecialcharsDecode($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
+		$user_name = $user['real_name'] . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
 
 		$request = Db::$db->query(
 			'SELECT id_report, ignore_all
