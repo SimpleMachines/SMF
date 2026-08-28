@@ -1502,7 +1502,7 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveIgnoreBoards();
 		$this->prepareToSaveBuddyList();
 		$this->prepareToSaveOptions();
-		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
+		$this->prepareToSaveCustomFields($_REQUEST['area'] ?? null);
 
 		// Give hooks some access to the save data.
 		IntegrationHook::call(
