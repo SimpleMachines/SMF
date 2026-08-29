@@ -41,7 +41,6 @@ class Reactions extends Table
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
-				default: 0,
 				auto: true,
 			),
 			'name' => new Column(
