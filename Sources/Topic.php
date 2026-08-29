@@ -1877,20 +1877,28 @@ class Topic implements \ArrayAccess, Routable
 
 			Slug::setRequested(rtrim($matches[1], '-'), 'topic', (int) $params['topic']);
 
-			// Either an action suffix or a start value.
-			if (!empty($route)) {
-				if (isset(QueryString::$route_parsers[reset($route)])) {
-					$params = array_merge(
-						$params,
-						\call_user_func(
-							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
-							$route,
-							$params,
-						),
-					);
-				} elseif (!isset($params['start'])) {
-					$params['start'] = array_shift($route);
+			// What's left can be a start value, an action suffix, or both.
+			// E.g.: 'topics/1', 'topics/1/post', and 'topics/1/20/post'.
+			// Note that we must ask QueryString::getRouteParser() rather than
+			// simply looking in QueryString::$route_parsers, because the
+			// parsers for actions are only added to that list on demand.
+			if (!empty($route) && QueryString::getRouteParser((string) reset($route)) === null) {
+				$start = array_shift($route);
+
+				if (!isset($params['start'])) {
+					$params['start'] = $start;
 				}
+			}
+
+			if (!empty($route) && ($parser = QueryString::getRouteParser((string) reset($route))) !== null) {
+				$params = array_merge(
+					$params,
+					\call_user_func(
+						[$parser, 'parseRoute'],
+						$route,
+						$params,
+					),
+				);
 			}
 		}
 
