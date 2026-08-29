@@ -239,13 +239,13 @@ class Received implements \ArrayAccess
 		Db::$db->query(
 			'UPDATE {db_prefix}pm_recipients
 			SET
-				id_member = {int:member},
 				bcc = {int:bcc},
 				is_read = {int:is_read},
 				is_new = {int:is_new},
 				deleted = {int:deleted},
 				in_inbox = {int:in_inbox}
-			WHERE id_pm = {int:id}',
+			WHERE id_pm = {int:id}
+				AND id_member = {int:member}',
 			[
 				'id' => (int) $this->id,
 				'member' => (int) $this->member,
@@ -259,12 +259,19 @@ class Received implements \ArrayAccess
 
 		$labels = array_diff($this->labels, [-1]);
 
+		// Only clear the labels this member owns.
 		Db::$db->query(
 			'DELETE FROM {db_prefix}pm_labeled_messages
-			WHERE id_pm = {int:current_pm}' . (empty($labels) ? '' : '
+			WHERE id_pm = {int:current_pm}
+				AND id_label IN (
+					SELECT id_label
+					FROM {db_prefix}pm_labels
+					WHERE id_member = {int:member}
+				)' . (empty($labels) ? '' : '
 				AND id_label NOT IN ({array_int:labels})'),
 			[
 				'current_pm' => $this->id,
+				'member' => (int) $this->member,
 				'labels' => $labels,
 			],
 		);
