@@ -2918,6 +2918,10 @@ class User implements \ArrayAccess
 			self::$me->verifyPassword();
 			self::$me->verifyTfa();
 
+			if (empty(self::$my_id) && !isset(self::$profiles[0])) {
+				self::loadUserData([0], self::LOAD_BY_ID, UserDataset::Minimal);
+			}
+
 			// At this point, we know the user ID for sure.
 			self::$me->id = self::$my_id;
 			self::$cookie_id = self::$my_id;
