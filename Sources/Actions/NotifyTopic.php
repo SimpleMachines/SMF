@@ -62,7 +62,9 @@ class NotifyTopic extends Notify
 	protected function saToMode(): void
 	{
 		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
-			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
+			// 'off' is the unsubscribe link in the notification emails, so it
+			// means stop emailing me - not stop telling me anything at all.
+			$_GET['mode'] = $_GET['sa'] == 'on' ? parent::MODE_BOTH : parent::MODE_NO_EMAIL;
 			unset($_GET['sa']);
 		}
 	}
@@ -116,7 +118,7 @@ class NotifyTopic extends Notify
 			[
 				'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
 			],
-			$log,
+			[$log],
 			['id_member', 'id_topic'],
 		);
 
