@@ -416,23 +416,28 @@ class Lang
 		} else {
 			self::$dirs[] = Sapi::canonicalPath(Config::$languagesdir);
 
-			// Make sure we have Theme::$current->settings - if not we're in
-			// trouble and need to find it!
-			if (empty(Theme::$current->settings['default_theme_dir'])) {
-				Theme::loadEssential(false);
-			}
+			// If there's no database or we're installing, we can't load the theme.
+			// Otherwise, make sure to include the theme's language directories.
+			if (isset(Db\DatabaseApi::$db->connection) && !\defined('SMF_INSTALLING')) {
+				// Is the theme already loaded?
+				$theme_loaded = !empty(Utils::$context['theme_loaded']);
 
-			foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
-				if (isset(Theme::$current->settings[$var])) {
-					self::$dirs[] = Sapi::canonicalPath(Theme::$current->settings[$var] . '/languages');
+				if (empty(Theme::$current->settings['default_theme_dir'])) {
+					Theme::loadEssential(false);
 				}
-			}
 
-			// Don't count this as loading the theme.
-			Utils::$context['theme_loaded'] = false;
+				foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
+					if (isset(Theme::$current->settings[$var])) {
+						self::$dirs[] = Sapi::canonicalPath(Theme::$current->settings[$var] . '/languages');
+					}
+				}
+
+				// Don't count this as loading the theme.
+				Utils::$context['theme_loaded'] = $theme_loaded;
+			}
 		}
 
-		self::$dirs = array_unique(self::$dirs);
+		self::$dirs = array_filter(array_unique(self::$dirs), 'is_dir');
 	}
 
 	/**
@@ -454,43 +459,26 @@ class Lang
 				)
 			)
 		) {
-			// Special case during install.
-			if (\defined('SMF_INSTALLING')) {
-				$language_directories = [Config::$languagesdir];
+			// Shall we include the theme's language directories?
+			if (
+				// Skip this if we're installing.
+				!\defined('SMF_INSTALLING')
+				// Can't load the theme without the database.
+				&& isset(Db\DatabaseApi::$db->connection)
+				// Only do this if the theme hasn't been loaded yet.
+				&& empty(Theme::$current->settings['default_theme_dir'])
+			) {
+				// We use Theme::load() here instead of Theme::loadEssential()
+				// in order to take into account any board-specific theme,
+				// calls to integration hooks, etc. Plus, Theme::load() will
+				// call Lang::addDirs() for us.
+				Theme::load(0, false);
 			} else {
-				// If we don't have our theme information yet, let's get it.
-				if (empty(Theme::$current->settings['default_theme_dir'])) {
-					Theme::load(0, false);
-				}
-
-				// Default language directories to try.
-				$language_directories = [
-					Config::$languagesdir,
-					Theme::$current->settings['default_theme_dir'] . '/languages',
-				];
-
-				if (
-					!empty(Theme::$current->settings['actual_theme_dir'])
-					&& Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir']
-				) {
-					$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
-				}
-
-				// We possibly have a base theme directory.
-				if (!empty(Theme::$current->settings['base_theme_dir'])) {
-					$language_directories[] = Theme::$current->settings['base_theme_dir'] . '/languages';
-				}
+				// Make sure Lang::$dirs is populated.
+				self::addDirs();
 			}
 
-			// Remove any duplicates.
-			$language_directories = array_unique($language_directories);
-
-			foreach ($language_directories as $language_dir) {
-				// Can't look in here... doesn't exist!
-				if (!file_exists($language_dir)) {
-					continue;
-				}
-
+			foreach (self::$dirs as $language_dir) {
 				$dir = dir($language_dir);
 
 				while ($entry = $dir->read()) {
