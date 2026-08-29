@@ -241,8 +241,10 @@ class Permissions implements ActionInterface
 
 		$this->setGroupsContext();
 
+		$profile_id = !empty($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : PermissionProfile::DEFAULT;
+
 		// We can modify any permission set, except for the ones we can't.
-		Utils::$context['can_modify'] = PermissionProfile::load((int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT)) !== null && PermissionProfile::load((int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT))->canModify();
+		Utils::$context['can_modify'] = PermissionProfile::load($profile_id) !== null && PermissionProfile::load($profile_id)->canModify();
 
 		// Load the proper template.
 		Utils::$context['sub_template'] = 'permission_index';
@@ -333,7 +335,7 @@ class Permissions implements ActionInterface
 		SecurityToken::validate('admin-mpq', 'quick');
 
 		if ($_POST['copy_from'] === 'empty') {
-			$_POST['copy_from'] = 0;
+			$_POST['copy_from'] = null;
 		}
 
 		// Make sure only one of the quick options was selected.
@@ -350,12 +352,12 @@ class Permissions implements ActionInterface
 		}
 
 		// Profile ID must be an integer.
-		$_REQUEST['pid'] = (int) ($_REQUEST['pid'] ?? 0);
+		$profile_id = (int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT);
 
 		// Sorry, but that one can't be modified.
 		if (
-			PermissionProfile::load($_REQUEST['pid']) === null
-			|| !PermissionProfile::load($_REQUEST['pid'])->canModify()
+			PermissionProfile::load($profile_id) === null
+			|| !PermissionProfile::load($profile_id)->canModify()
 		) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
@@ -368,7 +370,7 @@ class Permissions implements ActionInterface
 			$this->quickSetPredefined();
 		}
 		// Set a permission profile based on the permissions of a selected group.
-		elseif (!empty($_POST['copy_from'])) {
+		elseif ($_POST['copy_from'] !== null) {
 			$this->quickCopyFrom();
 		}
 		// Set or unset a certain permission for the selected groups.
@@ -378,7 +380,8 @@ class Permissions implements ActionInterface
 
 		self::updateBoardManagers();
 
-		Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+		// Use the original profile id passed so we return to the right page.
+		Utils::redirectexit('action=admin;area=permissions;pid=' . ((int) $_REQUEST['pid']));
 	}
 
 	/**
