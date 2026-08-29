@@ -164,10 +164,10 @@ function template_search()
 			<div id="advanced_search" class="roundframe">
 				<dl id="mlist_search" class="settings">
 					<dt>
-						<label><strong>', Lang::getTxt('search_for', file: 'General'), '</strong></label>
+						<label for="search"><strong>', Lang::getTxt('search_for', file: 'General'), '</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="search" value="', Utils::$context['old_search'], '" size="40">
+						<input type="text" name="search" id="search" value="', Utils::$context['old_search'], '" size="40">
 					</dd>
 					<dt>
 						<label><strong>', Lang::getTxt('mlist_search_filter', file: 'General'), '</strong></label>

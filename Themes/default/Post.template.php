@@ -225,7 +225,7 @@ function template_main()
 
 		if (Utils::$context['can_post_attachment']) {
 			echo '
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">';
+										<input type="file" multiple="multiple" name="attachment[]">';
 		}
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit'])) {
@@ -305,12 +305,10 @@ function template_main()
 											<a data-dz-remove class="main_icons delete floatright cancel"></a>
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">
-													<label for="attached_BBC_width">', Lang::getTxt('attached_insert_width', file: 'Post'), '</label>
-													<input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
+													<label><span>', Lang::getTxt('attached_insert_width', file: 'Post'), '</span> <input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '"></label>
 												</div>
 												<div class="attached_BBC_height">
-													<label for="attached_BBC_height">', Lang::getTxt('attached_insert_height', file: 'Post'), '</label>
-													<input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
+													<label><span>', Lang::getTxt('attached_insert_height', file: 'Post'), '</span> <input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '"></label>
 												</div>
 											</div>
 										</div>
@@ -445,7 +443,7 @@ function template_main()
 	if (Utils::$context['can_quote']) {
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
-				<li id="post_modify">
+				<li class="post_modify">
 					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . Lang::getTxt('quote', file: 'General') . '</a>
 				</li>
 			</ul>';
@@ -561,7 +559,7 @@ function template_main()
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
 						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::getTxt('quote_selected_action', file: 'General'), '</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
+						<li class="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
 					</ul>';
 			}
 

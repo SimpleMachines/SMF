@@ -511,13 +511,13 @@ class Calendar extends Table
 				name: 'rdates',
 				type: 'text',
 				not_null: true,
-				default: null,
+				default: '',
 			),
 			'exdates' => new Column(
 				name: 'exdates',
 				type: 'text',
 				not_null: true,
-				default: null,
+				default: '',
 			),
 			'adjustments' => new Column(
 				name: 'adjustments',

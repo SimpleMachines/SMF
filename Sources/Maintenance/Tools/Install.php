@@ -264,7 +264,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Needs to at least meet our miniumn version.
 		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
-			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => PHP_MIN_VERSION], file: 'Maintenance');
+			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', ['min_version' => Maintenance::PHP_MIN_VERSION], file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -439,7 +439,19 @@ class Install extends ToolsBase implements ToolsInterface
 		$db_prefix = $_POST['db_prefix'];
 
 		if (!isset(Maintenance::$context['databases'][$db_type])) {
-			Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
+			// upgrade_unknown_error, which used to be reported here, does not
+			// exist -- so this produced an empty fatal error and left no clue
+			// what had gone wrong. Naming the type and the alternatives matters
+			// most on the command line, where the type is typed out by hand
+			// rather than picked from a list of exactly these keys.
+			Maintenance::$fatal_error = Lang::getTxt(
+				'error_db_type_unknown',
+				[
+					'db_type' => $db_type,
+					'supported' => Lang::sentenceList(array_keys(Maintenance::$context['databases'])),
+				],
+				file: 'Maintenance',
+			);
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
@@ -609,7 +621,15 @@ class Install extends ToolsBase implements ToolsInterface
 		Db::load();
 
 		// Now, to put what we've learned together... and add a path.
-		Maintenance::$context['detected_url'] = 'http' . (Sapi::httpsOn() ? 's' : '') . '://' . $this->defaultHost() . substr(Maintenance::getSelf(), 0, strrpos(Maintenance::getSelf(), '/'));
+		// getSelf() is $_SERVER['PHP_SELF'], which in a request is a rooted path
+		// but on the command line is whatever was typed -- usually a bare
+		// 'install.php' with no directory in it at all. strrpos() then returns
+		// false, and substr() with a false length is fatal on PHP 8, so the
+		// installer died here on every CLI run.
+		$self = Maintenance::getSelf();
+		$last_slash = strrpos($self, '/');
+
+		Maintenance::$context['detected_url'] = 'http' . (Sapi::httpsOn() ? 's' : '') . '://' . $this->defaultHost() . ($last_slash === false ? '' : substr($self, 0, $last_slash));
 
 		// Check if the database sessions will even work.
 		Maintenance::$context['test_dbsession'] = (\ini_get('session.auto_start') != 1);
@@ -1182,48 +1202,58 @@ class Install extends ToolsBase implements ToolsInterface
 			Db::$db->free_result($request);
 		}
 
-		// Automatically log them in ;)
-		if (isset(Maintenance::$context['id_member'], Maintenance::$context['password_salt'])) {
-			Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['id_member'], Cookie::encrypt($_POST['password1'], Maintenance::$context['password_salt']));
-		}
+		// Sign the new administrator in, so the browser that just ran the
+		// installer lands on an admin session rather than a login form.
+		//
+		// None of that means anything on the command line: there is no browser
+		// to hold the cookie, and no user agent to record against the session.
+		// Attempting it anyway sent headers after output had already started and
+		// left four warnings on every run, then wrote a session row keyed on an
+		// undefined HTTP_USER_AGENT.
+		if (!Sapi::isCLI()) {
+			// Automatically log them in ;)
+			if (isset(Maintenance::$context['id_member'], Maintenance::$context['password_salt'])) {
+				Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['id_member'], Cookie::encrypt($_POST['password1'], Maintenance::$context['password_salt']));
+			}
 
-		$result = Db::$db->query(
-			'SELECT value
-			FROM {db_prefix}settings
-			WHERE variable = {string:db_sessions}',
-			[
-				'db_sessions' => 'databaseSession_enable',
-				'db_error_skip' => true,
-			],
-		);
-
-		if (Db::$db->num_rows($result) != 0) {
-			list($db_sessions) = Db::$db->fetch_row($result);
-		}
-		Db::$db->free_result($result);
-
-		if (empty($db_sessions)) {
-			$_SESSION['admin_time'] = time();
-		} else {
-			$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
-
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}sessions',
+			$result = Db::$db->query(
+				'SELECT value
+				FROM {db_prefix}settings
+				WHERE variable = {string:db_sessions}',
 				[
-					'session_id' => 'string',
-					'last_update' => 'int',
-					'data' => 'string',
+					'db_sessions' => 'databaseSession_enable',
+					'db_error_skip' => true,
 				],
-				[
-					[
-						session_id(),
-						time(),
-						'USER_AGENT|s:' . \strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
-					],
-				],
-				['session_id'],
 			);
+
+			if (Db::$db->num_rows($result) != 0) {
+				list($db_sessions) = Db::$db->fetch_row($result);
+			}
+			Db::$db->free_result($result);
+
+			if (empty($db_sessions)) {
+				$_SESSION['admin_time'] = time();
+			} else {
+				$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
+
+				Db::$db->insert(
+					'replace',
+					'{db_prefix}sessions',
+					[
+						'session_id' => 'string',
+						'last_update' => 'int',
+						'data' => 'string',
+					],
+					[
+						[
+							session_id(),
+							time(),
+							'USER_AGENT|s:' . \strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+						],
+					],
+					['session_id'],
+				);
+			}
 		}
 
 		Logging::updateStats('member');
@@ -1251,9 +1281,6 @@ class Install extends ToolsBase implements ToolsInterface
 		// Sanity check that they loaded earlier!
 		if (isset(Config::$modSettings['recycle_board'])) {
 			(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
-
-			// We've just installed!
-			$_SERVER['BAN_CHECK_IP'] = IP::getUserIPAlternative();
 
 			User::$me->ip = IP::getUserIP();
 
@@ -1405,10 +1432,19 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function saveProgress(): bool
 	{
-		return $this->updateSettingsFile(['maintenance_tool_progress' => json_encode([
-			'started' => $this->time_started,
-			'debug' => $this->debug,
-		])]);
+		// Once we are done there is no progress left to track, and leaving a
+		// value here would tell SMF that an install is still in progress. That
+		// would stop background tasks from ever running on the new forum.
+		if (Maintenance::$overall_percent < 100) {
+			$data = json_encode([
+				'started' => $this->time_started,
+				'debug' => $this->debug,
+			]);
+		} else {
+			$data = '';
+		}
+
+		return $this->updateSettingsFile(['maintenance_tool_progress' => $data]);
 	}
 
 	/**
@@ -1418,7 +1454,19 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function defaultHost(): string
 	{
-		return empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
+		if (!empty($_SERVER['HTTP_HOST'])) {
+			return $_SERVER['HTTP_HOST'];
+		}
+
+		// On the command line there is no request to describe, so neither of
+		// these is set. This value only seeds the suggested board URL on the
+		// form, and a scripted install passes its own boardurl in, so a
+		// placeholder is enough -- but reading the keys unguarded was a warning
+		// on every CLI run.
+		$host = $_SERVER['SERVER_NAME'] ?? 'localhost';
+		$port = $_SERVER['SERVER_PORT'] ?? '';
+
+		return $host . (empty($port) || $port == '80' ? '' : ':' . $port);
 	}
 
 	/**

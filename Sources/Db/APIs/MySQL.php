@@ -61,9 +61,32 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public bool $support_ignore = true;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether the database supports ICU regular expressions.
+	 *
+	 * Will be set to true at runtime for MySQL 8.0.4 and higher.
+	 */
+	public bool $regex_icu = false;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database supports PCRE regular expressions.
+	 *
+	 * Will be set to true at runtime for MariaDB 10.0.5 and higher.
+	 */
+	public bool $regex_pcre = false;
+
+	/**
 	 *
 	 */
-	public bool $supports_pcre = false;
+	public bool $regex_tcl = false;
+
+	/**
+	 *
+	 */
+	public bool $regex_posix = true;
 
 	/*********************
 	 * Internal properties
@@ -595,7 +618,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		return $this->query(
+		$result = $this->query(
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 				' . implode('
 				', $joins) . '
@@ -604,6 +627,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$db_values,
 			$connection,
 		);
+
+		return $result !== false;
 	}
 
 	/**
@@ -2281,6 +2306,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
+		// The list_indexes() method will report the name of the primary key as
+		// 'primary' on MySQL and 'pkey' on PostgreSQL. If we were handed the
+		// name for the wrong database engine, fix it.
+		if ($index_name === 'pkey') {
+			$index_name = 'primary';
+		}
+
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
@@ -2586,8 +2618,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			self::$db_connection = $this->connection;
 		}
 
-		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
+		if ($this->get_vendor() === 'MariaDB') {
+			$this->regex_pcre = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '10.0.5', '>=');
+		} else {
+			$this->regex_icu = version_compare(preg_replace('/^(\d+(?:\.\d+)+).*/', '$1', $this->get_version()), '8.0.4', '>=');
+		}
 
 		$this->character_set = strtolower($this->detect_charset('messages', 'body'));
 		$this->mb4 = $this->character_set === 'utf8mb4';

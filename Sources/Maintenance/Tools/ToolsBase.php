@@ -612,10 +612,11 @@ abstract class ToolsBase
 		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Lang::getTxt('settings_error', file: 'Maintenance')], file: 'Maintenance'));
 
-			if (Sapi::isCLI()) {
-				die();
-			}
-
+			// This used to die() outright on the command line, which reported
+			// nothing and exited 0 -- a scripted install that could not write
+			// Settings.php looked exactly like one that worked. Recording the
+			// error and returning stops the run just as firmly, and now the
+			// caller gets to say why.
 			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
 
 			return false;

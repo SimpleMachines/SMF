@@ -292,25 +292,65 @@
 				}
 			}
 
-			// Copy variables from variants into ifrane.
+			/*
+			 * Copy variables from variants into the iframe.
+			 *
+			 * What you type into is a document of its own, so nothing the page
+			 * declares reaches it. The tokens are copied in here, and the dark
+			 * ones have to come with them or the editing surface stays white on
+			 * a dark forum.
+			 */
 			const iframe = editor.getContentAreaContainer();
 			const el = iframe.contentDocument.createElement('style');
 			el.type = 'text/css';
 			let css = '';
+
+			// The colour mode blocks are ':root[data-mode="dark"]' and friends,
+			// so matching ':root' alone walks straight past them.
+			const wantedRoot = selector => selector === ':root' || selector?.startsWith(':root[data-mode');
+
 			for (const sheet of document.styleSheets) {
 				if (sheet.href?.includes('/index_') || sheet.href?.includes('/variables')) {
 					for (const rule of sheet.cssRules) {
 						css += rule.cssText;
 					}
-				} else if (sheet.href?.includes('/minified_')) {
+				} else if (sheet.href?.includes('/minified_') || sheet.href?.includes('/dark')) {
 					for (const rule of sheet.cssRules) {
-						if (rule.selectorText == ':root') {
+						if (wantedRoot(rule.selectorText)) {
 							css += rule.cssText;
 						}
 					}
 				}
 			}
 			el.innerHTML = css;
+
+			/*
+			 * Tell the iframe which mode it is in.
+			 *
+			 * 'system' is resolved to the mode it currently means rather than
+			 * passed through: outside, the browser is asked by a media
+			 * attribute on the stylesheet, and there is no such attribute on
+			 * anything in here. Left as 'system' the rules would match whatever
+			 * the reader's own setting is, so the editor would go dark on a
+			 * forum deliberately kept light.
+			 */
+			const setMode = () => {
+				const mode = document.documentElement.dataset.mode;
+
+				if (!mode) {
+					return;
+				}
+
+				iframe.contentDocument.documentElement.dataset.mode = mode !== 'system' ? mode :
+					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			};
+
+			setMode();
+
+			// A reader on 'system' can change their mind while the editor is open.
+			if (document.documentElement.dataset.mode === 'system') {
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setMode);
+			}
 			iframe.contentDocument.head.appendChild(el);
 
 			// Override these functions in order to convince SCEditor not to

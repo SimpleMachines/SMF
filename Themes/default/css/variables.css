@@ -45,6 +45,9 @@
 	--secondary-color-900:                            hsl(var(--secondary-color-hue), 97%, 46%);
 
 	/** Layout **/
+	--wrapper-bg:                                     #fff;
+	--wrapper-border-color:                           #b8b8b8;
+	--wrapper-box-shadow:                             0 2px 3px rgba(0, 0, 0, 0.14);
 	--wrapper-width:                                  1200px;
 
 	/** Footer **/
@@ -92,6 +95,7 @@
 	--dropmenu-border-color:                          transparent;
 	--dropmenu-border-color_active:                   #f49a3a;
 	--dropmenu-border-color_active_hover:             #f49a3a;
+	--dropmenu-border-color_focus:                    #ddd;
 	--dropmenu-border-color_hover:                    #4a6b8c;
 	--dropmenu-border-radius:                         4px;
 	--dropmenu-border-style:                          solid;
@@ -169,6 +173,8 @@
 	--input-bg_disabled:                              #eee;
 	--input-bg_focus:                                 #fff;
 	--input-bg_hover:                                 #fbfbfb;
+	--input-bg_invalid:                               #fff0f0;
+	--input-bg_valid:                                 #f5fff0;
 	--input-border-color:                             #bbb;
 	--input-border-color_disabled:                    #b6b6b6;
 	--input-border-color_focus:                       #7fb0d8;
@@ -290,6 +296,7 @@
 	--catbar-color:                                   #fff;
 	--catbar-font-family:                             "Tahoma", sans-serif;
 	--catbar-font-size:                               1.1em;
+	--catbar-strong-color:                            #fff;
 	--catbar-text-shadow:                             -1px -1px 1px rgba(0, 0, 0, 0.2);
 	--catbar-text-shadow_hover:                       -1px -1px 0 rgba(0, 0, 0, 0.4);
 
@@ -506,6 +513,7 @@
 	--popup-content-border-color_bottom:              #ddd;
 	--popup-content-border-style:                     solid;
 	--popup-content-border-width:                     1px;
+	--popup-content-box-shadow:                       0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
 
 	/** Generic Lists **/
 	--listgrid-border-color:                          #aaa;
@@ -632,20 +640,23 @@
 	--breadcrumb-link-text-shadow_hover:              none;
 
 	/** Calendar **/
-	--calendar-th-bg:                                 #e7eaef;
-	--calendar-today-bg:                              #fff;
-	--calendar-disabled-bg:                           #eee;
-	--calendar-day-bg_hover:                          rgba(97, 135, 166, 0.2);
-	--calendar-event-bg:                              rgba(30, 245, 20, 0.1);
-	--calendar-event-bg_hover:                        rgba(30, 245, 20, 0.2);
-	--calendar-holiday-bg:                            rgba(23, 110, 245, 0.1);
-	--calendar-holiday-bg_hover:                      rgba(23, 110, 245, 0.2);
+	--birthday-color:                                 #920ac4;
 	--calendar-birthday-bg:                           rgba(102, 0, 255, 0.1);
 	--calendar-birthday-bg_hover:                     rgba(153, 51, 255, 0.2);
+	--calendar-day-bg_hover:                          rgba(97, 135, 166, 0.2);
+	--calendar-disabled-bg:                           #eee;
+	--calendar-event-bg:                              rgba(30, 245, 20, 0.1);
+	--calendar-event-bg_hover:                        rgba(30, 245, 20, 0.2);
+	--calendar-event-meta-color:                      #777;
+	--calendar-holiday-bg:                            rgba(23, 110, 245, 0.1);
+	--calendar-holiday-bg_hover:                      rgba(23, 110, 245, 0.2);
 	--calendar-link-color:                            #999;
 	--calendar-link-color_hover:                      #555;
+	--calendar-th-bg:                                 #e7eaef;
 	--calendar-title-link-color:                      #555;
-	--calendar-event-meta-color:                      #777;
+	--calendar-today-bg:                              #fff;
+	--event-color:                                    #078907;
+	--holiday-color:                                  #025dff;
 
 	/** Admin **/
 	--admin-announcement-border-color:                #bf6900;
@@ -676,4 +687,169 @@
 	--admin-smiley-border-color_selected:             #ffb42d;
 	--admin-table-caption-color:                      #000;
 	--admin-table-grid-border-color:                  #ddd;
+
+	/** Forum Title Link **/
+	--forumtitle-link-color:                          #a85400;
+
+	/** New Posts Badge **/
+	--newposts-bg:                                    linear-gradient(#f97b00,#884d00);
+	--newposts-color:                                 #fff;
+
+	/** Page Index **/
+	--currentpage-color:                              #b46100;
+	--pagesection-button-color:                       #346;
+
+	/** Status Text **/
+	--blue-color:                                     blue;
+	--error-color:                                    red;
+	--green-color:                                    green;
+	--success-color:                                  green;
+	--warnmoderate-color:                             #ffa500;
+
+	/** Raised Controls **/
+	--raised-bg:                                      #fff;
+	--raised-bg-image:                                linear-gradient(#e2e9f3 0%, #fff 70%);
+	--raised-bg_hover:                                #fff;
+	--raised-bg-image_hover:                          linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
+
+	/** Overlay Surfaces **/
+	--overlay-bg:                                     #fff;
+	--overlay-bg-image:                               linear-gradient(to bottom, #fff 0%, #f1f3f5 95%);
+
+	/** Title and Sub Backgrounds **/
+	--titlebg-color:                                  #555;
+	--titlebg-link-color:                             #555;
+
+	/** Auto Suggest **/
+	--autosuggest-border-color:                       #bbb;
+	--autosuggest-item-bg:                            #ddd;
+	--autosuggest-item-bg_hover:                      #888;
+	--autosuggest-item-color_hover:                   #eee;
+
+	/** Topic Display Head **/
+	--displayhead-color:                              #959595;
+
+	/** Draft Options **/
+	--draftoptions-bg:                                #fdfdfd;
+	--draftoptions-border-color:                      #aaa;
+	--draftoptions-strong-color:                      #555;
+
+	/** Profile **/
+	--activitystats-bg:                               #eee;
+	--activitystats-border-color:                     #666;
+	--counter-color:                                  #3f3f3f;
+	--listposts-box-shadow:                           0 1px 0 #fff inset;
+	--profile-dt-color:                               #444;
+
+	/** Warning Level Bars **/
+	--warninglevel-bg_moderated:                      orange;
+	--warninglevel-bg_muted:                          #f45d4c;
+	--warninglevel-bg_none:                           #75da41;
+	--warninglevel-bg_watched:                        #ffd800;
+
+	/** COPPA Contact **/
+	--coppa-bg:                                       #fff;
+	--coppa-border-color:                             #222;
+	--coppa-color:                                    #222;
+
+	/** Error File Viewer **/
+	--errorfile-bg:                                   #f0f4f7;
+	--errorfile-bg_current:                           rgba(245, 141, 15, 0.2);
+	--errorfile-fileline-bg:                          #ececec;
+	--errorfile-fileline-bg_current:                  #fb9090;
+	--errorfile-line-bg:                              #fbfbfb;
+	--errorfile-line-bg_current:                      #fbc6c6;
+
+	/** Theme Picker **/
+	--picktheme-selected-bg:                          #cddbe6;
+
+	/** Embedded Video **/
+	--video-bg:                                       black;
+
+	/** Editor **/
+	--editor-border-color:                            #bbb;
+	--editor-button-bg_active:                        #fff;
+	--editor-button-bg_pressed:                       #fff;
+	--editor-button-box-shadow_active:                inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+	--editor-button-box-shadow_pressed:               inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
+	--editor-dnd-bg:                                  rgba(255, 255, 255, 0.2);
+	--editor-dnd-border-color:                        #aaa;
+	--editor-dnd-color:                               #aaa;
+	--editor-dropdown-bg:                             #fff;
+	--editor-dropdown-border-color:                   #ccc;
+	--editor-dropdown-box-shadow:                     1px 2px 4px rgba(0, 0, 0, 0.2);
+	--editor-dropdown-label-color:                    #3c3c3c;
+	--editor-dropdown-link-bg_hover:                  #eee;
+	--editor-dropdown-link-color:                     #222;
+	--editor-icon-filter:                             none;
+	--editor-grip-border-color:                       #bbb;
+	--editor-group-border-color:                      #aaa;
+	--editor-icon-fill:                               #111;
+	--editor-icon-fill_disabled:                      #888;
+	--editor-grip-bg:                                 linear-gradient(#0000 0, #bbb 2px, #0000 3px, #bbb 5px, #0000 6px, #bbb 8px, #0000 9px);
+	--editor-group-bg:                                #ddd;
+	--editor-popup-bg:                                #568d;
+	--editor-popup-container-bg:                      #f5f5f5;
+	--editor-tablegrid-bg_active:                     #85a1b7;
+	--editor-tablegrid-border-color:                  #85a1b7;
+
+	/* Borders written as a shorthand rather than as a -color property, so
+	/* the sweep that tokenised the rest of the theme did not see them. */
+	/** Shorthand Borders **/
+	--attachment-dropzone-border-color_hover:         #557ea0;
+	--attachment-item-border-color:                   #ddd;
+	--buttonrow-border-color:                         #ccc;
+	--calendar-weeklist-border-color:                 #fff;
+	--detailedinfo-border-color:                      #ccc;
+	--draftoptions-border-color_left:                 #bbb;
+	--draftoptions-item-border-color:                 #e4e4e4;
+	--errorfile-current-border-color:                 rgba(0, 0, 0, 0.2);
+	--forumtitle-link-text-shadow:                    1px 1px 1px rgba(0, 0, 0, 0.3);
+	--innerwrap-border-color:                         #bbb;
+	--listposts-border-color:                         #ddd;
+	--mobileaction-item-border-color:                 #999;
+	--upcontain-lastpost-border-color:                #ddd;
+
+	/* atwho.css already gives each of these a fallback, so the mentions list
+	/* has never looked wrong. But a token that is never declared cannot be
+	/* overridden either, which is what kept the list light in dark mode. Each
+	/* value here is the fallback it is declared from. */
+	/** Mentions **/
+	--mentions-bg:                                    #fff;
+	--mentions-border-color:                          hsl(0, 0%, 85%);
+	--mentions-border-radius:                         1px;
+	--mentions-border-style:                          solid;
+	--mentions-border-width:                          1px;
+	--mentions-box-shadow:                            0 0 5px rgba(0, 0, 0, 0.1);
+	--mentions-item-bg:                               #f2f2f2;
+	--mentions-item-bg_current:                       hsl(225, 100%, 60%);
+	--mentions-item-border-color:                     hsl(0, 0%, 85%);
+	--mentions-item-border-style:                     solid;
+	--mentions-item-border-width:                     0 0 1px;
+	--mentions-item-color:                            hsl(0, 0%, 20%);
+	--mentions-item-color_current:                    #fff;
+	--mentions-item-cursor:                           pointer;
+	--mentions-item-font-size:                        .95em;
+	--mentions-item-font-size_current:                .95em;
+	--mentions-item-font-weight:                      normal;
+	--mentions-item-font-weight_current:              normal;
+	--mentions-width:                                 120px;
+
+	/* The surface inside the editor, which is a document of its own. The
+	/* sceditor plugin copies these into it; see signalReady(). */
+	/** Editor Content **/
+	--editor-content-bg:                              #fff;
+	--editor-content-cite-border-color:               #aaa;
+	--editor-content-cite-color:                      #aaa;
+	--editor-content-code-bg:                         #eee;
+	--editor-content-code-border-color:               #aaa;
+	--editor-content-color:                           #111;
+	--editor-content-details-border-color:            #aaa;
+	--editor-content-float-border-color:              #aaa;
+	--editor-content-quote-bg:                        #e0e6f6;
+	--editor-content-quote-border-color:              #d6dfe2;
+	--editor-content-quote-border-color_side:         #aaa;
+	--editor-content-spoiler-outline-color:           #aaa;
+	--editor-content-table-border-color:              #000;
+	--editor-content-tt-bg:                           rgba(127, 127, 127, 0.25);
 }

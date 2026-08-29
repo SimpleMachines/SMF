@@ -246,7 +246,12 @@ class Reminder implements ActionInterface, Routable
 			}
 		}
 
-		list($real_code, $issue_time) = $this->member->validation_code;
+		// Codes are stored as 'code|time'. One without a timestamp was issued
+		// before they expired at all, and is deliberately not honoured: padding
+		// leaves it with no issue time, which reads as expired below. That costs
+		// anyone mid-reminder when the forum upgrades a second attempt, which
+		// beats letting a pre-expiry code stand forever.
+		list($real_code, $issue_time) = array_pad(explode('|', $this->member->validation_code), 2, '');
 		$issue_time = empty($issue_time) ? 0 : (int) $issue_time;
 
 		// Quit if this code is not right.

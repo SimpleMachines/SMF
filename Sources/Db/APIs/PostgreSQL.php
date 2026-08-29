@@ -63,7 +63,22 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public bool $supports_pcre = true;
+	public bool $regex_icu = false;
+
+	/**
+	 *
+	 */
+	public bool $regex_pcre = false;
+
+	/**
+	 *
+	 */
+	public bool $regex_tcl = true;
+
+	/**
+	 *
+	 */
+	public bool $regex_posix = true;
 
 	/*********************
 	 * Internal properties
@@ -134,6 +149,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * Error code produced by a failed connection attempt.
 	 */
 	protected $connect_errno;
+
+	/**
+	 * @var array
+	 *
+	 * Cache for list_indexes() method.
+	 */
+	private array $index_cache = [];
 
 	/****************
 	 * Public methods
@@ -435,23 +457,48 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 		if ($method == 'replace' || $method == 'ignore') {
-			$key_str = implode(',', $keys);
-			$col_str = '';
-			$count = 0;
+			// The columns in an ON CONFLICT statement must exactly match the columns
+			// of some primary or unique index.
+			$possibly_conflicting_columns = [];
+			$column_names = array_keys($columns);
 
-			// Make a list of the non-pk fields.
-			foreach ($columns as $columnName => $type) {
-				if (!\in_array($columnName, $keys) && ($method == 'replace')) {
-					$col_str .= ($count > 0 ? ',' : '');
-					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
-					$count++;
+			foreach ($this->list_indexes($table, true) as $index) {
+				if (
+					// Skip if not a primary or unique index.
+					!\in_array($index['type'], ['primary', 'unique'])
+					// Skip if some of the columns in this index are not being inserted into.
+					|| array_intersect($index['columns'], $column_names) !== $index['columns']
+					// Prefer the primary index over others.
+					|| ($index['type'] !== 'primary' && !empty($possibly_conflicting_columns))
+				) {
+					continue;
 				}
+
+				$possibly_conflicting_columns = $index['columns'];
 			}
 
-			if ($method == 'replace') {
-				$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
-			} else {
-				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+			if (!empty($possibly_conflicting_columns)) {
+				$key_str = implode(',', $possibly_conflicting_columns);
+				$col_str = '';
+				$count = 0;
+
+				// Make a list of the non-pk fields.
+				foreach ($columns as $column_name => $type) {
+					if (
+						!\in_array($column_name, $possibly_conflicting_columns)
+						&& $method == 'replace'
+					) {
+						$col_str .= ($count > 0 ? ',' : '');
+						$col_str .= $column_name . ' = EXCLUDED.' . $column_name;
+						$count++;
+					}
+				}
+
+				if ($method == 'replace' && !empty($col_str)) {
+					$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+				} else {
+					$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+				}
 			}
 		}
 
@@ -600,7 +647,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// PostgreSQL doesn't like prefixes on the columns to be set.
 		$set = preg_replace('~\b' . $table['alias'] . '\.\b~', '', $set);
 
-		return $this->query(
+		$result = $this->query(
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 			SET ' . $set . '
 			FROM ' . implode(', ', $from) . (!empty($where) ? '
@@ -608,6 +655,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$db_values,
 			$connection,
 		);
+
+		return $result !== false;
 	}
 
 	/**
@@ -1365,6 +1414,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->change_column($table_name, $column_info['name'], $column_info);
 		}
 
+		unset($this->index_cache[$short_table_name]);
+
 		return $result !== false;
 	}
 
@@ -1437,6 +1488,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		}
+
+		unset($this->index_cache[$parsed_table_name]);
 
 		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
@@ -1710,11 +1763,23 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
+			// In PostgreSQL SET DEFAULT does not backfill existing rows, so do it manually.
+			if ($default !== 'NULL' && !empty($column_info['not_null'])) {
+				$this->query(
+					'UPDATE ' . $short_table_name . '
+					SET ' . $column_info['name'] . ' = ' . $default . '
+					WHERE ' . $column_info['name'] . ' IS NULL',
+					[
+						'security_override' => true,
+					],
+				);
+			}
 		}
 
 		// Is it null - or otherwise?
 		// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
-		if (isset($column_info['not_null'])) {
+		if (!empty($column_info['not_null'])) {
 			$action = 'SET NOT NULL';
 		} else {
 			$action = 'DROP NOT NULL';
@@ -1727,6 +1792,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'security_override' => true,
 			],
 		);
+
+		unset($this->index_cache[$short_table_name]);
 
 		return true;
 	}
@@ -1751,6 +1818,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 		}
+
+		unset($this->index_cache[$parsed_table_name]);
 
 		return $result !== false;
 	}
@@ -1801,6 +1870,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return $if_exists == 'ignore';
 			}
 		}
+
+		unset($this->index_cache[$short_table_name]);
 
 		// If we've got this far - good news - no table exists. We can build our own!
 		if (!$db_trans) {
@@ -1985,6 +2056,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$tables = $this->list_tables($database);
 
 		if (\in_array($full_table_name, $tables)) {
+			unset($this->index_cache[$short_table_name]);
+
 			// We can then drop the table.
 			$this->transaction('begin');
 
@@ -2053,6 +2126,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		) {
 			return false;
 		}
+
+		unset($this->index_cache[$short_old_name]);
 
 		$result = $this->query(
 			'ALTER TABLE ' . $short_old_name . ' RENAME TO ' . $short_new_name,
@@ -2152,6 +2227,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
+		if (isset($this->index_cache[$parsed_table_name][$detail ? 'detail' : 'simple'])) {
+			return $this->index_cache[$parsed_table_name][$detail ? 'detail' : 'simple'];
+		}
+
 		$result = $this->query(
 			'SELECT CASE WHEN i.indisprimary THEN 1 ELSE 0 END AS is_primary,
 				CASE WHEN i.indisunique THEN 1 ELSE 0 END AS is_unique,
@@ -2180,15 +2259,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			foreach ($columns as $k => $v) {
-				$columns[$k] = trim($v);
+				// Remove the opclass suffix, if present.
+				$columns[$k] = preg_replace('/\s+\w+_ops$/', '', trim($v));
 			}
 
-			// Fix up the name to be consistent cross databases
-			if (str_ends_with($row['name'], '_pkey') && $row['is_primary'] == 1) {
-				$row['name'] = 'PRIMARY';
-			} else {
-				$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
-			}
+			// We only want the basic column name.
+			$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
 
 			if (!$detail) {
 				$indexes[] = $row['name'];
@@ -2200,7 +2276,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				];
 			}
 		}
+
 		$this->free_result($result);
+
+		if ($detail) {
+			$this->index_cache[$parsed_table_name]['detail'] = $indexes;
+			$this->index_cache[$parsed_table_name]['simple'] = array_keys($indexes);
+		} else {
+			$this->index_cache[$parsed_table_name]['simple'] = $indexes;
+		}
 
 		return $indexes;
 	}
@@ -2211,6 +2295,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function remove_column(string $table_name, string $column_name, array $parameters = [], string $error = 'fatal'): bool
 	{
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
+
+		unset($this->index_cache[$short_table_name]);
 
 		// Does it exist?
 		$columns = $this->list_columns($table_name, true);
@@ -2251,37 +2337,41 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
 
+		unset($this->index_cache[$parsed_table_name]);
+
+		// The list_indexes() method will report the name of the primary key as
+		// 'primary' on MySQL and 'pkey' on PostgreSQL. If we were handed the
+		// name for the wrong database engine, fix it.
+		if ($index_name === 'primary') {
+			$index_name = 'pkey';
+		}
+
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
-		// Do not add the table name to the index if it is already there.
-		if ($index_name != 'primary' && str_contains($index_name, $real_table_name)) {
-			$index_name = str_replace($real_table_name . '_', '', $index_name);
-		}
+		// The list_indexes() method removes the table name from the names of
+		// the indexes, so make sure to do the same to $index_name.
+		$index_name = str_replace($real_table_name . '_', '', $index_name);
 
 		foreach ($indexes as $index) {
-			// If the name is primary we want the primary key!
-			if ($index['type'] == 'primary' && $index_name == 'primary') {
-				// Dropping primary key?
-				$result = $this->query(
-					'ALTER TABLE ' . $real_table_name . '
-					DROP CONSTRAINT ' . $index['name'],
-					[
-						'security_override' => true,
-					],
-				);
+			if ($index['name'] === $index_name) {
+				if ($index['type'] == 'primary') {
+					$result = $this->query(
+						'ALTER TABLE ' . $real_table_name . '
+						DROP CONSTRAINT ' . $real_table_name . '_' . $index['name'],
+						[
+							'security_override' => true,
+						],
+					);
+				} else {
+					$result = $this->query(
+						'DROP INDEX ' . $real_table_name . '_' . $index['name'],
+						[
+							'security_override' => true,
+						],
+					);
 
-				return $result !== false;
-			}
-
-			if ($index['name'] == $index_name) {
-				// Drop the bugger...
-				$result = $this->query(
-					'DROP INDEX ' . $real_table_name . '_' . $index_name,
-					[
-						'security_override' => true,
-					],
-				);
+				}
 
 				return $result !== false;
 			}

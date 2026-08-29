@@ -1,23 +1,611 @@
 /* Dark colour mode for the default theme.
 /*
-/* Deliberately empty for now. This file is the placeholder the dark mode work
-/* lands in; a later pull request fills it with the token overrides.
+/* Nothing here restates a rule. Every declaration overrides a token that
+/* variables.css already defines, so the cascade is unchanged and a component
+/* that gains a token later picks its dark value up here rather than growing a
+/* second copy of its rules.
 /*
-/* Nothing loads it yet. Theme.php only calls loadCSSFile('dark.css', ...) when
-/* settings['has_dark_mode'] is set, and index.template.php still sets that to
-/* false, so the switch stays off until there is something here to switch to.
+/* Both attribute values are required on every block. Theme.php loads this file
+/* in every colour mode once dark mode is available, and only attaches a
+/* (prefers-color-scheme: dark) media attribute when the mode is "system", while
+/* index.template.php writes the chosen mode straight into data-mode. So in
+/* "light" the selector is the only thing keeping these rules out, and in
+/* "system" the media query has already decided whether the file applies at all.
+/* Dropping the "system" alternative would mean that mode never gets dark
+/* styling, because the file loads, the media query matches, and then nothing
+/* selects.
 /*
-/* When it is filled in, override the tokens in variables.css rather than
-/* restating whole rules, and scope every block to both attribute values:
+/* The primary and secondary ramps are deliberately left alone. They carry the
+/* theme's identity and a variant re-tints the forum by moving
+/* --primary-color-hue, which has to keep working here. Where a token pointed at
+/* the dark end of a ramp because it was drawn on a light surface, the override
+/* below points it at the light end instead; the ramp itself keeps meaning what
+/* its name says.
 /*
-/*	:root[data-mode="dark"],
-/*	:root[data-mode="system"] { ... }
-/*
-/* Both are required. Theme.php loads this file in every colour mode once dark
-/* mode is available, and only attaches a (prefers-color-scheme: dark) media
-/* attribute when the mode is "system"; index.template.php writes the mode
-/* straight into data-mode. So in "light" the selector is the only thing keeping
-/* these rules out, and in "system" the media query has already decided whether
-/* the file applies at all. Dropping the "system" alternative would mean that
-/* mode never gets dark styling, because the file loads, the media query
-/* matches, and then nothing selects. */
+/* The scale at the top exists only in this file. It is the small set of
+/* decisions everything else is written against, so the way to review this is to
+/* agree those values first and then check that each component reached for the
+/* right one. */
+:root[data-mode="dark"],
+:root[data-mode="system"] {
+
+	/* The surfaces, from the page behind everything up to the topmost thing
+	/* that floats above it, then the two hairline weights, the three text
+	/* weights and the link colours. All tinted with the theme's own hue rather
+	/* than neutral grey, so a variant moves dark mode with it. */
+	--dark-bg-0:                                      hsl(var(--primary-color-hue), 24%, 8%);
+	--dark-bg-1:                                      hsl(var(--primary-color-hue), 20%, 11%);
+	--dark-bg-2:                                      hsl(var(--primary-color-hue), 16%, 15%);
+	--dark-bg-3:                                      hsl(var(--primary-color-hue), 14%, 19%);
+	--dark-bg-4:                                      hsl(var(--primary-color-hue), 13%, 24%);
+	--dark-line:                                      hsl(var(--primary-color-hue), 12%, 26%);
+	--dark-line-strong:                               hsl(var(--primary-color-hue), 12%, 36%);
+	--dark-ink:                                       hsl(var(--primary-color-hue), 10%, 84%);
+	--dark-ink-dim:                                   hsl(var(--primary-color-hue), 8%, 62%);
+	--dark-ink-bright:                                hsl(var(--primary-color-hue), 14%, 96%);
+	--dark-accent:                                    hsl(var(--primary-color-hue), 48%, 72%);
+	--dark-accent-strong:                             hsl(var(--primary-color-hue), 60%, 82%);
+
+	/** Layout **/
+	--wrapper-bg:                                     var(--dark-bg-2);
+	--wrapper-border-color:                           var(--dark-line);
+	--wrapper-box-shadow:                             0 2px 3px rgba(0, 0, 0, 0.5);
+
+	/** Footer **/
+	--footer-bg:                                      var(--dark-bg-0);
+	--footer-color:                                   var(--dark-ink);
+
+	/** Footer Links **/
+	--footer-link-color:                              var(--dark-ink-bright);
+	--footer-link-color_hover:                        var(--dark-accent-strong);
+
+	/** Top Bar **/
+	--topsection-bg:                                  linear-gradient(hsl(var(--primary-color-hue), 20%, 15%) 0%, hsl(var(--primary-color-hue), 20%, 11%) 70%);
+	--topsection-border-color:                        var(--dark-line);
+	--topsection-box-shadow:                          0 1px 4px rgba(0, 0, 0, 0.5);
+
+	/** Main Menu **/
+	--mainmenu-bg:                                    linear-gradient(hsl(var(--primary-color-hue), 20%, 15%) 0%, hsl(var(--primary-color-hue), 20%, 11%) 70%);
+	--mainmenu-border-color:                          var(--dark-line);
+
+	/** Drop Menu Buttons **/
+	/* The active button keeps the theme's orange. It is the one place the menu
+	/* says "you are here", and a dark-on-dark version of it says nothing. */
+	--dropmenu-bg_active:                             linear-gradient(#e09000, #c47c00);
+	--dropmenu-bg_active_hover:                       #f0a000;
+	--dropmenu-bg_hover:                              hsl(var(--primary-color-hue), 28%, 26%);
+	--dropmenu-border-color_active:                   #c9802f;
+	--dropmenu-border-color_active_hover:             #c9802f;
+	--dropmenu-border-color_focus:                    var(--dark-line-strong);
+	--dropmenu-border-color_hover:                    hsl(var(--primary-color-hue), 25%, 32%);
+	--dropmenu-box-shadow_active_hover:               0 5px 5px rgba(255, 255, 255, 0.12) inset;
+	--dropmenu-box-shadow_hover:                      0 4px 4px rgba(255, 255, 255, 0.06) inset;
+	--dropmenu-strong-color:                          var(--dark-ink);
+
+	/** Drop Menu Notification Counts **/
+	--amt-bg:                                         hsl(var(--primary-color-hue), 35%, 38%);
+
+	/** Drop Menu Submenus **/
+	--submenu-bg:                                     var(--dark-bg-3);
+	--submenu-border-color:                           var(--dark-line-strong);
+	--submenu-border-color_left:                      var(--dark-line);
+	--submenu-border-color_top:                       var(--dark-line);
+	--submenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.6);
+
+	/** Drop Menu Submenu Items **/
+	--submenu-item-border-color_hover:                var(--dark-line-strong);
+	--submenu-item-border-color_hover_top:            var(--dark-line-strong);
+	--submenu-item-color:                             var(--dark-accent);
+	--submenu-item-color_hover:                       var(--dark-ink-bright);
+
+	/** HTML **/
+	--html-bg:                                        var(--dark-bg-0);
+
+	/** Body **/
+	--body-bg:                                        var(--dark-bg-1);
+	--body-color:                                     var(--dark-ink);
+
+	/** Body Links **/
+	--body-link-color:                                var(--dark-accent);
+
+	/** Strong **/
+	--strong-color:                                   var(--dark-ink-bright);
+
+	/** Headings **/
+	--heading-color:                                  var(--dark-ink-bright);
+
+	/** Selection **/
+	--selection-bg:                                   hsl(var(--primary-color-hue), 60%, 35%);
+	--selection-color:                                hsl(0, 0%, 98%);
+
+	/** Horizontal Rule **/
+	--horizontalrule-bg:                              var(--dark-line);
+	--horizontalrule-box-shadow:                      0 1px 0 rgba(255, 255, 255, 0.06) inset;
+
+	/** Inputs **/
+	--input-bg:                                       hsl(var(--primary-color-hue), 16%, 14%);
+	--input-bg_disabled:                              hsl(var(--primary-color-hue), 12%, 17%);
+	--input-bg_focus:                                 hsl(var(--primary-color-hue), 16%, 16%);
+	--input-bg_hover:                                 hsl(var(--primary-color-hue), 16%, 16%);
+	--input-bg_invalid:                               hsl(0, 25%, 16%);
+	--input-bg_valid:                                 hsl(110, 22%, 14%);
+	--input-border-color:                             var(--dark-line-strong);
+	--input-border-color_disabled:                    var(--dark-line);
+	--input-border-color_focus:                       hsl(var(--primary-color-hue), 50%, 55%);
+	--input-border-color_hover:                       hsl(var(--primary-color-hue), 30%, 45%);
+	--input-box-shadow:                               1px 2px 1px rgba(0, 0, 0, 0.35) inset;
+	--input-color:                                    var(--dark-ink-bright);
+	--input-color_disabled:                           var(--dark-ink-dim);
+
+	/** Fieldsets **/
+	--fieldset-border-color:                          var(--dark-line);
+	--fieldset-legend-color:                          var(--dark-ink);
+
+	/** Buttons **/
+	/* The border is a four-sided bevel: light on the top and left, dark on the
+	/* bottom and right, and the hover state swaps them to press the button in.
+	/* Dark mode narrows the range rather than reversing it, because a bevel lit
+	/* from the same side is what keeps the two states telling apart. */
+	--button-bg_active:                               hsl(var(--primary-color-hue), 32%, 32%);
+	--button-border-color:                            hsl(var(--primary-color-hue), 10%, 30%) hsl(var(--primary-color-hue), 10%, 20%) hsl(var(--primary-color-hue), 10%, 16%) hsl(var(--primary-color-hue), 10%, 30%);
+	--button-border-color_active:                     hsl(180, 20%, 35%);
+	--button-border-color_hover:                      hsl(var(--primary-color-hue), 10%, 16%) hsl(var(--primary-color-hue), 10%, 30%) hsl(var(--primary-color-hue), 10%, 30%) hsl(var(--primary-color-hue), 10%, 20%);
+	--button-box-shadow:                              1px 1px 1px rgba(0, 0, 0, 0.5);
+	--button-box-shadow_hover:                        -1px -1px 2px rgba(0, 0, 0, 0.6), -1px -2px 4px rgba(255, 255, 255, 0.05) inset;
+	--button-color:                                   var(--dark-ink);
+	--button-color_hover:                             #e08a1f;
+
+	/** Quick Buttons **/
+	--quickbutton-box-shadow_focus:                   0 0 4px hsl(var(--primary-color-hue), 60%, 60%);
+	--quickbutton-color:                              var(--dark-ink);
+	--quickbutton-color_hover:                        var(--dark-ink-bright);
+
+	/** Post Options Drop Down **/
+	--postoptions-bg:                                 var(--dark-bg-3);
+	--postoptions-border-color:                       var(--dark-line-strong);
+	--postoptions-border-color_left:                  var(--dark-line-strong);
+	--postoptions-border-color_top:                   var(--dark-line);
+	--postoptions-box-shadow:                         2px 3px 3px rgba(0, 0, 0, 0.5);
+
+	/** Post Options Drop Down Items **/
+	--postoptions-item-border-color_hover:            var(--dark-line-strong);
+
+	/** Posts **/
+	--postbg-border-color:                            hsl(var(--primary-color-hue), 10%, 30%);
+	--topiccontainer-border-color:                    rgba(255, 255, 255, 0.1);
+
+	/* The hairline above each section inside a post. The light theme draws it as
+	/* a grey line with a white highlight under it; here the highlight is what
+	/* the surface reflects, so it drops to a hint. */
+	--postsection-border-color:                       hsl(var(--primary-color-hue), 10%, 26%);
+	--postsection-box-shadow:                         0 1px 0 rgba(255, 255, 255, 0.05) inset;
+
+	/** Posts Awaiting Approval **/
+	--approvebg-bg:                                   hsl(0, 25%, 16%);
+	--approvebg-color:                                var(--dark-ink);
+	--approvebg2-bg:                                  hsl(0, 20%, 19%);
+	--approvebg2-color:                               var(--dark-ink);
+
+	/** Post Author **/
+	--poster-name-color:                              #f0913a;
+	--poster-online-color:                            #f0913a;
+
+	/** Post Info Line **/
+	--pagenumber-color:                               #d99a5c;
+	--postinfo-link-color:                            #d99a5c;
+	--postinfo-modified-color:                        var(--dark-ink-dim);
+	--subjecttitle-link-color:                        var(--dark-ink-bright);
+
+	/** Post Edit History **/
+	--edithistory-bg:                                 var(--dark-bg-2);
+	--edithistory-border-color:                       var(--dark-line);
+	--edithistory-item-border-color:                  var(--dark-line);
+
+	/** Bump Notice **/
+	--bumpnotice-border-color:                        var(--dark-line);
+
+	/** Cat Bar **/
+	--catbar-bg:                                      hsl(var(--primary-color-hue), 30%, 22%);
+	--catbar-border-color:                            var(--dark-line-strong);
+	--catbar-box-shadow:                              0 16px 20px rgba(255, 255, 255, 0.05) inset;
+	--catbar-color:                                   var(--dark-ink-bright);
+	--catbar-strong-color:                            var(--dark-ink-bright);
+
+	/** Title Bar **/
+	--titlebar-bg:                                    var(--dark-bg-3);
+	--titlebar-border-color:                          #e08600 var(--dark-line) #a75c00 var(--dark-line);
+	--titlebar-color:                                 var(--dark-ink);
+
+	/** Title and Sub Backgrounds **/
+	--titlebg-color:                                  var(--dark-ink);
+	--titlebg-link-color:                             var(--dark-ink);
+
+	/** Sub Bar **/
+	--subbar-border-color:                            var(--dark-line);
+	--subbar-box-shadow:                              0 -1px 0 hsl(var(--primary-color-hue), 10%, 30%) inset;
+
+	/** Round Frame **/
+	--roundframe-bg:                                  hsl(var(--primary-color-hue), 16%, 13%);
+	--roundframe-border-color:                        var(--dark-line);
+	--roundframe-box-shadow:                          0 -2px 2px rgba(0, 0, 0, 0.4);
+
+	/** Information **/
+	--information-bg:                                 hsl(var(--primary-color-hue), 16%, 13%);
+	--information-border-color:                       var(--dark-line);
+
+	/** Windowbg **/
+	/* The last seven are the message index row states. They have to stay
+	/* distinguishable from each other and from a plain row, which is why they
+	/* keep their own hues instead of collapsing onto the surface scale. */
+	--window-bg:                                      var(--dark-bg-3);
+	--window-bg_hover:                                var(--dark-bg-4);
+	--window-border-color:                            var(--dark-line);
+	--window-box-shadow:                              0 -2px 2px rgba(0, 0, 0, 0.4);
+	--window-odd-bg:                                  hsl(var(--primary-color-hue), 15%, 16%);
+	--window-target-bg:                               hsl(56, 25%, 18%);
+	--window-locked-bg:                               hsl(var(--primary-color-hue), 10%, 18%);
+	--window-sticky-bg:                               hsl(var(--primary-color-hue), 22%, 22%);
+	--window-stickylocked-bg:                         hsl(22, 18%, 19%);
+	--window-approvetopic-bg:                         hsl(22, 35%, 25%);
+	--window-approvepost-bg:                          hsl(0, 30%, 22%);
+
+	/** Error Box **/
+	--errorbox-bg:                                    hsl(0, 30%, 15%);
+	--errorbox-border-color:                          #d9455a;
+
+	/** Notice Box **/
+	--noticebox-bg:                                   hsl(48, 30%, 16%);
+	--noticebox-border-color:                         #c9a41c;
+	--noticebox-color:                                var(--dark-ink);
+
+	/** Info Box **/
+	--infobox-bg:                                     hsl(120, 22%, 15%);
+	--infobox-border-color:                           #3f9e4d;
+	--infobox-color:                                  var(--dark-ink);
+
+	/** Desc Box **/
+	--descbox-border-color:                           var(--dark-line);
+
+	/** Generic Bar **/
+	/* The label is centred over the whole bar, so it crosses both the filled
+	/* part and the empty track behind it. In the light theme both are pale and
+	/* dark text works over each; here they are at opposite ends, so the text
+	/* goes light and the shadow it already carried turns dark to hold it up over
+	/* the bright fill. This is the one token whose dark value is not the
+	/* inversion of its light one. */
+	--genericbar-bg:                                  var(--dark-bg-3);
+	--genericbar-border-color:                        var(--dark-line);
+	--genericbar-color:                               hsl(0, 0%, 94%);
+	--genericbar-text-shadow:                         1px 1px 2px rgba(0, 0, 0, 0.8);
+
+	/** Progress Bar **/
+	--progressbar-color:                              hsl(0, 0%, 98%);
+
+	/** Quotes **/
+	--quote-bg:                                       hsl(var(--primary-color-hue), 20%, 17%);
+	--quote-alternate-bg:                             hsl(var(--primary-color-hue), 16%, 20%);
+	--quote-border-color:                             hsl(var(--primary-color-hue), 12%, 24%) hsl(var(--primary-color-hue), 12%, 32%);
+	--quote-cite-border-color:                        rgba(255, 255, 255, 0.12);
+
+	/** Code Blocks **/
+	--code-bg:                                        hsl(var(--primary-color-hue), 14%, 11%);
+	--code-border-color:                              hsl(var(--primary-color-hue), 12%, 30%) hsl(var(--primary-color-hue), 12%, 22%) hsl(var(--primary-color-hue), 12%, 34%);
+
+	/** BBC Tags **/
+	--bbc-cite-color:                                 var(--dark-ink-dim);
+	--bbc-details-border-color:                       var(--dark-line-strong);
+	--bbc-header-color:                               var(--dark-ink);
+	--bbc-spoiler-outline-color:                      hsl(var(--primary-color-hue), 45%, 55%);
+	--bbc-table-border-color:                         var(--dark-line);
+	--bbc-tt-bg:                                      rgba(255, 255, 255, 0.1);
+
+	/** BBC Links **/
+	--bbc-link-border-color:                          hsl(var(--primary-color-hue), 20%, 35%);
+	--bbc-link-border-color_hover:                    var(--dark-accent);
+
+	/** AJAX Notification Bar **/
+	--ajaxinprogress-bg:                              var(--dark-bg-3);
+
+	/** Popups **/
+	--popup-bg:                                       rgba(0, 0, 0, 0.65);
+	--popup-window-border-color:                      var(--dark-line-strong);
+	--popup-window-box-shadow:                        0 3px 6px rgba(0, 0, 0, 0.7);
+	--popup-heading-color:                            #e59440;
+	--popup-content-color:                            var(--dark-ink);
+
+	/** Board Index **/
+	--boardindex-border-color:                        var(--dark-line);
+	--boardindex-subject-color:                       #e0913f;
+
+	/** Board Picker Lists **/
+	--boardslist-border-color:                        var(--dark-line);
+	--boardslist-border-color_hover:                  var(--dark-accent);
+
+	/** Info Center **/
+	--infocenter-row-border-color:                    var(--dark-line);
+	--infocenter-time-color:                          var(--dark-ink-dim);
+
+	/** Help Pages **/
+	--helpmain-border-color:                          var(--dark-line);
+	--helpmain-box-shadow:                            0 -2px 2px rgba(0, 0, 0, 0.4);
+
+	/** Tooltips **/
+	--tooltip-bg:                                     var(--dark-bg-4);
+	--tooltip-border-color:                           var(--dark-line-strong);
+	--tooltip-box-shadow:                             1px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.3) inset;
+	--tooltip-color:                                  var(--dark-ink);
+
+	/** Popup Content **/
+	--popup-content-border-color:                     var(--dark-line-strong);
+	--popup-content-border-color_bottom:              var(--dark-line);
+	--popup-content-box-shadow:                       0 -2px 3px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.05);
+
+	/** Generic Lists **/
+	--listgrid-border-color:                          var(--dark-line-strong);
+
+	/** Alternating Rows **/
+	--alternative-bg:                                 hsl(var(--primary-color-hue), 12%, 16%);
+	--alternative2-bg:                                hsl(var(--primary-color-hue), 12%, 19%);
+	--stripes-bg_even:                                hsl(var(--primary-color-hue), 12%, 16%);
+	--stripes-bg_odd:                                 hsl(var(--primary-color-hue), 14%, 13%);
+
+	/** Two Factor Authentication Code **/
+	--tfacode-bg:                                     hsl(var(--primary-color-hue), 30%, 22%);
+
+	/** Backtraces **/
+	--backtrace-border-color:                         var(--dark-line);
+
+	/* Both of these are laid over the text they mark, so they stay the colours
+	/* they were and only lose the alpha they no longer need to punch through. */
+	/** Diff Output **/
+	--diff-bg_added:                                  rgba(0, 255, 0, 0.2);
+	--diff-bg_removed:                                rgba(255, 0, 0, 0.22);
+
+	/** Collapse and Expand Toggles **/
+	--toggle-bg:                                      var(--dark-bg-3);
+	--toggle-bg_hover:                                hsl(var(--primary-color-hue), 25%, 28%);
+	--toggle-border-color:                            var(--dark-line);
+	--toggle-box-shadow:                              0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.05) inset, 0 -5px 4px rgba(0, 0, 0, 0.2) inset;
+	--toggle-box-shadow_hover:                        0 1px 2px rgba(0, 0, 0, 0.5) inset;
+
+	/** Message Icon Picker **/
+	--iconlist-bg:                                    var(--dark-bg-3);
+	--iconlist-border-color:                          var(--dark-line-strong);
+	--iconlist-item-bg_hover:                         hsl(var(--primary-color-hue), 25%, 26%);
+	--iconlist-item-border-color:                     var(--dark-bg-3);
+	--iconlist-item-border-color_hover:               var(--dark-ink-dim);
+
+	/** Online and Offline Dots **/
+	--onoff-bg_off:                                   hsl(0, 3%, 42%);
+	--onoff-bg_on:                                    #6fce46;
+	--onoff-border-color_off:                         hsl(0, 3%, 34%);
+	--onoff-border-color_on:                          #5bb038;
+
+	/** Personal Message Capacity Bar **/
+	--capacitybar-bg:                                 var(--dark-bg-3);
+	--capacitybar-border-color:                       var(--dark-line-strong);
+	--capacitybar-inner-bg_empty:                     #5e9a55;
+	--capacitybar-inner-bg_filled:                    #c98f0a;
+	--capacitybar-inner-bg_full:                      #c81616;
+
+	/** Personal Messages **/
+	--pmrules-label-color:                            var(--dark-ink);
+	--unreadpm-bg:                                    hsl(120, 20%, 16%);
+	--notifylist-border-color:                        var(--dark-line);
+	--notifylist-item-bg_hover:                       var(--dark-bg-3);
+
+	/** Search Highlight **/
+	--searchhighlight-color:                          #ff9d4d;
+
+	/** Moderation Link **/
+	--moderationlink-bg:                              #d98a00;
+
+	/** Navigate Section **/
+	--navigatesection-bg:                             var(--dark-bg-2);
+	--navigatesection-border-color:                   var(--dark-line);
+	--navigatesection-box-shadow:                     0 0 1px 1px rgba(255, 255, 255, 0.04) inset;
+
+	/** Breadcrumb **/
+	--breadcrumb-box-shadow:                          0 6px 10px -5px rgba(0, 0, 0, 0.4);
+	--breadcrumb-color:                               var(--dark-ink);
+
+	/** Breadcrumb Divider **/
+	--breadcrumb-divider-color:                       hsl(206, 45%, 65%);
+
+	/** Breadcrumb Links **/
+	--breadcrumb-link-color:                          var(--primary-color-200);
+	--breadcrumb-link-color_active:                   hsl(213, 60%, 72%);
+	--breadcrumb-link-color_hover:                    var(--primary-color-100);
+
+	/** Calendar **/
+	--calendar-th-bg:                                 var(--dark-bg-3);
+	--calendar-today-bg:                              hsl(var(--primary-color-hue), 20%, 20%);
+	--calendar-disabled-bg:                           hsl(var(--primary-color-hue), 10%, 12%);
+	--calendar-day-bg_hover:                          rgba(120, 165, 205, 0.18);
+	--calendar-event-bg:                              rgba(30, 245, 20, 0.12);
+	--calendar-event-bg_hover:                        rgba(30, 245, 20, 0.22);
+	--calendar-holiday-bg:                            rgba(23, 110, 245, 0.16);
+	--calendar-holiday-bg_hover:                      rgba(23, 110, 245, 0.28);
+	--calendar-birthday-bg:                           rgba(153, 51, 255, 0.16);
+	--calendar-birthday-bg_hover:                     rgba(153, 51, 255, 0.28);
+	--calendar-link-color:                            var(--dark-ink-dim);
+	--calendar-link-color_hover:                      var(--dark-ink-bright);
+	--calendar-title-link-color:                      var(--dark-accent);
+	--calendar-event-meta-color:                      var(--dark-ink-dim);
+	--birthday-color:                                 #c98ae8;
+	--event-color:                                    #5fc45f;
+	--holiday-color:                                  #6aa8ff;
+
+	/** Forum Title Link **/
+	--forumtitle-link-color:                          #e0913f;
+
+	/** Page Index **/
+	--currentpage-color:                              #e2953f;
+	--pagesection-button-color:                       var(--dark-accent);
+
+	/* The words a message is marked with. Each keeps its hue, because the hue is
+	/* the meaning, and only gains the lightness it needs to sit on a dark
+	/* surface - the light theme's pure red, green and blue are all but
+	/* unreadable there. */
+	/** Status Text **/
+	--blue-color:                                     #6aa8ff;
+	--error-color:                                    #ff6b6b;
+	--green-color:                                    #5fc45f;
+	--success-color:                                  #5fc45f;
+	--warnmoderate-color:                             #ffb733;
+
+	/** Raised Controls **/
+	--raised-bg:                                      hsl(var(--primary-color-hue), 18%, 17%);
+	--raised-bg-image:                                linear-gradient(hsl(var(--primary-color-hue), 18%, 21%) 0%, hsl(var(--primary-color-hue), 18%, 16%) 70%);
+	--raised-bg_hover:                                hsl(var(--primary-color-hue), 20%, 22%);
+	--raised-bg-image_hover:                          linear-gradient(to bottom, hsl(var(--primary-color-hue), 20%, 24%) 0%, hsl(var(--primary-color-hue), 20%, 18%) 70%);
+
+	/** Overlay Surfaces **/
+	--overlay-bg:                                     var(--dark-bg-3);
+	--overlay-bg-image:                               linear-gradient(to bottom, hsl(var(--primary-color-hue), 14%, 20%) 0%, hsl(var(--primary-color-hue), 14%, 17%) 95%);
+
+	/* The editor's chrome only. The surface you actually type on lives in an
+	/* iframe with its own document and its own stylesheet, which has no tokens
+	/* in scope, so it is not reachable from here and is left for its own change.
+	/* That surface is only shown to members who have turned the rich editor on;
+	/* the default is the source view, which is an ordinary textarea on this
+	/* page and does follow the mode. */
+	/** Editor **/
+	--editor-border-color:                            var(--dark-line-strong);
+	--editor-button-bg_active:                        hsl(var(--primary-color-hue), 20%, 26%);
+	--editor-button-bg_pressed:                       hsl(var(--primary-color-hue), 20%, 30%);
+	--editor-button-box-shadow_active:                inset 1px 1px 0 rgba(0, 0, 0, 0.5), inset -1px 0 rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+	--editor-button-box-shadow_pressed:               inset 1px 1px 0 rgba(0, 0, 0, 0.5), inset -1px 0 rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(0, 0, 0, 0.5);
+	--editor-dnd-bg:                                  rgba(255, 255, 255, 0.08);
+	--editor-dnd-border-color:                        var(--dark-line-strong);
+	--editor-dnd-color:                               var(--dark-ink-dim);
+	--editor-dropdown-bg:                             var(--dark-bg-3);
+	--editor-dropdown-border-color:                   var(--dark-line-strong);
+	--editor-dropdown-box-shadow:                     1px 2px 4px rgba(0, 0, 0, 0.5);
+	--editor-dropdown-label-color:                    var(--dark-ink);
+	--editor-dropdown-link-bg_hover:                  hsl(var(--primary-color-hue), 25%, 26%);
+	--editor-dropdown-link-color:                     var(--dark-ink-bright);
+	--editor-grip-border-color:                       var(--dark-line);
+	--editor-group-border-color:                      var(--dark-line);
+	--editor-icon-fill:                               var(--dark-ink);
+	--editor-icon-fill_disabled:                      var(--dark-ink-dim);
+	--editor-grip-bg:                                 linear-gradient(#0000 0, hsl(var(--primary-color-hue), 10%, 40%) 2px, #0000 3px, hsl(var(--primary-color-hue), 10%, 40%) 5px, #0000 6px, hsl(var(--primary-color-hue), 10%, 40%) 8px, #0000 9px);
+	/* The sprite is a mix: most icons are near-black line art, but a few carry
+	/* their own colour - the YouTube mark, the coloured letters. Inverting alone
+	/* would light the line art and wreck those, so the hue rotation puts the
+	/* coloured ones back roughly where they started while the greys, which have
+	/* no hue to rotate, stay inverted. */
+	--editor-icon-filter:                             invert(1) hue-rotate(180deg);
+	--editor-group-bg:                                var(--dark-bg-3);
+	--editor-popup-bg:                                rgba(0, 0, 0, 0.65);
+	--editor-popup-container-bg:                      var(--dark-bg-3);
+	--editor-tablegrid-bg_active:                     hsl(var(--primary-color-hue), 40%, 45%);
+	--editor-tablegrid-border-color:                  var(--dark-line-strong);
+
+	/** Auto Suggest **/
+	--autosuggest-border-color:                       var(--dark-line-strong);
+	--autosuggest-item-bg:                            var(--dark-bg-3);
+	--autosuggest-item-bg_hover:                      hsl(var(--primary-color-hue), 25%, 32%);
+	--autosuggest-item-color_hover:                   var(--dark-ink-bright);
+
+	/** Topic Display Head **/
+	--displayhead-color:                              var(--dark-ink-dim);
+
+	/** Draft Options **/
+	--draftoptions-bg:                                var(--dark-bg-2);
+	--draftoptions-border-color:                      var(--dark-line-strong);
+	--draftoptions-strong-color:                      var(--dark-ink);
+
+	/** Profile **/
+	--activitystats-bg:                               var(--dark-bg-3);
+	--activitystats-border-color:                     var(--dark-line-strong);
+	--counter-color:                                  var(--dark-ink);
+	--listposts-box-shadow:                           0 1px 0 rgba(255, 255, 255, 0.05) inset;
+	--profile-dt-color:                               var(--dark-ink-bright);
+
+	/** COPPA Contact **/
+	--coppa-bg:                                       var(--dark-bg-2);
+	--coppa-border-color:                             var(--dark-line-strong);
+	--coppa-color:                                    var(--dark-ink);
+
+	/** Error File Viewer **/
+	--errorfile-bg:                                   var(--dark-bg-2);
+	--errorfile-fileline-bg:                          hsl(var(--primary-color-hue), 10%, 20%);
+	--errorfile-fileline-bg_current:                  hsl(0, 40%, 32%);
+	--errorfile-line-bg:                              hsl(var(--primary-color-hue), 14%, 14%);
+	--errorfile-line-bg_current:                      hsl(0, 28%, 24%);
+
+	/** Theme Picker **/
+	--picktheme-selected-bg:                          hsl(var(--primary-color-hue), 28%, 24%);
+
+	/** Editor Content **/
+	--editor-content-bg:                              hsl(var(--primary-color-hue), 16%, 14%);
+	--editor-content-cite-border-color:               var(--dark-line);
+	--editor-content-cite-color:                      var(--dark-ink-dim);
+	--editor-content-code-bg:                         hsl(var(--primary-color-hue), 14%, 11%);
+	--editor-content-code-border-color:               var(--dark-line-strong);
+	--editor-content-color:                           var(--dark-ink);
+	--editor-content-details-border-color:            var(--dark-line-strong);
+	--editor-content-float-border-color:              var(--dark-line-strong);
+	--editor-content-quote-bg:                        hsl(var(--primary-color-hue), 20%, 17%);
+	--editor-content-quote-border-color:              hsl(var(--primary-color-hue), 12%, 24%);
+	--editor-content-quote-border-color_side:         hsl(var(--primary-color-hue), 12%, 32%);
+	--editor-content-spoiler-outline-color:           hsl(var(--primary-color-hue), 45%, 55%);
+	--editor-content-table-border-color:              var(--dark-line-strong);
+	--editor-content-tt-bg:                           rgba(255, 255, 255, 0.12);
+
+	/** Mentions **/
+	--mentions-bg:                                    var(--dark-bg-3);
+	--mentions-border-color:                          var(--dark-line-strong);
+	--mentions-box-shadow:                            0 0 5px rgba(0, 0, 0, 0.5);
+	--mentions-item-bg:                               var(--dark-bg-2);
+	--mentions-item-bg_current:                       hsl(225, 55%, 42%);
+	--mentions-item-border-color:                     var(--dark-line);
+	--mentions-item-color:                            var(--dark-ink);
+
+	/** Shorthand Borders **/
+	--attachment-dropzone-border-color_hover:         hsl(var(--primary-color-hue), 45%, 55%);
+	--attachment-item-border-color:                   var(--dark-line);
+	--buttonrow-border-color:                         var(--dark-line);
+	--calendar-weeklist-border-color:                 var(--dark-bg-1);
+	--detailedinfo-border-color:                      var(--dark-line);
+	--draftoptions-border-color_left:                 var(--dark-line-strong);
+	--draftoptions-item-border-color:                 var(--dark-line);
+	--errorfile-current-border-color:                 rgba(255, 255, 255, 0.2);
+	--innerwrap-border-color:                         var(--dark-line);
+	--listposts-border-color:                         var(--dark-line);
+	--mobileaction-item-border-color:                 var(--dark-line);
+	--upcontain-lastpost-border-color:                var(--dark-line);
+
+	/** Admin **/
+	/* The permission grid is the one place a background alone carries the
+	/* meaning - deny, allow, custom, unchanged - so those six keep their hues
+	/* and only lose their lightness. */
+	--admin-announcement-border-color:                #d67e1a;
+	--admin-announcement-link-color:                  #e59440;
+	--admin-announcement-separator-color:             var(--dark-line);
+	--admin-board-bg_hover:                           hsl(var(--primary-color-hue), 28%, 24%);
+	--admin-board-group-border-color:                 var(--dark-line-strong);
+	--admin-css-preview-border-color:                 var(--dark-line-strong);
+	--admin-denyboard-bg_hover:                       hsl(var(--primary-color-hue), 12%, 22%);
+	--admin-edit-history-border-color:                var(--dark-line);
+	--admin-group-legend-bg:                          var(--dark-bg-3);
+	--admin-group-legend-border-color:                var(--dark-line);
+	--admin-highlight-bg:                             hsl(var(--primary-color-hue), 30%, 24%);
+	--admin-legend-color:                             var(--dark-ink-bright);
+	--admin-moderation-note-border-color:             var(--dark-line);
+	--admin-package-border-color:                     var(--dark-line);
+	--admin-perm-boards-border-color:                 var(--dark-line);
+	--admin-perm-custom-bg:                           hsl(90, 6%, 24%);
+	--admin-perm-execute-bg:                          hsl(30, 30%, 22%);
+	--admin-perm-groups-bg:                           var(--dark-bg-2);
+	--admin-perm-no-change-bg:                        hsl(var(--primary-color-hue), 8%, 18%);
+	--admin-perm-read-bg:                             hsl(100, 25%, 18%);
+	--admin-perm-writable-bg:                         hsl(0, 30%, 24%);
+	--admin-recycle-board-bg:                         hsl(180, 15%, 17%);
+	--admin-redirect-board-bg:                        hsl(60, 15%, 17%);
+	--admin-search-result-border-color:               var(--dark-line);
+	--admin-smiley-border-color_hover:                hsl(var(--primary-color-hue), 40%, 50%);
+	--admin-table-caption-color:                      var(--dark-ink-bright);
+	--admin-table-grid-border-color:                  var(--dark-line);
+}

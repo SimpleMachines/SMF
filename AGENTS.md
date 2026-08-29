@@ -110,12 +110,83 @@ param, throws, return.
 
 ## Verifying a change
 
-**There is no test suite.** No PHPUnit, no `tests/` directory, nothing in the history.
-CI only proves that the code parses (`phplint` on 8.4 and 8.5) and is formatted
-correctly. It never executes SMF. Do not assume green checks mean a change works.
+### Tests
 
-So verify by running the forum. The repository ships a Docker environment, documented
-in full in `.docker/README.md`:
+There is a unit test suite. It is small and deliberately narrow, but where it reaches,
+it is the only automated proof that a change does what it claims:
+
+```bash
+composer test        # or: vendor/bin/phpunit
+```
+
+CI runs it on every pull request, and on pushes to `release-3.0`, via
+`.github/workflows/phpunit.yml`. Feature branches are only checked once they are in a PR,
+so run it locally.
+
+**The expectation: if the code you touched is reachable from this suite, your change
+adds or updates a test in the same commit.** A bug fix lands as a regression test that
+fails before the fix and passes after it, with a comment saying what went wrong — see
+`SapiTest::testAPlainByteCountKeepsItsLastDigit()` for the shape. When the code is not
+reachable, say so explicitly in the PR description rather than leaving it unsaid; do not
+contort production code, add mocks or fake a database to force something under test.
+
+#### When a test is possible
+
+`tests/bootstrap.php` defines the constants `index.php` would define, points the
+autoloader at `Sources/` and sets `Config::$boarddir`, `$sourcedir`, `$packagesdir`,
+`$languagesdir`, `$cachedir` and `$language`. That is all. No `Settings.php`, no
+database, no request. Within those limits the following are all testable, and each has a
+worked example in `tests/Unit/`:
+
+- **Pure and static helpers**: `Utils::buildRegex()`, `Sapi::memoryReturnBytes()`,
+  `Security::hashPassword()`. Cheap to cover with a `#[DataProvider]`.
+- **Value objects that parse or normalise a string**: `IP`, `Url`, `Uuid`,
+  `TimeInterval`, `Punycode`. Construct one and assert on the result.
+- **Class-level behaviour that needs no state**: late static binding, shared statics,
+  what `Foo::load()` returns. `ActionTraitTest` is entirely this.
+- **Protected and private helpers**, through `ReflectionMethod`, when the public entry
+  point around them needs a database but the helper itself does not
+  (`CreatePostNotifyTest::getTimeOffset()`).
+- **Code that reads a few `Config::$modSettings` keys.** Set them in `setUp()` and
+  `unset()` them in `tearDown()`. PHPUnit does not reset SMF's statics between tests, so
+  a key left behind leaks into every test that follows.
+- **Anything that only needs the language or Unicode data files**, since the bootstrap
+  sets the paths they look in.
+
+#### When it is not
+
+- Anything calling `Db::$db` — there is no connection, and faking one is not worth it.
+- Anything reading `User::$me`, the session, `$_GET`/`$_POST`/`$_SERVER`, or expecting a
+  loaded theme or `Utils::$context`.
+- Anything that emits output or sends headers. `beStrictAboutOutputDuringTests` is on, so
+  a stray `echo` fails the test rather than being swallowed.
+
+`failOnRisky` and `failOnWarning` are on as well: a test that asserts nothing is a
+failure, not a pass.
+
+#### Writing one
+
+`tests/Unit/<Class>Test.php`, namespace `SMF\Tests\Unit`, `declare(strict_types=1)`,
+extending `PHPUnit\Framework\TestCase`, with `#[CoversClass]` (or `#[CoversTrait]` for a
+trait) on the class. Name the test after the behaviour, not the method —
+`testItNormalisesIPv6ToItsShortestForm()`, not `testConstruct()`. New directories need
+the usual `index.php` stub.
+
+The code style rules apply to tests too, so run `composer lint-fix` on them. Two
+consequences of the fixer worth knowing before you fight it:
+
+- Data providers are `public static`, so `ordered_class_elements` moves them *below* the
+  public test methods, into their own `Public static methods` banner.
+- The `SMF/section_comments` fixer inserts a banner between an attribute and the method
+  it belongs to. Do not let a method carrying `#[DataProvider]` be the first one in its
+  group; `CreatePostNotifyTest` carries a note about this.
+
+### Running the forum
+
+The rest of CI only proves the code parses (`phplint` on 8.4 and 8.5) and is formatted.
+So a fully green PR still tells you very little about whether a change works. Verify by
+running the forum. The repository ships a Docker environment, documented in full in
+`.docker/README.md`:
 
 ```bash
 docker compose up -d --build
@@ -145,10 +216,6 @@ docker compose exec postgres psql -U smf -d smf -c 'SELECT * FROM smf_log_errors
 
 `smf_log_errors` is the first place to look. Many failures are recorded there rather
 than shown, especially anything in a background task.
-
-Some code is reachable with only the autoloader plus the constants that `index.php`
-defines, which is enough to exercise pure helpers without a database. Anything that
-touches `User::$me` or `Db::$db` needs a real request or fixtures.
 
 ## Things that bite in this codebase
 
