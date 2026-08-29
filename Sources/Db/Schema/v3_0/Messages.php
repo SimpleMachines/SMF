@@ -312,11 +312,11 @@ class Messages extends Table
 					],
 				],
 			),
-			'idx_likes' => new DbIndex(
-				name: 'idx_likes',
+			'idx_messages_reactions' => new DbIndex(
+				name: 'idx_messages_reactions',
 				columns: [
 					[
-						'name' => 'likes',
+						'name' => 'reactions',
 					],
 				],
 			),
