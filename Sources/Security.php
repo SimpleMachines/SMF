@@ -253,7 +253,12 @@ class Security
 			$errors[] = ['lang', 'username_reserved', 'general', [Lang::getTxt('guest_title', file: 'General')]];
 		}
 
-		if ($check_reserved_name && self::isReservedName($username, $memID, false)) {
+		// $return_error is a promise to hand the problems back rather than die
+		// of them, and the caller that asks for it wants XML. isReservedName()
+		// dies by default, so say otherwise, or a name on the admin's reserved
+		// list answers the registration form's availability check with an error
+		// page and puts a row in the error log on the way.
+		if ($check_reserved_name && self::isReservedName($username, $memID, false, !$return_error)) {
 			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::getTxt('name_in_use', file: 'General')];
 		}
 
@@ -339,13 +344,21 @@ class Security
 			}
 		}
 
+		/*
+		 * A name someone else already answers to is taken, not forbidden, and
+		 * the two want telling apart: the checks above are about what an admin
+		 * banned, and dying with "that name is reserved" is the right answer to
+		 * them. These two say "somebody has this already", which is ordinary
+		 * and is what every caller is asking about, so hand the answer back and
+		 * let them phrase it. 2.1 asked the members table here and did the same.
+		 */
 		// Check for similar existing member names.
-		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member, $fatal)) {
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $current_id_member, false)) {
 			return true;
 		}
 
 		// Does the name resemble a member group name?
-		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, false)) {
 			return true;
 		}
 
