@@ -236,11 +236,6 @@ class Received implements \ArrayAccess
 			$this->in_inbox = true;
 		}
 
-		// A row here is one member's copy of one PM, and (id_pm, id_member) is
-		// the primary key. Naming only the PM makes this statement try to hand
-		// every recipient's copy to the same member, so anything that saves a
-		// PM with more than one recipient - marking it read, labelling it,
-		// deleting it - is a duplicate key error rather than a save.
 		Db::$db->query(
 			'UPDATE {db_prefix}pm_recipients
 			SET
@@ -264,10 +259,7 @@ class Received implements \ArrayAccess
 
 		$labels = array_diff($this->labels, [-1]);
 
-		// Labels belong to a member too, so only clear the ones this member
-		// owns. Every other recipient has their own labels on the same PM, and
-		// with the update above fixed this line is finally reached for a PM
-		// that has some.
+		// Only clear the labels this member owns.
 		Db::$db->query(
 			'DELETE FROM {db_prefix}pm_labeled_messages
 			WHERE id_pm = {int:current_pm}
