@@ -6,11 +6,21 @@ namespace SMF\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use SMF\Lang;
 use SMF\TimeInterval;
 
 #[CoversClass(TimeInterval::class)]
 class TimeIntervalTest extends TestCase
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var array Lang's statics as they were before the test ran.
+	 */
+	private array $lang_backup = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -139,13 +149,100 @@ class TimeIntervalTest extends TestCase
 	}
 
 	/*
-	 * localize() is not covered here. It is the other half of what #9499 put
-	 * right - the unit order stopped depending on how the caller wrote the
-	 * argument, and asking for 'a' when the total number of days is unknown now
-	 * falls back to years, months and days instead of producing nothing - but
-	 * every branch of it goes through Lang::getTxt(), which loads a language
-	 * file, which wants Theme::$current and therefore Db::$db. It belongs to an
-	 * integration suite. toParsable() above covers the same walk over the units
-	 * with the strings hard coded, so the ordering is not entirely unwatched.
+	 * Everything below covers localize(), which this file used to say belonged
+	 * to an integration suite: every branch of it goes through Lang::getTxt(),
+	 * which loads a language file, which wanted Theme::$current and therefore
+	 * Db::$db. #9581 removed that, so the other half of what #9499 put right is
+	 * now watched here rather than only implied by toParsable() above.
 	 */
+
+	public function testItLocalisesEachUnitWithItsOwnPlural(): void
+	{
+		// Same shape as toParsable(), but through the language file: the units
+		// are pluralised one at a time, and the result is a sentence rather
+		// than a list of fields.
+		$this->assertSame(
+			'1 year, 2 months, and 3 days',
+			(new TimeInterval('P1Y2M3D'))->localize(),
+		);
+	}
+
+	public function testTheUnitOrderDoesNotDependOnHowTheCallerWroteIt(): void
+	{
+		// localize() walks its own table of units rather than the array it was
+		// handed, so the same three units asked for backwards come back in the
+		// order a reader expects.
+		$this->assertSame(
+			'1 year, 2 months, and 3 days',
+			(new TimeInterval('P1Y2M3D'))->localize(['d', 'y', 'm']),
+		);
+	}
+
+	public function testAskingForTheTotalDaysFallsBackWhenThereIsNoTotal(): void
+	{
+		// 'a' is the total number of days, which only an interval produced by
+		// diff() has. On any other one it is substituted with years, months and
+		// days; without that, nothing would match and the answer would be a
+		// flat '0 days'.
+		$this->assertSame('1 year', (new TimeInterval('P1Y'))->localize(['a']));
+		$this->assertSame('1 day', (new TimeInterval('P1DT2H'))->localize(['a']));
+	}
+
+	public function testItSaysZeroOfTheSmallestUnitItWasAskedFor(): void
+	{
+		// Empty units are dropped so the output is not padded with "0 hours,
+		// 0 minutes", but dropping all of them would leave nothing to say.
+		$this->assertSame('0 seconds', (new TimeInterval('PT0S'))->localize(['h', 'i', 's']));
+		$this->assertSame('0 days', (new TimeInterval('PT0S'))->localize(['d']));
+	}
+
+	public function testFractionalSecondsAreFoldedIntoTheSeconds(): void
+	{
+		// 's' and 'f' are one number to a reader, not two.
+		$this->assertSame('1.5 seconds', (new TimeInterval('PT1.5S'))->localize(['s', 'f']));
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->lang_backup = self::langState();
+	}
+
+	protected function tearDown(): void
+	{
+		// localize() loads the General language file, and PHPUnit does not
+		// reset SMF's statics between tests. Leaving 700-odd strings and a
+		// record in Lang::$already_loaded behind would change what every test
+		// after this one starts from.
+		foreach ($this->lang_backup as $name => $value) {
+			(new \ReflectionProperty(Lang::class, $name))->setValue(null, $value);
+		}
+
+		parent::tearDown();
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * The statics that loading a language file writes to.
+	 *
+	 * @return array Property name => current value.
+	 */
+	private static function langState(): array
+	{
+		$state = [];
+
+		foreach (['txt', 'dirs', 'already_loaded', 'loaded_keys'] as $name) {
+			$state[$name] = (new \ReflectionProperty(Lang::class, $name))->getValue();
+		}
+
+		return $state;
+	}
 }
