@@ -573,7 +573,7 @@ class Register2 extends Register
 				1 = The text/index.
 				2 = Whether to log.
 				3 = sprintf data if necessary. */
-			$message = Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
+			$message = ($error[0] ?? 'lang') === 'done' ? $error[1] : Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {
