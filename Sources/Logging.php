@@ -495,7 +495,7 @@ class Logging
 				'ignore',
 				'{db_prefix}log_activity',
 				array_merge($insert_keys, ['date' => 'date']),
-				array_merge($cache_stats, [$date]),
+				[array_merge($cache_stats, [$date])],
 				['date'],
 			);
 		}

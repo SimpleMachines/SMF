@@ -473,7 +473,9 @@ class Display implements ActionInterface, Routable
 						'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
 					],
 					[
-						User::$me->id, Topic::$info->id, Topic::$info->id_first_msg, Topic::$info->unwatched,
+						[
+							User::$me->id, Topic::$info->id, Topic::$info->id_first_msg, Topic::$info->unwatched,
+						],
 					],
 					['id_member', 'id_topic'],
 				);

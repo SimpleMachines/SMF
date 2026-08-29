@@ -3937,7 +3937,9 @@ class User implements \ArrayAccess
 						'id_spider' => 'int', 'last_seen' => 'int', 'stat_date' => 'date', 'page_hits' => 'int',
 					],
 					[
-						$_SESSION['id_robot'], time(), $date, 1,
+						[
+							$_SESSION['id_robot'], time(), $date, 1,
+						],
 					],
 					['id_spider', 'stat_date'],
 				);
