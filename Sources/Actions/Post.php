@@ -785,12 +785,41 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
-			$props = [
-				'title' => isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : null,
-				'location' => isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : null,
-			];
+			// Both of these are typed as string and already default to '', so
+			// they have to be left out rather than passed as null when the
+			// request does not carry them.
+			$props = [];
 
-			Event::setRequestedStartAndDuration($props);
+			if (isset($_REQUEST['evtitle'])) {
+				$props['title'] = Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle']));
+			}
+
+			if (isset($_REQUEST['event_location'])) {
+				$props['location'] = Utils::htmlspecialchars(stripslashes($_REQUEST['event_location']));
+			}
+
+			// The calendar links here with the day the member picked in the
+			// query string, but setRequestedStartAndDuration() only ever looks
+			// at $_POST, so on a plain GET those values never arrive. Hand
+			// them over.
+			foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
+				if (isset($_GET[$key]) && !isset($_POST[$key])) {
+					$props[$key] = (int) $_GET[$key];
+				}
+			}
+
+			// And when nothing asked for a date at all, leave that method
+			// alone. It ends by fatalling with 'invalid_date' if it cannot
+			// find one, which is right when an event is being saved but not
+			// here: this is the posting form being opened, and Event(-1)
+			// already defaults to now for exactly this case. That is what
+			// Calendar::post() relies on when it builds the standalone editor.
+			$date_params = array_flip(['year', 'month', 'day', 'start_date', 'start_datetime', 'start_year', 'start_month', 'start_day']);
+
+			if (array_intersect_key($props, $date_params) !== [] || array_intersect_key($_POST, $date_params) !== []) {
+				Event::setRequestedStartAndDuration($props);
+			}
+
 			Event::setRequestedRRule($props);
 			Utils::$context['event'] = new Event(-1, $props);
 			Event::setRequestedRDatesAndExDates(Utils::$context['event']);
