@@ -418,7 +418,7 @@ class Lang
 
 			// If there's no database or we're installing, we can't load the theme.
 			// Otherwise, make sure to include the theme's language directories.
-			if (isset(Db\DatabaseApi::$db) && !\defined('SMF_INSTALLING')) {
+			if (isset(Db\DatabaseApi::$db->connection) && !\defined('SMF_INSTALLING')) {
 				// Is the theme already loaded?
 				$theme_loaded = !empty(Utils::$context['theme_loaded']);
 
@@ -464,7 +464,7 @@ class Lang
 				// Skip this if we're installing.
 				!\defined('SMF_INSTALLING')
 				// Can't load the theme without the database.
-				&& isset(Db\DatabaseApi::$db)
+				&& isset(Db\DatabaseApi::$db->connection)
 				// Only do this if the theme hasn't been loaded yet.
 				&& empty(Theme::$current->settings['default_theme_dir'])
 			) {
