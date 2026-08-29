@@ -40,7 +40,7 @@ class Account implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (User::$me->allowedTo(['profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any'])) {
+		if (User::$me->allowedTo(['profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any'], any: true)) {
 			Profile::$member->loadCustomFields('account');
 		}
 

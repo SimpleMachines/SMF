@@ -40,7 +40,7 @@ class ForumProfile implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (User::$me->allowedTo(['profile_forum_own', 'profile_forum_any'])) {
+		if (User::$me->allowedTo(['profile_forum_own', 'profile_forum_any'], any: true)) {
 			Profile::$member->loadCustomFields('forumprofile');
 		}
 
