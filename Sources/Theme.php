@@ -2261,7 +2261,7 @@ class Theme
 						'replace',
 						'{db_prefix}themes',
 						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-						[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']],
+						[[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']]],
 						['id_theme', 'id_member', 'variable'],
 					);
 				}
