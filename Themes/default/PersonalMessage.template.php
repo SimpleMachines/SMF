@@ -536,6 +536,9 @@ function template_single_pm($message)
 						<option value="" disabled>---------------</option>';
 
 			// Are there any labels which can be added to this?
+			// The two lists below hold the same label IDs, so say which list
+			// this one came from. That is what applyActions() reads, and what
+			// loadLabelChoices() puts on the drop down for the whole folder.
 			if (!$message['fully_labeled']) {
 				echo '
 						<option value="" disabled>', Lang::getTxt('pm_msg_label_apply', file: 'PersonalMessage'), '</option>';
@@ -543,7 +546,7 @@ function template_single_pm($message)
 				foreach (Utils::$context['labels'] as $label) {
 					if (!isset($message['labels'][$label['id']])) {
 						echo '
-						<option value="', $label['id'], '">', $label['name'], '</option>';
+						<option value="add_', $label['id'], '">', $label['name'], '</option>';
 					}
 				}
 			}
@@ -555,7 +558,7 @@ function template_single_pm($message)
 
 				foreach ($message['labels'] as $label) {
 					echo '
-						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+						<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 				}
 			}
 			echo '
