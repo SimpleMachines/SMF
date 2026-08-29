@@ -1375,8 +1375,16 @@ ul li.greeting {
 	border-width: var(--navigatesection-border-width);
 	box-shadow: var(--navigatesection-box-shadow);
 	margin-block: .5em .75em;
-	margin-inline: 10px;
+	margin-inline: 0;
 	padding: 0;
+}
+/* The breadcrumb is drawn twice: once above #content_section, and once inside
+   it below the posts. The inner one already sits within the inline padding
+   that #main_content_section gives everything else, so it adds none of its
+   own; the outer one is a sibling of that container and has to match the same
+   padding itself to line up with the boxes underneath it. */
+#wrapper > .navigate_section {
+	margin-inline: 12px;
 }
 .navigate_section ol {
 	align-items: center;
