@@ -178,6 +178,10 @@ Topics:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Topic.php', 'Sources/Actions/Topic**']
 
+"Unit Testing":
+  - changed-files:
+    - any-glob-to-any-file: ['tests/**', 'phpunit.xml.dist', '.github/workflows/phpunit.yml']
+
 Upgrader:
   - changed-files:
     - any-glob-to-any-file: ['other/upgrade.php', 'Sources/Maintenance/Tools/Upgrade**', 'Sources/Maintenance/Cleanup/**', 'Sources/Maintenance/Migration/**']
