@@ -125,11 +125,6 @@ img#smflogo {
 	text-align: left;
 }
 
-/* the posting icons */
-#postbuttons_upper ul li a span {
-	line-height: 19px;
-	padding: 0 6px 0 0;
-}
 
 .mark_read {
 	float: left;
@@ -213,11 +208,6 @@ ul.quickbuttons li {
 #forumposts .modified {
 	float: right;
 }
-#forumposts .reportlinks {
-	margin-left: 1.5em;
-	text-align: left;
-	clear: left;
-}
 
 #moderationbuttons_strip {
 	float: right;
@@ -248,29 +238,6 @@ ul.quickbuttons li {
 	float: right;
 }
 
-/* Styles for edit event section
----------------------------------------------------- */
-#post_event div.event_options {
-	float: left;
-}
-#post_event #event_main input {
-	margin: 0 0 1em 0;
-	float: right;
-}
-#post_event #event_main div.smalltext {
-	float: left;
-}
-#post_event ul.event_main li {
-	float: left;
-}
-#post_event ul.event_options {
-	padding: 0 .7em .7em 0;
-}
-#post_event #event_main select, #post_event ul.event_options li select,
-#post_event ul.event_options li input[type="checkbox"] {
-	margin: 0 0 0 1em;
-}
-
 /* Styles for edit poll section.
 ---------------------------------------------------- */
 #edit_poll fieldset input {
@@ -297,15 +264,6 @@ ul.quickbuttons li {
 
 /* Styles for the personal messages section.
 ------------------------------------------------- */
-#personal_messages h3 span#author, #personal_messages h3 span#topic_title {
-	float: right;
-}
-#personal_messages h3 span#author {
-	margin: 0 0.5em 0 0;
-}
-#personal_messages h3 span#topic_title {
-	margin: 0 9em 0 0;
-}
 #personal_messages .labels {
 	padding: 0 0 0 1em;
 }
@@ -409,10 +367,6 @@ div#admin_menu {
 	margin: 0 5px 0 0 !important;
 }
 /* h3 HD Icons */
-h3.search_hd {
-	padding: 8px 45px 6px;
-	background-position: 99% 50%;
-}
 h3.profile_hd {
 	padding: 8px 50px 8px 0;
 	background-position: 99% 50%;
@@ -438,14 +392,6 @@ h3.profile_hd {
 	margin-left: 1em;
 }
 
-/* Most popular boards by posts and activity */
-#popularposts {
-	float: right;
-}
-#popularactivity {
-	float: left;
-}
-
 /* View posts */
 .topic .time {
 	float: left;
@@ -453,11 +399,6 @@ h3.profile_hd {
 .counter {
 	padding: 0.2em 0.2em 0.1em 0.5em;
 	float: right;
-}
-.topic .mod_icons {
-	text-align: left;
-	margin-right: 0;
-	margin-left: 1em;
 }
 
 #ip_list li.header, #ip_list li.ip {
@@ -487,9 +428,6 @@ h3.profile_hd {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-.stats_icon {
-	margin: 2px 3px -1px 6px;
-}
 dl.stats dt {
 	float: right;
 }
@@ -529,15 +467,8 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
 
-.search_results_posts .buttons {
-	padding: 5px 0 0 1em;
-}
-
 /* Styles for the help section.
 ------------------------------------------------- */
-#helpmain h3.section {
-	padding: 0 0.5em 0.5em 0;
-}
 /* put back the bullets please */
 #helpmain ul {
 	margin: 0 25px 0 0;
