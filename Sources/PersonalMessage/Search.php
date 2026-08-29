@@ -318,10 +318,7 @@ class Search
 		// Load the users...
 		User::load(Utils::$context['posters']);
 
-		// Sort out the page index. PageIndex takes this by reference and clamps
-		// it, so hand it a copy of what was asked for and keep the original to
-		// compare against. Reading $_GET again here instead is what left the
-		// line below unguarded, since a search arrives without a start.
+		// Sort out the page index.
 		$start = $this->start;
 		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
