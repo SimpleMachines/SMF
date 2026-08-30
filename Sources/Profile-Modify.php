@@ -3997,9 +3997,10 @@ function profileValidateEmail($email, $memID = 0)
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE ' . ($memID != 0 ? 'id_member != {int:selected_member} AND ' : '') . '
-			email_address = {string:email_address}
+			{raw:email_address_field} = {string:email_address}
 		LIMIT 1',
 		array(
+			'email_address_field' => $smcFunc['db_case_sensitive'] ? 'LOWER(email_address)' : 'email_address',
 			'selected_member' => $memID,
 			'email_address' => $email,
 		)
