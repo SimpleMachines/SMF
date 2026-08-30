@@ -8470,8 +8470,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		try {
 			$o = new SMF\MailAgent\APIs\SMTP();
 			$o->compatServerParse($message, $socket, $code, $response);
-		}
-		catch (\Throwable $e) {
+		} catch (\Throwable $e) {
 			return false;
 		}
 	}
@@ -9207,12 +9206,10 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 
 			$agent->disconnect();
 
-			return $result
-		}
-		catch (\Throwable $e) {
+			return $result;
+		} catch (\Throwable $e) {
 			return false;
-		}
-		finally {
+		} finally {
 			Config::$modSettings['mail_type'] = $old;
 		}
 	}
