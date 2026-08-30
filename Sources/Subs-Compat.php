@@ -8467,7 +8467,13 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 
 	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
 	{
-		return SMF\Mail::serverParse($message, $socket, $code, $response);
+		try {
+			$o = new SMF\MailAgent\APIs\SMTP();
+			$o->compatServerParse($message, $socket, $code, $response);
+		}
+		catch (\Throwable $e) {
+			return false;
+		}
 	}
 
 	/**
@@ -9171,7 +9177,31 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function smtp_mail(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
-		return SMF\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
+		$old = Config::$modSettings['mail_type'];
+
+		try {
+			if (Config::$modSettings['mail_type'] !== 'SMTP' && Config::$modSettings['mail_type'] !== 'SMTPTLS') {
+				Config::$modSettings['mail_type'] = 'SMTP';
+			}
+
+			$agent = MailAgent::load();
+
+			if ($agent === false || !$agent->connect()) {
+				return false;
+			}
+
+			$result = $agent->send($to, $subject, $message, $headers);
+
+			$agent->disconnect();
+
+			return $result
+		}
+		catch (\Throwable $e) {
+			return false;
+		}
+		finally {
+			Config::$modSettings['mail_type'] = $old;
+		}
 	}
 
 	/**

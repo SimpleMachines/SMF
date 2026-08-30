@@ -189,7 +189,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			return false;
 		}
 
-		fputs($this->socket, 'Subject: ' . $subject . "\r\n");
+		fputs($this->socket, 'Subject: ' . $this->stripControlChars($subject) . "\r\n");
 
 		if (\strlen($to) > 0) {
 			fputs($this->socket, 'To: <' . $to . '>' . "\r\n");
@@ -235,9 +235,34 @@ class SMTP extends MailAgent implements MailAgentInterface
 		$config_vars[] = ['password', 'smtp_password'];
 	}
 
+	/**
+	 * Only exists to provide backwards compatbility.
+	 *
+	 * @internal
+	 * @deprecated Only exists backwards compatbility.
+	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
+	 */
+	public function compatServerParse(string $message, $socket, string $code, ?string &$response = null): bool
+	{
+		$this->socket = $socket;
+
+		return $this->serverParse($message, $code, $response);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Removes Excess tags
+	 * @param string $raw
+	 * @param array $tags
+	 * @return string
+	 */
+	protected function stripControlChars(string $raw, array $tags = ["\r" => '', "\n" => '']): string
+	{
+		return strtr($raw, $tags);
+	}
 
 	/**
 	 * Parse a message to the SMTP server.
