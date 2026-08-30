@@ -242,7 +242,7 @@ class SpoofDetector
 		// This will hold all the names that are similar to $name.
 		$homograph_names = [];
 
-		$reserved_names = explode("\n", Config::$modSettings['reserveNames']);
+		$reserved_names = preg_split('~\R|\\\\n~', Config::$modSettings['reserveNames']);
 
 		// Check each name in the list...
 		foreach ($reserved_names as $reserved) {

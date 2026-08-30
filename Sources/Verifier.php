@@ -229,7 +229,7 @@ class Verifier implements \ArrayAccess
 			$this->result = false;
 		}
 		// Already loaded and not checking answers, so we are done.
-		elseif (isset(self::$loaded[$this->id]) && !$this->do_test) {
+		elseif (isset(self::$loaded[$this->id]) && !$do_test) {
 			$this->result = true;
 		}
 		// This is new one, or we are updating it, or we are checking answers.

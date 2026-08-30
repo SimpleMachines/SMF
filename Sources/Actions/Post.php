@@ -785,12 +785,30 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
-			$props = [
-				'title' => isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : null,
-				'location' => isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : null,
-			];
+			$props = [];
 
-			Event::setRequestedStartAndDuration($props);
+			if (isset($_REQUEST['evtitle'])) {
+				$props['title'] = Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle']));
+			}
+
+			if (isset($_REQUEST['event_location'])) {
+				$props['location'] = Utils::htmlspecialchars(stripslashes($_REQUEST['event_location']));
+			}
+
+			// Default to the date and time the member was viewing.
+			foreach (['year', 'month', 'day', 'hour', 'minute', 'second'] as $key) {
+				if (isset($_GET[$key]) && !isset($_POST[$key])) {
+					$props[$key] = (int) $_GET[$key];
+				}
+			}
+
+			// Only try to set the start and duration if we were given the relevant data.
+			$date_params = array_flip(['year', 'month', 'day', 'start_date', 'start_datetime', 'start_year', 'start_month', 'start_day']);
+
+			if (array_intersect_key($props, $date_params) !== [] || array_intersect_key($_POST, $date_params) !== []) {
+				Event::setRequestedStartAndDuration($props);
+			}
+
 			Event::setRequestedRRule($props);
 			Utils::$context['event'] = new Event(-1, $props);
 			Event::setRequestedRDatesAndExDates(Utils::$context['event']);

@@ -435,7 +435,7 @@ class Url implements \Stringable
 
 		foreach (['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'] as $prop) {
 			// Clear out any old value.
-			unset($this->{$prop});
+			$this->{$prop} = null;
 
 			// Set the new value, if any.
 			if (isset($parsed[$prop])) {
@@ -445,28 +445,28 @@ class Url implements \Stringable
 
 		switch ($component) {
 			case PHP_URL_SCHEME:
-				return $this->scheme ?? null;
+				return $this->scheme;
 
 			case PHP_URL_HOST:
-				return $this->host ?? null;
+				return $this->host;
 
 			case PHP_URL_PORT:
-				return $this->port ?? null;
+				return $this->port;
 
 			case PHP_URL_USER:
-				return $this->user ?? null;
+				return $this->user;
 
 			case PHP_URL_PASS:
-				return $this->pass ?? null;
+				return $this->pass;
 
 			case PHP_URL_PATH:
-				return $this->path ?? null;
+				return $this->path;
 
 			case PHP_URL_QUERY:
-				return $this->query ?? null;
+				return $this->query;
 
 			case PHP_URL_FRAGMENT:
-				return $this->fragment ?? null;
+				return $this->fragment;
 
 			default:
 				return $parsed;

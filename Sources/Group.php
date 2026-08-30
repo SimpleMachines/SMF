@@ -423,8 +423,6 @@ class Group implements \ArrayAccess
 	public function save(): void
 	{
 		User::$me->isAllowedTo('manage_membergroups');
-		User::$me->checkSession();
-		SecurityToken::validate('admin-mmg');
 
 		// Saving a new group.
 		if (empty($this->id)) {
@@ -585,8 +583,6 @@ class Group implements \ArrayAccess
 	public function delete(): bool|string
 	{
 		User::$me->isAllowedTo('manage_membergroups');
-		User::$me->checkSession();
-		SecurityToken::validate('admin-mmg');
 
 		// Don't delete protected groups.
 		if (!$this->can_delete) {

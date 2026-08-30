@@ -152,7 +152,7 @@ class Register2 extends Register
 
 		// Check whether the visual verification code was entered correctly.
 		if (!empty(Config::$modSettings['reg_verification'])) {
-			$verifier = new Verifier(['id' => 'register']);
+			$verifier = new Verifier(['id' => 'register'], true);
 
 			if (!empty($verifier->errors)) {
 				foreach ($verifier->errors as $error) {
@@ -536,10 +536,11 @@ class Register2 extends Register
 		$request = Db::$db->query(
 			'SELECT id_member
 			FROM {db_prefix}members
-			WHERE email_address = {string:email_address}
-				OR email_address = {string:username}
+			WHERE {raw:email_address_field} = {string:email_address}
+				OR {raw:email_address_field} = {string:username}
 			LIMIT 1',
 			[
+				'email_address_field' => Db::$db->case_sensitive ? 'LOWER(email_address)' : 'email_address',
 				'email_address' => $reg_options['email'],
 				'username' => $reg_options['username'],
 			],
@@ -573,7 +574,7 @@ class Register2 extends Register
 				1 = The text/index.
 				2 = Whether to log.
 				3 = sprintf data if necessary. */
-			$message = Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
+			$message = ($error[0] ?? 'lang') === 'done' ? $error[1] : Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {

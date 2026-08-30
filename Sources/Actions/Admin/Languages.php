@@ -1552,16 +1552,16 @@ class Languages implements ActionInterface
 		// Keep our old entries.
 		$old_txt = Lang::$txt;
 
-		$backup_actual_theme_dir = Theme::$current->settings['actual_theme_dir'];
+		$backup_theme_dir = Theme::$current->settings['theme_dir'];
 		$backup_base_theme_dir = !empty(Theme::$current->settings['base_theme_dir']) ? Theme::$current->settings['base_theme_dir'] : '';
 
 		// Override these for now.
-		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['base_theme_dir'] = Theme::$current->settings['default_theme_dir'];
+		Theme::$current->settings['theme_dir'] = Theme::$current->settings['base_theme_dir'] = Theme::$current->settings['default_theme_dir'];
 
 		Lang::get();
 
 		// Put them back.
-		Theme::$current->settings['actual_theme_dir'] = $backup_actual_theme_dir;
+		Theme::$current->settings['theme_dir'] = $backup_theme_dir;
 
 		if (!empty($backup_base_theme_dir)) {
 			Theme::$current->settings['base_theme_dir'] = $backup_base_theme_dir;

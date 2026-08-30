@@ -462,7 +462,17 @@ class MarkRead implements ActionInterface, Routable
 	{
 		$params = array_merge($params, self::parseActionRoute($route));
 
-		$params['sa'] = $params['sa'] ?? isset($params['topic']) ? 'topic' : (isset($params['board']) ? 'board' : null);
+		// buildRoute() drops the sub-action when it is implied by the topic or
+		// the board that the route is hanging off, so put it back. Anything
+		// else, such as 'all' or 'unreadreplies', is its own sub-action and the
+		// route said so already.
+		if (!isset($params['sa'])) {
+			if (isset($params['topic'])) {
+				$params['sa'] = 'topic';
+			} elseif (isset($params['board'])) {
+				$params['sa'] = 'board';
+			}
+		}
 
 		return $params;
 	}

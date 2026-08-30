@@ -446,6 +446,20 @@ abstract class Notify implements ActionInterface
 				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
 				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
 				break;
+
+			// And its mirror image: turn off the alerts and keep the emails.
+			case self::MODE_NO_ALERT:
+				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
+				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_EMAIL;
+				break;
+
+			// $this->mode comes straight from the query string, so it can be
+			// anything at all. Leaving it out here means the typed property
+			// below is never assigned, and reading it is a fatal error rather
+			// than a page.
+			default:
+				$this->alert_pref = self::PREF_NONE;
+				break;
 		}
 	}
 

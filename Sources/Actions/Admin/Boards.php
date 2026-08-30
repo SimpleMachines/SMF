@@ -236,6 +236,9 @@ class Boards implements ActionInterface
 					$prev_child_level = Board::$loaded[$boardid]->child_level;
 				}
 
+				// Filter out null placeholders.
+				$stack = array_filter($stack);
+
 				if (!empty($stack) && !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'])) {
 					Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array_merge($stack, Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']);
 				} elseif (!empty($stack)) {

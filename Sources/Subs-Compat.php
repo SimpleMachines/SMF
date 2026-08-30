@@ -8467,7 +8467,12 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 
 	function serverParse(string $message, $socket, string $code, ?string &$response = null): bool
 	{
-		return SMF\Mail::serverParse($message, $socket, $code, $response);
+		try {
+			$o = new SMF\MailAgent\APIs\SMTP();
+			$o->compatServerParse($message, $socket, $code, $response);
+		} catch (\Throwable $e) {
+			return false;
+		}
 	}
 
 	/**
@@ -8908,6 +8913,19 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	}
 
 	/**
+	 * If ipv4 has been passed inside ipv6, using ::ffff:ipv4 format, pluck the ipv4 out of there.
+	 * We'd rather use the real ipv4 for display & for lookups, etc.
+	 * Consistently trim before usage. ipv6 is sometimes enclosed in square brackets (to clarify port vs ip).
+	 *
+	 * @param string $ip
+	 * @return string $ip
+	 */
+	function simplify_ip($ip)
+	{
+		return (new SMF\IP($ip))->simplified();
+	}
+
+	/**
 	 * Locates the most appropriate temp directory.
 	 *
 	 * Systems using `open_basedir` restrictions may receive errors with
@@ -9171,7 +9189,29 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function smtp_mail(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
-		return SMF\Mail::sendSmtp($mail_to_array, $subject, $message, $headers);
+		$old = Config::$modSettings['mail_type'];
+
+		try {
+			if (Config::$modSettings['mail_type'] !== 'SMTP' && Config::$modSettings['mail_type'] !== 'SMTPTLS') {
+				Config::$modSettings['mail_type'] = 'SMTP';
+			}
+
+			$agent = MailAgent::load();
+
+			if ($agent === false || !$agent->connect()) {
+				return false;
+			}
+
+			$result = $agent->send($to, $subject, $message, $headers);
+
+			$agent->disconnect();
+
+			return $result;
+		} catch (\Throwable $e) {
+			return false;
+		} finally {
+			Config::$modSettings['mail_type'] = $old;
+		}
 	}
 
 	/**
@@ -10300,6 +10340,18 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	function utf8_strtoupper(string $string): string
 	{
 		return (string) SMF\Unicode\Utf8String::create($string)->convertCase('upper');
+	}
+
+	/**
+	 * Checks if an IP matches an expected localhost IP, for locally hosted proxies.
+	 * Note: FILTER_FLAG_GLOBAL_RANGE may be more helpful here (see RFC6890), but it's only supported in PHP 8.2+
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	function valid_localhost_ip($ip)
+	{
+		return (new SMF\IP($ip))->isPrivate();
 	}
 
 	/**

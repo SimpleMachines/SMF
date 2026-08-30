@@ -563,6 +563,9 @@ class Membergroups implements ActionInterface
 
 		// The delete this membergroup button was pressed.
 		if (isset($_POST['delete'])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-mmg');
+
 			$result = $group->delete();
 
 			// Need to throw a warning if it went wrong, but this is the only one we have a message for...
@@ -574,6 +577,9 @@ class Membergroups implements ActionInterface
 		}
 		// A form was submitted with the new membergroup settings.
 		elseif (isset($_POST['save'])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-mmg');
+
 			// Can they really inherit from this group?
 			if ($group->id > Group::ADMIN && $group->id != Group::MOD && isset($_POST['group_inherit']) && $_POST['group_inherit'] != Group::NONE && !User::$me->allowedTo('admin_forum')) {
 				$_POST['group_inherit'] = (int) $_POST['group_inherit'];

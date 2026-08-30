@@ -84,7 +84,7 @@ class GroupAct_Notify extends BackgroundTask
 
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user) {
-				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
+				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? Utils::htmlspecialchars($this->_details['reason'][$user['rid']], ENT_QUOTES) : '';
 
 				// They are being approved?
 				if ($this->_details['status'] == 'approve') {

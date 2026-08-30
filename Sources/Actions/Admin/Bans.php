@@ -1659,7 +1659,11 @@ class Bans implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$message_ips[] = new IP($row['poster_ip']);
+			$ip = new IP($row['poster_ip']);
+
+			if (!$ip->isRegisteredProxyServer()) {
+				$message_ips[] = (string) $ip;
+			}
 		}
 		Db::$db->free_result($request);
 
@@ -1688,7 +1692,11 @@ class Bans implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$error_ips[] = new IP($row['ip']);
+			$ip = new IP($row['ip']);
+
+			if (!$ip->isRegisteredProxyServer()) {
+				$error_ips[] = (string) $ip;
+			}
 		}
 		Db::$db->free_result($request);
 

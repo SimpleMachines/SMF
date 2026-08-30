@@ -4,11 +4,11 @@ max-files-changed: 300
 # These labels will be skipped if > 300 files changed
 Administrative:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actions/Admin/**', 'Theme/default/Admin.template.php']
+    - any-glob-to-any-file: ['Sources/Actions/Admin/**', 'Themes/default/Admin.template.php']
 
 Anti-spam:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actions/Admin/Anti-spam.php', 'Sources/AntiSpam/**', 'Sources/ReCaptcha/**']
+    - any-glob-to-any-file: ['Sources/Actions/Admin/AntiSpam.php', 'Themes/default/scripts/captcha.js']
 
 Attachments:
   - changed-files:
@@ -24,7 +24,7 @@ Attachments:
 
 Boards:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Board**', 'Sources/Actions/Board**', 'Sources/Actions/Admin/Board**', 'Themes/defalt/Board**']
+    - any-glob-to-any-file: ['Sources/Board**', 'Sources/Actions/Board**', 'Sources/Actions/Admin/Board**', 'Themes/default/Board**']
 
 Caching:
   - changed-files:
@@ -56,11 +56,11 @@ Exports:
 
 "External data":
   - changed-files:
-    - any-glob-to-any-file: ['Sources/WebFetch**']
+    - any-glob-to-any-file: ['Sources/WebFetch/**']
 
 github_actions:
   - changed-files:
-    - any-glob-to-any-file: ['.github_actions/workflows/**']
+    - any-glob-to-any-file: ['.github/workflows/**']
 
 Hooks:
   - changed-files:
@@ -82,7 +82,7 @@ Logging:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Error**', 'Sources/Log**', 'Sources/Actions/Admin/Log**', 'Sources/Actions/Moderation/Log**']
 
-"Login Sessions":
+"Login/Sessions":
   - changed-files:
     - any-glob-to-any-file: ['Sources/Session**']
 
@@ -92,7 +92,7 @@ Mail:
 
 Membergroups:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Group**', 'Sources/Actions/Admin/Membegroups.php', 'Sources/Actions/Moderation/Group**']
+    - any-glob-to-any-file: ['Sources/Group**', 'Sources/Actions/Admin/Membergroups.php', 'Sources/Actions/Moderation/Group**']
 
 Mentions:
   - changed-files:
@@ -100,7 +100,7 @@ Mentions:
 
 Moderation:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Moderation**', 'Sources/Actions/QuickModeration**', 'Sources/Actions/TopicMove**', 'Sources/Actions/TopicLock**', 'Sources/Actions/TopicMerge**', 'Sources/Actions/TopicRemove**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/TopicSticky**', 'Sources/Actions/TopicSplit**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/ReportToMod**']
+    - any-glob-to-any-file: ['Sources/Actions/Moderation/**', 'Sources/Actions/QuickModeration**', 'Sources/Actions/TopicMove**', 'Sources/Actions/TopicLock**', 'Sources/Actions/TopicMerge**', 'Sources/Actions/TopicRemove**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/TopicSticky**', 'Sources/Actions/TopicSplit**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/ReportToMod**']
 
 MySQL:
   - changed-files:
@@ -148,7 +148,7 @@ Proxy:
 
 Registration:
   - changed-files:
-    - any-glob-to-any-file: ['Sources/Actins/Register**']
+    - any-glob-to-any-file: ['Sources/Actions/Register**']
 
 "Scheduled Tasks":
   - changed-files:
@@ -164,11 +164,11 @@ Search:
 
 Smileys:
   - changed-files:
-    - any-glob-to-any-file: ['Smileys/**', 'Sources/Parsers/SmileyParser.php', 'Sources/ActionAdmin/Smileys.php']
+    - any-glob-to-any-file: ['Smileys/**', 'Sources/Parsers/SmileyParser.php', 'Sources/Actions/Admin/Smileys.php']
 
 Subscriptions:
   - changed-files:
-    - any-glob-to-any-file: ['subscriptions.php', 'Sources/Subscriptions**', 'Sources/Actions/Admin/Subscriptions**', 'Sources/Actions/Profile/PaidSubs**']
+    - any-glob-to-any-file: ['subscriptions.php', 'Sources/Subscriptions/**', 'Sources/Actions/Admin/Subscriptions**', 'Sources/Actions/Profile/PaidSubs**']
 
 Theme:
   - changed-files:
@@ -177,6 +177,10 @@ Theme:
 Topics:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Topic.php', 'Sources/Actions/Topic**']
+
+"Unit Testing":
+  - changed-files:
+    - any-glob-to-any-file: ['tests/**', 'phpunit.xml.dist', '.github/workflows/phpunit.yml']
 
 Upgrader:
   - changed-files:

@@ -54,8 +54,11 @@ function template_main()
 	if (!empty(Theme::$current->settings['display_who_viewing'])) {
 		// Show just numbers...?
 		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
+			// Count the ones this member is allowed to see. Any hidden ones get
+			// their own mention below, so counting those here as well would say
+			// the same people twice.
 			$list_of_viewers = [
-				Lang::getTxt('number_of_members', [0], file: 'General'),
+				Lang::getTxt('number_of_members', [count(Utils::$context['view_members_list'])], file: 'General'),
 			];
 		}
 		// Or show the actual people viewing the topic?
@@ -148,7 +151,7 @@ function template_main()
 			// Show each option with its button - a radio likely.
 			foreach (Utils::$context['poll']['options'] as $option) {
 				echo '
-							<li>', $option['vote_button'], ' <label for="', $option['id'], '">', $option['option'], '</label></li>';
+							<li>', $option['vote_button'], ' <label for="options-', $option['id'], '">', $option['option'], '</label></li>';
 			}
 
 			echo '

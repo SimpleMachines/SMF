@@ -319,7 +319,7 @@ class Search
 		User::load(Utils::$context['posters']);
 
 		// Sort out the page index.
-		$start = (int) ($_GET['start'] ?? 0);
+		$start = $this->start;
 		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
 			$start,
@@ -329,7 +329,7 @@ class Search
 		);
 
 		// If the supplied start value was invalid, redirect to the correct one.
-		if ($_GET['start'] != $start) {
+		if ($this->start != $start) {
 			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
 		}
 

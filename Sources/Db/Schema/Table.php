@@ -572,7 +572,7 @@ abstract class Table
 			}
 		}
 
-		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => '\\n']);
+		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => "\n", '\\n' => "\n"]);
 
 		// Replace any placeholders in the initial data.
 		foreach ($this->initial_data as &$row) {
