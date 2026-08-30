@@ -926,9 +926,9 @@ function saveProfileFields()
 	if ($changeOther && empty($post_errors))
 	{
 		makeThemeChanges($context['id_member'], isset($_POST['id_theme']) ? (int) $_POST['id_theme'] : $old_profile['id_theme']);
-		if (!empty($_REQUEST['sa']))
+		if (!empty($_REQUEST['area']))
 		{
-			$custom_fields_errors = makeCustomFieldChanges($context['id_member'], $_REQUEST['sa'], false, true);
+			$custom_fields_errors = makeCustomFieldChanges($context['id_member'], $_REQUEST['area'], false, true);
 
 			if (!empty($custom_fields_errors))
 				$post_errors = array_merge($post_errors, $custom_fields_errors);
@@ -997,8 +997,8 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 		makeThemeChanges($memID, isset($_POST['id_theme']) ? (int) $_POST['id_theme'] : $old_profile['id_theme']);
 		//makeAvatarChanges($memID, $post_errors);
 
-		if (!empty($_REQUEST['sa']))
-			makeCustomFieldChanges($memID, $_REQUEST['sa'], false);
+		if (!empty($_REQUEST['area']))
+			makeCustomFieldChanges($memID, $_REQUEST['area'], false);
 
 		foreach ($profile_bools as $var)
 			if (isset($_POST[$var]))
