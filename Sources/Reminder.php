@@ -237,7 +237,7 @@ function setPassword2()
 		fatal_lang_error('invalid_userid', false);
 
 	list ($code, $username, $email, $flood_value) = $smcFunc['db_fetch_row']($request);
-	list ($realCode, $issuedTime) = explode('|', $realCode);
+	list ($realCode, $issuedTime) = explode('|', $code);
 	$issuedTime = empty($issuedTime) ? 0 : (int) $issuedTime;
 	$smcFunc['db_free_result']($request);
 
