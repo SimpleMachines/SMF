@@ -1649,9 +1649,10 @@ class Profile extends User implements \ArrayAccess
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
-				AND email_address = {string:email_address}
+				AND {raw:email_address_field} = {string:email_address}
 			LIMIT 1',
 			[
+				'email_address_field' => Db::$db->case_sensitive ? 'LOWER(email_address)' : 'email_address',
 				'selected_member' => $this->id,
 				'email_address' => $email,
 			],
