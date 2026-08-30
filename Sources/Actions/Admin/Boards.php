@@ -236,12 +236,7 @@ class Boards implements ActionInterface
 					$prev_child_level = Board::$loaded[$boardid]->child_level;
 				}
 
-				// Whatever is still on the stack belongs after the last board.
-				// Not the placeholders, though: a board inside the subtree
-				// being moved has no links of its own, so null went on the
-				// stack above just to keep it as deep as the tree. Popping
-				// already skips those; flushing has to as well, or the last
-				// board gets a link with no label and no destination.
+				// Filter out null placeholders.
 				$stack = array_filter($stack);
 
 				if (!empty($stack) && !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'])) {
