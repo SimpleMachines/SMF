@@ -281,6 +281,44 @@ than shown, especially anything in a background task.
 - Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`.
 - `Settings.php` is local configuration and is not committed.
 
+### Comments
+
+Comments describe what the code does now and the reason it does so. They do not describe
+the change that produced it. A comment explaining why something was altered is a
+description of code that no longer exists: it reads well in the pull request and is noise
+a week after the merge. This was asked for directly, on #9573:
+
+> When including comments in proposed changes to the code, it's better if those comments
+> just describe what the code now does and the reason it does so. We don't typically need
+> the comments in the code to explain why the code was changed, since that essentially
+> amounts to describing code that no longer exists.
+
+What that looks like in practice, from the same review. This was proposed:
+
+```php
+// And when nothing asked for a date at all, leave that method alone. It ends by
+// fatalling with 'invalid_date' if it cannot find one, which is right when an event
+// is being saved but not here: this is the posting form being opened, and Event(-1)
+// already defaults to now for exactly this case.
+```
+
+and what landed was:
+
+```php
+// Only try to set the start and duration if we were given the relevant data.
+```
+
+The reasoning is not lost, it moves to the pull request description, which is where a
+reviewer wants it and where it stays true. Three things follow from this:
+
+- A comment containing "previously", "used to", "instead of", "no longer", "now" in the
+  temporal sense, or the name of the bug, is nearly always one of these. Rewrite it as a
+  statement about the code in front of you.
+- A comment that only restates the line under it earns a deletion request. One of the
+  three comments flagged on #9573 was removed outright rather than reworded.
+- None of this argues for fewer comments. The density above still holds; this is about
+  what a comment says, not how many there are.
+
 ### CSS naming
 
 `php-cs-fixer` does not look at CSS, so nothing here is enforced automatically.
