@@ -1109,6 +1109,19 @@ class Server implements ActionInterface
 
 		IntegrationHook::call('integrate_general_security_settings', [&$config_vars]);
 
+		if (isset($_GET['save'])) {
+			// If we have saved the proxy_ip_servers, lets ensure that the list has valid entries
+			if (!empty($_POST['proxy_ip_servers'])) {
+				$proxy_server_ips = explode(',', $_POST['proxy_ip_servers']);
+
+				foreach ($proxy_server_ips as &$ip) {
+					$ip = trim($ip);
+				}
+
+				$_POST['proxy_ip_servers'] = implode(',', $proxy_server_ips);
+			}
+		}
+
 		return $config_vars;
 	}
 

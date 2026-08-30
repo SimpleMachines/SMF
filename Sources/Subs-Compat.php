@@ -8914,6 +8914,19 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	}
 
 	/**
+	 * If ipv4 has been passed inside ipv6, using ::ffff:ipv4 format, pluck the ipv4 out of there.
+	 * We'd rather use the real ipv4 for display & for lookups, etc.
+	 * Consistently trim before usage. ipv6 is sometimes enclosed in square brackets (to clarify port vs ip).
+	 *
+	 * @param string $ip
+	 * @return string $ip
+	 */
+	function simplify_ip($ip)
+	{
+		return (new SMF\IP($ip))->simplified();
+	}
+
+	/**
 	 * Locates the most appropriate temp directory.
 	 *
 	 * Systems using `open_basedir` restrictions may receive errors with
@@ -10330,6 +10343,18 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	function utf8_strtoupper(string $string): string
 	{
 		return (string) SMF\Unicode\Utf8String::create($string)->convertCase('upper');
+	}
+
+	/**
+	 * Checks if an IP matches an expected localhost IP, for locally hosted proxies.
+	 * Note: FILTER_FLAG_GLOBAL_RANGE may be more helpful here (see RFC6890), but it's only supported in PHP 8.2+
+	 *
+	 * @param string $ip
+	 * @return bool
+	 */
+	function valid_localhost_ip($ip)
+	{
+		return (new SMF\IP($ip))->isPrivate();
 	}
 
 	/**
