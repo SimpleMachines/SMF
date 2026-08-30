@@ -455,6 +455,20 @@ class Avatar implements \ArrayAccess
 			$url = new Url($this->original_url, true)->proxied();
 		}
 
+		// An avatar picked out of the gallery is stored as a path relative to
+		// the avatars directory rather than as a URL, so anything with no
+		// scheme to it is a file name and not somewhere to fetch from. Saying
+		// so here means the search below finds it on its second attempt instead
+		// of guessing from the URL path, which only works out for a forum that
+		// is not at the root of its domain.
+		if (empty($this->filename) && !$url->isValid() && !str_contains((string) $url, '://')) {
+			$name = ltrim(strtr((string) $url, '\\', '/'), '/');
+
+			if ($name !== '' && !str_contains($name, ':')) {
+				$this->filename = $name;
+			}
+		}
+
 		// If we still don't have a valid URL, try to figure it out.
 		while (!$url->isValid()) {
 			$attempt ??= 0;
