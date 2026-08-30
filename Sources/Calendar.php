@@ -588,7 +588,7 @@ function iCalDownload()
 		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
 
 	if (!empty($event['location']))
-		$filecontents .= 'LOCATION:' . strtr($event['location'], array(',' => '\,', ';' => '\;', '\\\\' => '\\', "\r" => '', "\n" => '') . "\n";
+		$filecontents .= 'LOCATION:' . strtr($event['location'], array(',' => '\,', ';' => '\;', '\\\\' => '\\', "\r" => '', "\n" => '')) . "\n";
 
 	$filecontents .= 'SUMMARY:' . strtr(implode('', $title), array("\r" => '', "\n" => ''));
 	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";
