@@ -536,7 +536,7 @@ class Avatar implements \ArrayAccess
 						// directories is important in order to ensure that we
 						// don't end up navigating outside the avatar dirs.
 						$abs_path = Sapi::canonicalPath(
-							preg_replace('~^' . preg_quote(Url::create(Config::$boardurl)->path, '~') . '~u', '', $url->path),
+							preg_replace('~^' . preg_quote(Url::create(Config::$boardurl)->path ?? '', '~') . '~u', '', $url->path),
 							base_dir: Config::$boarddir,
 						);
 
