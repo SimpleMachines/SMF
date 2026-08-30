@@ -152,7 +152,7 @@ class Register2 extends Register
 
 		// Check whether the visual verification code was entered correctly.
 		if (!empty(Config::$modSettings['reg_verification'])) {
-			$verifier = new Verifier(['id' => 'register']);
+			$verifier = new Verifier(['id' => 'register'], true);
 
 			if (!empty($verifier->errors)) {
 				foreach ($verifier->errors as $error) {

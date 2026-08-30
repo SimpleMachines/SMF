@@ -1028,7 +1028,7 @@ class PM implements \ArrayAccess
 
 		// Wrong verification code?
 		if (!User::$me->is_admin && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification']) {
-			$verifier = new Verifier(['id' => 'pm']);
+			$verifier = new Verifier(['id' => 'pm'], true);
 			$post_errors = array_merge($post_errors, $verifier->errors);
 		}
 
