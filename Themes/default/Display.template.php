@@ -148,7 +148,7 @@ function template_main()
 			// Show each option with its button - a radio likely.
 			foreach (Utils::$context['poll']['options'] as $option) {
 				echo '
-							<li>', $option['vote_button'], ' <label for="', $option['id'], '">', $option['option'], '</label></li>';
+							<li>', $option['vote_button'], ' <label for="options-', $option['id'], '">', $option['option'], '</label></li>';
 			}
 
 			echo '

@@ -426,7 +426,7 @@ class Poll implements \ArrayAccess
 
 			// Now add it to the poll's contextual theme data.
 			$this->formatted['choices'][$i] = [
-				'id' => 'options-' . $i,
+				'id' => $i,
 				'number' => ++$choice_number,
 				'percent' => $bar,
 				'votes' => $option->votes,
