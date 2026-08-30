@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.8
  */
 
 /**
@@ -90,7 +90,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
+				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $smcFunc['htmlspecialchars']($this->_details['reason'][$user['rid']], ENT_QUOTES) : '';
 
 				// They are being approved?
 				if ($this->_details['status'] == 'approve')
