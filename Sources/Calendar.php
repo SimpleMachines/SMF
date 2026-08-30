@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.7
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -575,7 +575,7 @@ function iCalDownload()
 	$filecontents .= 'VERSION:2.0' . "\n";
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
 	// @TODO - Should be the members email who created the event rather than $webmaster_email.
-	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
+	$filecontents .= 'ORGANIZER;CN="' . strtr($event['realname'], array("\r" => '', "\n" => '')) . '":MAILTO:' . $webmaster_email . "\n";
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART' . (!empty($event['start_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $datestart . "\n";
 
@@ -588,9 +588,9 @@ function iCalDownload()
 		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
 
 	if (!empty($event['location']))
-		$filecontents .= 'LOCATION:' . str_replace(',', '\,', $event['location']) . "\n";
+		$filecontents .= 'LOCATION:' . strtr($event['location'], array(',' => '\,', ';' => '\;', '\\\\' => '\\', "\r" => '', "\n" => '') . "\n";
 
-	$filecontents .= 'SUMMARY:' . implode('', $title);
+	$filecontents .= 'SUMMARY:' . strtr(implode('', $title), array("\r" => '', "\n" => ''));
 	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";
 	$filecontents .= 'END:VEVENT' . "\n";
 	$filecontents .= 'END:VCALENDAR';
