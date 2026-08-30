@@ -535,14 +535,8 @@ class Avatar implements \ArrayAccess
 						// Resolving the canonical path of both the file and the
 						// directories is important in order to ensure that we
 						// don't end up navigating outside the avatar dirs.
-						// A forum at the root of its domain has no path of its
-						// own to strip. Url::$path is typed with no default, so
-						// it is not there to be read at all in that case, and
-						// reading it throws rather than giving back ''.
-						$board_path = Url::create(Config::$boardurl)->path ?? '';
-
 						$abs_path = Sapi::canonicalPath(
-							preg_replace('~^' . preg_quote($board_path, '~') . '~u', '', $url->path),
+							preg_replace('~^' . preg_quote(Url::create(Config::$boardurl)->path ?? '', '~') . '~u', '', $url->path),
 							base_dir: Config::$boarddir,
 						);
 
