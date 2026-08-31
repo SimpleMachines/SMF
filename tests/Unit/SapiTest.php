@@ -18,8 +18,14 @@ class SapiTest extends TestCase
 
 	public function testCanonicalPathResolvesDotSegments(): void
 	{
-		$this->assertSame('/a/c', Sapi::canonicalPath('/a/./b/../c', false, false));
-		$this->assertSame('/a', Sapi::canonicalPath('/a/b/..', false, false));
+		// The root of an absolute path is a drive letter on Windows and nothing
+		// at all on POSIX, so name it here rather than let the current drive
+		// decide. Everything after it is the same on both.
+		$root = DIRECTORY_SEPARATOR === '/' ? '' : 'C:';
+		$sep = DIRECTORY_SEPARATOR;
+
+		$this->assertSame($root . $sep . 'a' . $sep . 'c', Sapi::canonicalPath($root . '/a/./b/../c', false, false));
+		$this->assertSame($root . $sep . 'a', Sapi::canonicalPath($root . '/a/b/..', false, false));
 	}
 
 	public function testTheSuiteRunsOnTheCommandLine(): void
