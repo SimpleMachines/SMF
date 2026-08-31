@@ -205,8 +205,8 @@ class Reactions implements ActionInterface
 		// Set up our list. Use a special function for the get_items so we can output things in input fields...
 		$listOptions = [
 			'id' => 'reactions_list',
-			'title' => Lang::$txt['reactions'],
-			'no_items_label' => Lang::$txt['no_reactions'],
+			'title' => Lang::getTxt('reactions'),
+			'no_items_label' => Lang::getTxt('no_reactions'),
 			'base_href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit',
 			'get_items' => [
 				'function' => function (int $start, int $items_per_page, string $sort_by) use ($reactions): array {
@@ -230,7 +230,7 @@ class Reactions implements ActionInterface
 					'name' =>
 						[
 							'header' => [
-								'value' => Lang::$txt['reactions_name'],
+								'value' => Lang::getTxt('reactions_name'),
 							],
 							'data' => [
 								'function' => function ($rowData) {
@@ -262,14 +262,14 @@ class Reactions implements ActionInterface
 			[
 				// Clicking this magic button adds a new row...
 				'position' => 'below_table_data',
-				'value' => '<button type="button" class="button" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</button>',
+				'value' => '<button type="button" class="button" onclick="addrow()">' . Lang::getTxt('reacts_add') . '</button>',
 			],
 			[
 				// And last but not least our input buttons
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
-							<input type="submit" name="reacts_delete" value="' . Lang::$txt['reacts_delete'] . '" data-confirm="' . Lang::$txt['reacts_delete_confirm'] . '" class="button you_sure">',
-			],
+				'value' => '<input type="submit" name="reacts_save" value="' . Lang::getTxt('reacts_save') . '" class="button">
+							<input type="submit" name="reacts_delete" value="' . Lang::getTxt('reacts_delete') . '" data-confirm="' . Lang::getTxt('reacts_delete_confirm') . '" class="button you_sure">',
+],
 		];
 
 		// And some inline JS to handle adding another row
@@ -290,7 +290,7 @@ class Reactions implements ActionInterface
 
 		new ItemList($listOptions);
 
-		Utils::$context['page_title'] = Lang::$txt['manage_reactions'];
+		Utils::$context['page_title'] = Lang::getTxt('manage_reactions');
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'reactions_list';
 	}
@@ -308,7 +308,7 @@ class Reactions implements ActionInterface
 
 		// Setup the basics of the settings template.
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['reactions_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('reactions_settings');
 
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
@@ -324,7 +324,7 @@ class Reactions implements ActionInterface
 
 		// Finish up the form...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managereactions;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['reactions_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('reactions_settings');
 
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mr');
@@ -368,10 +368,10 @@ class Reactions implements ActionInterface
 			'description' => Lang::$txt['admin_manage_reactions'],
 			'tabs' => [
 				'settings' => [
-					'description' => Lang::$txt['reaction_settings_explain'],
+					'description' => Lang::getTxt('reaction_settings_explain'),
 				],
 				'edit' => [
-					'description' => Lang::$txt['manage_reactions_desc'],
+					'description' => Lang::getTxt('manage_reactions_desc'),
 					'disabled' => !Config::$modSettings['enable_reacts'],
 				],
 			],
