@@ -23,9 +23,16 @@ use SMF\Config;
  * needs a live connection to escape with, so the behaviour of {ci:} itself
  * cannot be reached from here.
  *
- * Equality comparisons are not covered. `member_name = {string:name}` and
- * `$member_name = $string` are the same line to a scanner, and the SET clause
- * of an UPDATE looks like both, so the reliable signal is LIKE.
+ * There are two scans, because there are two ways to get this wrong. One looks
+ * for a comparison that folds neither side, which matches too much on MySQL.
+ * The other looks for one that folds only its column, which matches nothing at
+ * all on PostgreSQL, and is the worse of the two for being the one that hides:
+ * the query says {ci:} and looks handled.
+ *
+ * The first scan covers LIKE only, since `member_name = {string:name}` and
+ * `$member_name = $string` are the same line to a scanner, and an UPDATE's SET
+ * clause looks like both. The second can cover equality as well, because a
+ * line carrying {ci:} is SQL and its = is therefore a comparison.
  */
 #[CoversNothing]
 class QueryCaseFoldingTest extends TestCase
@@ -67,6 +74,41 @@ class QueryCaseFoldingTest extends TestCase
 		'Sources/Security.php' => 2,
 	];
 
+	/**
+	 * Comparisons where {ci:} folds the column but the value beside it is not
+	 * folded in the query, counted per file.
+	 *
+	 * Folding one side is worse than folding neither. A folded column can
+	 * never equal an unfolded value, so instead of matching too much on
+	 * PostgreSQL the comparison matches nothing at all, including the row it
+	 * was looking for.
+	 *
+	 * These are correct only if the caller folded the value in PHP first,
+	 * which is a claim about code somewhere else and so is listed rather than
+	 * counted. Folded by their callers:
+	 *
+	 *  - Admin/Members.php, through strtolower().
+	 *  - AutoSuggest.php, RequestMembers.php, PM.php, through
+	 *    Utils::strtolower().
+	 *  - User.php, through array_map(), for the engines that need it.
+	 *
+	 * Not folded by their callers, and so matching nothing on PostgreSQL:
+	 *
+	 *  - Register2.php and Profile.php, which is #9594.
+	 *  - PersonalMessage/Search.php, which is the same fault in the search for
+	 *    a personal message by its author.
+	 */
+	public const UNFOLDED_VALUES = [
+		'Sources/Actions/Admin/Members.php' => 1,
+		'Sources/Actions/AutoSuggest.php' => 2,
+		'Sources/Actions/Register2.php' => 2,
+		'Sources/Actions/RequestMembers.php' => 1,
+		'Sources/PersonalMessage/PM.php' => 1,
+		'Sources/PersonalMessage/Search.php' => 2,
+		'Sources/Profile.php' => 1,
+		'Sources/User.php' => 1,
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -89,11 +131,28 @@ class QueryCaseFoldingTest extends TestCase
 		);
 	}
 
-	public function testTheScanFindsTheFormsItIsLookingFor(): void
+	public function testNoNewComparisonFoldsOnlyItsColumn(): void
 	{
-		// Without this, deleting the body of scan() would leave the test above
+		$found = $this->scanUnfoldedValues();
+
+		$this->assertSame(
+			self::UNFOLDED_VALUES,
+			$found,
+			"The set of comparisons folding a column but not the value has changed.\n\n"
+			. "If a count went up, check that the caller folds the value before it\n"
+			. "reaches the query. If it does, add the file to UNFOLDED_VALUES and\n"
+			. "say so in the note there. If it does not, the comparison matches\n"
+			. "nothing on PostgreSQL: fold the value in PHP, or write it as\n"
+			. '{ci_string:value} and let the query fold it.',
+		);
+	}
+
+	public function testTheScansFindTheFormsTheyAreLookingFor(): void
+	{
+		// Without these, emptying either scan would leave the tests above
 		// passing against an empty baseline.
 		$this->assertNotSame([], $this->scan());
+		$this->assertNotSame([], $this->scanUnfoldedValues());
 	}
 
 	/******************
@@ -144,6 +203,53 @@ class QueryCaseFoldingTest extends TestCase
 					preg_match('~\bLIKE\b~', $line)
 					&& preg_match($columns, $line)
 					&& !preg_match($folded, $line)
+				) {
+					$found[$relative] = ($found[$relative] ?? 0) + 1;
+				}
+			}
+		}
+
+		ksort($found);
+
+		return $found;
+	}
+
+	/**
+	 * Counts, per file, the comparisons that fold the column with {ci:} while
+	 * comparing it against a value the query does not fold.
+	 *
+	 * A line carrying {ci:} is SQL, so an = on it is a comparison rather than
+	 * a PHP assignment. That is what lets this one look at equality, which the
+	 * scan above cannot.
+	 *
+	 * @return array<string, int> Paths relative to the repository root.
+	 */
+	protected function scanUnfoldedValues(): array
+	{
+		$found = [];
+
+		$files = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator(Config::$sourcedir, \FilesystemIterator::SKIP_DOTS),
+		);
+
+		foreach ($files as $file) {
+			if ($file->getExtension() !== 'php') {
+				continue;
+			}
+
+			$path = str_replace(DIRECTORY_SEPARATOR, '/', $file->getPathname());
+			$contents = file_get_contents($path);
+
+			if (!str_contains($contents, '{ci:')) {
+				continue;
+			}
+
+			$relative = 'Sources' . substr($path, \strlen(str_replace(DIRECTORY_SEPARATOR, '/', Config::$sourcedir)));
+
+			foreach (explode("\n", $contents) as $line) {
+				if (
+					str_contains($line, '{ci:')
+					&& preg_match('~\{(?:array_)?string:~', $line)
 				) {
 					$found[$relative] = ($found[$relative] ?? 0) + 1;
 				}
