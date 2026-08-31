@@ -181,6 +181,37 @@ consequences of the fixer worth knowing before you fight it:
   it belongs to. Do not let a method carrying `#[DataProvider]` be the first one in its
   group; `CreatePostNotifyTest` carries a note about this.
 
+#### It has to pass on Windows too
+
+People develop SMF on Windows, and the unit suite is expected to be green there as well
+as on Linux. Nothing in it is platform-specific by design, so a test that only passes on
+one is a test that is asserting something it did not mean to. The Docker environment is
+Linux, so running the suite in the container proves nothing about this either way.
+
+The whole of #9595 was one assertion that had baked in the shape a file path has on
+POSIX:
+
+```php
+$this->assertSame('/a/c', Sapi::canonicalPath('/a/./b/../c', false, false));
+```
+
+On Windows that call returns `C:\a\c`, and it is right to: the separator is `\`, and a
+path that starts at the root but names no drive is rooted on the current one. The
+production code was doing its job; the test was describing a machine rather than a
+behaviour. What to watch for:
+
+- **`DIRECTORY_SEPARATOR` is `\` on Windows.** An expected value holding a file path has
+  to be built from it rather than written with `/`. URL paths are not file paths and are
+  fine as literals — `parseRoute('/topics/1')` means the same thing everywhere.
+- **Absolute paths are rooted differently**: a leading separator on POSIX, a drive letter
+  on Windows. If the path under test has to be absolute, name the root in the input so
+  the result does not depend on which drive the checkout sits on.
+- **Better still, do not spell the path out.** `LangTest` compares `canonicalPath()`
+  output against `canonicalPath()` output, so both sides move together and the test has
+  nothing to get wrong.
+- **`PHP_EOL` is `\r\n` there.** `.gitattributes` forces `eol=lf`, so a fixture read from
+  disk is the same bytes on both, but a string the test builds itself is not.
+
 ### Running the forum
 
 The rest of CI only proves the code parses (`phplint` on 8.4 and 8.5) and is formatted.
