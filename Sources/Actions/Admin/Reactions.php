@@ -363,9 +363,9 @@ class Reactions implements ActionInterface
 
 		// Setup the admin tabs.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['reactions'],
+			'title' => Lang::getTxt('reactions'),
 			'help' => 'manage_reactions',
-			'description' => Lang::$txt['admin_manage_reactions'],
+			'description' => Lang::getTxt('admin_manage_reactions'),
 			'tabs' => [
 				'settings' => [
 					'description' => Lang::getTxt('reaction_settings_explain'),
