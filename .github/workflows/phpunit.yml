@@ -9,10 +9,11 @@ on:
 jobs:
   phpunit:
     name: Unit tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ ubuntu-latest, windows-latest ]
         php: [ 8.4, 8.5 ]
 
     steps:
@@ -37,4 +38,4 @@ jobs:
         run: composer install --prefer-dist --no-progress --ansi
 
       - name: Run the unit tests
-        run: vendor/bin/phpunit --no-coverage --colors=always
+        run: composer test -- --colors=always
