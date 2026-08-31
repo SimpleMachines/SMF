@@ -3083,51 +3083,6 @@ function ConvertUtf8()
 		list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
 		$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
 
-		// Detect whether a fulltext index is set.
-		$request = $smcFunc['db_query']('', '
-			SHOW INDEX
-			FROM {db_prefix}messages',
-			array(
-			)
-		);
-
-		$upcontext['dropping_index'] = false;
-
-		// If there's a fulltext index, we need to drop it first...
-		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
-		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
-					$upcontext['fulltext_index'][] = $row['Key_name'];
-			$smcFunc['db_free_result']($request);
-
-			if (isset($upcontext['fulltext_index']))
-				$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
-		}
-
-		// Drop it and make a note...
-		if (!empty($upcontext['fulltext_index']))
-		{
-			$upcontext['dropping_index'] = true;
-
-			$smcFunc['db_query']('', '
-				ALTER TABLE {db_prefix}messages
-				DROP INDEX ' . implode(',
-				DROP INDEX ', $upcontext['fulltext_index']),
-				array(
-					'db_error_skip' => true,
-				)
-			);
-
-			// Update the settings table
-			$smcFunc['db_insert']('replace',
-				'{db_prefix}settings',
-				array('variable' => 'string', 'value' => 'string'),
-				array('db_search_index', ''),
-				array('variable')
-			);
-		}
-
 		// Figure out what charset we should be converting from...
 		$lang_charsets = array(
 			'arabic' => 'windows-1256',
@@ -3476,7 +3431,7 @@ function ConvertUtf8()
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('db_character_set' => 'utf8'));
 
-		if ($upcontext['dropping_index'] && $command_line)
+		if (!empty($_SESSION['dropping_index']) && $command_line)
 		{
 			echo "\n" . '', $txt['upgrade_fulltext_error'], '';
 			flush();
@@ -4960,11 +4915,6 @@ function template_convert_utf8()
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>';
 
-	// If we dropped their index, let's let them know
-	if ($upcontext['dropping_index'])
-		echo '
-					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '>', $txt['upgrade_fulltext'], '</p>';
-
 	// Completion notification
 	echo '
 					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_conversion_proceed'], '</p>';
@@ -5012,9 +4962,6 @@ function template_convert_utf8()
 						if (iTableNum == ', $upcontext['table_count'], ')
 						{
 							document.getElementById(\'commess\').classList.remove(\'hidden\');
-							if (document.getElementById(\'indexmsg\') != null) {
-								document.getElementById(\'indexmsg\').classList.remove(\'hidden\');
-							}
 							document.getElementById(\'current_tab\').classList.add(\'hidden\');
 							document.getElementById(\'contbutt\').disabled = 0;
 							document.getElementById(\'utf8_done\').value = 1;
@@ -5178,6 +5125,11 @@ function template_upgrade_complete()
 						', $txt['upgrade_luck'], '<br>
 						Simple Machines
 					</p>';
+
+	// If we dropped their index, let's let them know
+	if (!empty($_SESSION['dropping_index']))
+		echo '
+					<p id="indexmsg">', $txt['upgrade_fulltext_error'], '</p>';
 }
 
 /**
@@ -5192,7 +5144,7 @@ function template_upgrade_complete()
  * @param int $setSize The amount of entries after which to update the database.
  * @return bool
  */
-function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 10000, $setSize = 100)
 {
 	global $smcFunc, $step_progress;
 
