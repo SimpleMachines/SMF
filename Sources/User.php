@@ -3800,9 +3800,10 @@ class User implements \ArrayAccess
 			$email_condition = '';
 		}
 
-		// Get the case of the columns right - but only if we need to as things like MySQL will go slow needlessly otherwise.
-		$member_name = Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name';
-		$real_name = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
+		// The {ci:} type folds the column for the engines that need it and
+		// leaves it alone for the ones that do not.
+		$member_name = '{ci:member_name}';
+		$real_name = '{ci:real_name}';
 
 		// Searches.
 		$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
@@ -5424,13 +5425,11 @@ class User implements \ArrayAccess
 				break;
 
 			case self::LOAD_BY_NAME:
-				if (Db::$db->case_sensitive) {
-					$query_customizations['where'][] = 'LOWER(mem.member_name) IN ({array_string:users})';
-					$query_customizations['params']['users'] = array_map('strtolower', $users);
-				} else {
-					$query_customizations['where'][] = 'mem.member_name IN ({array_string:users})';
-					$query_customizations['params']['users'] = $users;
-				}
+				$query_customizations['where'][] = '{ci:mem.member_name} IN ({array_string:users})';
+
+				// An array of values has no {ci:} of its own, so the names are
+				// folded here for the engines that compare them exactly.
+				$query_customizations['params']['users'] = Db::$db->case_sensitive ? array_map('strtolower', $users) : $users;
 
 				break;
 

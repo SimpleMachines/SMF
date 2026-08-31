@@ -455,11 +455,7 @@ class Members implements ActionInterface
 					// Replace the wildcard characters ('*' and '?') into MySQL ones.
 					$parameter = strtolower(strtr(Utils::htmlspecialchars($search_params[$param_name], ENT_QUOTES), ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_']));
 
-					if (Db::$db->case_sensitive) {
-						$query_parts[] = '(LOWER(' . implode(') LIKE {string:' . $param_name . '_normal} OR LOWER(', $param_info['db_fields']) . ') LIKE {string:' . $param_name . '_normal})';
-					} else {
-						$query_parts[] = '(' . implode(' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
-					}
+					$query_parts[] = '({ci:' . implode('} LIKE {string:' . $param_name . '_normal} OR {ci:', $param_info['db_fields']) . '} LIKE {string:' . $param_name . '_normal})';
 
 					$where_params[$param_name . '_normal'] = '%' . $parameter . '%';
 				}

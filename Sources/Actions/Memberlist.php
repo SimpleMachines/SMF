@@ -521,6 +521,8 @@ class Memberlist implements ActionInterface, Routable
 				$search_fields[] = 'email';
 			}
 
+			// These are expressions as well as plain columns, so they are
+			// folded here rather than through the {ci:} type.
 			if (Db::$db->case_sensitive) {
 				foreach ($fields as $key => $field) {
 					$fields[$key] = 'LOWER(' . $field . ')';
@@ -545,7 +547,7 @@ class Memberlist implements ActionInterface, Routable
 				ErrorHandler::fatalLang('invalid_search_string', false);
 			}
 
-			$query = $_POST['search'] == '' ? '= {string:blank_string}' : (Db::$db->case_sensitive ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
+			$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {ci_string:search}';
 
 			$request = Db::$db->query(
 				'SELECT COUNT(*)

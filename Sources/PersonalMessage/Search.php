@@ -478,11 +478,7 @@ class Search
 
 		foreach ($possible_users as $k => $v) {
 			$where_params['name_' . $k] = $v;
-			$where_clause[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
-
-			if (!isset($where_params['real_name'])) {
-				$where_params['real_name'] = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
-			}
+			$where_clause[] = '{ci:real_name} LIKE {string:name_' . $k . '}';
 		}
 
 		// Who matches those criteria?
@@ -498,12 +494,11 @@ class Search
 		if (Db::$db->num_rows($request) > $this->max_members_to_search) {
 			$this->user_query = '';
 		} else {
-				$this->searchq_parameters['real_name'] = Db::$db->case_sensitive ? 'LOWER(pm.from_name)' : 'pm.from_name';
 				$clauses = [];
 
 				foreach ($possible_users as $k => $v) {
 					$this->searchq_parameters['name_' . $k] = $v;
-					$clauses[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
+					$clauses[] = '{ci:pm.from_name} LIKE {string:name_' . $k . '}';
 				}
 
 			if (Db::$db->num_rows($request) == 0) {

@@ -343,6 +343,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				[
 					// The literal type can have arbitrary content.
 					'~{(literal):([^}]*)}~',
+					// The ci type names a column inline rather than by key, so
+					// that the column a comparison is case folding is visible in
+					// the query itself. Only a column name, optionally qualified
+					// by a table alias, is accepted.
+					'~{(ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
 					// Everything else needs to be a key in $db_values.
 					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
 				],
@@ -2684,6 +2689,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . pg_escape_string($this->connection, $matches[2]) . '\'';
 		}
 
+		// PostgreSQL compares strings exactly, so a case insensitive comparison
+		// folds the column and pairs it with a value folded the same way.
+		if ($matches[1] === 'ci') {
+			return 'LOWER(' . $matches[2] . ')';
+		}
+
 		if (!\array_key_exists($matches[2], $db_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
@@ -2709,6 +2720,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			case 'string':
 			case 'text':
 				return \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
+
+			// Folded to match a column that {ci:} has folded.
+			case 'ci_string':
+				return \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $replacement));
 
 			case 'array_int':
 				if (\is_array($replacement)) {
