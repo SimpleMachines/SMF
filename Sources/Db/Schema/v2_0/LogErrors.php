@@ -1,0 +1,145 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2023 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+declare(strict_types=1);
+
+namespace SMF\Db\Schema\v2_0;
+
+use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\Table;
+
+/**
+ * Defines all the properties for a database table.
+ */
+class LogErrors extends Table
+{
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct()
+	{
+		$this->name = 'log_errors';
+
+		$this->columns = [
+			'id_error' => new Column(
+				name: 'id_error',
+				type: 'mediumint',
+				unsigned: true,
+				not_null: true,
+				auto: true,
+			),
+			'log_time' => new Column(
+				name: 'log_time',
+				type: 'int',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'id_member' => new Column(
+				name: 'id_member',
+				type: 'mediumint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'ip' => new Column(
+				name: 'ip',
+				type: 'char',
+				size: 16,
+				not_null: true,
+				default: '                ',
+			),
+			'url' => new Column(
+				name: 'url',
+				type: 'text',
+				not_null: true,
+			),
+			'message' => new Column(
+				name: 'message',
+				type: 'text',
+				not_null: true,
+			),
+			'session' => new Column(
+				name: 'session',
+				type: 'char',
+				size: 32,
+				not_null: true,
+				default: '                                ',
+			),
+			'error_type' => new Column(
+				name: 'error_type',
+				type: 'char',
+				size: 15,
+				not_null: true,
+				default: 'general',
+			),
+			'file' => new Column(
+				name: 'file',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+			'line' => new Column(
+				name: 'line',
+				type: 'mediumint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+		];
+
+		$this->indexes = [
+			'primary' => new DbIndex(
+				type: 'primary',
+				columns: [
+					[
+						'name' => 'id_error',
+					],
+				],
+			),
+			'log_time' => new DbIndex(
+				name: 'log_time',
+				columns: [
+					[
+						'name' => 'log_time',
+					],
+				],
+			),
+			'id_member' => new DbIndex(
+				name: 'id_member',
+				columns: [
+					[
+						'name' => 'id_member',
+					],
+				],
+			),
+			'ip' => new DbIndex(
+				name: 'ip',
+				columns: [
+					[
+						'name' => 'ip',
+						'size' => 16,
+					],
+				],
+			),
+		];
+
+		parent::__construct();
+	}
+}

@@ -1,0 +1,171 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2023 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+declare(strict_types=1);
+
+namespace SMF\Db\Schema\v2_0;
+
+use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\Table;
+
+/**
+ * Defines all the properties for a database table.
+ */
+class AdminInfoFiles extends Table
+{
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var array
+	 *
+	 * Data used to populate the table during install.
+	 */
+	public array $initial_data = [
+		[
+			'id_file' => 1,
+			'filename' => 'current-version.js',
+			'path' => '/smf/',
+			'parameters' => 'version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 2,
+			'filename' => 'detailed-version.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 3,
+			'filename' => 'latest-news.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&format=%2$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 4,
+			'filename' => 'latest-packages.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 5,
+			'filename' => 'latest-smileys.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 6,
+			'filename' => 'latest-support.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+		[
+			'id_file' => 7,
+			'filename' => 'latest-themes.js',
+			'path' => '/smf/',
+			'parameters' => 'language=%1$s&version=%3$s',
+			'data' => '',
+			'filetype' => 'text/javascript',
+		],
+	];
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct()
+	{
+		$this->name = 'admin_info_files';
+
+		$this->columns = [
+			'id_file' => new Column(
+				name: 'id_file',
+				type: 'tinyint',
+				unsigned: true,
+				not_null: true,
+				auto: true,
+			),
+			'filename' => new Column(
+				name: 'filename',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+			'path' => new Column(
+				name: 'path',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+			'parameters' => new Column(
+				name: 'parameters',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+			'data' => new Column(
+				name: 'data',
+				type: 'text',
+				not_null: true,
+			),
+			'filetype' => new Column(
+				name: 'filetype',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+		];
+
+		$this->indexes = [
+			'primary' => new DbIndex(
+				type: 'primary',
+				columns: [
+					[
+						'name' => 'id_file',
+					],
+				],
+			),
+			'filename' => new DbIndex(
+				name: 'filename',
+				columns: [
+					[
+						'name' => 'filename',
+						'size' => 30,
+					],
+				],
+			),
+		];
+
+		parent::__construct();
+	}
+}
