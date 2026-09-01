@@ -18,8 +18,25 @@ class SapiTest extends TestCase
 
 	public function testCanonicalPathResolvesDotSegments(): void
 	{
-		$this->assertSame('/a/c', Sapi::canonicalPath('/a/./b/../c', false, false));
-		$this->assertSame('/a', Sapi::canonicalPath('/a/b/..', false, false));
+		// A relative path has no root to differ over, so once the separator is
+		// accounted for this says the same thing everywhere.
+		$sep = DIRECTORY_SEPARATOR;
+
+		$this->assertSame('a' . $sep . 'c', Sapi::canonicalPath('a/./b/../c', false, false));
+		$this->assertSame('a', Sapi::canonicalPath('a/b/..', false, false));
+	}
+
+	public function testAnAbsolutePathIsRootedOnTheCurrentDrive(): void
+	{
+		// A path that starts at the root names no drive, and on Windows that
+		// means the one the process is on, so the canonical form carries a
+		// letter that depends on where the checkout sits. POSIX has no such
+		// thing and the root is the separator on its own.
+		$sep = DIRECTORY_SEPARATOR;
+		$drive = $sep === '/' ? '' : substr((string) getcwd(), 0, 2);
+
+		$this->assertSame($drive . $sep . 'a' . $sep . 'c', Sapi::canonicalPath('/a/./b/../c', false, false));
+		$this->assertSame($drive . $sep . 'a', Sapi::canonicalPath('/a/b/..', false, false));
 	}
 
 	public function testTheSuiteRunsOnTheCommandLine(): void
