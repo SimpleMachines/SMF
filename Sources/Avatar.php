@@ -587,9 +587,14 @@ class Avatar implements \ArrayAccess
 					break;
 
 				// Last ditch fallback is a transparent 1x1 GIF.
+				//
+				// This leaves the loop rather than the switch, because there is
+				// nothing left to try and because a data URI is not a URL that
+				// Url::isValid() will accept, so the condition the loop tests
+				// can never become false from here.
 				default:
 					$url = new Url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-					break;
+					break 2;
 			}
 		}
 
