@@ -501,14 +501,14 @@ class Avatar implements \ArrayAccess
 
 					break;
 
-				// Is the file in the prepackaged avatar directory?
+				// Is the file in the avatar gallery directory?
 				case 2:
 					if (
 						!empty($this->filename)
 						&& !empty(Config::$modSettings['avatar_url'])
-						&& is_file(Config::$boarddir . '/avatars/' . ltrim($this->filename, '\\/'))
+						&& is_file(self::getGalleryDir() . '/' . ltrim($this->filename, '\\/'))
 						&& Utils::checkMimeType(
-							Config::$boarddir . '/avatars/' . ltrim($this->filename, '\\/'),
+							self::getGalleryDir() . '/' . ltrim($this->filename, '\\/'),
 							'image/',
 							true,
 						)
@@ -558,7 +558,7 @@ class Avatar implements \ArrayAccess
 							fn($path) => Sapi::canonicalPath($path) . DIRECTORY_SEPARATOR,
 							array_filter([
 								Config::$modSettings['custom_avatar_dir'] ?? '',
-								Config::$boarddir . '/avatars',
+								self::getGalleryDir(),
 							]),
 						);
 
@@ -579,7 +579,7 @@ class Avatar implements \ArrayAccess
 				case 5:
 					if (
 						!empty(Config::$modSettings['avatar_url'])
-						&& is_file(Config::$boarddir . '/avatars/default.png')
+						&& is_file(self::getGalleryDir() . '/default.png')
 					) {
 						$url = new Url(Config::$modSettings['avatar_url'] . '/default.png');
 					}
@@ -808,5 +808,27 @@ class Avatar implements \ArrayAccess
 			'external' => $this->original_url,
 			default => 'http://',
 		};
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * The directory that holds the gallery of avatars members can choose from.
+	 *
+	 * This is the directory the admin nominated, which is the one the gallery
+	 * is listed from and the one a chosen avatar is checked against before it
+	 * is saved. Config::$modSettings['avatar_url'] is the address of the same
+	 * directory, so the two have to name the same place or a member's choice
+	 * resolves to an address with nothing behind it.
+	 *
+	 * @return string Path to the avatar gallery directory.
+	 */
+	private static function getGalleryDir(): string
+	{
+		return !empty(Config::$modSettings['avatar_directory'])
+			? Config::$modSettings['avatar_directory']
+			: Config::$boarddir . '/avatars';
 	}
 }
