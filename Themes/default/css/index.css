@@ -1894,7 +1894,7 @@ fieldset.merge_options {
 }
 dl.register_form {
 	margin: 0;
-	clear: right;
+	clear: inline-end;
 }
 dl.register_form dt {
 	font-weight: normal;
@@ -3347,7 +3347,7 @@ span.postby {
 	width: 30%;
 	max-width: 30em;
 	float: inline-start;
-	clear: left;
+	clear: inline-start;
 }
 #poll_options dl.options .voted {
 	font-weight: bold;
@@ -3476,7 +3476,7 @@ img.avatar {
 	width: 100%;
 }
 .moderatorbar {
-	clear: right;
+	clear: inline-end;
 }
 .messageicon {
 	display: inline-block;

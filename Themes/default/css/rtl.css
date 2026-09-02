@@ -129,9 +129,6 @@ img#smflogo {
 	padding: 1em 2em 1em 2.5em;
 	margin: 0 0 1em 1em;
 }
-#poll_options dl.options dt {
-	clear: right;
-}
 #poll_options dl.options dd {
 	text-align: left;
 }
@@ -139,9 +136,6 @@ img#smflogo {
 	margin: 0 175px 0 0;
 }
 .keyinfo h5::after {
-	clear: left;
-}
-.moderatorbar {
 	clear: left;
 }
 /* poster details and list of items */
@@ -255,11 +249,6 @@ ul.quickbuttons li {
 }
 .login h3 img {
 	margin: 0 0 0.5em;
-}
-
-/* Additional profile fields */
-dl.register_form {
-	clear: left;
 }
 
 /* Styles for maintenance mode.
