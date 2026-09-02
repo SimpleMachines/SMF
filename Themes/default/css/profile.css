@@ -14,12 +14,12 @@
 /* The basic user info on the left */
 #basicinfo {
 	width: 20%;
-	float: left;
+	float: inline-start;
 }
 
 #detailedinfo {
 	width: 79.5%;
-	float: right;
+	float: inline-end;
 }
 
 #basicinfo > * {
@@ -47,7 +47,7 @@
 
 #basicinfo .icon_fields li {
 	display: block;
-	float: left;
+	float: inline-start;
 	margin-right: 5px;
 	height: 20px;
 }
@@ -96,7 +96,7 @@
 }
 
 #avatar_server_stored div {
-	float: left;
+	float: inline-start;
 }
 
 #avatar_upload {
@@ -122,7 +122,7 @@
 
 .activity_stats li {
 	width: 4.16%;
-	float: left;
+	float: inline-start;
 	text-align: center;
 }
 
@@ -155,7 +155,7 @@
 .profile_pie {
 	background: url(../images/stats_pie.png);
 	background-size: auto 20px;
-	float: left;
+	float: inline-start;
 	height: 20px;
 	width: 20px;
 	margin: 0 12px 0 0;
