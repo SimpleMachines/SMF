@@ -59,6 +59,15 @@ class UuidTest extends TestCase
 		$this->assertSame(22, \strlen(Uuid::create(4)->getShortForm()));
 	}
 
+	public function testShortFormLowercaseIsTwentySixCharactersAndOnlyLowercaseBase32Chars(): void
+	{
+		$short = Uuid::create(4)->getShortForm(true);
+
+		$this->assertSame(26, \strlen($short));
+		// Crockford-style base32 alternative alphabet (digits + lowercase letters w/o ambiguous chars)
+		$this->assertMatchesRegularExpression('~^[0-9a-z]+$~', $short);
+	}
+
 	public function testCompressAndExpandRoundTrip(): void
 	{
 		$uuid = (string) Uuid::create(4);
@@ -88,6 +97,53 @@ class UuidTest extends TestCase
 	public function testCreateProducesTheRequestedVersion(int $version): void
 	{
 		$this->assertSame($version, Uuid::create($version)->getVersion());
+	}
+
+	#[DataProvider('versionProvider')]
+	public function testBinaryBase64AndBase32Roundtrips(int $version): void
+	{
+		$uuid = (string) Uuid::create($version);
+
+		// Binary roundtrip
+		$binary = Uuid::compress($uuid, Uuid::COMPRESS_BINARY);
+		$this->assertSame(16, \strlen($binary));
+		$this->assertSame(strtolower($uuid), strtolower(Uuid::expand($binary)));
+
+		// Base64 roundtrip
+		$b64 = Uuid::compress($uuid, Uuid::COMPRESS_BASE64);
+		$this->assertSame(22, \strlen($b64));
+		$this->assertSame(strtolower($uuid), strtolower(Uuid::expand($b64)));
+
+		// Base32 roundtrip
+		$b32 = Uuid::compress($uuid, Uuid::COMPRESS_BASE32);
+		$this->assertSame(26, \strlen($b32));
+		$this->assertSame(strtolower($uuid), strtolower(Uuid::expand($b32)));
+	}
+
+	#[DataProvider('versionProvider')]
+	public function testCreateFromStringAcceptsBinaryBase64AndBase32(int $version): void
+	{
+		$uuid = (string) Uuid::create($version);
+
+		$binary = Uuid::compress($uuid, Uuid::COMPRESS_BINARY);
+		$this->assertSame(strtolower($uuid), strtolower((string) Uuid::createFromString($binary)));
+
+		$b64 = Uuid::compress($uuid, Uuid::COMPRESS_BASE64);
+		$this->assertSame(strtolower($uuid), strtolower((string) Uuid::createFromString($b64)));
+
+		$b32 = Uuid::compress($uuid, Uuid::COMPRESS_BASE32);
+		$this->assertSame(strtolower($uuid), strtolower((string) Uuid::createFromString($b32)));
+	}
+
+	#[DataProvider('versionProvider')]
+	public function testParsedCanonicalHasConsistentBinaryRepresentation(int $version): void
+	{
+		$uuid = (string) Uuid::create($version);
+
+		$binary = Uuid::compress($uuid, Uuid::COMPRESS_BINARY);
+
+		$parsed = Uuid::createFromString($uuid);
+		$this->assertSame($binary, $parsed->getBinary());
 	}
 
 	/***********************
