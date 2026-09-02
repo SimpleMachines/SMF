@@ -84,13 +84,8 @@ class Mail
 		// If the recipient list isn't an array, make it one.
 		$to_array = \is_array($to) ? $to : [$to];
 
-		// Make sure we actually have email addresses to send this to
-		foreach ($to_array as $k => $v) {
-			// This should never happen, but better safe than sorry
-			if (trim($v) == '') {
-				unset($to_array[$k]);
-			}
-		}
+		// Make sure we actually have email addresses to send this to.
+		$to_array = self::prepareAddresses($to_array);
 
 		// Nothing left? Nothing else to do
 		if (empty($to_array)) {
@@ -310,6 +305,8 @@ class Mail
 		// Ensure we tell obExit to flush.
 		Utils::$context['flush_mail'] = true;
 
+		$to_array = self::prepareAddresses($to_array);
+
 		foreach ($to_array as $to) {
 			// Will this insert go over MySQL's limit?
 			$this_insert_len = \strlen($to) + \strlen($message) + \strlen($headers) + 700;
@@ -498,6 +495,13 @@ class Mail
 		$failed_emails = [];
 
 		foreach ($emails as $email) {
+			$email['to'] = current(self::prepareAddresses([$email['to']]));
+
+			// Can't send without a valid address!
+			if ($email['to'] === false) {
+				continue;
+			}
+
 			$result = $agent->send($email['to'], $email['subject'], $email['body'], $email['headers']);
 
 			// Old emails should expire
@@ -842,6 +846,24 @@ class Mail
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * Processes a list of email addresses to weed out any invalid ones and to
+	 * ensure the valid ones use the form with the best chance of delivery.
+	 *
+	 * @param array $addresses A list of email addresses.
+	 * @return array Updated list of email addresses.
+	 */
+	protected static function prepareAddresses(array $addresses): array
+	{
+		$addresses = array_map(fn($address) => new EmailAddress((string) $address), $addresses);
+
+		// Filter out invalid email addresses.
+		$addresses = array_filter($addresses, fn($address) => $address->isValid());
+
+		// Use the form that has the best chance of successful delivery.
+		return array_map(fn($address) => $address->sendable(), $addresses);
+	}
 
 	/**
 	 * Callback function for loadEmailTemplate on subject and body
