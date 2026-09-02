@@ -64,3 +64,4 @@ SMF\Config::$packagesdir = SMF\Config::$boarddir . '/Packages';
 SMF\Config::$languagesdir = SMF\Config::$boarddir . '/Languages';
 SMF\Config::$cachedir = SMF\Config::$boarddir . '/cache';
 SMF\Config::$language = 'en_US';
+SMF\Config::$scripturl = 'test.local/index.php';
