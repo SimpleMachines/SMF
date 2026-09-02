@@ -13,7 +13,7 @@ use SMF\Config;
  *
  * Whether a string comparison folds case is decided by the database engine, so
  * a LIKE against text a person typed has to say which behaviour it wants. The
- * {ci:} and {ci_string:} query types say it; LOWER() in the query text says it;
+ * {ci:} and {string_ci:} query types say it; LOWER() in the query text says it;
  * a bare column says nothing and gets whatever the engine does, which is a
  * match on MySQL and no match on PostgreSQL.
  *
@@ -90,7 +90,9 @@ class QueryCaseFoldingTest extends TestCase
 	 *  - Admin/Members.php, through strtolower().
 	 *  - AutoSuggest.php, RequestMembers.php, PM.php, through
 	 *    Utils::strtolower().
-	 *  - User.php, through array_map(), for the engines that need it.
+	 *
+	 * User.php is not here because it hands its list to {array_string_ci:},
+	 * which folds every value in it.
 	 *
 	 * Not folded by their callers, and so matching nothing on PostgreSQL:
 	 *
@@ -106,7 +108,6 @@ class QueryCaseFoldingTest extends TestCase
 		'Sources/PersonalMessage/PM.php' => 1,
 		'Sources/PersonalMessage/Search.php' => 2,
 		'Sources/Profile.php' => 1,
-		'Sources/User.php' => 1,
 	];
 
 	/****************
@@ -124,7 +125,7 @@ class QueryCaseFoldingTest extends TestCase
 			. "If a count went up, a new comparison is relying on the engine's\n"
 			. "collation to fold case, which MySQL does and PostgreSQL does not.\n"
 			. "Write it as {ci:column} LIKE {string:value}, or as\n"
-			. "{ci:column} LIKE {ci_string:value} when the value is not already\n"
+			. "{ci:column} LIKE {string_ci:value} when the value is not already\n"
 			. "folded in PHP.\n\n"
 			. "If a count went down, the comparison was fixed. Update BASELINE\n"
 			. 'in this test to match, in the same commit.',
@@ -143,7 +144,7 @@ class QueryCaseFoldingTest extends TestCase
 			. "reaches the query. If it does, add the file to UNFOLDED_VALUES and\n"
 			. "say so in the note there. If it does not, the comparison matches\n"
 			. "nothing on PostgreSQL: fold the value in PHP, or write it as\n"
-			. '{ci_string:value} and let the query fold it.',
+			. '{string_ci:value} and let the query fold it.',
 		);
 	}
 
@@ -169,7 +170,7 @@ class QueryCaseFoldingTest extends TestCase
 		$found = [];
 
 		$columns = '~\b(?:' . implode('|', self::COLUMNS) . ')\b~';
-		$folded = '~\{ci:|\{ci_string:|LOWER\s*\(~i';
+		$folded = '~\{ci:|\{(?:array_)?string_ci:|LOWER\s*\(~i';
 
 		$files = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(Config::$sourcedir, \FilesystemIterator::SKIP_DOTS),
