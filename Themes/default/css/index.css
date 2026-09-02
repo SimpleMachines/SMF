@@ -1255,7 +1255,7 @@ html[lang="el-GR"] .inline_mod_check {
 	height: 18px;
 	width: 18px;
 	margin: 2px 5px 0 0;
-	float: left;
+	float: inline-start;
 }
 #pm_menu_top .main_icons,
 #alerts_menu_top .main_icons {
@@ -1375,8 +1375,16 @@ ul li.greeting {
 	border-width: var(--navigatesection-border-width);
 	box-shadow: var(--navigatesection-box-shadow);
 	margin-block: .5em .75em;
-	margin-inline: 10px;
+	margin-inline: 0;
 	padding: 0;
+}
+/* The breadcrumb is drawn twice: once above #content_section, and once inside
+   it below the posts. The inner one already sits within the inline padding
+   that #main_content_section gives everything else, so it adds none of its
+   own; the outer one is a sibling of that container and has to match the same
+   padding itself to line up with the boxes underneath it. */
+#wrapper > .navigate_section {
+	margin-inline: 12px;
 }
 .navigate_section ol {
 	align-items: center;
@@ -1532,7 +1540,7 @@ ul li.greeting {
 }
 .mark_read {
 	margin: -5px 0 16px 0;
-	float: right;
+	float: inline-end;
 }
 .mark_read .buttonlist {
 	margin: 0;
@@ -1854,7 +1862,7 @@ fieldset.merge_options {
 	padding: 1px;
 }
 .login dt {
-	float: left;
+	float: inline-start;
 	clear: both;
 	text-align: right;
 	font-weight: bold;
@@ -1890,7 +1898,7 @@ dl.register_form {
 }
 dl.register_form dt {
 	font-weight: normal;
-	float: left;
+	float: inline-start;
 	clear: both;
 	width: 50%;
 	margin: 6px 0 0 0;
@@ -2378,7 +2386,7 @@ a.main_icons.feed::before {
 .errorbox p.alert {
 	padding: 0;
 	margin: 0 4px 0 0;
-	float: left;
+	float: inline-start;
 	width: 12px;
 	font-size: 1.5em;
 }
@@ -2497,14 +2505,14 @@ dl {
 
 /* View posts */
 .topic .time {
-	float: right;
+	float: inline-end;
 }
 .counter {
 	padding: 5px 6px 1px 2px;
 	font-size: 2.2em;
 	font-weight: bold;
 	color: var(--counter-color);
-	float: left;
+	float: inline-start;
 }
 .topic_details {
 	padding: 0 4px 4px 4px;
@@ -2605,7 +2613,7 @@ dl {
 /* Pick theme */
 #pick_theme {
 	width: 100%;
-	float: left;
+	float: inline-start;
 }
 #pick_theme .selected {
 	background: var(--picktheme-selected-bg);
@@ -2620,7 +2628,7 @@ dl {
 }
 dl.stats dt {
 	width: 50%;
-	float: left;
+	float: inline-start;
 	margin: 0 0 4px 0;
 	line-height: 1.5em;
 	clear: both;
@@ -2716,7 +2724,7 @@ dl.addrules dt.floatleft {
 	clear: both;
 }
 #to_item_list_container div, #bcc_item_list_container div {
-	float: left;
+	float: inline-start;
 	margin-right: 10px;
 }
 .unread_pm {
@@ -2822,7 +2830,7 @@ dl.addrules dt.floatleft {
 }
 #advanced_search dd {
 	width: 75%;
-	float: left;
+	float: inline-start;
 	padding: 2px;
 	margin: 0 0 0 6px;
 	text-align: left;
@@ -3079,7 +3087,7 @@ div#manage_boards dl dd textarea[name=desc] {
 	margin-bottom: 15px;
 }
 h3 .collapse {
-	float: right;
+	float: inline-end;
 	margin: 4px 4px 0 0;
 }
 .board_icon a {
@@ -3338,7 +3346,7 @@ span.postby {
 	padding: 4px 0;
 	width: 30%;
 	max-width: 30em;
-	float: left;
+	float: inline-start;
 	clear: left;
 }
 #poll_options dl.options .voted {
@@ -3347,7 +3355,7 @@ span.postby {
 #poll_options dl.options dd {
 	width: 60%;
 	max-width: 45em;
-	float: left;
+	float: inline-start;
 	margin: 0 0 4px 0;
 	text-align: right;
 }
@@ -3406,7 +3414,7 @@ div#pollmoderation {
 }
 /* poster details and list of items */
 .poster {
-	float: left;
+	float: inline-start;
 	/* Don't set this in em.It will eat too much space if people need to set large text sizes. */
 	width: 160px;
 	-webkit-hyphens: auto;
@@ -3620,7 +3628,15 @@ form#postmodify .roundframe {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt,
+#post_header dt {
+	float: inline-start;
+	padding: 0;
+	width: 15%;
+	margin: 6px 0 0 0;
+	font-weight: bold;
+}
+/* The event editor is not mirrored for right-to-left yet, so this half of
+   the pair keeps a physical float until it is. */
 #event_options dt {
 	float: left;
 	padding: 0;
@@ -3628,7 +3644,14 @@ form#postmodify .roundframe {
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd,
+#post_header dd {
+	float: inline-start;
+	padding: 0;
+	width: 83%;
+	margin: 4px 0;
+}
+/* The event editor is not mirrored for right-to-left yet, so this half of
+   the pair keeps a physical float until it is. */
 #event_options dd {
 	float: left;
 	padding: 0;
@@ -3751,7 +3774,7 @@ form#postmodify .roundframe {
 	float: left;
 }
 #moderationbuttons_strip {
-	float: left;
+	float: inline-start;
 	margin: 4px 0 4px;
 }
 #moderationbuttons ul li {

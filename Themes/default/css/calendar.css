@@ -21,7 +21,7 @@ td.days:hover {
 }
 #month_grid {
 	width: 214px;
-	float: left;
+	float: inline-start;
 	text-align: center;
 	overflow: hidden;
 	margin-right: 10px;
