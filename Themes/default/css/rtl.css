@@ -132,9 +132,6 @@ img#smflogo {
 #poll_options dl.options dt {
 	clear: right;
 }
-#poll_options dl.options dd {
-	text-align: left;
-}
 .postarea, .moderatorbar {
 	margin: 0 175px 0 0;
 }
@@ -245,13 +242,8 @@ ul.quickbuttons li {
 	margin: 0;
 }
 
-/* Styles for the move topic section. */
-.move_topic {
-	text-align: right;
-}
 .login dd {
 	float: right;
-	text-align: right;
 }
 .login h3 img {
 	margin: 0 0 0.5em;
@@ -364,9 +356,6 @@ h3.profile_hd {
 dl.stats dd {
 	margin: 0 2% 4px 0;
 }
-#stats tr.windowbg th.stats_month {
-	text-align: right;
-}
 .generic_bar .bar, .progress_bar .bar {
 	left: unset;
 	right: 0;
@@ -374,22 +363,17 @@ dl.stats dd {
 tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
-#stats tr.windowbg th.lefttext, #stats tr.titlebg th.lefttext {
+/* Only the windowbg half of this pair has a left-to-right rule to mirror;
+   the titlebg half is aligned by .lefttext, so it still needs flipping here. */
+#stats tr.titlebg th.lefttext {
 	text-align: right;
 }
 
-/* Styles for the advanced search section.
-------------------------------------------------- */
-#searchform fieldset {
-	text-align: right;
-}
 #advanced_search dt {
 	float: right;
-	text-align: left;
 }
 #advanced_search dd {
 	margin: 0 0.5em 0 0;
-	text-align: right;
 }
 /* Boards picker */
 #searchform fieldset p {
@@ -439,10 +423,6 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	padding: 0 0 0 13px;
 }
 
-span.search_weight {
-	text-align: left;
-}
-
 /* Manage Bans */
 .ban_restriction {
 	margin: 0.2em 2.2em 0.2em 0;
@@ -466,12 +446,6 @@ ul.moderation_notes li {
 .pages {
 	margin-left: 0;
 	margin-right: 7px;
-}
-
-/* Styles for the calendar.
------------------------------ */
-#main_grid th.days, #main_grid td.days {
-	text-align: right;
 }
 
 /* Code is a code do it LTR */

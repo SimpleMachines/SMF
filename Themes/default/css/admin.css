@@ -421,7 +421,7 @@ fieldset.qa_fieldset {
 span.search_weight {
 	width: 40px;
 	padding: 0 0.5em;
-	text-align: right;
+	text-align: end;
 }
 .search_settings {
 	width: 47%;
