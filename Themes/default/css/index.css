@@ -609,7 +609,7 @@ strong[id^='child_list_']::after {
 }
 .pages {
 	font-size: 0.9em;
-	margin-left: 7px;
+	margin-inline-start: 7px;
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
@@ -850,7 +850,7 @@ img.sort, .sort {
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
 .amt {
-	margin-left: 3px;
+	margin-inline-start: 3px;
 	padding: 0 5px;
 	color: var(--amt-color);
 	background: var(--amt-bg);
@@ -941,7 +941,7 @@ a[class^="mobile_generic_menu_"] {
 .profile_user_links li {
 	font-size: .8rem;
 	line-height: 2em;
-	padding-left: 24px;
+	padding-inline-start: 24px;
 	text-indent: -24px;
 	-webkit-hyphens: auto;
 	hyphens: auto;
@@ -1254,7 +1254,8 @@ html[lang="el-GR"] .inline_mod_check {
 #profile_menu_top > img.avatar {
 	height: 18px;
 	width: 18px;
-	margin: 2px 5px 0 0;
+	margin-block: 2px 0;
+	margin-inline: 0 5px;
 	float: inline-start;
 }
 #pm_menu_top .main_icons,
@@ -2365,7 +2366,8 @@ a.main_icons.feed::before {
 	margin-top: -8px;
 }
 .errorbox, .noticebox, .infobox {
-	padding: 7px 10px 7px 35px;
+	padding-block: 7px;
+	padding-inline: 35px 10px;
 	margin-bottom: 12px;
 	position: relative;
 }
@@ -2385,7 +2387,8 @@ a.main_icons.feed::before {
 }
 .errorbox p.alert {
 	padding: 0;
-	margin: 0 4px 0 0;
+	margin-block: 0;
+	margin-inline: 0 4px;
 	float: inline-start;
 	width: 12px;
 	font-size: 1.5em;
@@ -2641,7 +2644,8 @@ dl.stats dd {
 	width: 48%;
 	font-size: 1em;
 	float: left;
-	margin: 0 0 4px 2%;
+	margin-block: 0 4px;
+	margin-inline: 2% 0;
 }
 dl.stats {
 	padding: 5px;
@@ -2859,7 +2863,8 @@ dl.addrules dt.floatleft {
 }
 #helpmain ul {
 	line-height: 2em;
-	margin: 0 0 0 25px;
+	margin-block: 0;
+	margin-inline: 25px 0;
 }
 #helpmain ul li {
 	list-style-type: disc;
@@ -3470,7 +3475,8 @@ img.avatar {
 	max-width: 100%;
 }
 .postarea, .moderatorbar {
-	margin: 0 0 0 175px;
+	margin-block: 0;
+	margin-inline: 175px 0;
 }
 .postarea div.flow_hidden {
 	width: 100%;
