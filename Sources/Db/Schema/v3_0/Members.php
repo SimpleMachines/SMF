@@ -349,6 +349,13 @@ class Members extends Table
 				not_null: true,
 				default: '',
 			),
+			'email_address_ci' => new Column(
+				name: 'email_address_ci',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
 		];
 
 		$this->indexes = [
@@ -498,6 +505,15 @@ class Members extends Table
 					],
 					[
 						'name' => 'id_member',
+					],
+				],
+			),
+			'idx_email_address_ci' => new DbIndex(
+				name: 'idx_email_address_ci',
+				columns: [
+					[
+						'name' => 'email_address_ci',
+						'opclass' => 'varchar_pattern_ops',
 					],
 				],
 			),

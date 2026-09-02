@@ -176,6 +176,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\DropModPrefs::class,
 			Migration\v3_0\DropTimeOffset::class,
 			Migration\v3_0\SpoofDetector::class,
+			Migration\v3_0\EmailAddressCi::class,
 			Migration\v3_0\SearchResultsPrimaryKey::class,
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
