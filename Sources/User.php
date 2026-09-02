@@ -5425,11 +5425,8 @@ class User implements \ArrayAccess
 				break;
 
 			case self::LOAD_BY_NAME:
-				$query_customizations['where'][] = '{ci:mem.member_name} IN ({array_string:users})';
-
-				// An array of values has no {ci:} of its own, so the names are
-				// folded here for the engines that compare them exactly.
-				$query_customizations['params']['users'] = Db::$db->case_sensitive ? array_map('strtolower', $users) : $users;
+				$query_customizations['where'][] = '{ci:mem.member_name} IN ({array_string_ci:users})';
+				$query_customizations['params']['users'] = $users;
 
 				break;
 

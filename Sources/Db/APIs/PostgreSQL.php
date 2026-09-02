@@ -2722,7 +2722,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
 			// Folded to match a column that {ci:} has folded.
-			case 'ci_string':
+			case 'string_ci':
 				return \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $replacement));
 
 			case 'array_int':
@@ -2754,6 +2754,24 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 					foreach ($replacement as $key => $value) {
 						$replacement[$key] = \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $value));
+					}
+
+					return implode(', ', $replacement);
+				}
+
+				$this->error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				break;
+
+			// Each of these folded to match a column that {ci:} has folded.
+			case 'array_string_ci':
+				if (\is_array($replacement)) {
+					if (empty($replacement)) {
+						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
+
+					foreach ($replacement as $key => $value) {
+						$replacement[$key] = \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $value));
 					}
 
 					return implode(', ', $replacement);

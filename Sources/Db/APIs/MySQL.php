@@ -2789,7 +2789,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			case 'string':
 			case 'text':
 			// MySQL folds the case of the value in the collation as well.
-			case 'ci_string':
+			case 'string_ci':
 				return \sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $this->fix_mb4((string) $replacement)));
 
 			case 'array_int':
@@ -2814,6 +2814,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'array_string':
+			// As above, the collation folds each of these too.
+			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);

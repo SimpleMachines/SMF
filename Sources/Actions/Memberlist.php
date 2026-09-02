@@ -547,7 +547,7 @@ class Memberlist implements ActionInterface, Routable
 				ErrorHandler::fatalLang('invalid_search_string', false);
 			}
 
-			$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {ci_string:search}';
+			$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {string_ci:search}';
 
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
