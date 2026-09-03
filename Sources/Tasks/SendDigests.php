@@ -220,10 +220,16 @@ class SendDigests extends ScheduledTask
 				continue;
 			}
 
+			// Write to this member in their own language. $langs was collected
+			// from the same lngfile values as $members, so there is a set of
+			// strings here for every member, including those whose lngfile is
+			// empty and who therefore read the forum's default language.
+			$strings = $langtxt[$member['lang']];
+
 			// Do the start stuff!
 			$email = [
-				'subject' => Config::$mbname . ' - ' . $langtxt[$lang]['subject'],
-				'body' => $member['name'] . ',' . "\n\n" . $langtxt[$lang]['intro'] . "\n" . Config::$scripturl . '?action=profile;area=notification;u=' . $member['id'] . "\n",
+				'subject' => Config::$mbname . ' - ' . $strings['subject'],
+				'body' => $member['name'] . ',' . "\n\n" . $strings['intro'] . "\n" . Config::$scripturl . '?action=profile;area=notification;u=' . $member['id'] . "\n",
 				'email' => $member['email'],
 			];
 
@@ -235,11 +241,11 @@ class SendDigests extends ScheduledTask
 					foreach ($board['lines'] as $topic) {
 						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
-								$email['body'] .= "\n" . $langtxt[$lang]['new_topics'] . ':' . "\n" . '-----------------------------------------------';
+								$email['body'] .= "\n" . $strings['new_topics'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['topic_lines'], ['subject' => $topic['subject'], 'board' => $board['name']]);
+							$email['body'] .= "\n" . Lang::formatText($strings['topic_lines'], ['subject' => $topic['subject'], 'board' => $board['name']]);
 						}
 					}
 				}
@@ -257,11 +263,11 @@ class SendDigests extends ScheduledTask
 					foreach ($board['lines'] as $topic) {
 						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
-								$email['body'] .= "\n" . $langtxt[$lang]['new_replies'] . ':' . "\n" . '-----------------------------------------------';
+								$email['body'] .= "\n" . $strings['new_replies'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
 							}
 
-							$email['body'] .= "\n" . Lang::formatText($langtxt[$lang]['replies'], [$topic['count'], $topic['subject']]);
+							$email['body'] .= "\n" . Lang::formatText($strings['replies'], [$topic['count'], $topic['subject']]);
 						}
 					}
 				}
@@ -284,11 +290,11 @@ class SendDigests extends ScheduledTask
 						foreach ($board['lines'] as $topic) {
 							if (\in_array($mid, $topic['members'])) {
 								if (!$titled) {
-									$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
+									$email['body'] .= "\n" . $strings['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
 									$titled = true;
 								}
 
-								$email['body'] .= "\n" . Lang::formatText($langtxt[$lang][$note_type], $topic);
+								$email['body'] .= "\n" . Lang::formatText($strings[$note_type], $topic);
 							}
 						}
 					}
@@ -302,7 +308,7 @@ class SendDigests extends ScheduledTask
 			}
 
 			// Then just say our goodbyes!
-			$email['body'] .= "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General');
+			$email['body'] .= "\n\n" . $strings['bye'];
 
 			// Send it - low priority!
 			Mail::send($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
