@@ -13,26 +13,26 @@ use SMF\Config;
  *
  * Whether a string comparison folds case is decided by the database engine, so
  * a LIKE against text a person typed has to say which behaviour it wants. The
- * {ci:} and {string_ci:} query types say it; LOWER() in the query text says it;
- * a bare column says nothing and gets whatever the engine does, which is a
- * match on MySQL and no match on PostgreSQL.
+ * {column_ci:} and {string_ci:} query types say it, and so does a LOWER() in
+ * the query text; a bare column says nothing and gets whatever the engine
+ * does, which is a match on MySQL and no match on PostgreSQL.
  *
  * A comparison written the second way returns fewer rows rather than failing,
  * so nothing is written to the error log and nothing in CI notices. This test
  * is what notices. It is not a unit test of any class: the substitution layer
- * needs a live connection to escape with, so the behaviour of {ci:} itself
- * cannot be reached from here.
+ * needs a live connection to escape with, so the behaviour of {column_ci:}
+ * itself cannot be reached from here.
  *
  * There are two scans, because there are two ways to get this wrong. One looks
  * for a comparison that folds neither side, which matches too much on MySQL.
  * The other looks for one that folds only its column, which matches nothing at
  * all on PostgreSQL, and is the worse of the two for being the one that hides:
- * the query says {ci:} and looks handled.
+ * the query says {column_ci:} and looks handled.
  *
  * The first scan covers LIKE only, since `member_name = {string:name}` and
  * `$member_name = $string` are the same line to a scanner, and an UPDATE's SET
  * clause looks like both. The second can cover equality as well, because a
- * line carrying {ci:} is SQL and its = is therefore a comparison.
+ * line carrying {column_ci:} is SQL and its = is therefore a comparison.
  */
 #[CoversNothing]
 class QueryCaseFoldingTest extends TestCase
@@ -75,8 +75,8 @@ class QueryCaseFoldingTest extends TestCase
 	];
 
 	/**
-	 * Comparisons where {ci:} folds the column but the value beside it is not
-	 * folded in the query, counted per file.
+	 * Comparisons where {column_ci:} folds the column but the value beside it
+	 * is not folded in the query, counted per file.
 	 *
 	 * Folding one side is worse than folding neither. A folded column can
 	 * never equal an unfolded value, so instead of matching too much on
@@ -124,8 +124,8 @@ class QueryCaseFoldingTest extends TestCase
 			"The set of case sensitive comparisons on user text has changed.\n\n"
 			. "If a count went up, a new comparison is relying on the engine's\n"
 			. "collation to fold case, which MySQL does and PostgreSQL does not.\n"
-			. "Write it as {ci:column} LIKE {string:value}, or as\n"
-			. "{ci:column} LIKE {string_ci:value} when the value is not already\n"
+			. "Write it as {column_ci:column} LIKE {string:value}, or as\n"
+			. "{column_ci:column} LIKE {string_ci:value} when the value is not already\n"
 			. "folded in PHP.\n\n"
 			. "If a count went down, the comparison was fixed. Update BASELINE\n"
 			. 'in this test to match, in the same commit.',
@@ -170,7 +170,7 @@ class QueryCaseFoldingTest extends TestCase
 		$found = [];
 
 		$columns = '~\b(?:' . implode('|', self::COLUMNS) . ')\b~';
-		$folded = '~\{ci:|\{(?:array_)?string_ci:|LOWER\s*\(~i';
+		$folded = '~\{column_ci:|\{(?:array_)?string_ci:|LOWER\s*\(~i';
 
 		$files = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(Config::$sourcedir, \FilesystemIterator::SKIP_DOTS),
@@ -216,12 +216,12 @@ class QueryCaseFoldingTest extends TestCase
 	}
 
 	/**
-	 * Counts, per file, the comparisons that fold the column with {ci:} while
-	 * comparing it against a value the query does not fold.
+	 * Counts, per file, the comparisons that fold the column with {column_ci:}
+	 * while comparing it against a value the query does not fold.
 	 *
-	 * A line carrying {ci:} is SQL, so an = on it is a comparison rather than
-	 * a PHP assignment. That is what lets this one look at equality, which the
-	 * scan above cannot.
+	 * A line carrying {column_ci:} is SQL, so an = on it is a comparison rather
+	 * than a PHP assignment. That is what lets this one look at equality, which
+	 * the scan above cannot.
 	 *
 	 * @return array<string, int> Paths relative to the repository root.
 	 */
@@ -241,7 +241,7 @@ class QueryCaseFoldingTest extends TestCase
 			$path = str_replace(DIRECTORY_SEPARATOR, '/', $file->getPathname());
 			$contents = file_get_contents($path);
 
-			if (!str_contains($contents, '{ci:')) {
+			if (!str_contains($contents, '{column_ci:')) {
 				continue;
 			}
 
@@ -249,7 +249,7 @@ class QueryCaseFoldingTest extends TestCase
 
 			foreach (explode("\n", $contents) as $line) {
 				if (
-					str_contains($line, '{ci:')
+					str_contains($line, '{column_ci:')
 					&& preg_match('~\{(?:array_)?string:~', $line)
 				) {
 					$found[$relative] = ($found[$relative] ?? 0) + 1;
