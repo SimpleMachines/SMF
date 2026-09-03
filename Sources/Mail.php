@@ -498,7 +498,7 @@ class Mail
 		$failed_emails = [];
 
 		foreach ($emails as $email) {
-			$result = $agent->send($to, $subject, $message, $headers);
+			$result = $agent->send($email['to'], $email['subject'], $email['body'], $email['headers']);
 
 			// Old emails should expire
 			if (!$result && $email['tries'] >= self::MAX_TRIES) {
