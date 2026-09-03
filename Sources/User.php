@@ -3800,10 +3800,10 @@ class User implements \ArrayAccess
 			$email_condition = '';
 		}
 
-		// The {ci:} type folds the column for the engines that need it and
+		// The {column_ci:} type folds the column for the engines that need it and
 		// leaves it alone for the ones that do not.
-		$member_name = '{ci:member_name}';
-		$real_name = '{ci:real_name}';
+		$member_name = '{column_ci:member_name}';
+		$real_name = '{column_ci:real_name}';
 
 		// Searches.
 		$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
@@ -5425,7 +5425,7 @@ class User implements \ArrayAccess
 				break;
 
 			case self::LOAD_BY_NAME:
-				$query_customizations['where'][] = '{ci:mem.member_name} IN ({array_string_ci:users})';
+				$query_customizations['where'][] = '{column_ci:mem.member_name} IN ({array_string_ci:users})';
 				$query_customizations['params']['users'] = $users;
 
 				break;

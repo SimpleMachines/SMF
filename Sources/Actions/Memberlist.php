@@ -522,7 +522,7 @@ class Memberlist implements ActionInterface, Routable
 			}
 
 			// These are expressions as well as plain columns, so they are
-			// folded here rather than through the {ci:} type.
+			// folded here rather than through the {column_ci:} type.
 			if (Db::$db->case_sensitive) {
 				foreach ($fields as $key => $field) {
 					$fields[$key] = 'LOWER(' . $field . ')';

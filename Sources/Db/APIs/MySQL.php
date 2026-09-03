@@ -282,11 +282,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				[
 					// The literal type can have arbitrary content.
 					'~{(literal):([^}]*)}~',
-					// The ci type names a column inline rather than by key, so
-					// that the column a comparison is case folding is visible in
-					// the query itself. Only a column name, optionally qualified
-					// by a table alias, is accepted.
-					'~{(ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
+					// The column_ci type names a column inline rather than by key,
+					// so that the column a comparison is case folding is visible
+					// in the query itself. Only a column name, optionally
+					// qualified by a table alias, is accepted.
+					'~{(column_ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
 					// Everything else needs to be a key in $db_values.
 					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
 				],
@@ -2760,7 +2760,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// MySQL folds case in the column's collation, so a case insensitive
 		// comparison is what a bare column already does.
-		if ($matches[1] === 'ci') {
+		if ($matches[1] === 'column_ci') {
 			return $matches[2];
 		}
 

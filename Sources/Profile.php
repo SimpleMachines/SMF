@@ -1649,7 +1649,7 @@ class Profile extends User implements \ArrayAccess
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
-				AND {ci:email_address} = {string:email_address}
+				AND {column_ci:email_address} = {string:email_address}
 			LIMIT 1',
 			[
 				'selected_member' => $this->id,

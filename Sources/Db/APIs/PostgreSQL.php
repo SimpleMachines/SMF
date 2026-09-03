@@ -343,11 +343,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				[
 					// The literal type can have arbitrary content.
 					'~{(literal):([^}]*)}~',
-					// The ci type names a column inline rather than by key, so
-					// that the column a comparison is case folding is visible in
-					// the query itself. Only a column name, optionally qualified
-					// by a table alias, is accepted.
-					'~{(ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
+					// The column_ci type names a column inline rather than by key,
+					// so that the column a comparison is case folding is visible
+					// in the query itself. Only a column name, optionally
+					// qualified by a table alias, is accepted.
+					'~{(column_ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
 					// Everything else needs to be a key in $db_values.
 					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
 				],
@@ -2691,7 +2691,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// PostgreSQL compares strings exactly, so a case insensitive comparison
 		// folds the column and pairs it with a value folded the same way.
-		if ($matches[1] === 'ci') {
+		if ($matches[1] === 'column_ci') {
 			return 'LOWER(' . $matches[2] . ')';
 		}
 
@@ -2721,7 +2721,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			case 'text':
 				return \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
-			// Folded to match a column that {ci:} has folded.
+			// Folded to match a column that {column_ci:} has folded.
 			case 'string_ci':
 				return \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $replacement));
 
@@ -2763,7 +2763,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
-			// Each of these folded to match a column that {ci:} has folded.
+			// Each of these folded to match a column that {column_ci:} has folded.
 			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {

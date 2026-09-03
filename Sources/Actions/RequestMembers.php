@@ -74,7 +74,7 @@ class RequestMembers implements ActionInterface, Routable
 		$request = Db::$db->query(
 			'SELECT real_name
 			FROM {db_prefix}members
-			WHERE {ci:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
+			WHERE {column_ci:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
 				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',

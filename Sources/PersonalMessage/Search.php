@@ -478,7 +478,7 @@ class Search
 
 		foreach ($possible_users as $k => $v) {
 			$where_params['name_' . $k] = $v;
-			$where_clause[] = '{ci:real_name} LIKE {string:name_' . $k . '}';
+			$where_clause[] = '{column_ci:real_name} LIKE {string:name_' . $k . '}';
 		}
 
 		// Who matches those criteria?
@@ -498,7 +498,7 @@ class Search
 
 				foreach ($possible_users as $k => $v) {
 					$this->searchq_parameters['name_' . $k] = $v;
-					$clauses[] = '{ci:pm.from_name} LIKE {string:name_' . $k . '}';
+					$clauses[] = '{column_ci:pm.from_name} LIKE {string:name_' . $k . '}';
 				}
 
 			if (Db::$db->num_rows($request) == 0) {

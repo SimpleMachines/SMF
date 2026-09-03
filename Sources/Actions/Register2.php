@@ -536,8 +536,8 @@ class Register2 extends Register
 		$request = Db::$db->query(
 			'SELECT id_member
 			FROM {db_prefix}members
-			WHERE {ci:email_address} = {string:email_address}
-				OR {ci:email_address} = {string:username}
+			WHERE {column_ci:email_address} = {string:email_address}
+				OR {column_ci:email_address} = {string:username}
 			LIMIT 1',
 			[
 				'email_address' => $reg_options['email'],
