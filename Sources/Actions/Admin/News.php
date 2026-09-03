@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
+use SMF\EmailAddress;
 use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -720,13 +721,13 @@ class News implements ActionInterface
 
 		// Finally - emails!
 		if (!empty($_POST['emails'])) {
-			$addressed = array_unique(explode(';', strtr($_POST['emails'], ["\n" => ';', "\r" => ';', ',' => ';'])));
+			$emails = array_unique(explode(';', strtr($_POST['emails'], ["\n" => ';', "\r" => ';', ',' => ';'])));
 
-			foreach ($addressed as $curmem) {
-				$curmem = trim($curmem);
+			foreach ($emails as $email) {
+				$email = new EmailAddress($email, true);
 
-				if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL)) {
-					Utils::$context['recipients']['emails'][$curmem] = $curmem;
+				if ($email->isValid()) {
+					Utils::$context['recipients']['emails'][$email->sendable()] = $email->sendable();
 				}
 			}
 		}

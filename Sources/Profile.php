@@ -1640,7 +1640,7 @@ class Profile extends User implements \ArrayAccess
 			return 'no_email';
 		}
 
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		if (!EmailAddress::create($email)->isValid()) {
 			return 'bad_email';
 		}
 
@@ -2355,7 +2355,7 @@ class Profile extends User implements \ArrayAccess
 						$cf_def['mask'] == 'email'
 						&& !empty($value)
 						&& (
-							!filter_var($value, FILTER_VALIDATE_EMAIL)
+							!EmailAddress::create($value)->isValid()
 							|| \strlen($value) > 255
 						)
 					) {
@@ -2883,7 +2883,7 @@ class Profile extends User implements \ArrayAccess
 		if (
 			empty($_POST['gravatarEmail'])
 			|| empty(Config::$modSettings['gravatarAllowExtraEmail'])
-			|| !filter_var($_POST['gravatarEmail'], FILTER_VALIDATE_EMAIL)
+			|| !EmailAddress::create($_POST['gravatarEmail'])->isValid()
 		) {
 			$this->new_data['avatar'] = 'gravatar://';
 		} else {

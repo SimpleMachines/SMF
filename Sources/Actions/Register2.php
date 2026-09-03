@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
@@ -342,7 +343,7 @@ class Register2 extends Register
 
 				// Any masks to apply?
 				if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none') {
-					if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || \strlen($value) > 255)) {
+					if ($row['mask'] == 'email' && (!EmailAddress::create($value)->isValid() || \strlen($value) > 255)) {
 						$custom_field_errors[] = ['custom_field_invalid_email', [$row['field_name']]];
 					} elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value)) {
 						$custom_field_errors[] = ['custom_field_not_number', [$row['field_name']]];
@@ -479,16 +480,20 @@ class Register2 extends Register
 		// Convert character encoding for non-utf8mb4 database
 		$reg_options['username'] = Utils::htmlspecialchars($reg_options['username']);
 
-		// @todo Separate the sprintf?
-		if (empty($reg_options['email']) || !filter_var($reg_options['email'], FILTER_VALIDATE_EMAIL) || \strlen($reg_options['email']) > 255) {
-			$reg_errors[] = ['lang', 'profile_error_bad_email'];
-		}
-
 		$username_validation_errors = Security::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
 
 		if (!empty($username_validation_errors)) {
 			$reg_errors = array_merge($reg_errors, $username_validation_errors);
 		}
+
+		// Check whether the email address appears to be valid.
+		$reg_options['email'] = new EmailAddress($reg_options['email'] ?? '');
+
+		if (!$reg_options['email']->isValid() || \strlen((string) $reg_options['email']) > 255) {
+			$reg_errors[] = ['lang', 'profile_error_bad_email'];
+		}
+
+		$reg_options['email'] = (string) $reg_options['email'];
 
 		// Generate a validation code if it's supposed to be emailed.
 		$validation_code = '';

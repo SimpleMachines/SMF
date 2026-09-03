@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -309,8 +310,12 @@ class Activate implements ActionInterface, Routable
 				ErrorHandler::fatalLang('no_access', false);
 			}
 
-			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL)) {
+			$email = new EmailAddress($_POST['new_email'], true);
+
+			if (!$email->isValid()) {
 				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
+			} else {
+				$_POST['new_email'] = (string) $email;
 			}
 
 			// Ummm... don't even dare try to take someone else's email!!
