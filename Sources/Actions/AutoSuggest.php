@@ -146,12 +146,11 @@ class AutoSuggest implements ActionInterface, Routable
 		$request = Db::$db->query(
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
-			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
+			WHERE {column_ci:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
 				AND is_activated IN ({array_int:activated})
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
 			[
-				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
 				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
@@ -195,12 +194,11 @@ class AutoSuggest implements ActionInterface, Routable
 		$request = Db::$db->query(
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
-			WHERE {raw:group_name} LIKE {string:search}
+			WHERE {column_ci:group_name} LIKE {string:search}
 				AND min_posts = {int:min_posts}
 				AND id_group NOT IN ({array_int:invalid_groups})
 				AND hidden != {int:hidden}',
 			[
-				'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
 				'min_posts' => -1,
 				'invalid_groups' => [1, 3],
 				'hidden' => 2,

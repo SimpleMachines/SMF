@@ -536,11 +536,10 @@ class Register2 extends Register
 		$request = Db::$db->query(
 			'SELECT id_member
 			FROM {db_prefix}members
-			WHERE {raw:email_address_field} = {string:email_address}
-				OR {raw:email_address_field} = {string:username}
+			WHERE {column_ci:email_address} = {string:email_address}
+				OR {column_ci:email_address} = {string:username}
 			LIMIT 1',
 			[
-				'email_address_field' => Db::$db->case_sensitive ? 'LOWER(email_address)' : 'email_address',
 				'email_address' => $reg_options['email'],
 				'username' => $reg_options['username'],
 			],

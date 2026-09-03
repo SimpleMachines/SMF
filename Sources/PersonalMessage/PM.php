@@ -1210,7 +1210,7 @@ class PM implements \ArrayAccess
 			$request = Db::$db->query(
 				'SELECT id_member, member_name
 				FROM {db_prefix}members
-				WHERE ' . (Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name') . ' IN ({array_string:usernames})',
+				WHERE {column_ci:member_name} IN ({array_string:usernames})',
 				[
 					'usernames' => array_keys($usernames),
 				],

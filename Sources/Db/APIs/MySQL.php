@@ -282,6 +282,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				[
 					// The literal type can have arbitrary content.
 					'~{(literal):([^}]*)}~',
+					// The column_ci type names a column inline rather than by key,
+					// so that the column a comparison is case folding is visible
+					// in the query itself. Only a column name, optionally
+					// qualified by a table alias, is accepted.
+					'~{(column_ci):([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)?)}~',
 					// Everything else needs to be a key in $db_values.
 					'~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~',
 				],
@@ -2753,6 +2758,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . mysqli_real_escape_string($connection, $matches[2]) . '\'';
 		}
 
+		// MySQL folds case in the column's collation, so a case insensitive
+		// comparison is what a bare column already does.
+		if ($matches[1] === 'column_ci') {
+			return $matches[2];
+		}
+
 		if (!\array_key_exists($matches[2], $db_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
@@ -2777,6 +2788,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
+			// MySQL folds the case of the value in the collation as well.
+			case 'string_ci':
 				return \sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $this->fix_mb4((string) $replacement)));
 
 			case 'array_int':
@@ -2801,6 +2814,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'array_string':
+			// As above, the collation folds each of these too.
+			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
