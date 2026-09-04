@@ -468,7 +468,7 @@ class News implements ActionInterface
 				}
 
 				// Find the members
-				$_POST[$type] = implode(',', array_keys(User::find($_POST[$type])));
+				$_POST[$type] = implode(',', User::find($_POST[$type], ids_only: true));
 			}
 		}
 
