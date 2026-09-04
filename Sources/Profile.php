@@ -1640,7 +1640,9 @@ class Profile extends User implements \ArrayAccess
 			return 'no_email';
 		}
 
-		if (!EmailAddress::create($email)->isValid()) {
+		$email = new EmailAddress($email);
+
+		if (!$email->isValid()) {
 			return 'bad_email';
 		}
 
@@ -1649,11 +1651,11 @@ class Profile extends User implements \ArrayAccess
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
-				AND {column_ci:email_address} = {string:email_address}
+				AND email_address_ci = {string:email_address}
 			LIMIT 1',
 			[
 				'selected_member' => $this->id,
-				'email_address' => $email,
+				'email_address' => $email->casefolded(),
 			],
 		);
 		$return = Db::$db->num_rows($request) > 0 ? 'email_taken' : true;

@@ -1006,11 +1006,11 @@ class Install extends ToolsBase implements ToolsInterface
 		$result = Db::$db->query(
 			'SELECT id_member, password_salt
 			FROM {db_prefix}members
-			WHERE member_name = {string:username} OR email_address = {string:email}
+			WHERE member_name = {string:username} OR email_address_ci = {string:email}
 			LIMIT 1',
 			[
 				'username' => $_POST['username'],
-				'email' => (string) $_POST['email'],
+				'email' => $_POST['email']->casefolded(),
 				'db_error_skip' => true,
 			],
 		);

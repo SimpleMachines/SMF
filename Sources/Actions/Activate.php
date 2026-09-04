@@ -314,18 +314,16 @@ class Activate implements ActionInterface, Routable
 
 			if (!$email->isValid()) {
 				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
-			} else {
-				$_POST['new_email'] = (string) $email;
 			}
 
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
-				WHERE email_address = {string:email_address}
+				WHERE email_address_ci = {string:email_address}
 				LIMIT 1',
 				[
-					'email_address' => $_POST['new_email'],
+					'email_address' => $email->casefolded(),
 				],
 			);
 
@@ -335,7 +333,7 @@ class Activate implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			// Set the new email address.
-			$this->member->email = $_POST['new_email'];
+			$this->member->email = (string) $email;
 
 			// Make sure their email isn't banned.
 			$bans = Security::checkBans($this->member, true);
