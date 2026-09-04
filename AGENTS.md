@@ -248,6 +248,63 @@ docker compose exec postgres psql -U smf -d smf -c 'SELECT * FROM smf_log_errors
 `smf_log_errors` is the first place to look. Many failures are recorded there rather
 than shown, especially anything in a background task.
 
+### Migrations
+
+The schema lives in PHP, so editing a column in `Sources/Db/Schema/v3_0/` changes what a
+*fresh install* builds and nothing else. Existing forums need a migration in
+`Sources/Maintenance/Migration/v3_0/`, registered in `Upgrade::MIGRATIONS`; a class that
+is not in that list never runs. The `Table::normalize()` pass the upgrader does after the
+migrations will not cover for you either, since it does not alter columns that already
+exist.
+
+**Assume your migration runs more than once.** The upgrader resumes after a timeout and
+people re-run it, so `execute()` has to be safe to repeat. On top of that,
+`performSubsteps()` asks `isCandidate()` first and skips the step when it returns false.
+The default implementation returns true, which means an unguarded migration redoes its
+work — for an `ALTER TABLE` on MySQL that is a full table rebuild — on every pass. Guard
+it by looking at what is actually in the database:
+
+```php
+public function isCandidate(): bool
+{
+	$table = new Schema\v3_0\Whatever();
+	$existing_structure = $table->getCurrentStructure();
+
+	foreach ($existing_structure['columns'] as $column) {
+		if ($column['name'] === 'the_one') {
+			return $column['type'] !== $table->columns['the_one']->type;
+		}
+	}
+
+	return false;
+}
+```
+
+Comparing against `$table->columns[...]` rather than a literal lets the database API say
+what the type is called on this engine. `SearchResultsPrimaryKey` is the model to copy;
+several of the v3_0 migrations do this and several do not, so do not read an absence as
+permission to skip it. Treat the guard as an optimisation and idempotent `execute()` as
+the actual guarantee: write both.
+
+**Verify on both engines, in three states.** A schema change is raw SQL by another name,
+so MySQL and PostgreSQL both need proving, and the create path and the alter path do not
+generate the same DDL:
+
+- the migration against a database still in the old shape,
+- the migration again afterwards, which should be skipped and harmless if forced,
+- `Table::create()` from the same definition, since a type that alters cleanly may still
+  be rejected in a `CREATE TABLE`.
+
+The traps are in the details of the two engines. A MySQL `text` column takes no default,
+and `change_column()` carries the *old* default over when the new definition does not
+name one — so widening a `varchar` that had `DEFAULT ''` needs `drop_default` set on the
+column or MySQL rejects the statement.
+
+None of this is reachable from the unit suite. `Schema\Column::__construct()` calls
+`Db::$db->calculate_type()`, so the schema classes cannot even be instantiated without a
+connection. Say that in the PR description and show what you ran against real databases
+instead.
+
 ## Things that bite in this codebase
 
 - **Typed properties with no default throw when read before assignment.** Several are
