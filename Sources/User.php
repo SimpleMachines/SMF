@@ -5488,8 +5488,11 @@ class User implements \ArrayAccess
 	{
 		switch ($type) {
 			case self::LOAD_BY_EMAIL:
-				$query_customizations['where'][] = 'mem.email_address IN ({array_string:users})';
-				$query_customizations['params']['users'] = $users;
+				$query_customizations['where'][] = 'mem.email_address_ci IN ({array_string:users})';
+				$query_customizations['params']['users'] = array_filter(array_map(
+					fn($email) => EmailAddress::create($email)->casefolded(),
+					$users,
+				));
 				break;
 
 			case self::LOAD_BY_NAME:
