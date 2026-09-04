@@ -600,8 +600,8 @@ class Members implements ActionInterface
 						],
 					],
 					'sort' => [
-						'default' => 'email_address',
-						'reverse' => 'email_address DESC',
+						'default' => 'email_address_ci',
+						'reverse' => 'email_address_ci DESC',
 					],
 				],
 				'ip' => [
@@ -948,8 +948,8 @@ class Members implements ActionInterface
 						],
 					],
 					'sort' => [
-						'default' => 'email_address',
-						'reverse' => 'email_address DESC',
+						'default' => 'email_address_ci',
+						'reverse' => 'email_address_ci DESC',
 					],
 				],
 				'ip' => [

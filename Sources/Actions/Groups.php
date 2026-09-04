@@ -261,7 +261,7 @@ class Groups implements ActionInterface, Routable
 		// Sort out the sorting!
 		$sort_methods = [
 			'name' => 'real_name',
-			'email' => 'email_address',
+			'email' => 'email_address_ci',
 			'active' => 'last_login',
 			'registered' => 'date_registered',
 			'posts' => 'posts',
