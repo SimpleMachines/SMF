@@ -53,7 +53,7 @@ class AnonymizeEditHistory extends BackgroundTask
 		// Set the anonymous name.
 		$anonymous_name = 'u_' . substr(Uuid::create(5, 'member=' . $this->_details['id'])->getShortForm(true), 0, 8);
 
-		if (Db::$title === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
 				'SELECT id_msg, edit_history
 				FROM {db_prefix}messages
