@@ -2334,15 +2334,22 @@ class Maintenance implements ActionInterface
 
 	protected static function getDefinedFunctionsInFile(string $file): array
 	{
+		static $patterns = [
+			// Remove multiline comments so regex does not
+			// match fake functions/classes inside them.
+			'~//[^\h]+|/\*.*?\*/~s',
+
+			// Also must remove those pesky heredocs.
+			'/<<<[\'"]?(\w+)[\'"]?[\r\n]+[\s\S]*?[\r\n]+\1;/',
+		];
+
 		$source = file_get_contents($file);
 
 		if (!str_contains($source, 'function')) {
 			return [];
 		}
 
-		// Remove multiline comments so regex does not
-		// match fake functions/classes inside them.
-		$source = preg_replace('~//[^\h]+|/\*.*?\*/~s', '', $source);
+		$source = preg_replace($patterns, '', $source);
 		$functions = [];
 		$namespace = '';
 		$class = '';
