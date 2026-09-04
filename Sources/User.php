@@ -1300,6 +1300,7 @@ class User implements \ArrayAccess
 		'tfa_secret' => 'string',
 		'tfa_backup' => 'string',
 		'spoofdetector_name' => 'string',
+		'email_address_ci' => 'string',
 	];
 
 	/*********************
@@ -3319,6 +3320,30 @@ class User implements \ArrayAccess
 
 						break;
 
+					case 'email_address':
+						if (isset($member->email)) {
+							$email = new EmailAddress($member->email, true);
+
+							// Don't update unless the email is valid.
+							if ($email->isValid()) {
+								$params[$column . '_' . $member->id] = (string) $email;
+							}
+						}
+
+						break;
+
+					case 'email_address_ci':
+						if (isset($member->email)) {
+							$email = new EmailAddress($member->email, true);
+
+							// Don't update unless the email is valid.
+							if ($email->isValid()) {
+								$params[$column . '_' . $member->id] = $email->casefolded();
+							}
+						}
+
+						break;
+
 					case 'spoofdetector_name':
 						if (isset($member->name)) {
 							$params[$column . '_' . $member->id] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($member->name, ENT_QUOTES)));
@@ -3337,7 +3362,6 @@ class User implements \ArrayAccess
 						$prop = match ($column) {
 							'member_name' => 'username',
 							'real_name' => 'name',
-							'email_address' => 'email',
 							'usertitle' => 'title',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
@@ -4278,28 +4302,73 @@ class User implements \ArrayAccess
 					$key,
 					[
 						// All the standard data.
-						'additional_groups', 'alerts', 'attachment_height',
-						'attachment_type', 'attachment_width', 'avatar',
-						'avatar_original', 'birthdate', 'buddy_list',
-						'dataset', 'date_registered', 'email_address',
-						'filename', 'icons', 'id_attach', 'id_group',
-						'id_member', 'id_msg_last_visit', 'id_post_group',
-						'id_theme', 'ignore_boards', 'instant_messages',
-						'is_activated', 'is_online', 'last_login', 'lngfile',
-						'member_group', 'member_group_color', 'member_ip',
-						'member_ip2', 'member_name', 'new_pm', 'options',
-						'passwd', 'passwd_flood', 'password_salt',
-						'personal_text', 'pm_ignore_list', 'pm_prefs',
-						'pm_receive_from', 'post_group', 'post_group_color',
-						'posts', 'primary_group', 'real_name',
-						'secret_answer', 'secret_question', 'show_online',
-						'signature', 'smiley_set', 'spoofdetector_name',
-						'tfa_backup', 'tfa_secret', 'time_format', 'timezone',
-						'total_time_logged_in', 'unread_messages', 'url',
-						'usertitle', 'validation_code', 'warning',
-						'website_title', 'website_url',
+						'additional_groups',
+						'alerts',
+						'attachment_height',
+						'attachment_type',
+						'attachment_width',
+						'avatar',
+						'avatar_original',
+						'birthdate',
+						'buddy_list',
+						'dataset',
+						'date_registered',
+						'email_address',
+						'email_address_ci',
+						'filename',
+						'icons',
+						'id_attach',
+						'id_group',
+						'id_member',
+						'id_msg_last_visit',
+						'id_post_group',
+						'id_theme',
+						'ignore_boards',
+						'instant_messages',
+						'is_activated',
+						'is_online',
+						'last_login',
+						'lngfile',
+						'member_group',
+						'member_group_color',
+						'member_ip',
+						'member_ip2',
+						'member_name',
+						'new_pm',
+						'options',
+						'passwd',
+						'passwd_flood',
+						'password_salt',
+						'personal_text',
+						'pm_ignore_list',
+						'pm_prefs',
+						'pm_receive_from',
+						'post_group',
+						'post_group_color',
+						'posts',
+						'primary_group',
+						'real_name',
+						'secret_answer',
+						'secret_question',
+						'show_online',
+						'signature',
+						'smiley_set',
+						'spoofdetector_name',
+						'tfa_backup',
+						'tfa_secret',
+						'time_format',
+						'timezone',
+						'total_time_logged_in',
+						'unread_messages',
+						'url',
+						'usertitle',
+						'validation_code',
+						'warning',
+						'website_title',
+						'website_url',
 						// Obsolete data. Ignore if present.
-						'mod_prefs', 'time_offset',
+						'mod_prefs',
+						'time_offset',
 					],
 				)
 			) {
