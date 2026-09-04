@@ -535,7 +535,7 @@ class News implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$condition_array[] = '{string:email_' . $count . '}';
+			$condition_array[] = 'email_address_ci LIKE {string:email_' . $count . '}';
 			$condition_array_params['email_' . $count++] = $row['email_address'];
 		}
 		Db::$db->free_result($request);
@@ -544,7 +544,7 @@ class News implements ActionInterface
 			$request = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
-				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
+				WHERE (' . implode(' OR ', $condition_array) . ')',
 				$condition_array_params,
 			);
 

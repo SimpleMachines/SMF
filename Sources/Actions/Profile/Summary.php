@@ -20,6 +20,7 @@ use SMF\Actions\Who;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Menu;
@@ -203,7 +204,7 @@ class Summary implements ActionInterface
 			// Check their email as well...
 			if (\strlen(Profile::$member->formatted['email']) != 0) {
 				$ban_query[] = '({string:email} LIKE bi.email_address)';
-				$ban_query_vars['email'] = Profile::$member->formatted['email'];
+				$ban_query_vars['email'] = EmailAddress::create(Profile::$member->formatted['email'])->casefolded();
 			}
 
 			// So... are they banned?  Dying to know!
