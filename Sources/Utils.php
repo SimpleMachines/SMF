@@ -303,7 +303,7 @@ class Utils
 		'normalize' => __CLASS__ . '::normalize',
 		'truncate' => __CLASS__ . '::truncate',
 		'json_encode' => __CLASS__ . '::jsonEncode',
-		'json_decode' => 'smf_json_decode',
+		'json_decode' => __CLASS__ . '::jsonDecode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
