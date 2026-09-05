@@ -103,7 +103,7 @@ class AttachmentDirectory extends MigrationBase
 	 */
 	private function update(array $attach_dirs): bool
 	{
-		$current_attach_dir = Config::$modSettings['currentAttachmentUploadDir'] ?? array_key_first($attach_dirs);
+		$current_attach_dir = isset(Config::$modSettings['currentAttachmentUploadDir'], $attach_dirs[Config::$modSettings['currentAttachmentUploadDir']]) ? Config::$modSettings['currentAttachmentUploadDir'] : array_key_first($attach_dirs);
 
 		Maintenance::$tool->updateModSettings([
 			'attachmentUploadDir' => Utils::jsonEncode($attach_dirs),
