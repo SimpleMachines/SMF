@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
 use SMF\Sapi;
+use SMF\Utils;
 
 /**
  * Template for Upgrader
@@ -46,7 +47,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 	public static function upper(): void
 	{
 		echo '
-			<form id="', Maintenance::$tool->form_id, '" action="', Maintenance::$context['form_action'] ??  Maintenance::getSelf() . '?' . Maintenance::setQueryString(), '" method="post">';
+			<form id="', Maintenance::$tool->form_id, '" action="', Utils::$context['form_action'] ??  Maintenance::getSelf() . '?' . Maintenance::setQueryString(), '" method="post">';
 	}
 
 	/**
@@ -54,7 +55,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 	 */
 	public static function lower(): void
 	{
-		if (!empty(Maintenance::$context['pause'])) {
+		if (!empty(Utils::$context['pause'])) {
 			echo '
 					<em>', Lang::getTxt('upgrade_incomplete', file: 'Maintenance'), '.</em><br>
 
@@ -65,21 +66,21 @@ class UpgradeTemplate extends MaintenanceTemplate
 		}
 
 
-		if (!empty(Maintenance::$context['continue']) || !empty(Maintenance::$context['skip']) || !empty(Maintenance::$context['try_again'])) {
+		if (!empty(Utils::$context['continue']) || !empty(Utils::$context['skip']) || !empty(Utils::$context['try_again'])) {
 			echo '
 					<div class="floatright">';
 
-			if (!empty(Maintenance::$context['continue'])) {
+			if (!empty(Utils::$context['continue'])) {
 				echo '
 						<input type="submit" id="contbutt" name="contbutt" value="', Lang::getTxt('action_continue', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">';
 			}
 
-			if (!empty(Maintenance::$context['try_again'])) {
+			if (!empty(Utils::$context['try_again'])) {
 				echo '
 						<input type="submit" id="try_again" name="try_again" value="', Lang::getTxt('error_message_try_again', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">';
 			}
 
-			if (!empty(Maintenance::$context['skip'])) {
+			if (!empty(Utils::$context['skip'])) {
 				echo '
 						<input type="submit" id="skip" name="skip" value="', Lang::getTxt('action_skip', file: 'Maintenance'), '" onclick="return submitThisOnce(this);" class="button">';
 			}
@@ -92,7 +93,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 			</form>';
 
 		// Are we on a pause?
-		if (!empty(Maintenance::$context['pause']) && !Maintenance::$tool->isDebug()) {
+		if (!empty(Utils::$context['pause']) && !Maintenance::$tool->isDebug()) {
 			echo '
 			<script>
 				doAutoSubmit(3, "', Lang::getTxt('action_continue', file: 'Maintenance'), '", "', Maintenance::$tool->form_id, '", "contbutt");
@@ -134,12 +135,12 @@ class UpgradeTemplate extends MaintenanceTemplate
 		// Show a CHMOD form.
 		self::chmod();
 
-		if (!empty(Maintenance::$context['chmod']['files'])) {
+		if (!empty(Utils::$context['chmod']['files'])) {
 			return;
 		}
 
 		// For large, pre 1.1 RC2 forums give them a warning about the possible impact of this upgrade!
-		if (Maintenance::$context['is_large_forum']) {
+		if (Utils::$context['is_large_forum']) {
 			echo '
 			<div class="errorbox">
 				<h3>', Lang::getTxt('error_warning_notice', file: 'Maintenance'), '</h3>
@@ -156,33 +157,33 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		// Is there someone already doing this?
 		if (
-			!empty(Maintenance::$context['user']['id'])
+			!empty(Utils::$context['user']['id'])
 			&& (
-				time() - Maintenance::$context['started'] < 72600
-				|| time() - Maintenance::$context['updated'] < 3600
+				time() - Utils::$context['started'] < 72600
+				|| time() - Utils::$context['updated'] < 3600
 			)
 		) {
 			echo '
 			<div class="errorbox">
 				<h3>', Lang::getTxt('error_warning_notice', file: 'Maintenance'), '</h3>
-				<p>', Lang::getTxt('upgrade_time_user', Maintenance::$context['user']), '</p>
-				<p>', self::timeAgo(Maintenance::$context['started'], 'upgrade_time'), '</p>
-				<p>', self::timeAgo(Maintenance::$context['updated'], 'upgrade_time_updated'), '</p>';
+				<p>', Lang::getTxt('upgrade_time_user', Utils::$context['user']), '</p>
+				<p>', self::timeAgo(Utils::$context['started'], 'upgrade_time'), '</p>
+				<p>', self::timeAgo(Utils::$context['updated'], 'upgrade_time_updated'), '</p>';
 
-			if (time() - Maintenance::$context['updated'] < 600) {
+			if (time() - Utils::$context['updated'] < 600) {
 				echo '
-				<p>', Lang::getTxt('upgrade_run_script', Maintenance::$context['user'], file: 'Maintenance'), '</p>';
+				<p>', Lang::getTxt('upgrade_run_script', Utils::$context['user'], file: 'Maintenance'), '</p>';
 			}
 
-			if ((time() - Maintenance::$context['updated']) > Maintenance::$tool->inactive_timeout) {
+			if ((time() - Utils::$context['updated']) > Maintenance::$tool->inactive_timeout) {
 				echo '
 				<p>', Lang::getTxt('upgrade_run', file: 'Maintenance'), '</p>';
 			} elseif (Maintenance::$tool->inactive_timeout > 120) {
 				echo '
-				<p>', Lang::getTxt('upgrade_script_timeout_minutes', ['name' => Maintenance::$context['user']['name'], 'timeout' => round(Maintenance::$tool->inactive_timeout / 60, 1)]), '</p>';
+				<p>', Lang::getTxt('upgrade_script_timeout_minutes', ['name' => Utils::$context['user']['name'], 'timeout' => round(Maintenance::$tool->inactive_timeout / 60, 1)]), '</p>';
 			} else {
 				echo '
-				<p>', Lang::getTxt('upgrade_script_timeout_seconds', ['name' => Maintenance::$context['user']['name'], 'timeout' => Maintenance::$tool->inactive_timeout]), '</p>';
+				<p>', Lang::getTxt('upgrade_script_timeout_seconds', ['name' => Utils::$context['user']['name'], 'timeout' => Maintenance::$tool->inactive_timeout]), '</p>';
 			}
 
 			echo '
@@ -200,7 +201,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 					<label for="user"', Maintenance::$disable_security ? ' disabled' : '', '>', Lang::getTxt('username', file: 'General'), '</label>
 				</dt>
 				<dd>
-					<input type="text" name="user" value="', !empty(Maintenance::$context['username']) ? Maintenance::$context['username'] : '', '"', Maintenance::$disable_security ? ' disabled' : '', '>';
+					<input type="text" name="user" value="', !empty(Utils::$context['username']) ? Utils::$context['username'] : '', '"', Maintenance::$disable_security ? ' disabled' : '', '>';
 
 		if (!empty($upcontext['username_incorrect'])) {
 			echo '
@@ -225,9 +226,9 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		// Can they continue?
 		if (
-			!empty(Maintenance::$context['user']['id'])
-			&& time() - (Maintenance::$context['user']['updated'] ?? 0) >= Maintenance::$tool->inactive_timeout
-			&& (Maintenance::$context['user']['step'] ?? 0) > 1
+			!empty(Utils::$context['user']['id'])
+			&& time() - (Utils::$context['user']['updated'] ?? 0) >= Maintenance::$tool->inactive_timeout
+			&& (Utils::$context['user']['step'] ?? 0) > 1
 		) {
 			echo '
 				<dd>
@@ -241,9 +242,9 @@ class UpgradeTemplate extends MaintenanceTemplate
 				', Lang::getTxt('upgrade_bypass', file: 'Maintenance'), '
 			</p>';
 
-		if (!empty(Maintenance::$context['login_token_var'])) {
+		if (!empty(Utils::$context['login_token_var'])) {
 			echo '
-			<input type="hidden" name="', Maintenance::$context['login_token_var'], '" value="', Maintenance::$context['login_token'], '">';
+			<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">';
 		}
 
 		echo '
@@ -251,7 +252,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 			<input type="hidden" name="js_support" id="js_support" value="0">';
 
 		// Say we want the continue button!
-		Maintenance::$context['continue'] = !empty(Maintenance::$context['user']['id']) && time() - Maintenance::$context['updated'] < Maintenance::$tool->inactive_timeout ? 2 : 1;
+		Utils::$context['continue'] = !empty(Utils::$context['user']['id']) && time() - Utils::$context['updated'] < Maintenance::$tool->inactive_timeout ? 2 : 1;
 
 		// This defines whether javascript is going to work elsewhere :D
 		echo '
@@ -309,13 +310,13 @@ class UpgradeTemplate extends MaintenanceTemplate
 		<dl class="settings">
 			<dt>
 				<label for="backup">
-					', Lang::getTxt('upgrade_backup_table', ['backup_' . Maintenance::$context['db_prefix']], file: 'Maintenance'), '
+					', Lang::getTxt('upgrade_backup_table', ['backup_' . Utils::$context['db_prefix']], file: 'Maintenance'), '
 				</label>
 				<br>
-				<span class="smalltext">', Lang::getTxt(empty(Maintenance::$context['backup_recommended']) ? 'upgrade_backup_already_exists' : 'upgrade_recommended', file: 'Maintenance'), '</span>
+				<span class="smalltext">', Lang::getTxt(empty(Utils::$context['backup_recommended']) ? 'upgrade_backup_already_exists' : 'upgrade_recommended', file: 'Maintenance'), '</span>
 			</dt>
 			<dd>
-				<input type="checkbox" name="backup" id="backup" value="1" ', empty(Maintenance::$context['backup_recommended']) ? '' : ' checked', '>
+				<input type="checkbox" name="backup" id="backup" value="1" ', empty(Utils::$context['backup_recommended']) ? '' : ' checked', '>
 			</dd>
 			<dt>
 				<label for="maint">
@@ -332,7 +333,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				</label>
 			</dt>
 			<dd class="mainmess hidden">
-				<input type="text" name="maintitle" size="30" value="', Maintenance::$context['message_title'], '">
+				<input type="text" name="maintitle" size="30" value="', Utils::$context['message_title'], '">
 			</dd>
 			<dt class="mainmess hidden">
 				<label for="mainmessage">
@@ -340,7 +341,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				</label>
 			</dt>
 			<dd class="mainmess hidden">
-				<textarea name="mainmessage" rows="3" cols="50">', Maintenance::$context['message_body'], '</textarea>
+				<textarea name="mainmessage" rows="3" cols="50">', Utils::$context['message_body'], '</textarea>
 			</dd>
 			<dt>
 				<label for="debug">
@@ -359,7 +360,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				<input type="checkbox" name="empty_error" id="empty_error" value="1">
 			</dd>';
 
-		if (!empty(Maintenance::$context['karma_installed']['good']) || !empty(Maintenance::$context['karma_installed']['bad'])) {
+		if (!empty(Utils::$context['karma_installed']['good']) || !empty(Utils::$context['karma_installed']['bad'])) {
 			echo '
 			<dt>
 				<label for="delete_karma">
@@ -373,7 +374,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		// If attachment step has been run previously, offer an option to do it again.
 		// Helpful if folks had improper attachment folders specified previously.
-		if (!empty(Maintenance::$context['attachment_conversion'])) {
+		if (!empty(Utils::$context['attachment_conversion'])) {
 			echo '
 			<dt>
 				<label for="reprocess_attachments">
@@ -394,7 +395,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				<span class="smalltext">', Lang::getTxt('upgrade_stats_info', ['url' => 'https://www.simplemachines.org/about/stats.php']), '</span>
 			</dt>
 			<dd>
-				<input type="checkbox" name="stats" id="stats" value="1"', Maintenance::$context['sm_stats_configured'] ? '' : ' checked="checked"', '>
+				<input type="checkbox" name="stats" id="stats" value="1"', Utils::$context['sm_stats_configured'] ? '' : ' checked="checked"', '>
 			</dd>
 			<dt>
 				<label for="migrateSettings">
@@ -402,7 +403,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				</label>
 			</dt>
 			<dd>
-				<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty(Maintenance::$context['migrate_settings_recommended']) ? '' : ' checked', '>
+				<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty(Utils::$context['migrate_settings_recommended']) ? '' : ' checked', '>
 			</dd>
 		</dl>
 		<input type="hidden" name="upcont" value="1">';
@@ -420,7 +421,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		}
 
 		// Show the continue button.
-		Maintenance::$context['continue'] = true;
+		Utils::$context['continue'] = true;
 
 		self::showStepWithSubSteps('backup', 'backup_done');
 	}
@@ -437,8 +438,8 @@ class UpgradeTemplate extends MaintenanceTemplate
 		}
 
 		// Continue please!
-		Maintenance::$context['continue'] = true;
-		Maintenance::$context['try_again'] = true;
+		Utils::$context['continue'] = true;
+		Utils::$context['try_again'] = true;
 
 		self::showStepWithSubSteps('migration', 'database_done');
 	}
@@ -455,7 +456,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		}
 
 		// Show the continue button.
-		Maintenance::$context['continue'] = true;
+		Utils::$context['continue'] = true;
 
 		self::showStepWithSubSteps('cleanup', 'cleanup_done');
 	}
@@ -465,7 +466,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 	 */
 	public static function finalize(): void
 	{
-		Maintenance::$context['continue'] = true;
+		Utils::$context['continue'] = true;
 
 		MaintenanceTemplate::warningsAndErrors();
 
@@ -477,14 +478,14 @@ class UpgradeTemplate extends MaintenanceTemplate
 				<h3>', Lang::getTxt('upgrade_done', ['boardurl' => Config::$boardurl]), '</h3>';
 
 		// Show Upgrade time in debug mode when we completed the upgrade process totally
-		if (isset(Maintenance::$context['upgrade_completed_time'])) {
+		if (isset(Utils::$context['upgrade_completed_time'])) {
 			echo '
-				<p>' . Maintenance::$context['upgrade_completed_time'] . '</p>';
+				<p>' . Utils::$context['upgrade_completed_time'] . '</p>';
 		}
 
 		MaintenanceTemplate::showLog();
 
-		if (!empty(Maintenance::$context['can_delete_script'])) {
+		if (!empty(Utils::$context['can_delete_script'])) {
 			echo '
 				<p>
 					<label>
@@ -532,23 +533,23 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		// Nothing?
 		if (
-			empty(Maintenance::$context['chmod']['files'])
-			&& empty(Maintenance::$context['chmod']['ftp_error'])
+			empty(Utils::$context['chmod']['files'])
+			&& empty(Utils::$context['chmod']['ftp_error'])
 		) {
 			return;
 		}
 
 		// Was it a problem with Windows?
 		if (
-			!empty(Maintenance::$context['chmod']['ftp_error'])
-			&& Maintenance::$context['chmod']['ftp_error'] == 'total_mess'
+			!empty(Utils::$context['chmod']['ftp_error'])
+			&& Utils::$context['chmod']['ftp_error'] == 'total_mess'
 		) {
 			echo '
 			<div class="error">
 				<p>', Lang::getTxt('error_files_not_writable', file: 'Maintenance'), '</p>
 				<ul class="error_content">
 					<li>' . implode('</li>
-					<li>', Maintenance::$context['chmod']['files']) . '</li>
+					<li>', Utils::$context['chmod']['files']) . '</li>
 				</ul>
 			</div>';
 
@@ -568,13 +569,13 @@ class UpgradeTemplate extends MaintenanceTemplate
 					content.write(\'<html', Lang::getTxt('lang_rtl', file: 'Maintenance') == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>', Lang::getTxt('error_warning_notice', file: 'Maintenance'), '</title>\n\t\t<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', Lang::getTxt('upgrade_ftp_files', file: 'Maintenance'), '</h4>\n\t\t\t\');
-					content.write(\'<p>', implode('<br>\n\t\t\t', Maintenance::$context['chmod']['files']), '</p>\n\t\t\t\');';
+					content.write(\'<p>', implode('<br>\n\t\t\t', Utils::$context['chmod']['files']), '</p>\n\t\t\t\');';
 
 		if (Sapi::isOS([Sapi::OS_LINUX, Sapi::OS_MAC])) {
 			echo '
 					content.write(\'<hr>\n\t\t\t\');
 					content.write(\'<p>', Lang::getTxt('upgrade_ftp_shell', file: 'Maintenance'), '</p>\n\t\t\t\');
-					content.write(\'<tt># chmod a+w ', implode(' ', Maintenance::$context['chmod']['files']), '</tt>\n\t\t\t\');';
+					content.write(\'<tt># chmod a+w ', implode(' ', Utils::$context['chmod']['files']), '</tt>\n\t\t\t\');';
 		}
 
 		echo '
@@ -583,11 +584,11 @@ class UpgradeTemplate extends MaintenanceTemplate
 				}
 			</script>';
 
-		if (!empty(Maintenance::$context['chmod']['ftp_error'])) {
+		if (!empty(Utils::$context['chmod']['ftp_error'])) {
 			echo '
 			<div class="error">
 				<p>', Lang::getTxt('upgrade_ftp_error', file: 'Maintenance'), '<p>
-				<code>', Maintenance::$context['chmod']['ftp_error'], '</code>
+				<code>', Utils::$context['chmod']['ftp_error'], '</code>
 			</div>';
 		}
 
@@ -599,16 +600,16 @@ class UpgradeTemplate extends MaintenanceTemplate
 				<dd>
 					<div class="floatright">
 						<label for="ftp_port" class="textbox"><strong>', Lang::getTxt('ftp_port', file: 'Maintenance'), ':</strong></label>
-						<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Maintenance::$context['chmod']['port'] ?? '21', '">
+						<input type="text" size="3" name="ftp_port" id="ftp_port" value="', Utils::$context['chmod']['port'] ?? '21', '">
 					</div>
-					<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Maintenance::$context['chmod']['server'] ?? 'localhost', '">
+					<input type="text" size="30" name="ftp_server" id="ftp_server" value="', Utils::$context['chmod']['server'] ?? 'localhost', '">
 					<div class="smalltext">', Lang::getTxt('ftp_server_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
 					<label for="ftp_username">', Lang::getTxt('ftp_username', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Maintenance::$context['chmod']['username'] ?? '', '">
+					<input type="text" size="30" name="ftp_username" id="ftp_username" value="', Utils::$context['chmod']['username'] ?? '', '">
 					<div class="smalltext">', Lang::getTxt('ftp_username_info', file: 'Maintenance'), '</div>
 				</dd>
 				<dt>
@@ -622,8 +623,8 @@ class UpgradeTemplate extends MaintenanceTemplate
 					<label for="ftp_path">', Lang::getTxt('ftp_path', file: 'Maintenance'), ':</label>
 				</dt>
 				<dd>
-					<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Maintenance::$context['chmod']['path'] ?? '', '">
-					<div class="smalltext">', !empty(Maintenance::$context['chmod']['path']) ? Lang::getTxt('ftp_path_found_info', file: 'Maintenance') : Lang::getTxt('ftp_path_info', file: 'Maintenance'), '</div>
+					<input type="text" size="30" name="ftp_path" id="ftp_path" value="', Utils::$context['chmod']['path'] ?? '', '">
+					<div class="smalltext">', !empty(Utils::$context['chmod']['path']) ? Lang::getTxt('ftp_path_found_info', file: 'Maintenance') : Lang::getTxt('ftp_path_info', file: 'Maintenance'), '</div>
 				</dd>
 			</dl>
 

@@ -17,7 +17,6 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
-use SMF\Actions\Login2;
 use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
@@ -3800,9 +3799,10 @@ class User implements \ArrayAccess
 			$email_condition = '';
 		}
 
-		// Get the case of the columns right - but only if we need to as things like MySQL will go slow needlessly otherwise.
-		$member_name = Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name';
-		$real_name = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
+		// The {column_ci:} type folds the column for the engines that need it and
+		// leaves it alone for the ones that do not.
+		$member_name = '{column_ci:member_name}';
+		$real_name = '{column_ci:real_name}';
 
 		// Searches.
 		$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
@@ -4512,7 +4512,7 @@ class User implements \ArrayAccess
 			$id = self::$my_id;
 			self::$my_id = 0;
 
-			Login2::validatePasswordFlood(
+			Security::validatePasswordFlood(
 				$id,
 				self::$profiles[$id]['member_name'],
 				self::$profiles[$id]['passwd_flood'],
@@ -4732,10 +4732,9 @@ class User implements \ArrayAccess
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
-		// This is what a guest's variables should be.
-		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
-			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
-			self::$profiles[0]['dataset'] = UserDataset::Basic;
+		// Ensure the guest profile has been loaded.
+		if (!isset(self::$profiles[0])) {
+			self::loadUserData([0]);
 		}
 
 		// If they gave us a bad cookie, discard it.
@@ -5304,6 +5303,7 @@ class User implements \ArrayAccess
 				};
 			}
 
+			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
 			self::$profiles[0]['dataset'] = UserDataset::Minimal;
 
 			$loaded_ids[] = 0;
@@ -5424,13 +5424,8 @@ class User implements \ArrayAccess
 				break;
 
 			case self::LOAD_BY_NAME:
-				if (Db::$db->case_sensitive) {
-					$query_customizations['where'][] = 'LOWER(mem.member_name) IN ({array_string:users})';
-					$query_customizations['params']['users'] = array_map('strtolower', $users);
-				} else {
-					$query_customizations['where'][] = 'mem.member_name IN ({array_string:users})';
-					$query_customizations['params']['users'] = $users;
-				}
+				$query_customizations['where'][] = '{column_ci:mem.member_name} IN ({array_string_ci:users})';
+				$query_customizations['params']['users'] = $users;
 
 				break;
 

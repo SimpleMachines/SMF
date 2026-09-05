@@ -79,7 +79,7 @@ class LoginTFA extends Login2
 
 				Utils::redirectexit();
 			} else {
-				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
+				Security::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];
@@ -108,7 +108,7 @@ class LoginTFA extends Login2
 
 				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			} else {
-				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
+				Security::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_backup_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];

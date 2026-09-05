@@ -2809,19 +2809,17 @@ class ServerSideIncludes
 			return false;
 		}
 
-		$request = Db::$db->query(
-			'SELECT passwd, member_name, is_activated
-			FROM {db_prefix}members
-			WHERE ' . ($is_username ? 'member_name' : 'id_member') . ' = {string:id}
-			LIMIT 1',
-			[
-				'id' => $id,
-			],
-		);
-		list($pass, $user, $active) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
+		if (!$is_username) {
+			$id = (int) $id;
+		}
 
-		return Security::hashVerifyPassword($password, $pass) && $active == User::ACTIVATED;
+		$member = current(User::load($id, $is_username ? User::LOAD_BY_NAME : User::LOAD_BY_ID, UserDataset::Minimal));
+
+		if (!($member instanceof User) || $member->is_activated !== User::ACTIVATED) {
+			return false;
+		}
+
+		return Security::checkPassword($password, $member, Security::PASSWORD_FALLBACK_NONE);
 	}
 
 	/**

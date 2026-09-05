@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
 use SMF\Lang;
 use SMF\Sapi;
+use SMF\Utils;
 
 /**
  * Used for converting MySQL databases to the utf8mb4 character set.
@@ -620,10 +621,10 @@ class Utf8ConverterStep extends Step
 		Maintenance::$total_substeps = \count($substeps);
 
 		// Template things.
-		Maintenance::$context['table_count'] = Maintenance::$total_substeps;
-		Maintenance::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
-		Maintenance::$context['cur_table_name'] = str_replace(Config::$db_prefix, '', $substeps[Maintenance::getCurrentSubStep()]->test_args[0]);
-		Maintenance::$context['continue'] = true;
+		Utils::$context['table_count'] = Maintenance::$total_substeps;
+		Utils::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
+		Utils::$context['cur_table_name'] = str_replace(Config::$db_prefix, '', $substeps[Maintenance::getCurrentSubStep()]->test_args[0]);
+		Utils::$context['continue'] = true;
 
 		// We are set up for conversion.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
@@ -802,7 +803,7 @@ class Utf8ConverterStep extends Step
 					&& (Config::$modSettings['search_index'] ?? null) === 'fulltext'
 				) {
 					Config::updateModSettings(['search_index' => '']);
-					Maintenance::$context['dropping_index'] = true;
+					Utils::$context['dropping_index'] = true;
 				}
 			}
 		}

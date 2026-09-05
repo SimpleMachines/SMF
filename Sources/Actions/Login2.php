@@ -31,7 +31,6 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
-use SMF\UserDataset;
 use SMF\Utils;
 
 /**
@@ -312,17 +311,36 @@ class Login2 implements ActionInterface, Routable
 		$this->member = reset($loaded);
 
 		// Bad password! Thought you could fool the database?!
-		if (!Security::hashVerifyPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']), $this->member->passwd)) {
-			// If the forum was recently upgraded, password might be encrypted
-			// using a different algorithm. If so, fix it. Otherwise, bail out.
-			if (!$this->checkPasswordFallbacks()) {
-				return;
+		if (
+			!Security::checkPassword(
+				Utils::htmlspecialcharsDecode($_POST['passwrd']),
+				$this->member,
+				Security::PASSWORD_FALLBACK_ALL,
+			)
+		) {
+			// They've messed up again - keep a count to see if they need a hand.
+			$_SESSION['failed_login'] ??= 0;
+			$_SESSION['failed_login']++;
+
+			// Hmm... don't remember it, do you?  Here, try the password reminder ;).
+			if ($_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold']) {
+				Utils::redirectexit('action=reminder');
 			}
+			// We'll give you another chance...
+			else {
+				// Log an error so we know that it didn't go well in the error log.
+				ErrorHandler::log(Lang::getTxt('incorrect_password', file: 'Login') . ' - <span class="remove">' . $this->member->username . '</span>', 'user');
+
+				Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'General')];
+			}
+
+			return;
 		}
+
 		// Correct password, but it took multiple tries...
-		elseif (!empty($this->member->passwd_flood)) {
+		if (!empty($this->member->passwd_flood)) {
 			// Let's be sure they weren't a little hacker.
-			self::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
+			Security::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 			// If we got here then we can reset the flood counter.
 			$this->member->passwd_flood = '';
@@ -388,74 +406,6 @@ class Login2 implements ActionInterface, Routable
 		}
 	}
 
-	/**
-	 * This protects against brute force attacks on a member's password.
-	 * Importantly, even if the password was right we DON'T TELL THEM!
-	 *
-	 * @param int $id_member The ID of the member
-	 * @param string $member_name The name of the member.
-	 * @param bool|string $password_flood_value False if we don't have a flood value, otherwise a string with a timestamp and number of tries separated by a |
-	 * @param bool $was_correct Whether or not the password was correct
-	 * @param bool $tfa Whether we're validating for two-factor authentication
-	 */
-	public static function validatePasswordFlood(int $id_member, string $member_name, bool|string $password_flood_value = false, bool $was_correct = false, bool $tfa = false): void
-	{
-		// As this is only brute protection, we allow 5 attempts every 10 seconds.
-
-		// Destroy any session or cookie data about this member, as they validated wrong.
-		// Only if they're not validating for 2FA
-		if (!$tfa) {
-			Cookie::setLoginCookie(-3600, 0);
-
-			if (isset($_SESSION['login_' . Config::$cookiename])) {
-				unset($_SESSION['login_' . Config::$cookiename]);
-			}
-		}
-
-		// We need a member!
-		if (!$id_member) {
-			// Redirect back!
-			Utils::redirectexit();
-
-			// Probably not needed, but still make sure...
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// Right, have we got a flood value?
-		if ($password_flood_value !== false) {
-			@list($time_stamp, $number_tries) = explode('|', $password_flood_value);
-		}
-
-		// Timestamp or number of tries invalid?
-		if (empty($number_tries) || empty($time_stamp)) {
-			$number_tries = 0;
-			$time_stamp = time();
-		}
-
-		// They've failed logging in already
-		if (!empty($number_tries)) {
-			// Give them less chances if they failed before
-			$number_tries = $time_stamp < time() - 20 ? 2 : $number_tries;
-
-			// They are trying too fast, make them wait longer
-			if ($time_stamp < time() - 10) {
-				$time_stamp = time();
-			}
-		}
-
-		$number_tries++;
-
-		// Broken the law?
-		if ($number_tries > 5) {
-			ErrorHandler::fatalLang('login_threshold_brute_fail', 'login', [$member_name]);
-		}
-
-		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
-		$member = current(User::load($id_member, dataset: UserDataset::None));
-		$member->passwd_flood = $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries;
-		$member->save();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -505,216 +455,6 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		return true;
-	}
-
-	/**
-	 * Checks $_POST['passwrd'] against other possible encrypted strings.
-	 *
-	 * If a match is found, the old encrypted string is replaced with an updated
-	 * version that uses modern encryption.
-	 *
-	 * This allows seamlessly updating the encryption after the forum has been
-	 * upgraded or converted.
-	 *
-	 * @return bool Whether the supplied password was correct.
-	 */
-	protected function checkPasswordFallbacks(): bool
-	{
-		// Let's be cautious, no hacking please. thanx.
-		self::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood);
-
-		// Maybe we were too hasty... let's try some other authentication methods.
-		$other_passwords = [];
-
-		// SMF 2.1 prepended the username before the password.
-		if (Security::hashVerifyPassword(Utils::strtolower($this->member->username) . Utils::htmlspecialcharsDecode($_POST['passwrd']), $this->member->passwd)) {
-			$other_passwords[] = $this->member->passwd;
-		}
-
-		// SMF 1.1 and 2.0 password styles.
-		if (\strlen($this->member->passwd) == 40) {
-			// Maybe they are using a hash from before the password fix.
-			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
-			$other_passwords[] = sha1(strtolower($this->member->username) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
-
-			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
-			if (!empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
-				// Try iconv first, for no particular reason.
-				if (\function_exists('iconv')) {
-					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $this->member->username)) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
-				}
-
-				// Say it aint so, iconv failed!
-				if (empty($other_passwords['iconv']) && \function_exists('mb_convert_encoding')) {
-					$other_passwords[] = sha1(strtolower(mb_convert_encoding($this->member->username, 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
-				}
-			}
-		}
-
-		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if (!empty(Config::$modSettings['enable_password_conversion']) && $this->member->password_salt == '') {
-			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			switch (\strlen($this->member->passwd)) {
-				case 13:
-					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
-					$other_passwords[] = crypt($_POST['passwrd'], substr($this->member->passwd, 0, 2));
-					$other_passwords[] = crypt($_POST['passwrd'], $this->member->passwd);
-
-					// This one is a strange one... MyPHP, crypt() on the MD5 hash.
-					$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
-					break;
-
-				case 32:
-					$other_passwords[] = md5($_POST['passwrd']);
-					$other_passwords[] = hash_hmac('md5', $_POST['passwrd'], strtolower($this->member->username));
-					$other_passwords[] = md5($_POST['passwrd'] . strtolower($this->member->username));
-					$other_passwords[] = md5(md5($_POST['passwrd']));
-
-					// APBoard 2 Login Method.
-					$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
-					break;
-
-				case 34:
-					// phpBB3.
-					$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], $this->member->passwd);
-					break;
-
-				case 40:
-					$other_passwords[] = sha1($_POST['passwrd']);
-					break;
-
-				case 64:
-					// Snitz style - SHA-256.
-					$other_passwords[] = hash('sha256', $_POST['passwrd']);
-					break;
-			}
-
-			$other_passwords[] = $_POST['passwrd'];
-		}
-		// If the salt is set let's try some other options
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && $this->member->password_salt != '') {
-			switch (\strlen($this->member->passwd)) {
-				case 32:
-					// MyBB
-					$other_passwords[] = md5(md5($this->member->password_salt) . md5($_POST['passwrd']));
-
-					// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-					$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes($this->member->password_salt));
-
-					// Hmm.. p'raps it's Invision 2 style?
-					$other_passwords[] = md5(md5($this->member->password_salt) . md5($_POST['passwrd']));
-
-					// Some common md5 ones.
-					$other_passwords[] = md5($this->member->password_salt . $_POST['passwrd']);
-					$other_passwords[] = md5($_POST['passwrd'] . $this->member->password_salt);
-					break;
-
-				case 40:
-					// BurningBoard3 style of hashing.
-					$other_passwords[] = sha1($this->member->password_salt . sha1($this->member->password_salt . sha1($_POST['passwrd'])));
-					// PunBB
-					$other_passwords[] = sha1($this->member->password_salt . sha1($_POST['passwrd']));
-					break;
-
-				case 64:
-					// PHP-Fusion
-					$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], $this->member->password_salt);
-					break;
-			}
-		}
-
-		// Allows mods to easily extend the $other_passwords array
-		IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
-
-		// Whichever encryption it was using, let's make it use SMF's now ;).
-		if (\in_array($this->member->passwd, $other_passwords)) {
-			$this->member->passwd = Security::hashPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']));
-			$this->member->password_salt = bin2hex(random_bytes(16));
-			$this->member->passwd_flood = '';
-
-			$this->member->save();
-		}
-		// Okay, they for sure didn't enter the password!
-		else {
-			// They've messed up again - keep a count to see if they need a hand.
-			$_SESSION['failed_login'] = isset($_SESSION['failed_login']) ? ($_SESSION['failed_login'] + 1) : 1;
-
-			// Hmm... don't remember it, do you?  Here, try the password reminder ;).
-			if ($_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold']) {
-				Utils::redirectexit('action=reminder');
-			}
-			// We'll give you another chance...
-			else {
-				// Log an error so we know that it didn't go well in the error log.
-				ErrorHandler::log(Lang::getTxt('incorrect_password', file: 'Login') . ' - <span class="remove">' . $this->member->username . '</span>', 'user');
-
-				Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'General')];
-
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Custom encryption for phpBB3 based passwords.
-	 *
-	 * @return ?string The hashed version of $_POST['passwrd']
-	 */
-	protected function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
-	{
-		// Too long or too short?
-		if (\strlen($passwd_hash) != 34) {
-			return null;
-		}
-
-		// Range of characters allowed.
-		$range = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-		// Tests
-		$strpos = strpos($range, $passwd_hash[3]);
-		$count = 1 << $strpos;
-		$salt = substr($passwd_hash, 4, 8);
-
-		$hash = md5($salt . $passwd, true);
-
-		for (; $count != 0; --$count) {
-			$hash = md5($hash . $passwd, true);
-		}
-
-		$output = substr($passwd_hash, 0, 12);
-		$i = 0;
-
-		while ($i < 16) {
-			$value = \ord($hash[$i++]);
-			$output .= $range[$value & 0x3f];
-
-			if ($i < 16) {
-				$value |= \ord($hash[$i]) << 8;
-			}
-
-			$output .= $range[($value >> 6) & 0x3f];
-
-			if ($i++ >= 16) {
-				break;
-			}
-
-			if ($i < 16) {
-				$value |= \ord($hash[$i]) << 16;
-			}
-
-			$output .= $range[($value >> 12) & 0x3f];
-
-			if ($i++ >= 16) {
-				break;
-			}
-
-			$output .= $range[($value >> 18) & 0x3f];
-		}
-
-		// Return now.
-		return $output;
 	}
 
 	/**
