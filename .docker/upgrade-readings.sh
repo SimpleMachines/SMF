@@ -104,8 +104,12 @@ snapshot_schema() {
 			--skip-dump-date --skip-set-charset --routines --databases "$DB_NAME" \
 			| sed -e 's/ AUTO_INCREMENT=[0-9]*//' > "$file"
 	else
+		# pg_dump 17 brackets its output with \restrict / \unrestrict lines
+		# carrying a key it generates afresh on every run, so two dumps of one
+		# unchanged database differ in two lines for no reason at all. Drop them.
 		docker compose exec -T "$service" \
-			pg_dump -U "$DB_USER" -d "$DB_NAME" --schema-only --no-owner --no-privileges > "$file"
+			pg_dump -U "$DB_USER" -d "$DB_NAME" --schema-only --no-owner --no-privileges \
+			| grep -v -E '^[\](un)?restrict ' > "$file"
 	fi
 
 	[ -s "$file" ] || die "${smf_type}: the schema reading came back empty"
