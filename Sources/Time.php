@@ -187,10 +187,6 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
-		if (!isset(self::$user_tz)) {
-			self::$user_tz = TimeZone::create(User::$me->timezone);
-		}
-
 		if (\is_string($timezone)) {
 			$timezone = TimeZone::create($timezone);
 		}
@@ -216,9 +212,9 @@ class Time extends \DateTime implements \ArrayAccess
 			|| str_contains($datetime, 'ago')
 		) {
 			parent::__construct($datetime);
-			$this->setTimezone($timezone ?? self::$user_tz);
+			$this->setTimezone($timezone ?? self::getUserTimezone());
 		} else {
-			parent::__construct($datetime, $timezone ?? self::$user_tz);
+			parent::__construct($datetime, $timezone ?? self::getUserTimezone());
 		}
 	}
 
@@ -242,7 +238,7 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'date_local':
 			case 'time_local':
 				$tz = $this->getTimezone();
-				$this->setTimezone(self::$user_tz);
+				$this->setTimezone(self::getUserTimezone());
 				$this->modify($value);
 				$this->setTimezone($tz);
 				break;
@@ -353,11 +349,11 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			case 'date_local':
-				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getDateFormat());
+				$value = (clone $this)->setTimezone(self::getUserTimezone())->format(self::getDateFormat());
 				break;
 
 			case 'time_local':
-				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getShortTimeFormat());
+				$value = (clone $this)->setTimezone(self::getUserTimezone())->format(self::getShortTimeFormat());
 				break;
 
 			case 'year':
@@ -1212,6 +1208,29 @@ class Time extends \DateTime implements \ArrayAccess
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * The time zone to use when showing a date or time to the current user.
+	 *
+	 * The user's own time zone is only known once the user has been loaded, and
+	 * requests can build dates before that happens. Until then the forum's
+	 * default time zone stands in for it, and is deliberately not remembered, so
+	 * that the user's real preference is picked up as soon as it is available.
+	 *
+	 * @return \DateTimeZone The current user's time zone.
+	 */
+	protected static function getUserTimezone(): \DateTimeZone
+	{
+		if (!isset(User::$me)) {
+			return TimeZone::create(Config::$modSettings['default_timezone'] ?? date_default_timezone_get());
+		}
+
+		if (!isset(self::$user_tz)) {
+			self::$user_tz = TimeZone::create(User::$me->timezone);
+		}
+
+		return self::$user_tz;
+	}
 
 	/**
 	 * Gets a version of a strftime format that only shows the date or time
