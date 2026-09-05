@@ -39,9 +39,9 @@ class LangTest extends TestCase
 	private array $backup = [];
 
 	/**
-	 * @var string Directory holding the language files a test wrote, if any.
+	 * @var string Config::$language as it was before the test ran.
 	 */
-	private string $fixture_dir = '';
+	private string $language = '';
 
 	/****************
 	 * Public methods
@@ -129,7 +129,7 @@ class LangTest extends TestCase
 
 	public function testItLoadsTheLanguageItWasAskedForRatherThanTheForumDefault(): void
 	{
-		Lang::addDirs($this->writeFixtureLanguages());
+		Lang::addDirs(self::fixtureLanguages());
 
 		Lang::load('TestStrings', 'de_DE', false);
 
@@ -140,22 +140,52 @@ class LangTest extends TestCase
 		// the default's file is always present, every time is every call: a
 		// member with lngfile de_DE reads the whole forum in en_US, and a
 		// digest or notification addressed to them goes out in it too.
-		$this->assertSame('German', Lang::$txt['test_translated']);
+		$this->assertSame('German', Lang::$txt['test_in_all_three']);
 	}
 
-	public function testItFallsBackToTheDefaultLanguageOneStringAtATime(): void
+	public function testItFallsBackThroughTheForumDefaultToEnglishStringByString(): void
 	{
-		Lang::addDirs($this->writeFixtureLanguages());
+		// The forum's default language need not be English, and then there are
+		// three files in play rather than two. Each string below is defined in
+		// a different subset of them, so together they say how far down the
+		// chain each one had to go.
+		Config::$language = 'es_ES';
+
+		Lang::addDirs(self::fixtureLanguages());
 
 		Lang::load('TestStrings', 'de_DE', false);
 
-		// The German file does not define this string. Loading the less
-		// preferred files first and letting the preferred ones overwrite what
-		// they share is what leaves a partial translation readable instead of
-		// full of gaps. Dropping the reverse and keeping the stop at the first
+		// Translated: the language that was asked for.
+		$this->assertSame('German', Lang::$txt['test_in_all_three']);
+
+		// Not translated, but the forum's default language has it, and the
+		// default is nearer than English.
+		$this->assertSame('Spanish', Lang::$txt['test_not_in_german']);
+
+		// Neither has it, so English is the last resort.
+		$this->assertSame('English', Lang::$txt['test_english_only']);
+
+		// These last two are also what tells the fix apart from the other
+		// obvious one. Dropping the reverse and keeping the stop at the first
 		// file found picks the right language too, but loads that file alone,
-		// so this is the assertion that tells the two apart.
-		$this->assertSame('English only', Lang::$txt['test_untranslated']);
+		// leaving a partial translation full of gaps.
+	}
+
+	public function testItStopsAtTheForumDefaultWhenTheEnglishFallbackIsDisabled(): void
+	{
+		Config::$language = 'es_ES';
+		Config::$modSettings['disable_language_fallback'] = true;
+
+		Lang::addDirs(self::fixtureLanguages());
+
+		Lang::load('TestStrings', 'de_DE', false);
+
+		$this->assertSame('German', Lang::$txt['test_in_all_three']);
+		$this->assertSame('Spanish', Lang::$txt['test_not_in_german']);
+
+		// English is never attempted, so a string only English defines is
+		// simply not there.
+		$this->assertArrayNotHasKey('test_english_only', Lang::$txt);
 	}
 
 	/******************
@@ -167,6 +197,7 @@ class LangTest extends TestCase
 		parent::setUp();
 
 		$this->backup = self::langState();
+		$this->language = Config::$language;
 	}
 
 	protected function tearDown(): void
@@ -180,65 +211,25 @@ class LangTest extends TestCase
 			(new \ReflectionProperty(Lang::class, $name))->setValue(null, $value);
 		}
 
-		if ($this->fixture_dir !== '') {
-			foreach (glob($this->fixture_dir . '/*/*.php') as $file) {
-				unlink($file);
-			}
-
-			foreach (glob($this->fixture_dir . '/*', GLOB_ONLYDIR) as $dir) {
-				rmdir($dir);
-			}
-
-			rmdir($this->fixture_dir);
-
-			$this->fixture_dir = '';
-		}
+		Config::$language = $this->language;
+		unset(Config::$modSettings['disable_language_fallback']);
 
 		parent::tearDown();
-	}
-
-	/**
-	 * Writes a two language directory that the tests above can load from.
-	 *
-	 * Only en_US ships with SMF, so there is no second language on disk to ask
-	 * for. These files are the smallest thing that makes the choice visible:
-	 * one string both languages define, and one that only the default has.
-	 *
-	 * @return string Path to the directory holding the language directories.
-	 */
-	private function writeFixtureLanguages(): string
-	{
-		$this->fixture_dir = (string) tempnam(sys_get_temp_dir(), 'smf_lang_');
-
-		unlink($this->fixture_dir);
-		mkdir($this->fixture_dir . '/en_US', 0777, true);
-		mkdir($this->fixture_dir . '/de_DE', 0777, true);
-
-		file_put_contents(
-			$this->fixture_dir . '/en_US/TestStrings.php',
-			<<<'PHP'
-				<?php
-
-				$txt['test_translated'] = 'English';
-				$txt['test_untranslated'] = 'English only';
-				PHP,
-		);
-
-		file_put_contents(
-			$this->fixture_dir . '/de_DE/TestStrings.php',
-			<<<'PHP'
-				<?php
-
-				$txt['test_translated'] = 'German';
-				PHP,
-		);
-
-		return $this->fixture_dir;
 	}
 
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * The language directory the fixture files live in.
+	 *
+	 * @return string Path to the directory holding en_US, es_ES and de_DE.
+	 */
+	private static function fixtureLanguages(): string
+	{
+		return __DIR__ . '/../fixtures/languages';
+	}
 
 	/**
 	 * The statics that loading a language file writes to.
