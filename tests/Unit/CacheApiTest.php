@@ -176,6 +176,20 @@ final class CacheApiTest extends TestCase
 		$this->assertSame(['a' => 1], CacheApi::get('written_ahead', 120));
 	}
 
+	/**
+	 * The file cache stores JSON, and json_encode() returns false rather than a
+	 * string for anything that is not valid UTF-8. Handing that on to the writer
+	 * took the request down with a TypeError; a value it cannot store is a miss.
+	 */
+	public function testAValueTheFileCacheCannotEncodeIsAMissRatherThanAFatal(): void
+	{
+		$this->loadApi(FileBased::class);
+
+		CacheApi::put('not_utf8', ['blob' => "\x80\xFE\xFF"], 120);
+
+		$this->assertNull(CacheApi::get('not_utf8', 120));
+	}
+
 	public function testACachedFalseIsStillReadBackAsFalse(): void
 	{
 		$this->loadApi(FileBased::class);

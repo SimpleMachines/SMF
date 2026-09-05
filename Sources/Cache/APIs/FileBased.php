@@ -120,23 +120,31 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			return true;
 		}
-			$cache_data = json_encode(
-				[
-					'expiration' => time() + $ttl,
-					'value' => $value,
-				],
-				JSON_NUMERIC_CHECK,
-			);
+		$cache_data = json_encode(
+			[
+				'expiration' => time() + $ttl,
+				'value' => $value,
+			],
+			JSON_NUMERIC_CHECK,
+		);
 
-			// Write out the cache file, check that the cache write was successful; all the data must be written
-			// If it fails due to low diskspace, or other, remove the cache file
-			if ($this->writeFile($file, $cache_data) !== \strlen($cache_data)) {
-				@unlink($file);
+		// Anything json_encode cannot represent, such as a string that is not
+		// valid UTF-8, simply does not get cached.
+		if ($cache_data === false) {
+			@unlink($file);
 
-				return false;
-			}
+			return false;
+		}
 
-			return true;
+		// Write out the cache file, check that the cache write was successful; all the data must be written
+		// If it fails due to low diskspace, or other, remove the cache file
+		if ($this->writeFile($file, $cache_data) !== \strlen($cache_data)) {
+			@unlink($file);
+
+			return false;
+		}
+
+		return true;
 
 	}
 
