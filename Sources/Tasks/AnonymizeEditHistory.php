@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Tasks;
 
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Utils;
 use SMF\Uuid;
@@ -51,7 +52,7 @@ class AnonymizeEditHistory extends BackgroundTask
 	public function execute(): bool
 	{
 		// Set the anonymous name.
-		$anonymous_name = 'u_' . substr(Uuid::create(5, 'member=' . $this->_details['id'])->getShortForm(true), 0, 8);
+		$anonymous_name = 'u_' . substr(Uuid::create(5, 'member=' . $this->_details['id'] . ';' . Config::getAuthSecret())->getShortForm(true), 0, 8);
 
 		if (Db::$title === POSTGRE_TITLE) {
 			$request = Db::$db->query(

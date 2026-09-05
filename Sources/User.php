@@ -5702,7 +5702,12 @@ class User implements \ArrayAccess
 		// This might take a while.
 		Sapi::setTimeLimit();
 
-		$anonymous_uuid = Uuid::create(5, 'member=' . $member)->getShortForm(true);
+		// The forum's UUID namespace is derived from its URL, so the auth secret is
+		// what keeps the name from being recomputed by anyone who knows the member's
+		// ID. A name that could be recomputed would leave the member's content linked
+		// to the account that produced it, which is the link anonymizing is meant to
+		// sever.
+		$anonymous_uuid = Uuid::create(5, 'member=' . $member . ';' . Config::getAuthSecret())->getShortForm(true);
 		$anonymous_name = 'u_' . substr($anonymous_uuid, 0, 8);
 
 		// Anonymize the member's posts.
