@@ -237,7 +237,7 @@ abstract class Table
 				continue;
 			}
 
-			foreach (['name', 'size', 'unsigned', 'generated_expression', 'stored', 'not_null', 'default', 'auto'] as $prop) {
+			foreach (['name', 'size', 'unsigned', 'generation_expression', 'stored', 'not_null', 'default', 'auto'] as $prop) {
 				if (($structure['columns'][$col->name][$prop] ?? null) != ($col->{$prop} ?? null)) {
 					$columns_to_change[$col->name] = $col;
 					continue 2;
