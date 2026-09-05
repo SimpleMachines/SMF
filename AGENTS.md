@@ -253,9 +253,23 @@ than shown, especially anything in a background task.
 The schema lives in PHP, so editing a column in `Sources/Db/Schema/v3_0/` changes what a
 *fresh install* builds and nothing else. Existing forums need a migration in
 `Sources/Maintenance/Migration/v3_0/`, registered in `Upgrade::MIGRATIONS`; a class that
-is not in that list never runs. The `Table::normalize()` pass the upgrader does after the
-migrations will not cover for you either, since it does not alter columns that already
-exist.
+is not in that list never runs.
+
+`Table::normalize()`, which the upgrader runs after the migrations, covers more than it
+looks. It compares the type first and then `name`, `size`, `unsigned`, `stored`,
+`not_null`, `default` and `auto`, and it alters an existing column on any mismatch, so a
+good deal of what a migration might have done happens anyway. `mail_queue.time_sent` is
+`int` in `Schema\v2_1` and `bigint` in `Schema\v3_0`, no migration touches it, and it is
+widened on every upgrade by this pass alone. Do not rely on that — it is a backstop, not a
+plan, and it runs after your migration rather than instead of it — but do expect it, or
+you will spend an afternoon wondering what altered a column you never wrote a migration
+for. What it genuinely cannot see is a change to a generated column's expression.
+
+It also runs **once per version namespace**, not once. The `VERSION_MAP` loop appends
+`Table::getAll($ns)` for every namespace it selects, and there are table classes for both
+`v2_1` and `v3_0`, so a 2.1 to 3.0 upgrade normalizes every table twice against two
+different definitions. That is worth knowing before trying to reason about the order
+things happen in: an index can be created by the first pass and destroyed by the second.
 
 **Assume your migration runs more than once.** The upgrader resumes after a timeout and
 people re-run it, so `execute()` has to be safe to repeat. On top of that,
@@ -286,19 +300,58 @@ several of the v3_0 migrations do this and several do not, so do not read an abs
 permission to skip it. Treat the guard as an optimisation and idempotent `execute()` as
 the actual guarantee: write both.
 
-**Verify on both engines, in three states.** A schema change is raw SQL by another name,
+**A later migration can break an earlier one.** Being repeated over a finished forum is
+the easy case. The hard one is being interrupted: `smfVersion` is not written until
+`finalize()`, so until the very end of the run the database still says 2.1, and starting
+again runs the whole *2.1* set over a database the *3.0* migrations have already changed.
+Anything the later set dropped is gone when the earlier set asks for it, and since every
+attempt gets exactly as far, the forum cannot be upgraded at all.
+
+So the direction to check is the one nobody thinks of. If your migration drops or renames
+a table or a column, grep the **earlier** version namespaces for that name as well as the
+later ones:
+
+```bash
+grep -rn 'calendar_holidays' Sources/Maintenance/Migration/
+```
+
+That is not hypothetical. `HolidaysToEvents` folds `calendar_holidays` into the calendar
+and drops it, and three v2_1 migrations name that table; an upgrade interrupted any time
+after it could not be restarted at all until they were guarded.
+
+**Verify on both engines, in four states.** A schema change is raw SQL by another name,
 so MySQL and PostgreSQL both need proving, and the create path and the alter path do not
 generate the same DDL:
 
 - the migration against a database still in the old shape,
 - the migration again afterwards, which should be skipped and harmless if forced,
+- the migration against a database that the *later* migrations have already changed,
+  which is what a restart gives it,
 - `Table::create()` from the same definition, since a type that alters cleanly may still
   be rejected in a `CREATE TABLE`.
 
-The traps are in the details of the two engines. A MySQL `text` column takes no default,
-and `change_column()` carries the *old* default over when the new definition does not
-name one — so widening a `varchar` that had `DEFAULT ''` needs `drop_default` set on the
-column or MySQL rejects the statement.
+The traps are in the details of the two engines.
+
+A MySQL `text` column takes no default, and `change_column()` carries the *old* default
+over when the new definition does not name one — so widening a `varchar` that had
+`DEFAULT ''` needs `drop_default` set on the column or MySQL rejects the statement.
+
+PostgreSQL cannot change a column's type in place, so `change_column()` does it the long
+way round:
+
+```sql
+ALTER TABLE smf_mail_queue ADD COLUMN time_sent_tempxx bigint
+UPDATE smf_mail_queue SET time_sent_tempxx = CAST(time_sent AS bigint)
+ALTER TABLE smf_mail_queue DROP COLUMN time_sent
+ALTER TABLE smf_mail_queue RENAME COLUMN time_sent_tempxx TO time_sent
+```
+
+Two things follow, and neither is announced. **Every index over that column is dropped
+with it**, so a type change silently costs you the indexes unless something puts them
+back. And the column is rebuilt at the *end* of the table, so its physical position moves
+— harmless to SQL that names its columns, but enough to make two dumps of the same forum
+differ. When changing a column type on PostgreSQL, check the indexes on that column
+afterwards rather than assuming they survived.
 
 None of this is reachable from the unit suite. `Schema\Column::__construct()` calls
 `Db::$db->calculate_type()`, so the schema classes cannot even be instantiated without a
