@@ -301,13 +301,8 @@ class GroupPermissionSet
 			// Board permissions.
 			self::loadBoardPermissionData($profiles, $query_groups);
 
-			// A set that came from the cache takes the place of the instance
-			// built above, so the sets to hand back are whichever ones ended up
-			// in self::$loaded rather than the ones collected on the way in.
-			$loaded = [];
-
 			foreach ($profiles as $profile) {
-				foreach ($groups as $group) {
+				foreach ($query_groups as $group) {
 					if (isset(self::$loaded[$profile][$group])) {
 						$loaded[] = self::$loaded[$profile][$group];
 					}
