@@ -123,9 +123,10 @@ class RemoveTempAttachments extends ScheduledTask
 	 ******************/
 
 	/**
-	 * undocumented method
+	 * Logs errors encountered during this task.
 	 *
-	 * @param ?string $attach_dir
+	 * @param ?string $attach_dir Attachment directory path to include in the
+	 *    error message, or null if the error is that the directory is missing.
 	 */
 	private function error(?string $attach_dir): void
 	{
