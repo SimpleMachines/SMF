@@ -190,6 +190,24 @@ final class CacheApiTest extends TestCase
 		$this->assertNull(CacheApi::get('not_utf8', 120));
 	}
 
+	/**
+	 * A truncated entry unserialises to false, which is also what a cached false
+	 * looks like. Telling them apart is the difference between a miss and handing
+	 * the caller a value nobody ever stored.
+	 */
+	public function testAnEntryThatWillNotUnserialiseReadsAsAMiss(): void
+	{
+		/** @var \SMF\Cache\APIs\FileBased $api */
+		$api = $this->loadApi(FileBased::class);
+
+		file_put_contents(
+			\sprintf('%s/data_%s.cache', $api->getCachedir(), $api->getPrefix() . 'corrupt'),
+			(string) json_encode(['expiration' => time() + 120, 'value' => 'not serialised at all']),
+		);
+
+		$this->assertNull(CacheApi::get('corrupt', 120));
+	}
+
 	public function testACachedFalseIsStillReadBackAsFalse(): void
 	{
 		$this->loadApi(FileBased::class);
