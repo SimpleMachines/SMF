@@ -1331,74 +1331,91 @@ class Security
 			$allowed_fallbacks & self::PASSWORD_FALLBACK_OTHER
 			&& !empty(Config::$modSettings['enable_password_conversion'])
 		) {
-			// None of the below cases will be used most of the time (because the salt is normally set.)
-			if ($member->password_salt == '') {
-				// Discus, MD5 (used a lot), SHA-1 (used some), IkonBoard, and none at all.
-				switch (\strlen($member->passwd)) {
-					case 13:
-						$other_passwords[] = crypt($password, substr($password, 0, 2));
-						$other_passwords[] = crypt($password, substr($member->passwd, 0, 2));
-						$other_passwords[] = crypt($password, $member->passwd);
-
-						// This one is a strange one... MyPHP, crypt() on the MD5 hash.
-						$other_passwords[] = crypt(md5($password), md5($password));
-						break;
-
-					case 32:
-						$other_passwords[] = md5($password);
-						$other_passwords[] = md5($password . strtolower($member->username));
-						$other_passwords[] = md5(md5($password));
-
-						// APBoard 2 Login Method.
-						$other_passwords[] = md5(crypt($password, 'CRYPT_MD5'));
-						break;
-
-					case 34:
-						// phpBB3.
-						$other_passwords[] = self::phpBB3_password_check($password, $member->passwd);
-						break;
-
-					case 40:
-						$other_passwords[] = sha1($password);
-						break;
-
-					case 64:
-						// Snitz style - SHA-256.
-						$other_passwords[] = hash('sha256', $password);
-						break;
-				}
-
-				$other_passwords[] = $password;
+			// If we're checking for recent conversions from other forum software
+			// and $password contains special HTML characters, check for variants
+			// with the special characters encoded as entities.
+			if ($password !== htmlspecialchars($password, ENT_QUOTES, double_encode: false)) {
+				$alt_passwords = array_filter([
+					$password,
+					htmlspecialchars($password, ENT_NOQUOTES, double_encode: false),
+					htmlspecialchars($password, ENT_COMPAT, double_encode: false),
+					htmlspecialchars($password, ENT_QUOTES, double_encode: false),
+					htmlspecialchars($password, ENT_QUOTES | ENT_HTML5, double_encode: false),
+				]);
+			} else {
+				$alt_passwords = [$password];
 			}
-			// If the salt is set let's try some other options
-			else {
-				switch (\strlen($member->passwd)) {
-					case 32:
-						// MyBB
-						$other_passwords[] = md5(md5($member->password_salt) . md5($password));
 
-						// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-						$other_passwords[] = md5(md5($password) . stripslashes($member->password_salt));
+			foreach ($alt_passwords as $p) {
+				// None of the below cases will be used most of the time (because the salt is normally set.)
+				if ($member->password_salt == '') {
+					// Discus, MD5 (used a lot), SHA-1 (used some), IkonBoard, and none at all.
+					switch (\strlen($member->passwd)) {
+						case 13:
+							$other_passwords[] = crypt($p, substr($p, 0, 2));
+							$other_passwords[] = crypt($p, substr($member->passwd, 0, 2));
+							$other_passwords[] = crypt($p, $member->passwd);
 
-						// Hmm.. p'raps it's Invision 2 style?
-						$other_passwords[] = md5(md5($member->password_salt) . md5($password));
+							// This one is a strange one... MyPHP, crypt() on the MD5 hash.
+							$other_passwords[] = crypt(md5($p), md5($p));
+							break;
 
-						// Some common md5 ones.
-						$other_passwords[] = md5($member->password_salt . $password);
-						$other_passwords[] = md5($password . $member->password_salt);
-						break;
+						case 32:
+							$other_passwords[] = md5($p);
+							$other_passwords[] = md5($p . strtolower($member->username));
+							$other_passwords[] = md5(md5($p));
 
-					case 40:
-						// BurningBoard3 style of hashing.
-						$other_passwords[] = sha1($member->password_salt . sha1($member->password_salt . sha1($password)));
-						// PunBB
-						$other_passwords[] = sha1($member->password_salt . sha1($password));
-						break;
+							// APBoard 2 Login Method.
+							$other_passwords[] = md5(crypt($p, 'CRYPT_MD5'));
+							break;
 
-					case 64:
-						// PHP-Fusion
-						$other_passwords[] = hash_hmac('sha256', $password, $member->password_salt);
-						break;
+						case 34:
+							// phpBB3.
+							$other_passwords[] = self::phpBB3_password_check($p, $member->passwd);
+							break;
+
+						case 40:
+							$other_passwords[] = sha1($p);
+							break;
+
+						case 64:
+							// Snitz style - SHA-256.
+							$other_passwords[] = hash('sha256', $p);
+							break;
+					}
+
+					$other_passwords[] = $p;
+				}
+				// If the salt is set let's try some other options
+				else {
+					switch (\strlen($member->passwd)) {
+						case 32:
+							// MyBB
+							$other_passwords[] = md5(md5($member->password_salt) . md5($p));
+
+							// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
+							$other_passwords[] = md5(md5($p) . stripslashes($member->password_salt));
+
+							// Hmm.. p'raps it's Invision 2 style?
+							$other_passwords[] = md5(md5($member->password_salt) . md5($p));
+
+							// Some common md5 ones.
+							$other_passwords[] = md5($member->password_salt . $p);
+							$other_passwords[] = md5($p . $member->password_salt);
+							break;
+
+						case 40:
+							// BurningBoard3 style of hashing.
+							$other_passwords[] = sha1($member->password_salt . sha1($member->password_salt . sha1($p)));
+							// PunBB
+							$other_passwords[] = sha1($member->password_salt . sha1($p));
+							break;
+
+						case 64:
+							// PHP-Fusion
+							$other_passwords[] = hash_hmac('sha256', $p, $member->password_salt);
+							break;
+					}
 				}
 			}
 		}
