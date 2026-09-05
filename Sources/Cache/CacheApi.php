@@ -622,11 +622,16 @@ abstract class CacheApi
 		}
 
 		if (\is_string($value)) {
-			try {
-				$temp = @unserialize($value);
-				$value = $temp;
-			} catch (\Throwable $e) {
+			$temp = @unserialize($value);
+
+			// Only serialize(false) legitimately unserializes to false. Anything
+			// else that does so is a truncated or corrupt entry, so report a miss
+			// rather than handing the caller a value nobody stored.
+			if ($temp === false && $value !== serialize(false)) {
+				return null;
 			}
+
+			$value = $temp;
 		}
 
 		return $value;
