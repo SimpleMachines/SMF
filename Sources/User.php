@@ -5344,7 +5344,7 @@ class User implements \ArrayAccess
 						continue;
 					}
 
-					if (($data = CacheApi::get('user_settings-' . $id, 60) == null)) {
+					if (($data = CacheApi::get('user_settings-' . $id, 60)) == null) {
 						continue;
 					}
 				} else {
@@ -5361,7 +5361,11 @@ class User implements \ArrayAccess
 					continue;
 				}
 
-				$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+				// What goes into the cache is the enum itself, so only an entry
+				// that somehow lacks one needs converting.
+				if (!(($data['dataset'] ?? null) instanceof UserDataset)) {
+					$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+				}
 
 				// Does the cached data have everything we need?
 				if ($data['dataset']->includes($dataset)) {
