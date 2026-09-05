@@ -832,22 +832,11 @@ function SMStats()
 	else
 	{
 		// Connect to the collection script.
-		$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
-		if (!$fp)
-			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-		if ($fp)
-		{
-			$length = strlen($stats_to_send);
+		$res = fetch_web_data('https://www.simplemachines.org/smf/stats/collect_stats.php', $stats_to_send);
 
-			$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
-			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'user-agent: '. SMF_USER_AGENT . "\r\n";
-			$out .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
-			$out .= 'connection: Close' . "\r\n";
-			$out .= 'content-length: ' . $length . "\r\n\r\n";
-			$out .= $stats_to_send . "\r\n";
-			fwrite($fp, $out);
-			fclose($fp);
+		// Try one more time, this time without https.
+		if ($res !== '1') {
+			fetch_web_data('http://www.simplemachines.org/smfs/stats/collect_stats.php', $stats_to_send);
 		}
 	}
 
