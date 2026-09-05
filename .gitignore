@@ -82,6 +82,8 @@ Thumbs.db
 # installs without reinstalling. Generated secrets and a machine-specific
 # board URL: local to whoever ran the installer.
 /.docker/settings/
+/.docker/rerun/
+/.docker/interrupt/
 
 # Test / Private files #
 ########################
