@@ -453,8 +453,9 @@ abstract class Table
 	public function fixIndexName(DbIndex $index): bool
 	{
 		foreach (Db::$db->list_indexes('{db_prefix}' . $this->name, true) as $existing_index) {
-			// Must be the same type.
-			if ($index->type !== $existing_index['type']) {
+			// Must be the same type. A normal index carries no type of its own,
+			// which the database reports as 'index'.
+			if (($index->type ?? 'index') !== $existing_index['type']) {
 				continue;
 			}
 
