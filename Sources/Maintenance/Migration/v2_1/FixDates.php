@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -79,7 +80,9 @@ class FixDates extends MigrationBase
 		}
 
 		if (Maintenance::getCurrentStart() < 3) {
-			$this->query(\sprintf($boilerplate, 'calendar_holidays', 'event_date'));
+			if ($this->holidaysTableExists()) {
+				$this->query(\sprintf($boilerplate, 'calendar_holidays', 'event_date'));
+			}
 
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();
@@ -136,11 +139,13 @@ class FixDates extends MigrationBase
 		}
 
 		if (Maintenance::getCurrentStart() < 9) {
-			Db::$db->change_column(
-				'{db_prefix}calendar_holidays',
-				'event_date',
-				['default' => '1004-01-01'],
-			);
+			if ($this->holidaysTableExists()) {
+				Db::$db->change_column(
+					'{db_prefix}calendar_holidays',
+					'event_date',
+					['default' => '1004-01-01'],
+				);
+			}
 
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();
@@ -169,5 +174,23 @@ class FixDates extends MigrationBase
 		}
 
 		return true;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Whether the holidays table is still there to be fixed.
+	 *
+	 * The 3.0 migrations fold that table into the calendar and then drop it, so
+	 * an upgrade that reaches them and is started again finds it gone. The rest
+	 * of this migration still has work to do on the tables that remain.
+	 *
+	 * @return bool Whether the table exists.
+	 */
+	private function holidaysTableExists(): bool
+	{
+		return Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays') !== [];
 	}
 }

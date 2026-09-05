@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -32,6 +34,17 @@ class CalendarUpdates extends MigrationBase
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 *
+	 */
+	public function isCandidate(): bool
+	{
+		// Everything this does is to the holidays table, which the 3.0
+		// migrations fold into the calendar and then drop. Once that has
+		// happened there is nothing here to update.
+		return Db::$db->list_tables(false, Config::$db_prefix . 'calendar_holidays') !== [];
+	}
 
 	/**
 	 *
