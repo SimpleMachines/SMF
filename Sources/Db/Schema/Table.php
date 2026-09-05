@@ -260,8 +260,21 @@ abstract class Table
 			}
 
 			// If we need to change any columns in this index, rebuild the index too.
-			foreach ([$index->columns, $structure['indexes'][$index->name]['columns']] as $cols) {
-				if (array_intersect(array_keys($cols), array_keys($columns_to_change)) !== []) {
+			//
+			// Both lists hold their column names as values. The definition
+			// holds ['name' => ...] arrays, and the database reports plain
+			// strings, to which MySQL adds a "(15)" prefix length. Reduce each
+			// to bare names, since $columns_to_change is keyed by name.
+			foreach (
+				[
+					array_column($index->columns, 'name'),
+					array_map(
+						fn($col) => preg_replace('~\s*\(\d+\)$~', '', $col),
+						$structure['indexes'][$index->name]['columns'],
+					),
+				] as $cols
+			) {
+				if (array_intersect($cols, array_keys($columns_to_change)) !== []) {
 					$indexes_to_change[$index->name] = $index;
 					continue 2;
 				}
