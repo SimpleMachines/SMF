@@ -300,7 +300,7 @@ class Members implements ActionInterface
 					'type' => 'string',
 				],
 				'email' => [
-					'db_fields' => ['email_address'],
+					'db_fields' => ['email_address_ci'],
 					'type' => 'string',
 				],
 				'website' => [
@@ -451,7 +451,17 @@ class Members implements ActionInterface
 						$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
 						$where_params[$param_name . '_high'] = $search_params[$param_name]['high'];
 					}
-				} elseif ($param_info['type'] != 'groups') {
+				}
+				// Email.
+				elseif ($param_name == 'email') {
+					$parameter = strtolower(strtr(Utils::htmlspecialchars($search_params[$param_name], ENT_QUOTES), ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_']));
+
+					$query_parts[] = '(' . $param_info['db_fields'][0] . ' LIKE {string:' . $param_name . '})';
+
+					$where_params[$param_name] = '%' . $parameter . '%';
+				}
+				// Anything else except groups.
+				elseif ($param_info['type'] != 'groups') {
 					// Replace the wildcard characters ('*' and '?') into MySQL ones.
 					$parameter = strtolower(strtr(Utils::htmlspecialchars($search_params[$param_name], ENT_QUOTES), ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_']));
 
@@ -590,8 +600,8 @@ class Members implements ActionInterface
 						],
 					],
 					'sort' => [
-						'default' => 'email_address',
-						'reverse' => 'email_address DESC',
+						'default' => 'email_address_ci',
+						'reverse' => 'email_address_ci DESC',
 					],
 				],
 				'ip' => [
@@ -938,8 +948,8 @@ class Members implements ActionInterface
 						],
 					],
 					'sort' => [
-						'default' => 'email_address',
-						'reverse' => 'email_address DESC',
+						'default' => 'email_address_ci',
+						'reverse' => 'email_address_ci DESC',
 					],
 				],
 				'ip' => [

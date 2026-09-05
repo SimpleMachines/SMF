@@ -25,6 +25,7 @@ use SMF\Calendar\EventOccurrence;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -236,7 +237,7 @@ class Post2 extends Post
 						$this->errors[] = 'no_email';
 					}
 
-					if (!User::$me->allowedTo('moderate_forum') && !filter_var($author->email, FILTER_VALIDATE_EMAIL)) {
+					if (!User::$me->allowedTo('moderate_forum') && !EmailAddress::create($author->email)->isValid()) {
 						$this->errors[] = 'bad_email';
 					}
 				}

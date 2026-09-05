@@ -14,6 +14,7 @@
 namespace SMF\MailAgent\APIs;
 
 use SMF\Config;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
@@ -62,6 +63,14 @@ class SendMail extends MailAgent implements MailAgentInterface
 	{
 		$mail_result = true;
 
+		if (($address = new EmailAddress($to))->isValid()) {
+			$to = $address->sendable();
+		} else {
+			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
+
+			return false;
+		}
+
 		$subject = strtr($subject, ["\r" => '', "\n" => '']);
 
 		if (!empty(Config::$modSettings['mail_strip_carriage'])) {
@@ -81,7 +90,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 		);
 
 		try {
-			if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
+			if (!mail($to, $subject, $message, $headers)) {
 				ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
 				$mail_result = false;
 			}
