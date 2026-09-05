@@ -160,6 +160,22 @@ final class CacheApiTest extends TestCase
 		$this->assertNull(CacheApi::get('already_stale', 120));
 	}
 
+	/**
+	 * Turning on write ahead logging used to leave the SQLite accelerator with
+	 * no table at all: the pragma writes a header, so the emptiness test that
+	 * decided whether to create one never passed on a fresh database.
+	 */
+	public function testTheSqliteCacheStoresValuesWithWriteAheadLoggingOn(): void
+	{
+		Config::$cache_sqlite_wal = true;
+
+		$this->loadApi(Sqlite::class);
+
+		CacheApi::put('written_ahead', ['a' => 1], 120);
+
+		$this->assertSame(['a' => 1], CacheApi::get('written_ahead', 120));
+	}
+
 	public function testACachedFalseIsStillReadBackAsFalse(): void
 	{
 		$this->loadApi(FileBased::class);
