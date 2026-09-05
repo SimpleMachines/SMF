@@ -162,9 +162,9 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * @var int
 	 *
-	 * The number of likes this message has received.
+	 * The number of reactions this message has received.
 	 */
-	public int $likes = 0;
+	public int $reactions = 0;
 
 	/**
 	 * @var bool
@@ -215,6 +215,13 @@ class Msg implements \ArrayAccess, Routable
 	 * If there are no messages, will be an empty array.
 	 */
 	public static $getter;
+
+	/**
+	 * @var array
+	 *
+	 * Variable to hold info about how many of each reaction we have
+	 */
+	public static $reacts_count = [];
 
 	/*********************
 	 * Internal properties
@@ -307,7 +314,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon' => 'string-16',
 				'smileys_enabled' => 'int',
 				'approved' => 'int',
-				'likes' => 'int',
+				'reactions' => 'int',
 				'version' => 'string-5',
 			];
 
@@ -325,7 +332,7 @@ class Msg implements \ArrayAccess, Routable
 				$this->icon,
 				(int) $this->smileys_enabled,
 				$this->approved,
-				$this->likes,
+				$this->reactions,
 				$this->version,
 			];
 
@@ -382,7 +389,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon = {string:icon}',
 				'smileys_enabled = {int:smileys_enabled}',
 				'approved = {int:approved}',
-				'likes = {int:likes}',
+				'reactions = {int:reactions}',
 				'version = {string:version}',
 			];
 
@@ -402,7 +409,7 @@ class Msg implements \ArrayAccess, Routable
 				'icon' => (string) $this->icon,
 				'smileys_enabled' => (int) $this->smileys_enabled,
 				'approved' => (int) $this->approved,
-				'likes' => (int) $this->likes,
+				'reactions' => (int) $this->reactions,
 				'version' => (string) $this->version,
 			];
 
@@ -498,6 +505,7 @@ class Msg implements \ArrayAccess, Routable
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
 			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($this->id_member, User::$me->ignoreusers),
+			'num_reactions' => (int) $this->reactions,
 		];
 
 		// Are we showing the icon?
@@ -656,15 +664,38 @@ class Msg implements \ArrayAccess, Routable
 			$this->formatted['short_subject'] = Utils::shorten($this->formatted['subject'], $format_options['shorten_subject']);
 		}
 
-		// Are likes enabled?
-		if (!empty(Config::$modSettings['enable_likes'])) {
-			$this->formatted['likes'] = [
-				'count' => $this->likes,
-				'you' => \in_array($this->id, Utils::$context['my_likes'] ?? []),
+		// Are reactions enabled?
+		if (!empty(Config::$modSettings['enable_reacts'])) {
+			$this->formatted['reacts'] = [
+				'count' => $this->reactions,
+				'you' => \in_array($this->id, Utils::$context['my_reactions'] ?? []),
 			];
 
+			if ($this->reactions != 0) {
+				// Load up the number of each type of reactions
+				$query = Db::$db->query(
+					'',
+					'SELECT id_react, COUNT(*) AS num_reacts
+					FROM {db_prefix}user_reacts
+					WHERE content_type = {string:content_type}
+						AND content_id = {int:content_id}
+					GROUP BY id_react
+					ORDER BY num_reacts DESC',
+					[
+						'content_type' => 'msg',
+						'content_id' => $this->id,
+					],
+				);
+
+				// Loop through the results
+				while ($row = Db::$db->fetchAssoc($query)) {
+					$this->reactions[$row['id_react']] = $row['num_reacts'];
+				}
+				Db::$db->freeResult($query);
+			}
+
 			if ($format_options['do_permissions']) {
-				$this->formatted['likes']['can_like'] = !User::$me->is_guest && $this->id_member != User::$me->id && !empty($topic->permissions['can_like']);
+				$this->formatted['reactions']['can_react'] = !User::$me->is_guest && $this->id_member != User::$me->id && !empty($topic->permissions['can_react']);
 			}
 		}
 
@@ -2266,6 +2297,17 @@ class Msg implements \ArrayAccess, Routable
 				],
 			);
 
+			// Drop any reactions related to this post. We can recalculate stats later
+			Db::$db->query(
+				'',
+				'DELETE FROM {db_prefix}user_reacts
+				WHERE content_type = {string:msg} AND content_id = {int:id_msg}',
+				[
+					'msg' => 'msg',
+					'id_msg' => $message,
+				],
+			);
+
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [
 				'attachment_type' => Attachment::TYPE_STANDARD,
@@ -2275,7 +2317,7 @@ class Msg implements \ArrayAccess, Routable
 			Attachment::remove($attachmentQuery);
 		}
 
-		// Allow mods to remove message related data of their own (likes, maybe?)
+		// Allow mods to remove message related data of their own (reactions, maybe?)
 		IntegrationHook::call('integrate_remove_message', [$message, $row, $recycle]);
 
 		// Update the pesky statistics.

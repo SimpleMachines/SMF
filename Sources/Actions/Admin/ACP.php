@@ -183,9 +183,6 @@ class ACP implements ActionInterface, Routable
 						'profile' => [
 							'label' => 'custom_profile_shorttitle',
 						],
-						'likes' => [
-							'label' => 'likes',
-						],
 						'mentions' => [
 							'label' => 'mentions',
 						],
@@ -336,6 +333,20 @@ class ACP implements ActionInterface, Routable
 						],
 						'settings' => [
 							'label' => 'settings',
+						],
+					],
+				],
+				'managereactions' => [
+					'label' => 'reactions',
+					'function' => __NAMESPACE__ . '\\Reactions::call',
+					'icon' => 'reactions',
+					'permission' => ['admin_forum'],
+					'subsections' => [
+						'settings' => [
+							'label' => 'reactions_settings',
+						],
+						'edit' => [
+							'label' => 'manage_reactions',
 						],
 					],
 				],

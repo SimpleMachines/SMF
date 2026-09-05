@@ -21,8 +21,8 @@ $txt['yearly_summary'] = 'Yearly Summary';
 $txt['top_starters'] = 'Top Topic Starters';
 $txt['top_time_online'] = 'Most Time Online';
 $txt['stats_more_detailed'] = 'more detailed &raquo;';
-$txt['top_liked_messages'] = 'Top liked messages';
-$txt['top_liked_users'] = 'Top liked users';
+$txt['top_reacted_messages'] = 'Top reacted messages';
+$txt['top_reacted_users'] = 'Top reacted users';
 
 $txt['average_members'] = 'Average registrations per day';
 $txt['average_posts'] = 'Average posts per day';

@@ -388,8 +388,8 @@ class Notification implements ActionInterface
 		}
 
 		// Disable likes if they're disabled.
-		if (empty(Config::$modSettings['enable_likes'])) {
-			unset($this->alert_types['msg']['msg_like']);
+		if (empty(Config::$modSettings['enable_reactss'])) {
+			unset($this->alert_types['msg']['msg_react']);
 		}
 
 		// Disable buddy requests if they're disabled.

@@ -806,7 +806,7 @@ class ServerSideIncludes
 			if (!empty(Config::$modSettings['enable_likes'])) {
 				$posts[$row['id_msg']]['likes'] = [
 					'count' => $row['likes'],
-					'you' => \in_array($row['id_msg'], $topic->getLikedMsgs()),
+					'you' => \in_array($row['id_msg'], $topic->getReactedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				];
 			}

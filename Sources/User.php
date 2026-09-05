@@ -3609,8 +3609,8 @@ class User implements \ArrayAccess
 			['table' => 'user_alerts_prefs', 'col' => 'id_member'],
 			// Delete their drafts.
 			['table' => 'user_drafts', 'col' => 'id_member'],
-			// Delete the likes they made.
-			['table' => 'user_likes', 'col' => 'id_member'],
+			// Delete the reactions they made.
+			['table' => 'user_reacts', 'col' => 'id_member'],
 			// Delete any mentions of them.
 			['table' => 'mentions', 'col' => 'id_member'],
 			// Delete their profile edit logs.
