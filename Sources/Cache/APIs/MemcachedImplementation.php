@@ -235,6 +235,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 			}
 		}
 
-		return $retVal;
+		// The bitwise or above produces an int, which this method does not return.
+		return (bool) $retVal;
 	}
 }

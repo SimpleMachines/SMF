@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use SMF\Cache\APIs\Apcu;
 use SMF\Cache\APIs\FileBased;
+use SMF\Cache\APIs\MemcachedImplementation;
 use SMF\Cache\APIs\Sqlite;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -16,12 +17,13 @@ use SMF\Config;
 /**
  * Covers the accelerators that need nothing but a writable directory, which is
  * FileBased, Sqlite and, where the extension is installed, APCu. The memcached
- * and PostgreSQL accelerators want a server and a database connection, so they
- * are out of reach from here.
+ * and PostgreSQL accelerators want a server and a database connection, so only
+ * the part of memcached that runs without one is reached from here.
  */
 #[CoversClass(CacheApi::class)]
 #[CoversClass(Apcu::class)]
 #[CoversClass(FileBased::class)]
+#[CoversClass(MemcachedImplementation::class)]
 #[CoversClass(Sqlite::class)]
 final class CacheApiTest extends TestCase
 {
@@ -165,6 +167,23 @@ final class CacheApiTest extends TestCase
 		CacheApi::put('a_cached_false', false, 120);
 
 		$this->assertFalse(CacheApi::get('a_cached_false', 120));
+	}
+
+	/**
+	 * Adding a server or-ed a bool into a bool, which PHP hands back as an int,
+	 * and the method says it returns a bool. Every page load fatalled the moment
+	 * memcached was the chosen accelerator. No server is needed to see it, since
+	 * addServer() only records where the server is meant to be.
+	 */
+	public function testTheMemcachedAcceleratorConnects(): void
+	{
+		if (!class_exists('Memcached')) {
+			$this->markTestSkipped('The memcached extension is not installed.');
+		}
+
+		Config::$cache_memcached = '127.0.0.1:11211';
+
+		$this->assertTrue((new MemcachedImplementation())->connect());
 	}
 
 	/***********************
