@@ -154,6 +154,58 @@ Two things it cannot do for you:
   `PHP_VERSION=8.5 docker compose up -d --build web`.
 - **The integration tests on both engines.** Use `.docker/test.sh` for that.
 
+## Hardening the upgrade
+
+The installer builds a 3.0 forum from `Sources/Db/Schema/v3_0/` in one go. The
+upgrader arrives somewhere near the same place through a few hundred migrations
+applied to whatever 2.1 left behind, and it has to survive two things that
+happen to it constantly and that nothing checks: being run twice, and being cut
+off half way.
+
+```sh
+BASE=../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
+
+.docker/rerun-upgrade.sh     --engine mysql --baseline "$BASE"
+.docker/interrupt-upgrade.sh --engine mysql --baseline "$BASE"
+```
+
+Both rebuild the database for the engine they are given, so anything installed
+on it is destroyed. The other engine is untouched. Both take a `--baseline` SQL
+dump of a 2.1 forum; the one above is the committed baseline from the 2.1
+development environment, and a dump of a real forum is a better test.
+
+**`rerun-upgrade.sh`** upgrades, then upgrades again, and reports what the
+second run changed. It should change nothing. Running the upgrader twice is not
+an unusual thing to do -- it is what an admin does when a page times out, and it
+is what every 3.0 patch upgrade does, since `VERSION_MAP` keys on an upper bound
+and `3.0.99` selects the v3_0 migrations for any 3.0.x forum.
+
+**`interrupt-upgrade.sh`** kills the upgrader part way through, starts it again,
+and reports whether the forum it ends up with is the one an uninterrupted
+upgrade would have built. By default it does this at five points across the run;
+`--at N` picks one substep, `--points 10,50` picks a set. Kill points are given
+as a percentage of an uninterrupted run's substeps, so the same numbers mean the
+same places whatever the baseline is.
+
+Recovery today means starting again from the top, over a database that is in
+neither the old shape nor the new one, because the step, substep and start
+position live in `$_GET` and nowhere else. `maintenance_tool_progress` in
+`Settings.php` is the only thing written to disk, it holds the version the run
+started from rather than where it had got to, and it is written by `preExit()`,
+which a killed process never reaches. So every migration has to cope with a
+half-migrated database, which is a stronger requirement than merely being safe
+to repeat over a finished one.
+
+`--backup` is worth adding to a run of it. The backup step is skipped on the
+command line unless something asks for it, and a retry is exactly what
+endangers what it produces: `backup_table()` opens with `DROP TABLE IF EXISTS`,
+so a second pass replaces a good pre-upgrade copy with whatever the database
+holds by then.
+
+Both write their readings and reports under `.docker/rerun/` and
+`.docker/interrupt/`, which are gitignored. Expect five to ten minutes per
+upgrade, so a full sweep of kill points is the better part of an hour.
+
 ## Everyday use
 
 ```sh
@@ -247,4 +299,7 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
+.docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
+.docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
+.docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
 ```
