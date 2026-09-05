@@ -524,7 +524,19 @@ class ReportToMod implements ActionInterface, Routable
 		$user = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		$user_name = $user['real_name'] . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
+		$user_name = $user['real_name'];
+
+		if ($user['real_name'] != $user['member_name']) {
+			$with_username = $user['real_name'] . ' (' . $user['member_name'] . ')';
+
+			// Both names arrive from the database already entity encoded, and
+			// membername holds 255 characters, so the username goes on the end
+			// only when there is room for it. A display name is entitled to the
+			// space on its own.
+			if (mb_strlen($with_username) <= 255) {
+				$user_name = $with_username;
+			}
+		}
 
 		$request = Db::$db->query(
 			'SELECT id_report, ignore_all
