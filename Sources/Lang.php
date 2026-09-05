@@ -299,7 +299,10 @@ class Lang
 			// Try to find the language file.
 			$found = false;
 
-			// Flip this around.
+			// Least preferred first, so that the more preferred files that are
+			// loaded after it overwrite the strings they have in common. A
+			// string that only the least preferred file defines survives, which
+			// is how a partial translation falls back to English key by key.
 			$attempts = array_reverse($attempts);
 
 			foreach ($attempts as $attempt) {
@@ -307,11 +310,7 @@ class Lang
 					$attempt,
 					implode(DIRECTORY_SEPARATOR, [$attempt[0], $attempt[2], $attempt[1] . '.php']),
 					$force_reload,
-				);
-
-				if ($found) {
-					break;
-				}
+				) || $found;
 			}
 
 			// Legacy language calls.
