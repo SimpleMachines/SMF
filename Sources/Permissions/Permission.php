@@ -17,6 +17,7 @@ namespace SMF\Permissions;
 
 use SMF\ArrayAccessHelper;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
