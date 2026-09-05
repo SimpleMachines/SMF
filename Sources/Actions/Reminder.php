@@ -257,13 +257,13 @@ class Reminder implements ActionInterface, Routable
 		// Quit if this code is not right.
 		if (empty($_POST['code']) || $real_code !== $_POST['code'] || $issue_time + 3600 < time()) {
 			// Stop brute force attacks like this.
-			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
+			Security::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
 			ErrorHandler::fatal(Lang::getTxt('invalid_activation_code', file: 'Login'), false);
 		}
 
 		// Just in case, flood control.
-		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
+		Security::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
 		$this->member->validation_code = '';

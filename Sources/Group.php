@@ -1509,6 +1509,10 @@ class Group implements \ArrayAccess
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!Permission::exists($row['permission'])) {
+				continue;
+			}
+
 			if (empty($illegal_permissions) || !\in_array($row['permission'], $illegal_permissions)) {
 				$inserts[] = [$this->id, $row['permission'], $row['add_deny']];
 			}
@@ -1539,6 +1543,10 @@ class Group implements \ArrayAccess
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!Permission::exists($row['permission'])) {
+				continue;
+			}
+
 			$inserts[] = [$this->id, $row['id_profile'], $row['permission'], $row['add_deny']];
 		}
 

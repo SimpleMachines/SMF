@@ -373,7 +373,7 @@ abstract class ToolsBase
 		}
 
 		// What still needs to be done?
-		Maintenance::$context['chmod_files'] = $files;
+		Utils::$context['chmod_files'] = $files;
 
 		// If it's windows it's a mess...
 		if (!empty($files) && Sapi::isOS(Sapi::OS_WINDOWS)) {
@@ -392,29 +392,29 @@ abstract class ToolsBase
 		if (!empty($files)) {
 			// Load any session data we might have...
 			if (!isset($_POST['ftp_username']) && isset($_SESSION['temp_ftp'])) {
-				Maintenance::$context['chmod']['server'] = $_SESSION['temp_ftp']['server'];
-				Maintenance::$context['chmod']['port'] = $_SESSION['temp_ftp']['port'];
-				Maintenance::$context['chmod']['username'] = $_SESSION['temp_ftp']['username'];
-				Maintenance::$context['chmod']['password'] = $_SESSION['temp_ftp']['password'];
-				Maintenance::$context['chmod']['path'] = $_SESSION['temp_ftp']['path'];
+				Utils::$context['chmod']['server'] = $_SESSION['temp_ftp']['server'];
+				Utils::$context['chmod']['port'] = $_SESSION['temp_ftp']['port'];
+				Utils::$context['chmod']['username'] = $_SESSION['temp_ftp']['username'];
+				Utils::$context['chmod']['password'] = $_SESSION['temp_ftp']['password'];
+				Utils::$context['chmod']['path'] = $_SESSION['temp_ftp']['path'];
 			}
 			// Or have we submitted?
 			elseif (isset($_POST['ftp_username'])) {
-				Maintenance::$context['chmod']['server'] = $_POST['ftp_server'];
-				Maintenance::$context['chmod']['port'] = $_POST['ftp_port'];
-				Maintenance::$context['chmod']['username'] = $_POST['ftp_username'];
-				Maintenance::$context['chmod']['password'] = $_POST['ftp_password'];
-				Maintenance::$context['chmod']['path'] = $_POST['ftp_path'];
+				Utils::$context['chmod']['server'] = $_POST['ftp_server'];
+				Utils::$context['chmod']['port'] = $_POST['ftp_port'];
+				Utils::$context['chmod']['username'] = $_POST['ftp_username'];
+				Utils::$context['chmod']['password'] = $_POST['ftp_password'];
+				Utils::$context['chmod']['path'] = $_POST['ftp_path'];
 			}
 
-			if (isset(Maintenance::$context['chmod']['username'])) {
-				$ftp = new FtpConnection(Maintenance::$context['chmod']['server'], Maintenance::$context['chmod']['port'], Maintenance::$context['chmod']['username'], Maintenance::$context['chmod']['password']);
+			if (isset(Utils::$context['chmod']['username'])) {
+				$ftp = new FtpConnection(Utils::$context['chmod']['server'], Utils::$context['chmod']['port'], Utils::$context['chmod']['username'], Utils::$context['chmod']['password']);
 
 				if ($ftp->error === false) {
 					// Try it without /home/abc just in case they messed up.
-					if (!$ftp->chdir(Maintenance::$context['chmod']['path'])) {
-					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message;
-						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Maintenance::$context['chmod']['path']));
+					if (!$ftp->chdir(Utils::$context['chmod']['path'])) {
+					Utils::$context['chmod']['ftp_error'] = $ftp->last_message;
+						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Utils::$context['chmod']['path']));
 					}
 				}
 			}
@@ -426,32 +426,32 @@ abstract class ToolsBase
 				// Save the error so we can mess with listing...
 				elseif (
 					$ftp->error !== false
-					&& !isset(Maintenance::$context['chmod']['ftp_error'])
+					&& !isset(Utils::$context['chmod']['ftp_error'])
 				) {
-					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
+					Utils::$context['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
 				}
 
 				list($username, $detect_path, $found_path) = $ftp->detect_path(\dirname(__FILE__));
 
-				if ($found_path || !isset(Maintenance::$context['chmod']['path'])) {
-					Maintenance::$context['chmod']['path'] = $detect_path;
+				if ($found_path || !isset(Utils::$context['chmod']['path'])) {
+					Utils::$context['chmod']['path'] = $detect_path;
 				}
 
-				if (!isset(Maintenance::$context['chmod']['username'])) {
-					Maintenance::$context['chmod']['username'] = $username;
+				if (!isset(Utils::$context['chmod']['username'])) {
+					Utils::$context['chmod']['username'] = $username;
 				}
 
 				// Don't forget the login token.
-				Maintenance::$context += SecurityToken::create('login');
+				SecurityToken::create('login');
 
 				return false;
 			}
 
 			// We want to do a relative path for FTP.
-			if (!\in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
-				$ftp_root = strtr(Config::$boarddir, [Maintenance::$context['chmod']['path'] => '']);
+			if (!\in_array(Utils::$context['chmod']['path'], ['', '/'])) {
+				$ftp_root = strtr(Config::$boarddir, [Utils::$context['chmod']['path'] => '']);
 
-				if (substr($ftp_root, -1) == '/' && (Maintenance::$context['chmod']['path'] == '' || Maintenance::$context['chmod']['path'][0] === '/')) {
+				if (substr($ftp_root, -1) == '/' && (Utils::$context['chmod']['path'] == '' || Utils::$context['chmod']['path'][0] === '/')) {
 					$ftp_root = substr($ftp_root, 0, -1);
 				}
 			} else {
@@ -460,11 +460,11 @@ abstract class ToolsBase
 
 			// Save the info for next time!
 			$_SESSION['temp_ftp'] = [
-				'server' => Maintenance::$context['chmod']['server'],
-				'port' => Maintenance::$context['chmod']['port'],
-				'username' => Maintenance::$context['chmod']['username'],
-				'password' => Maintenance::$context['chmod']['password'],
-				'path' => Maintenance::$context['chmod']['path'],
+				'server' => Utils::$context['chmod']['server'],
+				'port' => Utils::$context['chmod']['port'],
+				'username' => Utils::$context['chmod']['username'],
+				'password' => Utils::$context['chmod']['password'],
+				'path' => Utils::$context['chmod']['path'],
 				'root' => $ftp_root,
 			];
 
@@ -513,7 +513,7 @@ abstract class ToolsBase
 		}
 
 		// What remains?
-		Maintenance::$context['chmod']['files'] = $files;
+		Utils::$context['chmod']['files'] = $files;
 
 		return (bool) (empty($files));
 	}
@@ -567,7 +567,7 @@ abstract class ToolsBase
 		// If this is not json, we need to do a few things.
 		if (!Maintenance::isJson()) {
 			// We're going to pause after this!
-			Maintenance::$context['pause'] = true;
+			Utils::$context['pause'] = true;
 
 			Maintenance::setQueryString();
 		} else {

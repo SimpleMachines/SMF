@@ -356,6 +356,10 @@ class GroupPermissionSet
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!Permission::exists($row['permission'])) {
+				continue;
+			}
+
 			self::$loaded[PermissionProfile::DEFAULT][(int) $row['id_group']]->permissions[$row['permission']] = (int) $row['add_deny'];
 		}
 
@@ -445,7 +449,10 @@ class GroupPermissionSet
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!isset(self::$loaded[(int) $row['id_profile']][(int) $row['id_group']])) {
+			if (
+				!isset(self::$loaded[(int) $row['id_profile']][(int) $row['id_group']])
+				|| !Permission::exists($row['permission'])
+			) {
 				continue;
 			}
 

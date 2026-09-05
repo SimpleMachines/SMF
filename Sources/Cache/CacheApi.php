@@ -45,7 +45,7 @@ abstract class CacheApi
 	 *
 	 * This is an copy of the $cache_enable setting in Settings.php.
 	 */
-	public static int $enable;
+	public static int $enable = 0;
 
 	/**
 	 * @var string
@@ -345,9 +345,7 @@ abstract class CacheApi
 	 */
 	final public static function load(string $overrideCache = '', bool $fallbackSMF = true): object|bool
 	{
-		if (!isset(self::$enable)) {
-			self::$enable = min(max((int) Config::$cache_enable, 0), 3);
-		}
+		self::$enable = min(max((int) (Config::$cache_enable ?? 0), self::$enable, 0), 3);
 
 		if (!isset(self::$accelerator)) {
 			self::$accelerator = Config::$cache_accelerator;

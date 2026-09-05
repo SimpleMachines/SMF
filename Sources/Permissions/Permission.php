@@ -357,6 +357,17 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'never_guests' => true,
 		],
+		// Deprecated, but retained in case the admin kept the karma data during
+		// an upgrade. If a modification wants to restore the karma feature, it
+		// should use the integrate_permissions_list hook to set the 'hidden'
+		// property of this permission to false.
+		'karma_edit' => [
+			'view_group' => 'profile',
+			'scope' => 'global',
+			'hidden' => true,
+			'never_guests' => true,
+			'never_banned' => true,
+		],
 		'likes_like' => [
 			'view_group' => 'likes',
 			'scope' => 'global',
@@ -1309,6 +1320,9 @@ class Permission implements \ArrayAccess
 			self::$permissions[$name]['name'] = $name;
 		}
 
+		// Did any old mods add custom permissions to the tables?
+		self::includeOrphanPermissions();
+
 		// Important: do the ones with prerequisites last.
 		uasort(
 			self::$permissions,
@@ -1401,6 +1415,54 @@ class Permission implements \ArrayAccess
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * Checks the permissions tables for any unknown permissions added by old
+	 * mods and ensures that they are included in the list of known permissions.
+	 *
+	 * MOD AUTHORS: Please update your code to use integrate_permissions_list
+	 * to add any custom permissions.
+	 *
+	 * @deprecated 3.0
+	 */
+	protected static function includeOrphanPermissions(): void
+	{
+		// Only do this when backward compatibility mode is enabled.
+		if (empty(Config::$backward_compatibility)) {
+			return;
+		}
+
+		foreach (['global' => 'permissions', 'board' => 'board_permissions'] as $scope => $tbl) {
+			$request = Db::$db->query(
+				'SELECT DISTINCT permission
+				FROM {db_prefix}{raw:tbl}
+				WHERE permission NOT IN ({array_string:known_permissions})',
+				[
+					'tbl' => $tbl,
+					'known_permissions' => array_keys(self::$permissions),
+				],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				self::$permissions[$row['permission']] = [
+					'name' => $row['permission'],
+					'scope' => $scope,
+					'view_group' => 'general',
+				];
+
+				if (
+					str_ends_with($row['permission'], '_own')
+					|| str_ends_with($row['permission'], '_any')
+				) {
+					self::$permissions[$row['permission']]['generic_name'] = substr($row['permission'], 0, -4);
+					self::$permissions[$row['permission']]['own_any'] = substr($row['permission'], -3);
+				}
+			}
+
+			Db::$db->free_result($request);
+
+		}
+	}
 
 	/**
 	 * Calls the deprecated integrate_heavy_permissions_session hook.

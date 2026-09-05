@@ -20,6 +20,7 @@ use SMF\Lang;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\SubStepInterface;
 use SMF\Sapi;
+use SMF\Utils;
 
 /**
  * Migration container for a maintenance task.
@@ -140,7 +141,7 @@ class MigrationBase implements SubStepInterface
 			throw new \ErrorException($db_error_message, 0, E_USER_ERROR, $file, $line);
 		}
 
-		Maintenance::$context['try_again'] = true;
+		Utils::$context['try_again'] = true;
 		Maintenance::$fatal_error = '
 		<strong>' . Lang::getTxt('upgrade_unsuccessful', file: 'Maintenance') . '</strong><br>
 		<div style="margin: 2ex;">
