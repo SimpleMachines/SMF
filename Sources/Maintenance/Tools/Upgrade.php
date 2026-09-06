@@ -341,7 +341,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Identifies this upgrade, and stays the same when it is started again
 	 * after being interrupted. What a migration records against it therefore
 	 * describes the database as this upgrade found it, not as a later attempt
-	 * found it half changed.
+	 * found it half changed. Read through getRunId(), which knows where it
+	 * lives.
 	 */
 	protected string $id_run = '';
 
@@ -1220,8 +1221,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		Utils::$context['form_action'] = Config::$boardurl . '/index.php';
 
-		// Update the database with the new SMF version.
-		$this->updateModSettings(['smfVersion' => SMF_VERSION]);
+		// Update the database with the new SMF version. Forgetting which run
+		// this was goes with it: whatever upgrades this forum next is a
+		// different one, and records what it finds rather than reading the
+		// notes this one left.
+		$this->updateModSettings([
+			'smfVersion' => SMF_VERSION,
+			'upgrade_run' => '',
+		]);
 
 		// Clean any old cache files away.
 		CacheApi::load();
@@ -1422,17 +1429,47 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return;
 		}
 
-		if (MigrationData::get($this->id_run, MigrationData::TYPE_DEFINITION, $table) !== null) {
+		$run = $this->getRunId();
+
+		if (MigrationData::get($run, MigrationData::TYPE_DEFINITION, $table) !== null) {
 			return;
 		}
 
 		MigrationData::save(
-			$this->id_run,
+			$run,
 			static::class,
 			MigrationData::TYPE_DEFINITION,
 			$table,
 			Db::$db->table_sql($table),
 		);
+	}
+
+	/**
+	 * What identifies this upgrade, making one if there is not one yet.
+	 *
+	 * It is kept in the settings table rather than in the progress data in
+	 * Settings.php, because that is written by preExit(), which the command
+	 * line reaches only once the upgrade has finished and a killed process
+	 * never reaches at all. The database is the one place both ways of running
+	 * this can leave something behind.
+	 *
+	 * @return string The run's id.
+	 */
+	private function getRunId(): string
+	{
+		if ($this->id_run !== '') {
+			return $this->id_run;
+		}
+
+		$this->id_run = (string) (Config::$modSettings['upgrade_run'] ?? '');
+
+		if ($this->id_run === '') {
+			$this->id_run = (string) Uuid::create();
+
+			$this->updateModSettings(['upgrade_run' => $this->id_run]);
+		}
+
+		return $this->id_run;
 	}
 
 	/**
@@ -1489,11 +1526,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->user['name'] = (string) ($data['user_name'] ?? '');
 		$this->user['maint'] = (int) ($data['maint'] ?? Config::$maintenance);
 		$this->start_smf_version = str_replace(' ', '.', strtolower($data['smf_version'] ?? Config::$modSettings['smfVersion'] ?? '0.0.dev.0'));
-		$this->id_run = (string) ($data['run'] ?? '');
-
-		if ($this->id_run === '') {
-			$this->id_run = (string) Uuid::create();
-		}
 	}
 
 	/**
@@ -1513,7 +1545,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'user_name' => $this->user['name'],
 				'maint' => $this->user['maint'] ?? 0,
 				'smf_version' => $this->start_smf_version,
-				'run' => $this->id_run,
 			]));
 		} else {
 			$data = '';
