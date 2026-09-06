@@ -50,6 +50,14 @@ class MigrationRollback
 	 */
 	public string $error = '';
 
+	/**
+	 * @var array
+	 *
+	 * Statements the database refused, shortened. A rollback that reports
+	 * itself done while these are not empty did not put everything back.
+	 */
+	public array $failures = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -90,6 +98,17 @@ class MigrationRollback
 		// reason.
 		$checking = Db::$db->disableQueryCheck;
 		Db::$db->disableQueryCheck = true;
+
+		// A prefix that names the database, as `smf`.smf_ does, means nothing
+		// ever selected one: every query says which database it means. The
+		// recorded SQL does not, since the upgrader wrote it while the prefix
+		// was a plain one, so the database has to be chosen before any of it
+		// will run at all.
+		$database = $this->database();
+
+		if ($database !== '') {
+			Db::$db->select($database);
+		}
 
 		foreach ($this->routines($run) as $name => $sql) {
 			$this->execute($sql);
@@ -161,6 +180,17 @@ class MigrationRollback
 	private function routines(string $run): array
 	{
 		return MigrationData::all($run, MigrationData::TYPE_ROUTINE);
+	}
+
+	/**
+	 * The database the prefix names, if it names one.
+	 *
+	 * @return string The database's name, or an empty string if the prefix is
+	 *    a plain one and a database has already been chosen.
+	 */
+	private function database(): string
+	{
+		return preg_match('~^`(.+?)`\.~', Db::$db->prefix, $match) !== 0 ? $match[1] : '';
 	}
 
 	/**
@@ -274,13 +304,21 @@ class MigrationRollback
 			// values, so the checks that keep a query from being assembled out
 			// of user input have nothing to look at here and reject the
 			// quoting a CREATE TABLE is full of.
-			Db::$db->query(
+			$result = Db::$db->query(
 				$statement,
 				[
 					'security_override' => true,
 					'db_error_skip' => true,
 				],
 			);
+
+			// The errors are skipped so that one statement failing does not
+			// end the whole thing, which would leave a forum half put back.
+			// Skipped is not the same as unnoticed, though: what did not run
+			// is the difference between a rollback and the appearance of one.
+			if ($result === false) {
+				$this->failures[] = preg_replace('~\s+~', ' ', substr($statement, 0, 120));
+			}
 		}
 	}
 
