@@ -126,6 +126,13 @@ class MigrationRollback
 			$this->log[] = 'dropped ' . $table;
 		}
 
+		// After the tables, since a table the upgrade added can have an index
+		// built over a function it added alongside it.
+		foreach ($this->addedRoutines($run) as $name => $sql) {
+			$this->execute($sql);
+			$this->log[] = 'dropped function ' . $name;
+		}
+
 		Db::$db->disableQueryCheck = $checking;
 
 		$this->restoreSettings($run);
@@ -179,7 +186,60 @@ class MigrationRollback
 	 */
 	private function routines(string $run): array
 	{
-		return MigrationData::all($run, MigrationData::TYPE_ROUTINE);
+		// A routine recorded by name alone is one the run found but could not
+		// write down. Its name still counts as having been there, which is
+		// what keeps it off the list of things the upgrade added, but there is
+		// no SQL to put back.
+		return array_filter(MigrationData::all($run, MigrationData::TYPE_ROUTINE));
+	}
+
+	/**
+	 * The routines the upgrade added, newest kind first.
+	 *
+	 * An aggregate is dropped before the plain functions are, since it is
+	 * built out of one of them and PostgreSQL will not let the parts go while
+	 * something is made of them.
+	 *
+	 * @param string $run The run.
+	 * @return array The DROP statements, keyed by signature.
+	 */
+	private function addedRoutines(string $run): array
+	{
+		if (Db::$db->title !== POSTGRE_TITLE) {
+			return [];
+		}
+
+		$recorded = MigrationData::all($run, MigrationData::TYPE_ROUTINE);
+
+		if ($recorded === []) {
+			return [];
+		}
+
+		$drops = [];
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature, p.prokind
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+			ORDER BY p.prokind = {string:plain}, signature',
+			[
+				'schema' => 'public',
+				'plain' => 'f',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (isset($recorded[$row['signature']])) {
+				continue;
+			}
+
+			$drops[$row['signature']] = 'DROP ' . ($row['prokind'] === 'a' ? 'AGGREGATE' : 'FUNCTION') . ' ' . $row['signature'];
+		}
+
+		Db::$db->free_result($request);
+
+		return $drops;
 	}
 
 	/**
