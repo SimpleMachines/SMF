@@ -71,6 +71,14 @@ though it succeeded — it pauses so a human can read its "N duplicate tables
 ignored" report, and the form's `pop_done` field is the short-circuit past it.
 Passing `pop_done` on the first pass would skip building the schema entirely.
 
+It then deletes `install.php`, which the installer asks for but cannot do
+itself — its `?delete` link is a GET, and command line arguments only ever reach
+`$_POST`. That matters more than it sounds: while the file is there
+`Settings.php` redirects every request back into the installer, and SMF puts a
+"MAJOR SECURITY RISK" box on every page it shows an administrator. Reinstalling
+still works, because `reset.sh` runs first and does not return until the
+entrypoint has staged a fresh copy.
+
 Two flags worth knowing:
 
 - `--force` reinstalls even when a forum is already there. Without it the
@@ -101,6 +109,56 @@ are gitignored.
 `reset.sh` is the other half: it empties one engine's database and restages the
 installer, discarding that forum. `use-engine.sh` switches between forums,
 `reset.sh` throws one away.
+
+## Accounts and passwords
+
+Two forums, each with its own administrator, and a password chosen months ago is
+a recipe for an afternoon of hand written SQL. `user.sh` is there so it is not:
+
+```sh
+.docker/user.sh list
+.docker/user.sh check admin 'password'
+.docker/user.sh reset admin 'a new password'
+```
+
+`check` exits 0 when SMF would accept the password and 1 when it would not, so
+it works in a conditional as well as by eye. It also points out an account that
+is not activated, which fails to log in with a correct password and looks
+exactly like a wrong one.
+
+`--engine mysql|postgresql` reads the settings `use-engine.sh` saved for that
+engine, so the *other* forum can be inspected without switching to it:
+
+```sh
+.docker/user.sh check admin 'password' --engine mysql
+```
+
+The hashing goes through SMF's own `Security` class rather than being written
+here, so what `reset` puts in the table is by construction what `Login2` expects
+to find. It clears `passwd_flood` at the same time: SMF locks an account out for
+a while after enough wrong guesses, and a fresh password behind a lockout looks
+exactly like a password that did not take.
+
+## Running the tests
+
+```sh
+.docker/test.sh                          # both engines
+.docker/test.sh --engine postgresql
+.docker/test.sh --engine both --filter ModSettings
+```
+
+Anything it does not recognise is passed on to PHPUnit. It installs a forum for
+an engine that has not got one, and puts the previously active engine back when
+it finishes.
+
+Running on both is the point rather than a thoroughness exercise. The counter
+regression in `tests/Integration/ModSettingsTest.php` **passes on MySQL with the
+bug still in place** and only fails on PostgreSQL, because MySQL coerces text to
+a number where PostgreSQL refuses. A suite that only ever sees one engine proves
+considerably less than it looks like it does.
+
+The unit suite needs none of this — `composer test` runs everything, and the
+integration tests skip themselves when there is no forum to talk to.
 
 ### Installing in a browser instead
 
@@ -299,6 +357,12 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
+.docker/lib.sh                   paths, credentials and engine names, shared
+.docker/install-forum.sh         install a forum with no browser involved
+.docker/reset.sh                 empty one engine and restage the installer
+.docker/use-engine.sh            switch which installed forum is live
+.docker/user.sh                  inspect accounts, check and reset passwords
+
 .docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
 .docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
 .docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left

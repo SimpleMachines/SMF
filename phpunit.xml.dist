@@ -11,6 +11,14 @@
 		<testsuite name="unit">
 			<directory>tests/Unit</directory>
 		</testsuite>
+		<!--
+			Needs an installed forum, and skips itself when there is not one, so
+			running the whole file is safe with or without a database. See
+			tests/Integration/Installation.php.
+		-->
+		<testsuite name="integration">
+			<directory>tests/Integration</directory>
+		</testsuite>
 	</testsuites>
 	<source>
 		<include>
