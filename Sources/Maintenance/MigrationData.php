@@ -16,7 +16,8 @@ declare(strict_types=1);
 namespace SMF\Maintenance;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v3_0\Migrations;
+use SMF\Db\Schema\v3_0\MigrationData as MigrationDataTable;
+use SMF\Db\Schema\v3_0\MigrationRuns as MigrationRunsTable;
 
 /**
  * What a migration needs to still know later.
@@ -70,7 +71,7 @@ class MigrationData
 
 		Db::$db->insert(
 			'insert',
-			'{db_prefix}migrations',
+			'{db_prefix}migration_data',
 			[
 				'id_run' => 'string-36',
 				'migration' => 'string-255',
@@ -104,7 +105,7 @@ class MigrationData
 
 		$request = Db::$db->query(
 			'SELECT data
-			FROM {db_prefix}migrations
+			FROM {db_prefix}migration_data
 			WHERE id_run = {string:run}
 				AND data_type = {string:type}
 				AND data_key = {string:key}
@@ -139,7 +140,7 @@ class MigrationData
 
 		$request = Db::$db->query(
 			'SELECT data_key, data
-			FROM {db_prefix}migrations
+			FROM {db_prefix}migration_data
 			WHERE id_run = {string:run}
 				AND data_type = {string:type}
 			ORDER BY data_key',
@@ -172,7 +173,7 @@ class MigrationData
 		}
 
 		Db::$db->query(
-			'DELETE FROM {db_prefix}migrations
+			'DELETE FROM {db_prefix}migration_data
 			WHERE id_run = {string:run}
 				AND data_type = {string:type}
 				AND data_key = {string:key}',
@@ -180,6 +181,133 @@ class MigrationData
 				'run' => $run,
 				'type' => $type,
 				'key' => $key,
+			],
+		);
+	}
+
+	/**
+	 * The run that is under way, if there is one.
+	 *
+	 * A run is under way until something says it finished, so a process that
+	 * was killed leaves its row behind and the next attempt finds it. That is
+	 * what makes a restart the same run rather than a new one, and it is why
+	 * this is asked of the database rather than of the progress data in
+	 * Settings.php, which the command line never writes.
+	 *
+	 * @return string The run's id, or an empty string if none is open.
+	 */
+	public static function currentRun(): string
+	{
+		if (!self::exists()) {
+			return '';
+		}
+
+		$request = Db::$db->query(
+			'SELECT id_run
+			FROM {db_prefix}migration_runs
+			WHERE time_finished = {int:unfinished}
+			ORDER BY time_started DESC
+			LIMIT 1',
+			[
+				'unfinished' => 0,
+			],
+		);
+
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
+
+		return $row === false || $row === null ? '' : (string) $row['id_run'];
+	}
+
+	/**
+	 * Opens a run.
+	 *
+	 * @param string $run The id to give it.
+	 * @param string $from The version the forum is on now.
+	 * @param int $member Who started it, if that is known.
+	 * @return bool Whether it was recorded.
+	 */
+	public static function startRun(string $run, string $from, int $member = 0): bool
+	{
+		if (!self::exists()) {
+			return false;
+		}
+
+		Db::$db->insert(
+			'ignore',
+			'{db_prefix}migration_runs',
+			[
+				'id_run' => 'string-36',
+				'version_from' => 'string-20',
+				'id_member' => 'int',
+				'time_started' => 'int',
+				'time_updated' => 'int',
+			],
+			[
+				[$run, $from, $member, time(), time()],
+			],
+			['id_run'],
+		);
+
+		return true;
+	}
+
+	/**
+	 * Records how far a run has got.
+	 *
+	 * The upgrader keeps its place in the query string, which is gone the
+	 * moment the process is. This is the copy that outlives it.
+	 *
+	 * @param string $run The run.
+	 * @param int $step Which step it is on.
+	 * @param int $substep Which substep of that step.
+	 * @param int $start How far into the substep.
+	 */
+	public static function recordPosition(string $run, int $step, int $substep, int $start): void
+	{
+		if ($run === '' || !self::exists()) {
+			return;
+		}
+
+		Db::$db->query(
+			'UPDATE {db_prefix}migration_runs
+			SET step = {int:step},
+				substep = {int:substep},
+				substep_start = {int:start},
+				time_updated = {int:now}
+			WHERE id_run = {string:run}',
+			[
+				'step' => $step,
+				'substep' => $substep,
+				'start' => $start,
+				'now' => time(),
+				'run' => $run,
+			],
+		);
+	}
+
+	/**
+	 * Closes a run, so that the next one is a new one.
+	 *
+	 * @param string $run The run.
+	 * @param string $to The version the forum is on now.
+	 */
+	public static function finishRun(string $run, string $to): void
+	{
+		if ($run === '' || !self::exists()) {
+			return;
+		}
+
+		Db::$db->query(
+			'UPDATE {db_prefix}migration_runs
+			SET version_to = {string:to},
+				time_updated = {int:now},
+				time_finished = {int:now}
+			WHERE id_run = {string:run}',
+			[
+				'to' => $to,
+				'now' => time(),
+				'run' => $run,
 			],
 		);
 	}
@@ -201,7 +329,7 @@ class MigrationData
 	{
 		static $exists = false;
 
-		return $exists = $exists || (new Migrations())->exists(true);
+		return $exists = $exists || ((new MigrationDataTable())->exists(true) && (new MigrationRunsTable())->exists(true));
 	}
 
 	/**
@@ -219,7 +347,8 @@ class MigrationData
 			return true;
 		}
 
-		(new Migrations())->normalize();
+		(new MigrationDataTable())->normalize();
+		(new MigrationRunsTable())->normalize();
 
 		return self::exists();
 	}
