@@ -1520,6 +1520,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$this->logProgress(Lang::getTxt('log_rollback_done', ['count' => \count($rollback->log)], file: 'Maintenance'));
 
+		// This process started while the forum was on the version it has just
+		// been taken off, and the progress data would say so on the way out.
+		// The next upgrade would read that, believe the work was already done
+		// and skip the migrations the database now needs again.
+		$this->start_smf_version = str_replace(' ', '.', strtolower((string) (Config::$modSettings['smfVersion'] ?? $this->start_smf_version)));
+
+		$this->updateSettingsFile(['maintenance_tool_progress' => '']);
+
+		// Asking for a rollback opened a run of its own, which copied nothing.
+		// Left open, the next upgrade would take it up as unfinished work.
+		MigrationData::discardEmptyRuns();
+
 		Utils::$context['rollback_done'] = true;
 		Utils::$context['continue'] = false;
 

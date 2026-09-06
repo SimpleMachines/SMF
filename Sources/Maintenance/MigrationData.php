@@ -341,6 +341,33 @@ class MigrationData
 	}
 
 	/**
+	 * Throws away runs that recorded nothing.
+	 *
+	 * Asking the upgrader to put a database back opens a run of its own, since
+	 * writing any setting asks which run is under way. That run copies nothing
+	 * and describes nothing, and leaving it open would have the next upgrade
+	 * take it up as unfinished work and skip the backup it never made.
+	 */
+	public static function discardEmptyRuns(): void
+	{
+		if (!self::exists()) {
+			return;
+		}
+
+		Db::$db->query(
+			'DELETE FROM {db_prefix}migration_runs
+			WHERE time_finished = {int:unfinished}
+				AND id_run NOT IN (
+					SELECT id_run
+					FROM {db_prefix}migration_data
+				)',
+			[
+				'unfinished' => 0,
+			],
+		);
+	}
+
+	/**
 	 * Notes that a run has been undone.
 	 *
 	 * The row stays where it is. What the run did is still worth knowing about
