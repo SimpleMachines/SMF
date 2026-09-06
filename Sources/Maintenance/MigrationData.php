@@ -52,6 +52,14 @@ class MigrationData
 	 */
 	public const TYPE_BACKUP = 'backup';
 
+	/**
+	 * A function the database held before the migrations reach it, as the SQL
+	 * that would create it again. A table's definition can lean on one -- an
+	 * index over an expression names the function it calls -- so the two are
+	 * only useful together.
+	 */
+	public const TYPE_ROUTINE = 'routine';
+
 	/***********************
 	 * Public static methods
 	 ***********************/
