@@ -25,6 +25,7 @@ use SMF\Maintenance\Cleanup;
 use SMF\Maintenance\GenericSubStep;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration;
+use SMF\Maintenance\MigrationData;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Utf8ConverterStep;
 use SMF\QueryString;
@@ -36,6 +37,7 @@ use SMF\Time;
 use SMF\User;
 use SMF\UserDataset;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Upgrade tool.
@@ -332,6 +334,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * SMF Version we started on.
 	 */
 	protected string $start_smf_version = '';
+
+	/**
+	 * @var string
+	 *
+	 * Identifies this upgrade, and stays the same when it is started again
+	 * after being interrupted. What a migration records against it therefore
+	 * describes the database as this upgrade found it, not as a later attempt
+	 * found it half changed.
+	 */
+	protected string $id_run = '';
 
 	/**
 	 * @var null|string
@@ -1380,12 +1392,48 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
-		return Db::$db->backup_table($table, 'backup_' . $table);
+		$this->recordDefinition($table);
+
+		return Db::$db->backup_table($table, 'backup_' . $table) !== false;
 	}
 
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Records what a table looked like before the migrations reach it.
+	 *
+	 * The backup holds the rows. This holds the shape they were in: the SQL
+	 * that would build the table again, with its indexes, its keys and, on
+	 * PostgreSQL, a sequence of its own. Without it a backup table is a set of
+	 * columns and nothing else, which is not enough to put a forum back.
+	 *
+	 * Only the first pass of a run records anything. A run that was
+	 * interrupted and started again reaches this a second time, over a
+	 * database the migrations have already changed, and what it would write
+	 * then is not what the admin wanted a copy of.
+	 *
+	 * @param string $table Name of the table, with the prefix on it.
+	 */
+	private function recordDefinition(string $table): void
+	{
+		if (!MigrationData::ensure()) {
+			return;
+		}
+
+		if (MigrationData::get($this->id_run, MigrationData::TYPE_DEFINITION, $table) !== null) {
+			return;
+		}
+
+		MigrationData::save(
+			$this->id_run,
+			static::class,
+			MigrationData::TYPE_DEFINITION,
+			$table,
+			Db::$db->table_sql($table),
+		);
+	}
 
 	/**
 	 * Prepare the configuration to handle support with some older installs.
@@ -1441,6 +1489,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->user['name'] = (string) ($data['user_name'] ?? '');
 		$this->user['maint'] = (int) ($data['maint'] ?? Config::$maintenance);
 		$this->start_smf_version = str_replace(' ', '.', strtolower($data['smf_version'] ?? Config::$modSettings['smfVersion'] ?? '0.0.dev.0'));
+		$this->id_run = (string) ($data['run'] ?? '');
+
+		if ($this->id_run === '') {
+			$this->id_run = (string) Uuid::create();
+		}
 	}
 
 	/**
@@ -1460,6 +1513,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				'user_name' => $this->user['name'],
 				'maint' => $this->user['maint'] ?? 0,
 				'smf_version' => $this->start_smf_version,
+				'run' => $this->id_run,
 			]));
 		} else {
 			$data = '';
