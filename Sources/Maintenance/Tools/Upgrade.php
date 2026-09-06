@@ -1096,7 +1096,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// run doing the restoring.
 		$table_names = array_filter($tables, function ($table) {
 			return !str_starts_with($table, 'backup_')
-				&& !str_starts_with($table, Config::$db_prefix . 'migration_');
+				&& !str_starts_with($table, MigrationData::prefix() . 'migration_');
 		});
 
 		Maintenance::$total_substeps = \count($table_names);
