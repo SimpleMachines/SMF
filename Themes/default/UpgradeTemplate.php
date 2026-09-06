@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
 use SMF\Sapi;
+use SMF\Time;
 use SMF\Utils;
 
 /**
@@ -304,6 +305,28 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		if (!empty(Maintenance::$fatal_error)) {
 			return;
+		}
+
+		// An upgrade that stopped part way is the only time putting the database
+		// back is offered. The admin is standing in front of a half upgraded
+		// forum and has two ways out of it.
+		if (!empty(Utils::$context['rollback_done'])) {
+			echo '
+		<div class="noticebox">', Lang::getTxt('upgrade_rollback_done', file: 'Maintenance'), '</div>';
+
+			return;
+		}
+
+		if (!empty(Utils::$context['rollback_offer'])) {
+			echo '
+		<div class="information">
+			<strong>', Lang::getTxt('upgrade_rollback_title', file: 'Maintenance'), '</strong><br>
+			', Lang::getTxt('upgrade_rollback_offer', [
+				'version' => Utils::$context['rollback_offer']['version_from'],
+				'date' => Time::create('@' . Utils::$context['rollback_offer']['time_started'])->format(),
+			], file: 'Maintenance'), '<br>
+			<input type="submit" name="rollback" value="', Lang::getTxt('upgrade_rollback_button', file: 'Maintenance'), '" class="button">
+		</div>';
 		}
 
 		echo '

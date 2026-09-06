@@ -174,6 +174,36 @@ class MigrationRollback
 		return $runs;
 	}
 
+	/**
+	 * The run worth offering to undo, if there is one.
+	 *
+	 * An upgrade that finished is not offered: putting a working forum back is
+	 * something an admin should have to go looking for, not something the
+	 * upgrader suggests. One that stopped part way is the other case entirely,
+	 * and the admin standing in front of it has two ways out -- carry on, or
+	 * put things back as they were.
+	 *
+	 * Only a run that took a backup can be offered, since nothing else has the
+	 * rows to put back.
+	 *
+	 * @return array|null The run, or null if there is nothing to offer.
+	 */
+	public function unfinished(): ?array
+	{
+		foreach ($this->candidates() as $run) {
+			if (
+				(int) $run['time_finished'] !== 0
+				|| MigrationData::all($run['id_run'], MigrationData::TYPE_BACKUP) === []
+			) {
+				continue;
+			}
+
+			return $run;
+		}
+
+		return null;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
