@@ -214,6 +214,12 @@ class MigrationData
 	 * this is asked of the database rather than of the progress data in
 	 * Settings.php, which the command line never writes.
 	 *
+	 * A run that has been undone is finished business whatever its finishing
+	 * time says. Upgrading again after a rollback is a new attempt on a
+	 * database that has been put back, and it needs a backup and a set of
+	 * definitions of its own rather than the ones describing a state that has
+	 * already been restored.
+	 *
 	 * @return string The run's id, or an empty string if none is open.
 	 */
 	public static function currentRun(): string
@@ -226,10 +232,12 @@ class MigrationData
 			'SELECT id_run
 			FROM {db_prefix}migration_runs
 			WHERE time_finished = {int:unfinished}
+				AND time_rolled_back = {int:not_undone}
 			ORDER BY time_started DESC
 			LIMIT 1',
 			[
 				'unfinished' => 0,
+				'not_undone' => 0,
 			],
 		);
 
