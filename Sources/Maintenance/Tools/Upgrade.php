@@ -927,6 +927,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Db::load();
 		Db::$db->setSqlMode('strict');
 
+		// The admin has pressed Continue, so the upgrade is underway and the
+		// run it belongs to starts here. Opening it before anything is written
+		// is what gives the settings this step changes somewhere to be recorded.
+		$this->getRunId();
+
 		$file_settings = [];
 		$db_settings = [];
 
@@ -1094,10 +1099,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// of the record of what was copied is of no use to anybody putting a
 		// forum back, and restoring it would put back an older account of the
 		// run doing the restoring.
-		$table_names = array_filter($tables, function ($table) {
+		// array_values because the substep is used as an index into this list,
+		// and array_filter leaves a hole where each name it dropped had been.
+		$table_names = array_values(array_filter($tables, function ($table) {
 			return !str_starts_with($table, 'backup_')
 				&& !str_starts_with($table, MigrationData::prefix() . 'migration_');
-		});
+		}));
 
 		Maintenance::$total_substeps = \count($table_names);
 
@@ -1253,11 +1260,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Update the database with the new SMF version.
 		$this->updateModSettings(['smfVersion' => SMF_VERSION]);
 
-		// Closing the run goes with it. Whatever upgrades this forum next is a
-		// different one, and records what it finds rather than reading the
-		// notes this one left.
-		MigrationData::finishRun($this->getRunId(), SMF_VERSION);
-
 		// Clean any old cache files away.
 		CacheApi::load();
 		CacheApi::clean();
@@ -1346,6 +1348,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		$this->updateSettingsFile($file_settings);
+
+		// The run closes after the last thing the upgrade writes, so that
+		// db_character_set and db_mb4 are recorded while it is still open.
+		// Whatever upgrades this forum next is a different run, and records
+		// what it finds rather than reading the notes this one left.
+		MigrationData::finishRun($this->getRunId(), SMF_VERSION);
 
 		// We're done!
 		$this->logProgress(Lang::getTxt('log_upgrade_complete', file: 'Maintenance'));
@@ -1488,13 +1496,21 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	private function recordSettings(array $names): void
 	{
-		$run = $this->getRunId();
+		// A run of its own is no use here. The settings are put back beside the
+		// tables the run copied, so one that copied nothing has nothing to put
+		// them back into, and the last thing an upgrade should leave behind is
+		// a run that was opened by the act of finishing.
+		$run = $this->getRunId(false);
 
 		if ($run === '') {
 			return;
 		}
 
-		$current = Config::getCurrentSettings();
+		// Read the file as it stands rather than as it stood when the request
+		// began. An upgrade writes Settings.php more than once, and the default
+		// refuses a file touched since TIME_START -- which, from the second
+		// write onwards, is a file this upgrade wrote itself.
+		$current = Config::getCurrentSettings(@filemtime(SMF_SETTINGS_FILE) ?: null);
 
 		if (!\is_array($current)) {
 			return;
@@ -1619,7 +1635,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *
 	 * @return string The run's id.
 	 */
-	private function getRunId(): string
+	private function getRunId(bool $start = true): string
 	{
 		if ($this->id_run !== '') {
 			return $this->id_run;
@@ -1629,15 +1645,19 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return '';
 		}
 
-		$this->id_run = MigrationData::currentRun();
+		$run = MigrationData::currentRun();
 
-		if ($this->id_run === '') {
-			$this->id_run = (string) Uuid::create();
-
-			MigrationData::startRun($this->id_run, $this->start_smf_version, $this->user['id'] ?? 0);
+		if ($run === '' && !$start) {
+			return '';
 		}
 
-		return $this->id_run;
+		if ($run === '') {
+			$run = (string) Uuid::create();
+
+			MigrationData::startRun($run, $this->start_smf_version, $this->user['id'] ?? 0);
+		}
+
+		return $this->id_run = $run;
 	}
 
 	/**
