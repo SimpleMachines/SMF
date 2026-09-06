@@ -26,6 +26,7 @@ use SMF\Maintenance\GenericSubStep;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration;
 use SMF\Maintenance\MigrationData;
+use SMF\Maintenance\MigrationRollback;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Utf8ConverterStep;
 use SMF\QueryString;
@@ -913,6 +914,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		Utils::$context['sm_stats_configured'] = !empty(Config::$modSettings['allow_sm_stats']) || !empty(Config::$modSettings['enable_sm_stats']);
 
+		// An upgrade that stopped part way leaves the admin with two ways out.
+		// Carrying on is the one the rest of this page is about; putting the
+		// database back as it was is the other, and is only worth offering when
+		// there is a backup to put back.
+		$rollback = new MigrationRollback();
+
+		Utils::$context['rollback_offer'] = $rollback->unfinished();
+
+		if (!empty($_POST['rollback']) && Utils::$context['rollback_offer'] !== null) {
+			return $this->rollBackUpgrade($rollback, Utils::$context['rollback_offer']);
+		}
+
 		// If we've not submitted then we're done.
 		if (!Sapi::isCLI() && empty($_POST['upcont'])) {
 			Utils::$context['continue'] = true;
@@ -1477,6 +1490,41 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Undoes an upgrade that stopped part way, and stops.
+	 *
+	 * Whatever happens, this does not carry on into the rest of the upgrade.
+	 * An admin who asked for the database to be put back did not ask for it to
+	 * be upgraded again straight afterwards.
+	 *
+	 * @param MigrationRollback $rollback The thing that does the work.
+	 * @param array $run The run being undone.
+	 * @return bool Always false, since the upgrade is not going any further.
+	 */
+	private function rollBackUpgrade(MigrationRollback $rollback, array $run): bool
+	{
+		$this->logProgress(Lang::getTxt('log_rollback_starting', ['version' => $run['version_from']], file: 'Maintenance'));
+
+		Db::load();
+
+		if (!$rollback->rollback($run['id_run'])) {
+			Maintenance::$fatal_error = Lang::getTxt('log_rollback_failed', ['error' => $rollback->error], file: 'Maintenance');
+
+			return false;
+		}
+
+		foreach ($rollback->failures as $failure) {
+			Maintenance::$warnings[] = Lang::getTxt('log_rollback_refused', ['statement' => $failure], file: 'Maintenance');
+		}
+
+		$this->logProgress(Lang::getTxt('log_rollback_done', ['count' => \count($rollback->log)], file: 'Maintenance'));
+
+		Utils::$context['rollback_done'] = true;
+		Utils::$context['continue'] = false;
+
+		return false;
+	}
 
 	/**
 	 * Records what the settings being written held beforehand.
