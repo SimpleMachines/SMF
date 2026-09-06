@@ -333,6 +333,32 @@ class MigrationData
 	}
 
 	/**
+	 * Notes that a run has been undone.
+	 *
+	 * The row stays where it is. What the run did is still worth knowing about
+	 * after it has been put back, and a forum that was upgraded and rolled back
+	 * is a different thing from one that was never upgraded.
+	 *
+	 * @param string $run The run that was undone.
+	 */
+	public static function recordRollback(string $run): void
+	{
+		if ($run === '' || !self::exists()) {
+			return;
+		}
+
+		Db::$db->query(
+			'UPDATE {db_prefix}migration_runs
+			SET time_rolled_back = {int:now}
+			WHERE id_run = {string:run}',
+			[
+				'now' => time(),
+				'run' => $run,
+			],
+		);
+	}
+
+	/**
 	 * Whether there is anywhere to record this.
 	 *
 	 * The table arrives with 3.0, so anything asking before it has been created
