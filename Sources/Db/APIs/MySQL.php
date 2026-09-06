@@ -1169,10 +1169,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$inner_lines = [];
 
 		foreach ($structure['columns'] as $column) {
-			$line = '  `' . $column['name'] . '` ' . $column['type'];
+			// The structure reports SMF's own name for a type that MySQL
+			// spells differently -- a varbinary(16) holding an address comes
+			// back as an inet -- so it has to be turned back into something
+			// MySQL knows before it can be written into a CREATE TABLE.
+			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
-			if (is_numeric($column['size'])) {
-				$line .= '(' . $column['size'] . ')';
+			$line = '  `' . $column['name'] . '` ' . $type;
+
+			if (is_numeric($size)) {
+				$line .= '(' . $size . ')';
 			}
 
 			if (!empty($column['unsigned'])) {
