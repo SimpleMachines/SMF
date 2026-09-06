@@ -975,14 +975,18 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		/**
-		 * @todo Should we create backups of sequences as well?
-		 */
+		// The copy takes the columns and their types. It does not take their
+		// defaults, because a default is copied as the expression it is written
+		// with: a column fed by a sequence would arrive pointing at the live
+		// table's sequence, leaving the backup as an object that sequence
+		// cannot be dropped without and drawing ids from it if anything were
+		// inserted here. What each column defaults to is kept by the upgrader
+		// alongside the rest of the table's definition, which is a fuller
+		// record than a copy of the defaults would have been.
 		$result = $this->query(
 			'CREATE TABLE {raw:backup_table}
 			(
 				LIKE {raw:table}
-				INCLUDING DEFAULTS
 			)',
 			[
 				'backup_table' => $backup_table,
