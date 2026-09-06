@@ -182,6 +182,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\PermissionChanges::class,
 			Migration\v3_0\BoardPostsCount::class,
 			Migration\v3_0\ValidationCodeLength::class,
+			Migration\v3_0\CreateMemberAuth::class,
 		],
 	];
 

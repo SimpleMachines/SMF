@@ -76,6 +76,7 @@ class Login extends Login2
 		Utils::$context['default_username'] = Utils::htmlspecialchars($_REQUEST['u'] ?? '');
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = false;
+		Utils::$context['authentication_methods'] = parent::getAuthenticationMethods();
 
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [

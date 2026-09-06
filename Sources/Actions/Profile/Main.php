@@ -693,16 +693,18 @@ class Main implements ActionInterface, Routable
 
 				$password = $_POST['oldpasswrd'] ?? '';
 
-				// You didn't even enter a password!
-				if (trim($password) == '') {
-					Profile::$member->save_errors[] = 'no_password';
-				}
-
 				// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
 				$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
+
+				// You didn't even enter a password! Asked after the hook, because
+				// a member who signs in without one has nothing to type here, and
+				// only the integration that signed them in can vouch for them.
+				if (!$good_password && trim($password) == '') {
+					Profile::$member->save_errors[] = 'no_password';
+				}
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
