@@ -1564,8 +1564,32 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return;
 		}
 
+		// Every routine is named, because the names are what says which ones
+		// the upgrade went on to add. Only a plain function can be written
+		// down though: pg_get_functiondef() refuses an aggregate, and an
+		// aggregate SMF did not create is one it has no business rebuilding.
+		$definitions = [];
+
 		$request = Db::$db->query(
 			'SELECT p.oid::regprocedure AS signature, pg_get_functiondef(p.oid) AS definition
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+				AND p.prokind = {string:plain}',
+			[
+				'schema' => 'public',
+				'plain' => 'f',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$definitions[$row['signature']] = $row['definition'];
+		}
+
+		Db::$db->free_result($request);
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature
 			FROM pg_proc AS p
 				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
 			WHERE n.nspname = {string:schema}
@@ -1581,7 +1605,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				static::class,
 				MigrationData::TYPE_ROUTINE,
 				$row['signature'],
-				$row['definition'],
+				$definitions[$row['signature']] ?? '',
 			);
 		}
 
