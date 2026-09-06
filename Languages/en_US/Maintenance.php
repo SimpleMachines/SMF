@@ -405,6 +405,8 @@ $txt['upgrade_continue_step'] = 'Continue from step reached during last executio
 // Upgrade options
 $txt['upgrade_areyouready'] = 'Before the upgrade gets underway, please review the options below and press &quot;Continue&quot; when you are ready to begin.';
 $txt['upgrade_backup_table'] = 'Backup SMF tables in your database using the prefix <span class="bbc_tt">{0}</span>';
+$txt['upgrade_recommended'] = 'Strongly recommended!';
+$txt['upgrade_backup_already_exists'] = 'Backup already exists. If you enable this option, the existing backup will be replaced with a new one.';
 $txt['upgrade_maintenance'] = 'Put the forum into maintenance mode during upgrade.';
 $txt['upgrade_maintenance_title'] = 'Maintenance Title:';
 $txt['upgrade_maintenance_message'] = 'Maintenance Message:';
