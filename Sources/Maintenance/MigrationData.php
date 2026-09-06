@@ -345,8 +345,10 @@ class MigrationData
 	 *
 	 * Asking the upgrader to put a database back opens a run of its own, since
 	 * writing any setting asks which run is under way. That run copies nothing
-	 * and describes nothing, and leaving it open would have the next upgrade
-	 * take it up as unfinished work and skip the backup it never made.
+	 * never reaches the backup step, so it describes no table, and leaving it
+	 * open would have the next upgrade take it up as unfinished work and pass
+	 * over the backup it never made. Having noted a setting or two on the way
+	 * is not enough to make it a run worth keeping.
 	 */
 	public static function discardEmptyRuns(): void
 	{
@@ -360,9 +362,11 @@ class MigrationData
 				AND id_run NOT IN (
 					SELECT id_run
 					FROM {db_prefix}migration_data
+					WHERE data_type = {string:definition}
 				)',
 			[
 				'unfinished' => 0,
+				'definition' => self::TYPE_DEFINITION,
 			],
 		);
 	}
