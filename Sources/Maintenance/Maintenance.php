@@ -896,7 +896,10 @@ class Maintenance
 			return;
 		}
 
-		ob_end_clean();
+		if (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+
 		header('content-type: text/json; charset=UTF-8');
 
 		// TODO: Improve this, move debug to the root.

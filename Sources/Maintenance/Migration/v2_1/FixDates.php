@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -79,7 +80,9 @@ class FixDates extends MigrationBase
 		}
 
 		if (Maintenance::getCurrentStart() < 3) {
-			$this->query(\sprintf($boilerplate, 'calendar_holidays', 'event_date'));
+			if (($table = new Schema\v2_1\CalendarHolidays())->exists()) {
+				$this->query(\sprintf($boilerplate, 'calendar_holidays', 'event_date'));
+			}
 
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();
@@ -136,11 +139,13 @@ class FixDates extends MigrationBase
 		}
 
 		if (Maintenance::getCurrentStart() < 9) {
-			Db::$db->change_column(
-				'{db_prefix}calendar_holidays',
-				'event_date',
-				['default' => '1004-01-01'],
-			);
+			if (($table = new Schema\v2_1\CalendarHolidays())->exists()) {
+				Db::$db->change_column(
+					'{db_prefix}calendar_holidays',
+					'event_date',
+					['default' => '1004-01-01'],
+				);
+			}
 
 			Maintenance::setCurrentStart();
 			$this->handleTimeout();

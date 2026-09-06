@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -517,14 +518,21 @@ class Memberlist implements ActionInterface, Routable
 
 			// Search for an email address?
 			if (\in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum')) {
-				$fields += [2 => 'email_address'];
+				$fields += [2 => 'email_address_ci'];
 				$search_fields[] = 'email';
+
+				$email = new EmailAddress($_POST['search']);
+				$query_parameters['email_search'] = '%' . strtr(Utils::convertCase($email->local_part, 'fold') . '@' . $email->ascii_domain_part, ['_' => '\\_', '%' => '\\%', '*' => '%']) . '%';
 			}
 
 			// These are expressions as well as plain columns, so they are
 			// folded here rather than through the {column_ci:} type.
 			if (Db::$db->case_sensitive) {
 				foreach ($fields as $key => $field) {
+					if ($field === 'email_address_ci') {
+						continue;
+					}
+
 					$fields[$key] = 'LOWER(' . $field . ')';
 				}
 			}
@@ -547,7 +555,13 @@ class Memberlist implements ActionInterface, Routable
 				ErrorHandler::fatalLang('invalid_search_string', false);
 			}
 
-			$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {string_ci:search}';
+			$where = [];
+
+			foreach ($fields as $field) {
+				$where[] = $field . ($_POST['search'] == '' ? ' = {empty}' : ' LIKE {string:' . ($field === 'email_address_ci' ? 'email_search' : 'search') . '}');
+			}
+
+			$where = implode("\n\t\t\t\t\t\tOR ", $where);
 
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
@@ -555,7 +569,9 @@ class Memberlist implements ActionInterface, Routable
 					LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)
 					' . (empty($customJoin) ? '' : implode('
 					', $customJoin)) . '
-				WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
+				WHERE (
+						' . $where . '
+					)
 					AND mem.is_activated = {int:is_activated}',
 				$query_parameters,
 			);
@@ -585,7 +601,9 @@ class Memberlist implements ActionInterface, Routable
 					$custom_fields_qry .
 					(empty($customJoin) ? '' : implode('
 					', $customJoin)) . '
-				WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
+				WHERE (
+						' . $where . '
+					)
 					AND mem.is_activated = {int:is_activated}
 				ORDER BY {raw:sort}
 				LIMIT {int:start}, {int:max}',

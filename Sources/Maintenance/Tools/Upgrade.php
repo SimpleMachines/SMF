@@ -176,6 +176,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\DropModPrefs::class,
 			Migration\v3_0\DropTimeOffset::class,
 			Migration\v3_0\SpoofDetector::class,
+			Migration\v3_0\EmailAddressCi::class,
+			Migration\v3_0\NormalizeMemberEmailAddresses::class,
+			Migration\v3_0\NormalizeBannedEmailAddresses::class,
 			Migration\v3_0\SearchResultsPrimaryKey::class,
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
@@ -1102,9 +1105,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
-		$substeps = [];
+		// Every batch is built before any of them runs, because the substep
+		// counter spans the whole step: it lives in the query string, one
+		// request advances it by one, and the batch a given number falls in is
+		// only known once the sizes of the batches before it are.
+		$batches = [];
 
 		foreach (self::VERSION_MAP as $search => $ns) {
+			$substeps = [];
+
 			if (version_compare($this->start_smf_version, $search, '>')) {
 				continue;
 			}
@@ -1120,10 +1129,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					exec: [$table, 'normalize'],
 				);
 			}
+
+			$batches[$search] = $substeps;
 		}
 
-		if (!$this->performSubsteps($substeps)) {
-			return false;
+		$total = array_sum(array_map('count', $batches));
+		$offset = 0;
+
+		foreach ($batches as $search => $substeps) {
+			if (!$this->performSubsteps($substeps, $offset, $total)) {
+				return false;
+			}
+
+			$offset += \count($substeps);
+
+			// Update Config::$modSettings['smfVersion'] incrementally as we go.
+			// This lets us avoid redoing unnecessary migration steps if the
+			// upgrader gets interrupted and restarted for some reason.
+			if (version_compare($search, SMF_VERSION, '<')) {
+				$this->updateModSettings([
+					'smfVersion' => substr($search, 0, strrpos($search, '.') + 1) . str_increment(substr($search, strrpos($search, '.') + 1)),
+				]);
+			}
 		}
 
 		return Sapi::isCLI();
@@ -1588,17 +1615,29 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Performs a series of substeps.
 	 *
+	 * The current substep is counted across the whole step rather than within
+	 * one call, because it lives in the query string and is all the browser
+	 * has to say where it had got to. A step that runs its substeps in more
+	 * than one batch therefore passes the number of substeps the earlier
+	 * batches held, so that this one can find its own place in that count.
+	 *
 	 * @param array $substeps All substep objects that we are running.
+	 * @param int $offset How many substeps of this step ran before this batch.
+	 * @param ?int $total Substeps in the whole step, when that is more than are
+	 *    in this batch. Defaults to the size of this batch.
 	 * @return bool True if we are done, false if we need to timeout and wait.
 	 */
-	private function performSubsteps(array $substeps): bool
+	private function performSubsteps(array $substeps, int $offset = 0, ?int $total = null): bool
 	{
-		Maintenance::$total_substeps = \count($substeps);
+		Maintenance::$total_substeps = $total ?? \count($substeps);
+
+		// Where this batch has got to, as opposed to the step as a whole.
+		$position = Maintenance::getCurrentSubStep() - $offset;
 
 		// We are preparing for templating.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			Utils::$context['continue'] = true;
-			Utils::$context['current_substep'] = $substeps[Maintenance::getCurrentSubStep()]->name ?? '';
+			Utils::$context['current_substep'] = $substeps[$position]->name ?? '';
 
 			return false;
 		}
@@ -1637,8 +1676,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		 * When success occurs, ensure it moves to next stesp.
 		 * When error occurs, ensure we properly show the error.
 		 */
-		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
-			$substep = $substeps[Maintenance::getCurrentSubStep()];
+		while (Maintenance::getCurrentSubStep() - $offset < \count($substeps)) {
+			$substep = $substeps[Maintenance::getCurrentSubStep() - $offset];
 
 			$this->logProgress(' +++ ' . $substep->name, true);
 
@@ -1651,7 +1690,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 					Maintenance::jsonResponse([
 						'name' => $substep->name,
-						'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
+						'next' => $substeps[Maintenance::getCurrentSubStep() - $offset]->name ?? '',
 						'skipped' => true,
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
@@ -1730,7 +1769,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
-					'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
+					'next' => $substeps[Maintenance::getCurrentSubStep() - $offset]->name ?? '',
 					'completed' => true,
 					'substep' => Maintenance::getCurrentSubStep(),
 					'start' => Maintenance::getCurrentStart(),

@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
+use SMF\EmailAddress;
 use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -467,7 +468,7 @@ class News implements ActionInterface
 				}
 
 				// Find the members
-				$_POST[$type] = implode(',', array_keys(User::find($_POST[$type])));
+				$_POST[$type] = implode(',', User::find($_POST[$type], ids_only: true));
 			}
 		}
 
@@ -534,7 +535,7 @@ class News implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$condition_array[] = '{string:email_' . $count . '}';
+			$condition_array[] = 'email_address_ci LIKE {string:email_' . $count . '}';
 			$condition_array_params['email_' . $count++] = $row['email_address'];
 		}
 		Db::$db->free_result($request);
@@ -543,7 +544,7 @@ class News implements ActionInterface
 			$request = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
-				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
+				WHERE (' . implode(' OR ', $condition_array) . ')',
 				$condition_array_params,
 			);
 
@@ -720,13 +721,13 @@ class News implements ActionInterface
 
 		// Finally - emails!
 		if (!empty($_POST['emails'])) {
-			$addressed = array_unique(explode(';', strtr($_POST['emails'], ["\n" => ';', "\r" => ';', ',' => ';'])));
+			$emails = array_unique(explode(';', strtr($_POST['emails'], ["\n" => ';', "\r" => ';', ',' => ';'])));
 
-			foreach ($addressed as $curmem) {
-				$curmem = trim($curmem);
+			foreach ($emails as $email) {
+				$email = new EmailAddress($email, true);
 
-				if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL)) {
-					Utils::$context['recipients']['emails'][$curmem] = $curmem;
+				if ($email->isValid()) {
+					Utils::$context['recipients']['emails'][$email->sendable()] = $email->sendable();
 				}
 			}
 		}

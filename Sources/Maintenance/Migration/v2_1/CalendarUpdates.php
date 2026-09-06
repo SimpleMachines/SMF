@@ -36,6 +36,19 @@ class CalendarUpdates extends MigrationBase
 	/**
 	 *
 	 */
+	public function isCandidate(): bool
+	{
+		// Everything this does is to the holidays table, which the 3.0
+		// migrations fold into the calendar and then drop. Once that has
+		// happened there is nothing here to update.
+		$table = new Schema\v2_1\CalendarHolidays();
+
+		return $table->exists();
+	}
+
+	/**
+	 *
+	 */
 	public function execute(): bool
 	{
 		$table = new Schema\v2_1\CalendarHolidays();

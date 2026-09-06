@@ -37,6 +37,7 @@ abstract class MaintenanceTemplate
 		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?: 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/variables.css?' . Utils::$context['started'] . '">
 		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Utils::$context['started'] . '">
 		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css?' . Utils::$context['started'] . '">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
 		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css?' . Utils::$context['started'] . '">' : '', '

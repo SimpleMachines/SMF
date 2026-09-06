@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
+use SMF\EmailAddress;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Logging;
@@ -29,6 +30,7 @@ use SMF\Security;
 use SMF\TaskRunner;
 use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
+use SMF\Unicode\SpoofDetector;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
@@ -892,7 +894,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		Utils::$context['username'] = htmlspecialchars($_POST['username'] ?? '');
 		Utils::$context['email'] = htmlspecialchars($_POST['email'] ?? '');
-		Utils::$context['server_email'] = htmlspecialchars($_POST['server_email'] ?? '');
+		Utils::$context['server_email'] = htmlspecialchars($_POST['server_email'] ?? (!empty(Config::$webmaster_email) && Config::$webmaster_email !== $settingsDefs['webmaster_email']['default'] ? Config::$webmaster_email : ''));
 
 		Utils::$context['require_db_confirm'] = empty(Config::$db_type);
 
@@ -956,11 +958,6 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		// Update the webmaster's email?
-		if (!empty($_POST['server_email']) && (empty(Config::$webmaster_email) || Config::$webmaster_email == $settingsDefs['webmaster_email']['default'])) {
-			$this->updateSettingsFile(['webmaster_email' => (string) $_POST['server_email']]);
-		}
-
 		// Normalize Unicode characters.
 		$_POST['username'] = Utils::normalize($_POST['username']);
 
@@ -995,14 +992,26 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		// Is this email address valid?
+		$_POST['email'] = new EmailAddress($_POST['email']);
+
+		if (!$_POST['email']->isValid() || \strlen((string) $_POST['email']) > 255) {
+			// One step back, this time fill out a proper admin email address.
+			Maintenance::$fatal_error = Lang::getTxt('error_valid_admin_email_needed', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
+
+		// Is this email address taken?
 		$result = Db::$db->query(
 			'SELECT id_member, password_salt
 			FROM {db_prefix}members
-			WHERE member_name = {string:username} OR email_address = {string:email}
+			WHERE member_name = {string:username} OR email_address_ci = {string:email}
 			LIMIT 1',
 			[
 				'username' => $_POST['username'],
-				'email' => $_POST['email'],
+				'email' => $_POST['email']->casefolded(),
 				'db_error_skip' => true,
 			],
 		);
@@ -1016,22 +1025,20 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		if (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || \strlen($_POST['email']) > 255) {
-			// One step back, this time fill out a proper admin email address.
-			Maintenance::$fatal_error = Lang::getTxt('error_valid_admin_email_needed', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
+		// Update the webmaster's email?
+		$_POST['server_email'] = new EmailAddress($_POST['server_email'] ?? '');
 
-			return false;
-		}
-
-		if (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || \strlen($_POST['server_email']) > 255) {
-			// One step back, this time fill out a proper admin email address.
+		if ($_POST['server_email']->isValid() && \strlen((string) $_POST['server_email']) < 256) {
+			$this->updateSettingsFile(['webmaster_email' => (string) $_POST['server_email']]);
+		} else {
+			// One step back, this time fill out a proper webmaster email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_server_email_needed', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
 
+		// Create the admin account.
 		if ($_POST['username'] != '') {
 			Utils::$context['password_salt'] = bin2hex(random_bytes(16));
 
@@ -1066,13 +1073,15 @@ class Install extends ToolsBase implements ToolsInterface
 						'secret_question' => 'string',
 						'additional_groups' => 'string',
 						'ignore_boards' => 'string',
+						'spoofdetector_name' => 'string',
+						'email_address_ci' => 'string',
 					],
 					[
 						[
 							$_POST['username'],
 							$_POST['username'],
 							$_POST['password1'],
-							$_POST['email'],
+							(string) $_POST['email'],
 							1,
 							0,
 							time(),
@@ -1091,6 +1100,8 @@ class Install extends ToolsBase implements ToolsInterface
 							'',
 							'',
 							'',
+							Utils::htmlspecialchars(SpoofDetector::getSkeletonString(html_entity_decode($_POST['username'], ENT_QUOTES))),
+							$_POST['email']->casefolded(),
 						],
 					],
 					['id_member'],

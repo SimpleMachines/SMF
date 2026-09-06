@@ -145,5 +145,12 @@ class Vancouver extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
+		14 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20261101T020000',
+			'TZNAME' => 'MST',
+			'TZOFFSETFROM' => '-0700',
+			'TZOFFSETTO' => '-0700',
+		],
 	];
 }

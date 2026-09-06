@@ -71,26 +71,14 @@ class Mail
 		?bool $hotmail_fix = null,
 		bool $is_private = false,
 	): bool {
-		// Use sendmail if it's set or if no SMTP server is set.
-		$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
-
-		// Line breaks need to be \r\n only in windows or for SMTP.
-		// Starting with php 8x, line breaks need to be \r\n even for linux.
-		$line_break = (Sapi::isOS(Sapi::OS_WINDOWS) || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
-
 		// So far so good.
 		$mail_result = true;
 
 		// If the recipient list isn't an array, make it one.
 		$to_array = \is_array($to) ? $to : [$to];
 
-		// Make sure we actually have email addresses to send this to
-		foreach ($to_array as $k => $v) {
-			// This should never happen, but better safe than sorry
-			if (trim($v) == '') {
-				unset($to_array[$k]);
-			}
-		}
+		// Make sure we actually have email addresses to send this to.
+		$to_array = self::prepareAddresses($to_array);
 
 		// Nothing left? Nothing else to do
 		if (empty($to_array)) {
@@ -126,12 +114,12 @@ class Mail
 		// Get rid of entities.
 		$subject = strtr(Utils::htmlspecialcharsDecode($subject), ["\r" => '', "\n" => '']);
 		// Make the message use the proper line breaks.
-		$message = str_replace(["\r", "\n"], ['', $line_break], $message);
+		$message = str_replace(["\r", "\n"], ['', "\r\n"], $message);
 
 		// Make sure hotmail mails are sent as HTML so that HTML entities work.
 		if ($hotmail_fix && !$send_html) {
 			$send_html = true;
-			$message = strtr($message, [$line_break => '<br>' . $line_break]);
+			$message = strtr($message, ["\r\n" => '<br>' . "\r\n"]);
 			$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 		}
 
@@ -141,16 +129,16 @@ class Mail
 		// Use real tabs.
 		$message = strtr($message, [Utils::TAB_SUBSTITUTE => $send_html ? '<span style="white-space: pre;">' . "\t" . '</span>' : "\t"]);
 
-		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
-		list(, $subject) = self::mimespecialchars($subject, true, $hotmail_fix, $line_break);
+		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, "\r\n");
+		list(, $subject) = self::mimespecialchars($subject, true, $hotmail_fix, "\r\n");
 
 		// Construct the mail headers...
-		$headers = 'From: "' . $from_name . '" <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>' . $line_break;
-		$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
-		$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . $line_break;
-		$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
-		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . ($message_id ?? 0) . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
-		$headers .= 'X-Mailer: SMF' . $line_break;
+		$headers = 'From: "' . $from_name . '" <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>' . "\r\n";
+		$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . "\r\n" : '';
+		$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . "\r\n";
+		$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . "\r\n";
+		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . ($message_id ?? 0) . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . "\r\n";
+		$headers .= 'X-Mailer: SMF' . "\r\n";
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
 		if (\in_array(false, IntegrationHook::call('integrate_outgoing_email', [&$subject, &$message, &$headers, &$to_array]), true)) {
@@ -164,41 +152,41 @@ class Mail
 		$mime_boundary = 'SMF-' . md5($message . time());
 
 		// Using mime, as it allows to send a plain unencoded alternative.
-		$headers .= 'Mime-Version: 1.0' . $line_break;
-		$headers .= 'content-type: multipart/alternative; boundary="' . $mime_boundary . '"' . $line_break;
-		$headers .= 'content-transfer-encoding: 7bit' . $line_break;
+		$headers .= 'Mime-Version: 1.0' . "\r\n";
+		$headers .= 'content-type: multipart/alternative; boundary="' . $mime_boundary . '"' . "\r\n";
+		$headers .= 'content-transfer-encoding: 7bit' . "\r\n";
 
 		// Sending HTML?  Let's plop in some basic stuff, then.
 		if ($send_html) {
-			$no_html_message = Utils::htmlspecialcharsDecode(strip_tags(strtr($orig_message, ['</title>' => $line_break])));
+			$no_html_message = Utils::htmlspecialcharsDecode(strip_tags(strtr($orig_message, ['</title>' => "\r\n"])));
 
 			// But, then, dump it and use a plain one for dinosaur clients.
-			list(, $plain_message) = self::mimespecialchars($no_html_message, false, true, $line_break);
-			$message = $plain_message . $line_break . '--' . $mime_boundary . $line_break;
+			list(, $plain_message) = self::mimespecialchars($no_html_message, false, true, "\r\n");
+			$message = $plain_message . "\r\n" . '--' . $mime_boundary . "\r\n";
 
 			// This is the plain text version.  Even if no one sees it, we need it for spam checkers.
-			list($charset, $plain_charset_message, $encoding) = self::mimespecialchars($no_html_message, false, false, $line_break);
-			$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
-			$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
-			$message .= $plain_charset_message . $line_break . '--' . $mime_boundary . $line_break;
+			list($charset, $plain_charset_message, $encoding) = self::mimespecialchars($no_html_message, false, false, "\r\n");
+			$message .= 'content-type: text/plain; charset=' . $charset . "\r\n";
+			$message .= 'content-transfer-encoding: ' . $encoding . "\r\n\r\n";
+			$message .= $plain_charset_message . "\r\n" . '--' . $mime_boundary . "\r\n";
 
 			// This is the actual HTML message, prim and proper.  If we wanted images, they could be inlined here (with multipart/related, etc.)
-			list($charset, $html_message, $encoding) = self::mimespecialchars($orig_message, false, $hotmail_fix, $line_break);
-			$message .= 'content-type: text/html; charset=' . $charset . $line_break;
-			$message .= 'content-transfer-encoding: ' . ($encoding == '' ? '7bit' : $encoding) . $line_break . $line_break;
-			$message .= $html_message . $line_break . '--' . $mime_boundary . '--';
+			list($charset, $html_message, $encoding) = self::mimespecialchars($orig_message, false, $hotmail_fix, "\r\n");
+			$message .= 'content-type: text/html; charset=' . $charset . "\r\n";
+			$message .= 'content-transfer-encoding: ' . ($encoding == '' ? '7bit' : $encoding) . "\r\n\r\n";
+			$message .= $html_message . "\r\n" . '--' . $mime_boundary . '--';
 		}
 		// Text is good too.
 		else {
 			// Send a plain message first, for the older web clients.
-			list(, $plain_message) = self::mimespecialchars($orig_message, false, true, $line_break);
-			$message = $plain_message . $line_break . '--' . $mime_boundary . $line_break;
+			list(, $plain_message) = self::mimespecialchars($orig_message, false, true, "\r\n");
+			$message = $plain_message . "\r\n" . '--' . $mime_boundary . "\r\n";
 
 			// Now add an encoded message using the forum's character set.
-			list($charset, $encoded_message, $encoding) = self::mimespecialchars($orig_message, false, false, $line_break);
-			$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
-			$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
-			$message .= $encoded_message . $line_break . '--' . $mime_boundary . '--';
+			list($charset, $encoded_message, $encoding) = self::mimespecialchars($orig_message, false, false, "\r\n");
+			$message .= 'content-type: text/plain; charset=' . $charset . "\r\n";
+			$message .= 'content-transfer-encoding: ' . $encoding . "\r\n\r\n";
+			$message .= $encoded_message . "\r\n" . '--' . $mime_boundary . '--';
 		}
 
 		// Are we using the mail queue, if so this is where we butt in...
@@ -309,6 +297,8 @@ class Mail
 
 		// Ensure we tell obExit to flush.
 		Utils::$context['flush_mail'] = true;
+
+		$to_array = self::prepareAddresses($to_array);
 
 		foreach ($to_array as $to) {
 			// Will this insert go over MySQL's limit?
@@ -498,6 +488,13 @@ class Mail
 		$failed_emails = [];
 
 		foreach ($emails as $email) {
+			$email['to'] = current(self::prepareAddresses([$email['to']]));
+
+			// Can't send without a valid address!
+			if ($email['to'] === false) {
+				continue;
+			}
+
 			$result = $agent->send($email['to'], $email['subject'], $email['body'], $email['headers']);
 
 			// Old emails should expire
@@ -842,6 +839,24 @@ class Mail
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * Processes a list of email addresses to weed out any invalid ones and to
+	 * ensure the valid ones use the form with the best chance of delivery.
+	 *
+	 * @param array $addresses A list of email addresses.
+	 * @return array Updated list of email addresses.
+	 */
+	protected static function prepareAddresses(array $addresses): array
+	{
+		$addresses = array_map(fn($address) => new EmailAddress((string) $address), $addresses);
+
+		// Filter out invalid email addresses.
+		$addresses = array_filter($addresses, fn($address) => $address->isValid());
+
+		// Use the form that has the best chance of successful delivery.
+		return array_map(fn($address) => $address->sendable(), $addresses);
+	}
 
 	/**
 	 * Callback function for loadEmailTemplate on subject and body

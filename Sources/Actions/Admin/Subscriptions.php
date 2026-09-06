@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -1307,13 +1308,14 @@ class Subscriptions implements ActionInterface
 				$email_addresses = [];
 
 				foreach (explode(',', $_POST['paid_email_to']) as $email) {
-					$email = trim($email);
+					$email = new EmailAddress($email, true);
 
-					if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-						$email_addresses[] = $email;
+					if ($email->isValid()) {
+						$email_addresses[] = $email->sendable();
 					}
-					$_POST['paid_email_to'] = implode(',', $email_addresses);
 				}
+
+				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}
 
 			// Can only handle this stuff if it's already enabled...

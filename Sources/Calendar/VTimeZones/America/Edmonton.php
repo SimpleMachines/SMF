@@ -175,5 +175,12 @@ class Edmonton extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0700',
 		],
+		18 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20261101T020000',
+			'TZNAME' => 'CST',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0600',
+		],
 	];
 }

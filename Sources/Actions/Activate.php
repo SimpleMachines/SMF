@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -309,7 +310,9 @@ class Activate implements ActionInterface, Routable
 				ErrorHandler::fatalLang('no_access', false);
 			}
 
-			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL)) {
+			$email = new EmailAddress($_POST['new_email'], true);
+
+			if (!$email->isValid()) {
 				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
 			}
 
@@ -317,10 +320,10 @@ class Activate implements ActionInterface, Routable
 			$request = Db::$db->query(
 				'SELECT id_member
 				FROM {db_prefix}members
-				WHERE email_address = {string:email_address}
+				WHERE email_address_ci = {string:email_address}
 				LIMIT 1',
 				[
-					'email_address' => $_POST['new_email'],
+					'email_address' => $email->casefolded(),
 				],
 			);
 
@@ -330,7 +333,7 @@ class Activate implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			// Set the new email address.
-			$this->member->email = $_POST['new_email'];
+			$this->member->email = (string) $email;
 
 			// Make sure their email isn't banned.
 			$bans = Security::checkBans($this->member, true);

@@ -428,7 +428,7 @@ class Avatar implements \ArrayAccess
 			$email = User::$loaded[$this->id_member]->email;
 		}
 
-		if (filter_var($email ?? '', FILTER_VALIDATE_EMAIL) !== false) {
+		if (EmailAddress::create($email ?? '')->isValid()) {
 			$this->email = $email;
 		}
 
@@ -684,7 +684,7 @@ class Avatar implements \ArrayAccess
 			// Do we need to override the embedded email address?
 			|| empty(Config::$modSettings['gravatarAllowExtraEmail'])
 			|| !isset($url->user, $url->host)
-			|| filter_var($url->user . '@' . $url->host, FILTER_VALIDATE_EMAIL) === false
+			|| !EmailAddress::create($url->user . '@' . $url->host)->isValid()
 		) {
 			$url = new Url('gravatar://' . ($this->email ?? 'invalid'), true);
 		}

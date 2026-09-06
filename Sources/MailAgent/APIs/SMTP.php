@@ -14,6 +14,7 @@
 namespace SMF\MailAgent\APIs;
 
 use SMF\Config;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
@@ -163,6 +164,14 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
+		if (($address = new EmailAddress($to))->isValid()) {
+			$to = $address->sendable();
+		} else {
+			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
+
+			return false;
+		}
+
 		if (empty($this->socket)) {
 			return false;
 		}

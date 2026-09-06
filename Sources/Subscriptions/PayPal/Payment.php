@@ -17,6 +17,7 @@ namespace SMF\Subscriptions\PayPal;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\Lang;
 
 /**
@@ -315,10 +316,10 @@ class Payment
 					'SELECT ls.id_member, ls.id_subscribe
 					FROM {db_prefix}log_subscribed AS ls
 						INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
-					WHERE mem.email_address = {string:payer_email}
+					WHERE mem.email_address_ci = {string:payer_email}
 					LIMIT 1',
 					[
-						'payer_email' => $_POST['payer_email'],
+						'payer_email' => EmailAddress::create($_POST['payer_email'])->casefolded(),
 					],
 				);
 

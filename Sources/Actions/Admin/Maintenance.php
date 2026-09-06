@@ -1320,14 +1320,13 @@ class Maintenance implements ActionInterface
 		User::$me->checkSession();
 
 		// Find the member.
-		$members = User::find($_POST['to']);
+		$members = User::find($_POST['to'], ids_only: true);
 
 		if (empty($members)) {
 			ErrorHandler::fatalLang('reattribute_cannot_find_member');
 		}
 
-		$memID = array_shift($members);
-		$memID = $memID['id'];
+		$memID = reset($members);
 
 		$email = $_POST['type'] == 'email' ? $_POST['from_email'] : '';
 		$membername = $_POST['type'] == 'name' ? $_POST['from_name'] : '';

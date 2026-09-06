@@ -87,7 +87,20 @@ class UuidTest extends TestCase
 		// Version 7 puts a millisecond timestamp in the high bits, so the string
 		// form is monotonic. That is the whole point of using it for keys.
 		$first = (string) Uuid::create(7);
-		usleep(2000);
+
+		// Sleeping for a millisecond is not the same as one having passed.
+		// Windows' timer granularity is coarser than that, so both values can
+		// land in the same millisecond, where the timestamps are identical and
+		// only the random bits are left to order them -- which they do about
+		// half the time. Wait until the clock the generator reads has actually
+		// moved on.
+		$millisecond = static fn(): int => (int) (microtime(true) * 1000);
+		$started = $millisecond();
+
+		do {
+			usleep(250);
+		} while ($millisecond() === $started);
+
 		$second = (string) Uuid::create(7);
 
 		$this->assertLessThan(0, strcmp($first, $second));

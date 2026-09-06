@@ -497,7 +497,7 @@ class QueryString
 
 		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
 
-		if (\is_string(self::getRouteParser($route_base))) {
+		if (isset($route_base) && \is_string(self::getRouteParser($route_base))) {
 			// This call to extract will set new values of $route and $params.
 			extract(\call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
 		}
