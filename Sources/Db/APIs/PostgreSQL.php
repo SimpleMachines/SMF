@@ -1071,8 +1071,34 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Drop it if it exists.
 		$schema_create = 'DROP TABLE IF EXISTS ' . $table_name . ';' . "\n\n";
 
+		// A table that is not written to the write-ahead log says so in the way
+		// it is made, and sessions, log_online and log_floodcontrol are all built
+		// that way. Rebuilding one from this without saying so would quietly give
+		// it a durability it was never meant to pay for.
+		$unlogged = '';
+
+		$persistence = $this->query(
+			'SELECT c.relpersistence
+			FROM pg_class AS c
+				INNER JOIN pg_namespace AS n ON (n.oid = c.relnamespace)
+			WHERE c.relname = {string:table}
+				AND n.nspname = {string:schema}',
+			[
+				'table' => $table_name,
+				'schema' => 'public',
+			],
+		);
+
+		$row = $this->fetch_assoc($persistence);
+
+		if (\is_array($row) && $row['relpersistence'] === 'u') {
+			$unlogged = 'UNLOGGED ';
+		}
+
+		$this->free_result($persistence);
+
 		// Start the create table...
-		$schema_create .= 'CREATE TABLE ' . $table_name . ' (' . "\n";
+		$schema_create .= 'CREATE ' . $unlogged . 'TABLE ' . $table_name . ' (' . "\n";
 		$index_create = '';
 		$seq_create = '';
 
