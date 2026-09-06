@@ -347,6 +347,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	protected string $id_run = '';
 
 	/**
+	 * @var bool
+	 *
+	 * Whether the database's functions have been looked at yet. They are the
+	 * same for every table, so they are read once rather than per table.
+	 */
+	protected bool $routines_recorded = false;
+
+	/**
 	 * @var null|string
 	 *
 	 * Custom page title, otherwise we send the defaults.
@@ -1065,9 +1073,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$tables = Db::$db->list_tables($db, $filter);
 
-		// Filter out backup tables.
+		// Filter out backup tables, and the upgrader's own bookkeeping. A copy
+		// of the record of what was copied is of no use to anybody putting a
+		// forum back, and restoring it would put back an older account of the
+		// run doing the restoring.
 		$table_names = array_filter($tables, function ($table) {
-			return !str_starts_with($table, 'backup_');
+			return !str_starts_with($table, 'backup_')
+				&& !str_starts_with($table, Config::$db_prefix . 'migration_');
 		});
 
 		Maintenance::$total_substeps = \count($table_names);
@@ -1408,6 +1420,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
+		$this->recordRoutines();
 		$this->recordDefinition($table);
 
 		if (Db::$db->backup_table($table, 'backup_' . $table) === false) {
@@ -1424,6 +1437,57 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Records the functions the database held before the migrations reach it.
+	 *
+	 * A table's definition is not enough on its own. An index can be built over
+	 * an expression rather than a column -- members has one over
+	 * indexable_month_day(birthdate) -- and the SQL that rebuilds the table
+	 * names the function without saying what it is. Recording them together is
+	 * what makes the pair worth keeping.
+	 *
+	 * Only PostgreSQL has anything to record here. MySQL is given none of its
+	 * own, and the functions SMF adds to PostgreSQL are the ones in the public
+	 * schema, since everything the server ships with lives in pg_catalog.
+	 */
+	private function recordRoutines(): void
+	{
+		if ($this->routines_recorded || Db::$db->title !== POSTGRE_TITLE) {
+			return;
+		}
+
+		$this->routines_recorded = true;
+
+		$run = $this->getRunId();
+
+		if ($run === '' || MigrationData::all($run, MigrationData::TYPE_ROUTINE) !== []) {
+			return;
+		}
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature, pg_get_functiondef(p.oid) AS definition
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+			ORDER BY signature',
+			[
+				'schema' => 'public',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			MigrationData::save(
+				$run,
+				static::class,
+				MigrationData::TYPE_ROUTINE,
+				$row['signature'],
+				$row['definition'],
+			);
+		}
+
+		Db::$db->free_result($request);
+	}
 
 	/**
 	 * Records what a table looked like before the migrations reach it.
