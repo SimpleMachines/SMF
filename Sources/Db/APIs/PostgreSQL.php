@@ -990,6 +990,46 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		);
 
+		// A default is copied as the expression it is written with, so a column
+		// fed by a sequence arrives pointing at the sequence behind the live
+		// table rather than at one of its own. That leaves the backup as an
+		// object the sequence cannot be dropped without, and has anything
+		// inserted here draw its ids from the live table's counter. Every other
+		// default describes the column and is part of what makes the copy worth
+		// restoring, so only these ones are taken off.
+		$sequenced = $this->query(
+			'SELECT a.attname
+			FROM pg_class AS c
+				INNER JOIN pg_attribute AS a ON (a.attrelid = c.oid)
+				INNER JOIN pg_attrdef AS d ON (d.adrelid = a.attrelid AND d.adnum = a.attnum)
+			WHERE c.relname = {string:backup_table}
+				AND a.attnum > 0
+				AND NOT a.attisdropped
+				AND pg_get_expr(d.adbin, d.adrelid) LIKE {string:nextval}',
+			[
+				'backup_table' => $backup_table,
+				'nextval' => 'nextval(%',
+			],
+		);
+
+		$columns = [];
+
+		while ($row = $this->fetch_assoc($sequenced)) {
+			$columns[] = $row['attname'];
+		}
+
+		$this->free_result($sequenced);
+
+		foreach ($columns as $column) {
+			$this->query(
+				'ALTER TABLE {raw:backup_table} ALTER COLUMN {raw:column} DROP DEFAULT',
+				[
+					'backup_table' => $backup_table,
+					'column' => $column,
+				],
+			);
+		}
+
 		$this->query(
 			'INSERT INTO {raw:backup_table}
 			SELECT * FROM {raw:table}',
