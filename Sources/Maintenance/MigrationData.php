@@ -60,6 +60,12 @@ class MigrationData
 	 */
 	public const TYPE_ROUTINE = 'routine';
 
+	/**
+	 * What a setting in Settings.php held before the upgrade changed it,
+	 * as JSON, with whether it was there at all.
+	 */
+	public const TYPE_SETTING = 'setting';
+
 	/***********************
 	 * Public static methods
 	 ***********************/

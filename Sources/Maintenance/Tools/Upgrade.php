@@ -206,6 +206,32 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		],
 	];
 
+	/**
+	 * @var string
+	 *
+	 * Identifies this upgrade, and stays the same when it is started again
+	 * after being interrupted. What a migration records against it therefore
+	 * describes the database as this upgrade found it, not as a later attempt
+	 * found it half changed. Read through getRunId(), which knows where it
+	 * lives.
+	 */
+	/**
+	 * @var array
+	 *
+	 * Settings that are not recorded before being changed. The upgrade's own
+	 * progress data is its bookkeeping and means nothing afterwards; the rest
+	 * are things that should not be sitting in a database table, since a copy
+	 * of the database password inside the database would be in every dump
+	 * taken from then on.
+	 */
+	public const UNRECORDED_SETTINGS = [
+		'maintenance_tool_progress',
+		'db_passwd',
+		'db_user',
+		'image_proxy_secret',
+		'auth_secret',
+	];
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -335,15 +361,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	protected string $start_smf_version = '';
 
-	/**
-	 * @var string
-	 *
-	 * Identifies this upgrade, and stays the same when it is started again
-	 * after being interrupted. What a migration records against it therefore
-	 * describes the database as this upgrade found it, not as a later attempt
-	 * found it half changed. Read through getRunId(), which knows where it
-	 * lives.
-	 */
 	protected string $id_run = '';
 
 	/**
@@ -1434,9 +1451,75 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		return true;
 	}
 
+	/**
+	 * Writes settings to Settings.php, noting what they held first.
+	 *
+	 * @param array $config_vars The settings to write.
+	 * @param bool|null $keep_quotes Whether to keep quotes in the values.
+	 * @param bool $rebuild Whether to rebuild the file from scratch.
+	 * @return bool Whether the file was written.
+	 */
+	public function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
+	{
+		$this->recordSettings(array_keys($config_vars));
+
+		return parent::updateSettingsFile($config_vars, $keep_quotes, $rebuild);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Records what the settings being written held beforehand.
+	 *
+	 * A database put back to the shape it had is not a forum that works if
+	 * Settings.php still describes the one it was upgraded to: db_character_set
+	 * and db_mb4 in particular say what the database is, and after a rollback
+	 * they would be saying it about a database that no longer exists.
+	 *
+	 * Only the settings the upgrade is about to change are recorded, and only
+	 * the first time each is touched, so this is a note of what to put back
+	 * rather than a copy of the file. Settings that are nobody else's business
+	 * are left out: Settings.php holds the database password, and a copy of it
+	 * inside the database would be in every dump taken from then on.
+	 *
+	 * @param array $names Names of the settings about to be written.
+	 */
+	private function recordSettings(array $names): void
+	{
+		$run = $this->getRunId();
+
+		if ($run === '') {
+			return;
+		}
+
+		$current = Config::getCurrentSettings();
+
+		if (!\is_array($current)) {
+			return;
+		}
+
+		foreach ($names as $name) {
+			if (
+				\in_array($name, self::UNRECORDED_SETTINGS)
+				|| MigrationData::get($run, MigrationData::TYPE_SETTING, $name) !== null
+			) {
+				continue;
+			}
+
+			MigrationData::save(
+				$run,
+				static::class,
+				MigrationData::TYPE_SETTING,
+				$name,
+				(string) json_encode([
+					'set' => \array_key_exists($name, $current),
+					'value' => $current[$name] ?? null,
+				]),
+			);
+		}
+	}
 
 	/**
 	 * Records the functions the database held before the migrations reach it.
