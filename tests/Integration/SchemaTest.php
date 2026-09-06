@@ -23,6 +23,10 @@ use SMF\Db\Schema\Table;
 #[CoversNothing]
 class SchemaTest extends IntegrationTestCase
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	public function testTheSchemaDeclaresTables(): void
 	{
 		// Guards the two tests below: if getAll() ever returns nothing they

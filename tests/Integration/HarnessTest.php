@@ -20,11 +20,19 @@ use SMF\Db\DatabaseApi as Db;
 #[CoversNothing]
 class HarnessTest extends IntegrationTestCase
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * The variable the rollback tests write. Named so that finding it left
 	 * behind in a real forum points straight back here.
 	 */
 	private const LEFTOVER = 'smf_tests_rollback_canary';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function testTheForumIsInstalled(): void
 	{

@@ -6,7 +6,6 @@ namespace SMF\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * Config::updateModSettings() against a real database, on whichever engine is
@@ -26,7 +25,15 @@ use SMF\Db\DatabaseApi as Db;
 #[CoversMethod(Config::class, 'updateModSettings')]
 class ModSettingsTest extends IntegrationTestCase
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	private const COUNTER = 'smf_tests_counter';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function testWritesAValue(): void
 	{
