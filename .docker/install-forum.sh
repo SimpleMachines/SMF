@@ -96,6 +96,13 @@ install_one() {
 		--password2="$SMF_ADMIN_PASS"
 	)
 
+	# reset.sh does not return until the entrypoint has staged this, so its
+	# absence means something went wrong there rather than here. Worth saying so:
+	# without it php reports "Could not open input file: install.php", which reads
+	# like a broken script rather than a forum that was never made installable.
+	docker compose exec -T web test -f install.php \
+		|| die "${smf_type}: install.php is not staged, so there is nothing to run (docker compose logs web)"
+
 	log "${smf_type}: building the schema"
 	docker compose exec -T web php install.php "${args[@]}" >/dev/null
 
@@ -106,6 +113,17 @@ install_one() {
 	version=$(installed_version "$smf_type" || true)
 
 	[ -n "$version" ] || die "${smf_type}: the installer finished but the forum is not installed"
+
+	# The installer tells you to delete this and cannot do it itself: its ?delete
+	# link is a GET, and command line arguments only ever reach $_POST. Leaving it
+	# is not cosmetic - Settings.php redirects every request back into the
+	# installer while it is there, and SMF puts a "MAJOR SECURITY RISK: you have
+	# not removed install.php" box on every page it shows an administrator.
+	#
+	# Safe to delete even though a reinstall needs it again: install_one() always
+	# calls reset.sh first, and reset.sh clears Settings.php and waits for the
+	# entrypoint to put a fresh copy back before returning.
+	rm -f install.php
 
 	log "${smf_type}: installed SMF ${version}"
 
