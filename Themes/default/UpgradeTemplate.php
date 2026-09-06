@@ -312,7 +312,10 @@ class UpgradeTemplate extends MaintenanceTemplate
 		// forum and has two ways out of it.
 		if (!empty(Utils::$context['rollback_done'])) {
 			echo '
-		<div class="noticebox">', Lang::getTxt('upgrade_rollback_done', file: 'Maintenance'), '</div>';
+		<div class="noticebox">', Lang::getTxt('upgrade_rollback_done', [
+				'version' => SMF_FULL_VERSION,
+				'url' => Maintenance::getSelf(),
+			], file: 'Maintenance'), '</div>';
 
 			return;
 		}
