@@ -82,6 +82,15 @@ class MigrationRollback
 			return false;
 		}
 
+		// The recorded SQL is the database's own account of itself, and the
+		// checks that keep a query from being assembled out of user input have
+		// nothing to look at here: they refuse the quoting a CREATE TABLE is
+		// full of, and the semicolons inside a function body. The installer and
+		// the migrations turn them off around their own DDL for the same
+		// reason.
+		$checking = Db::$db->disableQueryCheck;
+		Db::$db->disableQueryCheck = true;
+
 		foreach ($this->routines($run) as $name => $sql) {
 			$this->execute($sql);
 			$this->log[] = 'function ' . $name;
@@ -97,6 +106,8 @@ class MigrationRollback
 			Db::$db->drop_table($table);
 			$this->log[] = 'dropped ' . $table;
 		}
+
+		Db::$db->disableQueryCheck = $checking;
 
 		$this->restoreSettings($run);
 
@@ -199,6 +210,7 @@ class MigrationRollback
 			[
 				'table' => $table,
 				'backup' => 'backup_' . $table,
+				'db_error_skip' => true,
 			],
 		);
 	}
@@ -258,7 +270,17 @@ class MigrationRollback
 	private function execute(string $sql): void
 	{
 		foreach ($this->statements($sql) as $statement) {
-			Db::$db->query($statement, ['db_error_skip' => true]);
+			// These are whole statements rather than something built around
+			// values, so the checks that keep a query from being assembled out
+			// of user input have nothing to look at here and reject the
+			// quoting a CREATE TABLE is full of.
+			Db::$db->query(
+				$statement,
+				[
+					'security_override' => true,
+					'db_error_skip' => true,
+				],
+			);
 		}
 	}
 
