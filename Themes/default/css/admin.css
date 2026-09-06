@@ -270,11 +270,12 @@ fieldset.admin_group .inactive {
 
 /* Styles for the package manager. */
 #package_list .tborder {
-	margin: .25em 0 .25em 26px;
+	margin-block: .25em;
+	margin-inline: 26px 0;
 }
 #package_list ol, #package_list ol li {
 	list-style: decimal;
-	margin-left: 50px;
+	margin-inline-start: 50px;
 	border: none;
 }
 #package_list li {
@@ -374,7 +375,8 @@ pre.file_content {
 	background-color: var(--admin-redirect-board-bg);
 }
 .move_links {
-	padding: 0 13px 0 0;
+	padding-block: 0;
+	padding-inline: 0 13px;
 }
 #manage_boards .button {
 	margin: 0 8px 0 0;
@@ -429,7 +431,8 @@ span.search_weight {
 
 /* Styles for the manage bans section. */
 .ban_restriction {
-	margin: 0.2em 0 0.2em 2.2em;
+	margin-block: 0.2em;
+	margin-inline: 2.2em 0;
 }
 .ban_settings {
 	width: 46%;
@@ -487,10 +490,11 @@ ul.theme_options li {
 	padding: 0.4em;
 }
 .is_directory {
-	padding-left: 18px;
+	padding-inline-start: 18px;
 }
 .is_directory span {
-	margin: -2px 3px 0 0;
+	margin-block: -2px 0;
+	margin-inline: 0 3px;
 }
 .edit_file {
 	width: 100%;
