@@ -301,11 +301,23 @@ permission to skip it. Treat the guard as an optimisation and idempotent `execut
 the actual guarantee: write both.
 
 **A later migration can break an earlier one.** Being repeated over a finished forum is
-the easy case. The hard one is being interrupted: `smfVersion` is not written until
-`finalize()`, so until the very end of the run the database still says 2.1, and starting
-again runs the whole *2.1* set over a database the *3.0* migrations have already changed.
-Anything the later set dropped is gone when the earlier set asks for it, and since every
-attempt gets exactly as far, the forum cannot be upgraded at all.
+the easy case. The hard one is being interrupted, and what happens then turns on which
+version the upgrader believes it is starting from.
+
+`migrations()` writes `smfVersion` forward as each version's batch of migrations finishes,
+so a run that dies in the 3.0 batch can be started again without redoing the 2.1 one. What
+it reads back is not quite that setting, though. `getProgress()` takes
+`start_smf_version` from the `maintenance_tool_progress` blob in `Settings.php` and falls
+back to the setting only when the blob has nothing to say, and the blob records the
+version the run *started* from. It is written by `saveProgress()`, from `preExit()`.
+
+The two ways a run can stop therefore behave differently. A process that is killed never
+reaches `preExit()`, so nothing writes the original version back and the next run reads
+the setting: the batches that finished are skipped. An orderly stop does reach it — a
+migration that reports an error calls `preExit()` on its way out — so the blob pins the
+original version and the next run starts from the top again, over a database the later
+batch has already changed. **The tidy failure is the dangerous one**, which is the
+opposite of what one would guess.
 
 So the direction to check is the one nobody thinks of. If your migration drops or renames
 a table or a column, grep the **earlier** version namespaces for that name as well as the
@@ -318,6 +330,15 @@ grep -rn 'calendar_holidays' Sources/Maintenance/Migration/
 That is not hypothetical. `HolidaysToEvents` folds `calendar_holidays` into the calendar
 and drops it, and three v2_1 migrations name that table; an upgrade interrupted any time
 after it could not be restarted at all until they were guarded.
+
+**The browser and the command line are not the same path.** `Maintenance::execute()` walks
+the same steps either way, but a step with substeps runs them very differently. On the
+command line the whole step happens in one process. In a browser `jsonResponse()` ends the
+request after each substep and the JavaScript in `MaintenanceTemplate.php` asks for the
+next one, carrying the position in the query string, so the number identifying a substep
+has to mean the same thing across requests and across every batch of a step. A step can
+work perfectly from the command line and be broken in a browser, and the reverse; verify
+whichever one you did not write against.
 
 **Verify on both engines, in four states.** A schema change is raw SQL by another name,
 so MySQL and PostgreSQL both need proving, and the create path and the alter path do not
