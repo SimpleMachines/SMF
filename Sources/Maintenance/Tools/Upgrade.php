@@ -1523,8 +1523,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// This process started while the forum was on the version it has just
 		// been taken off, and the progress data would say so on the way out.
 		// The next upgrade would read that, believe the work was already done
-		// and skip the migrations the database now needs again.
-		$this->start_smf_version = str_replace(' ', '.', strtolower((string) (Config::$modSettings['smfVersion'] ?? $this->start_smf_version)));
+		// and skip the migrations the database now needs again. The run knows
+		// what the forum was on before it touched anything, which is what it is
+		// on again now; the copy in Config::$modSettings was read before the
+		// rollback and still names the version that has just gone.
+		$this->start_smf_version = str_replace(' ', '.', strtolower((string) $run['version_from']));
 
 		$this->updateSettingsFile(['maintenance_tool_progress' => '']);
 
