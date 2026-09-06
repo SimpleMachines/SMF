@@ -46,6 +46,12 @@ class MigrationData
 	 */
 	public const TYPE_DEFINITION = 'definition';
 
+	/**
+	 * That a table has been copied to a backup_ one by this run, so that a run
+	 * which starts again does not copy over the copy it already made.
+	 */
+	public const TYPE_BACKUP = 'backup';
+
 	/***********************
 	 * Public static methods
 	 ***********************/
