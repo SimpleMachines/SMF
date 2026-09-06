@@ -1795,7 +1795,7 @@ ul li.greeting {
 .move_topic {
 	width: 710px;
 	margin: auto;
-	text-align: left;
+	text-align: start;
 }
 div.move_topic fieldset {
 	margin-top: 1ex;
@@ -1870,7 +1870,7 @@ fieldset.merge_options {
 .login dd {
 	width: 54%;
 	float: right;
-	text-align: left;
+	text-align: start;
 }
 .login p {
 	text-align: center;
@@ -2654,12 +2654,12 @@ dl.stats {
 	text-align: center;
 }
 #stats tr.windowbg th.lefttext {
-	text-align: left;
+	text-align: start;
 }
 #stats tr.windowbg th.stats_month {
 	width: 25%;
 	padding: 0 2em;
-	text-align: left;
+	text-align: start;
 }
 #stats tr.windowbg td.stats_day {
 	padding: 0 3.5em;
@@ -2797,7 +2797,7 @@ dl.addrules dt.floatleft {
 /* Styles for the search section.
 ------------------------------------------------- */
 #searchform fieldset {
-	text-align: left;
+	text-align: start;
 	padding: 0;
 	border: none;
 }
@@ -2825,7 +2825,7 @@ dl.addrules dt.floatleft {
 }
 #advanced_search dt {
 	padding: 2px;
-	text-align: right;
+	text-align: end;
 	width: 20%;
 }
 #advanced_search dd {
@@ -2833,7 +2833,7 @@ dl.addrules dt.floatleft {
 	float: inline-start;
 	padding: 2px;
 	margin: 0 0 0 6px;
-	text-align: left;
+	text-align: start;
 }
 #search_results {
 	margin-bottom: 5px;
@@ -3357,7 +3357,7 @@ span.postby {
 	max-width: 45em;
 	float: inline-start;
 	margin: 0 0 4px 0;
-	text-align: right;
+	text-align: end;
 }
 
 /* Poll notices */

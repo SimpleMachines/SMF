@@ -85,7 +85,7 @@ td.days:hover {
 #main_grid th.days {
 	width: 14%;
 	padding: 5px 10px;
-	text-align: left;
+	text-align: start;
 	background: var(--calendar-th-bg);
 }
 #main_grid td.weeks {
@@ -135,7 +135,7 @@ td.days:hover {
 #main_grid td.days,
 #month_grid td.days {
 	vertical-align: top;
-	text-align: left;
+	text-align: start;
 	border-right: 1px solid var(--window-border-color);
 	border-bottom: 1px solid var(--window-border-color);
 }
