@@ -84,6 +84,9 @@ Thumbs.db
 /.docker/settings/
 /.docker/rerun/
 /.docker/interrupt/
+# Schema readings and reports from compare-upgrade.sh. They describe one
+# machine's databases at one moment, and are rewritten on every run.
+/.docker/compare/
 
 # Test / Private files #
 ########################

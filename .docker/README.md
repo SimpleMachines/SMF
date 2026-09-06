@@ -71,6 +71,14 @@ though it succeeded — it pauses so a human can read its "N duplicate tables
 ignored" report, and the form's `pop_done` field is the short-circuit past it.
 Passing `pop_done` on the first pass would skip building the schema entirely.
 
+It then deletes `install.php`, which the installer asks for but cannot do
+itself — its `?delete` link is a GET, and command line arguments only ever reach
+`$_POST`. That matters more than it sounds: while the file is there
+`Settings.php` redirects every request back into the installer, and SMF puts a
+"MAJOR SECURITY RISK" box on every page it shows an administrator. Reinstalling
+still works, because `reset.sh` runs first and does not return until the
+entrypoint has staged a fresh copy.
+
 Two flags worth knowing:
 
 - `--force` reinstalls even when a forum is already there. Without it the
@@ -101,6 +109,35 @@ are gitignored.
 `reset.sh` is the other half: it empties one engine's database and restages the
 installer, discarding that forum. `use-engine.sh` switches between forums,
 `reset.sh` throws one away.
+
+## Accounts and passwords
+
+Two forums, each with its own administrator, and a password chosen months ago is
+a recipe for an afternoon of hand written SQL. `user.sh` is there so it is not:
+
+```sh
+.docker/user.sh list
+.docker/user.sh check admin 'password'
+.docker/user.sh reset admin 'a new password'
+```
+
+`check` exits 0 when SMF would accept the password and 1 when it would not, so
+it works in a conditional as well as by eye. It also points out an account that
+is not activated, which fails to log in with a correct password and looks
+exactly like a wrong one.
+
+`--engine mysql|postgresql` reads the settings `use-engine.sh` saved for that
+engine, so the *other* forum can be inspected without switching to it:
+
+```sh
+.docker/user.sh check admin 'password' --engine mysql
+```
+
+The hashing goes through SMF's own `Security` class rather than being written
+here, so what `reset` puts in the table is by construction what `Login2` expects
+to find. It clears `passwd_flood` at the same time: SMF locks an account out for
+a while after enough wrong guesses, and a fresh password behind a lockout looks
+exactly like a password that did not take.
 
 ### Installing in a browser instead
 
@@ -234,6 +271,67 @@ never need to restart for a PHP change.
 To reinstall from scratch: `.docker/install-forum.sh --engine mysql --force`.
 To wipe everything including the volumes: `docker compose down -v`.
 
+## Comparing an upgrade against a fresh install
+
+The installer builds the schema from `Sources/Db/Schema/v3_0/` in one go. The
+upgrader arrives at the same place through a hundred-odd migrations applied to
+whatever 2.1 left behind. They are meant to converge, and nothing checks that
+they do:
+
+```bash
+.docker/compare-upgrade.sh --engine mysql --baseline path/to/a-2.1-dump.sql
+```
+
+That empties the database, loads the dump, upgrades it, reads the schema,
+reinstalls from scratch, reads that too, and reports every place the two
+disagree — a column of the wrong type, an index that was never created, a
+primary key quietly dropped. It ends with the fresh install in place, and takes
+five to ten minutes.
+
+`--baseline` takes any SQL dump of a 2.1 database. A dump of a real forum is
+the better test; the [2.1 development environment][baseline] builds a synthetic
+one designed to hold something in every table an upgrade touches, which is
+useful when you have no real forum to hand.
+
+Two kinds of difference are reported but do not fail the run, because a real
+forum always has some: the contents of `settings`, and the order columns sit in
+within a table. Everything else is a schema difference and sets the exit code.
+
+If the upgrade does not reach the end, the script stops there and says so
+rather than comparing anyway. A half-upgraded database differs from a fresh
+install in hundreds of places, all of them the honest consequence of the
+migrations that never ran, and none of them worth reading.
+
+On PostgreSQL the reading also covers sequences and the compatibility functions
+SMF installs — `find_in_set()`, `instr()`, the `group_concat` aggregate and the
+rest. A query naming one of those fails outright when it is not there, so a
+missing function counts as a schema difference like a missing column does.
+
+Both readings were checked name by name against the engine's own schema dump —
+`pg_dump --schema-only` and `mysqldump --no-data --routines --triggers
+--events` — and agree with them: 72 tables, 538 columns, 179 keys, and on
+PostgreSQL 41 sequences and 19 functions besides. The only things either dump
+reports that this does not are the `public` schema and the comment on it, and
+the `AUTO_INCREMENT` counter, which measures how much a database has been used
+rather than what shape it is.
+
+The tool underneath is usable on its own, against any two SMF databases on the
+same engine — two forums you already have, or the same forum before and after
+something you are testing:
+
+```bash
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > before.json
+# ... do the thing ...
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > after.json
+docker compose exec web php .docker/schema-tool.php diff before.json after.json
+```
+
+It talks to the database directly rather than through SMF, so it works on a
+database SMF would refuse to run on — which is usually the one you want to look
+at.
+
+[baseline]: https://github.com/SimpleMachines/SMF/pull/9330
+
 ## Debugging SQL with the PostgreSQL log
 
 The `postgres` log is the best tool in the stack for tracking down a broken
@@ -299,7 +397,15 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
+.docker/lib.sh                   paths, credentials and engine names, shared
+.docker/install-forum.sh         install a forum with no browser involved
+.docker/reset.sh                 empty one engine and restage the installer
+.docker/use-engine.sh            switch which installed forum is live
+.docker/user.sh                  inspect accounts, check and reset passwords
+
 .docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
 .docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
 .docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
+.docker/compare-upgrade.sh       upgrade a 2.1 dump, install 3.0, diff the two
+.docker/schema-tool.php          read a database's shape, and compare readings
 ```
