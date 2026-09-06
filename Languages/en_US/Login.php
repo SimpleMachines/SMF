@@ -2,6 +2,9 @@
 
 // Version: 3.0 Alpha 4; Login
 
+// Login form.
+$txt['login_alternatives'] = 'Or sign in with:';
+
 // Registration agreement page.
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
@@ -178,3 +181,41 @@ $txt['registration_policy_missing'] = 'The privacy policy is either missing or e
 $txt['logout_confirm'] = 'Are you sure you want to log out?';
 $txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
 $txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
+
+// External authentication.
+$txt['authext_failed'] = 'That sign in could not be completed. Please try again.';
+$txt['authext_declined'] = 'The sign in was cancelled.';
+$txt['authext_provider_unavailable'] = 'That sign in method is not available right now.';
+$txt['authext_no_account'] = 'There is no account here for that sign in, and this provider is not allowed to create one.';
+$txt['authext_not_activated'] = 'That account is not activated yet.';
+
+// Passkeys.
+$txt['passkey_login'] = 'Sign in with a passkey';
+$txt['passkey_unavailable'] = 'Passkeys are not available on this forum.';
+$txt['passkey_not_logged_in'] = 'You have to be signed in to add a passkey.';
+$txt['passkey_register_failed'] = 'That passkey could not be added.';
+$txt['passkey_already_registered'] = 'That passkey has already been added to an account here.';
+$txt['passkey_login_failed'] = 'That passkey could not sign you in.';
+$txt['passkey_not_activated'] = 'That account is not activated yet.';
+
+// Signing up without a password.
+$txt['registration_signing_in'] = 'Signing in';
+$txt['registration_signing_in_passkey'] = 'Your passkey is ready. Once this account exists, that is what will sign you in, so there is no password to choose.';
+$txt['registration_signing_in_provider'] = '{provider} has already told us who you are, so there is no password to choose. That is what will sign you in from now on.';
+$txt['passkey_signup'] = 'Use a passkey instead';
+$txt['passkey_signup_desc'] = 'Use the fingerprint reader, face scan, PIN or security key that unlocks this device instead of choosing a password.';
+$txt['passkey_signup_button'] = 'Create a passkey';
+$txt['passkey_signup_done'] = 'Your passkey is ready. Finish signing up below to start using it.';
+$txt['passkey_signup_failed'] = 'That passkey could not be created.';
+$txt['passkey_signup_unavailable'] = 'Signing up with a passkey is not available on this forum.';
+$txt['passkey_signup_needs_username'] = 'Choose a username first, so your device knows what to call this account.';
+
+// Proving, again, that you are still you.
+$txt['stepup_alternatives'] = 'Or prove it another way:';
+$txt['stepup_with_passkey'] = 'Use my passkey';
+$txt['stepup_no_password'] = 'This account signs in without a password, so use one of the methods below.';
+$txt['stepup_required'] = 'Please confirm who you are before changing how you sign in.';
+$txt['passkey_reauth_none'] = 'There is no passkey on this account to confirm with.';
+$txt['passkey_reauth_failed'] = 'That passkey did not confirm who you are.';
+$txt['authext_reauth_not_linked'] = 'That account is not linked to yours, so it cannot confirm who you are.';
+$txt['authext_reauth_failed'] = 'That sign in did not confirm who you are.';
