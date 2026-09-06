@@ -1398,9 +1398,27 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
+		$run = $this->getRunId();
+
+		// backup_table() drops the backup before it writes it, so a run that
+		// is started again would replace a copy of the database as it was with
+		// a copy of it half migrated. The copy this run already made is the
+		// one worth having.
+		if ($run !== '' && MigrationData::get($run, MigrationData::TYPE_BACKUP, $table) !== null) {
+			return true;
+		}
+
 		$this->recordDefinition($table);
 
-		return Db::$db->backup_table($table, 'backup_' . $table) !== false;
+		if (Db::$db->backup_table($table, 'backup_' . $table) === false) {
+			return false;
+		}
+
+		if ($run !== '') {
+			MigrationData::save($run, static::class, MigrationData::TYPE_BACKUP, $table, (string) time());
+		}
+
+		return true;
 	}
 
 	/******************
