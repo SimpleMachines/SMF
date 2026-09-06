@@ -181,8 +181,8 @@ class MigrationRollback
 			if (
 				isset($definitions[$table])
 				|| str_starts_with($table, 'backup_')
-				|| str_starts_with($table, Config::$db_prefix . 'migration_')
-				|| !str_starts_with($table, Config::$db_prefix)
+				|| str_starts_with($table, MigrationData::prefix() . 'migration_')
+				|| !str_starts_with($table, MigrationData::prefix())
 			) {
 				continue;
 			}

@@ -375,7 +375,30 @@ class MigrationData
 	{
 		static $exists = false;
 
-		return $exists = $exists || ((new MigrationDataTable())->exists(true) && (new MigrationRunsTable())->exists(true));
+		if ($exists) {
+			return true;
+		}
+
+		$tables = Db::$db->list_tables();
+		$prefix = self::prefix();
+
+		return $exists = \in_array($prefix . 'migration_data', $tables)
+			&& \in_array($prefix . 'migration_runs', $tables);
+	}
+
+	/**
+	 * The table prefix, without the database in front of it.
+	 *
+	 * On MySQL the prefix can name the database as well, as `smf`.smf_, while
+	 * list_tables() answers with bare names. Anything comparing one against the
+	 * other has to take the database off first, or it never finds a table that
+	 * is sitting right there.
+	 *
+	 * @return string The prefix on its own.
+	 */
+	public static function prefix(): string
+	{
+		return preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0 ? $match[2] : Db::$db->prefix;
 	}
 
 	/**
