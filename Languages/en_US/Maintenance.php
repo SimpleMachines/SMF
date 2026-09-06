@@ -406,9 +406,9 @@ $txt['upgrade_continue_step'] = 'Continue from step reached during last executio
 $txt['upgrade_areyouready'] = 'Before the upgrade gets underway, please review the options below and press &quot;Continue&quot; when you are ready to begin.';
 $txt['upgrade_backup_table'] = 'Backup SMF tables in your database using the prefix <span class="bbc_tt">{0}</span>';
 $txt['upgrade_rollback_title'] = 'An unfinished upgrade';
-$txt['upgrade_rollback_offer'] = 'An upgrade from {version} was started on {date} and did not finish. You can carry on with it, or put the database back the way it was before it started. Only the database is put back: the files on disk are left alone.';
+$txt['upgrade_rollback_offer'] = 'An upgrade from {version} was started {date} and did not finish. You can carry on with it, or put the database back the way it was before it started. Only the database is put back: the files on disk are left alone.';
 $txt['upgrade_rollback_button'] = 'Put the database back';
-$txt['upgrade_rollback_done'] = 'The database has been put back the way it was before the upgrade started.';
+$txt['upgrade_rollback_done'] = 'The database has been put back the way it was before the upgrade started. The files on disk are still {version}, so the forum will not run until you either <a href="{url}">start the upgrade again</a> or put your old files back from a backup.';
 $txt['log_rollback_starting'] = 'Putting the database back to {version}';
 $txt['log_rollback_done'] = 'Put back {count} things.';
 $txt['log_rollback_failed'] = 'Nothing was put back: {error}';
