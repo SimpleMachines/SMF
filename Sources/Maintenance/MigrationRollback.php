@@ -316,10 +316,42 @@ class MigrationRollback
 			// end the whole thing, which would leave a forum half put back.
 			// Skipped is not the same as unnoticed, though: what did not run
 			// is the difference between a rollback and the appearance of one.
-			if ($result === false) {
+			if ($result === false && !$this->positionSequence($statement)) {
 				$this->failures[] = preg_replace('~\s+~', ' ', substr($statement, 0, 120));
 			}
 		}
+	}
+
+	/**
+	 * Puts a sequence where a CREATE SEQUENCE would have started it.
+	 *
+	 * Dropping a table does not drop the sequence feeding it, so a sequence
+	 * being put back is nearly always already there and asking for it again is
+	 * refused. What the statement was for is the number it would have started
+	 * at, and that can still be had.
+	 *
+	 * @param string $statement The statement that was refused.
+	 * @return bool Whether this was a CREATE SEQUENCE that has now been dealt
+	 *    with another way.
+	 */
+	private function positionSequence(string $statement): bool
+	{
+		if (preg_match('~^CREATE SEQUENCE ([^\s]+) START WITH (\d+)~i', trim($statement), $match) !== 1) {
+			return false;
+		}
+
+		// The third argument says the value has not been handed out yet, so
+		// the next id is the one the statement asked to start at.
+		$result = Db::$db->query(
+			'SELECT setval({string:sequence}, {int:start}, false)',
+			[
+				'sequence' => $match[1],
+				'start' => (int) $match[2],
+				'db_error_skip' => true,
+			],
+		);
+
+		return $result !== false;
 	}
 
 	/**
