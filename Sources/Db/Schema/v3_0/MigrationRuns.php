@@ -106,6 +106,13 @@ class MigrationRuns extends Table
 				not_null: true,
 				default: 0,
 			),
+			'time_rolled_back' => new Column(
+				name: 'time_rolled_back',
+				type: 'bigint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
 		];
 
 		$this->indexes = [
