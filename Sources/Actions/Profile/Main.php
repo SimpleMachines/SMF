@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Authentication\Provider;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,6 +35,7 @@ use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebAuthn\Server;
 
 /**
  * This class has the primary job of showing and editing people's profiles.
@@ -334,6 +336,26 @@ class Main implements ActionInterface, Routable
 					'enabled' => true,
 					'hidden' => true,
 					'select' => 'account',
+					'permission' => [
+						'own' => ['profile_password_own'],
+						'any' => ['profile_password_any'],
+					],
+				],
+				'linkedaccounts' => [
+					'label' => 'linked_accounts',
+					'function' => __NAMESPACE__ . '\\LinkedAccounts::call',
+					'sub_template' => 'linked_accounts',
+					'enabled' => true,
+					'permission' => [
+						'own' => ['profile_password_own'],
+						'any' => ['profile_password_any'],
+					],
+				],
+				'passkeys' => [
+					'label' => 'passkeys',
+					'function' => __NAMESPACE__ . '\\Passkeys::call',
+					'sub_template' => 'passkeys',
+					'enabled' => true,
 					'permission' => [
 						'own' => ['profile_password_own'],
 						'any' => ['profile_password_any'],
@@ -693,16 +715,18 @@ class Main implements ActionInterface, Routable
 
 				$password = $_POST['oldpasswrd'] ?? '';
 
-				// You didn't even enter a password!
-				if (trim($password) == '') {
-					Profile::$member->save_errors[] = 'no_password';
-				}
-
 				// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
 				$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
+
+				// You didn't even enter a password! Asked after the hook, because
+				// a member who signs in without one has nothing to type here, and
+				// only the integration that signed them in can vouch for them.
+				if (!$good_password && trim($password) == '') {
+					Profile::$member->save_errors[] = 'no_password';
+				}
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
@@ -916,6 +940,11 @@ class Main implements ActionInterface, Routable
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
 		$this->profile_areas['edit_profile']['areas']['tfadisable']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
+
+		// No point offering this when nobody has set up a provider to link to.
+		$this->profile_areas['edit_profile']['areas']['linkedaccounts']['enabled'] = Provider::loadAll(true) !== [];
+
+		$this->profile_areas['edit_profile']['areas']['passkeys']['enabled'] = Server::isEnabled();
 
 		$this->profile_areas['edit_profile']['areas']['ignoreboards']['enabled'] = !empty(Config::$modSettings['allow_ignore_boards']);
 

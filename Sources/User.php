@@ -2241,6 +2241,39 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Whether this member has any second authentication factor set up.
+	 *
+	 * @return bool Whether they do.
+	 */
+	public function hasSecondFactor(): bool
+	{
+		return self::getSecondFactors($this->id) !== [];
+	}
+
+	/**
+	 * Whether this member can log in by typing a password.
+	 *
+	 * SMF has always given every account a password, so most code can assume
+	 * one exists. That stops being true as soon as something else can vouch for
+	 * a member, so anywhere that asks for a password needs to cope with the
+	 * answer being "they don't have one".
+	 *
+	 * An empty passwd is the marker. There is no separate flag column, because
+	 * password_verify() already refuses to match anything against an empty
+	 * hash; this method exists to say so out loud rather than relying on that.
+	 *
+	 * @return bool Whether asking this member for their password makes sense.
+	 */
+	public function hasUsablePassword(): bool
+	{
+		// passwd is a typed property, so it may not be populated for every
+		// dataset. Fall back to the raw profile data before giving up.
+		$passwd = $this->passwd ?? (self::$profiles[$this->id]['passwd'] ?? '');
+
+		return trim($passwd) !== '';
+	}
+
+	/**
 	 * Check if the user is who he/she says he is.
 	 *
 	 * Makes sure the user is who they claim to be by requiring a password to be
@@ -2293,6 +2326,27 @@ class User implements \ArrayAccess
 					&& $_SESSION['admin_time'] + $refreshTime >= time()
 				)
 			) {
+				return null;
+			}
+		}
+
+		/*
+		 * If this member has no password, asking them to retype it is not going
+		 * to work, and the prompt below would lock them out of the admin and
+		 * moderation areas entirely.
+		 *
+		 * MOD AUTHORS: if you let members sign in without a password, you must
+		 * implement this hook as well, and re-verify them however they signed in
+		 * originally. Return true once you are satisfied it is really them.
+		 * Nothing in SMF itself creates a member without a password, so this
+		 * hook is never reached on a stock install.
+		 */
+		if (!$this->hasUsablePassword()) {
+			if (\in_array(true, IntegrationHook::call('integrate_reauthenticate', [$type, $this->id]), true)) {
+				$_SESSION[$type . '_time'] = time();
+
+				unset($_SESSION['request_referer']);
+
 				return null;
 			}
 		}
@@ -2819,6 +2873,48 @@ class User implements \ArrayAccess
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Lists the second authentication factors a member has set up.
+	 *
+	 * Two factor authentication used to mean exactly one thing, the time based
+	 * codes in SMF\TOTP\Auth, so the rest of the code asked about it by looking
+	 * at the tfa_secret column directly. Ask here instead, so that a mod adding
+	 * another kind of factor is visible to those checks too.
+	 *
+	 * Keys are short identifiers for the factor, values describe it for display.
+	 * The built in factor uses the key 'totp'.
+	 *
+	 * Note that this reports what the member has configured, not whether the
+	 * forum currently wants a second factor from them. The tfa_mode setting is
+	 * what decides that, and callers check it separately.
+	 *
+	 * This reads the loaded profile data rather than an instance's properties,
+	 * because it has to work during self::loadMe(), where self::verifyTfa() runs
+	 * before self::setProperties() has populated anything.
+	 *
+	 * @param int $id_member The member to ask about.
+	 * @return array The factors this member has, which may be empty.
+	 */
+	public static function getSecondFactors(int $id_member): array
+	{
+		$factors = [];
+
+		if (!empty(self::$profiles[$id_member]['tfa_secret'])) {
+			$factors['totp'] = Lang::getTxt('tfa_title', file: 'Profile');
+		}
+
+		/*
+		 * MOD AUTHORS: Add your own second factor here. Doing so makes SMF treat
+		 * this member as having two factor authentication set up, which means it
+		 * will stop short of a full login and hand over to ?action=logintfa. You
+		 * are responsible for verifying your own factor there, which is what the
+		 * integrate_verify_tfa hook is for.
+		 */
+		IntegrationHook::call('integrate_second_factors', [&$factors, $id_member]);
+
+		return $factors;
+	}
 
 	/**
 	 * Loads an array of users by ID, member_name, or email_address.
@@ -3604,6 +3700,8 @@ class User implements \ArrayAccess
 			// Delete these members.
 			['table' => 'members', 'col' => 'id_member'],
 			['table' => 'member_logins', 'col' => 'id_member'],
+			// Anything else they used to sign in with goes with them.
+			['table' => 'member_auth', 'col' => 'id_member'],
 			['table' => 'user_alerts', 'col' => 'id_member'],
 			['table' => 'user_alerts', 'col' => 'id_member_started'],
 			['table' => 'user_alerts_prefs', 'col' => 'id_member'],
@@ -4542,7 +4640,7 @@ class User implements \ArrayAccess
 		}
 
 		// If they've set up Two Factor Authentication, validate it.
-		if (!empty(self::$profiles[self::$my_id]['tfa_secret'])) {
+		if (self::getSecondFactors(self::$my_id) !== []) {
 			// If they are performing the TFA login action itself, make sure
 			// to reset their ID for security, but otherwise leave it to the
 			// action to verify the TFA credentials.

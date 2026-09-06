@@ -108,6 +108,40 @@ function template_login()
 					</script>
 				</form>';
 
+	// Anything else offering to sign them in? Nothing does out of the box.
+	if (!empty(Utils::$context['authentication_methods']) || !empty(Utils::$context['offer_passkeys'])) {
+		echo '
+				<hr>
+				<div class="centertext login_alternatives" id="login_alternatives">
+					<p class="smalltext">', Lang::getTxt('login_alternatives', file: 'Login'), '</p>';
+
+		foreach (Utils::$context['authentication_methods'] as $method) {
+			echo '
+					<a class="button', isset($method['id']) ? ' login_with_' . $method['id'] : '', '" href="', $method['url'], '">', $method['title'], '</a>';
+		}
+
+		echo '
+				</div><!-- .login_alternatives -->';
+
+		/*
+		 * The passkey button is added by the script rather than printed here,
+		 * because it does nothing at all without scripting and nothing at all on
+		 * a browser with no authenticator API. Everything it needs is handed
+		 * over now so it can decide.
+		 */
+		if (!empty(Utils::$context['offer_passkeys'])) {
+			echo '
+				<script>
+					var smf_passkey_login = {
+						container: "login_alternatives",
+						field: "', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginuser",
+						label: ', Utils::escapeJavaScript(Lang::getTxt('passkey_login', file: 'Login')), ',
+						failed: ', Utils::escapeJavaScript(Lang::getTxt('passkey_login_failed', file: 'Login')), '
+					};
+				</script>';
+		}
+	}
+
 	if (!empty(Utils::$context['can_register'])) {
 		echo '
 				<hr>
