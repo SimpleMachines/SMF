@@ -22,7 +22,7 @@ use SMF\Db\Schema\Table;
 /**
  * Defines all the properties for a database table.
  */
-class Migrations extends Table
+class MigrationRuns extends Table
 {
 	/****************
 	 * Public methods
@@ -33,16 +33,9 @@ class Migrations extends Table
 	 */
 	public function __construct()
 	{
-		$this->name = 'migrations';
+		$this->name = 'migration_runs';
 
 		$this->columns = [
-			'id_entry' => new Column(
-				name: 'id_entry',
-				type: 'int',
-				unsigned: true,
-				not_null: true,
-				auto: true,
-			),
 			'id_run' => new Column(
 				name: 'id_run',
 				type: 'varchar',
@@ -50,34 +43,64 @@ class Migrations extends Table
 				not_null: true,
 				default: '',
 			),
-			'migration' => new Column(
-				name: 'migration',
+			'version_from' => new Column(
+				name: 'version_from',
 				type: 'varchar',
-				size: 255,
+				size: 20,
 				not_null: true,
 				default: '',
 			),
-			'data_type' => new Column(
-				name: 'data_type',
+			'version_to' => new Column(
+				name: 'version_to',
 				type: 'varchar',
-				size: 30,
+				size: 20,
 				not_null: true,
 				default: '',
 			),
-			'data_key' => new Column(
-				name: 'data_key',
-				type: 'varchar',
-				size: 255,
+			'step' => new Column(
+				name: 'step',
+				type: 'smallint',
+				unsigned: true,
 				not_null: true,
-				default: '',
+				default: 0,
 			),
-			'data' => new Column(
-				name: 'data',
-				type: 'mediumtext',
+			'substep' => new Column(
+				name: 'substep',
+				type: 'int',
+				unsigned: true,
 				not_null: true,
+				default: 0,
 			),
-			'time_added' => new Column(
-				name: 'time_added',
+			'substep_start' => new Column(
+				name: 'substep_start',
+				type: 'int',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'id_member' => new Column(
+				name: 'id_member',
+				type: 'int',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'time_started' => new Column(
+				name: 'time_started',
+				type: 'bigint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'time_updated' => new Column(
+				name: 'time_updated',
+				type: 'bigint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'time_finished' => new Column(
+				name: 'time_finished',
 				type: 'bigint',
 				unsigned: true,
 				not_null: true,
@@ -90,18 +113,15 @@ class Migrations extends Table
 				type: 'primary',
 				columns: [
 					[
-						'name' => 'id_entry',
+						'name' => 'id_run',
 					],
 				],
 			),
-			'idx_run' => new DbIndex(
-				name: 'idx_run',
+			'idx_time_finished' => new DbIndex(
+				name: 'idx_time_finished',
 				columns: [
 					[
-						'name' => 'id_run',
-					],
-					[
-						'name' => 'data_type',
+						'name' => 'time_finished',
 					],
 				],
 			),

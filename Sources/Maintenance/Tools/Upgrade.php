@@ -1221,14 +1221,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		Utils::$context['form_action'] = Config::$boardurl . '/index.php';
 
-		// Update the database with the new SMF version. Forgetting which run
-		// this was goes with it: whatever upgrades this forum next is a
+		// Update the database with the new SMF version.
+		$this->updateModSettings(['smfVersion' => SMF_VERSION]);
+
+		// Closing the run goes with it. Whatever upgrades this forum next is a
 		// different one, and records what it finds rather than reading the
 		// notes this one left.
-		$this->updateModSettings([
-			'smfVersion' => SMF_VERSION,
-			'upgrade_run' => '',
-		]);
+		MigrationData::finishRun($this->getRunId(), SMF_VERSION);
 
 		// Clean any old cache files away.
 		CacheApi::load();
@@ -1425,11 +1424,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	private function recordDefinition(string $table): void
 	{
-		if (!MigrationData::ensure()) {
+		$run = $this->getRunId();
+
+		if ($run === '') {
 			return;
 		}
-
-		$run = $this->getRunId();
 
 		if (MigrationData::get($run, MigrationData::TYPE_DEFINITION, $table) !== null) {
 			return;
@@ -1447,11 +1446,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * What identifies this upgrade, making one if there is not one yet.
 	 *
-	 * It is kept in the settings table rather than in the progress data in
-	 * Settings.php, because that is written by preExit(), which the command
-	 * line reaches only once the upgrade has finished and a killed process
-	 * never reaches at all. The database is the one place both ways of running
-	 * this can leave something behind.
+	 * A run stays open until something says it finished, so a process that was
+	 * killed leaves its row behind and this finds it again. The progress data
+	 * in Settings.php could not do this: it is written by preExit(), which the
+	 * command line reaches only once the upgrade has finished, and which a
+	 * killed process never reaches at all.
 	 *
 	 * @return string The run's id.
 	 */
@@ -1461,12 +1460,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return $this->id_run;
 		}
 
-		$this->id_run = (string) (Config::$modSettings['upgrade_run'] ?? '');
+		if (!MigrationData::ensure()) {
+			return '';
+		}
+
+		$this->id_run = MigrationData::currentRun();
 
 		if ($this->id_run === '') {
 			$this->id_run = (string) Uuid::create();
 
-			$this->updateModSettings(['upgrade_run' => $this->id_run]);
+			MigrationData::startRun($this->id_run, $this->start_smf_version, $this->user['id'] ?? 0);
 		}
 
 		return $this->id_run;
@@ -1763,6 +1766,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		 */
 		while (Maintenance::getCurrentSubStep() - $offset < \count($substeps)) {
 			$substep = $substeps[Maintenance::getCurrentSubStep() - $offset];
+
+			// Where this run has got to, somewhere a killed process cannot
+			// take with it. The step and substep themselves live in the query
+			// string, which goes when the request does.
+			MigrationData::recordPosition(
+				$this->getRunId(),
+				Maintenance::getCurrentStep(),
+				Maintenance::getCurrentSubStep(),
+				Maintenance::getCurrentStart(),
+			);
 
 			$this->logProgress(' +++ ' . $substep->name, true);
 
