@@ -227,6 +227,16 @@ class SendDigests extends ScheduledTask
 				'email' => $member['email'],
 			];
 
+			// What the mail says before anything specific to this member has
+			// been added to it. Whether it still says only this at the end is
+			// how we know there was nothing to tell them about.
+			$greeting_only = $email['body'];
+
+			// Each section below sets this when it writes its heading, and the
+			// sections are skipped rather than entered when there is nothing of
+			// that kind, so it needs a value that is this member's own.
+			$titled = false;
+
 			// All new topics?
 			if (isset($types['topic'])) {
 				$titled = false;
@@ -299,6 +309,13 @@ class SendDigests extends ScheduledTask
 
 			if ($titled) {
 				$email['body'] .= "\n";
+			}
+
+			// Watching something is not the same as there being anything to
+			// report about it. Sending the greeting and the unsubscribe link
+			// on their own tells the member nothing and reads like a fault.
+			if ($email['body'] === $greeting_only) {
+				continue;
 			}
 
 			// Then just say our goodbyes!
