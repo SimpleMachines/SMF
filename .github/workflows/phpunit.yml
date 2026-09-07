@@ -42,5 +42,104 @@ jobs:
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --ansi
 
+      # Only the unit suite, so this job reports what it ran. The integration
+      # tests skip themselves when there is no forum, and counting those skips
+      # as part of a passing run reads as coverage that is not there.
       - name: Run the unit tests
-        run: composer test -- --colors=always
+        run: composer test-unit -- --colors=always
+
+  integration:
+    name: Integration tests (${{ matrix.engine }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both, because the two engines disagree. The counter regression in
+        # tests/Integration/ModSettingsTest.php passes on MySQL with the bug
+        # still in place and fails on PostgreSQL, so one engine would have
+        # proved nothing there.
+        engine: [ mysql, postgresql ]
+
+    # Linux containers, so this job cannot also run on windows-latest the way
+    # the unit job does. Windows is covered there, and .dev/test.sh is what runs
+    # these by hand on a machine without Docker.
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: smf
+          MYSQL_USER: smf
+          MYSQL_PASSWORD: smf
+          MYSQL_ROOT_PASSWORD: smf
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=3s
+          --health-timeout=5s
+          --health-retries=40
+          --health-start-period=20s
+
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: smf
+          POSTGRES_USER: smf
+          POSTGRES_PASSWORD: smf
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U smf -d smf"
+          --health-interval=3s
+          --health-timeout=3s
+          --health-retries=20
+
+    env:
+      # What .dev/lib.sh defaults to anyway, named here because the forum is
+      # installed with this board URL baked into it and the built-in server has
+      # to answer on the same port.
+      WEB_PORT: 8080
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 #2.37.2
+        with:
+          php-version: '8.4'
+          # What .docker/php/Dockerfile installs, so the two environments agree
+          # about what the forum has available. mysqli and pgsql are what
+          # .dev/db.php connects with; curl is what the HTTP tests drive.
+          extensions: mysqli, pgsql, mbstring, fileinfo, gd, intl, curl, exif, xsl, zip
+          coverage: none
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php8.4-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php8.4-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --ansi
+
+      - name: Install a forum on ${{ matrix.engine }}
+        run: .dev/install-forum.sh --engine ${{ matrix.engine }}
+
+      # --fail-on-skipped is the point of the job. Both the missing-forum skip in
+      # IntegrationTestCase and the wrong-password skip in HttpTestCase are
+      # there so the suite stays usable on a machine with no forum; in CI they
+      # would turn a job that tested nothing into a green tick.
+      - name: Run the integration tests
+        run: .dev/test.sh --engine ${{ matrix.engine }} --testsuite integration --fail-on-skipped
+
+      # SMF records most of what goes wrong here rather than showing it, and a
+      # failure that never reached an assertion leaves its explanation in this
+      # table and nowhere else.
+      - name: Show the forum's error log
+        if: failure()
+        run: |
+          php .dev/db.php --engine ${{ matrix.engine }} --sql \
+            "SELECT id_error, error_type, url, message FROM smf_log_errors ORDER BY id_error DESC LIMIT 20;" || true
