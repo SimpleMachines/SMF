@@ -1051,6 +1051,9 @@ class Server implements ActionInterface
 
 			['check', 'securityDisable'],
 			['check', 'securityDisable_moderate'],
+			['check', 'securityDisable_credentials'],
+			['int', 'auth_stepup_lifetime', 'subtext' => Lang::getTxt('auth_stepup_lifetime_subtext', file: 'ManageSettings')],
+			['int', 'auth_credentials_lifetime', 'subtext' => Lang::getTxt('auth_credentials_lifetime_subtext', file: 'ManageSettings')],
 			'',
 
 			// Reactive on email, and approve on delete

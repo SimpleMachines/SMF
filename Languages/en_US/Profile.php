@@ -676,3 +676,33 @@ $txt['export_file_desc'] = 'Included data: {list}. File format: {format}.';
 $txt['export_download_original'] = 'Download original';
 $txt['export_view_source_button'] = 'Toggle source view';
 $txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
+
+// Linked accounts.
+$txt['linked_accounts'] = 'Linked accounts';
+$txt['linked_accounts_desc'] = 'The external accounts you can sign in with.';
+$txt['linked_accounts_none'] = 'You have not linked any accounts yet.';
+$txt['linked_accounts_provider'] = 'Provider';
+$txt['linked_accounts_added'] = 'Linked';
+$txt['linked_accounts_last_used'] = 'Last used';
+$txt['linked_accounts_unlink'] = 'Unlink';
+$txt['linked_accounts_add'] = 'Link another account';
+$txt['linked_accounts_linked'] = 'That account is now linked.';
+$txt['linked_accounts_unlinked'] = 'That account is no longer linked.';
+$txt['linked_accounts_last_one'] = 'That is the only way you can sign in, so it cannot be unlinked. Set a password first.';
+$txt['linked_accounts_only_way_in'] = 'Your only way to sign in';
+$txt['linked_accounts_unknown_provider'] = 'Provider no longer configured';
+
+// Passkeys.
+$txt['passkeys'] = 'Passkeys';
+$txt['passkeys_desc'] = 'Passkeys let you sign in with the fingerprint reader, face scan, PIN or security key you already use to unlock your device. There is no password to remember, and a passkey cannot be used on a site pretending to be this one.';
+$txt['passkeys_none'] = 'You have not added any passkeys yet.';
+$txt['passkeys_name'] = 'Name';
+$txt['passkeys_name_desc'] = 'Something to tell this passkey apart from the others, such as the device it lives on.';
+$txt['passkeys_added'] = 'Added';
+$txt['passkeys_last_used'] = 'Last used';
+$txt['passkeys_remove'] = 'Remove';
+$txt['passkeys_add'] = 'Add a passkey';
+$txt['passkey_added'] = 'That passkey is ready to use.';
+$txt['passkey_default_title'] = 'Passkey';
+$txt['passkey_last_one'] = 'That is the only way you can sign in, so it cannot be removed. Set a password first.';
+$txt['passkey_only_way_in'] = 'Your only way to sign in';
