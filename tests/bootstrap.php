@@ -48,15 +48,10 @@ define('TIME_START', microtime(true));
 define('SMF_SETTINGS_FILE', TESTS_BOARDDIR . '/Settings.php');
 define('SMF_SETTINGS_BACKUP_FILE', TESTS_BOARDDIR . '/Settings_bak.php');
 
-$loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
-$loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
-$loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
-
-// The unit tests are each self-contained, so nothing had to autoload them.
-// Anything sharing a base class or a helper does, and registering it here keeps
-// it beside the other two rather than adding an autoload-dev section that only
-// the test suite would ever use.
-$loader->setPsr4('SMF\\Tests\\', TESTS_BOARDDIR . '/tests');
+SMF\Config::$loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
+SMF\Config::$loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
+SMF\Config::$loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
+SMF\Config::$loader->setPsr4('SMF\\Tests\\', TESTS_BOARDDIR . '/tests');
 
 /*
  * Paths and the default language, which the Unicode and entity helpers need in
