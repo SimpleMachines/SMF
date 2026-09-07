@@ -207,15 +207,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	];
 
 	/**
-	 * @var string
-	 *
-	 * Identifies this upgrade, and stays the same when it is started again
-	 * after being interrupted. What a migration records against it therefore
-	 * describes the database as this upgrade found it, not as a later attempt
-	 * found it half changed. Read through getRunId(), which knows where it
-	 * lives.
-	 */
-	/**
 	 * @var array
 	 *
 	 * Settings that are not recorded before being changed. The upgrade's own
@@ -361,6 +352,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	protected string $start_smf_version = '';
 
+	/**
+	 * @var string
+	 *
+	 * Identifies this upgrade, and stays the same when it is started again
+	 * after being interrupted. What a migration records against it therefore
+	 * describes the database as this upgrade found it, not as a later attempt
+	 * found it half changed. Read through getRunId(), which knows where it
+	 * lives.
+	 */
 	protected string $id_run = '';
 
 	/**
