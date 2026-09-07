@@ -453,8 +453,8 @@ off half way.
 ```sh
 BASE=../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
 
-.docker/rerun-upgrade.sh     --engine mysql --baseline "$BASE"
-.docker/interrupt-upgrade.sh --engine mysql --baseline "$BASE"
+.dev/rerun-upgrade.sh     --engine mysql --baseline "$BASE"
+.dev/interrupt-upgrade.sh --engine mysql --baseline "$BASE"
 ```
 
 Both rebuild the database for the engine they are given, so anything installed
@@ -530,7 +530,7 @@ whatever 2.1 left behind. They are meant to converge, and nothing checks that
 they do:
 
 ```bash
-.docker/compare-upgrade.sh --engine mysql --baseline path/to/a-2.1-dump.sql
+.dev/compare-upgrade.sh --engine mysql --baseline path/to/a-2.1-dump.sql
 ```
 
 That empties the database, loads the dump, upgrades it, reads the schema,
@@ -571,10 +571,10 @@ same engine — two forums you already have, or the same forum before and after
 something you are testing:
 
 ```bash
-docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > before.json
+docker compose exec web php .dev/schema-tool.php dump --engine mysql --db smf > before.json
 # ... do the thing ...
-docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > after.json
-docker compose exec web php .docker/schema-tool.php diff before.json after.json
+docker compose exec web php .dev/schema-tool.php dump --engine mysql --db smf > after.json
+docker compose exec web php .dev/schema-tool.php diff before.json after.json
 ```
 
 It talks to the database directly rather than through SMF, so it works on a
