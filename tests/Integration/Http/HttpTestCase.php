@@ -114,7 +114,7 @@ abstract class HttpTestCase extends IntegrationTestCase
 	/**
 	 * Signs in as the forum administrator.
 	 *
-	 * The credentials are the ones .docker/install-forum.sh uses, overridable
+	 * The credentials are the ones .dev/install-forum.sh uses, overridable
 	 * through the environment for a forum that was set up some other way.
 	 *
 	 * @return HttpResponse The response to the login post.
@@ -136,7 +136,7 @@ abstract class HttpTestCase extends IntegrationTestCase
 			self::markTestSkipped(
 				'cannot sign in as "' . self::adminName() . '". Set SMF_ADMIN_USER and '
 				. 'SMF_ADMIN_PASS to this forum\'s administrator, or reinstall with '
-				. '.docker/install-forum.sh --engine mysql --force',
+				. '.dev/install-forum.sh --engine mysql --force',
 			);
 		}
 

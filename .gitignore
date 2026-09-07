@@ -81,12 +81,12 @@ Thumbs.db
 # One saved Settings.php per engine, so use-engine.sh can switch between two
 # installs without reinstalling. Generated secrets and a machine-specific
 # board URL: local to whoever ran the installer.
-/.docker/settings/
-/.docker/rerun/
-/.docker/interrupt/
+/.dev/settings/
+/.dev/rerun/
+/.dev/interrupt/
 # Schema readings and reports from compare-upgrade.sh. They describe one
 # machine's databases at one moment, and are rewritten on every run.
-/.docker/compare/
+/.dev/compare/
 
 # Test / Private files #
 ########################

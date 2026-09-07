@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Installs the forum without a browser.
 #
-#   .docker/install-forum.sh --engine mysql
-#   .docker/install-forum.sh --engine postgresql
-#   .docker/install-forum.sh --engine both
+#   .dev/install-forum.sh --engine mysql
+#   .dev/install-forum.sh --engine postgresql
+#   .dev/install-forum.sh --engine both
+#   .dev/install-forum.sh --docker --engine mysql
 #
 # SMF 3.0's installer is CLI-native: Maintenance::parseCliArguments() turns
 # --name=value into $_POST, and Maintenance::execute() then runs every step in
@@ -30,6 +31,8 @@ set -euo pipefail
 
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
 
+parse_runner_args "$@"
+
 ENGINE=''
 PIN_SECRETS=0
 FORCE=0
@@ -40,13 +43,18 @@ while [ $# -gt 0 ]; do
 		--engine=*) ENGINE="${1#*=}"; shift ;;
 		--pin-secrets) PIN_SECRETS=1; shift ;;
 		--force) FORCE=1; shift ;;
-		-h|--help) sed -n '2,27p' "${BASH_SOURCE[0]}"; exit 0 ;;
+		--docker|--local) shift ;;
+		-h|--help) sed -n '2,28p' "${BASH_SOURCE[0]}"; exit 0 ;;
 		*) die "unknown argument: $1" ;;
 	esac
 done
 
 [ -n "$ENGINE" ] || die 'need --engine mysql|postgresql|both'
 ENGINES=$(engine_list "$ENGINE") || die "unknown engine: $ENGINE"
+
+for smf_type in $ENGINES; do
+	require_local_deps "$smf_type"
+done
 
 cd "$BOARD_DIR"
 
@@ -76,7 +84,7 @@ install_one() {
 	fi
 
 	log "${smf_type}: resetting"
-	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
+	"$DEV_DIR/reset.sh" "--${SMF_RUNNER}" --engine "$smf_type" >/dev/null
 
 	args=(
 		--contbutt=1
@@ -96,18 +104,18 @@ install_one() {
 		--password2="$SMF_ADMIN_PASS"
 	)
 
-	# reset.sh does not return until the entrypoint has staged this, so its
-	# absence means something went wrong there rather than here. Worth saying so:
-	# without it php reports "Could not open input file: install.php", which reads
-	# like a broken script rather than a forum that was never made installable.
-	docker compose exec -T web test -f install.php \
-		|| die "${smf_type}: install.php is not staged, so there is nothing to run (docker compose logs web)"
+	# reset.sh does not return until this is staged, so its absence means
+	# something went wrong there rather than here. Worth saying so: without it
+	# php reports "Could not open input file: install.php", which reads like a
+	# broken script rather than a forum that was never made installable.
+	[ -f "$BOARD_DIR/install.php" ] \
+		|| die "${smf_type}: install.php is not staged, so there is nothing to run"
 
 	log "${smf_type}: building the schema"
-	docker compose exec -T web php install.php "${args[@]}" >/dev/null
+	run_php install.php "${args[@]}" >/dev/null
 
 	log "${smf_type}: creating the administrator and finalising"
-	docker compose exec -T web php install.php "${args[@]}" --pop_done=1 >/dev/null
+	run_php install.php "${args[@]}" --pop_done=1 >/dev/null
 
 	local version
 	version=$(installed_version "$smf_type" || true)
@@ -121,8 +129,8 @@ install_one() {
 	# not removed install.php" box on every page it shows an administrator.
 	#
 	# Safe to delete even though a reinstall needs it again: install_one() always
-	# calls reset.sh first, and reset.sh clears Settings.php and waits for the
-	# entrypoint to put a fresh copy back before returning.
+	# calls reset.sh first, and reset.sh does not return until a fresh copy is
+	# staged alongside a fresh Settings.php.
 	rm -f install.php
 
 	log "${smf_type}: installed SMF ${version}"
@@ -148,23 +156,30 @@ install_one() {
 pin_secrets() {
 	log 'pinning auth_secret and image_proxy_secret'
 
-	# The values have to be handed over with -e. Exporting them on the host does
-	# nothing: docker compose exec starts a fresh environment, so getenv() came
-	# back empty and this wrote two empty secrets over the generated ones.
-	docker compose exec -T \
-		-e PIN_AUTH_SECRET="$PIN_AUTH_SECRET" \
-		-e PIN_IMAGE_PROXY_SECRET="$PIN_IMAGE_PROXY_SECRET" \
-		web php -r '
+	# The values have to be handed over rather than exported. docker compose exec
+	# starts a fresh environment, so getenv() came back empty and this wrote two
+	# empty secrets over the generated ones. The board directory travels the same
+	# way, because it is not the same path on both sides of that boundary.
+	# The $board, $auth and $proxy below belong to the PHP, not to the shell, so
+	# the quotes around it have to stay single.
+	# shellcheck disable=SC2016
+	run_php_env \
+		PIN_AUTH_SECRET="$PIN_AUTH_SECRET" \
+		PIN_IMAGE_PROXY_SECRET="$PIN_IMAGE_PROXY_SECRET" \
+		PIN_BOARD_DIR="$(run_board_dir)" \
+		-- -r '
+		$board = (string) getenv("PIN_BOARD_DIR");
+
 		define("SMF", 1);
-		define("SMF_SETTINGS_FILE", "/var/www/html/Settings.php");
-		define("SMF_SETTINGS_BACKUP_FILE", "/var/www/html/Settings_bak.php");
-		require_once "/var/www/html/index.php";
+		define("SMF_SETTINGS_FILE", $board . "/Settings.php");
+		define("SMF_SETTINGS_BACKUP_FILE", $board . "/Settings_bak.php");
+		require_once $board . "/index.php";
 
 		$auth = (string) getenv("PIN_AUTH_SECRET");
 		$proxy = (string) getenv("PIN_IMAGE_PROXY_SECRET");
 
 		if ($auth === "" || $proxy === "") {
-			fwrite(STDERR, "pin-secrets: the secrets did not reach the container\n");
+			fwrite(STDERR, "pin-secrets: the secrets did not reach the php that had to write them\n");
 			exit(1);
 		}
 
@@ -184,7 +199,7 @@ save_settings() {
 	cp Settings.php "$SETTINGS_DIR/Settings.${smf_type}.php"
 	cp Settings_bak.php "$SETTINGS_DIR/Settings_bak.${smf_type}.php"
 
-	log "${smf_type}: settings saved to .docker/settings/"
+	log "${smf_type}: settings saved to .dev/settings/"
 }
 
 PIN_AUTH_SECRET="${PIN_AUTH_SECRET:-0b6e5f3c1a94d27e8f5b0c3a76d1e94f2b8c5a03e7d146f9b2c8a501d3e7f4c69}"
@@ -200,6 +215,6 @@ done
 # Leave the first engine of a "both" run active rather than whichever happened
 # to go last, so the result does not depend on the order.
 FIRST_ENGINE="${ENGINES%% *}"
-"$DOCKER_DIR/use-engine.sh" "$FIRST_ENGINE" >/dev/null
+"$DEV_DIR/use-engine.sh" "--${SMF_RUNNER}" "$FIRST_ENGINE" >/dev/null
 
 log "active engine: ${FIRST_ENGINE} -- ${SMF_BOARDURL} (${SMF_ADMIN_USER} / ${SMF_ADMIN_PASS})"
