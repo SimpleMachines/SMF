@@ -2419,9 +2419,6 @@ class Utils
 			return \is_callable($input) ? $input : false;
 		}
 
-		// Sanitize and trim the input.
-		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
-
 		// Attempt to load a file, if applicable.
 		$input = self::loadFile($input);
 
@@ -2431,8 +2428,11 @@ class Utils
 		}
 
 		// Process static or instance method callables.
-		if (str_contains($input, '::')) {
-			list($class, $method) = explode('::', $input);
+		$pos = strpos($input, '::');
+
+		if ($pos !== false) {
+			$class = substr($input, 0, $pos);
+			$method = substr($input, $pos + 2);
 
 			// Handle instance creation for methods with "#".
 			if (str_contains($method, '#')) {
@@ -2440,11 +2440,12 @@ class Utils
 					Utils::$context['instances'] = [];
 				}
 
+				$instances = &Utils::$context['instances'];
 				// Remove the "#" and ensure an instance exists.
 				$method = str_replace('#', '', $method);
 
-				if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
-					Utils::$context['instances'][$class] = new $class();
+				if (empty($instances[$class]) || !($instances[$class] instanceof $class)) {
+					$instances[$class] = new $class();
 
 					// Optionally track instance creation for debugging.
 					if (DebugUtils::isDebugEnabled()) {
@@ -2456,14 +2457,14 @@ class Utils
 					}
 				}
 
-				$callable = [Utils::$context['instances'][$class], $method];
+				$callable = $instances[$class]->$method(...);
 			} else {
 				// Static method reference.
-				$callable = [$class, $method];
+				$callable = $class::$method(...);
 			}
 		} else {
 			// Treat as a plain function.
-			$callable = $input;
+			$callable = $input(...);
 		}
 
 		// Validate the callable.

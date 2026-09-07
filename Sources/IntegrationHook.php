@@ -133,39 +133,7 @@ class IntegrationHook
 
 		// Loop through each callable.
 		foreach ($this->callables as $func_string => $callable) {
-			// Is it valid?
-			if (\is_callable($callable)) {
-				$this->results[$func_string] = \call_user_func_array($callable, $parameters);
-			}
-			// This failed, but we want to do so silently.
-			elseif ($this->ignore_errors) {
-				// return $this->results;
-				continue;
-			}
-			// Whatever it was supposed to call, it failed :(
-			else {
-				// Get a full path to show on error.
-				if (str_contains($func_string, '|')) {
-					list($file, $func) = explode('|', $func_string);
-
-					$path = strtr($file, [
-						'$boarddir' => Config::$boarddir,
-						'$sourcedir' => Config::$sourcedir,
-					]);
-
-					if (str_contains($path, '$themedir') && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
-						$path = strtr($path, [
-							'$themedir' => Theme::$current->settings['theme_dir'],
-						]);
-					}
-
-					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func, $path], file: 'Errors'), 'general');
-				}
-				// Assume the file resides on Config::$boarddir somewhere...
-				else {
-					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func_string, Config::$boarddir], file: 'Errors'), 'general');
-				}
-			}
+			$this->results[$func_string] = $callable(...$parameters);
 		}
 
 		return $this->results;
