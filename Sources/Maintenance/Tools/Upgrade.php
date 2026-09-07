@@ -1226,7 +1226,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\FetchSMfiles',
+					'SMF\\Tasks\\FetchSMFiles',
 					'',
 					0,
 				],
