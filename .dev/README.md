@@ -1,17 +1,56 @@
 # SMF development environment
 
-A throwaway, reproducible local stack for working on SMF 3.0. Nothing here is
-part of the shipped forum — it lives in `.docker/` precisely so the CI checks
-(`check-smf-index.php`, `check-smf-license.php`) skip it.
+Tools for installing a throwaway SMF 3.0 forum and running the tests against it.
+Nothing here is part of the shipped forum — it lives in a dot directory
+precisely so the CI checks (`check-smf-index.php`, `check-smf-license.php`) skip
+it, and so it is never served by a real install.
 
-Both database engines SMF supports are in the stack. **MySQL is the default.**
+Both database engines SMF supports are covered. **MySQL is the default.**
+
+## Two ways to run it
+
+Every script here works either against the PHP and database on this machine, or
+against the Docker stack in `.docker/`. `SMF_RUNNER` decides, and it defaults to
+**local**:
+
+```sh
+.dev/install-forum.sh --engine mysql            # this machine
+.dev/install-forum.sh --docker --engine mysql   # the stack
+```
+
+Local is the default because it needs nothing installed beyond what SMF itself
+requires, and because it is the only one available on a machine without Docker.
+It is also what CI uses.
+
+**If you work in the Docker stack, put this in `.env` once** and every command
+in this file works exactly as written:
+
+```sh
+SMF_RUNNER=docker
+```
+
+The two differ in one way worth knowing. Under Docker the forum is served by
+Apache, the way it is in production. Locally it is served by PHP's own built-in
+server, which is enough for the tests — SMF routes on the query string and on
+`PATH_INFO`, and there is no `.htaccess` at the root, so nothing here wants
+mod_rewrite — but it is not Apache. When a bug might be about the web server,
+reach for the stack.
 
 ## Requirements
 
-Docker Desktop (Linux containers). Nothing else — no local PHP, Composer, MySQL
-or PostgreSQL install is needed.
+**Locally:** PHP with the extensions SMF needs (`mysqli` or `pgsql` for the
+engine you pick, plus `mbstring`, `fileinfo` and `curl`), Composer, and a MySQL
+or PostgreSQL server you can already reach. The scripts expect a database and a
+user matching `DB_NAME`, `DB_USER` and `DB_PASSWORD` — `smf` / `smf` / `smf` by
+default — and never create or drop the database itself, only the tables in it.
+Point them elsewhere with `SMF_MYSQL_SERVER`, `SMF_MYSQL_PORT` and the
+PostgreSQL equivalents. If `php` is not on `PATH`, set `PHP_BIN`.
 
-## Start
+Create the MySQL database as `utf8mb4`; nothing here alters it afterwards.
+
+**With Docker:** Docker Desktop (Linux containers), and nothing else.
+
+## The Docker stack
 
 ```sh
 docker compose up -d --build
@@ -31,7 +70,18 @@ and wait for the `[smf-dev] ready` line.
 
 Credentials are `smf` / `smf` / database `smf` on both engines.
 
+Those two published ports are also how a *local* run can borrow the stack's
+databases without installing a server, which is a useful halfway house on a
+machine that has PHP but no MySQL:
+
+```sh
+SMF_MYSQL_PORT=3307 SMF_POSTGRES_PORT=5433 .dev/test.sh --engine both
+```
+
 ## Choosing the engine
+
+This section is about the stack only; the scripts take `--engine` and are not
+affected by it.
 
 Both database services always start. `SMF_DB_TYPE` decides which one the forum
 is pointed at, and it defaults to `mysql`:
@@ -54,9 +104,9 @@ forum.
 ## Installing the forum
 
 ```sh
-.docker/install-forum.sh --engine mysql
-.docker/install-forum.sh --engine postgresql
-.docker/install-forum.sh --engine both
+.dev/install-forum.sh --engine mysql
+.dev/install-forum.sh --engine postgresql
+.dev/install-forum.sh --engine both
 ```
 
 That resets the engine's database and installs a forum into it, with no browser
@@ -98,12 +148,12 @@ ever be live in a process.
 Both installs are kept. Switch between them with:
 
 ```sh
-.docker/use-engine.sh postgresql
+.dev/use-engine.sh postgresql
 ```
 
 That puts the saved `Settings.php` back and clears `cache/`. No restart is
 needed — the entrypoint only writes `Settings.php` when there is not one, so it
-leaves whatever is in place alone. The copies live in `.docker/settings/` and
+leaves whatever is in place alone. The copies live in `.dev/settings/` and
 are gitignored.
 
 `reset.sh` is the other half: it empties one engine's database and restages the
@@ -116,9 +166,9 @@ Two forums, each with its own administrator, and a password chosen months ago is
 a recipe for an afternoon of hand written SQL. `user.sh` is there so it is not:
 
 ```sh
-.docker/user.sh list
-.docker/user.sh check admin 'password'
-.docker/user.sh reset admin 'a new password'
+.dev/user.sh list
+.dev/user.sh check admin 'password'
+.dev/user.sh reset admin 'a new password'
 ```
 
 `check` exits 0 when SMF would accept the password and 1 when it would not, so
@@ -130,7 +180,7 @@ exactly like a wrong one.
 engine, so the *other* forum can be inspected without switching to it:
 
 ```sh
-.docker/user.sh check admin 'password' --engine mysql
+.dev/user.sh check admin 'password' --engine mysql
 ```
 
 The hashing goes through SMF's own `Security` class rather than being written
@@ -168,9 +218,9 @@ exists, `Settings.php` redirects every request back into the installer.
 ## Running the tests
 
 ```sh
-.docker/test.sh                          # both engines
-.docker/test.sh --engine postgresql
-.docker/test.sh --engine both --filter ModSettings
+.dev/test.sh                          # both engines
+.dev/test.sh --engine postgresql
+.dev/test.sh --engine both --filter ModSettings
 ```
 
 Anything it does not recognise is passed on to PHPUnit. It installs a forum for
@@ -183,15 +233,24 @@ bug still in place** and only fails on PostgreSQL, because MySQL coerces text to
 a number where PostgreSQL refuses. A suite that only ever sees one engine proves
 considerably less than it looks like it does.
 
-The unit suite needs none of this — `composer test` runs everything, and the
-integration tests skip themselves when there is no forum to talk to.
+The unit suite needs none of this — `composer test-unit` runs it on its own, and
+`composer test` runs everything, with the integration tests skipping themselves
+when there is no forum to talk to.
+
+That skip is a convenience, and in CI it would be a lie: a job wired to the wrong
+database would report a green run having tested nothing. So the workflow passes
+`--fail-on-skipped`, and anything worth doing by hand before pushing should too:
+
+```sh
+.dev/test.sh --engine both --testsuite integration --fail-on-skipped
+```
 
 Some of the tests sign in, so they need to know the administrator. They default
 to what `install-forum.sh` creates (`admin` / `password`); if your forum has
 different credentials, export them:
 
 ```sh
-SMF_ADMIN_USER=admin SMF_ADMIN_PASS='…' .docker/test.sh
+SMF_ADMIN_USER=admin SMF_ADMIN_PASS='…' .dev/test.sh
 ```
 
 Getting that wrong makes those tests **skip**, with a message saying so, rather
@@ -358,9 +417,9 @@ The symptom is a 403 about the token, when the token was never the problem.
 ## Running CI locally
 
 ```sh
-.docker/ci.sh              # everything CI checks
-.docker/ci.sh --full       # style check over the whole tree, not just changes
-.docker/ci.sh --fix        # apply the style fixes rather than reporting them
+.dev/ci.sh              # everything CI checks
+.dev/ci.sh --full       # style check over the whole tree, not just changes
+.dev/ci.sh --fix        # apply the style fixes rather than reporting them
 ```
 
 Mirrors `php.yml` (sign-off, the four file integrity checks, phplint) and
@@ -376,10 +435,12 @@ before you push rather than after.
 
 Two things it cannot do for you:
 
-- **The other PHP version.** CI lints and tests on 8.4 *and* 8.5; the container
-  is whichever built it. To cover the other:
+- **The other PHP version.** CI lints and tests on 8.4 *and* 8.5; this runs on
+  whichever `php` it found, or whichever `PHP_VERSION` built the container. To
+  cover the other, point `PHP_BIN` at it, or
   `PHP_VERSION=8.5 docker compose up -d --build web`.
-- **The integration tests on both engines.** Use `.docker/test.sh` for that.
+- **Both engines at once.** It runs the suite against whichever forum is live.
+  Use `.dev/test.sh --engine both` for the pair.
 
 ## Hardening the upgrade
 
@@ -458,7 +519,7 @@ The repository is bind-mounted at `/var/www/html`, so edits on the host are
 live on the next request. Opcache is on but revalidates every request, so you
 never need to restart for a PHP change.
 
-To reinstall from scratch: `.docker/install-forum.sh --engine mysql --force`.
+To reinstall from scratch: `.dev/install-forum.sh --engine mysql --force`.
 To wipe everything including the volumes: `docker compose down -v`.
 
 ## Comparing an upgrade against a fresh install
@@ -587,16 +648,25 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
-.docker/lib.sh                   paths, credentials and engine names, shared
-.docker/install-forum.sh         install a forum with no browser involved
-.docker/reset.sh                 empty one engine and restage the installer
-.docker/use-engine.sh            switch which installed forum is live
-.docker/user.sh                  inspect accounts, check and reset passwords
-.docker/test.sh                  run the test suites against an installed forum
 
-.docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
-.docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
-.docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
-.docker/compare-upgrade.sh       upgrade a 2.1 dump, install 3.0, diff the two
-.docker/schema-tool.php          read a database's shape, and compare readings
+.dev/lib.sh                      paths, credentials, engine names, the runner
+.dev/db.php                      one SQL statement, without a database client
+.dev/install-forum.sh            install a forum with no browser involved
+.dev/reset.sh                    empty one engine and restage the installer
+.dev/use-engine.sh               switch which installed forum is live
+.dev/user.sh                     inspect accounts, check and reset passwords
+.dev/test.sh                     run the suite against a real forum
+.dev/ci.sh                       run what CI runs, before pushing
+
+.dev/upgrade-readings.sh         shared: driving upgrade.php, reading a database
+.dev/rerun-upgrade.sh            upgrade twice, report what the second run changed
+.dev/interrupt-upgrade.sh        kill an upgrade part way, report what recovery left
+.dev/compare-upgrade.sh          upgrade a 2.1 dump, install 3.0, diff the two
+.dev/schema-tool.php             read a database's shape, and compare readings
 ```
+
+`.dev/db.php` exists because the two runners reach the database differently.
+Under Docker the `mysql` and `psql` clients are already inside the container;
+locally they would be a dependency nothing else here needs, while `mysqli` and
+`pgsql` are ones SMF has anyway. So any machine that can serve the forum can run
+these scripts, with no database client installed.

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Switches which installed forum is live, without reinstalling either.
 #
-#   .docker/use-engine.sh mysql
-#   .docker/use-engine.sh postgresql
+#   .dev/use-engine.sh mysql
+#   .dev/use-engine.sh postgresql
 #
 # Both database services always run, on separate volumes, so each keeps its own
 # forum. What decides which one you get is Settings.php: it pins $db_type, and
@@ -19,18 +19,24 @@ set -euo pipefail
 
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
 
-[ $# -eq 1 ] || die 'usage: use-engine.sh mysql|postgresql'
+parse_runner_args "$@"
 
-case "$1" in
+# Nothing here talks to a container, but installed_version() below does, so the
+# runner still has to be settled before the engine name is read.
+mapfile -t ARGS < <(without_runner_args "$@")
+
+[ "${#ARGS[@]}" -eq 1 ] || die 'usage: use-engine.sh [--docker] mysql|postgresql'
+
+case "${ARGS[0]}" in
 	-h|--help) sed -n '2,16p' "${BASH_SOURCE[0]}"; exit 0 ;;
 esac
 
-SMF_TYPE=$(engine_smf_type "$1") || die "unknown engine: $1"
+SMF_TYPE=$(engine_smf_type "${ARGS[0]}") || die "unknown engine: ${ARGS[0]}"
 SAVED="$SETTINGS_DIR/Settings.${SMF_TYPE}.php"
 
 cd "$BOARD_DIR"
 
-[ -f "$SAVED" ] || die "no saved settings for ${SMF_TYPE} -- run .docker/install-forum.sh --engine ${SMF_TYPE}"
+[ -f "$SAVED" ] || die "no saved settings for ${SMF_TYPE} -- run .dev/install-forum.sh --engine ${SMF_TYPE}"
 
 cp "$SAVED" Settings.php
 cp "$SETTINGS_DIR/Settings_bak.${SMF_TYPE}.php" Settings_bak.php
