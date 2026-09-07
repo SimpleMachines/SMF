@@ -108,6 +108,22 @@ function template_login()
 					</script>
 				</form>';
 
+	// Anything else offering to sign them in? Nothing does out of the box.
+	if (!empty(Utils::$context['authentication_methods'])) {
+		echo '
+				<hr>
+				<div class="centertext login_alternatives">
+					<p class="smalltext">', Lang::getTxt('login_alternatives', file: 'Login'), '</p>';
+
+		foreach (Utils::$context['authentication_methods'] as $method) {
+			echo '
+					<a class="button', isset($method['id']) ? ' login_with_' . $method['id'] : '', '" href="', $method['url'], '">', $method['title'], '</a>';
+		}
+
+		echo '
+				</div><!-- .login_alternatives -->';
+	}
+
 	if (!empty(Utils::$context['can_register'])) {
 		echo '
 				<hr>

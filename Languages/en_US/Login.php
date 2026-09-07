@@ -2,6 +2,9 @@
 
 // Version: 3.0 Alpha 4; Login
 
+// Login form.
+$txt['login_alternatives'] = 'Or sign in with:';
+
 // Registration agreement page.
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
