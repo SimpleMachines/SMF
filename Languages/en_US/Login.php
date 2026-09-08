@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Login
+// Version: 3.0 Alpha 5-dev; Login
 
 // Registration agreement page.
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';

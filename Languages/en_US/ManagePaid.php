@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; ManagePaid
+// Version: 3.0 Alpha 5-dev; ManagePaid
 
 // Some payment gateways need language specific information.
 $txt['lang_paypal'] = 'US';
