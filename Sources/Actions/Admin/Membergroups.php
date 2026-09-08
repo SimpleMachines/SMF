@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
+use SMF\Actions\Groups;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -70,7 +71,7 @@ class Membergroups implements ActionInterface
 		'settings' => ['settings', 'admin_forum'],
 
 		// This subaction is handled by the Groups action.
-		'members' => ['SMF\\Actions\\Groups::call', 'manage_membergroups'],
+		'members' => [Groups::class . '::call', 'manage_membergroups'],
 	];
 
 	/****************
@@ -121,7 +122,7 @@ class Membergroups implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
+				'function' => Groups::class . '::list_getMembergroups',
 				'params' => [
 					'regular',
 				],
@@ -227,7 +228,7 @@ class Membergroups implements ActionInterface
 				'desc' => 'desc2',
 			],
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
+				'function' => Groups::class . '::list_getMembergroups',
 				'params' => [
 					'post_count',
 				],

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\BBCode;
 
+use SMF\Time;
+
 /**
  * Represents the version of the quote BBCode with multiple parameters.
  */
@@ -35,7 +37,7 @@ class Quote4 extends BBCode
 	public ?array $parameters = [
 		'author' => ['match' => '([^<>]{1,192}?)'],
 		'link' => ['match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'],
-		'date' => ['match' => '(\d+)', 'validate' => 'SMF\\Time::stringFromUnix'],
+		'date' => ['match' => '(\d+)', 'validate' => Time::class . '::stringFromUnix'],
 	];
 
 	/**

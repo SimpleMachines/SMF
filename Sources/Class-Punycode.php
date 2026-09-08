@@ -17,4 +17,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\Punycode', '\\Punycode');
+class_alias(\SMF\Punycode::class, '\\Punycode');

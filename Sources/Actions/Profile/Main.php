@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -197,7 +198,7 @@ class Main implements ActionInterface, Routable
 				],
 				'showdrafts' => [
 					'label' => 'drafts_show',
-					'function' => 'SMF\\Draft::showInProfile',
+					'function' => Draft::class . '::showInProfile',
 					'icon' => 'drafts',
 					'enabled' => true,
 					'permission' => [

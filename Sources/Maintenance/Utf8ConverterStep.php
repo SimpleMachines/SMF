@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
 use SMF\Lang;
 use SMF\Sapi;
+use SMF\Tasks\Utf8EntityDecode;
 use SMF\Utils;
 
 /**
@@ -897,7 +898,7 @@ class Utf8ConverterStep extends Step
 			],
 			[
 				[
-					'\\SMF\\Tasks\\Utf8EntityDecode',
+					Utf8EntityDecode::class,
 					json_encode([
 						'table' => $table_name,
 						'offset' => 0,

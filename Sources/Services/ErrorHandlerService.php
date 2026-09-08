@@ -93,7 +93,7 @@ class ErrorHandlerService
 			$count = \count($array);
 
 			for ($i = 0; $i < $count; $i++) {
-				if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate') {
+				if ($array[$i]['function'] != Theme::class . '::loadSubTemplate') {
 					continue;
 				}
 

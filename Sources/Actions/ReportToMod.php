@@ -26,6 +26,8 @@ use SMF\Msg;
 use SMF\Parser;
 use SMF\Routable;
 use SMF\Security;
+use SMF\Tasks\MemberReport_Notify;
+use SMF\Tasks\MsgReport_Notify;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -474,7 +476,7 @@ class ReportToMod implements ActionInterface, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\MsgReport_Notify',
+						MsgReport_Notify::class,
 						Utils::jsonEncode([
 							'report_id' => $id_report,
 							'msg_id' => $msg,
@@ -639,7 +641,7 @@ class ReportToMod implements ActionInterface, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\MemberReport_Notify',
+						MemberReport_Notify::class,
 						Utils::jsonEncode([
 							'report_id' => $id_report,
 							'user_id' => $user['id_member'],

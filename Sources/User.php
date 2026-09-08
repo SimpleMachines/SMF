@@ -5958,7 +5958,7 @@ class User implements \ArrayAccess
 			],
 			[
 				[
-					'SMF\\Tasks\\AnonymizeEditHistory',
+					Tasks\AnonymizeEditHistory::class,
 					json_encode(['id' => $member]),
 					0,
 				],

@@ -374,7 +374,7 @@ class Maintenance
 	 */
 	public static function getBaseDir(): string
 	{
-		if (class_exists('\\SMF\\Config')) {
+		if (class_exists(Config::class)) {
 			if (!isset(Config::$boarddir)) {
 				Config::load();
 			}

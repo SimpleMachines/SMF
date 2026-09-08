@@ -416,11 +416,11 @@ class ItemList implements \ArrayAccess
 				// These are probably the most readable way of injecting complex data.
 				elseif (isset($data['sprintf']) || isset($data['format_text']) || isset($data['get_txt'])) {
 					$params = isset($data['sprintf']) ? [] : $list_item;
-					$call = 'SMF\Lang::formatText';
+					$call = Lang::class . '::formatText';
 					$format = isset($data['format_text']) ? 'format_text' : 'sprintf';
 
 					if (isset($data['get_txt'])) {
-						$call = 'SMF\Lang::getTxt';
+						$call = Lang::class . '::getTxt';
 						$format = 'get_txt';
 					}
 

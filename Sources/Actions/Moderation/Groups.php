@@ -25,6 +25,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\Tasks\GroupAct_Notify;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -333,7 +334,7 @@ class Groups extends ViewGroups
 					],
 					[
 						[
-							'SMF\\Tasks\\GroupAct_Notify',
+							GroupAct_Notify::class,
 							$data,
 							0,
 						],
