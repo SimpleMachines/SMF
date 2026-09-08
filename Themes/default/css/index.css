@@ -3750,7 +3750,7 @@ form#postmodify .roundframe {
 .custom_fields_below_signature {
 	width: 100%;
 	overflow: auto;
-	clear: right;
+	clear: inline-end;
 	padding: 12px 0 3px 0;
 	border-top: var(--postsection-border-width) var(--postsection-border-style) var(--postsection-border-color);
 	box-shadow: var(--postsection-box-shadow);

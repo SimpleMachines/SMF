@@ -8,11 +8,6 @@
 	margin-left: 0.25em;
 }
 
-/* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature, .attachments, .custom_fields_above_signature {
-	clear: left;
-}
-
 /* the page navigation area */
 .main_icons.move::before, .main_icons.next_page::before {
 	background-position: -31px -57px;
