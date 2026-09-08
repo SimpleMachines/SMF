@@ -725,26 +725,25 @@ a.moderation_link, a.moderation_link:visited {
 ------------------------------------------------------- */
 dl.settings {
 	clear: inline-end;
-	overflow: auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	align-items: start;
+	gap: 6px 0;
 	margin: 0 0 10px 0;
 	padding: 5px;
 }
 dl.settings dt {
-	width: 56%;
-	float: inline-start;
-	margin: 0 0 10px 0;
-	clear: both;
+	grid-column: 1;
 }
+/* A label that carries its own background stands on its own line, so it takes
+   the whole row rather than the label column. */
 dl.settings dt.windowbg {
-	width: 98%;
-	float: inline-start;
+	grid-column: 1 / -1;
 	margin: 0 0 3px 0;
 	padding: 0 0 5px 0;
-	clear: both;
 }
 dl.settings dd {
-	width: 42%;
-	float: inline-end;
+	grid-column: 2;
 	margin: 0 0 3px 0;
 }
 dl.settings img {
