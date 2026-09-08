@@ -31,6 +31,8 @@ use SMF\QueryString;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Session;
+use SMF\Tasks\FetchSMFiles;
+use SMF\Tasks\UpdateSpoofDetectorNames;
 use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
 use SMF\User;
@@ -1226,7 +1228,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\FetchSMfiles',
+					FetchSMFiles::class,
 					'',
 					0,
 				],
@@ -1244,7 +1246,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\UpdateSpoofDetectorNames',
+					UpdateSpoofDetectorNames::class,
 					json_encode(['last_member_id' => 0]),
 					0,
 				],

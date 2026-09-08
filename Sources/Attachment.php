@@ -1453,7 +1453,7 @@ class Attachment implements \ArrayAccess
 				],
 				[
 					[
-						'SMF\\Tasks\\CreateAttachment_Notify',
+						Tasks\CreateAttachment_Notify::class,
 						Utils::jsonEncode(['id' => $attachmentOptions['id']]),
 						0,
 					],

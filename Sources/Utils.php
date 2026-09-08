@@ -2288,10 +2288,10 @@ class Utils
 			}
 
 			// Start up the session URL fixer.
-			ob_start('SMF\\QueryString::obDebug');
+			ob_start(QueryString::class . '::obDebug');
 
 			// More work needed if using "queryless" URLS.
-			ob_start('SMF\\QueryString::rewriteAsQueryless');
+			ob_start(QueryString::class . '::rewriteAsQueryless');
 
 			// Force the browser not to collapse tabs inside posts, etc.
 			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));

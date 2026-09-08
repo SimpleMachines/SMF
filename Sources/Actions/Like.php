@@ -28,6 +28,7 @@ use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Routable;
+use SMF\Tasks\Likes_Notify;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -518,7 +519,7 @@ class Like implements ActionInterface, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\Likes_Notify',
+						Likes_Notify::class,
 						Utils::jsonEncode([
 							'content_id' => $content,
 							'content_type' => $type,

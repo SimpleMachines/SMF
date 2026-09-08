@@ -26,6 +26,7 @@ use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchApiInterface;
 use SMF\SecurityToken;
+use SMF\Tasks\GenericTask;
 use SMF\Unicode\Utf8String;
 use SMF\Url;
 use SMF\User;
@@ -694,7 +695,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				],
 				[
 					[
-						'SMF\\Tasks\\GenericTask',
+						GenericTask::class,
 						Utils::jsonEncode([
 							'callable' => __METHOD__,
 							'start_id' => ($last_id ?? 0) + 1,

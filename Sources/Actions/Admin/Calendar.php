@@ -136,10 +136,10 @@ class Calendar implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'function' => 'SMF\\Calendar\\Holiday::list',
+				'function' => Holiday::class . '::list',
 			],
 			'get_count' => [
-				'function' => 'SMF\\Calendar\\Holiday::count',
+				'function' => Holiday::class . '::count',
 			],
 			'no_items_label' => Lang::getTxt('holidays_no_entries', file: 'ManageCalendar'),
 			'columns' => [

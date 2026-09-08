@@ -236,7 +236,7 @@ class WeeklyMaintenance extends ScheduledTask
 			],
 			[
 				[
-					'SMF\\Tasks\\UpdateTldRegex',
+					UpdateTldRegex::class,
 					'',
 					0,
 				],
@@ -254,7 +254,7 @@ class WeeklyMaintenance extends ScheduledTask
 				'claimed_time' => 'int'],
 			[
 				[
-					'SMF\\Tasks\\UpdateUnicode',
+					UpdateUnicode::class,
 					'',
 					0,
 				],

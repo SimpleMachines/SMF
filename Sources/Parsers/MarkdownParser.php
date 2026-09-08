@@ -1778,8 +1778,8 @@ class MarkdownParser extends Parser
 			return false;
 		}
 
-		$thead_cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $last_open['content'][0], -1, PREG_SPLIT_NO_EMPTY));
-		$delim_cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $line_info['content'], -1, PREG_SPLIT_NO_EMPTY));
+		$thead_cells = array_map(Utils::class . '::htmlTrim', preg_split('/(?<!\\\\)\|/u', $last_open['content'][0], -1, PREG_SPLIT_NO_EMPTY));
+		$delim_cells = array_map(Utils::class . '::htmlTrim', preg_split('/(?<!\\\\)\|/u', $line_info['content'], -1, PREG_SPLIT_NO_EMPTY));
 
 		if (\count($thead_cells) !== \count($delim_cells)) {
 			return false;
@@ -2062,7 +2062,7 @@ class MarkdownParser extends Parser
 			return;
 		}
 
-		$cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $this->open[$o]['content'][0], -1, PREG_SPLIT_NO_EMPTY));
+		$cells = array_map(Utils::class . '::htmlTrim', preg_split('/(?<!\\\\)\|/u', $this->open[$o]['content'][0], -1, PREG_SPLIT_NO_EMPTY));
 
 		$tr = [];
 
@@ -2170,7 +2170,7 @@ class MarkdownParser extends Parser
 	 */
 	protected function appendTableRow(array &$line_info, int $last_container, int $o): void
 	{
-		$cells = array_map('\SMF\Utils::htmlTrim', preg_split('/(?<!\\\\)\|/u', $line_info['content'], -1, PREG_SPLIT_NO_EMPTY));
+		$cells = array_map(Utils::class . '::htmlTrim', preg_split('/(?<!\\\\)\|/u', $line_info['content'], -1, PREG_SPLIT_NO_EMPTY));
 
 		$tr = [];
 

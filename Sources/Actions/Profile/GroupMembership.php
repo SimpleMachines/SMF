@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Profile;
+use SMF\Tasks\GroupReq_Notify;
 use SMF\User;
 use SMF\Utils;
 
@@ -420,7 +421,7 @@ class GroupMembership implements ActionInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\GroupReq_Notify',
+					GroupReq_Notify::class,
 					$data,
 					0,
 				],

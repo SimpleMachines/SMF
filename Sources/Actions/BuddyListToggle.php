@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Routable;
+use SMF\Tasks\Buddy_Notify;
 use SMF\User;
 use SMF\Utils;
 
@@ -86,7 +87,7 @@ class BuddyListToggle implements ActionInterface, Routable
 					],
 					[
 						[
-							'SMF\\Tasks\\Buddy_Notify',
+							Buddy_Notify::class,
 							Utils::jsonEncode([
 								'receiver_id' => $this->userReceiver,
 								'id_member' => User::$me->id,

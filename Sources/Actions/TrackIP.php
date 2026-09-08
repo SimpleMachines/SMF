@@ -230,14 +230,14 @@ class TrackIP implements ActionInterface, Routable
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
-				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrors',
+				'function' => \SMF\Actions\Profile\Tracking::class . '::list_getUserErrors',
 				'params' => [
 					'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
 					$fields,
 				],
 			],
 			'get_count' => [
-				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrorCount',
+				'function' => \SMF\Actions\Profile\Tracking::class . '::list_getUserErrorCount',
 				'params' => [
 					'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
 					$fields,
