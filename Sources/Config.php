@@ -1135,8 +1135,8 @@ class Config
 			)
 			&& !empty(self::$modSettings['smfVersion'])
 			&& version_compare(
-				strtolower(strtr(self::$modSettings['smfVersion'], [' ' => '.'])),
-				strtolower(strtr(SMF_VERSION, [' ' => '.'])),
+				strtolower(Utils::standardizeVersionString(self::$modSettings['smfVersion'])),
+				strtolower(Utils::standardizeVersionString(SMF_VERSION)),
 				'!=',
 			)
 		) {

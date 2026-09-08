@@ -420,7 +420,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Is this a large (and old) forum? We may do special logic then.
 		Utils::$context['is_large_forum'] = $this->is_large_forum = (
 			version_compare(
-				str_replace(' ', '.', strtolower($this->start_smf_version)),
+				Utils::standardizeVersionString($this->start_smf_version),
 				'1.1.rc.1',
 				'<=',
 			)
@@ -586,7 +586,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		try {
 			foreach (self::VERSION_MAP as $search => $ns) {
-				if (version_compare($this->start_smf_version, $search, '>')) {
+				if (version_compare(Utils::standardizeVersionString($this->start_smf_version), $search, '>')) {
 					continue;
 				}
 
@@ -620,8 +620,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (
 			version_compare(
-				preg_replace('~^\D*|\-.+?$~', '', Db::$db->get_version()),
-				Db::$db->getMinimumVersion(),
+				Utils::standardizeVersionString(Db::$db->get_version()),
+				Utils::standardizeVersionString(Db::$db->getMinimumVersion()),
 				'<',
 			)
 		) {
@@ -821,7 +821,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')), '2.1.dev.0', '<');
+			$use_old_hashing = version_compare(Utils::standardizeVersionString(Config::$modSettings['smfVersion'] ?? '0.0.dev.0'), '2.1.dev.0', '<');
 
 			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
 				$this->user['id'] = $id;
@@ -862,7 +862,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Utils::$context['migrate_settings_recommended'] = (
 			empty(Config::$modSettings['smfVersion'])
 			|| version_compare(
-				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
+				Utils::standardizeVersionString(Config::$modSettings['smfVersion']),
 				preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION),
 				'<',
 			)
@@ -1116,7 +1116,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		foreach (self::VERSION_MAP as $search => $ns) {
 			$substeps = [];
 
-			if (version_compare($this->start_smf_version, $search, '>')) {
+			if (version_compare(Utils::standardizeVersionString($this->start_smf_version), $search, '>')) {
 				continue;
 			}
 
@@ -1148,7 +1148,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			// Update Config::$modSettings['smfVersion'] incrementally as we go.
 			// This lets us avoid redoing unnecessary migration steps if the
 			// upgrader gets interrupted and restarted for some reason.
-			if (version_compare($search, SMF_VERSION, '<')) {
+			if (version_compare($search, Utils::standardizeVersionString(SMF_VERSION), '<')) {
 				$this->updateModSettings([
 					'smfVersion' => substr($search, 0, strrpos($search, '.') + 1) . str_increment(substr($search, strrpos($search, '.') + 1)),
 				]);
@@ -1180,7 +1180,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$substeps = [];
 
 		foreach (self::VERSION_MAP as $search => $ns) {
-			if (version_compare($this->start_smf_version, $search, '>')) {
+			if (version_compare(Utils::standardizeVersionString($this->start_smf_version), $search, '>')) {
 				continue;
 			}
 

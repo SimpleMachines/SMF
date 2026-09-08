@@ -543,8 +543,8 @@ class Install extends ToolsBase implements ToolsInterface
 		// @todo Old client, new server?
 		if (
 			version_compare(
-				preg_replace('~^\D*|\-.+?$~', '', Db::$db->get_version()),
-				Db::$db->getMinimumVersion(),
+				Utils::standardizeVersionString(Db::$db->get_version()),
+				Utils::standardizeVersionString(Db::$db->getMinimumVersion()),
 				'<',
 			)
 		) {
