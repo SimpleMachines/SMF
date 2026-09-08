@@ -43,7 +43,7 @@ class BoardDescriptions extends MigrationBase
 	public function isCandidate(): bool
 	{
 		return version_compare(
-			str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')),
+			Utils::standardizeVersionString(Config::$modSettings['smfVersion'] ?? '0.0.dev.0'),
 			'2.1.dev.0',
 			'<',
 		);

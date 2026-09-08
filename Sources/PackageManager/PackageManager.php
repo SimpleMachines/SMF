@@ -1448,7 +1448,7 @@ class PackageManager
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$row['smf_version'] = strtr(strtolower($row['smf_version']), ' ', '.');
 
-			if (version_compare($row['smf_version'], $lowest_found_version, '<')) {
+			if (version_compare(Utils::standardizeVersionString($row['smf_version']), Utils::standardizeVersionString($lowest_found_version), '<')) {
 				$lowest_found_version = $row['smf_version'];
 			}
 		}
@@ -1456,7 +1456,7 @@ class PackageManager
 		Db::$db->free_result($request);
 
 		Config::updateSettingsFile([
-			'backward_compatibility' => (int) version_compare($lowest_found_version, $min_version, '<'),
+			'backward_compatibility' => (int) version_compare(Utils::standardizeVersionString($lowest_found_version), Utils::standardizeVersionString($min_version), '<'),
 		]);
 	}
 

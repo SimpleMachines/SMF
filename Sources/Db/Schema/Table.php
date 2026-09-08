@@ -18,6 +18,7 @@ namespace SMF\Db\Schema;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
+use SMF\Utils;
 
 /**
  * Represents a database table.
@@ -67,7 +68,7 @@ abstract class Table
 			if (
 				!isset($this->default_charset)
 				&& preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
-				&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
+				&& version_compare(Utils::standardizeVersionString($matches[1]), '3.0', '>=')
 			) {
 				$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
 			}

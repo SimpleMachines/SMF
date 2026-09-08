@@ -500,7 +500,7 @@ class Utf8ConverterStep extends Step
 		// Which character set have they been using for interacting with the browser?
 		if (isset(Config::$modSettings['global_character_set'])) {
 			$this->lang_charset = Config::$modSettings['global_character_set'];
-		} elseif (version_compare(strtolower(str_replace(' ', '.', Config::$modSettings['smfVersion'])), '3.0.dev.1', '>=')) {
+		} elseif (version_compare(Utils::standardizeVersionString(Config::$modSettings['smfVersion']), '3.0.dev.0', '>=')) {
 			$this->lang_charset = 'UTF-8';
 		} else {
 			// Figure it out the hard way.

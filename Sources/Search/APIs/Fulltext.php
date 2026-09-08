@@ -599,7 +599,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 					if (
 						isset($row['Engine'])
 						&& strtolower($row['Engine']) != 'myisam'
-						&& !(strtolower($row['Engine']) == 'innodb' && version_compare(Db::$db->get_version(), '5.6.4', '>='))
+						&& !(strtolower($row['Engine']) == 'innodb' && version_compare(Utils::standardizeVersionString(Db::$db->get_version()), '5.6.4', '>='))
 					) {
 						Utils::$context['cannot_create_fulltext'] = true;
 					}
