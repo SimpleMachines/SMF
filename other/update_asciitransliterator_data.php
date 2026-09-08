@@ -31,7 +31,7 @@ require_once 'Updaters/UpdaterBase.php';
 
 require_once 'Updaters/AsciiTransliteratorDataUpdater.php';
 
-$updater = new Updaters\AsciiTransliteratorDataUpdater('update_asciitransliterator_data');
+$updater = new Updaters\AsciiTransliteratorDataUpdater(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/update_asciitransliterator_data');
 $updater->execute();
 
 if ($updater->hasChanged()) {

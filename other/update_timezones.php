@@ -29,7 +29,7 @@ require_once 'Updaters/UpdaterBase.php';
 
 require_once 'Updaters/TimezoneDataUpdater.php';
 
-$updater = new Updaters\TimezoneDataUpdater('update_timezones');
+$updater = new Updaters\TimezoneDataUpdater(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/update_timezones');
 $updater->execute();
 
 if ($updater->hasChanged()) {

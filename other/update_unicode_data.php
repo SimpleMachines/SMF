@@ -37,7 +37,7 @@ require_once 'Updaters/UpdaterBase.php';
 
 require_once 'Updaters/UnicodeDataUpdater.php';
 
-$updater = new Updaters\UnicodeDataUpdater('update_unicode_data');
+$updater = new Updaters\UnicodeDataUpdater(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/update_unicode_data');
 $updater->execute();
 
 if ($updater->hasChanged()) {
