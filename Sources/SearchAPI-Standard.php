@@ -19,4 +19,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_alias('SMF\\Search\\APIs\\Standard', '\\standard_search');
+class_alias(\SMF\Search\APIs\Standard::class, '\\standard_search');

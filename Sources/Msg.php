@@ -1015,7 +1015,7 @@ class Msg implements \ArrayAccess, Routable
 					'claimed_time' => 'int'],
 				[
 					[
-						'SMF\\Tasks\\ApprovePost_Notify',
+						Tasks\ApprovePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1040,7 +1040,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\ApproveReply_Notify',
+						Tasks\ApproveReply_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1108,7 +1108,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
+						Tasks\CreatePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1328,7 +1328,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
+						Tasks\CreatePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1571,7 +1571,7 @@ class Msg implements \ArrayAccess, Routable
 
 			foreach (array_merge($notification_topics, $notification_posts) as $topic) {
 				$task_rows[] = [
-					'SMF\\Tasks\\CreatePost_Notify',
+					Tasks\CreatePost_Notify::class,
 					Utils::jsonEncode([
 						'msgOptions' => [
 							'id' => $topic['msg'],

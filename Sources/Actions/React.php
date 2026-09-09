@@ -29,6 +29,7 @@ use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\ReactionTrait;
 use SMF\Routable;
+use SMF\Tasks\Likes_Notify;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -542,7 +543,7 @@ class React implements ActionInterface, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\Reacts_Notify',
+						Reacts_Notify::class,
 						Utils::jsonEncode([
 							'content_id' => $content,
 							'content_type' => $type,

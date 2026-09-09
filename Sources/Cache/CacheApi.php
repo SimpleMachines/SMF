@@ -488,7 +488,7 @@ abstract class CacheApi
 	 */
 	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
 		}
 
@@ -529,7 +529,7 @@ abstract class CacheApi
 			$callback($cache_block, $params);
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('post_cache_quick_get', [&$cache_block]);
 		}
 
@@ -568,7 +568,7 @@ abstract class CacheApi
 		$value = $value === null ? null : serialize($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
 		}
 
@@ -613,7 +613,7 @@ abstract class CacheApi
 			}
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false) && isset($value)) {
+		if (class_exists(IntegrationHook::class, false) && isset($value)) {
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 

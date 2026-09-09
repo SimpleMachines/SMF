@@ -28,6 +28,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
 use SMF\SecurityToken;
+use SMF\Tasks\UpdateSpoofDetectorNames;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -635,7 +636,7 @@ class Registration implements ActionInterface
 					],
 					[
 						[
-							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							UpdateSpoofDetectorNames::class,
 							json_encode(['last_member_id' => 0]),
 							0,
 						],

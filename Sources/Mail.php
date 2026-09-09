@@ -688,7 +688,7 @@ class Mail
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			$task_rows[] = [
-				'SMF\\Tasks\\CreatePost_Notify',
+				Tasks\CreatePost_Notify::class,
 				Utils::jsonEncode([
 					'msgOptions' => [
 						'id' => $row['id_msg'],
@@ -767,7 +767,7 @@ class Mail
 			],
 			[
 				[
-					'SMF\\Tasks\\Register_Notify',
+					Tasks\Register_Notify::class,
 					Utils::jsonEncode([
 						'new_member_id' => $memberID,
 						'new_member_name' => $member_name,

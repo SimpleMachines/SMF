@@ -27,5 +27,5 @@ if (SMF == 'PROXY') {
 }
 // In case an old mod included this file in order to load the ProxyServer class.
 else {
-	class_exists('SMF\\ProxyServer');
+	class_exists(\SMF\ProxyServer::class);
 }

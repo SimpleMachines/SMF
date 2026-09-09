@@ -22,6 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Tasks\EventNew_Notify;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -1802,7 +1803,7 @@ class Event implements \ArrayAccess
 				],
 				[
 					[
-						'SMF\\Tasks\\EventNew_Notify',
+						EventNew_Notify::class,
 						Utils::jsonEncode([
 							'event_title' => $event->title,
 							'event_id' => $event->id,
