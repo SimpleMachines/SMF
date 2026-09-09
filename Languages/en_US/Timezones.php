@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Timezones
+// Version: 3.0 Alpha 5-dev; Timezones
 
 // Standard Time or Daylight Saving Time
 $tztxt['daylight_saving_time_false'] = 'Standard';

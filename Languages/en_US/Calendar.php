@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Calendar
+// Version: 3.0 Alpha 5-dev; Calendar
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';

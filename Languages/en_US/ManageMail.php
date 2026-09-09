@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; ManageMail
+// Version: 3.0 Alpha 5-dev; ManageMail
 
 $txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as view and administer the current mail queue.';
 
