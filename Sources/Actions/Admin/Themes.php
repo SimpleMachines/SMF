@@ -884,6 +884,10 @@ class Themes implements ActionInterface
 		if (!empty(Theme::$current->settings['theme_variants'])) {
 			Utils::$context['theme_variants'] = [];
 
+			// Theme::loadVariant() offers a variant named 'default' alongside
+			// whatever the theme declares, so it belongs in this list too.
+			Theme::$current->settings['theme_variants'] = array_unique(array_merge(['default'], Theme::$current->settings['theme_variants']));
+
 			foreach (Theme::$current->settings['theme_variants'] as $variant) {
 				// Have any text, old chap?
 				Utils::$context['theme_variants'][$variant] = [
