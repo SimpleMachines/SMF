@@ -180,8 +180,7 @@ final class HttpClient
 		if (preg_match('~^https?://~i', $path)) {
 			$parts = parse_url($path);
 
-			$path = ($parts['path'] ?? '/')
-				. (isset($parts['query']) ? '?' . $parts['query'] : '')
+			$path = (isset($parts['query']) ? '?' . $parts['query'] : '')
 				. (isset($parts['fragment']) ? '#' . $parts['fragment'] : '');
 		}
 
