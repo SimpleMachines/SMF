@@ -81,8 +81,6 @@ final class HttpClient
 
 	public function __destruct()
 	{
-		curl_close($this->handle);
-
 		if ($this->jar !== '' && is_file($this->jar)) {
 			@unlink($this->jar);
 		}
