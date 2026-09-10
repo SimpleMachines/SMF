@@ -157,7 +157,7 @@ abstract class ToolsBase
 
 			// Try to make the file the writable.
 			if (file_exists($this->log_file) && !is_writable($this->log_file)) {
-				chmod($this->log_file, 0664);
+				@chmod($this->log_file, 0664);
 			}
 		}
 
