@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -416,11 +416,11 @@ class ItemList implements \ArrayAccess
 				// These are probably the most readable way of injecting complex data.
 				elseif (isset($data['sprintf']) || isset($data['format_text']) || isset($data['get_txt'])) {
 					$params = isset($data['sprintf']) ? [] : $list_item;
-					$call = 'SMF\Lang::formatText';
+					$call = Lang::class . '::formatText';
 					$format = isset($data['format_text']) ? 'format_text' : 'sprintf';
 
 					if (isset($data['get_txt'])) {
-						$call = 'SMF\Lang::getTxt';
+						$call = Lang::class . '::getTxt';
 						$format = 'get_txt';
 					}
 

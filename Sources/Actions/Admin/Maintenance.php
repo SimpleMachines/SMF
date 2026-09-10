@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -1320,14 +1320,13 @@ class Maintenance implements ActionInterface
 		User::$me->checkSession();
 
 		// Find the member.
-		$members = User::find($_POST['to']);
+		$members = User::find($_POST['to'], ids_only: true);
 
 		if (empty($members)) {
 			ErrorHandler::fatalLang('reattribute_cannot_find_member');
 		}
 
-		$memID = array_shift($members);
-		$memID = $memID['id'];
+		$memID = reset($members);
 
 		$email = $_POST['type'] == 'email' ? $_POST['from_email'] : '';
 		$membername = $_POST['type'] == 'name' ? $_POST['from_name'] : '';

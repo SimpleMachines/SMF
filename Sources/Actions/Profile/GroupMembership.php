@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Profile;
+use SMF\Tasks\GroupReq_Notify;
 use SMF\User;
 use SMF\Utils;
 
@@ -420,7 +421,7 @@ class GroupMembership implements ActionInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\GroupReq_Notify',
+					GroupReq_Notify::class,
 					$data,
 					0,
 				],

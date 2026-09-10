@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -174,6 +174,13 @@ class Edmonton extends \SMF\Calendar\VTimeZone
 			'TZNAME' => 'MST',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0700',
+		],
+		18 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20261101T020000',
+			'TZNAME' => 'CST',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0600',
 		],
 	];
 }

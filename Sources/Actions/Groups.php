@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 namespace SMF\Actions;
@@ -261,7 +261,7 @@ class Groups implements ActionInterface, Routable
 		// Sort out the sorting!
 		$sort_methods = [
 			'name' => 'real_name',
-			'email' => 'email_address',
+			'email' => 'email_address_ci',
 			'active' => 'last_login',
 			'registered' => 'date_registered',
 			'posts' => 'posts',

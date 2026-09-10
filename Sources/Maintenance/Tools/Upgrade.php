@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -32,6 +32,8 @@ use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Session;
 use SMF\Statistics;
+use SMF\Tasks\FetchSMFiles;
+use SMF\Tasks\UpdateSpoofDetectorNames;
 use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
 use SMF\User;
@@ -88,9 +90,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v2_1\FixDates::class,
 			Migration\v2_1\CreateMemberLogins::class,
 			Migration\v2_1\CollapsedCategories::class,
+			Migration\v2_1\AttachmentDirectory::class,
 			Migration\v2_1\LegacyAttachments::class,
 			Migration\v2_1\AttachmentSizes::class,
-			Migration\v2_1\AttachmentDirectory::class,
 			Migration\v2_1\CreateLogGroupRequests::class,
 			Migration\v2_1\PackageManager::class,
 			Migration\v2_1\ValidationServers::class,
@@ -177,6 +179,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\DropModPrefs::class,
 			Migration\v3_0\DropTimeOffset::class,
 			Migration\v3_0\SpoofDetector::class,
+			Migration\v3_0\EmailAddressCi::class,
+			Migration\v3_0\NormalizeMemberEmailAddresses::class,
+			Migration\v3_0\NormalizeBannedEmailAddresses::class,
 			Migration\v3_0\SearchResultsPrimaryKey::class,
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
@@ -414,7 +419,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Is this a large (and old) forum? We may do special logic then.
-		Maintenance::$context['is_large_forum'] = $this->is_large_forum = (
+		Utils::$context['is_large_forum'] = $this->is_large_forum = (
 			version_compare(
 				str_replace(' ', '.', strtolower($this->start_smf_version)),
 				'1.1.rc.1',
@@ -664,7 +669,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Try to make all the files writable. If we cannot, we will display a chmod page to attempt this with additional permissions.
 		if (!$this->makeFilesWritable($writable_files)) {
-			Maintenance::$context['chmod']['files'] = $writable_files;
+			Utils::$context['chmod']['files'] = $writable_files;
 
 			return false;
 		}
@@ -799,7 +804,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		) {
 			if (!SecurityToken::validate('login', 'post', false)) {
 				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Errors');
-				Maintenance::$context += SecurityToken::create('login');
+				SecurityToken::create('login');
 
 				return false;
 			}
@@ -809,10 +814,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				!empty($_POST['db_pass'])
 				&& Maintenance::loginWithDatabasePassword((string) $_POST['db_pass'])
 			) {
-				$this->user = [
-					'id' => 0,
-					'name' => 'Database Admin',
-				];
+				$this->user['id'] = 0;
+				$this->user['name'] = 'Database Admin';
 
 				$_SESSION['is_logged'] = true;
 
@@ -822,20 +825,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')), '2.1.dev.0', '<');
 
 			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
-				$this->user = [
-					'id' => $id,
-					'name' => (string) $_POST['user'],
-				];
+				$this->user['id'] = $id;
+				$this->user['name'] = (string) $_POST['user'];
 
 				$_SESSION['is_logged'] = true;
 
 				return true;
 			}
 		} elseif (empty(Maintenance::$errors)) {
-			Maintenance::$context['continue'] = true;
+			Utils::$context['continue'] = true;
 		}
 
-		Maintenance::$context += SecurityToken::create('login');
+		SecurityToken::create('login');
 
 		return false;
 	}
@@ -849,7 +850,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		$member_columns = Db::$db->list_columns('{db_prefix}members');
 
-		Maintenance::$context['karma_installed'] = [
+		Utils::$context['karma_installed'] = [
 			'good' => \in_array('karma_good', $member_columns),
 			'bad' => \in_array('karma_bad', $member_columns),
 		];
@@ -857,9 +858,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		unset($member_columns);
 
 		// Figure out a couple of recommendations.
-		Maintenance::$context['backup_recommended'] = $this->backupRecommended();
+		Utils::$context['backup_recommended'] = $this->backupRecommended();
 
-		Maintenance::$context['migrate_settings_recommended'] = (
+		Utils::$context['migrate_settings_recommended'] = (
 			empty(Config::$modSettings['smfVersion'])
 			|| version_compare(
 				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
@@ -868,18 +869,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 		);
 
-		Maintenance::$context['db_prefix'] = Config::$db_prefix;
+		Utils::$context['db_prefix'] = Config::$db_prefix;
 
-		Maintenance::$context['message_title'] = htmlspecialchars(Config::$mtitle);
-		Maintenance::$context['message_body'] = htmlspecialchars(Config::$mmessage);
+		Utils::$context['message_title'] = htmlspecialchars(Config::$mtitle);
+		Utils::$context['message_body'] = htmlspecialchars(Config::$mmessage);
 
-		Maintenance::$context['attachment_conversion'] = isset(Config::$modSettings['attachments_21_done']);
+		Utils::$context['attachment_conversion'] = isset(Config::$modSettings['attachments_21_done']);
 
-		Maintenance::$context['sm_stats_configured'] = !empty(Config::$modSettings['allow_sm_stats']) || !empty(Config::$modSettings['enable_sm_stats']);
+		Utils::$context['sm_stats_configured'] = !empty(Config::$modSettings['allow_sm_stats']) || !empty(Config::$modSettings['enable_sm_stats']);
 
 		// If we've not submitted then we're done.
 		if (!Sapi::isCLI() && empty($_POST['upcont'])) {
-			Maintenance::$context['continue'] = true;
+			Utils::$context['continue'] = true;
 
 			return false;
 		}
@@ -1062,8 +1063,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$total_substeps = \count($table_names);
 
 		// Template things.
-		Maintenance::$context['cur_table_name'] = $table_names[Maintenance::getCurrentSubStep()];
-		Maintenance::$context['continue'] = true;
+		Utils::$context['cur_table_name'] = $table_names[Maintenance::getCurrentSubStep()];
+		Utils::$context['continue'] = true;
 
 		// We are set up for backing up.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
@@ -1107,9 +1108,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
-		$substeps = [];
+		// Every batch is built before any of them runs, because the substep
+		// counter spans the whole step: it lives in the query string, one
+		// request advances it by one, and the batch a given number falls in is
+		// only known once the sizes of the batches before it are.
+		$batches = [];
 
 		foreach (self::VERSION_MAP as $search => $ns) {
+			$substeps = [];
+
 			if (version_compare($this->start_smf_version, $search, '>')) {
 				continue;
 			}
@@ -1125,10 +1132,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					exec: [$table, 'normalize'],
 				);
 			}
+
+			$batches[$search] = $substeps;
 		}
 
-		if (!$this->performSubsteps($substeps)) {
-			return false;
+		$total = array_sum(array_map('count', $batches));
+		$offset = 0;
+
+		foreach ($batches as $search => $substeps) {
+			if (!$this->performSubsteps($substeps, $offset, $total)) {
+				return false;
+			}
+
+			$offset += \count($substeps);
+
+			// Update Config::$modSettings['smfVersion'] incrementally as we go.
+			// This lets us avoid redoing unnecessary migration steps if the
+			// upgrader gets interrupted and restarted for some reason.
+			if (version_compare($search, SMF_VERSION, '<')) {
+				$this->updateModSettings([
+					'smfVersion' => substr($search, 0, strrpos($search, '.') + 1) . str_increment(substr($search, strrpos($search, '.') + 1)),
+				]);
+			}
 		}
 
 		return Sapi::isCLI();
@@ -1184,7 +1209,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
 		}
 
-		Maintenance::$context['form_action'] = Config::$boardurl . '/index.php';
+		Utils::$context['form_action'] = Config::$boardurl . '/index.php';
 
 		// Update the database with the new SMF version.
 		$this->updateModSettings(['smfVersion' => SMF_VERSION]);
@@ -1204,7 +1229,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\FetchSMfiles',
+					FetchSMFiles::class,
 					'',
 					0,
 				],
@@ -1222,25 +1247,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			],
 			[
 				[
-					'SMF\\Tasks\\UpdateSpoofDetectorNames',
+					UpdateSpoofDetectorNames::class,
 					json_encode(['last_member_id' => 0]),
 					0,
 				],
 			],
 			['id_task'],
 		);
-
-		// Log what we've done.
-		if (!isset(User::$me)) {
-			User::loadMe();
-		}
-
-		if (empty(User::$me->id) && !empty($this->user['id'])) {
-			User::load($this->user['id'], dataset: UserDataset::Minimal);
-			User::setMe($this->user['id']);
-		}
-
-		User::$me->ip = IP::getUserIP();
 
 		// Log the action manually, so CLI still works.
 		Db::$db->insert(
@@ -1261,19 +1274,20 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				[
 					time(),
 					3,
-					User::$me->id,
-					User::$me->ip,
+					$this->user['id'],
+					IP::getUserIP(),
 					'upgrade',
 					0,
 					0,
 					0,
-					json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+					json_encode([
+						'version' => SMF_FULL_VERSION,
+						'member_acted' => $this->user['name'],
+					]),
 				],
 			],
 			['id_action'],
 		);
-
-		User::setMe(0);
 
 		// Finalize some settings in the settings file.
 		$file_settings = [
@@ -1299,13 +1313,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (!Sapi::isCLI()) {
 			// Can we delete the file?
-			Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
+			Utils::$context['can_delete_script'] = $this->canDeleteTool();
 
 			// Show Upgrade time in debug mode when we completed the upgrade process totally
 			if ($this->isDebug()) {
 				$active = time() - (int) $this->time_started;
 
-				Maintenance::$context['upgrade_completed_time'] = Lang::getTxt(
+				Utils::$context['upgrade_completed_time'] = Lang::getTxt(
 					$active >= 3600 ? 'upgrade_completed_time_hms' : ($active >= 60 ? 'upgrade_completed_time_ms' : 'upgrade_completed_time_s'),
 					[
 						'h' => (int) ($active / 3600),
@@ -1315,7 +1329,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					file: 'Maintenance',
 				);
 
-				Maintenance::$context['log_contents'] = file_get_contents($this->log_file);
+				Utils::$context['log_contents'] = file_get_contents($this->log_file);
 			}
 		}
 
@@ -1406,9 +1420,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->getProgress();
 
 		// Template needs to know about this.
-		Maintenance::$context['started'] = &$this->time_started;
-		Maintenance::$context['updated'] = &$this->time_updated;
-		Maintenance::$context['user'] = &$this->user;
+		Utils::$context['started'] = &$this->time_started;
+		Utils::$context['updated'] = &$this->time_updated;
+		Utils::$context['user'] = &$this->user;
 	}
 
 	/**
@@ -1561,7 +1575,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			&& empty(Config::$modSettings['allow_sm_stats'])
 			&& empty(Config::$modSettings['enable_sm_stats'])
 		) {
-			Maintenance::$context['allow_sm_stats'] = true;
+			Utils::$context['allow_sm_stats'] = true;
 
 			$uid = Statistics::register();
 
@@ -1571,7 +1585,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 		// Don't remove stat collection unless we unchecked the box for real, not from the loop.
-		elseif (empty($_POST['stats']) && empty(Maintenance::$context['allow_sm_stats'])) {
+		elseif (empty($_POST['stats']) && empty(Utils::$context['allow_sm_stats'])) {
 			$settings['enable_sm_stats'] = null;
 		}
 	}
@@ -1579,17 +1593,29 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Performs a series of substeps.
 	 *
+	 * The current substep is counted across the whole step rather than within
+	 * one call, because it lives in the query string and is all the browser
+	 * has to say where it had got to. A step that runs its substeps in more
+	 * than one batch therefore passes the number of substeps the earlier
+	 * batches held, so that this one can find its own place in that count.
+	 *
 	 * @param array $substeps All substep objects that we are running.
+	 * @param int $offset How many substeps of this step ran before this batch.
+	 * @param ?int $total Substeps in the whole step, when that is more than are
+	 *    in this batch. Defaults to the size of this batch.
 	 * @return bool True if we are done, false if we need to timeout and wait.
 	 */
-	private function performSubsteps(array $substeps): bool
+	private function performSubsteps(array $substeps, int $offset = 0, ?int $total = null): bool
 	{
-		Maintenance::$total_substeps = \count($substeps);
+		Maintenance::$total_substeps = $total ?? \count($substeps);
+
+		// Where this batch has got to, as opposed to the step as a whole.
+		$position = Maintenance::getCurrentSubStep() - $offset;
 
 		// We are preparing for templating.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
-			Maintenance::$context['continue'] = true;
-			Maintenance::$context['current_substep'] = $substeps[Maintenance::getCurrentSubStep()]->name ?? '';
+			Utils::$context['continue'] = true;
+			Utils::$context['current_substep'] = $substeps[$position]->name ?? '';
 
 			return false;
 		}
@@ -1628,8 +1654,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		 * When success occurs, ensure it moves to next stesp.
 		 * When error occurs, ensure we properly show the error.
 		 */
-		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
-			$substep = $substeps[Maintenance::getCurrentSubStep()];
+		while (Maintenance::getCurrentSubStep() - $offset < \count($substeps)) {
+			$substep = $substeps[Maintenance::getCurrentSubStep() - $offset];
 
 			$this->logProgress(' +++ ' . $substep->name, true);
 
@@ -1642,7 +1668,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 					Maintenance::jsonResponse([
 						'name' => $substep->name,
-						'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
+						'next' => $substeps[Maintenance::getCurrentSubStep() - $offset]->name ?? '',
 						'skipped' => true,
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
@@ -1721,7 +1747,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
-					'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
+					'next' => $substeps[Maintenance::getCurrentSubStep() - $offset]->name ?? '',
 					'completed' => true,
 					'substep' => Maintenance::getCurrentSubStep(),
 					'start' => Maintenance::getCurrentStart(),

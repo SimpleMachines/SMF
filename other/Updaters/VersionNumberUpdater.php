@@ -7,20 +7,6 @@
  * This file updates version numbers and copyright years in any SMF
  * files that need it in order to prepare for a new release.
  *
- * To automatically increment the version number, run the following
- * command on the CLI:
- *
- *     php -f other/update_version_numbers.php
- *
- * To manually specify a version string, do this:
- *
- *     php -f other/update_version_numbers.php 'version_string_here'
- *
- * Note: manually specifying a version string should only be needed
- * when changing from alpha to beta, from beta to release candidate, or
- * from release candidate to release version.
- *
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -28,7 +14,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -51,7 +37,7 @@ class VersionNumberUpdater extends UpdaterBase
 	 *
 	 * Regex pattern to match all standard SMF version strings.
 	 */
-	public const VERSION_PATTERN = '\d+\.\d+[. ]?(?:(?:(?<= )(?>RC|Beta |Alpha ))?\d+)?';
+	public const VERSION_PATTERN = '\d+\.\d+[. ]?(?:(?:(?<= )(?>RC|Beta |Alpha ))?\d+)?(?:-dev)?';
 
 	/**
 	 * @var string
@@ -122,7 +108,6 @@ class VersionNumberUpdater extends UpdaterBase
 		'other/install.php',
 		'other/upgrade.php',
 	];
-
 
 	/****************
 	 * Public methods
@@ -199,8 +184,15 @@ class VersionNumberUpdater extends UpdaterBase
 	 */
 	private function setNewVersion(?string $new_version = null): void
 	{
+		if ($new_version === 'dev') {
+			$append_dev = true;
+			$new_version = null;
+		} else {
+			$append_dev = false;
+		}
+
 		// Was the new version passed as a command line argument?
-		if (!empty($new_version)) {
+		if (\is_string($new_version)) {
 			$new_version = trim($new_version);
 
 			if (!preg_match('~^' . self::VERSION_PATTERN . '$~', $new_version)) {
@@ -222,6 +214,10 @@ class VersionNumberUpdater extends UpdaterBase
 			}
 
 			$new_version = implode('.', $new_version);
+
+			if ($append_dev) {
+				$new_version .= '-dev';
+			}
 		}
 
 		$this->new_version = $new_version;

@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -428,7 +428,7 @@ class Avatar implements \ArrayAccess
 			$email = User::$loaded[$this->id_member]->email;
 		}
 
-		if (filter_var($email ?? '', FILTER_VALIDATE_EMAIL) !== false) {
+		if (EmailAddress::create($email ?? '')->isValid()) {
 			$this->email = $email;
 		}
 
@@ -684,7 +684,7 @@ class Avatar implements \ArrayAccess
 			// Do we need to override the embedded email address?
 			|| empty(Config::$modSettings['gravatarAllowExtraEmail'])
 			|| !isset($url->user, $url->host)
-			|| filter_var($url->user . '@' . $url->host, FILTER_VALIDATE_EMAIL) === false
+			|| !EmailAddress::create($url->user . '@' . $url->host)->isValid()
 		) {
 			$url = new Url('gravatar://' . ($this->email ?? 'invalid'), true);
 		}

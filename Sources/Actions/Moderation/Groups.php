@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 namespace SMF\Actions\Moderation;
@@ -25,6 +25,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\Tasks\GroupAct_Notify;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -333,7 +334,7 @@ class Groups extends ViewGroups
 					],
 					[
 						[
-							'SMF\\Tasks\\GroupAct_Notify',
+							GroupAct_Notify::class,
 							$data,
 							0,
 						],

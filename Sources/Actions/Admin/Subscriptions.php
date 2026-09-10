@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -1307,13 +1308,14 @@ class Subscriptions implements ActionInterface
 				$email_addresses = [];
 
 				foreach (explode(',', $_POST['paid_email_to']) as $email) {
-					$email = trim($email);
+					$email = new EmailAddress($email, true);
 
-					if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-						$email_addresses[] = $email;
+					if ($email->isValid()) {
+						$email_addresses[] = $email->sendable();
 					}
-					$_POST['paid_email_to'] = implode(',', $email_addresses);
 				}
+
+				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}
 
 			// Can only handle this stuff if it's already enabled...

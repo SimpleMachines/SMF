@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -1394,7 +1394,7 @@ class Calendar implements ActionInterface, Routable
 	public static function cache_getRecentEvents(array $eventOptions): array
 	{
 		// With the 'static' cached data we can calculate the user-specific data.
-		$cached_data = CacheApi::quickGet('calendar_index', 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getOffsetIndependentEvents', [$eventOptions]);
+		$cached_data = CacheApi::quickGet('calendar_index', 'Actions/Calendar.php', Calendar::class . '::cache_getOffsetIndependentEvents', [$eventOptions]);
 
 		// Get the information about today (from user perspective).
 		$today = self::getTodayInfo();

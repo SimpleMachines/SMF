@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Maintenance
+// Version: 3.0 Alpha 5-dev; Maintenance
 
 // This should be the same as the one in General.language.php.
 $txt['lang_rtl'] = '0';

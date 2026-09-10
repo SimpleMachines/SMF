@@ -71,6 +71,14 @@ though it succeeded — it pauses so a human can read its "N duplicate tables
 ignored" report, and the form's `pop_done` field is the short-circuit past it.
 Passing `pop_done` on the first pass would skip building the schema entirely.
 
+It then deletes `install.php`, which the installer asks for but cannot do
+itself — its `?delete` link is a GET, and command line arguments only ever reach
+`$_POST`. That matters more than it sounds: while the file is there
+`Settings.php` redirects every request back into the installer, and SMF puts a
+"MAJOR SECURITY RISK" box on every page it shows an administrator. Reinstalling
+still works, because `reset.sh` runs first and does not return until the
+entrypoint has staged a fresh copy.
+
 Two flags worth knowing:
 
 - `--force` reinstalls even when a forum is already there. Without it the
@@ -102,6 +110,35 @@ are gitignored.
 installer, discarding that forum. `use-engine.sh` switches between forums,
 `reset.sh` throws one away.
 
+## Accounts and passwords
+
+Two forums, each with its own administrator, and a password chosen months ago is
+a recipe for an afternoon of hand written SQL. `user.sh` is there so it is not:
+
+```sh
+.docker/user.sh list
+.docker/user.sh check admin 'password'
+.docker/user.sh reset admin 'a new password'
+```
+
+`check` exits 0 when SMF would accept the password and 1 when it would not, so
+it works in a conditional as well as by eye. It also points out an account that
+is not activated, which fails to log in with a correct password and looks
+exactly like a wrong one.
+
+`--engine mysql|postgresql` reads the settings `use-engine.sh` saved for that
+engine, so the *other* forum can be inspected without switching to it:
+
+```sh
+.docker/user.sh check admin 'password' --engine mysql
+```
+
+The hashing goes through SMF's own `Security` class rather than being written
+here, so what `reset` puts in the table is by construction what `Login2` expects
+to find. It clears `passwd_flood` at the same time: SMF locks an account out for
+a while after enough wrong guesses, and a fresh password behind a lockout looks
+exactly like a password that did not take.
+
 ### Installing in a browser instead
 
 On first boot the entrypoint writes a `Settings.php` pre-filled for the chosen
@@ -128,6 +165,196 @@ compose network.
 When the installer finishes, delete `install.php` from the repo root — while it
 exists, `Settings.php` redirects every request back into the installer.
 
+## Running the tests
+
+```sh
+.docker/test.sh                          # both engines
+.docker/test.sh --engine postgresql
+.docker/test.sh --engine both --filter ModSettings
+```
+
+Anything it does not recognise is passed on to PHPUnit. It installs a forum for
+an engine that has not got one, and puts the previously active engine back when
+it finishes.
+
+Running on both is the point rather than a thoroughness exercise. The counter
+regression in `tests/Integration/ModSettingsTest.php` **passes on MySQL with the
+bug still in place** and only fails on PostgreSQL, because MySQL coerces text to
+a number where PostgreSQL refuses. A suite that only ever sees one engine proves
+considerably less than it looks like it does.
+
+The unit suite needs none of this — `composer test` runs everything, and the
+integration tests skip themselves when there is no forum to talk to.
+
+Some of the tests sign in, so they need to know the administrator. They default
+to what `install-forum.sh` creates (`admin` / `password`); if your forum has
+different credentials, export them:
+
+```sh
+SMF_ADMIN_USER=admin SMF_ADMIN_PASS='…' .docker/test.sh
+```
+
+Getting that wrong makes those tests **skip**, with a message saying so, rather
+than fail — a password the suite does not know is a misconfigured forum, not a
+regression. `user.sh check admin '…'` settles which it is, and
+`user.sh reset admin password` puts a forum installed some other way back on the
+credentials the suite expects.
+
+## Writing a test
+
+### Which suite
+
+Three of them, and picking the wrong one is the usual reason a test is harder to
+write than it should be:
+
+| Suite                    | Has                                    | Use it for                    |
+| ------------------------ | -------------------------------------- | ----------------------------- |
+| `tests/Unit`             | nothing — no database, no request      | pure functions, value objects |
+| `tests/Integration`      | `Db::$db`, `$modSettings`, `User::$me` | anything needing real data    |
+| `tests/Integration/Http` | all of that, plus a real request       | proving a *page* works        |
+
+Work down the list and stop at the first that can hold the test. An HTTP test
+costs about a second and cannot be rolled back; a unit test costs nothing. The
+limits of the unit suite are spelled out in `AGENTS.md`.
+
+Reach for HTTP only when the thing worth proving is in the parts nothing else
+touches: the session, the cookies, the security token, the theme and the
+templates. `User::setMe()` skips every one of them, which is exactly why the
+plain integration tests are cheap.
+
+### The shape of an HTTP test
+
+Four beats: fetch a page, submit a form on it, assert on what came back, assert
+nothing was logged.
+
+```php
+#[CoversNothing]
+class ProfileTest extends HttpTestCase
+{
+	public function testAMemberCanChangeTheirSignature(): void
+	{
+		$this->signInAsAdmin();
+
+		$form = $this->fetch('?action=profile;area=forumprofile');
+
+		$response = $this->submitForm($form, [
+			'signature' => 'Set by the integration suite.',
+			'save' => 'Change profile',          // the button
+		], '//form[contains(@action, "area=forumprofile")]');
+
+		$this->assertLessThan(400, $response->status, $response->errorText());
+		$this->assertNoErrorsLogged('saving a signature logged something.' . "\n");
+	}
+}
+```
+
+`#[CoversNothing]` is not optional. These cross dozens of classes, so naming one
+would be untrue, and `failOnRisky` wants an attribute either way.
+
+Four things that are easy to get wrong:
+
+- **Submit through `submitForm()`, not `HttpClient::submit()`.** Only the former
+  waits out flood control. `Security::spamProtection()` gives a moderator two
+  seconds between posts, per IP, and the tests all arrive from the same one far
+  faster than a person would; without the wait you get a suite that fails about
+  one run in five for no reproducible reason.
+- **Name the button you are pressing.** `formFields()` leaves every button out on
+  purpose, because the posting form carries both `preview` and `post` and sending
+  the pair means preview quietly wins — no post, and a perfectly good 200 to show
+  for it.
+- **Clean up whatever you write.** There is no transaction here; see
+  `HttpTestCase::usesTransaction()` for why one would not help. `PostingTest`
+  deletes through `Topic::remove()` rather than by hand, so the board and member
+  counters go back as well.
+- **`assertNoErrorsLogged()` is the point of the test**, not a formality. A page
+  can return exactly the right HTML while logging an undefined index, and that is
+  the failure mode this whole suite exists to catch.
+
+One thing to rule out before believing a failure: if `install.php` is still in
+the board root, SMF puts a "MAJOR SECURITY RISK" box on every page it shows an
+administrator. That is an `errorbox`, so it fails `assertLooksLikeAForumPage()`
+and turns up in `errorText()` in front of whatever the test was actually looking
+at. `install-forum.sh` removes the file once it is done; a forum installed
+through the browser needs it deleting by hand.
+
+### Who the request is
+
+The identity of an HTTP request is the cookie jar and nothing else. There are two
+states out of the box: a guest, which is what `setUp()` leaves you, and the
+administrator, through `signInAsAdmin()`.
+
+**`actingAs()` does not work here.** It is inherited from `IntegrationTestCase`
+and it repoints `User::$me` in the PHPUnit process — but the request is handled
+by Apache in a different process, which knows only the cookie. Calling it in an
+HTTP test changes nothing about the request and leaves the assertions describing
+a guest, confidently.
+
+So:
+
+- **Two users at once** means two `HttpClient` instances. Each opens its own
+  cookie jar, so they are independent browsers — which is how to test one member
+  sending another a PM.
+- **Back to being a guest** is `$this->http->forgetCookies()`, then
+  `$this->http->get('')` to pick up a fresh session.
+- **A member who is not the administrator** has to be made first, through
+  `Register2::registerMember()` with `interface => 'admin'` (which needs
+  `actingAs($this->adminId())` first, as it checks `moderate_forum`). That member
+  outlives the test, so delete it in `tearDown()`.
+
+### Finding the endpoint and the field names
+
+Endpoints are looked up; field names are not.
+
+`Forum::$actions` in `Sources/Forum.php` is the authoritative list of every
+`?action=` the forum answers and the class behind it. Sub-actions — the `;area=`
+and `;sa=` parts — are a `$subactions` property on that class. So
+`?action=profile;area=forumprofile` resolves as `$actions['profile']` →
+`Actions\Profile\Main` → its `$subactions`. That is quicker and more reliable
+than reading templates.
+
+Field names you are deliberately not meant to know. `HttpClient::submit()`
+scrapes every input, textarea and select out of the form it was handed and sends
+them back, the way a browser does. That is what carries the session check and the
+security token, both named unpredictably per session and neither hardcodable. All
+a test supplies is the few values it is choosing, plus the button.
+
+When you do need to see them, ask the page rather than the template:
+
+```sh
+docker compose exec web php -r '
+  require "tests/bootstrap.php";
+  $c = new SMF\Tests\Support\HttpClient();
+  $c->get("");
+  $p = $c->get("?action=login");
+  print_r($p->formFields("//form[contains(@action, \"login2\")]"));'
+```
+
+```
+Array
+(
+    [user] =>
+    [passwrd] =>
+    [d0004e1655] => b2f5189a9b3014cadee7bcb0b8d697f2
+    [b8ae8fd32d] => 8f6026ed9a1b91bf6fec315801a2a93c
+)
+```
+
+Two named fields, which are the ones a test writes, and two whose names are
+different for every session — the session check and the security token, and
+running the command twice gives two different pairs. That is what
+`submit()` is for, and why a test that builds its own POST body by hand gets a
+403 it cannot fix.
+
+The paths are relative because the container's working directory is
+`/var/www/html` already. Spelling them absolutely also works, but not from Git
+Bash on Windows, which rewrites anything that looks like a Unix path before
+Docker sees it.
+
+Note the throwaway `get("")` before the form is fetched. The very first request
+of a new session regenerates it, so a token minted on the first page a visitor
+ever sees is bound to a session that no longer exists by the time it comes back.
+The symptom is a 403 about the token, when the token was never the problem.
+
 ## Running CI locally
 
 ```sh
@@ -153,6 +380,58 @@ Two things it cannot do for you:
   is whichever built it. To cover the other:
   `PHP_VERSION=8.5 docker compose up -d --build web`.
 - **The integration tests on both engines.** Use `.docker/test.sh` for that.
+
+## Hardening the upgrade
+
+The installer builds a 3.0 forum from `Sources/Db/Schema/v3_0/` in one go. The
+upgrader arrives somewhere near the same place through a few hundred migrations
+applied to whatever 2.1 left behind, and it has to survive two things that
+happen to it constantly and that nothing checks: being run twice, and being cut
+off half way.
+
+```sh
+BASE=../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
+
+.docker/rerun-upgrade.sh     --engine mysql --baseline "$BASE"
+.docker/interrupt-upgrade.sh --engine mysql --baseline "$BASE"
+```
+
+Both rebuild the database for the engine they are given, so anything installed
+on it is destroyed. The other engine is untouched. Both take a `--baseline` SQL
+dump of a 2.1 forum; the one above is the committed baseline from the 2.1
+development environment, and a dump of a real forum is a better test.
+
+**`rerun-upgrade.sh`** upgrades, then upgrades again, and reports what the
+second run changed. It should change nothing. Running the upgrader twice is not
+an unusual thing to do -- it is what an admin does when a page times out, and it
+is what every 3.0 patch upgrade does, since `VERSION_MAP` keys on an upper bound
+and `3.0.99` selects the v3_0 migrations for any 3.0.x forum.
+
+**`interrupt-upgrade.sh`** kills the upgrader part way through, starts it again,
+and reports whether the forum it ends up with is the one an uninterrupted
+upgrade would have built. By default it does this at five points across the run;
+`--at N` picks one substep, `--points 10,50` picks a set. Kill points are given
+as a percentage of an uninterrupted run's substeps, so the same numbers mean the
+same places whatever the baseline is.
+
+Recovery today means starting again from the top, over a database that is in
+neither the old shape nor the new one, because the step, substep and start
+position live in `$_GET` and nowhere else. `maintenance_tool_progress` in
+`Settings.php` is the only thing written to disk, it holds the version the run
+started from rather than where it had got to, and it is written by `preExit()`,
+which a killed process never reaches. So every migration has to cope with a
+half-migrated database, which is a stronger requirement than merely being safe
+to repeat over a finished one.
+
+`--backup` is worth adding to a run of it. The backup step is skipped on the
+command line unless something asks for it, and a retry is exactly what
+endangers what it produces: `backup_table()` opens with `DROP TABLE IF EXISTS`,
+so a second pass replaces a good pre-upgrade copy with whatever the database
+holds by then.
+
+Both write their readings and reports under `.docker/rerun/` and
+`.docker/interrupt/`, which are gitignored. Expect five to ten minutes per
+upgrade, so a full sweep of kill points is the better part of an hour.
 
 ## Everyday use
 
@@ -181,6 +460,67 @@ never need to restart for a PHP change.
 
 To reinstall from scratch: `.docker/install-forum.sh --engine mysql --force`.
 To wipe everything including the volumes: `docker compose down -v`.
+
+## Comparing an upgrade against a fresh install
+
+The installer builds the schema from `Sources/Db/Schema/v3_0/` in one go. The
+upgrader arrives at the same place through a hundred-odd migrations applied to
+whatever 2.1 left behind. They are meant to converge, and nothing checks that
+they do:
+
+```bash
+.docker/compare-upgrade.sh --engine mysql --baseline path/to/a-2.1-dump.sql
+```
+
+That empties the database, loads the dump, upgrades it, reads the schema,
+reinstalls from scratch, reads that too, and reports every place the two
+disagree — a column of the wrong type, an index that was never created, a
+primary key quietly dropped. It ends with the fresh install in place, and takes
+five to ten minutes.
+
+`--baseline` takes any SQL dump of a 2.1 database. A dump of a real forum is
+the better test; the [2.1 development environment][baseline] builds a synthetic
+one designed to hold something in every table an upgrade touches, which is
+useful when you have no real forum to hand.
+
+Two kinds of difference are reported but do not fail the run, because a real
+forum always has some: the contents of `settings`, and the order columns sit in
+within a table. Everything else is a schema difference and sets the exit code.
+
+If the upgrade does not reach the end, the script stops there and says so
+rather than comparing anyway. A half-upgraded database differs from a fresh
+install in hundreds of places, all of them the honest consequence of the
+migrations that never ran, and none of them worth reading.
+
+On PostgreSQL the reading also covers sequences and the compatibility functions
+SMF installs — `find_in_set()`, `instr()`, the `group_concat` aggregate and the
+rest. A query naming one of those fails outright when it is not there, so a
+missing function counts as a schema difference like a missing column does.
+
+Both readings were checked name by name against the engine's own schema dump —
+`pg_dump --schema-only` and `mysqldump --no-data --routines --triggers
+--events` — and agree with them: 72 tables, 538 columns, 179 keys, and on
+PostgreSQL 41 sequences and 19 functions besides. The only things either dump
+reports that this does not are the `public` schema and the comment on it, and
+the `AUTO_INCREMENT` counter, which measures how much a database has been used
+rather than what shape it is.
+
+The tool underneath is usable on its own, against any two SMF databases on the
+same engine — two forums you already have, or the same forum before and after
+something you are testing:
+
+```bash
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > before.json
+# ... do the thing ...
+docker compose exec web php .docker/schema-tool.php dump --engine mysql --db smf > after.json
+docker compose exec web php .docker/schema-tool.php diff before.json after.json
+```
+
+It talks to the database directly rather than through SMF, so it works on a
+database SMF would refuse to run on — which is usually the one you want to look
+at.
+
+[baseline]: https://github.com/SimpleMachines/SMF/pull/9330
 
 ## Debugging SQL with the PostgreSQL log
 
@@ -247,4 +587,16 @@ compose.yaml                     the stack
 .docker/mysql/init/10-smf.sh     runs once on first mysql database creation
 .docker/postgres/init/10-smf.sh  runs once on first postgres database creation
 .docker/env.example              optional overrides
+.docker/lib.sh                   paths, credentials and engine names, shared
+.docker/install-forum.sh         install a forum with no browser involved
+.docker/reset.sh                 empty one engine and restage the installer
+.docker/use-engine.sh            switch which installed forum is live
+.docker/user.sh                  inspect accounts, check and reset passwords
+.docker/test.sh                  run the test suites against an installed forum
+
+.docker/upgrade-readings.sh      shared: driving upgrade.php, reading a database
+.docker/rerun-upgrade.sh         upgrade twice, report what the second run changed
+.docker/interrupt-upgrade.sh     kill an upgrade part way, report what recovery left
+.docker/compare-upgrade.sh       upgrade a 2.1 dump, install 3.0, diff the two
+.docker/schema-tool.php          read a database's shape, and compare readings
 ```

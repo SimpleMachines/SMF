@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; General
+// Version: 3.0 Alpha 5-dev; General
 
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English (US)';
@@ -748,7 +748,7 @@ $txt['smtp_no_connect'] = 'Could not connect to SMTP host: {error_number}: {erro
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers. Hostname may need ssl:// prefix.';
 $txt['smtp_bad_response'] = 'Could not get mail server response codes';
 $txt['smtp_error'] = 'Ran into problems sending mail. Error: {0}';
-$txt['mail_send_unable'] = 'Unable to send mail to the email address {0}';
+$txt['mail_send_unable'] = 'Unable to send mail to the email address "{0}"';
 
 $txt['mlist_search'] = 'Search for Members';
 $txt['mlist_search_again'] = 'Search again';

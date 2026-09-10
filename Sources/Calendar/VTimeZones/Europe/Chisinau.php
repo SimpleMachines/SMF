@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -186,7 +186,7 @@ class Chisinau extends \SMF\Calendar\VTimeZone
 		19 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19970330T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20210328T020000',
 			'TZNAME' => 'EEST',
 			'TZOFFSETFROM' => '+0200',
 			'TZOFFSETTO' => '+0300',
@@ -194,6 +194,22 @@ class Chisinau extends \SMF\Calendar\VTimeZone
 		20 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19971026T030000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20211031T030000',
+			'TZNAME' => 'EET',
+			'TZOFFSETFROM' => '+0300',
+			'TZOFFSETTO' => '+0200',
+		],
+		21 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19820123T010000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'TZNAME' => 'EEST',
+			'TZOFFSETFROM' => '+0200',
+			'TZOFFSETTO' => '+0300',
+		],
+		22 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19970823T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
 			'TZNAME' => 'EET',
 			'TZOFFSETFROM' => '+0300',

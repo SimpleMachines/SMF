@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -32,6 +32,19 @@ class CalendarUpdates extends MigrationBase
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 *
+	 */
+	public function isCandidate(): bool
+	{
+		// Everything this does is to the holidays table, which the 3.0
+		// migrations fold into the calendar and then drop. Once that has
+		// happened there is nothing here to update.
+		$table = new Schema\v2_1\CalendarHolidays();
+
+		return $table->exists();
+	}
 
 	/**
 	 *

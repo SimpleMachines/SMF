@@ -10,7 +10,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -136,10 +136,10 @@ class Calendar implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'default_sort_col' => 'name',
 			'get_items' => [
-				'function' => 'SMF\\Calendar\\Holiday::list',
+				'function' => Holiday::class . '::list',
 			],
 			'get_count' => [
-				'function' => 'SMF\\Calendar\\Holiday::count',
+				'function' => Holiday::class . '::count',
 			],
 			'no_items_label' => Lang::getTxt('holidays_no_entries', file: 'ManageCalendar'),
 			'columns' => [

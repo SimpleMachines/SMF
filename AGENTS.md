@@ -156,6 +156,7 @@ worked example in `tests/Unit/`:
 #### When it is not
 
 - Anything calling `Db::$db` — there is no connection, and faking one is not worth it.
+  This belongs in the integration suite below.
 - Anything reading `User::$me`, the session, `$_GET`/`$_POST`/`$_SERVER`, or expecting a
   loaded theme or `Utils::$context`.
 - Anything that emits output or sends headers. `beStrictAboutOutputDuringTests` is on, so
@@ -163,6 +164,67 @@ worked example in `tests/Unit/`:
 
 `failOnRisky` and `failOnWarning` are on as well: a test that asserts nothing is a
 failure, not a pass.
+
+### The integration suite
+
+`tests/Integration/` runs against a forum that is actually installed, so it reaches the
+things above: `Db::$db`, `Config::$modSettings` as the database holds it, and `User::$me`.
+
+```bash
+.docker/test.sh                     # both engines
+.docker/test.sh --engine postgresql
+```
+
+`composer test` still runs everything. When there is no forum to talk to the integration
+tests **skip** rather than fail, so it stays useful on a machine with no Docker. To get
+one: `.docker/install-forum.sh --engine mysql`.
+
+Extend `SMF\Tests\Integration\IntegrationTestCase`, which gives you:
+
+- a transaction per test, rolled back afterwards, so tests do not have to order
+  themselves around each other;
+- `actingAs($id)` and `adminId()` for a current user, via `User::setMe()` — the same seam
+  `Login2::DoLogin()` uses;
+- `hook($name, $function)`, registered in `$modSettings` only, so it disappears with the
+  rollback;
+- `assertNoErrorsLogged()`, which is usually the most valuable line in the test: SMF
+  records most of what goes wrong in `log_errors` rather than showing it, so a page that
+  returned the right thing while quietly logging an undefined index has still regressed;
+- `queryRow()` and `rawSetting()`, which read past `$modSettings` and its cache and fail
+  with a readable message instead of a `TypeError` when a query fails.
+
+Two things the rollback does not cover: **DDL**, since MySQL commits implicitly on
+`CREATE`/`ALTER`/`DROP`; and anything happening in another process, such as a request made
+over HTTP, which runs on its own connection.
+
+#### HTTP tests
+
+`tests/Integration/Http/` drives the forum over the wire, through `HttpTestCase`. Use it
+when the thing worth proving is that a *page* works: the session, the cookies, the theme
+and the templates are all in the path, and none of them are otherwise reachable.
+
+They cannot use a transaction and do not try to - see `HttpTestCase::usesTransaction()` -
+so a test that writes cleans up after itself. Four things about SMF make writing them
+harder than it looks, all of them handled in the base class:
+
+- **Arrive at the forum before submitting anything.** The first request of a new session
+  regenerates it, so a security token minted on the very first page a visitor sees can
+  never be validated. The symptom is a 403 "Token verification failed" that looks like a
+  broken token rather than a replaced session.
+- **Send the button you mean to press.** `HttpResponse::formFields()` deliberately leaves
+  buttons out. The posting form has both `preview` and `post`; submitting the pair means
+  preview wins, the post is never made, and the response is a perfectly ordinary 200.
+- **Flood control will hit you.** `Security::spamProtection()` allows a moderator one
+  login or post every two seconds per IP, and tests are far faster than people.
+  `submitForm()` waits it out once rather than failing at random.
+- **Quote `errorText()` in failure messages, not the body.** A fatal error in SMF is a
+  normal page, and its first few hundred characters are the menu.
+
+**Run both engines.** This is not thoroughness for its own sake — the two disagree often
+enough to matter. `ModSettingsTest` pins a bug that *passes on MySQL with the bug still
+in place*, because MySQL silently coerces text to a number where PostgreSQL refuses.
+On PostgreSQL a failed query also poisons the rest of the transaction, so one swallowed
+error turns every later query in the test into `false`.
 
 #### Writing one
 

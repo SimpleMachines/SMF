@@ -48,7 +48,7 @@
 #basicinfo .icon_fields li {
 	display: block;
 	float: inline-start;
-	margin-right: 5px;
+	margin-inline-end: 5px;
 	height: 20px;
 }
 

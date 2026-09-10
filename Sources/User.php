@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -17,7 +17,6 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
-use SMF\Actions\Login2;
 use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
@@ -1301,6 +1300,7 @@ class User implements \ArrayAccess
 		'tfa_secret' => 'string',
 		'tfa_backup' => 'string',
 		'spoofdetector_name' => 'string',
+		'email_address_ci' => 'string',
 	];
 
 	/*********************
@@ -3320,6 +3320,30 @@ class User implements \ArrayAccess
 
 						break;
 
+					case 'email_address':
+						if (isset($member->email)) {
+							$email = new EmailAddress($member->email, true);
+
+							// Don't update unless the email is valid.
+							if ($email->isValid()) {
+								$params[$column . '_' . $member->id] = (string) $email;
+							}
+						}
+
+						break;
+
+					case 'email_address_ci':
+						if (isset($member->email)) {
+							$email = new EmailAddress($member->email, true);
+
+							// Don't update unless the email is valid.
+							if ($email->isValid()) {
+								$params[$column . '_' . $member->id] = $email->casefolded();
+							}
+						}
+
+						break;
+
 					case 'spoofdetector_name':
 						if (isset($member->name)) {
 							$params[$column . '_' . $member->id] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($member->name, ENT_QUOTES)));
@@ -3338,7 +3362,6 @@ class User implements \ArrayAccess
 						$prop = match ($column) {
 							'member_name' => 'username',
 							'real_name' => 'name',
-							'email_address' => 'email',
 							'usertitle' => 'title',
 							'instant_messages' => 'messages',
 							'id_theme' => 'theme',
@@ -3745,101 +3768,141 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Finds members by email address, username, or real name.
-	 *
-	 * Searches for members whose username, display name, or e-mail address
-	 * match the given pattern of array names.
+	 * Finds members by email address, username, or display name.
 	 *
 	 * Searches only buddies if $buddies_only is set.
 	 *
 	 * @param string|array $names The names of members to search for.
-	 * @param bool $use_wildcards Whether to use wildcards. Accepts wildcards
-	 *    '?' and '*' in the pattern if true.
-	 * @param bool $buddies_only Whether to only search for the user's buddies.
+	 * @param bool $use_wildcards Whether to accept wildcards in the pattern.
+	 *    Default: false.
+	 * @param bool $buddies_only Whether to search only for this user's buddies.
+	 *    Default: false.
 	 * @param int $max The maximum number of results.
+	 *    Default: 500.
+	 * @param bool $ids_only If true, return just the IDs of the found members.
+	 *    Default: false.
 	 * @return array Information about the matching members.
 	 */
-	public static function find(string|array $names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
-	{
-		// If it's not already an array, make it one.
-		if (!\is_array($names)) {
-			$names = explode(',', $names);
-		}
-
-		$maybe_email = false;
-		$names_list = [];
-
-		foreach (array_values($names) as $i => $name) {
-			// Trim, and fix wildcards for each name.
-			$names[$i] = trim(Utils::strtolower($name));
-
-			$maybe_email |= strpos($name, '@') !== false;
-
-			// Make it so standard wildcards will work. (* and ?)
-			if ($use_wildcards) {
-				$names[$i] = strtr($names[$i], ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '\'' => '&#039;']);
-			} else {
-				$names[$i] = strtr($names[$i], ['\'' => '&#039;']);
-			}
-
-			$names_list[] = '{string:lookup_name_' . $i . '}';
-			$where_params['lookup_name_' . $i] = $names[$i];
-		}
-
-		// What are we using to compare?
-		$comparison = $use_wildcards ? 'LIKE' : '=';
-
-		// Nothing found yet.
-		$results = [];
-
-		// This ensures you can't search someone's email address if you can't see it.
-		if (($use_wildcards || $maybe_email) && self::$me->allowedTo('moderate_forum')) {
-			$email_condition = '
-				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
+	public static function find(
+		string|array $names,
+		bool $use_wildcards = false,
+		bool $buddies_only = false,
+		int $max = 500,
+		bool $ids_only = false,
+	): array {
+		if ($use_wildcards) {
+			$member_name_query_pattern = '{column_ci:member_name} LIKE {string_ci:%s}';
+			$real_name_query_pattern = '{column_ci:real_name} LIKE {string_ci:%s}';
+			$email_query_pattern = 'email_address_ci LIKE {string:%s}';
+			$wildcard_replacements = [
+				'%' => '\\%',
+				'_' => '\\_',
+				'*' => '%',
+				'?' => '_',
+				'\'' => '&#039;',
+			];
 		} else {
-			$email_condition = '';
-		}
-
-		// The {column_ci:} type folds the column for the engines that need it and
-		// leaves it alone for the ones that do not.
-		$member_name = '{column_ci:member_name}';
-		$real_name = '{column_ci:real_name}';
-
-		// Searches.
-		$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
-
-		$real_name_search = $real_name . ' ' . $comparison . ' ' . implode(' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
-
-		// Search by username, display name, and email address.
-		$request = Db::$db->query(
-			'SELECT id_member, member_name, real_name, email_address
-			FROM {db_prefix}members
-			WHERE (' . $member_name_search . '
-				OR ' . $real_name_search . ' ' . $email_condition . ')
-				' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN ({array_int:activated})
-			LIMIT {int:limit}',
-			array_merge($where_params, [
-				'buddy_list' => !empty(Config::$modSettings['enable_buddylist']) ? self::$me->buddies : [],
-				'limit' => $max,
-				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
-			]),
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$results[$row['id_member']] = [
-				'id' => $row['id_member'],
-				'name' => $row['real_name'],
-				'username' => $row['member_name'],
-				'email' => self::$me->allowedTo('moderate_forum') ? $row['email_address'] : '',
-				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+			$member_name_query_pattern = '{column_ci:member_name} = {string_ci:%s}';
+			$real_name_query_pattern = '{column_ci:real_name} = {string_ci:%s}';
+			$email_query_pattern = 'email_address_ci = {string:%s}';
+			$wildcard_replacements = [
+				'\'' => '&#039;',
 			];
 		}
-		Db::$db->free_result($request);
 
-		// Return all the results.
-		return $results;
+		$where = [];
+
+		$params = [
+			'buddy_list' => !empty(Config::$modSettings['enable_buddylist']) ? self::$me->buddies : [],
+			'limit' => $max,
+			'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
+		];
+
+		$names = array_values(
+			array_filter(
+				array_map(
+					fn($name) => trim((string) $name),
+					\is_array($names) ? $names : explode(',', $names),
+				),
+				fn($name) => \strlen($name) > 0,
+			),
+		);
+
+		$can_search_emails = self::$me->allowedTo('moderate_forum');
+
+		foreach ($names as $i => $name) {
+			if ($can_search_emails && str_contains($name, '@')) {
+				$email = new EmailAddress($name, true);
+
+				// If it's a valid email, search for it as one.
+				if ($email->isValid()) {
+					$where[] = \sprintf($email_query_pattern, 'lookup_email_' . $i);
+
+					$params['lookup_email_' . $i] = strtr(
+						$email->casefolded(),
+						$wildcard_replacements,
+					);
+				}
+				// If it's invalid because a wildcard is in the domain part,
+				// then manually add it to our email search.
+				elseif (
+					strpbrk($email->ascii_domain_part, '*?') !== false
+					&& $email->local_part !== ''
+				) {
+					$where[] = \sprintf($email_query_pattern, 'lookup_email_' . $i);
+
+					$params['lookup_email_' . $i] = strtr(
+						Utils::convertCase($email->local_part, 'fold') . '@' . $email->ascii_domain_part,
+						$wildcard_replacements,
+					);
+				}
+			}
+
+			$where[] = \sprintf($member_name_query_pattern, 'lookup_name_' . $i);
+			$where[] = \sprintf($real_name_query_pattern, 'lookup_name_' . $i);
+
+			$params['lookup_name_' . $i] = strtr($name, $wildcard_replacements);
+		}
+
+		$where = [
+			'(' . implode(' OR ', $where) . ')',
+			'is_activated IN ({array_int:activated})',
+		];
+
+		if ($buddies_only) {
+			$where[] = 'id_member IN ({array_int:buddy_list})';
+		}
+
+		if ($ids_only) {
+			$request = Db::$db->query(
+				'SELECT id_member
+				FROM {db_prefix}members
+				WHERE ' . implode(' AND ', $where) . '
+				LIMIT {int:limit}',
+				$params,
+			);
+			$found = array_map(fn($row) => $row['id_member'], Db::$db->fetch_all($request));
+			Db::$db->free_result($request);
+		} else {
+			$found = array_map(
+				fn($member) => $member->format(),
+				self::loadCustom(
+					query_customizations: [
+						'where' => $where,
+						'params' => $params,
+					],
+					dataset: UserDataset::Minimal,
+				),
+			);
+
+			foreach ($found as $k => $formatted) {
+				if (!$formatted['show_email']) {
+					$found[$k]['email'] = '';
+				}
+			}
+		}
+
+		return $found;
 	}
 
 	/**
@@ -4279,28 +4342,73 @@ class User implements \ArrayAccess
 					$key,
 					[
 						// All the standard data.
-						'additional_groups', 'alerts', 'attachment_height',
-						'attachment_type', 'attachment_width', 'avatar',
-						'avatar_original', 'birthdate', 'buddy_list',
-						'dataset', 'date_registered', 'email_address',
-						'filename', 'icons', 'id_attach', 'id_group',
-						'id_member', 'id_msg_last_visit', 'id_post_group',
-						'id_theme', 'ignore_boards', 'instant_messages',
-						'is_activated', 'is_online', 'last_login', 'lngfile',
-						'member_group', 'member_group_color', 'member_ip',
-						'member_ip2', 'member_name', 'new_pm', 'options',
-						'passwd', 'passwd_flood', 'password_salt',
-						'personal_text', 'pm_ignore_list', 'pm_prefs',
-						'pm_receive_from', 'post_group', 'post_group_color',
-						'posts', 'primary_group', 'real_name',
-						'secret_answer', 'secret_question', 'show_online',
-						'signature', 'smiley_set', 'spoofdetector_name',
-						'tfa_backup', 'tfa_secret', 'time_format', 'timezone',
-						'total_time_logged_in', 'unread_messages', 'url',
-						'usertitle', 'validation_code', 'warning',
-						'website_title', 'website_url',
+						'additional_groups',
+						'alerts',
+						'attachment_height',
+						'attachment_type',
+						'attachment_width',
+						'avatar',
+						'avatar_original',
+						'birthdate',
+						'buddy_list',
+						'dataset',
+						'date_registered',
+						'email_address',
+						'email_address_ci',
+						'filename',
+						'icons',
+						'id_attach',
+						'id_group',
+						'id_member',
+						'id_msg_last_visit',
+						'id_post_group',
+						'id_theme',
+						'ignore_boards',
+						'instant_messages',
+						'is_activated',
+						'is_online',
+						'last_login',
+						'lngfile',
+						'member_group',
+						'member_group_color',
+						'member_ip',
+						'member_ip2',
+						'member_name',
+						'new_pm',
+						'options',
+						'passwd',
+						'passwd_flood',
+						'password_salt',
+						'personal_text',
+						'pm_ignore_list',
+						'pm_prefs',
+						'pm_receive_from',
+						'post_group',
+						'post_group_color',
+						'posts',
+						'primary_group',
+						'real_name',
+						'secret_answer',
+						'secret_question',
+						'show_online',
+						'signature',
+						'smiley_set',
+						'spoofdetector_name',
+						'tfa_backup',
+						'tfa_secret',
+						'time_format',
+						'timezone',
+						'total_time_logged_in',
+						'unread_messages',
+						'url',
+						'usertitle',
+						'validation_code',
+						'warning',
+						'website_title',
+						'website_url',
 						// Obsolete data. Ignore if present.
-						'mod_prefs', 'time_offset',
+						'mod_prefs',
+						'time_offset',
 					],
 				)
 			) {
@@ -4513,7 +4621,7 @@ class User implements \ArrayAccess
 			$id = self::$my_id;
 			self::$my_id = 0;
 
-			Login2::validatePasswordFlood(
+			Security::validatePasswordFlood(
 				$id,
 				self::$profiles[$id]['member_name'],
 				self::$profiles[$id]['passwd_flood'],
@@ -4733,10 +4841,9 @@ class User implements \ArrayAccess
 			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
-		// This is what a guest's variables should be.
-		if (self::$profiles[0]['dataset'] === UserDataset::Minimal) {
-			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
-			self::$profiles[0]['dataset'] = UserDataset::Basic;
+		// Ensure the guest profile has been loaded.
+		if (!isset(self::$profiles[0])) {
+			self::loadUserData([0]);
 		}
 
 		// If they gave us a bad cookie, discard it.
@@ -5305,6 +5412,7 @@ class User implements \ArrayAccess
 				};
 			}
 
+			self::$profiles[0] = self::processRawUserData(self::$profiles[0]);
 			self::$profiles[0]['dataset'] = UserDataset::Minimal;
 
 			$loaded_ids[] = 0;
@@ -5344,7 +5452,7 @@ class User implements \ArrayAccess
 						continue;
 					}
 
-					if (($data = CacheApi::get('user_settings-' . $id, 60) == null)) {
+					if (($data = CacheApi::get('user_settings-' . $id, 60)) == null) {
 						continue;
 					}
 				} else {
@@ -5361,7 +5469,11 @@ class User implements \ArrayAccess
 					continue;
 				}
 
-				$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+				// What goes into the cache is the enum itself, so only an entry
+				// that somehow lacks one needs converting.
+				if (!(($data['dataset'] ?? null) instanceof UserDataset)) {
+					$data['dataset'] = UserDataset::tryFrom($data['dataset'] ?? 'none') ?? UserDataset::None;
+				}
 
 				// Does the cached data have everything we need?
 				if ($data['dataset']->includes($dataset)) {
@@ -5420,8 +5532,11 @@ class User implements \ArrayAccess
 	{
 		switch ($type) {
 			case self::LOAD_BY_EMAIL:
-				$query_customizations['where'][] = 'mem.email_address IN ({array_string:users})';
-				$query_customizations['params']['users'] = $users;
+				$query_customizations['where'][] = 'mem.email_address_ci IN ({array_string:users})';
+				$query_customizations['params']['users'] = array_filter(array_map(
+					fn($email) => EmailAddress::create($email)->casefolded(),
+					$users,
+				));
 				break;
 
 			case self::LOAD_BY_NAME:
@@ -5699,7 +5814,12 @@ class User implements \ArrayAccess
 		// This might take a while.
 		Sapi::setTimeLimit();
 
-		$anonymous_uuid = Uuid::create(5, 'member=' . $member)->getShortForm(true);
+		// The forum's UUID namespace is derived from its URL, so the auth secret is
+		// what keeps the name from being recomputed by anyone who knows the member's
+		// ID. A name that could be recomputed would leave the member's content linked
+		// to the account that produced it, which is the link anonymizing is meant to
+		// sever.
+		$anonymous_uuid = Uuid::create(5, 'member=' . $member . ';' . Config::getAuthSecret())->getShortForm(true);
 		$anonymous_name = 'u_' . substr($anonymous_uuid, 0, 8);
 
 		// Anonymize the member's posts.
@@ -5838,7 +5958,7 @@ class User implements \ArrayAccess
 			],
 			[
 				[
-					'SMF\\Tasks\\AnonymizeEditHistory',
+					Tasks\AnonymizeEditHistory::class,
 					json_encode(['id' => $member]),
 					0,
 				],

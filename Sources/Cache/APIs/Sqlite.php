@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -98,10 +98,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 				$this->cacheDB->exec('PRAGMA journal_mode = wal;');
 			}
 
-			if (filesize($database) == 0) {
-				$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
-				$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
-			}
+			$this->cacheDB->exec('CREATE TABLE IF NOT EXISTS cache (key text unique, value blob, ttl int);');
+			$this->cacheDB->exec('CREATE INDEX IF NOT EXISTS ttls ON cache(ttl);');
 
 			return true;
 		} catch (\Exception $ex) {

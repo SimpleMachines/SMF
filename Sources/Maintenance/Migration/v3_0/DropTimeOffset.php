@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -67,7 +67,7 @@ class DropTimeOffset extends MigrationBase
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (isset($offsets[$row['offset']])) {
+			if (isset($offsets[$row['time_offset']])) {
 				continue;
 			}
 
@@ -83,7 +83,7 @@ class DropTimeOffset extends MigrationBase
 				}
 			}
 
-			$offsets[$row['offset']] = \is_string($tzid) ? $tzid : $forum_tzid;
+			$offsets[$row['time_offset']] = \is_string($tzid) ? $tzid : $forum_tzid;
 		}
 
 		Db::$db->free_result($request);
@@ -94,6 +94,8 @@ class DropTimeOffset extends MigrationBase
 			$params = [];
 
 			foreach ($offsets as $offset => $tzid) {
+				$offset = (string) $offset;
+
 				$set .= ' WHEN time_offset = {float:' . md5($offset) . '} THEN {string:' . md5($tzid) . '}';
 
 				$params[md5($offset)] = $offset;

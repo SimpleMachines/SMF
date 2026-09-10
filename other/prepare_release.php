@@ -25,7 +25,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -43,13 +43,25 @@ $updaters = [
 
 $num_updaters_executed = 0;
 
+// If a version number was specified manually, validate it before proceeding.
+if (
+	isset($argv[1])
+	&& (
+		!preg_match('~^' . Updaters\VersionNumberUpdater::VERSION_PATTERN . '$~', $argv[1])
+		// This script is for preparing release versions, not dev versions!
+		|| str_ends_with($argv[1], 'dev')
+	)
+) {
+	throw new \Exception('Provided version string is invalid: ' . $argv[1]);
+}
+
 foreach ($updaters as $class_name) {
 	$file_name = 'Updaters/' . $class_name . '.php';
 	$fully_qualified_class_name = __NAMESPACE__ . '\\Updaters\\' . $class_name;
 
 	require_once $file_name;
 
-	$updater = new $fully_qualified_class_name('prepare_release');
+	$updater = new $fully_qualified_class_name(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/prepare_release');
 
 	if ($class_name === 'VersionNumberUpdater') {
 		$updater->execute($argv[1] ?? null);

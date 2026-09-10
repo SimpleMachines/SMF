@@ -8,12 +8,13 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 namespace SMF\MailAgent\APIs;
 
 use SMF\Config;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
@@ -163,6 +164,14 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
+		if (($address = new EmailAddress($to))->isValid()) {
+			$to = $address->sendable();
+		} else {
+			ErrorHandler::log(Lang::getTxt('mail_send_unable', [$to], file: 'General'));
+
+			return false;
+		}
+
 		if (empty($this->socket)) {
 			return false;
 		}

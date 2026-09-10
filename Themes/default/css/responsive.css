@@ -683,6 +683,14 @@
 		width: 100%;
 		float: none;
 	}
+	/* Settings lists are a two column grid on wider screens. Here there is no
+	   room for a second column, so the whole row is one. */
+	dl.settings {
+		grid-template-columns: 1fr;
+	}
+	dl.settings dt, dl.settings dd {
+		grid-column: 1;
+	}
 	#post_draft_options dl.settings dt, #post_draft_options dl.settings dd {
 		width: 50%;
 		float: left;

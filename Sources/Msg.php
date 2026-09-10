@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -984,7 +984,7 @@ class Msg implements \ArrayAccess, Routable
 					'claimed_time' => 'int'],
 				[
 					[
-						'SMF\\Tasks\\ApprovePost_Notify',
+						Tasks\ApprovePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1009,7 +1009,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\ApproveReply_Notify',
+						Tasks\ApproveReply_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1077,7 +1077,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
+						Tasks\CreatePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1297,7 +1297,7 @@ class Msg implements \ArrayAccess, Routable
 				],
 				[
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
+						Tasks\CreatePost_Notify::class,
 						Utils::jsonEncode([
 							'msgOptions' => $msgOptions,
 							'topicOptions' => $topicOptions,
@@ -1540,7 +1540,7 @@ class Msg implements \ArrayAccess, Routable
 
 			foreach (array_merge($notification_topics, $notification_posts) as $topic) {
 				$task_rows[] = [
-					'SMF\\Tasks\\CreatePost_Notify',
+					Tasks\CreatePost_Notify::class,
 					Utils::jsonEncode([
 						'msgOptions' => [
 							'id' => $topic['msg'],

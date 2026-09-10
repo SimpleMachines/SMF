@@ -170,6 +170,9 @@ dl.settings.adminlogin dd {
 		order: 0;
 		margin-top: 2em;
 	}
+	dl.settings {
+		grid-template-columns: 1fr;
+	}
 	dl.settings dd {
 		-ms-grid-column: 1;
 		grid-column: 1;

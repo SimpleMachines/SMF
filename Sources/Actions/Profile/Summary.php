@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -20,6 +20,7 @@ use SMF\Actions\Who;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Menu;
@@ -203,7 +204,7 @@ class Summary implements ActionInterface
 			// Check their email as well...
 			if (\strlen(Profile::$member->formatted['email']) != 0) {
 				$ban_query[] = '({string:email} LIKE bi.email_address)';
-				$ban_query_vars['email'] = Profile::$member->formatted['email'];
+				$ban_query_vars['email'] = EmailAddress::create(Profile::$member->formatted['email'])->casefolded();
 			}
 
 			// So... are they banned?  Dying to know!

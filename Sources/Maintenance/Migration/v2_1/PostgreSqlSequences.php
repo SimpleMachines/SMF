@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -242,6 +242,16 @@ class PostgreSqlSequences extends MigrationBase
 			$this->handleTimeout();
 
 			$value = $this->sequences[$i];
+
+			// Some of these tables no longer exist by the time a 3.0 upgrade is
+			// finished, so asking a later run to set their sequence is asking
+			// about something that is not there. Skip those rather than let the
+			// statement fail, which on the command line ends the upgrade.
+			if (Db::$db->list_tables(false, Config::$db_prefix . $value['table']) === []) {
+				Maintenance::setCurrentStart();
+
+				continue;
+			}
 
 			$this->query(
 				"SELECT setval('{raw:key}', (SELECT COALESCE(MAX({raw:field}),1) FROM {raw:table}))",

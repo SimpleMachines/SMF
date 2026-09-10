@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -87,8 +87,8 @@ class IntegrationHook
 	{
 		if (
 			!self::$enabled
-			|| !class_exists('SMF\\Config', false)
-			|| !class_exists('SMF\\Utils', false)
+			|| !class_exists(Config::class, false)
+			|| !class_exists(Utils::class, false)
 		) {
 			return;
 		}
@@ -153,7 +153,7 @@ class IntegrationHook
 						'$sourcedir' => Config::$sourcedir,
 					]);
 
-					if (str_contains($path, '$themedir') && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+					if (str_contains($path, '$themedir') && class_exists(Theme::class, false) && !empty(Theme::$current->settings['theme_dir'])) {
 						$path = strtr($path, [
 							'$themedir' => Theme::$current->settings['theme_dir'],
 						]);

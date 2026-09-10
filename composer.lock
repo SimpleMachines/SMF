@@ -3604,12 +3604,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "0b8278d89b08301e5d54c68a23514159442f6b08"
+                "reference": "d6dcbc0f863028901d0dbb8815ba78cf04de9e21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/0b8278d89b08301e5d54c68a23514159442f6b08",
-                "reference": "0b8278d89b08301e5d54c68a23514159442f6b08",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/d6dcbc0f863028901d0dbb8815ba78cf04de9e21",
+                "reference": "d6dcbc0f863028901d0dbb8815ba78cf04de9e21",
                 "shasum": ""
             },
             "require": {
@@ -3622,7 +3622,7 @@
                 "source": "https://github.com/SimpleMachines/BuildTools/tree/release-3.0",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2026-05-27T23:44:16+00:00"
+            "time": "2026-09-09T18:41:29+00:00"
         },
         {
             "name": "staabm/side-effects-detector",

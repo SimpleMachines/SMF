@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -582,7 +582,7 @@ class Feed implements ActionInterface, Routable
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 			// Create a UUID for each member
 			$uuid = (string) (new Uuid(5, 'member=' . $row['id_member']));
@@ -772,7 +772,7 @@ class Feed implements ActionInterface, Routable
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -1213,7 +1213,7 @@ class Feed implements ActionInterface, Routable
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -1619,7 +1619,7 @@ class Feed implements ActionInterface, Routable
 		$profile = User::$loaded[$this->member]->format($this->format == 'smf');
 
 		// If any control characters slipped in somehow, kill the evil things
-		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 		// Create a UUID for this member
 		$uuid = (string) (new Uuid(5, 'member=' . $profile['id']));
@@ -1979,7 +1979,7 @@ class Feed implements ActionInterface, Routable
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.
@@ -2431,7 +2431,7 @@ class Feed implements ActionInterface, Routable
 			$this->start_after = (int) $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
+			$row = filter_var($row, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
 			// Old SMF versions autolinked during output rather than input,
 			// so maintain expected behaviour for those old messages.

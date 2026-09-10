@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -1453,7 +1453,7 @@ class Attachment implements \ArrayAccess
 				],
 				[
 					[
-						'SMF\\Tasks\\CreateAttachment_Notify',
+						Tasks\CreateAttachment_Notify::class,
 						Utils::jsonEncode(['id' => $attachmentOptions['id']]),
 						0,
 					],

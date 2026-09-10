@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -284,8 +284,9 @@ class GroupPermissionSet
 				// to query the database separately below.
 				self::$query_during_construction = false;
 
-				// Initialize the objects.
-				$loaded[] = new self($profile, $group);
+				// Initialize the objects. The constructor registers each one in
+				// self::$loaded, which is where they are collected from below.
+				new self($profile, $group);
 
 				// Restore this to its normal value.
 				self::$query_during_construction = true;
@@ -300,6 +301,17 @@ class GroupPermissionSet
 
 			// Board permissions.
 			self::loadBoardPermissionData($profiles, $query_groups);
+
+			// A set that came from the cache takes the place of the instance the
+			// constructor registered, so the ones to hand back are whichever
+			// ended up in self::$loaded.
+			foreach ($profiles as $profile) {
+				foreach ($query_groups as $group) {
+					if (isset(self::$loaded[$profile][$group])) {
+						$loaded[] = self::$loaded[$profile][$group];
+					}
+				}
+			}
 		}
 
 		return $loaded;
@@ -356,6 +368,10 @@ class GroupPermissionSet
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			if (!Permission::exists($row['permission'])) {
+				continue;
+			}
+
 			self::$loaded[PermissionProfile::DEFAULT][(int) $row['id_group']]->permissions[$row['permission']] = (int) $row['add_deny'];
 		}
 
@@ -421,7 +437,7 @@ class GroupPermissionSet
 					}
 				}
 
-				if ($hits = \count($profiles)) {
+				if ($hits === \count($profiles)) {
 					unset($groups[$g]);
 				}
 			}
@@ -445,7 +461,10 @@ class GroupPermissionSet
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!isset(self::$loaded[(int) $row['id_profile']][(int) $row['id_group']])) {
+			if (
+				!isset(self::$loaded[(int) $row['id_profile']][(int) $row['id_group']])
+				|| !Permission::exists($row['permission'])
+			) {
 				continue;
 			}
 

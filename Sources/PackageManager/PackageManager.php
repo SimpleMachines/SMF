@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 namespace SMF\PackageManager;
@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -2680,7 +2681,7 @@ class PackageManager
 		if ($listing->exists('default-author')) {
 			$default_author = Utils::htmlspecialchars($listing->fetch('default-author'));
 
-			if ($listing->exists('default-author/@email') && filter_var($listing->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL)) {
+			if ($listing->exists('default-author/@email') && EmailAddress::create($listing->fetch('default-author/@email'))->isValid()) {
 				$default_email = Utils::htmlspecialchars($listing->fetch('default-author/@email'));
 			}
 		}
@@ -2803,7 +2804,7 @@ class PackageManager
 					$package['download']['link'] = '<a href="' . $package['download']['href'] . '">' . $package['name'] . '</a>';
 
 					if ($thisPackage->exists('author') || isset($default_author)) {
-						if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL)) {
+						if ($thisPackage->exists('author/@email') && EmailAddress::create($thisPackage->fetch('author/@email'))->isValid()) {
 							$package['author']['email'] = $thisPackage->fetch('author/@email');
 						} elseif (isset($default_email)) {
 							$package['author']['email'] = $default_email;

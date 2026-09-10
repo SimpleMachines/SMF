@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -26,6 +26,7 @@ use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchApiInterface;
 use SMF\SecurityToken;
+use SMF\Tasks\GenericTask;
 use SMF\Unicode\Utf8String;
 use SMF\Url;
 use SMF\User;
@@ -694,7 +695,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				],
 				[
 					[
-						'SMF\\Tasks\\GenericTask',
+						GenericTask::class,
 						Utils::jsonEncode([
 							'callable' => __METHOD__,
 							'start_id' => ($last_id ?? 0) + 1,

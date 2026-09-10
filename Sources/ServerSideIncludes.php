@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -244,7 +244,7 @@ class ServerSideIncludes
 		}
 
 		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::rewriteAsQueryless');
+		ob_start(QueryString::class . '::rewriteAsQueryless');
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent()) {
@@ -1715,7 +1715,7 @@ class ServerSideIncludes
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty($return['online_groups'])) {
-			$membergroups = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', []);
+			$membergroups = CacheApi::quickGet('membergroup_list', 'Group.php', Group::class . '::getCachedList', []);
 
 			$groups = [];
 
@@ -2217,7 +2217,7 @@ class ServerSideIncludes
 			'include_birthdays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', Actions\Calendar::class . '::cache_getRecentEvents', [$eventOptions]);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -2259,7 +2259,7 @@ class ServerSideIncludes
 			'include_holidays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', Actions\Calendar::class . '::cache_getRecentEvents', [$eventOptions]);
 
 		$return['calendar_holidays'] = array_map(fn($h) => $h->title, $return['calendar_holidays']);
 
@@ -2301,7 +2301,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', Actions\Calendar::class . '::cache_getRecentEvents', [$eventOptions]);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -2352,7 +2352,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		];
-		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', Actions\Calendar::class . '::cache_getRecentEvents', [$eventOptions]);
 
 		$return['calendar_holidays'] = array_map(fn($h) => $h->title, $return['calendar_holidays']);
 
@@ -2809,19 +2809,17 @@ class ServerSideIncludes
 			return false;
 		}
 
-		$request = Db::$db->query(
-			'SELECT passwd, member_name, is_activated
-			FROM {db_prefix}members
-			WHERE ' . ($is_username ? 'member_name' : 'id_member') . ' = {string:id}
-			LIMIT 1',
-			[
-				'id' => $id,
-			],
-		);
-		list($pass, $user, $active) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
+		if (!$is_username) {
+			$id = (int) $id;
+		}
 
-		return Security::hashVerifyPassword($password, $pass) && $active == User::ACTIVATED;
+		$member = current(User::load($id, $is_username ? User::LOAD_BY_NAME : User::LOAD_BY_ID, UserDataset::Minimal));
+
+		if (!($member instanceof User) || $member->is_activated !== User::ACTIVATED) {
+			return false;
+		}
+
+		return Security::checkPassword($password, $member, Security::PASSWORD_FALLBACK_NONE);
 	}
 
 	/**

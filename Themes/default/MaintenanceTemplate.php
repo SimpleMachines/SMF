@@ -8,13 +8,14 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 namespace SMF\Themes\default;
 
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
+use SMF\Utils;
 
 /**
  * Base template for Maintenance scripts.
@@ -36,17 +37,18 @@ abstract class MaintenanceTemplate
 		<meta charset="', Lang::getTxt('lang_character_set', file: 'General') ?: 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', Maintenance::$tool->getPageTitle(), '</title>
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Maintenance::$context['started'] . '">
-		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css?' . Maintenance::$context['started'] . '">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
-		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css?' . Maintenance::$context['started'] . '">' : '', '
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/variables.css?' . Utils::$context['started'] . '">
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/index.css?' . Utils::$context['started'] . '">
+		<link rel="stylesheet" href="', Maintenance::$theme_url, '/css/maintenance.css?' . Utils::$context['started'] . '">', Lang::getTxt('lang_rtl', file: 'General') == '1' ? '
+		<link rel="stylesheet" href="' . Maintenance::$theme_url . '/css/rtl.css?' . Utils::$context['started'] . '">' : '', '
 		<script src="', Maintenance::$theme_url, '/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
-		<script src="', Maintenance::$theme_url, '/scripts/script.js?' . Maintenance::$context['started'] . '"></script>
+		<script src="', Maintenance::$theme_url, '/scripts/script.js?' . Utils::$context['started'] . '"></script>
 		<script>
 			const smf_scripturl = \'', Maintenance::getSelf(), '\';
 			const smf_charset = \'UTF-8\';
 			const allow_xhjr_credentials = true;
 			const isDebug = ', Maintenance::$tool->isDebug() ? 'true' : 'false', ';
-			const timeStarted = ', Maintenance::$context['started'], ';
+			const timeStarted = ', Utils::$context['started'], ';
 			let startPercent = ', Maintenance::$overall_percent, ';
 		</script>
 	</head>
@@ -291,7 +293,7 @@ abstract class MaintenanceTemplate
 		}
 
 		// Show the continue button.
-		Maintenance::$context['continue'] = true;
+		Utils::$context['continue'] = true;
 
 		self::showStepWithSubSteps('convertutf8', 'utf8_done');
 	}
@@ -301,12 +303,12 @@ abstract class MaintenanceTemplate
 	 */
 	public static function showLog(): void
 	{
-		if (!empty(Maintenance::$context['log_contents'])) {
+		if (!empty(Utils::$context['log_contents'])) {
 			echo '
 				<h3>
 					<a class="bbc_link" onclick="document.getElementById(\'log\').style.display = \'\';">', Lang::getTxt('show_log', file: 'Maintenance'), '</a>
 				</h3>
-				<pre id="log" class="bbc_code" style="display:none">' . Maintenance::$context['log_contents'] . '</pre>';
+				<pre id="log" class="bbc_code" style="display:none">' . Utils::$context['log_contents'] . '</pre>';
 		}
 	}
 
@@ -330,7 +332,7 @@ abstract class MaintenanceTemplate
 			Lang::getTxt(
 				'upgrade_current_substep',
 				[
-					'substep' => '<span id="current_substep">' . (Maintenance::$context['current_substep'] ?? '') . '</span>',
+					'substep' => '<span id="current_substep">' . (Utils::$context['current_substep'] ?? '') . '</span>',
 				],
 				file: 'Maintenance',
 			),
@@ -362,7 +364,7 @@ abstract class MaintenanceTemplate
 		echo '
 			<script>
 				const iTotalSubSteps = ', Maintenance::$total_substeps, ';
-				const iStepWeight = ', Maintenance::$context['step_weight'], ';
+				const iStepWeight = ', Utils::$context['step_weight'], ';
 				let iCurrentSubStep = ', Maintenance::getCurrentSubStep(), ';
 				let iCurrentStart = ', Maintenance::getCurrentStart(), ';
 				let iSubStepProgress = 0;

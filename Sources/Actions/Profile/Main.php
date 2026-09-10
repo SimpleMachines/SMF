@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -197,7 +198,7 @@ class Main implements ActionInterface, Routable
 				],
 				'showdrafts' => [
 					'label' => 'drafts_show',
-					'function' => 'SMF\\Draft::showInProfile',
+					'function' => Draft::class . '::showInProfile',
 					'icon' => 'drafts',
 					'enabled' => true,
 					'permission' => [

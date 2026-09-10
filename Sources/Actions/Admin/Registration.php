@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -28,6 +28,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
 use SMF\SecurityToken;
+use SMF\Tasks\UpdateSpoofDetectorNames;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -635,7 +636,7 @@ class Registration implements ActionInterface
 					],
 					[
 						[
-							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							UpdateSpoofDetectorNames::class,
 							json_encode(['last_member_id' => 0]),
 							0,
 						],

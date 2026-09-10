@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -497,7 +497,7 @@ class QueryString
 
 		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
 
-		if (\is_string(self::getRouteParser($route_base))) {
+		if (isset($route_base) && \is_string(self::getRouteParser($route_base))) {
 			// This call to extract will set new values of $route and $params.
 			extract(\call_user_func(self::getRouteParser($route_base) . '::buildRoute', $params));
 		}

@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -79,7 +79,7 @@ class LoginTFA extends Login2
 
 				Utils::redirectexit();
 			} else {
-				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
+				Security::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];
@@ -108,7 +108,7 @@ class LoginTFA extends Login2
 
 				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			} else {
-				parent::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
+				Security::validatePasswordFlood($member->id, $member->username, $member->passwd_flood, false, true);
 
 				Utils::$context['tfa_backup_error'] = true;
 				Utils::$context['tfa_value'] = $_POST['tfa_code'];

@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -2984,12 +2984,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *
 	 * Assumes $db_string has already been processed by replacement_callback().
 	 *
+	 * Does nothing while the forum is being installed or upgraded. Those tools
+	 * run no mod code, since Maintenance turns the hooks off, and they meet the
+	 * database in shapes that these fixes would misread.
+	 *
 	 * @param string $db_string The database query string.
 	 * @return string Possibly modified version of $db_string.
 	 */
 	protected function backcompatQuoteFixes(string $db_string): string
 	{
-		if (empty(Config::$backward_compatibility)) {
+		if (empty(Config::$backward_compatibility) || \defined('SMF_INSTALLING')) {
 			return $db_string;
 		}
 
@@ -3033,6 +3037,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * Helper for $this->insert() that makes any changes to the columns, data,
 	 * and/or keys that might be required for backward compatibility support.
 	 *
+	 * Does nothing while the forum is being installed or upgraded, for the
+	 * reasons given on $this->backcompatQuoteFixes().
+	 *
 	 * @param string $table The table.
 	 * @param array $columns Array of the columns we're inserting the data into.
 	 *    Should contain 'column' => 'datatype' pairs.
@@ -3043,7 +3050,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function backcompatInsertFixes(string $table, array $columns, array $data, array $keys): array
 	{
-		if (empty(Config::$backward_compatibility)) {
+		if (empty(Config::$backward_compatibility) || \defined('SMF_INSTALLING')) {
 			return [$columns, $data, $keys];
 		}
 

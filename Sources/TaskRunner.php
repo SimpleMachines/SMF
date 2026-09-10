@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -73,42 +73,42 @@ class TaskRunner
 	 */
 	public static array $scheduled_tasks = [
 		'daily_maintenance' => [
-			'class' => 'SMF\\Tasks\\DailyMaintenance',
+			'class' => Tasks\DailyMaintenance::class,
 		],
 		'weekly_maintenance' => [
-			'class' => 'SMF\\Tasks\\WeeklyMaintenance',
+			'class' => Tasks\WeeklyMaintenance::class,
 		],
 		'daily_digest' => [
-			'class' => 'SMF\\Tasks\\SendDigests',
+			'class' => Tasks\SendDigests::class,
 			'data' => ['is_weekly' => 0],
 		],
 		'weekly_digest' => [
-			'class' => 'SMF\\Tasks\\SendDigests',
+			'class' => Tasks\SendDigests::class,
 			'data' => ['is_weekly' => 1],
 		],
 		'fetchSMfiles' => [
-			'class' => 'SMF\\Tasks\\FetchSMFiles',
+			'class' => Tasks\FetchSMFiles::class,
 		],
 		'fetch_calendar_subs' => [
-			'class' => 'SMF\\Tasks\\FetchCalendarSubscriptions',
+			'class' => Tasks\FetchCalendarSubscriptions::class,
 		],
 		'birthdayemails' => [
-			'class' => 'SMF\\Tasks\\Birthday_Notify',
+			'class' => Tasks\Birthday_Notify::class,
 		],
 		'paid_subscriptions' => [
-			'class' => 'SMF\\Tasks\\PaidSubs',
+			'class' => Tasks\PaidSubs::class,
 		],
 		'remove_temp_attachments' => [
-			'class' => 'SMF\\Tasks\\RemoveTempAttachments',
+			'class' => Tasks\RemoveTempAttachments::class,
 		],
 		'remove_topic_redirect' => [
-			'class' => 'SMF\\Tasks\\RemoveTopicRedirects',
+			'class' => Tasks\RemoveTopicRedirects::class,
 		],
 		'remove_old_drafts' => [
-			'class' => 'SMF\\Tasks\\RemoveOldDrafts',
+			'class' => Tasks\RemoveOldDrafts::class,
 		],
 		'prune_log_topics' => [
-			'class' => 'SMF\\Tasks\\PruneLogTopics',
+			'class' => Tasks\PruneLogTopics::class,
 		],
 	];
 
@@ -726,7 +726,7 @@ class TaskRunner
 		IntegrationHook::call('integrate_scheduled_tasks', [&self::$scheduled_tasks]);
 
 		if ($is_callable) {
-			$class = 'SMF\\Tasks\\GenericScheduledTask';
+			$class = Tasks\GenericScheduledTask::class;
 			$data = [
 				'callable' => $task,
 				'id_scheduled_task' => $id,
@@ -872,5 +872,5 @@ class TaskRunner
 }
 
 if (!empty(\SMF\Config::$backward_compatibility)) {
-	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
+	class_alias(Tasks\BackgroundTask::class, 'SMF_BackgroundTask');
 }

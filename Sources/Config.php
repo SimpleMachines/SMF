@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -1397,7 +1397,7 @@ class Config
 			// It is important to store this in Settings.php, not the database.
 			// If saving fails, we should alert, log, and set a static value.
 			if (!self::updateSettingsFile(['auth_secret' => self::$auth_secret])) {
-				if (class_exists('SMF\\Utils', false)) {
+				if (class_exists(Utils::class, false)) {
 					Utils::$context['auth_secret_missing'] = true;
 				}
 
@@ -1428,7 +1428,7 @@ class Config
 
 		// Allow mods the option to define comments, defaults, etc., for their settings.
 		// Check if IntegrationHook exists, in case we are calling from installer or upgrader.
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('integrate_update_settings_file', [&self::$settings_defs]);
 		}
 
@@ -3087,7 +3087,7 @@ class Config
 	{
 		// Can't rely on autoloading because this method may be
 		// called before the autoloader exists.
-		if (!class_exists('\\SMF\\Sapi', false)) {
+		if (!class_exists(Sapi::class, false)) {
 			require_once self::$sourcedir . DIRECTORY_SEPARATOR . 'Sapi.php';
 		}
 

@@ -11,7 +11,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 if (!defined('SMF')) {
@@ -10424,7 +10424,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		bool $was_correct = false,
 		bool $tfa = false,
 	): void {
-		SMF\Actions\Login2::validatePasswordFlood(
+		SMF\Security::validatePasswordFlood(
 			$id_member,
 			$member_name,
 			$password_flood_value,
@@ -11477,7 +11477,7 @@ if (
 	 * @return bool Whether or not the password is correct.
 	 */
 	function ssi_checkPassword(
-		?int $id = null,
+		int|string|null $id = null,
 		?string $password = null,
 		bool $is_username = false,
 	): bool {

@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
+use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
@@ -134,7 +135,7 @@ class BoardIndex implements ActionInterface, Routable
 				'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 			];
 
-			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
+			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', Calendar::class . '::cache_getRecentEvents', [$eventOptions]);
 
 			// Whether one or multiple days are shown on the board index.
 			Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
@@ -177,7 +178,7 @@ class BoardIndex implements ActionInterface, Routable
 
 		// Are we showing all membergroups on the board index?
 		if (!empty(Theme::$current->settings['show_group_key'])) {
-			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', []);
+			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Group.php', Group::class . '::getCachedList', []);
 		}
 
 		// Mark read button

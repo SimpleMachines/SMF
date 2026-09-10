@@ -10,7 +10,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -27,5 +27,5 @@ if (SMF == 'PROXY') {
 }
 // In case an old mod included this file in order to load the ProxyServer class.
 else {
-	class_exists('SMF\\ProxyServer');
+	class_exists(\SMF\ProxyServer::class);
 }

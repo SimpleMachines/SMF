@@ -18,7 +18,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -29,7 +29,7 @@ require_once 'Updaters/UpdaterBase.php';
 
 require_once 'Updaters/TimezoneDataUpdater.php';
 
-$updater = new Updaters\TimezoneDataUpdater('update_timezones');
+$updater = new Updaters\TimezoneDataUpdater(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/update_timezones');
 $updater->execute();
 
 if ($updater->hasChanged()) {

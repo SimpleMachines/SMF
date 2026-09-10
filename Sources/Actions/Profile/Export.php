@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Security;
 use SMF\SecurityToken;
+use SMF\Tasks\ExportProfileData;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -153,7 +154,7 @@ class Export implements ActionInterface
 					WHERE task_class = {string:class}
 						AND task_data LIKE {string:details}',
 					[
-						'class' => 'SMF\\Tasks\\ExportProfileData',
+						'class' => ExportProfileData::class,
 						'details' => substr(Utils::jsonEncode(['format' => $format, 'uid' => Utils::$context['id_member']]), 0, -1) . ',%',
 					],
 				);
@@ -317,7 +318,7 @@ class Export implements ActionInterface
 				],
 				[
 					[
-						'SMF\\Tasks\\ExportProfileData',
+						ExportProfileData::class,
 						$data,
 						0,
 					],

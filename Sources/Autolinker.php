@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -530,12 +530,7 @@ class Autolinker
 							continue;
 						}
 
-						// Is this version of PHP capable of validating this email address?
-						$can_validate = \defined('FILTER_FLAG_EMAIL_UNICODE') || \strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
-
-						$flags = \defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
-
-						if (!$can_validate || filter_var($url->path, FILTER_VALIDATE_EMAIL, $flags) !== false) {
+						if (EmailAddress::create($url->path)->isValid()) {
 							$placeholders[md5($url->path)] = $url->path;
 							$placeholders[md5((string) $url)] = (string) $url;
 

@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -237,7 +237,7 @@ abstract class Table
 				continue;
 			}
 
-			foreach (['name', 'size', 'unsigned', 'generated_expression', 'stored', 'not_null', 'default', 'auto'] as $prop) {
+			foreach (['name', 'size', 'unsigned', 'generation_expression', 'stored', 'not_null', 'default', 'auto'] as $prop) {
 				if (($structure['columns'][$col->name][$prop] ?? null) != ($col->{$prop} ?? null)) {
 					$columns_to_change[$col->name] = $col;
 					continue 2;
@@ -260,8 +260,21 @@ abstract class Table
 			}
 
 			// If we need to change any columns in this index, rebuild the index too.
-			foreach ([$index->columns, $structure['indexes'][$index->name]['columns']] as $cols) {
-				if (array_intersect(array_keys($cols), array_keys($columns_to_change)) !== []) {
+			//
+			// Both lists hold their column names as values. The definition
+			// holds ['name' => ...] arrays, and the database reports plain
+			// strings, to which MySQL adds a "(15)" prefix length. Reduce each
+			// to bare names, since $columns_to_change is keyed by name.
+			foreach (
+				[
+					array_column($index->columns, 'name'),
+					array_map(
+						fn($col) => preg_replace('~\s*\(\d+\)$~', '', $col),
+						$structure['indexes'][$index->name]['columns'],
+					),
+				] as $cols
+			) {
+				if (array_intersect($cols, array_keys($columns_to_change)) !== []) {
 					$indexes_to_change[$index->name] = $index;
 					continue 2;
 				}
@@ -453,8 +466,9 @@ abstract class Table
 	public function fixIndexName(DbIndex $index): bool
 	{
 		foreach (Db::$db->list_indexes('{db_prefix}' . $this->name, true) as $existing_index) {
-			// Must be the same type.
-			if ($index->type !== $existing_index['type']) {
+			// Must be the same type. A normal index carries no type of its own,
+			// which the database reports as 'index'.
+			if (($index->type ?? 'index') !== $existing_index['type']) {
 				continue;
 			}
 

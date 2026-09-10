@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -45,7 +45,7 @@ abstract class CacheApi
 	 *
 	 * This is an copy of the $cache_enable setting in Settings.php.
 	 */
-	public static int $enable;
+	public static int $enable = 0;
 
 	/**
 	 * @var string
@@ -345,9 +345,7 @@ abstract class CacheApi
 	 */
 	final public static function load(string $overrideCache = '', bool $fallbackSMF = true): object|bool
 	{
-		if (!isset(self::$enable)) {
-			self::$enable = min(max((int) Config::$cache_enable, 0), 3);
-		}
+		self::$enable = min(max((int) (Config::$cache_enable ?? 0), self::$enable, 0), 3);
 
 		if (!isset(self::$accelerator)) {
 			self::$accelerator = Config::$cache_accelerator;
@@ -490,7 +488,7 @@ abstract class CacheApi
 	 */
 	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
 		}
 
@@ -531,7 +529,7 @@ abstract class CacheApi
 			$callback($cache_block, $params);
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('post_cache_quick_get', [&$cache_block]);
 		}
 
@@ -570,7 +568,7 @@ abstract class CacheApi
 		$value = $value === null ? null : serialize($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			IntegrationHook::call('cache_put_data', [&$key, &$value, &$ttl]);
 		}
 
@@ -615,7 +613,7 @@ abstract class CacheApi
 			}
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false) && isset($value)) {
+		if (class_exists(IntegrationHook::class, false) && isset($value)) {
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 
@@ -624,11 +622,16 @@ abstract class CacheApi
 		}
 
 		if (\is_string($value)) {
-			try {
-				$temp = @unserialize($value);
-				$value = $temp;
-			} catch (\Throwable $e) {
+			$temp = @unserialize($value);
+
+			// Only serialize(false) legitimately unserializes to false. Anything
+			// else that does so is a truncated or corrupt entry, so report a miss
+			// rather than handing the caller a value nobody stored.
+			if ($temp === false && $value !== serialize(false)) {
+				return null;
 			}
+
+			$value = $temp;
 		}
 
 		return $value;

@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Themes
+// Version: 3.0 Alpha 5-dev; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 

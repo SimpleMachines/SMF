@@ -8,7 +8,7 @@
  * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 4
+ * @version 3.0 Alpha 5-dev
  */
 
 declare(strict_types=1);
@@ -236,7 +236,7 @@ class WeeklyMaintenance extends ScheduledTask
 			],
 			[
 				[
-					'SMF\\Tasks\\UpdateTldRegex',
+					UpdateTldRegex::class,
 					'',
 					0,
 				],
@@ -254,7 +254,7 @@ class WeeklyMaintenance extends ScheduledTask
 				'claimed_time' => 'int'],
 			[
 				[
-					'SMF\\Tasks\\UpdateUnicode',
+					UpdateUnicode::class,
 					'',
 					0,
 				],
