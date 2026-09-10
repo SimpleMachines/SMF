@@ -122,11 +122,11 @@ class Statistics
 			return false;
 		}
 
-		$data = fetch_web_data(static::$register_url . base64_encode(Config::$boardurl));
+		$data = WebFetchApi::fetch(static::$register_url . base64_encode(Config::$boardurl));
 
 		// Try one more time, this time without https.
 		if (empty($data)) {
-			$data = fetch_web_data(str_replace('https://', 'http://', static::$register_url) . base64_encode(Config::$boardurl));
+			$data = WebFetchApi::fetch(str_replace('https://', 'http://', static::$register_url) . base64_encode(Config::$boardurl));
 		}
 
 		// Get the unique site ID.
