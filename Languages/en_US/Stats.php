@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Stats
+// Version: 3.0 Alpha 5-dev; Stats
 
 $txt['most_online'] = 'Most Online';
 $txt['most_online_number_date'] = '{number, number, integer} on {date}';

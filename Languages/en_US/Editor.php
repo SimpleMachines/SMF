@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 4; Editor
+// Version: 3.0 Alpha 5-dev; Editor
 
 $editortxt['bold'] = 'Bold';
 $editortxt['italic'] = 'Italic';
