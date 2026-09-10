@@ -95,7 +95,7 @@ final class HttpClient
 	 */
 	public function get(string $path = ''): HttpResponse
 	{
-		return $this->request($this->url($path), null);
+		return $this->request($path, null);
 	}
 
 	/**
@@ -107,7 +107,7 @@ final class HttpClient
 	 */
 	public function post(string $path, array $fields): HttpResponse
 	{
-		return $this->request($this->url($path), $fields);
+		return $this->request($path, $fields);
 	}
 
 	/**
@@ -127,7 +127,7 @@ final class HttpClient
 	public function submit(HttpResponse $page, array $overrides = [], string $xpath = '//form'): HttpResponse
 	{
 		return $this->request(
-			$this->url($page->formAction($xpath)),
+			$page->formAction($xpath),
 			array_merge($page->formFields($xpath), $overrides),
 		);
 	}
@@ -192,14 +192,15 @@ final class HttpClient
 	/**
 	 * Sends one request.
 	 *
-	 * @param string $url The absolute URL.
+	 * @param string $path A full URL, a query string, or a path.
 	 * @param array|null $fields POST fields, or null for a GET.
 	 * @return HttpResponse The response.
 	 */
-	private function request(string $url, ?array $fields): HttpResponse
+	private function request(string $path, ?array $fields): HttpResponse
 	{
 		$handle = $this->handle;
 
+		$url = $this->url($path);
 		$options = [
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => true,
@@ -238,6 +239,15 @@ final class HttpClient
 		$raw = (string) $raw;
 
 		[$headers, $set_cookies] = self::parseHeaders(substr($raw, 0, $header_size));
+
+		$flag = getenv('SMF_TESTS_ENABLE_HTTP_LOGGING');
+
+		if ($flag !== false && trim($flag) === '1') {
+			file_put_contents(
+				trim(preg_replace('/[^a-zA-Z0-9]/', '_', str_replace($this->base_url, '', $path)), '_') . '.html',
+				$url . "\n\n" . print_r($fields ?? [], true) . $raw,
+			);
+		}
 
 		return $this->last = new HttpResponse(
 			$status,
