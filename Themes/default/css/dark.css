@@ -567,7 +567,6 @@
 	--attachment-dropzone-border-color_hover:         hsl(var(--primary-color-hue), 45%, 55%);
 	--attachment-item-border-color:                   var(--dark-line);
 	--buttonrow-border-color:                         var(--dark-line);
-	--calendar-weeklist-border-color:                 var(--dark-bg-1);
 	--detailedinfo-border-color:                      var(--dark-line);
 	--draftoptions-border-color_left:                 var(--dark-line-strong);
 	--draftoptions-item-border-color:                 var(--dark-line);
