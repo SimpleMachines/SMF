@@ -294,6 +294,10 @@ class ThemeChooser implements ActionInterface, Routable
 					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Theme; ') . $matches[0]);
 
 					if (!empty(Theme::$current->settings['theme_variants'])) {
+						// Theme::loadVariant() offers a variant named 'default' alongside
+						// whatever the theme declares, so it belongs in this list too.
+						Theme::$current->settings['theme_variants'] = array_unique(array_merge(['default'], Theme::$current->settings['theme_variants']));
+
 						foreach (Theme::$current->settings['theme_variants'] as $variant) {
 							Utils::$context['available_themes'][$id_theme]['variants'][$variant] = [
 								'label' => Lang::txtExists('variant_' . $variant) ? Lang::getTxt('variant_' . $variant) : $variant,
