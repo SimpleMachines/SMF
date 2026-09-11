@@ -69,9 +69,9 @@ final class HttpClient
 	 */
 	private int $log_sequence = 0;
 
- 	/****************
- 	 * Public methods
- 	 ****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Creates an HTTP client.
@@ -84,7 +84,7 @@ final class HttpClient
 		$this->http_logging = getenv('SMF_TESTS_ENABLE_HTTP_LOGGING') === '1';
 
 		if ($this->http_logging) {
-			$this->log_dir = dirname(__DIR__, 2) . '/logs/http';
+			$this->log_dir = \dirname(__DIR__, 2) . '/logs/http';
 
 			if (!is_dir($this->log_dir) && !mkdir($this->log_dir, 0777, true) && !is_dir($this->log_dir)) {
 				throw new \RuntimeException('Could not create HTTP log directory: ' . $this->log_dir);
@@ -301,7 +301,7 @@ final class HttpClient
 		$name = trim((string) preg_replace('/[^a-zA-Z0-9]+/', '_', $name), '_');
 		$name = substr($name, 0, 100);
 
-		$file = sprintf(
+		$file = \sprintf(
 			'%s/%03d_%s.html',
 			$this->log_dir,
 			$this->log_sequence,
