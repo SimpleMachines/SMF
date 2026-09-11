@@ -42,22 +42,6 @@ abstract class IntegrationTestCase extends TestCase
 	 */
 	private int $error_watermark = 0;
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	public static function setUpBeforeClass(): void
-	{
-		$reason = Installation::unavailableReason();
-
-		if ($reason !== '') {
-			self::markTestSkipped(
-				'no forum to test against: ' . $reason
-				. '. Run .docker/install-forum.sh --engine mysql',
-			);
-		}
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -82,6 +66,24 @@ abstract class IntegrationTestCase extends TestCase
 	{
 		parent::setUp();
 
+		// Before anything reaches for the connection below.
+		//
+		// Deliberately here rather than in setUpBeforeClass(), which is the
+		// obvious home for a check that gives the same answer for every test in
+		// the class. A skip raised there marks the class as skipped rather than
+		// its tests, and --fail-on-skipped only counts skipped tests -- so a CI
+		// job that could not find the forum would report a green run having
+		// tested nothing at all. Installation memoises its answer, so asking
+		// once per test costs a function call.
+		$reason = Installation::unavailableReason();
+
+		if ($reason !== '') {
+			self::markTestSkipped(
+				'no forum to test against: ' . $reason
+				. '. Run .dev/install-forum.sh --engine mysql',
+			);
+		}
+
 		if ($this->usesTransaction()) {
 			Db::$db->transaction('begin');
 		}
@@ -96,7 +98,11 @@ abstract class IntegrationTestCase extends TestCase
 
 	protected function tearDown(): void
 	{
-		if ($this->usesTransaction()) {
+		// PHPUnit runs this even for a test setUp() skipped, and there is nothing
+		// to undo in that case: no transaction was opened, and on a machine with
+		// no forum there is no connection to ask. Without this, a run that should
+		// read as "43 skipped, no forum" reads as 18 errors instead.
+		if ($this->usesTransaction() && isset(Db::$db)) {
 			Db::$db->transaction('rollback');
 		}
 

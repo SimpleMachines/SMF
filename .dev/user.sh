@@ -2,10 +2,10 @@
 # Looks at forum accounts and fixes their passwords, so "which password did this
 # forum end up with?" does not turn into a session of hand written SQL.
 #
-#   .docker/user.sh list
-#   .docker/user.sh check admin 'password'
-#   .docker/user.sh reset admin 'a new password'
-#   .docker/user.sh check admin 'password' --engine postgresql
+#   .dev/user.sh list
+#   .dev/user.sh check admin 'password'
+#   .dev/user.sh reset admin 'a new password'
+#   .dev/user.sh check admin 'password' --engine postgresql
 #
 # check exits 0 when SMF would accept the password and 1 when it would not, so
 # it is usable in a conditional as well as by eye.
@@ -24,6 +24,8 @@ set -euo pipefail
 
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
 
+parse_runner_args "$@"
+
 ENGINE=''
 ACTION=''
 NAME=''
@@ -34,6 +36,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		--engine) ENGINE="$2"; shift 2 ;;
 		--engine=*) ENGINE="${1#*=}"; shift ;;
+		--docker|--local) shift ;;
 		-h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}"; exit 0 ;;
 		-*) die "unknown argument: $1" ;;
 		*) POSITIONAL+=("$1"); shift ;;
@@ -55,17 +58,20 @@ case "$ACTION" in
 	*) die "unknown action: ${ACTION} (expected list, check or reset)" ;;
 esac
 
-# The settings file to read, as the container sees it. Empty means "whichever
-# forum is live", which is the common case and needs no explanation in the log.
-SETTINGS='/var/www/html/Settings.php'
+require_local_deps "$ENGINE"
+
+# The settings file to read, spelled the way the php that reads it will see it.
+# Whichever forum is live is the common case and needs no explanation in the log.
+RUN_BOARD_DIR=$(run_board_dir)
+SETTINGS="${RUN_BOARD_DIR}/Settings.php"
 
 if [ -n "$ENGINE" ]; then
 	SMF_TYPE=$(engine_smf_type "$ENGINE") || die "unknown engine: $ENGINE"
-	SAVED="$DOCKER_DIR/settings/Settings.${SMF_TYPE}.php"
+	SAVED="$SETTINGS_DIR/Settings.${SMF_TYPE}.php"
 
 	[ -f "$SAVED" ] || die "no saved settings for ${SMF_TYPE}; install it first with install-forum.sh --engine ${SMF_TYPE}"
 
-	SETTINGS="/var/www/html/.docker/settings/Settings.${SMF_TYPE}.php"
+	SETTINGS="${RUN_BOARD_DIR}/.dev/settings/Settings.${SMF_TYPE}.php"
 fi
 
 cd "$BOARD_DIR"
@@ -73,18 +79,19 @@ cd "$BOARD_DIR"
 # The password goes through the environment rather than the argument list:
 # arguments are visible to anything that can read the process table, and a
 # password typed at a shell is quite enough exposure already.
-docker compose exec -T \
-	-e SMF_USER_ACTION="$ACTION" \
-	-e SMF_USER_NAME="$NAME" \
-	-e SMF_USER_PASSWORD="$PASSWORD" \
-	-e SMF_USER_SETTINGS="$SETTINGS" \
-	web php <<-'PHP'
+run_php_env \
+	SMF_USER_ACTION="$ACTION" \
+	SMF_USER_NAME="$NAME" \
+	SMF_USER_PASSWORD="$PASSWORD" \
+	SMF_USER_SETTINGS="$SETTINGS" \
+	SMF_USER_BOARD_DIR="$RUN_BOARD_DIR" \
+	-- <<-'PHP'
 	<?php
 
 	/*
-	 * Runs inside the web container against the installed forum. Kept to the
-	 * constants Config::load() and Db::load() actually read, because anything
-	 * more would be pretending this is a request.
+	 * Runs against the installed forum, in the container or on this machine.
+	 * Kept to the constants Config::load() and Db::load() actually read, because
+	 * anything more would be pretending this is a request.
 	 */
 
 	define('SMF', 1);
@@ -94,7 +101,9 @@ docker compose exec -T \
 	// Config::getSettingsDefs() reads both of these while working out what a
 	// Settings.php should contain. Taken from index.php rather than written out
 	// here, so this cannot disagree with the version it is running against.
-	$index = (string) file_get_contents('/var/www/html/index.php');
+	$board = (string) getenv('SMF_USER_BOARD_DIR');
+
+	$index = (string) file_get_contents($board . '/index.php');
 
 	preg_match("~define\('SMF_VERSION', '([^']+)'\);~", $index, $version);
 	preg_match("~define\('SMF_SOFTWARE_YEAR', '(\d{4})'\);~", $index, $year);
@@ -111,7 +120,7 @@ docker compose exec -T \
 	define('POSTGRE_TITLE', 'PostgreSQL');
 	define('MYSQL_TITLE', 'MySQL');
 
-	require '/var/www/html/vendor/autoload.php';
+	require $board . '/vendor/autoload.php';
 
 	SMF\Config::load();
 	SMF\Db\DatabaseApi::load();

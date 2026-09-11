@@ -19,7 +19,7 @@ use SMF\Infrastructure\Container;
  * It never throws. When there is nothing to test against it says why, and
  * IntegrationTestCase turns that into a skip rather than a failure.
  *
- * To get a forum: .docker/install-forum.sh --engine mysql
+ * To get a forum: .dev/install-forum.sh --engine mysql
  */
 final class Installation
 {
