@@ -16,13 +16,12 @@
 namespace SMF\PackageManager;
 
 use SMF\Lang;
-use SMF\Sapi;
 
 /**
  * Class XmlArray
  * Represents an XML array
  */
-class XmlArray
+final class XmlArray
 {
 	/*******************
 	 * Public properties
@@ -61,9 +60,6 @@ class XmlArray
 	 */
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
-		// If we're using this try to get some more memory.
-		Sapi::setMemoryLimit('32M');
-
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();
 		$this->trim = $auto_trim;
@@ -160,28 +156,30 @@ class XmlArray
 
 		// For each element in the path.
 		foreach ($path as $el) {
+			$pos = strpos($el, '[');
+
 			// Deal with sets....
-			if (str_contains($el, '[')) {
-				$lvl = (int) substr($el, strpos($el, '[') + 1);
-				$el = substr($el, 0, strpos($el, '['));
+			if ($pos !== false) {
+				$lvl = (int) substr($el, $pos + 1);
+				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif (str_starts_with($el, '@')) {
+			elseif ($el[0] === '@') {
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el])) {
 					return $array[$el];
 				}
 
-				$trace = debug_backtrace();
-				$i = 0;
-
-				while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
-					$i++;
-				}
-				$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
-
-				// Cause an error.
 				if ($this->debug_level & E_NOTICE) {
+					$trace = debug_backtrace();
+					$i = 0;
+
+					while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == self::class) {
+						$i++;
+					}
+					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
+
+					// Cause an error.
 					trigger_error(Lang::getTxt('undefined_xml_attribute', [substr($el, 1) . $debug], file: 'Errors'), E_USER_NOTICE);
 				}
 
@@ -199,11 +197,8 @@ class XmlArray
 			$array = ['name' => $el . '[]', $array];
 		}
 
-		// Create the right type of class...
-		$newClass = \get_class($this);
-
 		// Return a new XmlArray for the result.
-		return $array === false ? false : new $newClass($array, $this->trim, $this->debug_level, true);
+		return $array === false ? false : new self($array, $this->trim, $this->debug_level, true);
 	}
 
 	/**
@@ -224,13 +219,15 @@ class XmlArray
 
 		// For each element in the path.
 		foreach ($path as $el) {
+			$pos = strpos($el, '[');
+
 			// Deal with sets....
-			if (str_contains($el, '[')) {
-				$lvl = (int) substr($el, strpos($el, '[') + 1);
-				$el = substr($el, 0, strpos($el, '['));
+			if ($pos !== false) {
+				$lvl = (int) substr($el, $pos + 1);
+				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif (str_starts_with($el, '@')) {
+			elseif ($el[0] === '@') {
 				return isset($array[$el]);
 			} else {
 				$lvl = null;
@@ -295,11 +292,8 @@ class XmlArray
 				continue;
 			}
 
-			// Create the right type of class...
-			$newClass = \get_class($this);
-
 			// Create a new XmlArray and stick it in the array.
-			$array[] = new $newClass($val, $this->trim, $this->debug_level, true);
+			$array[] = new self($val, $this->trim, $this->debug_level, true);
 		}
 
 		return $array;
@@ -372,29 +366,34 @@ class XmlArray
 	 */
 	public function _to_cdata(string $data): string
 	{
-		$inCdata = $inComment = false;
+		// Quickly check for either comments or CDATA tags.
+		if (strpos($data, '<!') === false) {
+			return $data;
+		}
+
+		$in_cdata = $in_comment = false;
 		$output = '';
 
 		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		foreach ($parts as $part) {
 			// Handle XML comments.
-			if (!$inCdata && $part === '<!--') {
-				$inComment = true;
+			if (!$in_cdata && $part === '<!--') {
+				$in_comment = true;
 			}
 
-			if ($inComment && $part === '-->') {
-				$inComment = false;
-			} elseif ($inComment) {
+			if ($in_comment && $part === '-->') {
+				$in_comment = false;
+			} elseif ($in_comment) {
 				continue;
 			}
 
-			// Handle Cdata blocks.
-			elseif (!$inComment && $part === '<![CDATA[') {
-				$inCdata = true;
-			} elseif ($inCdata && $part === ']]>') {
-				$inCdata = false;
-			} elseif ($inCdata) {
+			// Handle CDATA blocks.
+			elseif (!$in_comment && $part === '<![CDATA[') {
+				$in_cdata = true;
+			} elseif ($in_cdata && $part === ']]>') {
+				$in_cdata = false;
+			} elseif ($in_cdata) {
 				$output .= htmlentities($part, ENT_QUOTES);
 			}
 
@@ -420,24 +419,26 @@ class XmlArray
 	protected function _parse(string $data): array
 	{
 		// Start with an 'empty' array with no data.
-		$current = [
-		];
+		$current = [];
 
-		// Loop until we're out of data.
-		while ($data !== '') {
-			// Find and remove the next tag.
-			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
+		$len = \strlen($data);
+		$offset = 0;
+
+		while ($offset < $len) {
+			preg_match('/\G<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?>/', $data, $match, 0, $offset);
 
 			if (isset($match[0])) {
-				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
+				$offset += \strlen($match[0]);
 			}
 
 			// Didn't find a tag?  Keep looping....
 			if (!isset($match[1]) || $match[1] == '') {
+				$pos = strpos($data, '<', $offset);
+
 				// If there's no <, the rest is data.
-				if (!str_contains($data, '<')) {
-					$text_value = $this->_from_cdata($data);
-					$data = '';
+				if ($pos === false) {
+					$text_value = $this->_from_cdata(substr($data, $offset));
+					$offset = $len;
 
 					if ($text_value != '') {
 						$current[] = [
@@ -447,9 +448,9 @@ class XmlArray
 					}
 				}
 				// If the < isn't immediately next to the current position... more data.
-				elseif (strpos($data, '<') > 0) {
-					$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<')));
-					$data = substr($data, strpos($data, '<'));
+				elseif ($pos > $offset) {
+					$text_value = $this->_from_cdata(substr($data, $offset, $pos - $offset));
+					$offset = $pos;
 
 					if ($text_value != '') {
 						$current[] = [
@@ -459,10 +460,12 @@ class XmlArray
 					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif (str_contains($data, '<') && strpos($data, '<') == 0) {
-					if (strpos($data, '<', 1) !== false) {
-						$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<', 1)));
-						$data = substr($data, strpos($data, '<', 1));
+				elseif ($pos === $offset) {
+					$pos1 = strpos($data, '<', $offset + 1);
+
+					if ($pos1 !== false) {
+						$text_value = $this->_from_cdata(substr($data, $offset, $pos1 - $offset));
+						$offset = $pos1;
 
 						if ($text_value != '') {
 							$current[] = [
@@ -471,8 +474,8 @@ class XmlArray
 							];
 						}
 					} else {
-						$text_value = $this->_from_cdata($data);
-						$data = '';
+						$text_value = $this->_from_cdata(substr($data, $offset));
+						$offset = $len;
 
 						if ($text_value != '') {
 							$current[] = [
@@ -493,18 +496,20 @@ class XmlArray
 
 			// If this ISN'T empty, remove the close tag and parse the inner data.
 			if ((!isset($match[3]) || trim($match[3]) != '/') && (!isset($match[2]) || trim($match[2]) != '/')) {
-				// Because PHP 5.2.0+ seems to croak using regex, we'll have to do this the less fun way.
-				$last_tag_end = strpos($data, '</' . $match[1] . '>');
+				$tag_start = '<' . $match[1];
+				$tag_end = '</' . $match[1] . '>';
+
+				$last_tag_end = strpos($data, $tag_end, $offset);
 
 				if ($last_tag_end === false) {
 					continue;
 				}
 
-				$offset = 0;
+				$inner_offset = $offset;
 
-				while (1 == 1) {
+				while (true) {
 					// Where is the next start tag?
-					$next_tag_start = strpos($data, '<' . $match[1], $offset);
+					$next_tag_start = strpos($data, $tag_start, $inner_offset);
 
 					// If the next start tag is after the last end tag then we've found the right close.
 					if ($next_tag_start === false || $next_tag_start > $last_tag_end) {
@@ -512,7 +517,7 @@ class XmlArray
 					}
 
 					// If not then find the next ending tag.
-					$next_tag_end = strpos($data, '</' . $match[1] . '>', $offset);
+					$next_tag_end = strpos($data, $tag_end, $inner_offset);
 
 					// Didn't find one? Then just use the last and sod it.
 					if ($next_tag_end === false) {
@@ -520,12 +525,14 @@ class XmlArray
 					}
 
 					$last_tag_end = $next_tag_end;
-					$offset = $next_tag_start + 1;
+					$inner_offset = $next_tag_start + 1;
 				}
+
 				// Parse the insides.
-				$inner_match = substr($data, 0, $last_tag_end);
+				$inner_match = substr($data, $offset, $last_tag_end - $offset);
+
 				// Data now starts from where this section ends.
-				$data = substr($data, $last_tag_end + \strlen('</' . $match[1] . '>'));
+				$offset = $last_tag_end + \strlen($tag_end);
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
@@ -584,7 +591,7 @@ class XmlArray
 		}
 
 		// This is just text!
-		if ($array['name'] == '!') {
+		if ($array['name'] === '!') {
 			return $indentation . '<![CDATA[' . $array['value'] . ']]>';
 		}
 
@@ -634,7 +641,7 @@ class XmlArray
 				continue;
 			}
 
-			if ($value['name'] == '!') {
+			if ($value['name'] === '!') {
 				$text .= $value['value'];
 			} else {
 				$return[$value['name']] = $this->_array($value);
@@ -656,20 +663,9 @@ class XmlArray
 	 */
 	protected function _from_cdata(string $data): string
 	{
-		// Get the HTML translation table and reverse it.
-		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
-
-		// Translate all the entities out.
-		$data = strtr(
-			preg_replace_callback(
-				'~&#(\d{1,4});~',
-				function ($m) {
-					return \chr("{$m[1]}");
-				},
-				$data,
-			),
-			$trans_tbl,
-		);
+		if (str_contains($data, '&')) {
+			$data = html_entity_decode($data, ENT_QUOTES | ENT_XML1, 'UTF-8');
+		}
 
 		return $this->trim ? trim($data) : $data;
 	}
@@ -732,7 +728,8 @@ class XmlArray
 		$paths = explode('|', $path);
 
 		// A * means all elements of any name.
-		$show_all = \in_array('*', $paths);
+		$path_map = array_flip($paths);
+		$show_all = isset($path_map['*']);
 
 		$results = [];
 
@@ -742,7 +739,7 @@ class XmlArray
 				continue;
 			}
 
-			if ($show_all || \in_array($value['name'], $paths)) {
+			if ($show_all || isset($path_map[$value['name']])) {
 				// Skip elements before "the one".
 				if ($level !== null && $level > 0) {
 					$level--;
@@ -753,19 +750,17 @@ class XmlArray
 		}
 
 		// No results found...
-		if (empty($results)) {
+		if (empty($results) && $this->debug_level & E_NOTICE && !$no_error) {
 			$trace = debug_backtrace();
 			$i = 0;
 
-			while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == \get_class($this)) {
+			while ($i < \count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == self::class) {
 				$i++;
 			}
 			$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
 
 			// Cause an error.
-			if ($this->debug_level & E_NOTICE && !$no_error) {
-				trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug], file: 'Errors'), E_USER_NOTICE);
-			}
+			trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug], file: 'Errors'), E_USER_NOTICE);
 
 			return false;
 		}
