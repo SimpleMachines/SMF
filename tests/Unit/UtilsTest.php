@@ -163,6 +163,12 @@ class UtilsTest extends TestCase
 		$this->assertSame($expected, Utils::entityStrlen($input));
 	}
 
+	#[DataProvider('versionStringProvider')]
+	public function testStandardizeVersionString(string $input, int $expected): void
+	{
+		$this->assertSame($expected, Utils::standardizeVersionString($input));
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -179,6 +185,23 @@ class UtilsTest extends TestCase
 			'numeric entity' => ['&#169;', 1],
 			'multibyte' => ["\u{00E9}\u{00E8}", 2],
 			'mixed' => ['a&amp;é', 3],
+		];
+	}
+
+	/**
+	 * @return array<string, array{string, string}>
+	 */
+	public static function versionStringProvider(): array
+	{
+		return [
+			'pre-release-dev' => ['3.0 Alpha 5-dev', '3.0.alpha.5.dev'],
+			'pre-release' => ['3.0 Beta 5', '3.0.beta.5'],
+			'release-candidate' => ['3.0 RC1', '3.0.rc.1'],
+			'patch-dev' => ['3.0.7-dev', '3.0.7.dev'],
+			'patch' => ['3.0.7', '3.0.7'],
+			'mixed' => ['17.6 (Debian 17.6-1.pgdg13+1)', '17.6.debian.17.6.1.pgdg.13.1'],
+			'prefixed' => ['SMF 3.0.7', '3.0.7'],
+			'invalid' => ['not a version string', ''],
 		];
 	}
 }
