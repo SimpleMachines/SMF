@@ -7,17 +7,14 @@ namespace SMF\Tests\Support;
 use SMF\Config;
 
 /**
- * A very small browser, for driving the forum over HTTP.
+ * HTTP client used by integration tests.
  *
- * Requests have to be real ones. Utils::obExit(), redirectexit(),
- * serverResponse() and ErrorHandler::fatal*() all end in exit, and Db::$db,
- * ActionTrait::$obj, Theme::$loaded and User::$loaded have no way to be reset, so
- * a test process can carry out exactly one request in itself and no more. Going
- * over the wire sidesteps all of that and exercises the same path a visitor does,
- * including the session, the cookies and the theme.
+ * Maintains a persistent cURL handle and cookie jar so that multiple requests
+ * can be made as the same HTTP session.
  *
- * Uses curl through the extension the forum already requires, so it costs no new
- * dependency.
+ * The base URL can be configured with SMF_TESTS_BASE_URL. When HTTP logging is
+ * enabled with SMF_TESTS_ENABLE_HTTP_LOGGING=1, request/response data is
+ * written to the test HTTP log directory for debugging failed requests.
  */
 final class HttpClient
 {
