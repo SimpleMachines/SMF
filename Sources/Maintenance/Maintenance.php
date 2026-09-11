@@ -505,15 +505,15 @@ class Maintenance
 				!\array_key_exists($version, $manifest)
 				// Keys must be strings.
 				|| (
-					array_keys($manifest['required']) !== array_map(
+					array_keys($manifest[$version]) !== array_map(
 						'strval',
-						array_keys($manifest['required']),
+						array_keys($manifest[$version]),
 					)
 				)
 				// Values must be strings or bools.
 				|| (
-					$manifest['required'] !== array_filter(
-						$manifest['required'],
+					$manifest[$version] !== array_filter(
+						$manifest[$version],
 						fn($v) => \is_bool($v) || \is_string($v),
 					)
 				)
