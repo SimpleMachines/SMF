@@ -57,16 +57,42 @@ final class HttpClient
 	 */
 	private ?HttpResponse $last = null;
 
-	/****************
-	 * Public methods
-	 ****************/
+	/**
+	 * Directory where HTTP request/response logs are written.
+	 */
+	private string $log_dir = '';
 
 	/**
+	 * Whether HTTP request/response logging is enabled.
+	 */
+	private bool $http_logging = false;
+
+	/**
+	 * Sequence number used to make log filenames unique.
+	 */
+	private int $log_sequence = 0;
+
+ 	/****************
+ 	 * Public methods
+ 	 ****************/
+
+	/**
+	 * Creates an HTTP client.
+	 *
 	 * @param string|null $base_url Override the forum URL to talk to.
 	 */
 	public function __construct(?string $base_url = null)
 	{
 		$this->base_url = rtrim($base_url ?? self::detectBaseUrl(), '/');
+		$this->http_logging = getenv('SMF_TESTS_ENABLE_HTTP_LOGGING') === '1';
+
+		if ($this->http_logging) {
+			$this->log_dir = dirname(__DIR__, 2) . '/logs/http';
+
+			if (!is_dir($this->log_dir) && !mkdir($this->log_dir, 0777, true) && !is_dir($this->log_dir)) {
+				throw new \RuntimeException('Could not create HTTP log directory: ' . $this->log_dir);
+			}
+		}
 
 		$this->jar = (string) tempnam(sys_get_temp_dir(), 'smf_tests_cookies_');
 
@@ -79,6 +105,9 @@ final class HttpClient
 		$this->handle = $handle;
 	}
 
+	/**
+	 * Removes the temporary cookie jar.
+	 */
 	public function __destruct()
 	{
 		if ($this->jar !== '' && is_file($this->jar)) {
@@ -91,6 +120,7 @@ final class HttpClient
 	 *
 	 * @param string $path Either a full URL or something to hang off the board
 	 *     URL, with or without a leading slash. '?action=login' is typical.
+	 *
 	 * @return HttpResponse The response.
 	 */
 	public function get(string $path = ''): HttpResponse
@@ -103,6 +133,7 @@ final class HttpClient
 	 *
 	 * @param string $path Where to post, as for get().
 	 * @param array $fields The form fields.
+	 *
 	 * @return HttpResponse The response.
 	 */
 	public function post(string $path, array $fields): HttpResponse
@@ -122,6 +153,7 @@ final class HttpClient
 	 * @param HttpResponse $page The page holding the form.
 	 * @param array $overrides Values to change or add.
 	 * @param string $xpath Which form. Defaults to the first on the page.
+	 *
 	 * @return HttpResponse The response.
 	 */
 	public function submit(HttpResponse $page, array $overrides = [], string $xpath = '//form'): HttpResponse
@@ -133,7 +165,7 @@ final class HttpClient
 	}
 
 	/**
-	 * The most recent response, for reporting on a failure.
+	 * Returns the most recent response, for reporting on a failure.
 	 *
 	 * @return HttpResponse|null The response, or null if nothing has been sent.
 	 */
@@ -163,6 +195,7 @@ final class HttpClient
 	 * Turns whatever a caller passed into an absolute URL.
 	 *
 	 * @param string $path A full URL, a query string, or a path.
+	 *
 	 * @return string An absolute URL.
 	 */
 	private function url(string $path): string
@@ -242,11 +275,8 @@ final class HttpClient
 
 		$flag = getenv('SMF_TESTS_ENABLE_HTTP_LOGGING');
 
-		if ($flag !== false && trim($flag) === '1') {
-			file_put_contents(
-				trim(preg_replace('/[^a-zA-Z0-9]/', '_', str_replace($this->base_url, '', $path)), '_') . '.html',
-				$url . "\n\n" . print_r($fields ?? [], true) . $raw,
-			);
+		if ($this->http_logging) {
+			$this->logResponse($url, $fields, $raw);
 		}
 
 		return $this->last = new HttpResponse(
@@ -255,6 +285,39 @@ final class HttpClient
 			$headers,
 			$url,
 			$set_cookies,
+		);
+	}
+
+	/**
+	 * Writes an HTTP request and response to the debug log.
+	 *
+	 * @param string $url The resolved request URL.
+	 * @param array|null $fields POST fields, or null for a GET.
+	 * @param string $raw The raw HTTP response, including headers.
+	 */
+	private function logResponse(string $url, ?array $fields, string $raw): void
+	{
+		++$this->log_sequence;
+
+		$parts = parse_url($url);
+
+		$name = isset($parts['query']) ? '_' . $parts['query'] : '';
+
+		$name = trim((string) preg_replace('/[^a-zA-Z0-9]+/', '_', $name), '_');
+		$name = substr($name, 0, 100);
+
+		$file = sprintf(
+			'%s/%03d_%s.html',
+			$this->log_dir,
+			$this->log_sequence,
+			$name !== '' ? $name : 'index',
+		);
+
+		file_put_contents(
+			$file,
+			$url . "\n\n"
+			. print_r($fields ?? [], true)
+			. $raw,
 		);
 	}
 
@@ -295,6 +358,7 @@ final class HttpClient
 	 * Whether anything answers on the host and port of a URL.
 	 *
 	 * @param string $url The URL to try.
+	 *
 	 * @return bool Whether a connection could be opened.
 	 */
 	private static function listening(string $url): bool
