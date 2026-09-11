@@ -42,7 +42,7 @@ class ManifestUpdater extends UpdaterBase
 	 * Relative paths to individual files and directories that must exist for
 	 * SMF to function.
 	 *
-	 * Directories (but not the directory contents) listed in the "required"
+	 * Directories (but not the directory contents) listed in the 'require'
 	 * element of composer.json will be added to this list at runtime.
 	 *
 	 * Files in this list are always included in the manifest and are not
@@ -91,35 +91,17 @@ class ManifestUpdater extends UpdaterBase
 	/**
 	 * @var array
 	 *
-	 * Regex patterns for paths to ignore (unless overridden by $not_ignored).
-	 *
-	 * This will be populated from the .gitignore file.
+	 * Regex patterns for paths to exclude from the manifest.
 	 */
-	public array $ignored = [];
-
-	/**
-	 * @var array
-	 *
-	 * Regex patterns for paths that should not be ignored (unless overridden by
-	 * $always_ignored).
-	 *
-	 * This will be populated from the .gitignore file.
-	 */
-	public array $not_ignored = [];
-
-	/**
-	 * @var array
-	 *
-	 * Regex patterns for paths to always ignore, no matter what.
-	 *
-	 * If the .git/info/excluded file exists, it will be used to add additional
-	 * patterns to this list.
-	 */
-	public array $always_ignored = [
+	public array $excluded = [
 		// Always ignore manifest.json.
 		'~^Sources/Maintenance/manifest.json$~',
 		// Always ignore dot files and directories except .htaccess.
 		'~(?<=^|/)\.(?!htaccess$)~',
+		// Always ignore Packages/backups, since SMF will dynamically create it
+		// when necessary.
+		'~^Packages/backups/~',
+
 	];
 
 	/**
@@ -164,47 +146,12 @@ class ManifestUpdater extends UpdaterBase
 			$this->files,
 			array_map(
 				fn($package) => 'vendor/' . $package,
-				array_keys($composer_json['require']),
+				array_filter(
+					array_keys($composer_json['require']),
+					fn($package) => is_dir(Config::$sourcedir . '/vendor/' . $package),
+				),
 			),
 		);
-
-		// Process .gitignore into regular expressions.
-		foreach (file(Config::$boarddir . '/.gitignore') as $line) {
-			if (str_starts_with($line, '#') || trim($line) === '') {
-				continue;
-			}
-
-			if (str_starts_with($line, '!')) {
-				$line = substr($line, 1);
-				$var = 'not_ignored';
-			} else {
-				$var = 'ignored';
-			}
-
-			$line = rtrim($line);
-
-			$this->{$var}[] = '~' . (!str_starts_with($line, '/') ? '\b' : '') . strtr($line, ['.' => '\\.', '?' => '.', '*' => '.*', '~' => '\\~']) . (preg_match('/\b$/', $line) ? '\b' : '') . '~';
-		}
-
-		// Process .git/info/exclude into regular expressions.
-		if (is_file(Config::$boarddir . '/.git/info/exclude')) {
-			foreach (file(Config::$boarddir . '/.git/info/exclude') as $line) {
-				if (str_starts_with($line, '#') || trim($line) === '') {
-					continue;
-				}
-
-				if (str_starts_with($line, '!')) {
-					$line = substr($line, 1);
-					$var = 'not_ignored';
-				} else {
-					$var = 'always_ignored';
-				}
-
-				$line = rtrim($line);
-
-				$this->{$var}[] = '~' . (!str_starts_with($line, '/') ? '\b' : '') . strtr($line, ['.' => '\\.', '?' => '.', '*' => '.*', '~' => '\\~']) . (preg_match('/\b$/', $line) ? '\b' : '') . '~';
-			}
-		}
 	}
 
 	/**
@@ -239,13 +186,19 @@ class ManifestUpdater extends UpdaterBase
 	 */
 	private function build(): void
 	{
+		$tracked_files = array_filter(explode(PHP_EOL, (string) shell_exec('git ls-files')), 'strlen');
+
 		// Add the individual files to the manifest.
 		foreach ($this->files as $path) {
 			if (($real_path = realpath(Config::$boarddir . '/' . $path)) === false) {
 				throw new \Exception($path . ' does not exist');
 			}
 
-			if (is_dir($path)) {
+			if (!in_array($path, $tracked_files)) {
+				continue;
+			}
+
+			if (is_dir($real_path)) {
 				$this->manifest[$this->chooseSection($path)][$path] = true;
 				continue;
 			}
@@ -271,24 +224,17 @@ class ManifestUpdater extends UpdaterBase
 					continue;
 				}
 
-				$pathname = strtr($f->getPathname(), DIRECTORY_SEPARATOR, '/');
+				$relative_path = strtr(substr($f->getPathname(), \strlen(Config::$boarddir) + 1), DIRECTORY_SEPARATOR, '/');
 
-				$ignore = false;
-
-				foreach (['always_ignored' => true, 'not_ignored' => false, 'ignored' => true] as $var => $should_ignore) {
-					foreach ($this->{$var} as $pattern) {
-						if (preg_match($pattern, $pathname)) {
-							$ignore = $should_ignore;
-							break 2;
-						}
-					}
-				}
-
-				if ($ignore) {
+				if (!in_array($relative_path, $tracked_files)) {
 					continue;
 				}
 
-				$relative_path = strtr(substr($f->getPathname(), \strlen(Config::$boarddir) + 1), DIRECTORY_SEPARATOR, '/');
+				foreach ($this->excluded as $pattern) {
+					if (preg_match($pattern, $relative_path)) {
+						continue 2;
+					}
+				}
 
 				$checksum = md5_file($f->getPathname());
 
