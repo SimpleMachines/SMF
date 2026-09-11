@@ -167,6 +167,7 @@ class ManifestUpdater extends UpdaterBase
 
 		$this->build();
 		$this->write();
+		$this->gitAdd();
 
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
@@ -259,6 +260,14 @@ class ManifestUpdater extends UpdaterBase
 	private function write(): void
 	{
 		file_put_contents(Config::$boarddir . '/Sources/Maintenance/manifest.json', json_encode($this->manifest, JSON_PRETTY_PRINT));
+	}
+
+	/**
+	 * Adds the manifest file to git.
+	 */
+	private function gitAdd(): void
+	{
+		shell_exec('git add ' . escapeshellarg('Sources/Maintenance/manifest.json'));
 	}
 
 	/**
