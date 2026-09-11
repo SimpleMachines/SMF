@@ -1432,7 +1432,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$data = isset($defined_vars['maintenance_tool_progress']) ? Utils::jsonDecode($defined_vars['maintenance_tool_progress'], true) : [];
 
 		$this->time_started = (int) ($data['started'] ?? time());
-		$this->debug = !empty($data['debug']);
+		$this->debug = $this->debug || !empty($data['debug']);
 	}
 
 	/**
