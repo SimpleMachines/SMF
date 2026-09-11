@@ -59,8 +59,8 @@ $txt['error_unknown'] = 'Unknown Error!';
 $txt['query_unsuccessful'] = 'Unsuccessful!';
 $txt['query_failed'] = 'This query: {QUERY_STRING}
 Caused the error: {QUERY_ERROR}';
-$txt['error_missing_files'] = 'Unable to find some required files.<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
-$txt['error_missing_files_debug'] = 'Unable to find the following files: {missing_files}<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
+$txt['error_missing_files'] = 'Some required files are either missing or have unexpected content.<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
+$txt['error_missing_files_debug'] = 'The following files are either missing or have unexpected content: {missing_files}<br><br>Please make sure you uploaded all of the files included in the SMF package and then try again.';
 
 // Progress bars and steps.
 $txt['maintenance_progress'] = 'Progress';
