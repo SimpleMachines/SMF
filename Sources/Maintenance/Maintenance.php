@@ -438,12 +438,59 @@ class Maintenance
 	 */
 	final public static function checkManifest(string $start_version, bool $check_content): array
 	{
-		// During development, skip this whole check if the manifest doesn't exist.
-		if (
-			str_ends_with(SMF_VERSION, '-dev')
-			&& !is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json')
-		) {
-			return [];
+		$missing_or_corrupt_files = [];
+
+		// Does the manifest file exist?
+		if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json')) {
+			// Development versions normally don't include a manifest.
+			// This is by design and receives special handling here.
+			if (str_ends_with(SMF_VERSION, '-dev')) {
+				// Just check the migrations and cleanups and call it done.
+				foreach (Tools\Upgrade::VERSION_MAP as $version => $ns) {
+					if (
+						version_compare(
+							Utils::standardizeVersionString($start_version),
+							$version,
+							'>',
+						)
+					) {
+						continue;
+					}
+
+					foreach (Tools\Upgrade::MIGRATIONS[$ns] as $class) {
+						if (!class_exists($class)) {
+							$missing_or_corrupt_files[] = preg_replace(
+								['/^SMF\b/', '/\\/'],
+								['Sources', DIRECTORY_SEPARATOR],
+								$class,
+							);
+						}
+					}
+
+					foreach (Tools\Upgrade::CLEANUPS[$ns] as $class) {
+						if (!class_exists($class)) {
+							$missing_or_corrupt_files[] = preg_replace(
+								['/^SMF\b/', '/\\/'],
+								['Sources', DIRECTORY_SEPARATOR],
+								$class,
+							);
+						}
+					}
+				}
+
+				return $missing_or_corrupt_files;
+			}
+
+			// We can't do anything without the manifest file.
+			$sourcedir = Config::$sourcedir ?? $boarddir . DIRECTORY_SEPARATOR . 'Sources';
+
+			$missing_or_corrupt_files[] = str_replace(
+				Sapi::canonicalPath($sourcedir),
+				basename($sourcedir),
+				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json',
+			);
+
+			return $missing_or_corrupt_files;
 		}
 
 		$boarddir = self::getBaseDir();
@@ -458,21 +505,6 @@ class Maintenance
 			),
 			fn($v) => version_compare($v, $min, '>=') && version_compare($v, $max, '<='),
 		);
-
-		$missing_or_corrupt_files = [];
-
-		// We can't do anything without the manifest file.
-		if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json')) {
-			$sourcedir = Config::$sourcedir ?? $boarddir . DIRECTORY_SEPARATOR . 'Sources';
-
-			$missing_or_corrupt_files[] = str_replace(
-				Sapi::canonicalPath($sourcedir),
-				basename($sourcedir),
-				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json',
-			);
-
-			return $missing_or_corrupt_files;
-		}
 
 		// Get the manifest.
 		try {
