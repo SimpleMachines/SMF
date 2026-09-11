@@ -25,6 +25,7 @@ use SMF\Maintenance\Cleanup;
 use SMF\Maintenance\GenericSubStep;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration;
+use SMF\Maintenance\MigrationData;
 use SMF\Maintenance\Step;
 use SMF\Maintenance\Utf8ConverterStep;
 use SMF\QueryString;
@@ -38,6 +39,7 @@ use SMF\Time;
 use SMF\User;
 use SMF\UserDataset;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Upgrade tool.
@@ -206,6 +208,23 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		],
 	];
 
+	/**
+	 * @var array
+	 *
+	 * Settings that are not recorded before being changed. The upgrade's own
+	 * progress data is its bookkeeping and means nothing afterwards; the rest
+	 * are things that should not be sitting in a database table, since a copy
+	 * of the database password inside the database would be in every dump
+	 * taken from then on.
+	 */
+	public const UNRECORDED_SETTINGS = [
+		'maintenance_tool_progress',
+		'db_passwd',
+		'db_user',
+		'image_proxy_secret',
+		'auth_secret',
+	];
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -334,6 +353,25 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * SMF Version we started on.
 	 */
 	protected string $start_smf_version = '';
+
+	/**
+	 * @var string
+	 *
+	 * Identifies this upgrade, and stays the same when it is started again
+	 * after being interrupted. What a migration records against it therefore
+	 * describes the database as this upgrade found it, not as a later attempt
+	 * found it half changed. Read through getRunId(), which knows where it
+	 * lives.
+	 */
+	protected string $id_run = '';
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the database's functions have been looked at yet. They are the
+	 * same for every table, so they are read once rather than per table.
+	 */
+	protected bool $routines_recorded = false;
 
 	/**
 	 * @var null|string
@@ -891,6 +929,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Db::load();
 		Db::$db->setSqlMode('strict');
 
+		// The admin has pressed Continue, so the upgrade is underway and the
+		// run it belongs to starts here. Opening it before anything is written
+		// is what gives the settings this step changes somewhere to be recorded.
+		$this->getRunId();
+
 		$file_settings = [];
 		$db_settings = [];
 
@@ -1054,10 +1097,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$tables = Db::$db->list_tables($db, $filter);
 
-		// Filter out backup tables.
-		$table_names = array_filter($tables, function ($table) {
-			return !str_starts_with($table, 'backup_');
-		});
+		// Filter out backup tables, and the upgrader's own bookkeeping. A copy
+		// of the record of what was copied is of no use to anybody putting a
+		// forum back, and restoring it would put back an older account of the
+		// run doing the restoring.
+		// array_values because the substep is used as an index into this list,
+		// and array_filter leaves a hole where each name it dropped had been.
+		$table_names = array_values(array_filter($tables, function ($table) {
+			return !str_starts_with($table, 'backup_')
+				&& !str_starts_with($table, MigrationData::prefix() . 'migration_');
+		}));
 
 		Maintenance::$total_substeps = \count($table_names);
 
@@ -1302,6 +1351,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$this->updateSettingsFile($file_settings);
 
+		// The run closes after the last thing the upgrade writes, so that
+		// db_character_set and db_mb4 are recorded while it is still open.
+		// Whatever upgrades this forum next is a different run, and records
+		// what it finds rather than reading the notes this one left.
+		MigrationData::finishRun($this->getRunId(), SMF_VERSION);
+
 		// We're done!
 		$this->logProgress(Lang::getTxt('log_upgrade_complete', file: 'Maintenance'));
 		Maintenance::$overall_percent = 100;
@@ -1382,12 +1437,254 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
-		return Db::$db->backup_table($table, 'backup_' . $table);
+		$run = $this->getRunId();
+
+		// backup_table() drops the backup before it writes it, so a run that
+		// is started again would replace a copy of the database as it was with
+		// a copy of it half migrated. The copy this run already made is the
+		// one worth having.
+		if ($run !== '' && MigrationData::get($run, MigrationData::TYPE_BACKUP, $table) !== null) {
+			return true;
+		}
+
+		$this->recordRoutines();
+		$this->recordDefinition($table);
+
+		if (Db::$db->backup_table($table, 'backup_' . $table) === false) {
+			return false;
+		}
+
+		if ($run !== '') {
+			MigrationData::save($run, static::class, MigrationData::TYPE_BACKUP, $table, (string) time());
+		}
+
+		return true;
+	}
+
+	/**
+	 * Writes settings to Settings.php, noting what they held first.
+	 *
+	 * @param array $config_vars The settings to write.
+	 * @param bool|null $keep_quotes Whether to keep quotes in the values.
+	 * @param bool $rebuild Whether to rebuild the file from scratch.
+	 * @return bool Whether the file was written.
+	 */
+	public function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
+	{
+		$this->recordSettings(array_keys($config_vars));
+
+		return parent::updateSettingsFile($config_vars, $keep_quotes, $rebuild);
 	}
 
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Records what the settings being written held beforehand.
+	 *
+	 * A database put back to the shape it had is not a forum that works if
+	 * Settings.php still describes the one it was upgraded to: db_character_set
+	 * and db_mb4 in particular say what the database is, and after a rollback
+	 * they would be saying it about a database that no longer exists.
+	 *
+	 * Only the settings the upgrade is about to change are recorded, and only
+	 * the first time each is touched, so this is a note of what to put back
+	 * rather than a copy of the file. Settings that are nobody else's business
+	 * are left out: Settings.php holds the database password, and a copy of it
+	 * inside the database would be in every dump taken from then on.
+	 *
+	 * @param array $names Names of the settings about to be written.
+	 */
+	private function recordSettings(array $names): void
+	{
+		// A run of its own is no use here. The settings are put back beside the
+		// tables the run copied, so one that copied nothing has nothing to put
+		// them back into, and the last thing an upgrade should leave behind is
+		// a run that was opened by the act of finishing.
+		$run = $this->getRunId(false);
+
+		if ($run === '') {
+			return;
+		}
+
+		// Read the file as it stands rather than as it stood when the request
+		// began. An upgrade writes Settings.php more than once, and the default
+		// refuses a file touched since TIME_START -- which, from the second
+		// write onwards, is a file this upgrade wrote itself.
+		$current = Config::getCurrentSettings(@filemtime(SMF_SETTINGS_FILE) ?: null);
+
+		if (!\is_array($current)) {
+			return;
+		}
+
+		foreach ($names as $name) {
+			if (
+				\in_array($name, self::UNRECORDED_SETTINGS)
+				|| MigrationData::get($run, MigrationData::TYPE_SETTING, $name) !== null
+			) {
+				continue;
+			}
+
+			MigrationData::save(
+				$run,
+				static::class,
+				MigrationData::TYPE_SETTING,
+				$name,
+				(string) json_encode([
+					'set' => \array_key_exists($name, $current),
+					'value' => $current[$name] ?? null,
+				]),
+			);
+		}
+	}
+
+	/**
+	 * Records the functions the database held before the migrations reach it.
+	 *
+	 * A table's definition is not enough on its own. An index can be built over
+	 * an expression rather than a column -- members has one over
+	 * indexable_month_day(birthdate) -- and the SQL that rebuilds the table
+	 * names the function without saying what it is. Recording them together is
+	 * what makes the pair worth keeping.
+	 *
+	 * Only PostgreSQL has anything to record here. MySQL is given none of its
+	 * own, and the functions SMF adds to PostgreSQL are the ones in the public
+	 * schema, since everything the server ships with lives in pg_catalog.
+	 */
+	private function recordRoutines(): void
+	{
+		if ($this->routines_recorded || Db::$db->title !== POSTGRE_TITLE) {
+			return;
+		}
+
+		$this->routines_recorded = true;
+
+		$run = $this->getRunId();
+
+		if ($run === '' || MigrationData::all($run, MigrationData::TYPE_ROUTINE) !== []) {
+			return;
+		}
+
+		// Every routine is named, because the names are what says which ones
+		// the upgrade went on to add. Only a plain function can be written
+		// down though: pg_get_functiondef() refuses an aggregate, and an
+		// aggregate SMF did not create is one it has no business rebuilding.
+		$definitions = [];
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature, pg_get_functiondef(p.oid) AS definition
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+				AND p.prokind = {string:plain}',
+			[
+				'schema' => 'public',
+				'plain' => 'f',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$definitions[$row['signature']] = $row['definition'];
+		}
+
+		Db::$db->free_result($request);
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+			ORDER BY signature',
+			[
+				'schema' => 'public',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			MigrationData::save(
+				$run,
+				static::class,
+				MigrationData::TYPE_ROUTINE,
+				$row['signature'],
+				$definitions[$row['signature']] ?? '',
+			);
+		}
+
+		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Records what a table looked like before the migrations reach it.
+	 *
+	 * The backup holds the rows. This holds the shape they were in: the SQL
+	 * that would build the table again, with its indexes, its keys and, on
+	 * PostgreSQL, a sequence of its own. Without it a backup table is a set of
+	 * columns and nothing else, which is not enough to put a forum back.
+	 *
+	 * Only the first pass of a run records anything. A run that was
+	 * interrupted and started again reaches this a second time, over a
+	 * database the migrations have already changed, and what it would write
+	 * then is not what the admin wanted a copy of.
+	 *
+	 * @param string $table Name of the table, with the prefix on it.
+	 */
+	private function recordDefinition(string $table): void
+	{
+		$run = $this->getRunId();
+
+		if ($run === '') {
+			return;
+		}
+
+		if (MigrationData::get($run, MigrationData::TYPE_DEFINITION, $table) !== null) {
+			return;
+		}
+
+		MigrationData::save(
+			$run,
+			static::class,
+			MigrationData::TYPE_DEFINITION,
+			$table,
+			Db::$db->table_sql($table),
+		);
+	}
+
+	/**
+	 * What identifies this upgrade, making one if there is not one yet.
+	 *
+	 * A run stays open until something says it finished, so a process that was
+	 * killed leaves its row behind and this finds it again. The progress data
+	 * in Settings.php could not do this: it is written by preExit(), which the
+	 * command line reaches only once the upgrade has finished, and which a
+	 * killed process never reaches at all.
+	 *
+	 * @return string The run's id.
+	 */
+	private function getRunId(bool $start = true): string
+	{
+		if ($this->id_run !== '') {
+			return $this->id_run;
+		}
+
+		if (!MigrationData::ensure()) {
+			return '';
+		}
+
+		$run = MigrationData::currentRun();
+
+		if ($run === '' && !$start) {
+			return '';
+		}
+
+		if ($run === '') {
+			$run = (string) Uuid::create();
+
+			MigrationData::startRun($run, $this->start_smf_version, $this->user['id'] ?? 0);
+		}
+
+		return $this->id_run = $run;
+	}
 
 	/**
 	 * Prepare the configuration to handle support with some older installs.
@@ -1680,6 +1977,16 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		 */
 		while (Maintenance::getCurrentSubStep() - $offset < \count($substeps)) {
 			$substep = $substeps[Maintenance::getCurrentSubStep() - $offset];
+
+			// Where this run has got to, somewhere a killed process cannot
+			// take with it. The step and substep themselves live in the query
+			// string, which goes when the request does.
+			MigrationData::recordPosition(
+				$this->getRunId(),
+				Maintenance::getCurrentStep(),
+				Maintenance::getCurrentSubStep(),
+				Maintenance::getCurrentStart(),
+			);
 
 			$this->logProgress(' +++ ' . $substep->name, true);
 
