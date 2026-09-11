@@ -2486,8 +2486,8 @@ class Utils
 	 *
 	 * - Converts the string to lowercase.
 	 * - Removes any non-digits at the start of the string.
-	 * - Inserts `.` between digits and non-digits.
-	 * - Replaces `_`, `-`, `+`, and whitespace characters with a `.` character.
+	 * - Inserts dots (i.e. `.`) between digits and non-digits.
+	 * - Replaces non-alphanumeric characters with dots.
 	 * - Ensures runs of dots are collapsed into a single dot.
 	 *
 	 * @param string $version The version string
@@ -2497,10 +2497,10 @@ class Utils
 	{
 		return preg_replace(
 			[
-				'/^\D+/',
+				'/^\D+|[^0-9a-z]+$/',
 				'/(\d)(\D)/',
 				'/(\D)(\d)/',
-				'/[\s\._+\-]+/',
+				'/[^0-9a-z]+/',
 			],
 			[
 				'',
