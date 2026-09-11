@@ -270,8 +270,6 @@ final class HttpClient
 
 		[$headers, $set_cookies] = self::parseHeaders(substr($raw, 0, $header_size));
 
-		$flag = getenv('SMF_TESTS_ENABLE_HTTP_LOGGING');
-
 		if ($this->http_logging) {
 			$this->logResponse($url, $fields, $raw);
 		}
