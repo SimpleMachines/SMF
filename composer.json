@@ -40,5 +40,12 @@
 		"test": "phpunit --no-coverage",
 		"test-integration": "phpunit --no-coverage --testsuite integration",
 		"test-unit": "phpunit --no-coverage --testsuite unit"
+	},
+	"scripts-descriptions": {
+		"lint": "Check changed PHP files with PHP-CS-Fixer. Does not work on Windows!",
+		"lint-fix": "Fix coding standards in changed PHP files with PHP-CS-Fixer. Does not work on Windows!",
+		"test": "Run the PHPUnit test suite.",
+		"test-integration": "Run the PHPUnit integration test suite.",
+		"test-unit": "Run the PHPUnit unit test suite."
 	}
 }
