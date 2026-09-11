@@ -1,6 +1,7 @@
 {
 	"name": "simplemachines/smf",
 	"require": {
+		"php": ">=8.4",
 		"bjeavons/zxcvbn-php": "^1.0",
 		"google/recaptcha": "^1.3",
 		"league/container": "^4.0",
