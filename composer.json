@@ -1,43 +1,43 @@
 {
 	"name": "simplemachines/smf",
+	"require": {
+		"bjeavons/zxcvbn-php": "^1.0",
+		"google/recaptcha": "^1.3",
+		"league/container": "^4.0",
+		"matthiasmullie/minify": "^1.3",
+		"matthiasmullie/path-converter": "^1.1"
+	},
+	"require-dev": {
+		"friendsofphp/php-cs-fixer": "^3.95",
+		"phpunit/phpunit": "^13.1",
+		"simplemachines/build-tools": "dev-release-3.0"
+	},
 	"repositories": [
 		{
-			"url": "https://github.com/SimpleMachines/BuildTools.git",
-			"type": "vcs"
+			"type": "vcs",
+			"url": "https://github.com/SimpleMachines/BuildTools.git"
 		}
 	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"autoload": {
 		"psr-4": {
 			"SMF\\": "Sources/",
 			"SMF\\Themes\\": "Themes/"
 		}
 	},
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"require-dev": {
-		"simplemachines/build-tools": "dev-release-3.0",
-		"friendsofphp/php-cs-fixer": "^3.95",
-		"phpunit/phpunit": "^13.1"
-	},
-	"scripts": {
-		"test": "phpunit --no-coverage",
-		"test-unit": "phpunit --no-coverage --testsuite unit",
-		"test-integration": "phpunit --no-coverage --testsuite integration",
-		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
-		"lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
-		"post-install-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
-		"post-update-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php"
-	},
 	"config": {
 		"platform": {
 			"php": "8.4.1"
 		}
 	},
-	"require": {
-		"google/recaptcha": "^1.3",
-		"matthiasmullie/minify": "^1.3",
-		"bjeavons/zxcvbn-php": "^1.0",
-		"matthiasmullie/path-converter": "^1.1",
-		"league/container": "^4.0"
+	"scripts": {
+		"post-install-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
+		"post-update-cmd": "php ./vendor/simplemachines/build-tools/secure-vendor-dir.php",
+		"lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
+		"lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") --allow-risky=yes",
+		"test": "phpunit --no-coverage",
+		"test-integration": "phpunit --no-coverage --testsuite integration",
+		"test-unit": "phpunit --no-coverage --testsuite unit"
 	}
 }
