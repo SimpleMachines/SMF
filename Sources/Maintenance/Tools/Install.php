@@ -113,7 +113,7 @@ class Install extends ToolsBase implements ToolsInterface
 	public function __construct()
 	{
 		// Are we doing debug?
-		if (isset($_REQUEST['debug'])) {
+		if (isset($_GET['debug']) || isset($_POST['debug'])) {
 			$this->debug = true;
 		}
 
