@@ -229,12 +229,7 @@ class ErrorHandlerService
 		}
 
 		// Collect a backtrace
-		if (!DebugUtils::isDebugEnabled()) {
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			// This is how to keep the args but skip the objects.
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
-		}
+		$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		// Basically, htmlspecialchars it minus &. (for entities!)
 		$error_message = strtr($error_message, ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;']);
