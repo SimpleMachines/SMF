@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Db\Schema\v3_0\Initialize;
 
+use SMF\Utils;
+
 class PostgreSQL extends Base
 {
 	/****************
@@ -33,7 +35,7 @@ class PostgreSQL extends Base
 
 		// PostgreSQL changed how we can do some aggregation functions in 14 and beyond
 		// Idea for the GROUP_CONCAT from: https://dba.stackexchange.com/questions/24984/is-it-possible-to-wrap-aggregate-functions-in-postgres
-		if (version_compare($this->version, '14', '>')) {
+		if (version_compare(Utils::standardizeVersionString($this->version), '14', '>')) {
 			// This isn't even my final form.
 			$functions[] = '
             CREATE OR REPLACE FUNCTION GROUP_CONCAT_FINAL(anycompatiblearray)

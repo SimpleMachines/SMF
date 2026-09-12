@@ -39,6 +39,7 @@ $updaters = [
 	'UnicodeDataUpdater',
 	'AsciiTransliteratorDataUpdater',
 	'VersionNumberUpdater',
+	'ManifestUpdater',
 ];
 
 $num_updaters_executed = 0;

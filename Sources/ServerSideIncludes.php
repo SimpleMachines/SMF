@@ -237,7 +237,7 @@ class ServerSideIncludes
 		}
 
 		// Gzip output? (because it must be boolean and true, this can't be hacked.)
-		if ($this->gzip === true && \ini_get('zlib.output_compression') != '1' && \ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
+		if ($this->gzip === true && \ini_get('zlib.output_compression') != '1' && \ini_get('output_handler') != 'ob_gzhandler') {
 			ob_start('ob_gzhandler');
 		} else {
 			Config::$modSettings['enableCompressedOutput'] = '0';

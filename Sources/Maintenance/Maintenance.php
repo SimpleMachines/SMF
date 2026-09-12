@@ -427,6 +427,202 @@ class Maintenance
 	}
 
 	/**
+	 * Checks the files listed in manifest.php and returns a list of any that are
+	 * missing or have incorrect content.
+	 *
+	 * @param string $start_version The version of SMF we are starting from.
+	 *    For upgrades, this should be the version of SMF that was in use before
+	 *    the upgrade began. For new installs, this should be SMF_VERSION.
+	 * @param bool $check_content Whether to validate the content of the files.
+	 * @return array A list of missing or corrupt files.
+	 */
+	final public static function checkManifest(string $start_version, bool $check_content): array
+	{
+		$boarddir = self::getBaseDir();
+
+		$missing_or_corrupt_files = [];
+
+		// Does the manifest file exist?
+		if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php')) {
+			// Development versions normally don't include a manifest.
+			// This is by design and receives special handling here.
+			if (str_ends_with(SMF_VERSION, '-dev')) {
+				// Just check the migrations and cleanups and call it done.
+				foreach (Tools\Upgrade::VERSION_MAP as $version => $ns) {
+					if (
+						version_compare(
+							Utils::standardizeVersionString($start_version),
+							$version,
+							'>',
+						)
+					) {
+						continue;
+					}
+
+					foreach (Tools\Upgrade::MIGRATIONS[$ns] as $class) {
+						if (!class_exists($class)) {
+							$missing_or_corrupt_files[] = preg_replace(
+								['/^SMF\b/', '/\\\\/', '/$/'],
+								['Sources', DIRECTORY_SEPARATOR, '.php'],
+								$class,
+							);
+						}
+					}
+
+					foreach (Tools\Upgrade::CLEANUPS[$ns] as $class) {
+						if (!class_exists($class)) {
+							$missing_or_corrupt_files[] = preg_replace(
+								['/^SMF\b/', '/\\\\/', '/$/'],
+								['Sources', DIRECTORY_SEPARATOR, '.php'],
+								$class,
+							);
+						}
+					}
+				}
+
+				return $missing_or_corrupt_files;
+			}
+
+			// We can't do anything without the manifest file.
+			$sourcedir = Config::$sourcedir ?? $boarddir . DIRECTORY_SEPARATOR . 'Sources';
+
+			$missing_or_corrupt_files[] = str_replace(
+				Sapi::canonicalPath($sourcedir),
+				basename($sourcedir),
+				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
+			);
+
+			return $missing_or_corrupt_files;
+		}
+
+		$max = preg_replace('/^(\d)\.(\d).*/', '$1.$2', SMF_VERSION);
+		$min = preg_replace('/^(\d)\.(\d).*/', '$1.$2', $start_version);
+
+		$required_versions = array_filter(
+			array_map(
+				fn($v) => preg_replace('/^(\d)\.(\d).*/', '$1.$2', $v),
+				array_keys(Tools\Upgrade::VERSION_MAP),
+			),
+			fn($v) => version_compare($v, $min, '>=') && version_compare($v, $max, '<='),
+		);
+
+		// Get the manifest.
+		try {
+			$manifest = include __DIR__ . DIRECTORY_SEPARATOR . 'manifest.php';
+		} catch (\Throwable $e) {
+			$manifest = false;
+		}
+
+		// Manifest must be an array.
+		if (!\is_array($manifest)) {
+			$sourcedir = Config::$sourcedir ?? $boarddir . DIRECTORY_SEPARATOR . 'Sources';
+
+			$missing_or_corrupt_files[] = str_replace(
+				Sapi::canonicalPath($sourcedir),
+				basename($sourcedir),
+				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
+			);
+
+			return $missing_or_corrupt_files;
+		}
+
+		// Verify that each section of the manifest is structured correctly.
+		foreach ($required_versions as $version) {
+			if (
+				// $manifest[$version] must exist.
+				!\array_key_exists($version, $manifest)
+				// Keys must be strings.
+				|| (
+					array_keys($manifest[$version]) !== array_map(
+						'strval',
+						array_keys($manifest[$version]),
+					)
+				)
+				// Values must be strings or bools.
+				|| (
+					$manifest[$version] !== array_filter(
+						$manifest[$version],
+						fn($v) => \is_bool($v) || \is_string($v),
+					)
+				)
+			) {
+				$sourcedir = Config::$sourcedir ?? $boarddir . DIRECTORY_SEPARATOR . 'Sources';
+
+				$missing_or_corrupt_files[] = str_replace(
+					Sapi::canonicalPath($sourcedir),
+					basename($sourcedir),
+					__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
+				);
+
+				return $missing_or_corrupt_files;
+			}
+		}
+
+		// Do all the files in the manifest exist and have the expected content?
+		foreach ($required_versions as $version) {
+			foreach ($manifest[$version] as $path => $checksum) {
+				$is_valid = false;
+				$possible_paths = [];
+
+				// Check for special directories that could have been moved.
+				switch (strstr($path, '/', true)) {
+					case 'Languages':
+						if (isset(Config::$languagesdir)) {
+							$possible_paths[] = Sapi::canonicalPath(Config::$languagesdir . strstr($path, '/'));
+						}
+						break;
+
+					case 'Packages':
+						if (isset(Config::$packagesdir)) {
+							$possible_paths[] = Sapi::canonicalPath(Config::$packagesdir . strstr($path, '/'));
+						}
+						break;
+
+					case 'Sources':
+						if (isset(Config::$sourcedir)) {
+							$possible_paths[] = Sapi::canonicalPath(Config::$sourcedir . strstr($path, '/'));
+						}
+						break;
+
+					case 'vendor':
+						if (isset(Config::$vendordir)) {
+							$possible_paths[] = Sapi::canonicalPath(Config::$vendordir . strstr($path, '/'));
+						}
+						break;
+				}
+
+				// Standard path.
+				$possible_paths[] = Sapi::canonicalPath($boarddir . '/' . $path);
+
+				// Check each possible path.
+				foreach (array_unique($possible_paths) as $possible_path) {
+					$is_valid = (
+						file_exists($possible_path)
+						&& (
+							!$check_content
+							|| $checksum === true
+							|| (
+								is_file($possible_path)
+								&& $checksum === @md5_file($possible_path)
+							)
+						)
+					);
+
+					if ($is_valid) {
+						break;
+					}
+				}
+
+				if (!$is_valid) {
+					$missing_or_corrupt_files[] = $path;
+				}
+			}
+		}
+
+		return $missing_or_corrupt_files;
+	}
+
+	/**
 	 * Fetch our current step.
 	 *
 	 * @return int Current Step.

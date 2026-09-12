@@ -132,6 +132,10 @@ class VersionNumberUpdater extends UpdaterBase
 		$this->updateLicenseBlocks();
 		$this->updateLicenseFile();
 
+		if (str_ends_with($this->new_version, 'dev')) {
+			shell_exec('git rm -f --ignore-unmatch ' . escapeshellarg('Sources/Maintenance/manifest.php'));
+		}
+
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
 		}

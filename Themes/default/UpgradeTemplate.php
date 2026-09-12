@@ -349,7 +349,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 				</label>
 			</dt>
 			<dd>
-				<input type="checkbox" name="debug" id="debug" value="1">
+				<input type="checkbox" name="debug" id="debug" value="1"' . (Maintenance::$tool->isDebug() ? ' checked' : '') . '>
 			</dd>
 			<dt>
 				<label for="empty_error">

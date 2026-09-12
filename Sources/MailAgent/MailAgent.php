@@ -151,7 +151,18 @@ abstract class MailAgent
 	 */
 	public function isCompatible(string $smfVersion): bool
 	{
-		return version_compare($this->min_smf_version, $smfVersion, '<=') && version_compare($smfVersion, $this->version_compatible, '>=');
+		return (
+			version_compare(
+				Utils::standardizeVersionString($this->min_smf_version),
+				Utils::standardizeVersionString($smfVersion),
+				'<=',
+			)
+			&& version_compare(
+				Utils::standardizeVersionString($smfVersion),
+				Utils::standardizeVersionString($this->version_compatible),
+				'>=',
+			)
+		);
 	}
 
 	/**

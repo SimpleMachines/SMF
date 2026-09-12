@@ -2481,6 +2481,37 @@ class Utils
 		return $callable;
 	}
 
+	/**
+	 * Rewrites a version string in "PHP standardized" format.
+	 *
+	 * - Converts the string to lowercase.
+	 * - Removes any non-digits at the start of the string.
+	 * - Inserts dots (i.e. `.`) between digits and non-digits.
+	 * - Replaces non-alphanumeric characters with dots.
+	 * - Ensures runs of dots are collapsed into a single dot.
+	 *
+	 * @param string $version The version string
+	 * @return string "PHP standardized" version string.
+	 */
+	public static function standardizeVersionString(string $version): string
+	{
+		return preg_replace(
+			[
+				'/^\D+|[^0-9a-z]+$/',
+				'/(\d)(\D)/',
+				'/(\D)(\d)/',
+				'/[^0-9a-z]+/',
+			],
+			[
+				'',
+				'$1.$2',
+				'$1.$2',
+				'.',
+			],
+			strtolower($version),
+		);
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
