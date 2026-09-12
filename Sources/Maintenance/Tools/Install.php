@@ -27,6 +27,7 @@ use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Step;
 use SMF\Sapi;
 use SMF\Security;
+use SMF\Statistics;
 use SMF\TaskRunner;
 use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
@@ -1507,35 +1508,10 @@ class Install extends ToolsBase implements ToolsInterface
 		) {
 			Utils::$context['allow_sm_stats'] = true;
 
-			// Attempt to register the site etc.
-			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+			$uid = Statistics::register();
 
-			if (!$fp) {
-				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-			}
-
-			if (!$fp) {
-				return;
-			}
-
-			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
-			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'Connection: Close' . "\r\n\r\n";
-			fwrite($fp, $out);
-
-			$return_data = '';
-
-			while (!feof($fp)) {
-				$return_data .= fgets($fp, 128);
-			}
-
-			fclose($fp);
-
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
-
-			if (!empty($ID[1])) {
-				$settings['sm_stats_key'] = $ID[1];
+			if (!empty($uid)) {
+				$settings['sm_stats_key'] = $uid;
 				$settings['enable_sm_stats'] = 1;
 			}
 		}
