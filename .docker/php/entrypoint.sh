@@ -128,6 +128,18 @@ chown -R www-data:www-data \
 	"$BOARD_DIR/Settings.php" \
 	"$BOARD_DIR/Settings_bak.php" 2>/dev/null || true
 
+# ---------------------------------------------------------------- manifest
+# The installer and upgrader both try to check the manifest in order to
+# verify that all required files are present. However, the manifest is
+# intentionally not included in development versions of SMF. Although the
+# installer and upgrader will silently ignore a missing manifest file in
+# development versions, creating one on the fly harms nothing and allows
+# more complete testing of the install and upgrade processes.
+if [ ! -f "$BOARD_DIR/Sources/Maintenance/manifest.json" ]; then
+	log 'building manifest.json'
+	php -f "$BOARD_DIR/other/update_manifest.php" 2>/dev/null
+fi
+
 log 'ready'
 
 exec "$@"
