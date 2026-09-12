@@ -133,7 +133,7 @@ class VersionNumberUpdater extends UpdaterBase
 		$this->updateLicenseFile();
 
 		if (str_ends_with($this->new_version, 'dev')) {
-			shell_exec('git rm -f --ignore-unmatch ' . escapeshellarg('Sources/Maintenance/manifest.json'));
+			shell_exec('git rm -f --ignore-unmatch ' . escapeshellarg('Sources/Maintenance/manifest.php'));
 		}
 
 		if (php_sapi_name() === 'cli') {

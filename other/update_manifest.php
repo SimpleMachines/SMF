@@ -5,7 +5,7 @@
  * any SMF distribution packages.
  *
  * Builds a manifest of files that must exist for SMF to function.
- * The manifest is saved to Sources/Maintenance/manifest.json.
+ * The manifest is saved to Sources/Maintenance/manifest.php.
  *
  * Simple Machines Forum (SMF)
  *

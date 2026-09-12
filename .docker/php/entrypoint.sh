@@ -135,8 +135,8 @@ chown -R www-data:www-data \
 # installer and upgrader will silently ignore a missing manifest file in
 # development versions, creating one on the fly harms nothing and allows
 # more complete testing of the install and upgrade processes.
-if [ ! -f "$BOARD_DIR/Sources/Maintenance/manifest.json" ]; then
-	log 'building manifest.json'
+if [ ! -f "$BOARD_DIR/Sources/Maintenance/manifest.php" ]; then
+	log 'building manifest.php'
 	php -f "$BOARD_DIR/other/update_manifest.php" 2>/dev/null
 fi
 
