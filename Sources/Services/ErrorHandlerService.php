@@ -218,19 +218,22 @@ class ErrorHandlerService
 
 		$error_call++;
 
+		// Are we in a loop? The count is how deep this call is: logging an
+		// error is allowed to produce one more, but a third means that
+		// whatever this depends on fails every time it is asked, and
+		// going round again would not end.
+		if ($error_call > 2) {
+			var_dump($backtrace);
+
+			die('Error: loop detected. The database may have failed or crashed.');
+		}
+
 		// Collect a backtrace
 		if (!DebugUtils::isDebugEnabled()) {
 			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.
 			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
-		}
-
-		// Are we in a loop?
-		if ($error_call > 2) {
-			var_dump($backtrace);
-
-			die('Error: loop detected. The database may have failed or crashed.');
 		}
 
 		// Basically, htmlspecialchars it minus &. (for entities!)
