@@ -462,8 +462,8 @@ class Maintenance
 					foreach (Tools\Upgrade::MIGRATIONS[$ns] as $class) {
 						if (!class_exists($class)) {
 							$missing_or_corrupt_files[] = preg_replace(
-								['/^SMF\b/', '/\\\\/'],
-								['Sources', DIRECTORY_SEPARATOR],
+								['/^SMF\b/', '/\\\\/', '/$/'],
+								['Sources', DIRECTORY_SEPARATOR, '.php'],
 								$class,
 							);
 						}
@@ -472,8 +472,8 @@ class Maintenance
 					foreach (Tools\Upgrade::CLEANUPS[$ns] as $class) {
 						if (!class_exists($class)) {
 							$missing_or_corrupt_files[] = preg_replace(
-								['/^SMF\b/', '/\\\\/'],
-								['Sources', DIRECTORY_SEPARATOR],
+								['/^SMF\b/', '/\\\\/', '/$/'],
+								['Sources', DIRECTORY_SEPARATOR, '.php'],
 								$class,
 							);
 						}
