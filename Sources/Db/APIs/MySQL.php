@@ -1233,7 +1233,20 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					break;
 			 }
 
-			 $line .= ' (`' . implode('`, `', $index['columns']) . '`)';
+			 $index_columns = [];
+
+			 foreach ($index['columns'] as $index_column) {
+				 // A column can be indexed by its first so many characters.
+				 // The count belongs after the name rather than inside it,
+				 // so it has to be left outside the quoting.
+				 if (preg_match('~^(.+)\((\d+)\)$~', $index_column, $matches) === 1) {
+					 $index_columns[] = '`' . $matches[1] . '`(' . $matches[2] . ')';
+				 } else {
+					 $index_columns[] = '`' . $index_column . '`';
+				 }
+			 }
+
+			 $line .= ' (' . implode(', ', $index_columns) . ')';
 
 			 $inner_lines[] = $line;
 		}
