@@ -147,7 +147,7 @@ class ManifestUpdater extends UpdaterBase
 				fn($package) => 'vendor/' . $package,
 				array_filter(
 					array_keys($composer_json['require']),
-					fn($package) => is_dir(Config::$sourcedir . '/vendor/' . $package),
+					fn($package) => is_dir(Config::$vendordir . '/' . $package),
 				),
 			),
 		);
