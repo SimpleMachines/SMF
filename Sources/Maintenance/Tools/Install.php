@@ -359,6 +359,9 @@ class Install extends ToolsBase implements ToolsInterface
 			Utils::$context['continue'] = true;
 		}
 
+		// Are we doing debug?
+		$this->debug = isset($_REQUEST['debug']);
+
 		return false;
 	}
 

@@ -1018,6 +1018,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			);
 		}
 
+		// Are we doing debug?
+		$this->debug = isset($_POST['debug']);
+
 		// If we've got here then let's proceed to the next step!
 		return true;
 	}
