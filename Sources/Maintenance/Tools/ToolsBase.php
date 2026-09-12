@@ -130,7 +130,7 @@ abstract class ToolsBase
 				// Convert line breaks into the correct EOL for this platform.
 				'/(<br\b[^>]*>)+|\R/',
 				// Convert HTML lists into plain text lists.
-				'/\s*<((ol|ul)\b[^>]*|\/li)>\s*/',
+				'/\s*<\/?((ol|ul)\b[^>]*|\/li)>\s*/',
 				'/<li\b[^>]*>\s*/',
 			],
 			[
