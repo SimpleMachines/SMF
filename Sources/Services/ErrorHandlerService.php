@@ -213,145 +213,152 @@ class ErrorHandlerService
 
 		$error_call++;
 
-		// Collect a backtrace
-		if (!DebugUtils::isDebugEnabled()) {
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			// This is how to keep the args but skip the objects.
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
-		}
-
-		// Are we in a loop?
-		if ($error_call > 2) {
-			var_dump($backtrace);
-
-			die('Error: loop detected. The database may have failed or crashed.');
-		}
-
-		// Check if error logging is actually on.
-		if (empty(Config::$modSettings['enableErrorLogging'])) {
-			return $error_message;
-		}
-
-		// Basically, htmlspecialchars it minus &. (for entities!)
-		$error_message = strtr($error_message, ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;']);
-
-		$error_message = strtr($error_message, ['&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>']);
-
-		// Add a file and line to the error message?
-		// Don't use the actual txt entries for file and line.
-		// Instead use %1$s for file and %2$s for line.
-		// Windows style slashes don't play well, lets convert them to the UNIX style.
-		$file = str_replace('\\', '/', $file);
-
-		// Find the best path and query string we can...
-		if (SMF === 'SSI') {
-			$request_url = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ltrim($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME'] ?? 'unknown.php') . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')), '/');
-		} elseif (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
-			$request_url = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
-		} else {
-			$request_url = ($_SERVER['REQUEST_URL'] ?? '');
-		}
-
-		// Don't log the session hash in the url twice, it's a waste.
-		$request_url = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $request_url));
-
-		// Just so we know what board error messages are from.
-		if (isset($_POST['board']) && !isset($_GET['board']) && SMF !== 'SSI') {
-			$request_url .= ($request_url == '' ? 'board=' : ';board=') . $_POST['board'];
-		}
-
-		// This prevents us from infinite looping if the hook or call produces an error.
-		$other_error_types = [];
-
-		// Exceptions may get mapped back into our common error types.
-		if (isset($this->known_exception_types[$error_type])) {
-			$error_type = $this->known_exception_types[$error_type];
-		}
-
-		if (empty($tried_hook)) {
-			$tried_hook = true;
-
-			// Allow the hook to change the error_type and know about the error.
-			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
-
-			$this->known_error_types = array_merge($this->known_error_types, $other_error_types);
-		}
-
-		// Make sure the category that was specified is a valid one
-		$error_type = \in_array($error_type, $this->known_error_types) && $error_type !== true ? $error_type : 'general';
-
-		// Leave out the call to this method.
-		array_splice($backtrace, 0, 1);
-
-		// Never log call arguments or bound objects.
-		//
-		// The backtraces we collect ourselves already omit the arguments, but a
-		// backtrace handed to us by an exception keeps both, and neither is
-		// safe to encode. Arguments can hold whatever the member submitted,
-		// including their password, and reading a property of a bound object
-		// can throw, which would turn an error we were merely logging into an
-		// uncaught fatal.
-		foreach ($backtrace as &$frame) {
-			unset($frame['args'], $frame['object']);
-		}
-		unset($frame);
-
-		$backtrace = Utils::jsonEncode($backtrace);
-
-		// Don't log the same error countless times, as we can get in a cycle of depression...
-		$error_info = [
-			User::$me->id ?? 0,
-			time(),
-			User::$me->ip ?? IP::getUserIP(),
-			$request_url,
-			$error_message,
-			(string) (User::$sc ?? ''),
-			$error_type,
-			$file,
-			$line,
-			$backtrace,
-		];
-
-		if (empty($last_error) || $last_error != $error_info) {
-			$error_batch[] = $error_info;
-			$last_error = $error_info;
-
-			// Get an error count, if necessary
-			if (!isset(Utils::$context['num_errors'])) {
-				$query = Db::$db->query(
-					'SELECT COUNT(*)
-					FROM {db_prefix}log_errors',
-					[],
-				);
-				list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
-				Db::$db->free_result($query);
+		try {
+			// Collect a backtrace
+			if (!DebugUtils::isDebugEnabled()) {
+				$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			} else {
-				Utils::$context['num_errors']++;
+				// This is how to keep the args but skip the objects.
+				$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
 			}
 
-			// Flush batch when threshold reached.
-			if (\count($error_batch) >= $batch_size) {
-				$this->flushErrorBatch($error_batch);
-				$error_batch = [];
+			// Are we in a loop? The count is how deep this call is: logging an
+			// error is allowed to produce one more, but a third means that
+			// whatever this depends on fails every time it is asked, and
+			// going round again would not end.
+			if ($error_call > 2) {
+				var_dump($backtrace);
+
+				die('Error: loop detected. The database may have failed or crashed.');
 			}
 
-			// Register shutdown function to flush remaining batch.
-			if (!$shutdown_registered) {
-				register_shutdown_function(function () use (&$error_batch) {
-					if (!empty($error_batch)) {
-						$this->flushErrorBatch($error_batch);
-					}
-				});
-				$shutdown_registered = true;
+			// Check if error logging is actually on.
+			if (empty(Config::$modSettings['enableErrorLogging'])) {
+				return $error_message;
 			}
+
+			// Basically, htmlspecialchars it minus &. (for entities!)
+			$error_message = strtr($error_message, ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;']);
+
+			$error_message = strtr($error_message, ['&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>']);
+
+			// Add a file and line to the error message?
+			// Don't use the actual txt entries for file and line.
+			// Instead use %1$s for file and %2$s for line.
+			// Windows style slashes don't play well, lets convert them to the UNIX style.
+			$file = str_replace('\\', '/', $file);
+
+			// Find the best path and query string we can...
+			if (SMF === 'SSI') {
+				$request_url = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ltrim($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME'] ?? 'unknown.php') . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')), '/');
+			} elseif (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
+				$request_url = substr($_SERVER['REQUEST_URL'], \strlen(Config::$boardurl));
+			} else {
+				$request_url = ($_SERVER['REQUEST_URL'] ?? '');
+			}
+
+			// Don't log the session hash in the url twice, it's a waste.
+			$request_url = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $request_url));
+
+			// Just so we know what board error messages are from.
+			if (isset($_POST['board']) && !isset($_GET['board']) && SMF !== 'SSI') {
+				$request_url .= ($request_url == '' ? 'board=' : ';board=') . $_POST['board'];
+			}
+
+			// This prevents us from infinite looping if the hook or call produces an error.
+			$other_error_types = [];
+
+			// Exceptions may get mapped back into our common error types.
+			if (isset($this->known_exception_types[$error_type])) {
+				$error_type = $this->known_exception_types[$error_type];
+			}
+
+			if (empty($tried_hook)) {
+				$tried_hook = true;
+
+				// Allow the hook to change the error_type and know about the error.
+				IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
+
+				$this->known_error_types = array_merge($this->known_error_types, $other_error_types);
+			}
+
+			// Make sure the category that was specified is a valid one
+			$error_type = \in_array($error_type, $this->known_error_types) && $error_type !== true ? $error_type : 'general';
+
+			// Leave out the call to this method.
+			array_splice($backtrace, 0, 1);
+
+			// Never log call arguments or bound objects.
+			//
+			// The backtraces we collect ourselves already omit the arguments, but a
+			// backtrace handed to us by an exception keeps both, and neither is
+			// safe to encode. Arguments can hold whatever the member submitted,
+			// including their password, and reading a property of a bound object
+			// can throw, which would turn an error we were merely logging into an
+			// uncaught fatal.
+			foreach ($backtrace as &$frame) {
+				unset($frame['args'], $frame['object']);
+			}
+			unset($frame);
+
+			$backtrace = Utils::jsonEncode($backtrace);
+
+			// Don't log the same error countless times, as we can get in a cycle of depression...
+			$error_info = [
+				User::$me->id ?? 0,
+				time(),
+				User::$me->ip ?? IP::getUserIP(),
+				$request_url,
+				$error_message,
+				(string) (User::$sc ?? ''),
+				$error_type,
+				$file,
+				$line,
+				$backtrace,
+			];
+
+			if (empty($last_error) || $last_error != $error_info) {
+				$error_batch[] = $error_info;
+				$last_error = $error_info;
+
+				// Get an error count, if necessary
+				if (!isset(Utils::$context['num_errors'])) {
+					$query = Db::$db->query(
+						'SELECT COUNT(*)
+						FROM {db_prefix}log_errors',
+						[],
+					);
+					list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
+					Db::$db->free_result($query);
+				} else {
+					Utils::$context['num_errors']++;
+				}
+
+				// Flush batch when threshold reached.
+				if (\count($error_batch) >= $batch_size) {
+					$this->flushErrorBatch($error_batch);
+					$error_batch = [];
+				}
+
+				// Register shutdown function to flush remaining batch.
+				if (!$shutdown_registered) {
+					register_shutdown_function(function () use (&$error_batch) {
+						if (!empty($error_batch)) {
+							$this->flushErrorBatch($error_batch);
+						}
+					});
+					$shutdown_registered = true;
+				}
+			}
+
+			// Return the message to make things simpler.
+			return $error_message;
+		} finally {
+			// The early return when logging is off, and any error raised on
+			// the way through, both leave this method without reaching the
+			// end of it, so the count is balanced here instead.
+			$error_call--;
 		}
-
-		// Reset error call
-		$error_call = 0;
-
-		// Return the message to make things simpler.
-		return $error_message;
 	}
 
 	/**
