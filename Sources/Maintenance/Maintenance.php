@@ -507,7 +507,11 @@ class Maintenance
 		);
 
 		// Get the manifest.
-		$manifest = include __DIR__ . DIRECTORY_SEPARATOR . 'manifest.php';
+		try {
+			$manifest = include __DIR__ . DIRECTORY_SEPARATOR . 'manifest.php';
+		} catch (\Throwable $e) {
+			$manifest = false;
+		}
 
 		// Manifest must be an array.
 		if (!\is_array($manifest)) {
@@ -599,7 +603,7 @@ class Maintenance
 							|| $checksum === true
 							|| (
 								is_file($possible_path)
-								&& $checksum === md5_file($possible_path)
+								&& $checksum === @md5_file($possible_path)
 							)
 						)
 					);
