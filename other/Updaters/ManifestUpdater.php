@@ -23,7 +23,7 @@ use SMF\Config;
 /**
  * Builds a manifest of files that must exist for SMF to function.
  *
- * The manifest is saved to Sources/Maintenance/manifest.json.
+ * The manifest is saved to Sources/Maintenance/manifest.php.
  */
 class ManifestUpdater extends UpdaterBase
 {
@@ -94,14 +94,13 @@ class ManifestUpdater extends UpdaterBase
 	 * Regex patterns for paths to exclude from the manifest.
 	 */
 	public array $excluded = [
-		// Always ignore manifest.json.
-		'~^Sources/Maintenance/manifest.json$~',
+		// Always ignore manifest.php.
+		'~^Sources/Maintenance/manifest.php$~',
 		// Always ignore dot files and directories except .htaccess.
 		'~(?<=^|/)\.(?!htaccess$)~',
 		// Always ignore Packages/backups, since SMF will dynamically create it
 		// when necessary.
 		'~^Packages/backups/~',
-
 	];
 
 	/**
@@ -160,7 +159,7 @@ class ManifestUpdater extends UpdaterBase
 	public function execute(): void
 	{
 		if (php_sapi_name() === 'cli') {
-			echo 'Updating manifest.json...', PHP_EOL;
+			echo 'Updating manifest file...', PHP_EOL;
 		}
 
 		$this->checkoutNewBranch();
@@ -193,10 +192,6 @@ class ManifestUpdater extends UpdaterBase
 		foreach ($this->files as $path) {
 			if (($real_path = realpath(Config::$boarddir . '/' . $path)) === false) {
 				throw new \Exception($path . ' does not exist');
-			}
-
-			if (!in_array($path, $tracked_files)) {
-				continue;
 			}
 
 			if (is_dir($real_path)) {
@@ -259,7 +254,10 @@ class ManifestUpdater extends UpdaterBase
 	 */
 	private function write(): void
 	{
-		file_put_contents(Config::$boarddir . '/Sources/Maintenance/manifest.json', json_encode($this->manifest, JSON_PRETTY_PRINT));
+		file_put_contents(
+			Config::$boarddir . '/Sources/Maintenance/manifest.php',
+			'<' . '?php' . "\n\n" . 'return ' . Config::varExport($this->manifest) . ';' . "\n",
+		);
 	}
 
 	/**
@@ -267,7 +265,7 @@ class ManifestUpdater extends UpdaterBase
 	 */
 	private function gitAdd(): void
 	{
-		shell_exec('git add ' . escapeshellarg('Sources/Maintenance/manifest.json'));
+		shell_exec('git add ' . escapeshellarg('Sources/Maintenance/manifest.php'));
 	}
 
 	/**

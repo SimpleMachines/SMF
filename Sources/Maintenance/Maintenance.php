@@ -427,8 +427,8 @@ class Maintenance
 	}
 
 	/**
-	 * Checks whether all expected files in manifest.json exist and returns
-	 * a list of any that are missing or have incorrect content.
+	 * Checks the files listed in manifest.php and returns a list of any that are
+	 * missing or have incorrect content.
 	 *
 	 * @param string $start_version The version of SMF we are starting from.
 	 *    For upgrades, this should be the version of SMF that was in use before
@@ -438,10 +438,12 @@ class Maintenance
 	 */
 	final public static function checkManifest(string $start_version, bool $check_content): array
 	{
+		$boarddir = self::getBaseDir();
+
 		$missing_or_corrupt_files = [];
 
 		// Does the manifest file exist?
-		if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json')) {
+		if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php')) {
 			// Development versions normally don't include a manifest.
 			// This is by design and receives special handling here.
 			if (str_ends_with(SMF_VERSION, '-dev')) {
@@ -487,13 +489,11 @@ class Maintenance
 			$missing_or_corrupt_files[] = str_replace(
 				Sapi::canonicalPath($sourcedir),
 				basename($sourcedir),
-				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json',
+				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
 			);
 
 			return $missing_or_corrupt_files;
 		}
-
-		$boarddir = self::getBaseDir();
 
 		$max = preg_replace('/^(\d)\.(\d).*/', '$1.$2', SMF_VERSION);
 		$min = preg_replace('/^(\d)\.(\d).*/', '$1.$2', $start_version);
@@ -507,15 +507,7 @@ class Maintenance
 		);
 
 		// Get the manifest.
-		try {
-			$manifest = json_decode(
-				file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json'),
-				associative: true,
-				flags: JSON_THROW_ON_ERROR,
-			);
-		} catch (\Throwable $e) {
-			$manifest = [];
-		}
+		$manifest = include __DIR__ . DIRECTORY_SEPARATOR . 'manifest.php';
 
 		// Manifest must be an array.
 		if (!\is_array($manifest)) {
@@ -524,7 +516,7 @@ class Maintenance
 			$missing_or_corrupt_files[] = str_replace(
 				Sapi::canonicalPath($sourcedir),
 				basename($sourcedir),
-				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json',
+				__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
 			);
 
 			return $missing_or_corrupt_files;
@@ -555,7 +547,7 @@ class Maintenance
 				$missing_or_corrupt_files[] = str_replace(
 					Sapi::canonicalPath($sourcedir),
 					basename($sourcedir),
-					__DIR__ . DIRECTORY_SEPARATOR . 'manifest.json',
+					__DIR__ . DIRECTORY_SEPARATOR . 'manifest.php',
 				);
 
 				return $missing_or_corrupt_files;
