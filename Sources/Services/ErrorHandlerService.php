@@ -211,6 +211,11 @@ class ErrorHandlerService
 		static $batch_size = 10;
 		static $shutdown_registered = false;
 
+		// Check if error logging is actually on.
+		if (empty(Config::$modSettings['enableErrorLogging'])) {
+			return $error_message;
+		}
+
 		$error_call++;
 
 		// Collect a backtrace
@@ -226,11 +231,6 @@ class ErrorHandlerService
 			var_dump($backtrace);
 
 			die('Error: loop detected. The database may have failed or crashed.');
-		}
-
-		// Check if error logging is actually on.
-		if (empty(Config::$modSettings['enableErrorLogging'])) {
-			return $error_message;
 		}
 
 		// Basically, htmlspecialchars it minus &. (for entities!)
