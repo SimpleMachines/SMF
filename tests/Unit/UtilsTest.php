@@ -164,7 +164,7 @@ class UtilsTest extends TestCase
 	}
 
 	#[DataProvider('versionStringProvider')]
-	public function testStandardizeVersionString(string $input, int $expected): void
+	public function testStandardizeVersionString(string $input, string $expected): void
 	{
 		$this->assertSame($expected, Utils::standardizeVersionString($input));
 	}
