@@ -39,6 +39,7 @@ $updaters = [
 	'UnicodeDataUpdater',
 	'AsciiTransliteratorDataUpdater',
 	'VersionNumberUpdater',
+	'ManifestUpdater',
 ];
 
 // Include all the updaters.

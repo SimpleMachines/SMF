@@ -303,13 +303,31 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Make sure they uploaded all the files.
-		if (!file_exists(Config::$boarddir . '/index.php')) {
-			Maintenance::$errors[] = Lang::getTxt('error_missing_files', file: 'Maintenance');
-			$this->logProgress(Lang::getTxt('error_missing_files', file: 'Maintenance'));
+		if (($missing_files = Maintenance::checkManifest(SMF_VERSION, true)) !== []) {
+			$error_message = Lang::getTxt(
+				'error_missing_files' . ($this->isDebug() ? '_debug' : ''),
+				[
+					'missing_files' => '<ol class="bbc_list" style="list-style-type: decimal;"><li>' . implode('</li><li>', $missing_files) . '</li></ol>',
+				],
+				file: 'Maintenance',
+			);
+
+			// Special message for developers.
+			if (
+				str_ends_with(SMF_VERSION, '-dev')
+				&& file_exists(Maintenance::getBaseDir() . '/other/update_manifest.php')
+			) {
+				// Not translated because it should never show up for anyone but devs.
+				$error_message .= '<br>Run ./other/update_manifest.php, then try again.';
+			}
+
+			Maintenance::$errors[] = $error_message;
+			$this->logProgress($error_message);
 		}
+
 		// Very simple check on the session.save_path for Windows.
 		// @todo Move this down later if they don't use database-driven sessions?
-		elseif (@\ini_get('session.save_path') == '/tmp' && Sapi::isOS(Sapi::OS_WINDOWS)) {
+		if (@\ini_get('session.save_path') == '/tmp' && Sapi::isOS(Sapi::OS_WINDOWS)) {
 			Maintenance::$errors[] = Lang::getTxt('error_session_save_path', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('error_session_save_path', file: 'Maintenance'));
 		}
