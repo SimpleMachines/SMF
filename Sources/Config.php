@@ -3074,6 +3074,73 @@ class Config
 		}
 	}
 
+	/**
+	 * Get the SettingsService instance from the container.
+	 *
+	 * This method provides access to the SettingsService for code that wants to use
+	 * dependency injection instead of static methods for Settings.php operations.
+	 *
+	 * @return Services\SettingsService The settings service instance.
+	 */
+	public static function getSettingsService(): Services\SettingsService
+	{
+		static $service = null;
+
+		// Return cached instance if available
+		if ($service !== null) {
+			return $service;
+		}
+
+		// Try to get the service from the container
+		try {
+			$service = Infrastructure\Container::get(Services\SettingsService::class);
+
+			return $service;
+		} catch (\Throwable $e) {
+			// Container not available or service not registered
+			// Fall through to manual instantiation
+		}
+
+		// Fallback: create instance directly
+		// This ensures config works even during early bootstrap
+		$service = new Services\SettingsService();
+
+		return $service;
+	}
+
+	/**
+	 * Get the ModSettingsService instance from the container.
+	 *
+	 * This method provides access to the ModSettingsService for code that wants to use
+	 * dependency injection instead of static methods for database settings operations.
+	 *
+	 * @return Services\ModSettingsService The mod settings service instance.
+	 */
+	public static function getModSettingsService(): Services\ModSettingsService
+	{
+		static $service = null;
+
+		// Return cached instance if available
+		if ($service !== null) {
+			return $service;
+		}
+
+		// Try to get the service from the container
+		try {
+			$service = Infrastructure\Container::get(Services\ModSettingsService::class);
+
+			return $service;
+		} catch (\Throwable $e) {
+			// Container not available or service not registered
+			// Fall through to manual instantiation
+		}
+
+		// Fallback: create instance directly
+		$service = new Services\ModSettingsService();
+
+		return $service;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
