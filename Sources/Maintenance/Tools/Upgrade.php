@@ -1380,7 +1380,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
-		return Db::$db->backup_table($table, 'backup_' . $table);
+		// The database layer answers with whatever its query returned, which is
+		// a result object on PostgreSQL and true on MySQL. Only an outright
+		// false means the table was not copied.
+		return Db::$db->backup_table($table, 'backup_' . $table) !== false;
 	}
 
 	/******************
