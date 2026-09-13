@@ -255,8 +255,9 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function welcome(): bool
 	{
-		// Done the submission?
-		if (isset($_POST['contbutt'])) {
+		// Done the submission? From the command line contbutt is passed with every
+		// run, so there it cannot mean the checks below were seen and passed.
+		if (isset($_POST['contbutt']) && !Sapi::isCLI()) {
 			// Does the admin want debug info?
 			$this->debug = isset($_POST['debug']);
 
@@ -360,6 +361,11 @@ class Install extends ToolsBase implements ToolsInterface
 
 		if (empty(Maintenance::$errors)) {
 			Utils::$context['continue'] = true;
+		}
+
+		// There is no page to show on the command line, so carry on unless a check failed.
+		if (Sapi::isCLI()) {
+			return empty(Maintenance::$errors) && empty(Maintenance::$fatal_error);
 		}
 
 		return false;
