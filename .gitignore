@@ -29,9 +29,6 @@ Themes/default/scripts/autolinker.js
 custom_avatar/
 !custom_avatar/index.php
 !custom_avatar/blank.png
-Sources/Unicode/*.php
-!Sources/Unicode/index.php
-!Sources/Unicode/Utf8String.php
 logs
 
 # Compiled source #

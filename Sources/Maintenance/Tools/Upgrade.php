@@ -367,6 +367,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function __construct()
 	{
+		// Are we doing debug?
+		if (isset($_GET['debug']) || isset($_POST['debug'])) {
+			$this->debug = true;
+		}
+
 		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
 
 		if (empty(Maintenance::$languages)) {
@@ -420,7 +425,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Is this a large (and old) forum? We may do special logic then.
 		Utils::$context['is_large_forum'] = $this->is_large_forum = (
 			version_compare(
-				str_replace(' ', '.', strtolower($this->start_smf_version)),
+				Utils::standardizeVersionString($this->start_smf_version),
 				'1.1.rc.1',
 				'<=',
 			)
@@ -552,6 +557,41 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
+		// Make sure they uploaded all the files.
+		$missing_files = Maintenance::checkManifest(
+			start_version: $this->start_smf_version,
+			// If upgrading from an old SMF version (e.g. 2.1 -> 3.0), validate
+			// the file content. Otherwise, just check that the files exist.
+			// This allows the admin to re-run the upgrader at any time even if
+			// installed modification packages have made file changes.
+			check_content: version_compare(
+				Utils::standardizeVersionString($this->start_smf_version),
+				preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION),
+				'<',
+			),
+		);
+
+		if (!empty($missing_files)) {
+			Maintenance::$fatal_error = Lang::getTxt(
+				'error_missing_files' . ($this->isDebug() ? '_debug' : ''),
+				['missing_files' => '<ol><li>' . implode('</li><li>', $missing_files) . '</li></ol>'],
+				file: 'Maintenance',
+			);
+
+			// Special message for developers.
+			if (
+				str_ends_with(SMF_VERSION, '-dev')
+				&& file_exists(Maintenance::getBaseDir() . '/other/update_manifest.php')
+			) {
+				// Not translated because it should never show up for anyone but devs.
+				Maintenance::$fatal_error .= '<br>Run ./other/update_manifest.php, then try again.';
+			}
+
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
+
 		// Needs to at least meet our minium version.
 		if (version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>=')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
@@ -576,52 +616,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		// Check for some key files.
-		$check = (
-			@file_exists(Maintenance::$theme_dir . '/index.template.php')
-			&& @file_exists(Config::$sourcedir . '/Forum.php')
-			&& @file_exists(Config::$sourcedir . '/QueryString.php')
-			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-		);
-
-		try {
-			foreach (self::VERSION_MAP as $search => $ns) {
-				if (version_compare($this->start_smf_version, $search, '>')) {
-					continue;
-				}
-
-				foreach (self::MIGRATIONS[$ns] as $class) {
-					if (!class_exists($class)) {
-						throw new \Exception("{$class} does not exist");
-					}
-				}
-
-				foreach (self::CLEANUPS[$ns] as $class) {
-					if (!class_exists($class)) {
-						throw new \Exception("{$class} does not exist");
-					}
-				}
-			}
-		}
-		// Developers, set break point here to figure out what you did wrong.
-		 catch (\Exception $ex) {
-			$check = false;
-		}
-
-		if (!$check) {
-			// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
-			Maintenance::$fatal_error = Lang::getTxt('error_upgrade_files_missing', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
-
-			return false;
-		}
-
 		Db::load();
 
 		if (
 			version_compare(
-				preg_replace('~^\D*|\-.+?$~', '', Db::$db->get_version()),
-				Db::$db->getMinimumVersion(),
+				Utils::standardizeVersionString(Db::$db->get_version()),
+				Utils::standardizeVersionString(Db::$db->getMinimumVersion()),
 				'<',
 			)
 		) {
@@ -821,7 +821,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')), '2.1.dev.0', '<');
+			$use_old_hashing = version_compare(Utils::standardizeVersionString(Config::$modSettings['smfVersion'] ?? '0.0.dev.0'), '2.1.dev.0', '<');
 
 			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
 				$this->user['id'] = $id;
@@ -862,7 +862,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Utils::$context['migrate_settings_recommended'] = (
 			empty(Config::$modSettings['smfVersion'])
 			|| version_compare(
-				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
+				Utils::standardizeVersionString(Config::$modSettings['smfVersion']),
 				preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION),
 				'<',
 			)
@@ -1019,9 +1019,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Are we doing debug?
-		if (isset($_POST['debug'])) {
-			$this->debug = true;
-		}
+		$this->debug = isset($_POST['debug']);
 
 		// If we've got here then let's proceed to the next step!
 		return true;
@@ -1116,7 +1114,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		foreach (self::VERSION_MAP as $search => $ns) {
 			$substeps = [];
 
-			if (version_compare($this->start_smf_version, $search, '>')) {
+			if (version_compare(Utils::standardizeVersionString($this->start_smf_version), $search, '>')) {
 				continue;
 			}
 
@@ -1148,7 +1146,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			// Update Config::$modSettings['smfVersion'] incrementally as we go.
 			// This lets us avoid redoing unnecessary migration steps if the
 			// upgrader gets interrupted and restarted for some reason.
-			if (version_compare($search, SMF_VERSION, '<')) {
+			if (version_compare($search, Utils::standardizeVersionString(SMF_VERSION), '<')) {
 				$this->updateModSettings([
 					'smfVersion' => substr($search, 0, strrpos($search, '.') + 1) . str_increment(substr($search, strrpos($search, '.') + 1)),
 				]);
@@ -1180,7 +1178,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$substeps = [];
 
 		foreach (self::VERSION_MAP as $search => $ns) {
-			if (version_compare($this->start_smf_version, $search, '>')) {
+			if (version_compare(Utils::standardizeVersionString($this->start_smf_version), $search, '>')) {
 				continue;
 			}
 
@@ -1437,7 +1435,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$this->time_started = (int) ($data['started'] ?? time());
 		$this->time_updated = (int) ($data['updated'] ?? time());
-		$this->debug = !empty($data['debug']);
+		$this->debug = $this->debug || !empty($data['debug']);
 		$this->skipped_migrations = (array) ($data['skipped'] ?? []);
 		$this->user['id'] = (int) ($data['user_id'] ?? 0);
 		$this->user['name'] = (string) ($data['user_name'] ?? '');

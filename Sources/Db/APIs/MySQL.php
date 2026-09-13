@@ -867,7 +867,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$min_version = str_contains(strtolower($this->version), 'mariadb') ? '10.2.2' : '8.0.1';
 
-		$this->supports_cte = version_compare($this->version, $min_version, '>=');
+		$this->supports_cte = version_compare(Utils::standardizeVersionString($this->version), $min_version, '>=');
 
 		return $this->supports_cte;
 	}
