@@ -100,7 +100,7 @@ Mentions:
 
 Meta:
   - changed-files:
-    - any-glob-to-any-file: ['other/**']
+    - any-glob-to-any-file: ['other/**', '.docker/*', '.github/*', 'composer.*', '*.md', '*.txt', '*.yaml', '*.yml', '.php-cs-fixer.dist.php', 'phpunit.xml.dist', '.git*']
     - all-globs-to-all-files: ['!other/upgrade.php', '!other/install.php']
 
 Moderation:
