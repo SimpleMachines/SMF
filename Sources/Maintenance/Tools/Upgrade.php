@@ -367,6 +367,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function __construct()
 	{
+		// Are we doing debug?
+		if (isset($_GET['debug']) || isset($_POST['debug'])) {
+			$this->debug = true;
+		}
+
 		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
 
 		if (empty(Maintenance::$languages)) {
@@ -1019,9 +1024,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Are we doing debug?
-		if (isset($_POST['debug'])) {
-			$this->debug = true;
-		}
+		$this->debug = isset($_POST['debug']);
 
 		// If we've got here then let's proceed to the next step!
 		return true;
@@ -1437,7 +1440,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		$this->time_started = (int) ($data['started'] ?? time());
 		$this->time_updated = (int) ($data['updated'] ?? time());
-		$this->debug = !empty($data['debug']);
+		$this->debug = $this->debug || !empty($data['debug']);
 		$this->skipped_migrations = (array) ($data['skipped'] ?? []);
 		$this->user['id'] = (int) ($data['user_id'] ?? 0);
 		$this->user['name'] = (string) ($data['user_name'] ?? '');

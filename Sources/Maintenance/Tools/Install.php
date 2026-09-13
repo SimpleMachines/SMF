@@ -112,6 +112,11 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function __construct()
 	{
+		// Are we doing debug?
+		if (isset($_GET['debug']) || isset($_POST['debug'])) {
+			$this->debug = true;
+		}
+
 		Maintenance::$languages = $this->detectLanguages(['General', 'Maintenance']);
 
 		if (empty(Maintenance::$languages)) {
@@ -252,6 +257,9 @@ class Install extends ToolsBase implements ToolsInterface
 	{
 		// Done the submission?
 		if (isset($_POST['contbutt'])) {
+			// Does the admin want debug info?
+			$this->debug = isset($_POST['debug']);
+
 			return true;
 		}
 
@@ -334,11 +342,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 		if (empty(Maintenance::$errors)) {
 			Utils::$context['continue'] = true;
-		}
-
-		// Are we doing debug?
-		if (isset($_REQUEST['debug'])) {
-			$this->debug = true;
 		}
 
 		return false;
@@ -1414,7 +1417,7 @@ class Install extends ToolsBase implements ToolsInterface
 		$data = isset($defined_vars['maintenance_tool_progress']) ? Utils::jsonDecode($defined_vars['maintenance_tool_progress'], true) : [];
 
 		$this->time_started = (int) ($data['started'] ?? time());
-		$this->debug = !empty($data['debug']);
+		$this->debug = $this->debug || !empty($data['debug']);
 	}
 
 	/**
