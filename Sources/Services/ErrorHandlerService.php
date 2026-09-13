@@ -337,7 +337,7 @@ class ErrorHandlerService
 			// Register shutdown function to flush remaining batch.
 			if (!$shutdown_registered) {
 				register_shutdown_function(function () use (&$error_batch) {
-					if (!empty($error_batch)) {
+					if ($error_batch !== []) {
 						$this->flushErrorBatch($error_batch);
 					}
 				});
