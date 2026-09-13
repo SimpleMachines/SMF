@@ -279,8 +279,12 @@ class ErrorHandlerService
 		// Make sure the category that was specified is a valid one
 		$error_type = \in_array($error_type, $this->known_error_types) && $error_type !== true ? $error_type : 'general';
 
-		// Leave out the call to this method.
-		array_splice($backtrace, 0, 1);
+		// Remove any ErrorHandler frames from the backtrace.
+		$backtrace = array_filter(
+			$backtrace,
+			// Intentionally not matching exact class names here.
+			static fn (array $trace): bool => !isset($trace['class']) || !str_contains($trace['class'], 'ErrorHandler'),
+		);
 
 		// Never log call arguments or bound objects.
 		//
