@@ -41,9 +41,16 @@ $updaters = [
 	'VersionNumberUpdater',
 ];
 
-$num_updaters_executed = 0;
+// Include all the updaters.
+foreach ($updaters as $class_name) {
+	$file_name = 'Updaters/' . $class_name . '.php';
+
+	require_once $file_name;
+}
 
 // If a version number was specified manually, validate it before proceeding.
+// VersionNumberUpdater will validate it too, but we don't want to change
+// anything at all if we know is going to fail.
 if (
 	isset($argv[1])
 	&& (
@@ -55,11 +62,11 @@ if (
 	throw new \Exception('Provided version string is invalid: ' . $argv[1]);
 }
 
-foreach ($updaters as $class_name) {
-	$file_name = 'Updaters/' . $class_name . '.php';
-	$fully_qualified_class_name = __NAMESPACE__ . '\\Updaters\\' . $class_name;
+// Run all the updaters.
+$num_updaters_executed = 0;
 
-	require_once $file_name;
+foreach ($updaters as $class_name) {
+	$fully_qualified_class_name = __NAMESPACE__ . '\\Updaters\\' . $class_name;
 
 	$updater = new $fully_qualified_class_name(str_replace('release-', '', Updaters\UpdaterBase::MAIN_BRANCH) . '/prepare_release');
 
