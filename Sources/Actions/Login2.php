@@ -178,13 +178,21 @@ class Login2 implements ActionInterface, Routable
 
 		User::$me->can_mod = User::$me->allowedTo('access_mod_center') || (!User::$me->is_guest && (User::$me->mod_cache['gq'] != '0=1' || User::$me->mod_cache['bq'] != '0=1' || (Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']))));
 
+		/*
+		 * Anything else they still have to prove before we let them all the way
+		 * in? Check tfa_mode as well as the member, because User::verifyTfa()
+		 * does, and sending them to ?action=logintfa when it won't is how you
+		 * get "You are not allowed to access this section" instead of a login.
+		 */
+		$needs_second_factor = !empty(Config::$modSettings['tfa_mode']) && User::$me->hasSecondFactor();
+
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url'])) {
-			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
+			Utils::redirectexit($needs_second_factor ? 'action=logintfa' : '');
 		} elseif (!empty($_SESSION['login_url']) && (!str_contains($_SESSION['login_url'], 'http://') && !str_contains($_SESSION['login_url'], 'https://'))) {
 			unset($_SESSION['login_url']);
-			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
-		} elseif (!empty(User::$me->tfa_secret)) {
+			Utils::redirectexit($needs_second_factor ? 'action=logintfa' : '');
+		} elseif ($needs_second_factor) {
 			Utils::redirectexit('action=logintfa');
 		} else {
 			// Best not to clutter the session data too much...
@@ -251,6 +259,7 @@ class Login2 implements ActionInterface, Routable
 		Utils::$context['never_expire'] = !empty($_POST['cookieneverexp']);
 		Utils::$context['login_errors'] = [Lang::getTxt('error_occured', file: 'General')];
 		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
+		Utils::$context['authentication_methods'] = self::getAuthenticationMethods();
 
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
@@ -309,6 +318,17 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		$this->member = reset($loaded);
+
+		/*
+		 * This account signs in some other way, so there is nothing here for a
+		 * password to match against. Stop before Security::checkPassword() gets
+		 * a chance to compare the submitted password to an empty hash.
+		 */
+		if (!$this->member->hasUsablePassword()) {
+			Utils::$context['login_errors'] = [Lang::getTxt('invalid_credentials', file: 'General')];
+
+			return;
+		}
 
 		// Bad password! Thought you could fool the database?!
 		if (
@@ -403,6 +423,155 @@ class Login2 implements ActionInterface, Routable
 		) {
 			Utils::$context['from_ajax'] = true;
 			Utils::$context['template_layers'] = [];
+		}
+	}
+
+	/**
+	 * Lists the ways to sign in that are offered alongside the password form.
+	 *
+	 * SMF has exactly one way to log in, so this is empty on a stock install.
+	 * It exists so that anything adding another way, such as an external
+	 * identity provider, has somewhere to say so and gets rendered in the same
+	 * place as everything else rather than each mod inventing its own spot.
+	 *
+	 * Each entry should be an array with at least:
+	 *  - 'title': what to show on the button. Already escaped for output.
+	 *  - 'url': where the button goes.
+	 * and may also carry an 'id' used as a CSS class, so a method can be styled
+	 * with its own branding.
+	 *
+	 * @return array The available alternatives, which may be empty.
+	 */
+	public static function getAuthenticationMethods(): array
+	{
+		$methods = [];
+
+		/*
+		 * MOD AUTHORS: Add your sign in method here to have it offered on the
+		 * login form. Starting the flow, and everything after it, is up to you;
+		 * finish by calling Login2::completeLogin() so that the member ends up
+		 * logged in the same way a password would have left them.
+		 */
+		IntegrationHook::call('integrate_authentication_methods', [&$methods]);
+
+		return $methods;
+	}
+
+	/**
+	 * Finishes logging a member in, once something has decided that they are who
+	 * they say they are.
+	 *
+	 * This is everything that happens *after* the credentials check: the cookie,
+	 * the session, the ban check, and the login history. The password form is
+	 * only one way to get here, so anything else that can authenticate a member
+	 * (an external identity provider, a passkey, a mod) should call this rather
+	 * than reinventing it, or it will miss a step.
+	 *
+	 * Note that this does not perform any second factor check of its own. The
+	 * redirect below goes through Login2::checkCookie(), which is what sends the
+	 * member on to the second factor when they have one.
+	 *
+	 * @param \SMF\User $member The member to log in.
+	 * @param bool $stay_logged_in Whether to use a long lived cookie.
+	 * @param bool $redirect Whether to redirect once we are done. Pass false if
+	 *    the caller needs to send its own response, e.g. because it is answering
+	 *    an AJAX request. The caller is then responsible for making sure the
+	 *    member ends up somewhere sensible.
+	 */
+	public static function completeLogin(User $member, bool $stay_logged_in = false, bool $redirect = true): void
+	{
+		// Call login integration functions.
+		IntegrationHook::call(
+			'integrate_login',
+			[
+				$member->username,
+				null,
+				// This is divided by 60 for compatibility with old mods that
+				// expected a number of minutes rather than a number of seconds.
+				($stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
+			],
+		);
+
+		// Get ready to set the cookie...
+		User::setMe($member->id);
+		User::$me->stay_logged_in = $stay_logged_in;
+
+		// Bam!  Cookie set.  A session too, just in case.
+		Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
+
+		// Reset the login threshold.
+		if (isset($_SESSION['failed_login'])) {
+			unset($_SESSION['failed_login']);
+		}
+
+		// Are you banned?
+		User::$me->enforceBans(true);
+
+		// Don't stick the language or theme after this point.
+		unset($_SESSION['language'], $_SESSION['id_theme']);
+
+		// First login?
+		if (User::$me->last_login === 0) {
+			$_SESSION['first_login'] = true;
+		} else {
+			unset($_SESSION['first_login']);
+		}
+
+		// You've logged in, haven't you?
+		User::$me->ip = IP::getUserIP();
+		User::$me->ip2 = IP::getUserIPAlternative();
+		User::$me->validation_code = '';
+
+		if (!User::$me->hasSecondFactor()) {
+			User::$me->last_login = time();
+		}
+
+		User::$me->save();
+
+		// Get rid of the online entry for that old guest....
+		Db::$db->query(
+			'DELETE FROM {db_prefix}log_online
+			WHERE session = {string:session}',
+			[
+				'session' => 'ip' . User::$me->ip,
+			],
+		);
+		$_SESSION['log_time'] = 0;
+
+		// Log this entry, only if we have it enabled.
+		if (!empty(Config::$modSettings['loginHistoryDays'])) {
+			Db::$db->insert(
+				'insert',
+				'{db_prefix}member_logins',
+				[
+					'id_member' => 'int',
+					'time' => 'int',
+					'ip' => 'inet',
+					'ip2' => 'inet',
+				],
+				[
+					[
+						User::$me->id,
+						time(),
+						User::$me->ip,
+						User::$me->ip2,
+					],
+				],
+				[
+					'id_member', 'time',
+				],
+			);
+		}
+
+		if (!$redirect) {
+			return;
+		}
+
+		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
+		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum')) {
+			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
+		} else {
+			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Sapi::needsLoginFix());
 		}
 	}
 
@@ -514,94 +683,6 @@ class Login2 implements ActionInterface, Routable
 	 */
 	protected function DoLogin(): void
 	{
-		// Call login integration functions.
-		IntegrationHook::call(
-			'integrate_login',
-			[
-				$this->member->username,
-				null,
-				// This is divided by 60 for compatibility with old mods that
-				// expected a number of minutes rather than a number of seconds.
-				(!empty(Utils::$context['never_expire']) ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
-			],
-		);
-
-		// Get ready to set the cookie...
-		User::setMe($this->member->id);
-		User::$me->stay_logged_in = !empty(Utils::$context['never_expire']);
-
-		// Bam!  Cookie set.  A session too, just in case.
-		Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
-
-		// Reset the login threshold.
-		if (isset($_SESSION['failed_login'])) {
-			unset($_SESSION['failed_login']);
-		}
-
-		// Are you banned?
-		User::$me->enforceBans(true);
-
-		// Don't stick the language or theme after this point.
-		unset($_SESSION['language'], $_SESSION['id_theme']);
-
-		// First login?
-		if (User::$me->last_login === 0) {
-			$_SESSION['first_login'] = true;
-		} else {
-			unset($_SESSION['first_login']);
-		}
-
-		// You've logged in, haven't you?
-		User::$me->ip = IP::getUserIP();
-		User::$me->ip2 = IP::getUserIPAlternative();
-		User::$me->validation_code = '';
-
-		if (empty(User::$me->tfa_secret)) {
-			User::$me->last_login = time();
-		}
-
-		User::$me->save();
-
-		// Get rid of the online entry for that old guest....
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_online
-			WHERE session = {string:session}',
-			[
-				'session' => 'ip' . User::$me->ip,
-			],
-		);
-		$_SESSION['log_time'] = 0;
-
-		// Log this entry, only if we have it enabled.
-		if (!empty(Config::$modSettings['loginHistoryDays'])) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}member_logins',
-				[
-					'id_member' => 'int',
-					'time' => 'int',
-					'ip' => 'inet',
-					'ip2' => 'inet',
-				],
-				[
-					[
-						User::$me->id,
-						time(),
-						User::$me->ip,
-						User::$me->ip2,
-					],
-				],
-				[
-					'id_member', 'time',
-				],
-			);
-		}
-
-		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
-		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum')) {
-			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
-		} else {
-			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Sapi::needsLoginFix());
-		}
+		self::completeLogin($this->member, !empty(Utils::$context['never_expire']));
 	}
 }
