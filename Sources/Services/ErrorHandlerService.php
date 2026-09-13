@@ -785,17 +785,46 @@ class ErrorHandlerService
 	 * Flush batched errors to database in a single multi-row operation.
 	 * This is much faster than individual inserts, especially during high-error scenarios.
 	 *
-	 * @param array $errors Array of error info arrays to flush
+	 * @param array $errors Array of error info arrays to flush.
 	 */
 	private function flushErrorBatch(array $errors): void
 	{
-		if (empty($errors)) {
-			return;
+		$columns = [
+			'id_member' => 'int',
+			'log_time' => 'int',
+			'ip' => 'inet',
+			'url' => 'string',
+			'message' => 'string',
+			'session' => 'string',
+			'error_type' => 'string',
+			'file' => 'string',
+			'line' => 'int',
+			'backtrace' => 'string',
+		];
+
+		$data = [];
+
+		foreach ($errors as $error_array) {
+			$data[] = [
+				$error_array['id_member'],
+				$error_array['log_time'],
+				$error_array['ip'],
+				$error_array['url'],
+				$error_array['message'],
+				$error_array['session'],
+				$error_array['error_type'],
+				$error_array['file'],
+				$error_array['line'],
+				$error_array['backtrace'],
+			];
 		}
 
-		// Insert all batched errors in one query
-		foreach ($errors as $error_info) {
-			Db::$db->error_insert($error_info);
-		}
+		Db::$db->insert(
+			'insert',
+			'{db_prefix}log_errors',
+			$columns,
+			$data,
+			[],
+		);
 	}
 }
