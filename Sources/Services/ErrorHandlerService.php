@@ -418,7 +418,7 @@ class ErrorHandlerService
 		}
 
 		// Attempt to load the text string.
-		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
+		$error_message = Lang::getTxt($error, $sprintf, file: $file);
 
 		// Send a custom header if we have a custom message.
 		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
