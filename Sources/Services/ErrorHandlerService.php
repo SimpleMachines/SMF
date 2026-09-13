@@ -179,7 +179,7 @@ class ErrorHandlerService
 	 */
 	public function catch(\Throwable $e): void
 	{
-		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
+		$message = $e::class . ': ' . (Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage());
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
 			$this->log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
