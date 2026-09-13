@@ -107,7 +107,7 @@ class Autolinker
 
 		// Schemes that should never be autolinked.
 		'forbidden' => [
-			'javascript', 'data',
+			'javascript', 'data', 'hxxp', 'hxxps',
 		],
 	];
 
