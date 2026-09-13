@@ -283,7 +283,7 @@ class ErrorHandlerService
 		$backtrace = array_filter(
 			$backtrace,
 			// Intentionally not matching exact class names here.
-			static fn (array $trace): bool => !isset($trace['class']) || !str_contains($trace['class'], 'ErrorHandler'),
+			static fn(array $trace): bool => !isset($trace['class']) || !str_contains($trace['class'], 'ErrorHandler'),
 		);
 
 		// Never log call arguments or bound objects.
