@@ -7,6 +7,10 @@
  * Builds a manifest of files that must exist for SMF to function.
  * The manifest is saved to Sources/Maintenance/manifest.php.
  *
+ * To also commit the manifest to the current branch, pass 'commit':
+ *
+ *     php -f other/update_manifest.php commit
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -29,7 +33,9 @@ require_once 'Updaters/ManifestUpdater.php';
 $updater = new Updaters\ManifestUpdater();
 $updater->execute();
 
-if ($updater->hasChanged()) {
+// Committing is left to the 'commit' argument: this also regenerates the
+// manifest for local install and upgrade testing, which should leave Git alone.
+if (($argv[1] ?? null) === 'commit' && $updater->hasChanged()) {
 	if (!$updater->ready_to_commit) {
 		echo 'Changes are not ready to commit. Deal with them manually.' . PHP_EOL;
 	} elseif ($updater->commit()) {
