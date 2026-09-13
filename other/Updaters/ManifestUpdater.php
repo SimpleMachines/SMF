@@ -166,7 +166,6 @@ class ManifestUpdater extends UpdaterBase
 
 		$this->build();
 		$this->write();
-		$this->gitAdd();
 
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->hasChanged() ? ' No changes were made.' : '', PHP_EOL;
@@ -175,6 +174,21 @@ class ManifestUpdater extends UpdaterBase
 		$this->ready_to_commit = true;
 
 		$this->removeUselessBranch();
+	}
+
+	/**
+	 * Stages the manifest file, then commits it.
+	 *
+	 * The manifest is a new file at every release, and `git commit -a` only
+	 * picks up files that Git already tracks.
+	 *
+	 * @return bool Whether a commit was made.
+	 */
+	public function commit(): bool
+	{
+		$this->gitAdd();
+
+		return parent::commit();
 	}
 
 	/******************
