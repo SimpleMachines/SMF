@@ -137,7 +137,7 @@ chown -R www-data:www-data \
 # more complete testing of the install and upgrade processes.
 if [ ! -f "$BOARD_DIR/Sources/Maintenance/manifest.php" ]; then
 	log 'building manifest.php'
-	php -f "$BOARD_DIR/other/update_manifest.php" &>/dev/null || true
+	php -f "$BOARD_DIR/other/update_manifest.php" >/dev/null 2>&1 || true
 fi
 
 log 'ready'
