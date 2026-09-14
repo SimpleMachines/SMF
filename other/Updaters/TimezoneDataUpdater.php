@@ -2712,7 +2712,7 @@ class TimezoneDataUpdater extends UpdaterBase
 					'',
 					'declare(strict_types=1);',
 					'',
-					'namespace SMF\\Calendar\\VTimeZones\\' . str_replace('/', '\\', \dirname($tzid)) . ';',
+					'namespace ' . str_replace('/', '\\', rtrim('SMF\\Calendar\\VTimeZones\\' . \dirname($tzid), '.\\')) . ';',
 					'',
 					'/**',
 					' * ' . $tzid,
