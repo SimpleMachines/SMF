@@ -105,7 +105,6 @@ $tztxt['Indian_Seychelles'] = 'Seychelles %1$s Time';
 $tztxt['North_America_Alaska'] = 'Alaska %1$s Time';
 $tztxt['North_America_Atlantic'] = 'Atlantic %1$s Time';
 $tztxt['North_America_Central'] = 'Central %1$s Time';
-$tztxt['North_America_Mexico_Central'] = 'Mexican Central %1$s Time';
 $tztxt['North_America_Cuba'] = 'Cuba %1$s Time';
 $tztxt['North_America_Eastern'] = 'Eastern %1$s Time';
 $tztxt['North_America_Greenland_Eastern'] = 'Eastern Greenland %1$s Time';

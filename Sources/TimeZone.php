@@ -162,7 +162,7 @@ class TimeZone extends \DateTimeZone
 		'America/Manaus' => 'South_America_Amazon',
 
 		// Uses DST
-		'America/Mexico_City' => 'North_America_Mexico_Central',
+		'America/Mexico_City' => 'North_America_Central',
 
 		// Uses DST
 		'America/Miquelon' => 'North_America_St_Pierre_Miquelon',
