@@ -112,10 +112,8 @@ class TimezoneUpdater
 
 	/**
 	 * Used in places where an earliest date is required.
-	 *
-	 * To support 32-bit PHP builds, use '1901-12-13 20:45:52 UTC'
 	 */
-	const DATE_MIN = '-292277022657-01-27 08:29:52 UTC';
+	const DATE_MIN = '1901-12-13 20:45:52 UTC';
 
 	/**
 	 * Used in places where a latest date is required.
