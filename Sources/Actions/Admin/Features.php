@@ -71,7 +71,6 @@ class Features implements ActionInterface
 		'sig' => 'signature',
 		'profile' => 'profile',
 		'profileedit' => 'profileEdit',
-		'likes' => 'likes',
 		'mentions' => 'mentions',
 		'alerts' => 'alerts',
 	];
@@ -1442,32 +1441,6 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Handles modifying the likes settings.
-	 *
-	 * Accessed from ?action=admin;area=featuresettings;sa=likes
-	 */
-	public function likes(): void
-	{
-		$config_vars = self::likesConfigVars();
-
-		// Saving?
-		if (isset($_GET['save'])) {
-			User::$me->checkSession();
-
-			IntegrationHook::call('integrate_save_likes_settings');
-
-			ACP::saveDBSettings($config_vars);
-			$_SESSION['adm-save'] = true;
-			Utils::redirectexit('action=admin;area=featuresettings;sa=likes');
-		}
-
-		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-		Utils::$context['settings_title'] = Lang::getTxt('likes', file: 'General');
-
-		ACP::prepareDBSettingContext($config_vars);
-	}
-
-	/**
 	 * Handles modifying the mentions settings.
 	 *
 	 * Accessed via ?action=admin;area=featuresettings;sa=mentions
@@ -1842,23 +1815,6 @@ class Features implements ActionInterface
 	}
 
 	/**
-	 * Gets the configuration variables for the likes sub-action.
-	 *
-	 * @return array $config_vars for the likes sub-action.
-	 */
-	public static function likesConfigVars(): array
-	{
-		$config_vars = [
-			['check', 'enable_likes'],
-			['permissions', 'likes_like'],
-		];
-
-		IntegrationHook::call('integrate_likes_settings', [&$config_vars]);
-
-		return $config_vars;
-	}
-
-	/**
 	 * Gets the configuration variables for the mentions sub-action.
 	 *
 	 * @return array $config_vars for the mentions sub-action.
@@ -1987,9 +1943,7 @@ class Features implements ActionInterface
 					'description' => Lang::getTxt('signature_settings_desc', file: 'ManageSettings'),
 				],
 				'profile' => [
-					'description' => Lang::getTxt('custom_profile_desc', file: 'ManageSettings'),
-				],
-				'likes' => [
+					'description' => Lang::$txt['custom_profile_desc'],
 				],
 				'mentions' => [
 				],
