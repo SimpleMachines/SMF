@@ -123,6 +123,9 @@ function get_tzid_metazones($when = 'now')
 		'America/Denver' => 'North_America_Mountain',
 
 		// Uses DST
+		'America/Edmonton' => 'America_Edmonton',
+
+		// Uses DST
 		'America/Nuuk' => 'North_America_Greenland_Western',
 
 		// No DST
@@ -2008,13 +2011,9 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 
 		// Diverged from America/Santiago in version 2017a.
 		'America/Punta_Arenas' => array(
-			array(
-				'ts' => PHP_INT_MIN,
-				'tzid' => '',
-			),
 			// Chile/Continental is an otherwise unused link to America/Santiago.
 			array(
-				'ts' => strtotime('1890-01-01T04:43:40+0000'),
+				'ts' => PHP_INT_MIN,
 				'tzid' => 'Chile/Continental',
 			),
 			array(
@@ -2071,13 +2070,9 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 		// Diverged from America/Santiago in version 2025b.
 		// From 2025-03-20 onward, becomes the same as America/Punta_Arenas.
 		'America/Coyhaique' => array(
+			// Chile/Continental is an otherwise unused link to America/Santiago.
 			array(
 				'ts' => PHP_INT_MIN,
-				'tzid' => '',
-			),
-			array(
-				'ts' => strtotime('1890-01-01T04:48:16+0000'),
-				// Chile/Continental is an otherwise unused link to America/Santiago.
 				'tzid' => 'Chile/Continental',
 			),
 			array(

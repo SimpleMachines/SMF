@@ -16,6 +16,7 @@ $tztxt['Africa_East'] = 'East Africa %1$s Time';
 $tztxt['Africa_Morocco'] = 'Morocco %1$s Time';
 $tztxt['Africa_South'] = 'South Africa %1$s Time';
 $tztxt['Africa_West'] = 'West Africa %1$s Time';
+$tztxt['America_Edmonton'] = 'Mountain Daylight Saving Time';
 $tztxt['Antarctica_Casey'] = 'Casey Station %1$s Time';
 $tztxt['Antarctica_Davis'] = 'Davis Station %1$s Time';
 $tztxt['Antarctica_DumontDUrville'] = 'Dumont d\'Urville Station %1$s Time';
