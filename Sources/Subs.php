@@ -6891,6 +6891,10 @@ function smf_list_timezones($when = 'now')
 		if (isset($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
 			$tzkey = serialize(array_merge($tzinfo, array('metazone' => $tzid_metazones[$tzid])));
 
+		// Get the geographical info for this tzid
+		$tzgeo = timezone_location_get($tz);
+		$longitudes[$tzkey] = $tzgeo['longitude'];
+
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
 		{
@@ -6905,7 +6909,6 @@ function smf_list_timezones($when = 'now')
 				$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
 			else
 			{
-				$tzgeo = timezone_location_get($tz);
 				$country_tzids = get_sorted_tzids_for_country($tzgeo['country_code']);
 
 				if (count($country_tzids) === 1)
@@ -6960,7 +6963,7 @@ function smf_list_timezones($when = 'now')
 	}
 
 	// Sort by current offset, then standard offset, then DST type, then label.
-	array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $dst_types, SORT_ASC, $labels, SORT_ASC, $zones);
+	array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $longitudes, SORT_DESC, $labels, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
