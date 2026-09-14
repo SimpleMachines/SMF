@@ -297,6 +297,23 @@ both engines, verify anything touching SQL on the other one as well: delete
 way, then reinstall.
 
 The checkout is bind-mounted into the web container, so edits are live with no rebuild.
+On Windows, "live" is not the same as "immediate": Docker Desktop propagates a changed
+file into the container after a lag of seconds, sometimes longer, and until it does the
+container serves the previous version with nothing to say it is stale. A page requested
+straight after an edit can therefore show the old behaviour, which looks exactly like the
+edit having no effect. Wait for the change to arrive before measuring anything:
+
+```bash
+until curl -s http://localhost:8080/index.php | grep -q 'something only the new code emits'; do sleep 2; done
+```
+
+This is worth the discipline because the failure mode is not an obviously wrong reading
+but a plausible one. It can make working code look dead, and it can equally make a
+`git stash` look as though it was never applied — so treat a surprising measurement as
+staleness until it survives the wait above. Neither the SMF cache nor opcache is involved,
+and checking them is a dead end: `$cache_enable` is 0 in the generated `Settings.php` and
+opcache revalidates on every request.
+
 Useful while working:
 
 ```bash
@@ -331,6 +348,17 @@ than shown, especially anything in a background task.
   `Sources/Db/Schema/v3_0/` before trusting a column name. A query naming a removed column
   fails at runtime only, and inside a background task it retries forever and takes down
   unrelated page loads.
+- **Names are built from strings, so a grep does not prove something is dead.** Functions,
+  sub-templates and CSS classes are routinely reached under a name assembled at runtime,
+  and the literal never appears in the source. `Theme::loadSubTemplate('init')` calls
+  `template_init()`, which is how a theme initialises itself; `Theme::loadTemplate($name)`
+  calls `template_{$name}_init()`; `BBCodeParser` builds `.bbc_standard_quote` as
+  `'bbc_' . ($quote_alt ? 'alternate' : 'standard') . '_quote'`. Search for any of those
+  three names and you find a comment, if that. Before removing anything as unused, look
+  for the pieces as well — `loadSubTemplate(`, `call_user_func`, the prefix or suffix on
+  its own — or settle it by running the code and reading a stack trace. The cost of
+  getting this wrong is not just a bad deletion: it is a convincing report of a bug that
+  does not exist.
 - **Deprecated compatibility layer**: `Sources/Subs-Compat.php` holds the old procedural
   API. It often shows the guard clauses the modern class methods should have; useful when
   tracking down a missing check.

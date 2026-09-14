@@ -125,7 +125,21 @@ abstract class ToolsBase
 			$message = print_r($message, true);
 		}
 
-		$message = preg_replace('/(<br\b[^>]*>)+|\R/', PHP_EOL, $message);
+		$message = preg_replace(
+			[
+				// Convert line breaks into the correct EOL for this platform.
+				'/(<br\b[^>]*>)+|\R/',
+				// Convert HTML lists into plain text lists.
+				'/\s*<\/?((ol|ul)\b[^>]*|\/li)>\s*/',
+				'/<li\b[^>]*>\s*/',
+			],
+			[
+				PHP_EOL,
+				PHP_EOL,
+				' - ',
+			],
+			$message,
+		);
 
 		$message .= $ongoing ? '... ' : PHP_EOL;
 
@@ -157,7 +171,7 @@ abstract class ToolsBase
 
 			// Try to make the file the writable.
 			if (file_exists($this->log_file) && !is_writable($this->log_file)) {
-				chmod($this->log_file, 0664);
+				@chmod($this->log_file, 0664);
 			}
 		}
 

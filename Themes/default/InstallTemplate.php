@@ -89,6 +89,19 @@ class InstallTemplate extends MaintenanceTemplate
 			MaintenanceTemplate::warningsAndErrors();
 		}
 
+		// Offer a checkbox to enable debug mode.
+		echo '
+			<dl class="settings">
+				<dt>
+					<label for="debug">
+						', Lang::getTxt('upgrade_debug_info', file: 'Maintenance'), '
+					</label>
+				</dt>
+				<dd>
+					<input type="checkbox" name="debug" id="debug" value="1"' . (Maintenance::$tool->isDebug() ? ' checked' : '') . '>
+				</dd>
+			</dl>';
+
 		// For the latest version stuff.
 		echo '
 			<script>

@@ -18,6 +18,11 @@
 		-->
 		<testsuite name="integration">
 			<directory>tests/Integration</directory>
+			<exclude>tests/Integration/Http</exclude>
+		</testsuite>
+
+		<testsuite name="http">
+			<directory>tests/Integration/Http</directory>
 		</testsuite>
 	</testsuites>
 	<source>

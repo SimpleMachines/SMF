@@ -75,6 +75,19 @@ install_one() {
 		return 0
 	fi
 
+	# The installer checks every file against the manifest, and the entrypoint
+	# builds that manifest from the checkout only when there is none. One built
+	# before the checkout was last edited would fail the check, so a manifest
+	# that is not part of HEAD is removed here, from the index too if it was
+	# staged. When reset.sh restarts the container the entrypoint builds a fresh
+	# one, or leaves it absent on a dirty working tree, which a development
+	# version's installer accepts.
+	if git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+		&& ! git cat-file -e HEAD:Sources/Maintenance/manifest.php 2>/dev/null; then
+		git rm -q --cached --ignore-unmatch Sources/Maintenance/manifest.php
+		rm -f Sources/Maintenance/manifest.php
+	fi
+
 	log "${smf_type}: resetting"
 	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
 

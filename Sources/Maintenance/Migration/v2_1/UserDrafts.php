@@ -20,6 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
+use SMF\Utils;
 
 class UserDrafts extends MigrationBase
 {
@@ -64,7 +65,7 @@ class UserDrafts extends MigrationBase
 		if (
 			$start <= 1
 			&& version_compare(
-				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')),
+				Utils::standardizeVersionString(Config::$modSettings['smfVersion'] ?? '0.0.dev.0'),
 				'2.1.dev.0',
 				'<',
 			)
