@@ -1912,26 +1912,14 @@ class TimeZone extends \DateTimeZone
 				$offsets[$tzkey] = $tzinfo[0]['offset'];
 				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
 
-				switch ($tz->getDstType($when)) {
-					case self::DST_SWITCHES:
-						$dst_types[$tzkey] = 'c';
-						break;
-
-					case self::DST_ALWAYS:
-						$dst_types[$tzkey] = 't';
-						break;
-
-					default:
-						$dst_types[$tzkey] = 'f';
-						break;
-				}
+				$longitudes[$tzkey] = $tz->getLocation()['longitude'];
 
 				$labels[$tzkey] = $metazone_label;
 			}
 		}
 
 		// Sort by current offset, then standard offset, then DST type, then label.
-		array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $dst_types, SORT_ASC, $labels, SORT_ASC, $zones);
+		array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $longitudes, SORT_DESC, $labels, SORT_ASC, $zones);
 
 		$date_when = date_create('@' . $when);
 
