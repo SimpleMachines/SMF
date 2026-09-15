@@ -223,6 +223,11 @@ class TimezoneDataUpdater extends UpdaterBase
 			throw new \Exception($wtf_message);
 		}
 
+		// Add any new files to Git.
+		if ($this->files_updated && $this->ready_to_commit) {
+			shell_exec('git add --all');
+		}
+
 		// Say something when finished.
 		if (php_sapi_name() === 'cli') {
 			echo 'Done.', !$this->files_updated ? ' No changes were made.' : (!$this->ready_to_commit ? ' Please review all changes manually.' : ''), PHP_EOL;
