@@ -57,6 +57,11 @@ class ErrorHandlerService
 		\SQLite3Exception::class => 'cache',
 	];
 
+	/**
+	 * Maximum number of errors to collect before flushing the batch.
+	 */
+	public int $batch_size = 10;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -210,7 +215,6 @@ class ErrorHandlerService
 		static $tried_hook = false;
 		static $error_call = 0;
 		static $error_batch = [];
-		static $batch_size = 10;
 		static $shutdown_registered = false;
 
 		// Check if error logging is actually on.
@@ -335,7 +339,7 @@ class ErrorHandlerService
 			}
 
 			// Flush batch when threshold reached.
-			if (\count($error_batch) >= $batch_size) {
+			if (\count($error_batch) >= $this->batch_size) {
 				$this->flushErrorBatch($error_batch);
 				$error_batch = [];
 			}
