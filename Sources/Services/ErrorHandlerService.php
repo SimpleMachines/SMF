@@ -811,6 +811,17 @@ class ErrorHandlerService
 		$data = [];
 
 		foreach ($errors as $error_array) {
+			if (!isset($error_array['ip'])) {
+				$error_array = array_combine(
+					array_keys($columns),
+					$error_array,
+				);
+			}
+
+			if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) === false) {
+				$error_array['ip'] = null;
+			}
+
 			$data[] = [
 				$error_array['id_member'],
 				$error_array['log_time'],
