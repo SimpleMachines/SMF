@@ -647,15 +647,19 @@ class TimezoneDataUpdater extends UpdaterBase
 						continue;
 					}
 
-					$this_transition = $this->transitions[$tzid][$transition_num];
-
-					if ($this_transition['ts'] < $start_date->getTimestamp()) {
-						$this_transition['ts'] = $start_date->getTimestamp();
-						$this_transition['time'] = $start_date->format('Y-m-d\TH:i:sO');
+					if ($transition['ts'] < $start_date->getTimestamp()) {
+						$transition['ts'] = $start_date->getTimestamp();
+						$transition['time'] = $start_date->format('Y-m-d\TH:i:sO');
 					}
 
-					$tzinfo[] = $this_transition;
-					$tzinfo_loose[] = array_diff_key($this_transition, ['ts' => 0, 'time' => 0]);
+					// For comparison purposes, only consider the standard transition elements.
+					$transition = array_intersect_key(
+						['ts' => 1, 'time' => 1, 'offset' => 1, 'isdst' => 1, 'abbr' => 1],
+						$transition,
+					);
+
+					$tzinfo[] = $transition;
+					$tzinfo_loose[] = array_diff_key($transition, ['ts' => 0, 'time' => 0]);
 				}
 
 				$tzkey = serialize($tzinfo);
