@@ -82,6 +82,9 @@ final class Installation
 		// index.php builds this before anything can ask for a service.
 		Container::init();
 
+		// Flush any errors immediately.
+		Container::getInstance()->get(\SMF\Services\ErrorHandlerService::class)->batch_size = 1;
+
 		try {
 			// non_fatal, or a refused connection ends the process with SMF's own
 			// database error page instead of letting us report it here.
