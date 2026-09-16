@@ -2789,7 +2789,7 @@ class TimezoneDataUpdater extends UpdaterBase
 					continue;
 				}
 
-				// When a location changed it's time zone (e.g. from Central to
+				// When a location changed its time zone (e.g. from Central to
 				// Eastern), that can leave artifacts in the transitions that we
 				// don't want to retain in the VTimeZone data.
 				if (
@@ -2800,13 +2800,10 @@ class TimezoneDataUpdater extends UpdaterBase
 					&& $component['DTSTART'] === $components[$type_key]['DTSTART']
 				) {
 					unset($components[$key]);
+					continue;
 				}
 
-				if ($component['type'] === 'DAYLIGHT') {
-					$dst_key = $key;
-				} else {
-					$std_key = $key;
-				}
+				$type_key = $key;
 			}
 
 			$components = array_values($components);
