@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar\VTimeZones\America;
+namespace SMF\Calendar\VTimeZones;
 
 /**
- * America/Matamoros
+ * CST6CDT
  */
-class Matamoros extends \SMF\Calendar\VTimeZone
+class CST6CDT extends \SMF\Calendar\VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -29,7 +29,7 @@ class Matamoros extends \SMF\Calendar\VTimeZone
 	 *
 	 * Time zone identifier.
 	 */
-	public string $tzid = 'America/Matamoros';
+	public string $tzid = 'CST6CDT';
 
 	/**
 	 * @var array
@@ -41,21 +41,44 @@ class Matamoros extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [
 		0 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '19211231T233000',
-			'TZNAME' => 'CST',
-			'TZOFFSETFROM' => '-0630',
-			'TZOFFSETTO' => '-0600',
-		],
-		1 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19870405T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T080000Z',
+			'DTSTART' => '19180331T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19190330T080000Z',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
+		1 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19181027T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=19191026T070000Z',
+			'TZNAME' => 'CST',
+			'TZOFFSETFROM' => '-0500',
+			'TZOFFSETTO' => '-0600',
+		],
 		2 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19420209T020000',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
+		],
+		3 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19450930T020000',
+			'TZNAME' => 'CST',
+			'TZOFFSETFROM' => '-0500',
+			'TZOFFSETTO' => '-0600',
+		],
+		4 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19670430T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T080000Z',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
+		],
+		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19671029T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T070000Z',
@@ -63,53 +86,37 @@ class Matamoros extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
 		],
-		3 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19960407T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20000402T080000Z',
-			'TZNAME' => 'CDT',
-			'TZOFFSETFROM' => '-0600',
-			'TZOFFSETTO' => '-0500',
-		],
-		4 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '19961027T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20001029T070000Z',
-			'TZNAME' => 'CST',
-			'TZOFFSETFROM' => '-0500',
-			'TZOFFSETTO' => '-0600',
-		],
-		5 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '20010506T020000',
-			'TZNAME' => 'CDT',
-			'TZOFFSETFROM' => '-0600',
-			'TZOFFSETTO' => '-0500',
-		],
 		6 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '20010930T020000',
-			'TZNAME' => 'CST',
-			'TZOFFSETFROM' => '-0500',
-			'TZOFFSETTO' => '-0600',
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19740106T020000',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
 		],
 		7 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '20020407T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20220403T080000Z',
+			'DTSTART' => '19750223T020000',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
 		8 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '20021027T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20221030T070000Z',
-			'TZNAME' => 'CST',
-			'TZOFFSETFROM' => '-0500',
-			'TZOFFSETTO' => '-0600',
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19760425T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T080000Z',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
 		],
 		9 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19870405T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T080000Z',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
+		],
+		10 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
@@ -117,7 +124,7 @@ class Matamoros extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
-		10 => [
+		11 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',

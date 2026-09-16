@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace SMF\Calendar\VTimeZones\America;
+namespace SMF\Calendar\VTimeZones;
 
 /**
- * America/Boise
+ * PST8PDT
  */
-class Boise extends \SMF\Calendar\VTimeZone
+class PST8PDT extends \SMF\Calendar\VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -29,7 +29,7 @@ class Boise extends \SMF\Calendar\VTimeZone
 	 *
 	 * Time zone identifier.
 	 */
-	public string $tzid = 'America/Boise';
+	public string $tzid = 'PST8PDT';
 
 	/**
 	 * @var array
@@ -41,13 +41,6 @@ class Boise extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [
 		0 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '18831118T121511',
-			'TZNAME' => 'PST',
-			'TZOFFSETFROM' => '-074449',
-			'TZOFFSETTO' => '-0800',
-		],
-		1 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19180331T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19190330T100000Z',
@@ -55,7 +48,7 @@ class Boise extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		2 => [
+		1 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19181027T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=19191026T090000Z',
@@ -63,95 +56,81 @@ class Boise extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		3 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '19230513T020000',
-			'TZNAME' => 'MST',
+		2 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19420209T020000',
+			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		4 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19420209T020000',
-			'TZNAME' => 'MWT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
-		],
-		5 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19450814T170000',
-			'TZNAME' => 'MPT',
-			'TZOFFSETFROM' => '-0600',
-			'TZOFFSETTO' => '-0600',
-		],
-		6 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19450930T020000',
-			'TZNAME' => 'MST',
-			'TZOFFSETFROM' => '-0600',
+			'TZNAME' => 'PST',
+			'TZOFFSETFROM' => '-0700',
+			'TZOFFSETTO' => '-0800',
+		],
+		4 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19670430T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T100000Z',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
+		],
+		5 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19671029T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T090000Z',
+			'TZNAME' => 'PST',
+			'TZOFFSETFROM' => '-0700',
+			'TZOFFSETTO' => '-0800',
+		],
+		6 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19740106T020000',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
 		7 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19670430T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T090000Z',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
+			'DTSTART' => '19750223T020000',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
 		],
 		8 => [
-			'type' => 'STANDARD',
-			'DTSTART' => '19671029T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T080000Z',
-			'TZNAME' => 'MST',
-			'TZOFFSETFROM' => '-0600',
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19760425T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T100000Z',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
 		9 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19740203T020000',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
+			'DTSTART' => '19870405T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T100000Z',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
 		],
 		10 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19750223T020000',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
-		],
-		11 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19760425T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T090000Z',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
-		],
-		12 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19870405T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T090000Z',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
-		],
-		13 => [
-			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
-			'TZNAME' => 'MDT',
-			'TZOFFSETFROM' => '-0700',
-			'TZOFFSETTO' => '-0600',
+			'TZNAME' => 'PDT',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0700',
 		],
-		14 => [
+		11 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
-			'TZNAME' => 'MST',
-			'TZOFFSETFROM' => '-0600',
-			'TZOFFSETTO' => '-0700',
+			'TZNAME' => 'PST',
+			'TZOFFSETFROM' => '-0700',
+			'TZOFFSETTO' => '-0800',
 		],
 	];
 }

@@ -71,7 +71,7 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 		4 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19720430T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T090000Z',
 			'TZNAME' => 'MDT',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0600',
@@ -79,7 +79,7 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19721029T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T080000Z',
 			'TZNAME' => 'MST',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0700',
@@ -87,7 +87,7 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 		6 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19870405T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T090000Z',
 			'TZNAME' => 'MDT',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0600',
@@ -95,33 +95,49 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 		7 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19741027T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T080000Z',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0600',
 		],
 		8 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19870405T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T080000Z',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0500',
+		],
+		9 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20001029T020000',
 			'TZNAME' => 'EST',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0500',
 		],
-		9 => [
+		10 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20001105T000000',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
 		],
-		10 => [
+		11 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20010401T030000',
 			'TZNAME' => 'MDT',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0600',
 		],
-		11 => [
+		12 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19741027T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T080000Z',
+			'TZNAME' => 'MST',
+			'TZOFFSETFROM' => '-0600',
+			'TZOFFSETTO' => '-0700',
+		],
+		13 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
@@ -129,7 +145,7 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0600',
 		],
-		12 => [
+		14 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',

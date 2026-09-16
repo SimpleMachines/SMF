@@ -49,7 +49,7 @@ class Bogota extends \SMF\Calendar\VTimeZone
 		],
 		1 => [
 			'type' => 'DAYLIGHT',
-			'DTSTART' => '19920503T000000',
+			'DTSTART' => '19920502T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
