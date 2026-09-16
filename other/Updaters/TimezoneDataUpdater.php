@@ -72,10 +72,9 @@ declare(strict_types=1);
 
 namespace SMF\other\Updaters;
 
+use SMF\Calendar\RecurrenceIterator;
 use SMF\Calendar\RRule;
 use SMF\Config;
-use SMF\Lang;
-use SMF\Localization\MessageFormatter;
 use SMF\TimeZone;
 use SMF\WebFetch\WebFetchApi;
 
@@ -1727,9 +1726,9 @@ class TimezoneDataUpdater extends UpdaterBase
 			foreach (['latitude', 'longitude'] as $varname) {
 				$deg_len = $varname === 'latitude' ? 3 : 4;
 
-				$deg = substr($$varname, 0, $deg_len);
-				$min = substr($$varname, $deg_len, 2);
-				$sec = substr($$varname, $deg_len + 2);
+				$deg = substr(${$varname}, 0, $deg_len);
+				$min = substr(${$varname}, $deg_len, 2);
+				$sec = substr(${$varname}, $deg_len + 2);
 				$frac = (int) $min / 60 + (int) $sec / 3600;
 
 				$this->zones[$parts['tzid']][$varname] = (float) $deg + $frac;
@@ -1908,14 +1907,14 @@ class TimezoneDataUpdater extends UpdaterBase
 						continue;
 					}
 
-					$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr');
+					$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr', 'entry_end');
 
 					$prev_offset = $offset;
 					$prev_std_offset = $std_offset;
 					$prev_save = $save == 0 ? 0 : $save / 3600 . ':' . \sprintf('%02d', $save % 3600);
 					$prev_isdst = $isdst;
 					$prev_abbr = $abbr;
-					$entry_end_offset = $$entry_end_offset_var;
+					$entry_end_offset = ${$entry_end_offset_var};
 				}
 				// Simple DST rules.
 				elseif (preg_match('/^-?\d+(:\d+)*$/', $entry['rules'])) {
@@ -1945,14 +1944,14 @@ class TimezoneDataUpdater extends UpdaterBase
 						continue;
 					}
 
-					$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr');
+					$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr', 'entry_end');
 
 					$prev_offset = $offset;
 					$prev_std_offset = $std_offset;
 					$prev_save = $save == 0 ? 0 : $save / 3600 . ':' . \sprintf('%02d', $save % 3600);
 					$prev_isdst = $isdst;
 					$prev_abbr = $abbr;
-					$entry_end_offset = $$entry_end_offset_var;
+					$entry_end_offset = ${$entry_end_offset_var};
 				}
 				// Complex DST rules
 				else {
@@ -2010,6 +2009,7 @@ class TimezoneDataUpdater extends UpdaterBase
 							'adjusted_date_string' => $entry_start->format('Y-m-d\TH:i:sO'),
 							'rrule' => $rule_transitions[$unadjusted_date_strings['entry_start']]['rrule'] ?? null,
 							'dtstart' => $rule_transitions[$unadjusted_date_strings['entry_start']]['dtstart'] ?? null,
+							'until_local' => $rule_transitions[$unadjusted_date_strings['entry_start']]['until_local'] ?? null,
 						];
 
 						ksort($rule_transitions);
@@ -2076,6 +2076,12 @@ class TimezoneDataUpdater extends UpdaterBase
 							$dtstart = null;
 						}
 
+						if (isset($rrule, $info['until_local'])) {
+							$until = new \DateTime($info['until_local']);
+							$until->modify(-$prev_offset . ' seconds');
+							$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
+						}
+
 						// Some abbr values use '+00/+01' instead of sprintf formats.
 						if (str_contains($abbr, '/')) {
 							$abbrs = explode('/', $abbr);
@@ -2088,7 +2094,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						}
 
 						// Don't create a redundant transition for the entry's end.
-						if ($ts >= $entry_end->getTimestamp() - $$entry_end_offset_var) {
+						if ($ts >= $entry_end->getTimestamp() - ${$entry_end_offset_var}) {
 							break;
 						}
 
@@ -2098,7 +2104,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						$prev_save = $save == 0 ? 0 : $save / 3600 . ':' . \sprintf('%02d', $save % 3600);
 						$prev_isdst = $isdst;
 						$prev_abbr = $abbr;
-						$entry_end_offset = $$entry_end_offset_var;
+						$entry_end_offset = ${$entry_end_offset_var};
 
 						// This can happen in some rare cases.
 						if ($ts < $entry_start->getTimestamp()) {
@@ -2114,7 +2120,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						}
 
 						// Create the new transition.
-						$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr');
+						$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr', 'entry_end');
 
 						if (isset($rrule)) {
 							$this->transitions[$tzid][$ts]['rrule'] = $rrule;
@@ -2312,7 +2318,8 @@ class TimezoneDataUpdater extends UpdaterBase
 						'at_suffix' => $rule['at_suffix'],
 						'unadjusted_date_string' => $transition_date->format('Y-m-d\TH:i:s'),
 						'dtstart' => $year_to > $year_from ? $this->buildRecurrenceRuleStart($rule) : null,
-						'rrule' => $year_to > $year_from ? $this->buildRecurrenceRule($rule) . $this->buildRecurrenceRuleUntil($rule) : null,
+						'rrule' => $year_to > $year_from ? $this->buildRecurrenceRule($rule) : null,
+						'until_local' => $year_to > $year_from ? $this->buildRecurrenceRuleUntil($rule) : null
 					];
 				}
 			}
@@ -2621,6 +2628,8 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$canonical_links = [];
 
+		$max_date = new \DateTimeImmutable(self::DATE_MAX);
+
 		foreach ($this->zones as $tzid => $zone) {
 			if (isset($zone['canonical'])) {
 				$canonical_links[$tzid] = $zone['canonical'];
@@ -2628,8 +2637,7 @@ class TimezoneDataUpdater extends UpdaterBase
 			}
 
 			$components = [];
-
-			$known_dtstarts = [];
+			$untils = [];
 
 			foreach ($this->transitions[$tzid] as $transition_num => $transition) {
 				$prev_transition = $this->transitions[$tzid][$transition_num - 1] ?? null;
@@ -2642,54 +2650,166 @@ class TimezoneDataUpdater extends UpdaterBase
 					continue;
 				}
 
-				$component = [
-					'type' => $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD',
-					'DTSTART' => null,
-					'RRULE' => null,
-					'TZNAME' => !is_numeric($transition['abbr']) ? $transition['abbr'] : null,
-					'TZOFFSETFROM' => \sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))) . \sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60) . (abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : ''),
-					'TZOFFSETTO' => \sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))) . \sprintf('%02d', (int) abs($transition['offset'] / 60) % 60) . (abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : ''),
-				];
+				$type = $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD';
 
-				if (!isset($component['TZNAME'])) {
-					// Offsets from UTC are propertly written like 'UTC-07' or
-					// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
-					// time zone with a UTC offset of zero. So 'GMT' can be used
-					// as the TZNAME for UTC+00, but for everything else the
-					// correct notation is the UTC offset. This is all the more
-					// true since the signs are flipped in time zone names like
-					// 'Etc/GMT-5', whose offset is actually UTC+05.
-					if ((int) $component['TZOFFSETTO'] === 0 && substr($component['TZOFFSETTO'], 0, 1) === '+') {
-						$component['TZNAME'] = 'GMT';
-					} else {
-						$component['TZNAME'] = 'UTC' . $component['TZOFFSETTO'];
+				// Manually apply the offset in order to get a DateTime that
+				// will output a string AS IF it were in the local time zone,
+				// but without actually changing the time zone. We do this in
+				// order to avoid relying on PHP's internal TZDB, which might
+				// be out of date.
+				$local_start = (new \DateTime($transition['time']))->modify($prev_transition['offset'] . ' seconds')->format('Ymd\THis');
 
-						while (
-							\strlen($component['TZNAME']) > 6
-							&& str_ends_with($component['TZNAME'], '00')
-						) {
-							$component['TZNAME'] = substr($component['TZNAME'], 0, -2);
-						}
+				$dtstart = $transition['dtstart'] ?? $local_start;
+
+				$tzoffsetfrom = implode('', [
+					// Hours.
+					\sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))),
+					// Minutes.
+					\sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60),
+					// Seconds.
+					abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : '',
+				]);
+
+				$tzoffsetto = implode('', [
+					// Hours.
+					\sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))),
+					// Minutes.
+					\sprintf('%02d', (int) abs($transition['offset'] / 60) % 60),
+					// Seconds.
+					abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : '',
+				]);
+
+				if (!is_numeric($transition['abbr'])) {
+					$tzname = $transition['abbr'];
+				}
+				// Offsets from UTC are propertly written like 'UTC-07' or
+				// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
+				// time zone with a UTC offset of zero. So 'GMT' can be used
+				// as the TZNAME for UTC+00, but for everything else the
+				// correct notation is the UTC offset. This is all the more
+				// true since the signs are flipped in time zone names like
+				// 'Etc/GMT-5', whose offset is actually UTC+05.
+				elseif ((int) $tzoffsetto === 0 && substr($tzoffsetto, 0, 1) === '+') {
+					$tzname = 'GMT';
+				} else {
+					$tzname = 'UTC' . $tzoffsetto;
+
+					while (
+						\strlen($tzname) > 6
+						&& str_ends_with($tzname, '00')
+					) {
+						$tzname = substr($tzname, 0, -2);
 					}
 				}
 
-				if (!isset($transition['rrule'])) {
-					$dtstart = new \DateTime('@' . $transition['ts']);
-					$dtstart->setTimestamp((int) $dtstart->format('U') + $prev_transition['offset']);
-					$component['DTSTART'] = $dtstart->format('Ymd\THis');
-				} elseif (!\in_array($transition['dtstart'], $known_dtstarts)) {
-					$known_dtstarts[] = $transition['dtstart'];
-					$component['DTSTART'] = $transition['dtstart'];
-					$component['RRULE'] = $transition['rrule'];
+				$rrule = $transition['rrule'] ?? null;
+
+				// If the RRULE has no UNTIL value, but the entry_end is not
+				// our maximum date, that means the RRULE was built from a TZDB
+				// *rule* that had no ending, but the *entry* does have a date
+				// when it stopped using that rule. This means that, from the
+				// entry's perspective, there *is* an until date even though
+				// the rule itself doesn't give one.
+				if (
+					isset($rrule)
+					&& !str_contains($rrule, ';UNTIL=')
+					&& $transition['entry_end'] < $max_date
+				) {
+					if (isset($untils[$rrule][$transition['entry_end']->format('Ymd\THisO')])) {
+						$until = $untils[$rrule][$transition['entry_end']->format('Ymd\THisO')];
+					} else {
+						// The entry_end date is exclusive (i.e., it indicates
+						// when the rule no longer applies). But the UNTIL value
+						// of an RRULE is inclusive (i.e., it indicates when the
+						// last occurrence happens). Thus, we need to find the
+						// last occurrence prior to the entry_end date.
+						$recurrence_iterator = new RecurrenceIterator(
+							rrule: new RRule($rrule),
+							dtstart: new \DateTime($local_start),
+							view: (new \DateTime($local_start))->diff($transition['entry_end']),
+							type: RecurrenceIterator::TYPE_FLOATING,
+						);
+
+						$recurrence_iterator->end();
+
+						while (
+							$recurrence_iterator->valid()
+							&& $recurrence_iterator->current() > $transition['entry_end']
+						) {
+							$recurrence_iterator->prev();
+						}
+
+						if ($recurrence_iterator->valid()) {
+							$until = $recurrence_iterator->current();
+						} else {
+							// This shouldn't happen, but just in case...
+							$recurrence_iterator->rewind();
+							$until = $recurrence_iterator->current();
+						}
+
+						// To UTC.
+						$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
+						$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, strlen($sign)), 2));
+						$until->sub($this->offsetToDateInterval($offset));
+
+						$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;
+					}
+
+					$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
 				}
 
-				// Filter out any missing values.
-				$component = array_filter($component, fn($arg) => isset($arg));
+				$component = array_filter(
+					[
+						'type' => $type,
+						'DTSTART' => $dtstart,
+						'RRULE' => $rrule,
+						'TZNAME' => $tzname,
+						'TZOFFSETFROM' => $tzoffsetfrom,
+						'TZOFFSETTO' => $tzoffsetto,
+					],
+					fn($v) => $v !== null,
+				);
 
-				if (isset($component['DTSTART'])) {
-					$components[] = $component;
+				$components[md5(Config::varExport($component))] = $component;
+			}
+
+			// Filter out some weird ones.
+			$std_key = null;
+			$dst_key = null;
+
+			foreach (array_reverse($components) as $key => $component) {
+				if ($component['type'] === 'DAYLIGHT') {
+					$type_key = &$dst_key;
+				} else {
+					$type_key = &$std_key;
+				}
+
+				if (!isset($type_key)) {
+					$type_key = $key;
+					continue;
+				}
+
+				// When a location changed it's time zone (e.g. from Central to
+				// Eastern), that can leave artifacts in the transitions that we
+				// don't want to retain in the VTimeZone data.
+				if (
+					$component['TZOFFSETFROM'] === $component['TZOFFSETTO']
+					&& isset($component['RRULE'], $components[$type_key]['RRULE'])
+					&& $component['RRULE'] === $components[$type_key]['RRULE']
+					&& $component['TZNAME'] === $components[$type_key]['TZNAME']
+					&& $component['DTSTART'] === $components[$type_key]['DTSTART']
+				) {
+					unset($components[$key]);
+				}
+
+				if ($component['type'] === 'DAYLIGHT') {
+					$dst_key = $key;
+				} else {
+					$std_key = $key;
 				}
 			}
+
+			$components = array_values($components);
 
 			if (!file_exists(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid))) {
 				mkdir(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid));
@@ -2926,21 +3046,26 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
-	 * Returns the until date (in local time) for an iCalendar recurrence rule
-	 * based on TZDB rule data.
+	 * Returns the UNTIL date (in local time) for an iCalendar recurrence rule
+	 * as calculated based on TZDB rule data.
+	 *
+	 * Note that the UNTIL date must actually be given in UTC in an RRULE for
+	 * a time zone, so this will need to be adjusted before inclusion. However,
+	 * we don't have sufficient data in the rule definition itself to make that
+	 * adjustment, so it must be done afterward.
 	 *
 	 * @param array $rule One line from a TZDB rule.
-	 * @return string A date string in iCalendar format ('Ymd\THis'), or an
-	 *    empty string if the rule doesn't have an expiry date.
+	 * @return ?string A date string in iCalendar format ('Ymd\THis'), or null
+	 *    if the rule doesn't have an expiry date.
 	 */
-	private function buildRecurrenceRuleUntil(array $rule): string
+	private function buildRecurrenceRuleUntil(array $rule): ?string
 	{
 		if ($rule['to'] === 'max') {
-			return '';
+			return null;
 		}
 
 		if ($rule['to'] === 'only') {
-			return ';UNTIL=' . $this->buildRecurrenceRuleStart($rule);
+			$rule['to'] = $rule['from'];
 		}
 
 		// Figure out the date component.
@@ -2976,7 +3101,7 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$until->add($this->offsetToDateInterval((string) $rule['at']));
 
-		return ';UNTIL=' . $until->format('Ymd\THis');
+		return $until->format('Ymd\THis');
 	}
 
 	/**
