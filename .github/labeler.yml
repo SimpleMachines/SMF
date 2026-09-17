@@ -98,11 +98,6 @@ Mentions:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Mentions**']
 
-Meta:
-  - changed-files:
-    - any-glob-to-any-file: ['other/**', '.docker/*', '.github/*', 'composer.*', '*.md', '*.txt', '*.yaml', '*.yml', '.php-cs-fixer.dist.php', 'phpunit.xml.dist', '.git*']
-    - all-globs-to-all-files: ['!other/upgrade.php', '!other/install.php']
-
 Moderation:
   - changed-files:
     - any-glob-to-any-file: ['Sources/Actions/Moderation/**', 'Sources/Actions/QuickModeration**', 'Sources/Actions/TopicMove**', 'Sources/Actions/TopicLock**', 'Sources/Actions/TopicMerge**', 'Sources/Actions/TopicRemove**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/TopicSticky**', 'Sources/Actions/TopicSplit**', 'Sources/Actions/TopicRestore**', 'Sources/Actions/ReportToMod**']
