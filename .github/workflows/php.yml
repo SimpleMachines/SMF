@@ -37,6 +37,9 @@ jobs:
         php ./vendor/simplemachines/build-tools/check-smf-index.php
         php ./vendor/simplemachines/build-tools/check-version.php
 
+    - name: Running the auto review test suite
+      run: vendor/bin/phpunit --testsuite auto-review
+
   lint:
     runs-on: ubuntu-latest
     strategy:
