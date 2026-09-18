@@ -1076,6 +1076,95 @@ function template_downloaded()
 /**
  * Installation options - FTP info and backup settings
  */
+/**
+ * Lists what each installed package does with services.
+ */
+function template_service_access()
+{
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('package_services', file: 'Packages'), '</h3>
+		</div>
+		<div class="information noup">
+			', Lang::getTxt('package_services_info', file: 'Packages'), '
+		</div>';
+
+	if (empty(Utils::$context['package_services'])) {
+		echo '
+		<div class="windowbg noup">
+			', Lang::getTxt('package_services_none', file: 'Packages'), '
+		</div>';
+	}
+
+	foreach (Utils::$context['package_services'] as $package) {
+		echo '
+		<div class="windowbg noup">
+			<h4>', $package['name'], '</h4>
+			<dl class="settings">';
+
+		if (!empty($package['provides'])) {
+			echo '
+				<dt>', Lang::getTxt('package_service_provides', file: 'Packages'), '</dt>
+				<dd>
+					<ul>';
+
+			foreach ($package['provides'] as $service) {
+				echo '
+						<li class="word_break">', $service['id'], $service['registered'] ? '' : ' <em>(' . Lang::getTxt('package_services_not_registered_' . ($service['reason'] === 'taken' ? 'taken' : 'revoked'), file: 'Packages') . ')</em>', '</li>';
+			}
+
+			echo '
+					</ul>
+				</dd>';
+		}
+
+		if (!empty($package['uses'])) {
+			echo '
+				<dt>', Lang::getTxt('package_service_uses', file: 'Packages'), '</dt>
+				<dd>
+					<ul>';
+
+			foreach ($package['uses'] as $service) {
+				echo '
+						<li class="word_break">', $service, '</li>';
+			}
+
+			echo '
+					</ul>
+				</dd>';
+		}
+
+		echo '
+				<dt>', Lang::getTxt('package_services_status', file: 'Packages'), '</dt>
+				<dd>
+					', Lang::getTxt($package['granted'] ? 'package_services_granted' : 'package_services_revoked', file: 'Packages'), '
+					<a href="', Config::$scripturl, '?action=admin;area=packages;sa=services;toggle=', urlencode($package['id']), ';', Utils::$context['admin-services_token_var'], '=', Utils::$context['admin-services_token'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button you_sure" data-confirm="', Lang::getTxt('quickmod_confirm', file: 'General'), '">
+						', Lang::getTxt($package['granted'] ? 'package_services_revoke' : 'package_services_grant', file: 'Packages'), '
+					</a>
+				</dd>
+			</dl>
+		</div><!-- .windowbg -->';
+	}
+
+	if (!empty(Utils::$context['core_services'])) {
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::getTxt('package_services_core', file: 'Packages'), '</h3>
+		</div>
+		<div class="windowbg noup">
+			<ul>';
+
+		foreach (Utils::$context['core_services'] as $service) {
+			echo '
+				<li class="word_break">', $service, '</li>';
+		}
+
+		echo '
+			</ul>
+		</div><!-- .windowbg -->';
+	}
+}
+
 function template_install_options()
 {
 	if (!empty(Utils::$context['saved_successful'])) {

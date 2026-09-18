@@ -18,6 +18,8 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
+use SMF\Infrastructure\PackageServices;
+use SMF\Infrastructure\ServiceRegistry;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
@@ -26,6 +28,7 @@ use SMF\Menu;
 use SMF\Parser;
 use SMF\Sapi;
 use SMF\Security;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -58,6 +61,7 @@ class PackageManager
 		'uninstall2' => 'install',
 		'options' => 'options',
 		'perms' => 'permissions',
+		'services' => 'serviceAccess',
 		'examine' => 'examineFile',
 		'showoperations' => 'showOperations',
 
@@ -135,6 +139,9 @@ class PackageManager
 				],
 				'options' => [
 					'description' => Lang::getTxt('package_install_options_desc', file: 'Packages'),
+				],
+				'services' => [
+					'description' => Lang::getTxt('package_services_desc', file: 'Packages'),
 				],
 			],
 		];
@@ -619,6 +626,28 @@ class PackageManager
 					'type' => Lang::getTxt($action['reverse'] ? 'execute_hook_remove' : 'execute_hook_add', file: 'Packages'),
 					'action' => Lang::getTxt('execute_hook_action' . ($action['reverse'] ? '_inverse' : ''), ['hook' => Utils::htmlspecialchars($action['hook'])], file: 'Packages'),
 				];
+			} elseif ($action['type'] == 'service') {
+				$action['description'] = Lang::getTxt($action['id'] === '' || $action['factory'] === '' ? 'package_action_failure' : 'package_action_success', file: 'Packages');
+
+				if ($action['id'] === '' || $action['factory'] === '') {
+					Utils::$context['has_failure'] = true;
+				}
+
+				$thisAction = [
+					'type' => Lang::getTxt('package_service_provides', file: 'Packages'),
+					'action' => Utils::htmlspecialchars($action['id']),
+				];
+			} elseif ($action['type'] == 'uses-service') {
+				$action['description'] = Lang::getTxt($action['id'] === '' ? 'package_action_failure' : 'package_action_success', file: 'Packages');
+
+				if ($action['id'] === '') {
+					Utils::$context['has_failure'] = true;
+				}
+
+				$thisAction = [
+					'type' => Lang::getTxt('package_service_uses', file: 'Packages'),
+					'action' => Utils::htmlspecialchars($action['id']),
+				];
 			} elseif ($action['type'] == 'credits') {
 				$thisAction = [
 					'type' => Lang::getTxt('execute_credits_add', file: 'Packages'),
@@ -735,7 +764,7 @@ class PackageManager
 				continue;
 			}
 
-			if (!\in_array($action['type'], ['hook', 'credits'])) {
+			if (!\in_array($action['type'], ['hook', 'credits', 'service', 'uses-service'])) {
 				if (Utils::$context['uninstalling']) {
 					$file = \in_array($action['type'], ['remove-dir', 'remove-file']) ? $action['filename'] : Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'];
 				} else {
@@ -1079,6 +1108,9 @@ class PackageManager
 
 		// @todo Make a log of any errors that occurred and output them?
 
+		$provides_services = [];
+		$uses_services = [];
+
 		if (!empty($install_log)) {
 			$failed_steps = [];
 			$failed_count = 0;
@@ -1144,6 +1176,14 @@ class PackageManager
 						'copyright' => $action['copyright'],
 						'title' => $action['title'],
 					];
+				} elseif ($action['type'] == 'service' && $action['id'] !== '' && $action['factory'] !== '') {
+					$provides_services[] = [
+						'id' => $action['id'],
+						'factory' => $action['factory'],
+						'file' => $action['include_file'],
+					];
+				} elseif ($action['type'] == 'uses-service' && $action['id'] !== '') {
+					$uses_services[] = $action['id'];
 				} elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function'])) {
 					// Set the system to ignore hooks, but only if it wasn't changed before.
 					if (!isset(Utils::$context['ignore_hook_errors'])) {
@@ -1205,6 +1245,14 @@ class PackageManager
 			}
 
 			PackageUtils::flushCache();
+
+			// What this package does with services is settled by what the admin
+			// just agreed to, and goes away again when it is uninstalled.
+			if (Utils::$context['uninstalling']) {
+				PackageServices::forget($packageInfo['id']);
+			} else {
+				PackageServices::record($packageInfo['id'], $packageInfo['name'], $provides_services, $uses_services);
+			}
 
 			// See if this is already installed, and change it's state as required.
 			$request = Db::$db->query(
@@ -1727,6 +1775,65 @@ class PackageManager
 	/**
 	 * Used when a temp FTP access is needed to package functions
 	 */
+	/**
+	 * Shows what each installed package does with services, and lets the
+	 * administrator take that access away.
+	 *
+	 * A package that has been refused keeps its entry here, so what it wanted
+	 * stays visible and the decision can be changed back.
+	 */
+	public function serviceAccess(): void
+	{
+		if (isset($_GET['toggle'])) {
+			User::$me->checkSession('get');
+			SecurityToken::validate('admin-services', 'get');
+
+			$package_id = Utils::htmlspecialcharsDecode($_GET['toggle']);
+			$manifest = PackageServices::get($package_id);
+
+			if ($manifest !== []) {
+				PackageServices::setGranted($package_id, empty($manifest['granted']));
+			}
+
+			Utils::redirectexit('action=admin;area=packages;sa=services;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		}
+
+		SecurityToken::create('admin-services', 'get');
+
+		// The registry says what actually happened to each declared service,
+		// which is not always what the package asked for.
+		$registry = new ServiceRegistry();
+		$providers = $registry->getProviders();
+		$rejected = $registry->getRejected();
+
+		$packages = [];
+
+		foreach (PackageServices::all() as $package_id => $manifest) {
+			$provides = [];
+
+			foreach ($manifest['provides'] ?? [] as $service) {
+				$provides[] = [
+					'id' => $service['id'],
+					'registered' => ($providers[$service['id']] ?? '') === $manifest['name'],
+					'reason' => $rejected[$service['id']]['reason'] ?? '',
+				];
+			}
+
+			$packages[] = [
+				'id' => $package_id,
+				'name' => $manifest['name'],
+				'provides' => $provides,
+				'uses' => $manifest['uses'] ?? [],
+				'granted' => !empty($manifest['granted']),
+			];
+		}
+
+		Utils::$context['package_services'] = $packages;
+		Utils::$context['core_services'] = array_keys(array_filter($providers, fn($provider) => $provider === 'SMF'));
+		Utils::$context['page_title'] = Lang::getTxt('package_services', file: 'Packages');
+		Utils::$context['sub_template'] = 'service_access';
+	}
+
 	public function options(): void
 	{
 		if (isset($_POST['save'])) {
