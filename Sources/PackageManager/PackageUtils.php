@@ -488,6 +488,90 @@ class PackageUtils
 	}
 
 	/**
+	 * Finds the package that registered each integration hook.
+	 *
+	 * Hooks are stored as a flat list of function names, with nothing in them
+	 * to say where each one came from, so the answer comes from the packages:
+	 * every installed package is asked which hooks its package-info.xml
+	 * registers. A hook that a package added in its own code rather than in
+	 * its package-info.xml has no owner here.
+	 *
+	 * @return array Package names, keyed by hook name and then by the entry
+	 *    that was stored for the hook.
+	 */
+	public static function getHookOwners(): array
+	{
+		static $owners;
+
+		if (isset($owners)) {
+			return $owners;
+		}
+
+		$owners = [];
+
+		foreach (self::loadInstalledPackages() as $package) {
+			$info = self::getPackageInfo($package['filename']);
+
+			// The package file is gone, or is no longer readable as a package.
+			if (!\is_array($info) || !isset($info['xml'])) {
+				continue;
+			}
+
+			foreach (self::getPackageHooks($info['xml']) as $hook) {
+				$owners[$hook['hook']][$hook['call']] = $package['name'];
+			}
+		}
+
+		return $owners;
+	}
+
+	/**
+	 * Gets the hooks that a package registers in its package-info.xml.
+	 *
+	 * Every install and upgrade block is read, whichever version of SMF or of
+	 * the package it is for. A hook belongs to the package that ships it no
+	 * matter which of its blocks put it there, and an entry for a block that
+	 * never ran simply matches no hook.
+	 *
+	 * @param XmlArray $package_xml The package-info.xml of a package.
+	 * @return array Each hook's name, and the entry that is stored for it.
+	 */
+	public static function getPackageHooks(XmlArray $package_xml): array
+	{
+		$hooks = [];
+
+		foreach (['install', 'upgrade'] as $method) {
+			if (!$package_xml->exists($method)) {
+				continue;
+			}
+
+			foreach ($package_xml->set($method) as $block) {
+				foreach ($block->set('hook') as $hook) {
+					// A reverse hook takes one away instead of adding it.
+					if ($hook->exists('@reverse') && $hook->fetch('@reverse') == 'true') {
+						continue;
+					}
+
+					$function = $hook->exists('@function') ? $hook->fetch('@function') : '';
+					$file = $hook->exists('@file') ? $hook->fetch('@file') : '';
+
+					if ($hook->exists('@object') && $hook->fetch('@object') == 'true') {
+						$function .= '#';
+					}
+
+					$hooks[] = [
+						'hook' => $hook->exists('@hook') ? $hook->fetch('@hook') : $hook->fetch('.'),
+						// The same shape that IntegrationHook::add() stores.
+						'call' => $file === '' ? $function : $file . ($function === '' ? '' : '|' . $function),
+					];
+				}
+			}
+		}
+
+		return $hooks;
+	}
+
+	/**
 	 * Loads and returns an array of installed packages.
 	 *
 	 *  default sort order is package_installed time
