@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use League\Container\Container;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Infrastructure\Services;
 
 /**
  * The root Forum class. Used when browsing the forum normally.
@@ -464,6 +466,34 @@ class Forum
 		// Perform operations on the action object before its execute() is called.
 		if (isset(self::$current_action)) {
 			IntegrationHook::call('integrate_init_action', [self::$current_action]);
+		}
+
+		$container = new Container();
+		$services = new Services($container);
+		$container->defaultToShared();
+		$factories = [];
+
+		// Your services are wanted.
+		IntegrationHook::call('integrate_services', [&$factories]);
+
+		foreach ($factories as $name => $factory) {
+			if ($factory === true) {
+				$container->add($name);
+			} elseif ($factory instanceof \Closure) {
+				$container->add($name, \Closure::bind($factory, $services));
+			} else {
+				$container->add($name, $factory);
+			}
+		}
+
+		if (isset(self::$current_action) && self::$current_action instanceof DependencyAwareActionInterface) {
+			$dependencies = [];
+
+			foreach (self::$current_action->getDependencyList() as $dependency) {
+				$dependencies[] = $container->get($dependency);
+			}
+
+			self::$current_action->setDependencies($dependencies);
 		}
 
 		$this->preflight();

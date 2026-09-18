@@ -13,6 +13,10 @@ use Psr\Container\ContainerInterface;
  */
 final class Services implements ContainerInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Creates a service accessor.
 	 *

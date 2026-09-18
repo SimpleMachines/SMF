@@ -4,21 +4,11 @@ declare(strict_types=1);
 
 namespace SMF\Tests\Unit\Infrastructure;
 
+use DatabaseConnection;
 use League\Container\Container;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use SMF\Infrastructure\Services;
-
-class DatabaseConnection {}
-
-class UserRepository
-{
-	/****************
-	 * Public methods
-	 ****************/
-
-	public function __construct(public DatabaseConnection $db) {}
-}
+use UserRepository;
 
 class ContainerFactoryTest extends TestCase
 {
@@ -55,5 +45,16 @@ class ContainerFactoryTest extends TestCase
 		$this->assertTrue($factory_called);
 		$this->assertInstanceOf(UserRepository::class, $user_repository);
 		$this->assertInstanceOf(DatabaseConnection::class, $user_repository->db);
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	public static function setUpBeforeClass(): void
+	{
+		require_once TESTS_BOARDDIR . '/tests/fixtures/DatabaseConnection.php';
+
+		require_once TESTS_BOARDDIR . '/tests/fixtures/UserRepository.php';
 	}
 }
