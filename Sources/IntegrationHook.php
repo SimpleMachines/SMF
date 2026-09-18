@@ -305,25 +305,27 @@ class IntegrationHook
 		$enabled_call = rtrim($function, '!');
 		$disabled_call = $enabled_call . '!';
 
-		// Get the permanent functions.
-		$request = Db::$db->query(
-			'SELECT value
-			FROM {db_prefix}settings
-			WHERE variable = {string:variable}',
-			[
-				'variable' => $name,
-			],
-		);
-		list($current_functions) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
+		if ($permanent) {
+			// Get the permanent functions.
+			$request = Db::$db->query(
+				'SELECT value
+				FROM {db_prefix}settings
+				WHERE variable = {string:variable}',
+				[
+					'variable' => $name,
+				],
+			);
+			list($current_functions) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
-		if (!empty($current_functions)) {
-			$current_functions = explode(',', $current_functions);
+			if (!empty($current_functions)) {
+				$current_functions = explode(',', $current_functions);
 
-			// Cleanup enabled and disabled variants.
-			$current_functions = array_unique(array_diff($current_functions, [$enabled_call, $disabled_call]));
+				// Cleanup enabled and disabled variants.
+				$current_functions = array_unique(array_diff($current_functions, [$enabled_call, $disabled_call]));
 
-			Config::updateModSettings([$name => implode(',', $current_functions)]);
+				Config::updateModSettings([$name => implode(',', $current_functions)]);
+			}
 		}
 
 		// Turn the function list into something usable.
