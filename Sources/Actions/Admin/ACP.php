@@ -145,6 +145,9 @@ class ACP implements ActionInterface, Routable
 						'options' => [
 							'label' => 'package_settings',
 						],
+						'services' => [
+							'label' => 'package_services',
+						],
 					],
 				],
 				'search' => [

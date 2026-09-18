@@ -740,6 +740,7 @@ $txt['download_packages'] = 'Add Packages';
 $txt['installed_packages'] = 'Installed Packages';
 $txt['package_file_perms'] = 'File Permissions';
 $txt['package_settings'] = 'Options';
+$txt['package_services'] = 'Service Access';
 $txt['themeadmin_admin_title'] = 'Manage and Install';
 $txt['themeadmin_list_title'] = 'Theme Settings';
 $txt['themeadmin_reset_title'] = 'Member Options';
