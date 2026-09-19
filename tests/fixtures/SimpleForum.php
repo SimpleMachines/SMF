@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use SMF\Forum;
 
 // Strip the Forum class down so that it can be easily tested.
-class ForumTest extends Forum
+class SimpleForum extends Forum
 {
 	/****************
 	 * Public methods

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace SMF\Tests\Unit;
 
 use DatabaseConnection;
-use ForumTest as ForumT;
-use ForumTestAction;
-use ForumTestActionExecuted;
 use PHPUnit\Framework\TestCase;
+use SimpleActionExecuted;
+use SimpleDependencyAwareAction;
+use SimpleForum;
 use SMF\Forum;
 use SMF\IntegrationHook;
 use UserRepository;
@@ -23,23 +23,20 @@ class ForumTest extends TestCase
 	{
 		$action_called = false;
 
-		$action = ForumTestAction::load();
-
-		Forum::$actions['test_services'] = ['', $action::class];
+		Forum::$actions['test_services'] = ['', SimpleDependencyAwareAction::class];
 		$_REQUEST['action'] = 'test_services';
 
-		$forum = new ForumT();
+		$forum = new SimpleForum();
 
 		IntegrationHook::add('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
 
 		try {
 			$forum->execute();
-		} catch (ForumTestActionExecuted) {
+		} catch (SimpleActionExecuted) {
 			$action_called = true;
 		} finally {
-			unset(Forum::$actions['test_services']);
-			$_REQUEST['action'] = '';
-			//~ IntegrationHook::remove('integrate_services', 'my_integrated_services', false);
+			unset(Forum::$actions['test_services'], $_REQUEST['action']);
+			//~ IntegrationHook::remove('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
 		}
 
 		$this->assertTrue($action_called);
@@ -60,10 +57,12 @@ class ForumTest extends TestCase
 
 		require_once TESTS_BOARDDIR . '/tests/fixtures/UserRepository.php';
 
-		require_once TESTS_BOARDDIR . '/tests/fixtures/ForumTest.php';
+		require_once TESTS_BOARDDIR . '/tests/fixtures/SimpleForum.php';
 
-		require_once TESTS_BOARDDIR . '/tests/fixtures/ForumTestAction.php';
+		require_once TESTS_BOARDDIR . '/tests/fixtures/SimpleAction.php';
 
-		require_once TESTS_BOARDDIR . '/tests/fixtures/ForumTestActionExecuted.php';
+		require_once TESTS_BOARDDIR . '/tests/fixtures/SimpleDependencyAwareAction.php';
+
+		require_once TESTS_BOARDDIR . '/tests/fixtures/SimpleActionExecuted.php';
 	}
 }

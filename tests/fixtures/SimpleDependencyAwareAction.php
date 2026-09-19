@@ -1,13 +1,11 @@
 <?php
 
-use SMF\ActionInterface;
-use SMF\ActionTrait;
+declare(strict_types=1);
+
 use SMF\DependencyAwareActionInterface;
 
-class ForumTestAction implements ActionInterface, DependencyAwareActionInterface
+class SimpleDependencyAwareAction extends SimpleAction implements DependencyAwareActionInterface
 {
-	use ActionTrait;
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -32,11 +30,5 @@ class ForumTestAction implements ActionInterface, DependencyAwareActionInterface
 	{
 		$this->user_repository = $dependencies[0];
 		$this->database_connection = $dependencies[1];
-	}
-
-	public function execute(): void
-	{
-		// Stop execution before Utils::obExit().
-		throw new ForumTestActionExecuted();
 	}
 }
