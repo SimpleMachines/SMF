@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Tests\Unit;
+namespace SMF\Tests\Unit\Infrastructure;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
