@@ -18,6 +18,7 @@ namespace SMF;
 use League\Container\Container;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Infrastructure\Services;
+use SMF\Services\ErrorHandlerService;
 
 /**
  * The root Forum class. Used when browsing the forum normally.
@@ -365,6 +366,15 @@ class Forum
 	 */
 	public static array $guest_access_actions = [];
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * The service container used by SMF.
+	 */
+	protected Container $container;
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -394,6 +404,8 @@ class Forum
 
 			die();
 		}
+
+		$this->initContainer();
 
 		// Ensure any renamed actions will still work using the old name.
 		foreach (self::$renamed_actions as $old => $new) {
@@ -452,6 +464,8 @@ class Forum
 		if (!empty(Config::$backward_compatibility)) {
 			IntegrationHook::call('integrate_guest_actions', [&self::$guest_access_actions]);
 		}
+
+		$this->registerIntegratedServices();
 	}
 
 	/**
@@ -468,25 +482,8 @@ class Forum
 			IntegrationHook::call('integrate_init_action', [self::$current_action]);
 		}
 
-		$container = new Container();
-		$services = new Services($container);
-		$container->defaultToShared();
-		$factories = [];
-
-		// Your services are wanted.
-		IntegrationHook::call('integrate_services', [&$factories]);
-
-		foreach ($factories as $name => $factory) {
-			if ($factory === true) {
-				$container->add($name);
-			} elseif ($factory instanceof \Closure) {
-				$container->add($name, \Closure::bind($factory, $services));
-			} else {
-				$container->add($name, $factory);
-			}
-		}
-
 		if (isset(self::$current_action) && self::$current_action instanceof DependencyAwareActionInterface) {
+			$container = $this->container;
 			$dependencies = [];
 
 			foreach (self::$current_action->getDependencyList() as $dependency) {
@@ -568,6 +565,53 @@ class Forum
 	/******************
 	 * Internal methods
 	 ******************/
+
+	/**
+	 * Initializes the service container and registers SMF services.
+	 */
+	protected function initContainer(): void
+	{
+		$container = new Container();
+		$container->defaultToShared();
+
+		$container->add(ErrorHandlerService::class);
+		ErrorHandler::setService($container->get(ErrorHandlerService::class));
+
+		$this->container = $container;
+	}
+
+	/**
+	 * Calls the integrate_services hook and registers its service definitions.
+	 *
+	 * Keys are fully qualified class names.
+	 *
+	 * Factory definitions may be:
+	 *
+	 * - true: Register the service using its class name. The container will
+	 *   instantiate the class.
+	 * - \Closure: A factory callback used to create the service. The closure is
+	 *   bound to the Services facade, allowing it to resolve other registered
+	 *   services through $this->get().
+	 * - object: Register the supplied object as the service instance.
+	 */
+	protected function registerIntegratedServices(): void
+	{
+		$container = $this->container;
+		$services = new Services($container);
+		$factories = [];
+
+		IntegrationHook::call('integrate_services', [&$factories]);
+
+		foreach ($factories as $name => $factory) {
+			if ($factory === true) {
+				$container->add($name);
+			} elseif ($factory instanceof \Closure) {
+				$container->add($name, \Closure::bind($factory, $services));
+			} else {
+				$container->add($name, $factory);
+			}
+		}
+	}
 
 	/**
 	 * The main forum loader.

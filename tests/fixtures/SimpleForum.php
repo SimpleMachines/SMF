@@ -11,7 +11,11 @@ class SimpleForum extends Forum
 	 * Public methods
 	 ****************/
 
-	public function __construct() {}
+	public function __construct()
+	{
+		$this->initContainer();
+		$this->registerIntegratedServices();
+	}
 
 	/***********************
 	 * Public static methods

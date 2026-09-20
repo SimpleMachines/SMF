@@ -26,24 +26,25 @@ class ForumTest extends TestCase
 		Forum::$actions['test_services'] = ['', SimpleDependencyAwareAction::class];
 		$_REQUEST['action'] = 'test_services';
 
-		$forum = new SimpleForum();
-
 		IntegrationHook::add('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
+		$forum = new SimpleForum();
 
 		try {
 			$forum->execute();
 		} catch (SimpleActionExecuted) {
 			$action_called = true;
-		} finally {
-			unset(Forum::$actions['test_services'], $_REQUEST['action']);
-			//~ IntegrationHook::remove('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
 		}
+
+		unset(Forum::$actions['test_services']);
+		//~ IntegrationHook::remove('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
 
 		$this->assertTrue($action_called);
 		$action = Forum::getCurrentAction();
 		$action::clearStatcics();
 		SimpleForum::clearStatcics();
 
+		$this->assertNull(Forum::getCurrentAction());
+		unset($_REQUEST['action']);
 		$this->assertInstanceOf(UserRepository::class, $action->user_repository);
 		$this->assertInstanceOf(DatabaseConnection::class, $action->database_connection);
 		$this->assertInstanceOf(DatabaseConnection::class, $action->user_repository->db);
