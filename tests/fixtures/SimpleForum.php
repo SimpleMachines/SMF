@@ -13,6 +13,15 @@ class SimpleForum extends Forum
 
 	public function __construct() {}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	public static function clearStatcics(): void
+	{
+		self::$current_action = null;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/

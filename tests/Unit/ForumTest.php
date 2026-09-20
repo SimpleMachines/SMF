@@ -41,6 +41,8 @@ class ForumTest extends TestCase
 
 		$this->assertTrue($action_called);
 		$action = Forum::getCurrentAction();
+		$action::clearStatcics();
+		SimpleForum::clearStatcics();
 
 		$this->assertInstanceOf(UserRepository::class, $action->user_repository);
 		$this->assertInstanceOf(DatabaseConnection::class, $action->database_connection);

@@ -18,4 +18,13 @@ class SimpleAction implements ActionInterface
 		// Stop execution before Utils::obExit().
 		throw new SimpleActionExecuted();
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	public static function clearStatcics(): void
+	{
+		self::$obj = null;
+	}
 }
