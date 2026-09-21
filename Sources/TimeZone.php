@@ -1666,12 +1666,13 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns this time zone's abbreviations (if any).
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array The time zone's abbreviations.
 	 */
-	public function getAbbreviations(int|string $when = 'now'): array
+	public function getAbbreviations(\DateTimeInterface|int|string $when = 'now'): array
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1687,12 +1688,13 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the metazone for this time zone at the given timestamp.
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return string The $tztxt variable for this time zone's metazone.
 	 */
-	public function getMetaZone(int|string $when = 'now'): string
+	public function getMetaZone(\DateTimeInterface|int|string $when = 'now'): string
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1769,12 +1771,13 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the metazone label for this time zone at the given timestamp.
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return string The $tztxt value for this time zone's metazone.
 	 */
-	public function getMetaZoneLabel(int|string $when = 'now'): string
+	public function getMetaZoneLabel(\DateTimeInterface|int|string $when = 'now'): string
 	{
 		$metazone = $this->getMetaZone($when);
 
@@ -1784,12 +1787,13 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns whether this time zone uses Daylight Saving Time.
 	 *
-	 * @param int|string $when The earliest date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The earliest date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return int One of this class's three DST_* constants.
 	 */
-	public function getDstType(int|string $when = 'now'): int
+	public function getDstType(\DateTimeInterface|int|string $when = 'now'): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1810,12 +1814,13 @@ class TimeZone extends \DateTimeZone
 	 * Returns the Standard Time offset from GMT, ignoring any Daylight Saving
 	 * Time that might be in effect.
 	 *
-	 * @param int|string $when The earliest date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The earliest date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return int This time zone's Standard Time offset from GMT.
 	 */
-	public function getStandardOffset(int|string $when = 'now'): int
+	public function getStandardOffset(\DateTimeInterface|int|string $when = 'now'): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1855,12 +1860,14 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Get a list of time zones.
 	 *
-	 * @param int|string $when The date/time for which to calculate the time
-	 *    zone values. May be a Unix timestamp or any string that strtotime()
-	 *    can understand. Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time for which to
+	 *    calculate the time zone values. May be an instance of
+	 *    \DateTimeInterface, a Unix timestamp, or any string that strtotime()
+	 *    can understand.
+	 *    Default: 'now'.
 	 * @return array An array of time zone identifiers and label text.
 	 */
-	public static function list(int|string $when = 'now'): array
+	public static function list(\DateTimeInterface|int|string $when = 'now'): array
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -2008,12 +2015,13 @@ class TimeZone extends \DateTimeZone
 	 * (e.g. "America/Denver") onto the user-friendly metazone labels that
 	 * most people think of as time zones (e.g. "Mountain Time").
 	 *
-	 * @param int|string $when The date/time used to determine fallback values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array An array relating time zones to metazones
 	 */
-	public static function getTzidMetazones(int|string $when = 'now'): array
+	public static function getTzidMetazones(\DateTimeInterface|int|string $when = 'now'): array
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -2049,12 +2057,13 @@ class TimeZone extends \DateTimeZone
 	 * Gets an array of all the time zones in a country, ranked by population.
 	 *
 	 * @param string $country_code A country's two-character ISO-3166 code.
-	 * @param int|string $when The date/time used to determine fallback values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array A list of time zones in the given country.
 	 */
-	public static function getSortedTzidsForCountry(string $country_code, int|string $when = 'now'): array
+	public static function getSortedTzidsForCountry(string $country_code, \DateTimeInterface|int|string $when = 'now'): array
 	{
 		static $country_tzids = [];
 
@@ -2103,12 +2112,13 @@ class TimeZone extends \DateTimeZone
 	 * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
 	 *
 	 * @param array $tzids The time zone identifiers to check.
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array Substitute values for any missing time zone identifiers.
 	 */
-	public static function getTzidFallbacks(array $tzids, int|string $when = 'now'): array
+	public static function getTzidFallbacks(array $tzids, \DateTimeInterface|int|string $when = 'now'): array
 	{
 		$tzids = (array) $tzids;
 
@@ -2199,19 +2209,20 @@ class TimeZone extends \DateTimeZone
 	 * Given a start time in any format that strtotime can understand, gets the
 	 * Unix timestamps for a date range starting then and ending one year later.
 	 *
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array The start and end timestamps, in that order.
 	 */
-	protected static function getTimeRange(int|string $when = 'now'): array
+	protected static function getTimeRange(\DateTimeInterface|int|string $when = 'now'): array
 	{
-		if (isset(self::$ranges[$when])) {
-			return self::$ranges[$when];
+		// \DateTimeInterface?
+		if ($when instanceof \DateTimeInterface) {
+			$start = $when->getTimestamp();
 		}
-
 		// Parseable datetime string?
-		if (\is_int($timestamp = strtotime((string) $when))) {
+		elseif (\is_int($timestamp = strtotime((string) $when))) {
 			$start = $timestamp;
 		}
 		// A Unix timestamp?
@@ -2223,9 +2234,13 @@ class TimeZone extends \DateTimeZone
 			$start = time();
 		}
 
-		self::$ranges[$when] = [$start, strtotime('@' . $start . ' + 1 year')];
+		if (isset(self::$ranges[$start])) {
+			return self::$ranges[$start];
+		}
 
-		return self::$ranges[$when];
+		self::$ranges[$start] = [$start, strtotime('@' . $start . ' + 1 year')];
+
+		return self::$ranges[$start];
 	}
 
 	/**
@@ -2267,11 +2282,12 @@ class TimeZone extends \DateTimeZone
 	 * Builds a list of time zone transitions for all metazones starting from
 	 * $when until one year later.
 	 *
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 */
-	protected static function buildMetaZoneTransitions(int|string $when = 'now'): void
+	protected static function buildMetaZoneTransitions(\DateTimeInterface|int|string $when = 'now'): void
 	{
 		list($when, $later) = self::getTimeRange($when);
 
