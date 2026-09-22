@@ -36,6 +36,38 @@ class San_Juan extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		1 => [
+			'ts' => '1991-03-01T02:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		2 => [
+			'ts' => '1991-05-07T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		3 => [
+			'ts' => '2004-05-31T03:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		4 => [
+			'ts' => '2004-07-25T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

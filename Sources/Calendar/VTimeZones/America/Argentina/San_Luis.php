@@ -36,6 +36,54 @@ class San_Luis extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		1 => [
+			'ts' => '1990-03-14T02:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		2 => [
+			'ts' => '1991-06-01T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		3 => [
+			'ts' => '1999-10-03T03:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		4 => [
+			'ts' => '2000-03-03T03:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		5 => [
+			'ts' => '2004-05-31T03:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		6 => [
+			'ts' => '2004-07-25T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		7 => [
+			'ts' => '2008-01-21T02:00:00+0000',
+			'metazone' => 'Argentina_Western',
+		],
+		8 => [
+			'ts' => '2009-10-11T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

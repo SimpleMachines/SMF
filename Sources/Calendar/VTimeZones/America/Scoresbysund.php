@@ -36,6 +36,30 @@ class Scoresbysund extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Greenland_Central',
+		],
+		1 => [
+			'ts' => '1981-03-29T02:00:00+0000',
+			'metazone' => 'Greenland_Eastern',
+		],
+		2 => [
+			'ts' => '2024-03-31T01:00:00+0000',
+			'metazone' => 'Greenland',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

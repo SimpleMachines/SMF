@@ -36,6 +36,30 @@ class Dili extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'East_Timor',
+		],
+		1 => [
+			'ts' => '1976-05-02T15:00:00+0000',
+			'metazone' => 'Indonesia_Central',
+		],
+		2 => [
+			'ts' => '2000-09-16T16:00:00+0000',
+			'metazone' => 'East_Timor',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

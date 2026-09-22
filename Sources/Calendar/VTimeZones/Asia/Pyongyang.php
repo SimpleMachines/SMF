@@ -36,6 +36,30 @@ class Pyongyang extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Korea',
+		],
+		1 => [
+			'ts' => '2015-08-14T15:00:00+0000',
+			'metazone' => 'Pyongyang',
+		],
+		2 => [
+			'ts' => '2018-05-04T15:00:00+0000',
+			'metazone' => 'Korea',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

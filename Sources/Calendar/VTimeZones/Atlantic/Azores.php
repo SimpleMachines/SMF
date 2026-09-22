@@ -36,6 +36,30 @@ class Azores extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Azores',
+		],
+		1 => [
+			'ts' => '1992-12-27T02:00:00+0000',
+			'metazone' => 'Europe_Western',
+		],
+		2 => [
+			'ts' => '1993-06-17T01:00:00+0000',
+			'metazone' => 'Azores',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

@@ -36,6 +36,26 @@ class Dawson extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1973-10-28T09:00:00+0000',
+			'metazone' => 'America_Pacific',
+		],
+		1 => [
+			'ts' => '2020-11-01T07:00:00+0000',
+			'metazone' => 'Yukon',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

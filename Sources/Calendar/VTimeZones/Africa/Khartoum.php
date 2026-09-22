@@ -36,6 +36,30 @@ class Khartoum extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Africa_Central',
+		],
+		1 => [
+			'ts' => '2000-01-15T10:00:00+0000',
+			'metazone' => 'Africa_Eastern',
+		],
+		2 => [
+			'ts' => '2017-10-31T21:00:00+0000',
+			'metazone' => 'Africa_Central',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

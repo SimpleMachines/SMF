@@ -36,6 +36,86 @@ class Casey extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		1 => [
+			'ts' => '2009-10-17T18:00:00+0000',
+			'metazone' => 'Casey',
+		],
+		2 => [
+			'ts' => '2010-03-04T15:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		3 => [
+			'ts' => '2011-10-27T18:00:00+0000',
+			'metazone' => 'Casey',
+		],
+		4 => [
+			'ts' => '2012-02-21T17:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		5 => [
+			'ts' => '2016-10-21T16:00:00+0000',
+			'metazone' => 'Casey',
+		],
+		6 => [
+			'ts' => '2018-03-10T17:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		7 => [
+			'ts' => '2018-10-06T20:00:00+0000',
+			'metazone' => 'Casey',
+		],
+		8 => [
+			'ts' => '2019-03-16T16:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		9 => [
+			'ts' => '2019-10-03T19:00:00+0000',
+			'metazone' => 'Casey',
+		],
+		10 => [
+			'ts' => '2020-03-07T16:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		11 => [
+			'ts' => '2020-10-03T16:01:00+0000',
+			'metazone' => 'Casey',
+		],
+		12 => [
+			'ts' => '2021-03-13T13:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		13 => [
+			'ts' => '2021-10-02T16:01:00+0000',
+			'metazone' => 'Casey',
+		],
+		14 => [
+			'ts' => '2022-03-12T13:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+		15 => [
+			'ts' => '2022-10-01T16:01:00+0000',
+			'metazone' => 'Casey',
+		],
+		16 => [
+			'ts' => '2023-03-08T16:00:00+0000',
+			'metazone' => 'Australia_Western',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

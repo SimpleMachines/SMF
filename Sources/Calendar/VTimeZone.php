@@ -37,6 +37,14 @@ abstract class VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 */
+	public array $metazones;
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 */
 	public array $components;

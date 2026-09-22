@@ -30,4 +30,24 @@ class Midway extends Pago_Pago
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Pacific/Midway';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Bering',
+		],
+		1 => [
+			'ts' => '1983-10-30T12:00:00+0000',
+			'metazone' => 'Samoa',
+		],
+	];
 }

@@ -36,6 +36,34 @@ class Santo_Domingo extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Dominican',
+		],
+		1 => [
+			'ts' => '1974-10-27T05:00:00+0000',
+			'metazone' => 'Atlantic',
+		],
+		2 => [
+			'ts' => '2000-10-29T06:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		3 => [
+			'ts' => '2000-12-03T06:00:00+0000',
+			'metazone' => 'Atlantic',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

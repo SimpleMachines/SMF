@@ -36,6 +36,46 @@ class Tripoli extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Europe_Eastern',
+		],
+		1 => [
+			'ts' => '1981-12-31T22:00:00+0000',
+			'metazone' => 'Europe_Central',
+		],
+		2 => [
+			'ts' => '1990-05-03T23:00:00+0000',
+			'metazone' => 'Europe_Eastern',
+		],
+		3 => [
+			'ts' => '1996-09-29T22:00:00+0000',
+			'metazone' => 'Europe_Central',
+		],
+		4 => [
+			'ts' => '1997-10-03T22:00:00+0000',
+			'metazone' => 'Europe_Eastern',
+		],
+		5 => [
+			'ts' => '2012-11-10T00:00:00+0000',
+			'metazone' => 'Europe_Central',
+		],
+		6 => [
+			'ts' => '2013-10-25T00:00:00+0000',
+			'metazone' => 'Europe_Eastern',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

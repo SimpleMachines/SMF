@@ -36,6 +36,42 @@ class Cancun extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		1 => [
+			'ts' => '1981-12-26T08:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		2 => [
+			'ts' => '1983-01-04T05:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		3 => [
+			'ts' => '1997-10-26T07:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		4 => [
+			'ts' => '1998-08-02T06:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		5 => [
+			'ts' => '2015-02-01T08:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,

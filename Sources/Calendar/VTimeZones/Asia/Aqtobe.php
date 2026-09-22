@@ -36,6 +36,34 @@ class Aqtobe extends VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Aktyubinsk',
+		],
+		1 => [
+			'ts' => '1991-12-15T19:00:00+0000',
+			'metazone' => 'Aqtobe',
+		],
+		2 => [
+			'ts' => '2004-10-30T21:00:00+0000',
+			'metazone' => 'Kazakhstan_Western',
+		],
+		3 => [
+			'ts' => '2024-02-29T18:00:00+0000',
+			'metazone' => 'Kazakhstan',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,
