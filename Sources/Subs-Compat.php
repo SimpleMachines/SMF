@@ -3025,7 +3025,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 * @param int|string $when The date/time used to determine fallback values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @return array A list of time zones in the given country.
 	 */
 	function get_sorted_tzids_for_country(string $country_code, int|string $when = 'now'): array
 	{
@@ -3061,13 +3061,13 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 
 	/**
 	 * Returns an array that instructs SMF how to map specific time zones
-	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
+	 * (e.g. "America/Denver") onto the user-friendly metazone labels that
 	 * most people think of as time zones (e.g. "Mountain Time").
 	 *
 	 * @param int|string $when The date/time used to determine fallback values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @return array An array relating time zones to metazones.
 	 */
 	function get_tzid_metazones(int|string $when = 'now'): array
 	{

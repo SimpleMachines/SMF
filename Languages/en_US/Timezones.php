@@ -2,11 +2,11 @@
 
 // Version: 3.0 Alpha 5-dev; Timezones
 
-// Standard Time or Daylight Saving Time
+// Standard Time or Daylight Saving Time.
 $tztxt['daylight_saving_time_false'] = 'Standard';
 $tztxt['daylight_saving_time_true'] = 'Daylight Saving';
 
-// Labels for "meta-zones"
+// Labels for metazones.
 $tztxt['generic_timezone'] = '%1$s %2$s Time';
 $tztxt['GMT'] = 'Greenwich Mean Time';
 $tztxt['UTC'] = 'Coordinated Universal Time';
@@ -597,7 +597,7 @@ $txt['Pacific/Tongatapu'] = 'Tongatapu';
 $txt['Pacific/Wake'] = 'Wake Island';
 $txt['Pacific/Wallis'] = 'Wallis';
 
-// Countries
+// Countries.
 $txt['iso3166']['??'] = 'International';
 $txt['iso3166']['AD'] = 'Andorra';
 $txt['iso3166']['AE'] = 'United Arab Emirates';

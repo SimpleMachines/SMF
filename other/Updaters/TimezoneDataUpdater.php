@@ -43,15 +43,15 @@
  *       city's population with the populations of the other listed cities.
  *       A quick Google or Wikipedia search is your friend here.
  *
- * 5. If a new "meta-zone" is required, new entries for it will be added to
+ * 5. If a new metazone is required, new entries for it will be added to
  *    TimeZone::$metazones and to the $tztxt array in the language file.
  *
  *     - The new entry in TimeZone::$metazones will have an "OPTIONS" comment
- *       listing all the tzids in this new meta-zone. Feel free to use any of
- *       them as the representative tzid for the meta-zone. All "OPTIONS"
+ *       listing all the tzids in this new metazone. Feel free to use any of
+ *       them as the representative tzid for the metazone. All "OPTIONS"
  *       comments should be removed before committing.
  *
- *     - Also feel free to edit the $tztxt key for the new meta-zone. Just make
+ *     - Also feel free to edit the $tztxt key for the new metazone. Just make
  *       sure to use the same key in both files.
  *
  *     - The value of the $tztxt string in the language file will probably need
@@ -88,6 +88,8 @@ class TimezoneDataUpdater extends UpdaterBase
 	 *****************/
 
 	/**
+	 * @var string
+	 *
 	 * Git tag of the earliest version of the TZDB to check against.
 	 *
 	 * This can be set to the TZDB version that was included in the earliest
@@ -99,6 +101,8 @@ class TimezoneDataUpdater extends UpdaterBase
 	public const TZDB_PREV_TAG = '2020d';
 
 	/**
+	 * @var string
+	 *
 	 * Git tag of the most recent version of the TZDB to check against.
 	 *
 	 * Leave blank to use the latest release of the TZDB. (Recommended.)
@@ -106,21 +110,29 @@ class TimezoneDataUpdater extends UpdaterBase
 	public const TZDB_CURR_TAG = '';
 
 	/**
+	 * @var string
+	 *
 	 * URL where we can get a list of tagged releases of the TZDB.
 	 */
 	public const TZDB_TAGS_URL = 'https://api.github.com/repos/eggert/tz/tags?per_page=1000';
 
 	/**
+	 * @var string
+	 *
 	 * URL template to fetch raw data files for the TZDB
 	 */
 	public const TZDB_FILE_URL = 'https://raw.githubusercontent.com/eggert/tz/{COMMIT}/{FILE}';
 
 	/**
+	 * @var string
+	 *
 	 * URL where we can get nice English labels for tzids.
 	 */
 	public const CLDR_TZNAMES_URL = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json/cldr-dates-full/main/en/timeZoneNames.json';
 
 	/**
+	 * @var string
+	 *
 	 * Used in places where an earliest date is required.
 	 *
 	 * To support 32-bit PHP builds, use '1901-12-13 20:45:52 UTC'
@@ -128,11 +140,15 @@ class TimezoneDataUpdater extends UpdaterBase
 	public const DATE_MIN = '1582-10-15 00:00:00 UTC';
 
 	/**
+	 * @var string
+	 *
 	 * Used in places where a date in the next year or so is required.
 	 */
 	public const DATE_SOON = 'January 1 + 2 years UTC';
 
 	/**
+	 * @var string
+	 *
 	 * Used in places where a latest date is required.
 	 */
 	public const DATE_MAX = 'January 1 + 100 years UTC';
@@ -147,37 +163,51 @@ class TimezoneDataUpdater extends UpdaterBase
 	public string $commit_msg = 'Updates time zone data';
 
 	/**
+	 * @var string
+	 *
 	 * Git commit hash associated with TZDB_PREV_TAG.
 	 */
 	public string $prev_commit;
 
 	/**
+	 * @var string
+	 *
 	 * Git commit hash associated with TZDB_CURR_TAG.
 	 */
 	public string $curr_commit;
 
 	/**
+	 * @var bool
+	 *
 	 * This keeps track of whether any files actually changed.
 	 */
 	public bool $files_updated = false;
 
 	/**
+	 * @var array
+	 *
 	 * Tags from the TZDB's GitHub repository.
 	 */
 	public array $tzdb_tags = [];
 
 	/**
+	 * @var array
+	 *
 	 * A multidimensional array of time zone identifiers,
 	 * grouped into different information blocks.
 	 */
 	public array $tz_data = [];
 
 	/**
+	 * @var array
+	 *
 	 * Compiled information about all time zones in the TZDB.
 	 */
 	public array $zones = [];
 
 	/**
+	 * @var array
+	 *
 	 * Compiled information about all time zone transitions.
 	 *
 	 * This is similar to return value of PHP's timezone_transitions_get(),
@@ -187,7 +217,9 @@ class TimezoneDataUpdater extends UpdaterBase
 	public array $transitions;
 
 	/**
-	 * Info about any new meta-zones.
+	 * @var array
+	 *
+	 * Info about any new metazones.
 	 */
 	public array $new_metazones = [];
 
@@ -552,7 +584,7 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Save the changes we've made so far.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 
-		// Any new meta-zones to add?
+		// Any new metazones to add?
 		$file_contents = $this->updateMetazones($file_contents);
 
 		// Have any time zones changed their country codes?
@@ -592,9 +624,9 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
-	 * This figures out if we need any new meta-zones. If we do, this (1) populates
+	 * This figures out if we need any new metazones. If we do, this (1) populates
 	 * $this->new_metazones variable for use in update_language_file(), and
-	 * (2) inserts the new meta-zones into $file_contents for TimeZone.php.
+	 * (2) inserts the new metazones into $file_contents for TimeZone.php.
 	 *
 	 * @param string $file_contents String content of TimeZone.php.
 	 * @return string Modified copy of $file_contents.
@@ -1041,10 +1073,10 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		foreach ($tztxt as $key => $value) {
 			if ($key === 'daylight_saving_time_false') {
-				$lines[] = '// Standard Time or Daylight Saving Time';
+				$lines[] = '// Standard Time or Daylight Saving Time.';
 			} elseif ($key === 'generic_timezone') {
 				$lines[] = '';
-				$lines[] = '// Labels for "meta-zones"';
+				$lines[] = '// Labels for metazones.';
 			}
 
 			$value = addcslashes($value, "'");
@@ -1066,7 +1098,7 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		$lines[] = '';
-		$lines[] = '// Countries';
+		$lines[] = '// Countries.';
 
 		foreach ($txt['iso3166'] as $key => $value) {
 			$value = addcslashes($value, "'");
@@ -2319,7 +2351,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						'unadjusted_date_string' => $transition_date->format('Y-m-d\TH:i:s'),
 						'dtstart' => $year_to > $year_from ? $this->buildRecurrenceRuleStart($rule) : null,
 						'rrule' => $year_to > $year_from ? $this->buildRecurrenceRule($rule) : null,
-						'until_local' => $year_to > $year_from ? $this->buildRecurrenceRuleUntil($rule) : null
+						'until_local' => $year_to > $year_from ? $this->buildRecurrenceRuleUntil($rule) : null,
 					];
 				}
 			}
@@ -2749,7 +2781,7 @@ class TimezoneDataUpdater extends UpdaterBase
 
 						// To UTC.
 						$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
-						$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, strlen($sign)), 2));
+						$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, \strlen($sign)), 2));
 						$until->sub($this->offsetToDateInterval($offset));
 
 						$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;

@@ -47,7 +47,7 @@ class TimeZone extends \DateTimeZone
 	 * @var array
 	 *
 	 * This array lists a series of representative time zones and their
-	 * corresponding "meta-zone" labels.
+	 * corresponding metazone labels.
 	 *
 	 * The term "representative" here means that a given time zone can
 	 * represent others that use exactly the same rules for DST
@@ -56,22 +56,22 @@ class TimeZone extends \DateTimeZone
 	 * Europe/Paris, etc., because these cities all use exactly the
 	 * same time zone rules and values.
 	 *
-	 * Meta-zone labels are the user friendly strings shown to the end
+	 * Metazone labels are the user friendly strings shown to the end
 	 * user, e.g. "Mountain Standard Time". The values of this array
 	 * are keys of strings defined in the Timezones language file, which
 	 * in turn are sprintf format strings used to generate the final
 	 * label text.
 	 *
 	 * Sometimes several representative time zones will map onto the
-	 * same meta-zone label. This usually happens when there are
+	 * same metazone label. This usually happens when there are
 	 * different rules for Daylight Saving time in locations that are
 	 * otherwise the same. For example, both America/Denver and
 	 * America/Phoenix map to North_America_Mountain, but the ultimate
 	 * output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
 	 * 'Mountain Standard Time (MST)' for America/Phoenix.
 	 *
-	 * If you are adding a new meta-zone to this list because the TZDB
-	 * added a new time zone that doesn't fit any existing meta-zone,
+	 * If you are adding a new metazone to this list because the TZDB
+	 * added a new time zone that doesn't fit any existing metazone,
 	 * please also add a fallback in the TimeZone::$fallbacks array.
 	 * This helps support SMF installs on servers using outdated
 	 * versions of the TZDB.
@@ -1632,7 +1632,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * @var array
 	 *
-	 * List of time zone transitions for all "meta-zones" starting from a given
+	 * List of time zone transitions for all metazones starting from a given
 	 * value of $when until one year later.
 	 *
 	 * Built by self::buildMetaZoneTransitions()
@@ -1685,12 +1685,12 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns the "meta-zone" for this time zone at the given timestamp.
+	 * Returns the metazone for this time zone at the given timestamp.
 	 *
 	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
-	 * @return string The $tztxt variable for this time zone's "meta-zone".
+	 * @return string The $tztxt variable for this time zone's metazone.
 	 */
 	public function getMetaZone(int|string $when = 'now'): string
 	{
@@ -1747,7 +1747,7 @@ class TimeZone extends \DateTimeZone
 			return $tzgeo['country_code'];
 		}
 
-		// Otherwise, create a meta-zone just for this oddball time zone.
+		// Otherwise, create a metazone just for this oddball time zone.
 		if (!Lang::txtExists($this->getName(), var: 'tztxt')) {
 			Lang::setTxt(
 				$this->getName(),
@@ -1767,12 +1767,12 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns the "meta-zone" label for this time zone at the given timestamp.
+	 * Returns the metazone label for this time zone at the given timestamp.
 	 *
 	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
-	 * @return string The $tztxt value for this time zone's "meta-zone".
+	 * @return string The $tztxt value for this time zone's metazone.
 	 */
 	public function getMetaZoneLabel(int|string $when = 'now'): string
 	{
@@ -2005,13 +2005,13 @@ class TimeZone extends \DateTimeZone
 
 	/**
 	 * Returns an array that instructs SMF how to map specific time zones
-	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
+	 * (e.g. "America/Denver") onto the user-friendly metazone labels that
 	 * most people think of as time zones (e.g. "Mountain Time").
 	 *
 	 * @param int|string $when The date/time used to determine fallback values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @return array An array relating time zones to metazones
 	 */
 	public static function getTzidMetazones(int|string $when = 'now'): array
 	{
@@ -2052,7 +2052,7 @@ class TimeZone extends \DateTimeZone
 	 * @param int|string $when The date/time used to determine fallback values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @return array A list of time zones in the given country.
 	 */
 	public static function getSortedTzidsForCountry(string $country_code, int|string $when = 'now'): array
 	{
@@ -2264,7 +2264,7 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Builds a list of time zone transitions for all "meta-zones" starting from
+	 * Builds a list of time zone transitions for all metazones starting from
 	 * $when until one year later.
 	 *
 	 * @param int|string $when The date/time used to determine substitute values.
