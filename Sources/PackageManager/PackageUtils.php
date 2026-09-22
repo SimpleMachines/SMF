@@ -1255,6 +1255,19 @@ class PackageUtils
 				continue;
 			}
 
+			// What the package provides as a service, and what it wants to use.
+			if ($actionType == 'service' || $actionType == 'uses-service') {
+				$return[] = [
+					'type' => $actionType,
+					'id' => $action->exists('@id') ? $action->fetch('@id') : '',
+					'factory' => $action->exists('@factory') ? $action->fetch('@factory') : '',
+					'include_file' => $action->exists('@file') ? $action->fetch('@file') : '',
+					'description' => '',
+				];
+
+				continue;
+			}
+
 			if ($actionType == 'credits') {
 				// quick check of any supplied url
 				$url = $action->exists('@url') ? $action->fetch('@url') : '';
@@ -1451,7 +1464,7 @@ class PackageUtils
 		$not_done = [['type' => '!']];
 
 		foreach ($return as $action) {
-			if (\in_array($action['type'], ['modification', 'code', 'database', 'redirect', 'hook', 'credits'])) {
+			if (\in_array($action['type'], ['modification', 'code', 'database', 'redirect', 'hook', 'credits', 'service', 'uses-service'])) {
 				$not_done[] = $action;
 			}
 

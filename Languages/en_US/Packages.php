@@ -155,6 +155,21 @@ $txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because 
 
 $txt['package_install_options'] = 'Installation Options';
 $txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and FTP access';
+
+$txt['package_services'] = 'Service Access';
+$txt['package_services_desc'] = 'See which services each installed modification provides and uses, and withdraw that access';
+$txt['package_services_info'] = 'Services are the parts of the forum a modification asks to work with. A modification declares them in its package, you approve them when you install it, and you can withdraw them here without uninstalling anything. This describes what a modification asks for; it does not stop a badly behaved one from reaching the forum in other ways.';
+$txt['package_services_none'] = 'No installed modification provides or uses any service.';
+$txt['package_service_provides'] = 'Provides';
+$txt['package_service_uses'] = 'Uses';
+$txt['package_services_status'] = 'Access';
+$txt['package_services_granted'] = 'Allowed';
+$txt['package_services_revoked'] = 'Withdrawn';
+$txt['package_services_grant'] = 'Allow';
+$txt['package_services_revoke'] = 'Withdraw';
+$txt['package_services_not_registered_revoked'] = 'not available, access withdrawn';
+$txt['package_services_not_registered_taken'] = 'not available, another modification provides this service';
+$txt['package_services_core'] = 'Services provided by SMF';
 $txt['package_install_options_ftp_why'] = 'Using the package manager’s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br>Here you can set the default values for some fields.';
 $txt['package_install_options_ftp_server'] = 'FTP Server';
 $txt['package_install_options_ftp_port'] = 'Port';
