@@ -393,6 +393,8 @@ class TimezoneDataUpdater extends UpdaterBase
 	{
 		$file_contents = file_get_contents(Config::$sourcedir . '/TimeZone.php');
 
+		$old_hash = md5($file_contents);
+
 		// Handle any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
 			// Rename it in TimeZone::$metazones
@@ -401,8 +403,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=\s+=>\s+\'\w+\',)~', $file_contents)) {
 					echo "Renamed {$old_tzid} to {$new_tzid} TimeZone::\$metazones.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 
@@ -412,8 +412,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=,\n)~', $file_contents)) {
 					echo "Renamed {$old_tzid} to {$new_tzid} in TimeZone::\$sorted_tzids.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 
@@ -429,8 +427,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~' . $search_for . '~', $file_contents)) {
 					echo "Added fallback code for {$new_tzid} in TimeZone::\$fallbacks.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 		}
@@ -448,8 +444,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 					if (preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
 						echo "Added {$tzid} to {$cc} in TimeZone::\$sorted_tzids.\n\n";
-
-						$this->files_updated = true;
 					}
 				}
 
@@ -468,7 +462,6 @@ class TimezoneDataUpdater extends UpdaterBase
 						echo "Added fallback code for {$tzid} in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
 
 						$this->ready_to_commit = false;
-						$this->files_updated = true;
 					}
 				}
 				// Check whether our fallback rules are out of date.
@@ -573,7 +566,6 @@ class TimezoneDataUpdater extends UpdaterBase
 						$file_contents = str_replace($existing_code, $final_code, $file_contents);
 
 						$this->ready_to_commit = false;
-						$this->files_updated = true;
 
 						echo "Fallback code for {$tzid} has been updated in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
 					}
@@ -616,10 +608,14 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
 					echo "Moved {$tzid} to '{$cc}' in TimeZone::\$sorted_tzids.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
+		}
+
+		$new_hash = md5($file_contents);
+
+		if ($old_hash !== $new_hash) {
+			$this->files_updated = true;
 		}
 
 		// Save the changes again.
@@ -915,7 +911,6 @@ class TimezoneDataUpdater extends UpdaterBase
 							echo "ACTION NEEDED: Review the automatically generated \$tztxt key, '" . $metazone['tztxt_key'] . "'.\n\n";
 
 							$this->ready_to_commit = false;
-							$this->files_updated = true;
 
 							if (\count($added) === \count($this->new_metazones)) {
 								break 2;
@@ -951,17 +946,17 @@ class TimezoneDataUpdater extends UpdaterBase
 	 */
 	private function updateTimezonesLangfile(): void
 	{
-		// Perform any renames.
 		$file_contents = file_get_contents(Config::$languagesdir . '/en_US/Timezones.php');
 
+		$old_hash = md5($file_contents);
+
+		// Perform any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
 			if (!str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 				$file_contents = str_replace("\$txt['{$old_tzid}']", "\$txt['{$new_tzid}']", $file_contents);
 
 				if (str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 					echo "Renamed \$txt['{$old_tzid}'] to \$txt['{$new_tzid}'] in Languages/en_US/Timezones.php.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 		}
@@ -987,7 +982,6 @@ class TimezoneDataUpdater extends UpdaterBase
 				echo "ACTION NEEDED: Review the metazone label text, '{$label}'.\n\n";
 
 				$this->ready_to_commit = false;
-				$this->files_updated = true;
 			}
 
 			// Sort the strings into our preferred order.
@@ -1033,7 +1027,6 @@ class TimezoneDataUpdater extends UpdaterBase
 				}
 
 				echo $added_txt_msg . "\n";
-				$this->files_updated = true;
 			}
 
 			ksort($txt);
@@ -1061,7 +1054,6 @@ class TimezoneDataUpdater extends UpdaterBase
 			$txt['iso3166'][$cc] = $label;
 
 			echo "Added \$txt['iso3166']['{$cc}'] to Languages/en_US/Timezones.php.\n\n";
-			$this->files_updated = true;
 		}
 
 		ksort($txt['iso3166']);
@@ -1111,8 +1103,16 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$lines[] = '';
 
+		$file_contents = implode("\n", $lines);
+
+		$new_hash = md5($file_contents);
+
+		if ($old_hash !== $new_hash) {
+			$this->files_updated = true;
+		}
+
 		// Save the changes.
-		file_put_contents(Config::$languagesdir . '/en_US/Timezones.php', implode("\n", $lines));
+		file_put_contents(Config::$languagesdir . '/en_US/Timezones.php', $file_contents);
 	}
 
 	/**
