@@ -39,9 +39,9 @@ class TimeZone extends \DateTimeZone
 	 */
 	public const DST_ALWAYS = 2;
 
-	/**************************
-	 * Public static properties
-	 **************************/
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array
@@ -76,7 +76,7 @@ class TimeZone extends \DateTimeZone
 	 * This helps support SMF installs on servers using outdated
 	 * versions of the TZDB.
 	 */
-	public static array $metazones = [
+	protected static array $metazones = [
 		// No DST
 		'Africa/Abidjan' => 'GMT',
 
@@ -592,7 +592,7 @@ class TimeZone extends \DateTimeZone
 	 * this list as appropriate. However, SMF will gracefully handle
 	 * unexpected new time zones, so nothing will break in the meantime.
 	 */
-	public static array $sorted_tzids = [
+	protected static array $sorted_tzids = [
 		// '??' means international.
 		'??' => [
 			'UTC',
@@ -1531,7 +1531,7 @@ class TimeZone extends \DateTimeZone
 	 * 'ts' is the timestamp when the substitution first becomes valid.
 	 * 'tzid' is the alternative time zone identifier to use.
 	 */
-	public static array $fallbacks = [
+	protected static array $fallbacks = [
 		/*
 		 * 1. Simple renames.
 		 *
@@ -1595,10 +1595,6 @@ class TimeZone extends \DateTimeZone
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
 	/**
 	 * @var array
 	 *
@@ -1607,7 +1603,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::list()
 	 */
-	protected static $timezones_when = [];
+	private static $timezones_when = [];
 
 	/**
 	 * @var array
@@ -1617,7 +1613,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::prioritizeTzids()
 	 */
-	protected static array $prioritized_tzids = [];
+	private static array $prioritized_tzids = [];
 
 	/**
 	 * @var array
@@ -1627,7 +1623,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::getTimeRange()
 	 */
-	protected static array $ranges = [];
+	private static array $ranges = [];
 
 	/**
 	 * @var array
@@ -1637,7 +1633,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::buildMetaZoneTransitions()
 	 */
-	protected static array $metazone_transitions = [];
+	private static array $metazone_transitions = [];
 
 	/****************
 	 * Public methods

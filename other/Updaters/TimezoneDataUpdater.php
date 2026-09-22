@@ -587,25 +587,28 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Any new metazones to add?
 		$file_contents = $this->updateMetazones($file_contents);
 
+		// Extract the $sorted_tzids array and evaluate it.
+		preg_match('/protected static array \K\$sorted_tzids = \[[^;]+;/', $file_contents, $matches);
+
+		eval($matches[0]);
+
 		// Have any time zones changed their country codes?
 		foreach ($this->zones as $tzid => $zone) {
 			$cc = $this->getCcForTzid($tzid, $this->curr_commit);
 
-			if ($cc !== '??' && !\in_array($tzid, TimeZone::$sorted_tzids[$cc] ?? [])) {
+			if ($cc !== '??' && !\in_array($tzid, $sorted_tzids[$cc] ?? [])) {
 				// Remove the existing occurrence of the tzid in TimeZone::$sorted_tzids.
 				$file_contents = preg_replace('~\n\h+\'' . $tzid . '\',?(?=\n)~', '', $file_contents);
 
 				// A brand new country code?
-				if (!isset(TimeZone::$sorted_tzids[$cc])) {
-					foreach (TimeZone::$sorted_tzids as $existing_cc => $tzids) {
+				if (empty($sorted_tzids[$cc])) {
+					foreach ($sorted_tzids as $existing_cc => $tzids) {
 						if ($existing_cc > $cc) {
 							break;
 						}
 					}
 
 					$file_contents = preg_replace("~(\n\h+)('{$existing_cc}' => \[)~", "$1'{$cc}' => [$1],$0", $file_contents);
-
-					TimeZone::$sorted_tzids[$cc] = [$tzid];
 				}
 
 				// Add the tzid to the correct country code's list.
@@ -845,7 +848,7 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Do we need any new metazones?
 		if (!empty($this->new_metazones)) {
 			// Any new metazones to create?
-			preg_match('/\h*public static array \$metazones\h*=\h*\[[^\]]*\];/', $file_contents, $matches);
+			preg_match('/\h*protected static array \$metazones\h*=\h*\[[^\]]*\];/', $file_contents, $matches);
 			$existing_tzid_metazones_code = $matches[0];
 
 			// Need some more info about this new metazone.
