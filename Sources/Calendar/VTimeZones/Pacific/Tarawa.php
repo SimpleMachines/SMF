@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Tarawa
  */
-class Tarawa extends \SMF\Calendar\VTimeZone
+class Tarawa extends VTimeZone
 {
 	/*******************
 	 * Public properties

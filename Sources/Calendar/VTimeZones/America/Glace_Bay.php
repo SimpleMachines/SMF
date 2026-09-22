@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Glace_Bay
  */
-class Glace_Bay extends \SMF\Calendar\VTimeZone
+class Glace_Bay extends VTimeZone
 {
 	/*******************
 	 * Public properties

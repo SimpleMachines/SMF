@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Helsinki
  */
-class Helsinki extends \SMF\Calendar\VTimeZone
+class Helsinki extends VTimeZone
 {
 	/*******************
 	 * Public properties

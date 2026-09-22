@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Kolkata
  */
-class Kolkata extends \SMF\Calendar\VTimeZone
+class Kolkata extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Etc;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Etc/GMT-12
  */
-class GMT_12 extends \SMF\Calendar\VTimeZone
+class GMT_12 extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -34,10 +36,29 @@ class GMT_12 extends \SMF\Calendar\VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,
 	 * run "php -f other/update_timezones.php" on the command line.
 	 */
-	public array $components = [];
+	public array $components = [
+		0 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '15821015T120000',
+			'TZNAME' => 'UTC+12',
+			'TZOFFSETFROM' => '+1200',
+			'TZOFFSETTO' => '+1200',
+		],
+	];
 }

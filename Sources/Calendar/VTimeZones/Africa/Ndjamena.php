@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Ndjamena
  */
-class Ndjamena extends \SMF\Calendar\VTimeZone
+class Ndjamena extends VTimeZone
 {
 	/*******************
 	 * Public properties

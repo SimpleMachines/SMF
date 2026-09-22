@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Windhoek
  */
-class Windhoek extends \SMF\Calendar\VTimeZone
+class Windhoek extends VTimeZone
 {
 	/*******************
 	 * Public properties

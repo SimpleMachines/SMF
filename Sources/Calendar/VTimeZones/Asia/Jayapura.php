@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Jayapura
  */
-class Jayapura extends \SMF\Calendar\VTimeZone
+class Jayapura extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Tashkent
  */
-class Tashkent extends \SMF\Calendar\VTimeZone
+class Tashkent extends VTimeZone
 {
 	/*******************
 	 * Public properties

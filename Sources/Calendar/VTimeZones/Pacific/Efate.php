@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Efate
  */
-class Efate extends \SMF\Calendar\VTimeZone
+class Efate extends VTimeZone
 {
 	/*******************
 	 * Public properties

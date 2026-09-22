@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Yekaterinburg
  */
-class Yekaterinburg extends \SMF\Calendar\VTimeZone
+class Yekaterinburg extends VTimeZone
 {
 	/*******************
 	 * Public properties

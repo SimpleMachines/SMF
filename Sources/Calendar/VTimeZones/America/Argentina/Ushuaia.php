@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Ushuaia
  */
-class Ushuaia extends \SMF\Calendar\VTimeZone
+class Ushuaia extends VTimeZone
 {
 	/*******************
 	 * Public properties

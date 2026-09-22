@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Fort_Nelson
  */
-class Fort_Nelson extends \SMF\Calendar\VTimeZone
+class Fort_Nelson extends VTimeZone
 {
 	/*******************
 	 * Public properties

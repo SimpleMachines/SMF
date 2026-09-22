@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Indiana;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Indiana/Marengo
  */
-class Marengo extends \SMF\Calendar\VTimeZone
+class Marengo extends VTimeZone
 {
 	/*******************
 	 * Public properties

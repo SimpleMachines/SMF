@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Anchorage
  */
-class Anchorage extends \SMF\Calendar\VTimeZone
+class Anchorage extends VTimeZone
 {
 	/*******************
 	 * Public properties

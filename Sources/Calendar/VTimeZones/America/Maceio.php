@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Maceio
  */
-class Maceio extends \SMF\Calendar\VTimeZone
+class Maceio extends VTimeZone
 {
 	/*******************
 	 * Public properties

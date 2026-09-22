@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Miquelon
  */
-class Miquelon extends \SMF\Calendar\VTimeZone
+class Miquelon extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Minsk
  */
-class Minsk extends \SMF\Calendar\VTimeZone
+class Minsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

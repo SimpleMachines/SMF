@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Yerevan
  */
-class Yerevan extends \SMF\Calendar\VTimeZone
+class Yerevan extends VTimeZone
 {
 	/*******************
 	 * Public properties

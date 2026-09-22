@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Guyana
  */
-class Guyana extends \SMF\Calendar\VTimeZone
+class Guyana extends VTimeZone
 {
 	/*******************
 	 * Public properties

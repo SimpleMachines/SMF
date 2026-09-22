@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Bahia
  */
-class Bahia extends \SMF\Calendar\VTimeZone
+class Bahia extends VTimeZone
 {
 	/*******************
 	 * Public properties

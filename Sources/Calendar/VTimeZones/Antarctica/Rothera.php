@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Antarctica;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Antarctica/Rothera
  */
-class Rothera extends \SMF\Calendar\VTimeZone
+class Rothera extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -41,6 +43,13 @@ class Rothera extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [
 		0 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19761201T000000',
 			'TZNAME' => 'UTC-03',

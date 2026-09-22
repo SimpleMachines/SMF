@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Chisinau
  */
-class Chisinau extends \SMF\Calendar\VTimeZone
+class Chisinau extends VTimeZone
 {
 	/*******************
 	 * Public properties

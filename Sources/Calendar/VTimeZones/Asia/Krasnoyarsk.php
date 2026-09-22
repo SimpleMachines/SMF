@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Krasnoyarsk
  */
-class Krasnoyarsk extends \SMF\Calendar\VTimeZone
+class Krasnoyarsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

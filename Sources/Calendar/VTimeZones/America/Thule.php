@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Thule
  */
-class Thule extends \SMF\Calendar\VTimeZone
+class Thule extends VTimeZone
 {
 	/*******************
 	 * Public properties

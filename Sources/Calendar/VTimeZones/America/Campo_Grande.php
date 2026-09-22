@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Campo_Grande
  */
-class Campo_Grande extends \SMF\Calendar\VTimeZone
+class Campo_Grande extends VTimeZone
 {
 	/*******************
 	 * Public properties

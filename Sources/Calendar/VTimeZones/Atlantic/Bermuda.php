@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Atlantic;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Atlantic/Bermuda
  */
-class Bermuda extends \SMF\Calendar\VTimeZone
+class Bermuda extends VTimeZone
 {
 	/*******************
 	 * Public properties

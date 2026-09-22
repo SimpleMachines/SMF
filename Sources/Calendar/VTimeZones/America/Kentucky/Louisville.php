@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Kentucky;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Kentucky/Louisville
  */
-class Louisville extends \SMF\Calendar\VTimeZone
+class Louisville extends VTimeZone
 {
 	/*******************
 	 * Public properties

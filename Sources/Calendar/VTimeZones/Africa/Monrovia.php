@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Monrovia
  */
-class Monrovia extends \SMF\Calendar\VTimeZone
+class Monrovia extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Kiritimati
  */
-class Kiritimati extends \SMF\Calendar\VTimeZone
+class Kiritimati extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Nauru
  */
-class Nauru extends \SMF\Calendar\VTimeZone
+class Nauru extends VTimeZone
 {
 	/*******************
 	 * Public properties

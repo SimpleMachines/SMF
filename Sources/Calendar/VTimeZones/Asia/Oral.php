@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Oral
  */
-class Oral extends \SMF\Calendar\VTimeZone
+class Oral extends VTimeZone
 {
 	/*******************
 	 * Public properties

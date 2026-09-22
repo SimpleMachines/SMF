@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Eucla
  */
-class Eucla extends \SMF\Calendar\VTimeZone
+class Eucla extends VTimeZone
 {
 	/*******************
 	 * Public properties

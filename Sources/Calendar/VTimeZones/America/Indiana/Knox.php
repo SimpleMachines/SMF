@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Indiana;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Indiana/Knox
  */
-class Knox extends \SMF\Calendar\VTimeZone
+class Knox extends VTimeZone
 {
 	/*******************
 	 * Public properties

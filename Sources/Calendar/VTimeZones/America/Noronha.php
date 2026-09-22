@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Noronha
  */
-class Noronha extends \SMF\Calendar\VTimeZone
+class Noronha extends VTimeZone
 {
 	/*******************
 	 * Public properties

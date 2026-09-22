@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Panama
  */
-class Panama extends \SMF\Calendar\VTimeZone
+class Panama extends VTimeZone
 {
 	/*******************
 	 * Public properties

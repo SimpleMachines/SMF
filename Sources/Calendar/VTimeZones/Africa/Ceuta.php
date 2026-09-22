@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Ceuta
  */
-class Ceuta extends \SMF\Calendar\VTimeZone
+class Ceuta extends VTimeZone
 {
 	/*******************
 	 * Public properties

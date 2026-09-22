@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Paramaribo
  */
-class Paramaribo extends \SMF\Calendar\VTimeZone
+class Paramaribo extends VTimeZone
 {
 	/*******************
 	 * Public properties

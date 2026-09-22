@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Kosrae
  */
-class Kosrae extends \SMF\Calendar\VTimeZone
+class Kosrae extends VTimeZone
 {
 	/*******************
 	 * Public properties

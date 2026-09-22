@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Macau
  */
-class Macau extends \SMF\Calendar\VTimeZone
+class Macau extends VTimeZone
 {
 	/*******************
 	 * Public properties

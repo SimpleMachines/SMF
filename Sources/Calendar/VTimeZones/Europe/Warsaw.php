@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Warsaw
  */
-class Warsaw extends \SMF\Calendar\VTimeZone
+class Warsaw extends VTimeZone
 {
 	/*******************
 	 * Public properties

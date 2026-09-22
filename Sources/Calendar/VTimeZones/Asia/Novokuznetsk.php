@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Novokuznetsk
  */
-class Novokuznetsk extends \SMF\Calendar\VTimeZone
+class Novokuznetsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

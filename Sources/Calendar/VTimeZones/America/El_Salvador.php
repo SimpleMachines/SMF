@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/El_Salvador
  */
-class El_Salvador extends \SMF\Calendar\VTimeZone
+class El_Salvador extends VTimeZone
 {
 	/*******************
 	 * Public properties

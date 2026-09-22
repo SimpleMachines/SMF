@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Ciudad_Juarez
  */
-class Ciudad_Juarez extends \SMF\Calendar\VTimeZone
+class Ciudad_Juarez extends VTimeZone
 {
 	/*******************
 	 * Public properties

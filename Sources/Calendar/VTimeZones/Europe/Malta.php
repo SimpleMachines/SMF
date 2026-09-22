@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Malta
  */
-class Malta extends \SMF\Calendar\VTimeZone
+class Malta extends VTimeZone
 {
 	/*******************
 	 * Public properties

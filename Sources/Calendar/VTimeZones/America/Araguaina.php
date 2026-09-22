@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Araguaina
  */
-class Araguaina extends \SMF\Calendar\VTimeZone
+class Araguaina extends VTimeZone
 {
 	/*******************
 	 * Public properties

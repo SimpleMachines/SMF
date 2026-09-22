@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ulaanbaatar
  */
-class Ulaanbaatar extends \SMF\Calendar\VTimeZone
+class Ulaanbaatar extends VTimeZone
 {
 	/*******************
 	 * Public properties

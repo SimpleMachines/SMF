@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Port-au-Prince
  */
-class Port_au_Prince extends \SMF\Calendar\VTimeZone
+class Port_au_Prince extends VTimeZone
 {
 	/*******************
 	 * Public properties

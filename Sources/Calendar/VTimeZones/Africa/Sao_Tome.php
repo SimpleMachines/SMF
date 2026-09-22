@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Sao_Tome
  */
-class Sao_Tome extends \SMF\Calendar\VTimeZone
+class Sao_Tome extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Damascus
  */
-class Damascus extends \SMF\Calendar\VTimeZone
+class Damascus extends VTimeZone
 {
 	/*******************
 	 * Public properties

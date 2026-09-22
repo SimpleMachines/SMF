@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Fiji
  */
-class Fiji extends \SMF\Calendar\VTimeZone
+class Fiji extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Aqtobe
  */
-class Aqtobe extends \SMF\Calendar\VTimeZone
+class Aqtobe extends VTimeZone
 {
 	/*******************
 	 * Public properties

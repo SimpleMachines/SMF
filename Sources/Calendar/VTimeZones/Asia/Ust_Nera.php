@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ust-Nera
  */
-class Ust_Nera extends \SMF\Calendar\VTimeZone
+class Ust_Nera extends VTimeZone
 {
 	/*******************
 	 * Public properties

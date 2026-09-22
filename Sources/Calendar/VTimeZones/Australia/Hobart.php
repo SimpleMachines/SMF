@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Hobart
  */
-class Hobart extends \SMF\Calendar\VTimeZone
+class Hobart extends VTimeZone
 {
 	/*******************
 	 * Public properties

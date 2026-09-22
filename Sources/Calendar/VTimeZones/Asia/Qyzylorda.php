@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Qyzylorda
  */
-class Qyzylorda extends \SMF\Calendar\VTimeZone
+class Qyzylorda extends VTimeZone
 {
 	/*******************
 	 * Public properties

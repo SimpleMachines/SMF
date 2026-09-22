@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Kanton
  */
-class Kanton extends \SMF\Calendar\VTimeZone
+class Kanton extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -42,19 +44,26 @@ class Kanton extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19370831T000000',
 			'TZNAME' => 'UTC-12',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '-1200',
 		],
-		1 => [
+		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19791001T000000',
 			'TZNAME' => 'UTC-11',
 			'TZOFFSETFROM' => '-1200',
 			'TZOFFSETTO' => '-1100',
 		],
-		2 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19941231T000000',
 			'TZNAME' => 'UTC+13',

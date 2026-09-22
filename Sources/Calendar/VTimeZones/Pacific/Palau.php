@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Palau
  */
-class Palau extends \SMF\Calendar\VTimeZone
+class Palau extends VTimeZone
 {
 	/*******************
 	 * Public properties

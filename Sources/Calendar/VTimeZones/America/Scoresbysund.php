@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Scoresbysund
  */
-class Scoresbysund extends \SMF\Calendar\VTimeZone
+class Scoresbysund extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Ulyanovsk
  */
-class Ulyanovsk extends \SMF\Calendar\VTimeZone
+class Ulyanovsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

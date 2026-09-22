@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Kyiv
  */
-class Kyiv extends \SMF\Calendar\VTimeZone
+class Kyiv extends VTimeZone
 {
 	/*******************
 	 * Public properties

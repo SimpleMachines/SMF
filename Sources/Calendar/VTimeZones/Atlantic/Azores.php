@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Atlantic;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Atlantic/Azores
  */
-class Azores extends \SMF\Calendar\VTimeZone
+class Azores extends VTimeZone
 {
 	/*******************
 	 * Public properties

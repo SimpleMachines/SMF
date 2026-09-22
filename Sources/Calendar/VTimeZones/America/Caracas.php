@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Caracas
  */
-class Caracas extends \SMF\Calendar\VTimeZone
+class Caracas extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Jujuy
  */
-class Jujuy extends \SMF\Calendar\VTimeZone
+class Jujuy extends VTimeZone
 {
 	/*******************
 	 * Public properties

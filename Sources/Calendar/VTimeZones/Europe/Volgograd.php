@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Volgograd
  */
-class Volgograd extends \SMF\Calendar\VTimeZone
+class Volgograd extends VTimeZone
 {
 	/*******************
 	 * Public properties

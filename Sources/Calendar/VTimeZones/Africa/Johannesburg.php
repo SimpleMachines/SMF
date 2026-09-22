@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Johannesburg
  */
-class Johannesburg extends \SMF\Calendar\VTimeZone
+class Johannesburg extends VTimeZone
 {
 	/*******************
 	 * Public properties

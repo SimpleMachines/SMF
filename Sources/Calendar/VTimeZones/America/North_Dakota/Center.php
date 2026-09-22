@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\North_Dakota;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/North_Dakota/Center
  */
-class Center extends \SMF\Calendar\VTimeZone
+class Center extends VTimeZone
 {
 	/*******************
 	 * Public properties

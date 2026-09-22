@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Norfolk
  */
-class Norfolk extends \SMF\Calendar\VTimeZone
+class Norfolk extends VTimeZone
 {
 	/*******************
 	 * Public properties

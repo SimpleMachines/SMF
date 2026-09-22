@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Antarctica;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Antarctica/Mawson
  */
-class Mawson extends \SMF\Calendar\VTimeZone
+class Mawson extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -42,12 +44,19 @@ class Mawson extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19540213T000000',
 			'TZNAME' => 'UTC+06',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0600',
 		],
-		1 => [
+		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20091018T020000',
 			'TZNAME' => 'UTC+05',

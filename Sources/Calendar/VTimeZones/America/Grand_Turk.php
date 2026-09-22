@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Grand_Turk
  */
-class Grand_Turk extends \SMF\Calendar\VTimeZone
+class Grand_Turk extends VTimeZone
 {
 	/*******************
 	 * Public properties

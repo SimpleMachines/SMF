@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Port_Moresby
  */
-class Port_Moresby extends \SMF\Calendar\VTimeZone
+class Port_Moresby extends VTimeZone
 {
 	/*******************
 	 * Public properties

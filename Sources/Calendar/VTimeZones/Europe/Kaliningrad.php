@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Kaliningrad
  */
-class Kaliningrad extends \SMF\Calendar\VTimeZone
+class Kaliningrad extends VTimeZone
 {
 	/*******************
 	 * Public properties

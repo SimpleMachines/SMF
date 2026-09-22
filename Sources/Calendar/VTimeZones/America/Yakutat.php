@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Yakutat
  */
-class Yakutat extends \SMF\Calendar\VTimeZone
+class Yakutat extends VTimeZone
 {
 	/*******************
 	 * Public properties

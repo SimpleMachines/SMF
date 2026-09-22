@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Goose_Bay
  */
-class Goose_Bay extends \SMF\Calendar\VTimeZone
+class Goose_Bay extends VTimeZone
 {
 	/*******************
 	 * Public properties

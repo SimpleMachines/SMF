@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Baghdad
  */
-class Baghdad extends \SMF\Calendar\VTimeZone
+class Baghdad extends VTimeZone
 {
 	/*******************
 	 * Public properties

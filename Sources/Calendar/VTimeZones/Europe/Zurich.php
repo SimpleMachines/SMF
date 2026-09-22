@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Zurich
  */
-class Zurich extends \SMF\Calendar\VTimeZone
+class Zurich extends VTimeZone
 {
 	/*******************
 	 * Public properties

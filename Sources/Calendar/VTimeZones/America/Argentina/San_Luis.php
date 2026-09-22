@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/San_Luis
  */
-class San_Luis extends \SMF\Calendar\VTimeZone
+class San_Luis extends VTimeZone
 {
 	/*******************
 	 * Public properties

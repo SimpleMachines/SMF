@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Regina
  */
-class Regina extends \SMF\Calendar\VTimeZone
+class Regina extends VTimeZone
 {
 	/*******************
 	 * Public properties

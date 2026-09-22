@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Tegucigalpa
  */
-class Tegucigalpa extends \SMF\Calendar\VTimeZone
+class Tegucigalpa extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Andorra
  */
-class Andorra extends \SMF\Calendar\VTimeZone
+class Andorra extends VTimeZone
 {
 	/*******************
 	 * Public properties

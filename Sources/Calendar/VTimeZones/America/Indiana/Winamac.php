@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Indiana;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Indiana/Winamac
  */
-class Winamac extends \SMF\Calendar\VTimeZone
+class Winamac extends VTimeZone
 {
 	/*******************
 	 * Public properties

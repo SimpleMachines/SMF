@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Pitcairn
  */
-class Pitcairn extends \SMF\Calendar\VTimeZone
+class Pitcairn extends VTimeZone
 {
 	/*******************
 	 * Public properties

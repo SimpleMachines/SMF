@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Indian;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Indian/Maldives
  */
-class Maldives extends \SMF\Calendar\VTimeZone
+class Maldives extends VTimeZone
 {
 	/*******************
 	 * Public properties

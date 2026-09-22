@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Honolulu
  */
-class Honolulu extends \SMF\Calendar\VTimeZone
+class Honolulu extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Bougainville
  */
-class Bougainville extends \SMF\Calendar\VTimeZone
+class Bougainville extends VTimeZone
 {
 	/*******************
 	 * Public properties

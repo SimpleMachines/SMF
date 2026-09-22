@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Indian;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Indian/Mauritius
  */
-class Mauritius extends \SMF\Calendar\VTimeZone
+class Mauritius extends VTimeZone
 {
 	/*******************
 	 * Public properties

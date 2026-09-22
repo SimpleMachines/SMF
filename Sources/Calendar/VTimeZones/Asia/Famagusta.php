@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Famagusta
  */
-class Famagusta extends \SMF\Calendar\VTimeZone
+class Famagusta extends VTimeZone
 {
 	/*******************
 	 * Public properties

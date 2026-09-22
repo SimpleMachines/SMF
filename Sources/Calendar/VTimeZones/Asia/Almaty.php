@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Almaty
  */
-class Almaty extends \SMF\Calendar\VTimeZone
+class Almaty extends VTimeZone
 {
 	/*******************
 	 * Public properties

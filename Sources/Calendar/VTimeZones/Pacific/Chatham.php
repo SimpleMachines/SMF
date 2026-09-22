@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Chatham
  */
-class Chatham extends \SMF\Calendar\VTimeZone
+class Chatham extends VTimeZone
 {
 	/*******************
 	 * Public properties

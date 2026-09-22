@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Jakarta
  */
-class Jakarta extends \SMF\Calendar\VTimeZone
+class Jakarta extends VTimeZone
 {
 	/*******************
 	 * Public properties

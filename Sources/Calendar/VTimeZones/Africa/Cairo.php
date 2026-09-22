@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Cairo
  */
-class Cairo extends \SMF\Calendar\VTimeZone
+class Cairo extends VTimeZone
 {
 	/*******************
 	 * Public properties

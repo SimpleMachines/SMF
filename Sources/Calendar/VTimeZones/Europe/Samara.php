@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Samara
  */
-class Samara extends \SMF\Calendar\VTimeZone
+class Samara extends VTimeZone
 {
 	/*******************
 	 * Public properties

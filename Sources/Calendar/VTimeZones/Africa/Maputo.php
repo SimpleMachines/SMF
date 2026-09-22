@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Maputo
  */
-class Maputo extends \SMF\Calendar\VTimeZone
+class Maputo extends VTimeZone
 {
 	/*******************
 	 * Public properties

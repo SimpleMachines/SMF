@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Riga
  */
-class Riga extends \SMF\Calendar\VTimeZone
+class Riga extends VTimeZone
 {
 	/*******************
 	 * Public properties

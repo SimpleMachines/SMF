@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Winnipeg
  */
-class Winnipeg extends \SMF\Calendar\VTimeZone
+class Winnipeg extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Merida
  */
-class Merida extends \SMF\Calendar\VTimeZone
+class Merida extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Dawson_Creek
  */
-class Dawson_Creek extends \SMF\Calendar\VTimeZone
+class Dawson_Creek extends VTimeZone
 {
 	/*******************
 	 * Public properties

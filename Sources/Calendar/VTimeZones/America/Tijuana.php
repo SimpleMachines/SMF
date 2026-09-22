@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Tijuana
  */
-class Tijuana extends \SMF\Calendar\VTimeZone
+class Tijuana extends VTimeZone
 {
 	/*******************
 	 * Public properties

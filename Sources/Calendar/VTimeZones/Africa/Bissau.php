@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Bissau
  */
-class Bissau extends \SMF\Calendar\VTimeZone
+class Bissau extends VTimeZone
 {
 	/*******************
 	 * Public properties

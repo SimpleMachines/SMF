@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Melbourne
  */
-class Melbourne extends \SMF\Calendar\VTimeZone
+class Melbourne extends VTimeZone
 {
 	/*******************
 	 * Public properties

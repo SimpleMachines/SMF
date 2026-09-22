@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Indian;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Indian/Chagos
  */
-class Chagos extends \SMF\Calendar\VTimeZone
+class Chagos extends VTimeZone
 {
 	/*******************
 	 * Public properties

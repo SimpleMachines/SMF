@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Srednekolymsk
  */
-class Srednekolymsk extends \SMF\Calendar\VTimeZone
+class Srednekolymsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Magadan
  */
-class Magadan extends \SMF\Calendar\VTimeZone
+class Magadan extends VTimeZone
 {
 	/*******************
 	 * Public properties

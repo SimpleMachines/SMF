@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Atlantic;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Atlantic/Cape_Verde
  */
-class Cape_Verde extends \SMF\Calendar\VTimeZone
+class Cape_Verde extends VTimeZone
 {
 	/*******************
 	 * Public properties

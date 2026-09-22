@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Lord_Howe
  */
-class Lord_Howe extends \SMF\Calendar\VTimeZone
+class Lord_Howe extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Tomsk
  */
-class Tomsk extends \SMF\Calendar\VTimeZone
+class Tomsk extends VTimeZone
 {
 	/*******************
 	 * Public properties

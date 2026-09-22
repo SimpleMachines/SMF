@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Thimphu
  */
-class Thimphu extends \SMF\Calendar\VTimeZone
+class Thimphu extends VTimeZone
 {
 	/*******************
 	 * Public properties

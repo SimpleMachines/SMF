@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Niue
  */
-class Niue extends \SMF\Calendar\VTimeZone
+class Niue extends VTimeZone
 {
 	/*******************
 	 * Public properties

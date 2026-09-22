@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Lindeman
  */
-class Lindeman extends \SMF\Calendar\VTimeZone
+class Lindeman extends VTimeZone
 {
 	/*******************
 	 * Public properties

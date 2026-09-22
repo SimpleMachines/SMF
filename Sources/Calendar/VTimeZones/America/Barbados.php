@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Barbados
  */
-class Barbados extends \SMF\Calendar\VTimeZone
+class Barbados extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ashgabat
  */
-class Ashgabat extends \SMF\Calendar\VTimeZone
+class Ashgabat extends VTimeZone
 {
 	/*******************
 	 * Public properties

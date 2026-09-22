@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Atlantic;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Atlantic/South_Georgia
  */
-class South_Georgia extends \SMF\Calendar\VTimeZone
+class South_Georgia extends VTimeZone
 {
 	/*******************
 	 * Public properties

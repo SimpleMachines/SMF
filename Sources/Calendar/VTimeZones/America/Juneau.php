@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Juneau
  */
-class Juneau extends \SMF\Calendar\VTimeZone
+class Juneau extends VTimeZone
 {
 	/*******************
 	 * Public properties

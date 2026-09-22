@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Kirov
  */
-class Kirov extends \SMF\Calendar\VTimeZone
+class Kirov extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -141,9 +141,9 @@ class TimezoneDataUpdater extends UpdaterBase
 	 *
 	 * Used in places where an earliest date is required.
 	 *
-	 * To support 32-bit PHP builds, use '1901-12-13 20:45:52 UTC'
+	 * To support 32-bit PHP builds, use '1901-12-13T20:45:52+0000'
 	 */
-	public const DATE_MIN = '1582-10-15 00:00:00 UTC';
+	public const DATE_MIN = '1582-10-15T00:00:00+0000';
 
 	/**
 	 * @var string
@@ -407,6 +407,31 @@ class TimezoneDataUpdater extends UpdaterBase
 		$file_contents = file_get_contents(Config::$sourcedir . '/TimeZone.php');
 
 		$old_hash = md5($file_contents);
+
+		// Update the list of canonical links.
+		$this->buildZones();
+
+		$canonical_links = [];
+
+		foreach ($this->zones as $tzid => $zone) {
+			if (isset($zone['canonical'])) {
+				$canonical_links[$tzid] = $zone['canonical'];
+			}
+		}
+
+		ksort($canonical_links);
+
+		$file_contents = preg_replace(
+			[
+				'/public const CANONICAL_LINKS = \[[^\]]*\];/',
+				'/^\h+$/m',
+			],
+			[
+				'public const CANONICAL_LINKS = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($canonical_links)) . ';',
+				'',
+			],
+			$file_contents,
+		);
 
 		// Handle any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
@@ -2759,188 +2784,212 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$this->buildZones();
 
-		$canonical_links = [];
-
+		// Build the individual VTimeZone classes.
 		$max_date = new \DateTimeImmutable(self::DATE_MAX);
 
+		uasort(
+			$this->zones,
+			fn($a, $b) => isset($a['canonical']) <=> isset($b['canonical']) ?: $a['tzid'] <=> $b['tzid'],
+		);
+
 		foreach ($this->zones as $tzid => $zone) {
+			unset($use, $extends, $components);
+
+			// Avoid unnecessary duplication in linked time zones.
 			if (isset($zone['canonical'])) {
-				$canonical_links[$tzid] = $zone['canonical'];
-				continue;
-			}
+				$tzid_parts = explode('/', $tzid);
+				$canonical_parts = explode('/', $zone['canonical']);
 
-			$components = [];
-			$untils = [];
-
-			foreach ($this->transitions[$tzid] as $transition_num => $transition) {
-				$prev_transition = $this->transitions[$tzid][$transition_num - 1] ?? null;
-
-				// Skip entries for Local Mean Time.
-				if (
-					($transition['offset'] % 900 !== 0 && empty($components))
-					|| !isset($prev_transition)
+				if (\count($tzid_parts) === 1) {
+					$use = '';
+					$extends = implode('\\', $canonical_parts);
+				} elseif (
+					\array_slice($tzid_parts, 0, -1) === \array_slice($canonical_parts, 0, -1)
 				) {
-					continue;
-				}
-
-				$type = $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD';
-
-				// Manually apply the offset in order to get a DateTime that
-				// will output a string AS IF it were in the local time zone,
-				// but without actually changing the time zone. We do this in
-				// order to avoid relying on PHP's internal TZDB, which might
-				// be out of date.
-				$local_start = (new \DateTime($transition['time']))->modify($prev_transition['offset'] . ' seconds')->format('Ymd\THis');
-
-				$dtstart = $transition['dtstart'] ?? $local_start;
-
-				$tzoffsetfrom = implode('', [
-					// Hours.
-					\sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))),
-					// Minutes.
-					\sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60),
-					// Seconds.
-					abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : '',
-				]);
-
-				$tzoffsetto = implode('', [
-					// Hours.
-					\sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))),
-					// Minutes.
-					\sprintf('%02d', (int) abs($transition['offset'] / 60) % 60),
-					// Seconds.
-					abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : '',
-				]);
-
-				if (!is_numeric($transition['abbr'])) {
-					$tzname = $transition['abbr'];
-				}
-				// Offsets from UTC are propertly written like 'UTC-07' or
-				// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
-				// time zone with a UTC offset of zero. So 'GMT' can be used
-				// as the TZNAME for UTC+00, but for everything else the
-				// correct notation is the UTC offset. This is all the more
-				// true since the signs are flipped in time zone names like
-				// 'Etc/GMT-5', whose offset is actually UTC+05.
-				elseif ((int) $tzoffsetto === 0 && substr($tzoffsetto, 0, 1) === '+') {
-					$tzname = 'GMT';
+					$use = '';
+					$extends = end($canonical_parts);
 				} else {
-					$tzname = 'UTC' . $tzoffsetto;
-
-					while (
-						\strlen($tzname) > 6
-						&& str_ends_with($tzname, '00')
-					) {
-						$tzname = substr($tzname, 0, -2);
-					}
+					$use = "\n\n" . 'use SMF\\Calendar\\VTimeZones\\' . reset($canonical_parts) . ';';
+					$extends = implode('\\', $canonical_parts);
 				}
+			} else {
+				$use = "\n\n" . 'use SMF\\Calendar\\VTimeZone;';
+				$extends = 'VTimeZone';
 
-				$rrule = $transition['rrule'] ?? null;
+				// Build the component data.
+				$components = [];
+				$untils = [];
+				$prev_transition_num = -1;
 
-				// If the RRULE has no UNTIL value, but the entry_end is not
-				// our maximum date, that means the RRULE was built from a TZDB
-				// *rule* that had no ending, but the *entry* does have a date
-				// when it stopped using that rule. This means that, from the
-				// entry's perspective, there *is* an until date even though
-				// the rule itself doesn't give one.
-				if (
-					isset($rrule)
-					&& !str_contains($rrule, ';UNTIL=')
-					&& $transition['entry_end'] < $max_date
-				) {
-					if (isset($untils[$rrule][$transition['entry_end']->format('Ymd\THisO')])) {
-						$until = $untils[$rrule][$transition['entry_end']->format('Ymd\THisO')];
+				foreach ($this->transitions[$tzid] as $transition_num => $transition) {
+					$prev_transition = $this->transitions[$tzid][$prev_transition_num] ?? $transition;
+					$prev_transition_num = $transition_num;
+
+					// Skip entries for Local Mean Time.
+					if ($transition['offset'] % 900 !== 0 && empty($components)) {
+						continue;
+					}
+
+					$type = $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD';
+
+					// Manually apply the offset in order to get a DateTime that
+					// will output a string AS IF it were in the local time zone,
+					// but without actually changing the time zone. We do this in
+					// order to avoid relying on PHP's internal TZDB, which might
+					// be out of date.
+					$local_start = (new \DateTime($transition['time']))->modify($prev_transition['offset'] . ' seconds')->format('Ymd\THis');
+
+					$dtstart = $transition['dtstart'] ?? $local_start;
+
+					$tzoffsetfrom = implode('', [
+						// Hours.
+						\sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))),
+						// Minutes.
+						\sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60),
+						// Seconds.
+						abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : '',
+					]);
+
+					$tzoffsetto = implode('', [
+						// Hours.
+						\sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))),
+						// Minutes.
+						\sprintf('%02d', (int) abs($transition['offset'] / 60) % 60),
+						// Seconds.
+						abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : '',
+					]);
+
+					if (!is_numeric($transition['abbr'])) {
+						$tzname = $transition['abbr'];
+					}
+					// Offsets from UTC are propertly written like 'UTC-07' or
+					// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
+					// time zone with a UTC offset of zero. So 'GMT' can be used
+					// as the TZNAME for UTC+00, but for everything else the
+					// correct notation is the UTC offset. This is all the more
+					// true since the signs are flipped in time zone names like
+					// 'Etc/GMT-5', whose offset is actually UTC+05.
+					elseif ((int) $tzoffsetto === 0 && substr($tzoffsetto, 0, 1) === '+') {
+						$tzname = 'GMT';
 					} else {
-						// The entry_end date is exclusive (i.e., it indicates
-						// when the rule no longer applies). But the UNTIL value
-						// of an RRULE is inclusive (i.e., it indicates when the
-						// last occurrence happens). Thus, we need to find the
-						// last occurrence prior to the entry_end date.
-						$recurrence_iterator = new RecurrenceIterator(
-							rrule: new RRule($rrule),
-							dtstart: new \DateTime($local_start),
-							view: (new \DateTime($local_start))->diff($transition['entry_end']),
-							type: RecurrenceIterator::TYPE_FLOATING,
-						);
-
-						$recurrence_iterator->end();
+						$tzname = 'UTC' . $tzoffsetto;
 
 						while (
-							$recurrence_iterator->valid()
-							&& $recurrence_iterator->current() > $transition['entry_end']
+							\strlen($tzname) > 6
+							&& str_ends_with($tzname, '00')
 						) {
-							$recurrence_iterator->prev();
+							$tzname = substr($tzname, 0, -2);
 						}
-
-						if ($recurrence_iterator->valid()) {
-							$until = $recurrence_iterator->current();
-						} else {
-							// This shouldn't happen, but just in case...
-							$recurrence_iterator->rewind();
-							$until = $recurrence_iterator->current();
-						}
-
-						// To UTC.
-						$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
-						$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, \strlen($sign)), 2));
-						$until->sub($this->offsetToDateInterval($offset));
-
-						$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;
 					}
 
-					$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
+					$rrule = $transition['rrule'] ?? null;
+
+					// If the RRULE has no UNTIL value, but the entry_end is not
+					// our maximum date, that means the RRULE was built from a TZDB
+					// *rule* that had no ending, but the *entry* does have a date
+					// when it stopped using that rule. This means that, from the
+					// entry's perspective, there *is* an until date even though
+					// the rule itself doesn't give one.
+					if (
+						isset($rrule)
+						&& !str_contains($rrule, ';UNTIL=')
+						&& $transition['entry_end'] < $max_date
+					) {
+						if (isset($untils[$rrule][$transition['entry_end']->format('Ymd\THisO')])) {
+							$until = $untils[$rrule][$transition['entry_end']->format('Ymd\THisO')];
+						} else {
+							// The entry_end date is exclusive (i.e., it indicates
+							// when the rule no longer applies). But the UNTIL value
+							// of an RRULE is inclusive (i.e., it indicates when the
+							// last occurrence happens). Thus, we need to find the
+							// last occurrence prior to the entry_end date.
+							$recurrence_iterator = new RecurrenceIterator(
+								rrule: new RRule($rrule),
+								dtstart: new \DateTime($local_start),
+								view: (new \DateTime($local_start))->diff($transition['entry_end']),
+								type: RecurrenceIterator::TYPE_FLOATING,
+							);
+
+							$recurrence_iterator->end();
+
+							while (
+								$recurrence_iterator->valid()
+								&& $recurrence_iterator->current() > $transition['entry_end']
+							) {
+								$recurrence_iterator->prev();
+							}
+
+							if ($recurrence_iterator->valid()) {
+								$until = $recurrence_iterator->current();
+							} else {
+								// This shouldn't happen, but just in case...
+								$recurrence_iterator->rewind();
+								$until = $recurrence_iterator->current();
+							}
+
+							// To UTC.
+							$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
+							$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, \strlen($sign)), 2));
+							$until->sub($this->offsetToDateInterval($offset));
+
+							$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;
+						}
+
+						$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
+					}
+
+					$component = array_filter(
+						[
+							'type' => $type,
+							'DTSTART' => $dtstart,
+							'RRULE' => $rrule,
+							'TZNAME' => $tzname,
+							'TZOFFSETFROM' => $tzoffsetfrom,
+							'TZOFFSETTO' => $tzoffsetto,
+						],
+						fn($v) => $v !== null,
+					);
+
+					$components[md5(Config::varExport($component))] = $component;
 				}
 
-				$component = array_filter(
-					[
-						'type' => $type,
-						'DTSTART' => $dtstart,
-						'RRULE' => $rrule,
-						'TZNAME' => $tzname,
-						'TZOFFSETFROM' => $tzoffsetfrom,
-						'TZOFFSETTO' => $tzoffsetto,
-					],
-					fn($v) => $v !== null,
-				);
+				// Filter out some weird ones.
+				$std_key = null;
+				$dst_key = null;
 
-				$components[md5(Config::varExport($component))] = $component;
-			}
+				foreach (array_reverse($components) as $key => $component) {
+					if ($component['type'] === 'DAYLIGHT') {
+						$type_key = &$dst_key;
+					} else {
+						$type_key = &$std_key;
+					}
 
-			// Filter out some weird ones.
-			$std_key = null;
-			$dst_key = null;
+					if (!isset($type_key)) {
+						$type_key = $key;
+						continue;
+					}
 
-			foreach (array_reverse($components) as $key => $component) {
-				if ($component['type'] === 'DAYLIGHT') {
-					$type_key = &$dst_key;
-				} else {
-					$type_key = &$std_key;
-				}
+					// When a location changed its time zone (e.g. from Central to
+					// Eastern), that can leave artifacts in the transitions that we
+					// don't want to retain in the VTimeZone data.
+					if (
+						$component['TZOFFSETFROM'] === $component['TZOFFSETTO']
+						&& isset($component['RRULE'], $components[$type_key]['RRULE'])
+						&& $component['RRULE'] === $components[$type_key]['RRULE']
+						&& $component['TZNAME'] === $components[$type_key]['TZNAME']
+						&& $component['DTSTART'] === $components[$type_key]['DTSTART']
+					) {
+						unset($components[$key]);
+						continue;
+					}
 
-				if (!isset($type_key)) {
 					$type_key = $key;
-					continue;
 				}
 
-				// When a location changed its time zone (e.g. from Central to
-				// Eastern), that can leave artifacts in the transitions that we
-				// don't want to retain in the VTimeZone data.
-				if (
-					$component['TZOFFSETFROM'] === $component['TZOFFSETTO']
-					&& isset($component['RRULE'], $components[$type_key]['RRULE'])
-					&& $component['RRULE'] === $components[$type_key]['RRULE']
-					&& $component['TZNAME'] === $components[$type_key]['TZNAME']
-					&& $component['DTSTART'] === $components[$type_key]['DTSTART']
-				) {
-					unset($components[$key]);
-					continue;
-				}
-
-				$type_key = $key;
+				$components = array_values($components);
 			}
 
-			$components = array_values($components);
-
+			// Write the file.
 			if (!file_exists(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid))) {
 				mkdir(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid));
 			}
@@ -2948,6 +2997,38 @@ class TimezoneDataUpdater extends UpdaterBase
 			$class_name = strtr($tzid, ['+' => '', '-' => '_']);
 
 			$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') : null;
+
+			$properties = [
+				'section_comment' => implode("\n\t", [
+					'/*******************',
+					' * Public properties',
+					' *******************/',
+				]),
+				'tzid' => implode("\n\t", [
+					'',
+					'/**',
+					' * @var string',
+					' *',
+					' * Time zone identifier.',
+					' */',
+					'public string $tzid = ' . Config::varExport($tzid) . ';',
+				]),
+			];
+
+			if (isset($components)) {
+				$properties['components'] = implode("\n\t", [
+					'',
+					'/**',
+					' * @var array',
+					' *',
+					' * Data for the VTIMEZONE components.',
+					' *',
+					' * Developers: Do not update the data in this array manually. Instead,',
+					' * run "php -f other/update_timezones.php" on the command line.',
+					' */',
+					'public array $components = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($components)) . ';',
+				]);
+			}
 
 			file_put_contents(
 				Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php',
@@ -2967,35 +3048,14 @@ class TimezoneDataUpdater extends UpdaterBase
 					'',
 					'declare(strict_types=1);',
 					'',
-					'namespace ' . str_replace('/', '\\', rtrim('SMF\\Calendar\\VTimeZones\\' . \dirname($tzid), '.\\')) . ';',
+					'namespace ' . str_replace('/', '\\', rtrim('SMF\\Calendar\\VTimeZones\\' . \dirname($tzid), '.\\')) . ';' . $use,
 					'',
 					'/**',
 					' * ' . $tzid,
 					' */',
-					'class ' . basename($class_name) . ' extends \\SMF\\Calendar\\VTimeZone',
+					'class ' . basename($class_name) . ' extends ' . $extends,
 					'{',
-					"\t" . implode("\n\t", [
-						'/*******************',
-						' * Public properties',
-						' *******************/',
-						'',
-						'/**',
-						' * @var string',
-						' *',
-						' * Time zone identifier.',
-						' */',
-						'public string $tzid = ' . Config::varExport($tzid) . ';',
-						'',
-						'/**',
-						' * @var array',
-						' *',
-						' * Data for the VTIMEZONE components.',
-						' *',
-						' * Developers: Do not update the data in this array manually. Instead,',
-						' * run "php -f other/update_timezones.php" on the command line.',
-						' */',
-						'public array $components = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($components)) . ';',
-					]),
+					"\t" . implode("\n\t", $properties),
 					'}',
 					'',
 				])),
@@ -3006,34 +3066,6 @@ class TimezoneDataUpdater extends UpdaterBase
 			if ($old_hash !== $new_hash) {
 				$this->files_updated = true;
 			}
-		}
-
-		// Update the list of canonical links in the base class.
-		ksort($canonical_links);
-
-		$canonical_links = preg_replace('/^(?!\[)/m', "\t", Config::varExport($canonical_links));
-
-		$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZone.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php') : null;
-
-		file_put_contents(
-			Config::$sourcedir . '/Calendar/VTimeZone.php',
-			preg_replace(
-				[
-					'/public const CANONICAL_LINKS = \[[^\]]*\];/',
-					'/^\h+$/m',
-				],
-				[
-					'public const CANONICAL_LINKS = ' . $canonical_links . ';',
-					'',
-				],
-				file_get_contents(Config::$sourcedir . '/Calendar/VTimeZone.php'),
-			),
-		);
-
-		$new_hash = sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php');
-
-		if ($old_hash !== $new_hash) {
-			$this->files_updated = true;
 		}
 	}
 

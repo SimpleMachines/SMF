@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Nicosia
  */
-class Nicosia extends \SMF\Calendar\VTimeZone
+class Nicosia extends VTimeZone
 {
 	/*******************
 	 * Public properties

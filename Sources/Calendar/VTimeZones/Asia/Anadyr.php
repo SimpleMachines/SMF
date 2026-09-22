@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Anadyr
  */
-class Anadyr extends \SMF\Calendar\VTimeZone
+class Anadyr extends VTimeZone
 {
 	/*******************
 	 * Public properties

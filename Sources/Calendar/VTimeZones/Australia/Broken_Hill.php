@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Australia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Australia/Broken_Hill
  */
-class Broken_Hill extends \SMF\Calendar\VTimeZone
+class Broken_Hill extends VTimeZone
 {
 	/*******************
 	 * Public properties

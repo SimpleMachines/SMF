@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Simferopol
  */
-class Simferopol extends \SMF\Calendar\VTimeZone
+class Simferopol extends VTimeZone
 {
 	/*******************
 	 * Public properties

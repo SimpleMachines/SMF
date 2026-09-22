@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Tucuman
  */
-class Tucuman extends \SMF\Calendar\VTimeZone
+class Tucuman extends VTimeZone
 {
 	/*******************
 	 * Public properties

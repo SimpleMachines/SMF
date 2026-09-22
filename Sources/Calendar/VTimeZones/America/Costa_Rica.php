@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Costa_Rica
  */
-class Costa_Rica extends \SMF\Calendar\VTimeZone
+class Costa_Rica extends VTimeZone
 {
 	/*******************
 	 * Public properties

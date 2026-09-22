@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Tbilisi
  */
-class Tbilisi extends \SMF\Calendar\VTimeZone
+class Tbilisi extends VTimeZone
 {
 	/*******************
 	 * Public properties

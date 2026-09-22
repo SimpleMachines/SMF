@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Singapore
  */
-class Singapore extends \SMF\Calendar\VTimeZone
+class Singapore extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Lagos
  */
-class Lagos extends \SMF\Calendar\VTimeZone
+class Lagos extends VTimeZone
 {
 	/*******************
 	 * Public properties

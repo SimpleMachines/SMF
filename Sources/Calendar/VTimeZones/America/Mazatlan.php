@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Mazatlan
  */
-class Mazatlan extends \SMF\Calendar\VTimeZone
+class Mazatlan extends VTimeZone
 {
 	/*******************
 	 * Public properties

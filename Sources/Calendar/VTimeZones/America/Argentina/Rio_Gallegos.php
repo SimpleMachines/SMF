@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Rio_Gallegos
  */
-class Rio_Gallegos extends \SMF\Calendar\VTimeZone
+class Rio_Gallegos extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Mendoza
  */
-class Mendoza extends \SMF\Calendar\VTimeZone
+class Mendoza extends VTimeZone
 {
 	/*******************
 	 * Public properties

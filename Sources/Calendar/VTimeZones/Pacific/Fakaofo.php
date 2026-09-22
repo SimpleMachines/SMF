@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Fakaofo
  */
-class Fakaofo extends \SMF\Calendar\VTimeZone
+class Fakaofo extends VTimeZone
 {
 	/*******************
 	 * Public properties

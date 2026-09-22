@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Swift_Current
  */
-class Swift_Current extends \SMF\Calendar\VTimeZone
+class Swift_Current extends VTimeZone
 {
 	/*******************
 	 * Public properties

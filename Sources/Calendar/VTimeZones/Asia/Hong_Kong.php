@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Hong_Kong
  */
-class Hong_Kong extends \SMF\Calendar\VTimeZone
+class Hong_Kong extends VTimeZone
 {
 	/*******************
 	 * Public properties

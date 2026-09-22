@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Tripoli
  */
-class Tripoli extends \SMF\Calendar\VTimeZone
+class Tripoli extends VTimeZone
 {
 	/*******************
 	 * Public properties

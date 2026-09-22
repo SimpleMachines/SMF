@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Antarctica;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Antarctica/Vostok
  */
-class Vostok extends \SMF\Calendar\VTimeZone
+class Vostok extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -42,26 +44,33 @@ class Vostok extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19571216T000000',
 			'TZNAME' => 'UTC+07',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0700',
 		],
-		1 => [
+		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19940201T000000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0700',
 			'TZOFFSETTO' => '+0000',
 		],
-		2 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19941101T000000',
 			'TZNAME' => 'UTC+07',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0700',
 		],
-		3 => [
+		4 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20231218T020000',
 			'TZNAME' => 'UTC+05',

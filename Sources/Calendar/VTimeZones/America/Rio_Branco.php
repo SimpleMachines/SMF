@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Rio_Branco
  */
-class Rio_Branco extends \SMF\Calendar\VTimeZone
+class Rio_Branco extends VTimeZone
 {
 	/*******************
 	 * Public properties

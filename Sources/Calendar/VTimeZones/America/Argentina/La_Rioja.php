@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/La_Rioja
  */
-class La_Rioja extends \SMF\Calendar\VTimeZone
+class La_Rioja extends VTimeZone
 {
 	/*******************
 	 * Public properties

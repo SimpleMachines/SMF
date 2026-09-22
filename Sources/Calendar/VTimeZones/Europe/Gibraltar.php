@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Gibraltar
  */
-class Gibraltar extends \SMF\Calendar\VTimeZone
+class Gibraltar extends VTimeZone
 {
 	/*******************
 	 * Public properties

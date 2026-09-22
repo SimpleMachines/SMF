@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Galapagos
  */
-class Galapagos extends \SMF\Calendar\VTimeZone
+class Galapagos extends VTimeZone
 {
 	/*******************
 	 * Public properties

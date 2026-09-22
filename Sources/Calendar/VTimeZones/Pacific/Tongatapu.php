@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Tongatapu
  */
-class Tongatapu extends \SMF\Calendar\VTimeZone
+class Tongatapu extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Rarotonga
  */
-class Rarotonga extends \SMF\Calendar\VTimeZone
+class Rarotonga extends VTimeZone
 {
 	/*******************
 	 * Public properties

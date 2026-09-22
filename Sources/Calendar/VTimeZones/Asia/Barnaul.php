@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Barnaul
  */
-class Barnaul extends \SMF\Calendar\VTimeZone
+class Barnaul extends VTimeZone
 {
 	/*******************
 	 * Public properties

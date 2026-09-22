@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Atyrau
  */
-class Atyrau extends \SMF\Calendar\VTimeZone
+class Atyrau extends VTimeZone
 {
 	/*******************
 	 * Public properties

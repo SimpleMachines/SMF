@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Eirunepe
  */
-class Eirunepe extends \SMF\Calendar\VTimeZone
+class Eirunepe extends VTimeZone
 {
 	/*******************
 	 * Public properties

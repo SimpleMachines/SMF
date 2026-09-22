@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Cancun
  */
-class Cancun extends \SMF\Calendar\VTimeZone
+class Cancun extends VTimeZone
 {
 	/*******************
 	 * Public properties

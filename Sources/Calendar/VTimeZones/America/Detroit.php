@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Detroit
  */
-class Detroit extends \SMF\Calendar\VTimeZone
+class Detroit extends VTimeZone
 {
 	/*******************
 	 * Public properties

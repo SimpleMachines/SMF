@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Seoul
  */
-class Seoul extends \SMF\Calendar\VTimeZone
+class Seoul extends VTimeZone
 {
 	/*******************
 	 * Public properties

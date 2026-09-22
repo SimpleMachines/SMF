@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Saratov
  */
-class Saratov extends \SMF\Calendar\VTimeZone
+class Saratov extends VTimeZone
 {
 	/*******************
 	 * Public properties

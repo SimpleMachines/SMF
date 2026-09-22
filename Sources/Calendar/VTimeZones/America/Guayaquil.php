@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Guayaquil
  */
-class Guayaquil extends \SMF\Calendar\VTimeZone
+class Guayaquil extends VTimeZone
 {
 	/*******************
 	 * Public properties

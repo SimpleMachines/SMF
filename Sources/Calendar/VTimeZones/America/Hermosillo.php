@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Hermosillo
  */
-class Hermosillo extends \SMF\Calendar\VTimeZone
+class Hermosillo extends VTimeZone
 {
 	/*******************
 	 * Public properties

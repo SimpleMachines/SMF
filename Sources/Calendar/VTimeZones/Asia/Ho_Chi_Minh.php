@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ho_Chi_Minh
  */
-class Ho_Chi_Minh extends \SMF\Calendar\VTimeZone
+class Ho_Chi_Minh extends VTimeZone
 {
 	/*******************
 	 * Public properties

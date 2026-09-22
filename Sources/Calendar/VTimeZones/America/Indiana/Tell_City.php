@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Indiana;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Indiana/Tell_City
  */
-class Tell_City extends \SMF\Calendar\VTimeZone
+class Tell_City extends VTimeZone
 {
 	/*******************
 	 * Public properties

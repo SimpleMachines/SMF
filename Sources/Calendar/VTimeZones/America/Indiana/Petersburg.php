@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Indiana;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Indiana/Petersburg
  */
-class Petersburg extends \SMF\Calendar\VTimeZone
+class Petersburg extends VTimeZone
 {
 	/*******************
 	 * Public properties

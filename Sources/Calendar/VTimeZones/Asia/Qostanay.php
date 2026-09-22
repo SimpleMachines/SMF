@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Qostanay
  */
-class Qostanay extends \SMF\Calendar\VTimeZone
+class Qostanay extends VTimeZone
 {
 	/*******************
 	 * Public properties

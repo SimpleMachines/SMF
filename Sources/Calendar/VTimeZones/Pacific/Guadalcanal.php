@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Pacific;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Pacific/Guadalcanal
  */
-class Guadalcanal extends \SMF\Calendar\VTimeZone
+class Guadalcanal extends VTimeZone
 {
 	/*******************
 	 * Public properties

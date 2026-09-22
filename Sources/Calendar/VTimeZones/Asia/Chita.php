@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Chita
  */
-class Chita extends \SMF\Calendar\VTimeZone
+class Chita extends VTimeZone
 {
 	/*******************
 	 * Public properties

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Belize
  */
-class Belize extends \SMF\Calendar\VTimeZone
+class Belize extends VTimeZone
 {
 	/*******************
 	 * Public properties

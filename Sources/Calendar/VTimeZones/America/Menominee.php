@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Menominee
  */
-class Menominee extends \SMF\Calendar\VTimeZone
+class Menominee extends VTimeZone
 {
 	/*******************
 	 * Public properties

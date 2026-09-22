@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Toronto
  */
-class Toronto extends \SMF\Calendar\VTimeZone
+class Toronto extends VTimeZone
 {
 	/*******************
 	 * Public properties

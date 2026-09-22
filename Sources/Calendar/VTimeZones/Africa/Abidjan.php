@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Abidjan
  */
-class Abidjan extends \SMF\Calendar\VTimeZone
+class Abidjan extends VTimeZone
 {
 	/*******************
 	 * Public properties

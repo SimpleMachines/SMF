@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Juba
  */
-class Juba extends \SMF\Calendar\VTimeZone
+class Juba extends VTimeZone
 {
 	/*******************
 	 * Public properties

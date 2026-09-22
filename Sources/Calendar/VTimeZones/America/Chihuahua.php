@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Chihuahua
  */
-class Chihuahua extends \SMF\Calendar\VTimeZone
+class Chihuahua extends VTimeZone
 {
 	/*******************
 	 * Public properties

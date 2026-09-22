@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Salta
  */
-class Salta extends \SMF\Calendar\VTimeZone
+class Salta extends VTimeZone
 {
 	/*******************
 	 * Public properties

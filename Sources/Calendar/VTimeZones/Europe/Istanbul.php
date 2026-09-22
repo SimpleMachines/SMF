@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Istanbul
  */
-class Istanbul extends \SMF\Calendar\VTimeZone
+class Istanbul extends VTimeZone
 {
 	/*******************
 	 * Public properties

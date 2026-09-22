@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Cuiaba
  */
-class Cuiaba extends \SMF\Calendar\VTimeZone
+class Cuiaba extends VTimeZone
 {
 	/*******************
 	 * Public properties
