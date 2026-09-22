@@ -1,0 +1,264 @@
+{
+    "baseline_version": "2.1.7-1",
+    "smf_version": "2.1.7",
+    "generated_by": "SMF 2.1 baseline builder (.docker/baseline)",
+    "admin": {
+        "username": "admin",
+        "password": "baseline",
+        "email": "admin@example.com"
+    },
+    "settings": {
+        "db_prefix": "smf_",
+        "cookiename": "SMFCookie956",
+        "auth_secret": "0b6e5f3c1a94d27e8f5b0c3a76d1e94f2b8c5a03e7d146f9b2c8a501d3e7f4c69",
+        "image_proxy_secret": "7f2a9c4e0b6d18a35c92",
+        "language": "english",
+        "db_character_set": "utf8"
+    },
+    "profiles": {
+        "tiny": {
+            "mysql": {
+                "generated": "2026-07-30T19:42:21+00:00",
+                "php_version": "8.2.32",
+                "server_version": "MySQL 8.4.11",
+                "populate_commit": null,
+                "files": {
+                    "mysql.sql": {
+                        "bytes": 971860,
+                        "sha256": "7d3f68beb55d386373e8d02037a0023c97e30eeb2d0c0b8a165d0943ef1b69d5"
+                    },
+                    "files-mysql.tgz": {
+                        "bytes": 1038,
+                        "sha256": "a5bee3bf49edcfc6eb7e08878f32405d7535d51f83da5ca21b0e541abbf5e107"
+                    }
+                },
+                "row_counts": {
+                    "attachments": 5,
+                    "ban_groups": 1,
+                    "ban_items": 4,
+                    "boards": 8,
+                    "calendar": 4,
+                    "calendar_holidays": 206,
+                    "categories": 3,
+                    "custom_fields": 7,
+                    "log_actions": 30,
+                    "log_banned": 4,
+                    "log_errors": 12,
+                    "log_floodcontrol": 4,
+                    "log_group_requests": 5,
+                    "log_online": 8,
+                    "log_packages": 1,
+                    "log_polls": 24,
+                    "log_reported": 3,
+                    "log_reported_comments": 6,
+                    "log_search_subjects": 550,
+                    "log_spider_hits": 5,
+                    "mail_queue": 2,
+                    "membergroups": 8,
+                    "member_logins": 10,
+                    "members": 53,
+                    "mentions": 15,
+                    "messages": 600,
+                    "moderators": 2,
+                    "moderator_groups": 1,
+                    "permissions": 51,
+                    "personal_messages": 5,
+                    "pm_labels": 1,
+                    "pm_recipients": 5,
+                    "pm_rules": 1,
+                    "poll_choices": 5,
+                    "polls": 2,
+                    "qanda": 3,
+                    "settings": 230,
+                    "smileys": 22,
+                    "themes": 136,
+                    "topics": 150,
+                    "user_drafts": 5,
+                    "user_likes": 30
+                }
+            },
+            "postgresql": {
+                "generated": "2026-07-30T19:43:21+00:00",
+                "php_version": "8.2.32",
+                "server_version": "PostgreSQL 17.10",
+                "populate_commit": null,
+                "files": {
+                    "postgres.sql": {
+                        "bytes": 932246,
+                        "sha256": "48f8d19e4786daeea3175171417e18d20f87eb5884b5489028c60b32cda189cf"
+                    },
+                    "files-postgresql.tgz": {
+                        "bytes": 1043,
+                        "sha256": "e538466fead5068372686dcd4b647bfdeb5993d8f0ceeda22bdcc6ea910013d1"
+                    }
+                },
+                "row_counts": {
+                    "attachments": 5,
+                    "ban_groups": 1,
+                    "ban_items": 4,
+                    "boards": 8,
+                    "calendar": 4,
+                    "calendar_holidays": 206,
+                    "categories": 3,
+                    "custom_fields": 7,
+                    "log_actions": 30,
+                    "log_banned": 4,
+                    "log_errors": 12,
+                    "log_floodcontrol": 4,
+                    "log_group_requests": 5,
+                    "log_online": 8,
+                    "log_packages": 1,
+                    "log_polls": 24,
+                    "log_reported": 3,
+                    "log_reported_comments": 6,
+                    "log_search_subjects": 529,
+                    "log_spider_hits": 5,
+                    "mail_queue": 2,
+                    "membergroups": 8,
+                    "member_logins": 10,
+                    "members": 53,
+                    "mentions": 15,
+                    "messages": 600,
+                    "moderators": 2,
+                    "moderator_groups": 1,
+                    "permissions": 51,
+                    "personal_messages": 5,
+                    "pm_labels": 1,
+                    "pm_recipients": 5,
+                    "pm_rules": 1,
+                    "poll_choices": 5,
+                    "polls": 2,
+                    "qanda": 3,
+                    "settings": 230,
+                    "smileys": 22,
+                    "themes": 136,
+                    "topics": 150,
+                    "user_drafts": 5,
+                    "user_likes": 30
+                }
+            }
+        },
+        "small": {
+            "mysql": {
+                "generated": "2026-08-16T06:06:26+00:00",
+                "php_version": "8.2.33",
+                "server_version": "MySQL 8.4.11",
+                "populate_commit": null,
+                "files": {
+                    "mysql.sql": {
+                        "bytes": 8114044,
+                        "sha256": "d3f927cc11580c26a0948c0b5bcc944ad2c61990927ea9217611c39e05fc53e8"
+                    },
+                    "files-mysql.tgz": {
+                        "bytes": 1043,
+                        "sha256": "2185fee33e933d8edfc6525885298ca9c47c772dd9609e3e40c3c2f48aa2bd76"
+                    }
+                },
+                "row_counts": {
+                    "attachments": 5,
+                    "ban_groups": 1,
+                    "ban_items": 4,
+                    "boards": 24,
+                    "calendar": 4,
+                    "calendar_holidays": 206,
+                    "categories": 6,
+                    "custom_fields": 7,
+                    "log_actions": 49,
+                    "log_banned": 4,
+                    "log_errors": 12,
+                    "log_floodcontrol": 4,
+                    "log_group_requests": 5,
+                    "log_online": 8,
+                    "log_packages": 1,
+                    "log_polls": 24,
+                    "log_reported": 3,
+                    "log_reported_comments": 6,
+                    "log_search_subjects": 4187,
+                    "log_spider_hits": 5,
+                    "mail_queue": 2,
+                    "membergroups": 24,
+                    "member_logins": 10,
+                    "members": 403,
+                    "mentions": 15,
+                    "messages": 6000,
+                    "moderators": 2,
+                    "moderator_groups": 1,
+                    "permissions": 51,
+                    "personal_messages": 5,
+                    "pm_labels": 1,
+                    "pm_recipients": 5,
+                    "pm_rules": 1,
+                    "poll_choices": 5,
+                    "polls": 2,
+                    "qanda": 3,
+                    "settings": 230,
+                    "smileys": 22,
+                    "themes": 136,
+                    "topics": 1200,
+                    "user_drafts": 5,
+                    "user_likes": 30
+                }
+            },
+            "postgresql": {
+                "generated": "2026-08-16T06:10:03+00:00",
+                "php_version": "8.2.33",
+                "server_version": "PostgreSQL 17.10",
+                "populate_commit": null,
+                "files": {
+                    "postgres.sql": {
+                        "bytes": 7541984,
+                        "sha256": "869eae0a9eebe768028da59a395fb880a878e0244a0e87862ac61f2ca5d5d06e"
+                    },
+                    "files-postgresql.tgz": {
+                        "bytes": 1043,
+                        "sha256": "7f479c3d8fdc3fbb278de36fbd6f94fa3e26ebb45962983ef16291bdf996e161"
+                    }
+                },
+                "row_counts": {
+                    "attachments": 5,
+                    "ban_groups": 1,
+                    "ban_items": 4,
+                    "boards": 24,
+                    "calendar": 4,
+                    "calendar_holidays": 206,
+                    "categories": 6,
+                    "custom_fields": 7,
+                    "log_actions": 49,
+                    "log_banned": 4,
+                    "log_errors": 12,
+                    "log_floodcontrol": 4,
+                    "log_group_requests": 5,
+                    "log_online": 8,
+                    "log_packages": 1,
+                    "log_polls": 24,
+                    "log_reported": 3,
+                    "log_reported_comments": 6,
+                    "log_search_subjects": 4149,
+                    "log_spider_hits": 5,
+                    "mail_queue": 2,
+                    "membergroups": 24,
+                    "member_logins": 10,
+                    "members": 403,
+                    "mentions": 15,
+                    "messages": 6000,
+                    "moderators": 2,
+                    "moderator_groups": 1,
+                    "permissions": 51,
+                    "personal_messages": 5,
+                    "pm_labels": 1,
+                    "pm_recipients": 5,
+                    "pm_rules": 1,
+                    "poll_choices": 5,
+                    "polls": 2,
+                    "qanda": 3,
+                    "settings": 230,
+                    "smileys": 22,
+                    "themes": 136,
+                    "topics": 1200,
+                    "user_drafts": 5,
+                    "user_likes": 30
+                }
+            }
+        }
+    }
+}
