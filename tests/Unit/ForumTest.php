@@ -36,7 +36,7 @@ class ForumTest extends TestCase
 		}
 
 		unset(Forum::$actions['test_services']);
-		//~ IntegrationHook::remove('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
+		IntegrationHook::remove('integrate_services', 'my_integrated_service', false, '$boarddir/tests/fixtures/integrationhooks.php');
 
 		$this->assertTrue($action_called);
 		$action = Forum::getCurrentAction();
