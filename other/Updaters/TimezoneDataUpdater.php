@@ -1046,27 +1046,14 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		// Ensure $txt['iso3166'] is up to date.
-		$iso3166_tab = $this->fetchTzdbFile('iso3166.tab', $this->curr_commit);
-
-		foreach (explode("\n", $iso3166_tab) as $line) {
-			$line = trim(substr($line, 0, strcspn($line, '#')));
-
-			if (empty($line)) {
-				continue;
-			}
-
-			list($cc, $label) = explode("\t", $line);
-
-			$label = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
-
-			// Skip if already present.
-			if (isset($txt['iso3166'][$cc])) {
-				continue;
+		foreach ($this->getIso3166() as $cc => $label) {
+			if (!isset($txt['iso3166'][$cc])) {
+				echo "Added \$txt['iso3166']['{$cc}'] to Languages/en_US/Timezones.php.\n\n";
+			} elseif ($txt['iso3166'][$cc] !== $label) {
+				echo "Updated \$txt['iso3166']['{$cc}'] in Languages/en_US/Timezones.php.\n\n";
 			}
 
 			$txt['iso3166'][$cc] = $label;
-
-			echo "Added \$txt['iso3166']['{$cc}'] to Languages/en_US/Timezones.php.\n\n";
 		}
 
 		ksort($txt['iso3166']);
@@ -1379,6 +1366,64 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		return [$label, $msg];
+	}
+
+	/**
+	 * Gets the label strings for all known ISO 3166 country codes.
+	 *
+	 * @return array Strings that can be saved as $txt['iso3166'].
+	 */
+	private function getIso3166(): array
+	{
+		static $iso3166 = [];
+
+		if (empty($iso3166)) {
+			// Compile the list of ISO 3166 codes from the TZDB
+			$iso3166_tab = $this->fetchTzdbFile('iso3166.tab', $this->curr_commit);
+
+			foreach (explode("\n", $iso3166_tab) as $line) {
+				$line = trim(substr($line, 0, strcspn($line, '#')));
+
+				if (empty($line)) {
+					continue;
+				}
+
+				list($cc, $label) = explode("\t", $line);
+
+				$iso3166[$cc] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+			}
+
+			// However, use the English labels from the CLDR, not the TZDB.
+			$territories = $this->fetchCldrData('cldr-json/cldr-localenames-full/main/en/territories.json')['main']['en']['localeDisplayNames']['territories'];
+
+			$use_alt_forms = ['CD', 'CG', 'HK', 'MM', 'MO', 'PS'];
+
+			foreach ($territories as $code => $label) {
+				if (is_numeric($code)) {
+					continue;
+				}
+
+				$cc = substr($code, 0, 2);
+
+				if (!isset($iso3166[$cc])) {
+					continue;
+				}
+
+				// Don't use alternative labels except in a few special cases.
+				if (
+					str_starts_with($code, $cc . '-alt')
+					&& !\in_array($cc, $use_alt_forms)
+				) {
+					$label = $territories[$cc];
+				}
+
+				$iso3166[$cc] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+			}
+		}
+
+		ksort($iso3166);
+
+		return $iso3166;
 	}
 
 	/**
