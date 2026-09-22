@@ -9069,11 +9069,16 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 * @param int|string $when The date/time for which to calculate the time zone values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
+	 * @param bool $flat If true, flattens the list into a one-dimensional
+	 *    array instead of a multi-dimensional array grouped by country code.
+	 *    Note that this parameter did not exist in SMF 2.1, which always
+	 *    returned a flat list.
+	 *    Default: true.
 	 * @return array An array of time zone identifiers and label text.
 	 */
-	function smf_list_timezones(int|string $when = 'now'): array
+	function smf_list_timezones(int|string $when = 'now', bool $flat = true): array
 	{
-		return SMF\TimeZone::list($when);
+		return SMF\TimeZone::list($when, $flat);
 	}
 
 	/**

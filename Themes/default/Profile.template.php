@@ -3434,3 +3434,27 @@ function template_export_profile_data()
 			</form>
 		</div><!-- .windowbg -->';
 }
+
+/**
+ * Template for allowing the member to choose their time zone.
+ */
+function template_profile_timezone()
+{
+	// Just in case...
+	Theme::loadTemplate('TimeZoneSelect');
+
+	echo '
+							<dt>
+								<strong>
+									<label for="timezone">', Lang::getTxt('timezone', file: 'Profile'), '</label>
+								</strong>
+							</dt>
+							<dd>';
+
+
+	// This part is easy enough.
+	template_timezone_select('timezone', Profile::$member->timezone);
+
+	echo '
+							</dd>';
+}

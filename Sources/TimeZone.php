@@ -1933,16 +1933,6 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * @var array
 	 *
-	 * Multidimensional array containing compiled lists of selectable time zones
-	 * for any given value of $when.
-	 *
-	 * Built by self::list()
-	 */
-	private static $timezones_when = [];
-
-	/**
-	 * @var array
-	 *
 	 * Time zone identifiers sorted into a prioritized list based on the country
 	 * codes in Config::$modSettings['timezone_priority_countries'].
 	 *
@@ -1995,7 +1985,7 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns this time zone's abbreviations (if any).
+	 * Returns this time zone's raw English abbreviations.
 	 *
 	 * @param \DateTimeInterface|int|string $when The date/time we are
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
@@ -2011,6 +2001,52 @@ class TimeZone extends \DateTimeZone
 
 		foreach ($this->getTransitions($when, $later) as $transition) {
 			$abbrs[] = $transition['abbr'];
+		}
+
+		return $abbrs;
+	}
+
+	/**
+	 * Returns this time zone's abbreviations (if any) in the current language.
+	 *
+	 * @param \DateTimeInterface|int|string|null $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, any string that strtotime() can understand, or null
+	 *    to get a generic abbreviation that works for any date.
+	 *    Default: null.
+	 * @return array The time zone's abbreviations.
+	 */
+	public function getLocalizedAbbreviations(\DateTimeInterface|int|string|null $when): array
+	{
+		$metazone = $this->getMetaZone($when ?? 'now');
+
+		$abbrs = [];
+
+		if ($when === null) {
+			if (Lang::txtExists([$metazone, 'generic', 'short'], var: 'tztxt')) {
+				$abbrs[] = Lang::getTxt([$metazone, 'generic', 'short'], var: 'tztxt');
+			} else {
+				$when = 'now';
+				$combine = true;
+			}
+		}
+
+		if ($when !== null) {
+			list($when, $later) = self::getTimeRange($when);
+
+			foreach ($this->getTransitions($when, $later) as $transition) {
+				$dst_type = $transition['isdst'] ? 'daylight' : 'standard';
+
+				if (Lang::txtExists([$metazone, $dst_type, 'short'], var: 'tztxt')) {
+					$abbrs[] = Lang::getTxt([$metazone, $dst_type, 'short'], var: 'tztxt');
+				} else {
+					$abbrs[] = $transition['abbr'];
+				}
+			}
+		}
+
+		if (!empty($combine)) {
+			$abbrs = [implode('/', array_unique($abbrs))];
 		}
 
 		return $abbrs;
@@ -2419,126 +2455,181 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Get a list of time zones.
 	 *
-	 * @param \DateTimeInterface|int|string $when The date/time for which to
-	 *    calculate the time zone values. May be an instance of
-	 *    \DateTimeInterface, a Unix timestamp, or any string that strtotime()
-	 *    can understand.
-	 *    Default: 'now'.
+	 * @param \DateTimeInterface|int|string|null $when The date/time for which
+	 *    to calculate the time zone values. May be a Unix timestamp, an
+	 *    instance of \DateTimeInterface, any string that strtotime() can
+	 *    understand, or null to use metazone labels that work for any date.
+	 *    Default: null.
+	 * @param bool $flat If true, flattens the list into a one-dimensional
+	 *    array instead of a multi-dimensional array grouped by country code.
+	 *    Default: false.
 	 * @return array An array of time zone identifiers and label text.
 	 */
-	public static function list(\DateTimeInterface|int|string $when = 'now'): array
+	public static function list(\DateTimeInterface|int|string|null $when = null, bool $flat = false): array
 	{
-		list($when, $later) = self::getTimeRange($when);
+		$use_generic = $when === null;
 
-		// No point doing this over if we already did it once.
-		if (isset(self::$timezones_when[$when])) {
-			return self::$timezones_when[$when];
-		}
+		list($when, $later) = self::getTimeRange($when ?? 'now');
 
-		self::buildMetaZoneTransitions($when);
+		$date_when = date_create('@' . $when);
 
-		// Should we put time zones from certain countries at the top of the list?
-		self::prioritizeTzids();
+		$priority_countries = isset(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : ['001'];
 
-		// Idea here is to get exactly one representative identifier for each
-		// and every unique set of time zone rules.
-		$zones = [];
-		$dst_types = [];
-		$labels = [];
-		$offsets = [];
+		// This will hold the list to be returned.
+		$list = [];
 
-		foreach (self::$prioritized_tzids as $priority_level => $tzids) {
-			foreach ($tzids as $tzid) {
-				// We don't want UTC right now.
-				if ($tzid == 'UTC') {
-					continue;
-				}
+		// Build a list of identifiers organized by country, with priority
+		// countries at the top of the list.
+		self::prioritizeTzids($flat);
 
+		// Within each country, find exactly one representative identifier for
+		// each and every unique set of time zone rules.
+		foreach (self::$prioritized_tzids as $region => $tzids) {
+			$zones = [];
+			$offsets = [];
+			$std_offsets = [];
+			$later_offsets = [];
+			$longitudes = [];
+
+			foreach ($tzids as $key => $tzid) {
 				$tz = new self($tzid);
 
 				$tzinfo = $tz->getTransitions($when, $later);
 				$tzkey = serialize($tzinfo);
+				$cc = $flat ? $tz->getLocation()['country_code'] : $region;
 
-				// Don't overwrite our preferred tzids
 				if (empty($zones[$tzkey]['tzid'])) {
 					$zones[$tzkey]['tzid'] = $tzid;
+					$zones[$tzkey]['country_code'] = $cc;
 					$zones[$tzkey]['dst_type'] = $tz->getDstType($when);
-					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
-
-					$metazone_label = $tz->getMetaZoneLabel($when);
-
-					if (!empty($metazone_label)) {
-						$zones[$tzkey]['metazone'] = $metazone_label;
-					}
+					$zones[$tzkey]['abbrs'] = $tz->getLocalizedAbbreviations($when);
+					$zones[$tzkey]['metazone'] = $tz->getMetaZoneLabel(
+						when: $use_generic ? null : $when,
+						preferred_region: $flat ? $priority_countries[0] : (\count(self::getSortedTzidsForCountry($cc)) === 1 ? null : $cc),
+						allow_fallbacks: false,
+					);
 				}
 
 				$zones[$tzkey]['locations'][] = $tz->getLabel();
 
-				// Keep track of the current and standard offsets for this tzid.
+				if (isset($offsets[$tzkey])) {
+					continue;
+				}
+
+				// Track these for sorting purposes below
 				$offsets[$tzkey] = $tzinfo[0]['offset'];
 				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
-
+				$later_offsets[$tzkey] = isset($tzinfo[1]) ? $tzinfo[1]['offset'] : $tzinfo[0]['offset'];
 				$longitudes[$tzkey] = $tz->getLocation()['longitude'];
-
-				$labels[$tzkey] = $metazone_label;
-			}
-		}
-
-		// Sort by current offset, then standard offset, then DST type, then label.
-		array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $longitudes, SORT_DESC, $labels, SORT_ASC, $zones);
-
-		$date_when = date_create('@' . $when);
-
-		// Build the final array of formatted values
-		$priority_timezones = [];
-		$timezones = [];
-
-		foreach ($zones as $tzkey => $tzvalue) {
-			date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
-
-			$desc = '';
-
-			// Use the human friendly time zone name, if there is one.
-			if (!empty($tzvalue['metazone'])) {
-				$desc = $tzvalue['metazone'];
-			}
-			// Otherwise, use the list of locations (max 5, so things don't get silly)
-			else {
-				$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
 			}
 
-			// We don't want abbreviations like '+03' or '-11'.
-			$abbrs = array_filter(
-				$tzvalue['abbrs'],
-				function ($abbr) {
-					return !strspn($abbr, '+-');
-				},
+			// Sort by current offset, then standard offset, then longitude.
+			array_multisort(
+				$offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$std_offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$later_offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$longitudes,
+				SORT_DESC,
+				$zones,
 			);
-			$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
-			// Show the UTC offset and abbreviation(s).
-			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
+			foreach ($zones as $tzkey => $tzvalue) {
+				date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-			if (\in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
-				$priority_timezones[$tzvalue['tzid']] = $desc;
-			} else {
-				$timezones[$tzvalue['tzid']] = $desc;
+				$desc = '';
+
+				// For a flat list, label each time zone with its location.
+				if ($flat && !str_starts_with($tzvalue['tzid'], 'Etc/')) {
+					$location = Lang::getTxt($tzvalue['tzid'], file: 'Timezones');
+					$country = Lang::getTxt(['iso3166', $tzvalue['country_code']], file: 'Timezones');
+
+					if (str_starts_with($country, $location)) {
+						$desc = $country;
+					} else {
+						$desc = $location . ', ' . $country;
+					}
+				}
+				// Use the human friendly time zone name, if there is one.
+				elseif (!empty($tzvalue['metazone'])) {
+					$desc = $tzvalue['metazone'];
+				}
+				// Otherwise, use the list of locations (max 5, so things don't get silly)
+				else {
+					$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
+				}
+
+				// We don't want abbreviations like '+03' or '-11'.
+				$abbrs = array_filter(
+					$tzvalue['abbrs'],
+					function ($abbr) {
+						return !strspn($abbr, '+-');
+					},
+				);
+
+				$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
+
+				// Show the UTC offset and abbreviation(s).
+				$desc = Utils::normalizeSpaces(
+					implode(
+						'',
+						[
+							'[UTC',
+							$tzvalue['tzid'] !== 'Etc/UTC' ? date_format($date_when, 'P') : '',
+							']',
+							' - ',
+							$desc,
+							$tzvalue['tzid'] !== 'Etc/UTC' && !empty($abbrs) ? ' - ' . implode('/', $abbrs) : '',
+						],
+					),
+					vspace: true,
+					hspace: true,
+					options: ['collapse_hspace' => true],
+				);
+
+				if ($flat) {
+					$list[$tzvalue['tzid']] = $desc;
+				} else {
+					$list[$region][$tzvalue['tzid']] = $desc;
+				}
 			}
 		}
 
-		if (!empty($priority_timezones)) {
-			$priority_timezones[] = '-----';
+		if ($flat) {
+			$high_priority = [];
+			$normal_priority = [];
+
+			foreach ($list as $tzid => $desc) {
+				if ($tzid === 'Etc/UTC' || !empty($normal_priority)) {
+					$normal_priority[$tzid] = $desc;
+				} else {
+					$high_priority[$tzid] = $desc;
+				}
+			}
+
+			uasort(
+				$normal_priority,
+				fn($a, $b) => (int) strtr(substr($b, 4, 6), [':' => '']) <=> (int) strtr(substr($a, 4, 6), [':' => '']) ?: Lang::compareStrings($a, $b),
+			);
+
+			$utc = $normal_priority['Etc/UTC'];
+			unset($normal_priority['Etc/UTC']);
+
+			return $high_priority + ['Etc/UTC' => $utc] + $normal_priority;
 		}
 
-		$timezones = array_merge(
-			$priority_timezones,
-			['UTC' => 'UTC' . (!empty(Lang::getTxt('UTC', var: 'tztxt')) ? ' - ' . Lang::getTxt('UTC', var: 'tztxt') : ''), '-----'],
-			$timezones,
+		return array_combine(
+			array_map(
+				fn($cc) => Lang::getTxt(['iso3166', $cc], file: 'Timezones'),
+				array_keys($list),
+			),
+			$list,
 		);
-
-		self::$timezones_when[$when] = $timezones;
-
-		return self::$timezones_when[$when];
 	}
 
 	/**
@@ -2750,6 +2841,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * @param array|string $country_codes Array or CSV string of country codes.
 	 * @param bool $as_csv If true, return CSV string instead of array.
+	 *    Default: false.
 	 * @return array|string Array or CSV string of valid country codes.
 	 */
 	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
@@ -2775,6 +2867,23 @@ class TimeZone extends \DateTimeZone
 		}
 
 		return $country_codes;
+	}
+
+	/**
+	 * Resolves linked time zone identifiers to their canonical equivalents.
+	 *
+	 * If the input time zone identifier is itself canonical, it is returned
+	 * unchanged. Otherwise, its canonical equivalent is returned.
+	 *
+	 * Note that this is not a validator. If the input is an invalid time zone
+	 * identifier, it will be returned unchanged.
+	 *
+	 * @param string $tzid A time zone identifier.
+	 * @return string The canonical time zone identifier.
+	 */
+	public static function getCanonical(string $tzid): string
+	{
+		return Calendar\VTimeZone::CANONICAL_LINKS[$tzid] ?? $tzid;
 	}
 
 	/*************************
@@ -2832,26 +2941,32 @@ class TimeZone extends \DateTimeZone
 			return;
 		}
 
+		// Sort countries by name.
+		$iso3166 = Lang::getTxt('iso3166', file: 'Timezones');
+		Lang::collate($iso3166);
+
+		// List UTC before the rest.
+		$international = $iso3166['??'];
+		unset($iso3166['??']);
+		$iso3166 = array_merge(['??' => $international], $iso3166);
+
+		// Antarctic research stations should be listed last, unless you're
+		// running a penguin forum.
+		$aq = $iso3166['AQ'];
+		unset($iso3166['AQ']);
+		$iso3166['AQ'] = $aq;
+
+
 		// Should we put time zones from certain countries at the top of the list?
-		$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : [];
-
-		$high_priority_tzids = [];
-
-		foreach ($priority_countries as $country) {
-			$country_tzids = self::getSortedTzidsForCountry($country);
-
-			if (!empty($country_tzids)) {
-				$high_priority_tzids = array_merge($high_priority_tzids, $country_tzids);
-			}
+		if (!empty(Config::$modSettings['timezone_priority_countries'])) {
+			self::$prioritized_tzids = array_fill_keys(explode(',', Config::$modSettings['timezone_priority_countries']), []);
+		} else {
+			self::$prioritized_tzids = [];
 		}
 
-		// Antarctic research stations should be listed last, unless you're running a penguin forum
-		$low_priority_tzids = !\in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
-
-		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
-
-		// Put them in order of importance.
-		self::$prioritized_tzids = ['high' => $high_priority_tzids, 'normal' => $normal_priority_tzids, 'low' => $low_priority_tzids];
+		foreach ($iso3166 as $cc => $country_name) {
+			self::$prioritized_tzids[$cc] = self::getSortedTzidsForCountry($cc);
+		}
 	}
 
 	/**
