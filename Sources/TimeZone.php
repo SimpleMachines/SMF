@@ -2072,33 +2072,71 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function getSortedTzidsForCountry(string $country_code, \DateTimeInterface|int|string $when = 'now'): array
 	{
-		static $country_tzids = [];
-
-		list($when, $later) = self::getTimeRange($when);
-
 		// Just in case...
 		$country_code = strtoupper(trim($country_code));
 
+		return self::getSortedTzids($when)[$country_code] ?? [];
+	}
+
+	/**
+	 * Gets an array of all known time zones, grouped by country and ranked by
+	 * population.
+	 *
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @return array A list of time zones grouped by country.
+	 */
+	public static function getSortedTzids(\DateTimeInterface|int|string $when = 'now'): array
+	{
+		static $processed = false;
+
 		// Avoid unnecessary repetition.
-		if (!isset($country_tzids[$country_code])) {
-			IntegrationHook::call('integrate_country_timezones', [&self::$sorted_tzids, $country_code, $when]);
-
-			$country_tzids[$country_code] = self::$sorted_tzids[$country_code] ?? [];
-
-			// If something goes wrong, we want an empty array, not false.
-			$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code));
-
-			// Make sure that no time zones are missing.
-			$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
-
-			// Get fallbacks where necessary.
-			$country_tzids[$country_code] = array_unique(array_values(self::getTzidFallbacks($country_tzids[$country_code], $when)));
-
-			// Filter out any time zones that are still undefined.
-			$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+		if ($processed) {
+			return self::$sorted_tzids;
 		}
 
-		return $country_tzids[$country_code];
+		list($when, $later) = self::getTimeRange($when);
+
+		foreach (self::$sorted_tzids as $country_code => $tzids) {
+			IntegrationHook::call('integrate_country_timezones', [&self::$sorted_tzids, $country_code, $when]);
+
+			// If something goes wrong, we want an empty array, not false.
+			$recognized_country_tzids = array_filter(
+				(array) @\DateTimeZone::listIdentifiers(
+					\DateTimeZone::PER_COUNTRY,
+					$country_code,
+				),
+			);
+
+			// Make sure that no time zones are missing.
+			self::$sorted_tzids[$country_code] = array_unique(array_merge(
+				self::$sorted_tzids[$country_code],
+				array_intersect(
+					$recognized_country_tzids,
+					\DateTimeZone::listIdentifiers(),
+				),
+			));
+
+			// Get fallbacks where necessary.
+			self::$sorted_tzids[$country_code] = array_unique(array_values(
+				self::getTzidFallbacks(
+					self::$sorted_tzids[$country_code],
+					$when,
+				),
+			));
+
+			// Filter out any time zones that are still undefined.
+			self::$sorted_tzids[$country_code] = array_intersect(
+				array_filter(self::$sorted_tzids[$country_code]),
+				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+			);
+		}
+
+		$processed = true;
+
+		return self::$sorted_tzids;
 	}
 
 	/**
