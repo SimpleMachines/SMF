@@ -1692,9 +1692,13 @@ class TimeZone extends \DateTimeZone
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.
-	 * @return string The $tztxt variable for this time zone's metazone.
+	 * @param bool $allow_fallbacks Whether to allow fallbacks when trying to
+	 *    find the metazone.
+	 *    Default: true.
+	 * @return ?string The $tztxt variable for this time zone's metazone, or
+	 *    null if no match was found and $allow_fallbacks is false.
 	 */
-	public function getMetaZone(\DateTimeInterface|int|string $when = 'now'): string
+	public function getMetaZone(\DateTimeInterface|int|string $when = 'now', bool $allow_fallbacks = true): ?string
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1716,6 +1720,9 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Doesn't match any existing metazone. Can we build a custom one?
+		if (!$allow_fallbacks) {
+			return null;
+		}
 
 		// Etc/* is straightforward.
 		if (str_starts_with($this->getName(), 'Etc/')) {
@@ -1775,13 +1782,17 @@ class TimeZone extends \DateTimeZone
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.
-	 * @return string The $tztxt value for this time zone's metazone.
+	 * @param bool $allow_fallbacks Whether to allow fallbacks when trying to
+	 *    find the metazone.
+	 *    Default: true.
+	 * @return ?string The $tztxt value for this time zone's metazone, or
+	 *    null if no match was found and $allow_fallbacks is false.
 	 */
-	public function getMetaZoneLabel(\DateTimeInterface|int|string $when = 'now'): string
+	public function getMetaZoneLabel(\DateTimeInterface|int|string $when = 'now', bool $allow_fallbacks = true): ?string
 	{
-		$metazone = $this->getMetaZone($when);
+		$metazone = $this->getMetaZone($when, $allow_fallbacks);
 
-		return Lang::txtExists($metazone, var: 'tztxt') ? Lang::getTxt($metazone, var: 'tztxt') : $metazone;
+		return isset($metazone) && Lang::txtExists($metazone, var: 'tztxt') ? Lang::getTxt($metazone, var: 'tztxt') : $metazone;
 	}
 
 	/**
