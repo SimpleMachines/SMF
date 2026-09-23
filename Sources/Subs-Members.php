@@ -600,7 +600,7 @@ function registerMember(&$regOptions, $return_errors = false)
 			OR {raw:email_address_field} = {string:username}
 		LIMIT 1',
 		array(
-			'email_address_field' => Db::$db->case_sensitive ? 'LOWER(email_address)' : 'email_address',
+			'email_address_field' => $smcFunc['db_case_sensitive'] ? 'LOWER(email_address)' : 'email_address',
 			'email_address' => $regOptions['email'],
 			'username' => $regOptions['username'],
 		)
