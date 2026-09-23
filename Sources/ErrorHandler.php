@@ -215,41 +215,31 @@ class ErrorHandler
 		self::getService()->displayLoadAvgError();
 	}
 
+	/**
+	 * Sets the error handler service used by this facade.
+	 *
+	 * @param ErrorHandlerService $service The error handler service instance.
+	 */
+	public static function setService(ErrorHandlerService $service): void
+	{
+		self::$service = $service;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
 
 	/**
-	 * Get the ErrorHandlerService instance from the container.
+	 * Gets the error handler service used by this facade.
 	 *
-	 * This method provides lazy initialization and caching of the service instance.
-	 * It first attempts to retrieve the service from the DI container, falling back
-	 * to direct instantiation if the container is not available (e.g., during early
-	 * bootstrap or error conditions).
-	 *
+	 * @throws \LogicException If the error handler service has not been initialized.
 	 * @return ErrorHandlerService The error handler service instance.
 	 */
 	protected static function getService(): ErrorHandlerService
 	{
-		// Return cached instance if available
-		if (self::$service !== null) {
-			return self::$service;
+		if (self::$service === null) {
+			throw new \LogicException('ErrorHandlerService has not been initialized.');
 		}
-
-		// Try to get the service from the container
-		try {
-			self::$service = Container::get(ErrorHandlerService::class);
-
-			return self::$service;
-		} catch (\Throwable $e) {
-			// Container not available or service not registered
-			// Fall through to manual instantiation
-		}
-
-		// Fallback: create instance directly
-		// This ensures the error handler works even during early bootstrap
-		// or when the container is not available
-		self::$service = new ErrorHandlerService();
 
 		return self::$service;
 	}
