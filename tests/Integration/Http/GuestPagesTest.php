@@ -144,7 +144,7 @@ class GuestPagesTest extends HttpTestCase
 	 *
 	 * Deliberately only actions that a fresh forum can serve without any content
 	 * having been created and without being logged in, so this stays green on a
-	 * forum straight out of .docker/install-forum.sh.
+	 * forum straight out of .dev/install-forum.sh.
 	 *
 	 * @return array The cases, path and a readable name.
 	 */

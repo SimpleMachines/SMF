@@ -2,8 +2,8 @@
 # Upgrades a 2.1 database to 3.0, then upgrades it again, and reports where the
 # second run changed anything.
 #
-#   .docker/rerun-upgrade.sh --engine mysql      --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
-#   .docker/rerun-upgrade.sh --engine postgresql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/postgres.sql
+#   .dev/rerun-upgrade.sh --engine mysql      --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
+#   .dev/rerun-upgrade.sh --engine postgresql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/postgres.sql
 #
 # Running the upgrader twice is not an unusual thing to do. It is what happens
 # when an admin refreshes a page that timed out, when a run dies part way and is
@@ -30,11 +30,19 @@
 # Runs on the host. Expect five to ten minutes per engine.
 set -euo pipefail
 
+# Orchestrating containers is all this can mean, so it says so rather than
+# inheriting the default and failing further in. Read by lib.sh, which is
+# sourced below and which a linter reading this file alone cannot see.
+# shellcheck disable=SC2034
+SMF_RUNNER=docker
+
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
+
+require_docker
 
 ENGINE=''
 BASELINE=''
-OUT="$DOCKER_DIR/rerun"
+OUT="$DEV_DIR/rerun"
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -58,7 +66,7 @@ cd "$BOARD_DIR"
 mkdir -p "$OUT"
 OUT=$(cd -- "$OUT" && pwd)
 
-. "$DOCKER_DIR/upgrade-readings.sh"
+. "$DEV_DIR/upgrade-readings.sh"
 
 rerun_one() {
 	local smf_type="$1" version status=0
@@ -66,7 +74,7 @@ rerun_one() {
 	: > "$OUT/report-${smf_type}.txt"
 
 	log "${smf_type}: emptying the database"
-	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
+	"$DEV_DIR/reset.sh" --docker --engine "$smf_type" >/dev/null
 
 	log "${smf_type}: loading ${BASELINE##*/}"
 	load_baseline "$smf_type" "$BASELINE"

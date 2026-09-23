@@ -2,10 +2,10 @@
 # Kills an upgrade part way through, starts it again, and reports whether the
 # forum it ends up with is the one an uninterrupted upgrade would have built.
 #
-#   .docker/interrupt-upgrade.sh --engine mysql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
-#   .docker/interrupt-upgrade.sh --engine mysql --baseline ... --at 40
-#   .docker/interrupt-upgrade.sh --engine mysql --baseline ... --points 10,25,50,75,90
-#   .docker/interrupt-upgrade.sh --engine mysql --baseline ... --backup
+#   .dev/interrupt-upgrade.sh --engine mysql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
+#   .dev/interrupt-upgrade.sh --engine mysql --baseline ... --at 40
+#   .dev/interrupt-upgrade.sh --engine mysql --baseline ... --points 10,25,50,75,90
+#   .dev/interrupt-upgrade.sh --engine mysql --baseline ... --backup
 #
 # --backup asks the upgrader for the backup step, which the command line skips
 # unless something does. It is worth turning on precisely because a retry is
@@ -42,11 +42,19 @@
 # points is the better part of an hour.
 set -euo pipefail
 
+# Orchestrating containers is all this can mean, so it says so rather than
+# inheriting the default and failing further in. Read by lib.sh, which is
+# sourced below and which a linter reading this file alone cannot see.
+# shellcheck disable=SC2034
+SMF_RUNNER=docker
+
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
+
+require_docker
 
 ENGINE=''
 BASELINE=''
-OUT="$DOCKER_DIR/interrupt"
+OUT="$DEV_DIR/interrupt"
 POINTS='10,25,50,75,90'
 AT=''
 # How many times the upgrader may be started again after a kill before we call
@@ -105,7 +113,7 @@ finished_upgrade_log() {
 
 # Everything the readings and the run share with rerun-upgrade.sh lives here
 # rather than being written twice.
-. "$DOCKER_DIR/upgrade-readings.sh"
+. "$DEV_DIR/upgrade-readings.sh"
 
 # How many substeps the log has seen. Each one is announced before it runs, so
 # this counts substeps started, not substeps finished -- which is what we want,
@@ -181,7 +189,7 @@ interrupt_one_point() {
 	local smf_type="$1" want="$2" round=0 version
 
 	log "${smf_type}: emptying the database"
-	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
+	"$DEV_DIR/reset.sh" --docker --engine "$smf_type" >/dev/null
 	load_baseline "$smf_type" "$BASELINE"
 
 	KILLED_AFTER=''
@@ -277,7 +285,7 @@ interrupt_one_engine() {
 
 	# ------------------------------------------------------- the reference
 	log "${smf_type}: emptying the database"
-	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
+	"$DEV_DIR/reset.sh" --docker --engine "$smf_type" >/dev/null
 	load_baseline "$smf_type" "$BASELINE"
 
 	[ -n "$(installed_version "$smf_type" || true)" ] \
