@@ -30,6 +30,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\PackageManager\PackageUtils;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
@@ -1882,6 +1883,22 @@ class Maintenance implements ActionInterface
 						'reverse' => 'file_name DESC',
 					],
 				],
+				'package_name' => [
+					'header' => [
+						'value' => Lang::getTxt('hooks_field_package_name', file: 'Admin'),
+					],
+					'data' => [
+						'function' => function ($data) {
+							// Hooks that a mod added from its own code, and SMF's own, have no package.
+							return $data['package_name'] !== '' ? $data['package_name'] : Lang::getTxt('hooks_field_package_name_none', file: 'Admin');
+						},
+						'class' => 'word_break',
+					],
+					'sort' => [
+						'default' => 'package_name',
+						'reverse' => 'package_name DESC',
+					],
+				],
 				'status' => [
 					'header' => [
 						'value' => Lang::getTxt('hooks_field_hook_exists', file: 'Admin'),
@@ -1987,6 +2004,7 @@ class Maintenance implements ActionInterface
 	{
 		$function_list = $sort_array = $temp_data = [];
 		$files = self::getFileRecursive($normalized_sourcedir);
+		$hook_owners = PackageUtils::getHookOwners();
 
 		foreach ($files as $currentFile => $fileInfo) {
 			$function_list += self::getDefinedFunctionsInFile($currentFile);
@@ -1999,6 +2017,8 @@ class Maintenance implements ActionInterface
 			'function_name DESC' => ['function_name', SORT_DESC],
 			'file_name' => ['file_name', SORT_ASC],
 			'file_name DESC' => ['file_name', SORT_DESC],
+			'package_name' => ['package_name', SORT_ASC],
+			'package_name DESC' => ['package_name', SORT_DESC],
 			'status' => ['status', SORT_ASC],
 			'status DESC' => ['status', SORT_DESC],
 		];
@@ -2023,6 +2043,8 @@ class Maintenance implements ActionInterface
 					'included_file' => $hookParsedData['hookFile'],
 					'file_name' => strtr($hookParsedData['absPath'] ?: ($function_list[$hookParsedData['call']] ?? ''), [$normalized_boarddir => '.']),
 					'instance' => $hookParsedData['object'],
+					// A disabled hook is stored with a trailing '!', which the package never asked for.
+					'package_name' => $hook_owners[$hook][rtrim($hookParsedData['rawData'], '!')] ?? '',
 					'hook_exists' => $hook_exists,
 					'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
 					'img_text' => Lang::getTxt('hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing'), file: 'Admin'),
