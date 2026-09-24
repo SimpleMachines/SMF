@@ -645,7 +645,7 @@ final class XmlArray
 		if ($inside_elements) {
 			$output .= '>' . $output_el . $indentation . '</' . $array['name'] . '>';
 		} else {
-			$output .= ' />'; 
+			$output .= ' />';
 		}
 
 		return $output;
