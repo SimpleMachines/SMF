@@ -91,7 +91,7 @@ ul.steps_list .stepcurrent ~ li {
 	color: #d05800;
 }
 .panel form div {
-	max-height: 560px;
+	height: auto;
 }
 .panel p, .panel h3, .panel ul {
 	margin: 0 0 1em 0;
