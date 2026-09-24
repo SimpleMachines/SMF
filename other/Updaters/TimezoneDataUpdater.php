@@ -118,17 +118,23 @@ class TimezoneDataUpdater extends UpdaterBase
 
 	/**
 	 * @var string
-	 *
-	 * URL template to fetch raw data files for the TZDB
+	 * URL template to fetch raw data files for the TZDB.
 	 */
 	public const TZDB_FILE_URL = 'https://raw.githubusercontent.com/eggert/tz/{COMMIT}/{FILE}';
 
 	/**
 	 * @var string
 	 *
-	 * URL where we can get nice English labels for tzids.
+	 * URL where we can get a list of tagged releases of the CLDR in JSON format.
 	 */
-	public const CLDR_TZNAMES_URL = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json/cldr-dates-full/main/en/timeZoneNames.json';
+	public const CLDR_TAGS_URL = 'https://api.github.com/repos/unicode-org/cldr-json/tags?per_page=1000';
+
+	/**
+	 * @var string
+	 *
+	 * URL template to fetch raw data files for the CLDR in JSON format.
+	 */
+	public const CLDR_FILE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr-json/{COMMIT}/{FILE}';
 
 	/**
 	 * @var string
@@ -189,6 +195,13 @@ class TimezoneDataUpdater extends UpdaterBase
 	 * Tags from the TZDB's GitHub repository.
 	 */
 	public array $tzdb_tags = [];
+
+	/**
+	 * @var array
+	 *
+	 * Tags from the CLDR's GitHub repository.
+	 */
+	public array $cldr_tags = [];
 
 	/**
 	 * @var array
@@ -1129,6 +1142,23 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
+	 * Returns a list of Git tags and the associated commit hashes for
+	 * each release of the CLDR available on GitHub.
+	 */
+	private function fetchCldrTags(): void
+	{
+		foreach (json_decode(WebFetchApi::fetch(self::CLDR_TAGS_URL), true) as $tag) {
+			if (!preg_match('/^\d+\.\d+\.\d+$/', $tag['name'])) {
+				continue;
+			}
+
+			$this->cldr_tags[$tag['name']] = $tag['commit']['sha'];
+		}
+
+		krsort($this->cldr_tags);
+	}
+
+	/**
 	 * Builds an array of canonical and linked time zone identifiers.
 	 *
 	 * Canonical tzids are a simple list, while linked tzids are given
@@ -1272,6 +1302,35 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
+	 * Fetches the contents of a CLDR JSON file and decodes it to an array.
+	 *
+	 * @param string $filename File name.
+	 * @return array The file's data array.
+	 */
+	private function fetchCldrData(string $filename): array
+	{
+		 static $data, $commit;
+
+		 if (empty($commit)) {
+			$this->fetchCldrTags();
+
+			$commit = reset($this->cldr_tags);
+		 }
+
+		 if (empty($data[$commit])) {
+			$data[$commit] = [];
+		 }
+
+		 if (empty($data[$commit][$filename])) {
+			$content = WebFetchApi::fetch(strtr(self::CLDR_FILE_URL, ['{COMMIT}' => $commit, '{FILE}' => $filename]));
+
+			$data[$commit][$filename] = (array) json_decode($content, true);
+		 }
+
+		 return $data[$commit][$filename];
+	}
+
+	/**
 	 * Gets the ISO-3166 country code for a time zone identifier as
 	 * defined in the specified version of the TZDB.
 	 *
@@ -1294,13 +1353,7 @@ class TimezoneDataUpdater extends UpdaterBase
 	 */
 	private function getTzidLabel(string $tzid): array
 	{
-		static $cldr_json;
-
-		if (empty($cldr_json)) {
-			$cldr_json = json_decode(WebFetchApi::fetch(self::CLDR_TZNAMES_URL), true);
-		}
-
-		$sub_array = $cldr_json['main']['en']['dates']['timeZoneNames']['zone'];
+		$sub_array = $this->fetchCldrData('cldr-json/cldr-dates-full/main/en/timeZoneNames.json')['main']['en']['dates']['timeZoneNames']['zone'];
 
 		$tzid_parts = explode('/', $tzid);
 
