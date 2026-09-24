@@ -57,6 +57,11 @@ class ErrorHandlerService
 		\SQLite3Exception::class => 'cache',
 	];
 
+	/**
+	 * Maximum number of errors to collect before flushing the batch.
+	 */
+	public int $batch_size = 10;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -179,10 +184,12 @@ class ErrorHandlerService
 	 */
 	public function catch(\Throwable $e): void
 	{
-		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
+		$message = Lang::txtExists($e->getMessage(), file: 'Errors')
+			? Lang::getTxt($e->getMessage(), file: 'Errors')
+			: $e->getMessage();
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
-			$this->log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
+			$this->log($e::class . ': ' . $message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
 		}
 
 		$this->fatal($message, false);
@@ -208,30 +215,27 @@ class ErrorHandlerService
 		static $tried_hook = false;
 		static $error_call = 0;
 		static $error_batch = [];
-		static $batch_size = 10;
 		static $shutdown_registered = false;
+
+		// Check if error logging is actually on.
+		if (empty(Config::$modSettings['enableErrorLogging'])) {
+			return $error_message;
+		}
 
 		$error_call++;
 
-		// Collect a backtrace
-		if (!DebugUtils::isDebugEnabled()) {
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			// This is how to keep the args but skip the objects.
-			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
-		}
-
-		// Are we in a loop?
+		// Are we in a loop? The count is how deep this call is: logging an
+		// error is allowed to produce one more, but a third means that
+		// whatever this depends on fails every time it is asked, and
+		// going round again would not end.
 		if ($error_call > 2) {
 			var_dump($backtrace);
 
 			die('Error: loop detected. The database may have failed or crashed.');
 		}
 
-		// Check if error logging is actually on.
-		if (empty(Config::$modSettings['enableErrorLogging'])) {
-			return $error_message;
-		}
+		// Collect a backtrace
+		$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		// Basically, htmlspecialchars it minus &. (for entities!)
 		$error_message = strtr($error_message, ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;']);
@@ -281,8 +285,12 @@ class ErrorHandlerService
 		// Make sure the category that was specified is a valid one
 		$error_type = \in_array($error_type, $this->known_error_types) && $error_type !== true ? $error_type : 'general';
 
-		// Leave out the call to this method.
-		array_splice($backtrace, 0, 1);
+		// Remove any ErrorHandler frames from the backtrace.
+		$backtrace = array_values(array_filter(
+			$backtrace,
+			// Intentionally not matching exact class names here.
+			static fn(array $trace): bool => !isset($trace['class']) || !str_contains($trace['class'], 'ErrorHandler'),
+		));
 
 		// Never log call arguments or bound objects.
 		//
@@ -331,7 +339,7 @@ class ErrorHandlerService
 			}
 
 			// Flush batch when threshold reached.
-			if (\count($error_batch) >= $batch_size) {
+			if (\count($error_batch) >= $this->batch_size) {
 				$this->flushErrorBatch($error_batch);
 				$error_batch = [];
 			}
@@ -339,7 +347,7 @@ class ErrorHandlerService
 			// Register shutdown function to flush remaining batch.
 			if (!$shutdown_registered) {
 				register_shutdown_function(function () use (&$error_batch) {
-					if (!empty($error_batch)) {
+					if ($error_batch !== []) {
 						$this->flushErrorBatch($error_batch);
 					}
 				});
@@ -416,7 +424,7 @@ class ErrorHandlerService
 		}
 
 		// Attempt to load the text string.
-		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
+		$error_message = Lang::getTxt($error, $sprintf, file: $file);
 
 		// Send a custom header if we have a custom message.
 		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
@@ -783,17 +791,57 @@ class ErrorHandlerService
 	 * Flush batched errors to database in a single multi-row operation.
 	 * This is much faster than individual inserts, especially during high-error scenarios.
 	 *
-	 * @param array $errors Array of error info arrays to flush
+	 * @param array $errors Array of error info arrays to flush.
 	 */
 	private function flushErrorBatch(array $errors): void
 	{
-		if (empty($errors)) {
-			return;
+		$columns = [
+			'id_member' => 'int',
+			'log_time' => 'int',
+			'ip' => 'inet',
+			'url' => 'string',
+			'message' => 'string',
+			'session' => 'string',
+			'error_type' => 'string',
+			'file' => 'string',
+			'line' => 'int',
+			'backtrace' => 'string',
+		];
+
+		$data = [];
+
+		foreach ($errors as $error_array) {
+			if (!isset($error_array['ip'])) {
+				$error_array = array_combine(
+					array_keys($columns),
+					$error_array,
+				);
+			}
+
+			if (filter_var($error_array['ip'], FILTER_VALIDATE_IP) === false) {
+				$error_array['ip'] = null;
+			}
+
+			$data[] = [
+				$error_array['id_member'],
+				$error_array['log_time'],
+				$error_array['ip'],
+				$error_array['url'],
+				$error_array['message'],
+				$error_array['session'],
+				$error_array['error_type'],
+				$error_array['file'],
+				$error_array['line'],
+				$error_array['backtrace'],
+			];
 		}
 
-		// Insert all batched errors in one query
-		foreach ($errors as $error_info) {
-			Db::$db->error_insert($error_info);
-		}
+		Db::$db->insert(
+			'insert',
+			'{db_prefix}log_errors',
+			$columns,
+			$data,
+			[],
+		);
 	}
 }
