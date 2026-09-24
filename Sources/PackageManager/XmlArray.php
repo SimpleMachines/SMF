@@ -164,7 +164,7 @@ final class XmlArray
 				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif ($el[0] === '@') {
+			elseif ($el !== '' && $el[0] === '@') {
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el])) {
 					return $array[$el];
@@ -232,7 +232,7 @@ final class XmlArray
 				$el = substr($el, 0, $pos);
 			}
 			// Find an attribute.
-			elseif ($el[0] === '@') {
+			elseif ($el !== '' && $el[0] === '@') {
 				return isset($array[$el]);
 			} else {
 				$lvl = null;
