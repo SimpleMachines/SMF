@@ -226,6 +226,13 @@ class Lang
 	 */
 	private static array $censor_proper;
 
+	/**
+	 * @var array
+	 *
+	 * Instances of \Collator for Lang::collate() and Lang::compareStrings().
+	 */
+	private static array $collators;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -960,6 +967,102 @@ class Lang
 		}
 
 		return $final;
+	}
+
+	/**
+	 * Sorts an array of strings according to the current locale's rules.
+	 *
+	 * Maintains key association like asort().
+	 *
+	 * @param array &$strings An array of strings.
+	 */
+	public static function collate(array &$strings): void
+	{
+		$locale = self::getLocale();
+
+		if (class_exists('\Collator')) {
+			if (!isset(self::$collators[$locale])) {
+				self::$collators[$locale] = \Collator::create($locale);
+			}
+
+			self::$collators[$locale]->asort($strings);
+		} else {
+			if (
+				($old_lc_collate = setlocale(LC_COLLATE, '0')) === false
+				|| !str_starts_with($old_lc_collate, $locale)
+			) {
+				if (str_contains($locale, '.')) {
+					$locale_variants = [$locale];
+				} else {
+					$locale_variants = [
+						$locale . '.UTF-8',
+						$locale . '.UTF8',
+						$locale . '.utf-8',
+						$locale . '.utf8',
+						$locale,
+					];
+				}
+
+				setlocale(LC_COLLATE, $locale_variants);
+			}
+
+			uasort($strings, 'strcoll');
+
+			if ($old_lc_collate !== false) {
+				setlocale(LC_COLLATE, $old_lc_collate);
+			}
+		}
+	}
+
+	/**
+	 * Compares two strings according to the current locale's rules.
+	 *
+	 * Returns 1 if $string1 is greater than $string2 for sorting purposes.
+	 * Returns 0 if $string1 is equivalent to $string2 for sorting purposes.
+	 * Returns -1 if $string1 is less than $string2 for sorting purposes.
+	 *
+	 * @param array $string1 The first string to compare.
+	 * @param array $string2 The second string to compare.
+	 * @return int The result of the comparison: either -1, 0, or 1.
+	 */
+	public static function compareStrings(string $string1, string $string2): int
+	{
+		$locale = self::getLocale();
+
+		if (class_exists('\Collator')) {
+			if (!isset(self::$collators[$locale])) {
+				self::$collators[$locale] = \Collator::create($locale);
+			}
+
+			$result = (int) self::$collators[$locale]->compare($string1, $string2);
+		} else {
+			if (
+				($old_lc_collate = setlocale(LC_COLLATE, '0')) === false
+				|| !str_starts_with($old_lc_collate, $locale)
+			) {
+				if (str_contains($locale, '.')) {
+					$locale_variants = [$locale];
+				} else {
+					$locale_variants = [
+						$locale . '.UTF-8',
+						$locale . '.UTF8',
+						$locale . '.utf-8',
+						$locale . '.utf8',
+						$locale,
+					];
+				}
+
+				setlocale(LC_COLLATE, $locale_variants);
+			}
+
+			$result = strcoll($string1, $string2) <=> 0;
+
+			if ($old_lc_collate !== false) {
+				setlocale(LC_COLLATE, $old_lc_collate);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
