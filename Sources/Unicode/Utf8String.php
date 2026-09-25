@@ -73,7 +73,7 @@ class Utf8String implements \Stringable
 	{
 		$this->string = $string;
 
-		$this->language = substr($language ?? User::$me->language ?? Config::$language ?? Config::$language ?? Lang::getTxt('lang_locale', file: 'General') ?? '', 0, 2);
+		$this->language = substr(Lang::getLocale($language ?? User::$me->language ?? Config::$language ?? ''), 0, 2);
 
 		// Can we use the intl extension's Normalizer class?
 		if (!isset(self::$use_intl_normalizer)) {
@@ -235,7 +235,7 @@ class Utf8String implements \Stringable
 		$replacements = [];
 
 		// Greek conditional casing, part 1: Fix lowercase sigma.
-		// Note that this rule doesn't depend on $txt['lang_locale'].
+		// Note that this rule doesn't depend on $this->language.
 		if ($case !== 'upper' && str_contains($this->string, 'ς') || str_contains($this->string, 'σ')) {
 			require_once __DIR__ . DIRECTORY_SEPARATOR . 'RegularExpressions.php';
 
@@ -699,7 +699,7 @@ class Utf8String implements \Stringable
 	{
 		// Prefer IntlBreakIterator if it is available.
 		if (class_exists('IntlBreakIterator')) {
-			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocaleFromLanguageName(Config::$language));
+			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocale());
 			$break_iterator->setText($this->string);
 			$parts_interator = $break_iterator->getPartsIterator();
 

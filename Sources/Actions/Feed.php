@@ -307,7 +307,7 @@ class Feed implements ActionInterface, Routable
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
 			'icon' => !empty(Theme::$current->settings['og_image']) ? Theme::$current->settings['og_image'] : Config::$boardurl . '/favicon.ico',
-			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
+			'language' => str_replace('_', '-', substr(Lang::getLocale(), 0, strcspn(Lang::getLocale(), '.'))),
 			'self' => Config::$scripturl,
 		];
 

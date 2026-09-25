@@ -963,6 +963,46 @@ class Lang
 	}
 
 	/**
+	 * Gets the locale code for an installed language.
+	 *
+	 * If the $lang argument is empty or is set to a language that is not
+	 * installed, the locale code for the current language will be returned.
+	 *
+	 * @param string $lang The language whose locale code we want. If empty or
+	 *    unrecognized, uses the current language.
+	 *    Default: ''
+	 * @return string The locale code.
+	 */
+	public static function getLocale(string $lang = ''): string
+	{
+		// Get the current language's locale. We'll need it below no matter what happens.
+		try {
+			$current_locale = self::getTxt('lang_locale', file: 'General');
+		} catch (\ValueError $e) {
+			$current_locale = self::getLocaleFromLanguageName(User::$me->language ?? Config::$language) ?? 'en_US';
+		}
+
+		// If no particular language was requested, we're done.
+		if ($lang === '') {
+			return $current_locale;
+		}
+
+		// Look up the requested language's locale code.
+		try {
+			$lang_locale = self::getTxt('lang_locale', file: 'General', lang: $lang);
+		} catch (\ValueError $e) {
+			$lang_locale = null;
+		}
+
+		// Ensure we leave the $txt strings in their original state.
+		if ($lang_locale !== $current_locale) {
+			self::getTxt('lang_locale', file: 'General', lang: $current_locale);
+		}
+
+		return $lang_locale ?? $current_locale;
+	}
+
+	/**
 	 * Given an SMF 2.x language name, returns the locale code for SMF 3.0+.
 	 *
 	 * This is used to support upgrading from SMF 2.1 and below.
@@ -1208,6 +1248,10 @@ class Lang
 
 		// setlocale is required for basename() & pathinfo() to work properly on the selected language
 		if (!empty(self::$txt['lang_locale'])) {
+			if (class_exists('\Locale')) {
+				\Locale::setDefault(self::$txt['lang_locale']);
+			}
+
 			if (str_contains(self::$txt['lang_locale'], '.')) {
 				$locale_variants = self::$txt['lang_locale'];
 			} else {
