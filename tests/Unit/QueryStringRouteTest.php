@@ -36,6 +36,50 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	public function testExistingParametersTakePrecedenceOverRoute(): void
+	{
+		$this->assertSame(
+			[
+				'action' => 'display',
+				'topic' => '99',
+			],
+			QueryString::parseRoute('/topics/42', [
+				'topic' => '99',
+			]),
+		);
+	}
+
+	public function testNonRoutePathLeavesParametersUnchanged(): void
+	{
+		$params = ['action' => 'foo'];
+
+		$this->assertSame(
+			$params,
+			QueryString::parseRoute('not/a/route', $params),
+		);
+	}
+
+	public function testUnknownRouteUsesLegacyQuerylessFormat(): void
+	{
+		$this->assertSame(
+			[
+				'action' => 'foo',
+				'bar' => 'baz',
+			],
+			QueryString::parseRoute('/action,foo/bar,baz', []),
+		);
+	}
+
+	#[DataProvider('routeExtensionProvider')]
+	public function testLegacyRouteExtensionsAreIgnored(
+		string $path,
+	): void {
+		$this->assertSame(
+			['action' => 'display', 'topic' => '42'],
+			QueryString::parseRoute($path, []),
+		);
+	}
+
 	/**
 	 * Topic::parseRoute() and Board::parseRoute() used to look for the action
 	 * suffix in QueryString::$route_parsers directly. That list only ever holds
@@ -68,6 +112,13 @@ class QueryStringRouteTest extends TestCase
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	public static function routeExtensionProvider(): iterable
+	{
+		yield 'html' => ['/topics/42.html'];
+
+		yield 'htm' => ['/topics/42.htm'];
+	}
 
 	/**
 	 * Each case uses a different topic or board id on purpose: Slug::setRequested()
