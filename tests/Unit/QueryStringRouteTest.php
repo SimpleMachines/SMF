@@ -36,6 +36,50 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	public function testExistingParametersTakePrecedenceOverRoute(): void
+	{
+		$this->assertSame(
+			[
+				'action' => 'display',
+				'topic' => '99',
+			],
+			QueryString::parseRoute('/topics/42', [
+				'topic' => '99',
+			]),
+		);
+	}
+
+	public function testNonRoutePathLeavesParametersUnchanged(): void
+	{
+		$params = ['action' => 'foo'];
+
+		$this->assertSame(
+			$params,
+			QueryString::parseRoute('not/a/route', $params),
+		);
+	}
+
+	public function testUnknownRouteUsesLegacyQuerylessFormat(): void
+	{
+		$this->assertSame(
+			[
+				'action' => 'foo',
+				'bar' => 'baz',
+			],
+			QueryString::parseRoute('/action,foo/bar,baz', []),
+		);
+	}
+
+	#[DataProvider('routeExtensionProvider')]
+	public function testLegacyRouteExtensionsAreIgnored(
+		string $path,
+	): void {
+		$this->assertSame(
+			['action' => 'display', 'topic' => '42'],
+			QueryString::parseRoute($path, []),
+		);
+	}
+
 	/**
 	 * Topic::parseRoute() and Board::parseRoute() used to look for the action
 	 * suffix in QueryString::$route_parsers directly. That list only ever holds
@@ -47,7 +91,7 @@ class QueryStringRouteTest extends TestCase
 	 * mark-as-read link on a topic or board silently reloaded the page instead.
 	 */
 	#[DataProvider('actionSuffixProvider')]
-	public function testAnActionSuffixOnATopicOrBoardRouteIsTheAction(string $path, array $expected): void
+	public function testAnActionSuffixOnATopicOrBoardRoute(string $path, array $expected): void
 	{
 		$this->assertSame($expected, QueryString::parseRoute($path, []));
 	}
@@ -69,69 +113,92 @@ class QueryStringRouteTest extends TestCase
 	 * Public static methods
 	 ***********************/
 
+	public static function routeExtensionProvider(): iterable
+	{
+		yield 'html' => ['/topics/42.html'];
+
+		yield 'htm' => ['/topics/42.htm'];
+	}
+
 	/**
 	 * Each case uses a different topic or board id on purpose: Slug::setRequested()
 	 * asks the Slug it builds to redirect when the same item is requested twice by
 	 * different names, and there is nowhere to redirect to in a unit test.
+	 *
+	 * @return iterable<string, array{
+	 *     0: string,
+	 *     1: array<string, string>,
+	 * }>
 	 */
-	public static function actionSuffixProvider(): array
+	public static function actionSuffixProvider(): iterable
 	{
-		return [
-			'reply to a topic' => [
-				'/topics/10/post',
-				['action' => 'post', 'topic' => '10'],
-			],
-			'submit a reply to a topic' => [
-				'/topics/11/post2',
-				['action' => 'post2', 'topic' => '11'],
-			],
-			'vote in a topic poll' => [
-				'/topics/12/vote',
-				['action' => 'vote', 'topic' => '12'],
-			],
-			'edit a topic poll' => [
-				'/topics/13/editpoll',
-				['action' => 'editpoll', 'topic' => '13'],
-			],
-			'print a topic' => [
-				'/topics/14/printpage',
-				['action' => 'printpage', 'topic' => '14'],
-			],
-			'post a new topic in a board' => [
-				'/boards/15/post',
-				['action' => 'post', 'board' => '15'],
-			],
-			'submit a new topic in a board' => [
-				'/boards/16/post2',
-				['action' => 'post2', 'board' => '16'],
-			],
-			// A slug in front of the id is the normal shape of these URLs.
-			'a slug in front of the id changes nothing' => [
-				'/topics/welcome-to-smf-17/post',
-				['action' => 'post', 'topic' => '17'],
-			],
+		yield 'reply to a topic' => [
+			'/topics/10/post',
+			['action' => 'post', 'topic' => '10'],
+		];
+
+		yield 'submit a reply to a topic' => [
+			'/topics/11/post2',
+			['action' => 'post2', 'topic' => '11'],
+		];
+
+		yield 'vote in a topic poll' => [
+			'/topics/12/vote',
+			['action' => 'vote', 'topic' => '12'],
+		];
+
+		yield 'edit a topic poll' => [
+			'/topics/13/editpoll',
+			['action' => 'editpoll', 'topic' => '13'],
+		];
+
+		yield 'print a topic' => [
+			'/topics/14/printpage',
+			['action' => 'printpage', 'topic' => '14'],
+		];
+
+		yield 'post a new topic in a board' => [
+			'/boards/15/post',
+			['action' => 'post', 'board' => '15'],
+		];
+
+		yield 'submit a new topic in a board' => [
+			'/boards/16/post2',
+			['action' => 'post2', 'board' => '16'],
+		];
+
+		yield 'a slug in front of the id changes nothing' => [
+			'/topics/welcome-to-smf-17/post',
+			['action' => 'post', 'topic' => '17'],
 		];
 	}
 
-	public static function startValueProvider(): array
+	/**
+	 * @return iterable<string, array{
+	 *     0: string,
+	 *     1: array<string, string>,
+	 * }>
+	 */
+	public static function startValueProvider(): iterable
 	{
-		return [
-			'a start value on its own' => [
-				'/topics/20/20',
-				['action' => 'display', 'topic' => '20', 'start' => '20'],
-			],
-			'a symbolic start value on its own' => [
-				'/topics/21/new',
-				['action' => 'display', 'topic' => '21', 'start' => 'new'],
-			],
-			'a start value and an action' => [
-				'/topics/22/20/post',
-				['action' => 'post', 'topic' => '22', 'start' => '20'],
-			],
-			'a start value and an action on a board' => [
-				'/boards/23/20/post2',
-				['action' => 'post2', 'board' => '23', 'start' => '20'],
-			],
+		yield 'a start value on its own' => [
+			'/topics/20/20',
+			['action' => 'display', 'topic' => '20', 'start' => '20'],
+		];
+
+		yield 'a symbolic start value on its own' => [
+			'/topics/21/new',
+			['action' => 'display', 'topic' => '21', 'start' => 'new'],
+		];
+
+		yield 'a start value and an action' => [
+			'/topics/22/20/post',
+			['action' => 'post', 'topic' => '22', 'start' => '20'],
+		];
+
+		yield 'a start value and an action on a board' => [
+			'/boards/23/20/post2',
+			['action' => 'post2', 'board' => '23', 'start' => '20'],
 		];
 	}
 }
