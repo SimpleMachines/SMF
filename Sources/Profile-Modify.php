@@ -1355,10 +1355,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 	}
 	$smcFunc['db_free_result']($request);
 
-	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize, &$deletes));
-
-	if (!empty($hook_errors) && is_array($hook_errors))
-		$errors = array_merge($errors, $hook_errors);
+	call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize, &$deletes));
 
 	// Make those changes!
 	if ((!empty($changes) || !empty($deletes)) && empty($context['password_auth_failed']) && empty($errors))
