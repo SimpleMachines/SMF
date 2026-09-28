@@ -57,7 +57,7 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 		2 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19760501T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=1;UNTIL=19770501T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=1;UNTIL=19770501T000000Z',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
@@ -149,7 +149,7 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 		15 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20120429T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=20130428T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=20130428T020000Z',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
@@ -192,7 +192,7 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 		21 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20131027T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20181028T030000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20181028T020000Z',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
@@ -200,7 +200,7 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20140330T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20180325T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20180325T020000Z',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
@@ -276,118 +276,126 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 			'TZOFFSETTO' => '+0100',
 		],
 		33 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20131027T030000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20181028T020000Z',
+			'TZNAME' => 'UTC+01',
+			'TZOFFSETFROM' => '+0100',
+			'TZOFFSETTO' => '+0100',
+		],
+		34 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20190505T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		34 => [
+		35 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20190609T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		35 => [
+		36 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20200419T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		36 => [
+		37 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20200531T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		37 => [
+		38 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20210411T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		38 => [
+		39 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20210516T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		39 => [
+		40 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20220327T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		40 => [
+		41 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20220508T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		41 => [
+		42 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20230319T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		42 => [
+		43 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20230423T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		43 => [
+		44 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20240310T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		44 => [
+		45 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20240414T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		45 => [
+		46 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20250223T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		46 => [
+		47 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20250406T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		47 => [
+		48 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20260215T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		48 => [
+		49 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20260322T020000',
 			'TZNAME' => 'UTC+01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		49 => [
+		50 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20260920T020000',
 			'TZNAME' => 'GMT',

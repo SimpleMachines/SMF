@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
 
+use League\Container\Container;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Infrastructure\Container;
+use SMF\ErrorHandler;
+use SMF\Services\ErrorHandlerService;
 
 /**
  * Finds the forum the integration suite runs against.
@@ -19,7 +21,7 @@ use SMF\Infrastructure\Container;
  * It never throws. When there is nothing to test against it says why, and
  * IntegrationTestCase turns that into a skip rather than a failure.
  *
- * To get a forum: .docker/install-forum.sh --engine mysql
+ * To get a forum: .dev/install-forum.sh --engine mysql
  */
 final class Installation
 {
@@ -79,8 +81,11 @@ final class Installation
 			return 'Settings.php names no database';
 		}
 
-		// index.php builds this before anything can ask for a service.
-		Container::init();
+		$container = new Container();
+		$container->defaultToShared();
+
+		$container->add(ErrorHandlerService::class);
+		ErrorHandler::setService($container->get(ErrorHandlerService::class));
 
 		try {
 			// non_fatal, or a refused connection ends the process with SMF's own

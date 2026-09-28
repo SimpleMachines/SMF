@@ -57,7 +57,7 @@ class Danmarkshavn extends \SMF\Calendar\VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19780707T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T030000Z',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0300',
@@ -65,7 +65,7 @@ class Danmarkshavn extends \SMF\Calendar\VTimeZone
 		3 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19800104T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19950327T010000Z',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0200',

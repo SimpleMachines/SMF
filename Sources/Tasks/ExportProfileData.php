@@ -1228,7 +1228,7 @@ class ExportProfileData extends BackgroundTask
 			)),
 			'author' => Config::$mbname,
 			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
-			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
+			'language' => str_replace('_', '-', substr(Lang::getLocale(), 0, strcspn(Lang::getLocale(), '.'))),
 			'self' => '', // Unused, but can't be null.
 			'page' => &$filenum,
 		];

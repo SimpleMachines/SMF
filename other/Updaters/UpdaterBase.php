@@ -290,7 +290,14 @@ abstract class UpdaterBase
 			return false;
 		}
 
+		// Give a little extra time for any file processes to finish up first.
+		usleep(500000);
+
+		echo "Committing '{$this->commit_msg}'...", PHP_EOL;
+
 		exec("git commit -a -s -m '{$this->commit_msg}'", $output, $result_code);
+
+		echo 'Changes committed.' . PHP_EOL;
 
 		return ($result_code == 0);
 	}

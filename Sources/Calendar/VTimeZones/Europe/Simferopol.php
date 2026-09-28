@@ -85,7 +85,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		6 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19440403T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1MO;UNTIL=19450402T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1MO;UNTIL=19450402T010000Z',
 			'TZNAME' => 'CEST',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0200',
@@ -100,7 +100,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		8 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19810401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19840401T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19840331T210000Z',
 			'TZNAME' => 'MSD',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
@@ -108,7 +108,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		9 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19811001T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=1;UNTIL=19831001T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=1;UNTIL=19830930T200000Z',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0300',
@@ -116,7 +116,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		10 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19840930T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950923T220000Z',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0300',
@@ -124,7 +124,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		11 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19850331T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100328T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100327T230000Z',
 			'TZNAME' => 'MSD',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
@@ -139,7 +139,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		13 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19810329T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19940327T000000Z',
 			'TZNAME' => 'EEST',
 			'TZOFFSETFROM' => '+0200',
 			'TZOFFSETTO' => '+0300',
@@ -147,7 +147,7 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		14 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19790930T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950923T230000Z',
 			'TZNAME' => 'EET',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0200',
@@ -160,51 +160,67 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 			'TZOFFSETTO' => '+0400',
 		],
 		16 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19790930T030000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950923T220000Z',
+			'TZNAME' => 'MSK',
+			'TZOFFSETFROM' => '+0400',
+			'TZOFFSETTO' => '+0300',
+		],
+		17 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19810329T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19950325T230000Z',
+			'TZNAME' => 'MSD',
+			'TZOFFSETFROM' => '+0300',
+			'TZOFFSETTO' => '+0400',
+		],
+		18 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19960331T000000',
 			'TZNAME' => 'MSD',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
 		],
-		17 => [
+		19 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19961027T040000',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0300',
 		],
-		18 => [
+		20 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19820622T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20130331T010000Z',
 			'TZNAME' => 'EEST',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0300',
 		],
-		19 => [
+		21 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19970823T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20131027T010000Z',
 			'TZNAME' => 'EET',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0200',
 		],
-		20 => [
+		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19820123T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20130331T010000Z',
 			'TZNAME' => 'EEST',
 			'TZOFFSETFROM' => '+0200',
 			'TZOFFSETTO' => '+0300',
 		],
-		21 => [
+		23 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20140330T020000',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0200',
 			'TZOFFSETTO' => '+0400',
 		],
-		22 => [
+		24 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20141026T020000',
 			'TZNAME' => 'MSK',

@@ -2,8 +2,8 @@
 # Upgrades a 2.1 database to 3.0, installs 3.0 from scratch, and reports where
 # the two schemas disagree.
 #
-#   .docker/compare-upgrade.sh --engine mysql      --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
-#   .docker/compare-upgrade.sh --engine postgresql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/postgres.sql
+#   .dev/compare-upgrade.sh --engine mysql      --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/mysql.sql
+#   .dev/compare-upgrade.sh --engine postgresql --baseline ../SMF-2.1/.docker/baseline/artifacts/2.1.7-1/small/postgres.sql
 #
 # The installer builds the schema from Sources/Db/Schema/v3_0/ in one go. The
 # upgrader arrives at the same place through a hundred-odd migrations applied
@@ -24,11 +24,19 @@
 # Runs on the host. Expect five to ten minutes per engine.
 set -euo pipefail
 
+# Orchestrating containers is all this can mean, so it says so rather than
+# inheriting the default and failing further in. Read by lib.sh, which is
+# sourced below and which a linter reading this file alone cannot see.
+# shellcheck disable=SC2034
+SMF_RUNNER=docker
+
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
+
+require_docker
 
 ENGINE=''
 BASELINE=''
-OUT="$DOCKER_DIR/compare"
+OUT="$DEV_DIR/compare"
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -65,7 +73,7 @@ esac
 snapshot() {
 	local smf_type="$1" label="$2" file="$3"
 
-	docker compose exec -T web php .docker/schema-tool.php dump \
+	docker compose exec -T web php .dev/schema-tool.php dump \
 		--engine "$smf_type" \
 		--db "$DB_NAME" \
 		--prefix "$DB_PREFIX" \
@@ -106,7 +114,7 @@ compare_one() {
 
 	# ---------------------------------------------------------- the upgrade
 	log "${smf_type}: emptying the database"
-	"$DOCKER_DIR/reset.sh" --engine "$smf_type" >/dev/null
+	"$DEV_DIR/reset.sh" --docker --engine "$smf_type" >/dev/null
 
 	log "${smf_type}: loading ${BASELINE##*/}"
 	load_baseline "$smf_type"
@@ -163,14 +171,14 @@ compare_one() {
 	# --force because there is an installed forum now, and install-forum.sh
 	# leaves one alone unless told otherwise.
 	log "${smf_type}: installing from scratch"
-	"$DOCKER_DIR/install-forum.sh" --engine "$smf_type" --force >/dev/null
+	"$DEV_DIR/install-forum.sh" --docker --engine "$smf_type" --force >/dev/null
 
 	snapshot "$smf_type" fresh "$OUT/fresh-${smf_type}.json"
 
 	# ------------------------------------------------------------ the report
 	local status=0
 
-	docker compose exec -T web php .docker/schema-tool.php diff \
+	docker compose exec -T web php .dev/schema-tool.php diff \
 		"${OUT_REL}/fresh-${smf_type}.json" \
 		"${OUT_REL}/upgraded-${smf_type}.json" \
 		> "$OUT/report-${smf_type}.txt" || status=$?

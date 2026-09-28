@@ -50,7 +50,7 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		1 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19760425T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T070000Z',
 			'TZNAME' => 'EDT',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
@@ -58,7 +58,7 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19671029T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T060000Z',
 			'TZNAME' => 'EST',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -66,7 +66,7 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		3 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19870405T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T070000Z',
 			'TZNAME' => 'EDT',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
@@ -74,7 +74,7 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		4 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU;UNTIL=20150308T070000Z',
 			'TZNAME' => 'EDT',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
@@ -82,7 +82,7 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU;UNTIL=20141102T060000Z',
 			'TZNAME' => 'EST',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -99,6 +99,22 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 			'DTSTART' => '20180311T030000',
 			'TZNAME' => 'EDT',
 			'TZOFFSETFROM' => '-0400',
+			'TZOFFSETTO' => '-0400',
+		],
+		8 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20071104T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'TZNAME' => 'EST',
+			'TZOFFSETFROM' => '-0400',
+			'TZOFFSETTO' => '-0500',
+		],
+		9 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '20070311T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'TZNAME' => 'EDT',
+			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
 	];

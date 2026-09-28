@@ -265,11 +265,11 @@ class MessageFormatter
 
 		// Use the intl extension's MessageFormatter class if available.
 		if (self::$use_intl) {
-			if (!isset(self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message])) {
-				self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message] = new \MessageFormatter(Lang::getTxt('lang_locale', file: 'General'), $message);
+			if (!isset(self::$message_formatters[Lang::getLocale()][$message])) {
+				self::$message_formatters[Lang::getLocale()][$message] = new \MessageFormatter(Lang::getLocale(), $message);
 			}
 
-			$fmt = self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message]->format(array_filter($args, 'is_scalar'));
+			$fmt = self::$message_formatters[Lang::getLocale()][$message]->format(array_filter($args, 'is_scalar'));
 
 			if ($fmt !== false) {
 				return strtr($fmt, array_flip($placeholders));
@@ -343,7 +343,7 @@ class MessageFormatter
 									}
 									// Guess based on the locale.
 									else {
-										[$lang, $cc] = explode('_', Lang::getTxt('lang_locale', file: 'General'));
+										[$lang, $cc] = explode('_', Lang::getLocale());
 
 										if (!isset($country_currencies[$cc])) {
 											switch ($lang) {
@@ -696,7 +696,7 @@ class MessageFormatter
 		}
 
 		// Evaluate the pluralization rules to find a match.
-		$lang = substr(Lang::getTxt('lang_locale', file: 'General'), 0, strpos(Lang::getTxt('lang_locale', file: 'General'), '_'));
+		$lang = substr(Lang::getLocale(), 0, strpos(Lang::getLocale(), '_'));
 
 		foreach (self::$plural_rules[$lang][$type] as $category => $rule) {
 			if ($rule($n, $i, $v, $w, $f, $t, $c)) {

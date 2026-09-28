@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Runs what CI runs, before you push instead of after.
 #
-#   .docker/ci.sh              every check
-#   .docker/ci.sh --full       style check over the whole tree, not just changes
-#   .docker/ci.sh --fix        apply the style fixes rather than reporting them
+#   .dev/ci.sh              every check
+#   .dev/ci.sh --full       style check over the whole tree, not just changes
+#   .dev/ci.sh --fix        apply the style fixes rather than reporting them
+#   .dev/ci.sh --docker     run the checks in the web container
 #
 # The workflows this mirrors are php.yml (sign-off, the file integrity checks,
 # phplint) and php-cs-fixer.yml. phpunit.yml is included when the branch has a
@@ -12,9 +13,10 @@
 # Every check runs even after one fails, because finding out about the second
 # problem on the next push is the thing this script exists to stop.
 #
-# One difference worth knowing: CI lints and tests on PHP 8.4 *and* 8.5, and the
-# web container is whichever PHP_VERSION built it (8.4 by default). To cover the
-# other one, rebuild against it:
+# One difference worth knowing: CI lints and tests on PHP 8.4 *and* 8.5, while
+# this runs on one of them -- whichever php is on PATH, or whichever PHP_VERSION
+# built the web container. To cover the other one, point PHP_BIN at it, or
+# rebuild the image against it:
 #
 #   PHP_VERSION=8.5 docker compose up -d --build web
 #
@@ -23,6 +25,8 @@ set -uo pipefail
 
 . "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
 
+parse_runner_args "$@"
+
 FULL=0
 FIX=0
 
@@ -30,7 +34,8 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		--full) FULL=1; shift ;;
 		--fix) FIX=1; shift ;;
-		-h|--help) sed -n '2,21p' "${BASH_SOURCE[0]}"; exit 0 ;;
+		--docker|--local) shift ;;
+		-h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}"; exit 0 ;;
 		*) die "unknown argument: $1" ;;
 	esac
 done
@@ -39,19 +44,23 @@ done
 # check does not stop the ones after it. That means cd has to be checked.
 cd "$BOARD_DIR" || die "cannot enter $BOARD_DIR"
 
-docker compose ps --status running --services 2>/dev/null | grep -qx web \
-	|| die 'the web container is not running -- docker compose up -d'
+if is_docker; then
+	docker compose ps --status running --services 2>/dev/null | grep -qx web \
+		|| die 'the web container is not running -- docker compose up -d'
+else
+	require_local_deps
+fi
 
 FAILED=''
 
-# $1 label, rest: the command to run in the web container.
+# $1 label, rest: the command to run where the forum lives.
 check() {
 	local label="$1"
 	shift
 
 	printf '\n[smf-dev] --- %s ---\n' "$label"
 
-	if docker compose exec -T web "$@"; then
+	if run_cmd "$@"; then
 		return 0
 	fi
 
@@ -72,8 +81,8 @@ check 'file integrity' sh -c '
 	echo "all four integrity checks passed"
 '
 
-check "syntax ($(docker compose exec -T web php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null))" \
-	vendor/bin/phplint --no-progress --exclude .git --exclude vendor .
+check "syntax ($(run_cmd php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null))" \
+	php vendor/bin/phplint --no-progress --exclude .git --exclude vendor .
 
 # ------------------------------------------------------------ php-cs-fixer.yml
 # CI checks only the files a pull request changed, and switches to the whole
@@ -90,7 +99,7 @@ else
 fi
 
 if [ "$FULL" -eq 1 ]; then
-	check 'code style (whole tree)' vendor/bin/php-cs-fixer "$FIXER_MODE" "${FIXER_ARGS[@]}"
+	check 'code style (whole tree)' php vendor/bin/php-cs-fixer "$FIXER_MODE" "${FIXER_ARGS[@]}"
 else
 	# Same intersection CI builds, from the files this branch actually touches:
 	# committed since release-3.0, staged, unstaged, and - the one CI never has
@@ -107,13 +116,13 @@ else
 		printf '\n[smf-dev] --- code style --- no changed PHP files\n'
 	else
 		# shellcheck disable=SC2086
-		check 'code style (changed files)' vendor/bin/php-cs-fixer "$FIXER_MODE" "${FIXER_ARGS[@]}" --path-mode=intersection $CHANGED
+		check 'code style (changed files)' php vendor/bin/php-cs-fixer "$FIXER_MODE" "${FIXER_ARGS[@]}" --path-mode=intersection $CHANGED
 	fi
 fi
 
 # ---------------------------------------------------------------- phpunit.yml
 if [ -f phpunit.xml.dist ]; then
-	check 'tests' vendor/bin/phpunit --no-coverage --colors=always
+	check 'tests' php vendor/bin/phpunit --no-coverage --colors=always
 else
 	printf '\n[smf-dev] --- tests --- no phpunit.xml.dist on this branch, skipping\n'
 fi

@@ -13,8 +13,8 @@
  * Two modes, and they are separate on purpose: only one engine can be live at
  * a time, so the two readings cannot be taken in one process.
  *
- *   php .docker/schema-tool.php dump --engine mysql --db smf > fresh.json
- *   php .docker/schema-tool.php diff fresh.json upgraded.json
+ *   php .dev/schema-tool.php dump --engine mysql --db smf > fresh.json
+ *   php .dev/schema-tool.php diff fresh.json upgraded.json
  *
  * Runs inside the web container, and talks to the database directly rather
  * than through SMF. Nothing here loads Settings.php or boots the forum: the
@@ -54,8 +54,8 @@ function usage(): int
 	fwrite(STDERR, <<<'TEXT'
 		Reads the shape of an SMF database, and compares two of those readings.
 
-		  php .docker/schema-tool.php dump --engine mysql --db smf > fresh.json
-		  php .docker/schema-tool.php diff fresh.json upgraded.json
+		  php .dev/schema-tool.php dump --engine mysql --db smf > fresh.json
+		  php .dev/schema-tool.php diff fresh.json upgraded.json
 
 		dump options, with the defaults compose.yaml gives:
 

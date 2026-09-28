@@ -194,6 +194,11 @@ class XmlArray
 			$array = $this->_path($array, $el, $lvl);
 		}
 
+		// Still nothing?
+		if ($array === '') {
+			return false;
+		}
+
 		// Clean up after $lvl, for $return_full.
 		if ($return_full && (!isset($array['name']) || substr($array['name'], -1) != ']')) {
 			$array = ['name' => $el . '[]', $array];
@@ -261,6 +266,11 @@ class XmlArray
 		// Get the element, always returning a full set.
 		$temp = $this->path($path, true);
 
+		// Tried calling this on an attri
+		if (!isset($temp->array)) {
+			return 0;
+		}
+
 		// Start at zero, then count up all the numeric keys.
 		$i = 0;
 
@@ -289,6 +299,11 @@ class XmlArray
 		$array = [];
 		$xml = $this->path($path, true);
 
+		// Tried calling this on an attribute?
+		if (!isset($xml->array)) {
+			return [];
+		}
+
 		foreach ($xml->array as $val) {
 			// Skip these, they aren't elements.
 			if (!\is_array($val) || $val['name'] == '!') {
@@ -313,14 +328,14 @@ class XmlArray
 	 * @param string|null $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
-	public function create_xml(?string $path = null): string
+	public function create_xml(?string $path = null): string|false
 	{
 		// Was a path specified?  If so, use that array.
 		if ($path !== null) {
 			$path = $this->path($path);
 
 			// The path was not found
-			if ($path === false) {
+			if (!isset($path->array)) {
 				return false;
 			}
 
@@ -329,6 +344,11 @@ class XmlArray
 		// Just use the current array.
 		else {
 			$path = $this->array;
+		}
+
+		// The path was not found
+		if (!\is_array($path)) {
+			return false;
 		}
 
 		// Add the xml declaration to the front.
@@ -350,7 +370,7 @@ class XmlArray
 			$path = $this->path($path);
 
 			// The path was not found
-			if ($path === false) {
+			if (!isset($path->array)) {
 				return [];
 			}
 
@@ -361,7 +381,13 @@ class XmlArray
 			$path = $this->array;
 		}
 
-		return $this->_array($path);
+		$return = $this->_array((array) $path);
+
+		if (empty($return)) {
+			return [];
+		}
+
+		return $return;
 	}
 
 	/**

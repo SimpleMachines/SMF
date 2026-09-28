@@ -57,7 +57,7 @@ class Volgograd extends \SMF\Calendar\VTimeZone
 		2 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19810401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19840401T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19840331T200000Z',
 			'TZNAME' => 'UTC+05',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0500',
@@ -65,7 +65,7 @@ class Volgograd extends \SMF\Calendar\VTimeZone
 		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19811001T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=1;UNTIL=19831001T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=1;UNTIL=19830930T190000Z',
 			'TZNAME' => 'UTC+04',
 			'TZOFFSETFROM' => '+0500',
 			'TZOFFSETTO' => '+0400',
@@ -73,7 +73,7 @@ class Volgograd extends \SMF\Calendar\VTimeZone
 		4 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19840930T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950923T210000Z',
 			'TZNAME' => 'UTC+04',
 			'TZOFFSETFROM' => '+0500',
 			'TZOFFSETTO' => '+0400',
@@ -81,48 +81,72 @@ class Volgograd extends \SMF\Calendar\VTimeZone
 		5 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19850331T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100328T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100327T220000Z',
 			'TZNAME' => 'UTC+05',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0500',
 		],
 		6 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19850331T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100327T220000Z',
+			'TZNAME' => 'MSD',
+			'TZOFFSETFROM' => '+0400',
+			'TZOFFSETTO' => '+0400',
+		],
+		7 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19840930T030000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950923T220000Z',
+			'TZNAME' => 'MSK',
+			'TZOFFSETFROM' => '+0400',
+			'TZOFFSETTO' => '+0300',
+		],
+		8 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19850331T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20100327T230000Z',
+			'TZNAME' => 'MSD',
+			'TZOFFSETFROM' => '+0300',
+			'TZOFFSETTO' => '+0400',
+		],
+		9 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19910331T020000',
 			'TZNAME' => 'UTC+04',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
 		],
-		7 => [
+		10 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19961027T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20101031T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20101030T220000Z',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0300',
 		],
-		8 => [
+		11 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20110327T020000',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
 		],
-		9 => [
+		12 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20141026T020000',
 			'TZNAME' => 'MSK',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0300',
 		],
-		10 => [
+		13 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20181028T020000',
 			'TZNAME' => 'UTC+04',
 			'TZOFFSETFROM' => '+0300',
 			'TZOFFSETTO' => '+0400',
 		],
-		11 => [
+		14 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20201227T020000',
 			'TZNAME' => 'MSK',

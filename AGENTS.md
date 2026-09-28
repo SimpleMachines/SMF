@@ -171,13 +171,20 @@ failure, not a pass.
 things above: `Db::$db`, `Config::$modSettings` as the database holds it, and `User::$me`.
 
 ```bash
-.docker/test.sh                     # both engines
-.docker/test.sh --engine postgresql
+.dev/test.sh                     # both engines
+.dev/test.sh --engine postgresql
+.dev/test.sh --docker            # in the compose stack rather than on this machine
 ```
 
 `composer test` still runs everything. When there is no forum to talk to the integration
-tests **skip** rather than fail, so it stays useful on a machine with no Docker. To get
-one: `.docker/install-forum.sh --engine mysql`.
+tests **skip** rather than fail, so it stays useful on a machine with nothing installed.
+To get one: `.dev/install-forum.sh --engine mysql`.
+
+**CI runs this suite on both engines, with `--fail-on-skipped`.** So a skip that is a
+convenience locally is a failure there, and a change that breaks a page will turn a pull
+request red rather than sliding through on a green unit run. `.github/workflows/phpunit.yml`
+installs a forum on the runner the same way you would, which is why the scripts in `.dev/`
+work with or without Docker: `SMF_RUNNER` picks, and it defaults to `local`.
 
 Extend `SMF\Tests\Integration\IntegrationTestCase`, which gives you:
 
@@ -276,10 +283,11 @@ behaviour. What to watch for:
 
 ### Running the forum
 
-The rest of CI only proves the code parses (`phplint` on 8.4 and 8.5) and is formatted.
-So a fully green PR still tells you very little about whether a change works. Verify by
-running the forum. The repository ships a Docker environment, documented in full in
-`.docker/README.md`:
+The rest of CI proves the code parses (`phplint` on 8.4 and 8.5), is formatted, and that
+the pages the integration suite reaches still work on both engines. That is a good deal
+more than it used to be, and still nowhere near the whole forum: most of it has no test
+touching it, so a green PR is not evidence that a change works. Verify by running the
+forum. The repository ships a Docker environment, documented in full in `.dev/README.md`:
 
 ```bash
 docker compose up -d --build

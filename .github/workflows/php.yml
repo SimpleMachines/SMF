@@ -37,6 +37,15 @@ jobs:
         php ./vendor/simplemachines/build-tools/check-smf-index.php
         php ./vendor/simplemachines/build-tools/check-version.php
 
+    - name: Setup PHP 8.5
+      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 #2.37.2
+      with:
+        php-version: 8.5
+        coverage: none
+
+    - name: Running the auto review test suite
+      run: vendor/bin/phpunit --testsuite auto-review
+
   lint:
     runs-on: ubuntu-latest
     strategy:

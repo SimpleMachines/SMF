@@ -35,7 +35,7 @@ $updater->execute();
 if ($updater->hasChanged()) {
 	if (!$updater->ready_to_commit) {
 		echo 'Changes are not ready to commit. Deal with them manually.' . PHP_EOL;
-	} elseif ($updater->commit()) {
-		echo 'Changes committed.' . PHP_EOL;
+	} else {
+		$updater->commit();
 	}
 }

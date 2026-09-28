@@ -71,7 +71,7 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		4 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19670430T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T100000Z',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
@@ -79,7 +79,7 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19671029T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T090000Z',
 			'TZNAME' => 'PST',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
@@ -101,7 +101,7 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		8 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19760425T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T100000Z',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
@@ -116,7 +116,7 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		10 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU;UNTIL=20181104T100000Z',
 			'TZNAME' => 'AKST',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0900',
@@ -124,7 +124,7 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		11 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU;UNTIL=20180311T110000Z',
 			'TZNAME' => 'AKDT',
 			'TZOFFSETFROM' => '-0900',
 			'TZOFFSETTO' => '-0800',
@@ -139,6 +139,22 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		13 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20190120T020000',
+			'TZNAME' => 'AKST',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0900',
+		],
+		14 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '20070311T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'TZNAME' => 'AKDT',
+			'TZOFFSETFROM' => '-0900',
+			'TZOFFSETTO' => '-0800',
+		],
+		15 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20071104T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
 			'TZNAME' => 'AKST',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0900',

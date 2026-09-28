@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
+use SMF\Routable;
 use SMF\Utils;
 
 /**

@@ -50,7 +50,7 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		1 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19770403T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=19800406T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=19800406T040000Z',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
@@ -58,7 +58,7 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19790930T030000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T020000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T030000Z',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
@@ -73,7 +73,7 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		4 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19790503T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000Z',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '-0100',
@@ -81,7 +81,7 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		5 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19801030T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20240331T010000Z',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '+0000',
@@ -89,26 +89,26 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19960530T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20231029T010000Z',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '-0100',
 		],
 		7 => [
-			'type' => 'DAYLIGHT',
-			'DTSTART' => '19800602T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
-			'TZNAME' => 'UTC-01',
-			'TZOFFSETFROM' => '-0100',
-			'TZOFFSETTO' => '-0100',
-		],
-		8 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19960101T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
+		],
+		8 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '19800602T010000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+			'TZNAME' => 'UTC-01',
+			'TZOFFSETFROM' => '-0200',
+			'TZOFFSETTO' => '-0100',
 		],
 	];
 }
