@@ -93,9 +93,7 @@ foreach ($updaters as $class_name) {
 		break;
 	}
 
-	if ($updater->commit()) {
-		echo 'Changes committed.' . PHP_EOL;
-	}
+	$updater->commit();
 }
 
 if ($num_updaters_executed === \count($updaters) && !empty($new_tag)) {
