@@ -39,7 +39,6 @@ class LicenseTest extends TestCase
 		'\./Settings_bak\.php',
 		'\./db_last_error\.php',
 	];
-
 	private const VERSION_AND_YEAR_FILES = [
 		'\./index\.php',
 		'\./SSI\.php',
