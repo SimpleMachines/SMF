@@ -226,6 +226,13 @@ class Lang
 	 */
 	private static array $censor_proper;
 
+	/**
+	 * @var array
+	 *
+	 * Instances of \Collator for Lang::collate() and Lang::compareStrings().
+	 */
+	private static array $collators;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -963,6 +970,142 @@ class Lang
 	}
 
 	/**
+	 * Sorts an array of strings according to the current locale's rules.
+	 *
+	 * Maintains key association like asort().
+	 *
+	 * @param array &$strings An array of strings.
+	 */
+	public static function collate(array &$strings): void
+	{
+		$locale = self::getLocale();
+
+		if (class_exists('\Collator')) {
+			if (!isset(self::$collators[$locale])) {
+				self::$collators[$locale] = \Collator::create($locale);
+			}
+
+			self::$collators[$locale]->asort($strings);
+		} else {
+			if (
+				($old_lc_collate = setlocale(LC_COLLATE, '0')) === false
+				|| !str_starts_with($old_lc_collate, $locale)
+			) {
+				if (str_contains($locale, '.')) {
+					$locale_variants = [$locale];
+				} else {
+					$locale_variants = [
+						$locale . '.UTF-8',
+						$locale . '.UTF8',
+						$locale . '.utf-8',
+						$locale . '.utf8',
+						$locale,
+					];
+				}
+
+				setlocale(LC_COLLATE, $locale_variants);
+			}
+
+			uasort($strings, 'strcoll');
+
+			if ($old_lc_collate !== false) {
+				setlocale(LC_COLLATE, $old_lc_collate);
+			}
+		}
+	}
+
+	/**
+	 * Compares two strings according to the current locale's rules.
+	 *
+	 * Returns 1 if $string1 is greater than $string2 for sorting purposes.
+	 * Returns 0 if $string1 is equivalent to $string2 for sorting purposes.
+	 * Returns -1 if $string1 is less than $string2 for sorting purposes.
+	 *
+	 * @param array $string1 The first string to compare.
+	 * @param array $string2 The second string to compare.
+	 * @return int The result of the comparison: either -1, 0, or 1.
+	 */
+	public static function compareStrings(string $string1, string $string2): int
+	{
+		$locale = self::getLocale();
+
+		if (class_exists('\Collator')) {
+			if (!isset(self::$collators[$locale])) {
+				self::$collators[$locale] = \Collator::create($locale);
+			}
+
+			$result = (int) self::$collators[$locale]->compare($string1, $string2);
+		} else {
+			if (
+				($old_lc_collate = setlocale(LC_COLLATE, '0')) === false
+				|| !str_starts_with($old_lc_collate, $locale)
+			) {
+				if (str_contains($locale, '.')) {
+					$locale_variants = [$locale];
+				} else {
+					$locale_variants = [
+						$locale . '.UTF-8',
+						$locale . '.UTF8',
+						$locale . '.utf-8',
+						$locale . '.utf8',
+						$locale,
+					];
+				}
+
+				setlocale(LC_COLLATE, $locale_variants);
+			}
+
+			$result = strcoll($string1, $string2) <=> 0;
+
+			if ($old_lc_collate !== false) {
+				setlocale(LC_COLLATE, $old_lc_collate);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Gets the locale code for an installed language.
+	 *
+	 * If the $lang argument is empty or is set to a language that is not
+	 * installed, the locale code for the current language will be returned.
+	 *
+	 * @param string $lang The language whose locale code we want. If empty or
+	 *    unrecognized, uses the current language.
+	 *    Default: ''
+	 * @return string The locale code.
+	 */
+	public static function getLocale(string $lang = ''): string
+	{
+		// Get the current language's locale. We'll need it below no matter what happens.
+		try {
+			$current_locale = self::getTxt('lang_locale', file: 'General');
+		} catch (\ValueError $e) {
+			$current_locale = self::getLocaleFromLanguageName(User::$me->language ?? Config::$language) ?? 'en_US';
+		}
+
+		// If no particular language was requested, we're done.
+		if ($lang === '') {
+			return $current_locale;
+		}
+
+		// Look up the requested language's locale code.
+		try {
+			$lang_locale = self::getTxt('lang_locale', file: 'General', lang: $lang);
+		} catch (\ValueError $e) {
+			$lang_locale = null;
+		}
+
+		// Ensure we leave the $txt strings in their original state.
+		if ($lang_locale !== $current_locale) {
+			self::getTxt('lang_locale', file: 'General', lang: $current_locale);
+		}
+
+		return $lang_locale ?? $current_locale;
+	}
+
+	/**
 	 * Given an SMF 2.x language name, returns the locale code for SMF 3.0+.
 	 *
 	 * This is used to support upgrading from SMF 2.1 and below.
@@ -1208,6 +1351,10 @@ class Lang
 
 		// setlocale is required for basename() & pathinfo() to work properly on the selected language
 		if (!empty(self::$txt['lang_locale'])) {
+			if (class_exists('\Locale')) {
+				\Locale::setDefault(self::$txt['lang_locale']);
+			}
+
 			if (str_contains(self::$txt['lang_locale'], '.')) {
 				$locale_variants = self::$txt['lang_locale'];
 			} else {
