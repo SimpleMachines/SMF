@@ -1,0 +1,171 @@
+status 200
+@ title
+title
+  "Manage Boards and Categories"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageboards;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Boards and Categories"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=main;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Modify Boards"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_boards" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Boards and Categories"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Edit your categories and boards here. List multiple moderators as"
+    em
+      "\"username\", \"username\""
+    ". (these must be usernames and *not* display names)"
+    br
+    "To create a new board, click the Add Board button. To make the new board a sub-board of a current board, select \"Sub-board of...\" from the Order drop down menu when creating the board."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Boards and Categories Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Boards and Categories Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageboards;sa=main;{session_var}={session_id}"]
+                "Modify Boards"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=newcat;{session_var}={session_id}"]
+                "Create new category"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#manage_boards
+    div.cat_bar
+      h3.catbg
+        "Modify Boards"
+    div.windowbg
+      div.noticebox
+        "Select destination for board \""
+        strong
+          "{board}"
+        "\" ["
+        a [href="{boardurl}/index.php?action=admin;area=manageboards"]
+          "Cancel moving"
+        "]"
+      div.sub_bar
+        h3.subbg
+          a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=cat;cat=#"]
+            "Snapshot fixtures"
+          a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=cat;cat=#"]
+            "(modify)"
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageboards;sa=newboard;cat=#" method="post"]
+        ul#category_#.nolist
+          li
+            a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=before;{session_var}={session_id};{token}" title="Before {board}"]
+              span.main_icons.select_above
+          li.windowbg [style="padding-inline-start: #px;"]
+            span.floatleft
+              a [href="{boardurl}/index.php?board=#.#"]
+                "{board}"
+            span.floatright
+              a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
+                "permissions"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;move=#"]
+                "move"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;sa=board;boardid=#"]
+                "modify"
+            br [style="clear: right;"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=child;{session_var}={session_id};{token}" title="Sub-board of {board}"]
+              span.main_icons.select_here [title="Sub-board of {board}"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            span.floatleft
+              a [href="{boardurl}/index.php?board=#.#"]
+                "{board}"
+            span.floatright
+              a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
+                "permissions"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;move=#"]
+                "move"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;sa=board;boardid=#"]
+                "modify"
+            br [style="clear: right;"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=after;{session_var}={session_id};{token}" title="After {board}"]
+              span.main_icons.select_above [title="After {board}"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=child;{session_var}={session_id};{token}" title="Sub-board of {board}"]
+              span.main_icons.select_here [title="Sub-board of {board}"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            span.floatleft
+              a.red [href="{boardurl}/index.php?board=#.#"]
+                "{board}"
+            span.floatright
+              a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
+                "permissions"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;move=#"]
+                "move"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;sa=board;boardid=#"]
+                "modify"
+            br [style="clear: right;"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=after;{session_var}={session_id};{token}" title="After {board}"]
+              span.main_icons.select_below [title="After {board}"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            span.floatleft
+              a [href="{boardurl}/index.php?board=#.#"]
+                "{board}"
+            span.floatright
+              a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
+                "permissions"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;move=#"]
+                "move"
+              a.button [href="{boardurl}/index.php?action=admin;area=manageboards;sa=board;boardid=#"]
+                "modify"
+            br [style="clear: right;"]
+          li.windowbg [style="padding-inline-start: #px;"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=after;{session_var}={session_id};{token}" title="After {board}"]
+              span.main_icons.select_below [title="After {board}"]
+            a.move_links [href="{boardurl}/index.php?action=admin;area=manageboards;sa=move;src_board=#;target_board=#;move_to=child;{session_var}={session_id};{token}" title="Sub-board of {board}"]
+              span.main_icons.select_here [title="Sub-board of {board}"]
+        input.button [type="submit" value="Add Board"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]

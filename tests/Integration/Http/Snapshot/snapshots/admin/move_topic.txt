@@ -1,0 +1,112 @@
+status 200
+@ title
+title
+  "Move Topic"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+        span [itemprop="name"]
+          "{subject}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      span [itemprop="name"]
+        "Move Topic"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#move_topic.lower_padding
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=movetopic#;current_board=#;topic=#.#" method="post" onsubmit="submitonce(this);"]
+        div.cat_bar
+          h3.catbg
+            "Move Topic"
+        div.centertext.windowbg
+          div.move_topic
+            dl.settings
+              dt
+                strong
+                  "Move to"
+              dd
+                select [name="toboard"]
+                  optgroup [label="Snapshot fixtures"]
+                    option [disabled value="#"]
+                      "{board}"
+                    option [value="#"]
+                      "=> Snapshot child one"
+                    option [value="#"]
+                      "=> Snapshot child two"
+                    option [value="#"]
+                      "Snapshot empty board"
+            label [for="reset_subject"]
+              input#reset_subject [name="reset_subject" onclick="document.getElementById('subjectArea').classList.toggle('hidden');" type="checkbox"]
+              "Change the topic’s subject"
+            br
+            fieldset#subjectArea.hidden
+              dl.settings
+                dt
+                  strong
+                    "New subject"
+                dd
+                  input [name="custom_subject" size="#" type="text" value="{subject}"]
+              label [for="enforce_subject"]
+                input#enforce_subject [name="enforce_subject" type="checkbox"]
+                "Change every message’s subject"
+            label.block [for="postRedirect"]
+              input#postRedirect [checked name="postRedirect" onclick="document.getElementById('reasonArea').classList.toggle('hidden');" type="checkbox"]
+              "Post a redirection topic"
+            fieldset#reasonArea
+              dl.settings
+                dt
+                  "Please enter a brief description as to"
+                  br
+                  "why this topic is being moved."
+                dd
+                  textarea [name="reason"]
+                    "This topic has been moved to [BOARD]. [TOPIC LINK]"
+                dt
+                  label [for="redirect_topic"]
+                    "Redirect to the moved topic"
+                dd
+                  input#redirect_topic [checked name="redirect_topic" type="checkbox"]
+                dt
+                  "Automatically remove the redirection topic"
+                dd
+                  select [name="redirect_expires"]
+                    option [value="#"]
+                      "Never"
+                    option [value="#"]
+                      "# Day(s)"
+                    option [selected value="#"]
+                      "# Week(s)"
+                    option [value="#"]
+                      "# Week(s)"
+                    option [value="#"]
+                      "# Month(s)"
+            input.button [accesskey="s" onclick="return submitThisOnce(this);" type="submit" value="Move Topic"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="seqnum" type="hidden" value="#"]

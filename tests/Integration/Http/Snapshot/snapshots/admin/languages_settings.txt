@@ -1,0 +1,104 @@
+status 200
+@ title
+title
+  "Edit Languages"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=languages;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Languages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=languages;sa=settings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Languages"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This section allows you to edit languages installed on your forum and download new ones from the Simple Machines website. You may also edit language-related settings here."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Languages Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Languages Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=languages;sa=edit;{session_var}={session_id}"]
+                "Edit Languages"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=languages;sa=add;{session_var}={session_id}"]
+                "Add Language"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=languages;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=languages;sa=settings;save" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.information.noup
+      div.centertext.strong
+        "Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable."
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_language
+          span
+            label [for="language"]
+              "Default forum language"
+        dd
+          select#language [name="language" size="#"]
+            option [selected value="en_US"]
+              "English (US)"
+        dt
+          a#setting_userLanguage_help [href="{boardurl}/index.php?action=helpadmin;help=userLanguage" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_userLanguage
+          span
+            label [for="userLanguage"]
+              "Enable user-selectable language support"
+        dd
+          input#userLanguage [checked name="userLanguage" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

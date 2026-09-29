@@ -1,0 +1,149 @@
+status 200
+@ title
+title
+  "Ban list"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban list"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=add;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Add new ban"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div#manage_bans
+    form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=ban;sa=edit" method="post" onsubmit="return confirmBan(this);"]
+      div.cat_bar
+        h3.catbg
+          "Add new ban"
+      div.information.noup
+        strong
+          "Note"
+        ": after creating the above ban, you can add additional entries that trigger the ban, like IP addresses, hostnames, and email addresses."
+      div.noup.windowbg
+        dl.settings
+          dt#ban_name_label
+            strong
+              "Ban name:"
+          dd
+            input#ban_name [maxlength="#" name="ban_name" size="#" type="text" value]
+          dt
+            strong
+              label [for="reason"]
+                "Reason"
+            br
+            span.smalltext
+              "Reason for ban, to be displayed to banned member."
+          dd
+            textarea#reason [cols="#" name="reason" rows="#"]
+          dt
+            strong
+              label [for="ban_notes"]
+                "Notes"
+            br
+            span.smalltext
+              "Notes that may assist other staff members."
+          dd
+            textarea#ban_notes [cols="#" name="notes" rows="#"]
+        fieldset.ban_settings.floatleft
+          legend
+            "Expiration"
+          input#never_expires [checked name="expiration" onclick="fUpdateStatus();" type="radio" value="never"]
+          label [for="never_expires"]
+            "Never"
+          br
+          input#expires_one_day [name="expiration" onclick="fUpdateStatus();" type="radio" value="one_day"]
+          label [for="expires_one_day"]
+            "Ban will expire after"
+          input#expire_date [name="expire_date" size="#" type="number" value="#"]
+          "days"
+          br
+          input#already_expired [name="expiration" onclick="fUpdateStatus();" type="radio" value="expired"]
+          label [for="already_expired"]
+            "Expired / disabled"
+        fieldset.ban_settings.floatright
+          legend
+            "Restriction"
+          input#full_ban [checked name="full_ban" onclick="fUpdateStatus();" type="radio" value="#"]
+          label [for="full_ban"]
+            "Full ban"
+          br
+          input#partial_ban [name="full_ban" onclick="fUpdateStatus();" type="radio" value="#"]
+          label [for="partial_ban"]
+            "Partial ban"
+          br
+          input#cannot_post.ban_restriction [name="cannot_post" type="checkbox" value="#"]
+          label [for="cannot_post"]
+            "Cannot post"
+          "("
+          a [href="{boardurl}/index.php?action=helpadmin;help=ban_cannot_post" onclick="return reqOverlayDiv(this.href);"]
+            "?"
+          ")"
+          br
+          input#cannot_register.ban_restriction [name="cannot_register" type="checkbox" value="#"]
+          label [for="cannot_register"]
+            "Cannot register"
+          br
+          input#cannot_login.ban_restriction [name="cannot_login" type="checkbox" value="#"]
+          label [for="cannot_login"]
+            "Cannot login"
+          br
+        br.clear_right
+        fieldset
+          legend
+            input [onclick="invertAll(this, this.form, 'ban_suggestion');" type="checkbox"]
+            "Triggers"
+          dl.settings
+            dt
+              input#main_ip_check [name="ban_suggestions[]" type="checkbox" value="main_ip"]
+              label [for="main_ip_check"]
+                "Ban on IP (e.g. #.#.#-#.*)"
+            dd
+              input [name="main_ip" onfocus="document.getElementById('main_ip_check').checked = true;" size="#" type="text" value]
+            dt
+              input#hostname_check [name="ban_suggestions[]" type="checkbox" value="hostname"]
+              label [for="hostname_check"]
+                "Ban on Hostname (e.g. *.mil)"
+            dd
+              input [name="hostname" onfocus="document.getElementById('hostname_check').checked = true;" size="#" type="text" value]
+            dt
+              input#email_check [name="ban_suggestions[]" type="checkbox" value="email"]
+              label [for="email_check"]
+                "Ban on Email Address (e.g. *@badsite.com)"
+            dd
+              input [name="email" onfocus="document.getElementById('email_check').checked = true;" size="#" type="text" value]
+            dt
+              input#user_check [name="ban_suggestions[]" type="checkbox" value="user"]
+              label [for="user_check"]
+                "Ban on Username"
+            dd
+              input#user [name="user" size="#" type="text" value]
+        input.button [name="add_ban" type="submit" value="Add"]
+        input [name="old_expire" type="hidden" value="#"]
+        input [name="bg" type="hidden" value="#"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+  script
+    | var fUpdateStatus = function () { document.getElementById("expire_date").disabled = !document.getElementById("expires_one_day").checked; document.getElementById("cannot_post").disabled = document.getElementById("full_ban").checked; document.getElementById("cannot_register").disabled = document.getElementById("full_ban").checked; document.getElementById("cannot_login").disabled = document.getElementById("full_ban").checked; } addLoadEvent(fUpdateStatus); var oAddMemberSuggest = new smc_AutoSuggest({ sSessionId: smf_session_id, sSessionVar: smf_session_var, sSuggestId: 'user', sControlId: 'user', sSearchType: 'member', sTextDeleteItem: 'Delete Item', }); function confirmBan(aForm) { if (aForm.ban_name.value == '') { alert('The name of the ban was left empty'); return false; } if (aForm.partial_ban.checked && !(aForm.cannot_post.checked || aForm.cannot_register.checked || aForm.cannot_login.checked)) { alert('No restriction selected.'); return false; } }

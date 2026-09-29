@@ -1,0 +1,202 @@
+status 200
+@ title
+title
+  "Start new topic"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      span [itemprop="name"]
+        em
+          "Start new topic"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    script
+      | var icon_urls = {"xx":"{boardurl}/Themes/default/images/post/xx.png","thumbup":"{boardurl}/Themes/default/images/post/thumbup.png","thumbdown":"{boardurl}/Themes/default/images/post/thumbdown.png","exclamation":"{boardurl}/Themes/default/images/post/exclamation.png","question":"{boardurl}/Themes/default/images/post/question.png","lamp":"{boardurl}/Themes/default/images/post/lamp.png","smiley":"{boardurl}/Themes/default/images/post/smiley.png","angry":"{boardurl}/Themes/default/images/post/angry.png","cheesy":"{boardurl}/Themes/default/images/post/cheesy.png","grin":"{boardurl}/Themes/default/images/post/grin.png","sad":"{boardurl}/Themes/default/images/post/sad.png","wink":"{boardurl}/Themes/default/images/post/wink.png","poll":"{boardurl}/Themes/default/images/post/poll.png"};
+    form#postmodify.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=post#;start=#;board=#" enctype="multipart/form-data" method="post" name="postmodify" onsubmit="submitonce(this);"]
+      div#preview_section [style="display: none;"]
+        div.cat_bar
+          h3.catbg
+            span#preview_subject
+        div#preview_body.windowbg
+          br
+      br
+      div.cat_bar
+        h3.catbg
+          "Start new topic"
+      div#post_area
+        div.noup.roundframe
+          input [name="topic" type="hidden" value="#"]
+          div#errors.noticebox [style="display: none"]
+            dl
+              dt
+                strong#error_serious
+                  "The message has the following error or errors that must be corrected before continuing:"
+              dd#error_list.error
+          div#draft_section.infobox [style="display: none;"]
+            "The contents have been saved as a draft, and will be accessible from the"
+            a [href="{boardurl}/index.php?action=profile;u=#;area=showdrafts"]
+              "Show Drafts area"
+            "of your profile."
+            strong
+              "Please note that all drafts will be automatically deleted after {duration}."
+          dl#post_header
+            dt.clear.pf_subject
+              label#caption_subject [for="subject"]
+                "Subject"
+            dd.pf_subject
+              input#subject [maxlength="#" name="subject" required size="#" type="text" value]
+            dt.clear.pf_icon
+              label#caption_icon [for="icon"]
+                "Message icon"
+            dd.pf_icon
+              select#icon [name="icon" onchange="showimage();"]
+                option [selected value="xx"]
+                  "Standard"
+                option [value="thumbup"]
+                  "Thumb Up"
+                option [value="thumbdown"]
+                  "Thumb Down"
+                option [value="exclamation"]
+                  "Exclamation point"
+                option [value="question"]
+                  "Question mark"
+                option [value="lamp"]
+                  "Lamp"
+                option [value="smiley"]
+                  "Smiley"
+                option [value="angry"]
+                  "Angry"
+                option [value="cheesy"]
+                  "Cheesy"
+                option [value="grin"]
+                  "Grin"
+                option [value="sad"]
+                  "Sad"
+                option [value="wink"]
+                  "Wink"
+                option [value="poll"]
+                  "Poll"
+              img#icons [src="{boardurl}/Themes/default/images/post/xx.png"]
+          textarea#message.editor [cols="#" name="message" style="width: #%; height: #px;"]
+          input#message_mode [name="message_mode" type="hidden" value="#"]
+          script
+            | document.addEventListener("DOMContentLoaded", function () { var textarea = document.getElementById("message"), options = { "width": "#%", "height": "#px", "style": "{boardurl}/Themes/default/css/jquery.sceditor.default.css?smf#alpha#dev_#", "emoticonsCompat": true, "emoticons": { "dropdown": { ":)": { "newRow": false, "url": "smiley.png", "tooltip": "Smiley" }, ";)": { "newRow": false, "url": "wink.png", "tooltip": "Wink" }, ":D": { "newRow": false, "url": "cheesy.png", "tooltip": "Cheesy" }, ";D": { "newRow": false, "url": "grin.png", "tooltip": "Grin" }, ">:(": { "newRow": false, "url": "angry.png", "tooltip": "Angry" }, ":(": { "newRow": false, "url": "sad.png", "tooltip": "Sad" }, ":o": { "newRow": false, "url": "shocked.png", "tooltip": "Shocked" }, "#)": { "newRow": false, "url": "cool.png", "tooltip": "Cool" }, "???": { "newRow": false, "url": "huh.png", "tooltip": "Huh?" }, "::)": { "newRow": false, "url": "rolleyes.png", "tooltip": "Roll Eyes" }, ":P": { "newRow": false, "url": "tongue.png", "tooltip": "Tongue" }, ":-[": { "newRow": false, "url": "embarrassed.png", "tooltip": "Embarrassed" }, ":-X": { "newRow": false, "url": "lipsrsealed.png", "tooltip": "Lips Sealed" }, ":-\\": { "newRow": false, "url": "undecided.png", "tooltip": "Undecided" }, ":-*": { "newRow": false, "url": "kiss.png", "tooltip": "Kiss" }, ":'(": { "newRow": false, "url": "cry.png", "tooltip": "Cry" } } }, "emoticonsEnabled": true, "emoticonsRoot": "{boardurl}/Smileys/fugue/", "colors": [ [ "black", "Black" ], [ "red", "Red" ], [ "yellow", "Yellow" ], [ "pink", "Pink" ], [ "green", "Green" ], [ "orange", "Orange" ], [ "purple", "Purple" ], [ "blue", "Blue" ], [ "beige", "Beige" ], [ "brown", "Brown" ], [ "teal", "Teal" ], [ "navy", "Navy" ], [ "maroon", "Maroon" ], [ "limegreen", "Lime Green" ], [ "white", "White" ] ], "fonts": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana", "icons": "monocons", "format": "bbcode", "plugins": "smf,autolinker", "toolbar": "bold,italic,underline,strike,superscript,subscript,tt,spoiler|pre,left,center,right,justify|font,size,color|removeformat||floatleft,floatright|youtube,image,email,link,unlink|table,code,quote,details|heading,bulletlist,orderedlist,horizontalrule|maximize,source", "customTextualCommands": { "tt": { "image": "tt", "code": "tt", "description": "Inline code" }, "spoiler": { "image": "hidden", "code": "spoiler", "description": "Spoiler" }, "details": { "image": "details", "code": "details", "description": "Details" }, "heading": { "image": "heading", "code": "heading", "description": "Heading" } }, "startInSourceMode": true, "bbcodeTrim": false, "resizeWidth": false, "resizeMaxHeight": -#, "locale": "en", "rtl": false, "commandsWithDropdown": { "color": true, "heading": true, "font": true, "size": true }, "textOnlyCommands": [], "commandsWithText": [], "parserOptions": { "txtVars": { "code": "Code" } }, "autofocus": false }; sceditor.create(textarea, options, '#', '#'); });
+          div#post_attachments_area.noup.roundframe
+            div#postAttachment
+              div.padding
+                div
+                  strong
+                    "Attachments"
+                  ":"
+                  input [multiple="multiple" name="attachment[]" type="file"]
+                  input [name="MAX_FILE_SIZE" type="hidden" value="#"]
+                div.smalltext
+                  "Restrictions: {#} per post ("
+                  span.attach_remaining
+                    "#"
+                  "remaining), maximum total size , maximum individual size"
+                div.smalltext
+                  input [name="attach_del[]" type="hidden" value="#"]
+                  "Uncheck the attachments you no longer want attached"
+              div.attachments
+            div#attachment_upload
+              div#drop_zone_ui.centertext
+                div.attach_drop_zone_label
+                  "Click or drag files here to attach them."
+              div#attachment_previews.files
+                div#au-template
+                  div.attachment_preview_wrapper
+                    div.attach-ui.roundframe
+                      a.cancel.delete.floatright.main_icons [data-dz-remove]
+                      div.attached_BBC_width_height
+                        div.attached_BBC_width
+                          label
+                            span
+                              "Insert width (px):"
+                            input [min="#" name="attached_BBC_width" placeholder="auto" type="number" value]
+                        div.attached_BBC_height
+                          label
+                            span
+                              "Insert height (px):"
+                            input [min="#" name="attached_BBC_height" placeholder="auto" type="number" value]
+                    div.attach-preview
+                      img [data-dz-thumbnail]
+                    div.attachment_info
+                      span.name [data-dz-name]
+                      span.error [data-dz-errormessage]
+                      span.size [data-dz-size]
+                      span.message [data-dz-message]
+                      div.progress_bar [aria-valuemax="#" aria-valuemin="#" aria-valuenow="#" role="progressBar"]
+                        div.bar
+                div.attachment_spacer
+                  div.fallback
+                    input#attachment#.fallback [multiple="multiple" name="attachment[]" type="file"]
+                    "("
+                    a [href="javascript:void(#);" onclick="cleanFileInput('attachment#');"]
+                      "Clear attachments"
+                    ")"
+                    input [name="MAX_FILE_SIZE" type="hidden" value="#"]
+            div#max_files_progress.max_files_progress.progress_bar [aria-valuemax="#" aria-valuemin="#" aria-valuenow="#" role="progressBar"]
+              div.bar
+              div#max_files_progress_text
+          details#post_options_toggle
+            summary
+              "Other options"
+            ul#post_options.smalltext
+              li
+                input [name="notify" type="hidden" value="#"]
+                label [for="check_notify"]
+                  input#check_notify [name="notify" type="checkbox" value="#"]
+                  "Notify me of replies"
+              li
+                input [name="already_locked" type="hidden" value]
+                input [name="lock" type="hidden" value="#"]
+                label [for="check_lock"]
+                  input#check_lock [name="lock" type="checkbox" value="#"]
+                  "Lock this topic"
+              li
+                label [for="check_back"]
+                  input#check_back [name="goback" type="checkbox" value="#"]
+                  "Return to this topic"
+              li
+                label [for="check_smileys"]
+                  input#check_smileys [name="ns" type="checkbox" value="NS"]
+                  "Do not use smileys"
+          span#post_confirm_buttons
+            span.smalltext
+              "Shortcuts: ALT+S post, ALT+P preview, ALT+D save draft"
+            span.post_button_container
+              input.button [accesskey="d" name="save_draft" onclick="return confirm('This will save the text of your post, but it will not save attachments, poll or event information.');" type="submit" value="Save draft"]
+              input#id_draft [name="id_draft" type="hidden" value="#"]
+              input.button [accesskey="p" name="preview" type="submit" value="Preview"]
+              input.button [accesskey="s" name="post" onclick="return submitThisOnce(this);" type="submit" value="Post"]
+      br.clear
+      input#additional_options [name="additional_options" type="hidden" value="#"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="seqnum" type="hidden" value="#"]
+    script
+      | var oPreviewPost = new smc_preview_post({ sPreviewSectionContainerID: "preview_section", sPreviewSubjectContainerID: "preview_subject", sPreviewBodyContainerID: "preview_body", sErrorsContainerID: "errors", sErrorsSeriousContainerID: "error_serious", sErrorsListContainerID: "error_list", sCaptionContainerID: "caption_%ID%", sNewImageContainerID: "image_new_%ID%", sPostBoxContainerID: 'message', bMakePoll: false, sTxtPreviewTitle: 'Preview post', sTxtPreviewFetch: 'Fetching preview...', sSessionVar: '{session_var}', newPostsTemplate:'\n\t\t<span id="new_replies"><' + '/span>\n\t\t<div class="windowbg">\n\t\t\t<div id="msg%PostID%">\n\t\t\t<h# clas(s)="floatleft">\n\t\t\t\tPosted by %PosterName%, %PostTime%&nbsp;&##; <span class="new_posts" id="image_new_%PostID%">New<' + '/span>\n\t\t\t<' + '/h#>\n\t\t\t<br class="clear">\n\t\t\t<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">You are ignoring this user.<a hr'+'ef="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">Show me the post.<' + '/a><' + '/div>\n\t\t\t<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%<' + '/div>\n\t\t\t<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">\n\t\t\t\t<li class="post_modify">\n\t\t\t\t\t<a hr'+'ef="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"><' + '/span>Quote<' + '/a>\n\t\t\t\t<' + '/li>\n\t\t\t<' + '/ul>\n\t\t<' + '/div>', iCurrentBoard: # }); document.getElementById('post_options_toggle').addEventListener('toggle', function () { document.getElementById('additional_options').value = this.open ? '#' : '#'; }); var oEditorID = "message";

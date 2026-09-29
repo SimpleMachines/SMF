@@ -1,0 +1,177 @@
+status 200
+@ title
+title
+  "Server Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=serversettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Server Settings"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=loads;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Load Balancing"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=serversettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Server Settings"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This page allows you to change the basic settings for your forum. Be very careful with these settings, as they may render the forum dysfunctional."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Server Settings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Server Settings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=general;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=database;{session_var}={session_id}"]
+                "Database"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=cookie;{session_var}={session_id}"]
+                "Cookies and Sessions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=security;{session_var}={session_id}"]
+                "Security"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=cache;{session_var}={session_id}"]
+                "Caching"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=export;{session_var}={session_id}"]
+                "Data Export"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=serversettings;sa=loads;{session_var}={session_id}"]
+                "Load Balancing"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=phpinfo;{session_var}={session_id}"]
+                "PHP Info"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=serversettings;sa=loads;save" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Load Balancing"
+    div.information.noup
+      span.error
+        "Please note: the settings below are to be edited with care. Setting any of them too low may render your forum"
+        strong
+          "unusable"
+        "!"
+    div.information.noup
+      "The current load average is"
+      strong
+        "#.#%"
+    div.information.noup
+      "CPU(s) detected: #"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_loadavg_enable
+          span
+            label [for="loadavg_enable"]
+              "Enable load balancing by load averages"
+        dd
+          input#loadavg_enable [name="loadavg_enable" type="checkbox" value="#"]
+        dt
+          a#setting_loadavg_auto_opt
+          span
+            label [for="loadavg_auto_opt"]
+              "Threshold to disabling automatic database optimization"
+        dd
+          input#loadavg_auto_opt [min="#" name="loadavg_auto_opt" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_search
+          span
+            label [for="loadavg_search"]
+              "Threshold to disabling search"
+        dd
+          input#loadavg_search [min="#" name="loadavg_search" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_allunread
+          span
+            label [for="loadavg_allunread"]
+              "Threshold to disabling all unread topics"
+        dd
+          input#loadavg_allunread [min="#" name="loadavg_allunread" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_unreadreplies
+          span
+            label [for="loadavg_unreadreplies"]
+              "Threshold to disabling unread replies"
+        dd
+          input#loadavg_unreadreplies [min="#" name="loadavg_unreadreplies" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_show_posts
+          span
+            label [for="loadavg_show_posts"]
+              "Threshold to disabling showing user posts"
+        dd
+          input#loadavg_show_posts [min="#" name="loadavg_show_posts" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_userstats
+          span
+            label [for="loadavg_userstats"]
+              "Threshold to disabling showing user statistics"
+        dd
+          input#loadavg_userstats [min="#" name="loadavg_userstats" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_bbc
+          span
+            label [for="loadavg_bbc"]
+              "Threshold to disabling BBC formatting when showing posts"
+        dd
+          input#loadavg_bbc [min="#" name="loadavg_bbc" size="#" step="#.#" type="number" value="#"]
+        dt
+          a#setting_loadavg_forum
+          span
+            label [for="loadavg_forum"]
+              "Threshold to disabling the forum"
+              strong
+                "completely"
+        dd
+          input#loadavg_forum [min="#" name="loadavg_forum" size="#" step="#.#" type="number" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
