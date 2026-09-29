@@ -1,0 +1,193 @@
+status 200
+@ title
+title
+  "Administration Center"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Administration Center"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    strong
+      "Hello, {member}."
+    "This is your \"Administration Center\". From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things."
+    br
+    "If you have any trouble, please look at the \"Support & Credits\" page. If the information there does not help you, feel free to"
+    a [href="https://www.simplemachines.org/community/index.php" rel="noopener" target="_blank"]
+      "look to us for help"
+    "with the problem."
+    br
+    "You may also find answers to your questions or problems by clicking the"
+    span.help.main_icons [title="Help"]
+    "symbols for more information on the related functions."
+  div#update_section
+  div#admin_main_section
+    div#live_news.floatleft
+      div.cat_bar
+        h3.catbg
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          "Live from Simple Machines..."
+      div.nopadding.windowbg
+        div#smfAnnouncements
+          "You are unable to connect to simplemachines.org’s latest news file."
+    div#support_info.floatright
+      div.cat_bar
+        h3.catbg
+          a [href="{boardurl}/index.php?action=admin;area=credits"]
+            "Support Information"
+      div.nopadding.windowbg
+        div#version_details.padding
+          strong
+            "Version Information"
+          ul
+            li
+              "Forum version:"
+              em#yourVersion
+                "SMF #.# Alpha(s) #-dev"
+            li
+              "Current SMF version:"
+              em#smfVersion
+                "??"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=routine;activity=version"]
+                "(more detailed)"
+          br
+          "Forum Administrators:"
+          a [href="{boardurl}/index.php?action=profile;u=#"]
+            "{member}"
+  fieldset#group_forum.admin_group.windowbg
+    legend
+      "Main"
+    a [href="{boardurl}/index.php?action=admin;area=credits"]
+      span.large_admin_menu_icon.support
+      "Support and Credits"
+    a [href="{boardurl}/index.php?action=admin;area=news"]
+      span.large_admin_menu_icon.news
+      "News and Newsletters"
+    a [href="{boardurl}/index.php?action=admin;area=packages"]
+      span.large_admin_menu_icon.packages
+      "Package Manager"
+    a [href="{boardurl}/index.php?action=admin;area=adminlogoff"]
+      span.exit.large_admin_menu_icon
+      "End {member} Session"
+  fieldset#group_config.admin_group.windowbg
+    legend
+      "Configuration"
+    a [href="{boardurl}/index.php?action=admin;area=featuresettings"]
+      span.features.large_admin_menu_icon
+      "Features and Options"
+    a [href="{boardurl}/index.php?action=admin;area=antispam"]
+      span.large_admin_menu_icon.security
+      "Anti-Spam"
+    a [href="{boardurl}/index.php?action=admin;area=languages"]
+      span.languages.large_admin_menu_icon
+      "Languages"
+    a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;th=#"]
+      span.current_theme.large_admin_menu_icon
+      "Current Theme"
+    a [href="{boardurl}/index.php?action=admin;area=theme"]
+      span.large_admin_menu_icon.themes
+      "Themes and Layout"
+    a [href="{boardurl}/index.php?action=admin;area=modsettings"]
+      span.large_admin_menu_icon.modifications
+      "Modification Settings"
+  fieldset#group_layout.admin_group.windowbg
+    legend
+      "Forum"
+    a [href="{boardurl}/index.php?action=admin;area=manageboards"]
+      span.boards.large_admin_menu_icon
+      "Boards and Categories"
+    a [href="{boardurl}/index.php?action=admin;area=postsettings"]
+      span.large_admin_menu_icon.posts
+      "Posts and Topics"
+    a [href="{boardurl}/index.php?action=admin;area=managecalendar"]
+      span.calendar.inactive.large_admin_menu_icon
+      "Calendar"
+    a [href="{boardurl}/index.php?action=admin;area=managesearch"]
+      span.large_admin_menu_icon.search
+      "Search"
+    a [href="{boardurl}/index.php?action=admin;area=smileys"]
+      span.large_admin_menu_icon.smiley
+      "Smileys and Message Icons"
+    a [href="{boardurl}/index.php?action=admin;area=manageattachments"]
+      span.attachment.large_admin_menu_icon
+      "Attachments and Avatars"
+    a [href="{boardurl}/index.php?action=admin;area=sengines"]
+      span.engines.inactive.large_admin_menu_icon
+      "Search Engines"
+  fieldset#group_members.admin_group.windowbg
+    legend
+      "Members"
+    a [href="{boardurl}/index.php?action=admin;area=viewmembers"]
+      span.large_admin_menu_icon.members
+      "Members"
+    a [href="{boardurl}/index.php?action=admin;area=membergroups"]
+      span.large_admin_menu_icon.membergroups
+      "Membergroups"
+    a [href="{boardurl}/index.php?action=admin;area=permissions"]
+      span.large_admin_menu_icon.permissions
+      "Permissions"
+    a [href="{boardurl}/index.php?action=admin;area=regcenter"]
+      span.large_admin_menu_icon.regcenter
+      "Registration"
+    a [href="{boardurl}/index.php?action=admin;area=warnings"]
+      span.large_admin_menu_icon.warning
+      "Warnings"
+    a [href="{boardurl}/index.php?action=admin;area=ban"]
+      span.ban.large_admin_menu_icon
+      "Ban list"
+    a [href="{boardurl}/index.php?action=admin;area=paidsubscribe"]
+      span.inactive.large_admin_menu_icon.paid
+      "Paid Subscriptions"
+  fieldset#group_maintenance.admin_group.windowbg
+    legend
+      "Maintenance"
+    a [href="{boardurl}/index.php?action=admin;area=serversettings"]
+      span.large_admin_menu_icon.server
+      "Server Settings"
+    a [href="{boardurl}/index.php?action=admin;area=maintain"]
+      span.large_admin_menu_icon.maintain
+      "Forum Maintenance"
+    a [href="{boardurl}/index.php?action=admin;area=scheduledtasks"]
+      span.large_admin_menu_icon.scheduled
+      "Scheduled Tasks"
+    a [href="{boardurl}/index.php?action=admin;area=mailqueue"]
+      span.large_admin_menu_icon.mail
+      "Mail"
+    a [href="{boardurl}/index.php?action=admin;area=reports"]
+      span.large_admin_menu_icon.reports
+      "Reports"
+    a [href="{boardurl}/index.php?action=admin;area=logs"]
+      span.large_admin_menu_icon.logs
+      "Logs"
+  script [src="{boardurl}/index.php?action=viewsmfile;filename=current-version.js"]
+  script [src="{boardurl}/index.php?action=viewsmfile;filename=latest-news.js"]
+  script
+    | var oAdminIndex = new smf_AdminIndex({ bLoadAnnouncements: true, sAnnouncementTemplate: '\n\t\t\t\t\t\t\t\t<dl>\n\t\t\t\t\t\t\t\t\t%content%\n\t\t\t\t\t\t\t\t<' + '/dl>\n\t\t\t\t\t\t\t', sAnnouncementMessageTemplate: '\n\t\t\t\t\t\t\t\t<dt><a hr'+'ef="%href%">%subject%<' + '/a>%time%<' + '/dt>\n\t\t\t\t\t\t\t\t<dd>\n\t\t\t\t\t\t\t\t\t%message%\n\t\t\t\t\t\t\t\t<' + '/dd>\n\t\t\t\t\t\t\t', sAnnouncementContainerId: 'smfAnnouncements', bLoadVersions: true, sSmfVersionContainerId: 'smfVersion', sYourVersionContainerId: 'yourVersion', sVersionOutdatedTemplate: '\n\t\t\t\t\t\t\t\t<span class="alert">%currentVersion%<' + '/span>\n\t\t\t\t\t\t\t', bLoadUpdateNotification: true, sUpdateNotificationContainerId: 'update_section', sUpdateNotificationDefaultTitle: 'Update available', sUpdateNotificationDefaultMessage: 'You’re using an outdated version of SMF, which contains some bugs which have since been fixed.\n\tIt is recommended that you <a hr'+'ef="#" id="update-link" class="bbc_link strong">update your forum<' + '/a> to the latest version as soon as possible. It only takes a minute!', sUpdateNotificationTemplate: '\n\t\t\t\t\t\t\t\t<h# id(s)="update_title">\n\t\t\t\t\t\t\t\t\t%title%\n\t\t\t\t\t\t\t\t<' + '/h#>\n\t\t\t\t\t\t\t\t<div id="update_message" class="smalltext">\n\t\t\t\t\t\t\t\t\t%message%\n\t\t\t\t\t\t\t\t<' + '/div>\n\t\t\t\t\t\t\t', sUpdateNotificationLink: smf_scripturl + '?action=admin;area=packages;pgdownload;auto;package=%package%;{session_var}={session_id}' });

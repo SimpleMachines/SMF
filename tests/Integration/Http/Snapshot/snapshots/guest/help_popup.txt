@@ -1,0 +1,21 @@
+status 200
+@ head
+head
+  meta [charset="UTF-#"]
+  meta [content="noindex" name="robots"]
+  title
+    "{forum_name} - Help"
+  link [href="{boardurl}/Themes/default/css/minified_#b#c#b#f#c#ad#c#e#ac#.css?smf#alpha#dev_#" rel="stylesheet"]
+  link [href="https://use.fontawesome.com/releases/v#.#.#/css/all.css" rel="stylesheet"]
+  style
+    | img.avatar { max-width: #px !important; max-height: #px !important; }
+  noscript
+    link [href="{boardurl}/Themes/default/css/minified_#c#ea#f#a#cbce#fa#a#e#.css?smf#alpha#dev_#" rel="stylesheet"]
+  script [src="{boardurl}/Themes/default/scripts/script.js?smf#alpha#dev_#"]
+@ body
+body#help_popup
+  div.description.windowbg
+    "Registration Agreement"
+    br
+    a [href="javascript:self.close();"]
+      "Close window"

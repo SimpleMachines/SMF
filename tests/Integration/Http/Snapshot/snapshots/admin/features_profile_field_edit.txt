@@ -1,0 +1,349 @@
+status 200
+@ title
+title
+  "Edit Profile field"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "General"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this page you can create your own custom profile fields that fit in with your own forum’s requirements"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  script
+    | var startOptID = #;
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;{session_var}={session_id}" method="post"]
+    div#section_header.cat_bar
+      h3.catbg
+        "Edit Profile field"
+    div.windowbg
+      fieldset
+        legend
+          "Display Settings"
+        dl.settings
+          dt
+            a#field_name_help.help [href="{boardurl}/index.php?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="field_name"]
+                "Name"
+            br
+            span.smalltext
+              "You can use translatable tokens in this field."
+          dd
+            input#field_name [maxlength="#" name="field_name" size="#" type="text" value="{icq}"]
+          dt
+            a#field_desc_help.help [href="{boardurl}/index.php?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="field_desc"]
+                "Description"
+            br
+            span.smalltext
+              "You can use translatable tokens in this field."
+          dd
+            textarea#field_desc [cols="#" name="field_desc" rows="#"]
+              "{icq_desc}"
+          dt
+            strong
+              label [for="profile_area"]
+                "Profile Section"
+            br
+            span.smalltext
+              "Section of profile the users will be able to edit this in."
+          dd
+            select#profile_area [name="profile_area"]
+              option [value="none"]
+                "None"
+              option [value="account"]
+                "Account Settings"
+              option [selected value="forumprofile"]
+                "Forum Profile"
+              option [value="theme"]
+                "Look and Layout"
+          dt
+            a#field_reg_require.help [href="{boardurl}/index.php?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="reg"]
+                "Show on Registration"
+          dd
+            select#reg [name="reg"]
+              option [selected value="#"]
+                "No"
+              option [value="#"]
+                "Yes"
+              option [value="#"]
+                "Yes, and require entry"
+          dt
+            strong
+              label [for="display"]
+                "Show on Topic View"
+          dd
+            input#display [checked name="display" type="checkbox"]
+          dt
+            strong
+              label [for="mlist"]
+                "Show on memberlist"
+          dd
+            input#show_mlist [name="mlist" type="checkbox"]
+          dt
+            strong
+              label [for="placement"]
+                "Choose Placement"
+          dd
+            select#placement [name="placement"]
+              option [value="#"]
+                "Standard (with title)"
+              option [selected value="#"]
+                "With Icons"
+              option [value="#"]
+                "Above Signature"
+              option [value="#"]
+                "Below Signature"
+              option [value="#"]
+                "Below Avatar"
+              option [value="#"]
+                "Above Username"
+              option [value="#"]
+                "Bottom poster info"
+              option [value="#"]
+                "Before Username"
+              option [value="#"]
+                "After Username"
+          dt
+            a#field_show_enclosed.help [href="{boardurl}/index.php?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="enclose"]
+                "Show Enclosed Within Text (Optional)"
+            br
+            span.smalltext
+              "We"
+              strong
+                "strongly"
+              "recommend to use an input mask to validate the input supplied by the user."
+          dd
+            textarea#enclose [cols="#" name="enclose" rows="#"]
+              "<a class=\"icq\" href=\"//www.icq.com/people/{INPUT}\" target=\"_blank\" rel=\"noopener\" title=\"ICQ - {INPUT}\"><img src=\"{DEFAULT_IMAGES_URL}/icq.png\" alt=\"ICQ - {INPUT}\"></a>"
+      fieldset
+        legend
+          "Input Settings"
+        dl.settings
+          dt
+            strong
+              label [for="field_type"]
+                "Field Type"
+          dd
+            select#field_type [name="field_type" onchange="updateInputBoxes();"]
+              option [selected value="text"]
+                "Text"
+              option [value="textarea"]
+                "Large Text"
+              option [value="select"]
+                "Select Box"
+              option [value="radio"]
+                "Radio Button"
+              option [value="check"]
+                "Checkbox"
+          dt#max_length_dt
+            strong
+              label [for="max_length_dd"]
+                "Maximum Length"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+          dd
+            input#max_length_dd [maxlength="#" name="max_length" size="#" type="text" value="#"]
+          dt#dimension_dt
+            strong
+              label [for="dimension_dd"]
+                "Dimensions"
+          dd#dimension_dd
+            strong
+              "Rows"
+            input [maxlength="#" name="rows" size="#" type="text" value="#"]
+            strong
+              "Columns"
+            input [maxlength="#" name="cols" size="#" type="text" value="#"]
+          dt#bbc_dt
+            strong
+              label [for="bbc_dd"]
+                "Allow BBC"
+          dd
+            input#bbc_dd [name="bbc" type="checkbox"]
+          dt#options_dt
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="options_dd"]
+                "Options"
+            br
+            span.smalltext
+              "Leave option box blank to remove. Radio button selects default option."
+            br
+            span
+              "You can use translatable tokens in this field."
+          dd#options_dd
+            input [checked name="default_select" type="radio" value="#"]
+            input [name="select_option[#]" type="text" value]
+            br
+            input [checked name="default_select" type="radio" value="#"]
+            input [name="select_option[#]" type="text" value]
+            span#addopt
+            "["
+            a [href onclick="addOption(); return false;"]
+              "More"
+            "]"
+          dt#default_dt
+            strong
+              label [for="default_dd"]
+                "Default State"
+          dd
+            input#default_dd [name="default_check" type="checkbox"]
+      fieldset
+        legend
+          "Advanced Settings"
+        dl.settings
+          dt#mask_dt
+            a#custom_mask.help [href="{boardurl}/index.php?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+            strong
+              label [for="mask"]
+                "Input Mask"
+            br
+            span.smalltext
+              "For text fields an input mask can be selected to validate the data."
+          dd
+            select#mask [name="mask" onchange="updateInputBoxes();"]
+              option [value="nohtml"]
+                "No HTML"
+              option [value="email"]
+                "Valid Email"
+              option [value="number"]
+                "Numeric"
+              option [selected value="regex"]
+                "Regex (Advanced)"
+            br
+            span#regex_div
+              input [name="regex" size="#" type="text" value="~[#-#][#-#]{#,#}~i"]
+          dt
+            strong
+              label [for="private"]
+                "Privacy"
+            br
+            span.smalltext
+              "Who can see and edit this field."
+          dd
+            select#private [name="private" onchange="updateInputBoxes();"]
+              option [selected value="#"]
+                "Users can see this field; owner can edit it"
+              option [value="#"]
+                "Users can see this field; only admins can edit it"
+              option [value="#"]
+                "Users cannot see this field; owner and admins can edit it."
+              option [value="#"]
+                "This field is only visible to admins"
+          dt#can_search_dt
+            strong
+              label [for="can_search_dd"]
+                "Searchable"
+            br
+            span.smalltext
+              "Can this field be searched from the members list."
+          dd
+            input#can_search_dd [name="can_search" type="checkbox"]
+          dt
+            strong
+              label [for="can_search_check"]
+                "Active"
+            br
+            span.smalltext
+              "If not selected this field will not be shown to anyone."
+          dd
+            input#can_search_check [checked name="active" type="checkbox"]
+      input.button [name="save" type="submit" value="Save"]
+      input.button.you_sure [data-confirm="Are you sure you wish to delete this field - all related user data will be lost!" name="delete" type="submit" value="Delete"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+  script
+    | updateInputBoxes();

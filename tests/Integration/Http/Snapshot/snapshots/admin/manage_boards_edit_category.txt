@@ -1,0 +1,123 @@
+status 200
+@ title
+title
+  "Edit Category"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageboards;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Boards and Categories"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=main;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Modify Boards"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_boards" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Boards and Categories"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Edit your categories and boards here. List multiple moderators as"
+    em
+      "\"username\", \"username\""
+    ". (these must be usernames and *not* display names)"
+    br
+    "To create a new board, click the Add Board button. To make the new board a sub-board of a current board, select \"Sub-board of...\" from the Order drop down menu when creating the board."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Boards and Categories Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Boards and Categories Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageboards;sa=main;{session_var}={session_id}"]
+                "Modify Boards"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=newcat;{session_var}={session_id}"]
+                "Create new category"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#manage_boards
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageboards;sa=cat#" method="post"]
+      input [name="cat" type="hidden" value="#"]
+      div.cat_bar
+        h3.catbg
+          "Edit Category"
+      div.windowbg
+        dl.settings
+          dt
+            strong
+              "Order"
+          dd
+            select [name="cat_order"]
+          dt
+            strong
+              "Full name"
+            br
+            span.smalltext
+              "This is the name that will be displayed."
+          dd
+            input [name="cat_name" size="#" type="text" value="Snapshot fixtures"]
+          dt
+            strong
+              "Description"
+            br
+            span.smalltext
+              "A short description of your category. HTML is not allowed, you can use the following BBC tags: abbr, anchor, b, br, center, color, font, hr, i, img, iurl, left, li, list, ltr, pre, right, s, sub, sup, table, td, tr, u, url"
+          dd
+            textarea [cols="#" name="cat_desc" rows="#"]
+              "Content for the template snapshot tests."
+          dt
+            strong
+              "Collapsible"
+            br
+            span.smalltext
+              "Allow users to collapse this category"
+          dd
+            input [checked name="collapse" type="checkbox"]
+        input.button [name="edit" onclick="return !isEmptyText(this.form.cat_name);" type="submit" value="Modify"]
+        input.button.you_sure [data-confirm="Do you really want to delete this category?" name="delete" type="submit" value="Delete Category"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]

@@ -1,0 +1,56 @@
+status 200
+@ title
+title
+  "Report to moderator"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#preview_section.hidden
+      div.cat_bar
+        h3.catbg
+          span
+            "Preview"
+      div.windowbg
+        div#preview_body.post
+          br
+    div#report_form
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=reporttm;msg=#;topic=#" method="post"]
+        input [name="msg" type="hidden" value="#"]
+        div.cat_bar
+          h3.catbg
+            "Report to moderator"
+        div.windowbg
+          div#error_box.errorbox.hidden
+          p.noticebox
+            "Use this function to inform the moderators and administrators of an abusive or problematic message."
+          dl#report_post.settings
+            dt
+              label [for="report_comment"]
+                "Enter comment"
+            dd
+              textarea#report_comment [maxlength="#" name="comment" type="text"]
+          input.button [name="preview" type="submit" value="Preview"]
+          input.button [name="save" type="submit" value="Submit"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]

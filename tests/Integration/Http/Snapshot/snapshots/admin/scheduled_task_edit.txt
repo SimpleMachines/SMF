@@ -1,0 +1,87 @@
+status 200
+@ title
+title
+  "Edit Scheduled Task"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;save;tid=#" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Edit Scheduled Task"
+    div.information
+      em
+        "Note the start time should be the offset against the current server time. Current server time is: {date}"
+    div.windowbg
+      dl.settings
+        dt
+          strong
+            "Task Name"
+        dd
+          "Daily Maintenance"
+          br
+          span.smalltext
+            "Runs essential daily maintenance on the forum - should not be disabled."
+        dt
+          strong
+            label [for="regularity"]
+              "Interval"
+        dd
+          "Repeat task every"
+          input#regularity [min="#" name="regularity" onchange="if (this.value < #) this.value = #;" size="#" type="number" value="#"]
+          select [name="unit"]
+            option [value="m"]
+              "minute(s)"
+            option [value="h"]
+              "hour(s)"
+            option [selected value="d"]
+              "day(s)"
+            option [value="w"]
+              "week(s)"
+        dt
+          strong
+            label [for="start_time"]
+              "Start time"
+          br
+          span.smalltext
+            "Time when the first instance of the day should start"
+        dd
+          input#start_time [name="offset" type="time" value="#:#"]
+        dt
+          strong
+            label [for="enabled"]
+              "Enabled"
+        dd
+          input#enabled [checked name="enabled" type="checkbox"]
+      div.righttext
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+        input.button [name="save" type="submit" value="Save Changes"]

@@ -1,0 +1,95 @@
+status 200
+@ title
+title
+  "{forum_name} - Index"
+@ #category_2
+div#category_#.cat_bar
+  h3.catbg
+    a#c#
+    a [href="{boardurl}/index.php?action=unread;c=#" title="Click to see the new posts in Snapshot fixtures"]
+      "Snapshot fixtures"
+  span#category_#_upshrink.toggle_up [data-collapsed="#" style="display: none;" title="Hide Category"]
+  div.desc
+    "Content for the template snapshot tests."
+@ #category_2_boards
+div#category_#_boards
+  div#board_#.up_contain
+    div.board_icon
+      a.board_off [href="{boardurl}/index.php?action=unread;board=#.#;children" title="No New Posts"]
+    div.info
+      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+        "{board}"
+      div.board_description
+        "Topics, replies and a poll for the snapshot tests."
+    div.board_stats
+      p
+        "# post(s)"
+        br
+        "# topic(s)"
+    div.lastpost
+      p
+        strong
+          "Last post:"
+        "{date}"
+        span.postby
+          a [href="{boardurl}/index.php?topic=#.msg##new" title="{subject}"]
+            "{subject}"
+          "by"
+          a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+            "{member}"
+    div#board_#_children.children
+      p
+        strong#child_list_#
+          "Sub-Boards"
+        span
+          a [href="{boardurl}/index.php?board=#.#" title="No New Posts (# topic(s), # post(s))"]
+            "{board}"
+  div#board_#.up_contain
+    div.board_icon
+      a.board_off [href="{boardurl}/index.php?action=unread;board=#.#;children" title="No New Posts"]
+    div.info
+      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+        "{board}"
+      div.board_description
+        "A board with nothing in it."
+    div.board_stats
+      p
+        "# post(s)"
+        br
+        "# topic(s)"
+    div.lastpost
+@ #info_center
+div#info_center.roundframe
+  div.title_bar
+    h3.titlebg
+      a#upshrink_link [href="#"]
+        "{forum_name} - Info Center"
+    span#upshrink_ic.toggle_up [style="display: none;" title="Hide Info Center"]
+  div#upshrink_stats
+    div.sub_bar
+      h4.subbg
+        a [href="{boardurl}/index.php?action=stats" title="[More Stats]"]
+          span.main_icons.stats
+          "Forum Stats"
+    p.inline
+      "# post(s) in # topic(s) by # member(s) - Latest Member:"
+      strong
+        a [href="{boardurl}/index.php?action=profile;u=#"]
+          "{member}"
+      br
+      "Latest Post:"
+      strong
+        "\""
+        a [href="{boardurl}/index.php?topic=#.msg#;boardseen#new" title="{subject}"]
+          "{subject}"
+        "\""
+      "({date})"
+      br
+      a [href="{boardurl}/index.php?action=recent"]
+        "View the most recent posts on the forum."
+    div.sub_bar
+      h4.subbg
+        a [href="{boardurl}/index.php?action=who"]
+          span.main_icons.people
+          "Users Online"
+    snapshot-ignored [selector="#upshrink_stats > p:nth-of-type(#)"]
