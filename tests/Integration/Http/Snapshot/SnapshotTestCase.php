@@ -35,6 +35,13 @@ use SMF\Tests\Support\HttpResponse;
  *   SMF_UPDATE_SNAPSHOTS=1 .dev/test.sh --engine mysql --testsuite snapshot
  *
  * and read the diff before committing it.
+ *
+ * What the snapshots cannot make up for is configuration. The admin pages show
+ * the forum's settings, so a forum set up differently from a new one - with the
+ * admin password prompt switched off, say - reads differently there too. Record
+ * on a freshly installed forum, and compare against one; that is also what CI
+ * installs. Install with the web server's user, not root: a Settings_bak.php
+ * the forum cannot write puts a warning on every settings page.
  */
 abstract class SnapshotTestCase extends HttpTestCase
 {
@@ -225,6 +232,20 @@ abstract class SnapshotTestCase extends HttpTestCase
 	 * Internal methods
 	 ******************/
 
+	/**
+	 * The audience's browser, once there is one.
+	 *
+	 * A new browser costs a request to arrive at the forum and more to sign in,
+	 * and at a second or so a page over a Windows bind mount, making one per test
+	 * only to throw it away doubled the time the suite took.
+	 *
+	 * @return HttpClient The browser.
+	 */
+	protected function client(): HttpClient
+	{
+		return self::$clients[static::audience()] ?? parent::client();
+	}
+
 	protected function setUp(): void
 	{
 		parent::setUp();
@@ -236,11 +257,17 @@ abstract class SnapshotTestCase extends HttpTestCase
 		if (!isset(self::$clients[$audience])) {
 			self::$clients[$audience] = $this->http;
 
+			// The first request of a new session regenerates it, so a page recorded
+			// or a token taken from that request belongs to a session that is
+			// already gone. Arrive at the forum the way a person would first.
+			$this->http->get('');
+
 			if ($audience === 'admin') {
 				$this->signInAsAdmin();
-				$this->passAdminSecurity();
+				$this->passSecurity('?action=admin', self::adminPassword());
 			} elseif ($audience === 'member') {
 				$this->signInAsMember();
+				$this->passSecurity('?action=profile;area=account', (string) ($this->fixtures()['member_password'] ?? ''));
 			}
 		}
 
@@ -413,45 +440,40 @@ abstract class SnapshotTestCase extends HttpTestCase
 	 */
 	protected function signInAsMember(): void
 	{
-		$fixtures = $this->fixtures();
+		$response = $this->submitForm($this->http->get('?action=login'), [
+			'user' => 'snapshot_member',
+			'passwrd' => (string) ($this->fixtures()['member_password'] ?? ''),
+		], '//form[contains(@action, "action=login2")]');
 
-		for ($attempt = 0; $attempt < 2; $attempt++) {
-			$form = $this->http->get('?action=login');
-
-			$response = $this->http->submit($form, [
-				'user' => 'snapshot_member',
-				'passwrd' => (string) ($fixtures['member_password'] ?? ''),
-			], '//form[contains(@action, "action=login2")]');
-
-			if (!self::isThrottled($response)) {
-				break;
-			}
-
-			sleep(self::FLOOD_WAIT);
-		}
-
-		$this->assertSignedIn(true, 'could not sign in as the fixture member');
+		$this->assertSignedIn(true, 'could not sign in as the fixture member: ' . $response->errorText());
 	}
 
 	/**
-	 * Gets through the password prompt the admin area puts in front of an
-	 * administrator, when the forum has it switched on.
+	 * Gets through the password prompt put in front of the admin area, and of
+	 * a member's own account settings, when the forum has it switched on.
+	 *
+	 * Once given, the password is good for the rest of the session, so the
+	 * pages behind it are compared rather than the prompt. A forum with the
+	 * prompt switched off never shows it, and the pages read the same.
+	 *
+	 * @param string $path A page behind the prompt.
+	 * @param string $password The password to give.
 	 */
-	protected function passAdminSecurity(): void
+	protected function passSecurity(string $path, string $password): void
 	{
-		$page = $this->http->get('?action=admin');
+		$page = $this->http->get($path);
 		$form = '//form[.//input[@name="admin_pass"]]';
 
 		if ($page->xpath($form)->length === 0) {
 			return;
 		}
 
-		$response = $this->submitForm($page, ['admin_pass' => self::adminPassword()], $form);
+		$response = $this->submitForm($page, ['admin_pass' => $password], $form);
 
 		$this->assertSame(
 			0,
 			$response->xpath($form)->length,
-			'the admin area asked for the password again: ' . $response->errorText(),
+			$path . ' asked for the password again: ' . $response->errorText(),
 		);
 	}
 

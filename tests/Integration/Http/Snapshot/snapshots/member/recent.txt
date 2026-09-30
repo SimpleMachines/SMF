@@ -43,7 +43,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -57,11 +57,11 @@ div#content_section
           "A second topic in the child board."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
           li.you_sure
@@ -73,7 +73,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -87,11 +87,11 @@ div#content_section
           "A topic in a child board."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -99,7 +99,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -113,11 +113,11 @@ div#content_section
           "Another topic, so the board lists more than one."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -125,7 +125,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -139,11 +139,11 @@ div#content_section
           "A sticky, locked topic with a poll."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -151,7 +151,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -166,11 +166,11 @@ div#content_section
           img.smiley [alt=":)" src="{boardurl}/Smileys/fugue/smiley.png" title="Smiley"]
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -178,7 +178,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -193,14 +193,14 @@ div#content_section
             cite
               "Quote from: {member}"
             "The quoted text."
-          "A reply from the administrator."
+          "A reply from an administrator."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -208,7 +208,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -219,11 +219,11 @@ div#content_section
           "A reply from a guest."
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.windowbg
@@ -231,7 +231,7 @@ div#content_section
           "##"
         div.topic_details
           h5
-            a [href="{boardurl}/index.php?board=#.#"]
+            a [href="{boardurl}/index.php?board=#"]
               "{board}"
             "/"
             a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
@@ -259,8 +259,8 @@ div#content_section
           a.bbc_link [href="https://www.simplemachines.org" rel="noopener" target="_blank"]
             "A link"
           "and"
-          a.bbc_email [href="mailto:someone@example.com"]
-            "someone@example.com"
+          a.bbc_email [href="mailto:{email}"]
+            "{email}"
           "."
           br
           blockquote.bbc_standard_quote
@@ -301,11 +301,11 @@ div#content_section
           img.smiley [alt=";)" src="{boardurl}/Smileys/fugue/wink.png" title="Wink"]
         ul.quickbuttons.quickbuttons_recent
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#"]
+            a [href="{boardurl}/index.php?action=post;topic=#"]
               span.main_icons.reply_button
               "Reply"
           li
-            a [href="{boardurl}/index.php?action=post;topic=#.#;quote=#"]
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
               span.main_icons.quote
               "Quote"
       div.pagesection

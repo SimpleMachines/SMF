@@ -119,7 +119,7 @@ div#admin_content
             dt
               input#main_ip_check [name="ban_suggestions[]" type="checkbox" value="main_ip"]
               label [for="main_ip_check"]
-                "Ban on IP (e.g. #.#.#-#.*)"
+                "Ban on IP (e.g. #-#.*)"
             dd
               input [name="main_ip" onfocus="document.getElementById('main_ip_check').checked = true;" size="#" type="text" value]
             dt

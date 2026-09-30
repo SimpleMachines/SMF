@@ -93,9 +93,6 @@ div#admin_content
     div.cat_bar
       h3.catbg
         "General"
-    div.information.noup
-      div.centertext.strong
-        "Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable."
     div.noup.windowbg
       dl.settings
         dt
@@ -136,7 +133,7 @@ div#admin_content
             label [for="webmaster_email"]
               "Webmaster email address"
         dd
-          input#webmaster_email [name="webmaster_email" size="#" type="text" value="admin@example.com"]
+          input#webmaster_email [name="webmaster_email" size="#" type="text" value="{email}"]
       hr
       dl.settings
         dt

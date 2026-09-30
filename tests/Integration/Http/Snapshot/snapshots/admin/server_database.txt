@@ -93,9 +93,6 @@ div#admin_content
     div.cat_bar
       h3.catbg
         "Database"
-    div.information.noup
-      div.centertext.strong
-        "Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable."
     div.noup.windowbg
       dl.settings
         dt

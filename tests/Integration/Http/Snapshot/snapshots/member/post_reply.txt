@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -30,7 +30,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
       span
         strong.nav
           "Post reply ("
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -236,13 +236,13 @@ div#content_section
         div#msg#
           div
             h5.floatleft
-              "Posted by admin, {date}"
+              "Posted by Snapshot Admin, {date}"
           div#msg_#_body.list_posts.smalltext [data-msgid="#"]
             blockquote.bbc_standard_quote
               cite
                 "Quote from: Snapshot Member"
               "The quoted text."
-            "A reply from the administrator."
+            "A reply from an administrator."
           ul#msg_#_quote.quickbuttons
             li#quoteSelected_# [data-msgid="#" style="display:none;"]
               a [href="javascript:void(#)"]
@@ -291,8 +291,8 @@ div#content_section
             a.bbc_link [href="https://www.simplemachines.org" rel="noopener" target="_blank"]
               "A link"
             "and"
-            a.bbc_email [href="mailto:someone@example.com"]
-              "someone@example.com"
+            a.bbc_email [href="mailto:{email}"]
+              "{email}"
             "."
             br
             blockquote.bbc_standard_quote

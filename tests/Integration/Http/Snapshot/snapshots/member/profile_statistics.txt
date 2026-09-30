@@ -194,7 +194,7 @@ div#content_section
                 "Most popular boards by posts"
             dl.stats
               dt
-                a [href="{boardurl}/index.php?board=#.#"]
+                a [href="{boardurl}/index.php?board=#"]
                   "{board}"
               dd
                 div.profile_pie [style="background-position: -#px #;" title="# post(s) of the member’s # post(s) (#%)"]
@@ -207,7 +207,7 @@ div#content_section
                 "Most popular boards by activity"
             dl.stats
               dt
-                a [href="{boardurl}/index.php?board=#.#"]
+                a [href="{boardurl}/index.php?board=#"]
                   "{board}"
               dd
                 div.profile_pie [style="background-position: -#px #;" title="# post(s) of the board’s # post(s) (#%)"]

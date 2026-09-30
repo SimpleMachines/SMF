@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -30,7 +30,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
       span
         strong.nav
           "Modify message ("
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -116,7 +116,7 @@ div#content_section
             dd.pf_modify_reason
               input#modify_reason [maxlength="#" name="modify_reason" size="#" type="text" value]
           textarea#message.editor [cols="#" name="message" style="width: #%; height: #px;"]
-            "The first post, with [b]bold[/b], [i]italic[/i], [u]underlined[/u] and [s]struck[/s] text. [url=https://www.simplemachines.org]A link[/url] and [email]someone@example.com[/email]. [quote]An unattributed quote.[/quote] [code]echo \"code\";[/code] [list][li]One[/li][li]Two[/li][/list] [color=red]Red[/color] [size=#pt]Sized[/size] [center]Centred[/center] [table][tr][td]A[/td][td]B[/td][/tr][/table] [spoiler]Hidden[/spoiler] [hr] Smileys: :) ;)"
+            "The first post, with [b]bold[/b], [i]italic[/i], [u]underlined[/u] and [s]struck[/s] text. [url=https://www.simplemachines.org]A link[/url] and [email]{email}[/email]. [quote]An unattributed quote.[/quote] [code]echo \"code\";[/code] [list][li]One[/li][li]Two[/li][/list] [color=red]Red[/color] [size=#pt]Sized[/size] [center]Centred[/center] [table][tr][td]A[/td][td]B[/td][/tr][/table] [spoiler]Hidden[/spoiler] [hr] Smileys: :) ;)"
           input#message_mode [name="message_mode" type="hidden" value="#"]
           script
             | document.addEventListener("DOMContentLoaded", function () { var textarea = document.getElementById("message"), options = { "width": "#%", "height": "#px", "style": "{boardurl}/Themes/default/css/jquery.sceditor.default.css?smf#alpha#dev_#", "emoticonsCompat": true, "emoticons": { "dropdown": { ":)": { "newRow": false, "url": "smiley.png", "tooltip": "Smiley" }, ";)": { "newRow": false, "url": "wink.png", "tooltip": "Wink" }, ":D": { "newRow": false, "url": "cheesy.png", "tooltip": "Cheesy" }, ";D": { "newRow": false, "url": "grin.png", "tooltip": "Grin" }, ">:(": { "newRow": false, "url": "angry.png", "tooltip": "Angry" }, ":(": { "newRow": false, "url": "sad.png", "tooltip": "Sad" }, ":o": { "newRow": false, "url": "shocked.png", "tooltip": "Shocked" }, "#)": { "newRow": false, "url": "cool.png", "tooltip": "Cool" }, "???": { "newRow": false, "url": "huh.png", "tooltip": "Huh?" }, "::)": { "newRow": false, "url": "rolleyes.png", "tooltip": "Roll Eyes" }, ":P": { "newRow": false, "url": "tongue.png", "tooltip": "Tongue" }, ":-[": { "newRow": false, "url": "embarrassed.png", "tooltip": "Embarrassed" }, ":-X": { "newRow": false, "url": "lipsrsealed.png", "tooltip": "Lips Sealed" }, ":-\\": { "newRow": false, "url": "undecided.png", "tooltip": "Undecided" }, ":-*": { "newRow": false, "url": "kiss.png", "tooltip": "Kiss" }, ":'(": { "newRow": false, "url": "cry.png", "tooltip": "Cry" } } }, "emoticonsEnabled": true, "emoticonsRoot": "{boardurl}/Smileys/fugue/", "colors": [ [ "black", "Black" ], [ "red", "Red" ], [ "yellow", "Yellow" ], [ "pink", "Pink" ], [ "green", "Green" ], [ "orange", "Orange" ], [ "purple", "Purple" ], [ "blue", "Blue" ], [ "beige", "Beige" ], [ "brown", "Brown" ], [ "teal", "Teal" ], [ "navy", "Navy" ], [ "maroon", "Maroon" ], [ "limegreen", "Lime Green" ], [ "white", "White" ] ], "fonts": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana", "icons": "monocons", "format": "bbcode", "plugins": "smf,autolinker", "toolbar": "bold,italic,underline,strike,superscript,subscript,tt,spoiler|pre,left,center,right,justify|font,size,color|removeformat||floatleft,floatright|youtube,image,email,link,unlink|table,code,quote,details|heading,bulletlist,orderedlist,horizontalrule|maximize,source", "customTextualCommands": { "tt": { "image": "tt", "code": "tt", "description": "Inline code" }, "spoiler": { "image": "hidden", "code": "spoiler", "description": "Spoiler" }, "details": { "image": "details", "code": "details", "description": "Details" }, "heading": { "image": "heading", "code": "heading", "description": "Heading" } }, "startInSourceMode": true, "bbcodeTrim": false, "resizeWidth": false, "resizeMaxHeight": -#, "locale": "en", "rtl": false, "commandsWithDropdown": { "color": true, "heading": true, "font": true, "size": true }, "textOnlyCommands": [], "commandsWithText": [], "parserOptions": { "txtVars": { "code": "Code" } }, "autofocus": true }; sceditor.create(textarea, options, '#', '#'); });

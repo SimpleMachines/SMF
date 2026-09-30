@@ -189,13 +189,13 @@ div#content_section
           dt
             "Most recent IP address"
           dd
-            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#.#.#.#;u=#"]
-              "#.#.#.#"
+            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#;u=#"]
+              "#"
           dt
             "IPs used in recent posts"
           dd
-            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#.#.#.#;u=#"]
-              "#.#.#.#"
+            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#;u=#"]
+              "#"
           dt
             "IPs used in error messages"
           snapshot-ignored [selector="#tracking dd:nth-of-type(n+#)"]
@@ -220,7 +220,4 @@ div#content_section
               a [href="{boardurl}/index.php?action=profile;area=tracking;sa=user;u=#;sort=date;desc" rel="nofollow"]
                 "Date"
                 span.main_icons.sort_up
-        tbody
-          tr.windowbg
-            td.centertext [colspan="#"]
-              "No error messages from the specified user found"
+        snapshot-ignored [selector="table.table_grid tbody"]

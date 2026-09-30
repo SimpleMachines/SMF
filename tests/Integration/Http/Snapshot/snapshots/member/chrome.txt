@@ -2,16 +2,16 @@ status 200
 @ head
 head
   meta [charset="UTF-#"]
-  link [href="{boardurl}/Themes/default/css/minified_ab#f#f#a#d#a#da#fd#dbf#.css?smf#alpha#dev_#" rel="stylesheet"]
-  link [href="https://use.fontawesome.com/releases/v#.#.#/css/all.css" rel="stylesheet"]
+  link [href="{boardurl}/Themes/default/css/minified_{hash}.css?smf#alpha#dev_#" rel="stylesheet"]
+  link [href="https://use.fontawesome.com/releases/v#/css/all.css" rel="stylesheet"]
   style
     | img.avatar { max-width: #px !important; max-height: #px !important; }
   noscript
-    link [href="{boardurl}/Themes/default/css/minified_#c#ea#f#a#cbce#fa#a#e#.css?smf#alpha#dev_#" rel="stylesheet"]
+    link [href="{boardurl}/Themes/default/css/minified_{hash}.css?smf#alpha#dev_#" rel="stylesheet"]
   script
     | var smf_theme_url = "{boardurl}/Themes/default"; var smf_default_theme_url = "{boardurl}/Themes/default"; var smf_images_url = "{boardurl}/Themes/default/images"; var smf_smileys_url = "{boardurl}/Smileys"; var smf_smiley_sets = "fugue,alienine"; var smf_smiley_sets_default = "fugue"; var smf_avatars_url = "{boardurl}/avatars"; var smf_scripturl = "{boardurl}/index.php"; var smf_charset = "UTF-#"; var smf_session_id = "{session_id}"; var smf_session_var = "{session_var}"; var smf_member_id = #; var ajax_notification_text = 'Loading...'; var help_popup_heading_text = 'A little lost? Let me explain:'; var banned_text = 'Sorry Snapshot Member, you are banned from using this forum!'; var smf_txt_expand = 'Expand'; var smf_txt_shrink = 'Shrink'; var smf_collapseAlt = 'Hide Category'; var smf_expandAlt = 'Show Category'; var smf_quote_expand = false; var allow_xhjr_credentials = false;
-  script [src="https://ajax.googleapis.com/ajax/libs/jquery/#.#.#/jquery.min.js"]
-  script [src="{boardurl}/Themes/default/scripts/minified_#b#eded#c#d#c#b#d#c#.js?smf#alpha#dev_#"]
+  script [src="https://ajax.googleapis.com/ajax/libs/jquery/#/jquery.min.js"]
+  script [src="{boardurl}/Themes/default/scripts/minified_{hash}.js?smf#alpha#dev_#"]
   script
     | var new_alert_title = "{forum_name}"; var alert_timeout = #; var smf_you_sure ='Are you sure you want to do this?';
   title
@@ -137,7 +137,7 @@ body#smf.action_home
       ul
         li.copyright
           a [href="{boardurl}/index.php?action=credits" rel="noopener" target="_blank" title="License"]
-            "SMF #.# Alpha(s) #-dev © #"
+            "SMF # Alpha(s) #-dev © #"
           ","
           a [href="https://www.simplemachines.org" rel="noopener" target="_blank" title="Simple Machines"]
             "Simple Machines"

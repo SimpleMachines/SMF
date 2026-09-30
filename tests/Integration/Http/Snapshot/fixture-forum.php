@@ -22,9 +22,13 @@
  *  - Everything is marked read for every member the snapshots sign in as, so a
  *    page does not grow or lose a "new" marker depending on who has looked at
  *    what.
+ *  - Nothing is posted or received by the forum's own administrator, whose
+ *    profile is somebody else's to change. A fixture administrator does it.
  *
- * Idempotent. When the fixture category already exists nothing is created, and
- * the ids are looked up and printed instead.
+ * Idempotent. When fixtures of this version already exist nothing is created,
+ * and the ids are looked up and printed instead. Fixtures of another version
+ * are removed and built again, so that changing what is built here takes
+ * effect on every forum the suite runs against.
  *
  * Prints a single line of JSON on standard output.
  */
@@ -59,6 +63,13 @@ ob_end_clean();
 const FIXTURE_CATEGORY = 'Snapshot fixtures';
 const FIXTURE_TIME = 1579082400; // 2020-01-15 10:00:00 UTC
 const MEMBER_PASSWORD = 'snapshot-password-1';
+const FIXTURE_MEMBERS = ['snapshot_member', 'snapshot_other', 'snapshot_admin'];
+
+/**
+ * Raise this whenever what create() builds changes, so that forums holding the
+ * old fixtures get the new ones.
+ */
+const FIXTURE_VERSION = 2;
 
 $fixtures = new SnapshotFixtures();
 
@@ -74,7 +85,7 @@ final class SnapshotFixtures
 	 *********************/
 
 	/**
-	 * @var int The administrator, who creates the boards and posts some replies.
+	 * @var int The forum's administrator, who creates the boards.
 	 */
 	private int $admin;
 
@@ -100,15 +111,16 @@ final class SnapshotFixtures
 
 		$category = $this->categoryId();
 
+		if ($category !== 0 && $this->categoryDescription($category) !== self::description()) {
+			$this->remove($category);
+			$category = 0;
+		}
+
 		if ($category === 0) {
 			$this->create();
 		}
 
-		$fixtures = $this->locate();
-
-		$this->ensureEvents($fixtures['members']);
-
-		return $fixtures;
+		return $this->locate();
 	}
 
 	/******************
@@ -122,10 +134,11 @@ final class SnapshotFixtures
 	{
 		$member = $this->registerMember('snapshot_member', 'Snapshot Member');
 		$other = $this->registerMember('snapshot_other', 'Snapshot Other');
+		$admin = $this->registerMember('snapshot_admin', 'Snapshot Admin', 1);
 
 		$category = Category::create([
 			'cat_name' => FIXTURE_CATEGORY,
-			'cat_desc' => 'Content for the template snapshot tests.',
+			'cat_desc' => self::description(),
 			'move_after' => 0,
 		]);
 
@@ -175,12 +188,12 @@ final class SnapshotFixtures
 		// enough.
 		$topic = $this->post($board, 0, $member, 'Snapshot topic', self::richBody(), $time);
 		$this->post($board, $topic, 0, 'Re: Snapshot topic', 'A reply from a guest.', $time += 3600, 'Snapshot Guest');
-		$this->post($board, $topic, $this->admin, 'Re: Snapshot topic', '[quote author=Snapshot Member]The quoted text.[/quote]' . "\n" . 'A reply from the administrator.', $time += 3600);
+		$this->post($board, $topic, $admin, 'Re: Snapshot topic', '[quote author=Snapshot Member]The quoted text.[/quote]' . "\n" . 'A reply from an administrator.', $time += 3600);
 		$this->post($board, $topic, $other, 'Re: Snapshot topic', 'A reply from another member, with a smiley :)', $time += 3600);
 
-		$poll = $this->poll($this->admin, 'Which colour?', ['Red', 'Green', 'Blue']);
+		$poll = $this->poll($admin, 'Which colour?', ['Red', 'Green', 'Blue']);
 
-		$this->post($board, 0, $this->admin, 'Snapshot poll topic', 'A sticky, locked topic with a poll.', $time += 3600, '', [
+		$this->post($board, 0, $admin, 'Snapshot poll topic', 'A sticky, locked topic with a poll.', $time += 3600, '', [
 			'poll' => $poll,
 			'sticky_mode' => 1,
 			'lock_mode' => 1,
@@ -190,8 +203,38 @@ final class SnapshotFixtures
 		$this->post($child_one, 0, $other, 'Snapshot child topic', 'A topic in a child board.', $time += 3600);
 		$this->post($child_one, 0, $member, 'Snapshot second child topic', 'A second topic in the child board.', $time += 3600);
 
-		$this->personalMessage($other, [$member, $this->admin], 'Snapshot message', 'A personal message to two people.', $time += 3600);
+		$this->personalMessage($other, [$member, $admin], 'Snapshot message', 'A personal message to two people.', $time += 3600);
 
+		// In the same month as everything else, which is the month the calendar
+		// snapshots look at. One with a time and one lasting all day, since the
+		// calendar draws the two differently.
+		SMF\Calendar\Event::create([
+			'board' => 0,
+			'topic' => 0,
+			'member' => $member,
+			'title' => 'Snapshot event',
+			'location' => 'Snapshot location',
+			'start_date' => '2020-01-20',
+			'end_date' => '2020-01-20',
+			'start_time' => '10:00',
+			'end_time' => '11:30',
+			'timezone' => 'UTC',
+			'allday' => false,
+		]);
+
+		SMF\Calendar\Event::create([
+			'board' => 0,
+			'topic' => 0,
+			'member' => $other,
+			'title' => 'Snapshot all day event',
+			'location' => '',
+			'start_date' => '2020-01-22',
+			'end_date' => '2020-01-23',
+			'start_time' => '00:00',
+			'end_time' => '00:00',
+			'timezone' => 'UTC',
+			'allday' => true,
+		]);
 
 		// Every visit to a topic counts as a view, and "1 view" is worded
 		// differently from "2 views", so the count starts high enough that
@@ -203,59 +246,47 @@ final class SnapshotFixtures
 			['views' => 10, 'boards' => [$board, $child_one]],
 		);
 
-		$this->pinMembers([$member, $other], $time);
-		$this->markEverythingRead([$this->admin, $member, $other]);
+		$this->pinMembers([$member, $other, $admin], $time);
+		$this->markEverythingRead([$this->admin, $member, $other, $admin]);
 	}
 
 	/**
-	 * Creates the calendar events, when they are not there yet.
+	 * Removes fixtures built by another version of this script.
 	 *
-	 * Separate from create() so that a forum whose fixtures were built before
-	 * the calendar snapshots existed gets them too.
-	 *
-	 * @param array $members The fixture members, by name.
+	 * @param int $category The fixture category.
 	 */
-	private function ensureEvents(array $members): void
+	private function remove(int $category): void
 	{
-		$row = $this->queryRow(
-			'SELECT id_event FROM {db_prefix}calendar WHERE title = {string:title}',
-			['title' => 'Snapshot event'],
+		// The boards go with it, and the topics with them.
+		Category::delete([$category]);
+
+		$members = $this->column(
+			'SELECT member_name, id_member FROM {db_prefix}members WHERE member_name IN ({array_string:names})',
+			['names' => FIXTURE_MEMBERS],
 		);
 
-		if ($row !== null) {
-			return;
+		if ($members !== []) {
+			User::delete(array_values($members));
 		}
 
-		// In the same month as everything else, which is the month the calendar
-		// snapshots look at. One with a time and one lasting all day, since the
-		// calendar draws the two differently.
-			SMF\Calendar\Event::create([
-				'board' => 0,
-				'topic' => 0,
-				'member' => $members['snapshot_member'],
-				'title' => 'Snapshot event',
-				'location' => 'Snapshot location',
-				'start_date' => '2020-01-20',
-				'end_date' => '2020-01-20',
-				'start_time' => '10:00',
-				'end_time' => '11:30',
-				'timezone' => 'UTC',
-				'allday' => false,
-			]);
+		$pms = $this->column(
+			'SELECT id_pm, id_pm FROM {db_prefix}personal_messages WHERE subject = {string:subject}',
+			['subject' => 'Snapshot message'],
+		);
 
-			SMF\Calendar\Event::create([
-				'board' => 0,
-				'topic' => 0,
-				'member' => $members['snapshot_other'],
-				'title' => 'Snapshot all day event',
-				'location' => '',
-				'start_date' => '2020-01-22',
-				'end_date' => '2020-01-23',
-				'start_time' => '00:00',
-				'end_time' => '00:00',
-				'timezone' => 'UTC',
-				'allday' => true,
-			]);
+		if ($pms !== []) {
+			foreach (['pm_recipients', 'personal_messages'] as $table) {
+				Db::$db->query(
+					'DELETE FROM {db_prefix}' . $table . ' WHERE id_pm IN ({array_int:pms})',
+					['pms' => array_keys($pms)],
+				);
+			}
+		}
+
+		Db::$db->query(
+			'DELETE FROM {db_prefix}calendar WHERE title IN ({array_string:titles})',
+			['titles' => ['Snapshot event', 'Snapshot all day event']],
+		);
 	}
 
 	/**
@@ -290,7 +321,7 @@ final class SnapshotFixtures
 
 		$members = $this->column(
 			'SELECT member_name, id_member FROM {db_prefix}members WHERE member_name IN ({array_string:names})',
-			['names' => ['snapshot_member', 'snapshot_other']],
+			['names' => FIXTURE_MEMBERS],
 		);
 
 		$pm = $this->column(
@@ -382,7 +413,7 @@ final class SnapshotFixtures
 				'change_vote' => 'int',
 				'guest_vote' => 'int',
 			],
-			[[$question, 0, 1, 0, $poster, 'admin', 0, 0]],
+			[[$question, 0, 1, 0, $poster, 'snapshot_admin', 0, 0]],
 			['id_poll'],
 			Db::INSERT_RETURN_MODE_SINGLE,
 		);
@@ -457,9 +488,10 @@ final class SnapshotFixtures
 	 *
 	 * @param string $name The member name.
 	 * @param string $display The display name.
+	 * @param int $group Their primary membergroup, 0 for none.
 	 * @return int The member id.
 	 */
-	private function registerMember(string $name, string $display): int
+	private function registerMember(string $name, string $display, int $group = 0): int
 	{
 		$options = [
 			'interface' => 'admin',
@@ -472,7 +504,7 @@ final class SnapshotFixtures
 			'check_email_ban' => false,
 			'send_welcome_email' => false,
 			'require' => 'nothing',
-			'memberGroup' => 0,
+			'memberGroup' => $group,
 		];
 
 		$id = SMF\Actions\Register2::registerMember($options, true);
@@ -561,6 +593,22 @@ final class SnapshotFixtures
 	}
 
 	/**
+	 * What a category is described as.
+	 *
+	 * @param int $category The category.
+	 * @return string The description.
+	 */
+	private function categoryDescription(int $category): string
+	{
+		$row = $this->queryRow(
+			'SELECT description FROM {db_prefix}categories WHERE id_cat = {int:cat}',
+			['cat' => $category],
+		);
+
+		return (string) ($row['description'] ?? '');
+	}
+
+	/**
 	 * The fixture category, if it has been made.
 	 *
 	 * @return int Its id, or 0.
@@ -630,6 +678,17 @@ final class SnapshotFixtures
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * What the fixture category is described as, which says which version of
+	 * this script built it.
+	 *
+	 * @return string The description.
+	 */
+	private static function description(): string
+	{
+		return 'Content for the template snapshot tests, version ' . FIXTURE_VERSION . '.';
+	}
 
 	/**
 	 * A first post that exercises as much of the BBCode parser's output as a

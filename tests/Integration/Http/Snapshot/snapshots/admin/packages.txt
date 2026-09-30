@@ -89,9 +89,9 @@ div#admin_content
       br
       "If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to."
     script
-      | window.smfForum_scripturl = smf_scripturl; window.smfForum_sessionid = smf_session_id; window.smfForum_sessionvar = smf_session_var; window.smfInstalledPackages = [""]; window.smfVersion = "SMF #.# Alpha(s) #-dev";
+      | window.smfForum_scripturl = smf_scripturl; window.smfForum_sessionid = smf_session_id; window.smfForum_sessionvar = smf_session_var; window.smfInstalledPackages = [""]; window.smfVersion = "SMF # Alpha(s) #-dev";
     div#yourVersion [style="display:none"]
-      "SMF #.# Alpha(s) #-dev"
+      "SMF # Alpha(s) #-dev"
     script [src="{boardurl}/index.php?action=viewsmfile;filename=latest-news.js"]
     script
       | var oAdminIndex = new smf_AdminIndex({ bLoadAnnouncements: false, bLoadVersions: false, bLoadUpdateNotification: true, sUpdateNotificationContainerId: 'update_section', sUpdateNotificationDefaultTitle: 'Update available', sUpdateNotificationDefaultMessage: 'You’re using an outdated version of SMF, which contains some bugs which have since been fixed.\n\tIt is recommended that you <a hr'+'ef="#" id="update-link" class="bbc_link strong">update your forum<' + '/a> to the latest version as soon as possible. It only takes a minute!', sUpdateNotificationTemplate: '\n\t\t\t\t\t\t<h# id(s)="update_title">\n\t\t\t\t\t\t\t%title%\n\t\t\t\t\t\t<' + '/h#>\n\t\t\t\t\t\t<div id="update_message" class="smalltext">\n\t\t\t\t\t\t\t%message%\n\t\t\t\t\t\t<' + '/div>\n\t\t\t\t\t', sUpdateNotificationLink: smf_scripturl + '?action=admin;area=packages;pgdownload;auto;package=%package%;{session_var}={session_id}' });
@@ -118,24 +118,22 @@ div#admin_content
           dd
             a#revert [name="revert"]
             select#ve [name="version_emulate"]
-              option [value="#.# RC(s)#"]
-                "#.# RC(s)#"
-              option [value="#.#"]
-                "#.#"
-              option [value="#.#.#"]
-                "#.#.#"
-              option [value="#.# Beta(s) #"]
-                "#.# Beta(s) #"
-              option [value="#.# RC(s)#"]
-                "#.# RC(s)#"
-              option [value="#.#.#"]
-                "#.#.#"
-              option [selected="selected" value="#.# Alpha(s) #-dev"]
-                "#.# Alpha(s) #-dev"
+              option [value="# RC(s)#"]
+                "# RC(s)#"
+              option [value="#"]
+                "#"
+              option [value="# Beta(s) #"]
+                "# Beta(s) #"
+              option [value="# RC(s)#"]
+                "# RC(s)#"
+              option [value="#"]
+                "#"
+              option [selected="selected" value="# Alpha(s) #-dev"]
+                "# Alpha(s) #-dev"
         div.padding.righttext
           input.button [type="submit" value="Apply"]
     input [name="action" type="hidden" value="admin"]
     input [name="area" type="hidden" value="packages"]
     input [name="sa" type="hidden" value="browse"]
   script
-    | var oAdvancedPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: true, aSwappableContainers: [ 'advanced_panel_div' ], aSwapImages: [ { sId: 'advanced_panel_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'advanced_panel_link', msgExpanded: 'Emulation Support', msgCollapsed: 'Emulation Support' } ] }); function revert() { var default_version = "#.# Alpha(s) #-dev"; $("#ve").find("option").filter(function(index) { return default_version === $(this).text(); }).attr("selected", "selected"); return false; }
+    | var oAdvancedPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: true, aSwappableContainers: [ 'advanced_panel_div' ], aSwapImages: [ { sId: 'advanced_panel_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'advanced_panel_link', msgExpanded: 'Emulation Support', msgCollapsed: 'Emulation Support' } ] }); function revert() { var default_version = "# Alpha(s) #-dev"; $("#ve").find("option").filter(function(index) { return default_version === $(this).text(); }).attr("selected", "selected"); return false; }

@@ -305,7 +305,7 @@ div#admin_content
                 "Regex (Advanced)"
             br
             span#regex_div
-              input [name="regex" size="#" type="text" value="~[#-#][#-#]{#,#}~i"]
+              input [name="regex" size="#" type="text" value="~[#-#][#-#]{#}~i"]
           dt
             strong
               label [for="private"]

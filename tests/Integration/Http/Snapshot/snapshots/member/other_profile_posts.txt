@@ -128,7 +128,7 @@ div#content_section
         div.topic_details
           h4
             strong
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]
@@ -153,7 +153,7 @@ div#content_section
         div.topic_details
           h4
             strong
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]
@@ -178,7 +178,7 @@ div#content_section
         div.topic_details
           h4
             strong
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]

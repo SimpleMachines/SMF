@@ -114,7 +114,7 @@ div#content_section
             dt
               "Posts"
             dd
-              "# (#.# per(s) day)"
+              "# (# per(s) day)"
             dt
               "Personal text"
             dd

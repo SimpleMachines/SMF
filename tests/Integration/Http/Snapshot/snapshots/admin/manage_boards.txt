@@ -94,7 +94,7 @@ div#admin_content
         ul#category_#.nolist
           li.windowbg [style="padding-inline-start: #px;"]
             span.floatleft
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
             span.floatright
               a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]

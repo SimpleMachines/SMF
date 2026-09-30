@@ -125,7 +125,7 @@ div#admin_content
           strong
             "Total files remaining"
         dd
-          "#,#"
+          "#"
     div.cat_bar
       h3.catbg
         "Attachment integrity check"

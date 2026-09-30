@@ -110,7 +110,7 @@ div#content_section
               "Top # Board(s)"
           dl.stats
             dt
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
             dd.generic_bar.righttext.statsbar
               snapshot-ignored [selector=".statsbar > .bar"]
@@ -123,7 +123,7 @@ div#content_section
               "Top # Topic(s) (by Replies)"
           dl.stats
             dt
-              a [href="{boardurl}/index.php?topic=#.#"]
+              a [href="{boardurl}/index.php?topic=#"]
                 "{subject}"
             dd.generic_bar.righttext.statsbar
               snapshot-ignored [selector=".statsbar > .bar"]
@@ -136,7 +136,7 @@ div#content_section
               "Top # Topic(s) (by Views)"
           dl.stats
             dt
-              a [href="{boardurl}/index.php?topic=#.#"]
+              a [href="{boardurl}/index.php?topic=#"]
                 "{subject}"
             dd.generic_bar.righttext.statsbar
               snapshot-ignored [selector=".statsbar > .bar"]

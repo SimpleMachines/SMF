@@ -7,7 +7,8 @@
  *   php tests/Integration/Http/Snapshot/perturb-forum.php [scale]
  *
  * ONLY RUN THIS ON A FORUM YOU ARE GOING TO THROW AWAY. It registers members,
- * creates categories and boards and posts, and does not clean up after itself.
+ * creates categories and boards and posts, changes the administrator's profile,
+ * and does not clean up after itself.
  *
  * Everything it makes is outside the fixture category, so a snapshot that
  * changes afterwards is showing somebody else's content, and needs scoping or
@@ -188,5 +189,23 @@ foreach (array_slice($members, 0, $scale) as $i => $from) {
 		'username' => 'perturb_' . $run . '_' . $i,
 	]);
 }
+
+// The forum's own administrator is somebody else's to change, and nothing in
+// the fixtures may depend on what their profile says.
+Db::$db->query(
+	'UPDATE {db_prefix}members
+	SET signature = {string:signature},
+		personal_text = {string:personal_text},
+		website_title = {string:website_title},
+		website_url = {string:website_url}
+	WHERE id_member = {int:admin}',
+	[
+		'admin' => (int) $admin,
+		'signature' => 'A signature the administrator added in run ' . $run . '.',
+		'personal_text' => 'Personal text ' . $run,
+		'website_title' => 'Site ' . $run,
+		'website_url' => 'https://www.example.org/' . $run,
+	],
+);
 
 echo 'added ', count($members), ' members, ', count($boards), ' boards and ', $scale, ' topics (run ', $run, ")\n";
