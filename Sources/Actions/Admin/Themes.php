@@ -366,7 +366,7 @@ class Themes implements ActionInterface
 
 			// There has to be a Settings template!
 			foreach (Utils::$context['themes'] as $k => $v) {
-				if (empty($v['theme_dir']) || (!file_exists($v['theme_dir'] . '/Settings.template.php') && empty($v['num_members']))) {
+				if (empty($v['theme_dir']) || (!file_exists($v['theme_dir'] . '/Settings.template.php') && !is_dir($v['theme_dir'] . '/' . TemplateEngine::DIRECTORY . '/Settings') && empty($v['num_members']))) {
 					unset(Utils::$context['themes'][$k]);
 				}
 			}
