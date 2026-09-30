@@ -96,19 +96,6 @@ abstract class HttpTestCase extends IntegrationTestCase
 		parent::setUp();
 
 		$this->http = new HttpClient();
-
-		// Arrive at the forum before doing anything else, which is what a person
-		// does and what the tests below depend on.
-		//
-		// The very first request of a new session regenerates it - SMF sets a
-		// guest login cookie, and Cookie::setLoginCookie() throws the session
-		// away and starts another whenever that value changes. Anything minted
-		// earlier in that same request is minted against the session that just
-		// went away, so a security token taken from the first page a visitor
-		// ever sees can never be validated. Posting that form comes back 403,
-		// "Token verification failed", with nothing to suggest the token was
-		// fine and the session underneath it was not.
-		$this->http->get('');
 	}
 
 	/**
@@ -121,6 +108,9 @@ abstract class HttpTestCase extends IntegrationTestCase
 	 */
 	protected function signInAsAdmin(): HttpResponse
 	{
+		// Load a fresh token first.
+		$this->http->get('');
+
 		$response = $this->attemptSignIn();
 
 		if (self::isThrottled($response)) {
@@ -184,12 +174,17 @@ abstract class HttpTestCase extends IntegrationTestCase
 	 *
 	 * @param bool $expected Whether we should be signed in.
 	 * @param string $message What was being checked.
+	 * @param HttpResponse|null $page The page to inspect.
 	 */
-	protected function assertSignedIn(bool $expected, string $message = ''): void
+	protected function assertSignedIn(bool $expected, string $message = '', ?HttpResponse $page = null): void
 	{
-		$signed_in = $this->fetch('')->xpath('//a[contains(@href, "action=logout")]')->length > 0;
+		$signed_in = ($page ?? $this->http->get(''))->xpath('//a[contains(@href, "action=logout")]')->length > 0;
 
-		$this->assertSame($expected, $signed_in, $message !== '' ? $message : ($expected ? 'not signed in' : 'still signed in'));
+		$this->assertSame(
+			$expected,
+			$signed_in,
+			$message !== '' ? $message : ($expected ? 'not signed in' : 'still signed in'),
+		);
 	}
 
 	/**
