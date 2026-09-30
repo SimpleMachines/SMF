@@ -170,6 +170,11 @@ class TemplateEngine
 		unset($this->loaded[$template]);
 
 		$this->loaded[$template] = $file;
+
+		// Templates that others call by name get functions of that name.
+		if ($file === null) {
+			self::defineFunctions($template);
+		}
 	}
 
 	/**
@@ -359,5 +364,20 @@ class TemplateEngine
 		$names = array_map(fn($param) => $param->getName(), (new \ReflectionFunction($function))->getParameters());
 
 		return array_diff(array_keys($params), $names) === [] ? $params : array_values($params);
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Defines the template_*() functions that other templates call by name,
+	 * for a template that is now a Plates template.
+	 *
+	 * @param string $template The name of the template that was loaded.
+	 */
+	protected static function defineFunctions(string $template): void
+	{
+		include __DIR__ . '/TemplateFunctions.php';
 	}
 }

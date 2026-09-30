@@ -167,11 +167,7 @@ Utils::$context['removableMessageIDs'] = [];
 
 		</div><?php endif; ?>
 
-		</div><?php
-// Show the lower breadcrumbs.
-theme_linktree();
-// Moderation buttons
-?>
+		</div><?php /* Show the lower breadcrumbs. */ ?><?php $this->subTemplate('linktree'); ?><?php /* Moderation buttons */ ?>
 
 		<div id="moderationbuttons">
 			<?php $this->subTemplate('button_strip', ['button_strip' => Utils::$context['mod_buttons'], 'direction' => 'bottom', 'strip_options' => ['id' => 'moderationbuttons_strip']]); ?>

@@ -7,6 +7,7 @@ namespace SMF\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use SMF\TemplateEngine;
+use SMF\Theme;
 
 /**
  * Covers how SMF\TemplateEngine finds the Plates template for a sub-template.
@@ -311,6 +312,35 @@ class TemplateEngineTest extends TestCase
 
 		$this->assertSame('general!', $engine->fetchSubTemplate('engine_test_names', ['board' => ['name' => 'general']]));
 		$this->assertSame('general?', $engine->fetchSubTemplate('engine_test_names', ['b' => ['name' => 'general'], 'extra' => '?']));
+	}
+
+	/**
+	 * Mods and themes call template_button_strip() and friends from templates
+	 * of their own. Loading the Plates template that holds them defines them.
+	 */
+	public function testLoadingThePlatesIndexTemplateDefinesTheFunctionsModsCall(): void
+	{
+		$this->write($this->default, 'index/button_strip.php', 'strip <?= implode(\',\', array_keys($button_strip)) ?> <?= $direction ?>|');
+		$this->write($this->default, 'index/quickbuttons.php', 'buttons <?= $list_class ?>|');
+
+		$current = Theme::$current;
+		Theme::$current = (object) ['settings' => ['template_dirs' => [$this->default]]];
+
+		try {
+			TemplateEngine::get()->addLoaded('index');
+
+			ob_start();
+			template_button_strip(['home' => [], 'search' => []], 'right');
+			$echoed = template_quickbuttons([], 'post');
+			$returned = template_quickbuttons([], 'post', 'return');
+			$output = ob_get_clean();
+		} finally {
+			Theme::$current = $current;
+		}
+
+		$this->assertSame('strip home,search right|buttons post|', $output);
+		$this->assertNull($echoed);
+		$this->assertSame('buttons post|', $returned);
 	}
 
 	public function testRenderSubTemplateOutputsWhatItFinds(): void

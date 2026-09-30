@@ -770,8 +770,8 @@ class Themes implements ActionInterface
 		// Load the variants separately...
 		Theme::$current->settings['theme_variants'] = [];
 
-		if (file_exists(Theme::$current->settings['theme_dir'] . '/index.template.php')) {
-			$file_contents = implode('', file(Theme::$current->settings['theme_dir'] . '/index.template.php'));
+		if (($init_file = Theme::templateInitFile(Theme::$current->settings['theme_dir'])) !== null) {
+			$file_contents = implode('', file($init_file));
 
 			if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
 				eval('use SMF\\Theme; global $settings; ' . $matches[0]);
@@ -1056,7 +1056,7 @@ class Themes implements ActionInterface
 
 			foreach (Utils::$context['themes'] as $key => $theme) {
 				// There has to be a Settings template!
-				if (!file_exists($theme['theme_dir'] . '/index.template.php') && !file_exists($theme['theme_dir'] . '/css/index.css')) {
+				if (Theme::templateInitFile($theme['theme_dir']) === null && !file_exists($theme['theme_dir'] . '/css/index.css')) {
 					unset(Utils::$context['themes'][$key]);
 				} else {
 					Utils::$context['themes'][$key]['can_edit_style'] = file_exists($theme['theme_dir'] . '/css/index.css');
@@ -1076,7 +1076,7 @@ class Themes implements ActionInterface
 		Utils::$context['theme_id'] = $currentTheme['id'];
 		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme, file: 'Themes');
 
-		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
+		if (Theme::templateInitFile($currentTheme['theme_dir']) === null && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
 		}
 
@@ -1589,7 +1589,6 @@ class Themes implements ActionInterface
 		// Copy over the default non-theme files.
 		$to_copy = [
 			'/index.php',
-			'/index.template.php',
 			'/css/admin.css',
 			'/css/calendar.css',
 			'/css/calendar.rtl.css',
@@ -1605,6 +1604,9 @@ class Themes implements ActionInterface
 			copy(Theme::$current->settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
 			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, '0777');
 		}
+
+		// And the index template, which holds the layout and the theme's settings.
+		$this->copyPlatesTemplate('index', Utils::$context['to_install']['theme_dir']);
 
 		// And now the entire images directory!
 		PackageUtils::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
