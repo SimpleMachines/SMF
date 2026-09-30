@@ -36,7 +36,6 @@ if (!defined('SMF')) {
 			<div class="windowbg">
 				<p class="centertext">
 					<?= Lang::getTxt('mc_unapproved_' . Utils::$context['current_view'] . '_none_found', file: 'ModerationCenter') ?>
-
 				</p>
 			</div>
 <?php else: ?>
@@ -85,7 +84,6 @@ $quickbuttons = [
 					<div class="post"><?= Utils::adjustHeadingLevels($item['body'], 5) ?></div>
 				</div>
 				<?php $this->subTemplate('quickbuttons', ['list_items' => $quickbuttons, 'list_class' => 'unapproved_posts']); ?>
-
 			</div><!-- .windowbg -->
 <?php endforeach; ?>
 			<div class="pagesection">

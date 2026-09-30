@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A list of watched users
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=moderate;area=userwatch" id="watched_users_link"><?= Lang::getTxt('mc_watched_users', file: 'ModerationCenter') ?></a>

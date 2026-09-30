@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Adding a new smiley.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=smileys;sa=addsmiley" method="post" accept-charset="UTF-8" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('smileys_add_method', file: 'ManageSmileys') ?></h3>
@@ -82,7 +81,6 @@ if (!defined('SMF')) {
 					</dt>
 					<dt class="upload_sameall">
 						<?= Lang::getTxt('smileys_add_upload_choose_desc', file: 'ManageSmileys') ?>
-
 					</dt>
 					<dd class="upload_sameall">
 						<input type="file" name="uploadSmiley" id="uploadSmiley" onchange="selectMethod('upload');">
@@ -122,15 +120,12 @@ if (!defined('SMF')) {
 					<select name="smiley_location" id="smiley_location">
 						<option value="0" selected>
 							<?= Lang::getTxt('smileys_location_form', file: 'ManageSmileys') ?>
-
 						</option>
 						<option value="1">
 							<?= Lang::getTxt('smileys_location_hidden', file: 'ManageSmileys') ?>
-
 						</option>
 						<option value="2">
 							<?= Lang::getTxt('smileys_location_popup', file: 'ManageSmileys') ?>
-
 						</option>
 					</select>
 				</dd>

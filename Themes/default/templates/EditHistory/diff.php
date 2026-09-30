@@ -28,7 +28,6 @@ if (!defined('SMF')) {
 		<meta name="robots" content="noindex">
 		<title><?= Utils::$context['page_title'] ?></title>
 		<?= Theme::template_css() ?>
-
 		<script src="<?= Theme::$current->settings['default_theme_url'] ?>/scripts/script.js<?= Utils::$context['browser_cache'] ?>"></script>
 	</head>
 	<body id="help_popup">

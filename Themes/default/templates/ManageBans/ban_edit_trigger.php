@@ -23,13 +23,11 @@ if (!defined('SMF')) {
  * Add or edit a ban trigger
  */
 ?>
-
 	<div id="manage_bans">
 		<form id="admin_form_wrapper" action="<?= Utils::$context['form_url'] ?>" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt(Utils::$context['ban_trigger']['is_new'] ? 'ban_add_trigger' : 'ban_edit_trigger_title', file: 'Admin') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -37,7 +35,6 @@ if (!defined('SMF')) {
 <?php if (Utils::$context['ban_trigger']['is_new']): ?>
 					<legend>
 						<input type="checkbox" onclick="invertAll(this, this.form, 'ban_suggestion');"> <?= Lang::getTxt('ban_triggers', file: 'Admin') ?>
-
 					</legend>
 <?php endif; ?>
 					<dl class="settings">

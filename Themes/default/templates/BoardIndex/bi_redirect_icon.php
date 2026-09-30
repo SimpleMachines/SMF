@@ -21,5 +21,4 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?>
-
 		<a href="<?= $board['href'] ?>" class="board_<?= $board['board_class'] ?>"<?= !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '' ?>></a>

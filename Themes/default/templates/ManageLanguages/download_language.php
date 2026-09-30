@@ -23,53 +23,40 @@ if (!defined('SMF')) {
  * Download a new language file.
  */
 ?><?php /* Actually finished? */ ?><?php if (!empty(Utils::$context['install_complete'])): ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Lang::getTxt('languages_download_complete', file: 'ManageSettings') ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">
 			<?= Utils::$context['install_complete'] ?>
-
 		</div><?php return; ?><?php endif; ?><?php /* An error? */ ?><?php if (!empty(Utils::$context['error_message'])): ?>
-
 	<div class="errorbox">
 		<?= Utils::$context['error_message'] ?>
-
 	</div><?php endif; ?><?php /* Provide something of an introduction... */ ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=languages;sa=downloadlang;did=<?= Utils::$context['download_id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('languages_download', file: 'ManageSettings') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
 				<p>
 					<?= Lang::getTxt('languages_download_note', file: 'ManageSettings') ?>
-
 				</p>
 				<div class="smalltext">
 					<?= Lang::getTxt('languages_download_info', file: 'ManageSettings') ?>
-
 				</div>
 			</div><?php /* Show the main files. */ ?><?php $this->subTemplate('show_list', ['list_id' => 'lang_main_files_list']); ?><?php
 // Do we want some FTP baby?
 // If the files are not writable, we might!
 ?><?php if (!empty(Utils::$context['still_not_writable'])): ?><?php if (!empty(Utils::$context['package_ftp']['error'])): ?>
-
 			<div class="errorbox">
 				<?= Utils::$context['package_ftp']['error'] ?>
-
 			</div><?php endif; ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('package_ftp_necessary', file: 'Packages') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -82,7 +69,6 @@ if (!defined('SMF')) {
 						<div class="floatright">
 							<label for="ftp_port">
 								<?= Lang::getTxt('package_ftp_port', file: 'Packages') ?>
-
 							</label>
 							<input type="text" size="3" name="ftp_port" id="ftp_port" value="<?= Utils::$context['package_ftp']['port'] ?? (Config::$modSettings['package_port'] ?? '21') ?>">
 						</div>
@@ -111,7 +97,6 @@ if (!defined('SMF')) {
 					</dd>
 				</dl>
 			</div><!-- .windowbg --><?php endif; ?><?php /* Install? */ ?>
-
 			<div class="righttext padding">
 				<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
 				<input type="hidden" name="<?= Utils::$context['admin-dlang_token_var'] ?>" value="<?= Utils::$context['admin-dlang_token'] ?>">

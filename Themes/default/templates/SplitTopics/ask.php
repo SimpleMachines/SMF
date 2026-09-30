@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The form that asks how you want to split things
  */
 ?>
-
 	<div id="split_topics">
 		<form action="<?= Config::$scripturl ?>?action=splittopics;sa=split;topic=<?= Utils::$context['current_topic'] ?>.0" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="at" value="<?= Utils::$context['message']['id'] ?>">

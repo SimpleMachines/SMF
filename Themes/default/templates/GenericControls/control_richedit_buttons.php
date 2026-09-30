@@ -29,21 +29,16 @@ if (!defined('SMF')) {
  * @param string $editor_id The unique ID of the editor for which buttons are displayed.
  */
 ?><?php $editor_context = Editor::$loaded[$editor_id]; ?>
-
 		<span class="smalltext">
 			<?= Utils::$context['shortcuts_text'] ?>
-
 		</span>
 		<span class="post_button_container"><?php foreach (Utils::$context['richedit_buttons'] as $name => $button): ?><?php if ($name == 'preview'): ?><?php
 $button['value'] = $editor_context['labels']['preview_button'] ?? $button['value'];
 $button['show'] = $editor_context['preview_type'];
 ?><?php endif; ?><?php if ($button['show']): ?>
-
 		<input type="<?= $button['type'] ?>"<?= $button['type'] == 'hidden' ? ' id="' . $name . '"' : '' ?> name="<?= $name ?>" value="<?= $button['value'] ?>"<?= !empty($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '' ?><?= !empty($button['accessKey']) ? ' accesskey="' . $button['accessKey'] . '"' : '' ?><?= $button['type'] != 'hidden' ? ' class="button"' : '' ?>><?php endif; ?><?php endforeach; ?>
-
 		<input type="submit" value="<?= $editor_context['labels']['post_button'] ?? Lang::getTxt('post', file: 'General') ?>" name="post" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span><?php /* Include auto-save feature if drafts are enabled. */ ?><?php if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave'])): ?>
-
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="<?= Theme::$current->settings['images_url'] ?>/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave"></span>

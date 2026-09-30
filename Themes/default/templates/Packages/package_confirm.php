@@ -22,7 +22,6 @@ if (!defined('SMF')) {
  * Confirm package operation
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Utils::$context['page_title'] ?></h3>
 		</div>

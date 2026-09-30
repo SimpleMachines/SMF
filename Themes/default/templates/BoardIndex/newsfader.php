@@ -22,11 +22,8 @@ if (!defined('SMF')) {
  * This shows the newsfader
  */
 ?><?php /* Show the news fader?  (assuming there are things to show...) */ ?><?php if (!empty(Theme::$current->settings['show_newsfader']) && !empty(Utils::$context['news_lines'])): ?>
-
 		<ul id="smf_slider" class="roundframe"><?php foreach (Utils::$context['news_lines'] as $news): ?>
-
 			<li><?= $news ?></li><?php endforeach; ?>
-
 		</ul>
 		<script>
 			jQuery("#smf_slider").slippry({

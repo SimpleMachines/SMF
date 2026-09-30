@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * Editing an individual message icon
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=smileys;sa=editicon;icon=<?= Utils::$context['new_icon'] ? '0' : Utils::$context['icon']['id'] ?>" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Utils::$context['new_icon'] ? Lang::getTxt('icons_new_icon', file: 'ManageSmileys') : Lang::getTxt('icons_edit_icon', file: 'ManageSmileys') ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">

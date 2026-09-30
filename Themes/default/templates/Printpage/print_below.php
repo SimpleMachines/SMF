@@ -21,9 +21,7 @@ if (!defined('SMF')) {
  * The footer.
  */
 ?>
-
 		</div><!-- #posts --><?php $this->subTemplate('print_options'); ?>
-
 		<div id="footer" class="smalltext"><?= Theme::copyright() ?></div>
 	</body>
 </html>

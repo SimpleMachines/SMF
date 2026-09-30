@@ -21,14 +21,11 @@ if (!defined('SMF')) {
  * Wrapper for the above template function showing that FTP is required
  */
 ?>
-
 		<fieldset>
 			<legend>
 				<?= Lang::getTxt('package_ftp_necessary', file: 'Packages') ?>
-
 			</legend>
 			<div class="ftp_details">
 				<?php $this->subTemplate('control_chmod'); ?>
-
 			</div>
 		</fieldset>

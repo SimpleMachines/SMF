@@ -48,8 +48,6 @@ $button .= '
 						</div><!-- .viewport -->
 					</div><!-- .top_menu -->';
 ?><?php endif; ?><?php $buttons[] = $button; ?><?php endif; ?><?php endforeach; ?><?php /* No buttons? No button strip either. */ ?><?php if (empty($buttons)): ?><?php return; ?><?php endif; ?>
-
 		<div class="buttonlist<?= !empty($direction) ? ' float' . $direction : '' ?>"<?= (empty($buttons) ? ' style="display: none;"' : '') ?><?= (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : '') ?>>
 			<?= implode('', $buttons) ?>
-
 		</div>

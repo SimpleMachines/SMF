@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The admin member search form
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=viewmembers" method="post" accept-charset="UTF-8" id="admin_form_wrapper">
 			<input type="hidden" name="sa" value="query">
 			<div class="cat_bar">
@@ -160,7 +159,6 @@ if (!defined('SMF')) {
 						</td>
 						<td class="centercol">
 							<?= $membergroup['can_be_additional'] ? '<input type="checkbox" name="membergroups[2][]" value="' . $membergroup['id'] . '" checked>' : '' ?>
-
 						</td>
 					</tr>
 <?php endforeach; ?>
@@ -182,7 +180,6 @@ if (!defined('SMF')) {
 					<tr class="title_bar">
 						<th scope="col">
 							<?= Lang::getTxt('membergroups_postgroups', file: 'ManageMembers') ?>
-
 						</th>
 						<th class="quarter_table"></th>
 					</tr>
@@ -192,7 +189,6 @@ if (!defined('SMF')) {
 					<tr class="windowbg">
 						<td>
 							<?= $postgroup['name'] ?>
-
 						</td>
 						<td class="centercol">
 							<input type="checkbox" name="postgroups[]" value="<?= $postgroup['id'] ?>" checked>

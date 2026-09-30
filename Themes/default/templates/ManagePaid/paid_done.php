@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The "thank you" bit...
  */
 ?>
-
 	<div id="paid_subscription">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('paid_done', file: 'ManagePaid') ?></h3>

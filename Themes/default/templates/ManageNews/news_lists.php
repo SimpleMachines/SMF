@@ -22,5 +22,4 @@ if (!defined('SMF')) {
  * The settings page.
  */
 ?><?php if (!empty(Utils::$context['saved_successful'])): ?>
-
 			<div class="infobox"><?= Lang::getTxt('settings_saved', file: 'Admin') ?></div><?php endif; ?><?php $this->subTemplate('show_list', ['list_id' => 'news_lists']); ?>

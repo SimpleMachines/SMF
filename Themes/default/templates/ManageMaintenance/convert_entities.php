@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Template for converting entities to UTF-8 characters
  */
 ?>
-
 	<div id="manage_maintenance">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('entity_convert_title', file: 'ManageMaintenance') ?></h3>

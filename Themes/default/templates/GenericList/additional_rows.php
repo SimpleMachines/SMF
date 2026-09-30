@@ -22,8 +22,6 @@ if (!defined('SMF')) {
  * @param array $cur_list An array with the data for the current list
  */
 ?><?php foreach ($cur_list['additional_rows'][$row_position] as $row): ?>
-
 			<div class="additional_row<?= empty($row['class']) ? '' : ' ' . $row['class'] ?>"<?= empty($row['style']) ? '' : ' style="' . $row['style'] . '"' ?>>
 				<?= $row['value'] ?>
-
 			</div><?php endforeach; ?>

@@ -29,7 +29,6 @@ $menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::getTxt('admin_ce
 // Load the menu
 // Add mobile menu as well
 ?>
-
 	<nav id="genericmenu" aria-label="<?= Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General') ?>">
 		<a class="mobile_generic_menu_<?= Utils::$context['cur_menu_id'] ?>">
 			<span class="menu_icon"></span>
@@ -39,11 +38,9 @@ $menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::getTxt('admin_ce
 			<div class="popup_window description">
 				<div class="popup_heading">
 					<?= Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General') ?>
-
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				<?php $this->subTemplate('generic_menu', ['menu_context' => $menu_context]); ?>
-
 			</div>
 		</div>
 	</nav>
@@ -55,7 +52,6 @@ $menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::getTxt('admin_ce
 			$( "#mobile_generic_menu_<?= Utils::$context['cur_menu_id'] ?>" ).hide();
 		});
 	</script><?php /* This is the main table - we need it so we can keep the content to the right of it. */ ?>
-
 				<div id="admin_content"><?php
 // It's possible that some pages have their own tabs they wanna force...
 // 	if (!empty(Utils::$context['tabs']))

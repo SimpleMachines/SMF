@@ -22,7 +22,6 @@ if (!defined('SMF')) {
  * Template for browsing the mail queue.
  */
 ?>
-
 	<div id="manage_mail">
 		<div id="mailqueue_stats">
 			<div class="cat_bar">
@@ -37,5 +36,4 @@ if (!defined('SMF')) {
 				</dl>
 			</div>
 		</div><?php $this->subTemplate('show_list', ['list_id' => 'mail_queue']); ?>
-
 	</div>

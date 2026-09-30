@@ -25,14 +25,9 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?>
-
 		<a class="subject mobile_subject" href="<?= $board['href'] ?>" id="b<?= $board['id'] ?>">
 			<?= $board['name'] ?>
-
 		</a><?php /* Has it outstanding posts for approval? */ ?><?php if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics'])): ?>
-
 		<a href="<?= Config::$scripturl ?>?action=moderate;area=postmod;sa=<?= ($board['unapproved_topics'] > 0 ? 'topics' : 'posts') ?>;brd=<?= $board['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>" title="<?= Lang::getTxt('unapproved_posts', ['unapproved_topics' => $board['unapproved_topics'], 'unapproved_posts' => $board['unapproved_posts']], file: 'General') ?>" class="moderation_link amt">!</a><?php endif; ?>
-
 		<div class="board_description"><?= $board['description'] ?></div><?php /* Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.) */ ?><?php if (!empty($board['link_moderators'])): ?>
-
 		<p class="moderators"><?= Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])], file: 'General') ?></p><?php endif; ?>

@@ -40,7 +40,6 @@ if (!defined('SMF')) {
 <?php if (empty(Utils::$context['categories'])): ?>
 			<div class="windowbg centertext">
 				<?= Lang::getTxt('mboards_no_cats', file: 'ManageBoards') ?>
-
 			</div>
 <?php endif; ?>
 <?php /* Loop through every category, listing the boards in each as we go. */ ?>
@@ -67,7 +66,6 @@ $redirect_board = '<img src="' . Theme::$current->settings['images_url'] . '/new
 						<span class="floatleft"><a<?= $board['move'] ? ' class="red"' : '' ?> href="<?= Config::$scripturl ?>?board=<?= $board['id'] ?>.0"><?= $board['name'] ?></a><?= !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? $recycle_board : '' ?><?= $board['is_redirect'] ? $redirect_board : '' ?></span>
 						<span class="floatright">
 							<?= Utils::$context['can_manage_permissions'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::getTxt('mboards_permissions', file: 'ManageBoards') . '</a>' : '' ?>
-
 							<a href="<?= Config::$scripturl ?>?action=admin;area=manageboards;move=<?= $board['id'] ?>" class="button"><?= Lang::getTxt('mboards_move', file: 'ManageBoards') ?></a>
 							<a href="<?= Config::$scripturl ?>?action=admin;area=manageboards;sa=board;boardid=<?= $board['id'] ?>" class="button"><?= Lang::getTxt('mboards_modify', file: 'ManageBoards') ?></a>
 						</span><br style="clear: right;">

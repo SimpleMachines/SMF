@@ -22,9 +22,7 @@ if (!defined('SMF')) {
  * This is for stuff above the menu in the personal messages section
  */
 ?>
-
 	<div id="personal_messages"><?php /* Show the capacity bar, if available. */ ?><?php if (!empty(Utils::$context['limit_bar'])): ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="floatleft"><?= Lang::getTxt('pm_capacity', file: 'PersonalMessage') ?></span>
@@ -34,8 +32,6 @@ if (!defined('SMF')) {
 				<span class="floatright<?= Utils::$context['limit_bar']['percent'] > 90 ? ' alert' : '' ?>"><?= Utils::$context['limit_bar']['text'] ?></span>
 			</h3>
 		</div><?php endif; ?><?php /* Message sent? Show a small indication. */ ?><?php if (isset(Utils::$context['pm_sent'])): ?>
-
 		<div class="infobox">
 			<?= Lang::getTxt('pm_sent', file: 'PersonalMessage') ?>
-
 		</div><?php endif; ?>

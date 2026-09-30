@@ -24,7 +24,6 @@ if (!defined('SMF')) {
  * Template for the member maintenance tasks.
  */
 ?>
-
 	<script>
 		var warningMessage = '';
 		var membersSwap = false;
@@ -81,7 +80,6 @@ if (!defined('SMF')) {
 <?php if (!empty(Utils::$context['maintenance_finished'])): ?>
 		<div class="infobox">
 			<?= Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin') ?>
-
 		</div>
 <?php endif; ?>
 		<div class="cat_bar">
@@ -125,7 +123,6 @@ if (!defined('SMF')) {
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a> <?= Lang::getTxt('maintain_members', file: 'ManageMaintenance') ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -139,7 +136,6 @@ if (!defined('SMF')) {
 						],
 						file: 'ManageMaintenance',
 					) ?>
-
 				</div>
 				<div class="padding">
 <?php if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])): ?>
@@ -148,7 +144,6 @@ if (!defined('SMF')) {
 <?php else: ?>
 					<label for="anonymize">
 						<input type="checkbox" name="anonymize" id="anonymize" value="1"> <?= Lang::getTxt('deleteAccount_anonymize', file: 'Profile') ?>
-
 					</label>
 <?php endif; ?>
 				</div>

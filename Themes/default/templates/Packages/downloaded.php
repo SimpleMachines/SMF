@@ -23,14 +23,12 @@ if (!defined('SMF')) {
  * Confirmation page showing a package was uploaded/downloaded successfully.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Utils::$context['page_title'] ?></h3>
 		</div>
 		<div class="windowbg">
 			<p>
 				<?= Lang::getTxt(empty(Utils::$context['package_server']) ? 'package_uploaded_successfully' : 'package_downloaded_successfully', file: 'Packages') ?>
-
 			</p>
 			<ul>
 				<li>

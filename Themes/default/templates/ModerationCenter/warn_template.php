@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Add or edit a warning template.
  */
 ?>
-
 	<div id="modcenter">
 		<form action="<?= Config::$scripturl ?>?action=moderate;area=warnings;sa=templateedit;tid=<?= Utils::$context['id_template'] ?>" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
@@ -31,7 +30,6 @@ if (!defined('SMF')) {
 			</div>
 			<div class="information">
 				<?= Lang::getTxt('mc_warning_template_desc', file: 'ModerationCenter') ?>
-
 			</div>
 			<div class="windowbg">
 				<div class="errorbox"<?= empty(Utils::$context['warning_errors']) ? ' style="display: none"' : '' ?> id="errors">
@@ -41,7 +39,6 @@ if (!defined('SMF')) {
 						</dt>
 						<dd class="error" id="error_list">
 							<?= empty(Utils::$context['warning_errors']) ? '' : implode('<br>', Utils::$context['warning_errors']) ?>
-
 						</dd>
 					</dl>
 				</div>
@@ -52,7 +49,6 @@ if (!defined('SMF')) {
 						</dt>
 						<dd id="template_preview">
 							<?= !empty(Utils::$context['template_preview']) ? Utils::$context['template_preview'] : '' ?>
-
 						</dd>
 					</dl>
 				</div>

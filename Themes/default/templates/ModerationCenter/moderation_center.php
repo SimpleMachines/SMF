@@ -21,9 +21,6 @@ if (!defined('SMF')) {
  * The main moderation center.
  */
 ?><?php /* Show moderators notes. */ ?><?php $this->subTemplate('notes'); ?><?php /* Show a welcome message to the user. */ ?>
-
 	<div id="modcenter"><?php /* Show all the blocks they want to see. */ ?><?php foreach (Utils::$context['mod_blocks'] as $block): ?>
-
 		<div class="half_content"><?= $this->hasSubTemplate($block) ? $this->subTemplate($block) : '' ?></div><?php endforeach; ?>
-
 	</div><!-- #modcenter -->

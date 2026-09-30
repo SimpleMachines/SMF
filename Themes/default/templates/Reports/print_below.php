@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Footer of the print page.
  */
 ?>
-
 		<div class="copyright"><?= Theme::copyright() ?></div>
 	</body>
 </html>

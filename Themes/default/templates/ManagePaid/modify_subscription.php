@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The template for adding or editing a subscription.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=paidsubscribe;sa=modify;sid=<?= Utils::$context['sub_id'] ?>" method="post">
 <?php if (!empty(Utils::$context['disable_groups'])): ?>
 		<div class="noticebox"><?= Lang::getTxt('paid_mod_edit_note', file: 'ManagePaid') ?></div>
@@ -35,14 +34,12 @@ if (!defined('SMF')) {
 			<dl class="settings">
 				<dt>
 					<?= Lang::getTxt('paid_mod_name', file: 'ManagePaid') ?>
-
 				</dt>
 				<dd>
 					<input type="text" name="name" value="<?= Utils::$context['sub']['name'] ?>" size="30">
 				</dd>
 				<dt>
 					<?= Lang::getTxt('paid_mod_desc', file: 'ManagePaid') ?>
-
 				</dt>
 				<dd>
 					<textarea name="desc" rows="3" cols="40"><?= Utils::$context['sub']['desc'] ?></textarea>
@@ -118,7 +115,6 @@ if (!defined('SMF')) {
 						</dd>
 						<dt>
 							<?= Lang::getTxt('paid_mod_span', file: 'ManagePaid') ?>
-
 						</dt>
 						<dd>
 							<input type="number" name="span_value" value="<?= Utils::$context['sub']['span']['value'] ?>" size="4">
@@ -140,7 +136,6 @@ if (!defined('SMF')) {
 					<div class="information">
 						<strong><?= Lang::getTxt('paid_mod_price_breakdown', file: 'ManagePaid') ?></strong><br>
 						<?= Lang::getTxt('paid_mod_price_breakdown_desc', file: 'ManagePaid') ?>
-
 					</div>
 					<dl class="settings">
 						<dt>
@@ -151,28 +146,24 @@ if (!defined('SMF')) {
 						</dd>
 						<dt>
 							<?= Lang::getTxt('paid_per_day', file: 'ManagePaid') ?>
-
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_day" value="<?= empty(Utils::$context['sub']['cost']['day']) ? '0' : Utils::$context['sub']['cost']['day'] ?>" size="5">
 						</dd>
 						<dt>
 							<?= Lang::getTxt('paid_per_week', file: 'ManagePaid') ?>
-
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_week" value="<?= empty(Utils::$context['sub']['cost']['week']) ? '0' : Utils::$context['sub']['cost']['week'] ?>" size="5">
 						</dd>
 						<dt>
 							<?= Lang::getTxt('paid_per_month', file: 'ManagePaid') ?>
-
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_month" value="<?= empty(Utils::$context['sub']['cost']['month']) ? '0' : Utils::$context['sub']['cost']['month'] ?>" size="5">
 						</dd>
 						<dt>
 							<?= Lang::getTxt('paid_per_year', file: 'ManagePaid') ?>
-
 						</dt>
 						<dd>
 							<input type="number" step="0.01" name="cost_year" value="<?= empty(Utils::$context['sub']['cost']['year']) ? '0' : Utils::$context['sub']['cost']['year'] ?>" size="5">

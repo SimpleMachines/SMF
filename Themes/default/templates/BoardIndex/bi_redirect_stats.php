@@ -23,8 +23,6 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?>
-
 		<p>
 			<?= Lang::getTxt('number_of_redirects', [$board->posts], file: 'General') ?>
-
 		</p>

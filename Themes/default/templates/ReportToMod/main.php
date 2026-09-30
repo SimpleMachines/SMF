@@ -46,7 +46,6 @@ if (!defined('SMF')) {
 		<div class="windowbg">
 			<div class="post" id="preview_body">
 				<?= empty(Utils::$context['preview_message']) ? '<br>' : Utils::$context['preview_message'] ?>
-
 			</div>
 		</div>
 	</div>

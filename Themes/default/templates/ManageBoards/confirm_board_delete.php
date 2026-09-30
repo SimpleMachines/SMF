@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
  */
 ?><?php /* Print table header. */ ?>
-
 	<div id="manage_boards" class="roundframe">
 		<form action="<?= Config::$scripturl ?>?action=admin;area=manageboards;sa=board2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="boardid" value="<?= Utils::$context['board']['id'] ?>">
@@ -34,9 +33,7 @@ if (!defined('SMF')) {
 			<div class="windowbg">
 				<p><?= Lang::getTxt('mboards_delete_board_contains', file: 'ManageBoards') ?></p>
 				<ul><?php foreach (Utils::$context['children'] as $child): ?>
-
 					<li><?= $child['node']['name'] ?></li><?php endforeach; ?>
-
 				</ul>
 			</div>
 			<div class="cat_bar">
@@ -47,9 +44,7 @@ if (!defined('SMF')) {
 					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked><?= Lang::getTxt('mboards_delete_board_option1', file: 'ManageBoards') ?></label><br>
 					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"<?= empty(Utils::$context['can_move_children']) ? ' disabled' : '' ?>><?= Lang::getTxt('mboards_delete_board_option2', file: 'ManageBoards') ?></label>:
 					<select name="board_to"<?= empty(Utils::$context['can_move_children']) ? ' disabled' : '' ?>><?php foreach (Utils::$context['board_order'] as $board): ?><?php if ($board['id'] != Utils::$context['board']['id'] && empty($board['is_child'])): ?>
-
 						<option value="<?= $board['id'] ?>"><?= $board['name'] ?></option><?php endif; ?><?php endforeach; ?>
-
 					</select>
 				</p>
 				<input type="submit" name="delete" value="<?= Lang::getTxt('mboards_delete_confirm', file: 'ManageBoards') ?>" class="button">

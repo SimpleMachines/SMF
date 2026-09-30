@@ -22,5 +22,4 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?><?php if (!empty($board['last_post']['id'])): ?>
-
 			<p><?= $board['last_post']['last_post_message'] ?></p><?php endif; ?>

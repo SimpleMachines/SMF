@@ -28,9 +28,7 @@ if (!defined('SMF')) {
 		<div class="pm_bar">
 			<div class="pm_sending block">
 				<?= Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . Lang::getTxt('pm_new_short', file: 'PersonalMessage') . '</a>' : '' ?>
-
 				<?= Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;f=drafts">' . Lang::getTxt('pm_drafts_short', file: 'PersonalMessage') . '</a>' : '' ?>
-
 				<a href="<?= Config::$scripturl ?>?action=pm;sa=settings" class="floatright"><?= Lang::getTxt('pm_settings_short', file: 'PersonalMessage') ?></a>
 			</div>
 			<div class="pm_mailbox centertext">
@@ -46,13 +44,11 @@ if (!defined('SMF')) {
 			<div class="unread_notify">
 				<div class="unread_notify_image">
 					<?= !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '' ?>
-
 				</div>
 				<div class="details">
 					<div class="subject"><?= $pm_details['pm_link'] ?></div>
 					<div class="sender">
 						<?= $pm_details['replied_to_you'] ? '<span class="main_icons replied centericon" style="margin-right: 4px" title="' . Lang::getTxt('pm_you_were_replied_to', file: 'PersonalMessage') . '"></span>' : '<span class="main_icons im_off centericon" style="margin-right: 4px" title="' . Lang::getTxt('pm_was_sent_to_you', file: 'PersonalMessage') . '"></span>' ?><?= !empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'] ?> - <?= $pm_details['time'] ?>
-
 					</div>
 				</div>
 			</div>

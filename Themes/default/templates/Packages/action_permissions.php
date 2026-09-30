@@ -32,7 +32,6 @@ if (!defined('SMF')) {
 <?php if (!empty(Utils::$context['skip_ftp'])): ?>
 			<div class="errorbox">
 				<?= Lang::getTxt('package_file_perms_skipping_ftp', file: 'Packages') ?>
-
 			</div>
 <?php endif; ?>
 <?php

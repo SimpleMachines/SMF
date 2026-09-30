@@ -22,10 +22,7 @@ if (!defined('SMF')) {
  * Wraps every maintenance sub-action.
  */
 ?>
-
 	<div id="manage_maintenance"><?php /* If maintenance has finished tell the user. */ ?><?php if (!empty(Utils::$context['maintenance_finished'])): ?>
-
 		<div class="infobox">
 			<?= Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin') ?>
-
 		</div><?php endif; ?>

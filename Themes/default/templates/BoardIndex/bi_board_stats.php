@@ -23,8 +23,6 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?>
-
 		<p>
 			<?= Lang::getTxt('number_of_posts', [$board->posts], file: 'General') ?><br><?= Lang::getTxt('number_of_topics', [$board->topics], file: 'General') ?>
-
 		</p>

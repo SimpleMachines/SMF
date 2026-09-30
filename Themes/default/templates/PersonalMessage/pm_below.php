@@ -19,5 +19,4 @@ if (!defined('SMF')) {
  * Just the end of the index bar, nothing special.
  */
 ?>
-
 	</div><!-- #personal_messages -->

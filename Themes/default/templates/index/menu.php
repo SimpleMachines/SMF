@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Show the menu up top. Something like [home] [help] [profile] [logout]...
  */
 ?>
-
 					<ul class="dropmenu menu_nav">
 <?php /* Note: Menu markup has been cleaned up to remove unnecessary spans and classes. */ ?>
 <?php foreach (Utils::$context['menu_buttons'] as $act => $button): ?>
@@ -36,7 +35,6 @@ if (!defined('SMF')) {
 								<li<?= !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '' ?>>
 									<a href="<?= $childbutton['href'] ?>"<?= isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '' ?><?= isset($childbutton['onclick']) ? ' onclick="' . $childbutton['onclick'] . '"' : '' ?>>
 										<?= $childbutton['title'] ?><?= !empty($childbutton['amt']) ? ' <span class="amt">' . $childbutton['amt'] . '</span>' : '' ?>
-
 									</a>
 <?php /* 3rd level menus :) */ ?>
 <?php if (!empty($childbutton['sub_buttons'])): ?>
@@ -45,7 +43,6 @@ if (!defined('SMF')) {
 										<li>
 											<a href="<?= $grandchildbutton['href'] ?>"<?= isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '' ?><?= isset($grandchildbutton['onclick']) ? ' onclick="' . $grandchildbutton['onclick'] . '"' : '' ?>>
 												<?= $grandchildbutton['title'] ?><?= !empty($grandchildbutton['amt']) ? ' <span class="amt">' . $grandchildbutton['amt'] . '</span>' : '' ?>
-
 											</a>
 										</li>
 <?php endforeach; ?>

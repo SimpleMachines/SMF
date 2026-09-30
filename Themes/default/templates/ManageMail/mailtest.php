@@ -23,9 +23,7 @@ if (!defined('SMF')) {
  * Template for testing mail send.
  */
 ?><?php /* The results. */ ?><?php if (!empty(Utils::$context['result'])): ?><?php if (Utils::$context['result'] == 'failure'): ?><?php $result_txt = Lang::getTxt('mailtest_result_failure', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'], file: 'ManageMail'); ?><?php else: ?><?php $result_txt = Lang::getTxt('mailtest_result_success', file: 'ManageMail'); ?><?php endif; ?>
-
 					<div class="<?= Utils::$context['result'] == 'success' ? 'infobox' : 'errorbox' ?>"><?= $result_txt ?></div><?php endif; ?>
-
 	<form id="admin_form_wrapper" action="<?= Utils::$context['post_url'] ?>" method="post">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('mailtest_header', file: 'ManageMail') ?></h3>

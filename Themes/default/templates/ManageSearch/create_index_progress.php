@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Display a progress page while creating a search index.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=managesearch;sa=createmsgindex;step=1" name="autoSubmit" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('search_create_index', file: 'Search') ?></h3>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Edit permission profiles (predefined).
  */
 ?>
-
 	<div id="admin_form_wrapper">
 		<form action="<?= Config::$scripturl ?>?action=admin;area=permissions;sa=profiles" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
@@ -50,7 +49,6 @@ if (!defined('SMF')) {
 						</td>
 						<td>
 							<?= !empty($profile['boards_text']) ? $profile['boards_text'] : Lang::getTxt('permissions_profile_used_by_count', [0], file: 'ManagePermissions') ?>
-
 						</td>
 						<td<?= !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '' ?>>
 							<input type="checkbox" name="delete_profile[]" value="<?= $profile['id'] ?>" <?= $profile['can_delete'] ? '' : 'disabled' ?>>

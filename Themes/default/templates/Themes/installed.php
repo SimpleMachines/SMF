@@ -33,13 +33,11 @@ if (!defined('SMF')) {
 <?php if (!empty(Utils::$context['error_message'])): ?>
 			<p>
 				<?= Utils::$context['error_message'] ?>
-
 			</p>
 <?php /* Not much to show except a link back... */ ?>
 <?php else: ?>
 			<p>
 				<a href="<?= Config::$scripturl ?>?action=admin;area=theme;sa=list;th=<?= Utils::$context['installed_theme']['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>"><?= Utils::$context['installed_theme']['name'] ?></a> <?= Lang::getTxt('theme_' . (isset(Utils::$context['installed_theme']['updated']) ? 'updated' : 'installed') . '_message', file: 'Themes') ?>
-
 			</p>
 			<p>
 				<a href="<?= Config::$scripturl ?>?action=admin;area=theme;sa=admin;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>"><?= Lang::getTxt('back', file: 'General') ?></a>

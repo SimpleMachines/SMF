@@ -29,12 +29,10 @@ if (!defined('SMF')) {
 		<div id="memberlist">
 			<div class="pagesection">
 				<?php $this->subTemplate('button_strip', ['button_strip' => Utils::$context['memberlist_buttons'], 'direction' => 'right']); ?>
-
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
 					<span class="main_icons filter"></span><?= Lang::getTxt('mlist_search', file: 'General') ?>
-
 				</h3>
 			</div>
 			<div id="advanced_search" class="roundframe">

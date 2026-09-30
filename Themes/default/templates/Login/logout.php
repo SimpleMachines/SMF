@@ -33,7 +33,6 @@ if (!defined('SMF')) {
 			<div class="roundframe">
 				<p class="information centertext">
 					<?= Lang::getTxt('logout_notice', file: 'Login') ?>
-
 				</p>
 
 				<p class="centertext">

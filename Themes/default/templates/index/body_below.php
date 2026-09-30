@@ -24,7 +24,6 @@ if (!defined('SMF')) {
  * The stuff shown immediately below the main content, including the footer
  */
 ?>
-
 			</main><!-- #main_content_section -->
 		</div><!-- #content_section -->
 	</div><!-- #wrapper -->
@@ -41,7 +40,6 @@ if (!defined('SMF')) {
 			<li class="helplinks">
 				<a href="<?= Config::$scripturl ?>?action=help"><?= Lang::getTxt('help', file: 'General') ?></a><?= (!empty(Config::$modSettings['requireAgreement'])) ? '
 				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::getTxt('terms_and_rules', file: 'General') . '</a>' : '' ?>
-
 				<a href="#top_section"><?= Lang::getTxt('go_up', file: 'General') ?> &#9650;</a>
 			</li>
 		</ul>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The upper part of the ban warning box
  */
 ?>
-
 	<div class="noticebox">
 		<p><?= Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::getTxt('guest_title', file: 'General') : User::$me->name]) ?></p>
 <?php if (!empty($_SESSION['ban']['cannot_post']['reason'])): ?>

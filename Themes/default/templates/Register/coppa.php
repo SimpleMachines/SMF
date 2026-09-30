@@ -39,7 +39,6 @@ if (!defined('SMF')) {
 				<h4>1) <?= Lang::getTxt('coppa_send_by_post', file: 'Login') ?></h4>
 				<div class="coppa_contact">
 					<?= Utils::$context['coppa']['post'] ?>
-
 				</div>
 <?php endif; ?>
 <?php /* Can they send by fax?? */ ?>
@@ -47,7 +46,6 @@ if (!defined('SMF')) {
 				<h4><?= !empty(Utils::$context['coppa']['post']) ? '2' : '1' ?>) <?= Lang::getTxt('coppa_send_by_fax', file: 'Login') ?></h4>
 				<div class="coppa_contact">
 					<?= Utils::$context['coppa']['fax'] ?>
-
 				</div>
 <?php endif; ?>
 <?php /* Offer an alternative Phone Number? */ ?>

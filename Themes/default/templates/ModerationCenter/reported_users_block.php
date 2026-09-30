@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A list of reported users
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=moderate;area=reportedmembers" id="reported_users_link"><?= Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter') ?></a>

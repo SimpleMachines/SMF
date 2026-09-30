@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Displays the time
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">The time you requested</h3>
 		</div>

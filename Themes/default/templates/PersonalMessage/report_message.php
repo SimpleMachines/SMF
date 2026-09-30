@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * Template for reporting a personal message.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=pm;sa=report;l=<?= Utils::$context['current_label_id'] ?>" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="pmsg" value="<?= Utils::$context['pm_id'] ?>">
 		<div class="information">
 			<?= Lang::getTxt('pm_report_desc', file: 'PersonalMessage') ?>
-
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_report_title', file: 'PersonalMessage') ?></h3>

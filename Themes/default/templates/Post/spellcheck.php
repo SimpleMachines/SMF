@@ -49,7 +49,6 @@ if (!defined('SMF')) {
 				overflow: auto;
 				background: #ffffff;
 			}<?php /* As you may expect - we need a lot of javascript for this... load it from the separate files. */ ?>
-
 		</style>
 		<script>
 			var spell_formname = window.opener.spell_formname;

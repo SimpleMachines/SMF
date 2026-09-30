@@ -24,11 +24,9 @@ if (!defined('SMF')) {
  * Just list all the personal message subjects - to make templates easier.
  */
 ?>
-
 	<div class="cat_bar">
 		<h3 class="catbg">
 			<?= Utils::$context['folder'] == 'sent' ? Lang::getTxt('sent_items', file: 'PersonalMessage') : Utils::$context['current_label'] ?>
-
 		</h3>
 	</div>
 	<table class="table_grid">
@@ -52,11 +50,9 @@ if (!defined('SMF')) {
 			</tr>
 		</thead>
 		<tbody><?php if (!Utils::$context['show_delete']): ?>
-
 			<tr class="windowbg">
 				<td colspan="5"><?= Lang::getTxt('pm_alert_none', file: 'General') ?></td>
 			</tr><?php endif; ?><?php while ($message = Utils::$context['get_pmessage']('subject')): ?>
-
 			<tr class="windowbg<?= $message['is_unread'] ? ' unread_pm' : '' ?>">
 				<td class="table_icon pm_icon">
 					<script>
@@ -67,7 +63,6 @@ if (!defined('SMF')) {
 						};
 					</script>
 					<?= $message['is_replied_to'] ? '<span class="main_icons replied" title="' . Lang::getTxt('pm_replied', file: 'PersonalMessage') . '"></span>' : '<span class="main_icons im_off" title="' . Lang::getTxt('pm_read', file: 'PersonalMessage') . '"></span>' ?>
-
 				</td>
 				<td class="pm_time"><?= $message['time'] ?></td>
 				<td class="pm_subject">
@@ -75,36 +70,27 @@ if (!defined('SMF')) {
 				</td>
 				<td class="pm_from_to">
 					<?= (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))) ?>
-
 				</td>
 				<td class="centercol table_icon pm_moderation">
 					<input type="checkbox" name="pms[]" id="deletelisting<?= $message['id'] ?>" value="<?= $message['id'] ?>"<?= $message['is_selected'] ? ' checked' : '' ?> onclick="if (document.getElementById('deletedisplay<?= $message['id'] ?>')) document.getElementById('deletedisplay<?= $message['id'] ?>').checked = this.checked;">
 				</td>
 			</tr><?php endwhile; ?>
-
 		</tbody>
 	</table>
 	<div class="pagesection">
 		<div class="pagelinks"><?= Utils::$context['page_index'] ?></div>
 		<div class="floatright">&nbsp;<?php if (Utils::$context['show_delete']): ?><?php if (!empty(Utils::$context['currently_using_labels']) && Utils::$context['folder'] != 'sent'): ?>
-
 			<select name="pm_action" onchange="if (this.options[this.selectedIndex].value) this.form.submit();" onfocus="loadLabelChoices();">
 				<option value=""><?= Lang::getTxt('pm_sel_label_title', file: 'PersonalMessage') ?></option>
 				<option value="" disabled>---------------</option>
 				<option value="" disabled><?= Lang::getTxt('pm_msg_label_apply', file: 'PersonalMessage') ?></option><?php foreach (Utils::$context['labels'] as $label): ?><?php if ($label['id'] != Utils::$context['current_label_id']): ?>
-
 				<option value="add_<?= $label['id'] ?>">&nbsp;<?= $label['name'] ?></option><?php endif; ?><?php endforeach; ?>
-
 				<option value="" disabled><?= Lang::getTxt('pm_msg_label_remove', file: 'PersonalMessage') ?></option><?php foreach (Utils::$context['labels'] as $label): ?>
-
 				<option value="rem_<?= $label['id'] ?>">&nbsp;<?= $label['name'] ?></option><?php endforeach; ?>
-
 			</select>
 			<noscript>
 				<input type="submit" value="<?= Lang::getTxt('pm_apply', file: 'PersonalMessage') ?>" class="button">
 			</noscript><?php endif; ?>
-
 			<input type="submit" name="del_selected" value="<?= Lang::getTxt('quickmod_delete_selected', file: 'General') ?>" data-confirm="<?= Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage') ?>" class="button you_sure"><?php endif; ?>
-
 		</div><!-- .floatright -->
 	</div><!-- .pagesection -->

@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Displays the hours, minutes and seconds for our clock
  */
 ?><?php $this->subTemplate('geek_clock', ['style' => 'hms', 'title' => 'Binary Clock']); ?>
-
 			<div class="centertext">
 				<a href="<?= Config::$scripturl ?>?action=clock" class="button">Too tough for you?</a>
 			</div>

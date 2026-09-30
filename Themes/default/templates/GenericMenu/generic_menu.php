@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * @param array $menu_context An array of menu information
  */
 ?>
-
 				<div class="generic_menu">
 					<ul class="dropmenu dropdown_menu_<?= Utils::$context['cur_menu_id'] ?>">
 <?php /* Main areas first. */ ?>

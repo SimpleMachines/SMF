@@ -28,17 +28,14 @@ if (!defined('SMF')) {
 		<meta charset="UTF-8">
 		<title><?= Lang::getTxt('operation_title', file: 'Packages') ?></title>
 		<?= Theme::template_css() ?><?php Theme::template_javascript(); ?>
-
 	</head>
 	<body>
 		<div class="padding windowbg">
 			<div class="padding">
 				<?= Utils::$context['operations']['search'] ?>
-
 			</div>
 			<div class="padding">
 				<?= Utils::$context['operations']['replace'] ?>
-
 			</div>
 		</div>
 	</body>

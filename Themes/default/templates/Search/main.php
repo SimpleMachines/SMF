@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * The main search form
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">
 <?php if (!empty(Utils::$context['search_errors'])): ?>
 		<div class="errorbox">
 			<?= implode('<br>', Utils::$context['search_errors']['messages']) ?>
-
 		</div>
 <?php endif; ?>
 <?php if (!empty(Utils::$context['search_ignored'])): ?>
@@ -41,13 +39,11 @@ if (!defined('SMF')) {
 			],
 			file: 'Search',
 		) ?>
-
 		</div>
 <?php endif; ?>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons filter"></span><?= Lang::getTxt('set_parameters', file: 'Search') ?>
-
 			</h3>
 		</div>
 		<div id="advanced_search" class="roundframe">
@@ -90,7 +86,6 @@ if (!defined('SMF')) {
 					</select>
 				</dd>
 				<dt class="righttext options"><?= Lang::getTxt('search_options', file: 'Search') ?>
-
 				</dt>
 				<dd class="options">
 					<ul>
@@ -98,7 +93,6 @@ if (!defined('SMF')) {
 						<li>
 							<label>
 								<?= $option['html'] ?>
-
 								<span><?= Lang::getTxt($option['label'], file: 'Search') ?></span>
 							</label>
 						</li>
@@ -106,7 +100,6 @@ if (!defined('SMF')) {
 					</ul>
 				</dd>
 				<dt class="between"><?= Lang::getTxt('search_post_age', file: 'Search') ?>
-
 				</dt>
 				<dd>
 					<?= Lang::getTxt(
@@ -117,7 +110,6 @@ if (!defined('SMF')) {
 						],
 						file: 'Search',
 					) ?>
-
 				</dd>
 			</dl>
 			<script>
@@ -129,14 +121,12 @@ if (!defined('SMF')) {
 			<p>
 				<strong><?= Lang::getTxt('verification', file: 'General') ?></strong>
 				<?php $this->subTemplate('control_verification', ['verify_id' => Utils::$context['visual_verification_id'], 'display_type' => 'all']); ?>
-
 			</p>
 <?php endif; ?>
 <?php /* If Utils::$context['search_params']['topic'] is set, that means we're searching just one topic. */ ?>
 <?php if (!empty(Utils::$context['search_params']['topic'])): ?>
 			<p>
 				<?= Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']], file: 'Search') ?>
-
 			</p>
 			<input type="hidden" name="topic" value="<?= Utils::$context['search_topic']['id'] ?>">
 			<input type="submit" name="b_search" value="<?= Lang::getTxt('search', file: 'General') ?>" class="button">
@@ -159,7 +149,6 @@ if (!defined('SMF')) {
 									<label for="brd<?= $board['id'] ?>">
 										<input type="checkbox" id="brd<?= $board['id'] ?>" name="brd[<?= $board['id'] ?>]" value="<?= $board['id'] ?>"<?= $board['selected'] ? ' checked' : '' ?>>
 										<?= $board['name'] ?>
-
 									</label>
 <?php
 // Nest child boards inside another list.

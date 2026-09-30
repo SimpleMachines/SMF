@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The main "Here's how you can reset your password" page
  */
 ?>
-
 	<br>
 	<form action="<?= Config::$scripturl ?>?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">

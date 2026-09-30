@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
  */
 ?><?php /* Print table header. */ ?>
-
 	<div id="manage_boards" class="roundframe">
 		<form action="<?= Config::$scripturl ?>?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="cat" value="<?= Utils::$context['category']['id'] ?>">
@@ -33,9 +32,7 @@ if (!defined('SMF')) {
 			<div class="windowbg">
 				<p><?= Lang::getTxt('mboards_delete_cat_contains', file: 'ManageBoards') ?></p>
 				<ul><?php foreach (Utils::$context['category']['children'] as $child): ?>
-
 					<li><?= $child ?></li><?php endforeach; ?>
-
 				</ul>
 			</div>
 			<div class="cat_bar">
@@ -46,9 +43,7 @@ if (!defined('SMF')) {
 					<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" checked><?= Lang::getTxt('mboards_delete_option1', file: 'ManageBoards') ?></label><br>
 					<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1"<?= count(Utils::$context['category_order']) == 1 ? ' disabled' : '' ?>><?= Lang::getTxt('mboards_delete_option2', file: 'ManageBoards') ?></label>
 					<select name="cat_to"<?= count(Utils::$context['category_order']) == 1 ? ' disabled' : '' ?>><?php foreach (Utils::$context['category_order'] as $cat): ?><?php if ($cat['id'] != 0): ?>
-
 						<option value="<?= $cat['id'] ?>"><?= $cat['true_name'] ?></option><?php endif; ?><?php endforeach; ?>
-
 					</select>
 				</p>
 				<input type="submit" name="delete" value="<?= Lang::getTxt('mboards_delete_confirm', file: 'ManageBoards') ?>" class="button">

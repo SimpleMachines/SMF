@@ -48,7 +48,6 @@ if (!defined('SMF')) {
 						<label>
 							<input type="checkbox" name="cookieneverexp"<?= !empty(Utils::$context['never_expire']) ? ' checked' : '' ?>>
 							<?= Lang::getTxt('remember_me', file: 'General') ?>
-
 						</label>
 					</dd>
 				</dl>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Template for posting a calendar event.
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=calendar;sa=post" method="post" name="postevent" accept-charset="UTF-8" onsubmit="submitonce(this);">
 <?php if (!empty(Utils::$context['event']->new)): ?>
 			<input type="hidden" name="eventid" value="<?= Utils::$context['event']->id ?>">
@@ -34,7 +33,6 @@ if (!defined('SMF')) {
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<?= Utils::$context['page_title'] ?>
-
 					</h3>
 				</div>
 <?php if (!empty(Utils::$context['post_error']['messages'])): ?>
@@ -42,17 +40,14 @@ if (!defined('SMF')) {
 					<dl class="event_error">
 						<dt>
 							<?= Utils::$context['error_type'] == 'serious' ? '<strong>' . Lang::getTxt('error_while_submitting', file: 'General') . '</strong>' : '' ?>
-
 						</dt>
 						<dt class="error">
 							<?= implode('<br>', Utils::$context['post_error']['messages']) ?>
-
 						</dt>
 					</dl>
 				</div>
 <?php endif; ?>
 				<div class="roundframe noup"><?php $this->subTemplate('event_options'); ?>
-
 					<div class="buttonlist">
 						<input type="submit" value="<?= Lang::getTxt(empty(Utils::$context['event']->new) ? 'save' : 'post', file: 'General') ?>" class="button floatright">
 <?php if (!Utils::$context['event']->new): ?>

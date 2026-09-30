@@ -25,9 +25,7 @@ if (!defined('SMF')) {
 <smf>
 	<pageIndex section="not_selected" startFrom="<?= Utils::$context['not_selected']['start'] ?>"><![CDATA[<?= Utils::$context['not_selected']['page_index'] ?>]]></pageIndex>
 	<pageIndex section="selected" startFrom="<?= Utils::$context['selected']['start'] ?>"><![CDATA[<?= Utils::$context['selected']['page_index'] ?>]]></pageIndex><?php foreach (Utils::$context['changes'] as $change): ?><?php if ($change['type'] == 'remove'): ?>
-
 	<change id="<?= $change['id'] ?>" curAction="remove" section="<?= $change['section'] ?>" /><?php else: ?>
-
 	<change id="<?= $change['id'] ?>" curAction="insert" section="<?= $change['section'] ?>">
 		<subject><![CDATA[<?= Utils::cleanXml($change['insert_value']['subject']) ?>]]></subject>
 		<time><![CDATA[<?= Utils::cleanXml($change['insert_value']['time']) ?>]]></time>

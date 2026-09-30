@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * List files in a package
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('list_file', file: 'Packages') ?></h3>
 		</div>

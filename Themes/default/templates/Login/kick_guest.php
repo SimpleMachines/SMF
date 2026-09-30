@@ -23,20 +23,16 @@ if (!defined('SMF')) {
  * Tell a guest to get lost or login!
  */
 ?><?php /* This isn't that much... just like normal login but with a message at the top. */ ?>
-
 	<form action="<?= Utils::$context['login_url'] ?>" method="post" accept-charset="UTF-8" name="frmLogin" id="frmLogin">
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('warning', file: 'Login') ?></h3>
 			</div><?php /* Show the message or default message. */ ?>
-
 			<p class="information centertext">
 				<?= empty(Utils::$context['kick_message']) ? Lang::getTxt('only_members_can_access', file: 'Login') : Utils::$context['kick_message'] ?><br><?php if (Utils::$context['can_register']): ?><?= Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login') ?><?php else: ?><?= Lang::getTxt('login_below', file: 'Login') ?><?php endif; ?><?php /* And now the login information. */ ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons login"></span> <?= Lang::getTxt('login', file: 'General') ?>
-
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -50,7 +46,6 @@ if (!defined('SMF')) {
 						<label>
 							<input type="checkbox" name="cookieneverexp"<?= !empty(Utils::$context['never_expire']) ? ' checked' : '' ?>>
 							<?= Lang::getTxt('remember_me', file: 'General') ?>
-
 						</label>
 					</dd>
 				</dl>
@@ -65,7 +60,6 @@ if (!defined('SMF')) {
 			<input type="hidden" name="<?= Utils::$context['login_token_var'] ?>" value="<?= Utils::$context['login_token'] ?>">
 		</div><!-- .login -->
 	</form><?php /* Do the focus thing... */ ?>
-
 	<script>
 		document.forms.frmLogin.user.focus();
 	</script>

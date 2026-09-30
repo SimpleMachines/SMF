@@ -23,9 +23,7 @@ if (!defined('SMF')) {
 ?><?= '<?xml version="1.0" encoding="UTF-8"?>' ?>
 
 <smf><?php foreach (Utils::$context['jump_to'] as $category): ?>
-
 	<item type="category" id="<?= $category['id'] ?>"><![CDATA[<?= Utils::cleanXml($category['name']) ?>]]></item><?php foreach ($category['boards'] as $board): ?>
-
 	<item type="board" id="<?= $board['id'] ?>" childlevel="<?= $board['child_level'] ?>" is_redirect="<?= (int) !empty($board['redirect']) ?>"><![CDATA[<?= Utils::cleanXml($board['name']) ?>]]></item><?php endforeach; ?><?php endforeach; ?>
 
 </smf>

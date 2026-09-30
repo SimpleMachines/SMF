@@ -27,19 +27,16 @@ if (!defined('SMF')) {
 		<meta charset="UTF-8">
 		<title><?= Utils::$context['file_data']['file'] ?></title>
 		<?= Theme::template_css() ?>
-
 	</head>
 	<body>
 		<table class="errorfile_table"><?php foreach (Utils::$context['file_data']['contents'] as $index => $line): ?><?php
 $line_num = $index + Utils::$context['file_data']['min'];
 $is_target = $line_num == Utils::$context['file_data']['target'];
 ?>
-
 			<tr>
 				<td class="file_line<?= $is_target ? ' current">==&gt;' : '">' ?><?= $line_num ?>:</td>
 				<td <?= $is_target ? 'class="current"' : '' ?>><?= $line ?></td>
 			</tr><?php endforeach; ?>
-
 		</table>
 	</body>
 </html>

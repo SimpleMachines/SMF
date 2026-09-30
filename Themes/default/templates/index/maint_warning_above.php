@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The upper part of the maintenance warning box
  */
 ?>
-
 	<div class="errorbox" id="errors">
 		<dl>
 			<dt>
@@ -31,7 +30,6 @@ if (!defined('SMF')) {
 			</dt>
 			<dd class="error" id="error_list">
 				<?= Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'General') ?>
-
 			</dd>
 		</dl>
 	</div>

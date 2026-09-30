@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * The moderation settings page.
  */
 ?>
-
 	<div id="modcenter">
 		<div class="windowbg">
 			<div class="centertext"><?= Lang::getTxt('mc_no_settings', file: 'ModerationCenter') ?></div>

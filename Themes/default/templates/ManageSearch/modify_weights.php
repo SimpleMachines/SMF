@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Modify the search weights.
  */
 ?>
-
 	<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=managesearch;sa=weights" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('search_weights', file: 'Admin') ?></h3>

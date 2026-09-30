@@ -57,32 +57,22 @@ if (!defined('SMF')) {
 			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
 ?><?php /* load in any css from mods or themes so they can overwrite if wanted */ ?><?php Theme::template_css(); ?><?php /* load in any javascript files from mods and themes */ ?><?php Theme::template_javascript(); ?>
-
 	<title><?= Utils::$context['page_title_html_safe'] ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1"><?php /* Content related meta tags, like description, keywords, Open Graph stuff, etc... */ ?><?php foreach (Utils::$context['meta_tags'] as $meta_tag): ?>
-
 	<meta<?php foreach ($meta_tag as $meta_key => $meta_value): ?> <?= $meta_key ?>="<?= $meta_value ?>"<?php endforeach; ?>><?php endforeach; ?><?php
 /*	What is your Lollipop's color?
 		Theme Authors, you can change the color here to make sure your theme's main color gets visible on tab */
 ?>
-
 	<meta name="theme-color" content="#557EA0"><?php /* Please don't index these Mr Robot. */ ?><?php if (!empty(Utils::$context['robot_no_index'])): ?>
-
 	<meta name="robots" content="noindex"><?php endif; ?><?php /* Present a canonical url for search engines to prevent duplicate content in their indices. */ ?><?php if (!empty(Utils::$context['canonical_url'])): ?>
-
 	<link rel="canonical" href="<?= Utils::$context['canonical_url'] ?>"><?php endif; ?><?php /* Show all the relative links, such as help, search, contents, and the like. */ ?>
-
 	<link rel="help" href="<?= Config::$scripturl ?>?action=help">
 	<link rel="contents" href="<?= Config::$scripturl ?>"><?= (Utils::$context['allow_search'] ? '
 	<link rel="search" href="' . Config::$scripturl . '?action=search">' : '') ?><?php /* If RSS feeds are enabled, advertise the presence of one. */ ?><?php if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)): ?>
-
 	<link rel="alternate" type="application/rss+xml" title="<?= Utils::$context['forum_name_html_safe'] ?> - <?= Lang::getTxt('rss', file: 'General') ?>" href="<?= Config::$scripturl ?>?action=feed;type=rss2<?= !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '' ?>">
 	<link rel="alternate" type="application/atom+xml" title="<?= Utils::$context['forum_name_html_safe'] ?> - <?= Lang::getTxt('atom', file: 'General') ?>" href="<?= Config::$scripturl ?>?action=feed;type=atom<?= !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '' ?>"><?php endif; ?><?php /* If we're viewing a topic, these should be the previous and next topics, respectively. */ ?><?php if (!empty(Utils::$context['links']['next'])): ?>
-
 	<link rel="next" href="<?= Utils::$context['links']['next'] ?>"><?php endif; ?><?php if (!empty(Utils::$context['links']['prev'])): ?>
-
 	<link rel="prev" href="<?= Utils::$context['links']['prev'] ?>"><?php endif; ?><?php /* If we're in a board, or a topic for that matter, the index will be the board's index. */ ?><?php if (!empty(Utils::$context['current_board'])): ?>
-
 	<link rel="index" href="<?= Config::$scripturl ?>?board=<?= Utils::$context['current_board'] ?>.0"><?php endif; ?><?php /* Output any remaining HTML headers. (from mods, maybe?) */ ?><?= Utils::$context['html_headers'] ?>
 
 </head>

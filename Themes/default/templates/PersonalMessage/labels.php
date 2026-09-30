@@ -23,21 +23,18 @@ if (!defined('SMF')) {
  * Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=pm;sa=manlabels" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_manage_labels', file: 'PersonalMessage') ?></h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('pm_labels_desc', file: 'PersonalMessage') ?>
-
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="lefttext">
 						<?= Lang::getTxt('pm_label_name', file: 'PersonalMessage') ?>
-
 					</th>
 					<th class="centertext table_icon">
 <?php if (count(Utils::$context['labels']) > 2): ?>

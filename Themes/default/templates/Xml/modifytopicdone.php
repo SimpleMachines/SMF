@@ -29,12 +29,8 @@ if (!defined('SMF')) {
 $modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']], file: 'General');
 $modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']], file: 'General');
 ?>
-
 		<modified><![CDATA[<?= empty($modified) ? '' : Utils::cleanXml('<em>' . $modified . '</em>') ?>]]></modified><?php if (!empty(Utils::$context['message']['subject'])): ?>
-
 		<subject><![CDATA[<?= Utils::cleanXml(Utils::$context['message']['subject']) ?>]]></subject><?php endif; ?><?php else: ?>
-
 		<error in_subject="<?= Utils::$context['message']['error_in_subject'] ? '1' : '0' ?>"><![CDATA[<?= Utils::cleanXml(implode('<br />', Utils::$context['message']['errors'])) ?>]]></error><?php endif; ?>
-
 	</message>
 </smf>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Edit post moderation permissions.
  */
 ?>
-
 					<div id="admin_form_wrapper">
 						<form action="<?= Config::$scripturl ?>?action=admin;area=permissions;sa=postmod;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>" method="post" name="postmodForm" id="postmodForm" accept-charset="UTF-8">
 							<div class="cat_bar">
@@ -52,7 +51,6 @@ if (!defined('SMF')) {
 								<br><br><br>
 								<p class="righttext floatright block">
 									<?= Lang::getTxt('permissions_post_moderation_select', file: 'ManagePermissions') ?>
-
 									<select name="pid" onchange="document.forms.postmodForm.submit();">
 <?php foreach (Utils::$context['profiles'] as $profile): ?>
 <?php if ($profile['can_modify']): ?>
@@ -69,27 +67,22 @@ if (!defined('SMF')) {
 										<th></th>
 										<th class="centercol" colspan="3">
 											<?= Lang::getTxt('permissions_post_moderation_new_topics', file: 'ManagePermissions') ?>
-
 										</th>
 										<th class="centercol" colspan="3">
 											<?= Lang::getTxt('permissions_post_moderation_replies_own', file: 'ManagePermissions') ?>
-
 										</th>
 										<th class="centercol" colspan="3">
 											<?= Lang::getTxt('permissions_post_moderation_replies_any', file: 'ManagePermissions') ?>
-
 										</th>
 <?php if (Config::$modSettings['attachmentEnable'] == 1): ?>
 										<th class="centercol" colspan="3">
 											<?= Lang::getTxt('permissions_post_moderation_attachments', file: 'ManagePermissions') ?>
-
 										</th>
 <?php endif; ?>
 									</tr>
 									<tr class="windowbg">
 										<th class="quarter_table">
 											<?= Lang::getTxt('permissions_post_moderation_group', file: 'ManagePermissions') ?>
-
 										</th>
 										<th><span class="main_icons post_moderation_allow"></span></th>
 										<th><span class="main_icons post_moderation_moderate"></span></th>

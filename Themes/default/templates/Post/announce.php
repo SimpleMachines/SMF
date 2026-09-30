@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The form for sending out an announcement
  */
 ?>
-
 	<div id="announcement">
 		<form action="<?= Config::$scripturl ?>?action=announce;sa=send" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
@@ -31,12 +30,10 @@ if (!defined('SMF')) {
 			</div>
 			<div class="information">
 				<?= Lang::getTxt('announce_desc', file: 'Post') ?>
-
 			</div>
 			<div class="windowbg">
 				<p>
 					<?= Lang::getTxt('announce_this_topic', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0">' . Utils::$context['topic_subject'] . '</a>'], file: 'Post') ?>
-
 				</p>
 				<ul>
 <?php foreach (Utils::$context['groups'] as $group): ?>

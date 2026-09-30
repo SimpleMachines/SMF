@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Template for adding/editing a rule.
  */
 ?>
-
 	<script>
 		var criteriaNum = 0;
 		var actionNum = 0;
@@ -171,12 +170,9 @@ if (!defined('SMF')) {
 // Add a dummy criteria to allow expansion for none js users.
 Utils::$context['rule']->criteria[] = ['t' => '', 'v' => ''];
 ?><?php /* For each criteria print it out. */ ?><?php $isFirst = true; ?><?php foreach (Utils::$context['rule']->criteria as $k => $criteria): ?><?php if (!$isFirst && $criteria['t'] == ''): ?><div id="removeonjs1"><?php elseif (!$isFirst): ?><br><?php endif; ?>
-
 				<select name="ruletype[<?= $k ?>]" id="ruletype<?= $k ?>" onchange="updateRuleDef(<?= $k ?>); rebuildRuleDesc();">
 					<option value="" selected></option><?php foreach (['mid', 'gid', 'sub', 'msg', 'bud'] as $cr): ?>
-
 					<option value="<?= $cr ?>"<?= $criteria['t'] == $cr ? ' selected' : '' ?>><?= Lang::getTxt('pm_rule_' . $cr, file: 'PersonalMessage') ?></option><?php endforeach; ?>
-
 				</select>
 				<span id="defdiv<?= $k ?>" <?= !in_array($criteria['t'], ['gid', 'bud']) ? '' : 'style="display: none;"' ?>>
 					<input type="text" name="ruledef[<?= $k ?>]" id="ruledef<?= $k ?>" onkeyup="rebuildRuleDesc();" value="<?= in_array($criteria['t'], ['mid', 'sub', 'msg']) ? $criteria['v'] : '' ?>">
@@ -184,17 +180,13 @@ Utils::$context['rule']->criteria[] = ['t' => '', 'v' => ''];
 				<span id="defseldiv<?= $k ?>" <?= $criteria['t'] == 'gid' ? '' : 'style="display: none;"' ?>>
 					<select name="ruledefgroup[<?= $k ?>]" id="ruledefgroup<?= $k ?>" onchange="rebuildRuleDesc();">
 						<option value=""><?= Lang::getTxt('pm_rule_sel_group', file: 'PersonalMessage') ?></option><?php foreach (Utils::$context['groups'] as $id => $group): ?>
-
 						<option value="<?= $id ?>"<?= $criteria['t'] == 'gid' && $criteria['v'] == $id ? ' selected' : '' ?>><?= $group ?></option><?php endforeach; ?>
-
 					</select>
 				</span><?php /* If this is the dummy we add a means to hide for non js users. */ ?><?php if ($isFirst): ?><?php $isFirst = false; ?><?php elseif ($criteria['t'] == ''): ?></div><!-- .removeonjs1 --><?php endif; ?><?php endforeach; ?>
-
 				<span id="criteriaAddHere"></span><br>
 				<a href="#" onclick="addCriteriaOption(); return false;" id="addonjs1" style="display: none;">(<?= Lang::getTxt('pm_rule_criteria_add', file: 'PersonalMessage') ?>)</a>
 				<br><br>
 				<?= Lang::getTxt('pm_rule_logic', file: 'PersonalMessage') ?>
-
 				<select name="rule_logic" id="logic" onchange="rebuildRuleDesc();">
 					<option value="and"<?= Utils::$context['rule']->logic == 'and' ? ' selected' : '' ?>><?= Lang::getTxt('pm_rule_logic_and', file: 'PersonalMessage') ?></option>
 					<option value="or"<?= Utils::$context['rule']->logic == 'or' ? ' selected' : '' ?>><?= Lang::getTxt('pm_rule_logic_or', file: 'PersonalMessage') ?></option>
@@ -205,7 +197,6 @@ Utils::$context['rule']->criteria[] = ['t' => '', 'v' => ''];
 // As with criteria - add a dummy action for "expansion".
 Utils::$context['rule']->actions[] = ['t' => '', 'v' => ''];
 ?><?php /* Print each action. */ ?><?php $isFirst = true; ?><?php foreach (Utils::$context['rule']->actions as $k => $action): ?><?php if (!$isFirst && $action['t'] == ''): ?><div id="removeonjs2"><?php elseif (!$isFirst): ?><br><?php endif; ?>
-
 				<select name="acttype[<?= $k ?>]" id="acttype<?= $k ?>" onchange="updateActionDef(<?= $k ?>); rebuildRuleDesc();">
 					<option value=""><?= Lang::getTxt('pm_rule_do_nothing', file: 'PersonalMessage') ?></option>
 					<option value="lab"<?= $action['t'] == 'lab' ? ' selected' : '' ?>><?= Lang::getTxt('pm_rule_label', file: 'PersonalMessage') ?></option>
@@ -214,12 +205,9 @@ Utils::$context['rule']->actions[] = ['t' => '', 'v' => ''];
 				<span id="labdiv<?= $k ?>">
 					<select name="labdef[<?= $k ?>]" id="labdef<?= $k ?>" onchange="rebuildRuleDesc();">
 						<option value=""><?= Lang::getTxt('pm_rule_sel_label', file: 'PersonalMessage') ?></option><?php foreach (Utils::$context['labels'] as $label): ?><?php if ($label['id'] != -1): ?>
-
 						<option value="<?= ($label['id']) ?>"<?= $action['t'] == 'lab' && $action['v'] == $label['id'] ? ' selected' : '' ?>><?= $label['name'] ?></option><?php endif; ?><?php endforeach; ?>
-
 					</select>
 				</span><?php if ($isFirst): ?><?php $isFirst = false; ?><?php elseif ($action['t'] == ''): ?></div><!-- .removeonjs2 --><?php endif; ?><?php endforeach; ?>
-
 				<span id="actionAddHere"></span><br>
 				<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(<?= Lang::getTxt('pm_rule_add_action', file: 'PersonalMessage') ?>)</a>
 			</fieldset>
@@ -235,7 +223,6 @@ Utils::$context['rule']->actions[] = ['t' => '', 'v' => ''];
 			</div>
 		</div><!-- .windowbg -->
 	</form><?php /* Now setup all the bits! */ ?>
-
 	<script><?php foreach (Utils::$context['rule']->criteria as $k => $c): ?>
 
 			updateRuleDef(<?= $k ?>);<?php endforeach; ?><?php foreach (Utils::$context['rule']->actions as $k => $c): ?>

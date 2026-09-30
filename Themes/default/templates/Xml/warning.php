@@ -28,8 +28,6 @@ if (!defined('SMF')) {
 		<body><![CDATA[<?= Utils::$context['preview_message'] ?>]]></body>
 	</preview>
 	<errors serious="<?= empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1' ?>"><?php if (!empty(Utils::$context['post_error']['messages'])): ?><?php foreach (Utils::$context['post_error']['messages'] as $message): ?>
-
 		<error><![CDATA[<?= Utils::cleanXml($message) ?>]]></error><?php endforeach; ?><?php endif; ?>
-
 	</errors>
 </smf>

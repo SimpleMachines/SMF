@@ -24,7 +24,6 @@ if (!defined('SMF')) {
  * The attachment maintenance page
  */
 ?>
-
 	<div id="manage_attachments">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('attachment_stats', file: 'Admin') ?></h3>

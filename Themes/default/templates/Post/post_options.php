@@ -26,7 +26,6 @@ if (!defined('SMF')) {
  * @param array $post_options The options to draw, in the order they go in.
  */
 ?>
-
 					<ul id="post_options" class="smalltext">
 <?php foreach ($post_options as $option): ?>
 <?php if (!$option['can_show']): ?>
@@ -38,7 +37,6 @@ if (!defined('SMF')) {
 <?php endforeach; ?>
 							<label for="<?= $option['id'] ?>">
 								<input type="checkbox" name="<?= $option['name'] ?>" id="<?= $option['id'] ?>" value="<?= $option['value'] ?? '1' ?>"<?= $option['checked'] ? ' checked' : '' ?>> <?= $option['label'] ?>
-
 							</label>
 						</li>
 <?php endforeach; ?>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The page that asks a user to answer their secret question
  */
 ?>
-
 	<br>
 	<form action="<?= Config::$scripturl ?>?action=reminder;sa=secret2" method="post" accept-charset="UTF-8" name="creator" id="creator">
 		<div class="tborder login">

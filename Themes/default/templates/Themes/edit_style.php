@@ -25,12 +25,9 @@ if (!defined('SMF')) {
  * Wanna edit the stylesheet?
  */
 ?><?php if (Utils::$context['session_error']): ?>
-
 	<div class="errorbox">
 		<?= Lang::getTxt('error_session_timeout', file: 'Errors') ?>
-
 	</div><?php endif; ?><?php /* From now on no one can complain that editing css is difficult. If you disagree, go to www.w3schools.com. */ ?>
-
 		<script>
 			var previewData = "";
 			var previewTimeout;
@@ -140,15 +137,12 @@ if (!defined('SMF')) {
 			}
 		</script>
 		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" frameborder="0" style="display: none;"></iframe><?php /* Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.) */ ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=theme;th=<?= Utils::$context['theme_id'] ?>;sa=edit" method="post" accept-charset="UTF-8" name="stylesheetForm" id="stylesheetForm">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('theme_edit_file', ['filename' => Utils::$context['edit_filename']], file: 'Themes') ?></h3>
 			</div>
 			<div class="windowbg"><?php if (!Utils::$context['allow_save']): ?>
-
 				<?= Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']], file: 'Themes') ?><br><?php endif; ?>
-
 				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);"><?= Utils::$context['entire_file'] ?></textarea>
 				<br>
 				<div class="padding righttext">
@@ -158,7 +152,5 @@ if (!defined('SMF')) {
 			</div>
 			<input type="hidden" name="filename" value="<?= Utils::$context['edit_filename'] ?>">
 			<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>"><?php /* Hopefully it exists. */ ?><?php if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'])): ?>
-
 			<input type="hidden" name="<?= Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token_var'] ?>" value="<?= Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'] ?>"><?php endif; ?>
-
 		</form>

@@ -24,7 +24,6 @@ if (!defined('SMF')) {
  * Displays the info center
  */
 ?><?php if (empty(Utils::$context['info_center'])): ?><?php return; ?><?php endif; ?><?php /* Here's where the "Info Center" starts... */ ?>
-
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
@@ -33,10 +32,8 @@ if (!defined('SMF')) {
 			<span class="toggle_up" id="upshrink_ic" title="<?= Lang::getTxt('hide_infocenter', file: 'General') ?>" style="display: none;"></span>
 		</div>
 		<div id="upshrink_stats"<?= empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"' ?>><?php foreach (Utils::$context['info_center'] as $block): ?><?php $this->subTemplate('ic_block_' . $block['tpl']); ?><?php endforeach; ?>
-
 		</div><!-- #upshrink_stats -->
 	</div><!-- #info_center --><?php /* Info center collapse object. */ ?>
-
 	<script>
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,

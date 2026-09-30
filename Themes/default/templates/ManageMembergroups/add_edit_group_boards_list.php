@@ -28,15 +28,12 @@ if (!defined('SMF')) {
 // The parameters that were not passed get the defaults they had as arguments.
 extract(['collapse' => true, 'form_id' => 'new_group'], EXTR_SKIP);
 ?>
-
 							<fieldset id="visible_boards"<?= !empty(Config::$modSettings['deny_boards_access']) ? ' class="denyboards_layout"' : '' ?>>
 								<legend><?= Lang::getTxt('membergroups_new_board_desc', file: 'ManageMembers') ?></legend>
 								<ul class="padding floatleft"><?php foreach (Utils::$context['categories'] as $category): ?><?php if (empty(Config::$modSettings['deny_boards_access'])): ?>
-
 									<li class="category">
 										<a href="javascript:void(0);" onclick="selectBoards([<?= implode(', ', $category['child_ids']) ?>], '<?= $form_id ?>'); return false;"><strong><?= $category['name'] ?></strong></a>
 										<ul><?php else: ?>
-
 									<li class="category clear">
 										<strong><?= $category['name'] ?></strong>
 										<span class="select_all_box floatright">
@@ -49,11 +46,9 @@ extract(['collapse' => true, 'form_id' => 'new_group'], EXTR_SKIP);
 											</select>
 										</span>
 										<ul id="boards_list_<?= $category['id'] ?>"><?php endif; ?><?php foreach ($category['boards'] as $board): ?><?php if (empty(Config::$modSettings['deny_boards_access'])): ?>
-
 											<li class="board" style="margin-inline-start: <?= $board['child_level'] ?>em;">
 												<input type="checkbox" name="boardaccess[<?= $board['id'] ?>]" id="brd<?= $board['id'] ?>" value="allow"<?= $board['allow'] ? ' checked' : '' ?>> <label for="brd<?= $board['id'] ?>"><?= $board['name'] ?></label>
 											</li><?php else: ?>
-
 											<li class="board clear">
 												<span style="margin-inline-start: <?= $board['child_level'] ?>em;"><?= $board['name'] ?>: </span>
 												<span class="floatright">
@@ -62,17 +57,13 @@ extract(['collapse' => true, 'form_id' => 'new_group'], EXTR_SKIP);
 													<input type="radio" name="boardaccess[<?= $board['id'] ?>]" id="deny_brd<?= $board['id'] ?>" value="deny"<?= $board['deny'] ? ' checked' : '' ?>> <label for="deny_brd<?= $board['id'] ?>"><?= Lang::getTxt('permissions_option_deny', file: 'ManagePermissions') ?></label>
 												</span>
 											</li><?php endif; ?><?php endforeach; ?>
-
 										</ul>
 									</li><?php endforeach; ?>
-
 								</ul><?php if (empty(Config::$modSettings['deny_boards_access'])): ?>
-
 								<br class="clear"><br>
 								<input type="checkbox" id="checkall_check" onclick="invertAll(this, this.form, 'boardaccess');">
 								<label for="checkall_check"><em><?= Lang::getTxt('check_all', file: 'General') ?></em></label>
 							</fieldset><?php else: ?>
-
 								<br class="clear">
 								<span class="select_all_box">
 									<em><?= Lang::getTxt('all', file: 'General') ?></em>
@@ -88,7 +79,6 @@ extract(['collapse' => true, 'form_id' => 'new_group'], EXTR_SKIP);
 									});
 								});
 							</script><?php endif; ?><?php if ($collapse): ?>
-
 							<a href="javascript:void(0);" onclick="document.getElementById('visible_boards').classList.remove('hidden'); document.getElementById('visible_boards_link').classList.add('hidden'); return false;" id="visible_boards_link" class="hidden">[ <?= Lang::getTxt('membergroups_select_visible_boards', file: 'ManageMembers') ?> ]</a>
 							<script>
 								document.getElementById("visible_boards_link").classList.remove('hidden');

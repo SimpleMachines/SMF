@@ -23,23 +23,19 @@ if (!defined('SMF')) {
  * Edit language entries. Note that this doesn't always work because of PHP's max_post_vars setting.
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=languages;sa=editlang;lid=<?= Utils::$context['lang_id'] ?>" id="primary_settings" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('edit_languages', file: 'ManageSettings') ?>
-
 				</h3>
 			</div>
 			<div id="editlang_desc" class="information">
 				<?= Lang::getTxt('edit_language_entries_primary', file: 'ManageSettings') ?>
-
 			</div>
 <?php /* Not writable? Oops, show an error for ya. */ ?>
 <?php if (!empty(Utils::$context['lang_file_not_writable_message'])): ?>
 			<div class="errorbox">
 				<?= Utils::$context['lang_file_not_writable_message'] ?>
-
 			</div>
 <?php endif; ?>
 <?php /* Show the language entries */ ?>
@@ -75,18 +71,15 @@ if (!defined('SMF')) {
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('edit_language_entries', file: 'ManageSettings') ?>
-
 				</h3>
 			</div>
 			<div class="information">
 				<div>
 					<?= Lang::getTxt('edit_language_entries_desc', file: 'ManageSettings') ?>
-
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">
 					<?= Lang::getTxt('edit_language_entries_file', file: 'ManageSettings') ?>
-
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
 						<option value="-1">&nbsp;</option>
 <?php foreach (Utils::$context['possible_files'] as $id_theme => $theme): ?>
@@ -106,7 +99,6 @@ if (!defined('SMF')) {
 <?php if (!empty(Utils::$context['entries_not_writable_message'])): ?>
 			<div class="errorbox">
 				<?= Utils::$context['entries_not_writable_message'] ?>
-
 			</div>
 <?php endif; ?>
 <?php /* Already have some file entries? */ ?>

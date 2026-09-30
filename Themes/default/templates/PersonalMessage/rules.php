@@ -23,21 +23,18 @@ if (!defined('SMF')) {
  * Manage rules.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=pm;sa=manrules" method="post" accept-charset="UTF-8" name="manRules" id="manrules">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_manage_rules', file: 'PersonalMessage') ?></h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('pm_manage_rules_desc', file: 'PersonalMessage') ?>
-
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="lefttext">
 						<?= Lang::getTxt('pm_rule_title', file: 'PersonalMessage') ?>
-
 					</th>
 					<th class="centertext table_icon">
 <?php if (!empty(Utils::$context['rules'])): ?>
@@ -51,7 +48,6 @@ if (!defined('SMF')) {
 				<tr class="windowbg">
 					<td colspan="2">
 						<?= Lang::getTxt('pm_rules_none', file: 'PersonalMessage') ?>
-
 					</td>
 				</tr>
 <?php endif; ?>

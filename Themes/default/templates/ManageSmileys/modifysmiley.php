@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Editing an individual smiley
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="UTF-8" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('smiley_modify_existing', file: 'ManageSmileys') ?></h3>
@@ -52,7 +51,6 @@ if (!defined('SMF')) {
 <?php foreach (Utils::$context['smiley_sets'] as $set => $smiley_set): ?>
 				<dt>
 					<?= $smiley_set['name'] ?>
-
 				</dt>
 				<dd<?= in_array($set, Utils::$context['missing_sets']) ? ' class="errorbox"' : '' ?>>
 					<select name="smiley_filename[<?= $set ?>]" id="smiley_filename_<?= $set ?>" onchange="$('#set').val('<?= $set ?>');updatePreview($('#smiley_filename_' + $('#set').val()).val(), $('#set').val());">
@@ -85,15 +83,12 @@ if (!defined('SMF')) {
 					<select name="smiley_location" id="smiley_location">
 						<option value="0"<?= Utils::$context['current_smiley']['location'] == 0 ? ' selected' : '' ?>>
 							<?= Lang::getTxt('smileys_location_form', file: 'ManageSmileys') ?>
-
 						</option>
 						<option value="1"<?= Utils::$context['current_smiley']['location'] == 1 ? ' selected' : '' ?>>
 							<?= Lang::getTxt('smileys_location_hidden', file: 'ManageSmileys') ?>
-
 						</option>
 						<option value="2"<?= Utils::$context['current_smiley']['location'] == 2 ? ' selected' : '' ?>>
 							<?= Lang::getTxt('smileys_location_popup', file: 'ManageSmileys') ?>
-
 						</option>
 					</select>
 				</dd>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The page for deleting a subscription.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=paidsubscribe;sa=modify;sid=<?= Utils::$context['sub_id'] ?>;delete" method="post">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('paid_delete_subscription', file: 'ManagePaid') ?></h3>

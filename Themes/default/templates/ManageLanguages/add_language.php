@@ -25,12 +25,10 @@ if (!defined('SMF')) {
  *
  */
 ?>
-
 		<form id="admin_form_wrapper"action="<?= Config::$scripturl ?>?action=admin;area=languages;sa=add;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('add_language', file: 'ManageSettings') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -47,7 +45,6 @@ if (!defined('SMF')) {
 <?php endif; ?>
 				</fieldset>
 				<?= BrowserDetector::isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '' ?>
-
 				<input type="submit" name="smf_add_sub" value="<?= Lang::getTxt('search', file: 'General') ?>" class="button">
 				<br>
 			</div><!-- .windowbg -->

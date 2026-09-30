@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Examine a single file within a package
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('package_examine_file', file: 'Packages') ?></h3>
 		</div>

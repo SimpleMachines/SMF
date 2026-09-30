@@ -24,5 +24,4 @@ if (!defined('SMF')) {
  * @param array $board Current board information.
  */
 ?>
-
 		<a href="<?= (User::$me->is_guest ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children') ?>" class="board_<?= $board['board_class'] ?>"<?= !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '' ?>></a>

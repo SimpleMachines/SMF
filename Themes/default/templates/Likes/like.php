@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Display a like button and info about how many people liked something
  */
 ?>
-
 	<ul class="floatleft">
 <?php if (!empty(Utils::$context['data']['can_like'])): ?>
 		<li class="smflikebutton" id="<?= Utils::$context['data']['type'] ?>_<?= Utils::$context['data']['id_content'] ?>_likes">

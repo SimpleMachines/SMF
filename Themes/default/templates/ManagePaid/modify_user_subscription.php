@@ -139,7 +139,6 @@ $last_year = max($years) + 10;
 	</div>
 	<div class="information">
 		<?= Lang::getTxt('pending_payments_desc', file: 'ManagePaid') ?>
-
 	</div>
 	<div class="cat_bar">
 		<h3 class="catbg"><?= Lang::getTxt('pending_payments_value', file: 'ManagePaid') ?></h3>
@@ -149,7 +148,6 @@ $last_year = max($years) + 10;
 <?php foreach (Utils::$context['pending_payments'] as $id => $payment): ?>
 			<li>
 				<?= $payment['desc'] ?>
-
 				<span class="floatleft">
 					<a href="<?= Config::$scripturl ?>?action=admin;area=paidsubscribe;sa=modifyuser;lid=<?= Utils::$context['log_id'] ?>;pending=<?= $id ?>;accept"><?= Lang::getTxt('pending_payments_accept', file: 'ManagePaid') ?></a>
 				</span>
