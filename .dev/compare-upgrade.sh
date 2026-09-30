@@ -73,7 +73,7 @@ esac
 snapshot() {
 	local smf_type="$1" label="$2" file="$3"
 
-	docker compose exec -T web php .dev/schema-tool.php dump \
+	docker compose exec -T $(web_user_flags) web php .dev/schema-tool.php dump \
 		--engine "$smf_type" \
 		--db "$DB_NAME" \
 		--prefix "$DB_PREFIX" \
@@ -138,7 +138,7 @@ compare_one() {
 	log "${smf_type}: upgrading"
 
 	local upgraded=0
-	docker compose exec -T web php upgrade.php > "$OUT/upgrade-${smf_type}.log" 2>&1 || upgraded=$?
+	docker compose exec -T $(web_user_flags) web php upgrade.php > "$OUT/upgrade-${smf_type}.log" 2>&1 || upgraded=$?
 
 	rm -f upgrade.php
 
@@ -178,7 +178,7 @@ compare_one() {
 	# ------------------------------------------------------------ the report
 	local status=0
 
-	docker compose exec -T web php .dev/schema-tool.php diff \
+	docker compose exec -T $(web_user_flags) web php .dev/schema-tool.php diff \
 		"${OUT_REL}/fresh-${smf_type}.json" \
 		"${OUT_REL}/upgraded-${smf_type}.json" \
 		> "$OUT/report-${smf_type}.txt" || status=$?

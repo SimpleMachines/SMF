@@ -152,7 +152,7 @@ run_and_kill() {
 	rm -f "$UPGRADE_LOG"
 
 	# shellcheck disable=SC2086 -- deliberately word split; these are flags.
-	docker compose exec -T web php upgrade.php ${UPGRADE_ARGS:-} > "$log" 2>&1 &
+	docker compose exec -T $(web_user_flags) web php upgrade.php ${UPGRADE_ARGS:-} > "$log" 2>&1 &
 	local runner=$!
 
 	# Polling the log rather than the process: the point of interest is what
@@ -164,7 +164,7 @@ run_and_kill() {
 			# The process this shell started is the docker client. Killing it
 			# closes the connection but leaves php running in the container, so
 			# the container's copy is the one that has to be signalled.
-			docker compose exec -T web pkill -9 -f 'php upgrade.php' >/dev/null 2>&1 || true
+			docker compose exec -T $(web_user_flags) web pkill -9 -f 'php upgrade.php' >/dev/null 2>&1 || true
 			wait "$runner" 2>/dev/null || true
 			rm -f upgrade.php
 

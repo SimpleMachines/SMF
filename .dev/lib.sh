@@ -203,6 +203,16 @@ installed_version() {
 # whatever the image ships.
 PHP_BIN="${PHP_BIN:-php}"
 
+# Who PHP runs as in the web container. With WWW_UID set in .env, www-data has
+# the host user's ids, and running as www-data leaves what PHP writes owned by
+# the host user and writable by the web server alike. Without it, as root, the
+# default for docker compose exec. See .docker/env.example.
+web_user_flags() {
+	if [ -n "${WWW_UID:-}" ]; then
+		printf '%s\n' -u www-data
+	fi
+}
+
 # Runs php with some environment set, as `run_php_env VAR=value -- script args`.
 #
 # The variables have to be handed over rather than exported: docker compose exec
@@ -223,6 +233,8 @@ run_php_env() {
 		for entry in ${envs[@]+"${envs[@]}"}; do
 			flags+=(-e "$entry")
 		done
+
+		mapfile -t -O "${#flags[@]}" flags < <(web_user_flags)
 
 		docker compose exec -T ${flags[@]+"${flags[@]}"} web php "$@"
 
@@ -246,7 +258,11 @@ run_php() {
 # shebang line does not.
 run_cmd() {
 	if is_docker; then
-		docker compose exec -T web "$@"
+		local -a flags=()
+
+		mapfile -t flags < <(web_user_flags)
+
+		docker compose exec -T ${flags[@]+"${flags[@]}"} web "$@"
 
 		return
 	fi
