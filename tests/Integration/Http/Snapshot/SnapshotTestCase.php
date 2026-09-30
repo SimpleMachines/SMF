@@ -176,6 +176,10 @@ abstract class SnapshotTestCase extends HttpTestCase
 	 */
 	public function assertPageMatchesSnapshot(string $name, string $path, array $roots = self::PAGE, array $ignore = [], array $only = [], array $unordered = []): void
 	{
+		// Some pages count as a search, and a search within a few seconds of the
+		// last is turned away. Pages follow each other faster than that.
+		$this->forgetFloodControl();
+
 		$this->assertMatchesSnapshot($name, $this->http->get($this->resolve($path)), $roots, $ignore, $only, $unordered);
 	}
 
