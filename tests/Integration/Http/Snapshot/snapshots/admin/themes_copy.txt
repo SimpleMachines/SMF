@@ -94,7 +94,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Agreement.template.php"
+          "templates/Agreement/"
           span.error
             "(already exists)"
         span.floatright
@@ -110,7 +110,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Calendar.template.php"
+          "templates/Calendar/"
           span.error
             "(already exists)"
         span.floatright
@@ -118,7 +118,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Display.template.php"
+          "templates/Display/"
           span.error
             "(already exists)"
         span.floatright
@@ -126,7 +126,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "EditHistory.template.php"
+          "templates/EditHistory/"
           span.error
             "(already exists)"
         span.floatright
@@ -134,7 +134,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Errors.template.php"
+          "templates/Errors/"
           span.error
             "(already exists)"
         span.floatright
@@ -166,7 +166,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "GenericMenu.template.php"
+          "templates/GenericMenu/"
           span.error
             "(already exists)"
         span.floatright
@@ -174,7 +174,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Help.template.php"
+          "templates/Help/"
           span.error
             "(already exists)"
         span.floatright
@@ -190,7 +190,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Likes.template.php"
+          "templates/Likes/"
           span.error
             "(already exists)"
         span.floatright
@@ -198,7 +198,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Login.template.php"
+          "templates/Login/"
           span.error
             "(already exists)"
         span.floatright
@@ -206,7 +206,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageAttachments.template.php"
+          "templates/ManageAttachments/"
           span.error
             "(already exists)"
         span.floatright
@@ -214,7 +214,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageBans.template.php"
+          "templates/ManageBans/"
           span.error
             "(already exists)"
         span.floatright
@@ -222,7 +222,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageBoards.template.php"
+          "templates/ManageBoards/"
           span.error
             "(already exists)"
         span.floatright
@@ -230,7 +230,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageCalendar.template.php"
+          "templates/ManageCalendar/"
           span.error
             "(already exists)"
         span.floatright
@@ -238,7 +238,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageLanguages.template.php"
+          "templates/ManageLanguages/"
           span.error
             "(already exists)"
         span.floatright
@@ -246,7 +246,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageMail.template.php"
+          "templates/ManageMail/"
           span.error
             "(already exists)"
         span.floatright
@@ -254,7 +254,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageMaintenance.template.php"
+          "templates/ManageMaintenance/"
           span.error
             "(already exists)"
         span.floatright
@@ -262,7 +262,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageMembergroups.template.php"
+          "templates/ManageMembergroups/"
           span.error
             "(already exists)"
         span.floatright
@@ -270,7 +270,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageMembers.template.php"
+          "templates/ManageMembers/"
           span.error
             "(already exists)"
         span.floatright
@@ -278,7 +278,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageNews.template.php"
+          "templates/ManageNews/"
           span.error
             "(already exists)"
         span.floatright
@@ -286,7 +286,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManagePaid.template.php"
+          "templates/ManagePaid/"
           span.error
             "(already exists)"
         span.floatright
@@ -302,7 +302,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageScheduledTasks.template.php"
+          "templates/ManageScheduledTasks/"
           span.error
             "(already exists)"
         span.floatright
@@ -310,7 +310,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageSearch.template.php"
+          "templates/ManageSearch/"
           span.error
             "(already exists)"
         span.floatright
@@ -318,7 +318,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManageSmileys.template.php"
+          "templates/ManageSmileys/"
           span.error
             "(already exists)"
         span.floatright
@@ -326,7 +326,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Memberlist.template.php"
+          "templates/Memberlist/"
           span.error
             "(already exists)"
         span.floatright
@@ -350,7 +350,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "MoveTopic.template.php"
+          "templates/MoveTopic/"
           span.error
             "(already exists)"
         span.floatright
@@ -358,7 +358,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Notify.template.php"
+          "templates/Notify/"
           span.error
             "(already exists)"
         span.floatright
@@ -366,7 +366,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Packages.template.php"
+          "templates/Packages/"
           span.error
             "(already exists)"
         span.floatright
@@ -374,7 +374,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "PersonalMessage.template.php"
+          "templates/PersonalMessage/"
           span.error
             "(already exists)"
         span.floatright
@@ -382,7 +382,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Poll.template.php"
+          "templates/Poll/"
           span.error
             "(already exists)"
         span.floatright
@@ -390,7 +390,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Post.template.php"
+          "templates/Post/"
           span.error
             "(already exists)"
         span.floatright
@@ -398,7 +398,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Printpage.template.php"
+          "templates/Printpage/"
           span.error
             "(already exists)"
         span.floatright
@@ -414,7 +414,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Recent.template.php"
+          "templates/Recent/"
           span.error
             "(already exists)"
         span.floatright
@@ -422,7 +422,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Register.template.php"
+          "templates/Register/"
           span.error
             "(already exists)"
         span.floatright
@@ -430,7 +430,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Reminder.template.php"
+          "templates/Reminder/"
           span.error
             "(already exists)"
         span.floatright
@@ -438,7 +438,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ReportedContent.template.php"
+          "templates/ReportedContent/"
           span.error
             "(already exists)"
         span.floatright
@@ -446,7 +446,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Reports.template.php"
+          "templates/Reports/"
           span.error
             "(already exists)"
         span.floatright
@@ -454,7 +454,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ReportToMod.template.php"
+          "templates/ReportToMod/"
           span.error
             "(already exists)"
         span.floatright
@@ -462,7 +462,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Search.template.php"
+          "templates/Search/"
           span.error
             "(already exists)"
         span.floatright
@@ -470,7 +470,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Settings.template.php"
+          "templates/Settings/"
           span.error
             "(already exists)"
         span.floatright
@@ -478,7 +478,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "SplitTopics.template.php"
+          "templates/SplitTopics/"
           span.error
             "(already exists)"
         span.floatright
@@ -494,7 +494,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Themes.template.php"
+          "templates/Themes/"
           span.error
             "(already exists)"
         span.floatright
@@ -510,7 +510,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Who.template.php"
+          "templates/Who/"
           span.error
             "(already exists)"
         span.floatright
