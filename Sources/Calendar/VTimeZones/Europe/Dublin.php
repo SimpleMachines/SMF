@@ -185,20 +185,27 @@ class Dublin extends VTimeZone
 		],
 		17 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '19250920T030000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0100',
+			'TZOFFSETTO' => '+0000',
+		],
+		18 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19251004T030000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=2,3,4,5,6,7,8;UNTIL=19381002T010000Z',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		18 => [
+		19 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19270410T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		19 => [
+		20 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19280422T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19290421T020000Z',
@@ -206,14 +213,14 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		20 => [
+		21 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19300413T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		21 => [
+		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19310419T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19320417T020000Z',
@@ -221,28 +228,28 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		22 => [
+		23 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19330409T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		23 => [
+		24 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19340422T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		24 => [
+		25 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19350414T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		25 => [
+		26 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19360419T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19370418T020000Z',
@@ -250,84 +257,84 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		26 => [
+		27 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19380410T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		27 => [
+		28 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19390416T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		28 => [
+		29 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19391119T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		29 => [
+		30 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19400225T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		30 => [
+		31 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19461006T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		31 => [
+		32 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19470316T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		32 => [
+		33 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19471102T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		33 => [
+		34 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19480418T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		34 => [
+		35 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19481031T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		35 => [
+		36 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19490403T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		36 => [
+		37 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19491030T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		37 => [
+		38 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19500416T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=14,15,16,17,18,19,20;UNTIL=19520420T020000Z',
@@ -335,7 +342,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		38 => [
+		39 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19501022T030000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=21,22,23,24,25,26,27;UNTIL=19521026T010000Z',
@@ -343,14 +350,14 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		39 => [
+		40 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19530419T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		40 => [
+		41 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19531004T030000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=2,3,4,5,6,7,8;UNTIL=19601002T010000Z',
@@ -358,14 +365,14 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		41 => [
+		42 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19540411T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		42 => [
+		43 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19550417T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19560422T020000Z',
@@ -373,14 +380,14 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		43 => [
+		44 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19570414T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		44 => [
+		45 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19580420T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19590419T020000Z',
@@ -388,14 +395,14 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		45 => [
+		46 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19600410T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		46 => [
+		47 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19610326T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19630331T020000Z',
@@ -403,7 +410,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		47 => [
+		48 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19611029T030000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=23,24,25,26,27,28,29;UNTIL=19681027T010000Z',
@@ -411,7 +418,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		48 => [
+		49 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19640322T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=SU;BYMONTHDAY=19,20,21,22,23,24,25;UNTIL=19670319T020000Z',
@@ -419,28 +426,28 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		49 => [
+		50 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19680218T020000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		50 => [
+		51 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19681027T000000',
 			'TZNAME' => 'IST',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0100',
 		],
-		51 => [
+		52 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19711031T030000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		52 => [
+		53 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19720816T010000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=SU;BYMONTHDAY=16,17,18,19,20,21,22;UNTIL=19800316T020000Z',
@@ -448,7 +455,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		53 => [
+		54 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19730328T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=23,24,25,26,27,28,29;UNTIL=19801026T010000Z',
@@ -456,7 +463,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		54 => [
+		55 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19810826T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
@@ -464,7 +471,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0100',
 		],
-		55 => [
+		56 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19820324T010000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=23,24,25,26,27,28,29;UNTIL=19891029T000000Z',
@@ -472,7 +479,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		56 => [
+		57 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19910327T010000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=4SU;UNTIL=19951022T000000Z',
@@ -480,7 +487,7 @@ class Dublin extends VTimeZone
 			'TZOFFSETFROM' => '+0100',
 			'TZOFFSETTO' => '+0000',
 		],
-		57 => [
+		58 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19970326T010000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',

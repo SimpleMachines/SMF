@@ -259,7 +259,7 @@ class Winnipeg extends VTimeZone
 		27 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU;UNTIL=20260308T080000Z',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
@@ -267,10 +267,17 @@ class Winnipeg extends VTimeZone
 		28 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU;UNTIL=20251102T070000Z',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
+		],
+		29 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20261101T020000',
+			'TZNAME' => 'EST',
+			'TZOFFSETFROM' => '-0500',
+			'TZOFFSETTO' => '-0500',
 		],
 	];
 }
