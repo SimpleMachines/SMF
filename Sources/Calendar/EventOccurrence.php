@@ -566,7 +566,7 @@ class EventOccurrence implements \ArrayAccess
 	 */
 	public function fixTimezone(): void
 	{
-		$all_timezones = TimeZone::list($this->start->date);
+		$all_timezones = TimeZone::list($this->start->timestamp, flat: true);
 
 		if (!isset($all_timezones[$this->start->timezone])) {
 			$later = strtotime('@' . $this->start->timestamp . ' + 1 year');
@@ -575,11 +575,6 @@ class EventOccurrence implements \ArrayAccess
 			$found = false;
 
 			foreach ($all_timezones as $possible_tzid => $dummy) {
-				// Ignore the "-----" option
-				if (empty($possible_tzid)) {
-					continue;
-				}
-
 				$possible_tzinfo = (new \DateTimeZone($possible_tzid))->getTransitions($this->start->timestamp, $later);
 
 				if ($tzinfo === $possible_tzinfo) {
@@ -591,7 +586,7 @@ class EventOccurrence implements \ArrayAccess
 
 			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
 			if (!$found) {
-				$all_timezones = [$this->start->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->start->timezone] + $all_timezones;
+				Utils::$context['all_timezones'] = ['' => [$this->start->timezone => '[UTC' . $this->start->format('P') . '] - ' . $this->start->timezone]] + Utils::$context['all_timezones'];
 			}
 		}
 	}

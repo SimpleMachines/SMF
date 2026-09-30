@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Africa;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Africa/Algiers
  */
-class Algiers extends \SMF\Calendar\VTimeZone
+class Algiers extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,34 @@ class Algiers extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Africa/Algiers';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Europe_Western',
+		],
+		1 => [
+			'ts' => '1977-10-20T23:00:00+0000',
+			'metazone' => 'Europe_Central',
+		],
+		2 => [
+			'ts' => '1979-10-25T23:00:00+0000',
+			'metazone' => 'Europe_Western',
+		],
+		3 => [
+			'ts' => '1981-05-01T00:00:00+0000',
+			'metazone' => 'Europe_Central',
+		],
+	];
 
 	/**
 	 * @var array

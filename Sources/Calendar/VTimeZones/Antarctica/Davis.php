@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Antarctica;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Antarctica/Davis
  */
-class Davis extends \SMF\Calendar\VTimeZone
+class Davis extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -34,6 +36,22 @@ class Davis extends \SMF\Calendar\VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Davis',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,
@@ -42,47 +60,54 @@ class Davis extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19570113T000000',
 			'TZNAME' => 'UTC+07',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0700',
 		],
-		1 => [
+		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19641101T000000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0700',
 			'TZOFFSETTO' => '+0000',
 		],
-		2 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19690201T000000',
 			'TZNAME' => 'UTC+07',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0700',
 		],
-		3 => [
+		4 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20091018T020000',
 			'TZNAME' => 'UTC+05',
 			'TZOFFSETFROM' => '+0700',
 			'TZOFFSETTO' => '+0500',
 		],
-		4 => [
+		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20100311T010000',
 			'TZNAME' => 'UTC+07',
 			'TZOFFSETFROM' => '+0500',
 			'TZOFFSETTO' => '+0700',
 		],
-		5 => [
+		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20111028T020000',
 			'TZNAME' => 'UTC+05',
 			'TZOFFSETFROM' => '+0700',
 			'TZOFFSETTO' => '+0500',
 		],
-		6 => [
+		7 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20120222T010000',
 			'TZNAME' => 'UTC+07',

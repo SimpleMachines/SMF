@@ -39,563 +39,898 @@ class TimeZone extends \DateTimeZone
 	 */
 	public const DST_ALWAYS = 2;
 
-	/**************************
-	 * Public static properties
-	 **************************/
+	/**
+	 * @var array
+	 *
+	 * Links deprecated time zone identifiers to their canonical equivalents.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public const CANONICAL_LINKS = [
+		'Africa/Accra' => 'Africa/Abidjan',
+		'Africa/Addis_Ababa' => 'Africa/Nairobi',
+		'Africa/Asmara' => 'Africa/Nairobi',
+		'Africa/Asmera' => 'Africa/Nairobi',
+		'Africa/Bamako' => 'Africa/Abidjan',
+		'Africa/Bangui' => 'Africa/Lagos',
+		'Africa/Banjul' => 'Africa/Abidjan',
+		'Africa/Blantyre' => 'Africa/Maputo',
+		'Africa/Brazzaville' => 'Africa/Lagos',
+		'Africa/Bujumbura' => 'Africa/Maputo',
+		'Africa/Conakry' => 'Africa/Abidjan',
+		'Africa/Dakar' => 'Africa/Abidjan',
+		'Africa/Dar_es_Salaam' => 'Africa/Nairobi',
+		'Africa/Djibouti' => 'Africa/Nairobi',
+		'Africa/Douala' => 'Africa/Lagos',
+		'Africa/Freetown' => 'Africa/Abidjan',
+		'Africa/Gaborone' => 'Africa/Maputo',
+		'Africa/Harare' => 'Africa/Maputo',
+		'Africa/Kampala' => 'Africa/Nairobi',
+		'Africa/Kigali' => 'Africa/Maputo',
+		'Africa/Kinshasa' => 'Africa/Lagos',
+		'Africa/Libreville' => 'Africa/Lagos',
+		'Africa/Lome' => 'Africa/Abidjan',
+		'Africa/Luanda' => 'Africa/Lagos',
+		'Africa/Lubumbashi' => 'Africa/Maputo',
+		'Africa/Lusaka' => 'Africa/Maputo',
+		'Africa/Malabo' => 'Africa/Lagos',
+		'Africa/Maseru' => 'Africa/Johannesburg',
+		'Africa/Mbabane' => 'Africa/Johannesburg',
+		'Africa/Mogadishu' => 'Africa/Nairobi',
+		'Africa/Niamey' => 'Africa/Lagos',
+		'Africa/Nouakchott' => 'Africa/Abidjan',
+		'Africa/Ouagadougou' => 'Africa/Abidjan',
+		'Africa/Porto-Novo' => 'Africa/Lagos',
+		'Africa/Timbuktu' => 'Africa/Abidjan',
+		'America/Anguilla' => 'America/Puerto_Rico',
+		'America/Antigua' => 'America/Puerto_Rico',
+		'America/Argentina/ComodRivadavia' => 'America/Argentina/Catamarca',
+		'America/Aruba' => 'America/Puerto_Rico',
+		'America/Atikokan' => 'America/Panama',
+		'America/Atka' => 'America/Adak',
+		'America/Blanc-Sablon' => 'America/Puerto_Rico',
+		'America/Buenos_Aires' => 'America/Argentina/Buenos_Aires',
+		'America/Catamarca' => 'America/Argentina/Catamarca',
+		'America/Cayman' => 'America/Panama',
+		'America/Coral_Harbour' => 'America/Panama',
+		'America/Cordoba' => 'America/Argentina/Cordoba',
+		'America/Creston' => 'America/Phoenix',
+		'America/Curacao' => 'America/Puerto_Rico',
+		'America/Dominica' => 'America/Puerto_Rico',
+		'America/Ensenada' => 'America/Tijuana',
+		'America/Fort_Wayne' => 'America/Indiana/Indianapolis',
+		'America/Godthab' => 'America/Nuuk',
+		'America/Grenada' => 'America/Puerto_Rico',
+		'America/Guadeloupe' => 'America/Puerto_Rico',
+		'America/Indianapolis' => 'America/Indiana/Indianapolis',
+		'America/Jujuy' => 'America/Argentina/Jujuy',
+		'America/Knox_IN' => 'America/Indiana/Knox',
+		'America/Kralendijk' => 'America/Puerto_Rico',
+		'America/Louisville' => 'America/Kentucky/Louisville',
+		'America/Lower_Princes' => 'America/Puerto_Rico',
+		'America/Marigot' => 'America/Puerto_Rico',
+		'America/Mendoza' => 'America/Argentina/Mendoza',
+		'America/Montreal' => 'America/Toronto',
+		'America/Montserrat' => 'America/Puerto_Rico',
+		'America/Nassau' => 'America/Toronto',
+		'America/Nipigon' => 'America/Toronto',
+		'America/Pangnirtung' => 'America/Iqaluit',
+		'America/Port_of_Spain' => 'America/Puerto_Rico',
+		'America/Porto_Acre' => 'America/Rio_Branco',
+		'America/Rainy_River' => 'America/Winnipeg',
+		'America/Rosario' => 'America/Argentina/Cordoba',
+		'America/Santa_Isabel' => 'America/Tijuana',
+		'America/Shiprock' => 'America/Denver',
+		'America/St_Barthelemy' => 'America/Puerto_Rico',
+		'America/St_Kitts' => 'America/Puerto_Rico',
+		'America/St_Lucia' => 'America/Puerto_Rico',
+		'America/St_Thomas' => 'America/Puerto_Rico',
+		'America/St_Vincent' => 'America/Puerto_Rico',
+		'America/Thunder_Bay' => 'America/Toronto',
+		'America/Tortola' => 'America/Puerto_Rico',
+		'America/Virgin' => 'America/Puerto_Rico',
+		'America/Yellowknife' => 'America/Edmonton',
+		'Antarctica/DumontDUrville' => 'Pacific/Port_Moresby',
+		'Antarctica/McMurdo' => 'Pacific/Auckland',
+		'Antarctica/South_Pole' => 'Pacific/Auckland',
+		'Antarctica/Syowa' => 'Asia/Riyadh',
+		'Arctic/Longyearbyen' => 'Europe/Berlin',
+		'Asia/Aden' => 'Asia/Riyadh',
+		'Asia/Ashkhabad' => 'Asia/Ashgabat',
+		'Asia/Bahrain' => 'Asia/Qatar',
+		'Asia/Brunei' => 'Asia/Kuching',
+		'Asia/Calcutta' => 'Asia/Kolkata',
+		'Asia/Choibalsan' => 'Asia/Ulaanbaatar',
+		'Asia/Chongqing' => 'Asia/Shanghai',
+		'Asia/Chungking' => 'Asia/Shanghai',
+		'Asia/Dacca' => 'Asia/Dhaka',
+		'Asia/Harbin' => 'Asia/Shanghai',
+		'Asia/Istanbul' => 'Europe/Istanbul',
+		'Asia/Kashgar' => 'Asia/Urumqi',
+		'Asia/Katmandu' => 'Asia/Kathmandu',
+		'Asia/Kuala_Lumpur' => 'Asia/Singapore',
+		'Asia/Kuwait' => 'Asia/Riyadh',
+		'Asia/Macao' => 'Asia/Macau',
+		'Asia/Muscat' => 'Asia/Dubai',
+		'Asia/Phnom_Penh' => 'Asia/Bangkok',
+		'Asia/Rangoon' => 'Asia/Yangon',
+		'Asia/Saigon' => 'Asia/Ho_Chi_Minh',
+		'Asia/Tel_Aviv' => 'Asia/Jerusalem',
+		'Asia/Thimbu' => 'Asia/Thimphu',
+		'Asia/Ujung_Pandang' => 'Asia/Makassar',
+		'Asia/Ulan_Bator' => 'Asia/Ulaanbaatar',
+		'Asia/Vientiane' => 'Asia/Bangkok',
+		'Atlantic/Faeroe' => 'Atlantic/Faroe',
+		'Atlantic/Jan_Mayen' => 'Europe/Berlin',
+		'Atlantic/Reykjavik' => 'Africa/Abidjan',
+		'Atlantic/St_Helena' => 'Africa/Abidjan',
+		'Australia/ACT' => 'Australia/Sydney',
+		'Australia/Canberra' => 'Australia/Sydney',
+		'Australia/Currie' => 'Australia/Hobart',
+		'Australia/LHI' => 'Australia/Lord_Howe',
+		'Australia/NSW' => 'Australia/Sydney',
+		'Australia/North' => 'Australia/Darwin',
+		'Australia/Queensland' => 'Australia/Brisbane',
+		'Australia/South' => 'Australia/Adelaide',
+		'Australia/Tasmania' => 'Australia/Hobart',
+		'Australia/Victoria' => 'Australia/Melbourne',
+		'Australia/West' => 'Australia/Perth',
+		'Australia/Yancowinna' => 'Australia/Broken_Hill',
+		'Brazil/Acre' => 'America/Rio_Branco',
+		'Brazil/DeNoronha' => 'America/Noronha',
+		'Brazil/East' => 'America/Sao_Paulo',
+		'Brazil/West' => 'America/Manaus',
+		'CET' => 'Europe/Brussels',
+		'Canada/Atlantic' => 'America/Halifax',
+		'Canada/Central' => 'America/Winnipeg',
+		'Canada/Eastern' => 'America/Toronto',
+		'Canada/Mountain' => 'America/Edmonton',
+		'Canada/Newfoundland' => 'America/St_Johns',
+		'Canada/Pacific' => 'America/Vancouver',
+		'Canada/Saskatchewan' => 'America/Regina',
+		'Canada/Yukon' => 'America/Whitehorse',
+		'Chile/Continental' => 'America/Santiago',
+		'Chile/EasterIsland' => 'Pacific/Easter',
+		'Cuba' => 'America/Havana',
+		'EET' => 'Europe/Athens',
+		'EST' => 'America/Panama',
+		'Egypt' => 'Africa/Cairo',
+		'Eire' => 'Europe/Dublin',
+		'Etc/GMT+0' => 'Etc/GMT',
+		'Etc/GMT-0' => 'Etc/GMT',
+		'Etc/GMT0' => 'Etc/GMT',
+		'Etc/Greenwich' => 'Etc/GMT',
+		'Etc/UCT' => 'Etc/UTC',
+		'Etc/Universal' => 'Etc/UTC',
+		'Etc/Zulu' => 'Etc/UTC',
+		'Europe/Amsterdam' => 'Europe/Brussels',
+		'Europe/Belfast' => 'Europe/London',
+		'Europe/Bratislava' => 'Europe/Prague',
+		'Europe/Busingen' => 'Europe/Zurich',
+		'Europe/Copenhagen' => 'Europe/Berlin',
+		'Europe/Guernsey' => 'Europe/London',
+		'Europe/Isle_of_Man' => 'Europe/London',
+		'Europe/Jersey' => 'Europe/London',
+		'Europe/Kiev' => 'Europe/Kyiv',
+		'Europe/Ljubljana' => 'Europe/Belgrade',
+		'Europe/Luxembourg' => 'Europe/Brussels',
+		'Europe/Mariehamn' => 'Europe/Helsinki',
+		'Europe/Monaco' => 'Europe/Paris',
+		'Europe/Nicosia' => 'Asia/Nicosia',
+		'Europe/Oslo' => 'Europe/Berlin',
+		'Europe/Podgorica' => 'Europe/Belgrade',
+		'Europe/San_Marino' => 'Europe/Rome',
+		'Europe/Sarajevo' => 'Europe/Belgrade',
+		'Europe/Skopje' => 'Europe/Belgrade',
+		'Europe/Stockholm' => 'Europe/Berlin',
+		'Europe/Tiraspol' => 'Europe/Chisinau',
+		'Europe/Uzhgorod' => 'Europe/Kyiv',
+		'Europe/Vaduz' => 'Europe/Zurich',
+		'Europe/Vatican' => 'Europe/Rome',
+		'Europe/Zagreb' => 'Europe/Belgrade',
+		'Europe/Zaporozhye' => 'Europe/Kyiv',
+		'GB' => 'Europe/London',
+		'GB-Eire' => 'Europe/London',
+		'GMT' => 'Etc/GMT',
+		'GMT+0' => 'Etc/GMT',
+		'GMT-0' => 'Etc/GMT',
+		'GMT0' => 'Etc/GMT',
+		'Greenwich' => 'Etc/GMT',
+		'HST' => 'Pacific/Honolulu',
+		'Hongkong' => 'Asia/Hong_Kong',
+		'Iceland' => 'Africa/Abidjan',
+		'Indian/Antananarivo' => 'Africa/Nairobi',
+		'Indian/Christmas' => 'Asia/Bangkok',
+		'Indian/Cocos' => 'Asia/Yangon',
+		'Indian/Comoro' => 'Africa/Nairobi',
+		'Indian/Kerguelen' => 'Indian/Maldives',
+		'Indian/Mahe' => 'Asia/Dubai',
+		'Indian/Mayotte' => 'Africa/Nairobi',
+		'Indian/Reunion' => 'Asia/Dubai',
+		'Iran' => 'Asia/Tehran',
+		'Israel' => 'Asia/Jerusalem',
+		'Jamaica' => 'America/Jamaica',
+		'Japan' => 'Asia/Tokyo',
+		'Kwajalein' => 'Pacific/Kwajalein',
+		'Libya' => 'Africa/Tripoli',
+		'MET' => 'Europe/Brussels',
+		'MST' => 'America/Phoenix',
+		'Mexico/BajaNorte' => 'America/Tijuana',
+		'Mexico/BajaSur' => 'America/Mazatlan',
+		'Mexico/General' => 'America/Mexico_City',
+		'NZ' => 'Pacific/Auckland',
+		'NZ-CHAT' => 'Pacific/Chatham',
+		'Navajo' => 'America/Denver',
+		'PRC' => 'Asia/Shanghai',
+		'Pacific/Chuuk' => 'Pacific/Port_Moresby',
+		'Pacific/Enderbury' => 'Pacific/Kanton',
+		'Pacific/Funafuti' => 'Pacific/Tarawa',
+		'Pacific/Johnston' => 'Pacific/Honolulu',
+		'Pacific/Majuro' => 'Pacific/Tarawa',
+		'Pacific/Midway' => 'Pacific/Pago_Pago',
+		'Pacific/Pohnpei' => 'Pacific/Guadalcanal',
+		'Pacific/Ponape' => 'Pacific/Guadalcanal',
+		'Pacific/Saipan' => 'Pacific/Guam',
+		'Pacific/Samoa' => 'Pacific/Pago_Pago',
+		'Pacific/Truk' => 'Pacific/Port_Moresby',
+		'Pacific/Wake' => 'Pacific/Tarawa',
+		'Pacific/Wallis' => 'Pacific/Tarawa',
+		'Pacific/Yap' => 'Pacific/Port_Moresby',
+		'Poland' => 'Europe/Warsaw',
+		'Portugal' => 'Europe/Lisbon',
+		'ROC' => 'Asia/Taipei',
+		'ROK' => 'Asia/Seoul',
+		'Singapore' => 'Asia/Singapore',
+		'Turkey' => 'Europe/Istanbul',
+		'UCT' => 'Etc/UTC',
+		'US/Alaska' => 'America/Anchorage',
+		'US/Aleutian' => 'America/Adak',
+		'US/Arizona' => 'America/Phoenix',
+		'US/Central' => 'America/Chicago',
+		'US/East-Indiana' => 'America/Indiana/Indianapolis',
+		'US/Eastern' => 'America/New_York',
+		'US/Hawaii' => 'Pacific/Honolulu',
+		'US/Indiana-Starke' => 'America/Indiana/Knox',
+		'US/Michigan' => 'America/Detroit',
+		'US/Mountain' => 'America/Denver',
+		'US/Pacific' => 'America/Los_Angeles',
+		'US/Samoa' => 'Pacific/Pago_Pago',
+		'UTC' => 'Etc/UTC',
+		'Universal' => 'Etc/UTC',
+		'W-SU' => 'Europe/Moscow',
+		'WET' => 'Europe/Lisbon',
+		'Zulu' => 'Etc/UTC',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array
 	 *
 	 * This array lists a series of representative time zones and their
-	 * corresponding "meta-zone" labels.
+	 * corresponding metazone labels.
 	 *
-	 * The term "representative" here means that a given time zone can
-	 * represent others that use exactly the same rules for DST
-	 * transitions, UTC offsets, and abbreviations. For example,
-	 * Europe/Berlin can be representative for Europe/Rome,
-	 * Europe/Paris, etc., because these cities all use exactly the
-	 * same time zone rules and values.
+	 * The term "representative" here means that a given time zone can represent
+	 * others that use exactly the same rules for DST transitions, UTC offsets,
+	 * and abbreviations. For example, Europe/Paris can be representative for
+	 * Europe/Berlin, Europe/Rome, etc., because these cities all use exactly
+	 * the same time zone rules and values.
 	 *
-	 * Meta-zone labels are the user friendly strings shown to the end
-	 * user, e.g. "Mountain Standard Time". The values of this array
-	 * are keys of strings defined in the Timezones language file, which
-	 * in turn are sprintf format strings used to generate the final
-	 * label text.
+	 * Metazone labels are the user friendly strings shown to the end user, e.g.
+	 * "Mountain Standard Time". The values of this array are keys of strings
+	 * defined in the Timezones language file, which in turn are MessageFormat
+	 * strings used to generate the final label text.
 	 *
-	 * Sometimes several representative time zones will map onto the
-	 * same meta-zone label. This usually happens when there are
-	 * different rules for Daylight Saving time in locations that are
-	 * otherwise the same. For example, both America/Denver and
-	 * America/Phoenix map to North_America_Mountain, but the ultimate
-	 * output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
-	 * 'Mountain Standard Time (MST)' for America/Phoenix.
+	 * This array is subdivided into sections for different countries. The '001'
+	 * section gives the default preferred representative time zone for each
+	 * metazone ('001' is the code for the entire world). The subsequent
+	 * sections give each country's preferred time zones for certain metazones.
+	 * These are used as overrides for the defaults in various situations.
 	 *
-	 * If you are adding a new meta-zone to this list because the TZDB
-	 * added a new time zone that doesn't fit any existing meta-zone,
-	 * please also add a fallback in the TimeZone::$fallbacks array.
-	 * This helps support SMF installs on servers using outdated
-	 * versions of the TZDB.
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
 	 */
-	public static array $metazones = [
-		// No DST
-		'Africa/Abidjan' => 'GMT',
-
-		// No DST
-		'Africa/Algiers' => 'Europe_Central',
-
-		// Uses DST
-		'Africa/Casablanca' => 'Africa_Morocco',
-
-		// No DST
-		'Africa/Johannesburg' => 'Africa_South',
-
-		// No DST
-		'Africa/Lagos' => 'Africa_West',
-
-		// No DST
-		'Africa/Maputo' => 'Africa_Central',
-
-		// No DST
-		'Africa/Nairobi' => 'Africa_East',
-
-		// Uses DST
-		'America/Adak' => 'North_America_Hawaii_Aleutian',
-
-		// Uses DST
-		'America/Anchorage' => 'North_America_Alaska',
-
-		// No DST
-		'America/Argentina/Buenos_Aires' => 'South_America_Argentina',
-
-		// Uses DST
-		'America/Asuncion' => 'South_America_Paraguay',
-
-		// No DST
-		'America/Belize' => 'North_America_Central',
-
-		// No DST
-		'America/Bogota' => 'South_America_Colombia',
-
-		// No DST
-		'America/Caracas' => 'South_America_Venezuela',
-
-		// No DST
-		'America/Cayenne' => 'South_America_French_Guiana',
-
-		// Uses DST
-		'America/Chicago' => 'North_America_Central',
-
-		// Uses DST
-		'America/Chihuahua' => 'North_America_Mexico_Pacific',
-
-		// Uses DST
-		'America/Denver' => 'North_America_Mountain',
-
-		// Uses DST
-		'America/Nuuk' => 'North_America_Greenland_Western',
-
-		// No DST
-		'America/Guayaquil' => 'South_America_Ecuador',
-
-		// No DST
-		'America/Guyana' => 'South_America_Guyana',
-
-		// Uses DST
-		'America/Halifax' => 'North_America_Atlantic',
-
-		// Uses DST
-		'America/Havana' => 'North_America_Cuba',
-
-		// No DST
-		'America/Jamaica' => 'North_America_Eastern',
-
-		// No DST
-		'America/La_Paz' => 'South_America_Bolivia',
-
-		// No DST
-		'America/Lima' => 'South_America_Peru',
-
-		// Uses DST
-		'America/Los_Angeles' => 'North_America_Pacific',
-
-		// No DST
-		'America/Manaus' => 'South_America_Amazon',
-
-		// Uses DST
-		'America/Mexico_City' => 'North_America_Central',
-
-		// Uses DST
-		'America/Miquelon' => 'North_America_St_Pierre_Miquelon',
-
-		// No DST
-		'America/Montevideo' => 'South_America_Uruguay',
-
-		// Uses DST
-		'America/New_York' => 'North_America_Eastern',
-
-		// No DST
-		'America/Noronha' => 'South_America_Noronha',
-
-		// No DST
-		'America/Paramaribo' => 'South_America_Suriname',
-
-		// No DST
-		'America/Phoenix' => 'North_America_Mountain',
-
-		// No DST
-		'America/Port_of_Spain' => 'North_America_Atlantic',
-
-		// No DST
-		'America/Punta_Arenas' => 'South_America_Chile_Magallanes',
-
-		// No DST
-		'America/Rio_Branco' => 'South_America_Acre',
-
-		// Uses DST
-		'America/Santiago' => 'South_America_Chile',
-
-		// No DST
-		'America/Sao_Paulo' => 'South_America_Brasilia',
-
-		// Uses DST
-		'America/Scoresbysund' => 'North_America_Greenland_Eastern',
-
-		// Uses DST
-		'America/St_Johns' => 'North_America_Newfoundland',
-
-		// No DST
-		'Antarctica/Casey' => 'Antarctica_Casey',
-
-		// No DST
-		'Antarctica/Davis' => 'Antarctica_Davis',
-
-		// No DST
-		'Antarctica/DumontDUrville' => 'Antarctica_DumontDUrville',
-
-		// No DST
-		'Antarctica/Macquarie' => 'Antarctica_Macquarie',
-
-		// No DST
-		'Antarctica/Mawson' => 'Antarctica_Mawson',
-
-		// Uses DST
-		'Antarctica/McMurdo' => 'Antarctica_McMurdo',
-
-		// No DST
-		'Antarctica/Palmer' => 'Antarctica_Palmer',
-
-		// No DST
-		'Antarctica/Rothera' => 'Antarctica_Rothera',
-
-		// No DST
-		'Antarctica/Syowa' => 'Antarctica_Syowa',
-
-		// Uses DST
-		'Antarctica/Troll' => 'Antarctica_Troll',
-
-		// No DST
-		'Antarctica/Vostok' => 'Antarctica_Vostok',
-
-		// No DST
-		'Asia/Almaty' => 'Asia_Kazakhstan_Eastern',
-
-		// Uses DST
-		'Asia/Amman' => 'Asia_Jordan',
-
-		// No DST
-		'Asia/Aqtau' => 'Asia_Kazakhstan_Western',
-
-		// No DST
-		'Asia/Ashgabat' => 'Asia_Turkmenistan',
-
-		// No DST
-		'Asia/Baku' => 'Asia_Azerbaijan',
-
-		// No DST
-		'Asia/Bangkok' => 'Asia_Southeast',
-
-		// Uses DST
-		'Asia/Beirut' => 'Asia_Libya',
-
-		// No DST
-		'Asia/Bishkek' => 'Asia_Kyrgystan',
-
-		// No DST
-		'Asia/Brunei' => 'Asia_Brunei',
-
-		// Uses DST
-		'Asia/Damascus' => 'Asia_Damascus',
-
-		// No DST
-		'Asia/Dhaka' => 'Asia_Bangladesh',
-
-		// No DST
-		'Asia/Dili' => 'Asia_East_Timor',
-
-		// No DST
-		'Asia/Dubai' => 'Asia_Gulf',
-
-		// No DST
-		'Asia/Dushanbe' => 'Asia_Tajikistan',
-
-		// Uses DST
-		'Asia/Gaza' => 'Asia_Palestine',
-
-		// No DST
-		'Asia/Hong_Kong' => 'Asia_Hong_Kong',
-
-		// No DST
-		'Asia/Hovd' => 'Asia_Mongolia_Western',
-
-		// No DST
-		'Asia/Irkutsk' => 'Asia_Irkutsk',
-
-		// No DST
-		'Asia/Jakarta' => 'Asia_Indonesia_Western',
-
-		// No DST
-		'Asia/Jayapura' => 'Asia_Indonesia_Eastern',
-
-		// Uses DST
-		'Asia/Jerusalem' => 'Asia_Israel',
-
-		// No DST
-		'Asia/Kabul' => 'Asia_Afghanistan',
-
-		// No DST
-		'Asia/Kamchatka' => 'Asia_Kamchatka',
-
-		// No DST
-		'Asia/Karachi' => 'Asia_Pakistan',
-
-		// No DST
-		'Asia/Kathmandu' => 'Asia_Nepal',
-
-		// No DST
-		'Asia/Kolkata' => 'Asia_India',
-
-		// No DST
-		'Asia/Krasnoyarsk' => 'Asia_Krasnoyarsk',
-
-		// No DST
-		'Asia/Kuala_Lumpur' => 'Asia_Malaysia',
-
-		// No DST
-		'Asia/Magadan' => 'Asia_Magadan',
-
-		// No DST
-		'Asia/Makassar' => 'Asia_Indonesia_Central',
-
-		// No DST
-		'Asia/Manila' => 'Asia_Philippines',
-
-		// No DST
-		'Asia/Omsk' => 'Asia_Omsk',
-
-		// No DST
-		'Asia/Riyadh' => 'Asia_Arabia',
-
-		// No DST
-		'Asia/Seoul' => 'Asia_Korea',
-
-		// No DST
-		'Asia/Shanghai' => 'Asia_China',
-
-		// No DST
-		'Asia/Singapore' => 'Asia_Singapore',
-
-		// No DST
-		'Asia/Taipei' => 'Asia_Taiwan',
-
-		// No DST
-		'Asia/Tashkent' => 'Asia_Uzbekistan',
-
-		// No DST
-		'Asia/Tbilisi' => 'Asia_Georgia',
-
-		// Uses DST
-		'Asia/Tehran' => 'Asia_Iran',
-
-		// No DST
-		'Asia/Thimphu' => 'Asia_Bhutan',
-
-		// No DST
-		'Asia/Tokyo' => 'Asia_Japan',
-
-		// No DST
-		'Asia/Ulaanbaatar' => 'Asia_Mongolia_Eastern',
-
-		// No DST
-		'Asia/Vladivostok' => 'Asia_Vladivostok',
-
-		// No DST
-		'Asia/Yakutsk' => 'Asia_Yakutsk',
-
-		// No DST
-		'Asia/Yangon' => 'Asia_Myanmar',
-
-		// No DST
-		'Asia/Yekaterinburg' => 'Asia_Yekaterinburg',
-
-		// No DST
-		'Asia/Yerevan' => 'Asia_Armenia',
-
-		// Uses DST
-		'Atlantic/Azores' => 'Atlantic_Azores',
-
-		// No DST
-		'Atlantic/Cape_Verde' => 'Atlantic_Cape_Verde',
-
-		// No DST
-		'Atlantic/South_Georgia' => 'Atlantic_South_Georgia',
-
-		// No DST
-		'Atlantic/Stanley' => 'Atlantic_Falkland',
-
-		// Uses DST
-		'Australia/Adelaide' => 'Australia_Central',
-
-		// No DST
-		'Australia/Brisbane' => 'Australia_Eastern',
-
-		// No DST
-		'Australia/Darwin' => 'Australia_Central',
-
-		// No DST
-		'Australia/Eucla' => 'Australia_CentralWestern',
-
-		// Uses DST
-		'Australia/Lord_Howe' => 'Australia_Lord_Howe',
-
-		// Uses DST
-		'Australia/Melbourne' => 'Australia_Eastern',
-
-		// No DST
-		'Australia/Perth' => 'Australia_Western',
-
-		// Uses DST
-		'Europe/Berlin' => 'Europe_Central',
-
-		// Uses DST
-		'Europe/Chisinau' => 'Europe_Moldova',
-
-		// Uses DST
-		'Europe/Dublin' => 'Europe_Eire',
-
-		// Uses DST
-		'Europe/Helsinki' => 'Europe_Eastern',
-
-		// No DST
-		'Europe/Istanbul' => 'Asia_Turkey',
-
-		// No DST
-		'Europe/Kaliningrad' => 'Europe_Eastern',
-
-		// Uses DST
-		'Europe/Lisbon' => 'Europe_Western',
-
-		// Uses DST
-		'Europe/London' => 'Europe_UK',
-
-		// No DST
-		'Europe/Minsk' => 'Europe_Minsk',
-
-		// No DST
-		'Europe/Moscow' => 'Europe_Moscow',
-
-		// No DST
-		'Europe/Samara' => 'Europe_Samara',
-
-		// No DST
-		'Europe/Volgograd' => 'Europe_Volgograd',
-
-		// No DST
-		'Indian/Chagos' => 'Indian_Chagos',
-
-		// No DST
-		'Indian/Christmas' => 'Indian_Christmas',
-
-		// No DST
-		'Indian/Cocos' => 'Indian_Cocos',
-
-		// No DST
-		'Indian/Kerguelen' => 'Indian_Kerguelen',
-
-		// No DST
-		'Indian/Mahe' => 'Indian_Seychelles',
-
-		// No DST
-		'Indian/Maldives' => 'Indian_Maldives',
-
-		// No DST
-		'Indian/Mauritius' => 'Indian_Mauritius',
-
-		// No DST
-		'Indian/Reunion' => 'Indian_Reunion',
-
-		// Uses DST
-		'Pacific/Apia' => 'Pacific_Apia',
-
-		// Uses DST
-		'Pacific/Auckland' => 'Pacific_New_Zealand',
-
-		// No DST
-		'Pacific/Bougainville' => 'Pacific_Bougainville',
-
-		// Uses DST
-		'Pacific/Chatham' => 'Pacific_Chatham',
-
-		// No DST
-		'Pacific/Chuuk' => 'Pacific_Chuuk',
-
-		// Uses DST
-		'Pacific/Easter' => 'Pacific_Easter',
-
-		// No DST
-		'Pacific/Efate' => 'Pacific_Vanuatu',
-
-		// No DST
-		'Pacific/Kanton' => 'Pacific_Phoenix_Islands',
-
-		// No DST
-		'Pacific/Fakaofo' => 'Pacific_Tokelau',
-
-		// Uses DST
-		'Pacific/Fiji' => 'Pacific_Fiji',
-
-		// No DST
-		'Pacific/Funafuti' => 'Pacific_Tuvalu',
-
-		// No DST
-		'Pacific/Galapagos' => 'Pacific_Galapagos',
-
-		// No DST
-		'Pacific/Gambier' => 'Pacific_Gambier',
-
-		// No DST
-		'Pacific/Guadalcanal' => 'Pacific_Solomon',
-
-		// No DST
-		'Pacific/Guam' => 'Pacific_Chamorro',
-
-		// No DST
-		'Pacific/Honolulu' => 'Pacific_Hawaii',
-
-		// No DST
-		'Pacific/Kiritimati' => 'Pacific_Line',
-
-		// No DST
-		'Pacific/Kwajalein' => 'Pacific_Marshall',
-
-		// No DST
-		'Pacific/Marquesas' => 'Pacific_Marquesas',
-
-		// No DST
-		'Pacific/Nauru' => 'Pacific_Nauru',
-
-		// No DST
-		'Pacific/Niue' => 'Pacific_Niue',
-
-		// No DST
-		'Pacific/Norfolk' => 'Pacific_Norfolk',
-
-		// No DST
-		'Pacific/Noumea' => 'Pacific_New_Caledonia',
-
-		// No DST
-		'Pacific/Pago_Pago' => 'Pacific_Samoa',
-
-		// No DST
-		'Pacific/Palau' => 'Pacific_Palau',
-
-		// No DST
-		'Pacific/Pitcairn' => 'Pacific_Pitcairn',
-
-		// No DST
-		'Pacific/Pohnpei' => 'Pacific_Pohnpei',
-
-		// No DST
-		'Pacific/Port_Moresby' => 'Pacific_Papua_New_Guinea',
-
-		// No DST
-		'Pacific/Rarotonga' => 'Pacific_Cook',
-
-		// No DST
-		'Pacific/Tahiti' => 'Pacific_Tahiti',
-
-		// No DST
-		'Pacific/Tarawa' => 'Pacific_Gilbert',
-
-		// No DST
-		'Pacific/Tongatapu' => 'Pacific_Tonga',
-
-		// No DST
-		'Pacific/Wake' => 'Pacific_Wake',
-
-		// No DST
-		'Pacific/Wallis' => 'Pacific_Wallis',
+	protected static array $preferred_zones = [
+		'001' => [
+			'Acre' => 'America/Rio_Branco',
+			'Afghanistan' => 'Asia/Kabul',
+			'Africa_Central' => 'Africa/Maputo',
+			'Africa_Eastern' => 'Africa/Nairobi',
+			'Africa_FarWestern' => 'Africa/El_Aaiun',
+			'Africa_Southern' => 'Africa/Johannesburg',
+			'Africa_Western' => 'Africa/Lagos',
+			'Aktyubinsk' => 'Asia/Aqtobe',
+			'Alaska' => 'America/Juneau',
+			'Alaska_Hawaii' => 'America/Anchorage',
+			'Almaty' => 'Asia/Almaty',
+			'Amazon' => 'America/Manaus',
+			'America_Central' => 'America/Chicago',
+			'America_Eastern' => 'America/New_York',
+			'America_Mountain' => 'America/Denver',
+			'America_Pacific' => 'America/Los_Angeles',
+			'Anadyr' => 'Asia/Anadyr',
+			'Apia' => 'Pacific/Apia',
+			'Aqtau' => 'Asia/Aqtau',
+			'Aqtobe' => 'Asia/Aqtobe',
+			'Arabian' => 'Asia/Riyadh',
+			'Argentina' => 'America/Argentina/Buenos_Aires',
+			'Argentina_Western' => 'America/Argentina/San_Luis',
+			'Armenia' => 'Asia/Yerevan',
+			'Ashkhabad' => 'Asia/Ashgabat',
+			'Atlantic' => 'America/Halifax',
+			'Australia_Central' => 'Australia/Adelaide',
+			'Australia_CentralWestern' => 'Australia/Eucla',
+			'Australia_Eastern' => 'Australia/Sydney',
+			'Australia_Western' => 'Australia/Perth',
+			'Azerbaijan' => 'Asia/Baku',
+			'Azores' => 'Atlantic/Azores',
+			'Baku' => 'Asia/Baku',
+			'Bangladesh' => 'Asia/Dhaka',
+			'Bering' => 'America/Adak',
+			'Bhutan' => 'Asia/Thimphu',
+			'Bolivia' => 'America/La_Paz',
+			'Borneo' => 'Asia/Kuching',
+			'Brasilia' => 'America/Sao_Paulo',
+			'British' => 'Europe/London',
+			'Brunei' => 'Asia/Brunei',
+			'Cape_Verde' => 'Atlantic/Cape_Verde',
+			'Casey' => 'Antarctica/Casey',
+			'Chamorro' => 'Pacific/Saipan',
+			'Chatham' => 'Pacific/Chatham',
+			'Chile' => 'America/Santiago',
+			'China' => 'Asia/Shanghai',
+			'Christmas' => 'Indian/Christmas',
+			'Cocos' => 'Indian/Cocos',
+			'Colombia' => 'America/Bogota',
+			'Cook' => 'Pacific/Rarotonga',
+			'Cuba' => 'America/Havana',
+			'Dacca' => 'Asia/Dhaka',
+			'Davis' => 'Antarctica/Davis',
+			'Dominican' => 'America/Santo_Domingo',
+			'DumontDUrville' => 'Antarctica/DumontDUrville',
+			'Dushanbe' => 'Asia/Dushanbe',
+			'Dutch_Guiana' => 'America/Paramaribo',
+			'East_Timor' => 'Asia/Dili',
+			'Easter' => 'Pacific/Easter',
+			'Ecuador' => 'America/Guayaquil',
+			'Europe_Central' => 'Europe/Paris',
+			'Europe_Eastern' => 'Europe/Bucharest',
+			'Europe_Further_Eastern' => 'Europe/Minsk',
+			'Europe_Western' => 'Atlantic/Canary',
+			'Falkland' => 'Atlantic/Stanley',
+			'Fiji' => 'Pacific/Fiji',
+			'French_Guiana' => 'America/Cayenne',
+			'French_Southern' => 'Indian/Kerguelen',
+			'Frunze' => 'Asia/Bishkek',
+			'GMT' => 'Atlantic/Reykjavik',
+			'Galapagos' => 'Pacific/Galapagos',
+			'Gambier' => 'Pacific/Gambier',
+			'Georgia' => 'Asia/Tbilisi',
+			'Gilbert_Islands' => 'Pacific/Tarawa',
+			'Goose_Bay' => 'America/Goose_Bay',
+			'Greenland' => 'America/Nuuk',
+			'Greenland_Central' => 'America/Scoresbysund',
+			'Greenland_Eastern' => 'America/Scoresbysund',
+			'Greenland_Western' => 'America/Nuuk',
+			'Guam' => 'Pacific/Guam',
+			'Gulf' => 'Asia/Dubai',
+			'Guyana' => 'America/Guyana',
+			'Hawaii' => 'Pacific/Honolulu',
+			'Hawaii_Aleutian' => 'America/Adak',
+			'Hong_Kong' => 'Asia/Hong_Kong',
+			'Hovd' => 'Asia/Hovd',
+			'India' => 'Asia/Kolkata',
+			'Indian_Ocean' => 'Indian/Chagos',
+			'Indochina' => 'Asia/Bangkok',
+			'Indonesia_Central' => 'Asia/Makassar',
+			'Indonesia_Eastern' => 'Asia/Jayapura',
+			'Indonesia_Western' => 'Asia/Jakarta',
+			'Iran' => 'Asia/Tehran',
+			'Irish' => 'Europe/Dublin',
+			'Irkutsk' => 'Asia/Irkutsk',
+			'Israel' => 'Asia/Jerusalem',
+			'Japan' => 'Asia/Tokyo',
+			'Kamchatka' => 'Asia/Kamchatka',
+			'Karachi' => 'Asia/Karachi',
+			'Kazakhstan' => 'Asia/Almaty',
+			'Kazakhstan_Eastern' => 'Asia/Almaty',
+			'Kazakhstan_Western' => 'Asia/Aqtobe',
+			'Kizilorda' => 'Asia/Qyzylorda',
+			'Korea' => 'Asia/Seoul',
+			'Kosrae' => 'Pacific/Kosrae',
+			'Krasnoyarsk' => 'Asia/Krasnoyarsk',
+			'Kuybyshev' => 'Europe/Samara',
+			'Kwajalein' => 'Pacific/Kwajalein',
+			'Kyrgystan' => 'Asia/Bishkek',
+			'Lanka' => 'Asia/Colombo',
+			'Liberia' => 'Africa/Monrovia',
+			'Line_Islands' => 'Pacific/Kiritimati',
+			'Lord_Howe' => 'Australia/Lord_Howe',
+			'Macau' => 'Asia/Macau',
+			'Magadan' => 'Asia/Magadan',
+			'Malaya' => 'Asia/Kuala_Lumpur',
+			'Malaysia' => 'Asia/Kuching',
+			'Maldives' => 'Indian/Maldives',
+			'Marquesas' => 'Pacific/Marquesas',
+			'Marshall_Islands' => 'Pacific/Majuro',
+			'Mauritius' => 'Indian/Mauritius',
+			'Mawson' => 'Antarctica/Mawson',
+			'Mexico_Pacific' => 'America/Mazatlan',
+			'Mongolia' => 'Asia/Ulaanbaatar',
+			'Moscow' => 'Europe/Moscow',
+			'Myanmar' => 'Asia/Yangon',
+			'Nauru' => 'Pacific/Nauru',
+			'Nepal' => 'Asia/Kathmandu',
+			'New_Caledonia' => 'Pacific/Noumea',
+			'New_Zealand' => 'Pacific/Auckland',
+			'Newfoundland' => 'America/St_Johns',
+			'Niue' => 'Pacific/Niue',
+			'Norfolk' => 'Pacific/Norfolk',
+			'Noronha' => 'America/Noronha',
+			'North_Mariana' => 'Pacific/Saipan',
+			'Novosibirsk' => 'Asia/Novosibirsk',
+			'Omsk' => 'Asia/Omsk',
+			'Oral' => 'Asia/Oral',
+			'Pakistan' => 'Asia/Karachi',
+			'Palau' => 'Pacific/Palau',
+			'Papua_New_Guinea' => 'Pacific/Port_Moresby',
+			'Paraguay' => 'America/Asuncion',
+			'Peru' => 'America/Lima',
+			'Philippines' => 'Asia/Manila',
+			'Phoenix_Islands' => 'Pacific/Kanton',
+			'Pierre_Miquelon' => 'America/Miquelon',
+			'Pitcairn' => 'Pacific/Pitcairn',
+			'Ponape' => 'Pacific/Guadalcanal',
+			'Pyongyang' => 'Asia/Pyongyang',
+			'Qyzylorda' => 'Asia/Qyzylorda',
+			'Reunion' => 'Indian/Reunion',
+			'Rothera' => 'Antarctica/Rothera',
+			'Sakhalin' => 'Asia/Sakhalin',
+			'Samara' => 'Europe/Samara',
+			'Samarkand' => 'Asia/Samarkand',
+			'Samoa' => 'Pacific/Pago_Pago',
+			'Seychelles' => 'Indian/Mahe',
+			'Shevchenko' => 'Asia/Aqtau',
+			'Singapore' => 'Asia/Singapore',
+			'Solomon' => 'Pacific/Guadalcanal',
+			'South_Georgia' => 'Atlantic/South_Georgia',
+			'Suriname' => 'America/Paramaribo',
+			'Sverdlovsk' => 'Asia/Yekaterinburg',
+			'Syowa' => 'Antarctica/Syowa',
+			'Tahiti' => 'Pacific/Tahiti',
+			'Taipei' => 'Asia/Taipei',
+			'Tajikistan' => 'Asia/Dushanbe',
+			'Tashkent' => 'Asia/Tashkent',
+			'Tbilisi' => 'Asia/Tbilisi',
+			'Tokelau' => 'Pacific/Fakaofo',
+			'Tonga' => 'Pacific/Tongatapu',
+			'Truk' => 'Pacific/Port_Moresby',
+			'Turkey' => 'Europe/Istanbul',
+			'Turkmenistan' => 'Asia/Ashgabat',
+			'Tuvalu' => 'Pacific/Funafuti',
+			'Uralsk' => 'Asia/Oral',
+			'Uruguay' => 'America/Montevideo',
+			'Urumqi' => 'Asia/Urumqi',
+			'Uzbekistan' => 'Asia/Tashkent',
+			'Vanuatu' => 'Pacific/Efate',
+			'Venezuela' => 'America/Caracas',
+			'Vladivostok' => 'Asia/Vladivostok',
+			'Volgograd' => 'Europe/Volgograd',
+			'Vostok' => 'Antarctica/Vostok',
+			'Wake' => 'Pacific/Wake',
+			'Wallis' => 'Pacific/Wallis',
+			'Yakutsk' => 'Asia/Yakutsk',
+			'Yekaterinburg' => 'Asia/Yekaterinburg',
+			'Yerevan' => 'Asia/Yerevan',
+			'Yukon' => 'America/Whitehorse',
+		],
+		'AD' => [
+			'Europe_Central' => 'Europe/Andorra',
+		],
+		'AG' => [
+			'Atlantic' => 'America/Antigua',
+		],
+		'AI' => [
+			'Atlantic' => 'America/Anguilla',
+		],
+		'AL' => [
+			'Europe_Central' => 'Europe/Tirane',
+		],
+		'AO' => [
+			'Africa_Western' => 'Africa/Luanda',
+		],
+		'AQ' => [
+			'New_Zealand' => 'Antarctica/McMurdo',
+		],
+		'AT' => [
+			'Europe_Central' => 'Europe/Vienna',
+		],
+		'AW' => [
+			'Atlantic' => 'America/Aruba',
+		],
+		'AX' => [
+			'Europe_Eastern' => 'Europe/Mariehamn',
+		],
+		'BA' => [
+			'Europe_Central' => 'Europe/Sarajevo',
+		],
+		'BB' => [
+			'Atlantic' => 'America/Barbados',
+		],
+		'BE' => [
+			'Europe_Central' => 'Europe/Brussels',
+		],
+		'BF' => [
+			'GMT' => 'Africa/Ouagadougou',
+		],
+		'BG' => [
+			'Europe_Eastern' => 'Europe/Sofia',
+		],
+		'BH' => [
+			'Arabian' => 'Asia/Bahrain',
+		],
+		'BI' => [
+			'Africa_Central' => 'Africa/Bujumbura',
+		],
+		'BJ' => [
+			'Africa_Western' => 'Africa/Porto-Novo',
+		],
+		'BM' => [
+			'Atlantic' => 'Atlantic/Bermuda',
+		],
+		'BQ' => [
+			'Atlantic' => 'America/Kralendijk',
+		],
+		'BS' => [
+			'America_Eastern' => 'America/Nassau',
+		],
+		'BW' => [
+			'Africa_Central' => 'Africa/Gaborone',
+		],
+		'BZ' => [
+			'America_Central' => 'America/Belize',
+		],
+		'CA' => [
+			'America_Central' => 'America/Winnipeg',
+			'America_Eastern' => 'America/Toronto',
+			'America_Mountain' => 'America/Edmonton',
+			'America_Pacific' => 'America/Vancouver',
+		],
+		'CD' => [
+			'Africa_Central' => 'Africa/Lubumbashi',
+			'Africa_Western' => 'Africa/Kinshasa',
+		],
+		'CF' => [
+			'Africa_Western' => 'Africa/Bangui',
+		],
+		'CG' => [
+			'Africa_Western' => 'Africa/Brazzaville',
+		],
+		'CH' => [
+			'Europe_Central' => 'Europe/Zurich',
+		],
+		'CI' => [
+			'GMT' => 'Africa/Abidjan',
+		],
+		'CM' => [
+			'Africa_Western' => 'Africa/Douala',
+		],
+		'CR' => [
+			'America_Central' => 'America/Costa_Rica',
+		],
+		'CW' => [
+			'Atlantic' => 'America/Curacao',
+		],
+		'CY' => [
+			'Europe_Eastern' => 'Asia/Nicosia',
+		],
+		'CZ' => [
+			'Europe_Central' => 'Europe/Prague',
+		],
+		'DE' => [
+			'Europe_Central' => 'Europe/Berlin',
+		],
+		'DJ' => [
+			'Africa_Eastern' => 'Africa/Djibouti',
+		],
+		'DK' => [
+			'Europe_Central' => 'Europe/Copenhagen',
+		],
+		'DM' => [
+			'Atlantic' => 'America/Dominica',
+		],
+		'EG' => [
+			'Europe_Eastern' => 'Africa/Cairo',
+		],
+		'ER' => [
+			'Africa_Eastern' => 'Africa/Nairobi',
+		],
+		'ES' => [
+			'Europe_Central' => 'Europe/Madrid',
+		],
+		'ET' => [
+			'Africa_Eastern' => 'Africa/Addis_Ababa',
+		],
+		'FI' => [
+			'Europe_Eastern' => 'Europe/Helsinki',
+		],
+		'FO' => [
+			'Europe_Western' => 'Atlantic/Faroe',
+		],
+		'GA' => [
+			'Africa_Western' => 'Africa/Libreville',
+		],
+		'GB' => [
+			'GMT' => 'Europe/London',
+		],
+		'GD' => [
+			'Atlantic' => 'America/Grenada',
+		],
+		'GH' => [
+			'GMT' => 'Africa/Accra',
+		],
+		'GI' => [
+			'Europe_Central' => 'Europe/Gibraltar',
+		],
+		'GL' => [
+			'Atlantic' => 'America/Thule',
+		],
+		'GM' => [
+			'GMT' => 'Africa/Banjul',
+		],
+		'GN' => [
+			'GMT' => 'Africa/Conakry',
+		],
+		'GP' => [
+			'Atlantic' => 'America/Guadeloupe',
+		],
+		'GQ' => [
+			'Africa_Western' => 'Africa/Malabo',
+		],
+		'GR' => [
+			'Europe_Eastern' => 'Europe/Athens',
+		],
+		'GT' => [
+			'America_Central' => 'America/Guatemala',
+		],
+		'GU' => [
+			'Chamorro' => 'Pacific/Guam',
+		],
+		'HN' => [
+			'America_Central' => 'America/Tegucigalpa',
+		],
+		'HR' => [
+			'Europe_Central' => 'Europe/Zagreb',
+		],
+		'HT' => [
+			'America_Eastern' => 'America/Port-au-Prince',
+		],
+		'HU' => [
+			'Europe_Central' => 'Europe/Budapest',
+		],
+		'IE' => [
+			'GMT' => 'Europe/Dublin',
+		],
+		'IQ' => [
+			'Arabian' => 'Asia/Baghdad',
+		],
+		'IT' => [
+			'Europe_Central' => 'Europe/Rome',
+		],
+		'JM' => [
+			'America_Eastern' => 'America/Jamaica',
+		],
+		'KH' => [
+			'Indochina' => 'Asia/Phnom_Penh',
+		],
+		'KM' => [
+			'Africa_Eastern' => 'Indian/Comoro',
+		],
+		'KN' => [
+			'Atlantic' => 'America/St_Kitts',
+		],
+		'KW' => [
+			'Arabian' => 'Asia/Kuwait',
+		],
+		'KY' => [
+			'America_Eastern' => 'America/Cayman',
+		],
+		'LA' => [
+			'Indochina' => 'Asia/Vientiane',
+		],
+		'LB' => [
+			'Europe_Eastern' => 'Asia/Beirut',
+		],
+		'LC' => [
+			'Atlantic' => 'America/St_Lucia',
+		],
+		'LI' => [
+			'Europe_Central' => 'Europe/Vaduz',
+		],
+		'LK' => [
+			'India' => 'Asia/Colombo',
+		],
+		'LS' => [
+			'Africa_Southern' => 'Africa/Maseru',
+		],
+		'LU' => [
+			'Europe_Central' => 'Europe/Luxembourg',
+		],
+		'MC' => [
+			'Europe_Central' => 'Europe/Monaco',
+		],
+		'ME' => [
+			'Europe_Central' => 'Europe/Podgorica',
+		],
+		'MF' => [
+			'Atlantic' => 'America/Marigot',
+		],
+		'MG' => [
+			'Africa_Eastern' => 'Indian/Antananarivo',
+		],
+		'MK' => [
+			'Europe_Central' => 'Europe/Skopje',
+		],
+		'ML' => [
+			'GMT' => 'Africa/Bamako',
+		],
+		'MQ' => [
+			'Atlantic' => 'America/Martinique',
+		],
+		'MR' => [
+			'GMT' => 'Africa/Nouakchott',
+		],
+		'MS' => [
+			'Atlantic' => 'America/Montserrat',
+		],
+		'MT' => [
+			'Europe_Central' => 'Europe/Malta',
+		],
+		'MW' => [
+			'Africa_Central' => 'Africa/Blantyre',
+		],
+		'MX' => [
+			'America_Central' => 'America/Mexico_City',
+			'America_Pacific' => 'America/Tijuana',
+		],
+		'NE' => [
+			'Africa_Western' => 'Africa/Niamey',
+		],
+		'NL' => [
+			'Europe_Central' => 'Europe/Amsterdam',
+		],
+		'NO' => [
+			'Europe_Central' => 'Europe/Oslo',
+		],
+		'OM' => [
+			'Gulf' => 'Asia/Muscat',
+		],
+		'PA' => [
+			'America_Eastern' => 'America/Panama',
+		],
+		'PL' => [
+			'Europe_Central' => 'Europe/Warsaw',
+		],
+		'PR' => [
+			'Atlantic' => 'America/Puerto_Rico',
+		],
+		'QA' => [
+			'Arabian' => 'Asia/Qatar',
+		],
+		'RS' => [
+			'Europe_Central' => 'Europe/Belgrade',
+		],
+		'RU' => [
+			'Europe_Further_Eastern' => 'Europe/Kaliningrad',
+		],
+		'RW' => [
+			'Africa_Central' => 'Africa/Kigali',
+		],
+		'SE' => [
+			'Europe_Central' => 'Europe/Stockholm',
+		],
+		'SH' => [
+			'GMT' => 'Atlantic/St_Helena',
+		],
+		'SI' => [
+			'Europe_Central' => 'Europe/Ljubljana',
+		],
+		'SJ' => [
+			'Europe_Central' => 'Arctic/Longyearbyen',
+		],
+		'SK' => [
+			'Europe_Central' => 'Europe/Bratislava',
+		],
+		'SL' => [
+			'GMT' => 'Africa/Freetown',
+		],
+		'SM' => [
+			'Europe_Central' => 'Europe/San_Marino',
+		],
+		'SN' => [
+			'GMT' => 'Africa/Dakar',
+		],
+		'SO' => [
+			'Africa_Eastern' => 'Africa/Mogadishu',
+		],
+		'SV' => [
+			'America_Central' => 'America/El_Salvador',
+		],
+		'SX' => [
+			'Atlantic' => 'America/Lower_Princes',
+		],
+		'SZ' => [
+			'Africa_Southern' => 'Africa/Mbabane',
+		],
+		'TD' => [
+			'Africa_Western' => 'Africa/Ndjamena',
+		],
+		'TG' => [
+			'GMT' => 'Africa/Lome',
+		],
+		'TN' => [
+			'Europe_Central' => 'Africa/Tunis',
+		],
+		'TT' => [
+			'Atlantic' => 'America/Port_of_Spain',
+		],
+		'TZ' => [
+			'Africa_Eastern' => 'Africa/Dar_es_Salaam',
+		],
+		'UG' => [
+			'Africa_Eastern' => 'Africa/Kampala',
+		],
+		'VA' => [
+			'Europe_Central' => 'Europe/Vatican',
+		],
+		'VC' => [
+			'Atlantic' => 'America/St_Vincent',
+		],
+		'VG' => [
+			'Atlantic' => 'America/Tortola',
+		],
+		'VI' => [
+			'Atlantic' => 'America/St_Thomas',
+		],
+		'XK' => [
+			'Europe_Central' => 'Europe/Belgrade',
+		],
+		'YE' => [
+			'Arabian' => 'Asia/Aden',
+		],
+		'YT' => [
+			'Africa_Eastern' => 'Indian/Mayotte',
+		],
+		'ZM' => [
+			'Africa_Central' => 'Africa/Lusaka',
+		],
+		'ZW' => [
+			'Africa_Central' => 'Africa/Harare',
+		],
 	];
 
 	/**
 	 * @var array
 	 *
-	 * This array lists all the individual time zones in each country,
-	 * sorted by population (as reported in statistics available on
-	 * Wikipedia in November 2020). Sorting this way enables us to
-	 * consistently select the most appropriate individual time zone to
-	 * represent all others that share its DST transition rules and
-	 * values. For example, this ensures that New York will be preferred
-	 * over random small towns in Indiana.
+	 * This array lists all the individual time zones in each country, sorted by
+	 * population (as reported in statistics available on Wikipedia in November
+	 * 2020). Sorting this way enables us to consistently select the most
+	 * appropriate individual time zone to represent all others that share its
+	 * DST transition rules and values. For example, this ensures that New York
+	 * will be preferred over random small towns in Indiana.
 	 *
-	 * When future versions of the time zone database add new time zone
-	 * identifiers beyond those included here, they should be added to
-	 * this list as appropriate. However, SMF will gracefully handle
-	 * unexpected new time zones, so nothing will break in the meantime.
+	 * When future versions of the TZDB add new time zone identifiers beyond
+	 * those included here, they should be added to this list as appropriate.
+	 * However, SMF will gracefully handle unexpected new time zones, so nothing
+	 * will break in the meantime.
 	 */
-	public static array $sorted_tzids = [
+	protected static array $sorted_tzids = [
 		// '??' means international.
 		'??' => [
-			'UTC',
+			'Etc/UTC',
 		],
 		'AD' => [
 			'Europe/Andorra',
@@ -1303,8 +1638,8 @@ class TimeZone extends \DateTimeZone
 			'Europe/Astrakhan',
 			'Europe/Kirov',
 			'Europe/Kaliningrad',
-			'Asia/Chita',
 			'Asia/Yakutsk',
+			'Asia/Chita',
 			'Asia/Sakhalin',
 			'Asia/Kamchatka',
 			'Asia/Magadan',
@@ -1531,7 +1866,7 @@ class TimeZone extends \DateTimeZone
 	 * 'ts' is the timestamp when the substitution first becomes valid.
 	 * 'tzid' is the alternative time zone identifier to use.
 	 */
-	public static array $fallbacks = [
+	protected static array $fallbacks = [
 		/*
 		 * 1. Simple renames.
 		 *
@@ -1595,20 +1930,6 @@ class TimeZone extends \DateTimeZone
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var array
-	 *
-	 * Multidimensional array containing compiled lists of selectable time zones
-	 * for any given value of $when.
-	 *
-	 * Built by self::list()
-	 */
-	protected static $timezones_when = [];
-
 	/**
 	 * @var array
 	 *
@@ -1617,7 +1938,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::prioritizeTzids()
 	 */
-	protected static array $prioritized_tzids = [];
+	private static array $prioritized_tzids = [];
 
 	/**
 	 * @var array
@@ -1627,17 +1948,17 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * Built by self::getTimeRange()
 	 */
-	protected static array $ranges = [];
+	private static array $ranges = [];
 
 	/**
 	 * @var array
 	 *
-	 * List of time zone transitions for all "meta-zones" starting from a given
+	 * List of time zone transitions for all metazones starting from a given
 	 * value of $when until one year later.
 	 *
 	 * Built by self::buildMetaZoneTransitions()
 	 */
-	protected static array $metazone_transitions = [];
+	private static array $metazone_transitions = [];
 
 	/****************
 	 * Public methods
@@ -1664,14 +1985,15 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns this time zone's abbreviations (if any).
+	 * Returns this time zone's raw English abbreviations.
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array The time zone's abbreviations.
 	 */
-	public function getAbbreviations(int|string $when = 'now'): array
+	public function getAbbreviations(\DateTimeInterface|int|string $when = 'now'): array
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1685,23 +2007,105 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns the "meta-zone" for this time zone at the given timestamp.
+	 * Returns this time zone's abbreviations (if any) in the current language.
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
-	 * @return string The $tztxt variable for this time zone's "meta-zone".
+	 * @param \DateTimeInterface|int|string|null $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, any string that strtotime() can understand, or null
+	 *    to get a generic abbreviation that works for any date.
+	 *    Default: null.
+	 * @return array The time zone's abbreviations.
 	 */
-	public function getMetaZone(int|string $when = 'now'): string
+	public function getLocalizedAbbreviations(\DateTimeInterface|int|string|null $when): array
 	{
-		list($when, $later) = self::getTimeRange($when);
+		$metazone = $this->getMetaZone($when ?? 'now');
 
-		if (
-			isset(self::$metazones[$this->getName()])
-			&& Lang::txtExists(self::$metazones[$this->getName()], var: 'tztxt')
-		) {
-			return self::$metazones[$this->getName()];
+		$abbrs = [];
+
+		if ($when === null) {
+			if (Lang::txtExists([$metazone, 'generic', 'short'], var: 'tztxt')) {
+				$abbrs[] = Lang::getTxt([$metazone, 'generic', 'short'], var: 'tztxt');
+			} else {
+				$when = 'now';
+				$combine = true;
+			}
 		}
+
+		if ($when !== null) {
+			list($when, $later) = self::getTimeRange($when);
+
+			foreach ($this->getTransitions($when, $later) as $transition) {
+				$dst_type = $transition['isdst'] ? 'daylight' : 'standard';
+
+				if (Lang::txtExists([$metazone, $dst_type, 'short'], var: 'tztxt')) {
+					$abbrs[] = Lang::getTxt([$metazone, $dst_type, 'short'], var: 'tztxt');
+				} else {
+					$abbrs[] = $transition['abbr'];
+				}
+			}
+		}
+
+		if (!empty($combine)) {
+			$abbrs = [implode('/', array_unique($abbrs))];
+		}
+
+		return $abbrs;
+	}
+
+	/**
+	 * Returns the metazone for this time zone at the given timestamp.
+	 *
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @param bool $allow_fallbacks Whether to allow fallbacks when trying to
+	 *    find the metazone.
+	 *    Default: true.
+	 * @return ?string The $tztxt variable for this time zone's metazone, or
+	 *    null if no match was found and $allow_fallbacks is false.
+	 */
+	public function getMetaZone(\DateTimeInterface|int|string $when = 'now', bool $allow_fallbacks = true): ?string
+	{
+		// A few time zones have their own special metazones.
+		if (Lang::txtExists($this->getName(), var: 'tztxt')) {
+			return $this->getName();
+		}
+
+		if ($when instanceof \DateTimeInterface) {
+			$when->setTimezone($this);
+		} elseif (ctype_digit((string) $when)) {
+			$when = new Time('@' . $when, $this);
+		} else {
+			try {
+				$when = new Time($when, $this);
+			} catch (\Throwable $e) {
+				$when = new Time('now', $this);
+			}
+		}
+
+		// For dates since the Unix Epoch, look it up in the VTimeZone class for this time zone.
+		if (
+			$when->getTimestamp() >= 0
+			&& Calendar\VTimeZone::exists($this->getName())
+		) {
+			$vtimezone = Calendar\VTimeZone::load($this->getName());
+
+			foreach ($vtimezone->metazones as $entry) {
+				if ($when < (new \DateTimeImmutable($entry['ts']))) {
+					break;
+				}
+
+				$metazone = $entry['metazone'];
+			}
+
+			if (isset($metazone)) {
+				return $metazone;
+			}
+		}
+
+		// Can we find another tzid that behaves the same way as this one?
+		list($when, $later) = self::getTimeRange($when);
 
 		if (empty(self::$metazone_transitions[$when])) {
 			self::buildMetaZoneTransitions($when);
@@ -1714,6 +2118,9 @@ class TimeZone extends \DateTimeZone
 		}
 
 		// Doesn't match any existing metazone. Can we build a custom one?
+		if (!$allow_fallbacks) {
+			return null;
+		}
 
 		// Etc/* is straightforward.
 		if (str_starts_with($this->getName(), 'Etc/')) {
@@ -1734,10 +2141,9 @@ class TimeZone extends \DateTimeZone
 			Lang::setTxt(
 				$tzgeo['country_code'],
 				Lang::getTxt(
-					'generic_timezone',
+					'region_format',
 					[
 						Lang::getTxt(['iso3166', $tzgeo['country_code']], file: 'Timezones'),
-						'%1$s',
 					],
 					var: 'tztxt',
 				),
@@ -1747,18 +2153,11 @@ class TimeZone extends \DateTimeZone
 			return $tzgeo['country_code'];
 		}
 
-		// Otherwise, create a meta-zone just for this oddball time zone.
+		// Otherwise, create a metazone just for this oddball time zone.
 		if (!Lang::txtExists($this->getName(), var: 'tztxt')) {
 			Lang::setTxt(
 				$this->getName(),
-				Lang::getTxt(
-					'generic_timezone',
-					[
-						$this->getLabel(),
-						'%1$s',
-					],
-					var: 'tztxt',
-				),
+				Lang::getTxt('region_format', [$this->getLabel()], var: 'tztxt'),
 				var: 'tztxt',
 			);
 		}
@@ -1767,29 +2166,229 @@ class TimeZone extends \DateTimeZone
 	}
 
 	/**
-	 * Returns the "meta-zone" label for this time zone at the given timestamp.
+	 * Returns the metazone label for this time zone at the given timestamp.
 	 *
-	 * @param int|string $when The date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
-	 * @return string The $tztxt value for this time zone's "meta-zone".
+	 * This is the finalized string that will be shown to the end user.
+	 *
+	 * The $preferred_region argument is used to decide which time zone will be
+	 * considered the exemplar when multiple time zones share the same metazone.
+	 * The difference this makes is best understood by examples:
+	 *
+	 * 1) If $preferred_region is set to 'DE':
+	 *
+	 *        Europe/Berlin --> 'Central European Time'
+	 *        Europe/Paris  --> 'Central European Time (France)'
+	 *        Europs/Rome   --> 'Central European Time (Italy)'
+	 *
+	 * 2) If $preferred_region is set to 'FR':
+	 *
+	 *        Europe/Berlin --> 'Central European Time (Germany)'
+	 *        Europe/Paris  --> 'Central European Time'
+	 *        Europs/Rome   --> 'Central European Time (Italy)'
+	 *
+	 * @param \DateTimeInterface|int|string|null $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, any string that strtotime() can understand, or null
+	 *    to get a metazone label that works for any date.
+	 *    Default: null.
+	 * @param string $preferred_region The region whose time zones are preferred
+	 *    over other options. May be any key in self::$preferred_zones, or null
+	 *    to use this time zone's own country code as the preferred region.
+	 *    Default: null.
+	 * @param bool $allow_fallbacks Whether to allow fallbacks when trying to
+	 *    find the metazone.
+	 *    Default: true.
+	 * @return ?string The $tztxt value for this time zone's metazone, or
+	 *    null if no match was found and $allow_fallbacks is false.
 	 */
-	public function getMetaZoneLabel(int|string $when = 'now'): string
-	{
-		$metazone = $this->getMetaZone($when);
+	public function getMetaZoneLabel(
+		\DateTimeInterface|int|string|null $when = null,
+		?string $preferred_region = null,
+		bool $allow_fallbacks = true,
+	): ?string {
+		// Figure out the DST type.
+		if ($when instanceof \DateTimeInterface) {
+			$when->setTimezone($this);
+		} elseif (ctype_digit((string) $when)) {
+			$when = new Time('@' . $when, $this);
+		} else {
+			try {
+				$when = new Time($when, $this);
+			} catch (\Throwable $e) {
+				$when = null;
+			}
+		}
 
-		return Lang::txtExists($metazone, var: 'tztxt') ? Lang::getTxt($metazone, var: 'tztxt') : $metazone;
+		// The country code might become relevant.
+		$cc = $this->getLocation()['country_code'];
+
+		// A few time zones have special overrides.
+		if (
+			// Special exceptions given in the CLDR data.
+			Lang::txtExists($this->getName(), var: 'tztxt')
+			// Antarctic stations can be weird. To avoid confusion, just label
+			// each as "<station name> Time" and be done with it.
+			|| $cc === 'AQ'
+		) {
+			if ($when === null) {
+				switch ($this->getName()) {
+					case 'Europe/Dublin':
+					case 'Europe/London':
+						return Lang::formatText(
+							Lang::getTxt('region_format', var: 'tztxt'),
+							[
+								Lang::getTxt(
+									['iso3166', $this->getLocation()['country_code']],
+									file: 'Timezones',
+								),
+							],
+						);
+
+					default:
+						$metazone = $this->getName();
+						break;
+				}
+			} else {
+				switch ($this->getName()) {
+					case 'Europe/Dublin':
+						// Note that this is intentionally inverted. Ireland
+						// defines its summer time, IST, as its standard time,
+						// and its winter time, GMT, as a negative daylight
+						// saving (daylight losing?) time. PHP follows Ireland's
+						// legal definition and marks GMT as daylight saving
+						// time and IST as standard time for Europe/Dublin.
+						// However, in CLDR, from which our $tztxt strings are
+						// derived, IST is categorized as daylight time and GMT
+						// as standard time for Europe/Dublin. This discrepancy
+						// means that we need to invert what PHP says in order
+						// to find the right CLDR strings.
+						$dst_type = $when->format('I') ? 'standard' : 'daylight';
+						break;
+
+					case 'Europe/London':
+						$dst_type = $when->format('I') ? 'daylight' : 'standard';
+						break;
+				}
+
+				switch ($this->getName()) {
+					case 'Europe/Dublin':
+					case 'Europe/London':
+						$metazone = Lang::txtExists([$this->getName(), $dst_type], var: 'tztxt') ? $this->getName() : $this->getMetaZone($when, $allow_fallbacks);
+						break;
+
+					default:
+						$metazone = $this->getName();
+						break;
+				}
+			}
+		}
+		// This is the vast majority of cases.
+		else {
+			$metazone = $this->getMetaZone($when ?? 'now', $allow_fallbacks);
+		}
+
+		$dst_type ??= match ($this->getDstType()) {
+			self::DST_NEVER => 'standard',
+			self::DST_ALWAYS => 'daylight',
+			default => match (true) {
+				$when === null => 'generic',
+				!$when->format('I') => 'standard',
+				(bool) $when->format('I') => 'daylight',
+			},
+		};
+
+		// If we found a valid metazone, choose the DST variant we need.
+		if (isset($metazone)) {
+			// Force the real DST type to be attempted first.
+			$attempts = [$dst_type => [$metazone, $dst_type, 'long']];
+
+			$attempts += [
+				'generic'  => [$metazone, 'generic',  'long'],
+				'standard' => [$metazone, 'standard', 'long'],
+				'daylight' => [$metazone, 'daylight', 'long'],
+				0 => $metazone,
+			];
+
+			foreach ($attempts as $attempt) {
+				if (Lang::txtExists($attempt, var: 'tztxt')) {
+					$metazone_dst_type = $attempt;
+					break;
+				}
+			}
+		}
+
+		// If we don't have a predefined string for this metazone, choose one
+		// from the generic formats.
+		if (!isset($metazone_dst_type)) {
+			$metazone_dst_type = match ($dst_type) {
+				'daylight' => 'region_format_type_daylight',
+				'standard' => 'region_format_type_standard',
+				default => 'region_format',
+			};
+		}
+
+		// We might need to supply the location name.
+		if (\count(self::getSortedTzidsForCountry($cc)) === 1) {
+			$location = Lang::getTxt(['iso3166', $cc], file: 'Timezones');
+		} else {
+			$location = $this->getLabel();
+		}
+
+		// The main event.
+		$metazone_label = Lang::getTxt($metazone_dst_type, [$location], var: 'tztxt');
+
+		// If this time zone isn't the preferred one for its metazone in the
+		// region we are building this for, we need to state the location.
+		$preferred_zones = array_merge(
+			self::$preferred_zones['001'],
+			self::$preferred_zones[$preferred_region ?? $cc] ?? [],
+		);
+
+		if (
+			isset($metazone, $preferred_zones[$metazone])
+			&& $preferred_zones[$metazone] !== $this->getName()
+			&& (
+				isset($preferred_region)
+				|| \count(self::getSortedTzidsForCountry($cc)) > 1
+			)
+		) {
+			$priority_countries = array_merge(
+				isset($preferred_region) ? [$preferred_region] : [],
+				isset(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : ['001'],
+			);
+
+			if (!\in_array($cc, $priority_countries)) {
+				$fallback_location = Lang::getTxt(['iso3166', $cc], file: 'Timezones');
+			} else {
+				$fallback_location = Lang::getTxt($this->getName(), file: 'Timezones');
+			}
+
+			$metazone_label = Lang::getTxt(
+				'fallback_format',
+				[
+					$fallback_location,
+					$metazone_label,
+				],
+				var: 'tztxt',
+			);
+		}
+
+		// Allow mods to customize the label.
+		IntegrationHook::call('integrate_metazone_label', [&$metazone_label, $this, $when]);
+
+		return $metazone_label;
 	}
 
 	/**
 	 * Returns whether this time zone uses Daylight Saving Time.
 	 *
-	 * @param int|string $when The earliest date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The earliest date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return int One of this class's three DST_* constants.
 	 */
-	public function getDstType(int|string $when = 'now'): int
+	public function getDstType(\DateTimeInterface|int|string $when = 'now'): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1810,12 +2409,13 @@ class TimeZone extends \DateTimeZone
 	 * Returns the Standard Time offset from GMT, ignoring any Daylight Saving
 	 * Time that might be in effect.
 	 *
-	 * @param int|string $when The earliest date/time we are interested in.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The earliest date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return int This time zone's Standard Time offset from GMT.
 	 */
-	public function getStandardOffset(int|string $when = 'now'): int
+	public function getStandardOffset(\DateTimeInterface|int|string $when = 'now'): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -1855,172 +2455,208 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Get a list of time zones.
 	 *
-	 * @param int|string $when The date/time for which to calculate the time
-	 *    zone values. May be a Unix timestamp or any string that strtotime()
-	 *    can understand. Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string|null $when The date/time for which
+	 *    to calculate the time zone values. May be a Unix timestamp, an
+	 *    instance of \DateTimeInterface, any string that strtotime() can
+	 *    understand, or null to use metazone labels that work for any date.
+	 *    Default: null.
+	 * @param bool $flat If true, flattens the list into a one-dimensional
+	 *    array instead of a multi-dimensional array grouped by country code.
+	 *    Default: false.
 	 * @return array An array of time zone identifiers and label text.
 	 */
-	public static function list(int|string $when = 'now'): array
+	public static function list(\DateTimeInterface|int|string|null $when = null, bool $flat = false): array
 	{
-		list($when, $later) = self::getTimeRange($when);
+		$use_generic = $when === null;
 
-		// No point doing this over if we already did it once.
-		if (isset(self::$timezones_when[$when])) {
-			return self::$timezones_when[$when];
-		}
+		list($when, $later) = self::getTimeRange($when ?? 'now');
 
-		self::buildMetaZoneTransitions($when);
+		$date_when = date_create('@' . $when);
 
-		// Should we put time zones from certain countries at the top of the list?
-		self::prioritizeTzids();
+		$priority_countries = isset(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : ['001'];
 
-		// Idea here is to get exactly one representative identifier for each
-		// and every unique set of time zone rules.
-		$zones = [];
-		$dst_types = [];
-		$labels = [];
-		$offsets = [];
+		// This will hold the list to be returned.
+		$list = [];
 
-		foreach (self::$prioritized_tzids as $priority_level => $tzids) {
-			foreach ($tzids as $tzid) {
-				// We don't want UTC right now.
-				if ($tzid == 'UTC') {
-					continue;
-				}
+		// Build a list of identifiers organized by country, with priority
+		// countries at the top of the list.
+		self::prioritizeTzids($flat);
 
+		// Within each country, find exactly one representative identifier for
+		// each and every unique set of time zone rules.
+		foreach (self::$prioritized_tzids as $region => $tzids) {
+			$zones = [];
+			$offsets = [];
+			$std_offsets = [];
+			$later_offsets = [];
+			$longitudes = [];
+
+			foreach ($tzids as $key => $tzid) {
 				$tz = new self($tzid);
 
 				$tzinfo = $tz->getTransitions($when, $later);
 				$tzkey = serialize($tzinfo);
+				$cc = $flat ? $tz->getLocation()['country_code'] : $region;
 
-				// Don't overwrite our preferred tzids
 				if (empty($zones[$tzkey]['tzid'])) {
 					$zones[$tzkey]['tzid'] = $tzid;
+					$zones[$tzkey]['country_code'] = $cc;
 					$zones[$tzkey]['dst_type'] = $tz->getDstType($when);
-					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
-
-					$metazone_label = $tz->getMetaZoneLabel($when);
-
-					if (!empty($metazone_label)) {
-						$zones[$tzkey]['metazone'] = $metazone_label;
-					}
+					$zones[$tzkey]['abbrs'] = $tz->getLocalizedAbbreviations($when);
+					$zones[$tzkey]['metazone'] = $tz->getMetaZoneLabel(
+						when: $use_generic ? null : $when,
+						preferred_region: $flat ? $priority_countries[0] : (\count(self::getSortedTzidsForCountry($cc)) === 1 ? null : $cc),
+						allow_fallbacks: false,
+					);
 				}
 
 				$zones[$tzkey]['locations'][] = $tz->getLabel();
 
-				// Keep track of the current and standard offsets for this tzid.
+				if (isset($offsets[$tzkey])) {
+					continue;
+				}
+
+				// Track these for sorting purposes below
 				$offsets[$tzkey] = $tzinfo[0]['offset'];
 				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
-
+				$later_offsets[$tzkey] = isset($tzinfo[1]) ? $tzinfo[1]['offset'] : $tzinfo[0]['offset'];
 				$longitudes[$tzkey] = $tz->getLocation()['longitude'];
-
-				$labels[$tzkey] = $metazone_label;
 			}
-		}
 
-		// Sort by current offset, then standard offset, then DST type, then label.
-		array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $longitudes, SORT_DESC, $labels, SORT_ASC, $zones);
+			// Sort by current offset, then standard offset, then longitude.
+			array_multisort(
+				$offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$std_offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$later_offsets,
+				SORT_DESC,
+				SORT_NUMERIC,
+				$longitudes,
+				SORT_DESC,
+				$zones,
+			);
 
-		$date_when = date_create('@' . $when);
+			foreach ($zones as $tzkey => $tzvalue) {
+				date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-		// Build the final array of formatted values
-		$priority_timezones = [];
-		$timezones = [];
+				$desc = '';
 
-		foreach ($zones as $tzkey => $tzvalue) {
-			date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
+				// For a flat list, label each time zone with its location.
+				if ($flat && !str_starts_with($tzvalue['tzid'], 'Etc/')) {
+					$location = Lang::getTxt($tzvalue['tzid'], file: 'Timezones');
+					$country = Lang::getTxt(['iso3166', $tzvalue['country_code']], file: 'Timezones');
 
-			// Use the human friendly time zone name, if there is one.
-			$desc = '';
+					if (str_starts_with($country, $location)) {
+						$desc = $country;
+					} else {
+						$desc = $location . ', ' . $country;
+					}
+				}
+				// Use the human friendly time zone name, if there is one.
+				elseif (!empty($tzvalue['metazone'])) {
+					$desc = $tzvalue['metazone'];
+				}
+				// Otherwise, use the list of locations (max 5, so things don't get silly)
+				else {
+					$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
+				}
 
-			if (!empty($tzvalue['metazone'])) {
-				switch ($tzvalue['dst_type']) {
-					case 0:
-						$desc = Lang::formatText(
-							$tzvalue['metazone'],
-							[
-								Lang::getTxt(
-									'daylight_saving_time_false',
-									var: 'tztxt',
-								),
-							],
-						);
-						break;
+				// We don't want abbreviations like '+03' or '-11'.
+				$abbrs = array_filter(
+					$tzvalue['abbrs'],
+					function ($abbr) {
+						return !strspn($abbr, '+-');
+					},
+				);
 
-					case 1:
-						$desc = Lang::formatText($tzvalue['metazone'], ['']);
-						break;
+				$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
-					case 2:
-						$desc = Lang::formatText(
-							$tzvalue['metazone'],
-							[
-								Lang::getTxt(
-									'daylight_saving_time_true',
-									var: 'tztxt',
-								),
-							],
-						);
-						break;
+				// Show the UTC offset and abbreviation(s).
+				$desc = Utils::normalizeSpaces(
+					implode(
+						'',
+						[
+							'[UTC',
+							$tzvalue['tzid'] !== 'Etc/UTC' ? date_format($date_when, 'P') : '',
+							']',
+							' - ',
+							$desc,
+							$tzvalue['tzid'] !== 'Etc/UTC' && !empty($abbrs) ? ' - ' . implode('/', $abbrs) : '',
+						],
+					),
+					vspace: true,
+					hspace: true,
+					options: ['collapse_hspace' => true],
+				);
+
+				if ($flat) {
+					$list[$tzvalue['tzid']] = $desc;
+				} else {
+					$list[$region][$tzvalue['tzid']] = $desc;
 				}
 			}
-			// Otherwise, use the list of locations (max 5, so things don't get silly)
-			else {
-				$desc = implode(', ', \array_slice(array_unique($tzvalue['locations']), 0, 5)) . (\count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
+		}
+
+		if ($flat) {
+			$high_priority = [];
+			$normal_priority = [];
+
+			foreach ($list as $tzid => $desc) {
+				if ($tzid === 'Etc/UTC' || !empty($normal_priority)) {
+					$normal_priority[$tzid] = $desc;
+				} else {
+					$high_priority[$tzid] = $desc;
+				}
 			}
 
-			// We don't want abbreviations like '+03' or '-11'.
-			$abbrs = array_filter(
-				$tzvalue['abbrs'],
-				function ($abbr) {
-					return !strspn($abbr, '+-');
-				},
+			uasort(
+				$normal_priority,
+				fn($a, $b) => (int) strtr(substr($b, 4, 6), [':' => '']) <=> (int) strtr(substr($a, 4, 6), [':' => '']) ?: Lang::compareStrings($a, $b),
 			);
-			$abbrs = \count($abbrs) == \count($tzvalue['abbrs']) ? array_unique($abbrs) : [];
 
-			// Show the UTC offset and abbreviation(s).
-			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
+			$utc = $normal_priority['Etc/UTC'];
+			unset($normal_priority['Etc/UTC']);
 
-			if (\in_array($tzvalue['tzid'], self::$prioritized_tzids['high'])) {
-				$priority_timezones[$tzvalue['tzid']] = $desc;
-			} else {
-				$timezones[$tzvalue['tzid']] = $desc;
-			}
+			return $high_priority + ['Etc/UTC' => $utc] + $normal_priority;
 		}
 
-		if (!empty($priority_timezones)) {
-			$priority_timezones[] = '-----';
-		}
-
-		$timezones = array_merge(
-			$priority_timezones,
-			['UTC' => 'UTC' . (!empty(Lang::getTxt('UTC', var: 'tztxt')) ? ' - ' . Lang::getTxt('UTC', var: 'tztxt') : ''), '-----'],
-			$timezones,
+		return array_combine(
+			array_map(
+				fn($cc) => Lang::getTxt(['iso3166', $cc], file: 'Timezones'),
+				array_keys($list),
+			),
+			$list,
 		);
-
-		self::$timezones_when[$when] = $timezones;
-
-		return self::$timezones_when[$when];
 	}
 
 	/**
-	 * Returns an array that instructs SMF how to map specific time zones
-	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
+	 * Returns an array that instructs SMF how to map representative time zones
+	 * (e.g. "America/Denver") onto the user-friendly metazone labels that
 	 * most people think of as time zones (e.g. "Mountain Time").
 	 *
-	 * @param int|string $when The date/time used to determine fallback values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @return array An array relating time zones to metazones
 	 */
-	public static function getTzidMetazones(int|string $when = 'now'): array
+	public static function getTzidMetazones(\DateTimeInterface|int|string $when = 'now'): array
 	{
 		list($when, $later) = self::getTimeRange($when);
 
-		IntegrationHook::call('integrate_metazones', [&self::$metazones, $when]);
+		// IntegrationHook::call('integrate_metazones', [&self::$metazones, $when]);
 
 		// Fallbacks in case the server has an old version of the TZDB.
-		$tzid_fallbacks = self::getTzidFallbacks(array_keys(self::$metazones), $when);
+		$tzids_to_check = [];
+
+		foreach (self::$preferred_zones as $region => $preferred) {
+			$tzids_to_check = array_merge($tzids_to_check, array_values($preferred));
+		}
+
+		$tzid_fallbacks = self::getTzidFallbacks(array_unique($tzids_to_check), $when);
 
 		foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid) {
 			// Skip any that are unchanged.
@@ -2029,60 +2665,100 @@ class TimeZone extends \DateTimeZone
 			}
 
 			// Use fallback where possible.
-			if (!empty($alt_tzid) && empty(self::$metazones[$alt_tzid])) {
-				self::$metazones[$alt_tzid] = self::$metazones[$orig_tzid];
+			foreach (self::$preferred_zones as $region => $preferred) {
+				$metazone = array_search($orig_tzid, $preferred);
 
-				Lang::setTxt(
-					$alt_tzid,
-					Lang::getTxt($orig_tzid, file: 'Timezones'),
-				);
+				if (!empty($alt_tzid) && !\in_array($alt_tzid, $preferred)) {
+					self::$preferred_zones[$region][$metazone] = $alt_tzid;
+
+					Lang::setTxt(
+						$alt_tzid,
+						Lang::getTxt($orig_tzid, file: 'Timezones'),
+					);
+				}
 			}
-
-			// Either way, get rid of the unknown time zone.
-			unset(self::$metazones[$orig_tzid]);
 		}
 
-		return self::$metazones;
+		return self::$preferred_zones['001'];
 	}
 
 	/**
 	 * Gets an array of all the time zones in a country, ranked by population.
 	 *
 	 * @param string $country_code A country's two-character ISO-3166 code.
-	 * @param int|string $when The date/time used to determine fallback values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
-	 * @return array An array relating time zones to "meta-zones"
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @return array A list of time zones in the given country.
 	 */
-	public static function getSortedTzidsForCountry(string $country_code, int|string $when = 'now'): array
+	public static function getSortedTzidsForCountry(string $country_code, \DateTimeInterface|int|string $when = 'now'): array
 	{
-		static $country_tzids = [];
-
-		list($when, $later) = self::getTimeRange($when);
-
 		// Just in case...
 		$country_code = strtoupper(trim($country_code));
 
+		return self::getSortedTzids($when)[$country_code] ?? [];
+	}
+
+	/**
+	 * Gets an array of all known time zones, grouped by country and ranked by
+	 * population.
+	 *
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    fallback values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @return array A list of time zones grouped by country.
+	 */
+	public static function getSortedTzids(\DateTimeInterface|int|string $when = 'now'): array
+	{
+		static $processed = false;
+
 		// Avoid unnecessary repetition.
-		if (!isset($country_tzids[$country_code])) {
-			IntegrationHook::call('integrate_country_timezones', [&self::$sorted_tzids, $country_code, $when]);
-
-			$country_tzids[$country_code] = self::$sorted_tzids[$country_code] ?? [];
-
-			// If something goes wrong, we want an empty array, not false.
-			$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code));
-
-			// Make sure that no time zones are missing.
-			$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
-
-			// Get fallbacks where necessary.
-			$country_tzids[$country_code] = array_unique(array_values(self::getTzidFallbacks($country_tzids[$country_code], $when)));
-
-			// Filter out any time zones that are still undefined.
-			$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+		if ($processed) {
+			return self::$sorted_tzids;
 		}
 
-		return $country_tzids[$country_code];
+		list($when, $later) = self::getTimeRange($when);
+
+		foreach (self::$sorted_tzids as $country_code => $tzids) {
+			IntegrationHook::call('integrate_country_timezones', [&self::$sorted_tzids, $country_code, $when]);
+
+			// If something goes wrong, we want an empty array, not false.
+			$recognized_country_tzids = array_filter(
+				(array) @\DateTimeZone::listIdentifiers(
+					\DateTimeZone::PER_COUNTRY,
+					$country_code,
+				),
+			);
+
+			// Make sure that no time zones are missing.
+			self::$sorted_tzids[$country_code] = array_unique(array_merge(
+				self::$sorted_tzids[$country_code],
+				array_intersect(
+					$recognized_country_tzids,
+					\DateTimeZone::listIdentifiers(),
+				),
+			));
+
+			// Get fallbacks where necessary.
+			self::$sorted_tzids[$country_code] = array_unique(array_values(
+				self::getTzidFallbacks(
+					self::$sorted_tzids[$country_code],
+					$when,
+				),
+			));
+
+			// Filter out any time zones that are still undefined.
+			self::$sorted_tzids[$country_code] = array_intersect(
+				array_filter(self::$sorted_tzids[$country_code]),
+				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+			);
+		}
+
+		$processed = true;
+
+		return self::$sorted_tzids;
 	}
 
 	/**
@@ -2097,24 +2773,25 @@ class TimeZone extends \DateTimeZone
 	 * time.
 	 *
 	 * Note: These fallbacks do not need to include every new time zone ever.
-	 * They only need to cover any that are used in self::$metazones.
+	 * They only need to cover the ones used in self::$preferred_zones['001'].
 	 *
 	 * To find the date & time when a new time zone comes into effect, check
 	 * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
 	 *
 	 * @param array $tzids The time zone identifiers to check.
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array Substitute values for any missing time zone identifiers.
 	 */
-	public static function getTzidFallbacks(array $tzids, int|string $when = 'now'): array
+	public static function getTzidFallbacks(array $tzids, \DateTimeInterface|int|string $when = 'now'): array
 	{
 		$tzids = (array) $tzids;
 
 		list($when, $later) = self::getTimeRange($when);
 
-		$missing = array_diff($tzids, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+		$missing = array_diff($tzids, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC));
 
 		IntegrationHook::call('integrate_timezone_fallbacks', [&self::$fallbacks, &$missing, $tzids, $when]);
 
@@ -2164,6 +2841,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * @param array|string $country_codes Array or CSV string of country codes.
 	 * @param bool $as_csv If true, return CSV string instead of array.
+	 *    Default: false.
 	 * @return array|string Array or CSV string of valid country codes.
 	 */
 	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
@@ -2177,7 +2855,7 @@ class TimeZone extends \DateTimeZone
 		foreach ($country_codes as $key => $country_code) {
 			$country_code = strtoupper(trim($country_code));
 
-			$country_tzids = \strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
+			$country_tzids = \strlen($country_code) !== 2 ? null : @\DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, $country_code);
 
 			$country_codes[$key] = empty($country_tzids) ? null : $country_code;
 		}
@@ -2191,6 +2869,23 @@ class TimeZone extends \DateTimeZone
 		return $country_codes;
 	}
 
+	/**
+	 * Resolves linked time zone identifiers to their canonical equivalents.
+	 *
+	 * If the input time zone identifier is itself canonical, it is returned
+	 * unchanged. Otherwise, its canonical equivalent is returned.
+	 *
+	 * Note that this is not a validator. If the input is an invalid time zone
+	 * identifier, it will be returned unchanged.
+	 *
+	 * @param string $tzid A time zone identifier.
+	 * @return string The canonical time zone identifier.
+	 */
+	public static function getCanonical(string $tzid): string
+	{
+		return Calendar\VTimeZone::CANONICAL_LINKS[$tzid] ?? $tzid;
+	}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -2199,33 +2894,38 @@ class TimeZone extends \DateTimeZone
 	 * Given a start time in any format that strtotime can understand, gets the
 	 * Unix timestamps for a date range starting then and ending one year later.
 	 *
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 * @return array The start and end timestamps, in that order.
 	 */
-	protected static function getTimeRange(int|string $when = 'now'): array
+	protected static function getTimeRange(\DateTimeInterface|int|string $when = 'now'): array
 	{
-		if (isset(self::$ranges[$when])) {
-			return self::$ranges[$when];
-		}
-
-		// Parseable datetime string?
-		if (\is_int($timestamp = strtotime((string) $when))) {
-			$start = $timestamp;
+		// \DateTimeInterface?
+		if ($when instanceof \DateTimeInterface) {
+			$start = $when->getTimestamp();
 		}
 		// A Unix timestamp?
 		elseif (is_numeric($when)) {
 			$start = \intval($when);
+		}
+		// Parseable datetime string?
+		elseif (\is_int($timestamp = strtotime((string) $when))) {
+			$start = $timestamp;
 		}
 		// Invalid value? Just get current Unix timestamp.
 		else {
 			$start = time();
 		}
 
-		self::$ranges[$when] = [$start, strtotime('@' . $start . ' + 1 year')];
+		if (isset(self::$ranges[$start])) {
+			return self::$ranges[$start];
+		}
 
-		return self::$ranges[$when];
+		self::$ranges[$start] = [$start, strtotime('@' . $start . ' + 1 year')];
+
+		return self::$ranges[$start];
 	}
 
 	/**
@@ -2241,43 +2941,50 @@ class TimeZone extends \DateTimeZone
 			return;
 		}
 
+		// Sort countries by name.
+		$iso3166 = Lang::getTxt('iso3166', file: 'Timezones');
+		Lang::collate($iso3166);
+
+		// List UTC before the rest.
+		$international = $iso3166['??'];
+		unset($iso3166['??']);
+		$iso3166 = array_merge(['??' => $international], $iso3166);
+
+		// Antarctic research stations should be listed last, unless you're
+		// running a penguin forum.
+		$aq = $iso3166['AQ'];
+		unset($iso3166['AQ']);
+		$iso3166['AQ'] = $aq;
+
+
 		// Should we put time zones from certain countries at the top of the list?
-		$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : [];
-
-		$high_priority_tzids = [];
-
-		foreach ($priority_countries as $country) {
-			$country_tzids = self::getSortedTzidsForCountry($country);
-
-			if (!empty($country_tzids)) {
-				$high_priority_tzids = array_merge($high_priority_tzids, $country_tzids);
-			}
+		if (!empty(Config::$modSettings['timezone_priority_countries'])) {
+			self::$prioritized_tzids = array_fill_keys(explode(',', Config::$modSettings['timezone_priority_countries']), []);
+		} else {
+			self::$prioritized_tzids = [];
 		}
 
-		// Antarctic research stations should be listed last, unless you're running a penguin forum
-		$low_priority_tzids = !\in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : [];
-
-		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
-
-		// Put them in order of importance.
-		self::$prioritized_tzids = ['high' => $high_priority_tzids, 'normal' => $normal_priority_tzids, 'low' => $low_priority_tzids];
+		foreach ($iso3166 as $cc => $country_name) {
+			self::$prioritized_tzids[$cc] = self::getSortedTzidsForCountry($cc);
+		}
 	}
 
 	/**
-	 * Builds a list of time zone transitions for all "meta-zones" starting from
+	 * Builds a list of time zone transitions for all metazones starting from
 	 * $when until one year later.
 	 *
-	 * @param int|string $when The date/time used to determine substitute values.
-	 *    May be a Unix timestamp or any string that strtotime() can understand.
-	 *    Defaults to 'now'.
+	 * @param \DateTimeInterface|int|string $when The date/time used to choose
+	 *    substitute values. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
 	 */
-	protected static function buildMetaZoneTransitions(int|string $when = 'now'): void
+	protected static function buildMetaZoneTransitions(\DateTimeInterface|int|string $when = 'now'): void
 	{
 		list($when, $later) = self::getTimeRange($when);
 
 		self::getTzidMetazones($when);
 
-		foreach (self::$metazones as $tzid => $label) {
+		foreach (self::$preferred_zones['001'] as $tzid => $label) {
 			$tz = @timezone_open($tzid);
 
 			if ($tz == null) {

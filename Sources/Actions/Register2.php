@@ -661,7 +661,7 @@ class Register2 extends Register
 			'additional_groups' => '',
 			'ignore_boards' => '',
 			'smiley_set' => '',
-			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
+			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list(flat: true)) ? 'UTC' : Config::$modSettings['default_timezone'],
 		];
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -693,7 +693,7 @@ class Register2 extends Register
 		if (
 			!empty($reg_options['extra_register_vars'])
 			&& !empty($reg_options['extra_register_vars']['timezone'])
-			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
+			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list(flat: true))
 		) {
 			unset($reg_options['extra_register_vars']['timezone']);
 		}

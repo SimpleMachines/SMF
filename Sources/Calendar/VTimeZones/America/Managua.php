@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Managua
  */
-class Managua extends \SMF\Calendar\VTimeZone
+class Managua extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,46 @@ class Managua extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Managua';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		1 => [
+			'ts' => '1973-05-01T06:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		2 => [
+			'ts' => '1975-02-16T05:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		3 => [
+			'ts' => '1992-01-01T10:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		4 => [
+			'ts' => '1992-09-24T05:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		5 => [
+			'ts' => '1993-01-01T06:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		6 => [
+			'ts' => '1997-01-01T05:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+	];
 
 	/**
 	 * @var array

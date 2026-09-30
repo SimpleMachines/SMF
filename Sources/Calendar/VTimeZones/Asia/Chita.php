@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Chita
  */
-class Chita extends \SMF\Calendar\VTimeZone
+class Chita extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,30 @@ class Chita extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Asia/Chita';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Yakutsk',
+		],
+		1 => [
+			'ts' => '2014-10-25T17:00:00+0000',
+			'metazone' => 'Irkutsk',
+		],
+		2 => [
+			'ts' => '2016-03-26T18:00:00+0000',
+			'metazone' => 'Yakutsk',
+		],
+	];
 
 	/**
 	 * @var array

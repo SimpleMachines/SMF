@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Antarctica;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Antarctica/Troll
  */
-class Troll extends \SMF\Calendar\VTimeZone
+class Troll extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -34,6 +36,22 @@ class Troll extends \SMF\Calendar\VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'GMT',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,
@@ -42,12 +60,19 @@ class Troll extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '20050212T000000',
+			'DTSTART' => '15821015T000000',
 			'TZNAME' => 'GMT',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0000',
 		],
 		1 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20050212T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		2 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20050327T010000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
@@ -55,7 +80,7 @@ class Troll extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '+0200',
 		],
-		2 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20041031T030000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',

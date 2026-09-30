@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Atyrau
  */
-class Atyrau extends \SMF\Calendar\VTimeZone
+class Atyrau extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,26 @@ class Atyrau extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Asia/Atyrau';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '2004-10-30T22:00:00+0000',
+			'metazone' => 'Kazakhstan_Western',
+		],
+		1 => [
+			'ts' => '2024-02-29T18:00:00+0000',
+			'metazone' => 'Kazakhstan',
+		],
+	];
 
 	/**
 	 * @var array

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Rankin_Inlet
  */
-class Rankin_Inlet extends \SMF\Calendar\VTimeZone
+class Rankin_Inlet extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -34,6 +36,30 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 	/**
 	 * @var array
 	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+		1 => [
+			'ts' => '2000-10-29T07:00:00+0000',
+			'metazone' => 'America_Eastern',
+		],
+		2 => [
+			'ts' => '2001-04-01T08:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Data for the VTIMEZONE components.
 	 *
 	 * Developers: Do not update the data in this array manually. Instead,
@@ -42,12 +68,19 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 	public array $components = [
 		0 => [
 			'type' => 'STANDARD',
+			'DTSTART' => '15821015T000000',
+			'TZNAME' => 'GMT',
+			'TZOFFSETFROM' => '+0000',
+			'TZOFFSETTO' => '+0000',
+		],
+		1 => [
+			'type' => 'STANDARD',
 			'DTSTART' => '19570101T000000',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '+0000',
 			'TZOFFSETTO' => '-0600',
 		],
-		1 => [
+		2 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19720430T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T080000Z',
@@ -55,7 +88,7 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
-		2 => [
+		3 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19721029T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T070000Z',
@@ -63,7 +96,7 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
 		],
-		3 => [
+		4 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19870405T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T080000Z',
@@ -71,21 +104,21 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
-		4 => [
+		5 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20001029T020000',
 			'TZNAME' => 'EST',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0500',
 		],
-		5 => [
+		6 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20010401T030000',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0500',
 		],
-		6 => [
+		7 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19741027T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T070000Z',
@@ -93,7 +126,7 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
 		],
-		7 => [
+		8 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
@@ -101,7 +134,7 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
 		],
-		8 => [
+		9 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',

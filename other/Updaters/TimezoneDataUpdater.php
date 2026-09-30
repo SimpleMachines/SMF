@@ -43,15 +43,15 @@
  *       city's population with the populations of the other listed cities.
  *       A quick Google or Wikipedia search is your friend here.
  *
- * 5. If a new "meta-zone" is required, new entries for it will be added to
+ * 5. If a new metazone is required, new entries for it will be added to
  *    TimeZone::$metazones and to the $tztxt array in the language file.
  *
  *     - The new entry in TimeZone::$metazones will have an "OPTIONS" comment
- *       listing all the tzids in this new meta-zone. Feel free to use any of
- *       them as the representative tzid for the meta-zone. All "OPTIONS"
+ *       listing all the tzids in this new metazone. Feel free to use any of
+ *       them as the representative tzid for the metazone. All "OPTIONS"
  *       comments should be removed before committing.
  *
- *     - Also feel free to edit the $tztxt key for the new meta-zone. Just make
+ *     - Also feel free to edit the $tztxt key for the new metazone. Just make
  *       sure to use the same key in both files.
  *
  *     - The value of the $tztxt string in the language file will probably need
@@ -88,6 +88,8 @@ class TimezoneDataUpdater extends UpdaterBase
 	 *****************/
 
 	/**
+	 * @var string
+	 *
 	 * Git tag of the earliest version of the TZDB to check against.
 	 *
 	 * This can be set to the TZDB version that was included in the earliest
@@ -99,6 +101,8 @@ class TimezoneDataUpdater extends UpdaterBase
 	public const TZDB_PREV_TAG = '2020d';
 
 	/**
+	 * @var string
+	 *
 	 * Git tag of the most recent version of the TZDB to check against.
 	 *
 	 * Leave blank to use the latest release of the TZDB. (Recommended.)
@@ -106,33 +110,62 @@ class TimezoneDataUpdater extends UpdaterBase
 	public const TZDB_CURR_TAG = '';
 
 	/**
+	 * @var string
+	 *
 	 * URL where we can get a list of tagged releases of the TZDB.
 	 */
 	public const TZDB_TAGS_URL = 'https://api.github.com/repos/eggert/tz/tags?per_page=1000';
 
 	/**
-	 * URL template to fetch raw data files for the TZDB
+	 * @var string
+	 * URL template to fetch raw data files for the TZDB.
 	 */
 	public const TZDB_FILE_URL = 'https://raw.githubusercontent.com/eggert/tz/{COMMIT}/{FILE}';
 
 	/**
-	 * URL where we can get nice English labels for tzids.
+	 * @var string
+	 *
+	 * URL where we can get a list of tagged releases of the CLDR in JSON format.
 	 */
-	public const CLDR_TZNAMES_URL = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json/cldr-dates-full/main/en/timeZoneNames.json';
+	public const CLDR_TAGS_URL = 'https://api.github.com/repos/unicode-org/cldr-json/tags?per_page=1000';
 
 	/**
+	 * @var string
+	 *
+	 * URL template to fetch raw data files for the CLDR in JSON format.
+	 */
+	public const CLDR_FILE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr-json/{COMMIT}/{FILE}';
+
+	/**
+	 * @var string
+	 *
 	 * Used in places where an earliest date is required.
 	 *
-	 * To support 32-bit PHP builds, use '1901-12-13 20:45:52 UTC'
+	 * To support 32-bit PHP builds, use '1901-12-13T20:45:52+0000'
 	 */
-	public const DATE_MIN = '1582-10-15 00:00:00 UTC';
+	public const DATE_MIN = '1582-10-15T00:00:00+0000';
 
 	/**
+	 * @var string
+	 *
+	 * The date equivalent to Unix timestamp 0.
+	 *
+	 * The TZDB tracks info about dates prior to this in its backzone file
+	 * rather than its main files, and the CLDR doesn't maintain metazone info
+	 * for dates prior to this.
+	 */
+	public const DATE_EPOCH = '1970-01-01T00:00:00+0000';
+
+	/**
+	 * @var string
+	 *
 	 * Used in places where a date in the next year or so is required.
 	 */
 	public const DATE_SOON = 'January 1 + 2 years UTC';
 
 	/**
+	 * @var string
+	 *
 	 * Used in places where a latest date is required.
 	 */
 	public const DATE_MAX = 'January 1 + 100 years UTC';
@@ -147,37 +180,65 @@ class TimezoneDataUpdater extends UpdaterBase
 	public string $commit_msg = 'Updates time zone data';
 
 	/**
+	 * @var string
+	 *
 	 * Git commit hash associated with TZDB_PREV_TAG.
 	 */
 	public string $prev_commit;
 
 	/**
+	 * @var string
+	 *
 	 * Git commit hash associated with TZDB_CURR_TAG.
 	 */
 	public string $curr_commit;
 
 	/**
+	 * @var bool
+	 *
 	 * This keeps track of whether any files actually changed.
 	 */
 	public bool $files_updated = false;
 
 	/**
+	 * @var array
+	 *
 	 * Tags from the TZDB's GitHub repository.
 	 */
 	public array $tzdb_tags = [];
 
 	/**
+	 * @var array
+	 *
+	 * Tags from the CLDR's GitHub repository.
+	 */
+	public array $cldr_tags = [];
+
+	/**
+	 * @var array
+	 *
 	 * A multidimensional array of time zone identifiers,
 	 * grouped into different information blocks.
 	 */
 	public array $tz_data = [];
 
 	/**
+	 * @var array
+	 *
+	 * Data retrieved from the CLDR.
+	 */
+	public array $cldr_data = [];
+
+	/**
+	 * @var array
+	 *
 	 * Compiled information about all time zones in the TZDB.
 	 */
 	public array $zones = [];
 
 	/**
+	 * @var array
+	 *
 	 * Compiled information about all time zone transitions.
 	 *
 	 * This is similar to return value of PHP's timezone_transitions_get(),
@@ -187,9 +248,25 @@ class TimezoneDataUpdater extends UpdaterBase
 	public array $transitions;
 
 	/**
-	 * Info about any new meta-zones.
+	 * @var array
+	 *
+	 * Info about metazones.
 	 */
-	public array $new_metazones = [];
+	public array $metazones = [];
+
+	/**
+	 * @var array
+	 *
+	 * Info about each country's preferred exemplar time zone for each metazone.
+	 */
+	public array $preferred_zones = [];
+
+	/**
+	 * @var array
+	 *
+	 * Lists of each country's time zones.
+	 */
+	public array $sorted_tzids = [];
 
 	/****************
 	 * Public methods
@@ -361,16 +438,41 @@ class TimezoneDataUpdater extends UpdaterBase
 	{
 		$file_contents = file_get_contents(Config::$sourcedir . '/TimeZone.php');
 
+		$old_hash = md5($file_contents);
+
+		// Update the list of canonical links.
+		$this->buildZones();
+
+		$canonical_links = [];
+
+		foreach ($this->zones as $tzid => $zone) {
+			if (isset($zone['canonical'])) {
+				$canonical_links[$tzid] = $zone['canonical'];
+			}
+		}
+
+		ksort($canonical_links);
+
+		$file_contents = preg_replace(
+			[
+				'/public const CANONICAL_LINKS = \[[^\]]*\];/',
+				'/^\h+$/m',
+			],
+			[
+				'public const CANONICAL_LINKS = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($canonical_links)) . ';',
+				'',
+			],
+			$file_contents,
+		);
+
 		// Handle any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
-			// Rename it in TimeZone::$metazones
+			// Rename it in TimeZone::$preferred_zones
 			if (!preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=\s+=>\s+\'\w+\',)~', $file_contents)) {
 				$file_contents = preg_replace('~\n\h+\K\'' . $old_tzid . '\'(?=\s+=>\s+\'\w+\',)~', "'{$new_tzid}'", $file_contents);
 
 				if (preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=\s+=>\s+\'\w+\',)~', $file_contents)) {
-					echo "Renamed {$old_tzid} to {$new_tzid} TimeZone::\$metazones.\n\n";
-
-					$this->files_updated = true;
+					echo "Renamed {$old_tzid} to {$new_tzid} in TimeZone::\$preferred_zones.\n\n";
 				}
 			}
 
@@ -380,8 +482,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~\n\h+\K\'' . $new_tzid . '\'(?=,\n)~', $file_contents)) {
 					echo "Renamed {$old_tzid} to {$new_tzid} in TimeZone::\$sorted_tzids.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 
@@ -397,8 +497,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~' . $search_for . '~', $file_contents)) {
 					echo "Added fallback code for {$new_tzid} in TimeZone::\$fallbacks.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 		}
@@ -416,8 +514,6 @@ class TimezoneDataUpdater extends UpdaterBase
 
 					if (preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
 						echo "Added {$tzid} to {$cc} in TimeZone::\$sorted_tzids.\n\n";
-
-						$this->files_updated = true;
 					}
 				}
 
@@ -436,7 +532,6 @@ class TimezoneDataUpdater extends UpdaterBase
 						echo "Added fallback code for {$tzid} in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
 
 						$this->ready_to_commit = false;
-						$this->files_updated = true;
 					}
 				}
 				// Check whether our fallback rules are out of date.
@@ -541,7 +636,6 @@ class TimezoneDataUpdater extends UpdaterBase
 						$file_contents = str_replace($existing_code, $final_code, $file_contents);
 
 						$this->ready_to_commit = false;
-						$this->files_updated = true;
 
 						echo "Fallback code for {$tzid} has been updated in TimeZone::\$fallbacks.\nACTION NEEDED: Review the fallback code for {$tzid}.\n\n";
 					}
@@ -552,28 +646,32 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Save the changes we've made so far.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 
-		// Any new meta-zones to add?
-		$file_contents = $this->updateMetazones($file_contents);
+		// Ensure the TimeZone::$preferred_zones array in up to date.
+		$file_contents = $this->updatePreferredZones($file_contents);
+
+		// Extract the $sorted_tzids array and evaluate it.
+		preg_match('/protected static array \K\$sorted_tzids = \[[^;]+;/', $file_contents, $matches);
+
+		eval($matches[0]);
+		$this->sorted_tzids = $sorted_tzids;
 
 		// Have any time zones changed their country codes?
 		foreach ($this->zones as $tzid => $zone) {
 			$cc = $this->getCcForTzid($tzid, $this->curr_commit);
 
-			if ($cc !== '??' && !\in_array($tzid, TimeZone::$sorted_tzids[$cc] ?? [])) {
+			if ($cc !== '??' && !\in_array($tzid, $sorted_tzids[$cc] ?? [])) {
 				// Remove the existing occurrence of the tzid in TimeZone::$sorted_tzids.
 				$file_contents = preg_replace('~\n\h+\'' . $tzid . '\',?(?=\n)~', '', $file_contents);
 
 				// A brand new country code?
-				if (!isset(TimeZone::$sorted_tzids[$cc])) {
-					foreach (TimeZone::$sorted_tzids as $existing_cc => $tzids) {
+				if (empty($sorted_tzids[$cc])) {
+					foreach ($sorted_tzids as $existing_cc => $tzids) {
 						if ($existing_cc > $cc) {
 							break;
 						}
 					}
 
 					$file_contents = preg_replace("~(\n\h+)('{$existing_cc}' => \[)~", "$1'{$cc}' => [$1],$0", $file_contents);
-
-					TimeZone::$sorted_tzids[$cc] = [$tzid];
 				}
 
 				// Add the tzid to the correct country code's list.
@@ -581,10 +679,23 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				if (preg_match('~\n\h+\K\'' . $tzid . '\'(?=,\n)~', $file_contents)) {
 					echo "Moved {$tzid} to '{$cc}' in TimeZone::\$sorted_tzids.\n\n";
+				}
 
-					$this->files_updated = true;
+				// Also update our live version for use elsewhere.
+				foreach ($this->sorted_tzids as $existing_cc => $tzids) {
+					if ($existing_cc == $cc && !\in_array($tzid, $this->sorted_tzids[$cc])) {
+						$this->sorted_tzids[$cc][] = $tzid;
+					} else {
+						$this->sorted_tzids[$existing_cc] = array_diff($tzids, [$tzid]);
+					}
 				}
 			}
+		}
+
+		$new_hash = md5($file_contents);
+
+		if ($old_hash !== $new_hash) {
+			$this->files_updated = true;
 		}
 
 		// Save the changes again.
@@ -592,310 +703,42 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
-	 * This figures out if we need any new meta-zones. If we do, this (1) populates
-	 * $this->new_metazones variable for use in update_language_file(), and
-	 * (2) inserts the new meta-zones into $file_contents for TimeZone.php.
+	 * Updates the $preferred_zones array in TimeZone.php.
 	 *
 	 * @param string $file_contents String content of TimeZone.php.
 	 * @return string Modified copy of $file_contents.
 	 */
-	private function updateMetazones(string $file_contents): string
+	private function updatePreferredZones(string $file_contents): string
 	{
-		include Config::$languagesdir . '/en_US/Timezones.php';
+		$this->buildMetaZones();
 
-		$metazones = TimeZone::getTzidMetazones();
-		$canonical_non_metazones = array_diff($this->tz_data['curr']['canonical'], array_keys($metazones));
+		$this->preferred_zones = [];
 
-		$this->buildZones();
+		$metazone_names = [];
 
-		array_walk(
-			$this->zones,
-			function (&$zone) {
-				unset($zone['new']);
-			},
+		foreach ($this->metazones['mapped'] as $mapzones) {
+			foreach ($mapzones as $mapzone) {
+				$region = $mapzone['_territory'];
+				$metazone = $mapzone['_other'];
+				$tzid = $this->getBestMetaZoneTzid($mapzone['_type']);
+
+				$metazone_names[] = $metazone;
+				$this->preferred_zones[$region][$metazone] = $tzid;
+			}
+		}
+
+		// Sort for developer sanity.
+		ksort($this->preferred_zones);
+
+		foreach ($this->preferred_zones as $region => $value) {
+			ksort($this->preferred_zones[$region]);
+		}
+
+		return preg_replace(
+			'/(\h*protected static array \$preferred_zones)\h*=\h*\[[^;]*;/',
+			'$1 = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($this->preferred_zones)) . ';',
+			$file_contents,
 		);
-
-		$this->buildTransitions();
-
-		$not_in_a_metazone = [];
-
-		// Check for time zones that aren't covered by any existing metazone.
-		// Go one year at a time to avoid false positives on places that simply
-		// started or stopped using DST and that are covered by existing metazones
-		// both before and after they changed their DST practices.
-		for ($year = date_create(self::DATE_SOON . ' - 7 years')->format('Y'); $year <= date_create(self::DATE_SOON)->format('Y'); $year++) {
-			$start_date = new \DateTimeImmutable($year . '-01-01T00:00:00+0000');
-			$end_date = new \DateTimeImmutable(($year + 1) . '-01-01T00:00:00+0000');
-
-			$timezones_when = array_keys(TimeZone::list($start_date->getTimestamp()));
-
-			$tzones = [];
-			$tzones_loose = [];
-
-			$not_in_a_metazone[$year] = [];
-
-			foreach (array_merge(array_keys($metazones), $timezones_when, $canonical_non_metazones) as $tzid) {
-				if (\is_int($tzid)) {
-					continue;
-				}
-
-				$tzinfo = [];
-				$tzinfo_loose = [];
-
-				foreach ($this->transitions[$tzid] as $transition_num => $transition) {
-					if ($this->transitions[$tzid][$transition_num]['ts'] > $end_date->getTimestamp()) {
-						continue;
-					}
-
-					if (isset($this->transitions[$tzid][$transition_num + 1]) && $this->transitions[$tzid][$transition_num + 1]['ts'] < $start_date->getTimestamp()) {
-						continue;
-					}
-
-					if ($transition['ts'] < $start_date->getTimestamp()) {
-						$transition['ts'] = $start_date->getTimestamp();
-						$transition['time'] = $start_date->format('Y-m-d\TH:i:sO');
-					}
-
-					// For comparison purposes, only consider the standard transition elements.
-					$transition = array_intersect_key(
-						['ts' => 1, 'time' => 1, 'offset' => 1, 'isdst' => 1, 'abbr' => 1],
-						$transition,
-					);
-
-					$tzinfo[] = $transition;
-					$tzinfo_loose[] = array_diff_key($transition, ['ts' => 0, 'time' => 0]);
-				}
-
-				$tzkey = serialize($tzinfo);
-				$tzkey_loose = serialize($tzinfo_loose);
-
-				if (!isset($tzones[$tzkey])) {
-					// Don't bother with a new metazone if two places use all the same tzinfo except the clock switch is at a slightly different time (e.g. America/Moncton vs. America/Halifax in 2005)
-					if (isset($tzones_loose[$tzkey_loose])) {
-						$close_enough = true;
-						$close_enough_hours = 3;
-
-						foreach ($tzones_loose[$tzkey_loose] as $tzkey_similar) {
-							$tzinfo_similar = unserialize($tzkey_similar);
-
-							for ($i = 0; $i < \count($tzinfo_similar); $i++) {
-								$close_enough &= abs($tzinfo_similar[$i]['ts'] - $tzinfo[$i]['ts']) < 3600 * $close_enough_hours;
-							}
-						}
-					}
-
-					if (empty($close_enough) && \in_array($tzid, $canonical_non_metazones)) {
-						if (($tzid === 'UTC' || str_contains($tzid, '/')) && !str_starts_with($tzid, 'Etc/') && !\in_array($tzid, $timezones_when)) {
-							$not_in_a_metazone[$year][$tzkey][] = $tzid;
-						}
-					} else {
-						$tzones[$tzkey] = $tzid;
-						$tzones_loose[$tzkey_loose][] = $tzkey;
-					}
-				}
-			}
-
-			// More filtering is needed.
-			foreach ($not_in_a_metazone[$year] as $tzkey => $tzids) {
-				// A metazone is not justified if it contains only one tzid.
-				if (\count($tzids) <= 1) {
-					unset($not_in_a_metazone[$year][$tzkey]);
-					continue;
-				}
-
-				// Even if no single existing metazone covers all of this set, maybe a combo of existing metazones do.
-				$tzinfo = unserialize($tzkey);
-
-				$tzid = reset($tzids);
-
-				// Build a list of possible fallback zones for this zone.
-				$possible_fallback_zones = $this->buildPossibleFallbackZones($tzid);
-
-				// Build a preliminary list of fallbacks.
-				$fallbacks[$tzid] = [];
-
-				$prev_fallback_tzid = '';
-
-				foreach ($this->zones[$tzid]['entries'] as $entry_num => $entry) {
-					if ($entry['format'] == '-00') {
-						$prev_fallback_tzid = '';
-						continue;
-					}
-
-					foreach ($this->findFallbacks($possible_fallback_zones, $entry, $tzid, $prev_fallback_tzid, $not_in_a_metazone[$year]) as $fallback) {
-						$prev_fallback_tzid = $fallback['tzid'];
-						$fallbacks[$tzid][] = $fallback;
-					}
-				}
-
-				$remove_earlier = false;
-
-				for ($i = \count($fallbacks[$tzid]) - 1; $i >= 0; $i--) {
-					if ($fallbacks[$tzid][$i]['tzid'] === '') {
-						$remove_earlier = true;
-					}
-
-					if ($remove_earlier) {
-						unset($fallbacks[$tzid][$i]);
-						continue;
-					}
-
-					$date_fallback = new \DateTime($fallbacks[$tzid][$i]['ts']);
-
-					if ($date_fallback->getTimestamp() > $end_date->getTimestamp()) {
-						continue;
-					}
-
-					if ($date_fallback->getTimestamp() < $start_date->getTimestamp()) {
-						$fallbacks[$tzid][$i]['ts'] = $start_date->format('Y-m-d\TH:i:sO');
-						$remove_earlier = true;
-					}
-				}
-
-				if (array_column($fallbacks[$tzid], 'ts') === array_column($tzinfo, 'time')) {
-					unset($not_in_a_metazone[$year][$tzkey]);
-				}
-			}
-
-			// If there's nothing left, move on.
-			if (empty($not_in_a_metazone[$year])) {
-				unset($not_in_a_metazone[$year]);
-				continue;
-			}
-		}
-
-		foreach ($not_in_a_metazone as $year => $possibly_should_become_metazone) {
-			// Which tzids actually should be grouped into a metazone?
-			foreach ($possibly_should_become_metazone as $tzkey => $tzids) {
-				// If there's only one tzid, it doesn't need a new metazone.
-				if (\count($tzids) < 2) {
-					continue;
-				}
-
-				// Sort for stability. Use TimeZone::$sorted_tzids data to guess
-				// which tzid might be a good representative for the others.
-				$sorted_tzids = [];
-
-				foreach ($tzids as $tzid) {
-					$cc = $this->getCcForTzid($tzid, $this->curr_commit);
-
-					if (isset($sorted_tzids[$cc])) {
-						continue;
-					}
-
-					if (preg_match("~('{$cc}'\s*=>\s*\[(?:\s*'[^']+',)*\n)(\h*)(\],)~", $file_contents, $matches)) {
-						eval('$sorted_tzids = array_merge($sorted_tzids, [' . $matches[0] . ']);');
-					}
-
-					$sorted_tzids[$cc] = array_intersect($sorted_tzids[$cc], $tzids);
-				}
-				ksort($sorted_tzids);
-
-				$tzids = [];
-
-				foreach ($sorted_tzids as $cc => $cc_tzids) {
-					$tzids = array_merge($tzids, $cc_tzids);
-				}
-
-				// Now that we've sorted, set up the new metazone data.
-				$tzid = reset($tzids);
-
-				$this->new_metazones[implode(',', $tzids)] = [
-					'tzid' => $tzid,
-					'options' => $tzids,
-					'tztxt_key' => str_replace('/', '_', $tzid),
-					// This one might change below.
-					'uses_dst' => false,
-				];
-			}
-		}
-
-		// Do we need any new metazones?
-		if (!empty($this->new_metazones)) {
-			// Any new metazones to create?
-			preg_match('/\h*public static array \$metazones\h*=\h*\[[^\]]*\];/', $file_contents, $matches);
-			$existing_tzid_metazones_code = $matches[0];
-
-			// Need some more info about this new metazone.
-			foreach ($this->new_metazones as &$metazone) {
-				$tzid = $metazone['tzid'];
-
-				// Does it use DST?
-				foreach ($this->transitions[$tzid] as $transition) {
-					if (!empty($transition['isdst'])) {
-						$metazone['uses_dst'] = true;
-						continue 2;
-					}
-				}
-
-				// Metazones distinguish between North and South America.
-				if (str_starts_with($metazone['tztxt_key'], 'America_')) {
-					// Check the TZDB source file first.
-					if ($this->zones[$tzid]['file'] === 'northamerica') {
-						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
-					} elseif ($this->zones[$tzid]['file'] === 'southamerica') {
-						$metazone['tztxt_key'] = 'South_' . $metazone['tztxt_key'];
-					}
-					// If source was one of the backward or backzone files, guess based on latitude and/or country code.
-					elseif ($this->zones[$tzid]['latitude'] > 13) {
-						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
-					} elseif ($this->zones[$tzid]['latitude'] > 7 && \in_array($this->getCcForTzid($tzid, $this->curr_commit), ['NI', 'CR', 'PA'])) {
-						$metazone['tztxt_key'] = 'North_' . $metazone['tztxt_key'];
-					} else {
-						$metazone['tztxt_key'] = 'South_' . $metazone['tztxt_key'];
-					}
-				}
-			}
-
-			$lines = explode("\n", $existing_tzid_metazones_code);
-			$prev_line_number = 0;
-			$added = [];
-
-			foreach ($lines as $line_number => $line) {
-				if (preg_match("~(\h*)'([\w/]+)'\h*=>\h*'\w+',~", $line, $matches)) {
-					$whitespace = $matches[1];
-					$line_tzid = $matches[2];
-
-					foreach ($this->new_metazones as $metazone) {
-						$tzid = $metazone['tzid'];
-
-						if (\in_array($tzid, $added)) {
-							continue;
-						}
-
-						if ($tzid < $line_tzid) {
-							$insertion = ($prev_line_number > 0 ? "\n" : '') . "\n" . $whitespace . '// ' . ($metazone['uses_dst'] ? 'Uses DST' : 'No DST');
-
-							if (isset($metazone['options'])) {
-								$insertion .= "\n" . $whitespace . '// OPTIONS: ' . implode(', ', $metazone['options']);
-							}
-
-							$insertion .= "\n" . $whitespace . "'{$tzid}' => '" . $metazone['tztxt_key'] . "',";
-
-							$lines[$prev_line_number] .= $insertion;
-
-							$added[] = $tzid;
-
-							echo "Created new metazone for {$tzid} in TimeZone::\$metazones.\n";
-							echo "ACTION NEEDED: Review the automatically generated \$tztxt key, '" . $metazone['tztxt_key'] . "'.\n\n";
-
-							$this->ready_to_commit = false;
-							$this->files_updated = true;
-
-							if (\count($added) === \count($this->new_metazones)) {
-								break 2;
-							}
-						}
-					}
-
-					$prev_line_number = $line_number;
-				}
-			}
-
-			$file_contents = str_replace($existing_tzid_metazones_code, implode("\n", $lines), $file_contents);
-		}
-
-		return $file_contents;
 	}
 
 	/**
@@ -916,17 +759,17 @@ class TimezoneDataUpdater extends UpdaterBase
 	 */
 	private function updateTimezonesLangfile(): void
 	{
-		// Perform any renames.
 		$file_contents = file_get_contents(Config::$languagesdir . '/en_US/Timezones.php');
 
+		$old_hash = md5($file_contents);
+
+		// Perform any renames.
 		foreach ($this->tz_data['changed']['renames'] as $old_tzid => $new_tzid) {
 			if (!str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 				$file_contents = str_replace("\$txt['{$old_tzid}']", "\$txt['{$new_tzid}']", $file_contents);
 
 				if (str_contains($file_contents, "\$txt['{$new_tzid}']")) {
 					echo "Renamed \$txt['{$old_tzid}'] to \$txt['{$new_tzid}'] in Languages/en_US/Timezones.php.\n\n";
-
-					$this->files_updated = true;
 				}
 			}
 		}
@@ -934,55 +777,99 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Get $txt and $tztxt as real variables so that we can work with them.
 		eval(substr(rtrim($file_contents, '?>'), 5));
 
-		// Add any new metazones.
-		if (!empty($this->new_metazones)) {
-			foreach ($this->new_metazones as $metazone) {
-				if (isset($tztxt[$metazone['tztxt_key']])) {
-					continue;
-				}
+		// $tztxt keys that should go first in the list.
+		$tztxt_first = [
+			'region_format',
+			'region_format_type_daylight',
+			'region_format_type_standard',
+			'fallback_format',
+			'Etc/UTC',
+			'Europe/Dublin',
+			'Europe/London',
+		];
 
-				// Get a label from the CLDR.
-				list($label) = $this->getTzidLabel($metazone['tzid']);
+		// Keys for $tztxt items that take plain strings, not arrays.
+		$tztxt_strings = [
+			'region_format',
+			'region_format_type_daylight',
+			'region_format_type_standard',
+			'fallback_format',
+		];
 
-				$label .= ' %1$s Time';
-
-				$tztxt[$metazone['tztxt_key']] = $label;
-
-				echo "Added \$tztxt['{$metazone['tztxt_key']}'] to Languages/en_US/Timezones.php.\n";
-				echo "ACTION NEEDED: Review the metazone label text, '{$label}'.\n\n";
-
-				$this->ready_to_commit = false;
-				$this->files_updated = true;
+		// Check over the existing $tztxt data.
+		foreach ($tztxt as $metazone => $value) {
+			if (\in_array($metazone, $tztxt_strings)) {
+				$tztxt[$metazone] = str_replace(['%1$s', '%2$s'], ['{0}', '{1}'], $value);
+				continue;
 			}
 
-			// Sort the strings into our preferred order.
-			uksort(
-				$tztxt,
-				function ($a, $b) {
-					$first = ['daylight_saving_time_false', 'daylight_saving_time_true', 'generic_timezone', 'GMT', 'UTC'];
+			// Remove any unknown metazones from $tztxt.
+			if (
+				!\in_array($metazone, $tztxt_first)
+				&& !isset($this->preferred_zones['001'][$metazone])
+			) {
+				unset($tztxt[$metazone]);
+				continue;
+			}
 
-					if (\in_array($a, $first) && !\in_array($b, $first)) {
-						return -1;
-					}
-
-					if (!\in_array($a, $first) && \in_array($b, $first)) {
-						return 1;
-					}
-
-					if (\in_array($a, $first) && \in_array($b, $first)) {
-						return array_search($a, $first) <=> array_search($b, $first);
-					}
-
-					return $a <=> $b;
-				},
-			);
+			// Replace any strings with arrays.
+			if (\is_string($value)) {
+				$tztxt[$metazone] = [
+					'generic' => [
+						// Make sure the string is using MessageFormat tokens, not sprintf tokens.
+						'long' => str_replace(['%1$s', '%2$s'], ['{0}', '{1}'], $value),
+					],
+				];
+			}
 		}
 
-		// Add any new tzids.
-		$new_tzids = array_diff($this->tz_data['changed']['additions'], array_keys($txt));
+		// Update the labels in $tztxt.
+		foreach ($this->metazones['labels'] as $metazone => $labels) {
+			$tztxt[$metazone] = $labels;
+		}
 
-		if (!empty($new_tzids)) {
-			foreach ($new_tzids as $tzid) {
+		// Sort the strings into our preferred order.
+		uksort(
+			$tztxt,
+			function ($a, $b) use ($tztxt_first) {
+				if (\in_array($a, $tztxt_first) && !\in_array($b, $tztxt_first)) {
+					return -1;
+				}
+
+				if (!\in_array($a, $tztxt_first) && \in_array($b, $tztxt_first)) {
+					return 1;
+				}
+
+				if (\in_array($a, $tztxt_first) && \in_array($b, $tztxt_first)) {
+					return array_search($a, $tztxt_first) <=> array_search($b, $tztxt_first);
+				}
+
+				return $a <=> $b;
+			},
+		);
+
+		// Update the time zone location names.
+		foreach ($this->zones as $tzid => $zone) {
+			if (isset($zone['canonical']) || $this->getCcForTzid($tzid, $this->curr_commit) === '??') {
+				$no_label_needed = 1;
+
+				foreach ($this->preferred_zones as $region => $tzids) {
+					$no_label_needed &= !\in_array($tzid, $tzids);
+				}
+
+				foreach ($this->sorted_tzids as $region => $tzids) {
+					$no_label_needed &= !\in_array($tzid, $tzids);
+				}
+
+				$no_label_needed |= str_starts_with($tzid, 'Etc/') || !str_contains($tzid, '/');
+
+				if ($no_label_needed) {
+					unset($txt[$tzid]);
+					continue;
+				}
+			}
+
+			if (!isset($txt[$tzid])) {
 				$added_txt_msg = "Added \$txt['{$tzid}'] to Languages/en_US/Timezones.php.\n";
 
 				// Get a label from the CLDR.
@@ -992,41 +879,28 @@ class TimezoneDataUpdater extends UpdaterBase
 
 				$added_txt_msg .= $msg;
 
-				// If this tzid is a new metazone, use the label for that, too.
-				if (isset($this->new_metazones[$tzid])) {
-					$this->new_metazones[$tzid]['label'] = $label . ' %1$s Time';
-				}
-
 				echo $added_txt_msg . "\n";
-				$this->files_updated = true;
-			}
+			} else {
+				list($label, $msg) = $this->getTzidLabel($tzid);
 
-			ksort($txt);
+				if ($label !== $txt[$tzid]) {
+					$txt[$tzid] = $label;
+					echo "Updated \$txt['{$tzid}'] in Languages/en_US/Timezones.php.\n\n";
+				}
+			}
 		}
 
+		ksort($txt);
+
 		// Ensure $txt['iso3166'] is up to date.
-		$iso3166_tab = $this->fetchTzdbFile('iso3166.tab', $this->curr_commit);
-
-		foreach (explode("\n", $iso3166_tab) as $line) {
-			$line = trim(substr($line, 0, strcspn($line, '#')));
-
-			if (empty($line)) {
-				continue;
-			}
-
-			list($cc, $label) = explode("\t", $line);
-
-			$label = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
-
-			// Skip if already present.
-			if (isset($txt['iso3166'][$cc])) {
-				continue;
+		foreach ($this->getIso3166() as $cc => $label) {
+			if (!isset($txt['iso3166'][$cc])) {
+				echo "Added \$txt['iso3166']['{$cc}'] to Languages/en_US/Timezones.php.\n\n";
+			} elseif ($txt['iso3166'][$cc] !== $label) {
+				echo "Updated \$txt['iso3166']['{$cc}'] in Languages/en_US/Timezones.php.\n\n";
 			}
 
 			$txt['iso3166'][$cc] = $label;
-
-			echo "Added \$txt['iso3166']['{$cc}'] to Languages/en_US/Timezones.php.\n\n";
-			$this->files_updated = true;
 		}
 
 		ksort($txt['iso3166']);
@@ -1039,17 +913,44 @@ class TimezoneDataUpdater extends UpdaterBase
 			'',
 		];
 
-		foreach ($tztxt as $key => $value) {
-			if ($key === 'daylight_saving_time_false') {
-				$lines[] = '// Standard Time or Daylight Saving Time';
-			} elseif ($key === 'generic_timezone') {
-				$lines[] = '';
-				$lines[] = '// Labels for "meta-zones"';
+		foreach ($tztxt as $metazone => $value) {
+			switch ($metazone) {
+				case 'region_format':
+					$lines[] = '// Generic metazone format. Argument {0} is the name of a country or city.';
+					break;
+
+				case 'region_format_type_daylight':
+					$lines[] = '// Daylight Time metazone format. Argument {0} is the name of a country or city.';
+					break;
+
+				case 'region_format_type_standard':
+					$lines[] = '// Standard Time metazone format. Argument {0} is the name of a country or city.';
+					break;
+
+				case 'fallback_format':
+					$lines[] = '// Metazone with location. Argument {1} is the metazone and argument {0} is the name of a country or city.';
+					break;
+
+				case 'Etc/UTC':
+					$lines[] = '';
+					$lines[] = '// Special overrides for certain time zones.';
+					break;
 			}
 
-			$value = addcslashes($value, "'");
+			if (\in_array($metazone, $tztxt_strings)) {
+				$lines[] = "\$tztxt['{$metazone}'] = " . Config::varExport($value) . ';';
+			} else {
+				foreach ($value as $dst_type => $variants) {
+					foreach ($variants as $length => $label) {
+						$lines[] = "\$tztxt['{$metazone}']['{$dst_type}']['{$length}'] = " . Config::varExport($label) . ';';
+					}
+				}
+			}
 
-			$lines[] = "\$tztxt['{$key}'] = '{$value}';";
+			if ($metazone === $tztxt_first[array_key_last($tztxt_first)]) {
+				$lines[] = '';
+				$lines[] = '// Labels for metazones.';
+			}
 		}
 
 		$lines[] = '';
@@ -1066,7 +967,7 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		$lines[] = '';
-		$lines[] = '// Countries';
+		$lines[] = '// Countries.';
 
 		foreach ($txt['iso3166'] as $key => $value) {
 			$value = addcslashes($value, "'");
@@ -1076,8 +977,16 @@ class TimezoneDataUpdater extends UpdaterBase
 
 		$lines[] = '';
 
+		$file_contents = implode("\n", $lines);
+
+		$new_hash = md5($file_contents);
+
+		if ($old_hash !== $new_hash) {
+			$this->files_updated = true;
+		}
+
 		// Save the changes.
-		file_put_contents(Config::$languagesdir . '/en_US/Timezones.php', implode("\n", $lines));
+		file_put_contents(Config::$languagesdir . '/en_US/Timezones.php', $file_contents);
 	}
 
 	/**
@@ -1091,6 +1000,23 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		ksort($this->tzdb_tags);
+	}
+
+	/**
+	 * Returns a list of Git tags and the associated commit hashes for
+	 * each release of the CLDR available on GitHub.
+	 */
+	private function fetchCldrTags(): void
+	{
+		foreach (json_decode(WebFetchApi::fetch(self::CLDR_TAGS_URL), true) as $tag) {
+			if (!preg_match('/^\d+\.\d+\.\d+$/', $tag['name'])) {
+				continue;
+			}
+
+			$this->cldr_tags[$tag['name']] = $tag['commit']['sha'];
+		}
+
+		krsort($this->cldr_tags);
 	}
 
 	/**
@@ -1237,6 +1163,35 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
+	 * Fetches the contents of a CLDR JSON file and decodes it to an array.
+	 *
+	 * @param string $filename File name.
+	 * @return array The file's data array.
+	 */
+	private function fetchCldrData(string $filename): array
+	{
+		 static $commit;
+
+		 if (empty($commit)) {
+			$this->fetchCldrTags();
+
+			$commit = reset($this->cldr_tags);
+		 }
+
+		 if (empty($this->cldr_data)) {
+			$this->cldr_data = [];
+		 }
+
+		 if (empty($this->cldr_data[$filename])) {
+			$content = WebFetchApi::fetch(strtr(self::CLDR_FILE_URL, ['{COMMIT}' => $commit, '{FILE}' => $filename]));
+
+			$this->cldr_data[$filename] = (array) json_decode($content, true);
+		 }
+
+		 return $this->cldr_data[$filename];
+	}
+
+	/**
 	 * Gets the ISO-3166 country code for a time zone identifier as
 	 * defined in the specified version of the TZDB.
 	 *
@@ -1259,13 +1214,7 @@ class TimezoneDataUpdater extends UpdaterBase
 	 */
 	private function getTzidLabel(string $tzid): array
 	{
-		static $cldr_json;
-
-		if (empty($cldr_json)) {
-			$cldr_json = json_decode(WebFetchApi::fetch(self::CLDR_TZNAMES_URL), true);
-		}
-
-		$sub_array = $cldr_json['main']['en']['dates']['timeZoneNames']['zone'];
+		$sub_array = $this->fetchCldrData('cldr-json/cldr-dates-full/main/en/timeZoneNames.json')['main']['en']['dates']['timeZoneNames']['zone'];
 
 		$tzid_parts = explode('/', $tzid);
 
@@ -1278,10 +1227,19 @@ class TimezoneDataUpdater extends UpdaterBase
 			$sub_array = $sub_array[$part];
 		}
 
-		$label = $sub_array['exemplarCity'];
+		$label = $sub_array['exemplarCity'] ?? false;
 		$msg = '';
 
-		// If tzid is not yet in the CLDR, make a preliminary label for now.
+		// If tzid is not yet in the CLDR, is there an existing label to use?
+		if ($label === false) {
+			include Config::$languagesdir . '/en_US/Timezones.php';
+
+			if (isset($txt[$tzid])) {
+				$label = $txt[$tzid];
+			}
+		}
+
+		// Unknown tzid. Probably new, so make a preliminary label.
 		if ($label === false) {
 			$label = str_replace(['St_', '_'], ['St. ', ' '], substr($tzid, strrpos($tzid, '/') + 1));
 
@@ -1290,7 +1248,67 @@ class TimezoneDataUpdater extends UpdaterBase
 			$this->ready_to_commit = false;
 		}
 
+		$label = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+
 		return [$label, $msg];
+	}
+
+	/**
+	 * Gets the label strings for all known ISO 3166 country codes.
+	 *
+	 * @return array Strings that can be saved as $txt['iso3166'].
+	 */
+	private function getIso3166(): array
+	{
+		static $iso3166 = [];
+
+		if (empty($iso3166)) {
+			// Compile the list of ISO 3166 codes from the TZDB
+			$iso3166_tab = $this->fetchTzdbFile('iso3166.tab', $this->curr_commit);
+
+			foreach (explode("\n", $iso3166_tab) as $line) {
+				$line = trim(substr($line, 0, strcspn($line, '#')));
+
+				if (empty($line)) {
+					continue;
+				}
+
+				list($cc, $label) = explode("\t", $line);
+
+				$iso3166[$cc] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+			}
+
+			// However, use the English labels from the CLDR, not the TZDB.
+			$territories = $this->fetchCldrData('cldr-json/cldr-localenames-full/main/en/territories.json')['main']['en']['localeDisplayNames']['territories'];
+
+			$use_alt_forms = ['CD', 'CG', 'HK', 'MM', 'MO', 'PS'];
+
+			foreach ($territories as $code => $label) {
+				if (is_numeric($code)) {
+					continue;
+				}
+
+				$cc = substr($code, 0, 2);
+
+				if (!isset($iso3166[$cc])) {
+					continue;
+				}
+
+				// Don't use alternative labels except in a few special cases.
+				if (
+					str_starts_with($code, $cc . '-alt')
+					&& !\in_array($cc, $use_alt_forms)
+				) {
+					$label = $territories[$cc];
+				}
+
+				$iso3166[$cc] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+			}
+		}
+
+		ksort($iso3166);
+
+		return $iso3166;
 	}
 
 	/**
@@ -1784,6 +1802,197 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
+	 * Processes metazone data from the CLDR and populates $this->metazones.
+	 */
+	private function buildMetaZones(): void
+	{
+		if (!empty($this->metazones)) {
+			return;
+		}
+
+		$metazones_data = $this->fetchCldrData('cldr-json/cldr-core/supplemental/metaZones.json');
+
+		// Compile info about when different metazones were used by various time zones.
+		foreach ($this->zones as $tzid => $zone) {
+			$this->metazones['usage'][$tzid] = [];
+
+			$sub_array = $metazones_data['supplemental']['metaZones']['metazoneInfo']['timezone'];
+
+			$tzid_parts = explode('/', $tzid);
+
+			foreach ($tzid_parts as $part_num => $part) {
+				if (isset($sub_array[$part])) {
+					$sub_array = $sub_array[$part];
+				} elseif (isset($tzid_parts[$part_num + 1], $sub_array[$tzid_parts[$part_num + 1]])) {
+					continue;
+				} else {
+					continue 2;
+				}
+			}
+
+			foreach ($sub_array as $entries) {
+				foreach ($entries as $entry) {
+					if (!isset($entry['_mzone'])) {
+						continue;
+					}
+
+					$this->metazones['usage'][$tzid][] = [
+						'ts' => empty($entry['_from']) ? self::DATE_EPOCH : (new \DateTime($entry['_from'] . ' UTC'))->format('Y-m-d\TH:i:sO'),
+						'metazone' => $entry['_mzone'],
+					];
+				}
+			}
+		}
+
+		// There are some cases where the metazone info is in a linked time zone
+		// while the canonical time zone has no metazone info. In those cases,
+		// move the metazone info to the canonical one.
+		foreach ($this->metazones['usage'] as $tzid => $entries) {
+			$canonical = $this->getBestMetaZoneTzid($tzid);
+
+			if (empty($this->metazones['usage'][$canonical])) {
+				$this->metazones['usage'][$canonical] = $entries;
+				unset($this->metazones['usage'][$tzid]);
+			}
+		}
+
+		// Compile info about which time zones are the preferred ones for different metazones.
+		$this->metazones['mapped'] = $metazones_data['supplemental']['metaZones']['metazones'];
+
+		// Compile long metazone labels for use in $tztxt.
+		foreach ($this->fetchCldrData('cldr-json/cldr-dates-full/main/en/timeZoneNames.json')['main']['en']['dates']['timeZoneNames']['metazone'] as $metazone => $names) {
+			if (!empty($names['long'])) {
+				foreach ($names['long'] as $dst_type => $label) {
+					$this->metazones['labels'][$metazone][$dst_type]['long'] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+				}
+			}
+		}
+
+		// Compile short metazone labels (i.e. abbreviations) for use in $tztxt.
+		// The abbreviations come from the TZDB rather than the CLDR because the
+		// CLDR scatters them across many files.
+		foreach ($this->metazones['mapped'] as $mapzones) {
+			foreach ($mapzones as $mapzone) {
+				if ($mapzone['_territory'] !== '001') {
+					continue;
+				}
+
+				$metazone = $mapzone['_other'];
+				$tzid = $this->getBestMetaZoneTzid($mapzone['_type']);
+
+				if (
+					isset($this->metazones['labels'][$metazone]['standard']['long'])
+					|| isset($this->metazones['labels'][$metazone]['daylight']['long'])
+				) {
+					foreach (array_reverse($this->transitions[$tzid]) as $transition) {
+						if ($transition['offset'] % 900 !== 0) {
+							break;
+						}
+
+						$dst_type = $transition['isdst'] ? 'daylight' : 'standard';
+
+						if (isset($this->metazones['labels'][$metazone][$dst_type]['long'])) {
+							$this->metazones['labels'][$metazone][$dst_type]['short'] ??= $transition['abbr'];
+						}
+
+						if (
+							isset($this->metazones['labels'][$metazone]['standard']['long']) === isset($this->metazones['labels'][$metazone]['standard']['short'])
+							&& isset($this->metazones['labels'][$metazone]['daylight']['long']) === isset($this->metazones['labels'][$metazone]['daylight']['short'])
+						) {
+							break;
+						}
+					}
+				}
+
+				if (isset($this->metazones['labels'][$metazone]['generic']['long'])) {
+					$entry = array_last($this->zones[$tzid]['entries']);
+
+					if ($entry['format'] !== '%z') {
+						$this->metazones['labels'][$metazone]['generic']['short'] ??= \sprintf($entry['format'], '');
+					} elseif (
+						isset($this->metazones['labels'][$metazone]['standard']['short'])
+						&& (
+							!isset($this->metazones['labels'][$metazone]['daylight']['short'])
+							|| $this->metazones['labels'][$metazone]['standard']['short'] === $this->metazones['labels'][$metazone]['daylight']['short']
+						)
+					) {
+						$this->metazones['labels'][$metazone]['generic']['short'] ??= $this->metazones['labels'][$metazone]['standard']['short'];
+					}
+				}
+			}
+		}
+
+		// Some special snowflakes do things differently...
+		foreach ($this->zones as $tzid => $zone) {
+			$sub_array = $this->fetchCldrData('cldr-json/cldr-dates-full/main/en/timeZoneNames.json')['main']['en']['dates']['timeZoneNames']['zone'];
+
+			$tzid_parts = explode('/', $tzid);
+
+			foreach ($tzid_parts as $part) {
+				if (!isset($sub_array[$part])) {
+					continue 2;
+				}
+
+				$sub_array = $sub_array[$part];
+			}
+
+			if (!empty($sub_array['long'])) {
+				foreach ($sub_array['long'] as $dst_type => $label) {
+					$this->metazones['labels'][$tzid][$dst_type]['long'] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+				}
+			}
+
+			if (!empty($sub_array['short'])) {
+				foreach ($sub_array['short'] as $dst_type => $label) {
+					$this->metazones['labels'][$tzid][$dst_type]['short'] = strtr($label, ['&' => 'and', 'St ' => 'St. ']);
+				}
+			}
+		}
+
+		$string_order = [
+			'generic',
+			'standard',
+			'daylight',
+		];
+
+		foreach ($this->metazones['labels'] as $metazone => $dummy) {
+			uksort(
+				$this->metazones['labels'][$metazone],
+				fn($a, $b) => array_search($a, $string_order) <=> array_search($b, $string_order),
+			);
+		}
+	}
+
+	/**
+	 * Gets the best time zone identifier to use for a metazone's exemplar.
+	 *
+	 * @param string $tzid A time zone identifier.
+	 * @return string The time zone identifier to use for a metazone's exemplar.
+	 */
+	private function getBestMetaZoneTzid(string $tzid): string
+	{
+		// If $tzid is not canonical, it might be better to use a different one.
+		if (!empty($this->zones[$tzid]['canonical'])) {
+			$cc = $this->getCcForTzid($tzid, $this->curr_commit);
+
+			if (
+				// '??' usually means international, but for some backlinks it
+				// just means undefined. Those should be avoided.
+				$cc === '??'
+				// If the canonical equivalent is in the same country, use it.
+				|| $cc === $this->getCcForTzid(
+					$this->zones[$tzid]['canonical'],
+					$this->curr_commit,
+				)
+			) {
+				$tzid = $this->zones[$tzid]['canonical'];
+			}
+		}
+
+		return $tzid;
+	}
+
+	/**
 	 * Populates $this->transitions with time zone transition information
 	 * similar to PHP's timezone_transitions_get(), except that the array
 	 * is built from the TZDB source as it existed at whatever version is
@@ -1892,7 +2101,7 @@ class TimezoneDataUpdater extends UpdaterBase
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset;
 					$isdst = false;
-					$abbr = $entry['format'] === '%z' ? \sprintf('%+03d', strtr((string) $offset, [':00' => '', ':' => ''])) : \sprintf($entry['format'], 'S');
+					$abbr = $entry['format'] === '%z' ? (($interval = date_diff(date_create('@0'), date_create('@' . $offset)))->i === 0 ? $interval->format('%R%H') : ($interval->s === 0 ? $interval->format('%R%H%i') : $interval->format('%R%H%i%s'))) : \sprintf($entry['format'], 'S');
 					$save = 0;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -1930,7 +2139,7 @@ class TimezoneDataUpdater extends UpdaterBase
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset + $rules_offset;
 					$isdst = true;
-					$abbr = $entry['format'] === '%z' ? \sprintf('%+03d', strtr((string) $offset, [':00' => '', ':' => ''])) : \sprintf($entry['format'], 'D');
+					$abbr = $entry['format'] === '%z' ? (($interval = date_diff(date_create('@0'), date_create('@' . $offset)))->i === 0 ? $interval->format('%R%H') : ($interval->s === 0 ? $interval->format('%R%H%i') : $interval->format('%R%H%i%s'))) : \sprintf($entry['format'], 'D');
 					$save = $rules_offset;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -2046,7 +2255,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						$time = $transition_date->format('Y-m-d\TH:i:sO');
 						$offset = $std_offset + $save_offset;
 						$isdst = $save_offset != 0;
-						$abbr = $entry['format'] === '%z' ? \sprintf('%+03d', strtr((string) $offset, [':00' => '', ':' => ''])) : (\sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']));
+						$abbr = $entry['format'] === '%z' ? (($interval = date_diff(date_create('@0'), date_create('@' . $offset)))->i === 0 ? $interval->format('%R%H') : ($interval->s === 0 ? $interval->format('%R%H%i') : $interval->format('%R%H%i%s'))) : (\sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']));
 						$save = $save_offset;
 						$unadjusted_date_string = $info['unadjusted_date_string'];
 						$rrule = $info['rrule'] ?? null;
@@ -2319,7 +2528,7 @@ class TimezoneDataUpdater extends UpdaterBase
 						'unadjusted_date_string' => $transition_date->format('Y-m-d\TH:i:s'),
 						'dtstart' => $year_to > $year_from ? $this->buildRecurrenceRuleStart($rule) : null,
 						'rrule' => $year_to > $year_from ? $this->buildRecurrenceRule($rule) : null,
-						'until_local' => $year_to > $year_from ? $this->buildRecurrenceRuleUntil($rule) : null
+						'until_local' => $year_to > $year_from ? $this->buildRecurrenceRuleUntil($rule) : null,
 					];
 				}
 			}
@@ -2625,189 +2834,216 @@ class TimezoneDataUpdater extends UpdaterBase
 		}
 
 		$this->buildZones();
+		$this->buildMetaZones();
 
-		$canonical_links = [];
-
+		// Build the individual VTimeZone classes.
 		$max_date = new \DateTimeImmutable(self::DATE_MAX);
 
+		uasort(
+			$this->zones,
+			fn($a, $b) => isset($a['canonical']) <=> isset($b['canonical']) ?: $a['tzid'] <=> $b['tzid'],
+		);
+
 		foreach ($this->zones as $tzid => $zone) {
+			unset($use, $extends, $metazones, $components);
+
+			// Avoid unnecessary duplication in linked time zones.
 			if (isset($zone['canonical'])) {
-				$canonical_links[$tzid] = $zone['canonical'];
-				continue;
-			}
+				$tzid_parts = explode('/', $tzid);
+				$canonical_parts = explode('/', $zone['canonical']);
 
-			$components = [];
-			$untils = [];
-
-			foreach ($this->transitions[$tzid] as $transition_num => $transition) {
-				$prev_transition = $this->transitions[$tzid][$transition_num - 1] ?? null;
-
-				// Skip entries for Local Mean Time.
-				if (
-					($transition['offset'] % 900 !== 0 && empty($components))
-					|| !isset($prev_transition)
+				if (\count($tzid_parts) === 1) {
+					$use = '';
+					$extends = implode('\\', $canonical_parts);
+				} elseif (
+					\array_slice($tzid_parts, 0, -1) === \array_slice($canonical_parts, 0, -1)
 				) {
-					continue;
-				}
-
-				$type = $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD';
-
-				// Manually apply the offset in order to get a DateTime that
-				// will output a string AS IF it were in the local time zone,
-				// but without actually changing the time zone. We do this in
-				// order to avoid relying on PHP's internal TZDB, which might
-				// be out of date.
-				$local_start = (new \DateTime($transition['time']))->modify($prev_transition['offset'] . ' seconds')->format('Ymd\THis');
-
-				$dtstart = $transition['dtstart'] ?? $local_start;
-
-				$tzoffsetfrom = implode('', [
-					// Hours.
-					\sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))),
-					// Minutes.
-					\sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60),
-					// Seconds.
-					abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : '',
-				]);
-
-				$tzoffsetto = implode('', [
-					// Hours.
-					\sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))),
-					// Minutes.
-					\sprintf('%02d', (int) abs($transition['offset'] / 60) % 60),
-					// Seconds.
-					abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : '',
-				]);
-
-				if (!is_numeric($transition['abbr'])) {
-					$tzname = $transition['abbr'];
-				}
-				// Offsets from UTC are propertly written like 'UTC-07' or
-				// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
-				// time zone with a UTC offset of zero. So 'GMT' can be used
-				// as the TZNAME for UTC+00, but for everything else the
-				// correct notation is the UTC offset. This is all the more
-				// true since the signs are flipped in time zone names like
-				// 'Etc/GMT-5', whose offset is actually UTC+05.
-				elseif ((int) $tzoffsetto === 0 && substr($tzoffsetto, 0, 1) === '+') {
-					$tzname = 'GMT';
+					$use = '';
+					$extends = end($canonical_parts);
 				} else {
-					$tzname = 'UTC' . $tzoffsetto;
-
-					while (
-						\strlen($tzname) > 6
-						&& str_ends_with($tzname, '00')
-					) {
-						$tzname = substr($tzname, 0, -2);
-					}
+					$use = "\n\n" . 'use SMF\\Calendar\\VTimeZones\\' . reset($canonical_parts) . ';';
+					$extends = implode('\\', $canonical_parts);
 				}
+			} else {
+				$use = "\n\n" . 'use SMF\\Calendar\\VTimeZone;';
+				$extends = 'VTimeZone';
 
-				$rrule = $transition['rrule'] ?? null;
+				// Build the component data.
+				$components = [];
+				$untils = [];
+				$prev_transition_num = -1;
 
-				// If the RRULE has no UNTIL value, but the entry_end is not
-				// our maximum date, that means the RRULE was built from a TZDB
-				// *rule* that had no ending, but the *entry* does have a date
-				// when it stopped using that rule. This means that, from the
-				// entry's perspective, there *is* an until date even though
-				// the rule itself doesn't give one.
-				if (
-					isset($rrule)
-					&& !str_contains($rrule, ';UNTIL=')
-					&& $transition['entry_end'] < $max_date
-				) {
-					if (isset($untils[$rrule][$transition['entry_end']->format('Ymd\THisO')])) {
-						$until = $untils[$rrule][$transition['entry_end']->format('Ymd\THisO')];
+				foreach ($this->transitions[$tzid] as $transition_num => $transition) {
+					$prev_transition = $this->transitions[$tzid][$prev_transition_num] ?? $transition;
+					$prev_transition_num = $transition_num;
+
+					// Skip entries for Local Mean Time.
+					if ($transition['offset'] % 900 !== 0 && empty($components)) {
+						continue;
+					}
+
+					$type = $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD';
+
+					// Manually apply the offset in order to get a DateTime that
+					// will output a string AS IF it were in the local time zone,
+					// but without actually changing the time zone. We do this in
+					// order to avoid relying on PHP's internal TZDB, which might
+					// be out of date.
+					$local_start = (new \DateTime($transition['time']))->modify($prev_transition['offset'] . ' seconds')->format('Ymd\THis');
+
+					$dtstart = $transition['dtstart'] ?? $local_start;
+
+					$tzoffsetfrom = implode('', [
+						// Hours.
+						\sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))),
+						// Minutes.
+						\sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60),
+						// Seconds.
+						abs($prev_transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : '',
+					]);
+
+					$tzoffsetto = implode('', [
+						// Hours.
+						\sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))),
+						// Minutes.
+						\sprintf('%02d', (int) abs($transition['offset'] / 60) % 60),
+						// Seconds.
+						abs($transition['offset']) % 60 !== 0 ? \sprintf('%02d', (int) abs($transition['offset']) % 60) : '',
+					]);
+
+					if (!is_numeric($transition['abbr'])) {
+						$tzname = $transition['abbr'];
+					}
+					// Offsets from UTC are propertly written like 'UTC-07' or
+					// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
+					// time zone with a UTC offset of zero. So 'GMT' can be used
+					// as the TZNAME for UTC+00, but for everything else the
+					// correct notation is the UTC offset. This is all the more
+					// true since the signs are flipped in time zone names like
+					// 'Etc/GMT-5', whose offset is actually UTC+05.
+					elseif ((int) $tzoffsetto === 0 && substr($tzoffsetto, 0, 1) === '+') {
+						$tzname = 'GMT';
 					} else {
-						// The entry_end date is exclusive (i.e., it indicates
-						// when the rule no longer applies). But the UNTIL value
-						// of an RRULE is inclusive (i.e., it indicates when the
-						// last occurrence happens). Thus, we need to find the
-						// last occurrence prior to the entry_end date.
-						$recurrence_iterator = new RecurrenceIterator(
-							rrule: new RRule($rrule),
-							dtstart: new \DateTime($local_start),
-							view: (new \DateTime($local_start))->diff($transition['entry_end']),
-							type: RecurrenceIterator::TYPE_FLOATING,
-						);
-
-						$recurrence_iterator->end();
+						$tzname = 'UTC' . $tzoffsetto;
 
 						while (
-							$recurrence_iterator->valid()
-							&& $recurrence_iterator->current() > $transition['entry_end']
+							\strlen($tzname) > 6
+							&& str_ends_with($tzname, '00')
 						) {
-							$recurrence_iterator->prev();
+							$tzname = substr($tzname, 0, -2);
 						}
-
-						if ($recurrence_iterator->valid()) {
-							$until = $recurrence_iterator->current();
-						} else {
-							// This shouldn't happen, but just in case...
-							$recurrence_iterator->rewind();
-							$until = $recurrence_iterator->current();
-						}
-
-						// To UTC.
-						$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
-						$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, strlen($sign)), 2));
-						$until->sub($this->offsetToDateInterval($offset));
-
-						$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;
 					}
 
-					$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
+					$rrule = $transition['rrule'] ?? null;
+
+					// If the RRULE has no UNTIL value, but the entry_end is not
+					// our maximum date, that means the RRULE was built from a TZDB
+					// *rule* that had no ending, but the *entry* does have a date
+					// when it stopped using that rule. This means that, from the
+					// entry's perspective, there *is* an until date even though
+					// the rule itself doesn't give one.
+					if (
+						isset($rrule)
+						&& !str_contains($rrule, ';UNTIL=')
+						&& $transition['entry_end'] < $max_date
+					) {
+						if (isset($untils[$rrule][$transition['entry_end']->format('Ymd\THisO')])) {
+							$until = $untils[$rrule][$transition['entry_end']->format('Ymd\THisO')];
+						} else {
+							// The entry_end date is exclusive (i.e., it indicates
+							// when the rule no longer applies). But the UNTIL value
+							// of an RRULE is inclusive (i.e., it indicates when the
+							// last occurrence happens). Thus, we need to find the
+							// last occurrence prior to the entry_end date.
+							$recurrence_iterator = new RecurrenceIterator(
+								rrule: new RRule($rrule),
+								dtstart: new \DateTime($local_start),
+								view: (new \DateTime($local_start))->diff($transition['entry_end']),
+								type: RecurrenceIterator::TYPE_FLOATING,
+							);
+
+							$recurrence_iterator->end();
+
+							while (
+								$recurrence_iterator->valid()
+								&& $recurrence_iterator->current() > $transition['entry_end']
+							) {
+								$recurrence_iterator->prev();
+							}
+
+							if ($recurrence_iterator->valid()) {
+								$until = $recurrence_iterator->current();
+							} else {
+								// This shouldn't happen, but just in case...
+								$recurrence_iterator->rewind();
+								$until = $recurrence_iterator->current();
+							}
+
+							// To UTC.
+							$sign = substr($tzoffsetfrom, 0, strspn($tzoffsetfrom, '+-'));
+							$offset = $sign . implode(':', str_split(substr($tzoffsetfrom, \strlen($sign)), 2));
+							$until->sub($this->offsetToDateInterval($offset));
+
+							$untils[$rrule][$transition['entry_end']->format('Ymd\THisO')] = $until;
+						}
+
+						$rrule .= ';UNTIL=' . $until->format('Ymd\THis\Z');
+					}
+
+					$component = array_filter(
+						[
+							'type' => $type,
+							'DTSTART' => $dtstart,
+							'RRULE' => $rrule,
+							'TZNAME' => $tzname,
+							'TZOFFSETFROM' => $tzoffsetfrom,
+							'TZOFFSETTO' => $tzoffsetto,
+						],
+						fn($v) => $v !== null,
+					);
+
+					$components[md5(Config::varExport($component))] = $component;
 				}
 
-				$component = array_filter(
-					[
-						'type' => $type,
-						'DTSTART' => $dtstart,
-						'RRULE' => $rrule,
-						'TZNAME' => $tzname,
-						'TZOFFSETFROM' => $tzoffsetfrom,
-						'TZOFFSETTO' => $tzoffsetto,
-					],
-					fn($v) => $v !== null,
-				);
+				// Filter out some weird ones.
+				$std_key = null;
+				$dst_key = null;
 
-				$components[md5(Config::varExport($component))] = $component;
-			}
+				foreach (array_reverse($components) as $key => $component) {
+					if ($component['type'] === 'DAYLIGHT') {
+						$type_key = &$dst_key;
+					} else {
+						$type_key = &$std_key;
+					}
 
-			// Filter out some weird ones.
-			$std_key = null;
-			$dst_key = null;
+					if (!isset($type_key)) {
+						$type_key = $key;
+						continue;
+					}
 
-			foreach (array_reverse($components) as $key => $component) {
-				if ($component['type'] === 'DAYLIGHT') {
-					$type_key = &$dst_key;
-				} else {
-					$type_key = &$std_key;
-				}
+					// When a location changed its time zone (e.g. from Central to
+					// Eastern), that can leave artifacts in the transitions that we
+					// don't want to retain in the VTimeZone data.
+					if (
+						$component['TZOFFSETFROM'] === $component['TZOFFSETTO']
+						&& isset($component['RRULE'], $components[$type_key]['RRULE'])
+						&& $component['RRULE'] === $components[$type_key]['RRULE']
+						&& $component['TZNAME'] === $components[$type_key]['TZNAME']
+						&& $component['DTSTART'] === $components[$type_key]['DTSTART']
+					) {
+						unset($components[$key]);
+						continue;
+					}
 
-				if (!isset($type_key)) {
 					$type_key = $key;
-					continue;
 				}
 
-				// When a location changed its time zone (e.g. from Central to
-				// Eastern), that can leave artifacts in the transitions that we
-				// don't want to retain in the VTimeZone data.
-				if (
-					$component['TZOFFSETFROM'] === $component['TZOFFSETTO']
-					&& isset($component['RRULE'], $components[$type_key]['RRULE'])
-					&& $component['RRULE'] === $components[$type_key]['RRULE']
-					&& $component['TZNAME'] === $components[$type_key]['TZNAME']
-					&& $component['DTSTART'] === $components[$type_key]['DTSTART']
-				) {
-					unset($components[$key]);
-					continue;
-				}
-
-				$type_key = $key;
+				$components = array_values($components);
 			}
 
-			$components = array_values($components);
+			$metazones = $this->metazones['usage'][$tzid] ?? [];
 
+			// Write the file.
 			if (!file_exists(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid))) {
 				mkdir(\dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid));
 			}
@@ -2815,6 +3051,54 @@ class TimezoneDataUpdater extends UpdaterBase
 			$class_name = strtr($tzid, ['+' => '', '-' => '_']);
 
 			$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') : null;
+
+			$properties = [
+				'section_comment' => implode("\n\t", [
+					'/*******************',
+					' * Public properties',
+					' *******************/',
+				]),
+				'tzid' => implode("\n\t", [
+					'',
+					'/**',
+					' * @var string',
+					' *',
+					' * Time zone identifier.',
+					' */',
+					'public string $tzid = ' . Config::varExport($tzid) . ';',
+				]),
+			];
+
+			if (!empty($metazones)) {
+				$properties['metazones'] = implode("\n\t", [
+					'',
+					'/**',
+					' * @var array',
+					' *',
+					' * Data about which metazone label to use for this time zone at any given',
+					' * date and time.',
+					' *',
+					' * Developers: Do not update the data in this array manually. Instead,',
+					' * run "php -f other/update_timezones.php" on the command line.',
+					' */',
+					'public array $metazones = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($metazones)) . ';',
+				]);
+			}
+
+			if (!empty($components)) {
+				$properties['components'] = implode("\n\t", [
+					'',
+					'/**',
+					' * @var array',
+					' *',
+					' * Data for the VTIMEZONE components.',
+					' *',
+					' * Developers: Do not update the data in this array manually. Instead,',
+					' * run "php -f other/update_timezones.php" on the command line.',
+					' */',
+					'public array $components = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($components)) . ';',
+				]);
+			}
 
 			file_put_contents(
 				Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php',
@@ -2834,35 +3118,14 @@ class TimezoneDataUpdater extends UpdaterBase
 					'',
 					'declare(strict_types=1);',
 					'',
-					'namespace ' . str_replace('/', '\\', rtrim('SMF\\Calendar\\VTimeZones\\' . \dirname($tzid), '.\\')) . ';',
+					'namespace ' . str_replace('/', '\\', rtrim('SMF\\Calendar\\VTimeZones\\' . \dirname($tzid), '.\\')) . ';' . $use,
 					'',
 					'/**',
 					' * ' . $tzid,
 					' */',
-					'class ' . basename($class_name) . ' extends \\SMF\\Calendar\\VTimeZone',
+					'class ' . basename($class_name) . ' extends ' . $extends,
 					'{',
-					"\t" . implode("\n\t", [
-						'/*******************',
-						' * Public properties',
-						' *******************/',
-						'',
-						'/**',
-						' * @var string',
-						' *',
-						' * Time zone identifier.',
-						' */',
-						'public string $tzid = ' . Config::varExport($tzid) . ';',
-						'',
-						'/**',
-						' * @var array',
-						' *',
-						' * Data for the VTIMEZONE components.',
-						' *',
-						' * Developers: Do not update the data in this array manually. Instead,',
-						' * run "php -f other/update_timezones.php" on the command line.',
-						' */',
-						'public array $components = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($components)) . ';',
-					]),
+					"\t" . implode("\n\t", $properties),
 					'}',
 					'',
 				])),
@@ -2873,34 +3136,6 @@ class TimezoneDataUpdater extends UpdaterBase
 			if ($old_hash !== $new_hash) {
 				$this->files_updated = true;
 			}
-		}
-
-		// Update the list of canonical links in the base class.
-		ksort($canonical_links);
-
-		$canonical_links = preg_replace('/^(?!\[)/m', "\t", Config::varExport($canonical_links));
-
-		$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZone.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php') : null;
-
-		file_put_contents(
-			Config::$sourcedir . '/Calendar/VTimeZone.php',
-			preg_replace(
-				[
-					'/public const CANONICAL_LINKS = \[[^\]]*\];/',
-					'/^\h+$/m',
-				],
-				[
-					'public const CANONICAL_LINKS = ' . $canonical_links . ';',
-					'',
-				],
-				file_get_contents(Config::$sourcedir . '/Calendar/VTimeZone.php'),
-			),
-		);
-
-		$new_hash = sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php');
-
-		if ($old_hash !== $new_hash) {
-			$this->files_updated = true;
 		}
 	}
 

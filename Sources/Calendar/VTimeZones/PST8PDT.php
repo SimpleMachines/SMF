@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * PST8PDT
  */
-class PST8PDT extends \SMF\Calendar\VTimeZone
+class PST8PDT extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -41,6 +43,13 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [
 		0 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '15821014T160000',
+			'TZNAME' => 'PST',
+			'TZOFFSETFROM' => '-0800',
+			'TZOFFSETTO' => '-0800',
+		],
+		1 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19180331T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=19190330T100000Z',
@@ -48,7 +57,7 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		1 => [
+		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19181027T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=19191026T090000Z',
@@ -56,21 +65,21 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		2 => [
+		3 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19420209T020000',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		3 => [
+		4 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19450930T020000',
 			'TZNAME' => 'PST',
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		4 => [
+		5 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19670430T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19730429T100000Z',
@@ -78,7 +87,7 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		5 => [
+		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19671029T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU;UNTIL=20061029T090000Z',
@@ -86,21 +95,21 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0700',
 			'TZOFFSETTO' => '-0800',
 		],
-		6 => [
+		7 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19740106T020000',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		7 => [
+		8 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19750223T020000',
 			'TZNAME' => 'PDT',
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		8 => [
+		9 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19760425T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU;UNTIL=19860427T100000Z',
@@ -108,7 +117,7 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		9 => [
+		10 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19870405T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYDAY=1SU;UNTIL=20060402T100000Z',
@@ -116,7 +125,7 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		10 => [
+		11 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
@@ -124,7 +133,7 @@ class PST8PDT extends \SMF\Calendar\VTimeZone
 			'TZOFFSETFROM' => '-0800',
 			'TZOFFSETTO' => '-0700',
 		],
-		11 => [
+		12 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',

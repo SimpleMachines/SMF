@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ust-Nera
  */
-class Ust_Nera extends \SMF\Calendar\VTimeZone
+class Ust_Nera extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,30 @@ class Ust_Nera extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Asia/Ust-Nera';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Yakutsk',
+		],
+		1 => [
+			'ts' => '1981-03-31T15:00:00+0000',
+			'metazone' => 'Magadan',
+		],
+		2 => [
+			'ts' => '2011-09-12T12:00:00+0000',
+			'metazone' => 'Vladivostok',
+		],
+	];
 
 	/**
 	 * @var array
