@@ -57,7 +57,7 @@ if (!defined('SMF')) {
 					<?= Utils::$context['page_index'] ?>
 
 				</div>
-				<?= !empty(Utils::$context['recent_buttons']) ? $this->subTemplate('button_strip', ['button_strip' => Utils::$context['recent_buttons'], 'direction' => 'right']) : '' ?><?php /* Mobile action (top) */ ?><?php if (!empty(Utils::$context['recent_buttons'])): ?>
+				<?= !empty(Utils::$context['recent_buttons']) ? $this->fetchSubTemplate('button_strip', ['button_strip' => Utils::$context['recent_buttons'], 'direction' => 'right']) : '' ?><?php /* Mobile action (top) */ ?><?php if (!empty(Utils::$context['recent_buttons'])): ?>
 
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act"><?= Lang::getTxt('mobile_action', file: 'General') ?></a>
@@ -132,7 +132,7 @@ if (!defined('SMF')) {
 				</div><!-- #topic_container -->
 			</div><!-- #unread -->
 			<div class="pagesection">
-				<?= !empty(Utils::$context['recent_buttons']) ? $this->subTemplate('button_strip', ['button_strip' => Utils::$context['recent_buttons'], 'direction' => 'right']) : '' ?>
+				<?= !empty(Utils::$context['recent_buttons']) ? $this->fetchSubTemplate('button_strip', ['button_strip' => Utils::$context['recent_buttons'], 'direction' => 'right']) : '' ?>
 
 				<?= Utils::$context['menu_separator'] ?>
 
