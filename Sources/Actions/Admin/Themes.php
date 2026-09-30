@@ -27,6 +27,7 @@ use SMF\Menu;
 use SMF\PackageManager\{PackageUtils, XmlArray};
 use SMF\Sapi;
 use SMF\SecurityToken;
+use SMF\TemplateEngine;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -1275,6 +1276,17 @@ class Themes implements ActionInterface
 		if (isset($_REQUEST['template']) && preg_match('~[\./\\\\:\0]~', $_REQUEST['template']) == 0) {
 			User::$me->checkSession('get');
 
+			// A Plates template is a directory of sub-templates, and is copied whole.
+			if (is_dir(Theme::$current->settings['default_theme_dir'] . '/' . TemplateEngine::DIRECTORY . '/' . $_REQUEST['template'])) {
+				if (!$this->canCopyPlatesTemplate($theme['theme_dir'])) {
+					ErrorHandler::fatalLang('no_access', false);
+				}
+
+				$this->copyPlatesTemplate($_REQUEST['template'], $theme['theme_dir']);
+
+				Utils::redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
+			}
+
 			if (file_exists(Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php')) {
 				$filename = Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
 			} else {
@@ -1318,9 +1330,21 @@ class Themes implements ActionInterface
 		$templates = [];
 		$lang_files = [];
 
+		$plates_dir = Theme::$current->settings['default_theme_dir'] . '/' . TemplateEngine::DIRECTORY;
+		$plates_templates = [];
+
 		foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir']) as $fileInfo) {
 			if (str_ends_with($fileInfo->getFilename(), '.template.php')) {
 				$templates[] = substr($fileInfo->getFilename(), 0, -13);
+			}
+		}
+
+		if (is_dir($plates_dir)) {
+			foreach (new \DirectoryIterator($plates_dir) as $fileInfo) {
+				if ($fileInfo->isDir() && !$fileInfo->isDot()) {
+					$templates[] = $fileInfo->getFilename();
+					$plates_templates[] = $fileInfo->getFilename();
+				}
 			}
 		}
 
@@ -1346,6 +1370,17 @@ class Themes implements ActionInterface
 		Utils::$context['available_templates'] = [];
 
 		foreach ($templates as $template) {
+			if (\in_array($template, $plates_templates)) {
+				Utils::$context['available_templates'][$template] = [
+					'filename' => TemplateEngine::DIRECTORY . '/' . $template . '/',
+					'value' => $template,
+					'already_exists' => is_dir($theme['theme_dir'] . '/' . TemplateEngine::DIRECTORY . '/' . $template),
+					'can_copy' => $this->canCopyPlatesTemplate($theme['theme_dir']),
+				];
+
+				continue;
+			}
+
 			Utils::$context['available_templates'][$template] = [
 				'filename' => $template . '.template.php',
 				'value' => $template,
@@ -1370,7 +1405,7 @@ class Themes implements ActionInterface
 		foreach (new \DirectoryIterator($theme['theme_dir']) as $fileInfo) {
 			$theme_basename = substr($fileInfo->getFilename(), 0, -13);
 
-			if (str_ends_with($fileInfo->getFilename(), '.template.php') && isset(Utils::$context['available_templates'][$theme_basename])) {
+			if (str_ends_with($fileInfo->getFilename(), '.template.php') && isset(Utils::$context['available_templates'][$theme_basename]) && !\in_array($theme_basename, $plates_templates)) {
 				Utils::$context['available_templates'][$theme_basename]['already_exists'] = true;
 				Utils::$context['available_templates'][$theme_basename]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $theme_basename);
 			}
@@ -2202,6 +2237,54 @@ class Themes implements ActionInterface
 		reset($objects);
 
 		return @rmdir($path);
+	}
+
+	/**
+	 * Checks whether the default theme's Plates templates can be copied into a theme.
+	 *
+	 * @param string $theme_dir The directory of the theme to copy them into.
+	 * @return bool Whether they can be.
+	 */
+	protected function canCopyPlatesTemplate(string $theme_dir): bool
+	{
+		// Copying the default theme's templates onto themselves would empty them.
+		if (realpath($theme_dir) === realpath(Theme::$current->settings['default_theme_dir'])) {
+			return false;
+		}
+
+		$target = $theme_dir . '/' . TemplateEngine::DIRECTORY;
+
+		return is_dir($target) ? is_writable($target) : is_writable($theme_dir);
+	}
+
+	/**
+	 * Copies one of the default theme's Plates templates into a theme.
+	 *
+	 * Every sub-template is copied, overwriting any the theme already has.
+	 * The theme only needs to keep the ones it changes, since the rest are
+	 * found in the default theme anyway.
+	 *
+	 * @param string $template The name of the template, such as 'Stats'.
+	 * @param string $theme_dir The directory of the theme to copy it into.
+	 */
+	protected function copyPlatesTemplate(string $template, string $theme_dir): void
+	{
+		$source = Theme::$current->settings['default_theme_dir'] . '/' . TemplateEngine::DIRECTORY;
+		$target = $theme_dir . '/' . TemplateEngine::DIRECTORY;
+
+		// Each new directory gets the index.php that keeps it from being listed.
+		foreach ([$target, $target . '/' . $template] as $dir) {
+			if (!is_dir($dir)) {
+				mkdir($dir);
+				copy($source . '/index.php', $dir . '/index.php');
+			}
+		}
+
+		foreach (new \DirectoryIterator($source . '/' . $template) as $fileInfo) {
+			if ($fileInfo->isFile() && $fileInfo->getExtension() === 'php') {
+				copy($fileInfo->getPathname(), $target . '/' . $template . '/' . $fileInfo->getFilename());
+			}
+		}
 	}
 
 	/**

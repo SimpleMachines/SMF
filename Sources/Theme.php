@@ -386,6 +386,10 @@ class Theme
 	 *  - Loads a template file with the name template_name from the current,
 	 *    default, or base theme.
 	 *
+	 *  - A template written for Plates is a directory of that name in the
+	 *    theme's templates directory, which is not included here: its
+	 *    sub-templates are found by name when they are rendered.
+	 *
 	 *  - Detects a wrong default theme directory and tries to work around it.
 	 *
 	 * @uses self::templateInclude() to include the file.
@@ -413,18 +417,29 @@ class Theme
 		}
 
 		$loaded = false;
+		$engine = TemplateEngine::get();
 
+		// The first theme to have the template decides whether it is written for Plates.
 		foreach (self::$current->settings['template_dirs'] as $template_dir) {
+			if ($engine->isPlatesTemplate($template_dir, $template_name)) {
+				$loaded = true;
+				$engine->addLoaded($template_name);
+				$debug_source = basename($template_dir) . '/' . TemplateEngine::DIRECTORY . '/' . $template_name;
+				break;
+			}
+
 			if (file_exists($template_dir . '/' . $template_name . '.template.php')) {
 				$loaded = true;
 				self::templateInclude($template_dir . '/' . $template_name . '.template.php', true);
+				$engine->addLoaded($template_name, $template_dir . '/' . $template_name . '.template.php');
+				$debug_source = basename($template_dir) . '/' . $template_name . '.template.php';
 				break;
 			}
 		}
 
 		if ($loaded) {
 			if (DebugUtils::isDebugEnabled()) {
-				DebugUtils::addDebugSource('templates', basename($template_dir) . '/' . $template_name . '.template.php');
+				DebugUtils::addDebugSource('templates', $debug_source);
 			}
 
 			// If they have specified an initialization function for this template, go ahead and call it now.
@@ -496,11 +511,15 @@ class Theme
 	 * on the `$fatal` parameter.
 	 *
 	 * - Sub-template function names must follow the format `template_{name}`.
+	 * - A loaded Plates template renders the sub-template instead if it has a
+	 *   file named `{name}.php`. See TemplateEngine::find() for which one wins
+	 *   when both kinds have it.
 	 * - When debugging is enabled, administrators can see markers after each loaded sub-template.
 	 *
 	 * @param string|array $sub_template_name The name of the sub-template to load.
 	 *                                         If an array is provided, the first element is the name,
 	 *                                         and the second element is an array of parameters to pass to the sub-template.
+	 *                                         A Plates template receives them as variables named by the array's keys.
 	 * @param bool|string $fatal              Specifies error handling behavior:
 	 *                                        - `false` (default): Logs and handles the error.
 	 *                                        - `true`: Dies with an error message.
@@ -524,8 +543,14 @@ class Theme
 			$function_params = [];
 		}
 
-		// Attempt to call the sub-template function.
-		if (\is_callable($theme_function)) {
+		$plates_template = TemplateEngine::get()->find($template_name);
+
+		// A Plates template takes its parameters by name, as variables.
+		if ($plates_template !== null) {
+			echo TemplateEngine::get()->render($plates_template, $function_params);
+		}
+		// Otherwise, attempt to call the sub-template function.
+		elseif (\is_callable($theme_function)) {
 			\call_user_func_array($theme_function, $function_params);
 		} else {
 			// Handle errors based on the $fatal parameter.

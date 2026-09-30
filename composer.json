@@ -5,6 +5,7 @@
 		"bjeavons/zxcvbn-php": "^1.0",
 		"google/recaptcha": "^1.3",
 		"league/container": "^4.0",
+		"league/plates": "^3.6",
 		"matthiasmullie/minify": "^1.3",
 		"matthiasmullie/path-converter": "^1.1"
 	},
