@@ -20,14 +20,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -41,7 +41,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
 div#content_section
   main#main_content_section
     div#edit_poll
-      form#postmodify [accept-charset="UTF-#" action="{boardurl}/index.php?action=editpoll#;topic=#.#" method="post" name="postmodify" onsubmit="submitonce(this);"]
+      form#postmodify [accept-charset="UTF-#" action="{boardurl}/index.php?action=editpoll#;topic=#" method="post" name="postmodify" onsubmit="submitonce(this);"]
         div.cat_bar
           h3.catbg
             "Edit Poll"

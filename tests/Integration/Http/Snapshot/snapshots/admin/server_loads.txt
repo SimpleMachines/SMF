@@ -102,7 +102,7 @@ div#admin_content
     div.information.noup
       "The current load average is"
       strong
-        "#.#%"
+        "#%"
     div.information.noup
       "CPU(s) detected: #"
     div.noup.windowbg
@@ -120,49 +120,49 @@ div#admin_content
             label [for="loadavg_auto_opt"]
               "Threshold to disabling automatic database optimization"
         dd
-          input#loadavg_auto_opt [min="#" name="loadavg_auto_opt" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_auto_opt [min="#" name="loadavg_auto_opt" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_search
           span
             label [for="loadavg_search"]
               "Threshold to disabling search"
         dd
-          input#loadavg_search [min="#" name="loadavg_search" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_search [min="#" name="loadavg_search" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_allunread
           span
             label [for="loadavg_allunread"]
               "Threshold to disabling all unread topics"
         dd
-          input#loadavg_allunread [min="#" name="loadavg_allunread" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_allunread [min="#" name="loadavg_allunread" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_unreadreplies
           span
             label [for="loadavg_unreadreplies"]
               "Threshold to disabling unread replies"
         dd
-          input#loadavg_unreadreplies [min="#" name="loadavg_unreadreplies" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_unreadreplies [min="#" name="loadavg_unreadreplies" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_show_posts
           span
             label [for="loadavg_show_posts"]
               "Threshold to disabling showing user posts"
         dd
-          input#loadavg_show_posts [min="#" name="loadavg_show_posts" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_show_posts [min="#" name="loadavg_show_posts" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_userstats
           span
             label [for="loadavg_userstats"]
               "Threshold to disabling showing user statistics"
         dd
-          input#loadavg_userstats [min="#" name="loadavg_userstats" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_userstats [min="#" name="loadavg_userstats" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_bbc
           span
             label [for="loadavg_bbc"]
               "Threshold to disabling BBC formatting when showing posts"
         dd
-          input#loadavg_bbc [min="#" name="loadavg_bbc" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_bbc [min="#" name="loadavg_bbc" size="#" step="#" type="number" value="#"]
         dt
           a#setting_loadavg_forum
           span
@@ -171,7 +171,7 @@ div#admin_content
               strong
                 "completely"
         dd
-          input#loadavg_forum [min="#" name="loadavg_forum" size="#" step="#.#" type="number" value="#"]
+          input#loadavg_forum [min="#" name="loadavg_forum" size="#" step="#" type="number" value="#"]
       input.button [type="submit" value="Save"]
     input [name="{token_var}" type="hidden" value="{hash}"]
     input [name="{session_var}" type="hidden" value="{session_id}"]

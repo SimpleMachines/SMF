@@ -189,13 +189,13 @@ div#content_section
           dt
             "Most recent IP address"
           dd
-            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#.#.#.#;u=#"]
-              "#.#.#.#"
+            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#;u=#"]
+              "#"
           dt
             "IPs used in recent posts"
           dd
-            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#.#.#.#;u=#"]
-              "#.#.#.#"
+            a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#;u=#"]
+              "#"
           dt
             "IPs used in error messages"
           snapshot-ignored [selector="#tracking dd:nth-of-type(n+#)"]

@@ -329,7 +329,8 @@ harder than it looks, all of them handled in the base class:
   preview wins, the post is never made, and the response is a perfectly ordinary 200.
 - **Flood control will hit you.** `Security::spamProtection()` allows a moderator one
   login or post every two seconds per IP, and tests are far faster than people.
-  `submitForm()` waits it out once rather than failing at random.
+  `submitForm()` clears `log_floodcontrol` first, so there is nothing to wait out; use
+  it, not `$this->http->submit()`, for anything the forum counts.
 - **Quote `errorText()` in failure messages, not the body.** A fatal error in SMF is a
   normal page, and its first few hundred characters are the menu.
 
@@ -368,6 +369,10 @@ SMF_UPDATE_SNAPSHOTS=1 .dev/test.sh --engine mysql --testsuite snapshot   # re-r
 - **Check a new case is stable** by recording it on a fresh forum, running
   `perturb-forum.php` (which adds unrelated members, boards and posts, so only on a
   forum you will throw away), and running the suite again without recording.
+- **Content is masked; configuration is not.** The admin pages show the forum's
+  settings, so compare against a freshly installed forum, as CI does. A dev forum with
+  `securityDisable` switched on differs on the pages that show it, and that is not a
+  regression.
 
 #### Writing one
 

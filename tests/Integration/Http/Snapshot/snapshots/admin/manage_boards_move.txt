@@ -105,7 +105,7 @@ div#admin_content
               span.main_icons.select_above
           li.windowbg [style="padding-inline-start: #px;"]
             span.floatleft
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
             span.floatright
               a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
@@ -120,7 +120,7 @@ div#admin_content
               span.main_icons.select_here [title="Sub-board of {board}"]
           li.windowbg [style="padding-inline-start: #px;"]
             span.floatleft
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
             span.floatright
               a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
@@ -137,7 +137,7 @@ div#admin_content
               span.main_icons.select_here [title="Sub-board of {board}"]
           li.windowbg [style="padding-inline-start: #px;"]
             span.floatleft
-              a.red [href="{boardurl}/index.php?board=#.#"]
+              a.red [href="{boardurl}/index.php?board=#"]
                 "{board}"
             span.floatright
               a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]
@@ -152,7 +152,7 @@ div#admin_content
               span.main_icons.select_below [title="After {board}"]
           li.windowbg [style="padding-inline-start: #px;"]
             span.floatleft
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
             span.floatright
               a.button [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;pid=#;{session_var}={session_id}"]

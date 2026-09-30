@@ -108,7 +108,7 @@ div#admin_content
               "A short description of your category. HTML is not allowed, you can use the following BBC tags: abbr, anchor, b, br, center, color, font, hr, i, img, iurl, left, li, list, ltr, pre, right, s, sub, sup, table, td, tr, u, url"
           dd
             textarea [cols="#" name="cat_desc" rows="#"]
-              "Content for the template snapshot tests."
+              "Content for the template snapshot tests, version #."
           dt
             strong
               "Collapsible"

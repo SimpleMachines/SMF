@@ -200,7 +200,7 @@ div#admin_content
               "Max attachment size per post"
             br
             span.smalltext
-              "Maximum allowed by php.ini: #,# KB(s)"
+              "Maximum allowed by php.ini: # KB(s)"
         dd
           input#attachmentPostLimit [max="#" min="#" name="attachmentPostLimit" size="#" type="number" value="#"]
           "KB"
@@ -213,7 +213,7 @@ div#admin_content
               "Max size per attachment"
             br
             span.smalltext
-              "Maximum allowed by php.ini: #,# KB(s)"
+              "Maximum allowed by php.ini: # KB(s)"
         dd
           input#attachmentSizeLimit [max="#" min="#" name="attachmentSizeLimit" size="#" type="number" value="#"]
           "KB"

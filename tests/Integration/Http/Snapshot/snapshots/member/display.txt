@@ -20,14 +20,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -49,14 +49,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -70,20 +70,20 @@ div#content_section
       p
         "Started by {member}, {date}"
       span.floatright.nextlinks
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=prev#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=prev#new"]
           "Previous topic"
         "-"
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=next#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=next#new"]
           "Next topic"
     div.pagesection.top
       div.buttonlist.floatright
-        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
           "Reply"
-        a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#.#"]
+        a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#"]
           "Add poll"
-        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
           "Mark unread"
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -127,7 +127,7 @@ div#content_section
         a.button.mobile_mod
           "Moderation"
     div#forumposts
-      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#.#" method="post" name="quickModForm"]
+      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#" method="post" name="quickModForm"]
         div#msg#.windowbg
           div.post_wrapper
             div.poster
@@ -155,10 +155,10 @@ div#content_section
                       a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Personal Message (Offline)"]
                         span.centericon.im_off.main_icons [title="Personal Message (Offline)"]
                     li.email
-                      a [href="mailto:snapshot_member@example.com" rel="nofollow"]
+                      a [href="mailto:{email}" rel="nofollow"]
                         span.centericon.mail.main_icons [title="Email"]
                 li.poster_ip
-                  a.help.show_on_hover [data-hover="#.#.#.#" href="{boardurl}/index.php?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);"]
+                  a.help.show_on_hover [data-hover="#" href="{boardurl}/index.php?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);"]
                     span
                       "Show IP address"
             div.postarea
@@ -193,8 +193,8 @@ div#content_section
                   a.bbc_link [href="https://www.simplemachines.org" rel="noopener" target="_blank"]
                     "A link"
                   "and"
-                  a.bbc_email [href="mailto:someone@example.com"]
-                    "someone@example.com"
+                  a.bbc_email [href="mailto:{email}"]
+                    "{email}"
                   "."
                   br
                   blockquote.bbc_standard_quote
@@ -236,7 +236,7 @@ div#content_section
               div.under_message
                 ul.quickbuttons.quickbuttons_post
                   li
-                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#.#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
                       span.main_icons.quote
                       "Quote"
                   li#quoteSelected_# [style="display:none"]
@@ -252,15 +252,15 @@ div#content_section
                       "More..."
                     ul
                       li
-                        a [href="{boardurl}/index.php?action=post;msg=#;topic=#.#"]
+                        a [href="{boardurl}/index.php?action=post;msg=#;topic=#"]
                           span.main_icons.modify_button
                           "Modify"
                       li.you_sure
-                        a [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#.#;{session_var}={session_id}"]
+                        a [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
                           span.main_icons.remove_button
                           "Remove topic"
                       li
-                        a [href="{boardurl}/index.php?action=reporttm;topic=#.#;msg=#"]
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
                           span.error.main_icons
                           "Report to moderator"
             div.moderatorbar
@@ -302,7 +302,7 @@ div#content_section
               div.under_message
                 ul.quickbuttons.quickbuttons_post
                   li
-                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#.#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
                       span.main_icons.quote
                       "Quote"
                   li#quoteSelected_# [style="display:none"]
@@ -314,7 +314,7 @@ div#content_section
                       "More..."
                     ul
                       li
-                        a [href="{boardurl}/index.php?action=reporttm;topic=#.#;msg=#"]
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
                           span.error.main_icons
                           "Report to moderator"
             div.moderatorbar
@@ -337,11 +337,16 @@ div#content_section
                   "{text}"
                 li.postcount
                   "Posts: #"
+                li.blurb
+                  "Personal text for {member}"
                 li.profile
                   ol.profile_icons
                     li
-                      a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Personal Message (Online)"]
-                        span.centericon.im_on.main_icons [title="Personal Message (Online)"]
+                      a [href="https://www.example.com" rel="noopener" target="_blank" title="Example"]
+                        span.centericon.main_icons.www [title="Example"]
+                    li
+                      a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Personal Message (Offline)"]
+                        span.centericon.im_off.main_icons [title="Personal Message (Offline)"]
                 li.poster_ip
                   a.help [href="{boardurl}/index.php?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);"]
                     "Logged"
@@ -366,11 +371,11 @@ div#content_section
                     cite
                       "Quote from: {member}"
                     "The quoted text."
-                  "A reply from the administrator."
+                  "A reply from an administrator."
               div.under_message
                 ul.quickbuttons.quickbuttons_post
                   li
-                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#.#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
                       span.main_icons.quote
                       "Quote"
                   li#quoteSelected_# [style="display:none"]
@@ -382,10 +387,15 @@ div#content_section
                       "More..."
                     ul
                       li
-                        a [href="{boardurl}/index.php?action=reporttm;topic=#.#;msg=#"]
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
                           span.error.main_icons
                           "Report to moderator"
             div.moderatorbar
+              div#msg_#_signature.signature
+                "A signature with"
+                strong
+                  "bold"
+                "text."
         hr.post_separator
         div#msg#.windowbg
           div.post_wrapper
@@ -438,7 +448,7 @@ div#content_section
               div.under_message
                 ul.quickbuttons.quickbuttons_post
                   li
-                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#.#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
                       span.main_icons.quote
                       "Quote"
                   li#quoteSelected_# [style="display:none"]
@@ -450,7 +460,7 @@ div#content_section
                       "More..."
                     ul
                       li
-                        a [href="{boardurl}/index.php?action=reporttm;topic=#.#;msg=#"]
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
                           span.error.main_icons
                           "Report to moderator"
             div.moderatorbar
@@ -462,13 +472,13 @@ div#content_section
         hr.post_separator
     div.pagesection
       div.buttonlist.floatright
-        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
           "Reply"
-        a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#.#"]
+        a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#"]
           "Add poll"
-        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
           "Mark unread"
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -528,22 +538,22 @@ div#content_section
         li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?topic=#" itemprop="item"]
             span [itemprop="name"]
               "{subject}"
           meta [content="#" itemprop="position"]
     div#moderationbuttons
       div#moderationbuttons_strip.buttonlist.floatbottom
-        a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#.#;{session_var}={session_id}"]
+        a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
           "Remove topic"
-        a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#.#;sa=lock;{session_var}={session_id}"]
+        a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#;sa=lock;{session_var}={session_id}"]
           "Lock topic"
     div#display_jump_to
     a#quickreply_anchor
@@ -589,13 +599,13 @@ div#content_section
           "User actions"
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div.buttonlist
-          a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+          a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
             "Reply"
-          a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#.#"]
+          a.button.button_strip_add_poll [href="{boardurl}/index.php?action=editpoll;add;topic=#"]
             "Add poll"
-          a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+          a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
             "Mark unread"
-          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
             "Print"
           a.button.button_strip_notify
             "No Alerts or Emails"
@@ -633,9 +643,9 @@ div#content_section
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div#moderationbuttons_mobile
           div#moderationbuttons_strip_mobile.buttonlist.floatbottom
-            a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#.#;{session_var}={session_id}"]
+            a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
               "Remove topic"
-            a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#.#;sa=lock;{session_var}={session_id}"]
+            a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#;sa=lock;{session_var}={session_id}"]
               "Lock topic"
     script
       | window.addEventListener("DOMContentLoaded", function() { new QuickModify({ sScriptUrl: smf_scripturl, sFormName: 'quickModForm', sClassName: 'quick_edit', bShowModify: true, iTopicId: #, sSaveButtonText: 'Save', sCancelButtonText: 'Cancel', sEditReasonText: 'Reason for editing', sErrorBorderStyle: '#px solid red' }); new JumpTo({ sContainerId: "display_jump_to", sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">Jump to<" + "/label> %dropdown_list%", iCurBoardId: #, iCurBoardChildLevel: #, sCurBoardName: "Snapshot board", sBoardChildLevelIndicator: "==", sBoardPrefix: "=> ", sCatSeparator: "-----------------------------", sCatPrefix: "", sGoButtonLabel: "Go" }); new IconList({ sIconIdPrefix: "msg_icon_", sScriptUrl: smf_scripturl, bShowModify: true, iBoardId: #, iTopicId: #, sSessionId: smf_session_id, sSessionVar: smf_session_var, sLabelIconList: "Message icon" }); });

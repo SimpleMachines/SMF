@@ -188,7 +188,9 @@ final class DomSnapshot
 			}
 
 			foreach ($found as $node) {
-				$out[] = '@ ' . $selector;
+				// Masked like anything else, since a selector may name a fixture
+				// by its id, and the ids differ from forum to forum.
+				$out[] = '@ ' . $this->mask($selector, true);
 				array_push($out, ...$this->node($node, 0));
 			}
 		}
@@ -207,6 +209,14 @@ final class DomSnapshot
 	{
 		$value = strtr($value, $this->literals);
 
+		// An address is always somebody's data: a member's, or the one the
+		// forum was installed with.
+		$value = (string) preg_replace('~[\w.+-]+@[\w-]+(?:\.[\w-]+)+~u', '{email}', $value);
+
+		// A search is carried from page to page encoded in one parameter, which
+		// holds the ids of the boards it was narrowed to.
+		$value = (string) preg_replace('~(?<=[?;&])params=[^;&#"\s]+~', 'params={params}', $value);
+
 		if (!$is_url && $this->vocabulary !== []) {
 			foreach ($this->vocabulary as $word => $placeholder) {
 				$value = (string) preg_replace('~(?<![\w{])' . preg_quote((string) $word, '~') . '(?![\w}])~u', $placeholder, $value);
@@ -220,13 +230,22 @@ final class DomSnapshot
 		// Hashes: session ids, security tokens, minified file names, cache
 		// busters. Anything long and hexadecimal is not something a template
 		// chose.
-		$value = (string) preg_replace('~\b[a-f0-9]{32,}\b~i', '{hash}', $value);
+		// Bounded by what is not hexadecimal rather than by \b, since the name of
+		// a minified file puts an underscore in front of it, and an underscore
+		// is a word character.
+		$value = (string) preg_replace('~(?<![a-f0-9])[a-f0-9]{32,}(?![a-f0-9])~i', '{hash}', $value);
+
+		// Added to a link to the latest post when its board has not been seen,
+		// which is the viewer's business.
+		$value = str_replace(';boardseen', '', $value);
 
 		// A token in a query string: a random name paired with a hash.
 		$value = (string) preg_replace('~\b[a-z0-9]{5,16}=\{hash\}~i', '{token}', $value);
 
-		// Everything else numeric.
-		$value = (string) preg_replace('~\d+~', '#', $value);
+		// Everything else numeric. An average reads 3 on one forum and 2.5 on
+		// another, and a total 999 on one and 1,000 on another, so the
+		// separators go with the digits.
+		$value = (string) preg_replace('~\d+(?:[.,]\d+)*~', '#', $value);
 
 		// Lengths of time, which grow a unit as they grow: "5 minutes", then
 		// "1 hour and 5 minutes".

@@ -235,7 +235,7 @@ div#content_section
               span.smalltext
                 "This must be a valid email address."
             dd
-              "snapshot_member@example.com"
+              "{email}"
               a.button.smalltext [href="{boardurl}/index.php?action=profile;u=#;area=account;change_email"]
                 "change"
             dt

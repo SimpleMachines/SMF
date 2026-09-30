@@ -19,7 +19,7 @@ div#content_section
           "Credits"
       div.windowbg
         p
-          "Simple Machines wants to thank everyone who helped make SMF #.# Alpha(s) #-dev what it is today; shaping and directing our project, all through the thick and the thin. It wouldn’t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions."
+          "Simple Machines wants to thank everyone who helped make SMF # Alpha(s) #-dev what it is today; shaping and directing our project, all through the thick and the thin. It wouldn’t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions."
       div.cat_bar
         h3.catbg
           "The Team"
@@ -121,12 +121,12 @@ div#content_section
           dd
             a [href="https://p.yusukekamiyamane.com/"]
               "Fugue Icons"
-            "| © # Yusuke(s) Kamiyamane | These icons are licensed under a Creative Commons Attribution #.# License(s)"
+            "| © # Yusuke(s) Kamiyamane | These icons are licensed under a Creative Commons Attribution # License(s)"
           dd
             a [href="https://techbase.kde.org/Projects/Oxygen/Licensing#Use_on_Websites"]
               "Oxygen Icons"
             "| These icons are licensed under"
-            a [href="https://www.gnu.org/licenses/lgpl-#.#.html"]
+            a [href="https://www.gnu.org/licenses/lgpl-#.html"]
               "GNU LGPLv#"
         dl
           dt
@@ -165,7 +165,7 @@ div#content_section
           dd
             a [href="https://github.com/ichord/At.js"]
               "At.js"
-            "| © chord.luo@gmail.com | Licensed under"
+            "| © {email} | Licensed under"
             a [href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT"]
               "The MIT License (MIT)"
           dd
@@ -173,7 +173,7 @@ div#content_section
               "HTML# Desktop(s) Notifications"
             "| © Tsvetan Tsvetkov | Licensed under"
             a [href="https://github.com/ttsvetko/HTML#-Desktop-Notifications/blob/master/License.txt"]
-              "The Apache License Version #.#"
+              "The Apache License Version #"
           dd
             a [href="https://github.com/enygma/gauth"]
               "GAuth Code Generator/Validator"
@@ -217,25 +217,25 @@ div#content_section
           dd
             a [href="https://fontlibrary.org/en/font/anonymous-pro"]
               "Anonymous Pro"
-            "| © # | This font is licensed under the SIL Open Font License, Version #.#"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
           dd
             a [href="https://fontlibrary.org/en/font/consolamono"]
               "ConsolaMono"
-            "| © # | This font is licensed under the SIL Open Font License, Version #.#"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
           dd
             a [href="https://fontlibrary.org/en/font/phennig"]
               "Phennig"
-            "| © #-# | This font is licensed under the SIL Open Font License, Version #.#"
+            "| © #-# | This font is licensed under the SIL Open Font License, Version #"
           dd
             a [href="https://fontawesome.com/"]
               "Font Awesome"
-            "| © # | This font is licensed under the SIL Open Font License, Version #.#"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
       div.cat_bar
         h3.catbg
           "Forum Copyright"
       div.windowbg
         a [href="{boardurl}/index.php?action=credits" rel="noopener" target="_blank" title="License"]
-          "SMF #.# Alpha(s) #-dev © #"
+          "SMF # Alpha(s) #-dev © #"
         ","
         a [href="https://www.simplemachines.org" rel="noopener" target="_blank" title="Simple Machines"]
           "Simple Machines"

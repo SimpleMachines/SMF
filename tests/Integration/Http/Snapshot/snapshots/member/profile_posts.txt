@@ -191,7 +191,7 @@ div#content_section
         div.topic_details
           h4
             strong
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]
@@ -220,7 +220,7 @@ div#content_section
         div.topic_details
           h4
             strong
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]
@@ -246,8 +246,8 @@ div#content_section
             a.bbc_link [href="https://www.simplemachines.org" rel="noopener" target="_blank"]
               "A link"
             "and"
-            a.bbc_email [href="mailto:someone@example.com"]
-              "someone@example.com"
+            a.bbc_email [href="mailto:{email}"]
+              "{email}"
             "."
             br
             blockquote.bbc_standard_quote

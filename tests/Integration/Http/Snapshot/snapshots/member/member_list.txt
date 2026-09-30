@@ -69,6 +69,25 @@ div#content_section
           tbody
             tr.windowbg
               td.centertext.is_online
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Offline"]
+                  span.off [title="Offline"]
+              td.lefttext.real_name
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+              td.centertext.website_url
+                a [href="https://www.example.com" rel="noopener" target="_blank"]
+                  span.main_icons.www [title="Example"]
+              td.centertext.id_group
+                "Administrator"
+              td.centertext.registered
+                "{date}"
+              td.centertext.post_count
+                div.generic_bar
+                  div.bar [style="width: #%;"]
+                  span
+                    "#"
+            tr.windowbg
+              td.centertext.is_online
                 a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Online"]
                   span.on [title="Online"]
               td.lefttext.real_name

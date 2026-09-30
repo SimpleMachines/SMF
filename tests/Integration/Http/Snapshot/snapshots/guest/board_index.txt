@@ -2,20 +2,20 @@ status 200
 @ title
 title
   "{forum_name} - Index"
-@ #category_2
+@ #category_#
 div#category_#.cat_bar
   h3.catbg
     a#c#
     "Snapshot fixtures"
   div.desc
-    "Content for the template snapshot tests."
-@ #category_2_boards
+    "Content for the template snapshot tests, version #."
+@ #category_#_boards
 div#category_#_boards
   div#board_#.up_contain
     div.board_icon
-      a.board_on [href="{boardurl}/index.php?board=#.#" title="New Posts"]
+      a.board_on [href="{boardurl}/index.php?board=#" title="New Posts"]
     div.info
-      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
         "{board}"
       div.board_description
         "Topics, replies and a poll for the snapshot tests."
@@ -40,13 +40,13 @@ div#category_#_boards
         strong#child_list_#
           "Sub-Boards"
         span
-          a [href="{boardurl}/index.php?board=#.#" title="No New Posts (# topic(s), # post(s))"]
+          a [href="{boardurl}/index.php?board=#" title="No New Posts (# topic(s), # post(s))"]
             "{board}"
   div#board_#.up_contain
     div.board_icon
-      a.board_on [href="{boardurl}/index.php?board=#.#" title="New Posts"]
+      a.board_on [href="{boardurl}/index.php?board=#" title="New Posts"]
     div.info
-      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+      a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
         "{board}"
       div.board_description
         "A board with nothing in it."

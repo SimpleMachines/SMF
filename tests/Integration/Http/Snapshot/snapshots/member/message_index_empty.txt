@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -42,7 +42,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -63,11 +63,11 @@ div#content_section
         span.current_page
           "#"
       div.buttonlist.floatright
-        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
           "New Topic"
-        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
           "New poll"
-        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
           "Mark Read"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -109,11 +109,11 @@ div#content_section
         span.current_page
           "#"
       div.buttonlist.floatright
-        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
           "New Topic"
-        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
           "New poll"
-        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
           "Mark Read"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -158,7 +158,7 @@ div#content_section
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]
@@ -195,11 +195,11 @@ div#content_section
           "User actions"
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div.buttonlist
-          a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+          a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
             "New Topic"
-          a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+          a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
             "New poll"
-          a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+          a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
             "Mark Read"
           a.button.button_strip_notify
             "No Alerts or Emails"

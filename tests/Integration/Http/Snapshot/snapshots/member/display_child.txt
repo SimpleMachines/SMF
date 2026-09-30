@@ -20,14 +20,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -49,14 +49,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -70,18 +70,18 @@ div#content_section
       p
         "Started by {member}, {date}"
       span.floatright.nextlinks
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=prev#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=prev#new"]
           "Previous topic"
         "-"
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=next#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=next#new"]
           "Next topic"
     div.pagesection.top
       div.buttonlist.floatright
-        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
           "Reply"
-        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
           "Mark unread"
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -123,7 +123,7 @@ div#content_section
         a.button.mobile_act
           "User actions"
     div#forumposts
-      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#.#" method="post" name="quickModForm"]
+      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#" method="post" name="quickModForm"]
         div#msg#.windowbg
           div.post_wrapper
             div.poster
@@ -172,7 +172,7 @@ div#content_section
               div.under_message
                 ul.quickbuttons.quickbuttons_post
                   li
-                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#.#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
                       span.main_icons.quote
                       "Quote"
                   li#quoteSelected_# [style="display:none"]
@@ -184,7 +184,7 @@ div#content_section
                       "More..."
                     ul
                       li
-                        a [href="{boardurl}/index.php?action=reporttm;topic=#.#;msg=#"]
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
                           span.error.main_icons
                           "Report to moderator"
             div.moderatorbar
@@ -196,11 +196,11 @@ div#content_section
         hr.post_separator
     div.pagesection
       div.buttonlist.floatright
-        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
           "Reply"
-        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
           "Mark unread"
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -258,14 +258,14 @@ div#content_section
         li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?topic=#" itemprop="item"]
             span [itemprop="name"]
               "{subject}"
           meta [content="#" itemprop="position"]
@@ -314,11 +314,11 @@ div#content_section
           "User actions"
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div.buttonlist
-          a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#.#;last_msg=#"]
+          a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
             "Reply"
-          a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#.#;{session_var}={session_id}"]
+          a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
             "Mark unread"
-          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
             "Print"
           a.button.button_strip_notify
             "No Alerts or Emails"

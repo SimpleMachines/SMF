@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -46,7 +46,7 @@ div#content_section
           "Target topic"
       div.title_bar
         h4.titlebg
-          form#mergeSelectBoard [accept-charset="UTF-#" action="{boardurl}/index.php?action=mergetopics;from=#;targetboard=#;board=#.#" method="post"]
+          form#mergeSelectBoard [accept-charset="UTF-#" action="{boardurl}/index.php?action=mergetopics;from=#;targetboard=#;board=#" method="post"]
             "Select target from the list below (Board:"
             select [name="targetboard" onchange="this.form.submit();"]
               optgroup [label="Snapshot fixtures"]
@@ -71,9 +71,9 @@ div#content_section
         div.windowbg
           ul.merge_topics
             li
-              a [href="{boardurl}/index.php?action=mergetopics;sa=options;board=#.#;from=#;to=#;{session_var}={session_id}"]
+              a [href="{boardurl}/index.php?action=mergetopics;sa=options;board=#;from=#;to=#;{session_var}={session_id}"]
                 span.main_icons.merge
-              a [href="{boardurl}/index.php?topic=#.#" rel="noopener" target="_blank"]
+              a [href="{boardurl}/index.php?topic=#" rel="noopener" target="_blank"]
                 "{subject}"
               "Started by"
               a [href="{boardurl}/index.php?action=profile;u=#" rel="noopener" target="_blank"]

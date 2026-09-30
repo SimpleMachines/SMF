@@ -44,6 +44,16 @@ class DomSnapshotTest extends TestCase
 		$this->assertStringContainsString('"Kept"', $description);
 	}
 
+	public function testARootNamingAnIdReadsTheSameOnAnyForum(): void
+	{
+		$describe = static fn(int $id): string => (new DomSnapshot())->describe(
+			'<main><div id="category_' . $id . '">Boards</div></main>',
+			['#category_' . $id],
+		);
+
+		$this->assertSame($describe(2), $describe(3));
+	}
+
 	public function testItSaysWhenARootIsMissing(): void
 	{
 		$this->assertStringContainsString(
@@ -165,6 +175,22 @@ class DomSnapshotTest extends TestCase
 				'<main><a id="msg12" href="/index.php?topic=3.0">Posts: 7</a></main>',
 				'<main><a id="msg5012" href="/index.php?topic=31.15">Posts: 1234</a></main>',
 			],
+			'a minified file' => [
+				'<main><link rel="stylesheet" href="/Themes/default/css/minified_4f4174a0308454b7fa39683936f468b4.css?smf30_1"></main>',
+				'<main><link rel="stylesheet" href="/Themes/default/css/minified_ab62f1f68a1d7a284da72fd8555dbf49.css?smf30_2"></main>',
+			],
+			'an email address' => [
+				'<main><a href="mailto:someone@example.com">someone@example.com</a><input value="noreply@myserver.com"></main>',
+				'<main><a href="mailto:other.person+tag@example.org">other.person+tag@example.org</a><input value="admin@example.com"></main>',
+			],
+			'a search carried to the next page' => [
+				'<main><a href="/index.php?action=search;params=eJxLTClLzEtOTalRrzGoUapJKgKxjICs">Search</a></main>',
+				'<main><a href="/index.php?action=search;params=eJxLTClLzEtOTalRrzGoUapJKgKxzICs">Search</a></main>',
+			],
+			'an average and a total' => [
+				'<main><dd>3</dd><dd>999</dd></main>',
+				'<main><dd>2.5</dd><dd>1,000</dd></main>',
+			],
 			'a date and a relative date' => [
 				'<main><p>Last post: Jan 15, 2020, 10:00 AM</p></main>',
 				'<main><p>Last post: <strong>Today</strong> at 04:43 PM</p></main>',
@@ -186,7 +212,7 @@ class DomSnapshotTest extends TestCase
 				'<main><a href="/index.php?topic=2.msg9#new" title="Short">Short</a></main>',
 			],
 			'the latest post on the board index' => [
-				'<main><a href="/index.php?topic=1.msg1;boardseen#new" title="Welcome to SMF!">Welcome to SMF!</a></main>',
+				'<main><a href="/index.php?topic=1.msg1#new" title="Welcome to SMF!">Welcome to SMF!</a></main>',
 				'<main><a href="/index.php?topic=9.msg90;boardseen#new" title="Another subject entirely">Another subject e...</a></main>',
 			],
 			'rows of a list' => [

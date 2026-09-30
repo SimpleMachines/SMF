@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -42,7 +42,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -60,9 +60,9 @@ div#content_section
           "Sub-Boards"
       div#board_#.up_contain
         div.board_icon
-          a.board_off [href="{boardurl}/index.php?action=unread;board=#.#;children" title="No New Posts"]
+          a.board_off [href="{boardurl}/index.php?action=unread;board=#;children" title="No New Posts"]
         div.info
-          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
             "{board}"
           div.board_description
             "The first child board."
@@ -84,9 +84,9 @@ div#content_section
                 "{member}"
       div#board_#.up_contain
         div.board_icon
-          a.board_off [href="{boardurl}/index.php?action=unread;board=#.#;children" title="No New Posts"]
+          a.board_off [href="{boardurl}/index.php?action=unread;board=#;children" title="No New Posts"]
         div.info
-          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
             "{board}"
           div.board_description
             "The second child board, which stays empty."
@@ -105,11 +105,11 @@ div#content_section
         span.current_page
           "#"
       div.buttonlist.floatright
-        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
           "New Topic"
-        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
           "New poll"
-        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
           "Mark Read"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -141,19 +141,19 @@ div#content_section
       div#topic_header.title_bar
         div.board_icon
         div.info
-          a [href="{boardurl}/index.php?board=#.#;sort=subject"]
+          a [href="{boardurl}/index.php?board=#;sort=subject"]
             "Subject"
           "/"
-          a [href="{boardurl}/index.php?board=#.#;sort=starter"]
+          a [href="{boardurl}/index.php?board=#;sort=starter"]
             "Started by"
         div.board_stats.centertext
-          a [href="{boardurl}/index.php?board=#.#;sort=replies"]
+          a [href="{boardurl}/index.php?board=#;sort=replies"]
             "Replies"
           "/"
-          a [href="{boardurl}/index.php?board=#.#;sort=views"]
+          a [href="{boardurl}/index.php?board=#;sort=views"]
             "Views"
         div.lastpost
-          a [href="{boardurl}/index.php?board=#.#;asc"]
+          a [href="{boardurl}/index.php?board=#;asc"]
             "Last post"
             span.main_icons.sort_down
       div#topic_container
@@ -169,7 +169,7 @@ div#content_section
               div.message_index_title
                 span.bold_text.preview [title]
                   span#msg#
-                    a [href="{boardurl}/index.php?topic=#.#"]
+                    a [href="{boardurl}/index.php?topic=#"]
                       "{subject}"
               p.floatleft
                 "Started by"
@@ -182,7 +182,7 @@ div#content_section
               "# view(s)"
           div.lastpost
             p
-              a [href="{boardurl}/index.php?topic=#.##new"]
+              a [href="{boardurl}/index.php?topic=##new"]
                 "{date}"
               br
               "by"
@@ -197,7 +197,7 @@ div#content_section
               div.message_index_title
                 span.preview [title]
                   span#msg#
-                    a [href="{boardurl}/index.php?topic=#.#"]
+                    a [href="{boardurl}/index.php?topic=#"]
                       "{subject}"
               p.floatleft
                 "Started by"
@@ -210,7 +210,7 @@ div#content_section
               "# view(s)"
           div.lastpost
             p
-              a [href="{boardurl}/index.php?topic=#.##new"]
+              a [href="{boardurl}/index.php?topic=##new"]
                 "{date}"
               br
               "by"
@@ -226,7 +226,7 @@ div#content_section
               div.message_index_title
                 span.preview [title]
                   span#msg#
-                    a [href="{boardurl}/index.php?topic=#.#"]
+                    a [href="{boardurl}/index.php?topic=#"]
                       "{subject}"
               p.floatleft
                 "Started by"
@@ -254,11 +254,11 @@ div#content_section
         span.current_page
           "#"
       div.buttonlist.floatright
-        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
           "New Topic"
-        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
           "New poll"
-        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
           "Mark Read"
         a.button.button_strip_notify
           "No Alerts or Emails"
@@ -303,7 +303,7 @@ div#content_section
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]
@@ -340,11 +340,11 @@ div#content_section
           "User actions"
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div.buttonlist
-          a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#.#"]
+          a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
             "New Topic"
-          a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#.#;poll"]
+          a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
             "New poll"
-          a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#.#;{session_var}={session_id}"]
+          a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
             "Mark Read"
           a.button.button_strip_notify
             "No Alerts or Emails"

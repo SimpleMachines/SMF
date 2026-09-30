@@ -1,14 +1,28 @@
 status 200
 @ title
 title
-  "Log in"
+  "Profile - Account Settings"
 @ .navigate_section
 nav.navigate_section [aria-label="Breadcrumb"]
   ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
-    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       a [href="{boardurl}/index.php" itemprop="item"]
         span [itemprop="name"]
           "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile" itemprop="item"]
+        span [itemprop="name"]
+          "Profile of Snapshot Member"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=account" itemprop="item"]
+        span [itemprop="name"]
+          "Account Settings"
       meta [content="#" itemprop="position"]
 @ #content_section
 div#content_section
@@ -122,23 +136,122 @@ div#content_section
     script
       | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
     div#admin_content
-      form#frmLogin [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=account" method="post" name="frmLogin"]
-        div#admin_login.login
-          div.cat_bar
-            h3.catbg
-              span.login.main_icons
-              "Log in"
-          div.centertext.roundframe
-            strong
-              "Password"
-            input [name="admin_pass" size="#" type="password"]
-            a.help [href="{boardurl}/index.php?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);"]
-              span.help.main_icons [title="Help"]
-            br
-            input [name="{session_var}" type="hidden" value="{session_id}"]
-            input [name="{token_var}" type="hidden" value="{hash}"]
-            input.button [type="submit" value="Log in"]
-            input [name="{session_var}" type="hidden" value="{session_id}"]
-        input [name="admin_hash_pass" type="hidden" value]
-      script
-        | document.forms.frmLogin.admin_pass.focus();
+      div#profile_error.errorbox [style="display:none"]
+      form#creator [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=account;u=#" autocomplete="off" enctype="multipart/form-data" method="post" name="creator"]
+        div.cat_bar
+          h3.catbg.profile_hd
+            "Profile"
+        p.information
+          "These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information."
+        div.roundframe
+          dl.settings
+            dt
+              strong
+                "Username"
+            dd
+              "snapshot_member"
+            dt
+              strong
+                label [for="real_name"]
+                  "Name"
+              br
+              span.smalltext
+                "This is the displayed name that people will see."
+            dd
+              input#real_name [maxlength="#" name="real_name" size="#" type="text" value="Snapshot Member"]
+            dt
+              strong
+                label [for="lngfile"]
+                  "Preferred language"
+            dd
+              select#lngfile [name="lngfile"]
+                option [selected value="en_US"]
+                  "English (US)"
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="email_address"]
+                  "Email address"
+              br
+              span.smalltext
+                "This must be a valid email address."
+            dd
+              input#email_address [name="email_address" size="#" type="email" value="{email}"]
+            dt
+              strong
+                label [for="show_online"]
+                  "Show others my online status"
+            dd
+              input [name="show_online" type="hidden" value="#"]
+              input#show_online [checked name="show_online" type="checkbox" value="#"]
+          hr
+          dl.settings
+            dt
+              strong
+                "Two-Factor Authentication"
+              br
+              div.smalltext
+                "#FA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password"
+            dd
+              a#enable_tfa [href="{boardurl}/index.php?action=profile;area=tfasetup"]
+                "Enable Two-Factor Authentication"
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="passwrd#"]
+                  "Choose Password"
+              br
+              span.smalltext
+                "For best security, you should use eight or more characters. It is a good idea to use a phrase with multiple words."
+            dd
+              input#passwrd# [name="passwrd#" size="#" type="password" value]
+            dt
+              strong
+                label [for="passwrd#"]
+                  "Verify Password"
+            dd
+              input#passwrd# [name="passwrd#" size="#" type="password" value]
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="secret_question"]
+                  "Secret Question"
+              br
+              span.smalltext
+                "To help retrieve your password, enter a question here with an answer that"
+                strong
+                  "only"
+                "you know."
+            dd
+              input#secret_question [name="secret_question" size="#" type="text" value]
+            dt
+              strong
+                label [for="secret_answer"]
+                  "Answer"
+              br
+              span.smalltext
+                "Choose carefully. You would not want someone guessing your answer!"
+            dd
+              input#secret_answer [name="secret_answer" size="#" type="text" value]
+              span.smalltext
+                a [href="{boardurl}/index.php?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"]
+                  span.help.main_icons
+                  "why is this blank?"
+          dl.settings
+            dt
+              strong
+                label [for="oldpasswrd"]
+                  "Current Password"
+              br
+              span.smalltext
+                "For security reasons, your current password is required to make changes to your account."
+            dd
+              input#oldpasswrd [name="oldpasswrd" size="#" type="password"]
+          input.button.floatright [name="save" type="submit" value="Change profile"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="u" type="hidden" value="#"]
+          input [name="sa" type="hidden" value="account"]

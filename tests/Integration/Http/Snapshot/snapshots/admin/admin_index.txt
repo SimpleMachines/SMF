@@ -70,7 +70,7 @@ div#admin_content
             li
               "Forum version:"
               em#yourVersion
-                "SMF #.# Alpha(s) #-dev"
+                "SMF # Alpha(s) #-dev"
             li
               "Current SMF version:"
               em#smfVersion
@@ -80,6 +80,9 @@ div#admin_content
                 "(more detailed)"
           br
           "Forum Administrators:"
+          a [href="{boardurl}/index.php?action=profile;u=#"]
+            "{member}"
+          "and"
           a [href="{boardurl}/index.php?action=profile;u=#"]
             "{member}"
   fieldset#group_forum.admin_group.windowbg

@@ -31,43 +31,43 @@ div#content_section
           "SMF® is the elegant, effective, powerful and free forum software solution that this site is running. It allows users to communicate in discussion topics on a given subject in a clever and organized manner. Furthermore, it has a number of powerful features which end users can take advantage of. Help for many of SMF’s features can be found by either clicking the question mark icon next to the relevant section or by selecting one of the links on this page. These links will take you to SMF’s centrally-located documentation on the Simple Machines official site."
         ul
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Registering" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Registering" rel="noopener" target="_blank"]
               "Registering"
             "- Many forums require users to register to gain full access."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Logging_In" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Logging_In" rel="noopener" target="_blank"]
               "Logging In"
             "- Once registered, users must login to access their account."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Profile" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Profile" rel="noopener" target="_blank"]
               "Profile"
             "- Each member has their own personal profile."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Search" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Search" rel="noopener" target="_blank"]
               "Search"
             "- Searching is an extremely helpful tool for finding information in posts and topics."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Posting" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Posting" rel="noopener" target="_blank"]
               "Posting"
             "- The whole point of a forum, posting allows users to express themselves."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Bulletin_board_code" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Bulletin_board_code" rel="noopener" target="_blank"]
               "Bulletin Board Code (BBC)"
             "- Posts can be spiced up with a little BBC."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Personal_messages" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Personal_messages" rel="noopener" target="_blank"]
               "Personal Messages"
             "- Users can send personal messages to each other."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Memberlist" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Memberlist" rel="noopener" target="_blank"]
               "Memberlist"
             "- The memberlist shows all the members of a forum."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Calendar" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Calendar" rel="noopener" target="_blank"]
               "Calendar"
             "- Users can keep track of events, holidays, and birthdays with the calendar."
           li
-            a [href="https://wiki.simplemachines.org/smf/SMF#.#:Features" rel="noopener" target="_blank"]
+            a [href="https://wiki.simplemachines.org/smf/SMF#:Features" rel="noopener" target="_blank"]
               "Features"
             "- Here is a list of the most popular features in SMF."
         p

@@ -20,7 +20,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -42,7 +42,7 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
@@ -60,9 +60,9 @@ div#content_section
           "Sub-Boards"
       div#board_#.up_contain
         div.board_icon
-          a.board_on [href="{boardurl}/index.php?board=#.#" title="New Posts"]
+          a.board_on [href="{boardurl}/index.php?board=#" title="New Posts"]
         div.info
-          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
             "{board}"
           div.board_description
             "The first child board."
@@ -84,9 +84,9 @@ div#content_section
                 "{member}"
       div#board_#.up_contain
         div.board_icon
-          a.board_on [href="{boardurl}/index.php?board=#.#" title="New Posts"]
+          a.board_on [href="{boardurl}/index.php?board=#" title="New Posts"]
         div.info
-          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#.#"]
+          a#b#.mobile_subject.subject [href="{boardurl}/index.php?board=#"]
             "{board}"
           div.board_description
             "The second child board, which stays empty."
@@ -108,19 +108,19 @@ div#content_section
       div#topic_header.title_bar
         div.board_icon
         div.info
-          a [href="{boardurl}/index.php?board=#.#;sort=subject"]
+          a [href="{boardurl}/index.php?board=#;sort=subject"]
             "Subject"
           "/"
-          a [href="{boardurl}/index.php?board=#.#;sort=starter"]
+          a [href="{boardurl}/index.php?board=#;sort=starter"]
             "Started by"
         div.board_stats.centertext
-          a [href="{boardurl}/index.php?board=#.#;sort=replies"]
+          a [href="{boardurl}/index.php?board=#;sort=replies"]
             "Replies"
           "/"
-          a [href="{boardurl}/index.php?board=#.#;sort=views"]
+          a [href="{boardurl}/index.php?board=#;sort=views"]
             "Views"
         div.lastpost
-          a [href="{boardurl}/index.php?board=#.#;asc"]
+          a [href="{boardurl}/index.php?board=#;asc"]
             "Last post"
             span.main_icons.sort_down
       div#topic_container
@@ -136,7 +136,7 @@ div#content_section
               div.message_index_title
                 span.bold_text.preview [title]
                   span#msg#
-                    a [href="{boardurl}/index.php?topic=#.#"]
+                    a [href="{boardurl}/index.php?topic=#"]
                       "{subject}"
               p.floatleft
                 "Started by"
@@ -149,7 +149,7 @@ div#content_section
               "# view(s)"
           div.lastpost
             p
-              a [href="{boardurl}/index.php?topic=#.##msg#"]
+              a [href="{boardurl}/index.php?topic=##msg#"]
                 "{date}"
               br
               "by"
@@ -164,7 +164,7 @@ div#content_section
               div.message_index_title
                 span.preview [title]
                   span#msg#
-                    a [href="{boardurl}/index.php?topic=#.#"]
+                    a [href="{boardurl}/index.php?topic=#"]
                       "{subject}"
               p.floatleft
                 "Started by"
@@ -177,7 +177,7 @@ div#content_section
               "# view(s)"
           div.lastpost
             p
-              a [href="{boardurl}/index.php?topic=#.##msg#"]
+              a [href="{boardurl}/index.php?topic=##msg#"]
                 "{date}"
               br
               "by"
@@ -208,7 +208,7 @@ div#content_section
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]

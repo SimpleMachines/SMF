@@ -160,7 +160,7 @@ class AdminSnapshotTest extends SnapshotTestCase
 			['profile_issue_warning', '?action=profile;u={member:snapshot_member};area=issuewarning', self::PAGE],
 			['profile_track_activity', '?action=profile;u={member:snapshot_member};area=tracking;sa=activity', self::PAGE, [...self::LOG_ROWS, ...self::SHARED_ADDRESSES], self::LIST_PAGES],
 			['profile_track_ip', '?action=profile;u={member:snapshot_member};area=tracking;sa=ip', self::PAGE, self::LOG_ROWS, self::LIST_PAGES],
-			['profile_track_edits', '?action=profile;u={member:snapshot_member};area=tracking;sa=edits', self::PAGE, self::SHARED_ADDRESSES],
+			['profile_track_edits', '?action=profile;u={member:snapshot_member};area=tracking;sa=edits', self::PAGE, [...self::LOG_ROWS, ...self::SHARED_ADDRESSES], self::LIST_PAGES],
 			['profile_track_logins', '?action=profile;u={member:snapshot_member};area=tracking;sa=logins', self::PAGE, self::LOG_ROWS, self::LIST_PAGES],
 			['profile_delete', '?action=profile;u={member:snapshot_member};area=deleteaccount', self::PAGE],
 

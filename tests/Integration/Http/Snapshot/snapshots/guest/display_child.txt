@@ -20,14 +20,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -49,14 +49,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
         span [itemprop="name"]
           "{board}"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
         span [itemprop="name"]
           "{subject}"
       meta [content="#" itemprop="position"]
@@ -70,14 +70,14 @@ div#content_section
       p
         "Started by {member}, {date}"
       span.floatright.nextlinks
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=prev#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=prev#new"]
           "Previous topic"
         "-"
-        a [href="{boardurl}/index.php?topic=#.#;prev_next=next#new"]
+        a [href="{boardurl}/index.php?topic=#;prev_next=next#new"]
           "Next topic"
     div.pagesection.top
       div.buttonlist.floatright
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
       div.floatleft.pagelinks
         a.button [href="#bot"]
@@ -90,7 +90,7 @@ div#content_section
         a.button.mobile_act
           "User actions"
     div#forumposts
-      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#.#" method="post" name="quickModForm"]
+      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#" method="post" name="quickModForm"]
         div#msg#.windowbg
           div.post_wrapper
             div.poster
@@ -142,7 +142,7 @@ div#content_section
         hr.post_separator
     div.pagesection
       div.buttonlist.floatright
-        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
           "Print"
       div.floatleft.pagelinks
         a#bot.button [href="#main_content_section"]
@@ -171,14 +171,14 @@ div#content_section
         li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?board=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
             span [itemprop="name"]
               "{board}"
           meta [content="#" itemprop="position"]
         li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
           span.dividers
             "►"
-          a [href="{boardurl}/index.php?topic=#.#" itemprop="item"]
+          a [href="{boardurl}/index.php?topic=#" itemprop="item"]
             span [itemprop="name"]
               "{subject}"
           meta [content="#" itemprop="position"]
@@ -190,7 +190,7 @@ div#content_section
           "User actions"
           a.hide_popup.main_icons [href="javascript:void(#);"]
         div.buttonlist
-          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#.#" rel="nofollow"]
+          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
             "Print"
     script
       | window.addEventListener("DOMContentLoaded", function() { new QuickModify({ sScriptUrl: smf_scripturl, sFormName: 'quickModForm', sClassName: 'quick_edit', bShowModify: true, iTopicId: #, sSaveButtonText: 'Save', sCancelButtonText: 'Cancel', sEditReasonText: 'Reason for editing', sErrorBorderStyle: '#px solid red' }); new JumpTo({ sContainerId: "display_jump_to", sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">Jump to<" + "/label> %dropdown_list%", iCurBoardId: #, iCurBoardChildLevel: #, sCurBoardName: "Snapshot child one", sBoardChildLevelIndicator: "==", sBoardPrefix: "=> ", sCatSeparator: "-----------------------------", sCatPrefix: "", sGoButtonLabel: "Go" }); new IconList({ sIconIdPrefix: "msg_icon_", sScriptUrl: smf_scripturl, bShowModify: true, iBoardId: #, iTopicId: #, sSessionId: smf_session_id, sSessionVar: smf_session_var, sLabelIconList: "Message icon" }); });

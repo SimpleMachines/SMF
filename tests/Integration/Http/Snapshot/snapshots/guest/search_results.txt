@@ -13,14 +13,14 @@ nav.navigate_section [aria-label="Breadcrumb"]
     li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?action=search;params=eJxLTClLzEtOTalRrzGoUapJKgKxjICs#vyiEiCzKDUnFawCKhSfklkEFE#JLU#GiaQmFiVnAPlJ-TkpAFJzHW#." itemprop="item"]
+      a [href="{boardurl}/index.php?action=search;params={params}" itemprop="item"]
         span [itemprop="name"]
           "Search"
       meta [content="#" itemprop="position"]
     li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
       span.dividers
         "►"
-      a [href="{boardurl}/index.php?action=search#;params=eJxLTClLzEtOTalRrzGoUapJKgKxjICs#vyiEiCzKDUnFawCKhSfklkEFE#JLU#GiaQmFiVnAPlJ-TkpAFJzHW#." itemprop="item"]
+      a [href="{boardurl}/index.php?action=search#;params={params}" itemprop="item"]
         span [itemprop="name"]
           "Search Results"
       meta [content="#" itemprop="position"]
@@ -42,7 +42,7 @@ div#content_section
         span
           "Search Results"
       div.floatleft
-        a.button [href="{boardurl}/index.php?action=search;params=eJxLTClLzEtOTalRrzGoUapJKgKxjICs#vyiEiCzKDUnFawCKhSfklkEFE#JLU#GiaQmFiVnAPlJ-TkpAFJzHW#."]
+        a.button [href="{boardurl}/index.php?action=search;params={params}"]
           "Adjust Search Parameters"
       div.floatright
         span.padding
@@ -71,7 +71,7 @@ div#content_section
         div.half_content
           div.topic_details
             h5
-              a [href="{boardurl}/index.php?board=#.#"]
+              a [href="{boardurl}/index.php?board=#"]
                 "{board}"
               "/"
               a [href="{boardurl}/index.php?topic=#.msg##msg#"]

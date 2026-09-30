@@ -159,7 +159,7 @@ div#content_section
           img.avatar [alt src="{boardurl}/avatars/default.png"]
           ul.clear.icon_fields
             li
-              a [href="mailto:snapshot_member@example.com" rel="nofollow" title="snapshot_member@example.com"]
+              a [href="mailto:{email}" rel="nofollow" title="{email}"]
                 span.mail.main_icons [title="Email"]
             li
               a [href="https://www.example.com" rel="noopener" target="_blank" title="Example"]
@@ -189,12 +189,12 @@ div#content_section
             dt
               "Posts"
             dd
-              "# (#.# per(s) day)"
+              "# (# per(s) day)"
             dt
               "Email"
             dd
-              a [href="mailto:snapshot_member@example.com"]
-                "snapshot_member@example.com"
+              a [href="mailto:{email}"]
+                "{email}"
             dt
               "Personal text"
             dd
@@ -211,8 +211,8 @@ div#content_section
             dt
               "IP"
             dd
-              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#.#.#.#;u=#"]
-                "#.#.#.#"
+              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;searchip=#;u=#"]
+                "#"
             dt
               "Hostname"
             dd
