@@ -36,7 +36,7 @@ class ThemeCopyListTest extends HttpTestCase
 
 		$page = $this->fetch('?action=admin;area=theme;th=1;sa=copy');
 
-		$this->assertStringContainsString('Stats.template.php', $page->text(), 'the copy page does not list the templates. The forum said: ' . $page->errorText());
+		$this->assertStringContainsString('templates/Stats/', $page->text(), 'the copy page does not list the templates. The forum said: ' . $page->errorText());
 
 		$this->assertNoErrorsLogged('the copy page logged something.' . "\n");
 	}
