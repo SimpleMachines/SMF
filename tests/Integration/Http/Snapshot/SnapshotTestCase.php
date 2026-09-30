@@ -47,6 +47,12 @@ use SMF\Tests\Support\HttpResponse;
  *
  * and read the diff before committing it.
  *
+ * To keep each page's HTML as well, for comparing two runs byte for byte, name
+ * a directory inside the checkout, so that the container can write to it. Not
+ * cache/, which the forum empties; logs/ is ignored by git and left alone:
+ *
+ *   SMF_SNAPSHOT_RAW=logs/raw-before .dev/test.sh --engine mysql --testsuite snapshot
+ *
  * What the snapshots cannot make up for is configuration. The admin pages show
  * the forum's settings, so a forum set up differently from a new one - with the
  * admin password prompt switched off, say - reads differently there too. Record
@@ -208,6 +214,19 @@ abstract class SnapshotTestCase extends HttpTestCase
 	{
 		$actual = $this->describe($response, $roots, array_merge(static::ALWAYS_IGNORE, $ignore), $only, $unordered);
 		$file = $this->snapshotDirectory() . '/' . $name . '.txt';
+
+		// The page as it was sent, for comparing two runs byte for byte. A
+		// template rewritten to render exactly what it did before should leave
+		// nothing but sessions, tokens and times different.
+		if (($raw_dir = getenv('SMF_SNAPSHOT_RAW')) !== false && $raw_dir !== '') {
+			$raw_file = $raw_dir . '/' . static::audience() . '/' . $name . '.html';
+
+			if (!is_dir(\dirname($raw_file))) {
+				mkdir(\dirname($raw_file), 0o777, true);
+			}
+
+			file_put_contents($raw_file, $response->body);
+		}
 
 		if (getenv('SMF_UPDATE_SNAPSHOTS') === '1') {
 			if (!is_dir(\dirname($file))) {
