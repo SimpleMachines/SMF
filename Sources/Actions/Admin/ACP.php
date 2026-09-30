@@ -33,6 +33,7 @@ use SMF\Parser;
 use SMF\Routable;
 use SMF\Sapi;
 use SMF\SecurityToken;
+use SMF\TemplateEngine;
 use SMF\Theme;
 use SMF\Url;
 use SMF\User;
@@ -1592,26 +1593,48 @@ class ACP implements ActionInterface, Routable
 		}
 
 		foreach ($directories as $type => $dirname) {
+			$files = [];
+
 			$this_dir = dir($dirname);
 
 			while ($entry = $this_dir->read()) {
 				if (str_ends_with($entry, 'template.php') && !is_dir($dirname . '/' . $entry)) {
-					// Read the first 768 bytes from the file.... enough for the header.
-					$fp = fopen($dirname . '/' . $entry, 'rb');
-					$header = fread($fp, 768);
-					fclose($fp);
-
-					// Look for the version comment in the file header.
-					if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
-						$version_info[$type][$entry] = $match[1];
-					}
-					// It wasn't found, but the file was... show a '??'.
-					else {
-						$version_info[$type][$entry] = '??';
-					}
+					$files[$entry] = $dirname . '/' . $entry;
 				}
 			}
 			$this_dir->close();
+
+			// The Plates templates are named by their path in the theme, since every template has a main.php.
+			if (is_dir($dirname . '/' . TemplateEngine::DIRECTORY)) {
+				$plates_dir = new \RecursiveIteratorIterator(
+					new \RecursiveDirectoryIterator(
+						$dirname . '/' . TemplateEngine::DIRECTORY,
+						\FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS,
+					),
+				);
+
+				foreach ($plates_dir as $path => $file) {
+					if ($file->isFile() && $file->getExtension() === 'php' && $file->getFilename() !== 'index.php') {
+						$files[substr($path, \strlen($dirname) + 1)] = $path;
+					}
+				}
+			}
+
+			foreach ($files as $entry => $path) {
+				// Read the first 768 bytes from the file.... enough for the header.
+				$fp = fopen($path, 'rb');
+				$header = fread($fp, 768);
+				fclose($fp);
+
+				// Look for the version comment in the file header.
+				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
+					$version_info[$type][$entry] = $match[1];
+				}
+				// It wasn't found, but the file was... show a '??'.
+				else {
+					$version_info[$type][$entry] = '??';
+				}
+			}
 		}
 
 		// Load up all the files in the default language directory and sort by language.
