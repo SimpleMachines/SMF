@@ -269,6 +269,50 @@ class TemplateEngineTest extends TestCase
 		$engine->render('Stats/main');
 	}
 
+	/**
+	 * Some template_*() functions return their HTML for the caller to use,
+	 * and a Plates template can only output it. Fetching gets the same string
+	 * from either.
+	 */
+	public function testFetchingGetsTheOutputOfEitherKindAsAString(): void
+	{
+		$this->write($this->default, 'Stats/main.php', 'plates <?= $n ?>');
+		$legacy = $this->write($this->default, '../Fetch.template.php', '<?php function template_engine_test_returns(int $n): string { echo "echoed "; return "returned " . $n; }');
+
+		require_once $legacy;
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Fetch', $legacy);
+		$engine->addLoaded('Stats');
+
+		ob_start();
+		$plates = $engine->fetchSubTemplate('main', ['n' => 1]);
+		$function = $engine->fetchSubTemplate('engine_test_returns', ['n' => 2]);
+		$leaked = ob_get_clean();
+
+		$this->assertSame('plates 1', $plates);
+		$this->assertSame('echoed returned 2', $function);
+		$this->assertSame('', $leaked, 'fetching output something');
+	}
+
+	/**
+	 * A call through a name built at runtime names its parameters after the
+	 * default theme's sub-templates, and a mod's function may call its own
+	 * something else.
+	 */
+	public function testAFunctionWithOtherParameterNamesGetsThemInOrder(): void
+	{
+		$legacy = $this->write($this->default, '../Names.template.php', '<?php function template_engine_test_names($b, $extra = "!"): void { echo $b["name"], $extra; }');
+
+		require_once $legacy;
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Names', $legacy);
+
+		$this->assertSame('general!', $engine->fetchSubTemplate('engine_test_names', ['board' => ['name' => 'general']]));
+		$this->assertSame('general?', $engine->fetchSubTemplate('engine_test_names', ['b' => ['name' => 'general'], 'extra' => '?']));
+	}
+
 	public function testRenderSubTemplateOutputsWhatItFinds(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');
@@ -315,7 +359,8 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
-	 * Writes a file into a theme's templates directory.
+	 * Writes a file into a theme's templates directory, or, for a path that
+	 * starts with ../, into the theme's template directory itself.
 	 *
 	 * @param string $theme_dir The theme's template directory.
 	 * @param string $file The file, relative to its templates directory.
@@ -324,7 +369,9 @@ class TemplateEngineTest extends TestCase
 	 */
 	private function write(string $theme_dir, string $file, string $contents): string
 	{
-		$path = $theme_dir . '/' . TemplateEngine::DIRECTORY . '/' . $file;
+		$path = str_starts_with($file, '../')
+			? $theme_dir . '/' . substr($file, 3)
+			: $theme_dir . '/' . TemplateEngine::DIRECTORY . '/' . $file;
 
 		if (!is_dir(\dirname($path))) {
 			mkdir(\dirname($path), 0o777, true);

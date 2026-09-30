@@ -142,6 +142,7 @@ class TemplateEngine
 			},
 		);
 		$this->engine->registerFunction('hasSubTemplate', $this->hasSubTemplate(...));
+		$this->engine->registerFunction('fetchSubTemplate', $this->fetchSubTemplate(...));
 	}
 
 	/**
@@ -260,12 +261,44 @@ class TemplateEngine
 		}
 
 		if (\is_callable('template_' . $name)) {
-			\call_user_func_array('template_' . $name, $params);
+			\call_user_func_array('template_' . $name, $this->argumentsFor('template_' . $name, $params));
 
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets what a sub-template of any loaded template outputs, as a string.
+	 *
+	 * Some template_*() functions return their HTML rather than output it,
+	 * for a caller that needs it as a value. What such a function returns
+	 * is included along with anything it outputs, so a caller gets the same
+	 * string whether the sub-template is a Plates template or a function.
+	 *
+	 * @param string $name The name of the sub-template, such as 'quickbuttons'.
+	 * @param array $params Its parameters, as for renderSubTemplate().
+	 * @throws \Error if there is no such sub-template.
+	 * @return string What it output, and what it returned if that was a string.
+	 */
+	public function fetchSubTemplate(string $name, array $params = []): string
+	{
+		$plates_template = $this->find($name);
+
+		if ($plates_template !== null) {
+			return $this->render($plates_template, $params);
+		}
+
+		if (!\is_callable('template_' . $name)) {
+			throw new \Error('Call to undefined sub-template ' . $name);
+		}
+
+		ob_start();
+
+		$returned = \call_user_func_array('template_' . $name, $this->argumentsFor('template_' . $name, $params));
+
+		return ob_get_clean() . (\is_string($returned) ? $returned : '');
 	}
 
 	/**
@@ -300,5 +333,31 @@ class TemplateEngine
 		}
 
 		return self::$instance;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Gets the arguments to call a template_*() function with.
+	 *
+	 * Parameters are named for the sake of Plates templates, but a function
+	 * a mod or theme provides may call them something else. Named arguments
+	 * it does not know would be an error, so those are passed in order.
+	 *
+	 * @param string $function The name of the function.
+	 * @param array $params The parameters, named or in order.
+	 * @return array The arguments.
+	 */
+	protected function argumentsFor(string $function, array $params): array
+	{
+		if (array_is_list($params)) {
+			return $params;
+		}
+
+		$names = array_map(fn($param) => $param->getName(), (new \ReflectionFunction($function))->getParameters());
+
+		return array_diff(array_keys($params), $names) === [] ? $params : array_values($params);
 	}
 }
