@@ -86,7 +86,7 @@ div#admin_content
     ul.theme_options
       li.flow_hidden.windowbg
         span.floatleft
-          "Admin.template.php"
+          "templates/Admin/"
           span.error
             "(already exists)"
         span.floatright
@@ -102,7 +102,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "BoardIndex.template.php"
+          "templates/BoardIndex/"
           span.error
             "(already exists)"
         span.floatright
@@ -142,7 +142,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "EventEditor.template.php"
+          "templates/EventEditor/"
           span.error
             "(already exists)"
         span.floatright
@@ -294,7 +294,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ManagePermissions.template.php"
+          "templates/ManagePermissions/"
           span.error
             "(already exists)"
         span.floatright
@@ -334,7 +334,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "MessageIndex.template.php"
+          "templates/MessageIndex/"
           span.error
             "(already exists)"
         span.floatright
@@ -342,7 +342,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "ModerationCenter.template.php"
+          "templates/ModerationCenter/"
           span.error
             "(already exists)"
         span.floatright
@@ -406,7 +406,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Profile.template.php"
+          "templates/Profile/"
           span.error
             "(already exists)"
         span.floatright
@@ -502,7 +502,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "TimeZoneSelect.template.php"
+          "templates/TimeZoneSelect/"
           span.error
             "(already exists)"
         span.floatright
