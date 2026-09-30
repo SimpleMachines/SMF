@@ -534,25 +534,10 @@ class Theme
 			DebugUtils::addDebugSource('sub_templates', $template_name);
 		}
 
-		// Determine the template function name and any associated parameters.
-		if (\is_array($sub_template_name)) {
-			$theme_function = 'template_' . $sub_template_name[0];
-			$function_params = $sub_template_name[1] ?? [];
-		} else {
-			$theme_function = 'template_' . $sub_template_name;
-			$function_params = [];
-		}
+		$function_params = \is_array($sub_template_name) ? $sub_template_name[1] ?? [] : [];
 
-		$plates_template = TemplateEngine::get()->find($template_name);
-
-		// A Plates template takes its parameters by name, as variables.
-		if ($plates_template !== null) {
-			echo TemplateEngine::get()->render($plates_template, $function_params);
-		}
-		// Otherwise, attempt to call the sub-template function.
-		elseif (\is_callable($theme_function)) {
-			\call_user_func_array($theme_function, $function_params);
-		} else {
+		// Attempt to render the sub-template, whichever kind of template has it.
+		if (!TemplateEngine::get()->renderSubTemplate($template_name, $function_params)) {
 			// Handle errors based on the $fatal parameter.
 			if ($fatal === false) {
 				ErrorHandler::fatalLang(

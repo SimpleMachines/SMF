@@ -130,6 +130,18 @@ class TemplateEngine
 		}
 
 		$this->engine = Engine::fromTheme(PlatesTheme::hierarchy($themes));
+
+		// So that a template can call another sub-template without knowing
+		// whether it is a Plates template or a template_*() function.
+		$this->engine->registerFunction(
+			'subTemplate',
+			function (string $name, array $params = []): void {
+				if (!$this->renderSubTemplate($name, $params)) {
+					throw new \Error('Call to undefined sub-template ' . $name);
+				}
+			},
+		);
+		$this->engine->registerFunction('hasSubTemplate', $this->hasSubTemplate(...));
 	}
 
 	/**
@@ -226,6 +238,45 @@ class TemplateEngine
 	public function render(string $name, array $data = []): string
 	{
 		return $this->engine->render($name, $data);
+	}
+
+	/**
+	 * Outputs a sub-template of any loaded template, whichever kind it is.
+	 *
+	 * @param string $name The name of the sub-template, such as 'button_strip'.
+	 * @param array $params Its parameters. A Plates template receives them as
+	 *    variables, so they must be named. A template_*() function receives
+	 *    them as arguments, named or in order.
+	 * @return bool Whether there was such a sub-template.
+	 */
+	public function renderSubTemplate(string $name, array $params = []): bool
+	{
+		$plates_template = $this->find($name);
+
+		if ($plates_template !== null) {
+			echo $this->render($plates_template, $params);
+
+			return true;
+		}
+
+		if (\is_callable('template_' . $name)) {
+			\call_user_func_array('template_' . $name, $params);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks whether any loaded template has a sub-template, of either kind.
+	 *
+	 * @param string $name The name of the sub-template, such as 'button_strip'.
+	 * @return bool Whether it does.
+	 */
+	public function hasSubTemplate(string $name): bool
+	{
+		return $this->find($name) !== null || \function_exists('template_' . $name);
 	}
 
 	/***********************

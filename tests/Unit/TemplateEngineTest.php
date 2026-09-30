@@ -216,6 +216,76 @@ class TemplateEngineTest extends TestCase
 		$this->assertSame('child main', $engine->render($engine->find('main')));
 	}
 
+	/**
+	 * A template calls another sub-template the same way whether that one has
+	 * been converted to Plates yet or is still a template_*() function.
+	 */
+	public function testATemplateCallsSubTemplatesOfEitherKind(): void
+	{
+		$this->write($this->default, 'Stats/main.php', '<?php $this->subTemplate(\'greeting\', [\'name\' => \'Plates\']) ?>, <?php $this->subTemplate(\'engine_test_greeting\', [\'name\' => \'function\']) ?>');
+		$this->write($this->default, 'Stats/greeting.php', 'hello <?= $name ?>');
+		$legacy = $this->write($this->default, '../Greeting.template.php', '<?php function template_engine_test_greeting(string $name): void { echo "hi ", $name; }');
+
+		require_once $legacy;
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Greeting', $legacy);
+		$engine->addLoaded('Stats');
+
+		$this->assertSame('hello Plates, hi function', $engine->render('Stats/main'));
+	}
+
+	public function testHasSubTemplateSeesEitherKind(): void
+	{
+		$this->write($this->default, 'Stats/main.php', '<?= $this->hasSubTemplate(\'main\') ? \'yes\' : \'no\' ?>');
+		$legacy = $this->write($this->default, '../Has.template.php', '<?php function template_engine_test_has(): void {}');
+
+		require_once $legacy;
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Has', $legacy);
+		$engine->addLoaded('Stats');
+
+		$this->assertTrue($engine->hasSubTemplate('main'));
+		$this->assertTrue($engine->hasSubTemplate('engine_test_has'));
+		$this->assertFalse($engine->hasSubTemplate('no_such_sub_template'));
+		$this->assertSame('yes', $engine->render('Stats/main'));
+	}
+
+	/**
+	 * Calling a function that does not exist is an error, and so is calling a
+	 * sub-template that does not exist.
+	 */
+	public function testCallingAMissingSubTemplateIsAnError(): void
+	{
+		$this->write($this->default, 'Stats/main.php', '<?php $this->subTemplate(\'no_such_sub_template\') ?>');
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Stats');
+
+		$this->expectException(\Error::class);
+		$this->expectExceptionMessage('no_such_sub_template');
+
+		$engine->render('Stats/main');
+	}
+
+	public function testRenderSubTemplateOutputsWhatItFinds(): void
+	{
+		$this->write($this->default, 'Stats/main.php', 'stats page');
+
+		$engine = new TemplateEngine([$this->default]);
+		$engine->addLoaded('Stats');
+
+		ob_start();
+		$found = $engine->renderSubTemplate('main');
+		$missing = $engine->renderSubTemplate('no_such_sub_template');
+		$output = ob_get_clean();
+
+		$this->assertTrue($found);
+		$this->assertFalse($missing);
+		$this->assertSame('stats page', $output);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
