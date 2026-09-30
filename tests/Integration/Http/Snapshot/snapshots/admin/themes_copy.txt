@@ -486,7 +486,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Stats.template.php"
+          "templates/Stats/"
           span.error
             "(already exists)"
         span.floatright
