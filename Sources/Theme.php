@@ -381,6 +381,25 @@ class Theme
 	}
 
 	/**
+	 * Gets the file that holds a theme's own template_init().
+	 *
+	 * The admin panel reads a theme's variants out of it without running it.
+	 *
+	 * @param string $theme_dir The theme's directory.
+	 * @return ?string The file, or null if the theme has none of its own.
+	 */
+	public static function templateInitFile(string $theme_dir): ?string
+	{
+		foreach (['/index.template.php', '/' . TemplateEngine::DIRECTORY . '/index/init.php'] as $file) {
+			if (file_exists($theme_dir . $file)) {
+				return $theme_dir . $file;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Loads a template - if the theme doesn't include it, uses the default.
 	 *
 	 *  - Loads a template file with the name template_name from the current,

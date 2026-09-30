@@ -194,10 +194,7 @@ $list_of_viewers = [
 				<a class="button mobile_act"><?= Lang::getTxt('mobile_action', file: 'General') ?></a>
 			</div><?php endif; ?>
 
-	</div><?php endif; ?><?php
-// Show breadcrumbs at the bottom too.
-theme_linktree();
-?>
+	</div><?php endif; ?><?php /* Show breadcrumbs at the bottom too. */ ?><?php $this->subTemplate('linktree'); ?>
 
 	<script>
 		window.addEventListener("DOMContentLoaded", function() {<?php if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move']): ?>

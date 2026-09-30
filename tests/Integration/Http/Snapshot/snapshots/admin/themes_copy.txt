@@ -182,7 +182,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "index.template.php"
+          "templates/index/"
           span.error
             "(already exists)"
         span.floatright
@@ -518,7 +518,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "Xml.template.php"
+          "templates/Xml/"
           span.error
             "(already exists)"
         span.floatright
