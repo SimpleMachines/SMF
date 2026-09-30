@@ -24,16 +24,13 @@ if (!defined('SMF')) {
  * Shows a legend for topic icons.
  */
 ?>
-
 	<div class="tborder" id="topic_icons">
 		<div class="information">
 			<p id="message_index_jump_to"></p>
 <?php if (empty(Utils::$context['no_topic_listing'])): ?>
 			<p class="floatleft"><?= !empty(Config::$modSettings['enableParticipation']) && !User::$me->is_guest ? '
 				<span class="main_icons profile_sm"></span> ' . Lang::getTxt('participation_caption', file: 'General') . '<br>' : '' ?>
-
 				<?= (Config::$modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . Lang::getTxt('poll', file: 'General') . '<br>' : '') ?>
-
 				<span class="main_icons move"></span> <?= Lang::getTxt('moved_topic', file: 'General') ?><br>
 			</p>
 			<p>

@@ -30,17 +30,14 @@ if (!defined('SMF')) {
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=helpadmin;help=themes_manage" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a>
 				<?= Lang::getTxt('themeadmin_install_title', file: 'Themes') ?>
-
 			</h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('themeadmin_explain', file: 'Themes') ?>
-
 		</div>
 		<form action="<?= Config::$scripturl ?>?action=admin;area=theme;sa=admin" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('settings', file: 'General') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -103,19 +100,16 @@ if (!defined('SMF')) {
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Lang::getTxt('theme_adding_title', file: 'Themes') ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">
 			<?= Lang::getTxt('theme_adding', file: 'Themes') ?>
-
 		</div>
 <?php /* All the install options. */ ?>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('theme_install', file: 'Themes') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">

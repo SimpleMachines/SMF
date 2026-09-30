@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Before showing users a registration form, show them the registration agreement.
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=signup" method="post" accept-charset="UTF-8" id="registration">
 <?php if (!empty(Utils::$context['agreement'])): ?>
 			<div class="cat_bar">

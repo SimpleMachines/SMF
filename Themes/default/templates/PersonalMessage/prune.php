@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * This template asks the user what messages they want to prune.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_prune', file: 'PersonalMessage') ?></h3>
 		</div>

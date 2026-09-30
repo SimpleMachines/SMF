@@ -25,7 +25,6 @@ if (!defined('SMF')) {
  * Template for a user to edit/pick their subscriptions.
  */
 ?>
-
 	<div id="paid_subscription">
 		<form action="<?= Config::$scripturl ?>?action=profile;u=<?= Utils::$context['id_member'] ?>;area=subscriptions;confirm" method="post">
 			<div class="cat_bar">
@@ -34,12 +33,10 @@ if (!defined('SMF')) {
 <?php if (empty(Utils::$context['subscriptions'])): ?>
 			<div class="information">
 				<?= Lang::getTxt('paid_subs_none', file: 'ManagePaid') ?>
-
 			</div>
 <?php else: ?>
 			<div class="information">
 				<?= Lang::getTxt('paid_subs_desc', file: 'ManagePaid') ?>
-
 			</div><?php /* Print out all the subscriptions. */ ?>
 
 <?php foreach (Utils::$context['subscriptions'] as $id => $subscription): ?>
@@ -84,7 +81,6 @@ if (!defined('SMF')) {
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('paid_current_desc', file: 'ManagePaid') ?>
-
 		</div>
 		<table class="table_grid">
 			<thead>
@@ -100,7 +96,6 @@ if (!defined('SMF')) {
 				<tr class="windowbg">
 					<td colspan="4">
 						<?= Lang::getTxt('paid_none_yet', file: 'ManagePaid') ?>
-
 					</td>
 				</tr>
 <?php endif; ?>
@@ -109,7 +104,6 @@ if (!defined('SMF')) {
 				<tr class="windowbg">
 					<td>
 						<?= (User::$me->is_admin ? '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $sub['id'] . '">' . $sub['name'] . '</a>' : $sub['name']) ?>
-
 					</td>
 					<td>
 						<span style="color: <?= ($sub['status'] == 2 ? 'green' : ($sub['status'] == 1 ? 'red' : 'orange')) ?>"><strong><?= $sub['status_text'] ?></strong></span>

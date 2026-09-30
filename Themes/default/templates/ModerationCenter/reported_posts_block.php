@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A list of reported posts
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=moderate;area=reportedposts" id="reported_posts_link"><?= Lang::getTxt('mc_recent_reports', file: 'ModerationCenter') ?></a>

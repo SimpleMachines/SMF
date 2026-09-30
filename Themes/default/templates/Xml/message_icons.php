@@ -23,7 +23,6 @@ if (!defined('SMF')) {
 ?><?= '<?xml version="1.0" encoding="UTF-8"?>' ?>
 
 <smf><?php foreach (Utils::$context['icons'] as $icon): ?>
-
 	<icon value="<?= $icon['value'] ?>" url="<?= $icon['url'] ?>"><![CDATA[<?= Utils::cleanXml($icon['name']) ?>]]></icon><?php endforeach; ?>
 
 </smf>

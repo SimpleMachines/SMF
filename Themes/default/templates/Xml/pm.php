@@ -29,14 +29,11 @@ if (!defined('SMF')) {
 		<body><![CDATA[<?= Utils::$context['preview_message'] ?>]]></body>
 	</preview>
 	<errors serious="<?= empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1' ?>"><?php if (!empty(Utils::$context['post_error']['messages'])): ?><?php foreach (Utils::$context['post_error']['messages'] as $message): ?>
-
 		<error><![CDATA[<?= Utils::cleanXml($message) ?>]]></error><?php endforeach; ?><?php endif; ?>
-
 		<caption name="to" class="<?= isset(Utils::$context['post_error']['no_to']) ? 'error' : '' ?>" />
 		<caption name="bbc" class="<?= isset(Utils::$context['post_error']['no_bbc']) ? 'error' : '' ?>" />
 		<caption name="subject" class="<?= isset(Utils::$context['post_error']['no_subject']) ? 'error' : '' ?>" />
 		<caption name="question" class="<?= isset(Utils::$context['post_error']['no_question']) ? 'error' : '' ?>" /><?= isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? '
 		<post_error />' : '' ?>
-
 	</errors>
 </smf>

@@ -19,5 +19,4 @@ if (!defined('SMF')) {
  * Displays a binary clock
  */
 ?><?php $this->subTemplate('geek_clock', ['style' => 'omfg', 'title' => 'OMFG Binary Clock']); ?>
-
 		</div><!-- .roundframe -->

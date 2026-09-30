@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Add a new membergroup.
  */
 ?>
-
 		<form id="new_group" action="<?= Config::$scripturl ?>?action=admin;area=membergroups;sa=add" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('membergroups_new_group', file: 'Admin') ?></h3>
@@ -103,10 +102,8 @@ if (!defined('SMF')) {
 					<dt>
 						<strong><?= Lang::getTxt('membergroups_new_board', file: 'ManageMembers') ?></strong><?= Utils::$context['post_group'] ? '<br>
 						<span class="smalltext">' . Lang::getTxt('membergroups_new_board_post_groups', file: 'ManageMembers') . '</span>' : '' ?>
-
 					</dt>
 					<dd><?php $this->subTemplate('add_edit_group_boards_list', ['collapse' => false]); ?>
-
 					</dd>
 				</dl>
 				<input type="submit" value="<?= Lang::getTxt('membergroups_add_group', file: 'Admin') ?>" class="button">

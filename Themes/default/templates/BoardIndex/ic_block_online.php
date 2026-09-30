@@ -25,11 +25,9 @@ if (!defined('SMF')) {
  * The who's online section of the info center
  */
 ?><?php /* "Users online" - in order of activity. */ ?>
-
 			<div class="sub_bar">
 				<h4 class="subbg">
 					<?= Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '' ?><span class="main_icons people"></span> <?= Lang::getTxt('online_users', file: 'General') ?><?= Utils::$context['show_who'] ? '</a>' : '' ?>
-
 				</h4>
 			</div>
 			<p class="inline">
@@ -41,9 +39,6 @@ $bracketList = [];
 
 				&nbsp;-&nbsp;<?= Lang::getTxt('most_online_today', file: 'General') ?>: <strong><?= Lang::numberFormat(Config::$modSettings['mostOnlineToday']) ?></strong>&nbsp;-&nbsp;
 				<?= Lang::getTxt('most_online_ever', file: 'General') ?>: <?= Lang::numberFormat(Config::$modSettings['mostOnline']) ?> (<?= Time::create('@' . Config::$modSettings['mostDate'])->format() ?>)<br><?php /* Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link. */ ?><?php if (!empty(Utils::$context['users_online'])): ?>
-
 				<?= Lang::getTxt('users_active', ['minutes' => Config::$modSettings['lastActive'], 'list' => Lang::sentenceList(Utils::$context['list_users_online'])], file: 'General') ?><?php /* Showing membergroups? */ ?><?php if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups'])): ?>
-
 				<span class="membergroups"><?= implode(', ', Utils::$context['membergroups']) ?></span><?php endif; ?><?php endif; ?>
-
 			</p>

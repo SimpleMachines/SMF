@@ -22,11 +22,9 @@ if (!defined('SMF')) {
  * This lets you browse a list of files in a theme so you can choose which one to edit.
  */
 ?><?php if (!empty(Utils::$context['browse_title'])): ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Utils::$context['browse_title'] ?></h3>
 		</div><?php endif; ?>
-
 		<table class="table_grid tborder">
 			<thead>
 				<tr class="title_bar">
@@ -36,18 +34,13 @@ if (!defined('SMF')) {
 				</tr>
 			</thead>
 			<tbody><?php foreach (Utils::$context['theme_files'] as $file): ?>
-
 				<tr class="windowbg">
 					<td><?php if ($file['is_editable']): ?>
-
 						<a href="<?= $file['href'] ?>"<?= $file['is_template'] ? ' style="font-weight: bold;"' : '' ?>><?= $file['filename'] ?></a><?php elseif ($file['is_directory']): ?>
-
 						<a href="<?= $file['href'] ?>" class="is_directory"><span class="main_icons folder"></span><?= $file['filename'] ?></a><?php else: ?><?= $file['filename'] ?><?php endif; ?>
-
 					</td>
 					<td class="righttext"><?= !empty($file['last_modified']) ? $file['last_modified'] : '' ?></td>
 					<td class="righttext"><?= $file['size'] ?></td>
 				</tr><?php endforeach; ?>
-
 			</tbody>
 		</table>

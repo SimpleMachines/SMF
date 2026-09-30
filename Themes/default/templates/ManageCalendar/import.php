@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Importing iCalendar data.
  */
 ?><?php /* Show a form for all the holiday information. */ ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=managecalendar;sa=import" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Utils::$context['page_title'] ?></h3>
@@ -45,12 +44,10 @@ if (!defined('SMF')) {
 						<label>
 							<input type="radio" name="type" value="holiday" checked>
 							<?= Lang::getTxt('calendar_import_type_holiday', file: 'ManageCalendar') ?>
-
 						</label>
 						<label>
 							<input type="radio" name="type" value="event">
 							<?= Lang::getTxt('calendar_import_type_event', file: 'ManageCalendar') ?>
-
 						</label>
 					</dd>
 					<dt>

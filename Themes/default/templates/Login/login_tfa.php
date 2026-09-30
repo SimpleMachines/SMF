@@ -23,19 +23,16 @@ if (!defined('SMF')) {
  * TFA authentication form
  */
 ?>
-
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('tfa_profile_label', file: 'Profile') ?>
-
 				</h3>
 			</div>
 			<div class="roundframe">
 <?php if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error'])): ?>
 				<div class="error">
 					<?= Lang::getTxt('tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid', file: 'Profile') ?>
-
 				</div>
 <?php endif; ?>
 				<form action="<?= Utils::$context['tfa_url'] ?>" method="post" id="frmTfa">

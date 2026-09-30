@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Displays a clock
  */
 ?><?php $this->subTemplate('geek_clock', ['style' => 'bcd', 'title' => 'BCD Clock']); ?>
-
 			<div class="centertext">
 				<a href="<?= Config::$scripturl ?>?action=clock;rb" class="button">Are you hardcore?</a>
 			</div>

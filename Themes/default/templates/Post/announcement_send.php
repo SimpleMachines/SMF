@@ -23,13 +23,11 @@ if (!defined('SMF')) {
  * The confirmation/progress page, displayed after the admin has clicked the button to send the announcement.
  */
 ?>
-
 	<div id="announcement">
 		<form action="<?= Config::$scripturl ?>?action=announce;sa=send" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg">
 				<p>
 					<?= Lang::getTxt('announce_sending', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0" target="_blank" rel="noopener">' . Utils::$context['topic_subject'] . '</a>'], file: 'Post') ?>
-
 				</p>
 				<div class="progress_bar">
 					<span><?= Lang::getTxt('announce_done', Utils::$context, file: 'Post') ?></span>

@@ -23,17 +23,12 @@ if (!defined('SMF')) {
  * This allows you to edit a file
  */
 ?><?php if (Utils::$context['session_error']): ?>
-
 	<div class="errorbox">
 		<?= Lang::getTxt('error_session_timeout', file: 'Errors') ?>
-
 	</div><?php endif; ?><?php /* Is this file writeable? */ ?><?php if (!Utils::$context['allow_save']): ?>
-
 	<div class="errorbox">
 		<?= Lang::getTxt('theme_edit_no_save', ['filename' => Utils::$context['allow_save_filename']], file: 'Themes') ?>
-
 	</div><?php endif; ?><?php /* Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.) */ ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=theme;th=<?= Utils::$context['theme_id'] ?>;sa=edit" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('theme_edit_file', ['filename' => Utils::$context['edit_filename']], file: 'Themes') ?></h3>
@@ -43,8 +38,6 @@ if (!defined('SMF')) {
 				<input type="submit" name="save" value="<?= Lang::getTxt('theme_edit_save', file: 'Themes') ?>"<?= Utils::$context['allow_save'] ? '' : ' disabled' ?> class="button">
 				<input type="hidden" name="filename" value="<?= Utils::$context['edit_filename'] ?>">
 				<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>"><?php /* Hopefully it exists. */ ?><?php if (isset(Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'])): ?>
-
 				<input type="hidden" name="<?= Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token_var'] ?>" value="<?= Utils::$context['admin-te-' . md5(Utils::$context['theme_id'] . '-' . Utils::$context['edit_filename']) . '_token'] ?>"><?php endif; ?>
-
 			</div><!-- .windowbg -->
 		</form>

@@ -27,31 +27,24 @@ if (!defined('SMF')) {
  * THis displays a fatal error message
  */
 ?><?php if (!empty(Utils::$context['simple_action'])): ?>
-
 	<strong>
 		<?= Utils::$context['error_title'] ?>
-
 	</strong><br>
 	<div <?= Utils::$context['error_code'] ?>class="padding">
 		<?= Utils::$context['error_message'] ?>
-
 	</div><?php else: ?>
-
 	<div id="fatal_error">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Utils::$context['error_title'] ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">
 			<div <?= Utils::$context['error_code'] ?>class="padding">
 				<?= Utils::$context['error_message'] ?>
-
 			</div>
 		</div>
 	</div><?php /* Show a back button */ ?>
-
 	<div class="centertext">
 		<a class="button floatnone" href="<?= Utils::$context['error_link'] ?>"><?= Lang::getTxt('back', file: 'General') ?></a>
 	</div><?php endif; ?>

@@ -123,19 +123,15 @@ if (!defined('SMF')) {
 					margin: 1em 0;
 				}
 			}<?php if (!empty(Config::$modSettings['max_image_width'])): ?>
-
 			.bbc_img {
 				max-width: <?= Config::$modSettings['max_image_width'] ?>px;
 			}<?php endif; ?><?php if (!empty(Config::$modSettings['max_image_height'])): ?>
-
 			.bbc_img {
 				max-height: <?= Config::$modSettings['max_image_height'] ?>px;
 			}<?php endif; ?>
-
 		</style>
 	</head>
 	<body><?php $this->subTemplate('print_options'); ?>
-
 		<h1 id="title"><?= Utils::$context['forum_name_html_safe'] ?></h1>
 		<h2 id="linktree"><?= Utils::$context['category_name'] ?> ▸ <?= (!empty(Utils::$context['parent_boards']) ? implode(' ▸ ', Utils::$context['parent_boards']) . ' ▸ ' : '') ?><?= Utils::$context['board_name'] ?> ▸ <?= Lang::getTxt('started_by_member_time', ['member' => Utils::$context['poster_name'], 'time' => Utils::$context['post_time']], file: 'General') ?></h2>
 		<div id="posts">

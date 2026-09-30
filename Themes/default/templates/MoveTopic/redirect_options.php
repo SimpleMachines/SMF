@@ -25,16 +25,13 @@ if (!defined('SMF')) {
  * @param string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
  */
 ?>
-
 					<label for="postRedirect" class="block">
 						<input type="checkbox" name="postRedirect" id="postRedirect"<?= Utils::$context['is_approved'] ? ' checked' : '' ?> onclick="<?= Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . Lang::getTxt($type . '_topic_unapproved_js', file: 'General') . '\')) return false; ' ?>document.getElementById('reasonArea').classList.toggle('hidden');"> <?= Lang::getTxt('post_redirection', file: 'General') ?>
-
 					</label>
 					<fieldset id="reasonArea"<?= Utils::$context['is_approved'] ? '' : 'class="hidden"' ?>>
 						<dl class="settings">
 							<dt>
 								<?= Lang::getTxt($type . '_why', file: 'General') ?>
-
 							</dt>
 							<dd>
 								<textarea name="reason"><?= Lang::getTxt($type . 'topic_default', ['board_link' => Lang::getTxt('movetopic_auto_board', file: 'General'), 'topic_link' => Lang::getTxt('movetopic_auto_topic', file: 'General')]) ?></textarea>
@@ -48,7 +45,6 @@ if (!defined('SMF')) {
 <?php if (!empty(Config::$modSettings['allow_expire_redirect'])): ?>
 							<dt>
 								<?= Lang::getTxt('redirect_topic_expires', file: 'General') ?>
-
 							</dt>
 							<dd>
 								<select name="redirect_expires">

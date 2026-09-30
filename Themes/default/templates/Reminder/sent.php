@@ -21,7 +21,6 @@ if (!defined('SMF')) {
  * Just a simple "We sent you an email. Click the link in it to continue." message
  */
 ?>
-
 		<br>
 		<div class="tborder login" id="reminder_sent">
 			<div class="cat_bar">

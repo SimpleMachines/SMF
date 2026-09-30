@@ -25,31 +25,22 @@ if (!defined('SMF')) {
  * @return bool False if nothing to do.
  */
 ?><?php /* Nothing to do? Brilliant! */ ?><?php if (empty(Utils::$context['package_ftp'])): ?><?php return false; ?><?php endif; ?><?php if (empty(Utils::$context['package_ftp']['form_elements_only'])): ?>
-
 				<?= Lang::getTxt('package_ftp_why', ['onclick' => 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'], file: 'Packages') ?><br>
 				<div id="need_writable_list" class="smalltext">
 					<?= Lang::getTxt('package_ftp_why_file_list', file: 'Packages') ?>
-
 					<ul style="display: inline;"><?php if (!empty(Utils::$context['notwritable_files'])): ?><?php foreach (Utils::$context['notwritable_files'] as $file): ?>
-
 						<li><?= $file ?></li><?php endforeach; ?><?php endif; ?>
-
 					</ul><?php if (!Sapi::isOS(Sapi::OS_WINDOWS)): ?>
-
 					<hr>
 					<?= Lang::getTxt('package_chmod_linux', file: 'Packages') ?><br>
 					<samp># chmod a+w <?= implode(' ', Utils::$context['notwritable_files']) ?></samp><?php endif; ?>
-
 				</div><!-- #need_writable_list --><?php endif; ?>
-
 				<div class="bordercolor" id="ftp_error_div" style="<?= (!empty(Utils::$context['package_ftp']['error']) ? '' : 'display:none;') ?>padding: 1px; margin: 1ex;">
 					<div class="windowbg" id="ftp_error_innerdiv" style="padding: 1ex;">
 						<samp id="ftp_error_message"><?= !empty(Utils::$context['package_ftp']['error']) ? Utils::$context['package_ftp']['error'] : '' ?></samp>
 					</div>
 				</div><?php if (!empty(Utils::$context['package_ftp']['destination'])): ?>
-
 				<form action="<?= Utils::$context['package_ftp']['destination'] ?>" method="post" accept-charset="UTF-8"><?php endif; ?>
-
 					<fieldset>
 					<dl class="settings">
 						<dt>
@@ -80,19 +71,15 @@ if (!defined('SMF')) {
 						</dd>
 					</dl>
 					</fieldset><?php if (empty(Utils::$context['package_ftp']['form_elements_only'])): ?>
-
 					<div class="righttext" style="margin: 1ex;">
 						<span id="test_ftp_placeholder_full"></span>
 						<input type="submit" value="<?= Lang::getTxt('package_proceed', file: 'Packages') ?>" class="button">
 					</div><?php endif; ?><?php if (!empty(Utils::$context['package_ftp']['destination'])): ?>
-
 					<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
 				</form><?php endif; ?><?php /* Hide the details of the list. */ ?><?php if (empty(Utils::$context['package_ftp']['form_elements_only'])): ?>
-
 				<script>
 					document.getElementById('need_writable_list').style.display = 'none';
 				</script><?php endif; ?><?php /* Quick generate the test button. */ ?>
-
 				<script>
 					// Generate a "test ftp" button.
 					var generatedButton = false;

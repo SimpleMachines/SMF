@@ -44,10 +44,8 @@ if (!defined('SMF')) {
 <?php foreach ($section['groups'] as $group): ?>
 				<dt>
 					<?= isset($group['title']) ? '<strong>' . $group['title'] . '</strong>' : '' ?>
-
 				</dt>
 				<dd><?= Lang::getTxt('credits_list', ['names' => Lang::sentenceList($group['members'])], file: 'Who') ?>
-
 				</dd>
 <?php endforeach; ?>
 			</dl>
@@ -106,6 +104,5 @@ if (!defined('SMF')) {
 		</div>
 		<div class="windowbg">
 			<?= Utils::$context['copyrights']['smf'] ?>
-
 		</div>
 	</div><!-- #credits -->

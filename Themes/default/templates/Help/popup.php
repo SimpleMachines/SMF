@@ -27,10 +27,8 @@ if (!defined('SMF')) {
 // comes back inside an overlay on the page it was called from. There is no
 // window to close in that case, and no use for a document of its own.
 ?><?php if (isset($_REQUEST['ajax'])): ?>
-
 		<div class="windowbg description">
 			<?= Utils::$context['help_text'] ?>
-
 		</div><?php return; ?><?php endif; ?><?php /* Otherwise this really is a window of its own, so it needs the html. */ ?><!DOCTYPE html>
 <html<?= Utils::$context['right_to_left'] ? ' dir="rtl"' : '' ?>>
 	<head>
@@ -38,7 +36,6 @@ if (!defined('SMF')) {
 		<meta name="robots" content="noindex">
 		<title><?= Utils::$context['page_title'] ?></title>
 		<?= Theme::template_css() ?>
-
 		<script src="<?= Theme::$current->settings['default_theme_url'] ?>/scripts/script.js<?= Utils::$context['browser_cache'] ?>"></script>
 	</head>
 	<body id="help_popup">

@@ -23,18 +23,15 @@ if (!defined('SMF')) {
  * List all packages
  */
 ?>
-
 		<div id="update_section"></div>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= Lang::getTxt('packages_adding_title', file: 'Packages') ?>
-
 				</h3>
 			</div>
 			<div class="information">
 				<?= Lang::getTxt('packages_adding', file: 'Packages') ?>
-
 			</div>
 
 			<script>
@@ -46,9 +43,7 @@ if (!defined('SMF')) {
 				window.smfVersion = "<?= Utils::$context['forum_version'] ?>";
 			</script>
 			<div id="yourVersion" style="display:none"><?= Utils::$context['forum_version'] ?></div><?php if (empty(Config::$modSettings['disable_smf_js'])): ?>
-
 			<script src="<?= Config::$scripturl ?>?action=viewsmfile;filename=latest-news.js"></script><?php endif; ?><?php /* This sets the announcements and current versions themselves ;). */ ?>
-
 			<script>
 				var oAdminIndex = new smf_AdminIndex({
 					bLoadAnnouncements: false,
@@ -70,11 +65,8 @@ if (!defined('SMF')) {
 				});
 			</script>
 		</div><!-- #admin_form_wrapper --><?php if (Utils::$context['available_packages'] == 0): ?>
-
 		<div class="noticebox"><?= Lang::getTxt('no_packages', file: 'Packages') ?></div><?php else: ?><?php foreach (Utils::$context['modification_types'] as $type): ?><?php if (!empty(Utils::$context['packages_lists_' . $type]['rows'])): ?><?php $this->subTemplate('show_list', ['list_id' => 'packages_lists_' . $type]); ?><?php endif; ?><?php endforeach; ?>
-
 		<br><?php endif; ?><?php /* The advanced (emulation) box, collapsed by default */ ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=packages;sa=browse" method="get">
 			<div id="advanced_box">
 				<div class="cat_bar">
@@ -86,7 +78,6 @@ if (!defined('SMF')) {
 				<div id="advanced_panel_div" class="windowbg">
 					<p>
 						<?= Lang::getTxt('package_emulate_desc', file: 'Packages') ?>
-
 					</p>
 					<dl class="settings">
 						<dt>
@@ -98,9 +89,7 @@ if (!defined('SMF')) {
 						<dd>
 							<a id="revert" name="revert"></a>
 							<select name="version_emulate" id="ve"><?php foreach (Utils::$context['emulation_versions'] as $version): ?>
-
 								<option value="<?= $version ?>"<?= ($version == Utils::$context['selected_version'] ? ' selected="selected"' : '') ?>><?= $version ?></option><?php endforeach; ?>
-
 							</select>
 						</dd>
 					</dl>

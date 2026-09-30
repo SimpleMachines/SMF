@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The admin member list.
  */
 ?><?php $this->subTemplate('show_list', ['list_id' => 'approve_list']); ?><?php /* If we have lots of outstanding members try to make the admin's life easier. */ ?><?php if (Utils::$context['approve_list']['total_num_items'] > -1): ?><?php Utils::$context['browse_type'] = 'activate'; ?>
-
 		<br>
 		<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=viewmembers" method="post" accept-charset="UTF-8" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
 			<div class="cat_bar">
@@ -62,7 +61,6 @@ if (!defined('SMF')) {
 						],
 						file: 'ManageMembers',
 					) ?>
-
 				</p>
 				<dl class="settings">
 					<dt>
@@ -72,16 +70,13 @@ if (!defined('SMF')) {
 						<select name="todo">
 							<?= Utils::$context['browse_type'] == 'activate' ? '
 							<option value="ok">' . Lang::getTxt('admin_browse_w_activate', file: 'ManageMembers') . '</option>' : '' ?>
-
 							<option value="okemail"><?= Lang::getTxt(Utils::$context['browse_type'] == 'approve' ? 'admin_browse_w_approve_send_email' : 'admin_browse_w_activate_send_email', file: 'ManageMembers') ?></option><?= Utils::$context['browse_type'] == 'activate' ? '' : '
 							<option value="require_activation">' . Lang::getTxt('admin_browse_w_approve_require_activate', file: 'ManageMembers') . '</option>' ?>
-
 							<option value="reject"><?= Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers') ?></option>
 							<option value="rejectemail"><?= Lang::getTxt('admin_browse_w_reject_send_email', file: 'ManageMembers') ?></option>
 							<option value="delete"><?= Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers') ?></option>
 							<option value="deleteemail"><?= Lang::getTxt('admin_browse_w_delete_send_email', file: 'ManageMembers') ?></option><?= Utils::$context['browse_type'] == 'activate' ? '
 							<option value="remind">' . Lang::getTxt('admin_browse_w_remind', file: 'ManageMembers') . '</option>' : '' ?>
-
 						</select>
 					</dd>
 				</dl>
@@ -92,7 +87,6 @@ if (!defined('SMF')) {
 				<input type="hidden" name="orig_filter" value="<?= Utils::$context['current_filter'] ?>">
 				<input type="hidden" name="sa" value="approve"><?= !empty(Utils::$context['approve_list']['sort']['desc']) ? '
 				<input type="hidden" name="desc" value="1">' : '' ?>
-
 			</div><!-- .windowbg -->
 			<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
 		</form><?php endif; ?>

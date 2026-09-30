@@ -29,7 +29,6 @@ if (!defined('SMF')) {
  * @param array $calendar_data The data for the calendar grid that this is for
  */
 ?>
-
 		<div class="calendar_top roundframe<?= empty($calendar_data['disable_title']) ? ' noup' : '' ?>">
 			<div id="calendar_viewselector" class="buttonrow floatleft">
 				<a href="<?= Config::$scripturl ?>?action=calendar;viewlist;year=<?= Utils::$context['current_year'] ?>;month=<?= Utils::$context['current_month'] ?>;day=<?= Utils::$context['current_day'] ?>" class="button<?= Utils::$context['calendar_view'] == 'viewlist' ? ' active' : '' ?>"><?= Lang::getTxt('calendar_list', file: 'Calendar') ?></a>
@@ -37,7 +36,6 @@ if (!defined('SMF')) {
 				<a href="<?= Config::$scripturl ?>?action=calendar;viewweek;year=<?= Utils::$context['current_year'] ?>;month=<?= Utils::$context['current_month'] ?>;day=<?= Utils::$context['current_day'] ?>" class="button<?= Utils::$context['calendar_view'] == 'viewweek' ? ' active' : '' ?>"><?= Lang::getTxt('calendar_week', file: 'Calendar') ?></a>
 			</div>
 			<?php $this->subTemplate('button_strip', ['button_strip' => Utils::$context['calendar_buttons'], 'direction' => 'right']); ?>
-
 			<form action="<?= Config::$scripturl ?>?action=calendar;<?= Utils::$context['calendar_view'] ?>" id="<?= !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation' ?>" method="post" accept-charset="UTF-8">
 				<input type="date" name="start_date" id="start_date" value="<?= $calendar_data['iso_start_date'] ?>" class="date_input start" data-type="date">
 <?php if (!empty($calendar_data['end_date'])): ?>

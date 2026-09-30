@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The file permissions page.
  */
 ?><?php /* This will handle expanding the selection. */ ?>
-
 	<script>
 		var oRadioValues = {
 			0: "read",
@@ -225,7 +224,6 @@ if (!defined('SMF')) {
 			<div class="smalltext">
 				<ol style="margin-top: 2px; margin-bottom: 2px">
 					<?= Lang::getTxt('package_file_perms_warning_desc', file: 'Packages') ?>
-
 				</ol>
 			</div>
 		</div>
@@ -250,21 +248,16 @@ if (!defined('SMF')) {
 				</tr>
 			</thead>
 			<tbody><?php foreach (Utils::$context['file_tree'] as $name => $dir): ?>
-
 				<tr class="windowbg">
 					<td width="30%">
 						<strong><?php if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive')): ?>
-
 							<span class="main_icons folder"></span><?php endif; ?>
-
 							<?= $name ?>
-
 						</strong>
 					</td>
 					<td width="30%">
 						<span style="color: <?= ($dir['perms']['chmod'] ? 'green' : 'red') ?>"><?= Lang::getTxt($dir['perms']['chmod'] ? 'package_file_perms_writable' : 'package_file_perms_not_writable', file: 'Packages') ?></span>
 						<?= ($dir['perms']['perms'] ? ' (' . Lang::getTxt('package_file_perms_chmod', file: 'Packages') . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : '') ?>
-
 					</td>
 					<td class="centertext perm_read">
 						<input type="radio" name="permStatus[<?= $name ?>]" value="read" class="centertext">
@@ -282,7 +275,6 @@ if (!defined('SMF')) {
 						<input type="radio" name="permStatus[<?= $name ?>]" value="no_change" checked class="centertext">
 					</td>
 				</tr><?php if (!empty($dir['contents'])): ?><?php $this->subTemplate('permission_show_contents', ['ident' => $name, 'contents' => $dir['contents'], 'level' => 1]); ?><?php endif; ?><?php endforeach; ?>
-
 			</tbody>
 		</table>
 		<br>
@@ -313,21 +305,15 @@ if (!defined('SMF')) {
 					</dd>
 				</dl>
 			</fieldset><?php /* Likely to need FTP? */ ?><?php if (empty(Utils::$context['ftp_connected'])): ?>
-
 			<p>
 				<?= Lang::getTxt('package_file_perms_ftp_details', file: 'Packages') ?>
-
 			</p>
 			<?php $this->subTemplate('control_chmod'); ?>
-
 			<div class="noticebox"><?= Lang::getTxt('package_file_perms_ftp_retain', file: 'Packages') ?></div><?php endif; ?>
-
 			<span id="test_ftp_placeholder_full"></span>
 			<input type="hidden" name="action_changes" value="1">
 			<input type="submit" value="<?= Lang::getTxt('package_file_perms_go', file: 'Packages') ?>" name="go" class="button">
 		</div><!-- .windowbg --><?php /* Any looks fors we've already done? */ ?><?php foreach (Utils::$context['look_for'] as $path): ?>
-
 		<input type="hidden" name="back_look[]" value="<?= $path ?>"><?php endforeach; ?>
-
 	</form>
 	<br>

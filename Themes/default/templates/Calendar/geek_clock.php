@@ -29,7 +29,6 @@ if (!defined('SMF')) {
  * @param string $title Heading to put above the clock.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= $title ?></h3>
 		</div>

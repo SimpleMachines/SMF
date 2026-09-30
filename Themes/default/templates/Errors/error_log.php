@@ -23,50 +23,38 @@ if (!defined('SMF')) {
  * This template handles the error log in the admin center.
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;start=<?= Utils::$context['start'] ?><?= Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '' ?>" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="<?= Config::$scripturl ?>?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a> <?= Lang::getTxt('errorlog', file: 'General') ?>
-
 				</h3>
 			</div>
 			<div class="information flow_hidden">
 				<div class="additional_row"><?php /* No errors, so just show a message and be done with it. */ ?><?php if (empty(Utils::$context['errors'])): ?>
-
 					<?= Lang::getTxt('errorlog_no_entries', file: 'Admin') ?>
-
 				</div>
 			</div>
 		</form><?php return; ?><?php endif; ?><?php if (Utils::$context['has_filter']): ?>
-
 				<div class="infobox">
 					<?= Lang::getTxt('applying_filter', ['type' => Utils::$context['filter']['entity'], 'value' => Utils::$context['filter']['value']['html']], file: 'ManageMaintenance') ?>
-
 				</div><?php endif; ?>
-
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="<?= Lang::getTxt('remove_selection', file: 'ManageMaintenance') ?>" data-confirm="<?= Lang::getTxt('remove_selection_confirm', file: 'ManageMaintenance') ?>" class="button you_sure">
 					<input type="submit" name="delall" value="<?= (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results', file: 'ManageMaintenance') : Lang::getTxt('remove_all', file: 'Admin')) ?>" data-confirm="<?= (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results_confirm', file: 'ManageMaintenance') : Lang::getTxt('sure_about_errorlog_remove', file: 'ManageMaintenance')) ?>" class="button you_sure">
 					<?= (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::getTxt('clear_filter', file: 'ManageMaintenance') . '</a>' : '') ?>
-
 				</div><?php $error_types = []; ?><?php foreach (Utils::$context['error_types'] as $type => $details): ?><?php $error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : 'style="font-weight: normal;"') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>'; ?><?php endforeach; ?>
-
 				<?= Lang::getTxt('apply_filter_of_type', ['list' => implode(' | ', $error_types)], file: 'ManageMaintenance') ?>
-
 				</div>
 			</div>
 			<div class="pagesection">
 				<div class="pagelinks">
 					<?= Utils::$context['page_index'] ?>
-
 				</div>
 				<div class="floatright" style="padding: 0 12px">
 					<label for="check_all"><strong><?= Lang::getTxt('check_all', file: 'General') ?></strong></label>
 					<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, 'delete[]');">
 				</div>
 			</div><?php /* We have some errors, must be some mods installed :P */ ?><?php foreach (Utils::$context['errors'] as $error): ?>
-
 			<div class="windowbg word_break">
 				<div class="counter" style="padding: 0 10px 10px 0"><?= $error['id'] ?></div>
 				<div class="topic_details">
@@ -75,7 +63,6 @@ if (!defined('SMF')) {
 					</span>
 					<h5>
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? '' : ';desc' ?><?= Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '' ?>" title="<?= Lang::getTxt('reverse_direction', file: 'ManageMaintenance') ?>"><span class="main_icons sort_<?= Utils::$context['sort_direction'] ?>"></span></a> <?= $error['time'] ?>
-
 					</h5>
 					<hr class="clear">
 				</div>
@@ -83,21 +70,16 @@ if (!defined('SMF')) {
 					<div class="half_content">
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=id_member;value=<?= $error['member']['id'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_member', file: 'ManageMaintenance')]) ?>"><span class="main_icons filter"></span></a>
 						<strong><?= $error['member']['link'] ?></strong><?php if (!empty($error['member']['ip'])): ?>
-
 						<br>
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=ip;value=<?= $error['member']['ip'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_ip', file: 'ManageMaintenance')]) ?>"><span class="main_icons filter"></span></a>
 						<strong><a href="<?= Config::$scripturl ?>?action=trackip;searchip=<?= $error['member']['ip'] ?>"><?= $error['member']['ip'] ?></a></strong><?php endif; ?><?php if (!empty($error['member']['session'])): ?>
-
 						<br>
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=session;value=<?= $error['member']['session'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]) ?>"><span class="main_icons filter"></span></a> <a class="bbc_link" href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=session;value=<?= $error['member']['session'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]) ?>"><?= $error['member']['session'] ?></a><?php endif; ?>
-
 						<br>
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=url;value=<?= $error['url']['href'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_url', file: 'ManageMaintenance')]) ?>"><span class="main_icons filter"></span></a>
 						<a href="<?= $error['url']['html'] ?>" class="bbc_link word_break"><?= $error['url']['html'] ?></a><?php if (!empty($error['file'])): ?>
-
 						<br>
 						<a href="<?= Config::$scripturl ?>?action=admin;area=logs;sa=errorlog<?= Utils::$context['sort_direction'] == 'down' ? ';desc' : '' ?>;filter=file;value=<?= $error['file']['search'] ?>" title="<?= Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_file', file: 'ManageMaintenance')]) ?>"><span class="main_icons filter"></span></a> <?= Lang::getTxt('error_file_and_line', ['file' => '<a class="bbc_link" href="' . $error['file']['href'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $error['file']['file'] . '</a>', 'line' => $error['file']['line']], file: 'ManageMaintenance') ?><?php endif; ?>
-
 					</div>
 					<div class="half_content">
 						<strong class="floatright">
@@ -112,20 +94,16 @@ if (!defined('SMF')) {
 					<div class="codeheader"><?= Lang::getTxt('error_message', file: 'ManageMaintenance') ?></div><pre data-select-txt="<?= Lang::getTxt('code_select', file: 'General') ?>" data-shrink-txt="<?= Lang::getTxt('code_shrink', file: 'General') ?>" data-expand-txt="<?= Lang::getTxt('code_expand', file: 'General') ?>" class="bbc_code" style="white-space: pre-line; overflow-y: auto"><code><?= $error['message']['html'] ?></code></pre>
 				</div>
 			</div><?php endforeach; ?>
-
 			<div class="pagesection">
 				<div class="pagelinks">
 					<?= Utils::$context['page_index'] ?>
-
 				</div>
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="<?= Lang::getTxt('remove_selection', file: 'ManageMaintenance') ?>" data-confirm="<?= Lang::getTxt('remove_selection_confirm', file: 'ManageMaintenance') ?>" class="button you_sure">
 					<input type="submit" name="delall" value="<?= (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results', file: 'ManageMaintenance') : Lang::getTxt('remove_all', file: 'Admin')) ?>" data-confirm="<?= (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results_confirm', file: 'ManageMaintenance') : Lang::getTxt('sure_about_errorlog_remove', file: 'ManageMaintenance')) ?>" class="button you_sure">
 				</div>
 			</div><?php if (Utils::$context['sort_direction'] == 'down'): ?>
-
 			<input type="hidden" name="desc" value="1"><?php endif; ?>
-
 			<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
 			<input type="hidden" name="<?= Utils::$context['admin-el_token_var'] ?>" value="<?= Utils::$context['admin-el_token'] ?>">
 		</form>

@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * The main notification bar.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
 				<?= Lang::getTxt('notify', file: 'General') ?>
-
 			</h3>
 		</div>
 		<div class="roundframe centertext">

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The form for composing a newsletter
  */
 ?>
-
 	<div id="preview_section"<?= isset(Utils::$context['preview_message']) ? '' : ' class="hidden"' ?>>
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -33,7 +32,6 @@ if (!defined('SMF')) {
 		<div class="windowbg">
 			<div class="post" id="preview_body">
 				<?= empty(Utils::$context['preview_message']) ? '<br>' : Utils::$context['preview_message'] ?>
-
 			</div>
 		</div>
 	</div>
@@ -42,12 +40,10 @@ if (!defined('SMF')) {
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="<?= Config::$scripturl ?>?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a> <?= Lang::getTxt('admin_newsletters', file: 'Admin') ?>
-
 				</h3>
 			</div>
 			<div class="information noup">
 				<?= Lang::getTxt('email_variables', ['scripturl' => Config::$scripturl], file: 'Admin') ?>
-
 			</div>
 			<div class="windowbg noup">
 				<div class="<?= empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox' ?>"<?= empty(Utils::$context['post_error']['messages']) ? ' style="display: none"' : '' ?> id="errors">
@@ -57,7 +53,6 @@ if (!defined('SMF')) {
 						</dt>
 						<dd class="error" id="error_list">
 							<?= empty(Utils::$context['post_error']['messages']) ? '' : implode('<br>', Utils::$context['post_error']['messages']) ?>
-
 						</dd>
 					</dl>
 				</div>
@@ -76,7 +71,6 @@ if (!defined('SMF')) {
 <?php endif; ?>
 <?php /* Show BBC buttons, smileys and textbox. */ ?>
 				<?php $this->subTemplate('control_richedit', ['editor_id' => Utils::$context['post_box_name'], 'smiley_container' => 'smileyBox_message', 'bbc_container' => 'bbcBox_message']); ?>
-
 				<ul>
 					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"<?= !empty(Utils::$context['send_pm']) ? ' checked' : '' ?> onclick="checkboxes_status(this);"> <?= Lang::getTxt('email_as_pms', file: 'Admin') ?></label></li>
 					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"<?= !empty(Utils::$context['send_html']) ? ' checked' : '' ?> onclick="checkboxes_status(this);"> <?= Lang::getTxt('email_as_html', file: 'Admin') ?></label></li>
@@ -84,7 +78,6 @@ if (!defined('SMF')) {
 				</ul>
 				<span id="post_confirm_buttons">
 					<?php $this->subTemplate('control_richedit_buttons', ['editor_id' => Utils::$context['post_box_name']]); ?>
-
 				</span>
 			</div><!-- .windowbg -->
 			<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">

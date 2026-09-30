@@ -23,14 +23,12 @@ if (!defined('SMF')) {
  * THe page that shows which permissions profile applies to each board
  */
 ?>
-
 		<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=permissions;sa=board" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('permissions_boards', file: 'Admin') ?></h3>
 			</div>
 			<div class="information">
 				<?= Lang::getTxt('permissions_boards_desc', file: 'ManagePermissions') ?>
-
 			</div>
 
 			<div class="cat_bar">

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The page to pick an option - secret question/answer (if set) or email
  */
 ?>
-
 	<br>
 	<form action="<?= Config::$scripturl ?>?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">

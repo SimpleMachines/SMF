@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Choose which type of report to run?
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('generate_reports_type', file: 'Reports') ?></h3>
 		</div>

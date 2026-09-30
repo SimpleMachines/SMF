@@ -22,12 +22,10 @@ if (!defined('SMF')) {
  * Displays a message indicating the user's notification preferences were successfully changed
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
 				<?= Lang::getTxt('notify', file: 'General') ?>
-
 			</h3>
 		</div>
 		<div class="roundframe centertext">

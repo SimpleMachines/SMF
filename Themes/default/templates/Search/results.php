@@ -23,21 +23,16 @@ if (!defined('SMF')) {
  * The search results page.
  */
 ?><?php if (isset(Utils::$context['did_you_mean']) || empty(Utils::$context['topics']) || !empty(Utils::$context['search_ignored'])): ?>
-
 	<div id="search_results">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Lang::getTxt('search_adjust_query', file: 'Search') ?>
-
 			</h3>
 		</div>
 		<div class="roundframe"><?php /* Did they make any typos or mistakes, perhaps? */ ?><?php if (isset(Utils::$context['did_you_mean'])): ?>
-
 			<p>
 				<?= Lang::getTxt('search_did_you_mean', ['suggested_query' => '<a href="' . Config::$scripturl . '?action=search2;params=' . Utils::$context['did_you_mean_params'] . '">' . Utils::$context['did_you_mean'] . '</a>'], file: 'Search') ?>
-
 			</p><?php endif; ?><?php if (!empty(Utils::$context['search_ignored'])): ?>
-
 			<p>
 				<?= Lang::getTxt(
 				'search_warning_ignored',
@@ -47,21 +42,16 @@ if (!defined('SMF')) {
 				],
 				file: 'Search',
 			) ?>
-
 			</p><?php endif; ?>
-
 			<form action="<?= Config::$scripturl ?>?action=search2" method="post" accept-charset="UTF-8">
 				<strong><?= Lang::getTxt('search_for', file: 'General') ?></strong>
 				<input type="text" name="search"<?= !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '' ?> maxlength="<?= Utils::$context['search_string_limit'] ?>" size="40">
 				<input type="submit" name="edit_search" value="<?= Lang::getTxt('search_adjust_submit', file: 'Search') ?>" class="button"><?php foreach (Utils::$context['hidden_inputs'] as $input): ?><?= "\n\t\t\t\t" ?><?= $input ?><?php endforeach; ?>
-
 			</form>
 		</div><!-- .roundframe -->
 	</div><!-- #search_results --><?php endif; ?><?php if (Utils::$context['compact']): ?>
-
 	<form id="new_search" name="new_search" action="<?= Config::$scripturl ?>?action=search2" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="search"<?= !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '' ?> maxlength="<?= Utils::$context['search_string_limit'] ?>" size="40"><?php foreach (Utils::$context['hidden_inputs'] as $input): ?><?= "\n\t\t" ?><?= $input ?><?php endforeach; ?>
-
 	</form>
 		<div id="display_head" class="information">
 			<h2 class="display_title">
@@ -70,25 +60,19 @@ if (!defined('SMF')) {
 			<div class="floatleft">
 				<a class="button" href="<?= Config::$scripturl ?>?action=search;params=<?= Utils::$context['params'] ?>"><?= Lang::getTxt('search_adjust_query', file: 'Search') ?></a>
 			</div><?php /* Was anything even found? */ ?><?php if (!empty(Utils::$context['topics'])): ?>
-
 			<div class="floatright">
 				<span class="padding"><?= Lang::getTxt('search_order', file: 'Search') ?></span>
 				<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()"><?php foreach (Utils::$context['sort_options'] as $option): ?>
-
 					<option value="<?= $option['value'] ?>"<?= ($option['selected'] ? ' selected' : '') ?>><?= Lang::getTxt($option['label'], file: 'Search') ?></option><?php endforeach; ?>
-
 				</select>
 			</div>
 		</div>
 		<div class="pagesection">
 			<div class="pagelinks"><?= Utils::$context['page_index'] ?></div>
 		</div><?php else: ?>
-
 		</div>
 		<div class="roundframe noup"><?= Lang::getTxt('search_no_results', file: 'General') ?></div><?php endif; ?><?php /* While we have results to show ... */ ?><?php while ($topic = Utils::$context['get_topics']()): ?>
-
 		<div class="<?= $topic['css_class'] ?>"><?php foreach ($topic['matches'] as $message): ?>
-
 			<div class="block">
 				<div class="page_number floatright"> #<?= $message['counter'] ?></div>
 				<div class="half_content">
@@ -98,11 +82,8 @@ if (!defined('SMF')) {
 					</div>
 				</div>
 			</div><!-- .block --><?php if ($message['body_highlighted'] != ''): ?>
-
 			<div class="list_posts word_break"><?= $message['body_highlighted'] ?></div><?php endif; ?><?php endforeach; ?>
-
 		</div><!-- $topic[css_class] --><?php endwhile; ?><?php else: ?>
-
 	<div id="display_head" class="information">
 		<h2 class="display_title">
 			<span><?= Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']], file: 'General') ?></span>
@@ -110,23 +91,18 @@ if (!defined('SMF')) {
 		<div class="floatleft">
 			<a class="button" href="<?= Config::$scripturl ?>?action=search;params=<?= Utils::$context['params'] ?>"><?= Lang::getTxt('search_adjust_query', file: 'Search') ?></a>
 		</div><?php /* Was anything even found? */ ?><?php if (!empty(Utils::$context['topics'])): ?>
-
 		<div class="floatright">
 			<span class="padding"><?= Lang::getTxt('search_order', file: 'Search') ?></span>
 			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()"><?php foreach (Utils::$context['sort_options'] as $option): ?>
-
 				<option value="<?= $option['value'] ?>"<?= ($option['selected'] ? ' selected' : '') ?>><?= Lang::getTxt($option['label'], file: 'Search') ?></option><?php endforeach; ?>
-
 			</select>
 		</div>
 	</div>
 	<div class="pagesection">
 		<div class="pagelinks"><?= Utils::$context['page_index'] ?></div>
 	</div><?php else: ?>
-
 	</div>
 	<div class="roundframe noup"><?= Lang::getTxt('search_no_results', file: 'General') ?></div><?php endif; ?><?php while ($topic = Utils::$context['get_topics']()): ?><?php foreach ($topic['matches'] as $message): ?>
-
 	<div class="<?= $topic['css_class'] ?>">
 		<div class="page_number floatright"> #<?= $message['counter'] ?></div>
 		<div class="topic_details">
@@ -138,11 +114,8 @@ if (!defined('SMF')) {
 		<div class="list_posts"><?= $message['body_highlighted'] ?></div>
 		<br class="clear">
 	</div><!-- $topic[css_class] --><?php endforeach; ?><?php endwhile; ?><?php endif; ?>
-
 	<div class="pagesection"><?php if (!empty(Utils::$context['topics'])): ?>
-
 		<div class="pagelinks"><?= Utils::$context['page_index'] ?></div><?php endif; ?><?php /* Show a jump to box for easy navigation. */ ?>
-
 		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
 		<script>
 			window.addEventListener("DOMContentLoaded", function() {

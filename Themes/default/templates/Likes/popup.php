@@ -29,24 +29,19 @@ if (!defined('SMF')) {
 		<meta name="robots" content="noindex">
 		<title><?= Utils::$context['page_title'] ?></title>
 		<?= Theme::template_css() ?>
-
 		<script src="<?= Theme::$current->settings['default_theme_url'] ?>/scripts/script.js<?= Utils::$context['browser_cache'] ?>"></script>
 	</head>
 	<body id="likes_popup">
 		<div class="windowbg">
 			<ul id="likes"><?php foreach (Utils::$context['likers'] as $liker => $like_details): ?>
-
 				<li>
 					<?= $like_details['profile']['avatar']['image'] ?>
-
 					<span class="like_profile">
 						<?= $like_details['profile']['link_color'] ?>
-
 						<span class="description"><?= $like_details['profile']['group'] ?></span>
 					</span>
 					<span class="floatright like_time"><?= $like_details['time'] ?></span>
 				</li><?php endforeach; ?>
-
 			</ul>
 			<br class="clear">
 			<a href="javascript:self.close();"><?= Lang::getTxt('close_window', file: 'Help') ?></a>

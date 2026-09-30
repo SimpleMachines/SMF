@@ -22,14 +22,12 @@ if (!defined('SMF')) {
  * The "choose payment" dialog.
  */
 ?>
-
 	<div id="paid_subscription">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('paid_confirm_payment', file: 'ManagePaid') ?></h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('paid_confirm_desc', file: 'ManagePaid') ?>
-
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
@@ -38,14 +36,12 @@ if (!defined('SMF')) {
 				</dt>
 				<dd>
 					<?= Utils::$context['sub']['name'] ?>
-
 				</dd>
 				<dt>
 					<strong><?= Lang::getTxt('paid_cost', file: 'ManagePaid') ?></strong>
 				</dt>
 				<dd>
 					<?= Utils::$context['cost'] ?>
-
 				</dd>
 			</dl>
 		</div>

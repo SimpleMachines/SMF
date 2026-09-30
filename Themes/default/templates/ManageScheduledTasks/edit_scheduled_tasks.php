@@ -46,7 +46,6 @@ if (!defined('SMF')) {
 					</dt>
 					<dd>
 						<?= Lang::getTxt('scheduled_task_edit_repeat', file: 'ManageScheduledTasks') ?>
-
 						<input type="number" name="regularity" id="regularity" value="<?= empty(Utils::$context['task']['regularity']) ? 1 : Utils::$context['task']['regularity'] ?>" onchange="if (this.value < 1) this.value = 1;" size="2" min="0">
 						<select name="unit">
 							<option value="m"<?= empty(Utils::$context['task']['unit']) || Utils::$context['task']['unit'] == 'm' ? ' selected' : '' ?>><?= Lang::getTxt('scheduled_task_reg_unit_m', file: 'ManageScheduledTasks') ?></option>

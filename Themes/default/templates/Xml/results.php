@@ -24,11 +24,8 @@ if (!defined('SMF')) {
 ?><?= '<?xml version="1.0" encoding="UTF-8"?>' ?>
 
 <smf><?php if (empty(Utils::$context['topics'])): ?>
-
 		<noresults><?= Lang::getTxt('search_no_results', file: 'General') ?></noresults><?php else: ?>
-
 		<results><?php while ($topic = Utils::$context['get_topics']()): ?>
-
 			<result>
 				<id><?= $topic['id'] ?></id>
 				<relevance><?= $topic['relevance'] ?></relevance>
@@ -43,7 +40,6 @@ if (!defined('SMF')) {
 					<href><?= $topic['category']['href'] ?></href>
 				</category>
 				<messages><?php foreach ($topic['matches'] as $message): ?>
-
 					<message>
 						<id><?= $message['id'] ?></id>
 						<subject><![CDATA[<?= Utils::cleanXml($message['subject_highlighted'] != '' ? $message['subject_highlighted'] : $message['subject']) ?>]]></subject>
@@ -58,10 +54,8 @@ if (!defined('SMF')) {
 							<href><?= $message['member']['href'] ?></href>
 						</author>
 					</message><?php endforeach; ?>
-
 				</messages>
 			</result><?php endwhile; ?>
-
 		</results><?php endif; ?>
 
 </smf>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Create a search index.
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=admin;area=managesearch;sa=createmsgindex;step=1" method="post" accept-charset="UTF-8" name="create_index">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('search_create_index', file: 'Search') ?></h3>

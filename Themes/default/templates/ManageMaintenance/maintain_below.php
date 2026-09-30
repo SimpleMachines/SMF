@@ -15,5 +15,4 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 ?>
-
 	</div><!-- #manage_maintenance -->

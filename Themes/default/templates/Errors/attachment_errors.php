@@ -23,18 +23,15 @@ if (!defined('SMF')) {
  * This template handles showing attachment-related errors
  */
 ?>
-
 	<div>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Utils::$context['error_title'] ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">
 			<div class="padding">
 				<div class="noticebox"><?= Utils::$context['error_message'] ?>
-
 				</div>
 <?php if (!empty(Utils::$context['back_link'])): ?>
 				<a class="button" href="<?= Config::$scripturl ?><?= Utils::$context['back_link'] ?>"><?= Lang::getTxt('back', file: 'General') ?></a>

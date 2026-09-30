@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Confirmation page shown when finished merging topics.
  */
 ?>
-
 		<div id="merge_topics">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('merge', file: 'General') ?></h3>

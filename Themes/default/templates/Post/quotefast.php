@@ -31,7 +31,6 @@ if (!defined('SMF')) {
 	</head>
 	<body>
 		<?= Lang::getTxt('retrieving_quote', file: 'Post') ?>
-
 		<div id="temporary_posting_area" style="display: none;"></div>
 		<script><?php if (Utils::$context['close_window']): ?>
 

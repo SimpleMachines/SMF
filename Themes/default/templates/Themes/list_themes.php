@@ -23,38 +23,29 @@ if (!defined('SMF')) {
  * This lists all themes
  */
 ?><?php /* Show a nice confirmation message. */ ?><?php if (isset($_GET['done'])): ?>
-
 	<div class="infobox">
 		<?= Lang::getTxt('theme_confirmed_' . $_GET['done'], file: 'Themes') ?>
-
 	</div><?php endif; ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('themeadmin_list_heading', file: 'Themes') ?></h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('themeadmin_list_tip', file: 'Themes') ?>
-
 		</div>
 		<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=theme;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;sa=list" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('theme_settings', file: 'Admin') ?></h3>
 			</div>
 			<br><?php /* Show each theme.... with X for delete, an enable/disable link and a link to their own settings page. */ ?><?php foreach (Utils::$context['themes'] as $theme): ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">
 						<?= $theme['name'] ?><?= (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : '') ?>
-
 					</span>
 					<span class="floatright">
 						<?= (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . Config::$scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=list"><span class="main_icons settings"></span></a>' : '') ?><?php /* You *cannot* disable/enable/delete the default theme. It's important! */ ?><?php if ($theme['id'] != 1): ?><?php /* Enable/Disable. */ ?>
-
 						<a href="<?= Config::$scripturl ?>?action=admin;area=theme;sa=enable;th=<?= $theme['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;<?= Utils::$context['admin-tre_token_var'] ?>=<?= Utils::$context['admin-tre_token'] ?><?= (!empty($theme['enable']) ? ';disabled' : '') ?>" data-confirm="<?= Lang::getTxt('theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm', file: 'Themes') ?>" class="you_sure"><span class="main_icons <?= !empty($theme['enable']) ? 'disable' : 'enable' ?>" title="<?= Lang::getTxt('theme_' . (!empty($theme['enable']) ? 'disable' : 'enable'), file: 'Themes') ?>"></span></a><?php /* Deleting. */ ?>
-
 						<a href="<?= Config::$scripturl ?>?action=admin;area=theme;sa=remove;th=<?= $theme['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;<?= Utils::$context['admin-tr_token_var'] ?>=<?= Utils::$context['admin-tr_token'] ?>" data-confirm="<?= Lang::getTxt('theme_remove_confirm', file: 'Themes') ?>" class="you_sure"><span class="main_icons delete" title="<?= Lang::getTxt('theme_remove', file: 'Themes') ?>"></span></a><?php endif; ?>
-
 					</span>
 				</h3>
 			</div><!-- .cat_bar -->
@@ -68,7 +59,6 @@ if (!defined('SMF')) {
 					<dd><?= $theme['images_url'] ?></dd>
 				</dl>
 			</div><?php endforeach; ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('themeadmin_list_reset', file: 'Themes') ?></h3>
 			</div>

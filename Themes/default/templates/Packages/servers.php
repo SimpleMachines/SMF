@@ -24,11 +24,9 @@ if (!defined('SMF')) {
  * List package servers
  */
 ?><?php if (!empty(Utils::$context['package_ftp']['error'])): ?>
-
 	<div class="errorbox">
 		<pre><?= Utils::$context['package_ftp']['error'] ?></pre>
 	</div><?php endif; ?>
-
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('package_upload_title', file: 'Packages') ?></h3>
@@ -52,19 +50,16 @@ if (!defined('SMF')) {
 				<a class="download_new_package">
 					<span class="toggle_down floatright" alt="*" title="<?= Lang::getTxt('show', file: 'General') ?>"></span>
 					<?= Lang::getTxt('download_new_package', file: 'Packages') ?>
-
 				</a>
 			</h3>
 		</div>
 		<div class="new_package_content"><?php if (Utils::$context['package_download_broken']): ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('package_ftp_necessary', file: 'Packages') ?></h3>
 			</div>
 			<div class="windowbg">
 				<p>
 					<?= Lang::getTxt('package_ftp_why_download', file: 'Packages') ?>
-
 				</p>
 				<form action="<?= Config::$scripturl ?>?action=admin;area=packages;get" method="post" accept-charset="UTF-8">
 					<dl class="settings">
@@ -100,19 +95,15 @@ if (!defined('SMF')) {
 					</div>
 				</form>
 			</div><!-- .windowbg --><?php endif; ?>
-
 			<div class="windowbg">
 				<fieldset>
 					<legend><?= Lang::getTxt('package_servers', file: 'Packages') ?></legend>
 					<ul class="package_servers"><?php foreach (Utils::$context['servers'] as $server): ?>
-
 						<li class="flow_auto">
 							<span class="floatleft"><?= $server['name'] ?></span>
 							<span class="package_server floatright"><a href="<?= Config::$scripturl ?>?action=admin;area=packages;get;sa=browse;server=<?= $server['id'] ?>" class="button"><?= Lang::getTxt('package_browse', file: 'Packages') ?></a></span>
 							<?= (!str_ends_with((new Url($server['url']))->host, '.simplemachines.org') ? '<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::getTxt('delete', file: 'General') . '</a></span>' : '') ?>
-
 						</li><?php endforeach; ?>
-
 					</ul>
 				</fieldset>
 				<fieldset>

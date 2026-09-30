@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * This template allows for the selection of different themes ;)
  */
 ?>
-
 	<form action="<?= Config::$scripturl ?>?action=themechooser" method="post" accept-charset="UTF-8">
 <?php /* Just go through each theme and show its information - thumbnail, etc. */ ?>
 <?php for ($i = 0; $i < 2; $i++): ?>
@@ -37,7 +36,6 @@ if (!defined('SMF')) {
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<?= $theme['name'] ?>
-
 				</h3>
 			</div>
 			<div>

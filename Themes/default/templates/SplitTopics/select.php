@@ -24,7 +24,6 @@ if (!defined('SMF')) {
  * The form for selecting which posts to split.
  */
 ?>
-
 	<div id="split_topics">
 		<form action="<?= Config::$scripturl ?>?action=splittopics;sa=splitSelection;board=<?= Utils::$context['current_board'] ?>.0" method="post" accept-charset="UTF-8">
 			<div id="not_selected" class="floatleft">
@@ -33,7 +32,6 @@ if (!defined('SMF')) {
 				</div>
 				<div class="information">
 					<?= Lang::getTxt('please_select_split', file: 'General') ?>
-
 				</div>
 				<div class="pagesection">
 					<div id="pageindex_not_selected" class="pagelinks"><?= Utils::$context['not_selected']['page_index'] ?></div>
@@ -44,7 +42,6 @@ if (!defined('SMF')) {
 						<div class="message_header">
 							<a class="split_icon floatright" href="<?= Config::$scripturl ?>?action=splittopics;sa=selectTopics;subname=<?= Utils::$context['topic']['subject'] ?>;topic=<?= Utils::$context['topic']['id'] ?>.<?= Utils::$context['not_selected']['start'] ?>;start2=<?= Utils::$context['selected']['start'] ?>;move=down;msg=<?= $message['id'] ?>" onclick="return select('down', <?= $message['id'] ?>);"><span class="main_icons split_sel" title="-&gt;"></span></a>
 							<?= Lang::getTxt('post_by_member', $message, file: 'General') ?>
-
 							<em><?= $message['time'] ?></em>
 						</div>
 						<div class="post"><?= Utils::adjustHeadingLevels($message['body'], 3) ?></div>
@@ -56,12 +53,10 @@ if (!defined('SMF')) {
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<?= Lang::getTxt('split_selected_posts', ['reset_link' => '<a href="' . Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . Utils::$context['topic']['subject'] . ';topic=' . Utils::$context['topic']['id'] . '.' . Utils::$context['not_selected']['start'] . ';start2=' . Utils::$context['selected']['start'] . ';move=reset;msg=0" onclick="return select(\'reset\', 0);">' . Lang::getTxt('split_reset_selection', file: 'General') . '</a>']) ?>
-
 					</h3>
 				</div>
 				<div class="information">
 					<?= Lang::getTxt('split_selected_posts_desc', file: 'General') ?>
-
 				</div>
 				<div class="pagesection">
 					<div id="pageindex_selected" class="pagelinks"><?= Utils::$context['selected']['page_index'] ?></div>
@@ -73,7 +68,6 @@ if (!defined('SMF')) {
 						<div class="message_header">
 							<a class="split_icon floatleft" href="<?= Config::$scripturl ?>?action=splittopics;sa=selectTopics;subname=<?= Utils::$context['topic']['subject'] ?>;topic=<?= Utils::$context['topic']['id'] ?>.<?= Utils::$context['not_selected']['start'] ?>;start2=<?= Utils::$context['selected']['start'] ?>;move=up;msg=<?= $message['id'] ?>" onclick="return select('up', <?= $message['id'] ?>);"><span class="main_icons split_desel" title="&lt;-"></span></a>
 							<?= Lang::getTxt('post_by_member', $message, file: 'General') ?>
-
 							<em><?= $message['time'] ?></em>
 						</div>
 						<div class="post"><?= Utils::adjustHeadingLevels($message['body'], 3) ?></div>

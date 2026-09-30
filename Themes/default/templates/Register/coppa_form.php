@@ -34,20 +34,17 @@ if (!defined('SMF')) {
 					<?= Utils::$context['ul'] ?><br>
 					<?= Utils::$context['ul'] ?><br>
 					<?= Utils::$context['ul'] ?>
-
 				</td>
 			</tr>
 			<tr>
 				<td class="righttext">
 					<em><?= Lang::getTxt('coppa_form_date', file: 'Login') ?></em>: <?= Utils::$context['ul'] ?>
-
 					<br><br>
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<?= Utils::$context['coppa_body'] ?>
-
 				</td>
 			</tr>
 		</table>

@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Show... spider... logs...
  */
 ?><?php /* Standard fields. */ ?><?php $this->subTemplate('show_list', ['list_id' => 'spider_logs']); ?>
-
 	<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=sengines;sa=logs" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('spider_logs_delete', file: 'Search') ?></h3>
@@ -31,10 +30,8 @@ if (!defined('SMF')) {
 		<div class="windowbg">
 			<p>
 				<?= Lang::getTxt('spider_logs_delete_older', file: 'Search') ?>
-
 				<input type="text" name="older" id="older" value="7" size="3">
 				<?= Lang::getTxt('spider_logs_delete_day', file: 'Search') ?>
-
 			</p>
 			<input type="submit" name="delete_entries" value="<?= Lang::getTxt('spider_logs_delete_submit', file: 'Search') ?>" onclick="if (document.getElementById('older').value &lt; 1 &amp;&amp; !confirm('<?= addcslashes(Lang::getTxt('spider_logs_delete_confirm', file: 'Search'), "'") ?>')) return false; return true;" class="button">
 			<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">

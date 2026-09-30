@@ -22,7 +22,6 @@ if (!defined('SMF')) {
  * The upper part of the security warning box
  */
 ?>
-
 	<div class="errorbox">
 		<p class="alert">!!</p>
 		<h3><?= Lang::getTxt(!isset(Utils::$context['warnings']['file']) && empty(Utils::$context['auth_secret_missing']) ? 'generic_warning' : 'security_risk', file: 'General') ?></h3>

@@ -24,12 +24,9 @@ if (!defined('SMF')) {
  * Template for the topic maintenance tasks.
  */
 ?><?php /* If maintenance has finished tell the user. */ ?><?php if (!empty(Utils::$context['maintenance_finished'])): ?>
-
 	<div class="infobox">
 		<?= Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin') ?>
-
 	</div><?php endif; ?><?php /* Bit of javascript for showing which boards to prune in an otherwise hidden list. */ ?>
-
 	<script>
 		var rotSwap = false;
 		function swapRot()
@@ -60,10 +57,8 @@ if (!defined('SMF')) {
 		<div class="windowbg">
 			<div class="flow_auto">
 				<form action="<?= Config::$scripturl ?>?action=admin;area=maintain;sa=topics;activity=pruneold" method="post" accept-charset="UTF-8"><?php /* The otherwise hidden "choose which boards to prune". */ ?>
-
 					<p>
 						<a id="rotLink"></a><?= Lang::getTxt('maintain_old_since_days', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">'], file: 'ManageMaintenance') ?>
-
 					</p>
 					<p>
 						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> <?= Lang::getTxt('maintain_old_nothing_else', file: 'ManageMaintenance') ?></label><br>
@@ -82,21 +77,16 @@ if (!defined('SMF')) {
 $middle = ceil(count(Utils::$context['categories']) / 2);
 $i = 0;
 ?><?php foreach (Utils::$context['categories'] as $category): ?>
-
 							<fieldset>
 								<legend><?= $category['name'] ?></legend>
 								<ul><?php /* Display a checkbox with every board. */ ?><?php foreach ($category['boards'] as $board): ?>
-
 									<li style="margin-inline-start: <?= $board['child_level'] * 1.5 ?>em;">
 										<label for="boards_<?= $board['id'] ?>"><input type="checkbox" name="boards[<?= $board['id'] ?>]" id="boards_<?= $board['id'] ?>" checked><?= $board['name'] ?></label>
 									</li><?php endforeach; ?>
-
 								</ul>
 							</fieldset><?php /* Increase $i, and check if we're at the middle yet. */ ?><?php if (++$i == $middle): ?>
-
 						</div><!-- .floatleft -->
 						<div class="floatright" style="width: 49%;"><?php endif; ?><?php endforeach; ?>
-
 						</div>
 					</div><!-- #rotPanel -->
 					<input type="submit" value="<?= Lang::getTxt('maintain_old_remove', file: 'ManageMaintenance') ?>" data-confirm="<?= Lang::getTxt('maintain_old_confirm', file: 'ManageMaintenance') ?>" class="button you_sure">
@@ -113,7 +103,6 @@ $i = 0;
 			<form action="<?= Config::$scripturl ?>?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="UTF-8">
 				<p>
 					<?= Lang::getTxt('maintain_old_drafts_days', ['input_number' => '<input type="number" name="draftdays" value="' . (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30) . '" size="3">'], file: 'ManageMaintenance') ?>
-
 				</p>
 				<input type="submit" value="<?= Lang::getTxt('maintain_old_remove', file: 'ManageMaintenance') ?>" data-confirm="<?= Lang::getTxt('maintain_old_drafts_confirm', file: 'ManageMaintenance') ?>" class="button you_sure">
 				<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
@@ -144,7 +133,6 @@ $board_select = [
 	],
 	file: 'ManageMaintenance',
 ) ?>
-
 				</p>
 				<p>
 					<?= Lang::getTxt('move_topics_older_than', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">'], file: 'ManageMaintenance') ?> (<?= Lang::getTxt('move_zero_all', file: 'ManageMaintenance') ?>)

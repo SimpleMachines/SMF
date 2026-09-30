@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Show all the group requests the user can see.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="<?= Config::$scripturl ?>?action=groups;sa=requests" id="group_requests_link"><?= Lang::getTxt('mc_group_requests', file: 'ModerationCenter') ?></a>
@@ -35,7 +34,6 @@ if (!defined('SMF')) {
 <?php foreach (Utils::$context['group_requests'] as $request): ?>
 				<li class="smalltext">
 					<?= Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']], file: 'ModerationCenter') ?>
-
 				</li>
 <?php endforeach; ?>
 <?php /* Don't have any watched users right now? */ ?>

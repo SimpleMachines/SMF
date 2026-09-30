@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * A simple confirmation that things were split as expected, with links to the current board and the old and new topics.
  */
 ?>
-
 	<div id="split_topics">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('split', file: 'General') ?></h3>

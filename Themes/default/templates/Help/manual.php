@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The main help page
  */
 ?>
-
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('manual_smf_user_help', file: 'Manual') ?></h3>
 			</div>

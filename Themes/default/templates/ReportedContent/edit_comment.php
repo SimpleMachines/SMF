@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Template for editing a mod comment.
  */
 ?>
-
 	<div id="modcenter">
 		<form action="<?= Config::$scripturl ?>?action=moderate;area=reported<?= Utils::$context['report_type'] ?>;sa=editcomment;mid=<?= Utils::$context['comment_id'] ?>;rid=<?= Utils::$context['report_id'] ?>;save" method="post" accept-charset="UTF-8">
 			<br>

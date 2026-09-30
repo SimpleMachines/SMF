@@ -28,7 +28,6 @@ if (!defined('SMF')) {
 		<meta charset="UTF-8">
 		<title><?= Utils::$context['page_title'] ?></title>
 		<?= Theme::template_css() ?>
-
 	</head>
 	<body>
 		<div class="cat_bar">
@@ -44,7 +43,6 @@ if (!defined('SMF')) {
 				</dt>
 				<dd>
 					<?= Utils::adjustHeadingLevels(Utils::$context['notice_body'], 3) ?>
-
 				</dd>
 			</dl>
 		</div>

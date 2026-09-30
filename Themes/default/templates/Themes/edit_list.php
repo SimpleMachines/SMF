@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The page for editing themes.
  */
 ?>
-
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('themeadmin_edit_title', file: 'Admin') ?></h3>
@@ -34,12 +33,10 @@ if (!defined('SMF')) {
 				<legend>
 					<a href="<?= Config::$scripturl ?>?action=admin;area=theme;th=<?= $theme['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;sa=edit"><?= $theme['name'] ?></a><?= !empty($theme['version']) ? '
 					<em>(' . $theme['version'] . ')</em>' : '' ?>
-
 				</legend>
 				<ul>
 					<li><a href="<?= Config::$scripturl ?>?action=admin;area=theme;th=<?= $theme['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;sa=edit"><?= Lang::getTxt('themeadmin_edit_browse', file: 'Themes') ?></a></li><?= $theme['can_edit_style'] ? '
 					<li><a href="' . Config::$scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=css">' . Lang::getTxt('themeadmin_edit_style', file: 'Themes') . '</a></li>' : '' ?>
-
 					<li><a href="<?= Config::$scripturl ?>?action=admin;area=theme;th=<?= $theme['id'] ?>;<?= Utils::$context['session_var'] ?>=<?= Utils::$context['session_id'] ?>;sa=copy"><?= Lang::getTxt('themeadmin_edit_copy_template', file: 'Themes') ?></a></li>
 				</ul>
 			</fieldset>

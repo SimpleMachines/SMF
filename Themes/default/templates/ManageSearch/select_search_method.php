@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Select the search method.
  */
 ?>
-
 	<div class="cat_bar">
 		<h3 class="catbg"><?= Lang::getTxt('search_method', file: 'Admin') ?></h3>
 	</div>
@@ -38,26 +37,21 @@ if (!defined('SMF')) {
 		</div>
 		<div class="windowbg">
 			<dl class="settings"><?php if (!empty(Utils::$context['table_info'])): ?>
-
 				<dt>
 					<strong><?= Lang::getTxt('search_method_messages_table_space', file: 'Search') ?></strong>
 				</dt>
 				<dd>
 					<?= Utils::$context['table_info']['data_length'] ?>
-
 				</dd>
 				<dt>
 					<strong><?= Lang::getTxt('search_method_messages_index_space', file: 'Search') ?></strong>
 				</dt>
 				<dd>
 					<?= Utils::$context['table_info']['index_length'] ?>
-
 				</dd><?php endif; ?>
-
 			</dl>
 			<?= Utils::$context['double_index'] ? '<div class="noticebox">
 			' . Lang::getTxt('search_double_index', file: 'Search') . '</div>' : '' ?>
-
 			<fieldset class="search_settings floatleft">
 				<legend><?= Lang::getTxt('search_index', file: 'Search') ?></legend>
 				<dl>
@@ -65,21 +59,17 @@ if (!defined('SMF')) {
 						<label>
 							<input type="radio" name="search_index" value=""<?= empty(Config::$modSettings['search_index']) ? ' checked' : '' ?>>
 							<?= Lang::getTxt('search_index_none', file: 'Search') ?>
-
 						</label>
 					</dt><?php foreach (Utils::$context['search_apis'] as $api): ?><?php if ($api['has_template'] || $api['instance']->getStatus() === 'hidden'): ?><?php continue; ?><?php endif; ?>
-
 					<hr>
 					<dt>
 						<label>
 							<input type="radio" name="search_index" value="<?= $api['setting_index'] ?>"<?= !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == $api['setting_index'] ? ' checked' : '' ?><?= !in_array($api['instance']->getStatus(), [null, 'exists']) ? ' onclick="alert(\'' . Lang::getTxt('search_index_custom_warning', file: 'Search') . '\'); return false;"' : '' ?>>
 							<?= Lang::txtExists($api['instance']->getLabel(), file: 'Search') ? Lang::getTxt($api['instance']->getLabel(), file: 'Search') : Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['class'], '\\'), 1)], file: 'Search') ?>
-
 						</label>
 					</dt>
 					<dd>
 						<span class="smalltext"><?php if (Lang::txtExists($api['instance']->getDescription(), file: 'Search')): ?><?= Lang::getTxt($api['instance']->getDescription(), file: 'Search') ?><?php endif; ?><?php if ($api['instance']->getStatus() !== null): ?><?php if (Lang::txtExists($api['instance']->getDescription(), file: 'Search')): ?>
-
 						<br><?php endif; ?><?php
 $admin_subactions = $api['instance']->getAdminSubactions();
 
@@ -143,13 +133,10 @@ if (
 			&& !empty($api['instance']->getSize())
 		):
 ?>
-
 						<br>
 						<strong><?= Lang::getTxt('search_index_size', file: 'Search') ?></strong> <?= Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024], file: 'General') ?><?php endif; ?>
-
 						</span>
 					</dd><?php endforeach; ?>
-
 				</dl>
 			</fieldset>
 			<fieldset class="search_settings floatright">

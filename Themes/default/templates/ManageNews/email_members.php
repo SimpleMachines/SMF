@@ -23,16 +23,13 @@ if (!defined('SMF')) {
  * The template for sending newsletters
  */
 ?><?php /* Are we done sending the newsletter? */ ?><?php if (!empty(Utils::$context['newsletter_sent'])): ?>
-
 	<div class="infobox"><?= Lang::getTxt('admin_news_newsletter_' . Utils::$context['newsletter_sent'], file: 'Admin') ?></div><?php endif; ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg"><?= Lang::getTxt('admin_newsletters', file: 'Admin') ?></h3>
 			</div>
 			<div class="information noup">
 				<?= Lang::getTxt('admin_news_select_recipients', file: 'Admin') ?>
-
 			</div>
 			<div class="windowbg noup">
 				<dl class="settings">
@@ -41,9 +38,7 @@ if (!defined('SMF')) {
 						<span class="smalltext"><?= Lang::getTxt('admin_news_select_group_desc', file: 'Admin') ?></span>
 					</dt>
 					<dd><?php foreach (Utils::$context['groups'] as $group): ?>
-
 						<label for="groups_<?= $group['id'] ?>"><input type="checkbox" name="groups[<?= $group['id'] ?>]" id="groups_<?= $group['id'] ?>" value="<?= $group['id'] ?>" checked> <?= $group['name'] ?></label> <em>(<?= $group['member_count'] ?? Lang::getTxt('not_applicable', file: 'General') ?>)</em><br><?php endforeach; ?>
-
 						<br>
 						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, 'groups');"> <em><?= Lang::getTxt('check_all', file: 'General') ?></em></label>
 					</dd>
@@ -79,9 +74,7 @@ if (!defined('SMF')) {
 							<span class="smalltext"><?= Lang::getTxt('admin_news_select_excluded_groups_desc', file: 'Admin') ?></span>
 						</dt>
 						<dd><?php foreach (Utils::$context['groups'] as $group): ?>
-
 							<label for="exclude_groups_<?= $group['id'] ?>"><input type="checkbox" name="exclude_groups[<?= $group['id'] ?>]" id="exclude_groups_<?= $group['id'] ?>" value="<?= $group['id'] ?>"> <?= $group['name'] ?></label> <em>(<?= $group['member_count'] ?>)</em><br><?php endforeach; ?>
-
 							<br>
 							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, 'exclude_groups');"> <em><?= Lang::getTxt('check_all', file: 'General') ?></em></label><br>
 						</dd>
@@ -110,7 +103,6 @@ if (!defined('SMF')) {
 				<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
 			</div><!-- .windowbg -->
 		</form><?php /* This is some javascript for the simple/advanced toggling and member suggest */ ?>
-
 	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,

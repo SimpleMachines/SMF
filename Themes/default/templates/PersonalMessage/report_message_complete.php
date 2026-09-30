@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Little template just to say "Yep, it's been submitted"
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_report_title', file: 'PersonalMessage') ?></h3>
 		</div>

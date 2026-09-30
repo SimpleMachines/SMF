@@ -23,9 +23,7 @@ if (!defined('SMF')) {
  * Template for editing reserved words.
  */
 ?><?php if (!empty(Utils::$context['saved_successful'])): ?>
-
 	<div class="infobox"><?= Lang::getTxt('settings_saved', file: 'Admin') ?></div><?php endif; ?>
-
 	<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=regcenter" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('admin_reserved_set', file: 'Admin') ?></h3>

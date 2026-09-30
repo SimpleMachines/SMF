@@ -23,14 +23,12 @@ if (!defined('SMF')) {
  * Add or edit a search engine spider.
  */
 ?>
-
 	<form id="admin_form_wrapper" action="<?= Config::$scripturl ?>?action=admin;area=sengines;sa=editspiders;sid=<?= Utils::$context['spider']['id'] ?>" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Utils::$context['page_title'] ?></h3>
 		</div>
 		<div class="information noup">
 			<?= Lang::getTxt('add_spider_desc', file: 'Search') ?>
-
 		</div>
 		<div class="windowbg noup">
 			<dl class="settings">

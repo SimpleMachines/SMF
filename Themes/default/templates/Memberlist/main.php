@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * Displays a sortable listing of all members registered on the forum.
  */
 ?>
-
 	<div class="main_section" id="memberlist">
 		<div class="pagesection">
 			<div class="pagelinks floatleft"><?= Utils::$context['page_index'] ?></div>
 			<?php $this->subTemplate('button_strip', ['button_strip' => Utils::$context['memberlist_buttons'], 'direction' => 'right']); ?>
-
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -64,7 +62,6 @@ if (!defined('SMF')) {
 					<tr class="windowbg">
 						<td class="is_online centertext">
 							<?= Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '' ?><span class="<?= ($member['online']['is_online'] == 1 ? 'on' : 'off') ?>" title="<?= $member['online']['text'] ?>"></span><?= Utils::$context['can_send_pm'] ? '</a>' : '' ?>
-
 						</td>
 						<td class="real_name lefttext"><?= $member['link'] ?></td>
 <?php if (!isset(Utils::$context['disabled_fields']['website'])): ?>

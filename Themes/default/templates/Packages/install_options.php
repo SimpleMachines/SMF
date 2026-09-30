@@ -23,15 +23,12 @@ if (!defined('SMF')) {
  * Installation options - FTP info and backup settings
  */
 ?><?php if (!empty(Utils::$context['saved_successful'])): ?>
-
 	<div class="infobox"><?= Lang::getTxt('settings_saved', file: 'Admin') ?></div><?php endif; ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('package_install_options', file: 'Packages') ?></h3>
 		</div>
 		<div class="information noup">
 			<?= Lang::getTxt('package_install_options_ftp_why', file: 'Packages') ?>
-
 		</div>
 		<div class="windowbg noup">
 			<form action="<?= Config::$scripturl ?>?action=admin;area=packages;sa=options" method="post" accept-charset="UTF-8">

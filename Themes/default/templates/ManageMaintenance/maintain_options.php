@@ -26,7 +26,6 @@ if (!defined('SMF')) {
  * description with 'after'.
  */
 ?>
-
 		<form action="<?= Utils::$context['post_url'] ?>" method="post" accept-charset="UTF-8" class="windowbg option_form">
 <?php foreach (Utils::$context['options'] as $activity => $option): ?>
 			<label>

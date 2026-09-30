@@ -19,5 +19,4 @@ if (!defined('SMF')) {
  * Part of the admin layer - used with generic_menu_dropdown_above to close the admin content div.
  */
 ?>
-
 				</div><!-- #admin_content -->

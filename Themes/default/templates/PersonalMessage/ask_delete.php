@@ -23,11 +23,9 @@ if (!defined('SMF')) {
  * This template asks the user whether they wish to empty out their folder/messages.
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<?= Lang::getTxt(Utils::$context['delete_all'] ? 'delete_message' : 'delete_all', file: 'PersonalMessage') ?>
-
 			</h3>
 		</div>
 		<div class="windowbg">

@@ -31,7 +31,6 @@ if (!defined('SMF')) {
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<?= isset(Utils::$context['board']['is_new']) ? Lang::getTxt('mboards_new_board_name', file: 'ManageBoards') : Lang::getTxt('boards_edit', file: 'Admin') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -56,7 +55,6 @@ if (!defined('SMF')) {
 <?php /* The first select box gives the user the option to position it before, after or as a child of another board. */ ?>
 						<select id="order" name="placement" onchange="this.form.board_order.disabled = this.options[this.selectedIndex].value == '';">
 							<?= !isset(Utils::$context['board']['is_new']) ? '<option value="">(' . Lang::getTxt('mboards_unchanged', file: 'ManageBoards') . ')</option>' : '' ?>
-
 							<option value="after"><?= Lang::getTxt('mboards_order_after', ['name' => '...'], file: 'ManageBoards') ?></option>
 							<option value="child"><?= Lang::getTxt('mboards_order_child_of', ['name' => '...'], file: 'ManageBoards') ?></option>
 							<option value="before"><?= Lang::getTxt('mboards_order_before', ['name' => '...'], file: 'ManageBoards') ?></option>
@@ -121,7 +119,6 @@ if (!defined('SMF')) {
 							<input type="checkbox" name="groups[<?= $group['id'] ?>]" value="allow" id="groups_<?= $group['id'] ?>"<?= in_array($group['id'], Utils::$context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : '') ?>>
 							<span<?= $group['is_post_group'] ? ' class="post_group" title="' . Lang::getTxt('mboards_groups_post_group', file: 'ManageBoards') . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::getTxt('mboards_groups_regular_members', file: 'ManageBoards') . '"' : '') ?>>
 								<?= $group['name'] ?>
-
 							</span>
 						</label><br>
 <?php else: ?>
@@ -130,7 +127,6 @@ if (!defined('SMF')) {
 									<label for="groups_<?= $group['id'] ?>_a">
 										<span<?= $group['is_post_group'] ? ' class="post_group" title="' . Lang::getTxt('mboards_groups_post_group', file: 'ManageBoards') . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . Lang::getTxt('mboards_groups_regular_members', file: 'ManageBoards') . '"' : '') ?>>
 											<?= $group['name'] ?>
-
 										</span>
 									</label>
 								</td>
@@ -284,11 +280,9 @@ if (!defined('SMF')) {
 <?php if (!empty($cbs['dt']) && !empty($cbs['dd'])): ?>
 						<dt class="clear<?= !is_numeric($cbs_id) ? ' cbs_' . $cbs_id : '' ?>">
 							<?= $cbs['dt'] ?>
-
 						</dt>
 						<dd<?= !is_numeric($cbs_id) ? ' class="cbs_' . $cbs_id . '"' : '' ?>>
 							<?= $cbs['dd'] ?>
-
 						</dd>
 <?php endif; ?>
 <?php endforeach; ?>

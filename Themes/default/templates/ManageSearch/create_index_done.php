@@ -22,7 +22,6 @@ if (!defined('SMF')) {
  * Done creating a search index.
  */
 ?>
-
 	<div class="cat_bar">
 		<h3 class="catbg"><?= Lang::getTxt('search_create_index', file: 'Search') ?></h3>
 	</div>

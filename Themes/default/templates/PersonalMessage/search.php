@@ -23,12 +23,9 @@ if (!defined('SMF')) {
  * The form for the PM search feature
  */
 ?><?php if (!empty(Utils::$context['search_errors'])): ?>
-
 		<div class="errorbox">
 			<?= implode('<br>', Utils::$context['search_errors']['messages']) ?>
-
 		</div><?php endif; ?>
-
 	<form action="<?= Config::$scripturl ?>?action=pm;sa=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('pm_search_title', file: 'PersonalMessage') ?></h3>
@@ -72,21 +69,17 @@ if (!defined('SMF')) {
 				</dd>
 				<dt class="options">
 					<?= Lang::getTxt('pm_search_options', file: 'PersonalMessage') ?>
-
 				</dt>
 				<dd class="options">
 					<label for="show_complete">
 						<input type="checkbox" name="show_complete" id="show_complete" value="1"<?= !empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '' ?>> <?= Lang::getTxt('pm_search_show_complete', file: 'PersonalMessage') ?>
-
 					</label><br>
 					<label for="subject_only">
 						<input type="checkbox" name="subject_only" id="subject_only" value="1"<?= !empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '' ?>> <?= Lang::getTxt('pm_search_subject_only', file: 'PersonalMessage') ?>
-
 					</label>
 				</dd>
 				<dt class="between">
 					<?= Lang::getTxt('pm_search_post_age', file: 'PersonalMessage') ?>
-
 				</dt>
 				<dd>
 					<?= Lang::getTxt(
@@ -97,14 +90,10 @@ if (!defined('SMF')) {
 		],
 		file: 'PersonalMessage',
 	) ?>
-
 				</dd>
 			</dl><?php if (!Utils::$context['currently_using_labels']): ?>
-
 				<input type="submit" name="pm_search" value="<?= Lang::getTxt('pm_search_go', file: 'PersonalMessage') ?>" class="button floatright"><?php endif; ?>
-
 		</div><!-- .roundframe --><?php /* Do we have some labels setup? If so offer to search by them! */ ?><?php if (Utils::$context['currently_using_labels']): ?>
-
 		<fieldset class="labels">
 			<div class="roundframe alt">
 				<div class="title_bar">
@@ -115,12 +104,10 @@ if (!defined('SMF')) {
 				</div>
 				<div id="advanced_panel_div">
 					<ul id="search_labels"><?php foreach (Utils::$context['search_labels'] as $label): ?>
-
 						<li>
 							<label for="searchlabel_<?= $label['id'] ?>"><input type="checkbox" id="searchlabel_<?= $label['id'] ?>" name="searchlabel[<?= $label['id'] ?>]" value="<?= $label['id'] ?>"<?= $label['checked'] ? ' checked' : '' ?>>
 							<?= $label['name'] ?></label>
 						</li><?php endforeach; ?>
-
 					</ul>
 				</div>
 				<br class="clear">
@@ -131,7 +118,6 @@ if (!defined('SMF')) {
 				</div class="padding">
 			</div><!-- .roundframe -->
 		</fieldset><?php /* Some javascript for the advanced toggling */ ?>
-
 		<script>
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
@@ -157,5 +143,4 @@ if (!defined('SMF')) {
 				]
 			});
 		</script><?php endif; ?>
-
 	</form>

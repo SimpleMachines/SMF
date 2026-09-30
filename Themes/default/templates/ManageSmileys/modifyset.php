@@ -23,24 +23,20 @@ if (!defined('SMF')) {
  * Modifying a smiley set.
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=smileys;sa=editsets" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 			<?= Lang::getTxt(Utils::$context['current_set']['is_new'] ? 'smiley_set_new' : 'smiley_set_modify_existing', file: 'ManageSmileys') ?>
-
 			</h3>
 		</div>
 <?php if (Utils::$context['current_set']['is_new'] && !empty(Config::$modSettings['smiley_enable'])): ?>
 		<div class="information noup">
 			<?= Lang::getTxt('smiley_set_import_info', file: 'ManageSmileys') ?>
-
 		</div>
 <?php /* If this is an existing set, and there are still un-added smileys - offer an import opportunity. */ ?>
 <?php elseif (!empty(Utils::$context['current_set']['can_import'])): ?>
 		<div class="information noup">
 			<?= Utils::$context['smiley_set_unused_message'] ?>
-
 		</div>
 <?php endif; ?>
 		<div class="windowbg noup">

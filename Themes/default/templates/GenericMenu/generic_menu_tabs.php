@@ -29,7 +29,6 @@ if (!defined('SMF')) {
 // Handy shortcut.
 $tab_context = $menu_context['tab_data'];
 ?><?php if (!empty($tab_context['title'])): ?>
-
 					<div class="cat_bar">
 						<h3 class="catbg"><?php /* Exactly how many tabs do we have? */ ?><?php if (!empty(Utils::$context['tabs'])): ?><?php foreach (Utils::$context['tabs'] as $id => $tab): ?><?php /* Can this not be accessed? */ ?><?php if (!empty($tab['disabled'])): ?><?php
 $tab_context['tabs'][$id]['disabled'] = true;
@@ -38,27 +37,19 @@ continue;
 $selected_tab = $tab;
 $tab_context['tabs'][$sa]['is_selected'] = true;
 ?><?php endif; ?><?php endforeach; ?><?php endif; ?><?php /* Show an icon and/or a help item? */ ?><?php if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']) || !empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help'])): ?><?php if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class'])): ?>
-
 								<span class="<?= !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'] ?> icon"></span><?php elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon'])): ?>
-
 								<img src="<?= Theme::$current->settings['images_url'] ?>/icons/<?= !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'] ?>" alt="" class="icon"><?php endif; ?><?php if (!empty($selected_tab['help']) || !empty($tab_context['help'])): ?>
-
 								<a href="<?= Config::$scripturl ?>?action=helpadmin;help=<?= !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'] ?>" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a><?php endif; ?><?= $tab_context['title'] ?><?php else: ?>
-
 								<?= $tab_context['title'] ?><?php endif; ?>
-
 						</h3><?php
 // The function is in Admin.template.php, but since this template is used
 // elsewhere too better check if the function is available. It goes after
 // the heading: .cat_bar is a flex row, so the search box lands at the end
 // of it by being last, not by floating.
 ?><?php if ($this->hasSubTemplate('admin_quick_search')): ?><?php $this->subTemplate('admin_quick_search'); ?><?php endif; ?>
-
 					</div><!-- .cat_bar --><?php endif; ?><?php /* Shall we use the tabs? Yes, it's the only known way! */ ?><?php if (!empty($selected_tab['description']) || !empty($tab_context['description'])): ?>
-
 					<p class="information">
 						<?= !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'] ?>
-
 					</p><?php endif; ?><?php /* Print out all the items in this tab (if any). */ ?><?php
 // What gets drawn below is $tab_context['tabs'], and that is only assembled
 // above when this menu has a title of its own. Utils::$context['tabs'] is
@@ -73,7 +64,6 @@ $drawable_tabs = array_filter(
 	fn($tab) => empty($tab['disabled']) && !empty($tab['label']),
 );
 ?><?php if (!empty($drawable_tabs)): ?><?php /* The admin tabs. */ ?>
-
 					<a class="mobile_generic_menu_<?= Utils::$context['cur_menu_id'] ?>_tabs">
 						<span class="menu_icon"></span>
 						<span class="text_menu"><?= Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General') ?></span>
@@ -83,20 +73,16 @@ $drawable_tabs = array_filter(
 							<div class="popup_window description">
 								<div class="popup_heading">
 									<?= Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title'] ?? ''], file: 'General') ?>
-
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 								</div>
 								<div class="generic_menu">
 									<ul class="dropmenu dropdown_menu_<?= Utils::$context['cur_menu_id'] ?>_tabs"><?php foreach ($drawable_tabs as $sa => $tab): ?><?php if (!empty($tab['is_selected'])): ?>
-
 										<li>
 											<a class="active" href="<?= $tab['url'] ?? $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa ?><?= $menu_context['extra_parameters'] ?><?= $tab['add_params'] ?? '' ?>"><?= $tab['label'] ?></a>
 										</li><?php else: ?>
-
 										<li>
 											<a href="<?= $tab['url'] ?? $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa ?><?= $menu_context['extra_parameters'] ?><?= $tab['add_params'] ?? '' ?>"><?= $tab['label'] ?></a>
 										</li><?php endif; ?><?php endforeach; ?><?php /* The end of tabs */ ?>
-
 									</ul>
 								</div>
 							</div>

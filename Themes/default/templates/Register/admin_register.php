@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * The template for the form allowing an admin to register a user from the admin center.
  */
 ?>
-
 		<div id="admin_form_wrapper">
 			<form id="postForm" action="<?= Config::$scripturl ?>?action=admin;area=regcenter" method="post" accept-charset="UTF-8" name="postForm">
 				<div class="cat_bar">
@@ -33,7 +32,6 @@ if (!defined('SMF')) {
 <?php if (!empty(Utils::$context['registration_done'])): ?>
 					<div class="infobox">
 						<?= Utils::$context['registration_done'] ?>
-
 					</div>
 <?php endif; ?>
 					<dl class="register_form" id="admin_register_form">
@@ -81,7 +79,6 @@ if (!defined('SMF')) {
 						</dt>
 						<dd>
 							<?= $field['input_html'] ?>
-
 						</dd>
 <?php endif; ?>
 <?php endforeach; ?>

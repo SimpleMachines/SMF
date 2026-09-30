@@ -23,13 +23,11 @@ if (!defined('SMF')) {
  * This lets you reset themes
  */
 ?>
-
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('themeadmin_reset_title', file: 'Admin') ?></h3>
 		</div>
 		<div class="information">
 			<?= Lang::getTxt('themeadmin_reset_tip', file: 'Themes') ?>
-
 		</div>
 		<div id="admin_form_wrapper">
 <?php /* Show each theme.... with X for delete and a link to settings. */ ?>

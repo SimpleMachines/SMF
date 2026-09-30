@@ -23,12 +23,10 @@ if (!defined('SMF')) {
  * The page shown while the newsletter is being sent
  */
 ?>
-
 		<form action="<?= Config::$scripturl ?>?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="<?= Config::$scripturl ?>?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="<?= Lang::getTxt('help', file: 'General') ?>"></span></a> <?= Lang::getTxt('admin_newsletters', file: 'Admin') ?>
-
 				</h3>
 			</div>
 			<div class="windowbg">

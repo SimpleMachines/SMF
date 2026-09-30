@@ -19,7 +19,6 @@ if (!defined('SMF')) {
  * JavaScript to be output below the simple settings page
  */
 ?>
-
 	<script>
 		var fUpdateStatus = function ()
 		{

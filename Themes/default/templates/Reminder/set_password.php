@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Template for setting the new password
  */
 ?>
-
 	<br>
 	<form action="<?= Config::$scripturl ?>?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="UTF-8">
 		<div class="tborder login">

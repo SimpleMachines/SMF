@@ -23,7 +23,6 @@ if (!defined('SMF')) {
  * Simple template for showing results of our optimization...
  */
 ?>
-
 	<div id="manage_maintenance">
 		<div class="cat_bar">
 			<h3 class="catbg"><?= Lang::getTxt('maintain_optimize', file: 'ManageMaintenance') ?></h3>
@@ -39,7 +38,6 @@ if (!defined('SMF')) {
 <?php /* How did we go? */ ?>
 				<br>
 				<?= Utils::$context['num_tables_optimized'] == 0 ? Lang::getTxt('database_already_optimized', file: 'ManageMaintenance') : Utils::$context['num_tables_optimized'] . ' ' . Lang::getTxt('database_optimized', file: 'ManageMaintenance') ?>
-
 			</p>
 			<p><a href="<?= Config::$scripturl ?>?action=admin;area=maintain"><?= Lang::getTxt('maintain_return', file: 'ManageMaintenance') ?></a></p>
 		</div><!-- .windowbg -->
