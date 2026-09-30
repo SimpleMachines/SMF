@@ -80,7 +80,7 @@ class TrackIP implements ActionInterface, Routable
 		} else {
 			Utils::$context['base_url'] = Config::$scripturl . '?action=profile;area=tracking;sa=ip;u=' . $this->memID;
 
-			Utils::$context['ip'] = IP::ip2range(User::$loaded[$this->memID]->ip);
+			Utils::$context['ip'] = IP::ip2range(Profile::$member->ip);
 		}
 
 		Utils::$context['sub_template'] = 'trackIP';
