@@ -150,7 +150,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "GenericControls.template.php"
+          "templates/GenericControls/"
           span.error
             "(already exists)"
         span.floatright
@@ -158,7 +158,7 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
-          "GenericList.template.php"
+          "templates/GenericList/"
           span.error
             "(already exists)"
         span.floatright
