@@ -31,6 +31,30 @@ BOARD_DIR=$(cd -- "$DEV_DIR/.." && pwd)
 # generated secrets and a machine-specific board URL.
 SETTINGS_DIR="$DEV_DIR/settings"
 
+# docker compose reads .env by itself, and these scripts have to see the same
+# values: a stack moved to other ports would otherwise be installed with a
+# board URL on the default one, pointing every link at a different forum.
+# Read as KEY=VALUE lines rather than sourced, and, as for docker compose,
+# whatever is already in the environment wins.
+if [ -f "$BOARD_DIR/.env" ]; then
+	while IFS='=' read -r env_key env_value || [ -n "$env_key" ]; do
+		env_key=${env_key%$'\r'}
+		env_value=${env_value%$'\r'}
+
+		[[ "$env_key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+		[ -n "${!env_key+x}" ] && continue
+
+		# Surrounding quotes are not part of the value.
+		if [[ "$env_value" =~ ^\"(.*)\"$ || "$env_value" =~ ^\'(.*)\'$ ]]; then
+			env_value=${BASH_REMATCH[1]}
+		fi
+
+		export "$env_key=$env_value"
+	done < "$BOARD_DIR/.env"
+
+	unset env_key env_value
+fi
+
 # ------------------------------------------------------------------ the runner
 # Where the forum actually runs. 'local' uses the PHP on this machine and a
 # database it can already reach; 'docker' uses the compose stack in .docker/.
