@@ -1,0 +1,187 @@
+<?php
+
+/**
+ * Custom profile fields, theme options and collapsed categories.
+ *
+ * The interesting part here is where 2.1 puts the *values*. The field
+ * definitions live in {db_prefix}custom_fields, but what a member actually
+ * entered is stored in {db_prefix}themes as a row whose variable is
+ * 'cust_<col_name>' -- the same table that holds theme settings and per-member
+ * options. SMF 3.0 unpicks that indirection, which is what CustomFieldsPart1,
+ * Part2 and Part3 are for, and none of it can be tested against a forum where
+ * nobody ever filled a field in.
+ *
+ * Three field types, because the migration treats them differently: a free text
+ * field, a select, and a checkbox.
+ *
+ * Exercises: CustomFieldsPart1, CustomFieldsPart2, CustomFieldsPart3,
+ * ThemeSettings, CollapsedCategories, CategoryDescrptions.
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1.7
+ */
+
+if (!defined('SMF'))
+	die('No direct access...');
+
+$baseline_name = '20-profile-fields';
+
+if (baseline_applied($baseline_name) && empty($baseline_force))
+{
+	baseline_say($baseline_name . ': skipped');
+}
+else
+{
+	global $smcFunc;
+
+	// col_name is varchar(12), so these are as descriptive as the schema allows.
+	$fields = array(
+		// col_name, field_name, field_desc, type, length, options, private
+		array('bl_location', 'Location', 'Where in the world?', 'text', 255, '', 0),
+		array('bl_platform', 'Platform', 'What do you run SMF on?', 'select', 255, 'Linux,Windows,macOS,Something else', 0),
+		array('bl_news', 'Newsletter', 'Send me the newsletter', 'check', 0, '', 1),
+	);
+
+	$field_rows = array();
+	$order = 1;
+
+	foreach ($fields as $field)
+	{
+		list ($col_name, $name, $desc, $type, $length, $options, $private) = $field;
+
+		$field_rows[] = array(
+			$col_name, $name, $desc, $type, $length, $options, $order++,
+			'nohtml', 1, 1, 1, 'forumprofile', $private, 1, 0,
+			$type === 'text' ? 1 : 0,
+			$type === 'check' ? '0' : '', '', 0,
+		);
+	}
+
+	// 'insert', not 'ignore'. On PostgreSQL, db_insert() builds its ON CONFLICT
+	// clause only from key columns that also appear in the column list -- and
+	// id_field is a sequence we deliberately do not supply. The result is
+	// `ON CONFLICT () DO NOTHING`, which is a syntax error: the query fails, the
+	// error is logged rather than raised, and the script carries on believing it
+	// inserted three fields. That is exactly how this baseline shipped once with
+	// its custom field *values* present and their definitions missing on
+	// PostgreSQL but not on MySQL.
+	$before = baseline_count_fields();
+
+	$smcFunc['db_insert']('insert',
+		'{db_prefix}custom_fields',
+		array(
+			'col_name' => 'string-12', 'field_name' => 'string-40', 'field_desc' => 'string-255',
+			'field_type' => 'string-8', 'field_length' => 'int', 'field_options' => 'string',
+			'field_order' => 'int', 'mask' => 'string-255', 'show_reg' => 'int',
+			'show_display' => 'int', 'show_mlist' => 'int', 'show_profile' => 'string-20',
+			'private' => 'int', 'active' => 'int', 'bbc' => 'int', 'can_search' => 'int',
+			'default_value' => 'string-255', 'enclose' => 'string', 'placement' => 'int',
+		),
+		$field_rows,
+		array('id_field')
+	);
+
+	// Count what actually arrived rather than what was asked for. A silent
+	// failure that still reports success is worse than a loud one.
+	$added = baseline_count_fields() - $before;
+
+	if ($added !== count($field_rows))
+		baseline_fail(sprintf(
+			'%s: inserted %d of %d custom fields -- check docker compose logs for the database error',
+			$baseline_name,
+			$added,
+			count($field_rows)
+		));
+
+	// Now the values. 'cust_' . col_name in the themes table, against theme 1,
+	// which is exactly the shape SMF 3.0 has to migrate away from.
+	$platforms = array('Linux', 'Windows', 'macOS', 'Something else');
+	$members = baseline_member_ids(40);
+	$values = array();
+
+	foreach ($members as $index => $id_member)
+	{
+		$values[] = array(1, $id_member, 'cust_bl_location', 'Board ' . (($index % 7) + 1) . ', Testville');
+		$values[] = array(1, $id_member, 'cust_bl_platform', $platforms[$index % 4]);
+
+		// Only some members tick the box: an unset checkbox is stored as no row
+		// at all, not as a zero, and that asymmetry is part of what migrates.
+		if ($index % 3 === 0)
+			$values[] = array(1, $id_member, 'cust_bl_news', '1');
+	}
+
+	// A couple of genuine theme options too, so the themes table is not made up
+	// entirely of custom field values.
+	foreach (array_slice($members, 0, 10) as $id_member)
+	{
+		$values[] = array(1, $id_member, 'display_quick_reply', '2');
+		$values[] = array(1, $id_member, 'posts_apply_ignore_list', '1');
+	}
+
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}themes',
+		array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
+		$values,
+		array('id_theme', 'id_member', 'variable')
+	);
+
+	// Collapsed categories are stored the same way, keyed by member.
+	$collapsed = array();
+
+	foreach (array_slice($members, 0, 8) as $id_member)
+		$collapsed[] = array(1, $id_member, 'collapse_category_2', '1');
+
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}themes',
+		array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
+		$collapsed,
+		array('id_theme', 'id_member', 'variable')
+	);
+
+	// Give the categories descriptions and make them collapsible. A fresh 2.1
+	// install leaves both empty, so the columns would migrate untouched.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}categories
+		SET
+			description = {string:description},
+			can_collapse = {int:can_collapse}
+		WHERE id_cat > {int:first}',
+		array(
+			'description' => 'Generated by the SMF 2.1 baseline builder.',
+			'can_collapse' => 1,
+			'first' => 0,
+		)
+	);
+
+	baseline_say(sprintf(
+		'%s: %d field(s), %d value row(s), %d collapsed categor(y|ies)',
+		$baseline_name,
+		$added,
+		count($values),
+		count($collapsed)
+	));
+
+	baseline_mark_applied($baseline_name);
+}
+
+/**
+ * @return int Rows currently in {db_prefix}custom_fields.
+ */
+function baseline_count_fields()
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}custom_fields', array());
+	list ($count) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return (int) $count;
+}
+
+?>
