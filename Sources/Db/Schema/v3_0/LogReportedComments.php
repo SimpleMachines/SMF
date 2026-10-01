@@ -69,10 +69,8 @@ class LogReportedComments extends Table
 			),
 			'comment' => new Column(
 				name: 'comment',
-				type: 'varchar',
-				size: 255,
+				type: 'text',
 				not_null: true,
-				default: '',
 			),
 			'time_sent' => new Column(
 				name: 'time_sent',
