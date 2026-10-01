@@ -1365,9 +1365,8 @@ class Themes implements ActionInterface
 
 				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
 					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
-						$entry = Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()];
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
-						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($fileInfo->getPathname());
 					}
 				}
 			}
