@@ -93,6 +93,9 @@ class Forum
 		'attachapprove' => [
 			'', Actions\AttachmentApprove::class,
 		],
+		'authext' => [
+			'', Actions\AuthExternal::class,
+		],
 		'boardindex' => [
 			'', Actions\BoardIndex::class,
 		],
@@ -202,6 +205,9 @@ class Forum
 		],
 		'notifytopic' => [
 			'', Actions\NotifyTopic::class,
+		],
+		'passkey' => [
+			'', Actions\Passkey::class,
 		],
 		'pm' => [
 			'', Actions\PersonalMessage::class,
