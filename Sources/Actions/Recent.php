@@ -295,12 +295,6 @@ class Recent implements ActionInterface, Routable
 		}
 		// Requested some boards.
 		elseif (!empty($_REQUEST['boards'])) {
-			$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
-
-			foreach ($_REQUEST['boards'] as $i => $b) {
-				$_REQUEST['boards'][$i] = (int) $b;
-			}
-
 			$request = Db::$db->query(
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
