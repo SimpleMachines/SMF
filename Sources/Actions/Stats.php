@@ -517,11 +517,6 @@ class Stats implements ActionInterface, Routable
 		while ($row_members = Db::$db->fetch_assoc($members_result)) {
 			$i = array_search($row_members['id_member'], array_keys($members));
 
-			// skip all not top 10
-			if ($i > 10) {
-				continue;
-			}
-
 			Utils::$context['stats_blocks']['starters'][$i] = [
 				'name' => $row_members['real_name'],
 				'id' => $row_members['id_member'],
@@ -534,8 +529,12 @@ class Stats implements ActionInterface, Routable
 				$max_num = $members[$row_members['id_member']];
 			}
 		}
-		ksort(Utils::$context['stats_blocks']['starters']);
 		Db::$db->free_result($members_result);
+
+		// Starters with no member to list, such as guests and deleted members,
+		// were counted but not found, so the top ten are the first ten found.
+		ksort(Utils::$context['stats_blocks']['starters']);
+		Utils::$context['stats_blocks']['starters'] = \array_slice(Utils::$context['stats_blocks']['starters'], 0, 10);
 
 		foreach (Utils::$context['stats_blocks']['starters'] as $i => $topic) {
 			Utils::$context['stats_blocks']['starters'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
