@@ -1269,25 +1269,42 @@ class Themes implements ActionInterface
 		Utils::$context['theme_id'] = $theme['id'];
 
 		if (isset($_REQUEST['template']) && preg_match('~[\./\\\\:\0]~', $_REQUEST['template']) == 0) {
+			User::$me->checkSession('get');
+
 			if (file_exists(Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php')) {
 				$filename = Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
 			} else {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 
-			$fp = fopen($theme['theme_dir'] . '/' . $_REQUEST['template'] . '.template.php', 'w');
+			$destination = $theme['theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
+
+			// Opening the destination for writing empties it, so it cannot be the file being copied.
+			if (realpath($destination) === realpath($filename)) {
+				ErrorHandler::fatalLang('no_access', false);
+			}
+
+			$fp = fopen($destination, 'w');
 			fwrite($fp, file_get_contents($filename));
 			fclose($fp);
 
 			Utils::redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
 		} elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\./\\\\:\0]\.[^\./\\\\:\0]$~', $_REQUEST['lang_file']) != 0) {
+			User::$me->checkSession('get');
+
 			if (file_exists(Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php')) {
 				$filename = Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php';
 			} else {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 
-			$fp = fopen($theme['theme_dir'] . '/languages/' . $_REQUEST['lang_file'] . '.php', 'w');
+			$destination = $theme['theme_dir'] . '/languages/' . $_REQUEST['lang_file'] . '.php';
+
+			if (realpath($destination) === realpath($filename)) {
+				ErrorHandler::fatalLang('no_access', false);
+			}
+
+			$fp = fopen($destination, 'w');
 			fwrite($fp, file_get_contents($filename));
 			fclose($fp);
 
