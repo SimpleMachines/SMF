@@ -502,6 +502,14 @@ div#admin_content
             "(can’t copy)"
       li.flow_hidden.windowbg
         span.floatleft
+          "TimeZoneSelect.template.php"
+          span.error
+            "(already exists)"
+        span.floatright
+          em
+            "(can’t copy)"
+      li.flow_hidden.windowbg
+        span.floatleft
           "Who.template.php"
           span.error
             "(already exists)"
@@ -516,6 +524,3 @@ div#admin_content
         span.floatright
           em
             "(can’t copy)"
-
-= errors logged
-[general] #: Array to string conversion
