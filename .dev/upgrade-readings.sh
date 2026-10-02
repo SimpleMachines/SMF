@@ -50,7 +50,7 @@ run_upgrade() {
 	rm -f "$BOARD_DIR/install.php"
 	cp "$BOARD_DIR/other/upgrade.php" "$BOARD_DIR/upgrade.php"
 
-	docker compose exec -T web php upgrade.php ${UPGRADE_ARGS:-} > "$log" 2>&1 || status=$?
+	docker compose exec -T $(web_user_flags) web php upgrade.php ${UPGRADE_ARGS:-} > "$log" 2>&1 || status=$?
 
 	rm -f "$BOARD_DIR/upgrade.php"
 

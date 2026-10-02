@@ -612,6 +612,14 @@ return the wrong thing.
 `compose.yaml` works with no `.env` file. To change ports, versions, the engine
 or credentials, copy `.docker/env.example` to `.env` in the repository root.
 
+**On a Linux host**, including a checkout on WSL's own filesystem, set `WWW_UID`
+and `WWW_GID` to what `id -u` and `id -g` print. There file ownership is real:
+without them the web server writes files you cannot edit, and PHP started by
+the scripts runs as root and writes files the web server cannot, such as a
+`Settings_bak.php` it then fails on. With them, the web server and the scripts
+both run as you. Docker Desktop on Windows and macOS maps ownership itself, so
+leave them unset there.
+
 The `postgres` service also answers to the hostname `db`, which is what
 `Settings.php` files generated before MySQL was added point at.
 
