@@ -1,0 +1,162 @@
+status 200
+@ title
+title
+  "Delete this account"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile" itemprop="item"]
+        span [itemprop="name"]
+          "Profile of Snapshot Member"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=deleteaccount" itemprop="item"]
+        span [itemprop="name"]
+          "Delete this account"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=unwatchedtopics;u=#"]
+                          "Unwatched topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.drafts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showdrafts;u=#"]
+                      span.drafts.main_icons
+                      "Show Drafts"
+                  li
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showalerts;u=#"]
+                      span.alerts.main_icons
+                      "Show Alerts"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+                  li.subsections
+                    a.frenemy.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=lists;u=#"]
+                      span.frenemy.main_icons
+                      "Buddies/Ignore List"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=buddies;u=#"]
+                          "Edit Buddies"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=ignore;u=#"]
+                          "Edit Ignore List"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.chosen.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#profile_error.errorbox [style="display:none"]
+      form#creator [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=deleteaccount;save" method="post" name="creator"]
+        div.cat_bar
+          h3.catbg.profile_hd
+            "Delete this account"
+        div.windowbg
+          div.errorbox
+            "Are you sure you want to delete your account?"
+          fieldset
+            label [for="anonymize"]
+              input#anonymize [name="anonymize" type="checkbox" value="#"]
+              "Anonymize personally identifying information when account is deleted"
+          fieldset
+            legend
+              "For security reasons, your current password is required to make changes to your account."
+            strong
+              "Current Password"
+            input [name="oldpasswrd" size="#" type="password"]
+          input.button.floatright [type="submit" value="Delete"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="u" type="hidden" value="#"]
+          input [name="sa" type="hidden" value="deleteaccount"]
+        br

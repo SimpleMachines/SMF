@@ -1,0 +1,133 @@
+status 200
+@ title
+title
+  "Search - method"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=managesearch;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Search"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=method;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Search Method"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=search" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Search"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can set the way search is powered."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Search Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Search Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=weights;{session_var}={session_id}"]
+                "Weights"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=managesearch;sa=method;{session_var}={session_id}"]
+                "Search Method"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div.cat_bar
+    h3.catbg
+      "Search Method"
+  div.information
+    div.smalltext
+      a [href="{boardurl}/index.php?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);"]
+        "Why create a search index?"
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=managesearch;sa=method" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Search Method"
+    div.windowbg
+      dl.settings
+        dt
+          strong
+            "Space used by forum messages in the database"
+        dd
+          "# KB(s)"
+        dt
+          strong
+            "Space used to index messages in the database"
+        dd
+          "# KB(s)"
+      fieldset.floatleft.search_settings
+        legend
+          "Search index"
+        dl
+          dt
+            label
+              input [checked name="search_index" type="radio" value]
+              "No index"
+          hr
+          dt
+            label
+              input [name="search_index" onclick="alert('In order to be able to use this search index, you must first create it.'); return false;" type="radio" value="parsed"]
+              "Parsed index"
+          dd
+            span.smalltext
+              "An optimized index tailored specifically for SMF."
+              br
+              "Parsed index does not currently exist"
+              a.button [href="{boardurl}/index.php?action=admin;area=managesearch;sa=createparsed;{session_var}={session_id};{token}"]
+                "Create"
+      fieldset.floatright.search_settings
+        legend
+          "Search Method"
+        input#search_force_index_check [name="search_force_index" type="checkbox" value="#"]
+        label [for="search_force_index_check"]
+          "Force the use of a search index"
+        br
+        input#search_match_words_check [name="search_match_words" type="checkbox" value="#"]
+        label [for="search_match_words_check"]
+          "Match whole words only"
+      br.clear
+      input.button [name="save" type="submit" value="Save"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]

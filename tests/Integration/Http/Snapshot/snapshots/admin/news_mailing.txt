@@ -1,0 +1,202 @@
+status 200
+@ title
+title
+  "Newsletters"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=news;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "News and Newsletters"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=news;sa=mailingmembers;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Newsletters"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=edit_news" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "News and Newsletters"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this menu you can send messages to all members who’ve registered and entered their email addresses. You may edit the distribution list, or send messages to all. Useful for important update/news information."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "News and Newsletters Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "News and Newsletters Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=news;sa=editnews;{session_var}={session_id}"]
+                "News"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=news;sa=mailingmembers;{session_var}={session_id}"]
+                "Newsletters"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=news;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_newsletters.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=news;sa=mailingcompose" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Newsletters"
+    div.information.noup
+      "Please select who should receive a copy of the newsletter"
+    div.noup.windowbg
+      dl.settings
+        dt
+          strong
+            "Membergroups"
+          br
+          span.smalltext
+            "Select the groups to receive this newsletter."
+        dd
+          label [for="groups_#"]
+            input#groups_# [checked name="groups[#]" type="checkbox" value="#"]
+            "Regular Members"
+          em
+            "(#)"
+          br
+          label [for="groups_#"]
+            input#groups_# [checked name="groups[#]" type="checkbox" value="#"]
+            "Administrator"
+          em
+            "(#)"
+          br
+          label [for="groups_#"]
+            input#groups_# [checked name="groups[#]" type="checkbox" value="#"]
+            "Global Moderator"
+          em
+            "(#)"
+          br
+          label [for="checkAllGroups"]
+            input#checkAllGroups [checked onclick="invertAll(this, this.form, 'groups');" type="checkbox"]
+            em
+              "Select all"
+      div#advanced_panel_header.title_bar
+        h3.titlebg
+          a#advanced_panel_link [href="#"]
+            "Advanced"
+        span#advanced_panel_toggle.toggle_down [style="display: none;"]
+      div#advanced_panel_div.padding
+        dl.settings
+          dt
+            strong
+              "Email Addresses"
+            br
+            span.smalltext
+              "A semi-colon separated list of email addresses which should be sent a newsletter (i.e. address#; address#). This is additional to the groups listed above."
+              br
+              span.alert
+                "Note: You must manually handle any unsubscribe requests regarding newsletters sent to these email addresses."
+          dd
+            textarea [cols="#" name="emails" rows="#" style="width: #%;"]
+          dt
+            strong
+              "Members"
+            br
+            span.smalltext
+              "Additional members to receive newsletter."
+          dd
+            input#members [name="members" size="#" type="text" value]
+            span#members_container
+        hr.bordercolor
+        dl.settings
+          dt
+            strong
+              "Excluded Groups"
+            br
+            span.smalltext
+              "Select groups who should definitely not receive the newsletter."
+          dd
+            label [for="exclude_groups_#"]
+              input#exclude_groups_# [name="exclude_groups[#]" type="checkbox" value="#"]
+              "Regular Members"
+            em
+              "(#)"
+            br
+            label [for="exclude_groups_#"]
+              input#exclude_groups_# [name="exclude_groups[#]" type="checkbox" value="#"]
+              "Administrator"
+            em
+              "(#)"
+            br
+            label [for="exclude_groups_#"]
+              input#exclude_groups_# [name="exclude_groups[#]" type="checkbox" value="#"]
+              "Global Moderator"
+            em
+              "(#)"
+            br
+            label [for="checkAllGroupsExclude"]
+              input#checkAllGroupsExclude [onclick="invertAll(this, this.form, 'exclude_groups');" type="checkbox"]
+              em
+                "Select all"
+            br
+          dt
+            strong
+              "Excluded Members"
+            br
+            span.smalltext
+              "Members who should not receive newsletter."
+          dd
+            input#exclude_members [name="exclude_members" size="#" type="text" value]
+            span#exclude_members_container
+        hr.bordercolor
+        dl.settings
+          dt
+            label [for="email_force"]
+              strong
+                "Override notification settings"
+            br
+            span.smalltext
+              "Send this to members even if they have chosen not to receive announcements."
+              br
+              span.alert
+                "This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries’ privacy and anti-spam laws."
+          dd
+            input#email_force [name="email_force" type="checkbox" value="#"]
+      br
+      input.button [type="submit" value="Next"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | var oAdvancedPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: true, aSwappableContainers: [ 'advanced_panel_div' ], aSwapImages: [ { sId: 'advanced_panel_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'advanced_panel_link', msgExpanded: 'Advanced', msgCollapsed: 'Advanced' } ] });
+  script
+    | var oMemberSuggest = new smc_AutoSuggest({ sSessionId: smf_session_id, sSessionVar: smf_session_var, sSuggestId: 'members', sControlId: 'members', sSearchType: 'member', bItemList: true, sPostName: 'member_list', sURLMask: 'action=profile;u=%item_id%', sTextDeleteItem: 'Delete Item', sItemListContainerId: 'members_container', aListItems: [] }); var oExcludeMemberSuggest = new smc_AutoSuggest({ sSessionId: '{session_id}', sSessionVar: '{session_var}', sSuggestId: 'exclude_members', sControlId: 'exclude_members', sSearchType: 'member', bItemList: true, sPostName: 'exclude_member_list', sURLMask: 'action=profile;u=%item_id%', sTextDeleteItem: 'Delete Item', sItemListContainerId: 'exclude_members_container', aListItems: [] });

@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Parser;
+use SMF\TemplateEngine;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -229,7 +230,7 @@ class WatchedUsers implements ActionInterface
 				'posts' => [
 					'data' => [
 						'function' => function ($post) {
-							return template_user_watch_post_callback($post);
+							return TemplateEngine::get()->fetchSubTemplate('user_watch_post_callback', ['post' => $post]);
 						},
 						'class' => 'unique',
 					],
