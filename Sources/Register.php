@@ -501,7 +501,7 @@ function Register2()
 			// Any masks to apply?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || filter_var($value, FILTER_SANITIZE_EMAIL) !== $value || strlen($value) > 255))
 					$custom_field_errors[] = array('custom_field_invalid_email', array($row['field_name']));
 				elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value))
 					$custom_field_errors[] = array('custom_field_not_number', array($row['field_name']));
@@ -650,7 +650,7 @@ function Activate()
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
 
-		if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL))
+		if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL) || filter_var($_POST['new_email'], FILTER_SANITIZE_EMAIL) !== $_POST['new_email'])
 			fatal_error(sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($_POST['new_email'])), false);
 
 		// Make sure their email isn't banned.
