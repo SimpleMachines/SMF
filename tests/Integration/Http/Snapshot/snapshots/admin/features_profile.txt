@@ -1,0 +1,257 @@
+status 200
+@ title
+title
+  "Custom Profile Fields"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Profile Fields"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this page you can create your own custom profile fields that fit in with your own forum’s requirements"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#standardProfileFields [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile" method="post" name="standardProfileFields"]
+    div.cat_bar
+      h3.catbg
+        "Standard Profile Fields"
+    table#standard_profile_fields.table_grid
+      thead
+        tr.title_bar
+          th#header_standard_profile_fields_field.field [scope="col"]
+            "Field"
+          th#header_standard_profile_fields_active.active.centercol [scope="col"]
+            "Active"
+          th#header_standard_profile_fields_show_on_registration.centercol.show_on_registration [scope="col"]
+            "Show on Registration"
+      tbody
+        tr#list_standard_profile_fields_#.windowbg
+          td.field [style="width: #%;"]
+            "Website"
+          td.active.centercol [style="width: #%;"]
+            input#active_website [checked name="active[]" onclick="document.getElementById('reg_website').disabled = !this.checked;" type="checkbox" value="website"]
+          td.centercol.show_on_registration [style="width: #%;"]
+            input#reg_website [name="reg[]" type="checkbox" value="website"]
+        tr#list_standard_profile_fields_#.windowbg
+          td.field [style="width: #%;"]
+            "Personal text"
+          td.active.centercol [style="width: #%;"]
+            input#active_personal_text [checked name="active[]" onclick="document.getElementById('reg_personal_text').disabled = !this.checked;" type="checkbox" value="personal_text"]
+          td.centercol.show_on_registration [style="width: #%;"]
+            input#reg_personal_text [name="reg[]" type="checkbox" value="personal_text"]
+        tr#list_standard_profile_fields_#.windowbg
+          td.field [style="width: #%;"]
+            "Timezone"
+          td.active.centercol [style="width: #%;"]
+            input#active_timezone [checked name="active[]" onclick="document.getElementById('reg_timezone').disabled = !this.checked;" type="checkbox" value="timezone"]
+          td.centercol.show_on_registration [style="width: #%;"]
+            input#reg_timezone [name="reg[]" type="checkbox" value="timezone"]
+        tr#list_standard_profile_fields_#.windowbg
+          td.field [style="width: #%;"]
+            "Posts"
+          td.active.centercol [style="width: #%;"]
+            input#active_posts [checked name="active[]" type="checkbox" value="posts"]
+          td.centercol.show_on_registration [style="width: #%;"]
+            input#reg_posts [disabled name="reg[]" type="checkbox" value="posts"]
+        tr#list_standard_profile_fields_#.windowbg
+          td.field [style="width: #%;"]
+            "Warning status"
+          td.active.centercol [style="width: #%;"]
+            input#active_warning_status [checked name="active[]" type="checkbox" value="warning_status"]
+          td.centercol.show_on_registration [style="width: #%;"]
+            input#reg_warning_status [disabled name="reg[]" type="checkbox" value="warning_status"]
+    div.flow_auto
+      div.additional_row
+        input.button [name="save" type="submit" value="Save"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+  script
+    | var iNumChecks = document.forms.standardProfileFields.length; for (var i = #; i < iNumChecks; i++) if (document.forms.standardProfileFields[i].id.indexOf('reg_') == #) document.forms.standardProfileFields[i].disabled = document.forms.standardProfileFields[i].disabled || !document.getElementById('active_' + document.forms.standardProfileFields[i].id.substr(#)).checked;
+  br
+  form#customProfileFields [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit" method="post" name="customProfileFields"]
+    div.cat_bar
+      h3.catbg
+        "Custom Profile Fields"
+    table#custom_profile_fields.table_grid
+      thead
+        tr.title_bar
+          th#header_custom_profile_fields_field_order.field_order [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;sort=field_order;desc" rel="nofollow"]
+              "Field Order"
+              span.main_icons.sort_up
+          th#header_custom_profile_fields_field_name.field_name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;sort=field_name" rel="nofollow"]
+              "Field Name"
+          th#header_custom_profile_fields_field_type.field_type [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;sort=field_type" rel="nofollow"]
+              "Field Type"
+          th#header_custom_profile_fields_active.active [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;sort=active" rel="nofollow"]
+              "Active"
+          th#header_custom_profile_fields_placement.placement [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;sort=placement" rel="nofollow"]
+              "Placement"
+          th#header_custom_profile_fields_show_on_registration.show_on_registration [scope="col"]
+      tbody
+        tr#list_custom_profile_fields_#.windowbg
+          td.field_order [style="width: #%;"]
+            p.bold_text.centertext
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=down"]
+                span.toggle_down [title="Move Down"]
+          td.field_name [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "ICQ"
+            div.smalltext
+              "This is your ICQ number."
+          td.field_type [style="width: #%;"]
+            "Text"
+          td.active [style="width: #%;"]
+            "Yes"
+          td.placement [style="width: #%;"]
+            "With Icons"
+          td.show_on_registration [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Modify"
+        tr#list_custom_profile_fields_#.windowbg
+          td.field_order [style="width: #%;"]
+            p.bold_text.centertext
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=up"]
+                span.toggle_up [title="Move Up"]
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=down"]
+                span.toggle_down [title="Move Down"]
+          td.field_name [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Skype"
+            div.smalltext
+              "Your Skype username"
+          td.field_type [style="width: #%;"]
+            "Text"
+          td.active [style="width: #%;"]
+            "Yes"
+          td.placement [style="width: #%;"]
+            "With Icons"
+          td.show_on_registration [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Modify"
+        tr#list_custom_profile_fields_#.windowbg
+          td.field_order [style="width: #%;"]
+            p.bold_text.centertext
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=up"]
+                span.toggle_up [title="Move Up"]
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=down"]
+                span.toggle_down [title="Move Down"]
+          td.field_name [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Location"
+            div.smalltext
+              "Geographic location."
+          td.field_type [style="width: #%;"]
+            "Text"
+          td.active [style="width: #%;"]
+            "Yes"
+          td.placement [style="width: #%;"]
+            "Standard (with title)"
+          td.show_on_registration [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Modify"
+        tr#list_custom_profile_fields_#.windowbg
+          td.field_order [style="width: #%;"]
+            p.bold_text.centertext
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#;move=up"]
+                span.toggle_up [title="Move Up"]
+          td.field_name [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Gender"
+            div.smalltext
+              "Your gender."
+          td.field_type [style="width: #%;"]
+            "Radio Button"
+          td.active [style="width: #%;"]
+            "Yes"
+          td.placement [style="width: #%;"]
+            "With Icons"
+          td.show_on_registration [style="width: #%;"]
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profileedit;fid=#"]
+              "Modify"
+    div.flow_auto
+      div.additional_row
+        input.button [name="new" type="submit" value="New Field"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

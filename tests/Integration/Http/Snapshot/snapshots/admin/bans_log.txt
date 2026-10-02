@@ -1,0 +1,69 @@
+status 200
+@ title
+title
+  "Ban Log"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban list"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban Log"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=ban;sa=log" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Ban Log"
+    div.flow_hidden.information
+      div.additional_row
+        input.button.you_sure [data-confirm="Are you sure you want to delete all selected ban log entries?" name="removeSelected" type="submit" value="Remove selected"]
+        input.button.you_sure [data-confirm="Are you sure you want to delete all ban log entries?" name="removeAll" type="submit" value="Clear log"]
+    table#ban_log.table_grid
+      thead
+        tr.title_bar
+          th#header_ban_log_ip.ip [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;sort=ip" rel="nofollow"]
+              "IP"
+          th#header_ban_log_email.email [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;sort=email" rel="nofollow"]
+              "Email address"
+          th#header_ban_log_member.member [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;sort=member" rel="nofollow"]
+              "Member"
+          th#header_ban_log_date.date [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;sort=date;desc" rel="nofollow"]
+              "Date"
+              span.main_icons.sort_up
+          th#header_ban_log_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      snapshot-ignored [selector="table.table_grid tbody"]
+    div.additional_row
+      input.button.you_sure [data-confirm="Are you sure you want to delete all selected ban log entries?" name="removeSelected" type="submit" value="Remove selected"]
+      input.button.you_sure [data-confirm="Are you sure you want to delete all ban log entries?" name="removeAll" type="submit" value="Clear log"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="sort" type="hidden" value="date"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

@@ -1,0 +1,362 @@
+status 200
+@ title
+title
+  "Theme Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Themes and Layout"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Member Options"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Themes and Layout settings"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Below you will see an interface to change the current theme-specific options for all your members. You will only see those themes that have their own set of settings."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Themes and Layout settings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Themes and Layout settings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}"]
+                "Manage and Install"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}"]
+                "Theme Settings"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}"]
+                "Member Options"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}"]
+                "Modify Themes"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;th=#;sa=reset" method="post"]
+    input [name="who" type="hidden" value="#"]
+    div.cat_bar
+      h3.catbg
+        "Change or reset user options for SMF Default Theme - Curve#"
+    div.information.noup
+      "The options below will reset options for"
+      em
+        "everyone"
+      ". To change an option, select \"change\" in the box next to it, and then select a value for it. To use the default, select \"default\". Otherwise, use \"do not change\" to keep it as-is."
+    div.noup.windowbg
+      dl.settings
+        dt
+          strong
+            "Theme Color Mode"
+        dd
+        dt
+          select [name="default_options_master[theme_colormode]" onchange="this.form.options_theme_colormode.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_theme_colormode"]
+            "Select Color Mode"
+        dd
+          select#options_theme_colormode.floatleft [disabled name="default_options[theme_colormode]"]
+            option [value="light"]
+              "Light"
+            option [value="system"]
+              "System Default"
+            option [value="dark"]
+              "Dark"
+      hr
+      dl.settings
+        dt
+          strong
+            "Board and Topic display"
+        dd
+        dt
+          select [name="default_options_master[show_children]" onchange="this.form.options_show_children.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_show_children"]
+            "Show sub-boards on every page inside boards, not just the first"
+        dd
+          input [name="default_options[show_children]" type="hidden" value="#"]
+          input#options_show_children.floatleft [disabled name="default_options[show_children]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[topics_per_page]" onchange="this.form.options_topics_per_page.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_topics_per_page"]
+            "Topics to display per page"
+        dd
+          select#options_topics_per_page.floatleft [disabled name="default_options[topics_per_page]"]
+            option [value="#"]
+              "forum default"
+            option [value="#"]
+              "#"
+        dt
+          select [name="default_options_master[messages_per_page]" onchange="this.form.options_messages_per_page.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_messages_per_page"]
+            "Messages to display per page"
+        dd
+          select#options_messages_per_page.floatleft [disabled name="default_options[messages_per_page]"]
+            option [value="#"]
+              "forum default"
+            option [value="#"]
+              "#"
+        dt
+          select [name="default_options_master[view_newest_first]" onchange="this.form.options_view_newest_first.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_view_newest_first"]
+            "Show most recent posts at the top in topic view"
+        dd
+          input [name="default_options[view_newest_first]" type="hidden" value="#"]
+          input#options_view_newest_first.floatleft [disabled name="default_options[view_newest_first]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[show_no_avatars]" onchange="this.form.options_show_no_avatars.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_show_no_avatars"]
+            "Don’t show users’ avatars"
+        dd
+          input [name="default_options[show_no_avatars]" type="hidden" value="#"]
+          input#options_show_no_avatars.floatleft [disabled name="default_options[show_no_avatars]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[show_no_signatures]" onchange="this.form.options_show_no_signatures.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_show_no_signatures"]
+            "Don’t show users’ signatures"
+        dd
+          input [name="default_options[show_no_signatures]" type="hidden" value="#"]
+          input#options_show_no_signatures.floatleft [disabled name="default_options[show_no_signatures]" type="checkbox" value="#"]
+        dt
+          select [name="options_master[posts_apply_ignore_list]" onchange="this.form.options_posts_apply_ignore_list.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_posts_apply_ignore_list"]
+            "Hide messages posted by members on my ignore list"
+        dd
+          input [name="options[posts_apply_ignore_list]" type="hidden" value="#"]
+          input#options_posts_apply_ignore_list.floatleft [disabled name="options[posts_apply_ignore_list]" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          strong
+            "Posting"
+        dd
+        dt
+          select [name="default_options_master[return_to_post]" onchange="this.form.options_return_to_post.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_return_to_post"]
+            "Return to topics after posting by default"
+        dd
+          input [name="default_options[return_to_post]" type="hidden" value="#"]
+          input#options_return_to_post.floatleft [disabled name="default_options[return_to_post]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[no_new_reply_warning]" onchange="this.form.options_no_new_reply_warning.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_no_new_reply_warning"]
+            "Don’t warn on new replies made while posting."
+        dd
+          input [name="default_options[no_new_reply_warning]" type="hidden" value="#"]
+          input#options_no_new_reply_warning.floatleft [disabled name="default_options[no_new_reply_warning]" type="checkbox" value="#"]
+        dt
+          select [name="options_master[wysiwyg_default]" onchange="this.form.options_wysiwyg_default.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_wysiwyg_default"]
+            "Load editor in"
+            abbr [title="What You See Is What You Get"]
+              "WYSIWYG"
+            "mode by default"
+        dd
+          input [name="options[wysiwyg_default]" type="hidden" value="#"]
+          input#options_wysiwyg_default.floatleft [disabled name="options[wysiwyg_default]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[drafts_autosave_enabled]" onchange="this.form.options_drafts_autosave_enabled.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_drafts_autosave_enabled"]
+            "Enable automatic saving of drafts"
+        dd
+          input [name="default_options[drafts_autosave_enabled]" type="hidden" value="#"]
+          input#options_drafts_autosave_enabled.floatleft [disabled name="default_options[drafts_autosave_enabled]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[drafts_show_saved_enabled]" onchange="this.form.options_drafts_show_saved_enabled.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_drafts_show_saved_enabled"]
+            "Enable the selection of drafts from the posting screen"
+        dd
+          input [name="default_options[drafts_show_saved_enabled]" type="hidden" value="#"]
+          input#options_drafts_show_saved_enabled.floatleft [disabled name="default_options[drafts_show_saved_enabled]" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          strong
+            "Moderation"
+        dd
+        dt
+          select [name="default_options_master[display_quick_mod]" onchange="this.form.options_display_quick_mod.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_display_quick_mod"]
+            "Show quick-moderation as"
+        dd
+          select#options_display_quick_mod.floatleft [disabled name="default_options[display_quick_mod]"]
+            option [value="#"]
+              "don’t show"
+            option [value="#"]
+              "checkboxes"
+            option [value="#"]
+              "icons"
+      hr
+      dl.settings
+        dt
+          strong
+            "Personal Messages"
+        dd
+        dt
+          select [name="default_options_master[popup_messages]" onchange="this.form.options_popup_messages.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_popup_messages"]
+            "Show a popup when I receive new messages."
+        dd
+          input [name="default_options[popup_messages]" type="hidden" value="#"]
+          input#options_popup_messages.floatleft [disabled name="default_options[popup_messages]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[view_newest_pm_first]" onchange="this.form.options_view_newest_pm_first.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_view_newest_pm_first"]
+            "Show most recent personal messages at top"
+        dd
+          input [name="default_options[view_newest_pm_first]" type="hidden" value="#"]
+          input#options_view_newest_pm_first.floatleft [disabled name="default_options[view_newest_pm_first]" type="checkbox" value="#"]
+        dt
+          select [name="default_options_master[pm_remove_inbox_label]" onchange="this.form.options_pm_remove_inbox_label.disabled = this.selectedIndex != #;"]
+            option [selected value="#"]
+              "Do not change"
+            option [value="#"]
+              "Change"
+            option [value="#"]
+              "Default"
+          label [for="options_pm_remove_inbox_label"]
+            "Remove the inbox label when applying another label"
+        dd
+          input [name="default_options[pm_remove_inbox_label]" type="hidden" value="#"]
+          input#options_pm_remove_inbox_label.floatleft [disabled name="default_options[pm_remove_inbox_label]" type="checkbox" value="#"]
+      hr
+      dl.settings
+      input.button [name="submit" type="submit" value="Save"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]

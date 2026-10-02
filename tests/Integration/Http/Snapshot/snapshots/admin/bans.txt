@@ -1,0 +1,76 @@
+status 200
+@ title
+title
+  "Ban list"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban list"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban list"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=ban;sa=list" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Ban list"
+    div.additional_row
+      input.button [name="removeBans" type="submit" value="Remove selected"]
+    table#ban_list.table_grid
+      thead
+        tr.title_bar
+          th#header_ban_list_name.name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=name" rel="nofollow"]
+              "Ban name"
+          th#header_ban_list_notes.notes [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=notes" rel="nofollow"]
+              "Notes"
+          th#header_ban_list_reason.reason [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=reason" rel="nofollow"]
+              "Reason"
+          th#header_ban_list_added.added [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=added" rel="nofollow"]
+              "Added"
+              span.main_icons.sort_down
+          th#header_ban_list_expires.expires [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=expires" rel="nofollow"]
+              "Expires"
+          th#header_ban_list_num_triggers.num_triggers [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;sort=num_triggers" rel="nofollow"]
+              "Triggers"
+          th#header_ban_list_actions.actions.centercol [scope="col"]
+            "Actions"
+          th#header_ban_list_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "There are currently no bans in effect."
+    div.additional_row
+      input.button [name="removeBans" type="submit" value="Remove selected"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | var removeBans = $("input[name='removeBans']"); removeBans.on( "click", function(e) { var removeItems = $("input[name='remove[]']:checked").length; if (removeItems == #) { e.preventDefault(); return alert("Please select at least one item in the list"); } return confirm("Are you sure you want to remove the selected bans?"); });

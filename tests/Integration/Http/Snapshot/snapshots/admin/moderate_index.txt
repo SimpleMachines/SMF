@@ -1,0 +1,93 @@
+status 200
+@ title
+title
+  "Moderation Center"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Moderation Center"
+  p.information
+    strong
+      "Hello, admin."
+    br
+    "This is your \"Moderation Center\". From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community."
+  div#modnotes
+    form [action="{boardurl}/index.php?action=moderate;area=index;modnote" method="post"]
+      div.cat_bar
+        h3.catbg
+          "Moderator Notes"
+      div.windowbg
+        div.floatleft.post_note
+          input [name="new_note" placeholder="Add a new note" type="text"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+        input.button [name="makenote" type="submit" value="Add"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+  div#modcenter
+    div.half_content
+      div.cat_bar
+        h3.catbg
+          a#group_requests_link [href="{boardurl}/index.php?action=groups;sa=requests"]
+            "Membergroup Requests"
+        span#group_requests_toggle.toggle_up [style="display: none;" title="Hide"]
+      div#group_requests_panel.windowbg
+        ul
+          li
+            strong.smalltext
+              "There are no open requests for group membership."
+      script
+        | var oGroupRequestsPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: false, aSwappableContainers: [ 'group_requests_panel' ], aSwapImages: [ { sId: 'group_requests_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'group_requests_link', msgExpanded: 'Membergroup Requests', msgCollapsed: 'Membergroup Requests' } ], oThemeOptions: { bUseThemeSettings: true, sOptionName: 'admin_preferences', sSessionVar: smf_session_var, sSessionId: smf_session_id, sThemeId: '#', sAdditionalVars: ';admin_key=mcgr' } });
+    div.half_content
+      div.cat_bar
+        h3.catbg
+          a#reported_posts_link [href="{boardurl}/index.php?action=moderate;area=reportedposts"]
+            "Recent Topic Reports"
+        span#reported_posts_toggle.toggle_up [style="display: none;" title="Hide"]
+      div#reported_posts_panel.windowbg
+        ul
+          li
+            strong.smalltext
+              "There are no outstanding reports."
+      script
+        | var oReportedPostsToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: false, aSwappableContainers: [ 'reported_posts_panel' ], aSwapImages: [ { sId: 'reported_posts_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'reported_posts_link', msgExpanded: 'Recent Topic Reports', msgCollapsed: 'Recent Topic Reports' } ], oThemeOptions: { bUseThemeSettings: true, sOptionName: 'admin_preferences', sSessionVar: smf_session_var, sSessionId: smf_session_id, sThemeId: '#', sAdditionalVars: ';admin_key=mcrp' } });
+    div.half_content
+      div.cat_bar
+        h3.catbg
+          a#watched_users_link [href="{boardurl}/index.php?action=moderate;area=userwatch"]
+            "Recent Watched Members"
+        span#watched_users_toggle.toggle_up [style="display: none;" title="Hide"]
+      div#watched_users_panel.windowbg
+        ul
+          li
+            strong.smalltext
+              "There are not currently any watches in place."
+      script
+        | var oWatchedUsersToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: false, aSwappableContainers: [ 'watched_users_panel' ], aSwapImages: [ { sId: 'watched_users_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'watched_users_link', msgExpanded: 'Recent Watched Members', msgCollapsed: 'Recent Watched Members' } ], oThemeOptions: { bUseThemeSettings: true, sOptionName: 'admin_preferences', sSessionVar: smf_session_var, sSessionId: smf_session_id, sThemeId: '#', sAdditionalVars: ';admin_key=mcwu' } });
+    div.half_content
+      div.cat_bar
+        h3.catbg
+          a#reported_users_link [href="{boardurl}/index.php?action=moderate;area=reportedmembers"]
+            "Recent Profile Reports"
+        span#reported_users_toggle.toggle_up [style="display: none;" title="Hide"]
+      div#reported_users_panel.windowbg
+        ul
+          li
+            strong.smalltext
+              "There are no pending profile reports."
+      script
+        | var oReportedUsersToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: false, aSwappableContainers: [ 'reported_users_panel' ], aSwapImages: [ { sId: 'reported_users_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'reported_users_link', msgExpanded: 'Recent Profile Reports', msgCollapsed: 'Recent Profile Reports' } ], oThemeOptions: { bUseThemeSettings: true, sOptionName: 'admin_preferences', sSessionVar: smf_session_var, sSessionId: smf_session_id, sThemeId: '#', sAdditionalVars: ';admin_key=mcur' } });

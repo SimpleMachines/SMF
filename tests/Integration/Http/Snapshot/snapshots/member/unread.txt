@@ -1,0 +1,33 @@
+status 200
+@ title
+title
+  "Recent Unread Topics"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=unread;boards=#;start=#" itemprop="item"]
+        span [itemprop="name"]
+          "Recent Unread Topics"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#recent.main_content
+      div#display_head.information
+        h2.display_title
+          span
+            "Recent Unread Topics"
+      div.infobox
+        p.centertext
+          "No unread topics found since your last visit."
+          a [href="{boardurl}/index.php?action=unread;all;boards=#;start=#"]
+            "Click here to try all unread topics"
+          "."

@@ -1,0 +1,269 @@
+status 200
+@ title
+title
+  "Track IP Address of User {member}"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#" itemprop="item"]
+        span [itemprop="name"]
+          "{member}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#;area=tracking" itemprop="item"]
+        span [itemprop="name"]
+          "Track User"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#;area=tracking;sa=ip" itemprop="item"]
+        span [itemprop="name"]
+          "IP Address"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.permissions.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=permissions;u=#"]
+                      span.main_icons.permissions
+                      "Show Permissions"
+                  li.subsections
+                    a.chosen.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=activity;u=#"]
+                          "Activity"
+                      li
+                        a.chosen [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#"]
+                          "IP Address"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.personal_message.profile_menu_icon [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                      span.main_icons.personal_message
+                      "Send personal message"
+                  li
+                    a.profile_menu_icon.warning [href="{boardurl}/index.php?action=reporttm;{session_var}={session_id};u=#"]
+                      span.main_icons.warning
+                      "Report this member"
+                  li
+                    a.profile_menu_icon.warning [href="{boardurl}/index.php?action=profile;area=issuewarning;u=#"]
+                      span.main_icons.warning
+                      "Issue a Warning"
+                  li
+                    a.ban.profile_menu_icon [href="{boardurl}/index.php?action=admin;area=ban;sa=add;u=#"]
+                      span.ban.main_icons
+                      "Ban this user"
+                  li
+                    a.packages.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=getprofiledata;u=#"]
+                      span.main_icons.packages
+                      "Download profile data"
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div.cat_bar
+        h3.catbg
+          span.icon.main_icons.profile_hd
+          "Tracking"
+      p.information
+        "This section allows you to review certain profile actions performed on this member’s profile as well as track their IP address and login history."
+      a.mobile_generic_menu_1_tabs
+        span.menu_icon
+        span.text_menu
+          "Tracking Menu"
+      div#adm_submenus
+        div#mobile_generic_menu_#_tabs.popup_container
+          div.description.popup_window
+            div.popup_heading
+              "Tracking Menu"
+              a.hide_popup.main_icons [href="javascript:void(#);"]
+            div.generic_menu
+              ul.dropdown_menu_1_tabs.dropmenu
+                li
+                  a [href="{boardurl}/index.php?action=profile;area=tracking;sa=activity;u=#"]
+                    "Activity"
+                li
+                  a.active [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#"]
+                    "IP Address"
+                li
+                  a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                    "Logins"
+      script
+        | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+      div#profile_error.errorbox [style="display:none"]
+      div.cat_bar
+        h3.catbg
+          "IP Address"
+      div.windowbg
+        form [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#" method="post"]
+          dl.settings
+            dt
+              label [for="searchip"]
+                strong
+                  "Enter IP (range)"
+            dd
+              input#searchip [name="searchip" type="text" value="#"]
+          input.button [type="submit" value="IP Address"]
+      br
+      div.cat_bar
+        h3.catbg
+          "Look up # on(s) a regional whois-server"
+      div.windowbg
+        a [href="https://wq.apnic.net/apnic-bin/whois.pl?searchtext=#" rel="noopener" target="_blank"]
+          "APNIC (Asia Pacific region)"
+        br
+        a [href="https://whois.arin.net/rest/ip/#" rel="noopener" target="_blank"]
+          "ARIN (North America, a portion of the Caribbean and sub-Saharan Africa)"
+        br
+        a [href="https://query.milacnic.lacnic.net/search?id=#" rel="noopener" target="_blank"]
+          "LACNIC (Latin American and Caribbean region)"
+        br
+        a [href="https://apps.db.ripe.net/db-web-ui/query?searchtext=#" rel="noopener" target="_blank"]
+          "RIPE (Europe, the Middle East and parts of Africa and Asia)"
+        br
+      br
+      div.cat_bar
+        h3.catbg
+          "Members from IP range #"
+      table.table_grid
+        thead
+          tr.title_bar
+            th [scope="col"]
+              "IP address"
+            th [scope="col"]
+              "Display name"
+        snapshot-ignored [selector="table.table_grid tbody"]
+      br
+      div.cat_bar
+        h3.catbg
+          "Messages posted from IP range #"
+      div.flow_hidden.information
+        div.additional_row
+          "Below is a list of all messages posted from this IP (range)."
+      table#track_message_list.table_grid
+        thead
+          tr.title_bar
+            th#header_track_message_list_ip_address.ip_address [scope="col"]
+              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#;searchip=#;sort=ip_address" rel="nofollow"]
+                "IP address"
+            th#header_track_message_list_poster.poster [scope="col"]
+              "Poster"
+            th#header_track_message_list_subject.subject [scope="col"]
+              "Subject"
+            th#header_track_message_list_date.date [scope="col"]
+              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#;searchip=#;sort=date;desc" rel="nofollow"]
+                "Date"
+                span.main_icons.sort_up
+        snapshot-ignored [selector="table.table_grid tbody"]
+      br
+      div.cat_bar
+        h3.catbg
+          "Error messages from IP range #"
+      div.flow_hidden.information
+        div.additional_row
+          "Below is a list of all recent error messages generated by this IP (range)."
+      table#track_user_list.table_grid
+        thead
+          tr.title_bar
+            th#header_track_user_list_ip_address#.ip_address2 [scope="col"]
+              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#;searchip=#;sort=ip_address#" rel="nofollow"]
+                "IP address"
+            th#header_track_user_list_display_name.display_name [scope="col"]
+              "Display name"
+            th#header_track_user_list_message.message [scope="col"]
+              "Message"
+            th#header_track_user_list_date#.date2 [scope="col"]
+              a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#;searchip=#;sort=date#;desc" rel="nofollow"]
+                "Date"
+                span.main_icons.sort_up
+        snapshot-ignored [selector="table.table_grid tbody"]
