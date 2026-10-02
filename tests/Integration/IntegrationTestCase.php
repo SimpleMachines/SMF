@@ -276,7 +276,7 @@ abstract class IntegrationTestCase extends TestCase
 	 *
 	 * @return int The id, or 0 when nothing has ever been logged.
 	 */
-	private function lastErrorId(): int
+	protected function lastErrorId(): int
 	{
 		$request = Db::$db->query(
 			'SELECT COALESCE(MAX(id_error), 0) AS id_error

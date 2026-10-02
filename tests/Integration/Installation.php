@@ -87,6 +87,9 @@ final class Installation
 		$container->add(ErrorHandlerService::class);
 		ErrorHandler::setService($container->get(ErrorHandlerService::class));
 
+		// Flush any errors immediately.
+		Container::getInstance()->get(\SMF\Services\ErrorHandlerService::class)->batch_size = 1;
+
 		try {
 			// non_fatal, or a refused connection ends the process with SMF's own
 			// database error page instead of letting us report it here.
