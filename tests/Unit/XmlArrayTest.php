@@ -120,6 +120,55 @@ class XmlArrayTest extends TestCase
 		);
 	}
 
+	public function testEntityDecoding(): void
+	{
+		$xml = <<<'XML'
+			<?xml version="1.0"?>
+			<root>
+				<value>&amp;</value>
+				<less>&lt;</less>
+				<greater>&gt;</greater>
+				<quote>&quot;</quote>
+				<apostrophe>&apos;</apostrophe>
+				<numeric>&#65;</numeric>
+			</root>
+			XML;
+
+		$result = new XmlArray($xml);
+
+		$this->assertSame('&', $result->fetch('root/value'));
+		$this->assertSame('<', $result->fetch('root/less'));
+		$this->assertSame('>', $result->fetch('root/greater'));
+		$this->assertSame('"', $result->fetch('root/quote'));
+		$this->assertSame("'", $result->fetch('root/apostrophe'));
+		$this->assertSame('A', $result->fetch('root/numeric'));
+	}
+
+	public function testNestedAndRepeatedElements(): void
+	{
+		$xml = <<<'XML'
+			<?xml version="1.0"?>
+			<root>
+				<item>
+					<name>One</name>
+					<value>A</value>
+				</item>
+				<item>
+					<name>Two</name>
+					<value>B</value>
+				</item>
+			</root>
+			XML;
+
+		$result = new XmlArray($xml);
+
+		$this->assertSame('One', $result->fetch('root[0]/item[0]/name'));
+		$this->assertSame('Two', $result->fetch('root[0]/item[1]/name'));
+		$this->assertSame('A', $result->fetch('root[0]/item[0]/value'));
+		$this->assertSame('B', $result->fetch('root[0]/item[1]/value'));
+		$this->assertSame(2, $result->count('root[0]/item'));
+	}
+
 	public function testMissingPathRaisesNotice(): void
 	{
 		set_error_handler(
