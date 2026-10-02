@@ -1,0 +1,67 @@
+status 200
+@ title
+title
+  "Viewing Membergroups"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=groups" itemprop="item"]
+        span [itemprop="name"]
+          "Groups"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div.cat_bar
+      h3.catbg
+        "Viewing Membergroups"
+    table#group_lists.table_grid
+      thead
+        tr.title_bar
+          th#header_group_lists_group.group [scope="col"]
+            a [href="{boardurl}/index.php?action=groups;sort=group;desc" rel="nofollow"]
+              "Name"
+              span.main_icons.sort_up
+          th#header_group_lists_icons.icons [scope="col"]
+            a [href="{boardurl}/index.php?action=groups;sort=icons" rel="nofollow"]
+              "Icons"
+          th#header_group_lists_moderators.moderators [scope="col"]
+            "Moderators"
+          th#header_group_lists_members.members [scope="col"]
+            a [href="{boardurl}/index.php?action=groups;sort=members" rel="nofollow"]
+              "Members"
+      tbody
+        tr#list_group_lists_#.windowbg
+          td.group
+            a [href="{boardurl}/index.php?action=groups;sa=members;group=#" style="color: #FF#;"]
+              "Administrator"
+            "("
+            a [href="{boardurl}/index.php?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);"]
+              "?"
+            ")"
+          td.icons
+            img [alt="*" src="{boardurl}/Themes/default/images/membericons/iconadmin.png"]
+          td.moderators
+            em
+              "(none)"
+          td.centercol.members
+            "#"
+        tr#list_group_lists_#.windowbg
+          td.group
+            a [href="{boardurl}/index.php?action=groups;sa=members;group=#" style="color: ##FF;"]
+              "Global Moderator"
+          td.icons
+            img [alt="*" src="{boardurl}/Themes/default/images/membericons/icongmod.png"]
+          td.moderators
+            em
+              "(none)"
+          td.centercol.members
+            "#"
