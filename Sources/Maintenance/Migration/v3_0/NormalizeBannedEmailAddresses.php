@@ -126,7 +126,7 @@ class NormalizeBannedEmailAddresses extends MigrationBase
 				);
 			}
 
-			$this->handleTimeout(max($params['ids']));
+			$this->handleTimeout(empty($params['ids']) ? Maintenance::getCurrentStart() + $this->limit : max($params['ids']));
 		}
 
 		return true;
