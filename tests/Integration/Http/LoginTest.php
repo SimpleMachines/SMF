@@ -74,7 +74,8 @@ class LoginTest extends HttpTestCase
 
 	public function testSigningOutEndsTheSession(): void
 	{
-		$this->signInAsAdmin();
+		// This test should not use the cached authenticated client.
+		$this->signInAsAdmin(false);
 		$page = $this->fetch('');
 		$this->assertSignedIn(true, '', $page);
 
