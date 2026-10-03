@@ -547,7 +547,7 @@ class CreatePost_Notify extends BackgroundTask
 						$message_type .= '_body';
 					}
 
-					if (!empty($frequency)) {
+					if ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG) {
 						$message_type .= '_once';
 					}
 				}
