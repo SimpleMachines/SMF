@@ -117,11 +117,11 @@ class PaidSubs extends ScheduledTask
 			if ($subs_notify & self::RECEIVE_NOTIFY_ALERT) {
 				$alert_rows[] = [
 					'alert_time' => time(),
-					'id_member' => $row['id_member'],
-					'id_member_started' => $row['id_member'],
+					'id_member' => (int) $row['id_member'],
+					'id_member_started' => (int) $row['id_member'],
 					'member_name' => $row['member_name'],
 					'content_type' => 'paidsubs',
-					'content_id' => $row['id_sublog'],
+					'content_id' => (int) $row['id_sublog'],
 					'content_action' => 'expiring',
 					'is_read' => 0,
 					'extra' => Utils::jsonEncode([
