@@ -244,7 +244,7 @@ class Announce implements ActionInterface, Routable
 					'TOPICSUBJECT' => Utils::$context['topic_subject'],
 					'MESSAGE' => $message,
 					'TOPICLINK' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
-					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
+					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notifyannouncements;sa=off;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 				];
 
 				$emaildata = Mail::loadEmailTemplate('new_announcement', $replacements, $cur_language);

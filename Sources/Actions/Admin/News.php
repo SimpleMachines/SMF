@@ -970,7 +970,7 @@ class News implements ActionInterface
 				if (!empty($include_unsubscribe)) {
 					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token], file: 'General');
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;sa=off;u=' . $row['id_member'] . ';token=' . $token], file: 'General');
 				} else {
 					$unsubscribe_link = '';
 				}
