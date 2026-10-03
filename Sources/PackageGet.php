@@ -431,7 +431,7 @@ function PackageGBrowse()
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL) && filter_var($listing->fetch('author/@email'), FILTER_SANITIZE_EMAIL) === $listing->fetch('author/@email'))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL) && filter_var($thisPackage->fetch('author/@email'), FILTER_SANITIZE_EMAIL) === $thisPackage->fetch('author/@email'))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;

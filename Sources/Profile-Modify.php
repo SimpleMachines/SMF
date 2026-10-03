@@ -3989,7 +3989,7 @@ function profileValidateEmail($email, $memID = 0)
 	// Check the name and email for validity.
 	if (trim($email) == '')
 		return 'no_email';
-	if (!filter_var($email, FILTER_VALIDATE_EMAIL) || filter_var($email, FILTER_SANITIZE_EMAIL) !== $$email)
+	if (!filter_var($email, FILTER_VALIDATE_EMAIL) || filter_var($email, FILTER_SANITIZE_EMAIL) !== $email)
 		return 'bad_email';
 
 	// Email addresses should be and stay unique.
