@@ -314,33 +314,37 @@ class Groups extends ViewGroups
 					}
 				}
 
-				// Add a background task to handle notifying people of this request
-				$data = Utils::jsonEncode([
-					'member_id' => User::$me->id,
-					'member_ip' => User::$me->ip,
-					'request_list' => $request_list,
-					'status' => $_POST['req_action'],
-					'reason' => $_POST['groupreason'] ?? '',
-					'time' => time(),
-				]);
+				// Add a background task to handle notifying people of this request,
+				// if any of them were still open. Another moderator may have got
+				// there first, or the form may have been sent twice.
+				if (!empty($request_list)) {
+					$data = Utils::jsonEncode([
+						'member_id' => User::$me->id,
+						'member_ip' => User::$me->ip,
+						'request_list' => $request_list,
+						'status' => $_POST['req_action'],
+						'reason' => $_POST['groupreason'] ?? '',
+						'time' => time(),
+					]);
 
-				Db::$db->insert(
-					'insert',
-					'{db_prefix}background_tasks',
-					[
-						'task_class' => 'string-255',
-						'task_data' => 'string',
-						'claimed_time' => 'int',
-					],
-					[
+					Db::$db->insert(
+						'insert',
+						'{db_prefix}background_tasks',
 						[
-							GroupAct_Notify::class,
-							$data,
-							0,
+							'task_class' => 'string-255',
+							'task_data' => 'string',
+							'claimed_time' => 'int',
 						],
-					],
-					[],
-				);
+						[
+							[
+								GroupAct_Notify::class,
+								$data,
+								0,
+							],
+						],
+						[],
+					);
+				}
 
 				// Some changes to log?
 				if (!empty($log_changes)) {
