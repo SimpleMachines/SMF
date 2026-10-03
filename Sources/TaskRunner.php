@@ -379,7 +379,11 @@ class TaskRunner
 	public static function handleException(\Throwable $e): void
 	{
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
-			ErrorHandler::log(Lang::getTxt($e->getMessage(), file: 'Errors'), 'cron', $e->getFile(), $e->getLine());
+			// Some exceptions carry the key of a language string, but most
+			// carry the message itself, which is not a key of anything.
+			$message = Lang::getTxt($e->getMessage(), file: 'Errors');
+
+			ErrorHandler::log($message !== '' ? $message : $e->getMessage(), 'cron', $e->getFile(), $e->getLine());
 		}
 	}
 
