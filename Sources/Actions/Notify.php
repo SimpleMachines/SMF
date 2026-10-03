@@ -485,7 +485,7 @@ abstract class Notify implements ActionInterface
 				],
 				[
 					[
-						User::$me->id,
+						(int) self::$member_info['id'],
 						$id_topic,
 						$id_board,
 					],
