@@ -673,7 +673,8 @@ class Mail
 		// Get the subject and body...
 		$result = Db::$db->query(
 			'SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
-				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
+				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg,
+				t.id_member_started, t.id_member_updated
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -687,26 +688,51 @@ class Mail
 		$task_rows = [];
 
 		while ($row = Db::$db->fetch_assoc($result)) {
+			$data = [
+				'msgOptions' => [
+					'id' => $row['id_msg'],
+					'subject' => $row['subject'],
+					'body' => $row['body'],
+				],
+				'topicOptions' => [
+					'id' => $row['id_topic'],
+					'board' => $row['id_board'],
+				],
+				// Kinda cheeky, but for any action the originator is usually the current user
+				'posterOptions' => [
+					'id' => User::$me->id,
+					'name' => User::$me->name,
+				],
+				'type' => $type,
+				'members_only' => $members_only,
+			];
+
+			// A removed topic takes its watchers with it before the task runs,
+			// so write down who they are while they can still be found.
+			if ($type === 'remove') {
+				$data['watchers'] = [];
+				$data['started_by'] = (int) $row['id_member_started'];
+				$data['updated_by'] = (int) $row['id_member_updated'];
+
+				$watchers = Db::$db->query(
+					'SELECT id_member, sent
+					FROM {db_prefix}log_notify
+					WHERE id_topic = {int:topic}',
+					[
+						'topic' => $row['id_topic'],
+					],
+				);
+
+				while ($watcher = Db::$db->fetch_assoc($watchers)) {
+					$data['watchers'][(int) $watcher['id_member']] = (int) $watcher['sent'];
+				}
+
+				Db::$db->free_result($watchers);
+			}
+
 			$task_rows[] = [
 				Tasks\CreatePost_Notify::class,
-				Utils::jsonEncode([
-					'msgOptions' => [
-						'id' => $row['id_msg'],
-						'subject' => $row['subject'],
-						'body' => $row['body'],
-					],
-					'topicOptions' => [
-						'id' => $row['id_topic'],
-						'board' => $row['id_board'],
-					],
-					// Kinda cheeky, but for any action the originator is usually the current user
-					'posterOptions' => [
-						'id' => User::$me->id,
-						'name' => User::$me->name,
-					],
-					'type' => $type,
-					'members_only' => $members_only,
-				]),
+				Utils::jsonEncode($data),
 				0,
 			];
 		}
