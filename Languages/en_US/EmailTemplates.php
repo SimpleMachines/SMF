@@ -498,10 +498,11 @@ The reporter has made the following comment:
 {REGARDS}';
 
 /*
-	@additional_params: report_user_profile
+	@additional_params: reply_to_member_report
 		MEMBERNAME: The display name of the reported user
 		COMMENTERNAME: The name of the person who added the comment
 		PROFILELINK: The link to the profile that was reported
+		REPORTLINK: The link to the report in the moderation center
 	@description: When someone replies to a report about a profile, this can be sent to others who replied
 */
 $txt['reply_to_member_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
