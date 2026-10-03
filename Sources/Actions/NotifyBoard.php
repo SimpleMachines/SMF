@@ -46,6 +46,10 @@ class NotifyBoard extends Notify
 	 */
 	protected function setId(): void
 	{
+		if ($this->setIdFromLink()) {
+			return;
+		}
+
 		if (empty(Board::$info->id)) {
 			ErrorHandler::fatalLang('no_board', false);
 		}

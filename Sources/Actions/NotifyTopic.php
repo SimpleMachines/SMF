@@ -47,6 +47,10 @@ class NotifyTopic extends Notify
 	 */
 	protected function setId(): void
 	{
+		if ($this->setIdFromLink()) {
+			return;
+		}
+
 		if (empty(Topic::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
 		}
