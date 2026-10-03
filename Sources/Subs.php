@@ -3135,7 +3135,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 									$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
 
-									if (!$can_validate || filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false)
+									if (!$can_validate || (filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false && filter_var($parsedurl['path'], FILTER_SANITIZE_EMAIL) === $parsedurl['path']))
 										return '[email=' . str_replace('mailto:', '', $url) . ']' . $url . '[/email]';
 									else
 										return $url;

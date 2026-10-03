@@ -544,7 +544,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	$regOptions['username'] = $smcFunc['htmlspecialchars']($regOptions['username']);
 
 	// @todo Separate the sprintf?
-	if (empty($regOptions['email']) || !filter_var($regOptions['email'], FILTER_VALIDATE_EMAIL) || strlen($regOptions['email']) > 255)
+	if (empty($regOptions['email']) || !filter_var($regOptions['email'], FILTER_VALIDATE_EMAIL) || filter_var($regOptions['email'], FILTER_SANITIZE_EMAIL) !== $regOptions['email'] || strlen($regOptions['email']) > 255)
 		$reg_errors[] = array('lang', 'profile_error_bad_email');
 
 	$username_validation_errors = validateUsername(0, $regOptions['username'], true, !empty($regOptions['check_reserved_name']));

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2025 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.7
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -261,7 +261,7 @@ function ModifySubscriptionSettings($return_config = false)
 			foreach (explode(',', $_POST['paid_email_to']) as $email)
 			{
 				$email = trim($email);
-				if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
+				if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && filter_var($email, FILTER_SANITIZE_EMAIL) === $email)
 					$email_addresses[] = $email;
 				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}

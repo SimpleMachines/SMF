@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.1
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -315,7 +315,7 @@ function PackageGBrowse()
 	if ($listing->exists('default-author'))
 	{
 		$default_author = $smcFunc['htmlspecialchars']($listing->fetch('default-author'));
-		if ($listing->exists('default-author/@email') && filter_var($listing->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL))
+		if ($listing->exists('default-author/@email') && filter_var($listing->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL) && filter_var($listing->fetch('default-author/@email'), FILTER_SANITIZE_EMAIL) === $listing->fetch('default-author/@email'))
 			$default_email = $smcFunc['htmlspecialchars']($listing->fetch('default-author/@email'));
 	}
 
@@ -431,7 +431,7 @@ function PackageGBrowse()
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL) && filter_var($listing->fetch('author/@email'), FILTER_SANITIZE_EMAIL) === $listing->fetch('author/@email'))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;

@@ -1608,13 +1608,13 @@ function AdminAccount()
 			$incontext['error'] = $txt['error_invalid_characters_username'];
 			return false;
 		}
-		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255)
+		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) !== $_POST['email'] || strlen($_POST['email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = sprintf($txt['error_valid_admin_email_needed'], $_POST['username']);
 			return false;
 		}
-		elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255)
+		elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || filter_var($_POST['server_email'], FILTER_SANITIZE_EMAIL) !== $_POST['server_email'] || strlen($_POST['server_email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = $txt['error_valid_server_email_needed'];
