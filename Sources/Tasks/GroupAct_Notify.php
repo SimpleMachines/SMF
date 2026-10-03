@@ -42,6 +42,10 @@ class GroupAct_Notify extends BackgroundTask
 	 */
 	public function execute(): bool
 	{
+		if (empty($this->_details['request_list'])) {
+			return true;
+		}
+
 		// Get the details of all the members concerned...
 		$request = Db::$db->query(
 			'SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
