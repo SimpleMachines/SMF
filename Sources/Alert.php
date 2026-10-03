@@ -623,22 +623,28 @@ class Alert implements \ArrayAccess
 		$possible_msgs = [];
 		$possible_topics = [];
 
-		// First, weed out any alerts that wouldn't be visible.
-		foreach ($props_batch as &$props) {
+		// First, weed out any alerts that wouldn't be visible. None of these
+		// alerts has an ID yet, so the access checks get one made from their
+		// place in the batch, which no saved or temporary alert ID can match.
+		$batch_keys = [];
+
+		foreach ($props_batch as $key => &$props) {
+			$batch_keys['new' . $key] = $key;
+
 			$members[] = $props['id_member'];
 
 			switch ($props['content_type']) {
 				case 'msg':
 					$props['visible'] = false;
 					$props['simple_access_check'] = true;
-					$possible_msgs[$props['id_member']][$props['id_alert']] = $props['content_id'];
+					$possible_msgs[$props['id_member']]['new' . $key] = $props['content_id'];
 					break;
 
 				case 'topic':
 				case 'board':
 					$props['visible'] = false;
 					$props['simple_access_check'] = true;
-					$possible_topics[$props['id_member']][$props['id_alert']] = $props['content_id'];
+					$possible_topics[$props['id_member']]['new' . $key] = $props['content_id'];
 					break;
 
 				default:
@@ -647,18 +653,16 @@ class Alert implements \ArrayAccess
 			}
 		}
 
+		unset($props);
+
 		$members = array_unique($members);
 
 		foreach ($members as $memID) {
 			foreach (['checkMsgAccess' => 'possible_msgs', 'checkTopicAccess' => 'possible_topics'] as $method => $variable) {
 				$visibility = self::$method(${$variable}[$memID] ?? [], (int) $memID, true);
 
-				if (!empty($visibility)) {
-					foreach ($props_batch as &$props) {
-						if (isset($visibility[$props['id_alert']])) {
-							$props['visible'] = $visibility[$props['id_alert']];
-						}
-					}
+				foreach ($visibility as $new_key => $visible) {
+					$props_batch[$batch_keys[$new_key]]['visible'] = $visible;
 				}
 			}
 		}
