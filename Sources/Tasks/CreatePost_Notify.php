@@ -654,7 +654,7 @@ class CreatePost_Notify extends BackgroundTask
 					'POSTERNAME' => Utils::htmlspecialcharsDecode(User::$loaded[$posterOptions['id']]->name ?? $posterOptions['name']),
 					'TOPICLINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
-					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
+					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';item=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
 				];
 
 				$emaildata = Mail::loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);
