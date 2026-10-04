@@ -1101,8 +1101,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			// Make the CREATE for this column.
 			$schema_create .= ' "' . $row['column_name'] . '" ' . $row['data_type'] . ($row['is_nullable'] != 'YES' ? ' NOT NULL' : '');
 
-			// Add a default...?
-			if (trim($row['column_default']) != '') {
+			// Add a default...? A column without one reads as null here.
+			if (trim($row['column_default'] ?? '') != '') {
 				$schema_create .= ' default ' . $row['column_default'] . '';
 
 				// Auto increment?
