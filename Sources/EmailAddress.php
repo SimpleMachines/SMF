@@ -239,7 +239,11 @@ class EmailAddress implements \Stringable
 			$this->local_part . '@' . ($allow_unicode ? $this->ascii_domain_part : $this->domain_part),
 			FILTER_VALIDATE_EMAIL,
 			$allow_unicode ? FILTER_FLAG_EMAIL_UNICODE : 0,
-		);
+		) && filter_var(
+			$this->local_part . '@' . ($allow_unicode ? $this->ascii_domain_part : $this->domain_part),
+			FILTER_SANITIZE_EMAIL,
+			$allow_unicode ? FILTER_FLAG_EMAIL_UNICODE : 0,
+		) === $this->local_part . '@' . ($allow_unicode ? $this->ascii_domain_part : $this->domain_part);
 	}
 
 	/***********************
