@@ -252,7 +252,8 @@ class PermissionProfile
 		$request = Db::$db->query(
 			'SELECT p.id_profile, p.profile_name, b.id_board
 			FROM {db_prefix}permission_profiles AS p
-			LEFT JOIN {db_prefix}boards AS b ON (p.id_profile = b.id_profile)',
+			LEFT JOIN {db_prefix}boards AS b ON (p.id_profile = b.id_profile)
+			ORDER BY p.id_profile, b.id_board',
 			[],
 		);
 
