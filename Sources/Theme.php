@@ -2285,6 +2285,17 @@ class Theme
 			if (Utils::$context['theme_variant'] == '' || !\in_array(Utils::$context['theme_variant'], $this->settings['theme_variants'])) {
 				Utils::$context['theme_variant'] = !empty($this->settings['default_variant']) && \in_array($this->settings['default_variant'], $this->settings['theme_variants']) ? $this->settings['default_variant'] : $this->settings['theme_variants'][0];
 			}
+
+			/*
+			 * The other way to recolour a variant is a whole stylesheet of its
+			 * own, sitting on top of index.css. The 'default' variant is the base
+			 * sheet by itself, so it has no file of its own to load, and a theme
+			 * that recolours through variants.css above has none either - the
+			 * file is validated, so a missing one is simply not loaded.
+			 */
+			if (Utils::$context['theme_variant'] !== 'default') {
+				self::loadCSSFile('index_' . Utils::$context['theme_variant'] . '.css', ['order_pos' => 2], 'smf_index_' . Utils::$context['theme_variant']);
+			}
 		}
 	}
 
