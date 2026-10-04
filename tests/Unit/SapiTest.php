@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -52,11 +63,19 @@ class SapiTest extends TestCase
 		$this->assertSame(PHP_INT_MAX, Sapi::memoryReturnBytes('-1'));
 	}
 
+	/**
+	 * A byte count with no unit designator is returned unchanged.
+	 *
+	 * Expected: memoryReturnBytes('50000000') returns 50000000.
+	 * Guards:   the last character was always stripped as a K/M/G designator,
+	 *           so Graphics\Image, which passes a plain byte count, got a tenth
+	 *           of the memory it asked for.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/a4361e01b Introduced by "Introduce Sapi Class"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9324
+	 */
 	public function testAPlainByteCountKeepsItsLastDigit(): void
 	{
-		// The designator is optional, and Graphics\Image passes a computed byte
-		// count without one. Stripping the last character regardless turned this
-		// into a tenth of the memory that was actually asked for.
 		$this->assertSame(50000000, Sapi::memoryReturnBytes('50000000'));
 	}
 
