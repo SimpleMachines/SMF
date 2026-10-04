@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2026 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.8
  */
 
 if (!defined('SMF'))
@@ -811,7 +811,7 @@ function SendMailing($clean_only = false)
 		foreach ($addressed as $curmem)
 		{
 			$curmem = trim($curmem);
-			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
+			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL) && filter_var($curmem, FILTER_SANITIZE_EMAIL) === $curmem)
 				$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}
