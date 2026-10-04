@@ -314,7 +314,7 @@ class TopicSplit implements ActionInterface, Routable
 				WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 					AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
-					' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
+					ORDER BY id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC') . '
 					LIMIT {int:start}, {int:messages_per_page}',
 				[
 					'current_topic' => Topic::$topic_id,
@@ -342,7 +342,7 @@ class TopicSplit implements ActionInterface, Routable
 					WHERE id_topic = {int:current_topic}
 						AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 						AND approved = {int:is_approved}') . '
-					' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
+					ORDER BY id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC') . '
 					LIMIT {int:start}, {int:messages_per_page}',
 					[
 						'current_topic' => Topic::$topic_id,
@@ -435,7 +435,7 @@ class TopicSplit implements ActionInterface, Routable
 			WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
+				ORDER BY m.id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 			[
 				'current_topic' => Topic::$topic_id,
@@ -483,7 +483,7 @@ class TopicSplit implements ActionInterface, Routable
 				WHERE m.id_topic = {int:current_topic}
 					AND m.id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
-				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
+				ORDER BY m.id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 				[
 					'current_topic' => Topic::$topic_id,
