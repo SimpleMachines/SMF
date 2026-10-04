@@ -407,7 +407,11 @@ than shown, especially anything in a background task.
 - Commit messages use the imperative-with-s form used upstream, for example
   "Ensures trailing chars are correctly quoted", "Only enforces bans that actually exist".
 - Language strings live in `Languages/en_US/`; never hard-code user-facing text.
-- Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`.
+- Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`. That includes
+  scratch files in `cache/`: `.dev/test.sh` (through `.dev/use-engine.sh`) and
+  `.dev/reset.sh` delete everything in it except `index.php` and `.htaccess`, so a
+  script or report left there vanishes on the next test run with nothing to say so.
+  Use the system temp directory instead.
 - `Settings.php` is local configuration and is not committed.
 
 ### Comments
