@@ -62,12 +62,15 @@ class QueryCaseFoldingTest extends TestCase
 	 * The two in Security.php are folded by the 'ban_like' identifier instead,
 	 * which rewrites LIKE to ILIKE for PostgreSQL when the query runs.
 	 *
-	 * Everything else here is unresolved: see #9592 for Bans.php and #9593 for
-	 * SearchApi.php. Lowering a count is the point of the list, so a change
-	 * that fixes one of them belongs in the same commit as its new number.
+	 * The one in Admin/Bans.php compares email_address_ci against the email
+	 * pattern of a ban, and both are stored casefolded.
+	 *
+	 * Everything else here is unresolved: see #9593 for SearchApi.php. Lowering
+	 * a count is the point of the list, so a change that fixes one of them
+	 * belongs in the same commit as its new number.
 	 */
 	public const BASELINE = [
-		'Sources/Actions/Admin/Bans.php' => 3,
+		'Sources/Actions/Admin/Bans.php' => 1,
 		'Sources/Actions/Admin/Subscriptions.php' => 1,
 		'Sources/Actions/Profile/Summary.php' => 2,
 		'Sources/Search/SearchApi.php' => 3,
@@ -94,20 +97,17 @@ class QueryCaseFoldingTest extends TestCase
 	 * User.php is not here because it hands its list to {array_string_ci:},
 	 * which folds every value in it.
 	 *
-	 * Not folded by their callers, and so matching nothing on PostgreSQL:
+	 * Not folded by its caller, and so matching nothing on PostgreSQL:
 	 *
-	 *  - Register2.php and Profile.php, which is #9594.
-	 *  - PersonalMessage/Search.php, which is the same fault in the search for
-	 *    a personal message by its author.
+	 *  - PersonalMessage/Search.php, in the search for a personal message by
+	 *    its author.
 	 */
 	public const UNFOLDED_VALUES = [
 		'Sources/Actions/Admin/Members.php' => 1,
 		'Sources/Actions/AutoSuggest.php' => 2,
-		'Sources/Actions/Register2.php' => 2,
 		'Sources/Actions/RequestMembers.php' => 1,
 		'Sources/PersonalMessage/PM.php' => 1,
 		'Sources/PersonalMessage/Search.php' => 2,
-		'Sources/Profile.php' => 1,
 	];
 
 	/****************
