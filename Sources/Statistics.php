@@ -33,21 +33,21 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Statistics
 {
-	/**************************
-	 * Public static properties
-	 **************************/
+	/*****************
+	 * Class constants
+	 *****************/
 
 	/**
 	 * URL to send the stats collection data to.
 	 * @var string
 	 */
-	public static string $collection_url = 'https://www.simplemachines.org/smf/stats/collect_stats.php';
+	private const string COLLECTION_URL = 'https://www.simplemachines.org/smf/stats/collect_stats.php';
 
 	/**
 	 * URL to send the registration to.
 	 * @var string
 	 */
-	public static string $register_url = 'https://www.simplemachines.org/smf/stats/register_stats.php?site=';
+	private const string REGISTER_URL = 'https://www.simplemachines.org/smf/stats/register_stats.php?site=';
 
 	/**
 	 * This is the referal check, SMF validates that a request for stats comes from this url.
@@ -56,7 +56,7 @@ class Statistics
 	 *
 	 * @var string
 	 */
-	public static string $referer_check = '746cb59a1a0d5cf4bd240e5a67c73085';
+	private const string REFERER_CHECK = '746cb59a1a0d5cf4bd240e5a67c73085';
 
 	/***********************
 	 * Public static methods
@@ -98,6 +98,33 @@ class Statistics
 		return $stats_to_send;
 	}
 
+	 /**
+	  * Attempt to send our collected stats home.
+	  *
+	  */
+	 public static function sendToCollector(): void
+	 {
+		$stats_to_send = http_build_query(static::collect());
+
+		// Connect to the collection script.
+		$res = WebFetchApi::fetch(Statistics::COLLECTION_URL, $stats_to_send);
+
+		// Try one more time, this time without https.
+		if ($res !== '1') {
+			WebFetchApi::fetch(str_replace('https://', 'http://', Statistics::COLLECTION_URL), $stats_to_send);
+		}
+	 }
+
+	 /**
+	  * Validate our referer.
+	  *
+	  * @return bool True if matched, false otherwise
+	  */
+	 public static function refererIsValid(): bool
+	 {
+		return isset($_SERVER['HTTP_REFERER']) && md5($_SERVER['HTTP_REFERER']) === Statistics::REFERER_CHECK;
+	 }
+
 	/**
 	 * Registers the site with the Simple Machines Stat collection. This function
 	 * purposely does not use Config::updateModSettings() as it will be called shortly after
@@ -122,11 +149,11 @@ class Statistics
 			return false;
 		}
 
-		$data = WebFetchApi::fetch(static::$register_url . base64_encode(Config::$boardurl));
+		$data = WebFetchApi::fetch(static::REGISTER_URL . base64_encode(Config::$boardurl));
 
 		// Try one more time, this time without https.
 		if (empty($data)) {
-			$data = WebFetchApi::fetch(str_replace('https://', 'http://', static::$register_url) . base64_encode(Config::$boardurl));
+			$data = WebFetchApi::fetch(str_replace('https://', 'http://', static::REGISTER_URL) . base64_encode(Config::$boardurl));
 		}
 
 		// Get the unique site ID.

@@ -22,7 +22,6 @@ use SMF\Config;
 use SMF\Routable;
 use SMF\Statistics;
 use SMF\User;
-use SMF\WebFetch\WebFetchApi;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
@@ -71,26 +70,16 @@ class SmStats implements ActionInterface, Routable
 		}
 
 		// Verify the referer...
-		if (!User::$me->is_admin && (!isset($_SERVER['HTTP_REFERER']) || md5($_SERVER['HTTP_REFERER']) != Statistics::$referer_check)) {
+		if (!User::$me->is_admin && !Statistics::refererIsValid()) {
 			die();
 		}
 
-		$stats_to_send = Statistics::collect();
-
-		// Turn this into the query string!
-		$stats_to_send = http_build_query($stats_to_send);
-
 		// If we're an admin, just plonk them out.
 		if (User::$me->is_admin) {
-			echo $stats_to_send;
+			// Turn this into the query string!
+			echo http_build_query(Statistics::collect());
 		} else {
-			// Connect to the collection script.
-			$res = WebFetchApi::fetch(Statistics::$collection_url, $stats_to_send);
-
-			// Try one more time, this time without https.
-			if ($res !== '1') {
-				WebFetchApi::fetch(str_replace('https://', 'http://', Statistics::$collection_url), $stats_to_send);
-			}
+			Statistics::sendToCollector();
 		}
 
 		// Die.
