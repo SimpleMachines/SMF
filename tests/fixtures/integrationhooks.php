@@ -27,3 +27,15 @@ function my_integrated_service(array &$factories): void
 		return new UserRepository($db);
 	};
 }
+
+/**
+ * Intercepts a redirect and throws its target instead of allowing
+ * Utils::redirectexit() to terminate the process.
+ *
+ * @param string $set_location The URL or query string being redirected to.
+ */
+function my_integrated_redirect(string $set_location): void
+{
+	// Stop execution before Utils::obExit() can terminate the process.
+	throw new \Exception($set_location);
+}
