@@ -108,6 +108,111 @@ most often catch people out:
 Docblocks are expected on classes, properties and methods, with tags ordered
 param, throws, return.
 
+### Method docblocks
+
+The fixer handles the mechanical part. It puts the tags in the order param, throws,
+return, and the `@param` tags in the order of the signature. It deletes `@return void`
+and `@return null`, and writes scalar types short (`int`, `bool`, `float`, not
+`integer`, `boolean`, `double`). It keeps every method docblock multi-line. What
+follows is convention, which nothing checks. This is the shape, from
+`Calendar\VTimeZone::load()`:
+
+```php
+/**
+ * Loads an instance of this class for the specified time zone identifier.
+ *
+ * @param string $tzid A time zone identifier string.
+ * @throws \ValueError if $tzid is not a valid time zone identifier.
+ * @return self An instance of this class for the time zone.
+ */
+public static function load(string $tzid): self
+```
+
+- **The first line is one sentence saying what the method does**, ending with a full
+  stop. Anything a caller would not guess — the edge cases, why it behaves as it does —
+  goes in paragraphs below it, separated by blank lines. `Sapi::memoryReturnBytes()`
+  and `Utils::buildRegex()` are good examples of the longer form.
+- **One blank line between the description and the tags**, and none between the tags.
+- **`@param type $name Description.`** The type is written out even though the
+  signature already declares it.
+- **`@throws \FullyQualified\Exception if <condition>.`**, with the leading backslash.
+- **`@return type Description.`**, saying what the value means rather than only its
+  type. A `void` method has no `@return` at all, and the fixer removes one if you
+  write it.
+- **A description that runs onto another line is indented four spaces** after the `*`:
+
+  ```php
+   * @return string|array One or more regular expressions to match any of the
+   *    input strings.
+  ```
+
+- The rules under [Comments](#comments) apply here too: say what the method does now,
+  not how it came to be that way.
+
+**Only use tags from the phpDocumentor tag reference**, at
+<https://manual.phpdoc.org/HTMLSmartyConverter/HandS/phpDocumentor/tutorial_tags.pkg.html>:
+
+- standard tags: `@abstract`, `@access`, `@author`, `@category`, `@copyright`,
+  `@deprecated`, `@example`, `@filesource`, `@final`, `@global`, `@ignore`, `@internal`,
+  `@license`, `@link`, `@method`, `@name`, `@package`, `@param`, `@property`,
+  `@return`, `@see`, `@since`, `@static`, `@staticvar`, `@subpackage`, `@todo`,
+  `@tutorial`, `@uses`, `@var`, `@version`;
+- inline tags: `{@example}`, `{@id}`, `{@inheritdoc}`, `{@internal}`, `{@link}`,
+  `{@source}`, `{@toc}`, `{@tutorial}`.
+
+The reference says what happens to anything else: "Any tags that phpDocumentor does
+not recognize will not be parsed, and will be displayed in text flow as if they are part
+of the DocBlock long description." So a tag that is not on the list is not a tag. When
+something needs saying that no tag on the list covers, write it in the description as
+plain text, the way `Expected:` and `Guards:` are written below.
+
+`@throws` is the one exception. It is not on the list, but the fixer's `phpdoc_order`
+places it and `Sources/` has used it throughout, so keep writing it as shown above.
+The handful of other unlisted tags in `Sources/` (`@suppress`, `@template`, `@mixin`)
+are not a precedent for adding more.
+
+Helpers and base-class methods in `tests/` follow the rules above.
+
+#### Test method docblocks
+
+A test method has no parameters or return value to describe. Its docblock records what
+the test pins down and, for a regression test, where the bug came from:
+
+```php
+/**
+ * A byte count with no unit designator is returned unchanged.
+ *
+ * Expected: memoryReturnBytes('50000000') returns 50000000.
+ * Guards:   the last character was always stripped as a K/M/G designator,
+ *           so Graphics\Image, which passes a plain byte count, got a tenth
+ *           of the memory it asked for.
+ *
+ * @link https://github.com/SimpleMachines/SMF/commit/a4361e01b Introduced by "Introduce Sapi Class"
+ * @link https://github.com/SimpleMachines/SMF/pull/9324
+ */
+public function testAPlainByteCountKeepsItsLastDigit(): void
+```
+
+- **The first line states the behaviour**, as the method name does, in a sentence.
+- **`Expected:`** names the call and the result the assertion checks.
+- **`Guards:`** says what went wrong without this behaviour. A regression test has one,
+  and a test that only describes intended behaviour can leave it out. Continuation lines
+  line up under the text, not under the label.
+- **`@link <commit URL> Introduced by "<commit subject>"`** names the commit that
+  introduced the bug, by its short hash. The reference gives `@link` as
+  `@link URL link text`, and SMF already uses it that way
+  (`Actions/Admin/Server.php`). The
+  hash stays in the line, so `git grep a4361e01b tests/` finds every test a commit made
+  necessary. Find the commit with `git log -S` or `git log -L` on the lines the fix
+  changed; when the fault is older than the history, leave the line out rather than
+  guess.
+- **A second `@link`** points at the issue that reported the bug, or at the pull request
+  that fixed it when there is no issue.
+
+Do not invent a tag for any of this, such as `@introduced`. It is not on the list
+above, and the reviewers have said no to it. `Expected:` and `Guards:` are plain text
+on purpose.
+
 ## Verifying a change
 
 ### Tests
@@ -125,8 +230,9 @@ so run it locally.
 
 **The expectation: if the code you touched is reachable from this suite, your change
 adds or updates a test in the same commit.** A bug fix lands as a regression test that
-fails before the fix and passes after it, with a comment saying what went wrong — see
-`SapiTest::testAPlainByteCountKeepsItsLastDigit()` for the shape. When the code is not
+fails before the fix and passes after it, with a docblock saying what went wrong and
+which commit caused it — see `SapiTest::testAPlainByteCountKeepsItsLastDigit()` and
+[Test method docblocks](#test-method-docblocks) for the shape. When the code is not
 reachable, say so explicitly in the PR description rather than leaving it unsaid; do not
 contort production code, add mocks or fake a database to force something under test.
 
@@ -240,6 +346,32 @@ extending `PHPUnit\Framework\TestCase`, with `#[CoversClass]` (or `#[CoversTrait
 trait) on the class. Name the test after the behaviour, not the method —
 `testItNormalisesIPv6ToItsShortestForm()`, not `testConstruct()`. New directories need
 the usual `index.php` stub.
+
+A test file opens with the same license header as every file in `Sources/`, directly
+after `<?php` and before `declare(strict_types=1)`:
+
+```php
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
+declare(strict_types=1);
+```
+
+The year is `SMF_SOFTWARE_YEAR` and the version is `SMF_VERSION`, both from `index.php`.
+The `index.php` stubs are the one exception, as they are in `Sources/`. Nothing enforces
+this: `check-smf-license.php` skips `./tests/` entirely, so a test copied from another
+test that lacks the header passes CI just the same. Copy the header from a file in
+`Sources/` instead.
 
 The code style rules apply to tests too, so run `composer lint-fix` on them. Two
 consequences of the fixer worth knowing before you fight it:
