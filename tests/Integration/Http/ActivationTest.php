@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -45,6 +56,12 @@ class ActivationTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * The activation link carrying the code activates the account.
+	 *
+	 * Expected: ?action=activate;u=N;code=C says the account was successfully
+	 *           activated and sets is_activated to 1.
+	 */
 	public function testTheLinkWithTheCodeActivatesTheAccount(): void
 	{
 		$member = $this->makeMember(0);
@@ -56,14 +73,22 @@ class ActivationTest extends HttpTestCase
 	}
 
 	/**
-	 * The link without the code asks for the code.
+	 * The activation link without the code asks for the code.
 	 *
-	 * It showed the form for resending the email instead, which asks for a
-	 * username, a new address and a password, and has no field for the code
-	 * unless the forum uses email activation. Under any other registration
-	 * method the form is refused outright, so the link was a 403: "You are not
-	 * allowed to access this section". A member revalidating a changed email
-	 * address was told their account was already activated.
+	 * Expected: ?action=activate;u=N, for a member who is not activated or is
+	 *           revalidating a changed email address, shows a form with a code
+	 *           field and no error.
+	 * Guards:   it showed the form for resending the email instead, which asks
+	 *           for a username, a new address and a password, and has no field
+	 *           for the code unless the forum uses email activation. Under any
+	 *           other registration method the form is refused outright, so the
+	 *           link was a 403: "You are not allowed to access this section". A
+	 *           member revalidating a changed email address was told their
+	 *           account was already activated.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/08f009cfb Introduced by "Refactors SMF\Actions\Activate"
+	 * @link https://github.com/SimpleMachines/SMF/commit/cfce79d1d Introduced by "Implements SMF\User::save() and SMF\User::saveBatch()"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9740
 	 */
 	#[DataProvider('members')]
 	public function testTheLinkWithoutTheCodeAsksForTheCode(int $is_activated): void
