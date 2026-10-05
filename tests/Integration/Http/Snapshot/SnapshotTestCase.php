@@ -254,11 +254,14 @@ abstract class SnapshotTestCase extends HttpTestCase
 	 * and at a second or so a page over a Windows bind mount, making one per test
 	 * only to throw it away doubled the time the suite took.
 	 *
+	 * The first one is a browser of its own rather than the guest browser the
+	 * other HTTP tests share, since the member audience signs it in.
+	 *
 	 * @return HttpClient The browser.
 	 */
 	protected function client(): HttpClient
 	{
-		return self::$clients[static::audience()] ?? parent::client();
+		return self::$clients[static::audience()] ?? new HttpClient();
 	}
 
 	protected function setUp(): void
@@ -270,20 +273,25 @@ abstract class SnapshotTestCase extends HttpTestCase
 		$audience = static::audience();
 
 		if (!isset(self::$clients[$audience])) {
-			self::$clients[$audience] = $this->http;
-
 			// The first request of a new session regenerates it, so a page recorded
 			// or a token taken from that request belongs to a session that is
 			// already gone. Arrive at the forum the way a person would first.
 			$this->http->get('');
 
 			if ($audience === 'admin') {
-				$this->signInAsAdmin();
+				// A browser of its own, not the administrator's browser the other
+				// HTTP tests share: passing the admin security check changes what
+				// its session can see.
+				$this->signInAsAdmin(false);
 				$this->passSecurity('?action=admin', self::adminPassword());
 			} elseif ($audience === 'member') {
 				$this->signInAsMember();
 				$this->passSecurity('?action=profile;area=account', (string) ($this->fixtures()['member_password'] ?? ''));
 			}
+
+			// signInAsAdmin() replaces the browser with the one it signs in, so the
+			// audience's browser is whichever is left once signing in is done.
+			self::$clients[$audience] = $this->http;
 		}
 
 		$this->http = self::$clients[$audience];
