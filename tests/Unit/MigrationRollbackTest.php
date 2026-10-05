@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -16,11 +27,18 @@ class MigrationRollbackTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A dollar-quoted PostgreSQL function body is kept as one statement.
+	 *
+	 * Function bodies are full of semicolons. Splitting on those would hand
+	 * the database a fragment that parses as nothing, and the index leaning on
+	 * the function would never come back.
+	 *
+	 * Expected: a CREATE FUNCTION ... AS $$ ... $$ followed by a CREATE INDEX
+	 *           splits into two statements, the first holding the whole body.
+	 */
 	public function testAFunctionBodyIsOneStatement(): void
 	{
-		// PostgreSQL function bodies are dollar quoted and full of semicolons.
-		// Splitting on those would hand the database a fragment that parses as
-		// nothing, and the index leaning on the function would never come back.
 		$sql = <<<'SQL'
 			CREATE FUNCTION indexable_month_day(date) RETURNS date AS $$
 				SELECT make_date(1004, EXTRACT(MONTH FROM $1)::int, EXTRACT(DAY FROM $1)::int);
@@ -39,6 +57,13 @@ class MigrationRollbackTest extends TestCase
 	// the first member carries an attribute. The SMF/section_comments fixer inserts
 	// the banner between the attribute and its method, which is why the data provider
 	// case is second rather than first.
+	/**
+	 * Only the semicolons that end a statement split the SQL.
+	 *
+	 * Expected: each case in sqlProvider() splits into exactly the statements
+	 *           it lists, ignoring semicolons inside quoted strings, quoted
+	 *           identifiers and dollar quotes, and adding no empty statements.
+	 */
 	#[DataProvider('sqlProvider')]
 	public function testItSplitsOnlyTheSemicolonsThatEndAStatement(string $sql, array $expected): void
 	{
