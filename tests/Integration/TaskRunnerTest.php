@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -20,12 +31,18 @@ class TaskRunnerTest extends IntegrationTestCase
 	 ****************/
 
 	/**
-	 * The exception's message is logged.
+	 * The message of an exception a background task throws is logged.
 	 *
-	 * It was looked up as the key of a language string, which almost no
-	 * exception message is, and the lookup came back empty. Every failing
-	 * background task was logged as a blank "cron" error with a file and a
-	 * line, and nothing to say what went wrong.
+	 * Expected: handleException() on a RuntimeException logs a "cron" error
+	 *           whose message is the exception's own message.
+	 * Guards:   the message was looked up as the key of a language string,
+	 *           which almost no exception message is, and the lookup came back
+	 *           empty. Every failing background task was logged as a blank
+	 *           "cron" error with a file and a line, and nothing to say what
+	 *           went wrong.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/cf4838339 Introduced by "Uses SMF\Lang::getTxt() for Errors language strings"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9746
 	 */
 	public function testTheExceptionMessageIsLogged(): void
 	{
@@ -41,6 +58,9 @@ class TaskRunnerTest extends IntegrationTestCase
 
 	/**
 	 * An exception carrying the key of a language string logs that string.
+	 *
+	 * Expected: handleException() on an exception whose message is
+	 *           'unsubscribe_invalid' logs the text of that string.
 	 */
 	public function testALanguageStringKeyIsLoggedAsTheString(): void
 	{
