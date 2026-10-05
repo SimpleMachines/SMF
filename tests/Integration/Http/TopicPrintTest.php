@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -53,6 +64,13 @@ class TopicPrintTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A print page holds one page of posts, not the whole topic.
+	 *
+	 * Expected: ?action=printpage;topic=N.0 on a topic longer than a page
+	 *           renders PER_PAGE posts, leaves out the last post and logs
+	 *           nothing.
+	 */
 	public function testAPrintPageStopsAtOnePageOfPosts(): void
 	{
 		$topic_id = $this->seedTopic();
@@ -74,6 +92,12 @@ class TopicPrintTest extends HttpTestCase
 		$this->assertNoErrorsLogged('printing a topic logged something.' . "\n");
 	}
 
+	/**
+	 * The rest of a long topic is printed on the pages that follow.
+	 *
+	 * Expected: ?action=printpage;topic=N.S with S at the last post renders the
+	 *           last post and logs nothing.
+	 */
 	public function testTheRestOfTheTopicIsOnTheFollowingPages(): void
 	{
 		$topic_id = $this->seedTopic();
@@ -90,8 +114,13 @@ class TopicPrintTest extends HttpTestCase
 	}
 
 	/**
+	 * A print page links to the other print pages of the topic.
+	 *
 	 * Without these the rest of a long topic is unreachable, since the print
 	 * page is the only thing that links to itself.
+	 *
+	 * Expected: the first print page links to
+	 *           ?action=printpage;topic=N.PER_PAGE.
 	 */
 	public function testAPrintPageLinksToTheOtherPages(): void
 	{

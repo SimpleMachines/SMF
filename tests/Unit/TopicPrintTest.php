@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -17,16 +28,29 @@ class TopicPrintTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A forum that never shows "All" still gets a limit on a print page.
+	 *
+	 * Without one, a single request would parse every post in a topic at once.
+	 *
+	 * Expected: getPostsPerPage() with no enableAllMessages setting returns
+	 *           TopicPrint::DEFAULT_MAX_POSTS.
+	 */
 	public function testItFallsBackToTheDefaultWhenAllIsNeverShown(): void
 	{
-		// A print page used to hold an entire topic no matter how long it was,
-		// which let a single request parse every post in it at once.
 		$this->assertSame(TopicPrint::DEFAULT_MAX_POSTS, $this->getPostsPerPage());
 	}
 
 	// Note: the section banner above must not be the first thing in this group when
 	// the first member carries an attribute. The SMF/section_comments fixer inserts
 	// the banner between the attribute and its method.
+	/**
+	 * A print page holds as many posts as the "All" view may show.
+	 *
+	 * Expected: getPostsPerPage() returns enableAllMessages when it is a
+	 *           positive number, and TopicPrint::DEFAULT_MAX_POSTS when it is
+	 *           zero, negative or not a number.
+	 */
 	#[DataProvider('maxTopicSizeProvider')]
 	public function testGetPostsPerPage(mixed $enable_all_messages, int $expected): void
 	{
