@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -48,14 +59,21 @@ class MemberReportReplyTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The email is sent, and its links lead to the profile and the report.
+	 * A reply to a member report is emailed, with links to the profile and the report.
 	 *
-	 * The task asked for a template called reply_to_user_reports, which has
-	 * never existed (it is reply_to_member_report), and for a member_name
-	 * that the report never passed it. It failed every time it ran, so the
-	 * email was never sent. Its profile link had also lost the "?" before
-	 * "action", and its report link pointed at a moderation area that does
-	 * not exist.
+	 * Expected: running MemberReportReply_Notify queues an email to the
+	 *           moderator that names the reported member and contains
+	 *           ?action=profile;u=N and
+	 *           ?action=moderate;area=reportedmembers;sa=details;rid=N.
+	 * Guards:   the task asked for a template called reply_to_user_reports,
+	 *           which has never existed (it is reply_to_member_report), and for
+	 *           a member_name that the report never passed it. It failed every
+	 *           time it ran, so the email was never sent. Its profile link had
+	 *           also lost the "?" before "action", and its report link pointed
+	 *           at a moderation area that does not exist.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/5de436022 Introduced by "Actually notify users of reported profiles"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9742
 	 */
 	public function testModeratorsAreEmailedWithLinksThatWork(): void
 	{
