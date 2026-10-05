@@ -39,7 +39,7 @@ jobs:
     - name: crowdin-action
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
-      uses: crowdin/github-action@e4a6c1338b4063c77d46a81875265f9e8bd76f95 #3.0.0
+      uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e #3.3.0
       with:
         # Push sources (the english files) to CrowdIn; do not push translations (non-english) in either direction
         upload_sources: true

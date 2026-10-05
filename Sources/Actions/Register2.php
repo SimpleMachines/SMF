@@ -213,8 +213,13 @@ class Register2 extends Register
 				Db::$db->free_result($request);
 			}
 
+			// What gets stored is the entity encoded form of the name, which is
+			// wider than what was typed wherever a character needs an entity,
+			// and real_name holds 255 characters.
+			$encoded_name = Utils::htmlspecialchars($_POST['real_name'], ENT_QUOTES);
+
 			// Only set it if you can and if we are sure it is good
-			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !Security::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60) {
+			if ($can_edit_display_name && Utils::htmlTrim($_POST['real_name']) != '' && !Security::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60 && mb_strlen($encoded_name) <= 255) {
 				$this->possible_strings[] = 'real_name';
 			}
 		}
@@ -661,7 +666,7 @@ class Register2 extends Register
 			'additional_groups' => '',
 			'ignore_boards' => '',
 			'smiley_set' => '',
-			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list()) ? 'UTC' : Config::$modSettings['default_timezone'],
+			'timezone' => empty(Config::$modSettings['default_timezone']) || !\array_key_exists(Config::$modSettings['default_timezone'], TimeZone::list(flat: true)) ? 'UTC' : Config::$modSettings['default_timezone'],
 		];
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -693,7 +698,7 @@ class Register2 extends Register
 		if (
 			!empty($reg_options['extra_register_vars'])
 			&& !empty($reg_options['extra_register_vars']['timezone'])
-			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list())
+			&& !\array_key_exists($reg_options['extra_register_vars']['timezone'], TimeZone::list(flat: true))
 		) {
 			unset($reg_options['extra_register_vars']['timezone']);
 		}

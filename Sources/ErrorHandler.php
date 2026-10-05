@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF;
@@ -232,15 +243,15 @@ class ErrorHandler
 	/**
 	 * Gets the error handler service used by this facade.
 	 *
-	 * @throws \LogicException If the error handler service has not been initialized.
+	 * Forum sets this up from its container, but cron.php, SSI.php,
+	 * proxy.php and subscriptions.php never create a Forum. They still
+	 * report errors through here, and an error that cannot be reported
+	 * becomes a fatal one, so they get a service of their own.
+	 *
 	 * @return ErrorHandlerService The error handler service instance.
 	 */
 	protected static function getService(): ErrorHandlerService
 	{
-		if (self::$service === null) {
-			throw new \LogicException('ErrorHandlerService has not been initialized.');
-		}
-
-		return self::$service;
+		return self::$service ??= new ErrorHandlerService();
 	}
 }

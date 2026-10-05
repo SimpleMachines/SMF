@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Juneau
  */
-class Juneau extends \SMF\Calendar\VTimeZone
+class Juneau extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,30 @@ class Juneau extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Juneau';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Pacific',
+		],
+		1 => [
+			'ts' => '1980-10-26T10:00:00+0000',
+			'metazone' => 'America_Pacific',
+		],
+		2 => [
+			'ts' => '1983-11-30T09:00:00+0000',
+			'metazone' => 'Alaska',
+		],
+	];
 
 	/**
 	 * @var array

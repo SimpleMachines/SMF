@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Asia;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Asia/Ho_Chi_Minh
  */
-class Ho_Chi_Minh extends \SMF\Calendar\VTimeZone
+class Ho_Chi_Minh extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,22 @@ class Ho_Chi_Minh extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Asia/Ho_Chi_Minh';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1975-06-12T16:00:00+0000',
+			'metazone' => 'Indochina',
+		],
+	];
 
 	/**
 	 * @var array

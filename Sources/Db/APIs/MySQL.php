@@ -1169,10 +1169,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$inner_lines = [];
 
 		foreach ($structure['columns'] as $column) {
-			$line = '  `' . $column['name'] . '` ' . $column['type'];
+			// The structure reports SMF's own name for a type that MySQL
+			// spells differently -- a varbinary(16) holding an address comes
+			// back as an inet -- so it has to be turned back into something
+			// MySQL knows before it can be written into a CREATE TABLE.
+			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
 
-			if (is_numeric($column['size'])) {
-				$line .= '(' . $column['size'] . ')';
+			$line = '  `' . $column['name'] . '` ' . $type;
+
+			if (is_numeric($size)) {
+				$line .= '(' . $size . ')';
 			}
 
 			if (!empty($column['unsigned'])) {
@@ -1233,7 +1239,20 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					break;
 			 }
 
-			 $line .= ' (`' . implode('`, `', $index['columns']) . '`)';
+			 $index_columns = [];
+
+			 foreach ($index['columns'] as $index_column) {
+				 // A column can be indexed by its first so many characters.
+				 // The count belongs after the name rather than inside it,
+				 // so it has to be left outside the quoting.
+				 if (preg_match('~^(.+)\((\d+)\)$~', $index_column, $matches) === 1) {
+					 $index_columns[] = '`' . $matches[1] . '`(' . $matches[2] . ')';
+				 } else {
+					 $index_columns[] = '`' . $index_column . '`';
+				 }
+			 }
+
+			 $line .= ' (' . implode(', ', $index_columns) . ')';
 
 			 $inner_lines[] = $line;
 		}

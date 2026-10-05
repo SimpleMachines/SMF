@@ -36,6 +36,9 @@ services:
       SMF_POSTGRES_SERVER: postgres
       SMF_POSTGRES_PORT: "5432"
       SMF_BOARDURL: http://localhost:${WEB_PORT:-8080}
+      # The host user's ids, on a Linux host. See .docker/env.example.
+      SMF_WWW_UID: ${WWW_UID:-}
+      SMF_WWW_GID: ${WWW_GID:-}
     depends_on:
       mysql:
         condition: service_healthy

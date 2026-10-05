@@ -698,7 +698,12 @@ class Profile extends User implements \ArrayAccess
 						return 'no_name';
 					}
 
-					if (Utils::entityStrlen($value) > 60) {
+					// The name is stored with entities in place of the characters
+					// that need them, so it is wider in the column than it was in
+					// the box: a double quote costs six characters there, an
+					// ampersand five. real_name holds 255, and a name inside the
+					// 60 character limit can still be wider than that.
+					if (Utils::entityStrlen($value) > 60 || mb_strlen($value) > 255) {
 						return 'name_too_long';
 					}
 
@@ -904,16 +909,13 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'timezone' => [
-				'type' => 'select',
-				'options' => TimeZone::list(),
-				'disabled_options' => array_filter(array_keys(TimeZone::list()), 'is_int'),
+				'type' => 'callback',
+				'callback_func' => 'timezone',
+				'preload' => fn() => Theme::loadTemplate('TimeZoneSelect'),
 				'permission' => 'profile_extra',
-				'label' => Lang::getTxt('timezone', file: 'Profile'),
 				'value' => empty(User::$me->timezone) ? Config::$modSettings['default_timezone'] : User::$me->timezone,
 				'input_validate' => function ($value) {
-					$tz = TimeZone::list();
-
-					if (!isset($tz[$value])) {
+					if (!\array_key_exists($value, TimeZone::list(flat: true))) {
 						return 'bad_timezone';
 					}
 

@@ -1430,8 +1430,10 @@ class Security
 
 		// Did anything match?
 		// Check all options with hash_equals() to prevent timing attacks.
+		$is_correct = false;
+
 		foreach ($other_passwords as $other_password) {
-			$is_correct = ($is_correct ?? 0) | hash_equals($member->passwd, $other_password);
+			$is_correct |= hash_equals($member->passwd, $other_password);
 		}
 
 		return (bool) $is_correct;

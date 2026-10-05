@@ -344,7 +344,8 @@ class Logs implements ActionInterface
 				'reg_group_id' => 0,
 				'log_type' => $log_type,
 				'modlog_query' => $modlog_query,
-				'sort' => $sort,
+				// Entries that tie on the sorted column stay in the order they were logged, turned around along with it.
+				'sort' => $sort . ', lm.id_action' . (preg_match('/\sDESC$/i', $sort) ? ' DESC' : ''),
 				'start' => $start,
 				'max' => $items_per_page,
 			]),

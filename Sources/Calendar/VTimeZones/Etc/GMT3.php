@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Etc;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Etc/GMT+3
  */
-class GMT3 extends \SMF\Calendar\VTimeZone
+class GMT3 extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -39,5 +41,13 @@ class GMT3 extends \SMF\Calendar\VTimeZone
 	 * Developers: Do not update the data in this array manually. Instead,
 	 * run "php -f other/update_timezones.php" on the command line.
 	 */
-	public array $components = [];
+	public array $components = [
+		0 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '15821014T210000',
+			'TZNAME' => 'UTC-03',
+			'TZOFFSETFROM' => '-0300',
+			'TZOFFSETTO' => '-0300',
+		],
+	];
 }

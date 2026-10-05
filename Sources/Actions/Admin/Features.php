@@ -1509,6 +1509,8 @@ class Features implements ActionInterface
 		$reg_fields = isset(Config::$modSettings['registration_fields']) ? explode(',', Config::$modSettings['registration_fields']) : [];
 		$can_personal_text = !\in_array('personal_text', $disabled_fields) && !\in_array('personal_text', $reg_fields);
 
+		Theme::loadTemplate('TimeZoneSelect');
+
 		$config_vars = [
 			// Big Options... polls, sticky, bbc....
 			[
@@ -1599,7 +1601,7 @@ class Features implements ActionInterface
 
 			// Time zone and formatting.
 			['text', 'time_format'],
-			['select', 'default_timezone', array_filter(TimeZone::list(), 'is_string', ARRAY_FILTER_USE_KEY)],
+			['select', 'default_timezone'],
 			[
 				'text',
 				'timezone_priority_countries',

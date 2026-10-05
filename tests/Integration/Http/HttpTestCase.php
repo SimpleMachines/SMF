@@ -43,14 +43,39 @@ abstract class HttpTestCase extends IntegrationTestCase
 	 */
 	protected HttpClient $http;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * Cached HTTP clients, keyed by the audience they are authenticated as.
+	 *
+	 * Reusing authenticated clients avoids repeatedly logging in during the
+	 * test suite, which would otherwise consume time and repeatedly trigger
+	 * flood control.
+	 *
+	 * @var array<string, HttpClient>
+	 */
+	private static array $client_cache = [];
+
+	/**
+	 * Cached responses for requests whose result is reused by multiple tests.
+	 *
+	 * @var array<string, HttpResponse>
+	 */
+	private static array $request_cache = [];
+
 	/***********************
 	 * Public static methods
 	 ***********************/
 
 	/**
-	 * The administrator to sign in as.
+	 * Gets the forum administrator username used by HTTP tests.
 	 *
-	 * @return string The member name.
+	 * The value comes from SMF_ADMIN_USER when set, otherwise the default
+	 * administrator username used by the development forum is assumed.
+	 *
+	 * @return string The administrator username.
 	 */
 	public static function adminName(): string
 	{
@@ -58,9 +83,12 @@ abstract class HttpTestCase extends IntegrationTestCase
 	}
 
 	/**
-	 * That administrator's password.
+	 * Gets the forum administrator password used by HTTP tests.
 	 *
-	 * @return string The password.
+	 * The value comes from SMF_ADMIN_PASS when set, otherwise the default
+	 * administrator password used by the development forum is assumed.
+	 *
+	 * @return string The administrator password.
 	 */
 	public static function adminPassword(): string
 	{
@@ -91,36 +119,46 @@ abstract class HttpTestCase extends IntegrationTestCase
 		return false;
 	}
 
+	/**
+	 * Initializes the HTTP client used by the test.
+	 *
+	 * Guest clients are shared between tests because they do not carry an
+	 * authenticated session that needs to be isolated per test.
+	 */
 	protected function setUp(): void
 	{
 		parent::setUp();
 
-		$this->http = new HttpClient();
-
-		// Arrive at the forum before doing anything else, which is what a person
-		// does and what the tests below depend on.
-		//
-		// The very first request of a new session regenerates it - SMF sets a
-		// guest login cookie, and Cookie::setLoginCookie() throws the session
-		// away and starts another whenever that value changes. Anything minted
-		// earlier in that same request is minted against the session that just
-		// went away, so a security token taken from the first page a visitor
-		// ever sees can never be validated. Posting that form comes back 403,
-		// "Token verification failed", with nothing to suggest the token was
-		// fine and the session underneath it was not.
-		$this->http->get('');
+		$this->http = self::$client_cache['guest'] ??= new HttpClient();
 	}
 
 	/**
-	 * Signs in as the forum administrator.
+	 * Signs in the HTTP client as the forum administrator.
 	 *
-	 * The credentials are the ones .dev/install-forum.sh uses, overridable
-	 * through the environment for a forum that was set up some other way.
+	 * The credentials default to those used by .dev/install-forum.sh and can be
+	 * overridden with SMF_ADMIN_USER and SMF_ADMIN_PASS for an independently
+	 * configured forum.
 	 *
-	 * @return HttpResponse The response to the login post.
+	 * When the administrator client has already been cached, that client and
+	 * its original login response are reused unless caching is disabled.
+	 *
+	 * @param bool $use_client_cache Whether to reuse the cached administrator
+	 *     client when one is available.
+	 * @return HttpResponse The response to the login request.
 	 */
-	protected function signInAsAdmin(): HttpResponse
+	protected function signInAsAdmin(bool $use_client_cache = true): HttpResponse
 	{
+		if (isset(self::$client_cache['admin']) && $use_client_cache) {
+			$this->http = self::$client_cache['admin'];
+
+			return self::$request_cache['admin_login'];
+		}
+
+		$this->http = new HttpClient();
+
+		// Load a fresh token first.
+		$this->http->get('');
+
 		$response = $this->attemptSignIn();
 
 		if (self::isThrottled($response)) {
@@ -146,7 +184,7 @@ abstract class HttpTestCase extends IntegrationTestCase
 			'logging in returned ' . $response->status . ': ' . $response->errorText(),
 		);
 
-		return $response;
+		return self::$request_cache['admin_login'] = $response;
 	}
 
 	/**
@@ -184,12 +222,17 @@ abstract class HttpTestCase extends IntegrationTestCase
 	 *
 	 * @param bool $expected Whether we should be signed in.
 	 * @param string $message What was being checked.
+	 * @param HttpResponse|null $page The page to inspect.
 	 */
-	protected function assertSignedIn(bool $expected, string $message = ''): void
+	protected function assertSignedIn(bool $expected, string $message = '', ?HttpResponse $page = null): void
 	{
-		$signed_in = $this->fetch('')->xpath('//a[contains(@href, "action=logout")]')->length > 0;
+		$signed_in = ($page ?? $this->http->get(''))->xpath('//a[contains(@href, "action=logout")]')->length > 0;
 
-		$this->assertSame($expected, $signed_in, $message !== '' ? $message : ($expected ? 'not signed in' : 'still signed in'));
+		$this->assertSame(
+			$expected,
+			$signed_in,
+			$message !== '' ? $message : ($expected ? 'not signed in' : 'still signed in'),
+		);
 	}
 
 	/**

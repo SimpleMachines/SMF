@@ -265,7 +265,7 @@ class Stats implements ActionInterface, Routable
 			'SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			WHERE posts > {int:no_posts}
-			ORDER BY posts DESC
+			ORDER BY posts DESC, id_member
 			LIMIT 10',
 			[
 				'no_posts' => 0,
@@ -301,7 +301,7 @@ class Stats implements ActionInterface, Routable
 			WHERE {query_see_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
 				AND b.redirect = {string:blank_redirect}
-			ORDER BY num_posts DESC
+			ORDER BY num_posts DESC, id_board
 			LIMIT 10',
 			[
 				'recycle_board' => Config::$modSettings['recycle_board'],
@@ -338,7 +338,7 @@ class Stats implements ActionInterface, Routable
 				FROM {db_prefix}topics
 				WHERE num_replies != {int:no_replies}' . (Config::$modSettings['postmod_active'] ? '
 					AND approved = {int:is_approved}' : '') . '
-				ORDER BY num_replies DESC
+				ORDER BY num_replies DESC, id_topic
 				LIMIT 100',
 				[
 					'no_replies' => 0,
@@ -365,7 +365,7 @@ class Stats implements ActionInterface, Routable
 			WHERE {query_see_board}' . (!empty($topic_ids) ? '
 				AND t.id_topic IN ({array_int:topic_list})' : (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '')) . '
-			ORDER BY t.num_replies DESC
+			ORDER BY t.num_replies DESC, t.id_topic
 			LIMIT 10',
 			[
 				'topic_list' => $topic_ids,
@@ -410,7 +410,7 @@ class Stats implements ActionInterface, Routable
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE num_views != {int:no_views}
-				ORDER BY num_views DESC
+				ORDER BY num_views DESC, id_topic
 				LIMIT 100',
 				[
 					'no_views' => 0,
@@ -436,7 +436,7 @@ class Stats implements ActionInterface, Routable
 			WHERE {query_see_board}' . (!empty($topic_ids) ? '
 				AND t.id_topic IN ({array_int:topic_list})' : (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '')) . '
-			ORDER BY t.num_views DESC
+			ORDER BY t.num_views DESC, t.id_topic
 			LIMIT 10',
 			[
 				'topic_list' => $topic_ids,
@@ -482,7 +482,7 @@ class Stats implements ActionInterface, Routable
 				FROM {db_prefix}topics' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				WHERE id_board != {int:recycle_board}' : '') . '
 				GROUP BY id_member_started
-				ORDER BY hits DESC
+				ORDER BY hits DESC, id_member_started
 				LIMIT 20',
 				[
 					'recycle_board' => Config::$modSettings['recycle_board'],
@@ -517,11 +517,6 @@ class Stats implements ActionInterface, Routable
 		while ($row_members = Db::$db->fetch_assoc($members_result)) {
 			$i = array_search($row_members['id_member'], array_keys($members));
 
-			// skip all not top 10
-			if ($i > 10) {
-				continue;
-			}
-
 			Utils::$context['stats_blocks']['starters'][$i] = [
 				'name' => $row_members['real_name'],
 				'id' => $row_members['id_member'],
@@ -534,8 +529,12 @@ class Stats implements ActionInterface, Routable
 				$max_num = $members[$row_members['id_member']];
 			}
 		}
-		ksort(Utils::$context['stats_blocks']['starters']);
 		Db::$db->free_result($members_result);
+
+		// Starters with no member to list, such as guests and deleted members,
+		// were counted but not found, so the top ten are the first ten found.
+		ksort(Utils::$context['stats_blocks']['starters']);
+		Utils::$context['stats_blocks']['starters'] = \array_slice(Utils::$context['stats_blocks']['starters'], 0, 10);
 
 		foreach (Utils::$context['stats_blocks']['starters'] as $i => $topic) {
 			Utils::$context['stats_blocks']['starters'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
@@ -549,7 +548,7 @@ class Stats implements ActionInterface, Routable
 			FROM {db_prefix}members
 			WHERE is_activated = {int:is_activated}' .
 			(!empty($temp) ? ' AND id_member IN ({array_int:member_list_cached})' : '') . '
-			ORDER BY total_time_logged_in DESC
+			ORDER BY total_time_logged_in DESC, id_member
 			LIMIT 20',
 			[
 				'member_list_cached' => $temp,

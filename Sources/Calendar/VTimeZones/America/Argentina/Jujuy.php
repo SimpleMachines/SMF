@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America\Argentina;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Argentina/Jujuy
  */
-class Jujuy extends \SMF\Calendar\VTimeZone
+class Jujuy extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,26 @@ class Jujuy extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Argentina/Jujuy';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+		1 => [
+			'ts' => '1991-10-06T04:00:00+0000',
+			'metazone' => 'Argentina',
+		],
+	];
 
 	/**
 	 * @var array

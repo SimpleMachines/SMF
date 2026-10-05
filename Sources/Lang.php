@@ -122,7 +122,7 @@ class Lang
 	/**
 	 * @var array
 	 *
-	 * Array of localized strings for time zone "meta-zones".
+	 * Array of localized strings for time zone metazones.
 	 */
 	public static array $tztxt = [];
 

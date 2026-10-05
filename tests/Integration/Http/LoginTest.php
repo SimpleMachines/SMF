@@ -26,19 +26,9 @@ class LoginTest extends HttpTestCase
 
 	public function testTheAdministratorCanSignIn(): void
 	{
-		$this->signInAsAdmin();
+		$response = $this->signInAsAdmin();
 
 		$this->assertSignedIn(true, 'the session did not survive the login redirect');
-		$this->assertNoErrorsLogged('signing in logged something.' . "\n");
-	}
-
-	/**
-	 * The cookie is what carries the login between requests, so it is worth
-	 * checking it was issued rather than inferring it from the page changing.
-	 */
-	public function testSigningInIssuesTheForumCookie(): void
-	{
-		$response = $this->signInAsAdmin();
 
 		$this->assertNotEmpty($response->set_cookies, 'logging in set no cookie at all');
 
@@ -49,6 +39,8 @@ class LoginTest extends HttpTestCase
 			implode("\n", $response->set_cookies),
 			'the forum cookie was not among those set: ' . implode(' | ', $response->set_cookies),
 		);
+
+		$this->assertNoErrorsLogged('signing in logged something.' . "\n");
 	}
 
 	public function testTheWrongPasswordDoesNotSignAnyoneIn(): void
@@ -82,10 +74,11 @@ class LoginTest extends HttpTestCase
 
 	public function testSigningOutEndsTheSession(): void
 	{
-		$this->signInAsAdmin();
-		$this->assertSignedIn(true);
-
+		// This test should not use the cached authenticated client.
+		$this->signInAsAdmin(false);
 		$page = $this->fetch('');
+		$this->assertSignedIn(true, '', $page);
+
 		$logout = $page->xpath('//a[contains(@href, "action=logout")]')->item(0);
 
 		$this->assertNotNull($logout, 'no logout link to follow');

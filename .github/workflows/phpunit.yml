@@ -49,7 +49,7 @@ jobs:
         run: composer test-unit -- --colors=always
 
   integration:
-    name: Integration tests (${{ matrix.engine }})
+    name: ${{ matrix.suite == 'http' && 'HTTP' || 'Integration' }} tests (${{ matrix.engine }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -59,6 +59,10 @@ jobs:
         # still in place and fails on PostgreSQL, so one engine would have
         # proved nothing there.
         engine: [ mysql, postgresql ]
+        # phpunit.xml.dist keeps tests/Integration/Http out of the integration
+        # suite because it is slow, so it is named here on its own. Separate
+        # jobs rather than one, so the slow half does not hold up the other.
+        suite: [ integration, http ]
 
     # Linux containers, so this job cannot also run on windows-latest the way
     # the unit job does. Windows is covered there, and .dev/test.sh is what runs
@@ -132,8 +136,8 @@ jobs:
       # IntegrationTestCase and the wrong-password skip in HttpTestCase are
       # there so the suite stays usable on a machine with no forum; in CI they
       # would turn a job that tested nothing into a green tick.
-      - name: Run the integration tests
-        run: .dev/test.sh --engine ${{ matrix.engine }} --testsuite integration --fail-on-skipped
+      - name: Run the ${{ matrix.suite }} tests
+        run: .dev/test.sh --engine ${{ matrix.engine }} --testsuite ${{ matrix.suite }} --fail-on-skipped
 
       # SMF records most of what goes wrong here rather than showing it, and a
       # failure that never reached an assertion leaves its explanation in this

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\Europe;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * Europe/Minsk
  */
-class Minsk extends \SMF\Calendar\VTimeZone
+class Minsk extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,34 @@ class Minsk extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'Europe/Minsk';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Moscow',
+		],
+		1 => [
+			'ts' => '1991-03-30T23:00:00+0000',
+			'metazone' => 'Europe_Eastern',
+		],
+		2 => [
+			'ts' => '2011-03-27T00:00:00+0000',
+			'metazone' => 'Europe_Further_Eastern',
+		],
+		3 => [
+			'ts' => '2014-10-26T22:00:00+0000',
+			'metazone' => 'Moscow',
+		],
+	];
 
 	/**
 	 * @var array

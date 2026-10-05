@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Winnipeg
  */
-class Winnipeg extends \SMF\Calendar\VTimeZone
+class Winnipeg extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,22 @@ class Winnipeg extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Winnipeg';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Central',
+		],
+	];
 
 	/**
 	 * @var array
@@ -241,7 +259,7 @@ class Winnipeg extends \SMF\Calendar\VTimeZone
 		27 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20070311T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU;UNTIL=20260308T080000Z',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0600',
 			'TZOFFSETTO' => '-0500',
@@ -249,10 +267,17 @@ class Winnipeg extends \SMF\Calendar\VTimeZone
 		28 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20071104T020000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU;UNTIL=20251102T070000Z',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0600',
+		],
+		29 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20261101T020000',
+			'TZNAME' => 'EST',
+			'TZOFFSETFROM' => '-0500',
+			'TZOFFSETTO' => '-0500',
 		],
 	];
 }

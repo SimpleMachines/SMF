@@ -9,6 +9,17 @@ log() {
 	echo "[smf-dev] $*"
 }
 
+# ------------------------------------------------------------------ ownership
+# On a Linux host the checkout keeps the owners the container gives its files,
+# and the web server and the host user cannot write each other's. With the host
+# user's ids in WWW_UID and WWW_GID (see .docker/env.example), www-data becomes
+# that user, and the chown further down hands the writable directories to them.
+# Docker Desktop on Windows and macOS maps ownership itself; leave them unset.
+if [ -n "${SMF_WWW_UID:-}" ]; then
+	usermod -o -u "$SMF_WWW_UID" www-data
+	groupmod -o -g "${SMF_WWW_GID:-$SMF_WWW_UID}" www-data
+fi
+
 # ---------------------------------------------------------------- dependencies
 if [ ! -f "$BOARD_DIR/vendor/autoload.php" ]; then
 	log 'vendor/ is missing, running composer install (this takes a minute the first time)'
@@ -18,6 +29,10 @@ if [ ! -f "$BOARD_DIR/vendor/autoload.php" ]; then
 		--no-progress \
 		--prefer-dist \
 		--ansi
+
+	if [ -n "${SMF_WWW_UID:-}" ]; then
+		chown -R www-data:www-data "$BOARD_DIR/vendor"
+	fi
 fi
 
 # ------------------------------------------------------------------- database

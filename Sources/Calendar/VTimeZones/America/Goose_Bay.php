@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Goose_Bay
  */
-class Goose_Bay extends \SMF\Calendar\VTimeZone
+class Goose_Bay extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,30 @@ class Goose_Bay extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Goose_Bay';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Atlantic',
+		],
+		1 => [
+			'ts' => '1988-04-03T04:01:00+0000',
+			'metazone' => 'Goose_Bay',
+		],
+		2 => [
+			'ts' => '1988-10-30T02:01:00+0000',
+			'metazone' => 'Atlantic',
+		],
+	];
 
 	/**
 	 * @var array

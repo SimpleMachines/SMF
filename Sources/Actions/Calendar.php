@@ -561,7 +561,8 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_datetime);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->id > 0 ? Utils::$context['event']->datetime : null);
+		Theme::loadTemplate('TimeZoneSelect');
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
 		Utils::$context['event']->selected_occurrence->fixTimezone();

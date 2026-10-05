@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Eirunepe
  */
-class Eirunepe extends \SMF\Calendar\VTimeZone
+class Eirunepe extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,30 @@ class Eirunepe extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Eirunepe';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'Acre',
+		],
+		1 => [
+			'ts' => '2008-06-24T05:00:00+0000',
+			'metazone' => 'Amazon',
+		],
+		2 => [
+			'ts' => '2013-11-10T04:00:00+0000',
+			'metazone' => 'Acre',
+		],
+	];
 
 	/**
 	 * @var array

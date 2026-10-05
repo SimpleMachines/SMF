@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\Calendar\VTimeZones\America;
 
+use SMF\Calendar\VTimeZone;
+
 /**
  * America/Fort_Nelson
  */
-class Fort_Nelson extends \SMF\Calendar\VTimeZone
+class Fort_Nelson extends VTimeZone
 {
 	/*******************
 	 * Public properties
@@ -30,6 +32,26 @@ class Fort_Nelson extends \SMF\Calendar\VTimeZone
 	 * Time zone identifier.
 	 */
 	public string $tzid = 'America/Fort_Nelson';
+
+	/**
+	 * @var array
+	 *
+	 * Data about which metazone label to use for this time zone at any given
+	 * date and time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	public array $metazones = [
+		0 => [
+			'ts' => '1970-01-01T00:00:00+0000',
+			'metazone' => 'America_Pacific',
+		],
+		1 => [
+			'ts' => '2015-03-08T10:00:00+0000',
+			'metazone' => 'America_Mountain',
+		],
+	];
 
 	/**
 	 * @var array

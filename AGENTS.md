@@ -108,6 +108,111 @@ most often catch people out:
 Docblocks are expected on classes, properties and methods, with tags ordered
 param, throws, return.
 
+### Method docblocks
+
+The fixer handles the mechanical part. It puts the tags in the order param, throws,
+return, and the `@param` tags in the order of the signature. It deletes `@return void`
+and `@return null`, and writes scalar types short (`int`, `bool`, `float`, not
+`integer`, `boolean`, `double`). It keeps every method docblock multi-line. What
+follows is convention, which nothing checks. This is the shape, from
+`Calendar\VTimeZone::load()`:
+
+```php
+/**
+ * Loads an instance of this class for the specified time zone identifier.
+ *
+ * @param string $tzid A time zone identifier string.
+ * @throws \ValueError if $tzid is not a valid time zone identifier.
+ * @return self An instance of this class for the time zone.
+ */
+public static function load(string $tzid): self
+```
+
+- **The first line is one sentence saying what the method does**, ending with a full
+  stop. Anything a caller would not guess — the edge cases, why it behaves as it does —
+  goes in paragraphs below it, separated by blank lines. `Sapi::memoryReturnBytes()`
+  and `Utils::buildRegex()` are good examples of the longer form.
+- **One blank line between the description and the tags**, and none between the tags.
+- **`@param type $name Description.`** The type is written out even though the
+  signature already declares it.
+- **`@throws \FullyQualified\Exception if <condition>.`**, with the leading backslash.
+- **`@return type Description.`**, saying what the value means rather than only its
+  type. A `void` method has no `@return` at all, and the fixer removes one if you
+  write it.
+- **A description that runs onto another line is indented four spaces** after the `*`:
+
+  ```php
+   * @return string|array One or more regular expressions to match any of the
+   *    input strings.
+  ```
+
+- The rules under [Comments](#comments) apply here too: say what the method does now,
+  not how it came to be that way.
+
+**Only use tags from the phpDocumentor tag reference**, at
+<https://manual.phpdoc.org/HTMLSmartyConverter/HandS/phpDocumentor/tutorial_tags.pkg.html>:
+
+- standard tags: `@abstract`, `@access`, `@author`, `@category`, `@copyright`,
+  `@deprecated`, `@example`, `@filesource`, `@final`, `@global`, `@ignore`, `@internal`,
+  `@license`, `@link`, `@method`, `@name`, `@package`, `@param`, `@property`,
+  `@return`, `@see`, `@since`, `@static`, `@staticvar`, `@subpackage`, `@todo`,
+  `@tutorial`, `@uses`, `@var`, `@version`;
+- inline tags: `{@example}`, `{@id}`, `{@inheritdoc}`, `{@internal}`, `{@link}`,
+  `{@source}`, `{@toc}`, `{@tutorial}`.
+
+The reference says what happens to anything else: "Any tags that phpDocumentor does
+not recognize will not be parsed, and will be displayed in text flow as if they are part
+of the DocBlock long description." So a tag that is not on the list is not a tag. When
+something needs saying that no tag on the list covers, write it in the description as
+plain text, the way `Expected:` and `Guards:` are written below.
+
+`@throws` is the one exception. It is not on the list, but the fixer's `phpdoc_order`
+places it and `Sources/` has used it throughout, so keep writing it as shown above.
+The handful of other unlisted tags in `Sources/` (`@suppress`, `@template`, `@mixin`)
+are not a precedent for adding more.
+
+Helpers and base-class methods in `tests/` follow the rules above.
+
+#### Test method docblocks
+
+A test method has no parameters or return value to describe. Its docblock records what
+the test pins down and, for a regression test, where the bug came from:
+
+```php
+/**
+ * A byte count with no unit designator is returned unchanged.
+ *
+ * Expected: memoryReturnBytes('50000000') returns 50000000.
+ * Guards:   the last character was always stripped as a K/M/G designator,
+ *           so Graphics\Image, which passes a plain byte count, got a tenth
+ *           of the memory it asked for.
+ *
+ * @link https://github.com/SimpleMachines/SMF/commit/a4361e01b Introduced by "Introduce Sapi Class"
+ * @link https://github.com/SimpleMachines/SMF/pull/9324
+ */
+public function testAPlainByteCountKeepsItsLastDigit(): void
+```
+
+- **The first line states the behaviour**, as the method name does, in a sentence.
+- **`Expected:`** names the call and the result the assertion checks.
+- **`Guards:`** says what went wrong without this behaviour. A regression test has one,
+  and a test that only describes intended behaviour can leave it out. Continuation lines
+  line up under the text, not under the label.
+- **`@link <commit URL> Introduced by "<commit subject>"`** names the commit that
+  introduced the bug, by its short hash. The reference gives `@link` as
+  `@link URL link text`, and SMF already uses it that way
+  (`Actions/Admin/Server.php`). The
+  hash stays in the line, so `git grep a4361e01b tests/` finds every test a commit made
+  necessary. Find the commit with `git log -S` or `git log -L` on the lines the fix
+  changed; when the fault is older than the history, leave the line out rather than
+  guess.
+- **A second `@link`** points at the issue that reported the bug, or at the pull request
+  that fixed it when there is no issue.
+
+Do not invent a tag for any of this, such as `@introduced`. It is not on the list
+above, and the reviewers have said no to it. `Expected:` and `Guards:` are plain text
+on purpose.
+
 ## Verifying a change
 
 ### Tests
@@ -125,8 +230,9 @@ so run it locally.
 
 **The expectation: if the code you touched is reachable from this suite, your change
 adds or updates a test in the same commit.** A bug fix lands as a regression test that
-fails before the fix and passes after it, with a comment saying what went wrong — see
-`SapiTest::testAPlainByteCountKeepsItsLastDigit()` for the shape. When the code is not
+fails before the fix and passes after it, with a docblock saying what went wrong and
+which commit caused it — see `SapiTest::testAPlainByteCountKeepsItsLastDigit()` and
+[Test method docblocks](#test-method-docblocks) for the shape. When the code is not
 reachable, say so explicitly in the PR description rather than leaving it unsaid; do not
 contort production code, add mocks or fake a database to force something under test.
 
@@ -241,6 +347,32 @@ trait) on the class. Name the test after the behaviour, not the method —
 `testItNormalisesIPv6ToItsShortestForm()`, not `testConstruct()`. New directories need
 the usual `index.php` stub.
 
+A test file opens with the same license header as every file in `Sources/`, directly
+after `<?php` and before `declare(strict_types=1)`:
+
+```php
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
+declare(strict_types=1);
+```
+
+The year is `SMF_SOFTWARE_YEAR` and the version is `SMF_VERSION`, both from `index.php`.
+The `index.php` stubs are the one exception, as they are in `Sources/`. Nothing enforces
+this: `check-smf-license.php` skips `./tests/` entirely, so a test copied from another
+test that lacks the header passes CI just the same. Copy the header from a file in
+`Sources/` instead.
+
 The code style rules apply to tests too, so run `composer lint-fix` on them. Two
 consequences of the fixer worth knowing before you fight it:
 
@@ -335,6 +467,137 @@ docker compose exec postgres psql -U smf -d smf -c 'SELECT * FROM smf_log_errors
 `smf_log_errors` is the first place to look. Many failures are recorded there rather
 than shown, especially anything in a background task.
 
+### Migrations
+
+The schema lives in PHP, so editing a column in `Sources/Db/Schema/v3_0/` changes what a
+*fresh install* builds and nothing else. Existing forums need a migration in
+`Sources/Maintenance/Migration/v3_0/`, registered in `Upgrade::MIGRATIONS`; a class that
+is not in that list never runs.
+
+`Table::normalize()`, which the upgrader runs after the migrations, covers more than it
+looks. It compares the type first and then `name`, `size`, `unsigned`, `stored`,
+`not_null`, `default` and `auto`, and it alters an existing column on any mismatch, so a
+good deal of what a migration might have done happens anyway. `mail_queue.time_sent` is
+`int` in `Schema\v2_1` and `bigint` in `Schema\v3_0`, no migration touches it, and it is
+widened on every upgrade by this pass alone. Do not rely on that — it is a backstop, not a
+plan, and it runs after your migration rather than instead of it — but do expect it, or
+you will spend an afternoon wondering what altered a column you never wrote a migration
+for. What it genuinely cannot see is a change to a generated column's expression.
+
+It also runs **once per version namespace**, not once. The `VERSION_MAP` loop appends
+`Table::getAll($ns)` for every namespace it selects, and there are table classes for both
+`v2_1` and `v3_0`, so a 2.1 to 3.0 upgrade normalizes every table twice against two
+different definitions. That is worth knowing before trying to reason about the order
+things happen in: an index can be created by the first pass and destroyed by the second.
+
+**Assume your migration runs more than once.** The upgrader resumes after a timeout and
+people re-run it, so `execute()` has to be safe to repeat. On top of that,
+`performSubsteps()` asks `isCandidate()` first and skips the step when it returns false.
+The default implementation returns true, which means an unguarded migration redoes its
+work — for an `ALTER TABLE` on MySQL that is a full table rebuild — on every pass. Guard
+it by looking at what is actually in the database:
+
+```php
+public function isCandidate(): bool
+{
+	$table = new Schema\v3_0\Whatever();
+	$existing_structure = $table->getCurrentStructure();
+
+	foreach ($existing_structure['columns'] as $column) {
+		if ($column['name'] === 'the_one') {
+			return $column['type'] !== $table->columns['the_one']->type;
+		}
+	}
+
+	return false;
+}
+```
+
+Comparing against `$table->columns[...]` rather than a literal lets the database API say
+what the type is called on this engine. `SearchResultsPrimaryKey` is the model to copy;
+several of the v3_0 migrations do this and several do not, so do not read an absence as
+permission to skip it. Treat the guard as an optimisation and idempotent `execute()` as
+the actual guarantee: write both.
+
+**A later migration can break an earlier one.** Being repeated over a finished forum is
+the easy case. The hard one is being interrupted, and what happens then turns on which
+version the upgrader believes it is starting from.
+
+`migrations()` writes `smfVersion` forward as each version's batch of migrations finishes,
+so a run that dies in the 3.0 batch can be started again without redoing the 2.1 one. What
+it reads back is not quite that setting, though. `getProgress()` takes
+`start_smf_version` from the `maintenance_tool_progress` blob in `Settings.php` and falls
+back to the setting only when the blob has nothing to say, and the blob records the
+version the run *started* from. It is written by `saveProgress()`, from `preExit()`.
+
+The two ways a run can stop therefore behave differently. A process that is killed never
+reaches `preExit()`, so nothing writes the original version back and the next run reads
+the setting: the batches that finished are skipped. An orderly stop does reach it — a
+migration that reports an error calls `preExit()` on its way out — so the blob pins the
+original version and the next run starts from the top again, over a database the later
+batch has already changed. **The tidy failure is the dangerous one**, which is the
+opposite of what one would guess.
+
+So the direction to check is the one nobody thinks of. If your migration drops or renames
+a table or a column, grep the **earlier** version namespaces for that name as well as the
+later ones:
+
+```bash
+grep -rn 'calendar_holidays' Sources/Maintenance/Migration/
+```
+
+That is not hypothetical. `HolidaysToEvents` folds `calendar_holidays` into the calendar
+and drops it, and three v2_1 migrations name that table; an upgrade interrupted any time
+after it could not be restarted at all until they were guarded.
+
+**The browser and the command line are not the same path.** `Maintenance::execute()` walks
+the same steps either way, but a step with substeps runs them very differently. On the
+command line the whole step happens in one process. In a browser `jsonResponse()` ends the
+request after each substep and the JavaScript in `MaintenanceTemplate.php` asks for the
+next one, carrying the position in the query string, so the number identifying a substep
+has to mean the same thing across requests and across every batch of a step. A step can
+work perfectly from the command line and be broken in a browser, and the reverse; verify
+whichever one you did not write against.
+
+**Verify on both engines, in four states.** A schema change is raw SQL by another name,
+so MySQL and PostgreSQL both need proving, and the create path and the alter path do not
+generate the same DDL:
+
+- the migration against a database still in the old shape,
+- the migration again afterwards, which should be skipped and harmless if forced,
+- the migration against a database that the *later* migrations have already changed,
+  which is what a restart gives it,
+- `Table::create()` from the same definition, since a type that alters cleanly may still
+  be rejected in a `CREATE TABLE`.
+
+The traps are in the details of the two engines.
+
+A MySQL `text` column takes no default, and `change_column()` carries the *old* default
+over when the new definition does not name one — so widening a `varchar` that had
+`DEFAULT ''` needs `drop_default` set on the column or MySQL rejects the statement.
+
+PostgreSQL cannot change a column's type in place, so `change_column()` does it the long
+way round:
+
+```sql
+ALTER TABLE smf_mail_queue ADD COLUMN time_sent_tempxx bigint
+UPDATE smf_mail_queue SET time_sent_tempxx = CAST(time_sent AS bigint)
+ALTER TABLE smf_mail_queue DROP COLUMN time_sent
+ALTER TABLE smf_mail_queue RENAME COLUMN time_sent_tempxx TO time_sent
+```
+
+Two things follow, and neither is announced. **Every index over that column is dropped
+with it**, so a type change silently costs you the indexes unless something puts them
+back. And the column is rebuilt at the *end* of the table, so its physical position moves
+— harmless to SQL that names its columns, but enough to make two dumps of the same forum
+differ. When changing a column type on PostgreSQL, check the indexes on that column
+afterwards rather than assuming they survived.
+
+None of this is reachable from the unit suite. `Schema\Column::__construct()` calls
+`Db::$db->calculate_type()`, so the schema classes cannot even be instantiated without a
+connection. Say that in the PR description and show what you ran against real databases
+instead.
+
 ## Things that bite in this codebase
 
 - **Typed properties with no default throw when read before assignment.** Several are
@@ -407,7 +670,11 @@ than shown, especially anything in a background task.
 - Commit messages use the imperative-with-s form used upstream, for example
   "Ensures trailing chars are correctly quoted", "Only enforces bans that actually exist".
 - Language strings live in `Languages/en_US/`; never hard-code user-facing text.
-- Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`.
+- Do not edit `vendor/`, `Packages/`, `Smileys/`, `cache/`, or `other/`. That includes
+  scratch files in `cache/`: `.dev/test.sh` (through `.dev/use-engine.sh`) and
+  `.dev/reset.sh` delete everything in it except `index.php` and `.htaccess`, so a
+  script or report left there vanishes on the next test run with nothing to say so.
+  Use the system temp directory instead.
 - `Settings.php` is local configuration and is not committed.
 
 ### Comments

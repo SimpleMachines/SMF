@@ -7,6 +7,7 @@ namespace SMF\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use SMF\Security;
+use SMF\User;
 
 #[CoversClass(Security::class)]
 class SecurityTest extends TestCase
@@ -24,6 +25,19 @@ class SecurityTest extends TestCase
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * A wrong password with no older hashing scheme left to try compares
+	 * nothing, and was answered by reading a variable the comparisons had
+	 * never set: a warning in the error log on every failed attempt.
+	 */
+	public function testAWrongPasswordIsRejectedWhenNoFallbackApplies(): void
+	{
+		$member = (new \ReflectionClass(User::class))->newInstanceWithoutConstructor();
+		$member->passwd = Security::hashPassword('correct horse battery staple', self::COST);
+
+		$this->assertFalse(Security::checkPassword('Tr0ub4dor&3', $member, 0, false, false));
+	}
 
 	public function testAHashVerifiesAgainstItsOwnPassword(): void
 	{
