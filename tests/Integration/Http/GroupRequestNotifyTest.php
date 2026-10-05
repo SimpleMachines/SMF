@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -37,13 +48,18 @@ class GroupRequestNotifyTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * A task with no requests in it finishes quietly.
+	 * A group request task with no requests in it finishes quietly.
 	 *
-	 * Answering requests that had already been answered - by another
-	 * moderator, or by the same form sent twice - queued the task with an
-	 * empty list anyway. Its query then failed with "given array of integer
-	 * values is empty", logged as a critical database error, and the task
-	 * stayed queued and failed again every five minutes from then on.
+	 * Expected: running a GroupAct_Notify task with an empty request_list
+	 *           removes it from the queue and logs no database error.
+	 * Guards:   answering requests that had already been answered - by another
+	 *           moderator, or by the same form sent twice - queued the task with
+	 *           an empty list anyway. Its query then failed with "given array of
+	 *           integer values is empty", logged as a critical database error,
+	 *           and the task stayed queued and failed again every five minutes.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/5f1b2be80 Introduced by "Restore a query"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9744
 	 */
 	public function testATaskWithNoRequestsFinishesWithoutAnError(): void
 	{
