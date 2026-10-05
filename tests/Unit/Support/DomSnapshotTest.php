@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit\Support;
@@ -23,18 +34,37 @@ class DomSnapshotTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Renders that differ only in ways a conversion may change read the same.
+	 *
+	 * Expected: describe() gives the same description for both renders of each
+	 *           case in sameRender().
+	 */
 	#[DataProvider('sameRender')]
 	public function testTheseRendersReadTheSame(string $before, string $after): void
 	{
 		$this->assertSame($this->describe($before), $this->describe($after));
 	}
 
+	/**
+	 * Renders that differ in a way a conversion must not introduce read differently.
+	 *
+	 * Expected: describe() gives different descriptions for the two renders of
+	 *           each case in differentRender().
+	 */
 	#[DataProvider('differentRender')]
 	public function testTheseRendersDoNot(string $before, string $after): void
 	{
 		$this->assertNotSame($this->describe($before), $this->describe($after));
 	}
 
+	/**
+	 * An ignored element is named in the description, without its content.
+	 *
+	 * Expected: describing <main> with #volatile ignored contains
+	 *           'snapshot-ignored [selector="#volatile"]' and "Kept", and not
+	 *           "Now".
+	 */
 	public function testItSaysWhatItLeftOut(): void
 	{
 		$description = (new DomSnapshot())->describe('<main><p id="volatile">Now</p><p>Kept</p></main>', ['main'], ['#volatile']);
@@ -44,6 +74,12 @@ class DomSnapshotTest extends TestCase
 		$this->assertStringContainsString('"Kept"', $description);
 	}
 
+	/**
+	 * A root selected by an ID that holds a number reads the same whatever the number.
+	 *
+	 * Expected: describing #category_2 and #category_3 around the same content
+	 *           gives the same description.
+	 */
 	public function testARootNamingAnIdReadsTheSameOnAnyForum(): void
 	{
 		$describe = static fn(int $id): string => (new DomSnapshot())->describe(
@@ -54,6 +90,12 @@ class DomSnapshotTest extends TestCase
 		$this->assertSame($describe(2), $describe(3));
 	}
 
+	/**
+	 * A root that matches nothing is reported, not silently skipped.
+	 *
+	 * Expected: describing #gone on a page without it contains
+	 *           "(nothing matches #gone)".
+	 */
 	public function testItSaysWhenARootIsMissing(): void
 	{
 		$this->assertStringContainsString(
@@ -62,6 +104,12 @@ class DomSnapshotTest extends TestCase
 		);
 	}
 
+	/**
+	 * Masking an element's text keeps the element itself in the description.
+	 *
+	 * Expected: describing li.postgroup with its text masked contains
+	 *           li.postgroup and "{text}", and not "Hero".
+	 */
 	public function testMaskedTextKeepsItsElement(): void
 	{
 		$description = (new DomSnapshot())->describe('<main><li class="postgroup">Hero Member</li></main>', ['main'], [], ['.postgroup']);
@@ -71,6 +119,13 @@ class DomSnapshotTest extends TestCase
 		$this->assertStringNotContainsString('Hero', $description);
 	}
 
+	/**
+	 * A list can be narrowed to the entries that mention the fixtures.
+	 *
+	 * Expected: a board picker narrowed to optgroups mentioning "Snapshot"
+	 *           reads the same whatever other boards the forum has, keeps
+	 *           "Snapshot fixtures" and drops "General".
+	 */
 	public function testAListCanBeNarrowedToWhatMentionsTheFixtures(): void
 	{
 		$picker = static fn(string $others): string => '<main><select name="toboard">'
@@ -88,6 +143,12 @@ class DomSnapshotTest extends TestCase
 		$this->assertStringNotContainsString('General', $one);
 	}
 
+	/**
+	 * An element that is only there sometimes can be left out without a trace.
+	 *
+	 * Expected: with .amt left out, a link with an unread count and one without
+	 *           give the same description.
+	 */
 	public function testSomethingOnlyThereSometimesCanBeLeftOutWithoutATrace(): void
 	{
 		$describe = static fn(string $html): string => (new DomSnapshot())->describe($html, ['main'], [], [], ['.amt' => null]);
@@ -98,6 +159,12 @@ class DomSnapshotTest extends TestCase
 		);
 	}
 
+	/**
+	 * Rows that come in database order can be compared sorted.
+	 *
+	 * Expected: with tbody marked unordered, the same two rows in either order
+	 *           give the same description.
+	 */
 	public function testRowsInDatabaseOrderCanBeComparedSorted(): void
 	{
 		$describe = static fn(string $rows): string => (new DomSnapshot())->describe(
@@ -115,10 +182,18 @@ class DomSnapshotTest extends TestCase
 		);
 	}
 
+	/**
+	 * The board URL is not mistaken for a member's name.
+	 *
+	 * A member called "admin" is common, and ?action=admin is on every page an
+	 * administrator sees.
+	 *
+	 * Expected: with a member named "admin", the description keeps
+	 *           {boardurl}/index.php?action=admin and the "Admin" link text,
+	 *           and masks only the name in the profile link as {member}.
+	 */
 	public function testTheBoardUrlIsNotMistakenForAName(): void
 	{
-		// A member called "admin" is common, and ?action=admin is on every
-		// page an administrator sees.
 		$description = (new DomSnapshot(['http://forum.test' => '{boardurl}']))->describe(
 			'<main><a href="http://forum.test/index.php?action=profile;u=1">admin</a> '
 			. '<a href="http://forum.test/index.php?action=admin">Admin</a></main>',

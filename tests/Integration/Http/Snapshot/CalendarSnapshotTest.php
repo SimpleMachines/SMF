@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http\Snapshot;
@@ -33,6 +44,13 @@ class CalendarSnapshotTest extends SnapshotTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Each page renders as its recorded snapshot.
+	 *
+	 * Expected: for each case in pages(), the page at its path, seen by
+	 *           the fixture member, with the calendar turned on, reads the same as
+	 *           snapshots/member/<name>.txt.
+	 */
 	#[DataProvider('pages')]
 	public function testThePageRendersAsItDid(string $name, string $path, array $roots = self::PAGE, array $ignore = [], array $only = [], array $unordered = []): void
 	{
