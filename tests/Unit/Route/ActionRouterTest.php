@@ -43,6 +43,12 @@ class ActionRouterTest extends AbstractRouteTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A set of parameters is built into an action route.
+	 *
+	 * Expected: each case in buildRouteProvider() makes buildRoute() return the
+	 *           expected route segments and the parameters left over.
+	 */
 	#[DataProvider('buildRouteProvider')]
 	public function testBuildsAnActionRoute(array $params, array $expected): void
 	{
@@ -52,6 +58,12 @@ class ActionRouterTest extends AbstractRouteTestCase
 		);
 	}
 
+	/**
+	 * An action route is parsed into the action, area and sub-action.
+	 *
+	 * Expected: each case in parseRouteProvider() makes parseRoute() return the
+	 *           expected parameters.
+	 */
 	#[DataProvider('parseRouteProvider')]
 	public function testParsesAnActionRoute(array $route, array $expected): void
 	{
@@ -61,6 +73,11 @@ class ActionRouterTest extends AbstractRouteTestCase
 		);
 	}
 
+	/**
+	 * A route that starts with an unknown action is not parsed.
+	 *
+	 * Expected: parseRoute(['unknown-action', 'foo']) returns an empty array.
+	 */
 	public function testDoesNotParseAnUnknownAction(): void
 	{
 		$this->assertEmpty(TestActionRouter::parseRoute(['unknown-action', 'foo']));

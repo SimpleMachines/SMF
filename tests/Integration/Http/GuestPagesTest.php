@@ -39,6 +39,12 @@ class GuestPagesTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Each page a guest can reach loads and logs nothing.
+	 *
+	 * Expected: each case in guestPages() returns a page that looks like a
+	 *           forum page, and leaves nothing in the error log.
+	 */
 	#[DataProvider('guestPages')]
 	public function testThePageLoadsAndLogsNothing(string $path, string $name): void
 	{
@@ -48,6 +54,11 @@ class GuestPagesTest extends HttpTestCase
 		$this->assertNoErrorsLogged($name . ' (' . $path . ') logged something.' . "\n");
 	}
 
+	/**
+	 * The board index lists at least one board.
+	 *
+	 * Expected: the board index links to at least one board=, and logs nothing.
+	 */
 	public function testTheBoardIndexListsAtLeastOneBoard(): void
 	{
 		$response = $this->fetch('');
@@ -62,9 +73,14 @@ class GuestPagesTest extends HttpTestCase
 	}
 
 	/**
-	 * The one page here that is not HTML. It is worth its place because the feed
-	 * is built by hand rather than by the template layer, so nothing else in this
-	 * file would notice it breaking.
+	 * The RSS feed is served as XML that parses.
+	 *
+	 * This is the one page here that is not HTML. It is worth its place because
+	 * the feed is built by hand rather than by the template layer, so nothing
+	 * else in this file would notice it breaking.
+	 *
+	 * Expected: ?action=.xml;type=rss2 returns an XML content type and a body
+	 *           that simplexml_load_string() parses, and logs nothing.
 	 */
 	public function testTheFeedIsXmlAndParses(): void
 	{
@@ -86,8 +102,11 @@ class GuestPagesTest extends HttpTestCase
 	}
 
 	/**
-	 * An action that does not exist should be a 404, not a 200 with an apology
-	 * and not a 500.
+	 * An action that does not exist is a 404.
+	 *
+	 * It should be neither a 200 with an apology nor a 500.
+	 *
+	 * Expected: ?action=smf_tests_no_such_action returns status 404.
 	 */
 	public function testAnUnknownActionIsNotFound(): void
 	{
@@ -102,6 +121,10 @@ class GuestPagesTest extends HttpTestCase
 	 * page here that a cold request is genuinely not allowed to reach, and the
 	 * difference between the two halves is worth stating: arriving at the forum
 	 * first is what makes it work, and that is what a browser does.
+	 *
+	 * Expected: ?action=signup with no cookies returns 403. After visiting the
+	 *           forum, it shows the agreement, and accepting that leads to the
+	 *           registration form, with nothing logged.
 	 */
 	public function testRegistrationNeedsASessionFirst(): void
 	{

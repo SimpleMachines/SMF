@@ -27,6 +27,12 @@ class ContainerFactoryTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A container factory resolves its dependencies through Services.
+	 *
+	 * Expected: getting UserRepository from the container calls its factory, which
+	 *           gets the DatabaseConnection through Services and passes it on.
+	 */
 	public function testFactoryReceivesContainerAndResolvesDependencies(): void
 	{
 		$container = new Container();

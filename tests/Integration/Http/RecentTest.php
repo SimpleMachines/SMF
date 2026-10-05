@@ -30,12 +30,21 @@ class RecentTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * ?action=recent;boards= was a 500 for any value at all.
+	 * Recent posts can be narrowed to a list of boards.
 	 *
-	 * Recent::execute() turns the comma separated list into an array of
-	 * integers, and getBoards() then ran explode() over it a second time, which
-	 * is a TypeError on an array. The boards list is how the board index's
-	 * "recent posts" links for a set of boards reach the page.
+	 * The boards list is how the board index's "recent posts" links for a set
+	 * of boards reach the page.
+	 *
+	 * Expected: each case in boardLists() requests ?action=recent;boards= with
+	 *           that many visible boards, and gets a forum page with nothing
+	 *           logged.
+	 * Guards:   ?action=recent;boards= was a 500 for any value at all.
+	 *           Recent::execute() turns the comma separated list into an array
+	 *           of integers, and getBoards() then ran explode() over it a
+	 *           second time, which is a TypeError on an array.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/633b3fa97 Introduced by "Implements SMF\Actions\Recent and related classes"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9713
 	 */
 	#[DataProvider('boardLists')]
 	public function testRecentPostsCanBeNarrowedToBoards(int $count): void

@@ -31,10 +31,19 @@ class MemberlistSearchTest extends HttpTestCase
 	/**
 	 * A search finds a member whatever case it is typed in.
 	 *
-	 * On a case sensitive database - PostgreSQL - Memberlist::search() folds the
-	 * columns it searches to lower case, and compared them with the search as
-	 * typed. So any search with a capital letter in it matched nobody. MySQL
-	 * compares without regard to case anyway, and passes either way.
+	 * MySQL compares without regard to case anyway, so on MySQL this passes
+	 * with or without the bug.
+	 *
+	 * Expected: each case in spellings() searches the member list for the
+	 *           administrator's name, in capitals or capitalised, and finds
+	 *           the administrator among the results, with nothing logged.
+	 * Guards:   on a case sensitive database - PostgreSQL - Memberlist::search()
+	 *           folded the columns it searches to lower case, and compared
+	 *           them with the search as typed. So any search with a capital
+	 *           letter in it matched nobody.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/7ee5156e2 Introduced by "Uses correct param when searching by email in memberlist"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9716
 	 */
 	#[DataProvider('spellings')]
 	public function testASearchIgnoresCase(string $how): void

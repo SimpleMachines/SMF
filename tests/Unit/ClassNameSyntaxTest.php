@@ -93,6 +93,12 @@ class ClassNameSyntaxTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Every class name is written as a resolver rather than a string.
+	 *
+	 * Expected: no string literal in Sources, Themes or the entry points names
+	 *           an SMF class, except the names listed in ALLOWED for that file.
+	 */
 	public function testEveryClassNameIsWrittenAsAResolverRatherThanAString(): void
 	{
 		$found = [];
@@ -113,8 +119,13 @@ class ClassNameSyntaxTest extends TestCase
 	}
 
 	/**
+	 * Nothing in the list of exceptions has gone stale.
+	 *
 	 * An exception whose reason has gone stale is an exception nobody notices,
 	 * so the list is only allowed to name things that are really still there.
+	 *
+	 * Expected: every name in ALLOWED is still written as a string literal in
+	 *           the file it is listed under.
 	 */
 	public function testNothingInTheListOfExceptionsHasGoneStale(): void
 	{

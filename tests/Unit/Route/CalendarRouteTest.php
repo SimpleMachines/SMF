@@ -24,6 +24,12 @@ class CalendarRouteTest extends AbstractRouteTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * The clock alias is parsed as the clock sub-action of the calendar.
+	 *
+	 * Expected: Calendar::parseRoute(['clock']) returns
+	 *           ['action' => 'calendar', 'sa' => 'clock'].
+	 */
 	public function testParsesClockAlias(): void
 	{
 		$this->assertSame(

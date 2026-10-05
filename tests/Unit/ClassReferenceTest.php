@@ -96,10 +96,20 @@ class ClassReferenceTest extends TestCase
 	 ****************/
 
 	/**
-	 * The regression this pins is a background task queued as
-	 * 'SMF\Tasks\FetchSMfiles' by the upgrader, where the class is FetchSMFiles.
-	 * The wrong spelling is the scheduled task's own name, fetchSMfiles, which
-	 * sits two lines from the right answer in TaskRunner::$scheduled_tasks.
+	 * Every class name written as a string names something real.
+	 *
+	 * Expected: each SMF\... string literal in the shipped files, apart from
+	 *           the arguments of existence probes, names a class or namespace
+	 *           that the file tree defines, and any ::method it names exists.
+	 * Guards:   the upgrader queued a background task as
+	 *           'SMF\Tasks\FetchSMfiles' where the class is FetchSMFiles. The
+	 *           wrong spelling is the scheduled task's own name, fetchSMfiles,
+	 *           which sits two lines from the right answer in
+	 *           TaskRunner::$scheduled_tasks, so the task could never be found
+	 *           and the work never happened.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/99321ba41 Introduced by "Rewrites upgrader"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9661
 	 */
 	public function testEveryClassNameWrittenAsAStringNamesSomethingReal(): void
 	{

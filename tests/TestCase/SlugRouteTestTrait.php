@@ -64,6 +64,13 @@ trait SlugRouteTestTrait
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A route with an incorrect slug redirects to the canonical route.
+	 *
+	 * Expected: for each case in provideIncorrectSlugRouteCases(), parseRoute()
+	 *           redirects to a URL containing the parameters, returns the
+	 *           parameters, and records the requested slug as Slug::$requested.
+	 */
 	#[DataProvider('provideIncorrectSlugRouteCases')]
 	public function testIncorrectSlugRoute(array $route, array $params, string $expected_slug): void
 	{
@@ -82,6 +89,13 @@ trait SlugRouteTestTrait
 		}
 	}
 
+	/**
+	 * A route with the correct slug parses and builds without a redirect.
+	 *
+	 * Expected: for each case in provideCorrectSlugRouteCases(), parseRoute()
+	 *           returns the parameters, and buildRoute() on them returns the route
+	 *           with no leftover parameters.
+	 */
 	#[DataProvider('provideCorrectSlugRouteCases')]
 	public function testCorrectSlugRoute(array $route, array $params): void
 	{
@@ -101,6 +115,12 @@ trait SlugRouteTestTrait
 		}
 	}
 
+	/**
+	 * Each slug fixture is registered as an empty known slug.
+	 *
+	 * Expected: for each case in provideSlugCases(), Slug::$known holds a Slug for
+	 *           that type and ID whose string value is empty.
+	 */
 	#[DataProvider('provideSlugCases')]
 	public function testSlug(string $type, int $id, string $slug): void
 	{

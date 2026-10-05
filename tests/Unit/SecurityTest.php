@@ -38,9 +38,17 @@ class SecurityTest extends TestCase
 	 ****************/
 
 	/**
-	 * A wrong password with no older hashing scheme left to try compares
-	 * nothing, and was answered by reading a variable the comparisons had
-	 * never set: a warning in the error log on every failed attempt.
+	 * A wrong password is rejected when no older hashing scheme applies.
+	 *
+	 * Expected: checkPassword() with a bcrypt hash of a different password,
+	 *           and no fallback to try, returns false.
+	 * Guards:   with no older hashing scheme left to compare against, the result
+	 *           was read from a variable the comparisons had never set, which
+	 *           logged an "Undefined variable $is_correct" warning on every
+	 *           failed login attempt.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/b44c6ea08 Introduced by "Prevents timing attacks against Security::checkPasswordFallbacks()"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9719
 	 */
 	public function testAWrongPasswordIsRejectedWhenNoFallbackApplies(): void
 	{
@@ -50,6 +58,12 @@ class SecurityTest extends TestCase
 		$this->assertFalse(Security::checkPassword('Tr0ub4dor&3', $member, 0, false, false));
 	}
 
+	/**
+	 * A hash verifies against the password it was made from.
+	 *
+	 * Expected: hashVerifyPassword($password, hashPassword($password)) returns
+	 *           true.
+	 */
 	public function testAHashVerifiesAgainstItsOwnPassword(): void
 	{
 		$hash = Security::hashPassword('correct horse battery staple', self::COST);
@@ -57,6 +71,12 @@ class SecurityTest extends TestCase
 		$this->assertTrue(Security::hashVerifyPassword('correct horse battery staple', $hash));
 	}
 
+	/**
+	 * A hash does not verify against a different password.
+	 *
+	 * Expected: hashVerifyPassword() returns false for the same password with
+	 *           different capitalization and for an empty string.
+	 */
 	public function testAHashDoesNotVerifyAgainstAnythingElse(): void
 	{
 		$hash = Security::hashPassword('correct horse battery staple', self::COST);
@@ -65,6 +85,11 @@ class SecurityTest extends TestCase
 		$this->assertFalse(Security::hashVerifyPassword('', $hash));
 	}
 
+	/**
+	 * Hashing the same password twice gives two different hashes.
+	 *
+	 * Expected: two calls to hashPassword('same') return different strings.
+	 */
 	public function testHashingIsSaltedSoTheSamePasswordHashesDifferently(): void
 	{
 		$this->assertNotSame(
@@ -73,17 +98,34 @@ class SecurityTest extends TestCase
 		);
 	}
 
+	/**
+	 * Password hashes are bcrypt hashes.
+	 *
+	 * Expected: hashPassword() returns a string starting with '$2y$'.
+	 */
 	public function testHashesAreBcrypt(): void
 	{
 		$this->assertStringStartsWith('$2y$', Security::hashPassword('x', self::COST));
 	}
 
+	/**
+	 * The cost factor given to hashPassword() ends up in the hash.
+	 *
+	 * Expected: hashPassword('x', 4) starts with '$2y$04$' and
+	 *           hashPassword('x', 5) starts with '$2y$05$'.
+	 */
 	public function testTheCostFactorIsHonoured(): void
 	{
 		$this->assertStringStartsWith('$2y$04$', Security::hashPassword('x', 4));
 		$this->assertStringStartsWith('$2y$05$', Security::hashPassword('x', 5));
 	}
 
+	/**
+	 * Generated passwords are 20 characters long and differ each time.
+	 *
+	 * Expected: generatePassword() returns a string of length 20, and a second
+	 *           call returns a different string.
+	 */
 	public function testGeneratedPasswordsAreDistinctAndNonTrivial(): void
 	{
 		$first = Security::generatePassword();
@@ -92,6 +134,12 @@ class SecurityTest extends TestCase
 		$this->assertNotSame($first, Security::generatePassword());
 	}
 
+	/**
+	 * Generated validation codes are 10 characters long and differ each time.
+	 *
+	 * Expected: generateValidationCode() returns a string of length 10, and a
+	 *           second call returns a different string.
+	 */
 	public function testGeneratedValidationCodesAreDistinctAndNonTrivial(): void
 	{
 		$first = Security::generateValidationCode();

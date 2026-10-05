@@ -28,10 +28,14 @@ class ForumTest extends TestCase
 	 ****************/
 
 	/**
-	 * Tests that every action definition has the expected structure.
+	 * Every action definition has the expected structure.
 	 *
 	 * Each action must contain a source file and a handler. The handler must
 	 * either be an ActionInterface implementation or a callable.
+	 *
+	 * Expected: each entry of Forum::$actions is a two-element list whose first
+	 *           element is a string and whose second is an ActionInterface
+	 *           class name or a callable.
 	 */
 	public function testActionDefinitions(): void
 	{
@@ -51,7 +55,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that all renamed actions point to actions that exist.
+	 * All renamed actions point to actions that exist.
+	 *
+	 * Expected: array_diff(Forum::$renamed_actions,
+	 *           array_keys(Forum::$actions)) is empty.
 	 */
 	public function testRenamedActionsExist(): void
 	{
@@ -63,7 +70,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that all actions excluded from logging exist.
+	 * All actions excluded from logging exist.
+	 *
+	 * Expected: array_diff_key(Forum::$unlogged_actions, Forum::$actions) is
+	 *           empty.
 	 */
 	public function testUnloggedActionsExist(): void
 	{
@@ -75,7 +85,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that all actions accessible to guests exist.
+	 * All actions accessible to guests exist.
+	 *
+	 * Expected: array_diff(Forum::$guest_access_actions,
+	 *           array_keys(Forum::$actions)) is empty.
 	 */
 	public function testGuestAccessActionsExist(): void
 	{

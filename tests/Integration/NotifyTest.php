@@ -35,11 +35,20 @@ class NotifyTest extends IntegrationTestCase
 	 ****************/
 
 	/**
-	 * changeBoardTopicPref() wrote the log_notify row for User::$me rather
-	 * than for the member whose preference was being changed. Subscribing
-	 * through a token therefore subscribed whoever followed the link, which
-	 * for a guest meant a row for member 0, and left the member themselves
-	 * with a preference saying they were subscribed and nothing to send to.
+	 * Subscribing through a token records the member the token is for.
+	 *
+	 * Expected: changeBoardTopicPref() with a member_info for another member
+	 *           adds a log_notify row for that member and leaves the acting
+	 *           administrator's subscription as it was, with no errors logged.
+	 * Guards:   changeBoardTopicPref() wrote the log_notify row for User::$me
+	 *           rather than for the member whose preference was being changed.
+	 *           Subscribing through a token therefore subscribed whoever
+	 *           followed the link, which for a guest meant a row for member 0,
+	 *           and left the member with a preference saying they were
+	 *           subscribed and nothing to send to.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/6228a85e4 Introduced by "Implements unsubscribe tokens for email notifications"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9735
 	 */
 	public function testSubscribingThroughATokenRecordsTheMemberItIsFor(): void
 	{

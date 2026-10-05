@@ -25,6 +25,13 @@ final class ComposerFileTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Every Composer script has a description.
+	 *
+	 * Expected: apart from Composer's own event names, the keys of scripts in
+	 *           composer.json and the keys of scripts-descriptions are the same
+	 *           set.
+	 */
 	public function testScriptsHaveDescriptions(): void
 	{
 		$composer_json = $this->readComposerJson();
@@ -78,6 +85,12 @@ final class ComposerFileTest extends TestCase
 		);
 	}
 
+	/**
+	 * The platform PHP version satisfies the PHP requirement.
+	 *
+	 * Expected: Semver::satisfies() accepts config.platform.php from
+	 *           composer.json against require.php.
+	 */
 	public function testPlatformPhpVersionSatisfiesPhpRequirement(): void
 	{
 		$composer_json = $this->readComposerJson();

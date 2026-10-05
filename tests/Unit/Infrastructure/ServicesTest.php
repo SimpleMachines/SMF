@@ -25,6 +25,12 @@ class ServicesTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Services::has() delegates to the container.
+	 *
+	 * Expected: has('test') asks the container's has('test') once and returns its
+	 *           result, true.
+	 */
 	public function testHasDelegatesToContainer(): void
 	{
 		$container = $this->createMock(ContainerInterface::class);
@@ -40,6 +46,12 @@ class ServicesTest extends TestCase
 		$this->assertTrue($services->has('test'));
 	}
 
+	/**
+	 * Services::get() delegates to the container.
+	 *
+	 * Expected: get('test') asks the container's get('test') once and returns the
+	 *           service it gave.
+	 */
 	public function testGetDelegatesToContainer(): void
 	{
 		$container = $this->createMock(ContainerInterface::class);

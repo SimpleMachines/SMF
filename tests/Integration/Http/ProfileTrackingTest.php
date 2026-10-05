@@ -42,10 +42,17 @@ class ProfileTrackingTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The page starts from the IP address the member last used. Tracking
-	 * yourself always worked, because you are the member the forum has
-	 * loaded; tracking anybody else read the address from a member who had
-	 * not been loaded, and failed with a TypeError.
+	 * Another member's IP address can be tracked.
+	 *
+	 * Expected: ?action=profile;area=tracking;sa=ip for a member other than
+	 *           the moderator shows the IP address that member last used, with
+	 *           nothing logged.
+	 * Guards:   the page starts from the IP address the member last used.
+	 *           Tracking yourself worked, because you are the member the forum
+	 *           has loaded; tracking anybody else read the address from a
+	 *           member who had not been loaded, and failed with a TypeError.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9718
 	 */
 	public function testAnotherMembersIpAddressCanBeTracked(): void
 	{
