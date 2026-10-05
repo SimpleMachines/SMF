@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -39,13 +50,23 @@ class ErrorHandlerServiceTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Errors that are not logged do not count towards the loop guard.
+	 *
+	 * Expected: with enableErrorLogging off, five calls to log() each return
+	 *           their own message.
+	 * Guards:   the guard counts calls that are on the stack, and the count was
+	 *           only cleared at the very end of the method. Returning early
+	 *           because logging is off skipped that, so the count climbed on
+	 *           every call and the third unrelated error in a request died with
+	 *           'loop detected', which in a test run takes the whole process
+	 *           with it.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/148f2edcd Introduced by "Stop Error loop"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9606
+	 */
 	public function testErrorsThatAreNotLoggedDoNotCountAsALoop(): void
 	{
-		// The guard counts calls that are on the stack, and the count was only
-		// cleared at the very end of the method. Returning early because
-		// logging is off skipped that, so the count climbed on every call and
-		// the third unrelated error in a request died with 'loop detected',
-		// which in a test run takes the whole process with it.
 		$service = new ErrorHandlerService();
 
 		foreach (range(1, 5) as $i) {
@@ -53,11 +74,18 @@ class ErrorHandlerServiceTest extends TestCase
 		}
 	}
 
+	/**
+	 * The message is handed back unchanged when nothing is logged.
+	 *
+	 * Callers use the return value to build what they show, as in
+	 * die(ErrorHandler::log($msg)), so it has to come back whether the error
+	 * was recorded or not.
+	 *
+	 * Expected: with enableErrorLogging off, log('something went wrong')
+	 *           returns 'something went wrong'.
+	 */
 	public function testTheMessageIsHandedBackUnchangedWhenNothingIsLogged(): void
 	{
-		// Callers use the return value to build what they show, as in
-		// die(ErrorHandler::log($msg)), so it has to come back whether the
-		// error was recorded or not.
 		$service = new ErrorHandlerService();
 
 		$this->assertSame('something went wrong', $service->log('something went wrong'));
