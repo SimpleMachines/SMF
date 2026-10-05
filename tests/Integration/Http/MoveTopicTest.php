@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -38,11 +49,18 @@ class MoveTopicTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The redirection topic does not notify anyone.
+	 * The redirection topic left behind by a move does not notify anyone.
 	 *
-	 * It was posted like any new topic, so everyone watching the old board was
-	 * emailed "New Topic: MOVED: ..." and found it in their digest, on top of
-	 * the notice about the move that the topic's own watchers get.
+	 * Expected: moving a topic with a redirection topic leaves the "MOVED: ..."
+	 *           topic in the old board and queues no CreatePost_Notify task
+	 *           for it.
+	 * Guards:   the redirection topic was posted like any new topic, so everyone
+	 *           watching the old board was emailed "New Topic: MOVED: ..." and
+	 *           found it in their digest, on top of the notice about the move
+	 *           that the topic's own watchers get.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/147061675 Introduced by "Shift watched topics and watched boards to use alerts"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9748
 	 */
 	public function testTheRedirectionTopicNotifiesNobody(): void
 	{
