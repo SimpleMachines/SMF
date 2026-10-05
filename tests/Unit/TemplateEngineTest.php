@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -41,6 +52,12 @@ class TemplateEngineTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A loaded Plates template provides its sub-templates.
+	 *
+	 * Expected: with Stats loaded, find('main') returns 'Stats/main' and
+	 *           rendering it outputs the file.
+	 */
 	public function testALoadedPlatesTemplateRendersItsSubTemplates(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');
@@ -52,6 +69,11 @@ class TemplateEngineTest extends TestCase
 		$this->assertSame('stats page', $engine->render('Stats/main'));
 	}
 
+	/**
+	 * A Plates template that was not loaded is not searched.
+	 *
+	 * Expected: with Stats on disk but not loaded, find('main') returns null.
+	 */
 	public function testATemplateThatWasNotLoadedIsNotSearched(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');
@@ -61,6 +83,12 @@ class TemplateEngineTest extends TestCase
 		$this->assertNull($engine->find('main'));
 	}
 
+	/**
+	 * A sub-template the Plates template lacks is left to the template_*() functions.
+	 *
+	 * Expected: with Stats loaded and no stats.php in it, find('stats') returns
+	 *           null.
+	 */
 	public function testASubTemplateThePlatesTemplateLacksIsLeftToTheFunctions(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');
@@ -72,8 +100,13 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A template directory's index.php is never a sub-template.
+	 *
 	 * Every directory in a theme has an index.php that sends a visitor
 	 * elsewhere, and it must never be rendered as though it were a page.
+	 *
+	 * Expected: with Stats loaded and an index.php in it, find('index') returns
+	 *           null.
 	 */
 	public function testTheIndexFileIsNeverASubTemplate(): void
 	{
@@ -85,6 +118,13 @@ class TemplateEngineTest extends TestCase
 		$this->assertNull($engine->find('index'));
 	}
 
+	/**
+	 * A template is a Plates template in a theme that has its directory.
+	 *
+	 * Expected: isPlatesTemplate() is true for Stats in the theme holding
+	 *           Stats/, and false for a theme without it and for a template
+	 *           with no directory.
+	 */
 	public function testATemplateDirectoryIsWhatMakesATemplatePlates(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');
@@ -97,8 +137,14 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A theme overrides one sub-template and inherits the rest.
+	 *
 	 * A theme only has to hold the sub-templates it changes. The rest come
 	 * from the theme it is based on.
+	 *
+	 * Expected: with the child theme first, main renders the child's file,
+	 *           other renders the default theme's, and path('Stats/other') is
+	 *           the default theme's file.
 	 */
 	public function testAThemeOverridesOneSubTemplateAndInheritsTheRest(): void
 	{
@@ -117,6 +163,12 @@ class TemplateEngineTest extends TestCase
 		);
 	}
 
+	/**
+	 * A template that does not exist has no path.
+	 *
+	 * Expected: path('Stats/main') returns null and exists('Stats/main')
+	 *           returns false.
+	 */
 	public function testThePathOfAMissingTemplateIsNull(): void
 	{
 		$engine = new TemplateEngine([$this->default]);
@@ -126,8 +178,13 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * The data a template is rendered with becomes the template's variables.
+	 *
 	 * Theme::loadSubTemplate() passes the parameters it was given as the
 	 * template's variables.
+	 *
+	 * Expected: render('Stats/main', ['greeting' => 'Hello', 'name' =>
+	 *           'world']) outputs 'Hello, world'.
 	 */
 	public function testDataIsPassedToTheTemplateAsVariables(): void
 	{
@@ -139,9 +196,15 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * Between a Plates template and a function, the one loaded last provides the sub-template.
+	 *
 	 * Before Plates, sub-template names were global: whichever template file
 	 * defined the function ran it. With both kinds loaded, the template loaded
 	 * last decides, as the function it defined would have.
+	 *
+	 * Expected: find('plates_or_function') returns null after a legacy template
+	 *           defining it is loaded, and 'Stats/plates_or_function' once
+	 *           Stats is loaded again.
 	 */
 	public function testAFunctionFromATemplateLoadedLaterWins(): void
 	{
@@ -163,7 +226,12 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A legacy template loaded later does not hide a Plates sub-template it does not define.
+	 *
 	 * A legacy template that does not define the function has no say in it.
+	 *
+	 * Expected: find('main') still returns 'Stats/main' after an unrelated
+	 *           legacy template is loaded.
 	 */
 	public function testAFunctionFromAnotherFileDoesNotHideThePlatesTemplate(): void
 	{
@@ -178,9 +246,14 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A directory named twice is looked in once.
+	 *
 	 * Theme::loadTemplate() can add the default theme to the list a second
 	 * time when it goes looking for a misconfigured default theme directory.
 	 * Plates refuses a hierarchy that names the same theme twice.
+	 *
+	 * Expected: a TemplateEngine given the default theme twice keeps it once in
+	 *           $dirs and still renders its templates.
 	 */
 	public function testTheSameDirectoryTwiceIsLookedInOnce(): void
 	{
@@ -194,8 +267,13 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * With no template directories, nothing is found.
+	 *
 	 * Theme::loadSubTemplate() asks the engine first, and an error page can
 	 * ask before a theme has said where its templates are.
+	 *
+	 * Expected: find('main') and path('Stats/main') return null on an engine
+	 *           with no directories.
 	 */
 	public function testWithNoDirectoriesNothingIsFound(): void
 	{
@@ -206,6 +284,12 @@ class TemplateEngineTest extends TestCase
 		$this->assertNull($engine->path('Stats/main'));
 	}
 
+	/**
+	 * Changing the template directories keeps the templates already loaded.
+	 *
+	 * Expected: after setDirs() adds the child theme, find('main') renders the
+	 *           child's file for the Stats loaded before.
+	 */
 	public function testChangingTheDirectoriesKeepsWhatWasLoaded(): void
 	{
 		$this->write($this->child, 'Stats/main.php', 'child main');
@@ -218,8 +302,14 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A template calls sub-templates of either kind the same way.
+	 *
 	 * A template calls another sub-template the same way whether that one has
 	 * been converted to Plates yet or is still a template_*() function.
+	 *
+	 * Expected: a Plates template calling subTemplate() for a Plates sub-
+	 *           template and for a template_*() function outputs 'hello Plates,
+	 *           hi function'.
 	 */
 	public function testATemplateCallsSubTemplatesOfEitherKind(): void
 	{
@@ -236,6 +326,13 @@ class TemplateEngineTest extends TestCase
 		$this->assertSame('hello Plates, hi function', $engine->render('Stats/main'));
 	}
 
+	/**
+	 * hasSubTemplate() finds sub-templates of either kind.
+	 *
+	 * Expected: hasSubTemplate() is true for a Plates sub-template and for a
+	 *           template_*() function, false for neither, and gives the same
+	 *           answer inside a template.
+	 */
 	public function testHasSubTemplateSeesEitherKind(): void
 	{
 		$this->write($this->default, 'Stats/main.php', '<?= $this->hasSubTemplate(\'main\') ? \'yes\' : \'no\' ?>');
@@ -254,8 +351,13 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * Calling a sub-template that does not exist is an error.
+	 *
 	 * Calling a function that does not exist is an error, and so is calling a
 	 * sub-template that does not exist.
+	 *
+	 * Expected: rendering a template that calls
+	 *           subTemplate('no_such_sub_template') throws an Error naming it.
 	 */
 	public function testCallingAMissingSubTemplateIsAnError(): void
 	{
@@ -271,9 +373,15 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * Fetching a sub-template returns its output as a string, whatever its kind.
+	 *
 	 * Some template_*() functions return their HTML for the caller to use,
 	 * and a Plates template can only output it. Fetching gets the same string
 	 * from either.
+	 *
+	 * Expected: fetchSubTemplate() returns 'plates 1' for a Plates template and
+	 *           'echoed returned 2' for a function that echoes and returns, and
+	 *           outputs nothing itself.
 	 */
 	public function testFetchingGetsTheOutputOfEitherKindAsAString(): void
 	{
@@ -297,9 +405,15 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * A template_*() function with its own parameter names gets the data in order.
+	 *
 	 * A call through a name built at runtime names its parameters after the
 	 * default theme's sub-templates, and a mod's function may call its own
 	 * something else.
+	 *
+	 * Expected: fetchSubTemplate() passes ['board' => ...] to a function whose
+	 *           parameter is $b, and passes ['b' => ..., 'extra' => '?'] by
+	 *           name.
 	 */
 	public function testAFunctionWithOtherParameterNamesGetsThemInOrder(): void
 	{
@@ -315,8 +429,14 @@ class TemplateEngineTest extends TestCase
 	}
 
 	/**
+	 * Loading the Plates index template defines the functions mods call.
+	 *
 	 * Mods and themes call template_button_strip() and friends from templates
 	 * of their own. Loading the Plates template that holds them defines them.
+	 *
+	 * Expected: template_button_strip() and template_quickbuttons() render the
+	 *           Plates sub-templates, and quickbuttons returns its output when
+	 *           asked to with 'return'.
 	 */
 	public function testLoadingThePlatesIndexTemplateDefinesTheFunctionsModsCall(): void
 	{
@@ -343,6 +463,12 @@ class TemplateEngineTest extends TestCase
 		$this->assertSame('buttons post|', $returned);
 	}
 
+	/**
+	 * renderSubTemplate() outputs a sub-template it finds and reports one it does not.
+	 *
+	 * Expected: renderSubTemplate('main') outputs the file and returns true,
+	 *           and returns false for a sub-template that does not exist.
+	 */
 	public function testRenderSubTemplateOutputsWhatItFinds(): void
 	{
 		$this->write($this->default, 'Stats/main.php', 'stats page');

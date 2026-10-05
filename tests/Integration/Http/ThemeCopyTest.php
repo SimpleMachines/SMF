@@ -41,6 +41,14 @@ class ThemeCopyTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A Plates template is copied into a theme as a whole directory.
+	 *
+	 * Expected: following the copy link for Stats copies its main.php and an
+	 *           index.php into the theme's Stats directory, leaves an index.php
+	 *           in the new templates directory, lists Stats as already existing
+	 *           and logs nothing.
+	 */
 	public function testAPlatesTemplateIsCopiedWhole(): void
 	{
 		$this->makeTheme();
@@ -72,9 +80,16 @@ class ThemeCopyTest extends HttpTestCase
 	}
 
 	/**
-	 * The default theme is where the templates are copied from. Copying them
-	 * onto themselves opens each file for writing, which empties it, before it
-	 * is read.
+	 * The default theme's templates cannot be copied onto themselves.
+	 *
+	 * Expected: the default theme's copy page offers no link for Stats, and
+	 *           ?action=admin;area=theme;th=1;sa=copy;template=Stats with the
+	 *           session leaves the template as it was.
+	 * Guards:   the default theme is where the templates are copied from.
+	 *           Copying them onto themselves opens each file for writing, which
+	 *           empties it, before it is read.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9717
 	 */
 	public function testTheDefaultThemeCannotBeCopiedOntoItself(): void
 	{
@@ -95,7 +110,14 @@ class ThemeCopyTest extends HttpTestCase
 	}
 
 	/**
-	 * The link carries the session, and a request without it could be forged.
+	 * Copying a template needs the session.
+	 *
+	 * Expected: ?action=admin;area=theme;th=N;sa=copy;template=Stats without the
+	 *           session copies nothing.
+	 * Guards:   the link carries the session, and a request without it could be
+	 *           forged by any page an administrator visits.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9717
 	 */
 	public function testCopyingNeedsTheSession(): void
 	{
