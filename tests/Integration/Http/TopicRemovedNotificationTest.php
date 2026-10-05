@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -44,12 +55,16 @@ class TopicRemovedNotificationTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * Members watching a removed topic are told.
+	 * Members watching a removed topic are emailed that it was removed.
 	 *
-	 * The notice was queued before the topic was removed, but removing it also
-	 * deleted the record of who was watching it, and the task only looked for
-	 * watchers there once it ran. It never found anyone, so this email has not
-	 * been sent since notifications moved into background tasks.
+	 * Expected: removing a topic queues "A topic you are watching has been
+	 *           removed." for the member watching it by email.
+	 * Guards:   the notice was queued before the topic was removed, but removing
+	 *           it deleted the log_notify rows the task looks for watchers in,
+	 *           so the task found nobody and the email was never sent.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/4602065de Introduced by "Convert sendNotifications to use background task"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9749
 	 */
 	public function testMembersWatchingARemovedTopicAreTold(): void
 	{
