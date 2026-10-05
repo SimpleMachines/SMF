@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -21,10 +32,15 @@ class AlertTest extends IntegrationTestCase
 	/**
 	 * Every alert in a batch is saved, each as itself.
 	 *
-	 * The visibility checks walked the batch by reference and never let go of
-	 * the reference, so the loop that built the rows wrote every alert into
-	 * the last one. In a batch of three, the third was lost and the second was
-	 * saved twice.
+	 * Expected: Alert::createBatch() with one alert for each of three members
+	 *           saves exactly that alert for each of them and logs nothing.
+	 * Guards:   the visibility checks walked the batch by reference and never
+	 *           let go of the reference, so the loop that built the rows wrote
+	 *           every alert into the last one. In a batch of three, the third
+	 *           was lost and the second was saved twice.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/7e805d241 Introduced by "Implements SMF\Alert"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9738
 	 */
 	public function testEveryAlertInABatchIsSavedAsItself(): void
 	{
@@ -46,9 +62,16 @@ class AlertTest extends IntegrationTestCase
 	/**
 	 * Alerts about messages are checked for visibility without complaint.
 	 *
-	 * The check looked them up by id_alert, which an alert does not have until
-	 * it is saved, so every batch logged an undefined array key three times,
-	 * and every alert in it was checked under the same empty key.
+	 * Expected: Alert::createBatch() with alerts about a message the members can
+	 *           see saves an alert about that message for each of them and logs
+	 *           nothing.
+	 * Guards:   the check looked them up by id_alert, which an alert does not
+	 *           have until it is saved, so every batch logged an undefined array
+	 *           key three times, and every alert in it was checked under the same
+	 *           empty key.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/7e805d241 Introduced by "Implements SMF\Alert"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9738
 	 */
 	public function testAlertsAboutAMessageAreSavedWithoutErrors(): void
 	{
