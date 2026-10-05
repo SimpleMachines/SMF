@@ -117,7 +117,9 @@ class MemberSnapshotTest extends SnapshotTestCase
 			['profile_permissions', '?action=profile;area=permissions', self::PAGE, [], [], ['table.table_grid tbody']],
 			['profile_account', '?action=profile;area=account'],
 			['profile_forum', '?action=profile;area=forumprofile'],
-			['profile_theme', '?action=profile;area=theme'],
+			// The time zones are named and ordered by whether daylight saving is
+			// in effect today, so the list changes with the seasons.
+			['profile_theme', '?action=profile;area=theme', self::PAGE, ['#timezone']],
 			['profile_notification', '?action=profile;area=notification'],
 			['profile_notification_topics', '?action=profile;area=notification;sa=topics'],
 			['profile_notification_boards', '?action=profile;area=notification;sa=boards'],

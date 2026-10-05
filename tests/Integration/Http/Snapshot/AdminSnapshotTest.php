@@ -224,7 +224,9 @@ class AdminSnapshotTest extends SnapshotTestCase
 			['admin_credits', '?action=admin;area=credits', self::ADMIN, self::SUPPORT_INFORMATION],
 
 			// Configuration.
-			['features_basic', '?action=admin;area=featuresettings;sa=basic'],
+			// The time zones are named and ordered by whether daylight saving is
+			// in effect today, so the list changes with the seasons.
+			['features_basic', '?action=admin;area=featuresettings;sa=basic', self::ADMIN, ['#default_timezone']],
 			['features_bbc', '?action=admin;area=featuresettings;sa=bbc'],
 			['features_layout', '?action=admin;area=featuresettings;sa=layout'],
 			['features_sig', '?action=admin;area=featuresettings;sa=sig'],
