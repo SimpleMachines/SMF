@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -47,13 +58,18 @@ class PaidSubsReminderTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The member is reminded once, by email and by alert.
+	 * A member whose subscription is about to run out is reminded once.
 	 *
-	 * The alert was built with the member and subscription IDs as the
-	 * database returned them, which can be strings, and saving it ended in a
-	 * TypeError from User's constructor. That came after the email had gone
-	 * and before the reminder was marked as sent, so the run failed and the
-	 * next one sent the same reminder again.
+	 * Expected: running the paid_subscriptions task emails the reminder, saves
+	 *           a paidsubs alert and sets reminder_sent to 1.
+	 * Guards:   the alert was built with the member and subscription IDs as the
+	 *           database returned them, which can be strings, and saving it
+	 *           ended in a TypeError from User's constructor. That came after
+	 *           the email had gone and before the reminder was marked as sent,
+	 *           so the run failed and the next one sent the same reminder again.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/8d1de9be9 Introduced by "Strict type more files"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9745
 	 */
 	public function testTheReminderIsSentAndMarkedAsSent(): void
 	{
