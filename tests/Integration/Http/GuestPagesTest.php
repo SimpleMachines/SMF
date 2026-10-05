@@ -75,6 +75,31 @@ class GuestPagesTest extends HttpTestCase
 	}
 
 	/**
+	 * A guest asking for their own profile is asked to log in.
+	 *
+	 * Expected: ?action=profile as a guest answers with the login form.
+	 * Guards:   Profile\Main's constructor turns a guest away, which loads the
+	 *           theme, and loading the theme asks Forum for the current action,
+	 *           which was not built yet - so it built it again, without end. The
+	 *           request never answered, and held a server process the whole
+	 *           time. The "your password has been reset" email links to exactly
+	 *           this page.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/c1e671205 Introduced by "new methods"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9739
+	 */
+	public function testAGuestAskingForTheirOwnProfileIsAskedToLogIn(): void
+	{
+		$response = $this->fetch('?action=profile');
+
+		$this->assertGreaterThan(
+			0,
+			$response->xpath('//form[contains(@action, "action=login2")]')->length,
+			'a guest asking for their own profile was not shown the login form',
+		);
+	}
+
+	/**
 	 * An action that does not exist should be a 404, not a 200 with an apology
 	 * and not a 500.
 	 */
