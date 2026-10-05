@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -37,12 +48,18 @@ class TopicNotificationTest extends HttpTestCase
 	/**
 	 * A member subscribed by posting keeps their alerts when the emails stop.
 	 *
-	 * Posting with "notify me" ticked records the subscription in log_notify
-	 * only, with no preference for that topic, and the reply notifications
-	 * follow the member's general preference instead. Turning the emails off
-	 * read the topic's own preference regardless: it logged two errors for
-	 * the missing row, took the preference as 0, and so turned the alerts off
-	 * and dropped the subscription as well.
+	 * Expected: ?action=notifytopic;sa=off for a member with a log_notify row
+	 *           and no topic_notify_N preference sets topic_notify_N to
+	 *           PREF_ALERT, keeps the log_notify row and logs nothing.
+	 * Guards:   posting with "notify me" ticked records the subscription in
+	 *           log_notify only, and the reply notifications follow the
+	 *           member's general preference instead. Turning the emails off
+	 *           read the topic's own preference regardless: it logged two errors
+	 *           for the missing row, took the preference as 0, and so turned the
+	 *           alerts off and dropped the subscription as well.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d052f6cff Introduced by "Saving work for the night"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9741
 	 */
 	public function testTurningOffEmailsLeavesTheAlertsOfAMemberSubscribedByPosting(): void
 	{
