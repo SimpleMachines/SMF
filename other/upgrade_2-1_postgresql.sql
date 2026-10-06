@@ -4274,3 +4274,12 @@ foreach($files AS $filename)
 ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
+
+/******************************************************************************/
+--- Widening the report comment column
+/******************************************************************************/
+---# Changing the report comment column to text
+ALTER TABLE {$db_prefix}log_reported_comments
+	ALTER comment DROP DEFAULT,
+	ALTER comment TYPE text;
+---#

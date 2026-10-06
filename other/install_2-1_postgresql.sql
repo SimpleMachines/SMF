@@ -814,7 +814,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
 	id_member int NOT NULL,
 	membername varchar(255) NOT NULL DEFAULT '',
 	member_ip inet,
-	comment varchar(255) NOT NULL DEFAULT '',
+	comment text NOT NULL,
 	time_sent int NOT NULL,
 	PRIMARY KEY (id_comment)
 );
